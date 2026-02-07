@@ -6,7 +6,7 @@
  * so it needs explicit path aliases for all transitive dependencies.
  *
  * @module tsconfig-sync/app-sync
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { computeTransitiveClosure } from "@beep/tooling-utils";

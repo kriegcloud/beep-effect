@@ -582,6 +582,15 @@
       ],
       "@beep/google-workspace-server/test/*": [
         "./packages/integrations/google-workspace/server/test/*"
+      ],
+      "@beep/machine": [
+        "./packages/common/machine/src/index"
+      ],
+      "@beep/machine/*": [
+        "./packages/common/machine/src/*"
+      ],
+      "@beep/machine/test/*": [
+        "./packages/common/machine/test/*"
       ]
     }
   }

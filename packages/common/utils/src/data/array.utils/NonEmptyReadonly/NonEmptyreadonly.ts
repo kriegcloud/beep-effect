@@ -103,26 +103,26 @@ export const mapWith: MapWith = F.dual<
 
 /**
  * @category filtering
- * @since 2.0.0
+ * @since 0.1.0
  */
 export const filter: {
   /**
    * @category filtering
-   * @since 2.0.0
+   * @since 0.1.0
    */ <A, B extends A>(
     refinement: (a: NoInfer<A>, i: number) => a is B
   ): (self: Iterable<A>) => A.NonEmptyReadonlyArray<B>;
   /**
    * @category filtering
-   * @since 2.0.0
+   * @since 0.1.0
    */ <A>(predicate: (a: NoInfer<A>, i: number) => boolean): (self: Iterable<A>) => A.NonEmptyReadonlyArray<A>;
   /**
    * @category filtering
-   * @since 2.0.0
+   * @since 0.1.0
    */ <A, B extends A>(self: Iterable<A>, refinement: (a: A, i: number) => a is B): A.NonEmptyReadonlyArray<B>;
   /**
    * @category filtering
-   * @since 2.0.0
+   * @since 0.1.0
    */ <A>(self: Iterable<A>, predicate: (a: A, i: number) => boolean): A.NonEmptyReadonlyArray<A>;
 } = F.dual(2, <A>(self: Iterable<A>, predicate: (a: A, i: number) => boolean): A.NonEmptyReadonlyArray<A> => {
   const as = A.fromIterable(self);

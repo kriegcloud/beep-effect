@@ -14,11 +14,11 @@ export declare namespace TaskType {
   export type Type = typeof TaskType.Type;
 }
 
-export interface EmbeddingConfig {
-  readonly model: string;
-  readonly dimensions: number;
-  readonly provider: string;
-}
+export class EmbeddingConfig extends S.Class<EmbeddingConfig>($I`EmbeddingConfig`)({
+  model: S.String,
+  dimensions: S.Number,
+  provider: S.String,
+}) {}
 
 export class EmbeddingError extends S.TaggedError<EmbeddingError>()("EmbeddingError", {
   message: S.String,

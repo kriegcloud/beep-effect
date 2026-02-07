@@ -171,7 +171,7 @@ export const fromDate = (date: Date): Timestamp => {
  */
 export const fromString = (dateString: string): Effect.Effect<Timestamp, ParseResult.ParseError> => {
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
+  if (Number.isNaN(date.getTime())) {
     return Effect.fail(
       new ParseResult.ParseError({
         issue: new ParseResult.Type(Schema.String.ast, dateString, `Invalid ISO 8601 datetime: "${dateString}"`),

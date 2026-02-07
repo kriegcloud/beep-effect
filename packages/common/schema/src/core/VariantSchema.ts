@@ -15,13 +15,13 @@ import * as _Struct from "effect/Struct";
 const $I = $SchemaId.create("core/VariantSchema");
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export const TypeId: unique symbol = Symbol.for($I`TypeId`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export type TypeId = typeof TypeId;
@@ -29,7 +29,7 @@ export type TypeId = typeof TypeId;
 const cacheSymbol = Symbol.for($I`cache`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Struct<in out A extends Field.Fields> extends Pipeable.Pipeable {
@@ -39,24 +39,24 @@ export interface Struct<in out A extends Field.Fields> extends Pipeable.Pipeable
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category guards
  */
 export const isStruct = (u: unknown): u is Struct<UnsafeTypes.UnsafeAny> => P.hasProperty(u, TypeId);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export declare namespace Struct {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Any = { readonly [TypeId]: UnsafeTypes.UnsafeAny };
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Fields = {
@@ -69,7 +69,7 @@ export declare namespace Struct {
   };
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Validate<A, Variant extends string> = {
@@ -84,19 +84,19 @@ export declare namespace Struct {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export const FieldTypeId: unique symbol = Symbol.for($I`Field`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export type FieldTypeId = typeof FieldTypeId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Field<in out A extends Field.Config> extends Pipeable.Pipeable {
@@ -105,30 +105,30 @@ export interface Field<in out A extends Field.Config> extends Pipeable.Pipeable 
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category guards
  */
 export const isField = (u: unknown): u is Field<UnsafeTypes.UnsafeAny> => P.hasProperty(u, FieldTypeId);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export declare namespace Field {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Any = { readonly [FieldTypeId]: FieldTypeId };
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   type ValueAny = S.Schema.All | S.PropertySignature.All;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Config = {
@@ -136,7 +136,7 @@ export declare namespace Field {
   };
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type ConfigWithKeys<K extends string> = {
@@ -144,7 +144,7 @@ export declare namespace Field {
   };
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Fields = {
@@ -158,7 +158,7 @@ export declare namespace Field {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category extractors
  */
 export type ExtractFields<V extends string, Fields extends Struct.Fields, IsDefault = false> = {
@@ -178,7 +178,7 @@ export type ExtractFields<V extends string, Fields extends Struct.Fields, IsDefa
 };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category extractors
  */
 export type Extract<V extends string, A extends Struct<UnsafeTypes.UnsafeAny>, IsDefault = false> = [A] extends [
@@ -242,7 +242,7 @@ const extract: {
 
 /**
  * @category accessors
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const fields = <A extends Struct<UnsafeTypes.UnsafeAny>>(self: A): A[TypeId] => self[TypeId];
 
@@ -251,7 +251,7 @@ type RequiredKeys<T> = {
 }[keyof T];
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Class<Self, Fields extends Struct.Fields, SchemaFields extends S.Struct.Fields, A, I, R, C>
@@ -288,7 +288,7 @@ type MissingSelfGeneric<Params extends string = ""> =
   `Missing \`Self\` generic - use \`class Self extends Class<Self>()(${Params}{ ... })\``;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Union<Members extends ReadonlyArray<Struct<UnsafeTypes.UnsafeAny>>>
@@ -297,12 +297,12 @@ export interface Union<Members extends ReadonlyArray<Struct<UnsafeTypes.UnsafeAn
   }> {}
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export declare namespace Union {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Variants<Members extends ReadonlyArray<Struct<UnsafeTypes.UnsafeAny>>, Variants extends string> = {
@@ -313,19 +313,19 @@ export declare namespace Union {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface fromKey<S extends S.Schema.All, Key extends string>
   extends S.PropertySignature<":", S.Schema.Type<S>, Key, ":", S.Schema.Encoded<S>, false, S.Schema.Context<S>> {}
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export declare namespace fromKey {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export type Rename<S, Key extends string> =
     S extends S.PropertySignature<
@@ -344,7 +344,7 @@ export declare namespace fromKey {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const make = <const Variants extends ReadonlyArray<string>, const Default extends Variants[number]>(options: {
@@ -593,20 +593,20 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
 };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category overrideable
  */
 export const Override = <A>(value: A): A & B.Brand<"Override"> => value as UnsafeTypes.UnsafeAny;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category overrideable
  */
 export interface Overrideable<To, From, R = never>
   extends S.PropertySignature<":", (To & B.Brand<"Override">) | undefined, never, ":", From, true, R> {}
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category overrideable
  */
 export const Overrideable = <From, IFrom, RFrom, To, ITo, R>(

@@ -119,10 +119,15 @@ export type StructComposer<Literals extends LiteralsType, D extends string, Defa
   ) => StructComposer<Literals, D, Defaults & DefaultFields>) & {
     /**
      * Method accessors for each literal - merges defaults with new fields.
+     * Supports an optional rest parameter of index signature records.
      */
-    readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(
-      fields: Fields
-    ) => DiscriminatedStruct.Schema<D, K, Defaults & Fields>;
+    readonly [K in Literals[number]]: {
+      <Fields extends S.Struct.Fields, const Records extends S.IndexSignature.NonEmptyRecords>(
+        fields: Fields,
+        ...records: Records
+      ): DiscriminatedStruct.SchemaWithRecords<D, K, Defaults & Fields, Records>;
+      <Fields extends S.Struct.Fields>(fields: Fields): DiscriminatedStruct.Schema<D, K, Defaults & Fields>;
+    };
   };
 
 /**
@@ -151,12 +156,12 @@ const makeComposer = <
 ): StructComposer<Literals, D, Defaults> => {
   const structFactory = DiscriminatedStruct.make(discriminator);
 
-  // Create literal methods - each merges defaults with new fields
+  // Create literal methods - each merges defaults with new fields (and optional records)
   const composerMethods = F.pipe(
     literals,
     ArrayUtils.NonEmptyReadonly.mapNonEmpty((lit) => {
-      const method = <Fields extends S.Struct.Fields>(fields: Fields) =>
-        structFactory(lit, mergeFields(defaults, fields));
+      const method = (fields: S.Struct.Fields, ...records: S.IndexSignature.Records) =>
+        (structFactory as UnsafeTypes.UnsafeAny)(lit, mergeFields(defaults, fields), ...records);
       return [lit, method] as const;
     }),
     A.reduce({} as Record<string, unknown>, (acc, [key, method]) => ({

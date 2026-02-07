@@ -12,7 +12,7 @@
  * - Only letters, numbers, and hyphens allowed
  *
  * @module bootstrap-spec/schemas
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as A from "effect/Array";

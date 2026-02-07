@@ -4,6 +4,7 @@ import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf";
 import {
   executeAsk,
   executeConstruct,
+  executeDescribe,
   executeSelect,
   SparqlParser,
   SparqlParserLive,
@@ -76,6 +77,19 @@ const sparqlServiceLayer = Layer.effect(
           return yield* executeAsk(ast, store);
         }),
 
+      describe: (queryString: string) =>
+        Effect.gen(function* () {
+          const { ast } = yield* parser.parse(queryString);
+          if (!(ast.type === "query" && ast.queryType === "DESCRIBE")) {
+            return yield* new SparqlUnsupportedFeatureError({
+              feature: `non-DESCRIBE query`,
+              queryString,
+              message: `Expected DESCRIBE query but got ${getQueryTypeString(ast)}`,
+            });
+          }
+          return yield* executeDescribe(ast, store);
+        }),
+
       query: (queryString: string) =>
         Effect.gen(function* () {
           const { ast } = yield* parser.parse(queryString);
@@ -87,6 +101,9 @@ const sparqlServiceLayer = Layer.effect(
           }
           if (isAskQuery(ast)) {
             return yield* executeAsk(ast, store);
+          }
+          if (ast.type === "query" && ast.queryType === "DESCRIBE") {
+            return yield* executeDescribe(ast, store);
           }
           return yield* new SparqlUnsupportedFeatureError({
             feature: `${getQueryTypeString(ast)} queries`,
@@ -554,6 +571,98 @@ describe("SparqlService", () => {
     );
   });
 
+  layer(TestLayer, { timeout: Duration.seconds(30) })("select - GRAPH clause", (it) => {
+    it.effect(
+      "should scope matches to a specific named graph",
+      Effect.fn(function* () {
+        const graphPeople = IRI.make("http://example.org/graph/people");
+        const graphProjects = IRI.make("http://example.org/graph/projects");
+        const namePred = IRI.make("http://example.org/name");
+
+        yield* addTestData([
+          new Quad({
+            subject: IRI.make("http://example.org/alice"),
+            predicate: namePred,
+            object: new Literal({ value: "Alice" }),
+            graph: graphPeople,
+          }),
+          new Quad({
+            subject: IRI.make("http://example.org/proj1"),
+            predicate: namePred,
+            object: new Literal({ value: "Project One" }),
+            graph: graphProjects,
+          }),
+          new Quad({
+            subject: IRI.make("http://example.org/default"),
+            predicate: namePred,
+            object: new Literal({ value: "Default Node" }),
+          }),
+        ]);
+
+        const sparql = yield* SparqlService;
+        const result = yield* sparql.select(`
+          SELECT ?s ?name WHERE {
+            GRAPH <http://example.org/graph/people> {
+              ?s <http://example.org/name> ?name
+            }
+          }
+        `);
+
+        strictEqual(A.length(result.rows), 1);
+        const name = findBinding(result, 0, "name");
+        assertTrue(O.isSome(name));
+        strictEqual(O.getOrThrow(name), "Alice");
+      })
+    );
+
+    it.effect(
+      "should bind graph variable from GRAPH clause",
+      Effect.fn(function* () {
+        const graphPeople = IRI.make("http://example.org/graph/people");
+        const graphProjects = IRI.make("http://example.org/graph/projects");
+        const namePred = IRI.make("http://example.org/name");
+
+        yield* addTestData([
+          new Quad({
+            subject: IRI.make("http://example.org/alice"),
+            predicate: namePred,
+            object: new Literal({ value: "Alice" }),
+            graph: graphPeople,
+          }),
+          new Quad({
+            subject: IRI.make("http://example.org/proj1"),
+            predicate: namePred,
+            object: new Literal({ value: "Project One" }),
+            graph: graphProjects,
+          }),
+          new Quad({
+            subject: IRI.make("http://example.org/default"),
+            predicate: namePred,
+            object: new Literal({ value: "Default Node" }),
+          }),
+        ]);
+
+        const sparql = yield* SparqlService;
+        const result = yield* sparql.select(`
+          SELECT ?g ?name WHERE {
+            GRAPH ?g {
+              ?s <http://example.org/name> ?name
+            }
+          }
+        `);
+
+        strictEqual(A.length(result.rows), 2);
+
+        const graphNames = A.filterMap(result.rows, (row) => {
+          const graphBinding = A.findFirst(row, (b: SparqlBinding) => b.name === "g");
+          return O.map(graphBinding, (b) => (Literal.is(b.value) ? "" : b.value));
+        });
+        assertTrue(A.contains(graphNames, graphPeople));
+        assertTrue(A.contains(graphNames, graphProjects));
+      })
+    );
+  });
+
   layer(TestLayer, { timeout: Duration.seconds(30) })("construct", (it) => {
     it.effect(
       "should construct new quads from pattern",
@@ -659,6 +768,21 @@ describe("SparqlService", () => {
     );
 
     it.effect(
+      "should execute DESCRIBE query via generic query method",
+      Effect.fn(function* () {
+        yield* addTestData(createPersonQuads("alice", "Alice"));
+
+        const sparql = yield* SparqlService;
+        const result = yield* sparql.query(`
+          DESCRIBE <http://example.org/alice> WHERE { ?s ?p ?o }
+        `);
+
+        assertTrue(A.isArray(result));
+        strictEqual(A.length(result as ReadonlyArray<Quad>) > 0, true);
+      })
+    );
+
+    it.effect(
       "should execute CONSTRUCT query via generic query method",
       Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
@@ -671,6 +795,22 @@ describe("SparqlService", () => {
 
         assertTrue(A.isArray(result));
         strictEqual(A.length(result as ReadonlyArray<Quad>), 1);
+      })
+    );
+  });
+
+  layer(TestLayer, { timeout: Duration.seconds(30) })("describe", (it) => {
+    it.effect(
+      "should return triples where target is subject or object",
+      Effect.fn(function* () {
+        yield* addTestData([...createPersonQuads("alice", "Alice"), createKnowsQuad("bob", "alice")]);
+
+        const sparql = yield* SparqlService;
+        const result = yield* sparql.describe("DESCRIBE <http://example.org/alice> WHERE { ?s ?p ?o }");
+
+        assertTrue(A.length(result) >= 2);
+        assertTrue(A.some(result, (q) => q.subject === IRI.make("http://example.org/alice")));
+        assertTrue(A.some(result, (q) => q.object === IRI.make("http://example.org/alice")));
       })
     );
   });

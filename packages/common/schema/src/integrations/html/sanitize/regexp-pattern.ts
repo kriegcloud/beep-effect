@@ -1,7 +1,7 @@
 /**
  * @module RegExpPattern
  * @description Serializable representation of a RegExp pattern for JSON-safe storage
- * @since 1.0.0
+ * @since 0.1.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -16,7 +16,7 @@ const $I = $SchemaId.create("integrations/html/sanitize/regexp-pattern");
  * Serializable representation of a RegExp pattern.
  * Stores source and flags separately for JSON serialization.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -64,7 +64,7 @@ export type RegExpPatternEncoded = S.Schema.Encoded<typeof _RegExpPattern>;
  *
  * @param pattern - The pattern object with source and optional flags
  * @returns A new RegExp constructed from source and flags
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utilities
  * @example
  * ```typescript
@@ -80,7 +80,7 @@ const toRegExp = (pattern: RegExpPatternType): RegExp => new RegExp(pattern.sour
  *
  * @param regex - The native RegExp to convert
  * @returns A RegExpPattern object
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utilities
  * @example
  * ```typescript
@@ -101,7 +101,7 @@ const fromRegExp = (regex: RegExp): RegExpPatternType => ({
 /**
  * RegExpPattern schema with attached utility functions
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  */
 export const RegExpPattern: typeof _RegExpPattern & {

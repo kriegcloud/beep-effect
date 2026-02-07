@@ -12,6 +12,21 @@ This guide describes how to create specifications using the specialized agents i
 
 ---
 
+## Spec Status Folders
+
+All new specs start in `specs/pending/` and are moved by lifecycle state:
+
+- `specs/pending/`: active, planning, or partially complete specs
+- `specs/completed/`: finished specs
+- `specs/archived/`: deferred specs
+
+Use `bun run spec:move -- <spec-name> pending|completed|archived` to move specs.
+Use `bun run spec:status:check` to catch pending specs that declare complete/archived status.
+
+See `specs/SPEC_STATUS_POLICY.md` for move criteria.
+
+---
+
 ## Agent-Phase Mapping
 
 > **Reference**: See `.claude/agents-manifest.yaml` for complete agent capabilities.
@@ -160,7 +175,7 @@ Create the specification framework with proper structure.
 ```
 Use the doc-writer agent to create initial spec structure.
 
-Target: specs/[SPEC_NAME]/
+Target: specs/pending/[SPEC_NAME]/
 Required files:
 - README.md (100-150 lines) - Entry point
 - REFLECTION_LOG.md - Empty, ready for learnings
@@ -183,8 +198,8 @@ Check:
 ```
 
 ### Output Checklist
-- [ ] `specs/[SPEC_NAME]/README.md` created
-- [ ] `specs/[SPEC_NAME]/REFLECTION_LOG.md` created
+- [ ] `specs/pending/[SPEC_NAME]/README.md` created
+- [ ] `specs/pending/[SPEC_NAME]/REFLECTION_LOG.md` created
 - [ ] Directory structure validated
 
 ---
@@ -514,7 +529,7 @@ You are implementing Phase [N+1] of the [SPEC_NAME] spec.
 
 ### Handoff Document
 
-Read full context in: `specs/[SPEC_NAME]/handoffs/HANDOFF_P[N+1].md`
+Read full context in: `specs/pending/[SPEC_NAME]/handoffs/HANDOFF_P[N+1].md`
 ```
 
 See [HANDOFF_STANDARDS.md](HANDOFF_STANDARDS.md) for complete handoff requirements.
@@ -590,7 +605,7 @@ Use when you need actual file changes, not just reports.
 ## Standard Spec Structure
 
 ```
-specs/[SPEC_NAME]/
+specs/pending/[SPEC_NAME]/
 ├── README.md                    # Entry point (100-150 lines)
 ├── REFLECTION_LOG.md            # Cumulative learnings (required)
 ├── QUICK_START.md               # 5-min getting started (optional)
@@ -802,11 +817,11 @@ For more control, initialize structure manually:
 
 ```bash
 # Create directories
-mkdir -p specs/[SPEC_NAME]/{templates,outputs,handoffs}
+mkdir -p specs/pending/[SPEC_NAME]/{templates,outputs,handoffs}
 
 # Create required files
-touch specs/[SPEC_NAME]/README.md
-touch specs/[SPEC_NAME]/REFLECTION_LOG.md
+touch specs/pending/[SPEC_NAME]/README.md
+touch specs/pending/[SPEC_NAME]/REFLECTION_LOG.md
 ```
 
 ### Step 2: Scaffold with doc-writer
@@ -814,7 +829,7 @@ touch specs/[SPEC_NAME]/REFLECTION_LOG.md
 ```
 Launch doc-writer agent:
 
-"Create initial README.md for specs/[SPEC_NAME]/ following the spec template.
+"Create initial README.md for specs/pending/[SPEC_NAME]/ following the spec template.
 Include:
 - Purpose and scope
 - Success criteria
@@ -827,7 +842,7 @@ Include:
 ```
 Launch architecture-pattern-enforcer agent:
 
-"Validate specs/[SPEC_NAME]/ structure against the spec template.
+"Validate specs/pending/[SPEC_NAME]/ structure against the spec template.
 Check all required files exist and follow conventions."
 ```
 
@@ -851,7 +866,7 @@ For each spec:
 3. Identify missing standard files
 4. Classify complexity: Simple / Medium / Complex
 
-Output: specs/outputs/SPEC_AUDIT_REPORT.md"
+Output: specs/_guide/outputs/SPEC_AUDIT_REPORT.md"
 ```
 
 ### Remediation Task (doc-writer)
@@ -861,7 +876,7 @@ For specs missing required files:
 ```
 Launch doc-writer agent:
 
-"Create missing files for specs/[SPEC_NAME]/:
+"Create missing files for specs/pending/[SPEC_NAME]/:
 - README.md if missing (use spec template)
 - REFLECTION_LOG.md if missing (empty template)
 - QUICK_START.md if medium+ complexity"

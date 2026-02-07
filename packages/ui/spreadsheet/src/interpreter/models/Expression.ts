@@ -131,6 +131,7 @@ export type Expression = Data.TaggedEnum<{
   UnaryMinus: OmitTag<UnaryMinus>;
 }>;
 
+export const Expression = Data.taggedEnum<Expression>();
 export const {
   Subtraction,
   Ref,
@@ -143,6 +144,5 @@ export const {
   Exponent,
   UnaryPlus,
   UnaryMinus,
-} = Data.taggedEnum<Expression>();
-
+} = Expression;
 export type Node = Expression;

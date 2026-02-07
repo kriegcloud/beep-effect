@@ -1,20 +1,11 @@
 import { Errors } from "@beep/knowledge-domain";
+import type { GraphRag } from "@beep/knowledge-domain/rpc/GraphRag";
 import * as GraphRAG from "@beep/knowledge-server/GraphRAG";
-import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Policy } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 
-interface Payload {
-  readonly query: string;
-  readonly organizationId: SharedEntityIds.OrganizationId.Type;
-  readonly ontologyId?: KnowledgeEntityIds.OntologyId.Type | undefined;
-  readonly maxEntities?: number | undefined;
-  readonly maxDepth?: number | undefined;
-  readonly maxTokens?: number | undefined;
-}
-
 export const Handler = Effect.fn("graphrag_query")(
-  function* (payload: Payload) {
+  function* (payload: GraphRag.Query.Payload) {
     const { session } = yield* Policy.AuthContext;
     const service = yield* GraphRAG.GraphRAGService;
 

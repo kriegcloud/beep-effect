@@ -1,6 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { CanonicalSelectionError } from "@beep/knowledge-domain/errors";
-import type { SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -8,36 +7,53 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
-
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
-import { CanonicalSelector, type CanonicalSelectorConfig, CanonicalSelectorLive } from "./CanonicalSelector";
-import { type ClusterConfig, type EntityCluster, EntityClusterer, EntityClustererLive } from "./EntityClusterer";
-import { type SameAsLink, SameAsLinker, SameAsLinkerLive } from "./SameAsLinker";
+import { type AssembledEntity, type AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { CanonicalSelector, CanonicalSelectorConfig, CanonicalSelectorLive } from "./CanonicalSelector";
+import { ClusterConfig, EntityCluster, EntityClusterer, EntityClustererLive } from "./EntityClusterer";
+import { SameAsLink, SameAsLinker, SameAsLinkerLive } from "./SameAsLinker";
 
 const $I = $KnowledgeServerId.create("EntityResolution/EntityResolutionService");
 
 export type { EntityCluster } from "./EntityClusterer";
 
-export interface ResolutionConfig {
-  readonly clustering?: undefined | ClusterConfig;
-  readonly canonical?: undefined | CanonicalSelectorConfig;
-}
+export class ResolutionConfig extends S.Class<ResolutionConfig>($I`ResolutionConfig`)(
+  {
+    clustering: S.optional(ClusterConfig),
+    canonical: S.optional(CanonicalSelectorConfig),
+  },
+  $I.annotations("ResolutionConfig", {
+    description: "Resolution configuration",
+  })
+) {}
 
-export interface ResolutionResult {
-  readonly graph: KnowledgeGraph;
-  readonly clusters: readonly EntityCluster[];
-  readonly sameAsLinks: readonly SameAsLink[];
-  readonly stats: {
-    readonly originalEntityCount: number;
-    readonly resolvedEntityCount: number;
-    readonly clusterCount: number;
-    readonly sameAsLinkCount: number;
-    readonly averageClusterSize: number;
-    readonly maxClusterSize: number;
-    readonly mergedEntityCount: number;
-  };
-}
+export class ResolutionResultStats extends S.Class<ResolutionResultStats>($I`ResolutionResultStats`)(
+  {
+    originalEntityCount: S.Number,
+    resolvedEntityCount: S.Number,
+    clusterCount: S.Number,
+    sameAsLinkCount: S.Number,
+    averageClusterSize: S.Number,
+    maxClusterSize: S.Number,
+    mergedEntityCount: S.Number,
+  },
+  $I.annotations("ResolutionResultStats", {
+    description: "Resolution result stats",
+  })
+) {}
+
+export class ResolutionResult extends S.Class<ResolutionResult>($I`ResolutionResult`)(
+  {
+    graph: KnowledgeGraph,
+    clusters: S.Array(EntityCluster),
+    sameAsLinks: S.Array(SameAsLink),
+    stats: ResolutionResultStats,
+  },
+  $I.annotations("ResolutionResult", {
+    description: "Resolution result",
+  })
+) {}
 
 const buildResolvedGraph = (
   graphs: readonly KnowledgeGraph[],
@@ -109,9 +125,8 @@ const buildResolvedGraph = (
 export interface EntityResolutionServiceShape {
   readonly resolve: (
     graphs: readonly KnowledgeGraph[],
-    organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: string,
-    config?: ResolutionConfig
+    config?: undefined | ResolutionConfig
   ) => Effect.Effect<ResolutionResult, CanonicalSelectionError>;
 }
 
@@ -129,127 +144,125 @@ const serviceEffect: Effect.Effect<
   const canonicalSelector = yield* CanonicalSelector;
   const sameAsLinker = yield* SameAsLinker;
 
-  const resolve = Effect.fn(
-    (
-      graphs: readonly KnowledgeGraph[],
-      organizationId: SharedEntityIds.OrganizationId.Type,
-      ontologyId: string,
-      config: ResolutionConfig = {}
-    ) =>
-      Effect.gen(function* () {
-        const originalCount = A.reduce(
-          A.map(graphs, (g) => A.length(g.entities)),
-          0,
-          (sum, count) => sum + count
-        );
+  const resolve = Effect.fn((graphs: readonly KnowledgeGraph[], ontologyId: string, config: ResolutionConfig = {}) =>
+    Effect.gen(function* () {
+      const originalCount = A.reduce(
+        A.map(graphs, (g) => A.length(g.entities)),
+        0,
+        (sum, count) => sum + count
+      );
 
-        if (originalCount === 0) {
-          yield* Effect.logDebug("EntityResolutionService.resolve: no entities to resolve");
-          return {
-            graph: {
-              entities: A.empty<AssembledEntity>(),
-              relations: A.empty<AssembledRelation>(),
-              entityIndex: {},
-              stats: {
-                entityCount: 0,
-                relationCount: 0,
-                unresolvedSubjects: 0,
-                unresolvedObjects: 0,
-              },
-            },
-            clusters: A.empty<EntityCluster>(),
-            sameAsLinks: A.empty<SameAsLink>(),
+      if (originalCount === 0) {
+        yield* Effect.logDebug("EntityResolutionService.resolve: no entities to resolve");
+        return {
+          graph: {
+            entities: A.empty<AssembledEntity>(),
+            relations: A.empty<AssembledRelation>(),
+            entityIndex: {},
             stats: {
-              originalEntityCount: 0,
-              resolvedEntityCount: 0,
-              clusterCount: 0,
-              sameAsLinkCount: 0,
-              averageClusterSize: 0,
-              maxClusterSize: 0,
-              mergedEntityCount: 0,
+              entityCount: 0,
+              relationCount: 0,
+              unresolvedSubjects: 0,
+              unresolvedObjects: 0,
             },
-          };
-        }
-
-        yield* Effect.logInfo("EntityResolutionService.resolve: starting").pipe(
-          Effect.annotateLogs({
-            graphCount: A.length(graphs),
-            originalEntityCount: originalCount,
-          })
-        );
-
-        const clusters = yield* clusterer.cluster(graphs, organizationId, ontologyId, config.clustering);
-
-        const entityById = MutableHashMap.empty<string, AssembledEntity>();
-        A.forEach(graphs, (graph) => {
-          A.forEach(graph.entities, (entity) => {
-            MutableHashMap.set(entityById, entity.id, entity);
-          });
-        });
-
-        const canonicalEntities = A.empty<AssembledEntity>();
-        const updatedClusters = A.empty<EntityCluster>();
-
-        for (const cluster of clusters) {
-          const members = A.filterMap(cluster.memberIds, (id) => MutableHashMap.get(entityById, id));
-
-          if (A.isEmptyReadonlyArray(members)) continue;
-
-          const canonical = yield* canonicalSelector.selectCanonical(members, config.canonical);
-
-          const otherMembers = A.filter(members, (m) => m.id !== canonical.id);
-          const mergedCanonical = yield* canonicalSelector.mergeAttributes(canonical, otherMembers);
-
-          canonicalEntities.push(mergedCanonical);
-
-          updatedClusters.push({
-            ...cluster,
-            canonicalEntityId: canonical.id,
-          });
-        }
-
-        const confidenceMap = MutableHashMap.empty<string, number>();
-        MutableHashMap.forEach(entityById, (entity) => {
-          MutableHashMap.set(confidenceMap, entity.id, entity.confidence);
-        });
-
-        const sameAsLinks = yield* sameAsLinker.generateLinks(updatedClusters, confidenceMap);
-
-        const resolvedGraph = buildResolvedGraph(graphs, canonicalEntities, updatedClusters);
-
-        const clusterMemberLengths = A.map(updatedClusters, (c) => A.length(c.memberIds));
-        const maxClusterSize = A.isNonEmptyReadonlyArray(clusterMemberLengths) ? Math.max(...clusterMemberLengths) : 0;
-        const totalMembers = A.reduce(clusterMemberLengths, 0, (sum, len) => sum + len);
-        const averageClusterSize = A.isNonEmptyReadonlyArray(updatedClusters)
-          ? totalMembers / A.length(updatedClusters)
-          : 0;
-
-        const result: ResolutionResult = {
-          graph: resolvedGraph,
-          clusters: updatedClusters,
-          sameAsLinks,
+          },
+          clusters: A.empty<EntityCluster>(),
+          sameAsLinks: A.empty<SameAsLink>(),
           stats: {
-            originalEntityCount: originalCount,
-            resolvedEntityCount: A.length(canonicalEntities),
-            clusterCount: A.length(updatedClusters),
-            sameAsLinkCount: A.length(sameAsLinks),
-            averageClusterSize,
-            maxClusterSize,
-            mergedEntityCount: originalCount - A.length(canonicalEntities),
+            originalEntityCount: 0,
+            resolvedEntityCount: 0,
+            clusterCount: 0,
+            sameAsLinkCount: 0,
+            averageClusterSize: 0,
+            maxClusterSize: 0,
+            mergedEntityCount: 0,
           },
         };
+      }
 
-        yield* Effect.logInfo("EntityResolutionService.resolve: complete").pipe(Effect.annotateLogs(result.stats));
-
-        return result;
-      }).pipe(
-        Effect.withSpan("EntityResolutionService.resolve", {
-          captureStackTrace: false,
-          attributes: {
-            graphCount: A.length(graphs),
-          },
+      yield* Effect.logInfo("EntityResolutionService.resolve: starting").pipe(
+        Effect.annotateLogs({
+          graphCount: A.length(graphs),
+          originalEntityCount: originalCount,
         })
-      )
+      );
+
+      const clusters = yield* clusterer.cluster(graphs, ontologyId, config.clustering);
+
+      const entityById = MutableHashMap.empty<string, AssembledEntity>();
+      A.forEach(graphs, (graph) => {
+        A.forEach(graph.entities, (entity) => {
+          MutableHashMap.set(entityById, entity.id, entity);
+        });
+      });
+
+      const canonicalEntities = A.empty<AssembledEntity>();
+      const updatedClusters = A.empty<EntityCluster>();
+
+      for (const cluster of clusters) {
+        const members = A.filterMap(cluster.memberIds, (id) => MutableHashMap.get(entityById, id));
+
+        if (A.isEmptyReadonlyArray(members)) continue;
+
+        const canonical = yield* canonicalSelector.selectCanonical(members, config.canonical);
+
+        const otherMembers = A.filter(members, (m) => m.id !== canonical.id);
+        const mergedCanonical = yield* canonicalSelector.mergeAttributes(canonical, otherMembers);
+
+        canonicalEntities.push(mergedCanonical);
+
+        updatedClusters.push({
+          ...cluster,
+          canonicalEntityId: canonical.id,
+        });
+      }
+
+      const confidenceMap = MutableHashMap.empty<string, number>();
+      MutableHashMap.forEach(entityById, (entity) => {
+        MutableHashMap.set(confidenceMap, entity.id, entity.confidence);
+      });
+
+      const sameAsLinks = yield* sameAsLinker.generateLinks(updatedClusters, confidenceMap);
+
+      const resolvedGraph = buildResolvedGraph(graphs, canonicalEntities, updatedClusters);
+
+      const clusterMemberLengths = A.map(updatedClusters, (c) => A.length(c.memberIds));
+      const maxClusterSize = A.isNonEmptyReadonlyArray(clusterMemberLengths) ? Math.max(...clusterMemberLengths) : 0;
+      const totalMembers = A.reduce(clusterMemberLengths, 0, (sum, len) => sum + len);
+      const averageClusterSize = A.isNonEmptyReadonlyArray(updatedClusters)
+        ? totalMembers / A.length(updatedClusters)
+        : 0;
+
+      const result: ResolutionResult = {
+        graph: resolvedGraph,
+        clusters: updatedClusters,
+        sameAsLinks,
+        stats: {
+          originalEntityCount: originalCount,
+          resolvedEntityCount: A.length(canonicalEntities),
+          clusterCount: A.length(updatedClusters),
+          sameAsLinkCount: A.length(sameAsLinks),
+          averageClusterSize,
+          maxClusterSize,
+          mergedEntityCount: originalCount - A.length(canonicalEntities),
+        },
+      };
+
+      yield* Effect.logInfo("EntityResolutionService.resolve: complete").pipe(
+        Effect.annotateLogs({
+          stats: result.stats,
+        })
+      );
+
+      return result;
+    }).pipe(
+      Effect.withSpan("EntityResolutionService.resolve", {
+        captureStackTrace: false,
+        attributes: {
+          graphCount: A.length(graphs),
+        },
+      })
+    )
   );
 
   return EntityResolutionService.of({

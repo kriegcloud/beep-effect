@@ -12,7 +12,7 @@ import * as Str from "effect/String";
  * @param dimension - Vector dimension (e.g., 512, 768, 1024)
  * @returns Drizzle custom type for pgvector
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Custom Types
  */
 export const vectorN = (dimension: number) =>
@@ -34,7 +34,7 @@ export const vectorN = (dimension: number) =>
  * Custom type for pgvector embedding columns (768-dimensional).
  * Used by Nomic embed text v1.5 (default dimension).
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Custom Types
  */
 export const vector768 = vectorN(768);
@@ -43,7 +43,7 @@ export const vector768 = vectorN(768);
  * Custom type for pgvector embedding columns (512-dimensional).
  * Used by Voyage-3-lite.
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Custom Types
  */
 export const vector512 = vectorN(512);
@@ -52,7 +52,7 @@ export const vector512 = vectorN(512);
  * Custom type for pgvector embedding columns (1024-dimensional).
  * Used by Voyage-3, Voyage-code-3, Voyage-law-2.
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Custom Types
  */
 export const vector1024 = vectorN(1024);
@@ -61,7 +61,7 @@ export const vector1024 = vectorN(1024);
  * Custom type for pgvector embedding columns (256-dimensional).
  * Used for Matryoshka representation learning (truncated embeddings).
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Custom Types
  */
 export const vector256 = vectorN(256);

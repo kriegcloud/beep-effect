@@ -22,7 +22,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
+import { makeMockReasonerServiceLayer, makeMockSparqlServiceLayer } from "../_shared/ServiceMocks";
 
 const knownEntity1 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__11111111-1111-1111-1111-111111111111"
@@ -36,31 +36,6 @@ const unknownEntity = KnowledgeEntityIds.KnowledgeEntityId.make(
 const knownRelation = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
 const unknownRelation = KnowledgeEntityIds.RelationId.make("knowledge_relation__99999999-9999-9999-9999-999999999999");
 const inferredRelation = KnowledgeEntityIds.RelationId.make("knowledge_relation__44444444-4444-4444-4444-444444444444");
-
-const createMockSparqlService = (config: {
-  knownEntities: ReadonlyArray<string>;
-  knownRelations: ReadonlyArray<string>;
-}) =>
-  Layer.succeed(SparqlService, {
-    ask: (query: string) =>
-      Effect.gen(function* () {
-        const entityExists = A.some(config.knownEntities, (entityId) => Str.includes(entityId)(query));
-        if (entityExists) {
-          return true;
-        }
-
-        return A.some(config.knownRelations, (relationId) => Str.includes(relationId)(query));
-      }),
-    select: () => Effect.succeed({ columns: [], rows: [] }),
-    construct: () => Effect.succeed([]),
-    query: () => Effect.succeed(true),
-  });
-
-const createMockReasonerService = (inferenceResult: InferenceResult = emptyInferenceResult) =>
-  Layer.succeed(ReasonerService, {
-    infer: () => Effect.succeed(inferenceResult),
-    inferAndMaterialize: () => Effect.succeed(inferenceResult),
-  });
 
 const createInferenceResultWithRelation = (relationId: string, depth = 1): InferenceResult =>
   new InferenceResult({
@@ -89,12 +64,12 @@ const createTestLayer = (config: {
   knownRelations?: ReadonlyArray<string>;
   inferenceResult?: InferenceResult;
 }) => {
-  const MockSparql = createMockSparqlService({
+  const MockSparql = makeMockSparqlServiceLayer({
     knownEntities: config.knownEntities ?? [],
     knownRelations: config.knownRelations ?? [],
   });
 
-  const MockReasoner = createMockReasonerService(config.inferenceResult ?? emptyInferenceResult);
+  const MockReasoner = makeMockReasonerServiceLayer(config.inferenceResult ?? emptyInferenceResult);
   return Layer.provideMerge(
     Layer.effect(
       CitationValidator,

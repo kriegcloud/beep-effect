@@ -1,3 +1,4 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -6,29 +7,32 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { type AssembledEntity, type AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
 
-export interface FilterConfig {
-  readonly entityThreshold?: undefined | number;
-  readonly relationThreshold?: undefined | number;
-  readonly removeOrphanEntities?: undefined | boolean;
-}
+const $I = $KnowledgeServerId.create("knowledge-server/Grounding/ConfidenceFilter");
 
-export interface FilterStats {
-  readonly originalEntityCount: number;
-  readonly filteredEntityCount: number;
-  readonly removedEntityCount: number;
-  readonly originalRelationCount: number;
-  readonly filteredRelationCount: number;
-  readonly removedRelationCount: number;
-  readonly orphanEntitiesRemoved: number;
-}
+export class FilterConfig extends S.Class<FilterConfig>($I`FilterConfig`)({
+  entityThreshold: S.optional(S.Number),
+  relationThreshold: S.optional(S.Number),
+  removeOrphanEntities: S.optional(S.Boolean),
+}) {}
 
-export interface FilterResult {
-  readonly graph: KnowledgeGraph;
-  readonly stats: FilterStats;
-}
+export class FilterStats extends S.Class<FilterStats>($I`FilterStats`)({
+  originalEntityCount: S.Number,
+  filteredEntityCount: S.Number,
+  removedEntityCount: S.Number,
+  originalRelationCount: S.Number,
+  filteredRelationCount: S.Number,
+  removedRelationCount: S.Number,
+  orphanEntitiesRemoved: S.Number,
+}) {}
+
+export class FilterResult extends S.Class<FilterResult>($I`FilterResult`)({
+  graph: KnowledgeGraph,
+  stats: FilterStats,
+}) {}
 
 const DEFAULT_ENTITY_THRESHOLD = 0.5;
 const DEFAULT_RELATION_THRESHOLD = 0.5;

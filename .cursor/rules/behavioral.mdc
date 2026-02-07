@@ -53,3 +53,30 @@ to move failure handling up to the caller.
 4. **Respect Tooling**: ALWAYS run commands via `bun run <script>` from project root
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
 6. **Do Not Auto-Start**: NEVER launch long-running dev or server commands without confirmation
+
+### Workflow Examples
+
+**Clarify Intent:**
+```
+User: "Fix the auth issue"
+
+# BAD - Assumes which issue
+Assistant: Let me fix the password validation...
+
+# GOOD - Asks for clarification
+Assistant: I see several auth-related areas. Are you referring to:
+1. The login timeout on line 42?
+2. The session validation in AuthMiddleware?
+3. Something else?
+```
+
+**Incremental Changes:**
+```
+# BAD - Large rewrite
+- Refactoring 5 files simultaneously
+- Changing architecture + fixing bug in one PR
+
+# GOOD - Focused diffs
+- Fix the null check in UserService.ts (1 file, 3 lines)
+- Then: Refactor UserService separately if needed
+```

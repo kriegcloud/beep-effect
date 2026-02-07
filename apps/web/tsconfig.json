@@ -125,6 +125,8 @@
       "@beep/knowledge-tables/*": ["../../packages/knowledge/tables/src/*"],
       "@beep/knowledge-ui": ["../../packages/knowledge/ui/src/index"],
       "@beep/knowledge-ui/*": ["../../packages/knowledge/ui/src/*"],
+      "@beep/machine": ["../../packages/common/machine/src/index"],
+      "@beep/machine/*": ["../../packages/common/machine/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
       "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"],
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
@@ -182,6 +184,9 @@
     },
     {
       "path": "../../packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/machine/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/schema/tsconfig.build.json"

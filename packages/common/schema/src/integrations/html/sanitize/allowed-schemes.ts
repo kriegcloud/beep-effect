@@ -1,7 +1,7 @@
 /**
  * @module AllowedSchemes
  * @description Discriminated unions for allowed URL schemes configuration
- * @since 1.0.0
+ * @since 0.1.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -15,7 +15,7 @@ const $I = $SchemaId.create("integrations/html/sanitize/allowed-schemes");
 
 /**
  * Allow all URL schemes
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const AllSchemes = S.TaggedStruct("AllSchemes", {}).annotations({
@@ -25,7 +25,7 @@ const AllSchemes = S.TaggedStruct("AllSchemes", {}).annotations({
 
 /**
  * Allow specific URL schemes
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const SpecificSchemes = S.TaggedStruct("SpecificSchemes", {
@@ -67,7 +67,7 @@ const _AllowedSchemes = S.Union(AllSchemes, SpecificSchemes).annotations(
  * - AllSchemes: Allow all URL schemes (allowedSchemes: false)
  * - SpecificSchemes: Allow specific URL schemes
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -97,7 +97,7 @@ export type AllowedSchemesEncoded = S.Schema.Encoded<typeof _AllowedSchemes>;
 
 /**
  * Allow all schemes on all tags
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const AllSchemesByTag = S.TaggedStruct("AllSchemesByTag", {}).annotations({
@@ -107,7 +107,7 @@ const AllSchemesByTag = S.TaggedStruct("AllSchemesByTag", {}).annotations({
 
 /**
  * Allow specific schemes per tag
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const SpecificSchemesByTag = S.TaggedStruct("SpecificSchemesByTag", {
@@ -152,7 +152,7 @@ const _AllowedSchemesByTag = S.Union(AllSchemesByTag, SpecificSchemesByTag).anno
  * - AllSchemesByTag: Allow all schemes on all tags
  * - SpecificSchemesByTag: Per-tag scheme allowlist
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript

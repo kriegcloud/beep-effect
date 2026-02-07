@@ -1,7 +1,17 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { type BlankNode, IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const $I = $KnowledgeServerId.create("Reasoning/RdfsRules");
+
+export class RuleInference extends S.Class<RuleInference>($I`RuleInference`)({
+  quad: Quad,
+  ruleId: S.String,
+  sourceQuadIds: S.Array(S.String),
+}) {}
 
 const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
@@ -9,17 +19,13 @@ const RDFS_RANGE = IRI.make("http://www.w3.org/2000/01/rdf-schema#range");
 const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
 const RDFS_SUBPROPERTY_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subPropertyOf");
 
-export interface RuleInference {
-  readonly quad: Quad;
-  readonly ruleId: string;
-  readonly sourceQuadIds: ReadonlyArray<string>;
-}
-
-export interface RdfsRule {
+export interface Rule {
   readonly id: string;
   readonly description: string;
   readonly apply: (quads: ReadonlyArray<Quad>) => ReadonlyArray<RuleInference>;
 }
+
+export type RdfsRule = Rule;
 
 const isLiteral = (term: IRI.Type | BlankNode.Type | Literal): term is Literal => Literal.is(term);
 
@@ -30,7 +36,7 @@ export const quadId = (q: Quad): string => {
   return `${q.subject}|${q.predicate}|${objectStr}|${q.graph ?? ""}`;
 };
 
-export const rdfs2: RdfsRule = {
+export const rdfs2: Rule = {
   id: "rdfs2",
   description: "Domain constraint propagation",
   apply: (quads) =>
@@ -66,7 +72,7 @@ export const rdfs2: RdfsRule = {
     ),
 };
 
-export const rdfs3: RdfsRule = {
+export const rdfs3: Rule = {
   id: "rdfs3",
   description: "Range constraint propagation",
   apply: (quads) =>
@@ -103,7 +109,7 @@ export const rdfs3: RdfsRule = {
     ),
 };
 
-export const rdfs5: RdfsRule = {
+export const rdfs5: Rule = {
   id: "rdfs5",
   description: "Subproperty transitivity",
   apply: (quads) => {
@@ -136,7 +142,7 @@ export const rdfs5: RdfsRule = {
   },
 };
 
-export const rdfs7: RdfsRule = {
+export const rdfs7: Rule = {
   id: "rdfs7",
   description: "Subproperty entailment",
   apply: (quads) => {
@@ -174,7 +180,7 @@ export const rdfs7: RdfsRule = {
   },
 };
 
-export const rdfs9: RdfsRule = {
+export const rdfs9: Rule = {
   id: "rdfs9",
   description: "Subclass entailment",
   apply: (quads) => {
@@ -214,7 +220,7 @@ export const rdfs9: RdfsRule = {
   },
 };
 
-export const rdfs11: RdfsRule = {
+export const rdfs11: Rule = {
   id: "rdfs11",
   description: "Subclass transitivity",
   apply: (quads) => {
@@ -248,4 +254,4 @@ export const rdfs11: RdfsRule = {
   },
 };
 
-export const rdfsRules: ReadonlyArray<RdfsRule> = [rdfs2, rdfs3, rdfs5, rdfs7, rdfs9, rdfs11];
+export const rdfsRules: ReadonlyArray<Rule> = [rdfs2, rdfs3, rdfs5, rdfs7, rdfs9, rdfs11];

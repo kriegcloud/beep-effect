@@ -56,7 +56,7 @@ Agent-assisted, self-improving specification workflow for complex, multi-phase t
 
 | Action            | Location                                                                                          |
 |-------------------|---------------------------------------------------------------------------------------------------|
-| Create new spec   | `specs/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
+| Create new spec   | `specs/pending/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
 | Pattern reference | [PATTERN_REGISTRY](specs/_guide/PATTERN_REGISTRY.md)                                              |
 | View all specs    | [specs/README.md](specs/README.md)                                                                |
 | Agent specs       | [specs/agents/](specs/agents/README.md)                                                           |
@@ -85,11 +85,11 @@ Rules are defined in `.claude/rules/` and automatically loaded by Claude Code.
 Rules are automatically synced from `.claude/rules/` to `.cursor/rules/` in MDC format.
 
 **Setup**:
-1. Run the sync script: `bun run scripts/sync-cursor-rules.ts`
+1. Run the sync command: `bun run repo-cli sync-cursor-rules`
 2. Open the project in Cursor IDE
 3. Rules will be automatically loaded from `.cursor/rules/*.mdc`
 
-**Maintenance**: Re-run the sync script whenever `.claude/rules/` files are updated.
+**Maintenance**: Re-run the sync command whenever `.claude/rules/` files are updated.
 
 ### Windsurf IDE Configuration
 

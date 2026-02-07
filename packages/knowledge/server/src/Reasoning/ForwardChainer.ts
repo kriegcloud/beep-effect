@@ -1,11 +1,13 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
 import {
   InferenceProvenance,
   InferenceResult,
   InferenceStats,
-  type Quad,
+  Quad,
   type ReasoningConfig,
 } from "@beep/knowledge-domain/value-objects";
+import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -14,16 +16,19 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import { quadId, type RuleInference, rdfsRules } from "./RdfsRules";
+import * as S from "effect/Schema";
+import { owlRules, owlSameAsRules } from "./OwlRules";
+import { quadId, type Rule, type RuleInference, rdfs2, rdfs3, rdfs9, rdfs11, rdfsRules } from "./RdfsRules";
 
-interface ChainState {
-  readonly knownQuadIds: MutableHashSet.MutableHashSet<string>;
-  readonly allQuads: Quad[];
-  readonly derivedQuads: Quad[];
-  readonly provenance: MutableHashMap.MutableHashMap<string, InferenceProvenance>;
-  readonly totalInferences: number;
-  readonly iterations: number;
-}
+const $I = $KnowledgeServerId.create("Reasoning/ForwardChainer");
+export class ChainState extends S.Class<ChainState>($I`ChainState`)({
+  knownQuadIds: BS.MutableHashSet(S.String),
+  allQuads: S.Array(Quad).pipe(S.mutable),
+  derivedQuads: S.Array(Quad).pipe(S.mutable),
+  provenance: BS.MutableHashMap({ key: S.String, value: InferenceProvenance }),
+  totalInferences: S.Number,
+  iterations: S.Number,
+}) {}
 
 const initializeState = (initialQuads: ReadonlyArray<Quad>): ChainState => {
   const knownQuadIds = MutableHashSet.empty<string>();
@@ -55,9 +60,9 @@ const initializeState = (initialQuads: ReadonlyArray<Quad>): ChainState => {
   };
 };
 
-const collectNewInferences = (state: ChainState): ReadonlyArray<RuleInference> =>
+const collectNewInferences = (state: ChainState, rules: ReadonlyArray<Rule>): ReadonlyArray<RuleInference> =>
   pipe(
-    rdfsRules,
+    rules,
     A.flatMap((rule) => rule.apply(state.allQuads)),
     A.filter((inference) => {
       const id = quadId(inference.quad);
@@ -97,9 +102,9 @@ const applyInferences = (state: ChainState, inferences: ReadonlyArray<RuleInfere
   return A.length(uniqueInferences);
 };
 
-const wouldGenerateMore = (state: ChainState): boolean =>
+const wouldGenerateMore = (state: ChainState, rules: ReadonlyArray<Rule>): boolean =>
   pipe(
-    rdfsRules,
+    rules,
     A.flatMap((rule) => rule.apply(state.allQuads)),
     A.some((inference) => !MutableHashSet.has(state.knownQuadIds, quadId(inference.quad)))
   );
@@ -107,7 +112,7 @@ const wouldGenerateMore = (state: ChainState): boolean =>
 const finalizeProvenance = (
   provenance: MutableHashMap.MutableHashMap<string, InferenceProvenance>
 ): Record<string, InferenceProvenance> => {
-  const entries: Array<[string, InferenceProvenance]> = [];
+  const entries = A.empty<[string, InferenceProvenance]>();
   MutableHashMap.forEach(provenance, (value, key) => {
     entries.push([key, value]);
   });
@@ -116,11 +121,15 @@ const finalizeProvenance = (
 
 export const forwardChain = (
   initialQuads: ReadonlyArray<Quad>,
-  config: ReasoningConfig
+  config: ReasoningConfig,
+  options?: {
+    readonly customRules?: ReadonlyArray<Rule>;
+  }
 ): Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError> =>
   Effect.gen(function* () {
     const startTime = yield* DateTime.now;
     const state = initializeState(initialQuads);
+    const rules = getRulesForConfig(config, options?.customRules ?? []);
 
     let iterations = 0;
     let totalInferences = 0;
@@ -128,7 +137,7 @@ export const forwardChain = (
     while (iterations < config.maxDepth) {
       iterations++;
 
-      const newInferences = collectNewInferences(state);
+      const newInferences = collectNewInferences(state, rules);
 
       if (A.isEmptyReadonlyArray(newInferences)) {
         break;
@@ -146,7 +155,7 @@ export const forwardChain = (
       }
     }
 
-    if (iterations >= config.maxDepth && wouldGenerateMore(state)) {
+    if (iterations >= config.maxDepth && wouldGenerateMore(state, rules)) {
       return yield* new MaxDepthExceededError({
         message: `Exceeded maximum reasoning depth: ${config.maxDepth}`,
         limit: config.maxDepth,
@@ -167,3 +176,20 @@ export const forwardChain = (
       }),
     });
   }).pipe(Effect.withSpan("ForwardChainer.forwardChain"));
+
+const getRulesForConfig = (config: ReasoningConfig, customRules: ReadonlyArray<Rule>): ReadonlyArray<Rule> => {
+  switch (config.profile) {
+    case "rdfs-subclass":
+      return [rdfs9, rdfs11];
+    case "rdfs-domain-range":
+      return [rdfs2, rdfs3];
+    case "owl-sameas":
+      return owlSameAsRules;
+    case "owl-full":
+      return [...rdfsRules, ...owlRules];
+    case "custom":
+      return customRules;
+    default:
+      return rdfsRules;
+  }
+};

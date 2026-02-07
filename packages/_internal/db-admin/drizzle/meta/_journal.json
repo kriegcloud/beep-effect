@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1769090019351,
-      "tag": "0000_amusing_slipstream",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1769090100000,
-      "tag": "0001_custom_rls_extensions",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1769408534477,
-      "tag": "0002_windy_johnny_storm",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1770236054756,
-      "tag": "0003_fat_viper",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1770271651353,
-      "tag": "0004_superb_otto_octavius",
+      "when": 1770439843056,
+      "tag": "0000_youthful_proteus",
       "breakpoints": true
     }
   ]

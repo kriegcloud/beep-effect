@@ -2,7 +2,7 @@
  * @file Durable activities for docgen workflow.
  * Each activity's result is persisted and replayed on workflow resume.
  * @module docgen/agents/activities
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { HttpRequestError, HttpResponseError, MalformedInput, MalformedOutput, UnknownError } from "@effect/ai/AiError";

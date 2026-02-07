@@ -1,3 +1,4 @@
+export * from "./batch-execution.table";
 export * from "./class-definition.table";
 export * from "./embedding.table";
 export * from "./entity.table";
@@ -10,3 +11,6 @@ export * from "./ontology.table";
 export * from "./property-definition.table";
 export * from "./relation.table";
 export * from "./same-as-link.table";
+export * from "./workflow-activity.table";
+export * from "./workflow-execution.table";
+export * from "./workflow-signal.table";

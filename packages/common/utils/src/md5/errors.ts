@@ -9,7 +9,7 @@ const $I = $UtilsId.create("md5/errors");
 
 /**
  * Error thrown when MD5 hash computation fails
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class Md5ComputationError extends S.TaggedError<Md5ComputationError>()(
@@ -25,7 +25,7 @@ export class Md5ComputationError extends S.TaggedError<Md5ComputationError>()(
 
 /**
  * Error thrown when Unicode encoding fails
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class UnicodeEncodingError extends S.TaggedError<UnicodeEncodingError>()(
@@ -41,7 +41,7 @@ export class UnicodeEncodingError extends S.TaggedError<UnicodeEncodingError>()(
 
 /**
  * Error thrown when file reading fails
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class FileReadError extends S.TaggedError<FileReadError>()(
@@ -57,7 +57,7 @@ export class FileReadError extends S.TaggedError<FileReadError>()(
 
 /**
  * Error thrown when blob slicing fails
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class BlobSliceError extends S.TaggedError<BlobSliceError>()(
@@ -73,7 +73,7 @@ export class BlobSliceError extends S.TaggedError<BlobSliceError>()(
 
 /**
  * Error thrown when worker operations fail
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class WorkerHashError extends S.TaggedError<WorkerHashError>()(

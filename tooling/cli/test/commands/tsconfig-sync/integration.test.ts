@@ -10,7 +10,7 @@
  * These tests verify the modules work together correctly.
  *
  * @module tsconfig-sync/test/integration
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { filterPackages, findBuildConfig, getPackageCount } from "@beep/repo-cli/commands/tsconfig-sync/discover";

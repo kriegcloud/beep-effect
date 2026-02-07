@@ -13,7 +13,7 @@
  * - getPackageName: Get package name from package.json
  *
  * @module docgen/shared/discovery
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import type * as FsUtils from "@beep/tooling-utils/FsUtils";

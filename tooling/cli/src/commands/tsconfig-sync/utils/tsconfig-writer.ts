@@ -5,7 +5,7 @@
  * Handles reading existing content, computing necessary changes, and writing back.
  *
  * @module tsconfig-sync/utils/tsconfig-writer
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";

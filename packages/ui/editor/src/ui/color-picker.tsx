@@ -4,7 +4,7 @@
  * ColorPicker component refactored to use pure @effect-atom/atom-react patterns.
  * No useState, useEffect, useCallback, useMemo, or useRef.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";

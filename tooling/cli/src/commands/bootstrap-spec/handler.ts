@@ -16,7 +16,7 @@
  * 6. Display success summary
  *
  * @module bootstrap-spec/handler
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as A from "effect/Array";
@@ -108,7 +108,7 @@ export const bootstrapSpecHandler = (
     yield* Console.log(`\n${"=".repeat(50)}`);
     yield* Console.log(`Spec "${input.specName}" created successfully!`);
     yield* Console.log("=".repeat(50));
-    yield* Console.log(`\nLocation: specs/${input.specName}/`);
+    yield* Console.log(`\nLocation: specs/pending/${input.specName}/`);
     yield* Console.log("\nNext steps:");
     yield* Console.log("   1. Review README.md and customize as needed");
     yield* Console.log("   2. Update success criteria");

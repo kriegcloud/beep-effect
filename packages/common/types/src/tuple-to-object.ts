@@ -36,11 +36,11 @@ type Example6 = TupleToObject<[x: number, y: number]>;
 //=> { 0: number; 1: number }
 ```
 
-@category Array
-*/
-// biome-ignore lint/suspicious/noExplicitAny: Required for returning any when input is any type
+	@category Array
+	*/
 export type TupleToObject<TArray extends UnknownArray> = If<
   IsAny<TArray>,
+  // biome-ignore lint/suspicious/noExplicitAny: Required for returning any when input is any type
   any,
   {
     [Key in keyof TArray as Key & (`${number}` | (IsTuple<TArray> extends true ? never : number))]: TArray[Key];

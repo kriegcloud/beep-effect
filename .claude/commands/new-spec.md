@@ -224,7 +224,7 @@ At the end of EVERY phase, ask:
 
 4. **Begin Phase 0**:
    ```
-   Use doc-writer agent to create README.md for specs/multi-org-iam/
+   Use doc-writer agent to create README.md for specs/pending/multi-org-iam/
    following the Standard Spec Structure from specs/_guide/README.md.
    ```
 

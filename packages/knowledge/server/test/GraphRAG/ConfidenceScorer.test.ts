@@ -10,18 +10,15 @@ import {
   MIN_PENALTY_MULTIPLIER,
   type RelationValidationResult,
 } from "@beep/knowledge-server/GraphRAG/ConfidenceScorer";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import type { KnowledgeEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { graphRagFixtureIds } from "../_shared/GraphFixtures";
 
-const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
-  "knowledge_entity__11111111-1111-1111-1111-111111111111"
-);
-const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
-  "knowledge_entity__22222222-2222-2222-2222-222222222222"
-);
-const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
+const testEntityId1 = graphRagFixtureIds.entity1;
+const testEntityId2 = graphRagFixtureIds.entity2;
+const testRelationId = graphRagFixtureIds.relation1;
 
 const createCitation = (
   claimText: string,

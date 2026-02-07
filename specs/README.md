@@ -1,101 +1,95 @@
 # Specifications
 
-> Multi-phase specification library for complex features.
+Multi-phase specification library for complex features.
 
----
+## Layout
+
+- `specs/pending/`: In-progress, planned, or not-yet-finished specs
+- `specs/completed/`: Fully finished specs
+- `specs/archived/`: Deferred/paused specs (not complete, intentionally parked)
+- `specs/_guide/`: Shared spec workflow docs/templates
+- `specs/agents/`: Agent-specific specification artifacts
 
 ## Quick Start
 
 | Action | Resource |
 |--------|----------|
-| **Create new spec** | `/new-spec` skill or `bun run repo-cli bootstrap-spec` |
-| **Learn the workflow** | [_guide/README.md](_guide/README.md) |
-| **Find patterns** | [_guide/PATTERN_REGISTRY.md](_guide/PATTERN_REGISTRY.md) |
+| Create new spec | `bun run repo-cli bootstrap-spec -n <name> -d "Description"` |
+| Learn workflow | [`_guide/README.md`](_guide/README.md) |
+| Handoff format | [`_guide/HANDOFF_STANDARDS.md`](_guide/HANDOFF_STANDARDS.md) |
+| Pattern library | [`_guide/PATTERN_REGISTRY.md`](_guide/PATTERN_REGISTRY.md) |
+| Status policy | [`SPEC_STATUS_POLICY.md`](SPEC_STATUS_POLICY.md) |
 
----
-
-## Spec Guide
-
-All spec-creation infrastructure lives in [`_guide/`](_guide/):
-
-| Document | Purpose |
-|----------|---------|
-| [README.md](_guide/README.md) | Main spec creation workflow |
-| [HANDOFF_STANDARDS.md](_guide/HANDOFF_STANDARDS.md) | Multi-session context transfer |
-| [PATTERN_REGISTRY.md](_guide/PATTERN_REGISTRY.md) | Reusable patterns library |
-| [patterns/](_guide/patterns/) | Detailed pattern documentation |
-| [templates/](_guide/templates/) | Spec file templates |
-
----
-
-## Specifications
-
-| Spec | Description | Status |
-|------|-------------|--------|
-| [agent-config-optimization](agent-config-optimization/) | Agent configuration tuning | Active |
-| [ai-friendliness-10-of-10](ai-friendliness-10-of-10/) | Achieve 10/10 AI-friendliness through context engineering | **P0 Ready** |
-| [agent-context-optimization](agent-context-optimization/) | Git subtrees, module context, navigation index | **Complete** |
-| [agent-effectiveness-audit](agent-effectiveness-audit/) | Measure and improve agent infrastructure effectiveness | **Complete** |
-| [agent-infrastructure-rationalization](agent-infrastructure-rationalization/) | Agent config consolidation and IDE sync | **Complete** |
-| [agents-md-audit](agents-md-audit/) | AGENTS.md file standardization | New |
-| [agents](agents/) | Specialized agent creation specs | Active |
-| [better-auth-client-wrappers](better-auth-client-wrappers/) | Wrap 90+ better-auth client methods for @beep/iam-clients | P1 Ready |
-| [canonical-naming-conventions](canonical-naming-conventions/) | AI-native naming standards | P0 Ready |
-| [e2e-testkit-migration](e2e-testkit-migration/) | Migrate e2e tests to @beep/testkit/playwright | Planning |
-| [html-sanitize-schema-test-parity](html-sanitize-schema-test-parity/) | Test parity between schema and utils HTML sanitization | Phase 0 |
-| [integration-architecture-migration](integration-architecture-migration/) | Migrate third-party integrations from packages/shared/integrations to three-tier architecture | **Complete** |
-| [knowledge-effect-ai-migration](knowledge-effect-ai-migration/) | Migrate EmbeddingService to @effect/ai | **Complete** |
-| [knowledge-effect-ontology-audit](knowledge-effect-ontology-audit/) | Full audit comparing knowledge slice to effect-ontology for feature parity | **P0 Ready** |
-| [knowledge-entity-resolution-v2](knowledge-entity-resolution-v2/) | Entity resolution clustering v2 | Active |
-| [knowledge-graph-integration](knowledge-graph-integration/) | Document knowledge extraction | Active |
-| [knowledge-graph-poc-demo](knowledge-graph-poc-demo/) | Demo page showcasing knowledge graph extraction | **P1 Ready** |
-| [knowledge-workflow-durability](knowledge-workflow-durability/) | Durable extraction workflows with @effect/workflow + @effect/cluster | **P0 Ready** |
-| [lexical-editor-ai-features](lexical-editor-ai-features/) | AI features for Lexical editor | **Complete** |
-| [lexical-effect-alignment](lexical-effect-alignment/) | Effect-align lexical playground code (170+ files) | **P1 Ready** |
-| [liveblocks-lexical-ai-integration](liveblocks-lexical-ai-integration/) | Complete Liveblocks + Lexical AI integration with real APIs | **P1 Ready** |
-| [lexical-playground-port](lexical-playground-port/) | Port Lexical playground to todox | **Complete** |
-| [naming-conventions-refactor](naming-conventions-refactor/) | Naming standards implementation | Active |
-| [orgtable-auto-rls](orgtable-auto-rls/) | Automatic RLS for org tables | Active |
-| [repo-cli-verify-commands](repo-cli-verify-commands/) | Convert verification shell scripts to Effect-based repo-cli commands | New |
-| [rls-implementation](rls-implementation/) | Row-level security | Active |
-| [sanitize-html-schema](sanitize-html-schema/) | Schema-driven HTML sanitization with S.TaggedClass unions | P1 Ready |
-| [spec-creation-improvements](spec-creation-improvements/) | Spec workflow enhancements | Complete |
-| [storybook-implementation](storybook-implementation/) | Storybook for @beep/ui and @beep/ui-editor with MUI + Tailwind | **P1 Ready** |
-| [todox-design](todox-design/) | Todox application design | Active |
-| [tsconfig-sync-command](tsconfig-sync-command/) | CLI for tsconfig/package.json sync with transitive hoisting | P0 Complete |
-| [vitest-testkit-parity](vitest-testkit-parity/) | Port @effect/vitest exports to @beep/testkit | New |
-
----
-
-## Spec Structure
-
-Every spec follows this structure:
-
-```
-specs/[name]/
-├── README.md                    # Entry point (required)
-├── REFLECTION_LOG.md            # Learnings (required)
-├── QUICK_START.md               # Getting started (optional)
-├── MASTER_ORCHESTRATION.md      # Full workflow (complex specs)
-├── handoffs/                    # Multi-session context
-│   ├── HANDOFF_P[N].md          # Phase context
-│   └── P[N]_ORCHESTRATOR_PROMPT.md  # Copy-paste prompt
-└── outputs/                     # Generated artifacts
-```
-
----
-
-## Creating a Spec
+## Status Operations
 
 ```bash
-# Quick start (medium complexity)
-bun run repo-cli bootstrap-spec -n my-feature -d "Description"
+# Check for pending specs that declare complete/archived status
+bun run spec:status:check
 
-# Simple (single session)
-bun run repo-cli bootstrap-spec -n quick-fix -d "Bug fix" -c simple
-
-# Complex (multi-session with orchestration)
-bun run repo-cli bootstrap-spec -n major-refactor -d "API redesign" -c complex
+# Move a spec between status folders
+bun run spec:move -- <spec-name> pending|completed|archived
 ```
 
-See [_guide/README.md](_guide/README.md) for the full agent-assisted workflow.
+## Pending Specs
+
+| Spec |
+|------|
+| [agent-config-optimization](completed/agent-config-optimization/) |
+| [agent-context-optimization](completed/agent-context-optimization/) |
+| [agent-effectiveness-audit](completed/agent-effectiveness-audit/) |
+| [agent-infrastructure-rationalization](completed/agent-infrastructure-rationalization/) |
+| [agents-md-audit](pending/agents-md-audit/) |
+| [better-auth-client-wrappers](completed/better-auth-client-wrappers/) |
+| [codex-claude-parity](pending/codex-claude-parity/) |
+| [codex-parity-validation-s1](pending/codex-parity-validation-s1/) |
+| [cursor-claude-parity](completed/cursor-claude-parity/) |
+| [deprecated-code-cleanup](pending/deprecated-code-cleanup/) |
+| [e2e-testkit-migration](pending/e2e-testkit-migration/) |
+| [html-sanitize-schema-test-parity](pending/html-sanitize-schema-test-parity/) |
+| [iam-client-entity-alignment](completed/iam-client-entity-alignment/) |
+| [iam-client-schema-consistency-inventory](completed/iam-client-schema-consistency-inventory/) |
+| [knowledge-architecture-foundation](completed/knowledge-architecture-foundation/) |
+| [knowledge-batch-machine-refactor](pending/knowledge-batch-machine-refactor/) |
+| [knowledge-code-quality-audit](completed/knowledge-code-quality-audit/) |
+| [knowledge-entity-resolution-v2](completed/knowledge-entity-resolution-v2/) |
+| [knowledge-graph-integration](completed/knowledge-graph-integration/) |
+| [knowledge-graph-poc-demo](completed/knowledge-graph-poc-demo/) |
+| [knowledge-graphrag-plus](completed/knowledge-graphrag-plus/) |
+| [knowledge-ontology-comparison](pending/knowledge-ontology-comparison/) |
+| [knowledge-rdf-foundation](completed/knowledge-rdf-foundation/) |
+| [knowledge-reasoning-engine](completed/knowledge-reasoning-engine/) |
+| [knowledge-repo-sqlschema-refactor](completed/knowledge-repo-sqlschema-refactor/) |
+| [knowledge-sparql-integration](completed/knowledge-sparql-integration/) |
+| [knowledge-workflow-durability](../apps/todox/src/liveblocks-ai-editor/models/knowledge-workflow-durability/) |
+| [lexical-editor-ai-features](pending/lexical-editor-ai-features/) |
+| [lexical-effect-alignment](pending/lexical-effect-alignment/) |
+| [liveblocks-lexical-ai-integration](pending/liveblocks-lexical-ai-integration/) |
+| [naming-conventions-refactor](pending/naming-conventions-refactor/) |
+| [rls-implementation](completed/rls-implementation/) |
+| [sanitize-html-schema](pending/sanitize-html-schema/) |
+| [tagged-values-kit](completed/tagged-values-kit/) |
+| [todox-design](pending/todox-design/) |
+| [tsconfig-sync-completion](pending/tsconfig-sync-completion/) |
+| [vitest-testkit-parity](pending/vitest-testkit-parity/) |
+| [zero-email-port](archived/zero-email-port/) |
+
+## Completed Specs
+
+| Spec |
+|------|
+| [ai-friendliness-10-of-10](completed/ai-friendliness-10-of-10/) |
+| [artifact-file-cleanup](completed/artifact-file-cleanup/) |
+| [integration-architecture-migration](completed/integration-architecture-migration/) |
+| [knowledge-effect-workflow-migration](completed/knowledge-effect-workflow-migration/) |
+| [lexical-playground-port](completed/lexical-playground-port/) |
+| [lexical-utils-effect-refactor](completed/lexical-utils-effect-refactor/) |
+| [orgtable-auto-rls](completed/orgtable-auto-rls/) |
+| [repo-cli-verify-commands](completed/repo-cli-verify-commands/) |
+| [scripts-to-cli-migration](completed/scripts-to-cli-migration/) |
+| [spec-creation-improvements](completed/spec-creation-improvements/) |
+
+## Archived Specs
+
+| Spec |
+|------|
+| [tsconfig-sync-command](archived/tsconfig-sync-command/) |

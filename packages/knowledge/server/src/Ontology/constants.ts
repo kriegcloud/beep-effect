@@ -44,6 +44,17 @@ export const SKOS = {
   closeMatch: "http://www.w3.org/2004/02/skos/core#closeMatch",
 } as const;
 
+export const PROV = {
+  Entity: "http://www.w3.org/ns/prov#Entity",
+  Activity: "http://www.w3.org/ns/prov#Activity",
+  Agent: "http://www.w3.org/ns/prov#Agent",
+  used: "http://www.w3.org/ns/prov#used",
+  wasGeneratedBy: "http://www.w3.org/ns/prov#wasGeneratedBy",
+  wasAssociatedWith: "http://www.w3.org/ns/prov#wasAssociatedWith",
+  startedAtTime: "http://www.w3.org/ns/prov#startedAtTime",
+  endedAtTime: "http://www.w3.org/ns/prov#endedAtTime",
+} as const;
+
 export const extractLocalName = (iri: string): string =>
   F.pipe(
     Str.lastIndexOf("#")(iri),

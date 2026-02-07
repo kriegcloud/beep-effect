@@ -1,6 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { LanguageModel, Prompt } from "@effect/ai";
-import type * as AiError from "@effect/ai/AiError";
+import * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -9,8 +9,10 @@ import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { buildRelationPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
+import { type LlmResilienceError, withLlmResilience } from "../LlmControl/LlmResilience";
 import type { TextChunk } from "../Nlp/TextChunk";
 import type { OntologyContext } from "../Ontology";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
@@ -18,29 +20,34 @@ import { ExtractedTriple, RelationOutput } from "./schemas/relation-output.schem
 
 const $I = $KnowledgeServerId.create("knowledge-server/Extraction/RelationExtractor");
 
-export interface RelationExtractionConfig {
-  readonly minConfidence?: undefined | number;
-  readonly validatePredicates?: undefined | boolean;
-}
+export class RelationExtractionConfig extends S.Class<RelationExtractionConfig>($I`RelationExtractionConfig`)(
+  {
+    minConfidence: S.optional(S.Number),
+    validatePredicates: S.optional(S.Boolean),
+  },
+  $I.annotations("RelationExtractionConfig", {
+    description: "Relation extraction configuration",
+  })
+) {}
 
-export interface RelationExtractionResult {
-  readonly triples: readonly ExtractedTriple[];
-  readonly invalidTriples: readonly ExtractedTriple[];
-  readonly tokensUsed: number;
-}
+export class RelationExtractionResult extends S.Class<RelationExtractionResult>($I`RelationExtractionResult`)({
+  triples: S.Array(ExtractedTriple),
+  invalidTriples: S.Array(ExtractedTriple),
+  tokensUsed: S.Number,
+}) {}
 
 export interface RelationExtractorShape {
   readonly extract: (
     entities: readonly ClassifiedEntity[],
     chunk: TextChunk,
     ontologyContext: OntologyContext,
-    config?: RelationExtractionConfig
+    config?: undefined | RelationExtractionConfig
   ) => Effect.Effect<RelationExtractionResult, AiError.AiError | HttpServerError.RequestError>;
   readonly extractFromChunks: (
     entitiesByChunk: MutableHashMap.MutableHashMap<number, readonly ClassifiedEntity[]>,
     chunks: readonly TextChunk[],
     ontologyContext: OntologyContext,
-    config?: RelationExtractionConfig
+    config?: undefined | RelationExtractionConfig
   ) => Effect.Effect<RelationExtractionResult, AiError.AiError | HttpServerError.RequestError>;
   readonly deduplicateRelations: (
     triples: readonly ExtractedTriple[]
@@ -51,6 +58,33 @@ export class RelationExtractor extends Context.Tag($I`RelationExtractor`)<
   RelationExtractor,
   RelationExtractorShape
 >() {}
+
+const isTagged = (error: unknown, tag: string): boolean =>
+  typeof error === "object" && error !== null && "_tag" in error && (error as { readonly _tag: unknown })._tag === tag;
+
+const mapResilienceError = (
+  method: string,
+  error: LlmResilienceError<AiError.AiError | HttpServerError.RequestError>
+): AiError.AiError | HttpServerError.RequestError => {
+  if (isTagged(error, "RequestError")) {
+    return error as HttpServerError.RequestError;
+  }
+  if (
+    isTagged(error, "HttpRequestError") ||
+    isTagged(error, "HttpResponseError") ||
+    isTagged(error, "MalformedInput") ||
+    isTagged(error, "MalformedOutput") ||
+    isTagged(error, "UnknownError")
+  ) {
+    return error as AiError.AiError;
+  }
+  return new AiError.UnknownError({
+    module: "RelationExtractor",
+    method,
+    description: error.message,
+    cause: error,
+  });
+};
 
 const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.LanguageModel> = Effect.gen(
   function* () {
@@ -110,15 +144,28 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
       });
 
       const prompt = Prompt.make([
-        { role: "system" as const, content: buildSystemPrompt() },
-        { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
+        Prompt.systemMessage({ content: buildSystemPrompt() }),
+        Prompt.userMessage({
+          content: A.make(
+            Prompt.textPart({
+              text: buildRelationPrompt([...entities], chunk.text, ontologyContext),
+            })
+          ),
+        }),
       ]);
 
-      const result = yield* model.generateObject({
-        prompt,
-        schema: RelationOutput,
-        objectName: "RelationOutput",
-      });
+      const result = yield* withLlmResilience(
+        model.generateObject({
+          prompt,
+          schema: RelationOutput,
+          objectName: "RelationOutput",
+        }),
+        {
+          stage: "relation_extraction",
+          estimatedTokens: Str.length(chunk.text),
+          maxRetries: 1,
+        }
+      ).pipe(Effect.mapError((error) => mapResilienceError("extract", error)));
 
       const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
 
@@ -163,15 +210,28 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
         if (A.isEmptyReadonlyArray(entities)) continue;
 
         const prompt = Prompt.make([
-          { role: "system" as const, content: buildSystemPrompt() },
-          { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
+          Prompt.systemMessage({ content: buildSystemPrompt() }),
+          Prompt.userMessage({
+            content: A.make(
+              Prompt.textPart({
+                text: buildRelationPrompt([...entities], chunk.text, ontologyContext),
+              })
+            ),
+          }),
         ]);
 
-        const aiResult = yield* model.generateObject({
-          prompt,
-          schema: RelationOutput,
-          objectName: "RelationOutput",
-        });
+        const aiResult = yield* withLlmResilience(
+          model.generateObject({
+            prompt,
+            schema: RelationOutput,
+            objectName: "RelationOutput",
+          }),
+          {
+            stage: "relation_extraction",
+            estimatedTokens: Str.length(chunk.text),
+            maxRetries: 1,
+          }
+        ).pipe(Effect.mapError((error) => mapResilienceError("extractFromChunks", error)));
 
         const offsetAdjusted = F.pipe(
           aiResult.value.triples,

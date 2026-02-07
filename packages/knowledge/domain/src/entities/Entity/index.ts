@@ -1,0 +1,1 @@
+export * from "./Entity.model";

@@ -119,8 +119,8 @@ Fully compliant files to copy patterns from:
 
 ```bash
 # Find missing documentation files
-bun run scripts/find-missing-agents.ts
+bun run repo-cli find-missing-docs
 
 # Analyze AGENTS.md compliance
-bun run scripts/analyze-agents-md.ts
+bun run repo-cli analyze-agents
 ```

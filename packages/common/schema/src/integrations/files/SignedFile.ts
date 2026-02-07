@@ -1,7 +1,7 @@
 /**
  * @fileoverview File Signature Schemas for Content Integrity Verification
  * @module @beep/schema/integrations/files/SignedFile
- * @since 1.0.0
+ * @since 0.1.0
  *
  * ## Overview
  * Provides schemas and utilities for attaching cryptographic signatures to file
@@ -73,7 +73,7 @@ const $I = $SchemaId.create("integrations/files/SignedFile");
 /**
  * MD5 hash pattern for validation.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constants
  *
  * @remarks
@@ -89,7 +89,7 @@ export const MD5_HASH_PATTERN = /^[a-f0-9]{32}$/;
 /**
  * Schema for MD5 content hash strings.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  *
  * @remarks
@@ -114,7 +114,7 @@ export type Md5ContentHash = typeof Md5ContentHash.Type;
 /**
  * Upload file signature containing content hash for integrity verification.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  *
  * @remarks
@@ -185,7 +185,7 @@ export declare namespace UploadFileSignature {
 /**
  * Error thrown when file content integrity verification fails.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  *
  * @remarks
@@ -238,7 +238,7 @@ export declare namespace FileIntegrityError {
 /**
  * Generic factory to attach file signatures to any schema with a `file` field.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Factories
  *
  * @remarks
@@ -369,7 +369,7 @@ export const withFileSignature = <A extends { file: File }, I, R>(
 /**
  * Type helper for creating signed file types.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Types
  *
  * @remarks
@@ -391,7 +391,7 @@ export type WithFileSignature<T extends { file: File }> = T & {
 /**
  * Verifies that a content hash matches the expected value.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utilities
  *
  * @remarks
@@ -443,7 +443,7 @@ export const verifyContentHash = (params: {
 /**
  * Creates an UploadFileSignature from a pre-computed hash.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utilities
  *
  * @remarks

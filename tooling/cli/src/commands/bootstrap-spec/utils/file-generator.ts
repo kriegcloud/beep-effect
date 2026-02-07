@@ -8,7 +8,7 @@
  * - complex: Full structure with orchestration, templates, handoffs
  *
  * @module bootstrap-spec/utils/file-generator
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -211,7 +211,7 @@ export class FileGeneratorService extends Effect.Service<FileGeneratorService>()
      */
     const createPlan = (context: SpecContext): Effect.Effect<GenerationPlan, FileWriteError> =>
       Effect.gen(function* () {
-        const specDir = path.join(repoRoot, "specs", context.specName);
+        const specDir = path.join(repoRoot, "specs", "pending", context.specName);
 
         const directories = getDirectories(specDir, context.complexity);
         const files = getFiles(specDir, context);
@@ -289,14 +289,26 @@ export class FileGeneratorService extends Effect.Service<FileGeneratorService>()
      */
     const specExists = (specName: string): Effect.Effect<boolean, never> =>
       Effect.gen(function* () {
-        const specDir = path.join(repoRoot, "specs", specName);
-        return yield* fsUtils.isDirectory(specDir).pipe(Effect.catchAll(() => Effect.succeed(false as boolean)));
+        const candidateDirs = [
+          path.join(repoRoot, "specs", "pending", specName),
+          path.join(repoRoot, "specs", "completed", specName),
+          path.join(repoRoot, "specs", "archived", specName),
+          path.join(repoRoot, "specs", specName), // Legacy location during migration
+        ];
+
+        const existsList = yield* Effect.forEach(
+          candidateDirs,
+          (specDir) => fsUtils.isDirectory(specDir).pipe(Effect.catchAll(() => Effect.succeed(false as boolean))),
+          { concurrency: 4 }
+        );
+
+        return A.some(existsList, (exists) => exists);
       });
 
     /**
      * Get the path to a spec directory.
      */
-    const getSpecPath = (specName: string): string => path.join(repoRoot, "specs", specName);
+    const getSpecPath = (specName: string): string => path.join(repoRoot, "specs", "pending", specName);
 
     return {
       /** Repository root path */

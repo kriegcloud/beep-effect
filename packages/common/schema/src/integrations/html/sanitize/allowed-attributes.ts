@@ -1,7 +1,7 @@
 /**
  * @module AllowedAttributes
  * @description Discriminated union for allowed HTML attributes configuration
- * @since 1.0.0
+ * @since 0.1.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -18,7 +18,7 @@ const $I = $SchemaId.create("integrations/html/sanitize/allowed-attributes");
  *
  * The wildcard "*" applies to all tags.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  */
 export const TagKey = S.Union(HtmlTag, S.Literal("*")).annotations({
@@ -37,7 +37,7 @@ export type TagKey = S.Schema.Type<typeof TagKey>;
  *
  * Allows specifying which values are acceptable for an attribute.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -70,7 +70,7 @@ export type AttributeConstraint = S.Schema.Type<typeof AttributeConstraint>;
 /**
  * An allowed attribute - either a simple name or a constrained definition
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -97,7 +97,7 @@ export type AllowedAttribute = S.Schema.Type<typeof AllowedAttribute>;
 /**
  * Allow ALL attributes on all tags (allowedAttributes: false)
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const AllAttributes = S.TaggedStruct("AllAttributes", {}).annotations({
@@ -108,7 +108,7 @@ const AllAttributes = S.TaggedStruct("AllAttributes", {}).annotations({
 /**
  * Allow NO attributes (allowedAttributes: undefined with no defaults)
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const NoneAttributes = S.TaggedStruct("NoneAttributes", {}).annotations({
@@ -119,7 +119,7 @@ const NoneAttributes = S.TaggedStruct("NoneAttributes", {}).annotations({
 /**
  * Per-tag attribute mapping with wildcard support
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  * @example
  * ```typescript
@@ -150,7 +150,7 @@ const SpecificAttributes = S.TaggedStruct("SpecificAttributes", {
 
 /**
  * AllAttributes variant type
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type AllAttributesType = {
   readonly _tag: "AllAttributes";
@@ -158,7 +158,7 @@ export type AllAttributesType = {
 
 /**
  * NoneAttributes variant type
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type NoneAttributesType = {
   readonly _tag: "NoneAttributes";
@@ -166,7 +166,7 @@ export type NoneAttributesType = {
 
 /**
  * SpecificAttributes variant type
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type SpecificAttributesType = {
   readonly _tag: "SpecificAttributes";
@@ -192,7 +192,7 @@ const _AllowedAttributes = S.Union(AllAttributes, NoneAttributes, SpecificAttrib
  * - NoneAttributes: Disallow all attributes
  * - SpecificAttributes: Per-tag attribute allowlist
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript

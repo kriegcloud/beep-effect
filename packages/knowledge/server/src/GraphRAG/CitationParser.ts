@@ -5,11 +5,8 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import type * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Citation } from "./AnswerSchemas";
-
-type NonEmptyString = S.Schema.Type<typeof S.NonEmptyString>;
 
 const ENTITY_CITATION_REGEX = /\{\{entity:([^}]+)}}/g;
 
@@ -32,15 +29,16 @@ interface SentenceCitations {
 const deduplicateIds = (ids: ReadonlyArray<string>): ReadonlyArray<string> => A.dedupe(ids);
 
 const extractAllMatches = (text: string, regex: RegExp): ReadonlyArray<CitationMatch> => {
-  const matches = text.matchAll(new RegExp(regex.source, regex.flags));
+  const matches = Str.matchAll(new RegExp(regex.source, regex.flags))(text);
   return F.pipe(
     A.fromIterable(matches),
     A.filterMap((match) => {
       const idx = match.index;
+
       return P.isNotUndefined(idx)
         ? O.some({
             match: match[0],
-            id: match[1] ?? "",
+            id: match[1] ?? Str.empty,
             index: idx,
           })
         : O.none();
@@ -98,9 +96,9 @@ const extractClaimText = (text: string, position: number): string => {
 };
 
 const stripCitationMarkers = (text: string): string => {
-  const withoutEntities = text.replace(ENTITY_CITATION_REGEX, "");
-  const withoutRelations = withoutEntities.replace(RELATION_CITATION_REGEX, "");
-  return Str.trim(withoutRelations.replace(/\s+/g, " "));
+  const withoutEntities = Str.replace(ENTITY_CITATION_REGEX, "")(text);
+  const withoutRelations = Str.replace(RELATION_CITATION_REGEX, "")(withoutEntities);
+  return Str.trim(Str.replace(/\s+/g, " ")(withoutRelations));
 };
 
 const mergeMatchIntoRecord = (
@@ -117,8 +115,8 @@ const mergeMatchIntoRecord = (
   const updated: SentenceCitations = O.match(existing, {
     onNone: () => ({
       sentence: cleanSentence,
-      entityIds: type === "entity" ? [match.id] : [],
-      relationIds: type === "relation" ? [match.id] : [],
+      entityIds: type === "entity" ? [match.id] : A.empty<string>(),
+      relationIds: type === "relation" ? [match.id] : A.empty<string>(),
     }),
     onSome: (prev) => ({
       ...prev,
@@ -135,10 +133,10 @@ const groupCitationsBySentence = (text: string): ReadonlyArray<SentenceCitations
   const relationMatches = extractAllMatches(text, RELATION_CITATION_REGEX);
 
   if (A.isEmptyReadonlyArray(entityMatches) && A.isEmptyReadonlyArray(relationMatches)) {
-    return [];
+    return A.empty<SentenceCitations>();
   }
 
-  const afterEntities = A.reduce(entityMatches, {} as Record<string, SentenceCitations>, (acc, match) =>
+  const afterEntities = A.reduce(entityMatches, R.empty<string, SentenceCitations>(), (acc, match) =>
     mergeMatchIntoRecord(acc, text, match, "entity")
   );
 
@@ -155,8 +153,7 @@ const isValidEntityId = (id: string): id is KnowledgeEntityIds.KnowledgeEntityId
 const isValidRelationId = (id: string): id is KnowledgeEntityIds.RelationId.Type =>
   KnowledgeEntityIds.RelationId.is(id);
 
-const parseNonEmptyString = (s: string): O.Option<NonEmptyString> =>
-  Str.isEmpty(s) ? O.none() : O.some(s as NonEmptyString);
+const parseNonEmptyString = (s: string): O.Option<string> => (Str.isEmpty(s) ? O.none() : O.some(s));
 
 const sentenceGroupToCitation = (group: SentenceCitations, contextSet: HashSet.HashSet<string>): O.Option<Citation> => {
   const validEntityIds = F.pipe(
@@ -192,7 +189,7 @@ export const parseCitations = (text: string, contextEntityIds: ReadonlyArray<str
   const sentenceGroups = groupCitationsBySentence(text);
 
   if (A.isEmptyReadonlyArray(sentenceGroups)) {
-    return [];
+    return A.empty<Citation>();
   }
 
   const contextSet = HashSet.fromIterable(contextEntityIds);

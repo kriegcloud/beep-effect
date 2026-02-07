@@ -5,7 +5,7 @@
  * Provides type-safe validation for freshness check configuration and output.
  *
  * @module context-freshness/schemas
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as S from "effect/Schema";

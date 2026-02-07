@@ -33,7 +33,7 @@ function roundTo2Decimals(value: number): string {
   return (Math.round(value * 100) / 100).toString();
 }
 
-export function formatExpressionResult(expressionResult: ExpressionResult.Result.Type) {
+export function formatExpressionResult(expressionResult: ExpressionResult.Type) {
   if (expressionResult.type === "string") {
     return expressionResult.value;
   }

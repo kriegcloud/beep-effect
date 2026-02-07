@@ -1,2 +1,2 @@
-export * as ExpressionResult from "./ExpressionResult";
+export * from "./ExpressionResult";
 export * as SyntaxKind from "./SyntaxKind";

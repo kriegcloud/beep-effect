@@ -364,13 +364,12 @@ describe("SparqlParser", () => {
     );
 
     it.effect(
-      "should return SparqlUnsupportedFeatureError for DESCRIBE",
+      "should parse DESCRIBE query",
       Effect.fn(function* () {
         const parser = yield* SparqlParser;
-        const error = yield* Effect.flip(parser.parse("DESCRIBE <http://example.org/alice>"));
+        const { query } = yield* parser.parse("DESCRIBE <http://example.org/alice> WHERE { ?s ?p ?o }");
 
-        assertTrue(P.isTagged(error, "SparqlUnsupportedFeatureError"));
-        strictEqual(error.feature, "DESCRIBE queries");
+        strictEqual(query.queryType, "DESCRIBE");
       }),
       TEST_TIMEOUT
     );

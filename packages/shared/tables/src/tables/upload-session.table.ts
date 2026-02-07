@@ -7,7 +7,7 @@ import { OrgTable } from "../org-table";
 /**
  * Drizzle schema definition for the `upload_session` table.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Tables
  *
  * @remarks

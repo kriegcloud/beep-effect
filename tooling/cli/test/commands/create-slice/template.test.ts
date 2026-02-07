@@ -4,7 +4,7 @@
  * Tests for the TemplateService Handlebars rendering functionality.
  *
  * @module create-slice/test/template
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { describe, expect, it } from "bun:test";

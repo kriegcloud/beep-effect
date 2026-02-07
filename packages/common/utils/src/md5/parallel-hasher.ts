@@ -26,7 +26,7 @@ const $I = $UtilsId.create("md5/parallel-hasher");
 
 /**
  * Configuration for the parallel hasher pool
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface ParallelHasherConfig {
@@ -37,21 +37,21 @@ export interface ParallelHasherConfig {
 
 /**
  * Default pool configuration
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constants
  */
 export const DEFAULT_POOL_SIZE = 4;
 
 /**
  * Default chunk size for file hashing
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constants
  */
 export const DEFAULT_CHUNK_SIZE = 1048576; // 1MB
 
 /**
  * Service interface for parallel MD5 hashing
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface ParallelHasherService {
@@ -60,14 +60,14 @@ export interface ParallelHasherService {
 
 /**
  * Context tag for parallel hasher service
- * @since 1.0.0
+ * @since 0.1.0
  * @category Services
  */
 export class ParallelHasher extends Context.Tag($I`ParallelHasher`)<ParallelHasher, ParallelHasherService>() {}
 
 /**
  * Convert Blob to Uint8Array for worker serialization
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utilities
  */
 const blobToUint8Array = (blob: Blob): Effect.Effect<Uint8Array, WorkerHashError> =>
@@ -105,7 +105,7 @@ const blobToUint8Array = (blob: Blob): Effect.Effect<Uint8Array, WorkerHashError
 
 /**
  * Create the parallel hasher service implementation
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constructors
  */
 const makeService = (
@@ -155,7 +155,7 @@ const makeService = (
  * Effect.runPromise(program.pipe(Effect.provide(hasherLayer)));
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Layers
  */
 export const makeLayer = (config: ParallelHasherConfig): Layer.Layer<ParallelHasher, WorkerHashError, never> =>
@@ -188,7 +188,7 @@ export const makeLayer = (config: ParallelHasherConfig): Layer.Layer<ParallelHas
 /**
  * Configuration for the parallel hasher with spawner function.
  * Use this for bundler-compatible worker creation.
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface ParallelHasherSpawnerConfig {
@@ -215,7 +215,7 @@ export interface ParallelHasherSpawnerConfig {
  * });
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Layers
  */
 export const makeLayerWithSpawner = (
@@ -251,7 +251,7 @@ export const makeLayerWithSpawner = (
  * This function requires ParallelHasher to be provided in the context.
  * Use makeLayer to create the layer.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Hashing
  */
 export const hashBlob: (
@@ -269,7 +269,7 @@ export const hashBlob: (
  * hashes the blob, and cleans up. For multiple hashes, prefer using
  * makeLayer and hashBlob to reuse the worker pool.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Hashing
  */
 export const hashBlobWithConfig = (blob: Blob, config: ParallelHasherConfig): Effect.Effect<string, WorkerHashError> =>

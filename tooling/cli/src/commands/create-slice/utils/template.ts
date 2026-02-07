@@ -6,7 +6,7 @@
  * a service for rendering templates with the slice context.
  *
  * @module create-slice/utils/template
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";

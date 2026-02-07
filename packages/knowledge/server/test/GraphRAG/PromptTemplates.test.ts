@@ -6,49 +6,19 @@ import {
   GROUNDED_ANSWER_SYSTEM_PROMPT,
   type GraphContext,
   type GraphContextEntity,
-  type GraphContextRelation,
   stripCitationMarkers,
 } from "@beep/knowledge-server/GraphRAG/PromptTemplates";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { assertFalse, assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
+import { graphRagFixtureIds, makeGraphContextEntity, makeGraphContextRelation } from "../_shared/GraphFixtures";
 
-const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
-  "knowledge_entity__11111111-1111-1111-1111-111111111111"
-);
-const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
-  "knowledge_entity__22222222-2222-2222-2222-222222222222"
-);
-const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
-
-const createTestEntity = (
-  id: string,
-  mention: string,
-  types: ReadonlyArray<string>,
-  attributes?: Readonly<Record<string, string>>
-): GraphContextEntity => {
-  const entity: GraphContextEntity = { id, mention, types };
-  if (attributes !== undefined) {
-    return { ...entity, attributes };
-  }
-  return entity;
-};
-
-const createTestRelation = (
-  id: string,
-  subjectId: string,
-  predicate: string,
-  objectId: string
-): GraphContextRelation => ({
-  id,
-  subjectId,
-  predicate,
-  objectId,
-});
+const testEntityId1 = graphRagFixtureIds.entity1;
+const testEntityId2 = graphRagFixtureIds.entity2;
+const testRelationId = graphRagFixtureIds.relation1;
 
 describe("PromptTemplates", () => {
   describe("GROUNDED_ANSWER_SYSTEM_PROMPT", () => {
@@ -79,7 +49,11 @@ describe("PromptTemplates", () => {
     effect(
       "formats entity with ID visible",
       Effect.fn(function* () {
-        const entity = createTestEntity(testEntityId1, "Alice Smith", ["http://schema.org/Person"]);
+        const entity = makeGraphContextEntity({
+          id: testEntityId1,
+          mention: "Alice Smith",
+          types: ["http://schema.org/Person"],
+        });
         const formatted = formatEntityForPrompt(entity);
 
         assertTrue(Str.includes(`[id: ${testEntityId1}]`)(formatted));
@@ -91,10 +65,11 @@ describe("PromptTemplates", () => {
     effect(
       "formats entity with multiple types",
       Effect.fn(function* () {
-        const entity = createTestEntity(testEntityId1, "Alice", [
-          "http://schema.org/Person",
-          "http://schema.org/Employee",
-        ]);
+        const entity = makeGraphContextEntity({
+          id: testEntityId1,
+          mention: "Alice",
+          types: ["http://schema.org/Person", "http://schema.org/Employee"],
+        });
         const formatted = formatEntityForPrompt(entity);
 
         assertTrue(Str.includes("Person")(formatted));
@@ -105,9 +80,14 @@ describe("PromptTemplates", () => {
     effect(
       "formats entity with attributes",
       Effect.fn(function* () {
-        const entity = createTestEntity(testEntityId1, "Alice", ["http://schema.org/Person"], {
-          "http://schema.org/age": "30",
-          "http://schema.org/jobTitle": "Engineer",
+        const entity = makeGraphContextEntity({
+          id: testEntityId1,
+          mention: "Alice",
+          types: ["http://schema.org/Person"],
+          attributes: {
+            "http://schema.org/age": "30",
+            "http://schema.org/jobTitle": "Engineer",
+          },
         });
         const formatted = formatEntityForPrompt(entity);
 
@@ -119,7 +99,7 @@ describe("PromptTemplates", () => {
     effect(
       "handles unknown type",
       Effect.fn(function* () {
-        const entity = createTestEntity(testEntityId1, "Something", []);
+        const entity = makeGraphContextEntity({ id: testEntityId1, mention: "Something", types: [] });
         const formatted = formatEntityForPrompt(entity);
 
         assertTrue(Str.includes("Unknown")(formatted));
@@ -132,12 +112,17 @@ describe("PromptTemplates", () => {
       "formats relation with ID and resolved mentions",
       Effect.fn(function* () {
         const entities = [
-          createTestEntity(testEntityId1, "Alice", ["Person"]),
-          createTestEntity(testEntityId2, "Acme Corp", ["Organization"]),
+          makeGraphContextEntity({ id: testEntityId1, mention: "Alice", types: ["Person"] }),
+          makeGraphContextEntity({ id: testEntityId2, mention: "Acme Corp", types: ["Organization"] }),
         ];
         const entityLookup = HashMap.fromIterable(A.map(entities, (e) => [e.id, e] as const));
 
-        const relation = createTestRelation(testRelationId, testEntityId1, "http://schema.org/worksFor", testEntityId2);
+        const relation = makeGraphContextRelation({
+          id: testRelationId,
+          subjectId: testEntityId1,
+          predicate: "http://schema.org/worksFor",
+          objectId: testEntityId2,
+        });
 
         const formatted = formatRelationForPrompt(relation, entityLookup);
 
@@ -152,7 +137,12 @@ describe("PromptTemplates", () => {
       "uses ID when entity not in lookup",
       Effect.fn(function* () {
         const entityLookup = HashMap.empty<string, GraphContextEntity>();
-        const relation = createTestRelation(testRelationId, testEntityId1, "knows", testEntityId2);
+        const relation = makeGraphContextRelation({
+          id: testRelationId,
+          subjectId: testEntityId1,
+          predicate: "knows",
+          objectId: testEntityId2,
+        });
 
         const formatted = formatRelationForPrompt(relation, entityLookup);
 
@@ -168,10 +158,25 @@ describe("PromptTemplates", () => {
       Effect.fn(function* () {
         const context: GraphContext = {
           entities: [
-            createTestEntity(testEntityId1, "Alice", ["http://schema.org/Person"]),
-            createTestEntity(testEntityId2, "Acme Corp", ["http://schema.org/Organization"]),
+            makeGraphContextEntity({
+              id: testEntityId1,
+              mention: "Alice",
+              types: ["http://schema.org/Person"],
+            }),
+            makeGraphContextEntity({
+              id: testEntityId2,
+              mention: "Acme Corp",
+              types: ["http://schema.org/Organization"],
+            }),
           ],
-          relations: [createTestRelation(testRelationId, testEntityId1, "http://schema.org/worksFor", testEntityId2)],
+          relations: [
+            makeGraphContextRelation({
+              id: testRelationId,
+              subjectId: testEntityId1,
+              predicate: "http://schema.org/worksFor",
+              objectId: testEntityId2,
+            }),
+          ],
         };
 
         const prompts = buildGroundedAnswerPrompt(context, "Where does Alice work?");
@@ -206,7 +211,7 @@ describe("PromptTemplates", () => {
       "includes entity IDs for citation reference",
       Effect.fn(function* () {
         const context: GraphContext = {
-          entities: [createTestEntity(testEntityId1, "Alice", ["Person"])],
+          entities: [makeGraphContextEntity({ id: testEntityId1, mention: "Alice", types: ["Person"] })],
           relations: [],
         };
 

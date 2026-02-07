@@ -66,6 +66,27 @@ Each slice follows `domain -> tables -> server -> client -> ui`. Cross-slice imp
 
 See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for detailed Effect patterns, import conventions, and critical rules.
 
+## Codex Parity Surface
+
+For Codex parity workflows and adaptations, use:
+- `.codex/README.md`
+- `.codex/context-index.md`
+- `.codex/rules/`
+- `.codex/workflows/`
+- `.codex/safety/permissions.md`
+
+## Cursor Parity Surface
+
+For Cursor IDE parity workflows and adaptations, use:
+- [.cursor/README.md](.cursor/README.md) — Cursor config index, command/workflow mapping, skill list
+- `specs/pending/cursor-claude-parity/` — Spec for achieving `.cursor` parity with `.claude` and `.codex`
+- `.cursor/rules/` — Synced from `.claude/rules` via `bun run repo-cli sync-cursor-rules`
+- `.cursor/skills/` — Cursor skill catalog (required + workflow skills)
+
+**Cursor entry points (no /commands):** Trigger workflows by prompt or @-mention. New spec → "Create a new spec for …" or @Spec Lifecycle. Feature complete → @Done Feature. Debug/explore/write-test → @Task Execution. See `.cursor/README.md` for full index.
+
+**Agent-tier mapping:** Discovery (codebase-researcher, mcp-researcher) → explore via @Task Execution. Evaluation (code-reviewer, architecture-pattern-enforcer) → rules + code-standards/effect-patterns; legal-review skill deferred. Synthesis (reflector, doc-writer) → @Spec Lifecycle + spec-driven-development. Iteration (test-writer, effect-code-writer) → @Task Execution (Write Test) + service-implementation/layer-design.
+
 ## Code Quality
 
 - No `any`, `@ts-ignore`, or unchecked casts. Validate external data with `@beep/schema`.
@@ -87,7 +108,7 @@ Agent-assisted, self-improving specification workflow for complex, multi-phase t
 
 | Action            | Location                                                                                          |
 |-------------------|---------------------------------------------------------------------------------------------------|
-| Create new spec   | `specs/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
+| Create new spec   | `specs/pending/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
 | Pattern reference | [PATTERN_REGISTRY](specs/_guide/PATTERN_REGISTRY.md)                                              |
 | View all specs    | [specs/README.md](specs/README.md)                                                                |
 | Agent specs       | [specs/agents/](specs/agents/README.md)                                                           |
@@ -139,11 +160,12 @@ See [subtree-workflow.md](documentation/subtree-workflow.md) for update procedur
 
 ### Specs by Status
 
-| Status | Specs |
-|--------|-------|
-| ✅ Complete | [artifact-file-cleanup](specs/artifact-file-cleanup/), [lexical-playground-port](specs/lexical-playground-port/), [lexical-utils-effect-refactor](specs/lexical-utils-effect-refactor/), [spec-creation-improvements](specs/spec-creation-improvements/), [agent-context-optimization](specs/agent-context-optimization/) |
-| 🔄 Active | [agent-infrastructure-rationalization](specs/agent-infrastructure-rationalization/), [knowledge-architecture-foundation](specs/knowledge-architecture-foundation/), [todox-design](specs/todox-design/) |
-| 📋 Planning | [e2e-testkit-migration](specs/e2e-testkit-migration/), [knowledge-*](specs/) (see [full list](specs/README.md)) |
+Specs are now organized by folder:
+- Pending: `specs/pending/`
+- Completed: `specs/completed/`
+- Archived (deferred): `specs/archived/`
+
+See [specs/README.md](specs/README.md) for the current index.
 
 ## Key References
 

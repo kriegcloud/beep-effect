@@ -1,18 +1,18 @@
 import { IRI, Literal, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
-import { RdfBuilder, RdfBuilderLive } from "@beep/knowledge-server/Rdf/RdfBuilder";
-import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf/RdfStoreService";
-import { Serializer, SerializerLive } from "@beep/knowledge-server/Rdf/Serializer";
+import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
+import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
+import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
 import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
+import { makeRdfBuilderSerializerLayer } from "../_shared/LayerBuilders";
 
 const includes = (str: string, search: string): boolean => Str.includes(search)(str);
 
-const TestLayer = Layer.mergeAll(RdfBuilderLive, SerializerLive).pipe(Layer.provideMerge(RdfStoreLive));
+const TestLayer = makeRdfBuilderSerializerLayer();
 
 const EX = "http://example.org/";
 const FOAF = "http://xmlns.com/foaf/0.1/";

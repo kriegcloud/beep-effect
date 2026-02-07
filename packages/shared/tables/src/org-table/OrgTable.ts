@@ -26,6 +26,15 @@ export type RlsOptions = {
    * - 'none': Skips automatic policy generation (for custom policies)
    */
   readonly rlsPolicy?: "standard" | "nullable" | "none";
+
+  /**
+   * When true, the organizationId column is nullable (no .notNull() constraint).
+   * Defaults to false (NOT NULL constraint applied).
+   *
+   * When nullableColumn is true and rlsPolicy is not explicitly set,
+   * rlsPolicy defaults to "nullable" instead of "standard".
+   */
+  readonly nullableColumn?: boolean;
 };
 
 // =============================================================================
@@ -56,14 +65,29 @@ const nullablePolicy = (tableName: string) =>
     withCheck: sql`organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text`,
   });
 
+// =============================================================================
+// COLUMN TYPES
+// =============================================================================
+
 /**
- * Default columns for organization-scoped tables.
+ * Default columns for organization-scoped tables with NOT NULL organizationId.
  * Extends DefaultColumns with the organizationId foreign key.
  */
 type OrgDefaultColumns<TableName extends string, Brand extends string> = DefaultColumns<TableName, Brand> & {
   organizationId: $Type<
     NotNull<pg.PgTextBuilderInitial<"organization_id", [string, ...string[]]>>,
     SharedEntityIds.OrganizationId.Type
+  >;
+};
+
+/**
+ * Default columns for organization-scoped tables with NULLABLE organizationId.
+ * Extends DefaultColumns with a nullable organizationId foreign key.
+ */
+type OrgDefaultColumnsNullable<TableName extends string, Brand extends string> = DefaultColumns<TableName, Brand> & {
+  organizationId: $Type<
+    pg.PgTextBuilderInitial<"organization_id", [string, ...string[]]>,
+    SharedEntityIds.OrganizationId.Type | null
   >;
 };
 
@@ -82,6 +106,10 @@ type NoOrgDefaultKeys<T> = T & { readonly [K in OrgDefaultColumnKeys]?: never };
 
 type OrgColumnsMap = Omit<Record<string, pg.PgColumnBuilderBase>, OrgDefaultColumnKeys>;
 
+// =============================================================================
+// EXTRA CONFIG TYPES (NOT NULL variant)
+// =============================================================================
+
 type OrgExtraConfigColumns<
   TableName extends string,
   Brand extends string,
@@ -95,95 +123,255 @@ type OrgExtraConfig<TableName extends string, Brand extends string, TColumnsMap 
 /**
  * All columns (org defaults + custom), flattened for clean display.
  * This is the type that will be displayed in hover tooltips.
+ * Used when organizationId is NOT NULL.
  */
 type OrgAllColumns<TableName extends string, Brand extends string, TColumnsMap extends OrgColumnsMap> = Prettify<
   MergedColumns<OrgDefaultColumns<TableName, Brand>, TColumnsMap>
 >;
 
-export const make = <
+// =============================================================================
+// EXTRA CONFIG TYPES (NULLABLE variant)
+// =============================================================================
+
+type OrgExtraConfigColumnsNullable<
+  TableName extends string,
+  Brand extends string,
+  TColumnsMap extends OrgColumnsMap,
+> = BuildExtraConfigColumns<TableName, MergedColumns<OrgDefaultColumnsNullable<TableName, Brand>, TColumnsMap>, "pg">;
+
+type OrgExtraConfigNullable<TableName extends string, Brand extends string, TColumnsMap extends OrgColumnsMap> =
+  | undefined
+  | ((self: OrgExtraConfigColumnsNullable<TableName, Brand, TColumnsMap>) => PgTableExtraConfigValue[]);
+
+/**
+ * All columns (org defaults + custom), flattened for clean display.
+ * Used when organizationId is NULLABLE.
+ */
+type OrgAllColumnsNullable<
+  TableName extends string,
+  Brand extends string,
+  TColumnsMap extends OrgColumnsMap,
+> = Prettify<MergedColumns<OrgDefaultColumnsNullable<TableName, Brand>, TColumnsMap>>;
+
+// =============================================================================
+// INTERNAL MAKER FUNCTIONS
+// =============================================================================
+
+/**
+ * Internal implementation for NOT NULL organizationId tables.
+ */
+const makeNotNull = <
+  const TableName extends string,
+  const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+>(
+  entityId: EntityId.EntityId<TableName, Brand, LinkedActions>,
+  rlsPolicy: "standard" | "nullable" | "none"
+): (<TColumnsMap extends OrgColumnsMap>(
+  columns: NoOrgDefaultKeys<TColumnsMap>,
+  extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
+) => PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>) => {
+  const orgFkName = `${entityId.tableName}_org_fk`;
+
+  const defaultColumns: OrgDefaultColumns<TableName, Brand> = {
+    id: entityId.publicId(),
+    _rowId: entityId.privateId(),
+    organizationId: pg.text("organization_id").notNull().$type<SharedEntityIds.OrganizationId.Type>(),
+    ...globalColumns,
+  };
+
+  return <TColumnsMap extends OrgColumnsMap>(
+    columns: NoOrgDefaultKeys<TColumnsMap>,
+    extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
+  ): PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>> => {
+    const cols = {
+      ...defaultColumns,
+      ...columns,
+    };
+
+    const mergedConfig =
+      rlsPolicy === "none"
+        ? (self: OrgExtraConfigColumns<TableName, Brand, TColumnsMap>): PgTableExtraConfigValue[] => {
+            const userConfigs = extraConfig?.(self) ?? [];
+            const orgFk = pg
+              .foreignKey({
+                name: orgFkName,
+                columns: [self.organizationId],
+                foreignColumns: [organization.id],
+              })
+              .onDelete("cascade")
+              .onUpdate("cascade");
+            return [...userConfigs, orgFk];
+          }
+        : (self: OrgExtraConfigColumns<TableName, Brand, TColumnsMap>): PgTableExtraConfigValue[] => {
+            const userConfigs = extraConfig?.(self) ?? [];
+            const orgFk = pg
+              .foreignKey({
+                name: orgFkName,
+                columns: [self.organizationId],
+                foreignColumns: [organization.id],
+              })
+              .onDelete("cascade")
+              .onUpdate("cascade");
+            const policy =
+              rlsPolicy === "nullable" ? nullablePolicy(entityId.tableName) : standardPolicy(entityId.tableName);
+            return [...userConfigs, orgFk, policy];
+          };
+
+    const table = pg.pgTable<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>(
+      entityId.tableName,
+      cols,
+      mergedConfig
+    );
+
+    return rlsPolicy === "none"
+      ? table
+      : (table.enableRLS() as PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>);
+  };
+};
+
+/**
+ * Internal implementation for NULLABLE organizationId tables.
+ */
+const makeNullable = <
+  const TableName extends string,
+  const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+>(
+  entityId: EntityId.EntityId<TableName, Brand, LinkedActions>,
+  rlsPolicy: "standard" | "nullable" | "none"
+): (<TColumnsMap extends OrgColumnsMap>(
+  columns: NoOrgDefaultKeys<TColumnsMap>,
+  extraConfig?: OrgExtraConfigNullable<TableName, Brand, TColumnsMap>
+) => PgTableWithMergedColumns<TableName, OrgAllColumnsNullable<TableName, Brand, TColumnsMap>>) => {
+  const orgFkName = `${entityId.tableName}_org_fk`;
+
+  const defaultColumns: OrgDefaultColumnsNullable<TableName, Brand> = {
+    id: entityId.publicId(),
+    _rowId: entityId.privateId(),
+    organizationId: pg.text("organization_id").$type<SharedEntityIds.OrganizationId.Type | null>(),
+    ...globalColumns,
+  };
+
+  return <TColumnsMap extends OrgColumnsMap>(
+    columns: NoOrgDefaultKeys<TColumnsMap>,
+    extraConfig?: OrgExtraConfigNullable<TableName, Brand, TColumnsMap>
+  ): PgTableWithMergedColumns<TableName, OrgAllColumnsNullable<TableName, Brand, TColumnsMap>> => {
+    const cols = {
+      ...defaultColumns,
+      ...columns,
+    };
+
+    const mergedConfig =
+      rlsPolicy === "none"
+        ? (self: OrgExtraConfigColumnsNullable<TableName, Brand, TColumnsMap>): PgTableExtraConfigValue[] => {
+            const userConfigs = extraConfig?.(self) ?? [];
+            const orgFk = pg
+              .foreignKey({
+                name: orgFkName,
+                columns: [self.organizationId],
+                foreignColumns: [organization.id],
+              })
+              .onDelete("cascade")
+              .onUpdate("cascade");
+            return [...userConfigs, orgFk];
+          }
+        : (self: OrgExtraConfigColumnsNullable<TableName, Brand, TColumnsMap>): PgTableExtraConfigValue[] => {
+            const userConfigs = extraConfig?.(self) ?? [];
+            const orgFk = pg
+              .foreignKey({
+                name: orgFkName,
+                columns: [self.organizationId],
+                foreignColumns: [organization.id],
+              })
+              .onDelete("cascade")
+              .onUpdate("cascade");
+            const policy =
+              rlsPolicy === "nullable" ? nullablePolicy(entityId.tableName) : standardPolicy(entityId.tableName);
+            return [...userConfigs, orgFk, policy];
+          };
+
+    const table = pg.pgTable<TableName, OrgAllColumnsNullable<TableName, Brand, TColumnsMap>>(
+      entityId.tableName,
+      cols,
+      mergedConfig
+    );
+
+    return rlsPolicy === "none"
+      ? table
+      : (table.enableRLS() as PgTableWithMergedColumns<
+          TableName,
+          OrgAllColumnsNullable<TableName, Brand, TColumnsMap>
+        >);
+  };
+};
+
+// =============================================================================
+// PUBLIC API - FUNCTION OVERLOADS
+// =============================================================================
+
+/**
+ * Creates an organization-scoped table with automatic RLS policy.
+ *
+ * @overload When `nullableColumn: true`, organizationId can be NULL
+ */
+export function make<
+  const TableName extends string,
+  const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+>(
+  entityId: EntityId.EntityId<TableName, Brand, LinkedActions>,
+  options: RlsOptions & { readonly nullableColumn: true }
+): <TColumnsMap extends OrgColumnsMap>(
+  columns: NoOrgDefaultKeys<TColumnsMap>,
+  extraConfig?: OrgExtraConfigNullable<TableName, Brand, TColumnsMap>
+) => PgTableWithMergedColumns<TableName, OrgAllColumnsNullable<TableName, Brand, TColumnsMap>>;
+
+/**
+ * Creates an organization-scoped table with automatic RLS policy.
+ *
+ * @overload When `nullableColumn: false` or undefined, organizationId is NOT NULL (default)
+ */
+export function make<
+  const TableName extends string,
+  const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+>(
+  entityId: EntityId.EntityId<TableName, Brand, LinkedActions>,
+  options?: RlsOptions & { readonly nullableColumn?: false }
+): <TColumnsMap extends OrgColumnsMap>(
+  columns: NoOrgDefaultKeys<TColumnsMap>,
+  extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
+) => PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>;
+
+/**
+ * Creates an organization-scoped table with automatic RLS policy.
+ *
+ * Implementation that dispatches to the appropriate internal maker based on nullableColumn.
+ */
+export function make<
   const TableName extends string,
   const Brand extends string,
   const LinkedActions extends A.NonEmptyReadonlyArray<string>,
 >(
   entityId: EntityId.EntityId<TableName, Brand, LinkedActions>,
   options?: RlsOptions
-): (<TColumnsMap extends OrgColumnsMap>(
-  columns: NoOrgDefaultKeys<TColumnsMap>,
-  extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
-) => PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>) => {
-  const rlsPolicy = options?.rlsPolicy ?? "standard";
-
-  // Short FK name to avoid PostgreSQL 63-char identifier limit
-  // Format: {table_name}_org_fk (instead of auto-generated {table}_organization_id_shared_organization_id_fk)
-  const orgFkName = `${entityId.tableName}_org_fk`;
-
-  const defaultColumns: OrgDefaultColumns<TableName, Brand> = {
-    id: entityId.publicId(),
-    _rowId: entityId.privateId(),
-    // Note: FK constraint is added via foreignKey() in extraConfig to use custom short name
-    organizationId: pg.text("organization_id").notNull().$type<SharedEntityIds.OrganizationId.Type>(),
-    ...globalColumns,
-  };
-
-  const maker =
-    (
-      defaultColumns: OrgDefaultColumns<TableName, Brand>
-    ): (<TColumnsMap extends OrgColumnsMap>(
+):
+  | (<TColumnsMap extends OrgColumnsMap>(
       columns: NoOrgDefaultKeys<TColumnsMap>,
       extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
-    ) => PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>) =>
-    <TColumnsMap extends OrgColumnsMap>(
+    ) => PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>)
+  | (<TColumnsMap extends OrgColumnsMap>(
       columns: NoOrgDefaultKeys<TColumnsMap>,
-      extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
-    ): PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>> => {
-      const cols = {
-        ...defaultColumns,
-        ...columns,
-      };
+      extraConfig?: OrgExtraConfigNullable<TableName, Brand, TColumnsMap>
+    ) => PgTableWithMergedColumns<TableName, OrgAllColumnsNullable<TableName, Brand, TColumnsMap>>) {
+  const nullableColumn = options?.nullableColumn ?? false;
+  // Default to "nullable" RLS policy when column is nullable, unless explicitly set
+  const rlsPolicy = options?.rlsPolicy ?? (nullableColumn ? "nullable" : "standard");
 
-      // Create merged config that combines user's extraConfig with auto-generated FK and RLS policy
-      const mergedConfig =
-        rlsPolicy === "none"
-          ? (self: OrgExtraConfigColumns<TableName, Brand, TColumnsMap>): PgTableExtraConfigValue[] => {
-              const userConfigs = extraConfig?.(self) ?? [];
-              // Create the organization_id FK with short custom name to avoid PostgreSQL 63-char limit
-              const orgFk = pg
-                .foreignKey({
-                  name: orgFkName,
-                  columns: [self.organizationId],
-                  foreignColumns: [organization.id],
-                })
-                .onDelete("cascade")
-                .onUpdate("cascade");
-              return [...userConfigs, orgFk];
-            }
-          : (self: OrgExtraConfigColumns<TableName, Brand, TColumnsMap>): PgTableExtraConfigValue[] => {
-              const userConfigs = extraConfig?.(self) ?? [];
-              // Create the organization_id FK with short custom name to avoid PostgreSQL 63-char limit
-              const orgFk = pg
-                .foreignKey({
-                  name: orgFkName,
-                  columns: [self.organizationId],
-                  foreignColumns: [organization.id],
-                })
-                .onDelete("cascade")
-                .onUpdate("cascade");
-              const policy =
-                rlsPolicy === "nullable" ? nullablePolicy(entityId.tableName) : standardPolicy(entityId.tableName);
-              return [...userConfigs, orgFk, policy];
-            };
+  if (nullableColumn) {
+    return makeNullable(entityId, rlsPolicy);
+  }
 
-      const table = pg.pgTable<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>(
-        entityId.tableName,
-        cols,
-        mergedConfig
-      );
-
-      // Enable RLS unless explicitly disabled
-      return rlsPolicy === "none"
-        ? table
-        : (table.enableRLS() as PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>);
-    };
-
-  return maker(defaultColumns);
-};
+  return makeNotNull(entityId, rlsPolicy);
+}

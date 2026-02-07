@@ -20,7 +20,7 @@ const $I = $UtilsId.create("md5/worker");
 /**
  * Worker error schema for serialization
  * Combines all possible MD5 hashing errors
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  */
 const WorkerErrorSchema = S.Union(FileReadError, BlobSliceError, UnicodeEncodingError, Md5ComputationError);
@@ -28,7 +28,7 @@ const WorkerErrorSchema = S.Union(FileReadError, BlobSliceError, UnicodeEncoding
 /**
  * Hash request schema - uses ArrayBuffer instead of Blob for serializability
  * The main thread converts Blob to ArrayBuffer before sending
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  */
 export class HashRequest extends S.TaggedRequest<HashRequest>()(
@@ -49,14 +49,14 @@ export class HashRequest extends S.TaggedRequest<HashRequest>()(
 
 /**
  * Request union type for the worker
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  */
 export type WorkerRequest = HashRequest;
 
 /**
  * Worker request schema union
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  */
 export const WorkerRequestSchema = S.Union(HashRequest).annotations(
@@ -71,7 +71,7 @@ export const WorkerRequestSchema = S.Union(HashRequest).annotations(
  * This should be called in the worker context (worker.ts file).
  * Handles HashRequest messages and returns MD5 hash strings.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Launching
  */
 export const launchWorker = Runner.makeSerialized(WorkerRequestSchema, {

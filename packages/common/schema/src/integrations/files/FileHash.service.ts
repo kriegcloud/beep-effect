@@ -6,7 +6,7 @@
  * - Recomputing hashes (e.g., for verification or after file modification)
  * - Verifying hash integrity
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @module
  */
 
@@ -28,7 +28,7 @@ const $I = $SchemaId.create("integrations/files/FileHashService");
  * - Recomputing hashes (e.g., for verification or after file modification)
  * - Verifying hash integrity
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Services
  */
 export class FileHashService extends Effect.Service<FileHashService>()($I`FileHashService`, {

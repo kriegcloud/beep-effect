@@ -1,8 +1,10 @@
 /**
  * @since 0.1.0
  */
+
+import { test as bunTest } from "bun:test";
+import { Effect, TestContext } from "effect";
 import type * as Duration from "effect/Duration";
-import type * as Effect from "effect/Effect";
 import type * as FC from "effect/FastCheck";
 import type * as Layer from "effect/Layer";
 import type * as Schema from "effect/Schema";
@@ -11,15 +13,56 @@ import type * as TestServices from "effect/TestServices";
 import * as internal from "./internal/internal";
 import type { UnsafeAny } from "./internal/types";
 
+type TestEnv = TestServices.TestServices;
+
 /**
  * @since 0.1.0
  */
-export * from "bun:test";
+
+export type {
+  AsymmetricMatcher,
+  AsymmetricMatchers,
+  AsymmetricMatchersBuiltin,
+  CustomMatcher,
+  CustomMatchersDetected,
+  Describe,
+  EqualsFunction,
+  Expect,
+  ExpectExtendMatchers,
+  MatcherResult,
+  Matchers,
+  MatchersBuiltin,
+  Mock,
+  Test,
+  Tester,
+  TesterContext,
+  TestOptions,
+} from "bun:test";
+export {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  expectTypeOf,
+  jest,
+  mock,
+  onTestFinished,
+  setDefaultTimeout,
+  setSystemTime,
+  spyOn,
+  test,
+  vi,
+  xdescribe,
+  xit,
+  xtest,
+} from "bun:test";
 export * from "./assert";
 
 /**
  * RLS (Row-Level Security) test helpers namespace export
- * @since 1.0.0
+ * @since 0.1.0
  */
 export * as RLS from "./rls";
 
@@ -195,3 +238,47 @@ export const makeMethods: (it: UnsafeAny) => BunTest.Methods = internal.makeMeth
  * @since 0.1.0
  */
 export const describeWrapped: (name: string, f: (it: BunTest.Methods) => void) => void = internal.describeWrapped;
+/**
+ * Yield to allow forked fibers to process.
+ * Use after `send()` or when waiting for async effects.
+ * Multiple yields handle delay timer registration.
+ */
+export const yieldFibers = Effect.yieldNow().pipe(Effect.repeatN(9));
+
+/**
+ * Effect-aware test helpers.
+ *
+ * - `it.effect` - Run with TestContext (includes TestClock)
+ * - `it.scoped` - Run scoped effect with TestContext
+ * - `it.live` - Run with real clock (no TestContext)
+ * - `it.scopedLive` - Run scoped effect with real clock
+ */
+export const it = Object.assign(bunTest, {
+  /**
+   * Run effect with TestContext (includes TestClock).
+   * Use for tests that need time control.
+   */
+  effect: <E>(name: string, fn: () => Effect.Effect<void, E, TestEnv>, timeout?: number) =>
+    bunTest(name, () => Effect.runPromise(fn().pipe(Effect.provide(TestContext.TestContext))), timeout),
+
+  /**
+   * Run scoped effect with TestContext.
+   * Use for tests with resources that need cleanup.
+   */
+  scoped: <E>(name: string, fn: () => Effect.Effect<void, E, TestEnv | Scope.Scope>, timeout?: number) =>
+    bunTest(name, () => Effect.runPromise(fn().pipe(Effect.scoped, Effect.provide(TestContext.TestContext))), timeout),
+
+  /**
+   * Run effect with real clock (no TestContext).
+   * Use for tests that need actual time delays.
+   */
+  live: <E>(name: string, fn: () => Effect.Effect<void, E, never>, timeout?: number) =>
+    bunTest(name, () => Effect.runPromise(fn()), timeout),
+
+  /**
+   * Run scoped effect with real clock.
+   * Use for tests with resources that need real time.
+   */
+  scopedLive: <E>(name: string, fn: () => Effect.Effect<void, E, Scope.Scope>, timeout?: number) =>
+    bunTest(name, () => Effect.runPromise(fn().pipe(Effect.scoped)), timeout),
+});

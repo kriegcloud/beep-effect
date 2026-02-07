@@ -7,7 +7,7 @@
  *   beep verify all [--filter <package>] [--format <format>] [--severity <level>] [--ci]
  *
  * @module verify/all
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as Command from "@effect/cli/Command";

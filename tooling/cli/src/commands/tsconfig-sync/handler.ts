@@ -9,7 +9,7 @@
  * - Next.js app sync via app-sync.ts
  *
  * @module tsconfig-sync/handler
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { CyclicDependencyError } from "@beep/tooling-utils";

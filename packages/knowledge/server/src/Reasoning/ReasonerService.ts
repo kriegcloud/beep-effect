@@ -12,16 +12,19 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { RdfStore, RdfStoreLive } from "../Rdf/RdfStoreService";
 import { forwardChain } from "./ForwardChainer";
+import type { Rule } from "./RdfsRules";
 
 const $I = $KnowledgeServerId.create("Reasoning/ReasonerService");
 
 export interface ReasonerServiceShape {
   readonly infer: (
-    config?: ReasoningConfig
+    config?: ReasoningConfig,
+    customRules?: ReadonlyArray<Rule>
   ) => Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError>;
   readonly inferAndMaterialize: (
     config?: ReasoningConfig,
-    materialize?: boolean
+    materialize?: boolean,
+    customRules?: ReadonlyArray<Rule>
   ) => Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError>;
 }
 
@@ -31,10 +34,15 @@ const serviceEffect: Effect.Effect<ReasonerServiceShape, never, RdfStore> = Effe
   const store = yield* RdfStore;
 
   const runInference = Effect.fn("ReasonerService.runInference")(
-    (config: ReasoningConfig): Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError> =>
+    (
+      config: ReasoningConfig,
+      customRules?: ReadonlyArray<Rule>
+    ): Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError> =>
       Effect.gen(function* () {
         const quads = yield* store.match(new QuadPattern({}));
-        return yield* forwardChain(quads, config);
+        return yield* customRules === undefined
+          ? forwardChain(quads, config)
+          : forwardChain(quads, config, { customRules });
       }).pipe(
         Effect.withSpan("ReasonerService.runInference", {
           attributes: {
@@ -48,9 +56,10 @@ const serviceEffect: Effect.Effect<ReasonerServiceShape, never, RdfStore> = Effe
 
   const infer = Effect.fn("ReasonerService.infer")(
     (
-      config: ReasoningConfig = DefaultReasoningConfig
+      config: ReasoningConfig = DefaultReasoningConfig,
+      customRules?: ReadonlyArray<Rule>
     ): Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError> =>
-      runInference(config).pipe(
+      runInference(config, customRules).pipe(
         Effect.withSpan("ReasonerService.infer", {
           attributes: {
             maxDepth: config.maxDepth,
@@ -64,10 +73,11 @@ const serviceEffect: Effect.Effect<ReasonerServiceShape, never, RdfStore> = Effe
   const inferAndMaterialize = Effect.fn("ReasonerService.inferAndMaterialize")(
     (
       config: ReasoningConfig = DefaultReasoningConfig,
-      materialize = false
+      materialize = false,
+      customRules?: ReadonlyArray<Rule>
     ): Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError> =>
       Effect.gen(function* () {
-        const result = yield* runInference(config);
+        const result = yield* runInference(config, customRules);
 
         if (materialize && A.isNonEmptyReadonlyArray(result.derivedTriples)) {
           yield* store.addQuads(result.derivedTriples);

@@ -1,18 +1,10 @@
-import { GoogleAuthClient } from "@beep/google-workspace-client";
-import {
-  GmailScopes,
-  GoogleApiError,
-  GoogleAuthenticationError,
-  GoogleOAuthToken,
-  GoogleScopeExpansionRequiredError,
-} from "@beep/google-workspace-domain";
+import { GmailScopes, GoogleApiError, GoogleScopeExpansionRequiredError } from "@beep/google-workspace-domain";
 import {
   GMAIL_EXTRACTION_REQUIRED_SCOPES,
   GmailExtractionAdapter,
   GmailExtractionAdapterLive,
 } from "@beep/knowledge-server/adapters";
 import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
-import { HttpClient, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -20,76 +12,14 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { makeGoogleAuthClientLayer, makeHttpClientMockLayer } from "../_shared/ServiceMocks";
 
 const encodeBase64Url = (data: string): string =>
   F.pipe(btoa(data), Str.replaceAll("+", "-"), Str.replaceAll("/", "_"), Str.replace(/=+$/, ""));
 
-const MockGoogleAuthClient = Layer.succeed(
-  GoogleAuthClient,
-  GoogleAuthClient.of({
-    getValidToken: (_scopes) =>
-      Effect.succeed(
-        new GoogleOAuthToken({
-          accessToken: O.some("mock-access-token"),
-          refreshToken: O.none(),
-          scope: O.some(GmailScopes.read),
-          tokenType: O.some("Bearer"),
-          expiryDate: O.some(DateTime.add(DateTime.unsafeNow(), { hours: 1 })),
-        })
-      ),
-    refreshToken: () =>
-      Effect.fail(
-        new GoogleAuthenticationError({
-          message: "Mock client does not support refresh",
-        })
-      ),
-  })
-);
-
-const MockGoogleAuthClientMissingScopes = Layer.succeed(
-  GoogleAuthClient,
-  GoogleAuthClient.of({
-    getValidToken: (requiredScopes) =>
-      Effect.fail(
-        new GoogleScopeExpansionRequiredError({
-          message: "Missing required scopes",
-          currentScopes: [],
-          requiredScopes: A.fromIterable(requiredScopes),
-          missingScopes: A.fromIterable(requiredScopes),
-        })
-      ),
-    refreshToken: () =>
-      Effect.fail(
-        new GoogleAuthenticationError({
-          message: "Mock client does not support refresh",
-        })
-      ),
-  })
-);
-
-const makeHttpClientMock = (
-  handler: (
-    request: HttpClientRequest.HttpClientRequest
-  ) => Effect.Effect<{ status: number; body: unknown }, never, never>
-) =>
-  Layer.succeed(
-    HttpClient.HttpClient,
-    HttpClient.make((request) =>
-      Effect.gen(function* () {
-        const result = yield* handler(request);
-        const encoded = yield* S.encodeUnknown(S.parseJson(S.Unknown))(result.body);
-        return HttpClientResponse.fromWeb(
-          request,
-          new Response(encoded, {
-            status: result.status,
-            headers: { "Content-Type": "application/json" },
-          })
-        );
-      }).pipe(Effect.catchTag("ParseError", Effect.die))
-    )
-  );
+const MockGoogleAuthClient = makeGoogleAuthClientLayer();
+const MockGoogleAuthClientMissingScopes = makeGoogleAuthClientLayer({ missingScopes: true });
 
 describe("GmailExtractionAdapter", () => {
   describe("extractEmailsForKnowledgeGraph", () => {
@@ -176,7 +106,7 @@ describe("GmailExtractionAdapter", () => {
       },
     };
 
-    const MockHttpClient = makeHttpClientMock((request) => {
+    const MockHttpClient = makeHttpClientMockLayer((request) => {
       const url = request.url;
       if (Str.includes("/messages/msg-1")(url)) {
         return Effect.succeed({ status: 200, body: mockMessage1 });
@@ -259,7 +189,7 @@ describe("GmailExtractionAdapter", () => {
       );
     });
 
-    const MockHttpClientEmpty = makeHttpClientMock((request) => {
+    const MockHttpClientEmpty = makeHttpClientMockLayer((request) => {
       const url = request.url;
       if (Str.includes("/messages")(url)) {
         return Effect.succeed({ status: 200, body: {} });
@@ -368,7 +298,7 @@ describe("GmailExtractionAdapter", () => {
       ],
     };
 
-    const MockHttpClient = makeHttpClientMock((request) => {
+    const MockHttpClient = makeHttpClientMockLayer((request) => {
       const url = request.url;
       if (Str.includes("/threads/thread-conversation")(url)) {
         return Effect.succeed({ status: 200, body: mockThread });
@@ -445,7 +375,7 @@ describe("GmailExtractionAdapter", () => {
   });
 
   describe("authentication errors", () => {
-    const MockHttpClient = makeHttpClientMock((_request) => Effect.succeed({ status: 200, body: {} }));
+    const MockHttpClient = makeHttpClientMockLayer((_request) => Effect.succeed({ status: 200, body: {} }));
 
     const TestLayerMissingScopes = GmailExtractionAdapterLive.pipe(
       Layer.provide(MockGoogleAuthClientMissingScopes),

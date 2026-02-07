@@ -5,7 +5,7 @@
  * Provides type-safe validation for telemetry events and command options.
  *
  * @module agents-usage-report/schemas
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as S from "effect/Schema";

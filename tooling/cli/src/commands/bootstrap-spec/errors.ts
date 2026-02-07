@@ -11,7 +11,7 @@
  * - FileWriteError: Failed to write generated file
  *
  * @module bootstrap-spec/errors
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -57,7 +57,7 @@ const CauseFields = {
  * import * as Effect from "effect/Effect"
  *
  * const checkSpec = (name: string) =>
- *   Effect.fail(new SpecExistsError({ specName: name, path: `specs/${name}` }))
+ *   Effect.fail(new SpecExistsError({ specName: name, path: `specs/pending/${name}` }))
  * ```
  *
  * @since 0.1.0

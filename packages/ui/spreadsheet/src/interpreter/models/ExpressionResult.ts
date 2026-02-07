@@ -16,38 +16,42 @@ export declare namespace ResultType {
 
 const makeResultClass = ResultType.toTagged("type").composer({});
 
-export class ResultError extends S.Class<ResultError>($I`ResultError`)(
+export class ExpressionResultError extends S.Class<ExpressionResultError>($I`ExpressionResultError`)(
   makeResultClass.error({}),
-  $I.annotations("ResultError", {
+  $I.annotations("ExpressionResultError", {
     description: "The error result of an expression",
   })
 ) {}
 
-export class ResultNumber extends S.Class<ResultNumber>($I`ResultNumber`)(
+export class ExpressionResultNumber extends S.Class<ExpressionResultNumber>($I`ExpressionResultNumber`)(
   makeResultClass.number({
     value: S.Number,
   }),
-  $I.annotations("ResultNumber", {
+  $I.annotations("ExpressionResultNumber", {
     description: "The number result of an expression",
   })
 ) {}
 
-export class ResultString extends S.Class<ResultString>($I`ResultString`)(
+export class ExpressionResultString extends S.Class<ExpressionResultString>($I`Expression`)(
   makeResultClass.string({
     value: S.String,
   }),
-  $I.annotations("ResultString", {
+  $I.annotations("Expression", {
     description: "The string result of an expression",
   })
 ) {}
 
-export class Result extends S.Union(ResultError, ResultNumber, ResultString).annotations(
-  $I.annotations("Result", {
+export class ExpressionResult extends S.Union(
+  ExpressionResultError,
+  ExpressionResultNumber,
+  ExpressionResultString
+).annotations(
+  $I.annotations("ExpressionResult", {
     description: "The result of an expression",
   })
 ) {}
 
-export declare namespace Result {
-  export type Type = typeof Result.Type;
-  export type Encoded = typeof Result.Encoded;
+export declare namespace ExpressionResult {
+  export type Type = typeof ExpressionResult.Type;
+  export type Encoded = typeof ExpressionResult.Encoded;
 }

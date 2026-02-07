@@ -3,7 +3,7 @@ import { CommsRepos } from "@beep/comms-server";
 import { CustomizationRepos } from "@beep/customization-server";
 import { DocumentsRepos } from "@beep/documents-server";
 import { IamRepos } from "@beep/iam-server";
-import { KnowledgeRepos } from "@beep/knowledge-server";
+import { KnowledgeRepos } from "@beep/knowledge-server/db";
 import { SharedRepos } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
 import * as Persistence from "./Persistence.layer";

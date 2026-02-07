@@ -28,21 +28,6 @@ const isQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.Query => ast.type =
 
 const isUpdate = (ast: sparqljs.SparqlQuery): ast is sparqljs.Update => ast.type === "update";
 
-const isSelectQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.SelectQuery =>
-  isQuery(ast) && ast.queryType === "SELECT";
-
-const isDescribeQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.DescribeQuery =>
-  isQuery(ast) && ast.queryType === "DESCRIBE";
-
-const isWildcard = (v: sparqljs.Variable | sparqljs.Wildcard): v is sparqljs.Wildcard =>
-  P.hasProperty(v, "termType") && (v as sparqljs.Wildcard).termType === "Wildcard";
-
-const isVariableTerm = (v: sparqljs.Variable | sparqljs.Wildcard | sparqljs.VariableTerm): v is sparqljs.VariableTerm =>
-  P.hasProperty(v, "termType") && (v as sparqljs.VariableTerm).termType === "Variable";
-
-const isVariableExpression = (v: sparqljs.Variable | sparqljs.Wildcard): v is sparqljs.VariableExpression =>
-  P.hasProperty(v, "variable") && P.isNotUndefined((v as sparqljs.VariableExpression).variable);
-
 const extractQueryType = (ast: sparqljs.SparqlQuery): O.Option<SparqlQueryTypeValue> =>
   F.pipe(
     ast,
@@ -52,40 +37,56 @@ const extractQueryType = (ast: sparqljs.SparqlQuery): O.Option<SparqlQueryTypeVa
 
 const extractPrefixes = (ast: sparqljs.SparqlQuery): PrefixMapValue => ({ ...ast.prefixes });
 
-const extractVariableName = (v: sparqljs.Variable | sparqljs.Wildcard): O.Option<string> =>
-  F.pipe(
-    v,
-    O.liftPredicate(P.not(isWildcard)),
-    O.flatMap((nonWildcard) =>
-      F.pipe(
-        nonWildcard,
-        O.liftPredicate(isVariableTerm),
-        O.map((term) => term.value),
-        O.orElse(() =>
-          F.pipe(
-            nonWildcard,
-            O.liftPredicate(isVariableExpression),
-            O.flatMap((expr) =>
-              F.pipe(
-                expr.variable,
-                O.liftPredicate(isVariableTerm),
-                O.map((vt) => vt.value)
-              )
-            )
-          )
-        )
-      )
-    )
-  );
+const extractAnyVariableName = (value: unknown): O.Option<string> => {
+  if (!P.hasProperty(value, "termType")) {
+    return O.none();
+  }
 
-const extractVariables = (ast: sparqljs.SparqlQuery): ReadonlyArray<string> =>
-  F.pipe(
-    ast,
-    O.liftPredicate(isSelectQuery),
-    O.flatMap((selectQuery) => O.fromNullable(selectQuery.variables)),
-    O.map((variables) => A.filterMap(variables, extractVariableName)),
-    O.getOrElse(A.empty<string>)
-  );
+  if (value.termType === "Variable" && P.hasProperty(value, "value") && P.isString(value.value)) {
+    return O.some(value.value);
+  }
+
+  if (
+    P.hasProperty(value, "variable") &&
+    P.hasProperty(value.variable, "termType") &&
+    value.variable.termType === "Variable" &&
+    P.hasProperty(value.variable, "value") &&
+    P.isString(value.variable.value)
+  ) {
+    return O.some(value.variable.value);
+  }
+
+  return O.none();
+};
+
+const extractVariables = (ast: sparqljs.SparqlQuery): ReadonlyArray<string> => {
+  if (!isQuery(ast)) {
+    return A.empty<string>();
+  }
+
+  if (ast.queryType === "SELECT") {
+    const variables = A.empty<string>();
+    for (const variable of ast.variables) {
+      const extracted = extractAnyVariableName(variable);
+      if (O.isSome(extracted)) {
+        variables.push(extracted.value);
+      }
+    }
+    return variables;
+  }
+
+  if (ast.queryType === "DESCRIBE") {
+    const variables = A.empty<string>();
+    for (const value of ast.variables) {
+      if (P.hasProperty(value, "termType") && value.termType === "Variable") {
+        variables.push(value.value);
+      }
+    }
+    return variables;
+  }
+
+  return A.empty<string>();
+};
 
 const makeUpdateError = (queryString: string): SparqlUnsupportedFeatureError =>
   new SparqlUnsupportedFeatureError({
@@ -94,18 +95,11 @@ const makeUpdateError = (queryString: string): SparqlUnsupportedFeatureError =>
     message: "UPDATE operations (INSERT/DELETE) are not supported in Phase 1",
   });
 
-const makeDescribeError = (queryString: string): SparqlUnsupportedFeatureError =>
-  new SparqlUnsupportedFeatureError({
-    feature: "DESCRIBE queries",
-    queryString,
-    message: "DESCRIBE queries are not supported in Phase 1",
-  });
-
 const makeNonQueryError = (queryString: string): SparqlUnsupportedFeatureError =>
   new SparqlUnsupportedFeatureError({
     feature: "non-query operations",
     queryString,
-    message: "Only SELECT, CONSTRUCT, and ASK queries are supported",
+    message: "Only SELECT, CONSTRUCT, ASK, and DESCRIBE queries are supported",
   });
 
 const checkUnsupportedFeatures = (
@@ -119,13 +113,6 @@ const checkUnsupportedFeatures = (
         ast,
         O.liftPredicate(isUpdate),
         O.map(() => makeUpdateError(queryString))
-      )
-    ),
-    O.orElse(() =>
-      F.pipe(
-        ast,
-        O.liftPredicate(isDescribeQuery),
-        O.map(() => makeDescribeError(queryString))
       )
     ),
     O.match({

@@ -38,7 +38,7 @@
  * ```
  *
  * @module docgen/aggregate
- * @since 1.0.0
+ * @since 0.1.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md#4-beep-docgen-aggregate
  */
 

@@ -4,7 +4,7 @@
  * Defines tagged error types for the agents-usage-report command.
  *
  * @module agents-usage-report/errors
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as S from "effect/Schema";

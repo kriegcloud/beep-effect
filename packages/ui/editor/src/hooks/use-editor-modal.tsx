@@ -103,7 +103,7 @@ export interface UseEditorModalOptions {
  *   - `modal`: JSX.Element | null - The modal element to render
  *   - `showModal`: Function to display a modal with a title and content
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useEditorModal(
   options?: undefined | UseEditorModalOptions

@@ -1,13 +1,13 @@
 import { Invitation } from "@beep/iam-domain/entities";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { IamEntityIds } from "@beep/shared-domain";
-import { datetime, organization, Table, team, user } from "@beep/shared-tables";
+import { datetime, OrgTable, team, user } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
 export const invitationStatusEnum = Invitation.makeInvitationStatusPgEnum("invitation_status_enum");
 
-export const invitation = Table.make(IamEntityIds.InvitationId)(
+export const invitation = OrgTable.make(IamEntityIds.InvitationId, { nullableColumn: true })(
   {
     email: pg.text("email").notNull(),
     role: pg.text("role"),
@@ -22,10 +22,6 @@ export const invitation = Table.make(IamEntityIds.InvitationId)(
       .notNull()
       .$type<SharedEntityIds.UserId.Type>()
       .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    organizationId: pg
-      .text("organization_id")
-      .$type<SharedEntityIds.OrganizationId.Type>()
-      .references(() => organization.id, { onDelete: "cascade" }),
   },
   (t) => [
     // Foreign key indexes for join performance

@@ -12,7 +12,6 @@ describe("MergeHistory service", () => {
       const mergeHistory = yield* MergeHistory;
 
       const params = new MergeParams({
-        organizationId: SharedEntityIds.OrganizationId.create(),
         sourceEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         targetEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         mergeReason: "embedding_similarity",
@@ -51,7 +50,6 @@ describe("MergeHistory service", () => {
   effect("MergeParams validates confidence between 0 and 1", () =>
     Effect.gen(function* () {
       const validParams = new MergeParams({
-        organizationId: SharedEntityIds.OrganizationId.create(),
         sourceEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         targetEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         mergeReason: "manual_override",
@@ -68,7 +66,6 @@ describe("MergeHistory service", () => {
   effect("MergeParams supports all merge reasons", () =>
     Effect.gen(function* () {
       const embeddingParams = new MergeParams({
-        organizationId: SharedEntityIds.OrganizationId.create(),
         sourceEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         targetEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         mergeReason: "embedding_similarity",
@@ -77,7 +74,6 @@ describe("MergeHistory service", () => {
       });
 
       const manualParams = new MergeParams({
-        organizationId: SharedEntityIds.OrganizationId.create(),
         sourceEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         targetEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         mergeReason: "manual_override",
@@ -86,7 +82,6 @@ describe("MergeHistory service", () => {
       });
 
       const textMatchParams = new MergeParams({
-        organizationId: SharedEntityIds.OrganizationId.create(),
         sourceEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         targetEntityId: KnowledgeEntityIds.KnowledgeEntityId.create(),
         mergeReason: "text_exact_match",

@@ -14,7 +14,7 @@
  * array methods per CLAUDE.md requirements.
  *
  * @module docgen/shared/ast
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as A from "effect/Array";

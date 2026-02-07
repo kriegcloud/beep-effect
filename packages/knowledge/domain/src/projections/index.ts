@@ -1,1 +1,1 @@
-export * from "./GraphRagQueryResult.ts";
+export * from "./GraphRagQueryResult";

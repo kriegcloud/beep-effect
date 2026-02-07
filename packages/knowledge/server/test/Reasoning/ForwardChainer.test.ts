@@ -1,15 +1,18 @@
 import { IRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
 import { forwardChain } from "@beep/knowledge-server/Reasoning/ForwardChainer";
+import type { Rule } from "@beep/knowledge-server/Reasoning/RdfsRules";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 
 const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
 const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
+const OWL_SAME_AS = IRI.make("http://www.w3.org/2002/07/owl#sameAs");
 
 const EX = "http://example.org/";
 
@@ -497,6 +500,100 @@ describe("ForwardChainer", () => {
         const result = yield* forwardChain(quads, config);
 
         assertTrue(A.length(result.derivedTriples) >= 1);
+      })
+    );
+  });
+
+  describe("reasoning profiles", () => {
+    live("rdfs-subclass applies only subclass rules", () =>
+      Effect.gen(function* () {
+        const quads = [
+          new Quad({
+            subject: fixtures.enrolledIn,
+            predicate: RDFS_DOMAIN,
+            object: fixtures.Student,
+          }),
+          new Quad({
+            subject: fixtures.alice,
+            predicate: fixtures.enrolledIn,
+            object: fixtures.CS101,
+          }),
+          new Quad({
+            subject: fixtures.Student,
+            predicate: RDFS_SUBCLASS_OF,
+            object: fixtures.Person,
+          }),
+        ];
+
+        const result = yield* forwardChain(quads, new ReasoningConfig({ profile: "rdfs-subclass" }));
+        assertTrue(
+          !A.some(
+            result.derivedTriples,
+            (q) => q.subject === fixtures.alice && q.predicate === RDF_TYPE && q.object === fixtures.Student
+          )
+        );
+      })
+    );
+
+    live("owl-sameas computes symmetric closure", () =>
+      Effect.gen(function* () {
+        const a = IRI.make(`${EX}a`);
+        const b = IRI.make(`${EX}b`);
+
+        const quads = [
+          new Quad({
+            subject: a,
+            predicate: OWL_SAME_AS,
+            object: b,
+          }),
+        ];
+
+        const result = yield* forwardChain(quads, new ReasoningConfig({ profile: "owl-sameas" }));
+
+        assertTrue(
+          A.some(result.derivedTriples, (q) => q.subject === b && q.predicate === OWL_SAME_AS && q.object === a)
+        );
+      })
+    );
+
+    live("custom profile accepts user rules", () =>
+      Effect.gen(function* () {
+        const customPredicate = IRI.make(`${EX}customRule`);
+        const source = new Quad({
+          subject: fixtures.alice,
+          predicate: customPredicate,
+          object: fixtures.bob,
+        });
+
+        const customRule: Rule = {
+          id: "custom-forward",
+          description: "Infer alice type from custom predicate",
+          apply: (quads) =>
+            A.filterMap(quads, (quad) =>
+              quad.predicate === customPredicate
+                ? O.some({
+                    quad: new Quad({
+                      subject: quad.subject,
+                      predicate: RDF_TYPE,
+                      object: fixtures.Agent,
+                    }),
+                    ruleId: "custom-forward",
+                    sourceQuadIds: [`${quad.subject}-${quad.predicate}-${quad.object}`],
+                  })
+                : O.none()
+            ),
+        };
+
+        const result = yield* forwardChain([source], new ReasoningConfig({ profile: "custom" }), {
+          customRules: [customRule],
+        });
+
+        assertTrue(
+          A.some(
+            result.derivedTriples,
+            (q) => q.subject === fixtures.alice && q.predicate === RDF_TYPE && q.object === fixtures.Agent
+          )
+        );
       })
     );
   });

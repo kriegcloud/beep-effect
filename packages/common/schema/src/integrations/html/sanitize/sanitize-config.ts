@@ -1,7 +1,7 @@
 /**
  * @module SanitizeConfig
  * @description Complete sanitize-html configuration schema
- * @since 1.0.0
+ * @since 0.1.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -24,7 +24,7 @@ const $I = $SchemaId.create("integrations/html/sanitize/sanitize-config");
  *
  * Maps CSS property names to arrays of allowed value patterns.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  */
 export const CssPropertyPatterns = S.Record({
@@ -41,7 +41,7 @@ export const CssPropertyPatterns = S.Record({
  *
  * Maps tag names to CSS property patterns. Use "*" for global styles.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  */
 export const AllowedStyles = S.Record({
@@ -67,7 +67,7 @@ export type AllowedStyles = S.Schema.Type<typeof AllowedStyles>;
  *
  * Matches sanitize-html defaults where appropriate.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -303,7 +303,7 @@ export type SanitizeConfigEncoded = S.Schema.Encoded<typeof SanitizeConfig>;
  * Default sanitize-html configuration matching library defaults.
  * Strict but commonly used tags/attributes are allowed.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Presets
  */
 export const DefaultSanitizeConfig: SanitizeConfig = {
@@ -392,7 +392,7 @@ export const DefaultSanitizeConfig: SanitizeConfig = {
 /**
  * Minimal configuration - only allow basic text formatting.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Presets
  */
 export const MinimalSanitizeConfig: SanitizeConfig = {
@@ -406,7 +406,7 @@ export const MinimalSanitizeConfig: SanitizeConfig = {
 /**
  * Permissive configuration - allow most tags but restrict dangerous ones.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Presets
  */
 export const PermissiveSanitizeConfig: SanitizeConfig = {

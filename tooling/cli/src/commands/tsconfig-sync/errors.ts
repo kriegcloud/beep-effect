@@ -5,7 +5,7 @@
  * Uses CyclicDependencyError from @beep/tooling-utils for cycle detection.
  *
  * @module tsconfig-sync/errors
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";

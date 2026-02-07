@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @description Utility for wrapping Better Auth client methods with Effect patterns
  */
 

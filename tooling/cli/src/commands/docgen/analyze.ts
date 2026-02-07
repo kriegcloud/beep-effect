@@ -24,7 +24,7 @@
  * - 3: Execution error (ts-morph parsing failed)
  *
  * @module docgen/analyze
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import type * as FsUtils from "@beep/tooling-utils/FsUtils";

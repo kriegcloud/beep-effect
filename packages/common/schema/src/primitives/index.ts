@@ -81,6 +81,7 @@ export * from "./json";
 export * from "./locales";
 export * as Money from "./money";
 export * from "./mutable-hash-map";
+export * from "./mutable-hash-set";
 /**
  * Network protocol primitives (IP, hostnames).
  *

@@ -6,7 +6,7 @@
  * provides organization scoping capabilities.
  *
  * @module rls/helpers
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import type { SqlError } from "@effect/sql/SqlError";
@@ -17,7 +17,7 @@ import * as Effect from "effect/Effect";
 /**
  * Interface that a TenantContext service must implement to work with these helpers.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface TenantContextLike {
@@ -33,7 +33,7 @@ export interface TenantContextLike {
  * Tag for TenantContext service used in RLS helpers.
  * Consumers must provide their own TenantContext implementation.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category tags
  */
 export class TenantContextTag extends Context.Tag("@beep/testkit/rls/TenantContext")<
@@ -44,7 +44,7 @@ export class TenantContextTag extends Context.Tag("@beep/testkit/rls/TenantConte
 /**
  * Execute an effect within a specific tenant context.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category helpers
  *
  * @example
@@ -80,7 +80,7 @@ export const withTestTenant: <A, E, R>(
  * This verifies that RLS policies properly block access to data when
  * no organization context is set.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category assertions
  *
  * @example
@@ -107,7 +107,7 @@ export const assertNoRowsWithoutContext: <A, E, R>(
 /**
  * Result of tenant isolation assertion containing data from both organizations.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface TenantIsolationResult<A> {
@@ -122,7 +122,7 @@ export interface TenantIsolationResult<A> {
  * 1. When querying with org A's context, all returned rows have organizationId === orgAId
  * 2. When querying with org B's context, all returned rows have organizationId === orgBId
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category assertions
  *
  * @remarks
@@ -187,7 +187,7 @@ export const assertTenantIsolation: <A extends { readonly organizationId: string
  * The session table uses `active_organization_id` column instead of `organization_id`
  * for RLS filtering. This helper specifically checks that field.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category assertions
  *
  * @example
@@ -248,7 +248,7 @@ export const assertTenantIsolationForSession: <A extends { readonly activeOrgani
  * Attempts to insert a row and verifies it fails when no context is set,
  * and succeeds when proper context is provided.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category assertions
  *
  * @example
@@ -286,7 +286,7 @@ export const assertInsertRequiresContext: <A, E, R>(
  *
  * A simple wrapper around TenantContext.setOrganizationId for cleaner test code.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category helpers
  *
  * @example
@@ -307,7 +307,7 @@ export const setTestTenant: (orgId: string) => Effect.Effect<void, SqlError, Ten
 /**
  * Clear tenant context.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category helpers
  */
 export const clearTestTenant: () => Effect.Effect<void, SqlError, TenantContextTag> = Effect.fnUntraced(function* () {

@@ -66,6 +66,9 @@
       "path": "../../packages/integrations/google-workspace/domain"
     },
     {
+      "path": "../../packages/common/machine"
+    },
+    {
       "path": "../../packages/ui/core"
     },
     {

@@ -147,7 +147,7 @@ const reportAtom = Atom.make<ReportFunction>((get) => {
  *
  * @returns A function that displays a message and returns a timeout ID
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useReport(): ReportFunction {
   return useAtomValue(reportAtom);

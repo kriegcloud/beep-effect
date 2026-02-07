@@ -13,7 +13,7 @@
  * - symbols: Unicode symbols for status indicators
  *
  * @module docgen/shared/output
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as Console from "effect/Console";

@@ -1,7 +1,7 @@
 /**
  * @module AllowedTags
  * @description Discriminated union for allowed HTML tags configuration
- * @since 1.0.0
+ * @since 0.1.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -18,7 +18,7 @@ const $I = $SchemaId.create("integrations/html/sanitize/allowed-tags");
  *
  * Corresponds to sanitize-html `allowedTags: false`
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const AllTagsStruct = S.TaggedStruct("AllTags", {}).annotations({
@@ -33,7 +33,7 @@ const AllTagsStruct = S.TaggedStruct("AllTags", {}).annotations({
  * Corresponds to sanitize-html `allowedTags: []`
  * All tags will be stripped, leaving only text content
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const NoneTagsStruct = S.TaggedStruct("NoneTags", {}).annotations({
@@ -48,7 +48,7 @@ const NoneTagsStruct = S.TaggedStruct("NoneTags", {}).annotations({
  * Corresponds to sanitize-html `allowedTags: ["p", "a", ...]`
  * Tags are validated against the HtmlTag schema (140+ valid tags)
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const SpecificTagsStruct = S.TaggedStruct("SpecificTags", {
@@ -68,7 +68,7 @@ const SpecificTagsStruct = S.TaggedStruct("SpecificTags", {
 
 /**
  * AllTags variant type
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type AllTags = {
   readonly _tag: "AllTags";
@@ -76,7 +76,7 @@ export type AllTags = {
 
 /**
  * NoneTags variant type
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type NoneTags = {
   readonly _tag: "NoneTags";
@@ -84,7 +84,7 @@ export type NoneTags = {
 
 /**
  * SpecificTags variant type
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type SpecificTags = {
   readonly _tag: "SpecificTags";
@@ -108,7 +108,7 @@ const _AllowedTags = S.Union(AllTagsStruct, NoneTagsStruct, SpecificTagsStruct).
  * Represents the allowedTags configuration for HTML sanitization.
  * Discriminated on the `_tag` field for exhaustive pattern matching.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript

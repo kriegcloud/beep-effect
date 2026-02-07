@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -8,52 +8,103 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import type { ExtractedTriple } from "./schemas/relation-output.schema";
 
 const $I = $KnowledgeServerId.create("knowledge-server/Extraction/GraphAssembler");
 
-export interface AssembledEntity {
-  readonly id: string;
-  readonly mention: string;
-  readonly primaryType: string;
-  readonly types: readonly string[];
-  readonly attributes: Record<string, string | number | boolean>;
-  readonly confidence: number;
-  readonly canonicalName?: undefined | string;
+export class AssembledEntityAttributeValue extends S.Union(S.String, S.Number, S.Boolean).annotations(
+  $I.annotations("AssembledEntityAttributeValue", {
+    description: "Value of an assembled entity attribute",
+  })
+) {}
+
+export declare namespace AssembledEntityAttributeValue {
+  export type Type = typeof AssembledEntityAttributeValue;
 }
 
-export interface AssembledRelation {
-  readonly id: string;
-  readonly subjectId: string;
-  readonly predicate: string;
-  readonly objectId?: undefined | string;
-  readonly literalValue?: undefined | string;
-  readonly literalType?: undefined | string;
-  readonly confidence: number;
-  readonly evidence?: undefined | string;
-  readonly evidenceStartChar?: undefined | number;
-  readonly evidenceEndChar?: undefined | number;
+export class AssembledEntityAttributes extends S.Record({
+  key: S.String,
+  value: AssembledEntityAttributeValue,
+}).annotations(
+  $I.annotations("AssembledEntityAttributes", {
+    description: "Attributes of an assembled entity",
+  })
+) {}
+
+export declare namespace AssembledEntityAttributes {
+  export type Type = typeof AssembledEntityAttributes;
 }
 
-export interface KnowledgeGraph {
-  readonly entities: readonly AssembledEntity[];
-  readonly relations: readonly AssembledRelation[];
-  readonly entityIndex: Record<string, string>;
-  readonly stats: {
-    readonly entityCount: number;
-    readonly relationCount: number;
-    readonly unresolvedSubjects: number;
-    readonly unresolvedObjects: number;
-  };
-}
+export class AssembledEntity extends S.Class<AssembledEntity>($I`AssembledEntity`)(
+  {
+    id: S.String,
+    mention: S.String,
+    primaryType: S.String,
+    types: S.Array(S.String),
+    attributes: AssembledEntityAttributes,
+    confidence: S.Number,
+    canonicalName: S.optional(S.String),
+  },
+  $I.annotations("AssembledEntity", {
+    description: "Assembled entity",
+  })
+) {}
 
-export interface GraphAssemblyConfig {
-  readonly organizationId: string;
-  readonly ontologyId: string;
-  readonly mergeEntities?: undefined | boolean;
-}
+export class AssembledRelation extends S.Class<AssembledRelation>($I`AssembledRelation`)(
+  {
+    id: S.String,
+    subjectId: S.String,
+    predicate: S.String,
+    objectId: S.optional(S.String),
+    literalValue: S.optional(S.String),
+    literalType: S.optional(S.String),
+    confidence: S.Number,
+    evidence: S.optional(S.String),
+    evidenceStartChar: S.optional(S.Number),
+    evidenceEndChar: S.optional(S.Number),
+  },
+  $I.annotations("AssembledRelation", {
+    description: "Assembled relation",
+  })
+) {}
+
+export class KnowledgeGraphStats extends S.Class<KnowledgeGraphStats>($I`KnowledgeGraphStats`)(
+  {
+    entityCount: S.Number,
+    relationCount: S.Number,
+    unresolvedSubjects: S.Number,
+    unresolvedObjects: S.Number,
+  },
+  $I.annotations("KnowledgeGraphStats", {
+    description: "Statistics for a knowledge graph",
+  })
+) {}
+
+export class KnowledgeGraph extends S.Class<KnowledgeGraph>($I`KnowledgeGraph`)(
+  {
+    entities: S.Array(AssembledEntity),
+    relations: S.Array(AssembledRelation),
+    entityIndex: S.Record({ key: S.String, value: S.String }),
+    stats: KnowledgeGraphStats,
+  },
+  $I.annotations("KnowledgeGraph", {
+    description: "Knowledge graph containing entities and relations",
+  })
+) {}
+export class GraphAssemblyConfig extends S.Class<GraphAssemblyConfig>($I`GraphAssemblyConfig`)(
+  {
+    organizationId: SharedEntityIds.OrganizationId,
+    ontologyId: KnowledgeEntityIds.OntologyId,
+    mergeEntities: S.optional(S.Boolean),
+  },
+  $I.annotations("GraphAssemblyConfig", {
+    description: "Configuration for graph assembly",
+  })
+) {}
 
 export interface GraphAssemblerShape {
   readonly assemble: (
@@ -276,7 +327,7 @@ const serviceEffect: Effect.Effect<GraphAssemblerShape> = Effect.succeed({
 export const GraphAssemblerLive = Layer.effect(GraphAssembler, serviceEffect);
 
 const mutableHashMapToRecord = (map: MutableHashMap.MutableHashMap<string, string>): Record<string, string> => {
-  const result: Record<string, string> = {};
+  const result = R.empty<string, string>();
   MutableHashMap.forEach(map, (value, key) => {
     result[key] = value;
   });

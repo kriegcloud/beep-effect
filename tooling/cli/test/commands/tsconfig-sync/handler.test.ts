@@ -11,7 +11,7 @@
  * The handler is tested via the actual CLI invocation in E2E tests.
  *
  * @module tsconfig-sync/test/handler
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { DriftDetectedError, TsconfigSyncError } from "@beep/repo-cli/commands/tsconfig-sync/errors";

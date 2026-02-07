@@ -10,64 +10,64 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { OntologyCache, OntologyCacheLive } from "./OntologyCache";
 import {
   OntologyParser,
   OntologyParserLive,
-  type ParsedClassDefinition,
+  ParsedClassDefinition,
   type ParsedOntology,
-  type ParsedPropertyDefinition,
+  ParsedPropertyDefinition,
 } from "./OntologyParser";
 
 const $I = $KnowledgeServerId.create("Ontology/OntologyService");
 
-export interface OntologyContext {
-  readonly classes: ReadonlyArray<ParsedClassDefinition>;
-  readonly properties: ReadonlyArray<ParsedPropertyDefinition>;
-  readonly classHierarchy: Record<string, ReadonlyArray<string>>;
-  readonly propertyHierarchy: Record<string, ReadonlyArray<string>>;
+const HierarchySchema = S.Record({ key: S.String, value: S.Array(S.String) });
 
-  getPropertiesForClass(classIri: string): ReadonlyArray<ParsedPropertyDefinition>;
-
-  isSubClassOf(childIri: string, parentIri: string): boolean;
-
-  getAncestors(classIri: string): ReadonlyArray<string>;
-
-  findClass(iri: string): O.Option<ParsedClassDefinition>;
-
-  findProperty(iri: string): O.Option<ParsedPropertyDefinition>;
-}
-
-const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
-  const classMap = MutableHashMap.empty<string, ParsedClassDefinition>();
-  for (const cls of parsed.classes) {
-    MutableHashMap.set(classMap, cls.iri, cls);
-  }
-
-  const propertyMap = MutableHashMap.empty<string, ParsedPropertyDefinition>();
-  for (const prop of parsed.properties) {
-    MutableHashMap.set(propertyMap, prop.iri, prop);
-  }
-
-  const classPropertiesMap = MutableHashMap.empty<string, Array<ParsedPropertyDefinition>>();
-  for (const prop of parsed.properties) {
-    for (const domainIri of prop.domain) {
-      if (!MutableHashMap.has(classPropertiesMap, domainIri)) {
-        MutableHashMap.set(classPropertiesMap, domainIri, []);
-      }
-      const arr = O.getOrThrow(MutableHashMap.get(classPropertiesMap, domainIri));
-      arr.push(prop);
+export class OntologyContext extends S.Class<OntologyContext>($I`OntologyContext`)({
+  classes: S.Array(ParsedClassDefinition),
+  properties: S.Array(ParsedPropertyDefinition),
+  classHierarchy: HierarchySchema,
+  propertyHierarchy: HierarchySchema,
+}) {
+  // Effect Schema classes must not override the constructor; derived caches are initialized here.
+  private readonly classMap = (() => {
+    const map = MutableHashMap.empty<string, ParsedClassDefinition>();
+    for (const cls of this.classes) {
+      MutableHashMap.set(map, cls.iri, cls);
     }
-  }
+    return map;
+  })();
 
-  const ancestorCache = MutableHashMap.empty<string, MutableHashSet.MutableHashSet<string>>();
+  private readonly propertyMap = (() => {
+    const map = MutableHashMap.empty<string, ParsedPropertyDefinition>();
+    for (const prop of this.properties) {
+      MutableHashMap.set(map, prop.iri, prop);
+    }
+    return map;
+  })();
 
-  const getAncestorsSet = (
+  private readonly classPropertiesMap = (() => {
+    const map = MutableHashMap.empty<string, Array<ParsedPropertyDefinition>>();
+    for (const prop of this.properties) {
+      for (const domainIri of prop.domain) {
+        if (!MutableHashMap.has(map, domainIri)) {
+          MutableHashMap.set(map, domainIri, []);
+        }
+        O.getOrThrow(MutableHashMap.get(map, domainIri)).push(prop);
+      }
+    }
+    return map;
+  })();
+
+  private readonly ancestorCache = MutableHashMap.empty<string, MutableHashSet.MutableHashSet<string>>();
+
+  private readonly getAncestorsSet = (
     classIri: string,
     visited: MutableHashSet.MutableHashSet<string> = MutableHashSet.empty<string>()
   ): MutableHashSet.MutableHashSet<string> => {
-    const cachedOpt = MutableHashMap.get(ancestorCache, classIri);
+    const cachedOpt = MutableHashMap.get(this.ancestorCache, classIri);
     if (O.isSome(cachedOpt)) {
       return cachedOpt.value;
     }
@@ -78,73 +78,73 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
 
     MutableHashSet.add(visited, classIri);
     const ancestors = MutableHashSet.empty<string>();
-    const parents = parsed.classHierarchy[classIri] ?? [];
+    const parents = this.classHierarchy[classIri] ?? [];
 
     for (const parentIri of parents) {
       MutableHashSet.add(ancestors, parentIri);
-      const parentAncestors = getAncestorsSet(parentIri, visited);
+      const parentAncestors = this.getAncestorsSet(parentIri, visited);
       Iterable.forEach(parentAncestors, (ancestor) => {
         MutableHashSet.add(ancestors, ancestor);
       });
     }
 
-    MutableHashMap.set(ancestorCache, classIri, ancestors);
+    MutableHashMap.set(this.ancestorCache, classIri, ancestors);
     return ancestors;
   };
 
-  return {
+  getPropertiesForClass(classIri: string): ReadonlyArray<ParsedPropertyDefinition> {
+    const directProps = O.getOrElse(
+      MutableHashMap.get(this.classPropertiesMap, classIri),
+      A.empty<ParsedPropertyDefinition>
+    );
+
+    const ancestors = this.getAncestorsSet(classIri);
+    const inheritedProps = A.empty<ParsedPropertyDefinition>();
+    Iterable.forEach(ancestors, (ancestorIri) => {
+      const ancestorProps = O.getOrElse(
+        MutableHashMap.get(this.classPropertiesMap, ancestorIri),
+        A.empty<ParsedPropertyDefinition>
+      );
+      inheritedProps.push(...ancestorProps);
+    });
+
+    const allPropsMap = MutableHashMap.empty<string, ParsedPropertyDefinition>();
+    for (const prop of [...directProps, ...inheritedProps]) {
+      MutableHashMap.set(allPropsMap, prop.iri, prop);
+    }
+
+    const result = A.empty<ParsedPropertyDefinition>();
+    MutableHashMap.forEach(allPropsMap, (prop) => {
+      result.push(prop);
+    });
+    return result;
+  }
+
+  isSubClassOf(childIri: string, parentIri: string): boolean {
+    if (childIri === parentIri) return true;
+    return MutableHashSet.has(this.getAncestorsSet(childIri), parentIri);
+  }
+
+  getAncestors(classIri: string): ReadonlyArray<string> {
+    return A.fromIterable(this.getAncestorsSet(classIri));
+  }
+
+  findClass(iri: string): O.Option<ParsedClassDefinition> {
+    return MutableHashMap.get(this.classMap, iri);
+  }
+
+  findProperty(iri: string): O.Option<ParsedPropertyDefinition> {
+    return MutableHashMap.get(this.propertyMap, iri);
+  }
+}
+
+const createOntologyContext = (parsed: ParsedOntology): OntologyContext =>
+  new OntologyContext({
     classes: parsed.classes,
     properties: parsed.properties,
     classHierarchy: parsed.classHierarchy,
     propertyHierarchy: parsed.propertyHierarchy,
-
-    getPropertiesForClass(classIri: string): ReadonlyArray<ParsedPropertyDefinition> {
-      const directProps = O.getOrElse(
-        MutableHashMap.get(classPropertiesMap, classIri),
-        A.empty<ParsedPropertyDefinition>
-      );
-
-      const ancestors = getAncestorsSet(classIri);
-      const inheritedProps = A.empty<ParsedPropertyDefinition>();
-      Iterable.forEach(ancestors, (ancestorIri) => {
-        const ancestorProps = O.getOrElse(
-          MutableHashMap.get(classPropertiesMap, ancestorIri),
-          A.empty<ParsedPropertyDefinition>
-        );
-        inheritedProps.push(...ancestorProps);
-      });
-
-      const allPropsMap = MutableHashMap.empty<string, ParsedPropertyDefinition>();
-      for (const prop of [...directProps, ...inheritedProps]) {
-        MutableHashMap.set(allPropsMap, prop.iri, prop);
-      }
-
-      const result = A.empty<ParsedPropertyDefinition>();
-      MutableHashMap.forEach(allPropsMap, (prop) => {
-        result.push(prop);
-      });
-      return result;
-    },
-
-    isSubClassOf(childIri: string, parentIri: string): boolean {
-      if (childIri === parentIri) return true;
-      const ancestors = getAncestorsSet(childIri);
-      return MutableHashSet.has(ancestors, parentIri);
-    },
-
-    getAncestors(classIri: string): ReadonlyArray<string> {
-      return A.fromIterable(getAncestorsSet(classIri));
-    },
-
-    findClass(iri: string): O.Option<ParsedClassDefinition> {
-      return MutableHashMap.get(classMap, iri);
-    },
-
-    findProperty(iri: string): O.Option<ParsedPropertyDefinition> {
-      return MutableHashMap.get(propertyMap, iri);
-    },
-  };
-};
+  });
 
 export interface OntologyServiceShape {
   readonly load: (

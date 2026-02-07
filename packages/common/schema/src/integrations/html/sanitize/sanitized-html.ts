@@ -1,7 +1,7 @@
 /**
  * @module SanitizedHtml
  * @description Branded string type for sanitized HTML
- * @since 1.0.0
+ * @since 0.1.0
  */
 import type * as B from "effect/Brand";
 import * as P from "effect/Predicate";
@@ -10,7 +10,7 @@ import * as S from "effect/Schema";
 /**
  * Brand for HTML strings that have been sanitized according to a security policy.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Brands
  */
 export type SanitizedHtmlBrand = B.Brand<"SanitizedHtml">;
@@ -21,7 +21,7 @@ export type SanitizedHtmlBrand = B.Brand<"SanitizedHtml">;
  * This branded type ensures that HTML content has passed through a sanitization
  * pipeline before being rendered in the browser or stored in the database.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -51,26 +51,26 @@ export const SanitizedHtmlSchema: S.BrandSchema<string & SanitizedHtmlBrand, str
 
 /**
  * Type alias for SanitizedHtml branded type
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type SanitizedHtml = S.Schema.Type<typeof SanitizedHtmlSchema>;
 
 /**
  * Namespace for SanitizedHtml utilities and type aliases.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Namespace
  */
 export declare namespace SanitizedHtml {
   /**
    * Decoded type (runtime representation).
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export type Type = string & SanitizedHtmlBrand;
 
   /**
    * Encoded type (wire format).
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export type Encoded = string;
 }
@@ -82,7 +82,7 @@ export declare namespace SanitizedHtml {
  * is a TypeScript-only construct and cannot be detected at runtime.
  * This guard is primarily useful for narrowing types in conditional code.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Guards
  */
 const isSanitizedHtml = (u: unknown): u is SanitizedHtml.Type => P.isString(u);
@@ -94,7 +94,7 @@ const isSanitizedHtml = (u: unknown): u is SanitizedHtml.Type => P.isString(u);
  * is already sanitized or in controlled test environments. Misuse can introduce
  * XSS vulnerabilities.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Unsafe
  * @example
  * ```typescript
@@ -110,7 +110,7 @@ const unsafeSanitizedHtml = (html: string): SanitizedHtml.Type => html as Saniti
 /**
  * SanitizedHtml branded schema with utility functions
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  */
 export const SanitizedHtml: typeof SanitizedHtmlSchema & {

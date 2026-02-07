@@ -1,5 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { InferenceProvenance, InferenceResult } from "@beep/knowledge-domain/value-objects";
+import { thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -10,6 +11,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { InferenceStep, ReasoningTrace } from "./AnswerSchemas";
 
 const $I = $KnowledgeServerId.create("GraphRAG/ReasoningTraceFormatter");
@@ -32,7 +34,7 @@ const calculateDepth = (
   const maybeProvenance = R.get(provenanceMap, tripleId);
 
   return O.match(maybeProvenance, {
-    onNone: () => 0,
+    onNone: thunkZero,
     onSome: (provenance) => {
       MutableHashSet.add(visited, tripleId);
 
@@ -48,12 +50,11 @@ const calculateDepth = (
     },
   });
 };
-
-interface BfsState {
-  readonly steps: ReadonlyArray<InferenceStep>;
-  readonly visited: HashSet.HashSet<string>;
-  readonly queue: ReadonlyArray<string>;
-}
+export class BfsState extends S.Class<BfsState>($I`BfsState`)({
+  steps: S.Array(InferenceStep),
+  visited: S.HashSet(S.String),
+  queue: S.Array(S.String),
+}) {}
 
 const processBfsNode = (
   provenanceMap: Record<string, InferenceProvenance>,
@@ -129,7 +130,7 @@ const serviceEffect: Effect.Effect<ReasoningTraceFormatterShape> = Effect.succee
       const maybeProvenance = R.get(result.provenance, tripleId);
 
       return O.match(maybeProvenance, {
-        onNone: () => O.none(),
+        onNone: O.none<ReasoningTrace>,
         onSome: (_provenance) => {
           const inferenceSteps = collectInferenceSteps(result.provenance, tripleId);
 

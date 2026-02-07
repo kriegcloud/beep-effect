@@ -14,7 +14,7 @@
  * - Deep transitive chains (4+ levels)
  *
  * @module tsconfig-sync/test/app-sync
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { buildSinglePathAlias, extractNonBeepPaths } from "@beep/repo-cli/commands/tsconfig-sync/utils/tsconfig-writer";

@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $SharedServerId } from "@beep/identity/packages";
@@ -63,19 +63,19 @@ const ATTR_SERVER_ADDRESS = "server.address";
 const ATTR_SERVER_PORT = "server.port";
 /**
  * @category type ids
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const TypeId: TypeId = "~@beep/shared-server/factories/db-client/pg/services/PgClient";
 
 /**
  * @category type ids
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type TypeId = "~@beep/shared-server/factories/db-client/pg/services/PgClient";
 
 /**
  * @category models
- * @since 1.0.0
+ * @since 0.1.0
  */
 export interface PgClient extends SqlClient.SqlClient {
   readonly [TypeId]: TypeId;
@@ -88,13 +88,13 @@ export interface PgClient extends SqlClient.SqlClient {
 
 /**
  * @category tags
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const PgClient = Context.GenericTag<PgClient>("@effect/sql-pg/PgClient");
 
 /**
  * @category constructors
- * @since 1.0.0
+ * @since 0.1.0
  */
 type MakePgClientEffect = Effect.Effect<
   PgClient,
@@ -403,12 +403,12 @@ const makeCancel = (pool: Pg.Pool, client: Pg.PoolClient) => {
 
 /**
  * @category layers
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 /**
  * @category constructor
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const makeCompiler = (transform?: (_: string) => string, transformJson = true): Statement.Compiler => {
   const transformValue = transformJson && transform ? Statement.defaultTransforms(transform).value : undefined;
@@ -448,19 +448,19 @@ const escape = Statement.defaultEscape('"');
 
 /**
  * @category custom types
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type PgCustom = PgJson;
 
 /**
  * @category custom types
- * @since 1.0.0
+ * @since 0.1.0
  */
 interface PgJson extends Custom<"PgJson", unknown> {}
 
 /**
  * @category custom types
- * @since 1.0.0
+ * @since 0.1.0
  */
 const PgJson = Statement.custom<PgJson>("PgJson");
 

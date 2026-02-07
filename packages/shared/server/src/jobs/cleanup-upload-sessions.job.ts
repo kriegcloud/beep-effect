@@ -1,7 +1,7 @@
 /**
  * @fileoverview Upload Session Cleanup Scheduled Job
  * @module @beep/shared-server/jobs/cleanup-upload-sessions
- * @since 1.0.0
+ * @since 0.1.0
  *
  * ## Overview
  * Provides a scheduled job for cleaning up expired upload sessions from the
@@ -52,7 +52,7 @@ import { UploadSessionRepo } from "../db";
 /**
  * Default cleanup interval in minutes.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constants
  *
  * @remarks
@@ -74,7 +74,7 @@ export const DEFAULT_CLEANUP_INTERVAL_MINUTES = 5;
 /**
  * Cleans up expired upload sessions from the database.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Effects
  *
  * @remarks
@@ -134,7 +134,7 @@ export const cleanupUploadSessions: Effect.Effect<number, never, UploadSessionRe
 /**
  * Schedule for periodic cleanup execution.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schedules
  *
  * @remarks
@@ -175,7 +175,7 @@ export const cleanupSchedule: Schedule.Schedule<number, unknown, never> = Schedu
 /**
  * Long-running cleanup service for continuous execution.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Services
  *
  * @remarks
@@ -226,7 +226,7 @@ export const cleanupService: Effect.Effect<never, never, UploadSessionRepo> = Ef
 /**
  * Runs a single cleanup pass and returns the result.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Effects
  *
  * @remarks
@@ -251,7 +251,7 @@ export const runCleanupOnce: Effect.Effect<number, never, UploadSessionRepo> = c
 /**
  * Runs cleanup on startup with delay to allow database connection.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Effects
  *
  * @remarks

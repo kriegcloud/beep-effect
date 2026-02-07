@@ -4,7 +4,7 @@
  * Defines tagged error types for the context-freshness command.
  *
  * @module context-freshness/errors
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as S from "effect/Schema";

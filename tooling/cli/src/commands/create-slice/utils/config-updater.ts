@@ -11,7 +11,7 @@
  * - packages/_internal/db-admin/tsconfig.*.json: Add slice references
  *
  * @module create-slice/utils/config-updater
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as path from "node:path";

@@ -21,7 +21,7 @@
  * - 2: Configuration error (malformed tsconfig, config exists)
  *
  * @module docgen/init
- * @since 1.0.0
+ * @since 0.1.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md
  */
 

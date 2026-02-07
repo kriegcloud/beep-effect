@@ -5,7 +5,7 @@
  * Handles transitive closure, path normalization, and reference merging.
  *
  * @module tsconfig-sync/references
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { buildRootRelativePath, computeTransitiveClosure, topologicalSort } from "@beep/tooling-utils";

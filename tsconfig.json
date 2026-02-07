@@ -64,7 +64,7 @@
     {
       "path": "./tsconfig.slices/knowledge.json"
     },
-        {
+    {
       "path": "./tsconfig.slices/integrations.json"
     }
   ]

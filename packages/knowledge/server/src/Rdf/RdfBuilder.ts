@@ -1,29 +1,28 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { type BlankNode, type IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
+import { type BlankNode, IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { RdfStore, RdfStoreLive } from "./RdfStoreService";
 
 const $I = $KnowledgeServerId.create("Rdf/RdfBuilder");
+export class SubjectContext extends S.Class<SubjectContext>($I`SubjectContext`)({
+  graph: S.Option(IRI),
+}) {}
 
-interface SubjectContext {
-  readonly graph: O.Option<IRI.Type>;
-}
+export class PredicateContext extends SubjectContext.extend<PredicateContext>($I`PredicateContext`)({
+  subject: Quad.fields.subject,
+}) {}
+export class ObjectContext extends PredicateContext.extend<ObjectContext>($I`ObjectContext`)({
+  predicate: Quad.fields.predicate,
+}) {}
 
-interface PredicateContext extends SubjectContext {
-  readonly subject: Quad["subject"];
-}
-
-interface ObjectContext extends PredicateContext {
-  readonly predicate: IRI.Type;
-}
-
-interface QuadContext extends ObjectContext {
-  readonly object: Quad["object"];
-}
+export class QuadContext extends ObjectContext.extend<QuadContext>($I`QuadContext`)({
+  object: Quad.fields.object,
+}) {}
 
 export interface QuadBuilder {
   readonly add: () => Effect.Effect<void>;

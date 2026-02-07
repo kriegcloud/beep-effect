@@ -2,7 +2,7 @@
  * TenantContext module exports
  *
  * @module TenantContext
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 export * from "./TenantContext";

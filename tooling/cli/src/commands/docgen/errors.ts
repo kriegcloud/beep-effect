@@ -14,7 +14,7 @@
  * - AggregationError: Docs aggregation failures
  *
  * @module docgen/errors
- * @since 1.0.0
+ * @since 0.1.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md#error-handling
  */
 

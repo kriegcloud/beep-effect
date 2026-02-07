@@ -66,7 +66,7 @@ The main entry point is `src/index.ts`, which exports `runRepoCli` for programma
 | `sync`              | Copy `.env` to workspaces and regenerate type definitions                    |
 | `prune-unused-deps` | Find and remove unused `@beep/*` workspace dependencies                      |
 | `docgen`            | Documentation generation suite with JSDoc analysis and AI-powered fixes      |
-| `bootstrap-spec`    | Create standardized specification structures in `specs/` directory            |
+| `bootstrap-spec`    | Create standardized specification structures in `specs/pending/` directory            |
 | `create-slice`      | Scaffold new vertical slices with all 5 sub-packages (domain/tables/server/client/ui) |
 | `topo-sort`         | Output workspace packages in topological dependency order                     |
 | `agents-validate`   | Validate AGENTS.md files across packages for consistency                      |
@@ -201,7 +201,7 @@ The prune command:
 
 ### Bootstrap Specification
 
-Create standardized specification structures in the `specs/` directory:
+Create standardized specification structures in the `specs/pending/` directory:
 
 ```bash
 # Create a new spec with medium complexity (default)
@@ -218,7 +218,7 @@ bun run tooling/cli/src/index.ts bootstrap-spec -n test -d "Test spec" --dry-run
 ```
 
 The bootstrap-spec command:
-- Creates spec directory structure in `specs/<spec-name>/`
+- Creates spec directory structure in `specs/pending/<spec-name>/`
 - Generates README.md with spec template
 - Creates REFLECTION_LOG.md for capturing learnings
 - Supports three complexity levels: simple, medium, complex

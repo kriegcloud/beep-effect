@@ -1,11 +1,11 @@
 import * as RpcGroup from "@effect/rpc/RpcGroup";
-import * as Create from "./Create.ts";
-import * as Delete from "./Delete.ts";
-import * as Get from "./Get.ts";
-import * as GetClasses from "./GetClasses.ts";
-import * as GetProperties from "./GetProperties.ts";
-import * as List from "./List.ts";
-import * as Update from "./Update.ts";
+import * as Create from "./Create";
+import * as Delete from "./Delete";
+import * as Get from "./Get";
+import * as GetClasses from "./GetClasses";
+import * as GetProperties from "./GetProperties";
+import * as List from "./List";
+import * as Update from "./Update";
 
 export class Rpcs extends RpcGroup.make(
   Get.Contract,

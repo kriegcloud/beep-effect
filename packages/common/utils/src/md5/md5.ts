@@ -16,7 +16,7 @@ export { Md5ComputationError, UnicodeEncodingError };
 
 /**
  * Immutable MD5 hasher state
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface Md5State {
@@ -30,7 +30,7 @@ export interface Md5State {
 
 /**
  * Serializable hasher state for transferring between workers
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface SerializableMd5State {
@@ -56,7 +56,7 @@ const MAX_UNICODE_CODEPOINT = 0x10ffff;
 
 /**
  * Create initial MD5 state
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constructors
  */
 export const makeState = (): Md5State => {
@@ -296,7 +296,7 @@ const toHex = (x: Int32Array): string => {
 /**
  * Append UTF-8 string to hasher state
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Operations
  *
  * @remarks
@@ -381,7 +381,7 @@ export const appendStr =
 /**
  * Append ASCII string to hasher state
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Operations
  *
  * @remarks
@@ -435,7 +435,7 @@ export const appendAsciiStr =
 /**
  * Append byte array to hasher state
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Operations
  *
  * @remarks
@@ -487,7 +487,7 @@ export const appendByteArray =
 
 /**
  * Finalize hash computation and return result
- * @since 1.0.0
+ * @since 0.1.0
  * @category Operations
  */
 export const finalize =
@@ -551,7 +551,7 @@ export const finalize =
 
 /**
  * Hash a UTF-8 string
- * @since 1.0.0
+ * @since 0.1.0
  * @category Hashing
  */
 export const hashStr: (
@@ -568,7 +568,7 @@ export const hashStr: (
 
 /**
  * Hash an ASCII string
- * @since 1.0.0
+ * @since 0.1.0
  * @category Hashing
  */
 export const hashAsciiStr: (str: string, raw?: boolean) => Effect.Effect<string | Int32Array, Md5ComputationError> =
@@ -581,7 +581,7 @@ export const hashAsciiStr: (str: string, raw?: boolean) => Effect.Effect<string 
 /**
  * Get serializable state for transfer between workers
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category State Management
  *
  * @remarks
@@ -610,7 +610,7 @@ export const getSerializableState = (state: Md5State): SerializableMd5State => {
 /**
  * Restore state from serializable format
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category State Management
  *
  * @remarks
@@ -652,7 +652,7 @@ export const setSerializableState = (serializedState: SerializableMd5State): Md5
 
 /**
  * Self-test to verify MD5 implementation
- * @since 1.0.0
+ * @since 0.1.0
  * @category Testing
  */
 export const selfTest: () => Effect.Effect<void, Md5ComputationError | UnicodeEncodingError> = Effect.fn(function* () {

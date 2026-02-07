@@ -62,7 +62,7 @@ export const assignGraphRanks = <T extends string>(
     MutableHashMap.set(hopGroups, hops, group);
   });
 
-  const hopLevels: Array<number> = [];
+  const hopLevels = A.empty<number>();
   MutableHashMap.forEach(hopGroups, (_, hop) => {
     hopLevels.push(hop);
   });

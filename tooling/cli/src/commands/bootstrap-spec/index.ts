@@ -20,7 +20,7 @@
  *   beep bootstrap-spec -n quick-fix -d "Bug fix" -c simple --dry-run
  *
  * @module bootstrap-spec
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { RepoUtilsLive } from "@beep/tooling-utils";

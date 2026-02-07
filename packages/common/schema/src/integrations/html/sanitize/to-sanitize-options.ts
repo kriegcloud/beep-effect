@@ -1,7 +1,7 @@
 /**
  * @module toSanitizeOptions
  * @description Convert SanitizeConfig schema to sanitize-html runtime options
- * @since 1.0.0
+ * @since 0.1.0
  */
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
@@ -103,7 +103,7 @@ const allowedAttributeToRuntime = (attr: AllowedAttribute): RuntimeAllowedAttrib
  *
  * Uses Match.value for exhaustive pattern matching on discriminated unions.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Conversion
  * @example
  * ```typescript

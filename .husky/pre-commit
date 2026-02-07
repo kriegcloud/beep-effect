@@ -28,6 +28,9 @@ fi
 # Run lint-staged for code quality
 bunx lint-staged
 
+# Enforce spec folder status hygiene
+bun run spec:status:check
+
 # Validate agents manifest if agent files changed
 # Check if any agent-related files are staged
 if git diff --cached --name-only | grep -qE '^\.claude/agents/.*\.md$|^\.claude/agents-manifest\.yaml$'; then

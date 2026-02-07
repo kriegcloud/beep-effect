@@ -1,30 +1,55 @@
-import type { StringTypes, StructTypes } from "@beep/types";
+import type { StringTypes, StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
 import { Struct } from "../extended";
 
-// export type SchemaBuilder = <
-//     const Discriminator extends StringTypes.NonEmptyString,
-//     const Tag extends StringTypes.NonEmptyString,
-//     const Fields extends StructTypes.StructFieldsWithStringKeys,
-//   >(discriminator: Discriminator) => (tag: Tag, fields: Fields) => S.Struct<{
-//   [K in keyof Fields & {readonly [tag: Discriminator]: S.PropertySignature<":", Exclude<Tag, undefined>, never, "?:", Tag | undefined, true, never>}]
-// }>
+/**
+ * Overloaded factory returned by {@link make}.
+ *
+ * Supports an optional rest parameter of index signature records,
+ * mirroring the `S.Struct(fields, ...records)` overload from `effect/Schema`.
+ *
+ * @category Core/Generics
+ * @since 0.1.0
+ */
+export interface Factory<Discriminator extends StringTypes.NonEmptyString> {
+  <
+    const Tag extends StringTypes.NonEmptyString,
+    const Fields extends StructTypes.StructFieldsWithStringKeys,
+    const Records extends S.IndexSignature.NonEmptyRecords,
+  >(
+    tag: Tag,
+    fields: Fields,
+    ...records: Records
+  ): SchemaWithRecords<Discriminator, Tag, Fields, Records>;
 
-export const make =
-  <const Discriminator extends StringTypes.NonEmptyString>(discriminator: Discriminator) =>
   <const Tag extends StringTypes.NonEmptyString, const Fields extends StructTypes.StructFieldsWithStringKeys>(
     tag: Tag,
     fields: Fields
-  ): Schema<Discriminator, Tag, Fields> =>
-    Struct({
+  ): Schema<Discriminator, Tag, Fields>;
+}
+
+export const make = <const Discriminator extends StringTypes.NonEmptyString>(
+  discriminator: Discriminator
+): Factory<Discriminator> => {
+  const factory = (
+    tag: StringTypes.NonEmptyString,
+    fields: StructTypes.StructFieldsWithStringKeys,
+    ...records: S.IndexSignature.Records
+  ) => {
+    const thunkTag = () => tag;
+    const allFields = {
       [discriminator]: S.optional(S.Literal(tag)).pipe(
         S.withDefaults({
-          constructor: () => tag,
-          decoding: () => tag,
+          constructor: thunkTag,
+          decoding: thunkTag,
         })
       ),
       ...fields,
-    });
+    };
+    return records.length > 0 ? Struct(allFields, ...(records as UnsafeTypes.UnsafeAny)) : Struct(allFields);
+  };
+  return factory as Factory<Discriminator>;
+};
 
 export type Schema<
   Discriminator extends StringTypes.NonEmptyString,
@@ -42,6 +67,26 @@ export type Schema<
       never
     >;
   } & Fields
+>;
+
+export type SchemaWithRecords<
+  Discriminator extends StringTypes.NonEmptyString,
+  Tag extends StringTypes.NonEmptyString,
+  Fields extends StructTypes.StructFieldsWithStringKeys,
+  Records extends S.IndexSignature.Records,
+> = S.TypeLiteral<
+  {
+    readonly [K in Discriminator]: S.PropertySignature<
+      ":",
+      Exclude<Tag, undefined>,
+      never,
+      "?:",
+      Tag | undefined,
+      true,
+      never
+    >;
+  } & Fields,
+  Records
 >;
 
 export type Type<
