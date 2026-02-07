@@ -35,15 +35,15 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/machine": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@effect/sql": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/machine": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@effect/docgen": "catalog:",
     "@effect/sql": "catalog:",

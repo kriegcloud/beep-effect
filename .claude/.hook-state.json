@@ -1,5 +1,5 @@
 {
-  "lastCallMs": 1770448290221,
+  "lastCallMs": 1770448810140,
   "skillIndex": {
     "loadedAt": 1770447630044,
     "directoryMtime": 1770271944131,
@@ -1539,6 +1539,11 @@
     ]
   },
   "telemetry": {
-    "activeAgents": {}
+    "activeAgents": {
+      "07c7fed4-72b6-40fb-b6d8-addc4023a285": {
+        "agentType": "effect-code-writer",
+        "startTime": 1770448992511
+      }
+    }
   }
 }

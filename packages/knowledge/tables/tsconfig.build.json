@@ -33,6 +33,9 @@
       "path": "../../../packages/common/constants/tsconfig.build.json"
     },
     {
+      "path": "../../../packages/common/machine/tsconfig.build.json"
+    },
+    {
       "path": "../../../packages/common/errors/tsconfig.build.json"
     },
     {

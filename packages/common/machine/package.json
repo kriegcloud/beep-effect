@@ -46,12 +46,12 @@
   "devDependencies": {
     "@beep/identity": "workspace:^",
     "@beep/invariant": "workspace:^",
+    "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/build-utils": "catalog:",
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "@beep/testkit": "workspace:^",
     "effect": "catalog:"
   },
   "effect": {
