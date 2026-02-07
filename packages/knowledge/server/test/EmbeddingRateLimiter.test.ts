@@ -3,7 +3,6 @@ import { EmbeddingRateLimiter, makeEmbeddingRateLimiter } from "@beep/knowledge-
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
-import * as Either from "effect/Either";
 import * as Fiber from "effect/Fiber";
 
 describe("EmbeddingRateLimiter", () => {
@@ -14,12 +13,13 @@ describe("EmbeddingRateLimiter", () => {
       const start = yield* Deferred.make<void>();
 
       const attemptAcquire = Deferred.await(start).pipe(
-        Effect.zipRight(Effect.either(limiter.acquire())),
-        Effect.flatMap((result) =>
-          Either.match(result, {
-            onLeft: (error) => Effect.succeed({ _tag: "Left" as const, error }),
-            onRight: () => limiter.release().pipe(Effect.as({ _tag: "Right" as const })),
-          })
+        Effect.zipRight(
+          limiter.acquire().pipe(
+            Effect.matchEffect({
+              onFailure: (error) => Effect.succeed({ _tag: "Left" as const, error }),
+              onSuccess: () => limiter.release().pipe(Effect.as({ _tag: "Right" as const })),
+            })
+          )
         )
       );
 
@@ -44,4 +44,3 @@ describe("EmbeddingRateLimiter", () => {
     }, Effect.provide(makeEmbeddingRateLimiter({ provider: "test", requestsPerMinute: 1, maxConcurrent: 10 })))
   );
 });
-
