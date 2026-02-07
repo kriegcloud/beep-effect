@@ -10,6 +10,7 @@
 
 import { EmbeddingRateLimitError } from "@beep/knowledge-domain/errors";
 import { Clock, Context, Effect, Layer, Ref } from "effect";
+import * as O from "effect/Option";
 
 /**
  * Rate limiter state for sliding window
@@ -122,34 +123,35 @@ export const makeEmbeddingRateLimiter = (config: EmbeddingRateLimiterConfig): La
         resetAt: now + 60_000,
       });
 
-      const maybeResetWindow = Effect.gen(function* () {
-        const currentTime = yield* Clock.currentTimeMillis;
-        yield* Ref.update(stateRef, (state) =>
-          currentTime >= state.resetAt ? { count: 0, resetAt: currentTime + 60_000 } : state
-        );
-      });
-
       return {
         acquire: () =>
           Effect.gen(function* () {
-            yield* maybeResetWindow;
-
-            const state = yield* Ref.get(stateRef);
             const currentTime = yield* Clock.currentTimeMillis;
 
-            yield* Effect.when(
-              Effect.fail(
-                new EmbeddingRateLimitError({
-                  message: `Rate limit exceeded: ${config.requestsPerMinute} RPM`,
-                  provider: config.provider,
-                  retryAfterMs: state.resetAt - currentTime,
-                })
-              ),
-              () => state.count >= config.requestsPerMinute
-            );
-
             yield* semaphore.take(1);
-            yield* Ref.update(stateRef, (s) => ({ ...s, count: s.count + 1 }));
+
+            // Atomic RPM enforcement: previous logic could let multiple concurrent fibers pass the check
+            // and exceed RPM in the same window.
+            const maybeResetAt = yield* Ref.modify(stateRef, (state) => {
+              const nextState =
+                currentTime >= state.resetAt ? { count: 0, resetAt: currentTime + 60_000 } : state;
+
+              if (nextState.count >= config.requestsPerMinute) {
+                return [O.some(nextState.resetAt), nextState] as const;
+              }
+
+              return [O.none(), { ...nextState, count: nextState.count + 1 }] as const;
+            });
+
+            if (O.isSome(maybeResetAt)) {
+              // We already took a concurrency permit; release it before failing.
+              yield* semaphore.release(1);
+              return yield* new EmbeddingRateLimitError({
+                message: `Rate limit exceeded: ${config.requestsPerMinute} RPM`,
+                provider: config.provider,
+                retryAfterMs: maybeResetAt.value - currentTime,
+              });
+            }
           }),
 
         release: () => semaphore.release(1),

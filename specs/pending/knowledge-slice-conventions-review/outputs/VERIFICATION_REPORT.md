@@ -6,12 +6,31 @@
 ## Commands
 
 ```bash
-___
+# Module: packages/knowledge/domain
+bun run --cwd packages/knowledge/domain check
+bun run --cwd packages/knowledge/domain lint
+bun run --cwd packages/knowledge/domain test
+
+rg -n '\\bany\\b|@ts-ignore|as unknown as|\\bas any\\b' packages/knowledge/domain/src packages/knowledge/domain/test
+
+# Module: packages/knowledge/tables
+bun run --cwd packages/knowledge/tables check
+bun run --cwd packages/knowledge/tables lint
+bun run --cwd packages/knowledge/tables test
+
+rg -n '\\bany\\b|@ts-ignore|as unknown as|\\bas any\\b' packages/knowledge/tables/src packages/knowledge/tables/test
 ```
 
 ## Results
 
-- `___`: `PASS/FAIL` (date)
+- `bun run --cwd packages/knowledge/domain check`: `PASS` (2026-02-07)
+- `bun run --cwd packages/knowledge/domain lint`: `PASS` (2026-02-07)
+- `bun run --cwd packages/knowledge/domain test`: `PASS` (2026-02-07)
+- `rg ... packages/knowledge/domain/...`: `PASS` (matches are allowlisted docstrings) (2026-02-07)
+- `bun run --cwd packages/knowledge/tables check`: `PASS` (2026-02-07)
+- `bun run --cwd packages/knowledge/tables lint`: `PASS` (2026-02-07)
+- `bun run --cwd packages/knowledge/tables test`: `PASS` (2026-02-07)
+- `rg ... packages/knowledge/tables/...`: `PASS` (no matches) (2026-02-07)
 
 ## Required Audits (Per Module)
 
@@ -29,4 +48,4 @@ rg -n '\bany\b|@ts-ignore|as unknown as|\bas any\b' packages/knowledge/ui/
 
 Result:
 
-- `rg ...`: `PASS` (all matches are either fixed or listed in `outputs/AUDIT_ALLOWLIST.md`) (date)
+- `rg ...`: `PASS` (all matches are either fixed or listed in `outputs/AUDIT_ALLOWLIST.md`) (2026-02-07)

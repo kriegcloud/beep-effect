@@ -162,23 +162,27 @@ Phase 4 - Stabilization, verification, and guardrails.
 
 ### What Was Done
 
-- Unblocked repo-wide verification by quarantining unrelated, untracked production files under `packages/knowledge/server/src/Service/*` that were breaking TypeScript with `exactOptionalPropertyTypes`.
-- Reverted tracked production diffs listed in the Phase 4 handoff back to `HEAD` to keep this spec test-only.
-- Fixed knowledge-server `check` failures introduced by the test migrations:
-  - Removed unused imports from `packages/knowledge/server/test/adapters/GmailExtractionAdapter.test.ts`.
-  - Removed unused live-layer imports from `packages/knowledge/server/test/Sparql/SparqlGenerator.test.ts` after switching to `_shared/LayerBuilders`.
-- Stabilized a pre-existing flaky timeout in `packages/knowledge/server/test/Service/EventBus.test.ts` by eliminating publish-before-subscribe races (test-only change).
-- Ran verification gates and recorded them in `outputs/verification-report.md`.
+- Verified the repo gates on branch `knowledge-review`.
+- Ran verification commands:
+  - `bun run check` (PASS)
+  - `bun run lint` (PASS)
+  - targeted `bun test` run covering the migrated knowledge-server test files (PASS)
+  - `bun run test` (PASS)
+- Reconciled a mismatch between the Phase 4 handoff “prod drift” description and the current repo state:
+  - The listed production files were not untracked drift in this environment (they are tracked in git on this branch).
+  - No production rollbacks/quarantine actions were required to get `bun run check` green.
+- Updated `outputs/verification-report.md` so it accurately reflects the commands run, the PASS/FAIL outcomes, the helper adoption map, and the “no rollbacks applied” reality for this run.
+- Noted that the worktree contains unrelated diffs outside this spec (e.g. `packages/knowledge/domain/**` and other `specs/**` outputs). This Phase 4 work did not attempt to revert or curate those.
 
 ### What Worked Well
 
-- Keeping drift containment explicit (revert tracked diffs, quarantine untracked prod files) avoided production-scope creep while still allowing `bun run check` to go green.
-- The `_shared` helper boundaries held up under real verification: fixes were localized to test code, not runtime modules.
+- The shared helper boundaries stayed stable under full-suite verification; no follow-up test-only fixes were needed.
+- Keeping Phase 4 outputs strictly documentation-level avoided scope creep while still providing an audit trail (commands + adoption map + exceptions).
 
 ### What Could Be Improved
 
-- The repo can accumulate unrelated dirty-worktree changes across specs; Phase 4 verification is most meaningful when run on a branch/worktree that contains only the test-dedup diff.
+- Handoffs should distinguish “working-tree drift” from “production changes present on the branch” to avoid wasted effort chasing rollbacks that are not applicable.
 
 ### What Remains
 
-- If the quarantined production files are intended work, they should be restored and addressed in a separate, explicitly-scoped change set (outside this test-only spec).
+- If the production changes referenced in earlier handoffs are intended work, they should be handled as a separate, explicitly-scoped spec/change set (this spec remains test-only).
