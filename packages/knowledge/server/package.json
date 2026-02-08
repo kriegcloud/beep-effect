@@ -13,6 +13,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
+    "./Extraction": "./src/Extraction/index.ts",
     "./db": "./src/db.ts",
     "./*": "./src/*.ts"
   },
@@ -46,9 +47,11 @@
     "@beep/knowledge-tables": "workspace:^",
     "@effect/experimental": "catalog:",
     "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "@effect/sql": "catalog:",
     "@effect/sql-drizzle": "catalog:",
     "@effect/sql-pg": "catalog:",
+    "@effect/sql-sqlite-bun": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },
@@ -66,9 +69,11 @@
     "@effect/docgen": "catalog:",
     "@effect/experimental": "catalog:",
     "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "@effect/sql": "catalog:",
     "@effect/sql-drizzle": "catalog:",
     "@effect/sql-pg": "catalog:",
+    "@effect/sql-sqlite-bun": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
     "@types/n3": "catalog:",
     "drizzle-orm": "catalog:",
@@ -87,9 +92,9 @@
     }
   },
   "dependencies": {
-    "@effect/ai": "^0.33.2",
-    "@effect/ai-anthropic": "^0.23.0",
-    "@effect/ai-openai": "^0.37.2",
+    "@effect/ai": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
+    "@effect/ai-openai": "catalog:",
     "n3": "catalog:",
     "openai": "catalog:"
   }

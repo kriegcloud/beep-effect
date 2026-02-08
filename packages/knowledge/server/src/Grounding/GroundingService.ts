@@ -13,11 +13,14 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { EmbeddingError } from "../Embedding/EmbeddingProvider";
 import { EmbeddingService, EmbeddingServiceLive } from "../Embedding/EmbeddingService";
-import { AssembledRelation, type KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { extractLocalName } from "../Ontology/constants";
 import { cosineSimilarity } from "../utils/vector";
 
 const $I = $KnowledgeServerId.create("Grounding/GroundingService");
+
+const KnowledgeGraphSchema = S.typeSchema(KnowledgeGraph);
+type KnowledgeGraphModel = S.Schema.Type<typeof KnowledgeGraphSchema>;
 
 export class GroundingConfig extends S.Class<GroundingConfig>($I`GroundingConfig`)(
   {
@@ -87,13 +90,13 @@ class VerifyAccumulator extends S.Class<VerifyAccumulator>($I`VerifyAccumulator`
 
 export interface GroundingServiceShape {
   readonly verifyRelations: (
-    graph: KnowledgeGraph,
+    graph: KnowledgeGraphModel,
     sourceText: string,
     organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: string,
     config?: GroundingConfig
   ) => Effect.Effect<GroundingResult, EmbeddingError | RateLimitError | CircuitOpenError>;
-  readonly applyGrounding: (graph: KnowledgeGraph, groundingResult: GroundingResult) => KnowledgeGraph;
+  readonly applyGrounding: (graph: KnowledgeGraphModel, groundingResult: GroundingResult) => KnowledgeGraphModel;
   readonly verifyRelation: (
     relation: AssembledRelation,
     subjectMention: string,
@@ -111,7 +114,7 @@ const serviceEffect: Effect.Effect<GroundingServiceShape, never, EmbeddingServic
 
   const verifyRelations = Effect.fn("GroundingService.verifyRelations")(
     (
-      graph: KnowledgeGraph,
+      graph: KnowledgeGraphModel,
       sourceText: string,
       organizationId: SharedEntityIds.OrganizationId.Type,
       ontologyId: string,
@@ -146,11 +149,11 @@ const serviceEffect: Effect.Effect<GroundingServiceShape, never, EmbeddingServic
 
         const acc = yield* Effect.reduce(
           graph.relations,
-          {
+          new VerifyAccumulator({
             grounded: A.empty<AssembledRelation>(),
             ungrounded: A.empty<AssembledRelation>(),
             totalConfidence: 0,
-          } as VerifyAccumulator,
+          }),
           (current, relation) =>
             Effect.gen(function* () {
               const subjectOpt = MutableHashMap.get(entityById, relation.subjectId);
@@ -163,7 +166,11 @@ const serviceEffect: Effect.Effect<GroundingServiceShape, never, EmbeddingServic
                   })
                 );
                 return config.keepUngrounded
-                  ? { ...current, ungrounded: A.append(current.ungrounded, relation) }
+                  ? new VerifyAccumulator({
+                      grounded: current.grounded,
+                      ungrounded: A.append(current.ungrounded, relation),
+                      totalConfidence: current.totalConfidence,
+                    })
                   : current;
               }
               const subject = subjectOpt.value;
@@ -183,11 +190,11 @@ const serviceEffect: Effect.Effect<GroundingServiceShape, never, EmbeddingServic
               };
 
               if (similarity >= threshold) {
-                return {
-                  ...current,
+                return new VerifyAccumulator({
                   grounded: A.append(current.grounded, updatedRelation),
+                  ungrounded: current.ungrounded,
                   totalConfidence: current.totalConfidence + similarity,
-                };
+                });
               }
 
               yield* Effect.logDebug("GroundingService: relation below threshold").pipe(
@@ -200,7 +207,11 @@ const serviceEffect: Effect.Effect<GroundingServiceShape, never, EmbeddingServic
               );
 
               return config.keepUngrounded
-                ? { ...current, ungrounded: A.append(current.ungrounded, updatedRelation) }
+                ? new VerifyAccumulator({
+                    grounded: current.grounded,
+                    ungrounded: A.append(current.ungrounded, updatedRelation),
+                    totalConfidence: current.totalConfidence,
+                  })
                 : current;
             })
         );
@@ -236,7 +247,7 @@ const serviceEffect: Effect.Effect<GroundingServiceShape, never, EmbeddingServic
       )
   );
 
-  const applyGrounding = (graph: KnowledgeGraph, groundingResult: GroundingResult): KnowledgeGraph => ({
+  const applyGrounding = (graph: KnowledgeGraphModel, groundingResult: GroundingResult): KnowledgeGraphModel => ({
     ...graph,
     relations: groundingResult.groundedRelations,
     stats: {

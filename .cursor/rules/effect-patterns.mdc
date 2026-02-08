@@ -1,9 +1,14 @@
 ---
-alwaysApply: false
+alwaysApply: true
 
 trigger: manual
 description: 
-globs: 
+globs:
+  - packages/**/src/**/*.ts
+  - packages/**/src/**/*.tsx
+  - apps/**/src/**/*.ts
+  - apps/**/src/**/*.tsx
+  - tooling/**/src/**/*.ts
 ---
 
 

@@ -60,6 +60,32 @@ interface DetectionPattern {
  */
 const EFFECT_PATTERNS: ReadonlyArray<DetectionPattern> = [
   {
+    name: "node-fs",
+    description: "Node.js fs import in application code (use @effect/platform FileSystem)",
+    glob: "packages/*/*/src/**/*.ts",
+    pattern: /from\s+["']node:fs["']|from\s+["']fs["']|require\(\s*["']node:fs["']\s*\)|require\(\s*["']fs["']\s*\)/,
+    severity: "critical",
+    suggestion: "import { FileSystem } from '@effect/platform'; const fs = yield* FileSystem.FileSystem",
+  },
+  {
+    name: "node-fs-promises",
+    description: "Node.js fs/promises import in application code (use @effect/platform FileSystem)",
+    glob: "packages/*/*/src/**/*.ts",
+    pattern:
+      /from\s+["']node:fs\/promises["']|from\s+["']fs\/promises["']|require\(\s*["']node:fs\/promises["']\s*\)|require\(\s*["']fs\/promises["']\s*\)/,
+    severity: "critical",
+    suggestion: "import { FileSystem } from '@effect/platform'; use fs.readFileString / fs.writeFileString / fs.rename",
+  },
+  {
+    name: "node-path",
+    description: "Node.js path import in application code (use @effect/platform Path)",
+    glob: "packages/*/*/src/**/*.ts",
+    pattern:
+      /from\s+["']node:path["']|from\s+["']path["']|require\(\s*["']node:path["']\s*\)|require\(\s*["']path["']\s*\)/,
+    severity: "critical",
+    suggestion: "import { Path } from '@effect/platform'; const path = yield* Path.Path",
+  },
+  {
     name: "native-set",
     description: "Native Set usage (use MutableHashSet.make())",
     glob: "packages/*/*/src/**/*.ts",
@@ -92,6 +118,45 @@ const EFFECT_PATTERNS: ReadonlyArray<DetectionPattern> = [
     pattern: /new Date\(/,
     severity: "warning",
     suggestion: "import * as DateTime from 'effect/DateTime'; yield* DateTime.now",
+  },
+  {
+    name: "async-await",
+    description: "async/await usage in application code (use Effect.gen / Effect.tryPromise)",
+    glob: "packages/*/*/src/**/*.ts",
+    excludeGlobs: ["**/*.test.ts", "**/test/**/*.ts"],
+    // Only flag the async keyword, not allowed identifiers like Effect.async(...)
+    pattern: /(?<!\.)\basync\b|\bawait\b/,
+    severity: "critical",
+    suggestion: "Replace async/await with Effect.gen(function* () { ... }) or Effect.tryPromise",
+  },
+  {
+    name: "promise-usage",
+    description: "Direct Promise usage in application code (use Effect.tryPromise / Effect.promise)",
+    glob: "packages/*/*/src/**/*.ts",
+    excludeGlobs: ["**/*.test.ts", "**/test/**/*.ts"],
+    pattern: /\bnew\s+Promise\b|\bPromise\.(all|race|allSettled|resolve|reject)\b|\.then\(/,
+    // Allow Effect wrappers that intentionally use Promises under an Effect boundary.
+    excludePattern: /Effect\.(tryPromise|promise)\b/,
+    severity: "critical",
+    suggestion: "Use Effect.tryPromise / Effect.promise and keep Promises at the boundary only",
+  },
+  {
+    name: "unsafe-cast",
+    description: "Unsafe type assertion (avoid 'as any' and 'as unknown as')",
+    glob: "packages/*/*/src/**/*.ts",
+    excludeGlobs: ["**/*.test.ts", "**/test/**/*.ts"],
+    pattern: /\bas\s+any\b|\bas\s+unknown\s+as\b|\bas\s+never\b/,
+    severity: "critical",
+    suggestion: "Remove the cast by fixing upstream types or validating with Schema.decode / type guards",
+  },
+  {
+    name: "direct-json",
+    description: "Direct JSON.parse/stringify usage (prefer Schema.parseJson)",
+    glob: "packages/*/*/src/**/*.ts",
+    excludeGlobs: ["**/*.test.ts", "**/test/**/*.ts"],
+    pattern: /JSON\.(parse|stringify)\(/,
+    severity: "critical",
+    suggestion: "Use Schema.parseJson(schema) with Schema.decode/encode for typed JSON",
   },
 ];
 
@@ -169,6 +234,13 @@ const scanFileForPattern = (filePath: string, content: string, pattern: Detectio
   return F.pipe(
     lines,
     A.map((line, index) => {
+      const trimmed = Str.trim(line);
+
+      // Avoid flagging patterns in comment-only lines (common in docs/examples).
+      if (Str.startsWith("//")(trimmed) || Str.startsWith("/*")(trimmed) || Str.startsWith("*")(trimmed)) {
+        return O.none();
+      }
+
       // Check primary pattern
       if (!pattern.pattern.test(line)) return O.none();
 
@@ -182,7 +254,7 @@ const scanFileForPattern = (filePath: string, content: string, pattern: Detectio
           filePath,
           line: index + 1,
           message: pattern.description,
-          codeSnippet: Str.trim(line),
+          codeSnippet: trimmed,
           suggestion: pattern.suggestion,
         })
       );

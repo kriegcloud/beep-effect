@@ -16,6 +16,9 @@ const $I = $KnowledgeServerId.create("Service/DocumentClassifier");
 
 const MAX_PREVIEW_SIZE = 1500;
 
+const DEFAULT_AUTO_BATCH_SIZE = 10;
+const DEFAULT_AUTO_BATCH_CONCURRENCY = 2;
+
 export class DocumentType extends BS.StringLiteralKit(
   "article",
   "transcript",
@@ -68,7 +71,7 @@ export class ClassifyInput extends S.Class<ClassifyInput>($I`ClassifyInput`)(
   })
 ) {}
 
-class ClassifyBatchDocumentInput extends S.Class<ClassifyBatchDocumentInput>($I`ClassifyBatchDocumentInput`)(
+export class ClassifyBatchDocumentInput extends S.Class<ClassifyBatchDocumentInput>($I`ClassifyBatchDocumentInput`)(
   {
     index: S.Int,
     preview: S.String,
@@ -159,10 +162,40 @@ ${summaries}
 Respond with classifications for each document by index.`;
 };
 
+type ClassificationItem = Readonly<{ readonly index: number; readonly classification: DocumentClassification }>;
+
+const normalizeBatchResults = (
+  inputDocs: ReadonlyArray<{ readonly index: number }>,
+  results: ReadonlyArray<ClassificationItem>
+): ReadonlyArray<ClassificationItem> => {
+  const byIndex = new Map<number, DocumentClassification>();
+  for (const item of results) {
+    // Keep the first value we saw for a given index, to avoid non-determinism if an LLM emits duplicates.
+    if (!byIndex.has(item.index)) byIndex.set(item.index, item.classification);
+  }
+
+  return A.map(inputDocs, (doc) => ({
+    index: doc.index,
+    classification: byIndex.get(doc.index) ?? defaultClassification,
+  }));
+};
+
 export interface DocumentClassifierShape {
   readonly classify: (input: ClassifyInput) => Effect.Effect<DocumentClassification, ClassificationError>;
   readonly classifyBatch: (
     input: ClassifyBatchInput
+  ) => Effect.Effect<
+    ReadonlyArray<{ readonly index: number; readonly classification: DocumentClassification }>,
+    ClassificationError
+  >;
+  /**
+   * Convenience API matching effect-ontology: split large input sets into batches and classify with
+   * controlled concurrency.
+   */
+  readonly classifyWithAutoBatching: (
+    documents: ReadonlyArray<{ readonly index: number; readonly preview: string; readonly contentType?: string }>,
+    batchSize?: number,
+    concurrency?: number
   ) => Effect.Effect<
     ReadonlyArray<{ readonly index: number; readonly classification: DocumentClassification }>,
     ClassificationError
@@ -181,6 +214,35 @@ const serviceEffect: Effect.Effect<
 > = Effect.gen(function* () {
   const model = yield* LanguageModel.LanguageModel;
   const fallback = yield* FallbackLanguageModel;
+
+  const classifyBatchOnce = (
+    docs: ReadonlyArray<{ readonly index: number; readonly preview: string; readonly contentType: O.Option<string> }>
+  ) =>
+    withLlmResilienceWithFallback(
+      model,
+      fallback,
+      (llm) =>
+        llm.generateObject({
+          prompt: Prompt.make(buildBatchPrompt(docs)),
+          schema: BatchClassificationResponse,
+          objectName: "BatchClassificationResponse",
+        }),
+      {
+        stage: "entity_extraction",
+        estimatedTokens: A.reduce(docs, 0, (acc, d) => acc + Str.length(d.preview)),
+        maxRetries: 1,
+        baseRetryDelay: Duration.zero,
+      }
+    ).pipe(
+      Effect.map((r) => r.value.classifications),
+      Effect.mapError(
+        (e) =>
+          new ClassificationError({
+            message: `Batch classification failed: ${String(e)}`,
+            cause: e,
+          })
+      )
+    );
 
   return DocumentClassifier.of({
     classify: (input) =>
@@ -211,39 +273,39 @@ const serviceEffect: Effect.Effect<
       ),
 
     classifyBatch: (input) =>
-      withLlmResilienceWithFallback(
-        model,
-        fallback,
-        (llm) =>
-          llm.generateObject({
-            prompt: Prompt.make(
-              buildBatchPrompt(
-                A.map(input.documents, (d) => ({
-                  index: d.index,
-                  preview: d.preview,
-                  contentType: d.contentType,
-                }))
-              )
-            ),
-            schema: BatchClassificationResponse,
-            objectName: "BatchClassificationResponse",
-          }),
-        {
-          stage: "entity_extraction",
-          estimatedTokens: A.reduce(input.documents, 0, (acc, d) => acc + Str.length(d.preview)),
-          maxRetries: 1,
-          baseRetryDelay: Duration.zero,
-        }
-      ).pipe(
-        Effect.map((r) => r.value.classifications),
-        Effect.mapError(
-          (e) =>
-            new ClassificationError({
-              message: `Batch classification failed: ${String(e)}`,
-              cause: e,
-            })
-        )
-      ),
+      A.isEmptyReadonlyArray(input.documents)
+        ? Effect.succeed(A.empty<ClassificationItem>())
+        : classifyBatchOnce(
+            A.map(input.documents, (d) => ({
+              index: d.index,
+              preview: d.preview,
+              contentType: d.contentType,
+            }))
+          ).pipe(Effect.map((results) => normalizeBatchResults(input.documents, results))),
+
+    classifyWithAutoBatching: (
+      documents,
+      batchSize = DEFAULT_AUTO_BATCH_SIZE,
+      concurrency = DEFAULT_AUTO_BATCH_CONCURRENCY
+    ) =>
+      Effect.gen(function* () {
+        if (A.isEmptyReadonlyArray(documents)) return A.empty<ClassificationItem>();
+
+        const docs = A.map(documents, (d) => ({
+          index: d.index,
+          preview: d.preview,
+          contentType: O.fromNullable(d.contentType),
+        }));
+
+        const batches = A.chunksOf([...docs], batchSize);
+        const resultsByBatch = yield* Effect.forEach(
+          batches,
+          (batch) => classifyBatchOnce(batch).pipe(Effect.map((results) => normalizeBatchResults(batch, results))),
+          { concurrency }
+        );
+
+        return A.flatten(resultsByBatch);
+      }),
   });
 });
 

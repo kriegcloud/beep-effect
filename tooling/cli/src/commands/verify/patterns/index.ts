@@ -30,6 +30,10 @@ import { patternHandler } from "./handler.js";
  * - Native Map usage (should use MutableHashMap)
  * - Native Error constructors (should use S.TaggedError)
  * - Native Date constructors (should use DateTime)
+ * - Node.js fs/path imports (should use @effect/platform FileSystem/Path)
+ * - async/await and direct Promise usage (should use Effect.gen / Effect.tryPromise)
+ * - Unsafe casts (`as any`, `as unknown as`, `as never`)
+ * - Direct JSON.parse/stringify (prefer Schema.parseJson)
  *
  * @example
  * ```bash

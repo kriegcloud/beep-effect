@@ -56,7 +56,10 @@ describe("Service/Storage", () => {
       if (Either.isLeft(staleAttempt)) {
         assertTrue(staleAttempt.left instanceof StorageGenerationConflictError);
         strictEqual(staleAttempt.left.expectedGeneration, 1);
-        strictEqual(staleAttempt.left.actualGeneration, 2);
+        assertTrue(O.isSome(staleAttempt.left.actualGeneration));
+        if (O.isSome(staleAttempt.left.actualGeneration)) {
+          strictEqual(staleAttempt.left.actualGeneration.value, 2);
+        }
       }
     }, Effect.provide(StorageMemoryLive))
   );
@@ -74,8 +77,17 @@ describe("Service/Storage", () => {
       assertTrue(Either.isLeft(staleDelete));
       if (Either.isLeft(staleDelete)) {
         assertTrue(staleDelete.left instanceof StorageGenerationConflictError);
-        strictEqual(staleDelete.left.actualGeneration, null);
+        assertTrue(O.isNone(staleDelete.left.actualGeneration));
       }
+    }, Effect.provide(StorageMemoryLive))
+  );
+
+  effect(
+    "does not provide signed URLs by default",
+    Effect.fn(function* () {
+      const storage = yield* Storage;
+      const url = yield* storage.signedUrl("ontology/schema.ttl", { purpose: "get", expiresInSeconds: 60 });
+      assertTrue(O.isNone(url));
     }, Effect.provide(StorageMemoryLive))
   );
 });

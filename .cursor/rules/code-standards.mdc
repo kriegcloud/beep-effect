@@ -223,13 +223,10 @@ if (!user) return Effect.fail(new UserNotFound({ userId }));
 
 **Example - Schema.decode over 'as any':**
 ```typescript
-// BEFORE: Type casting
-const data = JSON.parse(response) as User;
-
-// AFTER: Schema.decode
+// Parse + validate in one step (avoid JSON.parse + casting)
 import * as S from "effect/Schema";
 const UserSchema = S.Struct({ id: S.String, name: S.String });
-const data = yield* S.decode(UserSchema)(JSON.parse(response));
+const data = yield* S.decode(S.parseJson(UserSchema))(response);
 ```
 
 **Example - Effect.tryPromise over Promise:**
@@ -251,21 +248,12 @@ const getUser = (id: string) =>
 
 **Example - Effect.try over try/catch:**
 ```typescript
-// BEFORE: try/catch
-try {
-  const data = JSON.parse(input);
-  return data;
-} catch (error) {
-  console.error("Parse failed", error);
-  return null;
-}
-
-// AFTER: Effect.try
+// Parse JSON with Schema (avoid JSON.parse + null returns)
 import * as Effect from "effect/Effect";
-Effect.try({
-  try: () => JSON.parse(input),
-  catch: (error) => new ParseError({ cause: error })
-});
+import * as S from "effect/Schema";
+
+const parseJsonUnknown = (input: string) =>
+  S.decode(S.parseJson(S.Unknown))(input).pipe(Effect.mapError((error) => new ParseError({ cause: error })));
 ```
 
 **Example - Option over null/undefined:**

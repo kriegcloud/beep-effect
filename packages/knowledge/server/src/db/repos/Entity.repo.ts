@@ -20,6 +20,8 @@ const $I = $KnowledgeServerId.create("db/repos/EntityRepo");
 
 const tableName = KnowledgeEntityIds.KnowledgeEntityId.tableName;
 
+const encodeStringArrayJsonb = S.encode(S.parseJson(S.Array(S.String)));
+
 class FindByIdsRequest extends S.Class<FindByIdsRequest>($I`FindByIdsRequest`)(
   {
     ids: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
@@ -112,14 +114,18 @@ const makeEntityExtensions = Effect.gen(function* () {
   const findByTypeSchema = SqlSchema.findAll({
     Request: FindByTypeRequest,
     Result: Entities.Entity.Model,
-    execute: (req) => sql`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${req.organizationId}
-          AND types @ > ${JSON.stringify([req.typeIri])}::jsonb
-        ORDER BY created_at DESC
-            LIMIT ${req.limit}
-    `,
+    execute: (req) =>
+      Effect.gen(function* () {
+        const typeIrisJson = yield* encodeStringArrayJsonb([req.typeIri]).pipe(Effect.orDie);
+        return yield* sql`
+          SELECT *
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${req.organizationId}
+            AND types @ > ${typeIrisJson}::jsonb
+          ORDER BY created_at DESC
+          LIMIT ${req.limit}
+        `;
+      }),
   });
 
   const countByOrganizationSchema = SqlSchema.findAll({

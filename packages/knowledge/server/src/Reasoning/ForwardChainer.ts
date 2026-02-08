@@ -12,6 +12,7 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
+import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -178,18 +179,12 @@ export const forwardChain = (
   }).pipe(Effect.withSpan("ForwardChainer.forwardChain"));
 
 const getRulesForConfig = (config: ReasoningConfig, customRules: ReadonlyArray<Rule>): ReadonlyArray<Rule> => {
-  switch (config.profile) {
-    case "rdfs-subclass":
-      return [rdfs9, rdfs11];
-    case "rdfs-domain-range":
-      return [rdfs2, rdfs3];
-    case "owl-sameas":
-      return owlSameAsRules;
-    case "owl-full":
-      return [...rdfsRules, ...owlRules];
-    case "custom":
-      return customRules;
-    default:
-      return rdfsRules;
-  }
+  return Match.value(config.profile).pipe(
+    Match.when("rdfs-subclass", () => [rdfs9, rdfs11]),
+    Match.when("rdfs-domain-range", () => [rdfs2, rdfs3]),
+    Match.when("owl-sameas", () => owlSameAsRules),
+    Match.when("owl-full", () => [...rdfsRules, ...owlRules]),
+    Match.when("custom", () => customRules),
+    Match.orElse(() => rdfsRules)
+  );
 };

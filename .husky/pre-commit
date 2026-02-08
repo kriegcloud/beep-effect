@@ -44,3 +44,26 @@ if git diff --cached --name-only | grep -qE '^\.claude/agents/.*\.md$|^\.claude/
     exit 1
   fi
 fi
+
+# Repo-law enforcement (scoped): only run when knowledge server/domain source files are staged.
+if git diff --cached --name-only | grep -qE '^packages/knowledge/server/src/.*\.ts$|^packages/knowledge/server/src/.*\.tsx$'; then
+  echo ""
+  echo "Knowledge server sources detected in commit, running repo-law pattern checks..."
+  bun run verify:patterns --filter @beep/knowledge-server --severity critical
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Pattern verification failed for @beep/knowledge-server."
+    exit 1
+  fi
+fi
+
+if git diff --cached --name-only | grep -qE '^packages/knowledge/domain/src/.*\.ts$|^packages/knowledge/domain/src/.*\.tsx$'; then
+  echo ""
+  echo "Knowledge domain sources detected in commit, running entity-id verification..."
+  bun run verify:entityids
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Entity ID verification failed."
+    exit 1
+  fi
+fi

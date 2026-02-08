@@ -67,8 +67,16 @@ bunx turbo run check lint test --filter='@beep/knowledge-*' --ui=stream
 - `bun run --cwd packages/knowledge/ui lint`: `PASS` (2026-02-07)
 - `bun run --cwd packages/knowledge/ui test`: `PASS` (2026-02-07)
 - `rg ... packages/knowledge/ui/...`: `PASS` (no matches) (2026-02-07)
-- `bunx turbo run check lint test --filter='@beep/knowledge-*' --ui=stream`: `PASS` (2026-02-07)
+- `bunx turbo run check lint test --filter='@beep/knowledge-*' --ui=stream`: `PASS` (2026-02-07) (turbo `2.8.3`; bun test `1.3.8`; remote cache hits)
 - `bun run --cwd packages/knowledge/server check && bun run --cwd packages/knowledge/server lint && bun run --cwd packages/knowledge/server test`: `PASS` (2026-02-07)
+
+## Notes (Non-Failing Diagnostics)
+
+The full-slice `turbo` run emits some non-fatal TypeScript messages from custom Effect lint rules during `@beep/knowledge-server:check` (the task still exits `0` and turbo reports success). These are informational and were not treated as spec blockers:
+
+- `effect(unnecessaryFailYieldableError)` in `test/Resilience/LlmResilience.test.ts`
+- `effect(schemaSyncInEffect)` in `test/Service/CrossBatchEntityResolver.test.ts`
+- `effect(preferSchemaOverJson)` in `test/Service/OntologyRegistry.test.ts`
 
 ## Required Audits (Per Module)
 

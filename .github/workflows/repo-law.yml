@@ -1,0 +1,31 @@
+name: repo-law
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.8"
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Validate Agent Config
+        run: bun run agents:validate:strict
+
+      - name: Verify Repo Patterns (CI)
+        run: bun run verify:patterns:ci
+
+      - name: Verify Entity IDs
+        run: bun run verify:entityids

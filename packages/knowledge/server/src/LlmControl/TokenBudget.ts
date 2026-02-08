@@ -84,7 +84,7 @@ const STAGE_ALLOCATIONS: Record<BudgetedStage, number> = {
  *   // Check if stage can afford tokens
  *   const canProceed = yield* budget.canAfford("entity_extraction", 1000)
  *   if (!canProceed) {
- *     yield* Effect.fail(new Error("Token budget exceeded for stage"))
+ *     yield* Effect.dieMessage("Token budget exceeded for stage")
  *   }
  *
  *   // Record usage after LLM call

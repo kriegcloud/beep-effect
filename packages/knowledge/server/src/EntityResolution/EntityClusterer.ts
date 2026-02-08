@@ -13,11 +13,15 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import { EmbeddingService, EmbeddingServiceLive } from "../Embedding/EmbeddingService";
-import type { AssembledEntity, KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { type AssembledEntity, KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { formatEntityForEmbedding } from "../utils/formatting";
 import { cosineSimilarity } from "../utils/vector";
 
 const $I = $KnowledgeServerId.create("EntityResolution/EntityClusterer");
+
+type AssembledEntityModel = S.Schema.Type<typeof AssembledEntity>;
+const KnowledgeGraphSchema = S.typeSchema(KnowledgeGraph);
+type KnowledgeGraphModel = S.Schema.Type<typeof KnowledgeGraphSchema>;
 
 export class ClusterConfig extends S.Class<ClusterConfig>($I`ClusterConfig`)(
   {
@@ -54,16 +58,16 @@ export class EntitySimilarity extends S.Class<EntitySimilarity>($I`EntitySimilar
   })
 ) {}
 
-const hasTypeOverlap = (entityA: AssembledEntity, entityB: AssembledEntity): boolean => {
+const hasTypeOverlap = (entityA: AssembledEntityModel, entityB: AssembledEntityModel): boolean => {
   const typesA = MutableHashSet.fromIterable(entityA.types);
   return A.some(entityB.types, (t) => MutableHashSet.has(typesA, t));
 };
 
-const findSharedTypes = (entities: readonly AssembledEntity[]): readonly string[] => {
+const findSharedTypes = (entities: readonly AssembledEntityModel[]): readonly string[] => {
   if (A.isEmptyReadonlyArray(entities)) return [];
 
   return A.match(entities, {
-    onEmpty: () => A.empty<string>(),
+    onEmpty: A.empty<string>,
     onNonEmpty: (nonEmpty) => {
       const first = A.headNonEmpty(nonEmpty);
       const sharedSet = MutableHashSet.fromIterable(first.types);
@@ -81,20 +85,20 @@ const findSharedTypes = (entities: readonly AssembledEntity[]): readonly string[
 
 export interface EntityClustererShape {
   readonly findSimilar: (
-    queryEntity: AssembledEntity,
-    candidateEntities: readonly AssembledEntity[],
+    queryEntity: AssembledEntityModel,
+    candidateEntities: readonly AssembledEntityModel[],
     ontologyId: KnowledgeEntityIds.OntologyId.Type,
     threshold?: undefined | number
   ) => Effect.Effect<
     {
-      readonly entity: AssembledEntity;
+      readonly entity: AssembledEntityModel;
       readonly similarity: number;
     }[],
     EmbeddingError | RateLimitError | CircuitOpenError,
     never
   >;
   readonly cluster: (
-    graphs: readonly KnowledgeGraph[],
+    graphs: readonly KnowledgeGraphModel[],
     ontologyId: KnowledgeEntityIds.OntologyId.Type,
     config?: ClusterConfig | undefined
   ) => Effect.Effect<readonly EntityCluster[], never, never>;
@@ -110,12 +114,12 @@ const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, Embeddi
     const organizationId = authCtx.session.activeOrganizationId;
 
     const computeSimilarities = (
-      entities: readonly AssembledEntity[],
+      entities: readonly AssembledEntityModel[],
       embeddings: MutableHashMap.MutableHashMap<string, readonly number[]>,
       threshold: number,
       requireTypeCompatibility: boolean
     ): readonly EntitySimilarity[] => {
-      const similarities: EntitySimilarity[] = [];
+      const similarities = A.empty<EntitySimilarity>();
 
       for (let i = 0; i < A.length(entities); i++) {
         const entityA = entities[i];
@@ -153,7 +157,7 @@ const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, Embeddi
     };
 
     const agglomerativeClustering = (
-      entities: readonly AssembledEntity[],
+      entities: readonly AssembledEntityModel[],
       similarities: readonly EntitySimilarity[],
       maxClusterSize: number
     ): readonly EntityCluster[] => {
@@ -231,12 +235,12 @@ const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, Embeddi
         MutableHashMap.set(clusterMap, root, cluster);
       });
 
-      const entityById = MutableHashMap.empty<string, AssembledEntity>();
+      const entityById = MutableHashMap.empty<string, AssembledEntityModel>();
       A.forEach(entities, (entity) => {
         MutableHashMap.set(entityById, entity.id, entity);
       });
 
-      const clusters: EntityCluster[] = [];
+      const clusters = A.empty<EntityCluster>();
 
       MutableHashMap.forEach(clusterMap, (memberIds, _root) => {
         const members = A.filterMap(memberIds, (id) => MutableHashMap.get(entityById, id));
@@ -278,15 +282,15 @@ const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, Embeddi
     };
 
     const findSimilar = Effect.fn(function* (
-      queryEntity: AssembledEntity,
-      candidateEntities: readonly AssembledEntity[],
+      queryEntity: AssembledEntityModel,
+      candidateEntities: readonly AssembledEntityModel[],
       ontologyId: string,
       threshold = 0.8
     ) {
       const queryText = formatEntityForEmbedding(queryEntity);
       const queryEmbedding = yield* embeddingService.getOrCreate(queryText, "search_query", organizationId, ontologyId);
 
-      const results: Array<{ readonly entity: AssembledEntity; readonly similarity: number }> = [];
+      const results: Array<{ readonly entity: AssembledEntityModel; readonly similarity: number }> = [];
 
       for (const candidate of candidateEntities) {
         if (candidate.id === queryEntity.id) continue;
@@ -310,13 +314,13 @@ const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, Embeddi
         Order.reverse(
           Order.mapInput(
             Order.number,
-            (r: { readonly entity: AssembledEntity; readonly similarity: number }) => r.similarity
+            (r: { readonly entity: AssembledEntityModel; readonly similarity: number }) => r.similarity
           )
         )
       );
     });
     const cluster = Effect.fn(
-      function* (graphs: readonly KnowledgeGraph[], ontologyId: string, config: ClusterConfig = {}) {
+      function* (graphs: readonly KnowledgeGraphModel[], ontologyId: string, config: ClusterConfig = {}) {
         const threshold = config.similarityThreshold ?? 0.85;
         const maxClusterSize = config.maxClusterSize ?? 50;
         const requireTypeCompatibility = config.requireTypeCompatibility ?? true;

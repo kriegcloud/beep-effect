@@ -57,6 +57,7 @@
     "rootDir": "src",
     "moduleResolution": "bundler",
     "incremental": true,
+    "noEmitOnError": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "downlevelIteration": true

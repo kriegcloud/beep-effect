@@ -21,8 +21,14 @@
 
 ## Work Checklist (Phase 3)
 
-- [ ] Confirm the findings list is complete and correctly prioritized (P0-P3).
-- [ ] Summarize completed vs deferred `S.Class` conversions with evidence.
-- [ ] Write risk/rollback notes for any behavior-affecting refactors (if applicable).
-- [ ] Decide whether to move the spec to `specs/completed/` and update indices accordingly.
-
+- [x] Confirm the findings list is complete and correctly prioritized (P0-P3).
+  - Source of truth: `outputs/CONVENTIONS_AUDIT_REPORT.md`
+- [x] Summarize completed vs deferred `S.Class` conversions with evidence.
+  - Source of truth: `outputs/SCHEMA_CLASS_REFACTOR_PLAN.md` + Phase 2 section in `outputs/CONVENTIONS_AUDIT_REPORT.md`
+- [x] Write risk/rollback notes for any behavior-affecting refactors (if applicable).
+  - Source of truth: `outputs/CONVENTIONS_AUDIT_REPORT.md` ("Risk Assessment + Rollback Notes")
+- [x] Run and record full-slice verification.
+  - Command: `bunx turbo run check lint test --filter='@beep/knowledge-*' --ui=stream`
+  - Result: PASS (2026-02-07) (see `outputs/VERIFICATION_REPORT.md`)
+- [x] Move the spec to `specs/completed/` and update indices accordingly.
+  - Planned execution in this phase: update spec status marker + `bun run spec:move -- knowledge-slice-conventions-review completed` + update `specs/README.md`

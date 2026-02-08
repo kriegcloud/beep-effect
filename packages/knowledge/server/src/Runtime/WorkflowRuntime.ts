@@ -1,26 +1,46 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { ClusterWorkflowEngine, SingleRunner } from "@effect/cluster";
 import { WorkflowEngine } from "@effect/workflow";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
+import * as S from "effect/Schema";
 
 const $I = $KnowledgeServerId.create("Runtime/WorkflowRuntime");
 
-export type WorkflowRuntimeMode = "engine";
+/**
+ * Workflow runtime modes.
+ *
+ * NOTE:
+ * - `engine-memory` uses `WorkflowEngine.layerMemory` (no durable engine state across restarts).
+ * - `engine-durable-sql` uses `@effect/cluster`'s `SingleRunner` + `ClusterWorkflowEngine` for
+ *   SQL-backed durable engine state (tables auto-migrated via SqlMessageStorage / SqlRunnerStorage).
+ *
+ * This is intentionally separate from `WorkflowPersistence`, which persists *domain-facing execution
+ * records* (status, timestamps, output summaries) for observability and RPC status queries.
+ */
 
-export interface WorkflowRuntimeConfigShape {
-  readonly mode: WorkflowRuntimeMode;
-}
+export class WorkflowRuntimeConfigShape extends S.Class<WorkflowRuntimeConfigShape>($I`WorkflowRuntimeConfigShape`)(
+  { mode: BS.StringLiteralKit("engine-memory", "engine-durable-sql") },
+  $I.annotations("WorkflowRuntimeConfigShape", { description: "Workflow runtime mode" })
+) {}
 
 export class WorkflowRuntimeConfig extends Context.Tag($I`WorkflowRuntimeConfig`)<
   WorkflowRuntimeConfig,
   WorkflowRuntimeConfigShape
 >() {}
 
-const decodeMode = (_value: string): WorkflowRuntimeMode => "engine";
+const thunkEngineMemory = () => "engine-memory" as const;
+const decodeMode = Match.type<string>().pipe(
+  Match.whenOr("engine", "engine-memory", "memory", thunkEngineMemory),
+  Match.whenOr("engine-durable-sql", "durable-sql", "cluster-sql", () => "engine-durable-sql" as const),
+  Match.orElse(thunkEngineMemory)
+);
 
-export const DEFAULT_WORKFLOW_RUNTIME_MODE: WorkflowRuntimeMode = "engine";
+export const DEFAULT_WORKFLOW_RUNTIME_MODE: WorkflowRuntimeConfigShape["mode"] = "engine-memory";
 
 export const WorkflowRuntimeConfigLive = Layer.effect(
   WorkflowRuntimeConfig,
@@ -33,6 +53,15 @@ export const WorkflowRuntimeConfigLive = Layer.effect(
   })
 );
 
-export const WorkflowEngineLive = WorkflowEngine.layerMemory;
+const matchConfigMode = Match.type<WorkflowRuntimeConfigShape>().pipe(
+  Match.when({ mode: "engine-memory" as const }, () => WorkflowEngine.layerMemory),
+  Match.when({ mode: "engine-durable-sql" as const }, () =>
+    ClusterWorkflowEngine.layer.pipe(Layer.provideMerge(Layer.orDie(SingleRunner.layer({ runnerStorage: "sql" }))))
+  ),
+  Match.exhaustive
+);
 
-export const WorkflowRuntimeLive = Layer.mergeAll(WorkflowRuntimeConfigLive, WorkflowEngineLive);
+export const WorkflowEngineLive = Layer.unwrapEffect(WorkflowRuntimeConfig.pipe(Effect.map(matchConfigMode)));
+
+// Provide config first, then select engine layer based on that config.
+export const WorkflowRuntimeLive = WorkflowEngineLive.pipe(Layer.provideMerge(WorkflowRuntimeConfigLive));

@@ -371,7 +371,7 @@ export class URLString extends S.Union(HttpUrl, HttpsUrl).annotations(
     jsonSchema: { type: "string", format: "url" },
   })
 ) {
-  static readonly make = S.decodeUnknownSync(URLString);
+  static readonly make = (i: string) => S.decodeUnknownSync(URLString)(i);
   static readonly is = S.is(URLString);
 }
 

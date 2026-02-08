@@ -22,6 +22,7 @@ export class Confidence extends S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessT
   $I.annotations("Confidence", {
     title: "Confidence",
     description: "Confidence score (0.0-1.0)",
+    arbitrary: () => (fc) => fc.float({ min: 0, max: 1 }),
   })
 ) {}
 export declare namespace Confidence {

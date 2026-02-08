@@ -1,0 +1,18 @@
+$ bun run lint:deps && bunx turbo run lint lint:circular
+$ bunx syncpack lint --dependency-types='catalog'
+✗ Invalid JSON: /home/elpresidank/YeeBois/projects/beep-effect3/packages/knowledge/domain/package.json
+✓ No issues found
+• turbo 2.8.3
+package_json_parse_error
+
+  x Unable to parse package.json.
+  `->   x Expected a property but instead found '}'.
+          ,-[/home/elpresidank/YeeBois/projects/beep-effect3/packages/
+      knowledge/domain/package.json:44:3]
+       43 |     "@effect/experimental": "catalog:",
+       44 |   },
+          :   ^
+       45 |   "devDependencies": {
+          `----
+
+error: script "lint" exited with code 1

@@ -53,7 +53,8 @@ describe("CrossBatchEntityResolver", () => {
       });
 
       const existingEntityId = KnowledgeEntityIds.KnowledgeEntityId.create();
-      const existingEntity = S.decodeSync(Entities.Entity.Model)({
+      const decodeEntity = S.decodeUnknown(Entities.Entity.Model);
+      const existingEntity = yield* decodeEntity({
         id: existingEntityId,
         _rowId: 1,
         version: 1,
@@ -74,7 +75,7 @@ describe("CrossBatchEntityResolver", () => {
         extractionId,
         groundingConfidence: null,
         mentions: null,
-      });
+      }).pipe(Effect.orDie);
 
       const entityRepoInserts = yield* Ref.make(0);
       const mentionUpdates = yield* Ref.make<

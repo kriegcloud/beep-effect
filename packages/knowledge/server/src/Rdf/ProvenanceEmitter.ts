@@ -9,11 +9,14 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { RDFS } from "../Ontology/constants";
 import { PROVENANCE_GRAPH_IRI, ProvOConstants } from "./ProvOConstants";
 
 const $I = $KnowledgeServerId.create("Rdf/ProvenanceEmitter");
+
+const KnowledgeGraphSchema = S.typeSchema(KnowledgeGraph);
+type KnowledgeGraphModel = S.Schema.Type<typeof KnowledgeGraphSchema>;
 
 const BEEP = {
   label: IRI.make(RDFS.label),
@@ -76,7 +79,7 @@ export class EmittedExtractionTriples extends S.Class<EmittedExtractionTriples>(
 
 export interface ProvenanceEmitterShape {
   readonly emitExtraction: (
-    graph: KnowledgeGraph,
+    graph: KnowledgeGraphModel,
     metadata: ProvenanceMetadata
   ) => Effect.Effect<EmittedExtractionTriples>;
 }
@@ -88,7 +91,10 @@ export class ProvenanceEmitter extends Context.Tag($I`ProvenanceEmitter`)<
 
 const serviceEffect: Effect.Effect<ProvenanceEmitterShape> = Effect.succeed(
   ProvenanceEmitter.of({
-    emitExtraction: (graph: KnowledgeGraph, metadata: ProvenanceMetadata): Effect.Effect<EmittedExtractionTriples> =>
+    emitExtraction: (
+      graph: KnowledgeGraphModel,
+      metadata: ProvenanceMetadata
+    ): Effect.Effect<EmittedExtractionTriples> =>
       Effect.sync(() => {
         const extractionGraphIri = toExtractionGraphIri(metadata.extractionId);
         const activityIri = toActivityIri(metadata.extractionId);

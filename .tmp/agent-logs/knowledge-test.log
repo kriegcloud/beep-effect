@@ -1,0 +1,847 @@
+$ turbo run test --ui=stream "--filter=@beep/knowledge-*"
+• turbo 2.8.3
+• Packages in scope: @beep/knowledge-client, @beep/knowledge-domain, @beep/knowledge-server, @beep/knowledge-tables, @beep/knowledge-ui
+• Running test in 5 packages
+• Remote caching enabled
+@beep/knowledge-client:test: cache hit, replaying logs 6ee79ce40d672cd7
+@beep/knowledge-client:test: $ bun test
+@beep/knowledge-client:test: bun test v1.3.8 (b64edcb4)
+@beep/knowledge-client:test: 
+@beep/knowledge-client:test: test/Dummy.test.ts:
+@beep/knowledge-client:test: (pass) @beep/knowledge-client > should be defined
+@beep/knowledge-client:test: 
+@beep/knowledge-client:test:  1 pass
+@beep/knowledge-client:test:  0 fail
+@beep/knowledge-client:test:  1 expect() calls
+@beep/knowledge-client:test: Ran 1 test across 1 file. [51.00ms]
+@beep/knowledge-ui:test: cache hit, replaying logs 352a1912ece926bb
+@beep/knowledge-ui:test: $ bun test
+@beep/knowledge-ui:test: bun test v1.3.8 (b64edcb4)
+@beep/knowledge-ui:test: 
+@beep/knowledge-ui:test: test/Dummy.test.ts:
+@beep/knowledge-ui:test: (pass) @beep/knowledge-ui > should be defined
+@beep/knowledge-ui:test: 
+@beep/knowledge-ui:test:  1 pass
+@beep/knowledge-ui:test:  0 fail
+@beep/knowledge-ui:test:  1 expect() calls
+@beep/knowledge-ui:test: Ran 1 test across 1 file. [17.00ms]
+@beep/identity:build: cache hit, replaying logs 95959c6a287d6461
+@beep/identity:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/identity:build: $ tsc -b tsconfig.build.json
+@beep/identity:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/identity:build: Successfully compiled 5 files with Babel (624ms).
+@beep/identity:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/identity:build: Successfully compiled 5 files with Babel (1779ms).
+@beep/invariant:build: cache hit, replaying logs 5aabfcfdd245f335
+@beep/invariant:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/invariant:build: $ tsc -b tsconfig.build.json
+@beep/invariant:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/invariant:build: Successfully compiled 4 files with Babel (680ms).
+@beep/invariant:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/invariant:build: Successfully compiled 4 files with Babel (1292ms).
+@beep/testkit:build: cache hit, replaying logs bd724d3eb7203020
+@beep/testkit:build: $ tsc -b tsconfig.build.json
+@beep/types:build: cache hit, replaying logs ef184a413b799494
+@beep/types:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/types:build: $ tsc -b tsconfig.build.json
+@beep/types:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/types:build: Successfully compiled 203 files with Babel (600ms).
+@beep/types:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/types:build: Successfully compiled 203 files with Babel (823ms).
+@beep/utils:build: cache hit, replaying logs 6544ddc1797eeac0
+@beep/utils:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/utils:build: $ tsc -b tsconfig.build.json
+@beep/utils:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/utils:build: Successfully compiled 108 files with Babel (982ms).
+@beep/utils:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/utils:build: Successfully compiled 108 files with Babel (1162ms).
+@beep/schema:build: cache hit, replaying logs eb69526768ca8183
+@beep/schema:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/schema:build: $ tsc -b tsconfig.build.json
+@beep/schema:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/schema:build: Successfully compiled 212 files with Babel (2042ms).
+@beep/schema:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/schema:build: Successfully compiled 212 files with Babel (1148ms).
+@beep/google-workspace-domain:build: cache hit, replaying logs 80e610d39e72f811
+@beep/google-workspace-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/google-workspace-domain:build: $ tsc -b tsconfig.build.json
+@beep/google-workspace-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/google-workspace-domain:build: Successfully compiled 10 files with Babel (408ms).
+@beep/google-workspace-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/google-workspace-domain:build: Successfully compiled 10 files with Babel (182ms).
+@beep/google-workspace-client:build: cache hit, replaying logs ad39b3116bfb0465
+@beep/google-workspace-client:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/google-workspace-client:build: $ tsc -b tsconfig.build.json
+@beep/google-workspace-client:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/google-workspace-client:build: Successfully compiled 8 files with Babel (404ms).
+@beep/google-workspace-client:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/google-workspace-client:build: Successfully compiled 8 files with Babel (163ms).
+@beep/constants:build: cache hit, replaying logs 1e768e9c41811f16
+@beep/constants:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/constants:build: $ tsc -b tsconfig.build.json
+@beep/constants:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/constants:build: Successfully compiled 20 files with Babel (243ms).
+@beep/constants:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/constants:build: Successfully compiled 20 files with Babel (393ms).
+@beep/machine:build: cache hit, replaying logs 458b6006e4e68d0d
+@beep/machine:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/machine:build: $ tsc -b tsconfig.build.json
+@beep/machine:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/machine:build: Successfully compiled 23 files with Babel (757ms).
+@beep/machine:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/machine:build: Successfully compiled 23 files with Babel (562ms).
+@beep/errors:build: cache hit, replaying logs b8dcda7df56bb6c8
+@beep/errors:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/errors:build: $ tsc -b tsconfig.build.json
+@beep/errors:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/errors:build: Successfully compiled 5 files with Babel (150ms).
+@beep/errors:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/errors:build: Successfully compiled 5 files with Babel (432ms).
+@beep/shared-domain:build: cache hit, replaying logs f72647900b7a9873
+@beep/shared-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-domain:build: $ tsc -b tsconfig.build.json
+@beep/shared-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/shared-domain:build: Successfully compiled 162 files with Babel (1379ms).
+@beep/shared-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/shared-domain:build: Successfully compiled 162 files with Babel (579ms).
+@beep/knowledge-domain:test: cache hit, replaying logs 6e61b60b0cc62e65
+@beep/knowledge-domain:test: $ bun test
+@beep/knowledge-domain:test: bun test v1.3.8 (b64edcb4)
+@beep/knowledge-domain:test: 
+@beep/knowledge-domain:test: test/services/MergeHistory.test.ts:
+@beep/knowledge-domain:test: (pass) MergeHistory service > stub recordMerge fails with not implemented error [35.00ms]
+@beep/knowledge-domain:test: (pass) MergeHistory service > stub getMergeHistory fails with not implemented error [15.00ms]
+@beep/knowledge-domain:test: (pass) MergeHistory service > stub getMergesByUser fails with not implemented error [9.00ms]
+@beep/knowledge-domain:test: (pass) MergeHistory service > MergeParams validates confidence between 0 and 1 [11.00ms]
+@beep/knowledge-domain:test: (pass) MergeHistory service > MergeParams supports all merge reasons [7.00ms]
+@beep/knowledge-domain:test: 
+@beep/knowledge-domain:test: test/services/EntityRegistry.test.ts:
+@beep/knowledge-domain:test: (pass) EntityRegistry service > findCandidates returns empty array (stub) [12.00ms]
+@beep/knowledge-domain:test: (pass) EntityRegistry service > bloomFilterCheck returns true (stub assumes may exist) [4.00ms]
+@beep/knowledge-domain:test: (pass) EntityRegistry service > fetchTextMatches returns empty array (stub) [5.00ms]
+@beep/knowledge-domain:test: (pass) EntityRegistry service > rankBySimilarity returns empty array (stub) [4.00ms]
+@beep/knowledge-domain:test: (pass) EntityRegistry service > MentionRecord resolvedEntityId is Option.none when not provided [7.00ms]
+@beep/knowledge-domain:test: (pass) EntityRegistry service > MentionRecord resolvedEntityId is Option.some when provided [8.00ms]
+@beep/knowledge-domain:test: 
+@beep/knowledge-domain:test:  11 pass
+@beep/knowledge-domain:test:  0 fail
+@beep/knowledge-domain:test:  15 expect() calls
+@beep/knowledge-domain:test: Ran 11 tests across 2 files. [3.10s]
+@beep/shared-tables:build: cache hit, replaying logs d22d2f1c643f4241
+@beep/shared-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-tables:build: $ tsc -b tsconfig.build.json
+@beep/shared-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/shared-tables:build: Successfully compiled 23 files with Babel (753ms).
+@beep/shared-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/shared-tables:build: Successfully compiled 23 files with Babel (406ms).
+@beep/shared-server:build: cache hit, replaying logs 1fa6814deec8ec1b
+@beep/shared-server:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-server:build: $ tsc -b tsconfig.build.json
+@beep/shared-server:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/shared-server:build: Successfully compiled 52 files with Babel (819ms).
+@beep/shared-server:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/shared-server:build: Successfully compiled 52 files with Babel (449ms).
+@beep/knowledge-domain:build: cache hit, replaying logs 4f4d6023d7de176f
+@beep/knowledge-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/knowledge-domain:build: $ tsc -b tsconfig.build.json
+@beep/knowledge-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/knowledge-domain:build: Successfully compiled 136 files with Babel (1494ms).
+@beep/knowledge-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/knowledge-domain:build: Successfully compiled 136 files with Babel (636ms).
+@beep/knowledge-tables:test: cache hit, replaying logs abb6ee2739c7102b
+@beep/knowledge-tables:test: $ bun test
+@beep/knowledge-tables:test: bun test v1.3.8 (b64edcb4)
+@beep/knowledge-tables:test: 
+@beep/knowledge-tables:test: test/Dummy.test.ts:
+@beep/knowledge-tables:test: (pass) @beep/knowledge-tables > should be defined
+@beep/knowledge-tables:test: 
+@beep/knowledge-tables:test:  1 pass
+@beep/knowledge-tables:test:  0 fail
+@beep/knowledge-tables:test:  1 expect() calls
+@beep/knowledge-tables:test: Ran 1 test across 1 file. [23.00ms]
+@beep/knowledge-tables:build: cache hit, replaying logs f8e802c8e7d0e256
+@beep/knowledge-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/knowledge-tables:build: $ tsc -b tsconfig.build.json
+@beep/knowledge-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/knowledge-tables:build: Successfully compiled 21 files with Babel (466ms).
+@beep/knowledge-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/knowledge-tables:build: Successfully compiled 21 files with Babel (274ms).
+@beep/knowledge-server:test: cache hit, replaying logs 3a07fccb71dacce9
+@beep/knowledge-server:test: $ bun test
+@beep/knowledge-server:test: bun test v1.3.8 (b64edcb4)
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/EmbeddingRateLimiter.test.ts:
+@beep/knowledge-server:test: (pass) EmbeddingRateLimiter > enforces RPM atomically under concurrency [49.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/adapters/GmailExtractionAdapter.test.ts:
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractEmailsForKnowledgeGraph > extractEmailsForKnowledgeGraph tests > extracts emails with correct structure [52.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractEmailsForKnowledgeGraph > extractEmailsForKnowledgeGraph tests > extracts email metadata correctly [6.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractEmailsForKnowledgeGraph > extractEmailsForKnowledgeGraph tests > extracts plain text content from multipart [7.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractEmailsForKnowledgeGraph > extractEmailsForKnowledgeGraph tests > includes extractedAt timestamp [6.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractEmailsForKnowledgeGraph > extractEmailsForKnowledgeGraph tests > parses email date from internalDate [9.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractEmailsForKnowledgeGraph > extractEmailsForKnowledgeGraph empty results > returns empty array when no messages match [11.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractThreadContext > extractThreadContext tests > extracts thread with all messages [17.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractThreadContext > extractThreadContext tests > collects all unique participants [5.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractThreadContext > extractThreadContext tests > calculates date range correctly [5.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractThreadContext > extractThreadContext tests > returns GoogleApiError for empty thread [4.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > extractThreadContext > extractThreadContext tests > returns GoogleApiError for non-existent thread [2.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > authentication errors > authentication error handling > returns GoogleScopeExpansionRequiredError when scopes are missing [6.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > GMAIL_EXTRACTION_REQUIRED_SCOPES > contains only gmail.readonly scope [11.00ms]
+@beep/knowledge-server:test: (pass) GmailExtractionAdapter > GMAIL_EXTRACTION_REQUIRED_SCOPES > does not include gmail.send scope (read-only adapter) [7.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Extraction/RelationExtractor.test.ts:
+@beep/knowledge-server:test: (pass) RelationExtractor > extracts relations between entities [26.00ms]
+@beep/knowledge-server:test: (pass) RelationExtractor > filters relations below confidence threshold [11.00ms]
+@beep/knowledge-server:test: (pass) RelationExtractor > identifies invalid predicates not in ontology [10.00ms]
+@beep/knowledge-server:test: (pass) RelationExtractor > skips extraction when insufficient entities [9.00ms]
+@beep/knowledge-server:test: (pass) RelationExtractor > deduplicates relations keeping highest confidence [7.00ms]
+@beep/knowledge-server:test: (pass) RelationExtractor > handles literal values [8.00ms]
+@beep/knowledge-server:test: (pass) RelationExtractor > adjusts evidence offsets to document level [8.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Extraction/EntityExtractor.test.ts:
+@beep/knowledge-server:test: (pass) EntityExtractor > classifies entities from mentions [8.00ms]
+@beep/knowledge-server:test: (pass) EntityExtractor > filters entities below confidence threshold [8.00ms]
+@beep/knowledge-server:test: (pass) EntityExtractor > identifies invalid types not in ontology [6.00ms]
+@beep/knowledge-server:test: (pass) EntityExtractor > handles empty input [7.00ms]
+@beep/knowledge-server:test: (pass) EntityExtractor > tracks unclassified mentions [10.00ms]
+@beep/knowledge-server:test: (pass) EntityExtractor > resolves entities by canonical name [5.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Extraction/GraphAssembler.test.ts:
+@beep/knowledge-server:test: (pass) GraphAssembler > GraphAssembler operations > assembles entities into graph [4.00ms]
+@beep/knowledge-server:test: (pass) GraphAssembler > GraphAssembler operations > links relations to entities [1.00ms]
+@beep/knowledge-server:test: (pass) GraphAssembler > GraphAssembler operations > tracks unresolved subjects [1.00ms]
+@beep/knowledge-server:test: (pass) GraphAssembler > GraphAssembler operations > tracks unresolved objects [1.00ms]
+@beep/knowledge-server:test: (pass) GraphAssembler > GraphAssembler operations > handles literal values in relations [1.00ms]
+@beep/knowledge-server:test: (pass) GraphAssembler > GraphAssembler operations > merges entities by canonical name when enabled
+@beep/knowledge-server:test: (pass) GraphAssembler > GraphAssembler operations > handles empty input [1.00ms]
+@beep/knowledge-server:test: (pass) GraphAssembler > GraphAssembler operations > merges multiple graphs [1.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Extraction/MentionExtractor.test.ts:
+@beep/knowledge-server:test: (pass) MentionExtractor > extracts mentions from a single chunk [12.00ms]
+@beep/knowledge-server:test: (pass) MentionExtractor > filters mentions below confidence threshold [7.00ms]
+@beep/knowledge-server:test: (pass) MentionExtractor > adjusts character offsets to document level [7.00ms]
+@beep/knowledge-server:test: (pass) MentionExtractor > extracts from multiple chunks [10.00ms]
+@beep/knowledge-server:test: (pass) MentionExtractor > merges overlapping mentions keeping higher confidence [8.00ms]
+@beep/knowledge-server:test: (pass) MentionExtractor > handles empty input [6.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Validation/ShaclService.test.ts:
+@beep/knowledge-server:test: (pass) ShaclService > shape generation > generates property shapes from ontology [21.00ms]
+@beep/knowledge-server:test: (pass) ShaclService > validation rules > detects missing required properties and wrong object types [11.00ms]
+@beep/knowledge-server:test: (pass) ShaclService > validation rules > rejects report when policy requires rejection [4.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Sparql/SparqlGenerator.test.ts:
+@beep/knowledge-server:test: (pass) SparqlGenerator > generateReadOnlyQuery > rejects INSERT candidates for NL-to-SPARQL [22.00ms]
+@beep/knowledge-server:test: (pass) SparqlGenerator > generateReadOnlyQuery > rejects DELETE candidates for NL-to-SPARQL [9.00ms]
+@beep/knowledge-server:test: (pass) SparqlGenerator > generateReadOnlyQuery > rejects UPDATE candidates for NL-to-SPARQL [11.00ms]
+@beep/knowledge-server:test: (pass) SparqlGenerator > generateReadOnlyQuery > retries parse failures up to max 3 attempts [20.00ms]
+@beep/knowledge-server:test: (pass) SparqlGenerator > generateReadOnlyQuery > generates a read-only SELECT query and executes it successfully [20.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Sparql/SparqlService.test.ts:
+@beep/knowledge-server:test: (pass) SparqlService > select - single pattern > should return bindings for simple type query [13.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - single pattern > should return empty bindings when no matches [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - multiple patterns (join) > should join patterns and return combined bindings [13.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - multiple patterns (join) > should handle join with no matches [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should filter results with equality [10.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should filter results with inequality [5.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should filter results with numeric comparison [6.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should filter results with regex [7.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should filter results with case-insensitive regex [5.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should handle bound() function [6.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should handle !bound() function [5.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should handle isIRI() function [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should handle isLiteral() function [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should handle && (logical and) [8.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - FILTER > should handle || (logical or) [6.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - modifiers > should handle LIMIT [5.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - modifiers > should handle OFFSET [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - modifiers > should handle LIMIT with OFFSET [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - modifiers > should handle DISTINCT [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - GRAPH clause > should scope matches to a specific named graph [7.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > select - GRAPH clause > should bind graph variable from GRAPH clause [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > construct > should construct new quads from pattern [8.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > construct > should return empty array when no matches [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > ask > should return true when pattern matches [7.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > ask > should return false when pattern doesn't match [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > query (generic) > should execute SELECT query via generic query method [8.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > query (generic) > should execute ASK query via generic query method [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > query (generic) > should execute DESCRIBE query via generic query method [6.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > query (generic) > should execute CONSTRUCT query via generic query method [5.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > describe > should return triples where target is subject or object [9.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > error handling > should fail on syntax error [6.00ms]
+@beep/knowledge-server:test: (pass) SparqlService > error handling > should fail on unsupported query type [1.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Sparql/SparqlParser.test.ts:
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse basic SELECT query [5.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse SELECT with multiple variables [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse SELECT * (wildcard) [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse SELECT with FILTER [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse SELECT with OPTIONAL [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse SELECT DISTINCT [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse SELECT with LIMIT and OFFSET [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse SELECT with ORDER BY [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - SELECT queries > should parse SELECT with UNION [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - CONSTRUCT queries > should parse basic CONSTRUCT query [5.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - CONSTRUCT queries > should parse CONSTRUCT with multiple triples in template [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - CONSTRUCT queries > should parse CONSTRUCT WHERE (shorthand) [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - ASK queries > should parse basic ASK query [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - ASK queries > should parse ASK with specific subject [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - ASK queries > should parse ASK with FILTER [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - PREFIX declarations > should extract single PREFIX [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - PREFIX declarations > should extract multiple PREFIXes [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - PREFIX declarations > should handle empty prefix (base IRI) [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - PREFIX declarations > should handle query without PREFIXes [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - PREFIX declarations > should handle common vocabulary prefixes [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - error cases > should return SparqlSyntaxError for missing closing brace [6.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - error cases > should return SparqlSyntaxError for invalid keyword
+@beep/knowledge-server:test: (pass) SparqlParser > parse - error cases > should return error for empty query [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - error cases > should return SparqlSyntaxError for malformed triple [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - error cases > should parse DESCRIBE query [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - error cases > should return SparqlUnsupportedFeatureError for INSERT DATA [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - error cases > should return SparqlUnsupportedFeatureError for DELETE DATA [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - error cases > should return SparqlUnsupportedFeatureError for DELETE WHERE [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - queryString preservation > should preserve original query string [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - queryString preservation > should preserve whitespace in query string [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - AST structure > should return valid AST for SELECT [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - AST structure > should return valid AST for CONSTRUCT [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - AST structure > should return valid AST for ASK [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - complex queries > should parse query with multiple graph patterns [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - complex queries > should parse query with nested OPTIONAL [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - complex queries > should parse query with BIND [3.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - complex queries > should parse query with VALUES [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - complex queries > should parse query with GROUP BY and HAVING [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - complex queries > should parse query with subquery [2.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - literal handling > should parse query with string literal [4.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - literal handling > should parse query with language-tagged literal [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - literal handling > should parse query with typed literal [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - literal handling > should parse query with boolean literal [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - literal handling > should parse query with numeric literal [1.00ms]
+@beep/knowledge-server:test: (pass) SparqlParser > parse - service isolation > should provide fresh parser per test [3.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Rdf/RdfBuilder.test.ts:
+@beep/knowledge-server:test: (pass) RdfBuilder > subject().predicate().literal() - should build and add a plain string literal quad [13.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > subject().predicate().literal() - should build and add a language-tagged literal quad [2.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > subject().predicate().typedLiteral() - should build and add a typed literal quad (xsd:integer) [2.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > subject().predicate().typedLiteral() - should build and add a typed literal quad (xsd:date) [3.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > subject().predicate().object() - should build and add a quad with IRI object [1.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > subject().predicate().object() - should build and add a quad with BlankNode object [1.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > BlankNode subjects - should build and add a quad with BlankNode subject [2.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > inGraph() - should build and add a quad in a named graph [1.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > inGraph() - should add quads to different named graphs [1.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > build() - should build a quad without adding it to the store [1.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > build() - should build a quad in a named graph without adding [1.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > predicate chaining - should chain multiple predicates for the same subject [2.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > batch() - should add multiple quads in batch [1.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > batch() - should handle empty batch gracefully [1.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > batch() - should add batch with quads in named graphs [2.00ms]
+@beep/knowledge-server:test: (pass) RdfBuilder > integration - should work with store's match and remove operations [2.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Rdf/benchmark.test.ts:
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.288Z level=INFO fiber=#1883 message="Batch add 1000 quads completed" durationMs=17 quadCount=1000 threshold=100
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Batch Operations > should add 1000 quads via batch in under 100ms [58.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.392Z level=INFO fiber=#1892 message="Individual add 1000 quads completed" durationMs=75 quadCount=1000 avgPerQuad=0.075
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.395Z level=INFO fiber=#1892 message="Performance comparison" individualMs=75 note="Individual adds expected to be slower than batch"
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Batch Operations > should document individual add performance baseline [104.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.427Z level=INFO fiber=#1901 message="Match single subject after 1000 quads" durationMs=0 storeSize=1000
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.452Z level=INFO fiber=#1901 message="Match all quads by predicate" expectedResults=1000 durationMs=23
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Query Performance > should match after bulk load efficiently [56.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.483Z level=INFO fiber=#1910 message="Count all quads" durationMs=3 count=1000
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Query Performance > should count matches efficiently [31.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.566Z level=INFO fiber=#1919 message="Serialize 1000 quads to Turtle" durationMs=28 quadCount=1000
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Serialization Performance > should serialize 1000 quads to Turtle efficiently [83.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.622Z level=INFO fiber=#1928 message="Serialize 1000 quads to N-Triples" durationMs=35 quadCount=1000
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Serialization Performance > should serialize 1000 quads to N-Triples efficiently [57.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.643Z level=INFO fiber=#1937 message="Direct serialize 1000 quads to N-Triples" durationMs=5 quadCount=1000
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Serialization Performance > should serialize quads directly without store efficiently [20.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:18.884Z level=INFO fiber=#1946 message="Batch add 10000 quads completed" durationMs=63 quadCount=10000 throughput="function(self) {
+@beep/knowledge-server:test:           return body(self, a);
+@beep/knowledge-server:test:         } quads/sec"
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Stress Tests > should handle 10000 quads batch add [255.01ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:19.142Z level=INFO fiber=#1955 message="Round-trip 1000 quads through Turtle" quadCount=1000 parseDurationMs=55
+@beep/knowledge-server:test: (pass) Rdf Performance Benchmarks > Stress Tests > should round-trip 1000 quads through serialization [246.01ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Rdf/ProvenanceEmitter.test.ts:
+@beep/knowledge-server:test: (pass) ProvenanceEmitter > PROV-O emission > emits PROV-O quads in urn:beep:provenance [17.00ms]
+@beep/knowledge-server:test: (pass) ProvenanceEmitter > PROV-O emission > stores extraction and provenance quads with graph isolation [3.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Rdf/RdfStoreService.test.ts:
+@beep/knowledge-server:test: (pass) RdfStore > Basic CRUD Operations > addQuad and hasQuad - should add a quad and verify it exists [7.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Basic CRUD Operations > hasQuad - should return false for non-existent quad [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Basic CRUD Operations > removeQuad - should add then remove and verify it is gone [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Basic CRUD Operations > addQuads - should add multiple quads in bulk [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Basic CRUD Operations > removeQuads - should remove multiple quads in bulk [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Basic CRUD Operations > size - should return correct quad count [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Basic CRUD Operations > clear - should empty the store [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Basic CRUD Operations > getQuads - should return all quads in the store [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Pattern Matching > match with all wildcards - should return all quads [6.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Pattern Matching > match with subject constraint - should return quads for that subject [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Pattern Matching > match with predicate constraint - should return quads with that predicate [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Pattern Matching > match with object constraint - should return quads with that object [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Pattern Matching > match with multiple constraints - should return matching quads [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Pattern Matching > countMatches - should return correct count [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Pattern Matching > match with no results - should return empty array
+@beep/knowledge-server:test: (pass) RdfStore > Term Types > Quad with IRI object - should store and retrieve IRI object [3.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Term Types > Quad with BlankNode subject - should store and retrieve blank node [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Term Types > Quad with BlankNode object - should store and retrieve blank node in object position [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Term Types > Quad with plain Literal - should store and retrieve plain literal [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Term Types > Quad with language-tagged Literal - should preserve language tag [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Term Types > Quad with typed Literal - should preserve datatype IRI [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Term Types > Multiple literals with different languages - should distinguish them [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Named Graphs > Quad with named graph - should store and retrieve graph [5.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Named Graphs > Quad in default graph - should have undefined graph [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Named Graphs > Pattern matching on specific graph - should filter by graph [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Named Graphs > getGraphs - should return unique graphs including default [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Named Graphs > createGraph/listGraphs/getGraphSize - should track named graph lifecycle [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Named Graphs > dropGraph - should remove graph and all its quads [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Unique Term Accessors > getSubjects - should return unique subjects [3.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Unique Term Accessors > getPredicates - should return unique predicates [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Unique Term Accessors > getObjects - should return unique objects [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Unique Term Accessors > getSubjects with blank nodes - should include blank nodes [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Edge Cases > Empty store - should return empty results [6.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Edge Cases > Duplicate quad - should not increase size [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Edge Cases > Remove non-existent quad - should be no-op [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Edge Cases > Clear empty store - should be no-op
+@beep/knowledge-server:test: (pass) RdfStore > Edge Cases > addQuads with empty array - should be no-op [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Edge Cases > removeQuads with empty array - should be no-op [1.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Edge Cases > Pattern matching with Literal object constraint - should match exactly [2.00ms]
+@beep/knowledge-server:test: (pass) RdfStore > Store Isolation > Each RdfStoreLive provides fresh instance [6.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Rdf/integration.test.ts:
+@beep/knowledge-server:test: (pass) RDF Integration > RdfBuilder + Serializer Round-Trip > should build quads, serialize to Turtle, parse back, and verify data matches [6.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > RdfBuilder + Serializer Round-Trip > should preserve typed literals through build-serialize-parse cycle [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > RdfBuilder + Serializer Round-Trip > should preserve language-tagged literals through round-trip [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > RdfBuilder + Serializer Round-Trip > should handle N-Triples format in round-trip [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Multiple Builders Sharing Same Store > should accumulate quads from sequential builder operations [5.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Multiple Builders Sharing Same Store > should allow concurrent builder operations with parallel add [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Multiple Builders Sharing Same Store > should chain predicates on same subject to add final quad only [1.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Multiple Builders Sharing Same Store > should add multiple quads for same subject using separate calls [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Builder + Store Operations > should build quads, match by pattern, and verify counts [9.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Builder + Store Operations > should build quads, remove specific ones, and verify remaining [3.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Builder + Store Operations > should use countMatches for efficient counting without fetching quads [3.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Builder + Store Operations > should verify hasQuad for existence checks [1.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Named Graph Isolation > should build quads in different named graphs and verify isolation [4.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Named Graph Isolation > should serialize only specific graph and verify content isolation [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Named Graph Isolation > should remove quads from a specific named graph [1.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Named Graph Isolation > should list named graphs after adding quads [1.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Named Graph Isolation > should mix default graph and named graphs correctly [1.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Named Graph Isolation > should parse Turtle into named graph and serialize back [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Complex Integration Scenarios > should handle complete workflow: build, serialize, clear, parse, match [7.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Complex Integration Scenarios > should support builder with predicate chaining across multiple subjects [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Complex Integration Scenarios > should handle incremental updates: add, modify, remove pattern [2.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Store Isolation Between Test Runs > first test adds quads and verifies count [5.00ms]
+@beep/knowledge-server:test: (pass) RDF Integration > Store Isolation Between Test Runs > second test should start with empty store
+@beep/knowledge-server:test: (pass) RDF Integration > parallel layer provisions should be independent [6.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Rdf/Serializer.test.ts:
+@beep/knowledge-server:test: (pass) Serializer > parseTurtle > should parse simple Turtle with one triple and verify count = 1 [13.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseTurtle > should parse Turtle with prefixes and verify quads loaded correctly [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseTurtle > should parse Turtle with multiple triples and verify count [2.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseTurtle > should parse Turtle into named graph and verify graph field set [2.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseTurtle > should return SerializerError for invalid Turtle [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseTurtle > should handle empty Turtle content [2.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseTurtle > should handle Turtle with only prefixes (no triples)
+@beep/knowledge-server:test: (pass) Serializer > parseOnly > should parse and return quads without modifying store [5.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseOnly > should parse into specific graph and set graph on returned quads [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseOnly > should return correct quad structure from parsed Turtle
+@beep/knowledge-server:test: (pass) Serializer > parseOnly > should parse multiple triples without modifying store [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > parseOnly > should return SerializerError for invalid Turtle [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serialize > should serialize quads from store to Turtle format [3.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serialize > should serialize to N-Triples format [2.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serialize > should serialize specific graph only [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serialize > should return SerializerError for JSON-LD format [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serialize > should serialize empty store to empty string [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serialize > should serialize multiple quads to Turtle [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serializeQuads > should serialize provided quads to Turtle [4.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serializeQuads > should serialize provided quads to N-Triples [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > serializeQuads > should return SerializerError for JSON-LD format
+@beep/knowledge-server:test: (pass) Serializer > serializeQuads > should serialize empty quad array to empty string
+@beep/knowledge-server:test: (pass) Serializer > serializeQuads > should not modify store when serializing quads directly [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Round-Trip Tests > should preserve data: parseTurtle -> serialize -> parseOnly -> compare [7.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Round-Trip Tests > should preserve data through N-Triples round-trip [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Round-Trip Tests > should preserve literal with language tag through round-trip [2.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Round-Trip Tests > should preserve typed literal through round-trip [2.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Round-Trip Tests > should preserve IRI object through round-trip [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Named Graph Integration > should parse into separate graphs and serialize only one [8.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Named Graph Integration > should serialize all graphs when no graph filter specified [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Named Graph Integration > should preserve graph through parseOnly with graph parameter [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Named Graph Integration > should handle mixed default and named graph quads [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Edge Cases > should handle Turtle with blank nodes [5.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Edge Cases > should handle Turtle with special characters in literals
+@beep/knowledge-server:test: (pass) Serializer > Edge Cases > should handle Turtle with multiline literals [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Edge Cases > should handle Turtle with numeric datatypes [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Edge Cases > should handle Turtle with boolean literals [1.00ms]
+@beep/knowledge-server:test: (pass) Serializer > Store Isolation > should provide fresh store instance per test layer [6.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Resilience/WorkflowRuntime.test.ts:
+@beep/knowledge-server:test: (pass) WorkflowRuntimeConfig > defaults to engine mode [6.00ms]
+@beep/knowledge-server:test: (pass) WorkflowRuntimeConfig > coerces legacy mode config to engine [5.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Resilience/LlmResilience.test.ts:
+@beep/knowledge-server:test: (pass) LlmResilience > retries once and succeeds on second attempt [7.00ms]
+@beep/knowledge-server:test: (pass) LlmResilience > returns CircuitOpenError after failure feedback opens breaker [7.00ms]
+@beep/knowledge-server:test: (pass) LlmResilience > fails with TimeoutError when stage exceeds hard timeout [5.00ms]
+@beep/knowledge-server:test: (pass) LlmResilience > falls back to backup LanguageModel after primary exhausts retries [11.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Resilience/TokenBudgetAndBundles.test.ts:
+@beep/knowledge-server:test: (pass) Resilience > Token budget behavior > enters warning window near stage budget and denies over-limit request [3.00ms]
+@beep/knowledge-server:test: (pass) Resilience > Token budget behavior > enforces hard stage limit once budget is fully consumed [1.00ms]
+@beep/knowledge-server:test: (pass) Resilience > ServiceBundles > Layer.mergeAll composes without conflicts [3.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/benchmarks/EntityRegistry.bench.test.ts:
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.830Z level=INFO fiber=#2943 message="Bloom filter pruning test" falsePositives=0 testedUnknowns=100 knownItems=1000 target=>90% pruningRate=100.0%
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Bloom Filter Pruning Effectiveness > bloom filter pruning >90% for unknown texts [9.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.859Z level=INFO fiber=#2945 message="Bloom filter pruning at scale" falsePositives=0 estimatedFalsePositiveRate=0.003% testedUnknowns=500 filterFillRatio=2.96% knownItems=10000 target=>90% pruningRate=100.0%
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Bloom Filter Pruning Effectiveness > bloom filter pruning >90% with 10K entities [30.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.886Z level=INFO fiber=#2947 message="Bloom filter false negative test" itemsAdded=1000 allFound=true itemsFound=1000
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Bloom Filter Pruning Effectiveness > zero false negatives - all known items found [27.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.894Z level=INFO fiber=#2949 message="Bulk add 10K items" durationMs=6 throughput="function(self) {
+@beep/knowledge-server:test:           return body(self, a);
+@beep/knowledge-server:test:         } items/sec" threshold=100 itemCount=10000
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Bloom Filter Timing > bulkAdd 10K items in under 100ms [8.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.936Z level=INFO fiber=#2951 message="Contains lookup timing" lookupCount=1000 totalDurationMs=33 avgPerLookupMs=0.033 threshold="<1ms average"
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Bloom Filter Timing > contains lookup under 1ms average [41.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.938Z level=INFO fiber=#2953 message="Text normalization timing" durationMs=1 throughput="function(self) {
+@beep/knowledge-server:test:           return body(self, a);
+@beep/knowledge-server:test:         } texts/sec" threshold=50 textCount=10000
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Text Normalization Performance > normalize 10K texts in under 50ms [3.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.949Z level=INFO fiber=#2955 message="Bloom filter memory usage" memoryKB=122.07 bytesPerItem=12.50 threshold=200KB itemCount=10000 memoryBytes=125000
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Memory Efficiency > bloom filter memory usage under 200KB for 10K items [11.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.959Z level=INFO fiber=#2957 message="Bloom filter saturation" estimatedFalsePositiveRate=0.0026% bitArraySize=1000000 fillRatio=2.96% threshold="<10% fill ratio for optimal performance" setBitCount=29639
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Memory Efficiency > bloom filter saturation acceptable at 10K items [9.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:20.966Z level=INFO fiber=#2959 message="Candidate search timing baseline" elapsedMs=6 stages="{
+@beep/knowledge-server:test:   \"normalization\": \"<1ms\",
+@beep/knowledge-server:test:   \"bloomFilter\": \"<1ms\",
+@beep/knowledge-server:test:   \"databaseSearch\": \"<50ms (requires integration layer)\",
+@beep/knowledge-server:test:   \"embeddingSimilarity\": \"<50ms for 50 candidates (requires integration layer)\"
+@beep/knowledge-server:test: }" note="Full benchmark requires database and embedding integration layer" overallTarget="<100ms for 10K entities"
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Candidate Search Timing Baseline > documents timing pattern for findCandidates integration [8.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:21.030Z level=INFO fiber=#2961 message="Bloom filter 100K items stress test" estimatedFalsePositiveRate=1.64% durationMs=54 fillRatio=25.39% memoryKB=122.07 itemCount=100000
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Stress Tests > bloom filter handles 100K items [64.00ms]
+@beep/knowledge-server:test: timestamp=2026-02-07T21:43:21.284Z level=INFO fiber=#2963 message="High-volume lookup stress test" lookupCount=10000 itemsInFilter=50000 totalDurationMs=227 avgPerLookupMs=0.0227
+@beep/knowledge-server:test: (pass) EntityRegistry Performance Benchmarks > Stress Tests > repeated lookups remain fast under load [254.01ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Reasoning/ReasonerService.test.ts:
+@beep/knowledge-server:test: (pass) ReasonerService > infer > infers from populated store [6.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > infer > returns empty result for empty store [2.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > infer > accepts custom config [4.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > infer > combines domain and subclass inferences [8.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > infer > fails with MaxDepthExceededError for deep hierarchies [33.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > infer > fails with MaxInferencesExceededError for many inferences [5.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > inferAndMaterialize > does not modify store when materialize is false [4.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > inferAndMaterialize > adds inferred triples to store when materialize is true [2.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > inferAndMaterialize > materialized triples are queryable [3.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > inferAndMaterialize > no-op when no inferences generated [2.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > inferAndMaterialize > defaults to not materializing [2.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > store isolation > each test gets fresh store instance [1.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > store isolation > modifications do not persist across tests [1.00ms]
+@beep/knowledge-server:test: (pass) ReasonerService > provenance in results > includes provenance for all inferred triples [2.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Reasoning/ForwardChainer.test.ts:
+@beep/knowledge-server:test: (pass) ForwardChainer > fixed-point convergence > reaches fixed point with simple rdfs9 ontology [25.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > fixed-point convergence > reaches fixed point with multi-level subclass chain [1.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > fixed-point convergence > combines domain inference with subclass entailment [1.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > fixed-point convergence > returns empty result for empty input [1.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > fixed-point convergence > returns empty result when no rules apply
+@beep/knowledge-server:test: (pass) ForwardChainer > deduplication > deduplicates initial quads [1.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > deduplication > does not duplicate inferred triples
+@beep/knowledge-server:test: (pass) ForwardChainer > provenance tracking > tracks provenance for inferred triples [1.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > provenance tracking > records rdfs9 rule in provenance [2.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > statistics > records iteration count [2.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > statistics > records triples inferred count [3.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > statistics > records duration in milliseconds [1.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > depth limit > respects max depth and fails when exceeded mid-inference [21.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > depth limit > succeeds within depth limit when fixed-point reached [1.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > inference limit > fails when inference limit exceeded [3.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > inference limit > succeeds within inference limit
+@beep/knowledge-server:test: (pass) ForwardChainer > default configuration > uses default config values when provided empty object [1.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > reasoning profiles > rdfs-subclass applies only subclass rules
+@beep/knowledge-server:test: (pass) ForwardChainer > reasoning profiles > owl-sameas computes symmetric closure [2.00ms]
+@beep/knowledge-server:test: (pass) ForwardChainer > reasoning profiles > custom profile accepts user rules [1.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Reasoning/RdfsRules.test.ts:
+@beep/knowledge-server:test: (pass) RdfsRules > quadId > generates deterministic id for quad [4.00ms]
+@beep/knowledge-server:test: (pass) RdfsRules > rdfs2 (domain constraint) > infers subject type from property domain [29.00ms]
+@beep/knowledge-server:test: (pass) RdfsRules > rdfs2 (domain constraint) > returns empty for no domain declarations [7.00ms]
+@beep/knowledge-server:test: (pass) RdfsRules > rdfs3 (range constraint) > infers object type from property range [12.00ms]
+@beep/knowledge-server:test: (pass) RdfsRules > rdfs9 (subclass entailment) > infers type from subclass hierarchy [5.00ms]
+@beep/knowledge-server:test: (pass) RdfsRules > rdfs9 (subclass entailment) > handles multiple instances of same class [7.00ms]
+@beep/knowledge-server:test: (pass) RdfsRules > rdfs11 (subclass transitivity) > infers transitive subclass relationships [4.00ms]
+@beep/knowledge-server:test: (pass) RdfsRules > rdfs11 (subclass transitivity) > handles deep hierarchies [8.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Service/DocumentClassifier.test.ts:
+@beep/knowledge-server:test: (pass) DocumentClassifier > classifies a document preview via LLM output schema [15.00ms]
+@beep/knowledge-server:test: (pass) DocumentClassifier > maps LLM failures to ClassificationError [10.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Service/EventBus.test.ts:
+@beep/knowledge-server:test: (pass) Service/EventBus > publishes events to topic subscribers [63.00ms]
+@beep/knowledge-server:test: (pass) Service/EventBus > filters events by topic [21.00ms]
+@beep/knowledge-server:test: (pass) Service/EventBus > supports minimal FIFO job queue operations [12.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Service/Storage.test.ts:
+@beep/knowledge-server:test: (pass) Service/Storage > stores and retrieves values with generation metadata [9.00ms]
+@beep/knowledge-server:test: (pass) Service/Storage > increments generation on optimistic write when expected generation matches [10.00ms]
+@beep/knowledge-server:test: (pass) Service/Storage > fails stale optimistic write with generation conflict [7.00ms]
+@beep/knowledge-server:test: (pass) Service/Storage > fails stale optimistic delete with generation conflict [5.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Service/ReconciliationService.test.ts:
+@beep/knowledge-server:test: (pass) ReconciliationService > auto-links when candidate score exceeds threshold and then skips on subsequent runs [26.00ms]
+@beep/knowledge-server:test: (pass) ReconciliationService > queues a verification task when candidate score is in review band [12.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Service/ContentEnrichmentAgent.test.ts:
+@beep/knowledge-server:test: (pass) ContentEnrichmentAgent > enriches content with structured metadata [17.00ms]
+@beep/knowledge-server:test: (pass) ContentEnrichmentAgent > maps LLM failures to ContentEnrichmentError [10.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Service/CrossBatchEntityResolver.test.ts:
+@beep/knowledge-server:test: (pass) CrossBatchEntityResolver > links to an existing entity when candidates exist, otherwise creates a new entity [58.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Service/OntologyRegistry.test.ts:
+@beep/knowledge-server:test: (pass) Service/OntologyRegistry > loads registry JSON and resolves entries by id, iri, and alias [30.00ms]
+@beep/knowledge-server:test: (pass) Service/OntologyRegistry > auto-loads default registry when resolve is called before explicit load [6.00ms]
+@beep/knowledge-server:test: (pass) Service/OntologyRegistry > fails with not-found error when registry file does not exist [6.00ms]
+@beep/knowledge-server:test: (pass) Service/OntologyRegistry > fails with parse error for invalid registry schema [5.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Workflow/BatchOrchestratorEngineParity.test.ts:
+@beep/knowledge-server:test: (pass) BatchOrchestrator engine parity > preserves continue-on-failure semantics and event ordering [19.00ms]
+@beep/knowledge-server:test: (pass) BatchOrchestrator engine parity > preserves abort-all semantics and stops after first failure [14.00ms]
+@beep/knowledge-server:test: (pass) BatchOrchestrator engine parity > uses orchestrator-owned retry in retry-failed policy [25.00ms]
+@beep/knowledge-server:test: (pass) BatchOrchestrator engine parity > emits BatchFailed and failed execution status when all documents fail [20.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Workflow/BatchAggregator.test.ts:
+@beep/knowledge-server:test: (pass) BatchAggregator > aggregates all successful results [16.00ms]
+@beep/knowledge-server:test: (pass) BatchAggregator > aggregates mixed success and failure results [6.00ms]
+@beep/knowledge-server:test: (pass) BatchAggregator > handles all failures [6.00ms]
+@beep/knowledge-server:test: (pass) BatchAggregator > handles empty results [6.00ms]
+@beep/knowledge-server:test: (pass) BatchAggregator > preserves original document results [6.00ms]
+@beep/knowledge-server:test: (pass) BatchAggregator > preserves batchId in output [4.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Workflow/ExtractionWorkflow.test.ts:
+@beep/knowledge-server:test: (pass) ExtractionWorkflow > marks execution failed when pipeline fails [36.00ms]
+@beep/knowledge-server:test: (pass) ExtractionWorkflow > writes completed execution output when pipeline succeeds [23.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Workflow/WorkflowPersistence.schema.test.ts:
+@beep/knowledge-server:test: (pass) WorkflowPersistence schema boundary > decodeWorkflowExecutionRecord defaults retryCount and produces a schema class instance [16.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/EntityResolution/BloomFilter.test.ts:
+@beep/knowledge-server:test: (pass) BloomFilter > Basic Operations > add and contains - should add item and verify membership [10.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Basic Operations > contains returns false for items never added [1.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Basic Operations > contains returns false for empty string [1.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Basic Operations > contains returns false for whitespace-only string [4.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Basic Operations > add ignores empty strings [5.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Bulk Operations > bulkAdd adds multiple items [12.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Bulk Operations > bulkAdd handles empty array [4.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Bulk Operations > bulkAdd filters out empty strings [3.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Text Normalization > normalizes text to lowercase for matching [7.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Text Normalization > trims whitespace for matching
+@beep/knowledge-server:test: (pass) BloomFilter > Text Normalization > handles mixed case and whitespace [1.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Statistics > getStats returns correct item count [5.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Statistics > getStats returns filter saturation metrics [3.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Statistics > fillRatio increases with more items [6.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Clear Operation > clear resets the filter [9.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Clear Operation > items are not found after clear [1.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > False Positive Rate > false positive rate is acceptable (<5% for 1000 items) [73.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > False Positive Rate > no false negatives - all added items are found [40.00ms]
+@beep/knowledge-server:test: (pass) BloomFilter > Hash Function Independence > similar strings have independent hash positions [20.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/EntityResolution/EntityRegistry.test.ts:
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > converts text to lowercase [17.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > trims leading whitespace [37.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > trims trailing whitespace [21.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > trims both leading and trailing whitespace [13.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > handles mixed case with whitespace [11.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > preserves internal whitespace [6.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > handles empty string [13.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > handles whitespace-only string [10.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > handles single character [13.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > handles unicode characters [12.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > handles numbers and special characters [7.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > produces consistent output for entity matching [7.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > handles tab characters as whitespace [17.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > normalizeText > handles newline characters as whitespace [11.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > Normalization Consistency > idempotent - normalizing twice produces same result [7.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > Normalization Consistency > deterministic - same input always produces same output [9.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > Entity Name Patterns > normalizes company names correctly [11.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > Entity Name Patterns > normalizes person names correctly [7.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > Entity Name Patterns > normalizes location names correctly [12.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > Entity Name Patterns > handles entity names with punctuation [8.00ms]
+@beep/knowledge-server:test: (pass) EntityRegistry > Entity Name Patterns > handles entity names with numbers [7.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/Nlp/NlpService.test.ts:
+@beep/knowledge-server:test: (pass) NlpService > NlpService operations > chunks short text into single chunk [4.00ms]
+@beep/knowledge-server:test: (pass) NlpService > NlpService operations > chunks long text into multiple chunks [2.00ms]
+@beep/knowledge-server:test: (pass) NlpService > NlpService operations > preserves sentence boundaries [1.00ms]
+@beep/knowledge-server:test: (pass) NlpService > NlpService operations > handles empty input [1.00ms]
+@beep/knowledge-server:test: (pass) NlpService > NlpService operations > returns stream of chunks [3.00ms]
+@beep/knowledge-server:test: (pass) NlpService > NlpService operations > splits sentences correctly
+@beep/knowledge-server:test: (pass) NlpService > NlpService operations > estimates tokens [1.00ms]
+@beep/knowledge-server:test: (pass) NlpService > NlpService operations > maintains chunk indices [1.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/ContextFormatter.test.ts:
+@beep/knowledge-server:test: (pass) ContextFormatter > extracts local name from hash IRI [9.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > extracts local name from slash IRI [13.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > returns full string when no separator found [21.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > formats entity with types [26.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > formats entity with attributes [16.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > formats context with entities and relations [34.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > formats literal relations [12.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > formats context with scores [16.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > estimates token count [10.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > truncates context to token budget [285.01ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > returns full context when within budget [16.00ms]
+@beep/knowledge-server:test: (pass) ContextFormatter > handles empty entities [8.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/CitationValidator.test.ts:
+@beep/knowledge-server:test: (pass) CitationValidator > validateEntity > returns confidence 1.0 when entity is found [23.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateEntity > returns confidence 0.0 when entity is not found [35.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateRelation > returns confidence 1.0 and isInferred false for direct relation [20.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateRelation > returns confidence 0.0 when relation not found directly or via reasoning [11.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateRelation > returns inferred result with depth penalty for relation found via reasoning [8.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateRelation > respects minimum confidence for deep inference chains [15.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateCitation > returns high confidence when all entities found [16.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateCitation > returns low confidence when entity is missing [31.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateCitation > includes relation validation when relationId present [12.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateCitation > overall confidence limited by relation when relation not found [7.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateCitation > handles empty entity list [8.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateAllCitations > validates multiple citations in parallel [7.00ms]
+@beep/knowledge-server:test: (pass) CitationValidator > validateAllCitations > handles empty citation list [5.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/ReasoningTraceFormatter.test.ts:
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > formatReasoningTrace > returns None for explicit fact (not in provenance) [14.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > formatReasoningTrace > returns Some(ReasoningTrace) for inferred triple [19.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > formatReasoningTrace > includes rule name in inference steps [18.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > formatReasoningTrace > includes source quads as premises [11.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > formatReasoningTrace > collects steps from inference chain [22.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > calculateDepth > returns 0 for explicit facts [14.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > calculateDepth > returns 1 for directly inferred triple [21.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > calculateDepth > returns 2 for triple inferred from another inferred triple [8.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > calculateDepth > returns correct depth for deep chains [5.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > calculateDepth > handles cycles gracefully without infinite loop [4.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > calculateDepth > takes maximum depth when multiple source quads [9.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > summarizeTrace > formats single step trace [24.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > summarizeTrace > formats multi-step trace with arrow separator [10.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > summarizeTrace > uses plural 'steps' for multiple steps [12.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > summarizeTrace > uses singular 'step' for single step [12.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > summarizeTrace > handles empty steps gracefully [10.00ms]
+@beep/knowledge-server:test: (pass) ReasoningTraceFormatter > summarizeTrace > starts with 'Inferred via' [9.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/AnswerSchemas.test.ts:
+@beep/knowledge-server:test: (pass) AnswerSchemas > InferenceStep > validates valid inference step [42.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > InferenceStep > rejects empty rule [22.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > InferenceStep > allows empty premises array [19.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > ReasoningTrace > validates valid reasoning trace [17.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > ReasoningTrace > rejects depth less than 1 [17.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > ReasoningTrace > rejects negative depth [9.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > ReasoningTrace > rejects non-integer depth [12.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > ReasoningTrace > allows empty inference steps with depth 1 [16.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > Citation > validates valid citation with relation [11.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > Citation > validates citation without relation [9.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > Citation > rejects empty claim text [11.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > Citation > rejects confidence below 0 [16.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > Citation > rejects confidence above 1 [8.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > Citation > accepts boundary confidence values [13.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > Citation > allows empty entity IDs array [15.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > GroundedAnswer > validates complete grounded answer with reasoning [11.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > GroundedAnswer > validates grounded answer without reasoning [6.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > GroundedAnswer > rejects empty answer text [5.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > GroundedAnswer > rejects answer confidence below 0 [11.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > GroundedAnswer > rejects answer confidence above 1 [12.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > GroundedAnswer > allows answer with empty citations [32.00ms]
+@beep/knowledge-server:test: (pass) AnswerSchemas > GroundedAnswer > validates answer with multiple citations [8.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/RrfScorer.test.ts:
+@beep/knowledge-server:test: (pass) RrfScorer > calculates rrfComponent correctly [121.00ms]
+@beep/knowledge-server:test: (pass) RrfScorer > calculates rrfScore from multiple ranks [24.00ms]
+@beep/knowledge-server:test: (pass) RrfScorer > combines embedding and graph ranks [21.00ms]
+@beep/knowledge-server:test: (pass) RrfScorer > fuses multiple ranked lists [35.00ms]
+@beep/knowledge-server:test: (pass) RrfScorer > assigns graph ranks based on hop distance [25.00ms]
+@beep/knowledge-server:test: (pass) RrfScorer > handles empty input in fuseRankings [372.01ms]
+@beep/knowledge-server:test: (pass) RrfScorer > handles single list in fuseRankings [14.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/ConfidenceScorer.test.ts:
+@beep/knowledge-server:test: (pass) ConfidenceScorer > applyDepthPenalty > returns baseConfidence unchanged for depth 0 [8.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > applyDepthPenalty > reduces confidence by 10% for depth 1 [19.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > applyDepthPenalty > reduces confidence by 20% for depth 2 [24.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > applyDepthPenalty > caps penalty at 50% reduction for depth 5+ [20.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > applyDepthPenalty > applies penalty to non-1.0 base confidence [21.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > applyDepthPenalty > clamps result to [0.0, 1.0] [20.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > returns confidence 0.0 when entity not found [25.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > returns confidence 1.0 for all found with direct relation [18.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > applies depth penalty for inferred relation [31.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > isGrounded is true when confidence >= 0.5 [10.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > isGrounded is false when confidence < 0.5 [19.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > shouldExclude is true when confidence < 0.3 [11.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > shouldExclude is false when confidence >= 0.3 [8.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > takes minimum of entity and relation confidence [18.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreCitation > handles citation with no entities [11.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreAnswer > computes weighted average by claim text length [18.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreAnswer > computes groundedRatio correctly [19.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreAnswer > returns 0 groundedRatio for all ungrounded citations [21.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreAnswer > handles empty validation results [18.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > scoreAnswer > includes all scored citations in result [7.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > weightedAverage > returns 0 for empty array [5.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > weightedAverage > returns 0 when all weights are 0 [10.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > weightedAverage > computes simple average when weights are equal [10.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > weightedAverage > weights higher values more when weight is higher [21.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > weightedAverage > handles single value [11.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > weightedAverage > clamps result to valid confidence range [19.00ms]
+@beep/knowledge-server:test: (pass) ConfidenceScorer > constants > exports correct threshold values [17.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/GroundedAnswerGenerator.test.ts:
+@beep/knowledge-server:test: (pass) GroundedAnswerGenerator > generate > generates answer with citations [49.00ms]
+@beep/knowledge-server:test: (pass) GroundedAnswerGenerator > generate > returns low confidence for no citations [15.00ms]
+@beep/knowledge-server:test: (pass) GroundedAnswerGenerator > generate > handles empty LLM response [7.00ms]
+@beep/knowledge-server:test: (pass) GroundedAnswerGenerator > generate > handles empty context [12.00ms]
+@beep/knowledge-server:test: (pass) GroundedAnswerGenerator > generate > strips citation markers from output text [18.00ms]
+@beep/knowledge-server:test: (pass) GroundedAnswerGenerator > generate > includes entity IDs in citations [27.00ms]
+@beep/knowledge-server:test: (pass) GroundedAnswerGenerator > GenerationError > is tagged error [5.00ms]
+@beep/knowledge-server:test: (pass) GroundedAnswerGenerator > GenerationError > includes cause when provided [4.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/CitationParser.test.ts:
+@beep/knowledge-server:test: (pass) CitationParser > extractEntityIds > extracts single entity ID [31.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > extractEntityIds > extracts multiple entity IDs [16.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > extractEntityIds > deduplicates repeated entity IDs [13.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > extractEntityIds > returns empty array for no citations [10.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > extractEntityIds > handles empty string [11.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > extractRelationIds > extracts single relation ID [11.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > extractRelationIds > returns empty for no relation citations [5.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > parseCitations > parses citation with entity [29.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > parseCitations > parses citation with entity and relation [21.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > parseCitations > returns empty for no valid entity IDs in context [18.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > parseCitations > filters citations not in context [18.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > parseCitations > handles text with no citations [6.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > stripAllCitations > strips entity citations [10.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > stripAllCitations > strips relation citations [12.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > stripAllCitations > normalizes whitespace after stripping [14.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > stripAllCitations > returns empty string for whitespace-only result [8.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > countCitations > counts all citations [6.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > countCitations > returns zero for no citations [9.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > hasCitations > returns true when citations exist [7.00ms]
+@beep/knowledge-server:test: (pass) CitationParser > hasCitations > returns false when no citations [11.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test: test/GraphRAG/PromptTemplates.test.ts:
+@beep/knowledge-server:test: (pass) PromptTemplates > GROUNDED_ANSWER_SYSTEM_PROMPT > contains citation format instructions [7.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > GROUNDED_ANSWER_SYSTEM_PROMPT > contains ONLY context instruction [5.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > GROUNDED_ANSWER_SYSTEM_PROMPT > contains insufficient information guidance [4.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > formatEntityForPrompt > formats entity with ID visible [5.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > formatEntityForPrompt > formats entity with multiple types [5.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > formatEntityForPrompt > formats entity with attributes [12.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > formatEntityForPrompt > handles unknown type [4.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > formatRelationForPrompt > formats relation with ID and resolved mentions [5.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > formatRelationForPrompt > uses ID when entity not in lookup [7.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > buildGroundedAnswerPrompt > builds prompt with entities and relations [6.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > buildGroundedAnswerPrompt > handles empty entities [10.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > buildGroundedAnswerPrompt > includes entity IDs for citation reference [5.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > extractCitations > extracts entity citations [6.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > extractCitations > extracts relation citations [10.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > extractCitations > extracts multiple citations in order [12.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > extractCitations > returns empty for no citations [14.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > stripCitationMarkers > removes all citation markers [9.00ms]
+@beep/knowledge-server:test: (pass) PromptTemplates > stripCitationMarkers > normalizes whitespace [6.00ms]
+@beep/knowledge-server:test: 
+@beep/knowledge-server:test:  541 pass
+@beep/knowledge-server:test:  0 fail
+@beep/knowledge-server:test:  1296 expect() calls
+@beep/knowledge-server:test: Ran 541 tests across 46 files. [12.45s]
+
+ Tasks:    21 successful, 21 total
+Cached:    21 cached, 21 total
+  Time:    3.087s >>> FULL TURBO
+
