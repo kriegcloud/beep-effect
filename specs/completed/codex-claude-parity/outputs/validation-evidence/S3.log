@@ -1,0 +1,29 @@
+## S3 review evidence
+Sat Feb  7 08:25:28 UTC 2026
+     1	import { Effect } from "effect"
+     2	
+     3	export const processItems = async (items: Array<number>) => {
+     4	  const pause = await Promise.resolve(1)
+     5	  const unsafe: any = pause
+     6	  const mapped = items.map((item) => item + unsafe)
+     7	
+     8	  switch (mapped.length) {
+     9	    case 0:
+    10	      return "empty"
+    11	    default:
+    12	      return "ok"
+    13	  }
+    14	}
+
+## Pattern matches
+### named imports
+1:import { Effect } from "effect"
+### async/await
+3:export const processItems = async (items: Array<number>) => {
+4:  const pause = await Promise.resolve(1)
+### any type
+5:  const unsafe: any = pause
+### native array methods
+6:  const mapped = items.map((item) => item + unsafe)
+### switch statements
+8:  switch (mapped.length) {

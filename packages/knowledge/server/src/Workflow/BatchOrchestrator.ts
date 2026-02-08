@@ -357,8 +357,10 @@ export const executeBatchEngineWorkflow = (payload: EngineBatchPayload, executio
           executionMode: "engine",
         },
       })
-      .pipe(Effect.catchAll(() => Effect.void));
-    yield* persistence.updateExecutionStatus(executionId, "running").pipe(Effect.catchAll(() => Effect.void));
+      // Persistence is best-effort: failures and defects should not block orchestration.
+      .pipe(Effect.catchAllCause(() => Effect.void));
+    // Persistence is best-effort: failures and defects should not block orchestration.
+    yield* persistence.updateExecutionStatus(executionId, "running").pipe(Effect.catchAllCause(() => Effect.void));
 
     yield* emitEvent((timestamp) =>
       BatchCreated.make({ batchId, totalDocuments: A.length(payload.documents), timestamp })
@@ -422,7 +424,8 @@ export const executeBatchEngineWorkflow = (payload: EngineBatchPayload, executio
           },
           error: "All documents failed",
         })
-        .pipe(Effect.catchAll(() => Effect.void));
+        // Persistence is best-effort: failures and defects should not block completion.
+        .pipe(Effect.catchAllCause(() => Effect.void));
       return batchResult;
     }
 
@@ -447,7 +450,8 @@ export const executeBatchEngineWorkflow = (payload: EngineBatchPayload, executio
           relationCount: batchResult.relationCount,
         },
       })
-      .pipe(Effect.catchAll(() => Effect.void));
+      // Persistence is best-effort: failures and defects should not block completion.
+      .pipe(Effect.catchAllCause(() => Effect.void));
 
     return batchResult;
   });

@@ -16,6 +16,8 @@ const $I = $KnowledgeServerId.create("db/repos/EntityClusterRepo");
 
 const tableName = KnowledgeEntityIds.EntityClusterId.tableName;
 
+const encodeMemberIdsJsonbArray = S.encode(S.parseJson(S.Array(KnowledgeEntityIds.KnowledgeEntityId)));
+
 class FindByCanonicalEntityRequest extends S.Class<FindByCanonicalEntityRequest>($I`FindByCanonicalEntityRequest`)(
   {
     canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId,
@@ -87,13 +89,17 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
   const findByMemberSchema = SqlSchema.findOne({
     Request: FindByMemberRequest,
     Result: Entities.EntityCluster.Model,
-    execute: (req) => sql`
-      SELECT *
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
-        AND member_ids @> ${JSON.stringify([req.memberId])}::jsonb
-      LIMIT 1
-    `,
+    execute: (req) =>
+      Effect.gen(function* () {
+        const memberIdsJson = yield* encodeMemberIdsJsonbArray([req.memberId]).pipe(Effect.orDie);
+        return yield* sql`
+          SELECT *
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${req.organizationId}
+            AND member_ids @> ${memberIdsJson}::jsonb
+          LIMIT 1
+        `;
+      }),
   });
 
   const findByOntologySchema = SqlSchema.findAll({

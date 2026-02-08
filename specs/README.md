@@ -80,6 +80,7 @@ bun run spec:move -- <spec-name> pending|completed|archived
 | [ai-friendliness-10-of-10](completed/ai-friendliness-10-of-10/) |
 | [artifact-file-cleanup](completed/artifact-file-cleanup/) |
 | [integration-architecture-migration](completed/integration-architecture-migration/) |
+| [knowledge-slice-conventions-review](pending/knowledge-slice-conventions-review/) |
 | [knowledge-effect-workflow-migration](completed/knowledge-effect-workflow-migration/) |
 | [knowledge-server-test-shared-fixtures-dedup](completed/knowledge-server-test-shared-fixtures-dedup/) |
 | [lexical-playground-port](completed/lexical-playground-port/) |

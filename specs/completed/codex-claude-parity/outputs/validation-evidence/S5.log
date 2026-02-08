@@ -1,0 +1,38 @@
+## S5 portability checks
+Sat Feb  7 08:25:51 UTC 2026
+
+### Criterion 1: symlink creation
+total 12
+drwxr-xr-x 2 elpresidank elpresidank 4096 Feb  7 02:25 .
+drwxr-xr-x 3 elpresidank elpresidank 4096 Feb  7 02:25 ..
+lrwxrwxrwx 1 elpresidank elpresidank   10 Feb  7 02:25 link.txt -> source.txt
+-rw-r--r-- 1 elpresidank elpresidank   16 Feb  7 02:25 source.txt
+
+### Criterion 2: link resolution
+portable-source
+
+### Criterion 3: git mode preservation verifiable
+120000 36fef27c13e821e9ab67afee819e2f63ce965446 0	specs/codex-claude-parity/outputs/validation-fixtures/s5/link.txt
+100644 f5a3eebe2ca970a1c51e64afa2eca7fb1af6f708 0	specs/codex-claude-parity/outputs/validation-fixtures/s5/source.txt
+
+### Criterion 4: copy fallback drift control
+b8beb42ad2e725443f3dc2203d5c9bed1f309bdaae3f2d6c918856f3d72c1af2  .claude/rules/general.md
+b8beb42ad2e725443f3dc2203d5c9bed1f309bdaae3f2d6c918856f3d72c1af2  .codex/rules/general.md
+e4245f8eb244a6ab0bc9613b8a0ccf77f12d41ab5c2ee32a47bf2ad18a452118  .claude/rules/behavioral.md
+e4245f8eb244a6ab0bc9613b8a0ccf77f12d41ab5c2ee32a47bf2ad18a452118  .codex/rules/behavioral.md
+9fdf88d0802bf7a06ef5c8e124135eb3c7f5c627f603c70c28fedb41056962ae  .claude/rules/effect-patterns.md
+9fdf88d0802bf7a06ef5c8e124135eb3c7f5c627f603c70c28fedb41056962ae  .codex/rules/effect-patterns.md
+cmp_general=match
+cmp_behavioral=match
+cmp_effect_patterns=match
+
+### Hook defer explicit handling check
+zsh:27: command not found: defer
+3:Status: `defer`
+20:- Current status: Open; manual fallback enforced
+38:## Closure condition
+
+### Hook defer explicit handling check (corrected)
+3:Status: `defer`
+20:- Current status: Open; manual fallback enforced
+38:## Closure condition

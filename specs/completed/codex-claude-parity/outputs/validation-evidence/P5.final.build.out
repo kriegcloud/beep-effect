@@ -1,0 +1,559 @@
+$ bunx turbo run build
+• turbo 2.8.3
+• Packages in scope: @beep/build-utils, @beep/calendar-client, @beep/calendar-domain, @beep/calendar-server, @beep/calendar-tables, @beep/calendar-ui, @beep/comms-client, @beep/comms-domain, @beep/comms-server, @beep/comms-tables, @beep/comms-ui, @beep/constants, @beep/customization-client, @beep/customization-domain, @beep/customization-server, @beep/customization-tables, @beep/customization-ui, @beep/db-admin, @beep/documents-client, @beep/documents-domain, @beep/documents-server, @beep/documents-tables, @beep/documents-ui, @beep/errors, @beep/google-workspace-client, @beep/google-workspace-domain, @beep/google-workspace-server, @beep/iam-client, @beep/iam-domain, @beep/iam-server, @beep/iam-tables, @beep/iam-ui, @beep/identity, @beep/invariant, @beep/knowledge-client, @beep/knowledge-domain, @beep/knowledge-server, @beep/knowledge-tables, @beep/knowledge-ui, @beep/machine, @beep/marketing, @beep/repo-cli, @beep/repo-scripts, @beep/runtime-client, @beep/runtime-server, @beep/schema, @beep/server, @beep/shared-ai, @beep/shared-client, @beep/shared-domain, @beep/shared-env, @beep/shared-server, @beep/shared-tables, @beep/shared-ui, @beep/testkit, @beep/todox, @beep/tooling-utils, @beep/types, @beep/ui, @beep/ui-core, @beep/ui-editor, @beep/ui-spreadsheet, @beep/utils, @beep/web, @beep/wrap
+• Running build in 65 packages
+• Remote caching disabled
+@beep/calendar-client:build: cache hit, replaying logs 58c59ed664c65412
+@beep/calendar-client:build: 
+@beep/calendar-client:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/calendar-client:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/calendar-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps[0m
+@beep/calendar-client:build: Successfully compiled 1 file with Babel (417ms).
+@beep/calendar-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/calendar-client:build: Successfully compiled 1 file with Babel (204ms).
+@beep/documents-client:build: cache hit, replaying logs dba2284d473270b1
+@beep/documents-client:build: 
+@beep/documents-client:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/documents-client:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/documents-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps [0m
+@beep/documents-client:build: Successfully compiled 2 files with Babel (625ms).
+@beep/documents-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/documents-client:build: Successfully compiled 2 files with Babel (528ms).
+@beep/comms-client:build: cache hit, replaying logs e3cf0b0105124b73
+@beep/comms-client:build: 
+@beep/comms-client:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/comms-client:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/comms-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps[0m
+@beep/comms-client:build: Successfully compiled 1 file with Babel (287ms).
+@beep/comms-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/comms-client:build: Successfully compiled 1 file with Babel (161ms).
+@beep/knowledge-ui:build: cache hit, replaying logs 5481410d09f75eea
+@beep/knowledge-ui:build: 
+@beep/knowledge-ui:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/knowledge-ui:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/knowledge-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps[0m
+@beep/knowledge-ui:build: Successfully compiled 1 file with Babel (475ms).
+@beep/knowledge-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/knowledge-ui:build: Successfully compiled 1 file with Babel (305ms).
+@beep/knowledge-client:build: cache hit, replaying logs b31fadfd567728ef
+@beep/knowledge-client:build: 
+@beep/knowledge-client:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/knowledge-client:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/knowledge-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps[0m
+@beep/knowledge-client:build: Successfully compiled 1 file with Babel (497ms).
+@beep/knowledge-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/knowledge-client:build: Successfully compiled 1 file with Babel (255ms).
+@beep/comms-ui:build: cache hit, replaying logs 734cad81a90af270
+@beep/comms-ui:build: 
+@beep/comms-ui:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/comms-ui:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/comms-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps[0m
+@beep/comms-ui:build: Successfully compiled 1 file with Babel (325ms).
+@beep/comms-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/comms-ui:build: Successfully compiled 1 file with Babel (243ms).
+@beep/customization-ui:build: cache hit, replaying logs ef7463249390326a
+@beep/customization-ui:build: 
+@beep/customization-ui:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/customization-ui:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/customization-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps [0m
+@beep/customization-ui:build: Successfully compiled 1 file with Babel (404ms).
+@beep/customization-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/customization-ui:build: Successfully compiled 1 file with Babel (472ms).
+@beep/calendar-ui:build: cache hit, replaying logs a3e2fdf96042cf17
+@beep/calendar-ui:build: 
+@beep/calendar-ui:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/calendar-ui:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/calendar-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps[0m
+@beep/calendar-ui:build: Successfully compiled 1 file with Babel (411ms).
+@beep/calendar-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/calendar-ui:build: Successfully compiled 1 file with Babel (364ms).
+@beep/testkit:build: cache hit, replaying logs a96f9ac5591a26b5
+@beep/testkit:build: $ tsc -b tsconfig.build.json
+@beep/identity:build: cache hit, replaying logs 5ea007f682349bc3
+@beep/identity:build: 
+@beep/identity:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3[0m
+@beep/identity:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/identity:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps[0m
+@beep/identity:build: Successfully compiled 5 files with Babel (399ms).
+@beep/identity:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps[0m
+@beep/identity:build: Successfully compiled 5 files with Babel (1061ms).
+@beep/documents-ui:build: cache hit, replaying logs 4b9250c668b7b16a
+@beep/documents-ui:build: 
+@beep/documents-ui:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/documents-ui:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/documents-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps [0m
+@beep/documents-ui:build: Successfully compiled 1 file with Babel (562ms).
+@beep/documents-ui:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/documents-ui:build: Successfully compiled 1 file with Babel (449ms).
+@beep/tooling-utils:build: cache hit, replaying logs c27d4dcb42f5618a
+@beep/tooling-utils:build: 
+@beep/tooling-utils:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/customization-client:build: cache hit, replaying logs 1bb0c4b2859b7365
+@beep/customization-client:build: 
+@beep/customization-client:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/customization-client:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/customization-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps [0m
+@beep/customization-client:build: Successfully compiled 2 files with Babel (598ms).
+@beep/customization-client:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps[0m
+@beep/customization-client:build: Successfully compiled 2 files with Babel (379ms).
+@beep/invariant:build: cache hit, replaying logs f907570fbf562d56
+@beep/invariant:build: 
+@beep/invariant:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3[0m
+@beep/invariant:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/invariant:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps[0m
+@beep/invariant:build: Successfully compiled 4 files with Babel (353ms).
+@beep/invariant:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps[0m
+@beep/invariant:build: Successfully compiled 4 files with Babel (516ms).
+@beep/build-utils:build: cache hit, replaying logs b07def108f1f30fe
+@beep/build-utils:build: 
+@beep/build-utils:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/marketing:build: cache hit, replaying logs ae618ef72043c5d1
+@beep/marketing:build: 
+@beep/marketing:build: [0m[2m[35m$[0m [2m[1mnext build[0m
+@beep/marketing:build: [33m[1m⚠[22m[39m Warning: Next.js inferred your workspace root, but it may not be correct.
+@beep/marketing:build:  We detected multiple lockfiles and selected the directory of /home/elpresidank/pnpm-lock.yaml as the root directory.
+@beep/marketing:build:  To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+@beep/marketing:build:    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+@beep/marketing:build:  Detected additional lockfiles: 
+@beep/marketing:build:    * /home/elpresidank/YeeBois/projects/beep-effect3/bun.lock
+@beep/marketing:build: 
+@beep/marketing:build: [1m[38;2;173;127;168m▲ Next.js 16.2.0-canary.30[39m[22m (Turbopack)
+@beep/marketing:build: 
+@beep/marketing:build: [37m[1m [22m[39m Creating an optimized production build ...
+@beep/marketing:build: [32m[1m✓[22m[39m Compiled successfully in 6.0s
+@beep/marketing:build: [?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[33m[1m⚠[22m[39m TypeScript project references are not fully supported. Attempting to build in incremental mode.
+@beep/marketing:build: [2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 4.1s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 4.1s    @beep/marketing:build: [32m[1m✓[22m[39m Finished TypeScript in 4.1s 
+@beep/marketing:build: [?25l[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m...[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 7 workers in 583ms    @beep/marketing:build: [32m[1m✓[22m[39m Collecting page data using 7 workers in 583ms 
+@beep/marketing:build: [?25l[37m[1m [22m[39m Generating static pages using 7 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/4)  [36m[==  ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 7 workers (4/4) in 487ms
+@beep/marketing:build: [?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 13ms    @beep/marketing:build: [32m[1m✓[22m[39m Finalizing page optimization in 13ms 
+@beep/marketing:build: 
+@beep/marketing:build: [4mRoute (app)[24m
+@beep/marketing:build: ┌ ○ /
+@beep/marketing:build: └ ○ /_not-found
+@beep/marketing:build: 
+@beep/marketing:build: 
+@beep/marketing:build: ○  (Static)  prerendered as static content
+@beep/marketing:build: 
+@beep/marketing:build: [?25h
+@beep/types:build: cache hit, replaying logs f71bdf5156af3755
+@beep/types:build: 
+@beep/types:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3[0m
+@beep/types:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/types:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps[0m
+@beep/types:build: Successfully compiled 203 files with Babel (759ms).
+@beep/types:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps[0m
+@beep/types:build: Successfully compiled 203 files with Babel (1181ms).
+@beep/utils:build: cache hit, replaying logs 5f17415233750a34
+@beep/utils:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/utils:build: $ tsc -b tsconfig.build.json
+@beep/utils:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/utils:build: Successfully compiled 108 files with Babel (507ms).
+@beep/utils:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/utils:build: Successfully compiled 108 files with Babel (893ms).
+@beep/schema:build: cache hit, replaying logs 38b3c852f9c627f0
+@beep/schema:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/schema:build: $ tsc -b tsconfig.build.json
+@beep/schema:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/schema:build: Successfully compiled 212 files with Babel (1548ms).
+@beep/schema:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/schema:build: Successfully compiled 212 files with Babel (811ms).
+@beep/wrap:build: cache hit, replaying logs bd0c55cf2c8f2c13
+@beep/wrap:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/wrap:build: $ tsc -b tsconfig.build.json
+@beep/wrap:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/wrap:build: Successfully compiled 11 files with Babel (612ms).
+@beep/wrap:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/wrap:build: Successfully compiled 11 files with Babel (1156ms).
+@beep/google-workspace-domain:build: cache hit, replaying logs 5c094ccf32492115
+@beep/google-workspace-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/google-workspace-domain:build: $ tsc -b tsconfig.build.json
+@beep/google-workspace-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/google-workspace-domain:build: Successfully compiled 10 files with Babel (509ms).
+@beep/google-workspace-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/google-workspace-domain:build: Successfully compiled 10 files with Babel (306ms).
+@beep/constants:build: cache hit, replaying logs 9782653015f6b6b3
+@beep/constants:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/constants:build: $ tsc -b tsconfig.build.json
+@beep/constants:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/constants:build: Successfully compiled 20 files with Babel (238ms).
+@beep/constants:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/constants:build: Successfully compiled 20 files with Babel (499ms).
+@beep/google-workspace-client:build: cache hit, replaying logs 8c9e0d488a564594
+@beep/google-workspace-client:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/google-workspace-client:build: $ tsc -b tsconfig.build.json
+@beep/google-workspace-client:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/google-workspace-client:build: Successfully compiled 8 files with Babel (492ms).
+@beep/google-workspace-client:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/google-workspace-client:build: Successfully compiled 8 files with Babel (132ms).
+@beep/machine:build: cache hit, replaying logs fbaf7823097dfb5d
+@beep/machine:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/machine:build: $ tsc -b tsconfig.build.json
+@beep/machine:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/machine:build: Successfully compiled 23 files with Babel (734ms).
+@beep/machine:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/machine:build: Successfully compiled 23 files with Babel (1929ms).
+@beep/repo-scripts:build: cache hit, replaying logs 6d4813f5eed36236
+@beep/repo-scripts:build: $ tsc -b tsconfig.build.json
+@beep/errors:build: cache hit, replaying logs 8bda708cb94c546f
+@beep/errors:build: $ bun run build-esm && bun run build-annotate && bun run build-cjs && build-utils pack-v3
+@beep/errors:build: $ tsc -b tsconfig.build.json
+@beep/errors:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/errors:build: Successfully compiled 5 files with Babel (178ms).
+@beep/errors:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/errors:build: Successfully compiled 5 files with Babel (334ms).
+@beep/repo-cli:build: cache hit, replaying logs 25db1c7369f71f33
+@beep/repo-cli:build: $ tsc -b tsconfig.build.json
+@beep/runtime-client:build: cache hit, replaying logs b4899868f05da8e7
+@beep/runtime-client:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/runtime-client:build: $ tsc -b tsconfig.build.json
+@beep/runtime-client:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/runtime-client:build: Successfully compiled 23 files with Babel (1651ms).
+@beep/runtime-client:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/runtime-client:build: Successfully compiled 23 files with Babel (1080ms).
+@beep/ui-core:build: cache hit, replaying logs b4ba5b1970e2b0a7
+@beep/ui-core:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/ui-core:build: $ tsc -b tsconfig.build.json
+@beep/ui-core:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps 
+@beep/ui-core:build: Successfully compiled 116 files with Babel (3948ms).
+@beep/ui-core:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps
+@beep/ui-core:build: Successfully compiled 116 files with Babel (2453ms).
+@beep/shared-domain:build: cache hit, replaying logs d01e40f999e58244
+@beep/shared-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-domain:build: $ tsc -b tsconfig.build.json
+@beep/shared-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/shared-domain:build: Successfully compiled 162 files with Babel (1109ms).
+@beep/shared-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/shared-domain:build: Successfully compiled 162 files with Babel (558ms).
+@beep/shared-env:build: cache hit, replaying logs a54d314907d161a6
+@beep/shared-env:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-env:build: $ tsc -b tsconfig.build.json
+@beep/shared-env:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/shared-env:build: Successfully compiled 3 files with Babel (822ms).
+@beep/shared-env:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/shared-env:build: Successfully compiled 3 files with Babel (500ms).
+@beep/comms-domain:build: cache hit, replaying logs a745700dbf30e015
+@beep/comms-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/comms-domain:build: $ tsc -b tsconfig.build.json
+@beep/comms-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/comms-domain:build: Successfully compiled 9 files with Babel (1251ms).
+@beep/comms-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/comms-domain:build: Successfully compiled 9 files with Babel (550ms).
+@beep/google-workspace-server:build: cache hit, replaying logs 744310f29a8f3e71
+@beep/google-workspace-server:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/google-workspace-server:build: $ tsc -b tsconfig.build.json
+@beep/google-workspace-server:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/google-workspace-server:build: Successfully compiled 6 files with Babel (994ms).
+@beep/google-workspace-server:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/google-workspace-server:build: Successfully compiled 6 files with Babel (580ms).
+@beep/customization-domain:build: cache hit, replaying logs 63d32fe66e59628a
+@beep/customization-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/customization-domain:build: $ tsc -b tsconfig.build.json
+@beep/customization-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/customization-domain:build: Successfully compiled 6 files with Babel (531ms).
+@beep/customization-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/customization-domain:build: Successfully compiled 6 files with Babel (369ms).
+@beep/calendar-domain:build: cache hit, replaying logs 4cbbe6d035390ccb
+@beep/calendar-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/calendar-domain:build: $ tsc -b tsconfig.build.json
+@beep/calendar-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/calendar-domain:build: Successfully compiled 19 files with Babel (951ms).
+@beep/calendar-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/calendar-domain:build: Successfully compiled 19 files with Babel (479ms).
+@beep/shared-tables:build: cache hit, replaying logs 4854ff3733529aa9
+@beep/shared-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-tables:build: $ tsc -b tsconfig.build.json
+@beep/shared-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/shared-tables:build: Successfully compiled 23 files with Babel (750ms).
+@beep/shared-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/shared-tables:build: Successfully compiled 23 files with Babel (410ms).
+@beep/iam-domain:build: cache hit, replaying logs b54fe274c403451c
+@beep/iam-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/iam-domain:build: $ tsc -b tsconfig.build.json
+@beep/iam-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/iam-domain:build: Successfully compiled 54 files with Babel (1916ms).
+@beep/iam-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/iam-domain:build: Successfully compiled 54 files with Babel (621ms).
+@beep/customization-tables:build: cache hit, replaying logs a64578e2aae28493
+@beep/customization-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/customization-tables:build: $ tsc -b tsconfig.build.json
+@beep/customization-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/customization-tables:build: Successfully compiled 6 files with Babel (770ms).
+@beep/customization-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/customization-tables:build: Successfully compiled 6 files with Babel (388ms).
+@beep/calendar-tables:build: cache hit, replaying logs 1edc47df048eddef
+@beep/calendar-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/calendar-tables:build: $ tsc -b tsconfig.build.json
+@beep/calendar-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/calendar-tables:build: Successfully compiled 6 files with Babel (1079ms).
+@beep/calendar-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/calendar-tables:build: Successfully compiled 6 files with Babel (448ms).
+@beep/comms-tables:build: cache hit, replaying logs 801463502878a916
+@beep/comms-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/comms-tables:build: $ tsc -b tsconfig.build.json
+@beep/comms-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/comms-tables:build: Successfully compiled 6 files with Babel (1227ms).
+@beep/comms-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/comms-tables:build: Successfully compiled 6 files with Babel (406ms).
+@beep/documents-domain:build: cache hit, replaying logs 97d12742bab428ed
+@beep/documents-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/documents-domain:build: $ tsc -b tsconfig.build.json
+@beep/documents-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/documents-domain:build: Successfully compiled 23 files with Babel (1432ms).
+@beep/documents-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/documents-domain:build: Successfully compiled 23 files with Babel (394ms).
+@beep/iam-tables:build: cache hit, replaying logs 19f0e9397997e42d
+@beep/iam-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/iam-tables:build: $ tsc -b tsconfig.build.json
+@beep/iam-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/iam-tables:build: Successfully compiled 26 files with Babel (1791ms).
+@beep/iam-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/iam-tables:build: Successfully compiled 26 files with Babel (819ms).
+@beep/documents-tables:build: cache hit, replaying logs f73eb0af16402ea5
+@beep/documents-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/documents-tables:build: $ tsc -b tsconfig.build.json
+@beep/documents-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/documents-tables:build: Successfully compiled 10 files with Babel (1183ms).
+@beep/documents-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/documents-tables:build: Successfully compiled 10 files with Babel (862ms).
+@beep/shared-ai:build: cache hit, replaying logs baeb944c5116c537
+@beep/shared-ai:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-ai:build: $ tsc -b tsconfig.build.json
+@beep/shared-ai:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/shared-ai:build: Successfully compiled 46 files with Babel (908ms).
+@beep/shared-ai:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/shared-ai:build: Successfully compiled 46 files with Babel (433ms).
+@beep/shared-server:build: cache hit, replaying logs bd2718821acb0924
+@beep/shared-server:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-server:build: $ tsc -b tsconfig.build.json
+@beep/shared-server:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/shared-server:build: Successfully compiled 52 files with Babel (1271ms).
+@beep/shared-server:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/shared-server:build: Successfully compiled 52 files with Babel (647ms).
+@beep/shared-client:build: cache hit, replaying logs c15b39ec8d0cee65
+@beep/shared-client:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-client:build: $ tsc -b tsconfig.build.json
+@beep/shared-client:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps 
+@beep/shared-client:build: Successfully compiled 67 files with Babel (2305ms).
+@beep/shared-client:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps
+@beep/shared-client:build: Successfully compiled 67 files with Babel (1068ms).
+@beep/comms-server:build: cache hit, replaying logs 1337b0c3ff9e93a9
+@beep/comms-server:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/comms-server:build: $ tsc -b tsconfig.build.json
+@beep/comms-server:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/comms-server:build: Successfully compiled 11 files with Babel (1333ms).
+@beep/comms-server:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/comms-server:build: Successfully compiled 11 files with Babel (602ms).
+@beep/calendar-server:build: cache hit, replaying logs d54a11d3cb746a45
+@beep/calendar-server:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/calendar-server:build: $ tsc -b tsconfig.build.json
+@beep/calendar-server:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/calendar-server:build: Successfully compiled 11 files with Babel (719ms).
+@beep/calendar-server:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/calendar-server:build: Successfully compiled 11 files with Babel (360ms).
+@beep/customization-server:build: cache hit, replaying logs e5065ba56a8c2510
+@beep/customization-server:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/customization-server:build: $ tsc -b tsconfig.build.json
+@beep/customization-server:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/customization-server:build: Successfully compiled 9 files with Babel (703ms).
+@beep/customization-server:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/customization-server:build: Successfully compiled 9 files with Babel (355ms).
+@beep/documents-server:build: cache hit, replaying logs 315ea11e74ad1323
+@beep/documents-server:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/documents-server:build: $ tsc -b tsconfig.build.json
+@beep/documents-server:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/documents-server:build: Successfully compiled 21 files with Babel (786ms).
+@beep/documents-server:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/documents-server:build: Successfully compiled 21 files with Babel (277ms).
+@beep/iam-server:build: cache hit, replaying logs 5edb4eb84fa23ba3
+@beep/iam-server:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/iam-server:build: $ tsc -b tsconfig.build.json
+@beep/iam-server:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/iam-server:build: Successfully compiled 36 files with Babel (511ms).
+@beep/iam-server:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/iam-server:build: Successfully compiled 36 files with Babel (263ms).
+@beep/knowledge-domain:build: cache hit, replaying logs ea53c801bd5efe02
+@beep/knowledge-domain:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/knowledge-domain:build: $ tsc -b tsconfig.build.json
+@beep/knowledge-domain:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/knowledge-domain:build: Successfully compiled 131 files with Babel (904ms).
+@beep/knowledge-domain:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/knowledge-domain:build: Successfully compiled 131 files with Babel (411ms).
+@beep/db-admin:build: cache hit, replaying logs 2702c7b6217e8a42
+@beep/db-admin:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/db-admin:build: $ tsc -b tsconfig.build.json
+@beep/db-admin:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/db-admin:build: Successfully compiled 7 files with Babel (409ms).
+@beep/db-admin:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/db-admin:build: Successfully compiled 7 files with Babel (189ms).
+@beep/knowledge-tables:build: cache hit, replaying logs c6924baf8b529cdd
+@beep/knowledge-tables:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/knowledge-tables:build: $ tsc -b tsconfig.build.json
+@beep/knowledge-tables:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/knowledge-tables:build: Successfully compiled 21 files with Babel (339ms).
+@beep/knowledge-tables:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/knowledge-tables:build: Successfully compiled 21 files with Babel (165ms).
+@beep/knowledge-server:build: cache hit, replaying logs 5135d1e89eda140b
+@beep/knowledge-server:build: 
+@beep/knowledge-server:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/knowledge-server:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/knowledge-server:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps[0m
+@beep/knowledge-server:build: Successfully compiled 124 files with Babel (1192ms).
+@beep/knowledge-server:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps[0m
+@beep/knowledge-server:build: Successfully compiled 124 files with Babel (862ms).
+@beep/runtime-server:build: cache hit, replaying logs 617a9a97c0ed30bb
+@beep/runtime-server:build: 
+@beep/runtime-server:build: [0m[2m[35m$[0m [2m[1mbun run build-esm && bun run build-cjs && bun run build-annotate[0m
+@beep/runtime-server:build: [0m[2m[35m$[0m [2m[1mtsc -b tsconfig.build.json[0m
+@beep/runtime-server:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps[0m
+@beep/runtime-server:build: Successfully compiled 15 files with Babel (383ms).
+@beep/runtime-server:build: [0m[2m[35m$[0m [2m[1mbabel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps[0m
+@beep/runtime-server:build: Successfully compiled 15 files with Babel (203ms).
+@beep/server:build: cache miss, executing 61571fa93a06b3dd
+@beep/server:build: $ tsc -b tsconfig.build.json
+@beep/ui:build: cache hit, replaying logs 5580e9a8fb7f0e67
+@beep/ui:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate && bun run copy-css
+@beep/ui:build: $ tsc -b tsconfig.build.json
+@beep/ui:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps 
+@beep/ui:build: Successfully compiled 528 files with Babel (6024ms).
+@beep/ui:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps
+@beep/ui:build: Successfully compiled 528 files with Babel (2352ms).
+@beep/ui:build: $ copyfiles -f src/styles/globals.css build/src && copyfiles -f src/styles/globals.css build/esm && copyfiles -f src/styles/globals.css build/cjs
+@beep/shared-ui:build: cache hit, replaying logs 8750f1809b5270d2
+@beep/shared-ui:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/shared-ui:build: $ tsc -b tsconfig.build.json
+@beep/shared-ui:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps 
+@beep/shared-ui:build: Successfully compiled 13 files with Babel (542ms).
+@beep/shared-ui:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps
+@beep/shared-ui:build: Successfully compiled 13 files with Babel (378ms).
+@beep/ui-editor:build: cache hit, replaying logs 48cec987b5f0398f
+@beep/ui-editor:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/ui-editor:build: $ tsc -b tsconfig.build.json
+@beep/ui-editor:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps 
+@beep/ui-editor:build: Successfully compiled 12 files with Babel (921ms).
+@beep/ui-editor:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps
+@beep/ui-editor:build: Successfully compiled 12 files with Babel (541ms).
+@beep/ui-spreadsheet:build: cache hit, replaying logs d9bac3ca2d5c9aeb
+@beep/ui-spreadsheet:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/ui-spreadsheet:build: $ tsc -b tsconfig.build.json
+@beep/ui-spreadsheet:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps 
+@beep/ui-spreadsheet:build: Successfully compiled 21 files with Babel (974ms).
+@beep/ui-spreadsheet:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps
+@beep/ui-spreadsheet:build: Successfully compiled 21 files with Babel (596ms).
+@beep/iam-client:build: cache hit, replaying logs 45a29861dd20e92f
+@beep/iam-client:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/iam-client:build: $ tsc -b tsconfig.build.json
+@beep/iam-client:build: $ babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps
+@beep/iam-client:build: Successfully compiled 623 files with Babel (3177ms).
+@beep/iam-client:build: $ babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps
+@beep/iam-client:build: Successfully compiled 623 files with Babel (1685ms).
+@beep/iam-ui:build: cache hit, replaying logs 3f52767be0287151
+@beep/iam-ui:build: $ bun run build-esm && bun run build-cjs && bun run build-annotate
+@beep/iam-ui:build: $ tsc -b tsconfig.build.json
+@beep/iam-ui:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps 
+@beep/iam-ui:build: Successfully compiled 37 files with Babel (350ms).
+@beep/iam-ui:build: $ babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps
+@beep/iam-ui:build: Successfully compiled 37 files with Babel (239ms).
+@beep/web:build: cache miss, executing bb4301bdc52ddd86
+@beep/todox:build: cache miss, executing c4e554c3be9b54c8
+@beep/web:build: $ NODE_ENV=production bun run dotenvx next build --turbopack
+@beep/todox:build: $ NODE_ENV=production NODE_OPTIONS='--max-old-space-size=8192' bun run dotenvx next build --turbopack
+@beep/web:build: $ dotenvx run -f ../../.env -- next build --turbopack
+@beep/todox:build: $ dotenvx run -f ../../.env -- next build --turbopack
+@beep/web:build: [dotenvx@1.52.0] injecting env (131) from ../../.env
+@beep/todox:build: [dotenvx@1.52.0] injecting env (131) from ../../.env
+@beep/web:build: ⚠ Invalid next.config.mjs options detected: 
+@beep/web:build: ⚠     Unrecognized key(s) in object: 'logging' at "experimental"
+@beep/web:build: ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+@beep/web:build: ▲ Next.js 16.2.0-canary.30 (Turbopack)
+@beep/web:build: - Experiments (use with caution):
+@beep/web:build:   ? logging (invalid experimental key)
+@beep/web:build:   · optimizePackageImports
+@beep/web:build: 
+@beep/web:build:   Creating an optimized production build ...
+@beep/todox:build: ⚠ Invalid next.config.mjs options detected: 
+@beep/todox:build: ⚠     Unrecognized key(s) in object: 'logging' at "experimental"
+@beep/todox:build: ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+@beep/todox:build: ▲ Next.js 16.2.0-canary.30 (Turbopack)
+@beep/todox:build: - Experiments (use with caution):
+@beep/todox:build:   ? logging (invalid experimental key)
+@beep/todox:build:   · optimizePackageImports
+@beep/todox:build: 
+@beep/todox:build:   Creating an optimized production build ...
+@beep/web:build: ✓ Compiled successfully in 73s
+@beep/web:build:   Running TypeScript ...
+@beep/web:build: ⚠ TypeScript project references are not fully supported. Attempting to build in incremental mode.
+@beep/todox:build: ✓ Compiled successfully in 96s
+@beep/todox:build:   Running TypeScript ...
+@beep/todox:build: ⚠ TypeScript project references are not fully supported. Attempting to build in incremental mode.
+@beep/web:build:   Finished TypeScript in 2.1min ...
+@beep/web:build:   Collecting page data using 7 workers ...
+@beep/web:build:   Generating static pages using 7 workers (0/18) ...
+@beep/web:build:   Generating static pages using 7 workers (4/18) 
+@beep/web:build:   Generating static pages using 7 workers (8/18) 
+@beep/web:build:   Generating static pages using 7 workers (13/18) 
+@beep/web:build: ✓ Generating static pages using 7 workers (18/18) in 5.0s
+@beep/web:build:   Finalizing page optimization ...
+@beep/web:build: 
+@beep/web:build: Route (app)
+@beep/web:build: ┌ ƒ /
+@beep/web:build: ├ ƒ /_not-found
+@beep/web:build: ├ ƒ /about
+@beep/web:build: ├ ƒ /auth/sign-in
+@beep/web:build: ├ ƒ /auth/sign-up
+@beep/web:build: ├ ƒ /contact-us
+@beep/web:build: ├ ƒ /dashboard
+@beep/web:build: ├ ƒ /faqs
+@beep/web:build: ├ ƒ /files
+@beep/web:build: ├ ƒ /landing
+@beep/web:build: ├ ○ /manifest.webmanifest
+@beep/web:build: ├ ƒ /portfolio
+@beep/web:build: ├ ƒ /pricing
+@beep/web:build: ├ ƒ /privacy
+@beep/web:build: ├ ○ /robots.txt
+@beep/web:build: ├ ƒ /terms
+@beep/web:build: └ ƒ /upload
+@beep/web:build: 
+@beep/web:build: 
+@beep/web:build: ƒ Proxy (Middleware)
+@beep/web:build: 
+@beep/web:build: ○  (Static)   prerendered as static content
+@beep/web:build: ƒ  (Dynamic)  server-rendered on demand
+@beep/web:build: 
+@beep/todox:build:   Finished TypeScript in 2.1min ...
+@beep/todox:build:   Collecting page data using 7 workers ...
+@beep/todox:build:   Generating static pages using 7 workers (0/14) ...
+@beep/todox:build:   Generating static pages using 7 workers (3/14) 
+@beep/todox:build:   Generating static pages using 7 workers (6/14) 
+@beep/todox:build:   Generating static pages using 7 workers (10/14) 
+@beep/todox:build: ✓ Generating static pages using 7 workers (14/14) in 2.7s
+@beep/todox:build:   Finalizing page optimization ...
+@beep/todox:build: 
+@beep/todox:build: Route (app)
+@beep/todox:build: ┌ ƒ /
+@beep/todox:build: ├ ƒ /_not-found
+@beep/todox:build: ├ ƒ /api/ai/stream
+@beep/todox:build: ├ ƒ /api/chat
+@beep/todox:build: ├ ƒ /api/lexical/set-state
+@beep/todox:build: ├ ƒ /api/lexical/validate
+@beep/todox:build: ├ ƒ /api/liveblocks-auth
+@beep/todox:build: ├ ƒ /api/mail/details
+@beep/todox:build: ├ ƒ /api/mail/labels
+@beep/todox:build: ├ ƒ /api/mail/list
+@beep/todox:build: ├ ƒ /api/users
+@beep/todox:build: ├ ƒ /api/users/search
+@beep/todox:build: ├ ƒ /auth/sign-in
+@beep/todox:build: ├ ƒ /auth/sign-up
+@beep/todox:build: ├ ƒ /demo
+@beep/todox:build: ├ ƒ /knowledge-demo
+@beep/todox:build: └ ƒ /lexical
+@beep/todox:build: 
+@beep/todox:build: 
+@beep/todox:build: ƒ Proxy (Middleware)
+@beep/todox:build: 
+@beep/todox:build: ƒ  (Dynamic)  server-rendered on demand
+@beep/todox:build: 
+
+ Tasks:    65 successful, 65 total
+Cached:    62 cached, 65 total
+  Time:    4m7.666s 
+

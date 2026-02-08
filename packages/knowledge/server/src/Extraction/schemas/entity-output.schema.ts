@@ -1,8 +1,15 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
+import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeServerId.create("Extraction/schemas/entity-output.schema");
+
+export class TypeIri extends BS.URLString.annotations(
+  $I.annotations("TypeIri", {
+    description: "Ontology class IRI (e.g., http://schema.org/Person)",
+  })
+) {}
 
 export class ClassifiedEntity extends S.Class<ClassifiedEntity>($I`ClassifiedEntity`)(
   {
@@ -10,9 +17,7 @@ export class ClassifiedEntity extends S.Class<ClassifiedEntity>($I`ClassifiedEnt
       description: "Original text span of the entity mention",
     }),
 
-    typeIri: S.String.annotations({
-      description: "Ontology class IRI (e.g., http://schema.org/Person)",
-    }),
+    typeIri: TypeIri,
 
     additionalTypes: S.optional(
       S.Array(S.String).annotations({

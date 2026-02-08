@@ -5,7 +5,7 @@ Unified pattern detection system combining code smell detection and dangerous op
 ## Directory Structure
 
 ```
-.claude/patterns/
+.codex/patterns/
 ├── code-smells/         # PostToolUse context patterns
 │   └── *.md
 ├── dangerous-commands/  # PreToolUse permission patterns
@@ -114,15 +114,15 @@ level: critical
 
 ## Migration Guide
 
-### From `.claude/smells/*.md`
-1. Move to `.claude/patterns/code-smells/`
+### From `.claude/smells/*.md` / legacy locations
+1. Move to `.codex/patterns/code-smells/`
 2. Add `event: PostToolUse`
 3. Add `action: context`
 4. Rename `severity` field (keep existing values)
 5. Add `tool: (Edit|Write)`
 
-### From `.claude/dangerzone/*.md`
-1. Move to `.claude/patterns/dangerous-commands/`
+### From `.claude/dangerzone/*.md` / legacy locations
+1. Move to `.codex/patterns/dangerous-commands/`
 2. Add `event: PreToolUse`
 3. Keep existing `action` and `level`
 4. Add `tool: Bash` (or appropriate tool regex)

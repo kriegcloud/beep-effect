@@ -31,7 +31,14 @@ export const ViolationType = S.Literal(
   "native-set",
   "native-map",
   "native-error",
-  "native-date"
+  "native-date",
+  "node-fs",
+  "node-fs-promises",
+  "node-path",
+  "async-await",
+  "promise-usage",
+  "unsafe-cast",
+  "direct-json"
 );
 
 /**

@@ -286,9 +286,11 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
           textLength: Str.length(payload.text),
         },
       })
-      .pipe(Effect.catchAll(() => Effect.void));
+      // Persistence is best-effort: failures and defects should not block workflow execution.
+      .pipe(Effect.catchAllCause(() => Effect.void));
 
-    yield* persistence.updateExecutionStatus(executionId, "running").pipe(Effect.catchAll(() => Effect.void));
+    // Persistence is best-effort: failures and defects should not block workflow execution.
+    yield* persistence.updateExecutionStatus(executionId, "running").pipe(Effect.catchAllCause(() => Effect.void));
     yield* emitProgress(
       maybeProgressStream,
       executionId,
@@ -341,7 +343,8 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
               chunkCount: result.stats.chunkCount,
             },
           })
-          .pipe(Effect.catchAll(() => Effect.void))
+          // Persistence is best-effort: failures and defects should not block workflow execution.
+          .pipe(Effect.catchAllCause(() => Effect.void))
       ),
       Effect.catchAllCause((cause) =>
         persistence
@@ -349,7 +352,8 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
             error: String(Cause.squash(cause)),
           })
           .pipe(
-            Effect.catchAll(() => Effect.void),
+            // Persistence is best-effort: failures and defects should not block workflow failure propagation.
+            Effect.catchAllCause(() => Effect.void),
             Effect.andThen(Effect.fail(String(Cause.squash(cause))))
           )
       )

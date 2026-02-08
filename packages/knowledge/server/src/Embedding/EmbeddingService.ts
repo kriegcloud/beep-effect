@@ -5,7 +5,7 @@ import type { AssembledEntity } from "@beep/knowledge-server/Extraction/GraphAss
 import { formatEntityForEmbedding } from "@beep/knowledge-server/utils/formatting";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
-import { thunkEffectVoid, thunkEmptyStr, thunkFalse, thunkTrue } from "@beep/utils";
+import {thunkEffectVoid, thunkEmptyStr, thunkFalse, thunkTrue, thunkZero} from "@beep/utils";
 import * as AiError from "@effect/ai/AiError";
 import * as EmbeddingModel from "@effect/ai/EmbeddingModel";
 import * as A from "effect/Array";
@@ -20,6 +20,8 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { CentralRateLimiterService } from "../LlmControl/RateLimiter";
 import { EmbeddingError, type TaskType } from "./EmbeddingProvider";
+import { withEmbeddingResilienceWithFallback } from "./EmbeddingResilience";
+import { FallbackEmbeddingModel } from "./FallbackEmbeddingModel";
 
 const $I = $KnowledgeServerId.create("Embedding/EmbeddingService");
 
@@ -50,7 +52,7 @@ const mapAiError = (error: AiError.AiError): EmbeddingError =>
 const computeCacheKey = (text: string, model: string): string => {
   let hash = 5381;
   for (let i = 0; i < text.length; i++) {
-    hash = (hash << 5) + hash + text.charCodeAt(i);
+    hash = (hash << 5) + hash + Str.charCodeAt(i)(text).pipe(O.getOrElse(thunkZero));
     hash = hash & hash;
   }
   const hashHex = Str.padStart(8, "0")(Math.abs(hash).toString(16));
@@ -99,12 +101,14 @@ const serviceEffect: Effect.Effect<
   const repo = yield* EmbeddingRepo;
   const authCtx = yield* AuthContext;
   const limiter = yield* CentralRateLimiterService;
+  const fallbackModel = yield* Effect.serviceOption(FallbackEmbeddingModel).pipe(Effect.map(O.flatten));
   const organizationId = authCtx.session.activeOrganizationId;
   const currentUserId = authCtx.session.userId;
 
   const embed = Effect.fn("EmbeddingService.embed")(function* (
     text: string,
     _taskType: TaskType.Type,
+    _organizationId: SharedEntityIds.OrganizationId.Type,
     _ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
   ) {
     const cacheKey = computeCacheKey(text, DEFAULT_EMBEDDING_MODEL);
@@ -120,12 +124,14 @@ const serviceEffect: Effect.Effect<
       Effect.annotateLogs({ cacheKey, textLength: text.length })
     );
 
-    yield* limiter.acquire(Str.length(text));
-    const vector = yield* embeddingModel.embed(text).pipe(
-      Effect.tap(() => limiter.release(0, true)),
-      Effect.tapError(() => limiter.release(0, false)),
-      Effect.mapError(mapAiError)
-    );
+    const vector = yield* withEmbeddingResilienceWithFallback(
+      embeddingModel,
+      fallbackModel,
+      (model) => model.embed(text).pipe(Effect.mapError(mapAiError)),
+      {
+        estimatedTokens: Str.length(text),
+      }
+    ).pipe(Effect.provideService(CentralRateLimiterService, limiter));
 
     yield* Effect.logDebug("EmbeddingService: embedding generated (caching disabled)").pipe(
       Effect.annotateLogs({ cacheKey, vectorLength: vector.length })
@@ -136,6 +142,7 @@ const serviceEffect: Effect.Effect<
 
   const embedEntities = Effect.fn("EmbeddingService.embedEntities")(function* (
     entities: ReadonlyArray<AssembledEntity>,
+    _organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
   ) {
     if (A.isEmptyReadonlyArray(entities)) {
@@ -183,12 +190,14 @@ const serviceEffect: Effect.Effect<
 
     const uncachedTexts = A.map(uncached, (item) => item.text);
     const estimatedTokens = A.reduce(uncachedTexts, 0, (acc, t) => acc + Str.length(t));
-    yield* limiter.acquire(estimatedTokens);
-    const vectors = yield* embeddingModel.embedMany(uncachedTexts).pipe(
-      Effect.tap(() => limiter.release(0, true)),
-      Effect.tapError(() => limiter.release(0, false)),
-      Effect.mapError(mapAiError)
-    );
+    const vectors = yield* withEmbeddingResilienceWithFallback(
+      embeddingModel,
+      fallbackModel,
+      (model) => model.embedMany(uncachedTexts).pipe(Effect.mapError(mapAiError)),
+      {
+        estimatedTokens,
+      }
+    ).pipe(Effect.provideService(CentralRateLimiterService, limiter));
 
     yield* Effect.forEach(uncached, (item, j) =>
       O.match(A.get(vectors, j), {
@@ -262,9 +271,10 @@ const serviceEffect: Effect.Effect<
   const getOrCreate = (
     text: string,
     taskType: TaskType.Type,
+    _organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: KnowledgeEntityIds.OntologyId.Type
   ): Effect.Effect<ReadonlyArray<number>, EmbeddingError | CircuitOpenError | RateLimitError> =>
-    embed(text, taskType, ontologyId);
+    embed(text, taskType, organizationId, ontologyId);
 
   const getConfig = Effect.fn("EmbeddingService.getConfig")(function* () {
     return {

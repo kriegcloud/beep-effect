@@ -65,13 +65,11 @@ describe("LlmResilience", () => {
       const flaky = Effect.gen(function* () {
         const current = yield* Ref.updateAndGet(attempts, (n) => n + 1);
         if (current === 1) {
-          return yield* Effect.fail(
-            new AiError.UnknownError({
-              module: "test",
-              method: "retry",
-              description: "first attempt fails",
-            })
-          );
+          return yield* new AiError.UnknownError({
+            module: "test",
+            method: "retry",
+            description: "first attempt fails",
+          });
         }
         return "ok";
       });

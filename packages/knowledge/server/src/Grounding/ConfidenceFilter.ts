@@ -13,6 +13,11 @@ import { type AssembledEntity, type AssembledRelation, KnowledgeGraph } from "..
 
 const $I = $KnowledgeServerId.create("Grounding/ConfidenceFilter");
 
+const KnowledgeGraphSchema = S.typeSchema(KnowledgeGraph);
+type KnowledgeGraphModel = S.Schema.Type<typeof KnowledgeGraphSchema>;
+type AssembledEntityModel = S.Schema.Type<typeof AssembledEntity>;
+type AssembledRelationModel = S.Schema.Type<typeof AssembledRelation>;
+
 export class FilterConfig extends S.Class<FilterConfig>($I`FilterConfig`)(
   {
     entityThreshold: S.optional(S.Number),
@@ -41,7 +46,7 @@ export class FilterStats extends S.Class<FilterStats>($I`FilterStats`)(
 
 export class FilterResult extends S.Class<FilterResult>($I`FilterResult`)(
   {
-    graph: KnowledgeGraph,
+    graph: KnowledgeGraphSchema,
     stats: FilterStats,
   },
   $I.annotations("FilterResult", {
@@ -52,18 +57,20 @@ export class FilterResult extends S.Class<FilterResult>($I`FilterResult`)(
 const DEFAULT_ENTITY_THRESHOLD = 0.5;
 const DEFAULT_RELATION_THRESHOLD = 0.5;
 
-export const filterEntities = (entities: readonly AssembledEntity[], threshold: number): readonly AssembledEntity[] =>
-  A.filter(entities, (entity) => entity.confidence >= threshold);
+export const filterEntities = (
+  entities: readonly AssembledEntityModel[],
+  threshold: number
+): readonly AssembledEntityModel[] => A.filter(entities, (entity) => entity.confidence >= threshold);
 
 export const filterRelations = (
-  relations: readonly AssembledRelation[],
+  relations: readonly AssembledRelationModel[],
   threshold: number
-): readonly AssembledRelation[] => A.filter(relations, (relation) => relation.confidence >= threshold);
+): readonly AssembledRelationModel[] => A.filter(relations, (relation) => relation.confidence >= threshold);
 
 export const removeOrphanEntities = (
-  entities: readonly AssembledEntity[],
-  relations: readonly AssembledRelation[]
-): readonly AssembledEntity[] => {
+  entities: readonly AssembledEntityModel[],
+  relations: readonly AssembledRelationModel[]
+): readonly AssembledEntityModel[] => {
   const referencedIds = MutableHashSet.fromIterable(
     A.flatMap(relations, (relation) =>
       F.pipe(
@@ -76,7 +83,7 @@ export const removeOrphanEntities = (
   return A.filter(entities, (entity) => MutableHashSet.has(referencedIds, entity.id));
 };
 
-export const filterGraph = (graph: KnowledgeGraph, config: FilterConfig = {}): FilterResult => {
+export const filterGraph = (graph: KnowledgeGraphModel, config: FilterConfig = {}): FilterResult => {
   const entityThreshold = config.entityThreshold ?? DEFAULT_ENTITY_THRESHOLD;
   const relationThreshold = config.relationThreshold ?? DEFAULT_RELATION_THRESHOLD;
   const shouldRemoveOrphans = config.removeOrphanEntities ?? true;
@@ -106,7 +113,7 @@ export const filterGraph = (graph: KnowledgeGraph, config: FilterConfig = {}): F
     A.map(filteredEntities, (entity) => [Str.toLowerCase(entity.canonicalName ?? entity.mention), entity.id] as const)
   );
 
-  const filteredGraph: KnowledgeGraph = {
+  const filteredGraph: KnowledgeGraphModel = {
     entities: filteredEntities,
     relations: filteredRelations,
     entityIndex,
@@ -132,7 +139,7 @@ export const filterGraph = (graph: KnowledgeGraph, config: FilterConfig = {}): F
 };
 
 export const filterGraphEffect = Effect.fnUntraced(
-  function* (graph: KnowledgeGraph, config: FilterConfig = {}) {
+  function* (graph: KnowledgeGraphModel, config: FilterConfig = {}) {
     yield* Effect.logDebug("ConfidenceFilter.filterGraph: starting").pipe(
       Effect.annotateLogs({
         entityCount: A.length(graph.entities),
@@ -154,14 +161,14 @@ export const filterGraphEffect = Effect.fnUntraced(
 );
 
 export const getLowConfidenceEntities = (
-  entities: readonly AssembledEntity[],
+  entities: readonly AssembledEntityModel[],
   threshold: number
-): readonly AssembledEntity[] => A.filter(entities, (entity) => entity.confidence < threshold);
+): readonly AssembledEntityModel[] => A.filter(entities, (entity) => entity.confidence < threshold);
 
 export const getLowConfidenceRelations = (
-  relations: readonly AssembledRelation[],
+  relations: readonly AssembledRelationModel[],
   threshold: number
-): readonly AssembledRelation[] => A.filter(relations, (relation) => relation.confidence < threshold);
+): readonly AssembledRelationModel[] => A.filter(relations, (relation) => relation.confidence < threshold);
 
 export const computeConfidenceStats = (
   values: readonly number[]

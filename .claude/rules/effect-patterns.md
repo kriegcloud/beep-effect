@@ -1,7 +1,12 @@
 ---
-trigger: manual
-description: 
-globs: 
+trigger: always
+description: Enforce Effect repository patterns across TypeScript sources.
+globs:
+  - packages/**/src/**/*.ts
+  - packages/**/src/**/*.tsx
+  - apps/**/src/**/*.ts
+  - apps/**/src/**/*.tsx
+  - tooling/**/src/**/*.ts
 ---
 
 # Effect Patterns

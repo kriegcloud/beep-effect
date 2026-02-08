@@ -1,6 +1,8 @@
 import {
   DEFAULT_ONTOLOGY_REGISTRY_KEY,
   OntologyRegistry,
+  OntologyRegistryEntry,
+  OntologyRegistryFile,
   OntologyRegistryLive,
   OntologyRegistryNotFoundError,
   OntologyRegistryParseError,
@@ -11,9 +13,11 @@ import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 const OntologyRegistryLayer = Layer.provide(OntologyRegistryLive, StorageMemoryLive);
 const ServiceLayer = Layer.merge(StorageMemoryLive, OntologyRegistryLayer);
+const encodeRegistryFile = S.encodeSync(S.parseJson(OntologyRegistryFile));
 
 describe("Service/OntologyRegistry", () => {
   effect(
@@ -24,23 +28,25 @@ describe("Service/OntologyRegistry", () => {
 
       yield* storage.put(
         DEFAULT_ONTOLOGY_REGISTRY_KEY,
-        JSON.stringify({
-          version: 1,
-          entries: [
-            {
-              id: "schema-org",
-              iri: "https://schema.org",
-              storageKey: "ontology/schema-org.ttl",
-              aliases: ["schema", "Schema.org"],
-            },
-            {
-              id: "foaf",
-              iri: "http://xmlns.com/foaf/0.1/",
-              storageKey: "ontology/foaf.ttl",
-              aliases: ["friend-of-a-friend"],
-            },
-          ],
-        })
+        encodeRegistryFile(
+          OntologyRegistryFile.make({
+            version: 1,
+            entries: [
+              OntologyRegistryEntry.make({
+                id: "schema-org",
+                iri: "https://schema.org",
+                storageKey: "ontology/schema-org.ttl",
+                aliases: ["schema", "Schema.org"],
+              }),
+              OntologyRegistryEntry.make({
+                id: "foaf",
+                iri: "http://xmlns.com/foaf/0.1/",
+                storageKey: "ontology/foaf.ttl",
+                aliases: ["friend-of-a-friend"],
+              }),
+            ],
+          })
+        )
       );
 
       const loaded = yield* registry.loadDefault();
@@ -81,17 +87,19 @@ describe("Service/OntologyRegistry", () => {
 
       yield* storage.put(
         DEFAULT_ONTOLOGY_REGISTRY_KEY,
-        JSON.stringify({
-          version: 1,
-          entries: [
-            {
-              id: "dc",
-              iri: "http://purl.org/dc/terms/",
-              storageKey: "ontology/dc.ttl",
-              aliases: ["dublin-core"],
-            },
-          ],
-        })
+        encodeRegistryFile(
+          OntologyRegistryFile.make({
+            version: 1,
+            entries: [
+              OntologyRegistryEntry.make({
+                id: "dc",
+                iri: "http://purl.org/dc/terms/",
+                storageKey: "ontology/dc.ttl",
+                aliases: ["dublin-core"],
+              }),
+            ],
+          })
+        )
       );
 
       const resolved = yield* registry.resolve("dublin-core");
@@ -124,10 +132,8 @@ describe("Service/OntologyRegistry", () => {
 
       yield* storage.put(
         DEFAULT_ONTOLOGY_REGISTRY_KEY,
-        JSON.stringify({
-          version: "v1",
-          entries: [],
-        })
+        // Keep this intentionally invalid to assert the service's decode+error path.
+        '{"version":"v1","entries":[]}'
       );
 
       const result = yield* Effect.either(registry.loadDefault());

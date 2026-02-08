@@ -6,6 +6,7 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -123,6 +124,15 @@ export interface ReconciliationServiceShape {
 
   readonly approveTask: (taskId: string, qid: string) => Effect.Effect<void, ReconciliationError>;
   readonly rejectTask: (taskId: string) => Effect.Effect<void, ReconciliationError>;
+
+  readonly getLink: (
+    entityIri: string
+  ) => Effect.Effect<O.Option<{ readonly qid: string; readonly wikidataUri: string }>, ReconciliationError>;
+
+  readonly reconcileBatch: (
+    entities: ReadonlyArray<{ readonly iri: string; readonly label: string; readonly types?: ReadonlyArray<string> }>,
+    config?: undefined | ReconciliationConfigInput
+  ) => Effect.Effect<ReadonlyArray<ReconciliationResult>, ReconciliationError>;
 }
 
 export class ReconciliationService extends Context.Tag($I`ReconciliationService`)<
@@ -136,6 +146,23 @@ const QUEUE_PREFIX = "reconciliation/queue/";
 const encodeWikidataLinkJson = S.encode(S.parseJson(WikidataLink));
 const encodeVerificationTaskJson = S.encode(S.parseJson(VerificationTask));
 const decodeVerificationTask = S.decodeUnknown(S.parseJson(VerificationTask));
+const decodeWikidataLink = S.decodeUnknown(S.parseJson(WikidataLink));
+
+const isReconciliationError = (error: unknown): error is ReconciliationError =>
+  P.isObject(error) &&
+  P.hasProperty(error, "_tag") &&
+  P.isTagged(error, "ReconciliationError");
+
+const mapError =
+  (message: string, entityIri = "") =>
+  (error: unknown): ReconciliationError =>
+    isReconciliationError(error)
+      ? error
+      : new ReconciliationError({
+          message: `${message}: ${String(error)}`,
+          entityIri,
+          cause: error,
+        });
 
 const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataClient | Storage> = Effect.gen(
   function* () {
@@ -322,9 +349,13 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
       Effect.gen(function* () {
         const key = `${QUEUE_PREFIX}${taskId}`;
         const storedOpt = yield* storage.get(key);
-        if (O.isNone(storedOpt)) return;
+        if (O.isNone(storedOpt)) {
+          return yield* new ReconciliationError({ message: `Task not found: ${taskId}`, entityIri: "" });
+        }
 
         const decoded = yield* decodeVerificationTask(storedOpt.value.value);
+
+        yield* storeLink(decoded.entityIri, qid);
 
         const updated = new VerificationTask({
           ...decoded,
@@ -334,23 +365,15 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
 
         const encodedJson = yield* encodeVerificationTaskJson(updated);
         yield* storage.put(key, encodedJson, { expectedGeneration: storedOpt.value.generation });
-        yield* storeLink(decoded.entityIri, qid);
-      }).pipe(
-        Effect.mapError(
-          (e) =>
-            new ReconciliationError({
-              message: `Failed to approve task: ${String(e)}`,
-              entityIri: "",
-              cause: e,
-            })
-        )
-      );
+      }).pipe(Effect.mapError(mapError("Failed to approve task")));
 
     const rejectTask: ReconciliationServiceShape["rejectTask"] = (taskId) =>
       Effect.gen(function* () {
         const key = `${QUEUE_PREFIX}${taskId}`;
         const storedOpt = yield* storage.get(key);
-        if (O.isNone(storedOpt)) return;
+        if (O.isNone(storedOpt)) {
+          return yield* new ReconciliationError({ message: `Task not found: ${taskId}`, entityIri: "" });
+        }
 
         const decoded = yield* decodeVerificationTask(storedOpt.value.value);
 
@@ -361,22 +384,31 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
 
         const encodedJson = yield* encodeVerificationTaskJson(updated);
         yield* storage.put(key, encodedJson, { expectedGeneration: storedOpt.value.generation });
-      }).pipe(
-        Effect.mapError(
-          (e) =>
-            new ReconciliationError({
-              message: `Failed to reject task: ${String(e)}`,
-              entityIri: "",
-              cause: e,
-            })
-        )
-      );
+      }).pipe(Effect.mapError(mapError("Failed to reject task")));
+
+    const getLink: ReconciliationServiceShape["getLink"] = (entityIri) =>
+      Effect.gen(function* () {
+        const storedOpt = yield* storage.get(`${LINKS_PREFIX}${encodeURIComponent(entityIri)}`);
+        if (O.isNone(storedOpt)) return O.none();
+
+        const decoded = yield* Effect.either(decodeWikidataLink(storedOpt.value.value));
+        if (Either.isLeft(decoded)) return O.none();
+
+        return O.some({ qid: decoded.right.qid, wikidataUri: decoded.right.wikidataUri });
+      });
+
+    const reconcileBatch: ReconciliationServiceShape["reconcileBatch"] = (entities, config) =>
+      Effect.forEach(entities, (entity) => reconcileEntity(entity.iri, entity.label, entity.types ?? [], config), {
+        concurrency: 1,
+      }).pipe(Effect.mapError(mapError("Batch reconciliation failed")));
 
     return ReconciliationService.of({
       reconcileEntity,
       getPendingTasks,
       approveTask,
       rejectTask,
+      getLink,
+      reconcileBatch,
     });
   }
 );

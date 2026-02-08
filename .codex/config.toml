@@ -1,3 +1,4 @@
 [mcp_servers.next-devtools]
-command = "npx"
-args = ['-y', 'next-devtools-mcp@latest']
+command = "bunx"
+args = ['--bun', '-y', 'next-devtools-mcp@latest']
+
