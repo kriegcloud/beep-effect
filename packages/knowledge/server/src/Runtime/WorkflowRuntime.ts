@@ -1,4 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { ClusterWorkflowEngine, SingleRunner } from "@effect/cluster";
 import { WorkflowEngine } from "@effect/workflow";
 import * as Config from "effect/Config";
@@ -6,6 +7,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as S from "effect/Schema";
 
 const $I = $KnowledgeServerId.create("Runtime/WorkflowRuntime");
 
@@ -20,11 +22,11 @@ const $I = $KnowledgeServerId.create("Runtime/WorkflowRuntime");
  * This is intentionally separate from `WorkflowPersistence`, which persists *domain-facing execution
  * records* (status, timestamps, output summaries) for observability and RPC status queries.
  */
-export type WorkflowRuntimeMode = "engine-memory" | "engine-durable-sql";
 
-export interface WorkflowRuntimeConfigShape {
-  readonly mode: WorkflowRuntimeMode;
-}
+export class WorkflowRuntimeConfigShape extends S.Class<WorkflowRuntimeConfigShape>($I`WorkflowRuntimeConfigShape`)(
+  { mode: BS.StringLiteralKit("engine-memory", "engine-durable-sql") },
+  $I.annotations("WorkflowRuntimeConfigShape", { description: "Workflow runtime mode" })
+) {}
 
 export class WorkflowRuntimeConfig extends Context.Tag($I`WorkflowRuntimeConfig`)<
   WorkflowRuntimeConfig,
@@ -38,7 +40,7 @@ const decodeMode = Match.type<string>().pipe(
   Match.orElse(thunkEngineMemory)
 );
 
-export const DEFAULT_WORKFLOW_RUNTIME_MODE: WorkflowRuntimeMode = "engine-memory";
+export const DEFAULT_WORKFLOW_RUNTIME_MODE: WorkflowRuntimeConfigShape["mode"] = "engine-memory";
 
 export const WorkflowRuntimeConfigLive = Layer.effect(
   WorkflowRuntimeConfig,

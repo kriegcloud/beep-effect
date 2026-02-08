@@ -92,9 +92,9 @@
     }
   },
   "dependencies": {
-    "@effect/ai": "^0.33.2",
-    "@effect/ai-anthropic": "^0.23.0",
-    "@effect/ai-openai": "^0.37.2",
+    "@effect/ai": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
+    "@effect/ai-openai": "catalog:",
     "n3": "catalog:",
     "openai": "catalog:"
   }

@@ -1,5 +1,6 @@
 import { BatchNotFoundError, InvalidStateTransitionError } from "@beep/knowledge-domain/errors";
 import { Batch } from "@beep/knowledge-domain/rpc/Batch";
+import {BatchFailed} from "@beep/knowledge-domain/value-objects";
 import { BatchEventEmitter, WorkflowPersistence } from "@beep/knowledge-server/Workflow";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -31,13 +32,12 @@ export const Handler = Effect.fn("batch_cancel")(function* (payload: Batch.Cance
 
   const now = yield* DateTime.now.pipe(Effect.map(DateTime.toUtc));
 
-  yield* emitter.emit({
-    _tag: "BatchEvent.BatchFailed" as const,
+  yield* emitter.emit(BatchFailed.make({
     batchId: payload.batchId,
     error: "Batch cancelled by user",
     failedDocuments: zero,
     timestamp: now,
-  });
+  }));
 
   return new Batch.CancelBatch.Success({
     batchId: payload.batchId,

@@ -172,6 +172,7 @@ Note: This spec started as **research and analysis** (P1-P4). It later expanded 
 | **P4** | Roadmap Creation | doc-writer | Implementation plan |
 | **P7** | Capability parity acceleration | orchestrator + implementers | `outputs/P7_PARITY_CLOSURE_REPORT.md` |
 | **P8** | Repository law remediation + enforcement wiring | orchestrator + implementers | `outputs/P8_REPOSITORY_LAW_REMEDIATION_REPORT.md` |
+| **P9** | Capability surface separation (effect-ontology parity vs TodoX use-case) | orchestrator + implementers | `outputs/P9_CAPABILITY_SURFACE_SEPARATION_REPORT.md` |
 
 ---
 
