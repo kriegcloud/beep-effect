@@ -11,7 +11,7 @@ Phase 7 capability parity acceleration also closed the key P1/P2 service gaps (c
 Current parity work should focus on remaining non-`FULL` rows from `P6_PARITY_GAP_MATRIX.md`:
 - `P6-02` Cluster workflow persistence (`DIVERGENCE`, P0)
 - `P6-04` Storage service abstraction (`DIVERGENCE`, P1)
-- `P6-10` Workflow composition bundles parity (`PARTIAL`, P2)
+- `P6-10` Workflow composition bundles parity (`OPEN`, P2)
 - `P6-12` Multi-modal ingestion (`GAP`, P3 deferred)
 
 ## Baseline (Already Implemented)
@@ -71,7 +71,7 @@ Current parity work should focus on remaining non-`FULL` rows from `P6_PARITY_GA
 |---|---|---|---|
 | Content enrichment agent | `P6-07` | `FULL` | Implemented (see `outputs/P7_PARITY_CLOSURE_REPORT.md`) |
 | Reconciliation service | `P6-08` | `FULL` | Implemented with reviewable queue semantics |
-| Bundle parity uplift | `P6-10` | `FULL` or `PARTIAL` with rationale | Expand service bundle coverage where needed |
+| Bundle parity uplift | `P6-10` | `FULL` or `OPEN` with rationale | Expand service bundle coverage where needed |
 | Cross-batch resolver service | `P6-11` | `FULL` | Implemented as dedicated service API + tests |
 
 **Acceptance**:

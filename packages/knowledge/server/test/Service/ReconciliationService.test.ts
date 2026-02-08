@@ -1,10 +1,10 @@
+import {
+  ExternalEntityCandidate,
+  ExternalEntityCatalog,
+  type ExternalEntitySearchOptions,
+} from "@beep/knowledge-server/Service/ExternalEntityCatalog";
 import { ReconciliationService, ReconciliationServiceLive } from "@beep/knowledge-server/Service/ReconciliationService";
 import { StorageMemoryLive } from "@beep/knowledge-server/Service/Storage";
-import {
-  WikidataCandidate,
-  WikidataClient,
-  type WikidataSearchOptions,
-} from "@beep/knowledge-server/Service/WikidataClient";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
@@ -12,13 +12,16 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 
 const makeLive = (
-  searchEntities: (_query: string, _options?: WikidataSearchOptions) => Effect.Effect<ReadonlyArray<WikidataCandidate>>
+  searchEntities: (
+    _query: string,
+    _options?: ExternalEntitySearchOptions
+  ) => Effect.Effect<ReadonlyArray<ExternalEntityCandidate>>
 ) =>
   Layer.provide(
     ReconciliationServiceLive,
     Layer.mergeAll(
       StorageMemoryLive,
-      Layer.succeed(WikidataClient, {
+      Layer.succeed(ExternalEntityCatalog, {
         searchEntities,
       })
     )
@@ -34,14 +37,23 @@ describe("ReconciliationService", () => {
         const first = yield* svc.reconcileEntity("urn:beep:entity:1", "Alice", []);
         strictEqual(first.decision, "auto_linked");
         assertTrue(O.isSome(first.bestMatch));
-        strictEqual(first.bestMatch.value.qid, "Q1");
+        strictEqual(first.bestMatch.value.id, "Q1");
 
         const second = yield* svc.reconcileEntity("urn:beep:entity:1", "Alice", []);
         strictEqual(second.decision, "skipped");
       },
       Effect.provide(
-        makeLive((_query: string, _options?: WikidataSearchOptions) =>
-          Effect.succeed([new WikidataCandidate({ qid: "Q1", label: "Alice", score: 95, description: O.none() })])
+        makeLive((_query: string, _options?: ExternalEntitySearchOptions) =>
+          Effect.succeed([
+            new ExternalEntityCandidate({
+              catalogKey: "wikidata",
+              id: "Q1",
+              uri: "http://www.wikidata.org/entity/Q1",
+              label: "Alice",
+              score: 95,
+              description: O.none(),
+            }),
+          ])
         )
       )
     )
@@ -68,8 +80,17 @@ describe("ReconciliationService", () => {
         strictEqual(pending[0]!.entityIri, "urn:beep:entity:2");
       },
       Effect.provide(
-        makeLive((_query: string, _options?: WikidataSearchOptions) =>
-          Effect.succeed([new WikidataCandidate({ qid: "Q2", label: "Bob", score: 80, description: O.none() })])
+        makeLive((_query: string, _options?: ExternalEntitySearchOptions) =>
+          Effect.succeed([
+            new ExternalEntityCandidate({
+              catalogKey: "wikidata",
+              id: "Q2",
+              uri: "http://www.wikidata.org/entity/Q2",
+              label: "Bob",
+              score: 80,
+              description: O.none(),
+            }),
+          ])
         )
       )
     )
@@ -88,11 +109,20 @@ describe("ReconciliationService", () => {
 
         const after = yield* svc.getLink("urn:beep:entity:link-1");
         assertTrue(O.isSome(after));
-        strictEqual(after.value.qid, "Q1");
+        strictEqual(after.value.externalId, "Q1");
       },
       Effect.provide(
-        makeLive((_query: string, _options?: WikidataSearchOptions) =>
-          Effect.succeed([new WikidataCandidate({ qid: "Q1", label: "Alice", score: 95, description: O.none() })])
+        makeLive((_query: string, _options?: ExternalEntitySearchOptions) =>
+          Effect.succeed([
+            new ExternalEntityCandidate({
+              catalogKey: "wikidata",
+              id: "Q1",
+              uri: "http://www.wikidata.org/entity/Q1",
+              label: "Alice",
+              score: 95,
+              description: O.none(),
+            }),
+          ])
         )
       )
     )
@@ -122,14 +152,23 @@ describe("ReconciliationService", () => {
 
         const link = yield* svc.getLink("urn:beep:entity:3");
         assertTrue(O.isSome(link));
-        strictEqual(link.value.qid, "Q2");
+        strictEqual(link.value.externalId, "Q2");
 
         const subsequent = yield* svc.reconcileEntity("urn:beep:entity:3", "Bob", []);
         strictEqual(subsequent.decision, "skipped");
       },
       Effect.provide(
-        makeLive((_query: string, _options?: WikidataSearchOptions) =>
-          Effect.succeed([new WikidataCandidate({ qid: "Q2", label: "Bob", score: 80, description: O.none() })])
+        makeLive((_query: string, _options?: ExternalEntitySearchOptions) =>
+          Effect.succeed([
+            new ExternalEntityCandidate({
+              catalogKey: "wikidata",
+              id: "Q2",
+              uri: "http://www.wikidata.org/entity/Q2",
+              label: "Bob",
+              score: 80,
+              description: O.none(),
+            }),
+          ])
         )
       )
     )
@@ -161,8 +200,17 @@ describe("ReconciliationService", () => {
         assertTrue(O.isNone(link));
       },
       Effect.provide(
-        makeLive((_query: string, _options?: WikidataSearchOptions) =>
-          Effect.succeed([new WikidataCandidate({ qid: "Q2", label: "Bob", score: 80, description: O.none() })])
+        makeLive((_query: string, _options?: ExternalEntitySearchOptions) =>
+          Effect.succeed([
+            new ExternalEntityCandidate({
+              catalogKey: "wikidata",
+              id: "Q2",
+              uri: "http://www.wikidata.org/entity/Q2",
+              label: "Bob",
+              score: 80,
+              description: O.none(),
+            }),
+          ])
         )
       )
     )
@@ -184,7 +232,7 @@ describe("ReconciliationService", () => {
         strictEqual(rejectEither.left._tag, "ReconciliationError");
         strictEqual(rejectEither.left.message, "Task not found: does-not-exist");
       },
-      Effect.provide(makeLive((_query: string, _options?: WikidataSearchOptions) => Effect.succeed([])))
+      Effect.provide(makeLive((_query: string, _options?: ExternalEntitySearchOptions) => Effect.succeed([])))
     )
   );
 
@@ -204,9 +252,18 @@ describe("ReconciliationService", () => {
         strictEqual(results[1]!.decision, "no_match");
       },
       Effect.provide(
-        makeLive((query: string, _options?: WikidataSearchOptions) =>
+        makeLive((query: string, _options?: ExternalEntitySearchOptions) =>
           query === "Alice"
-            ? Effect.succeed([new WikidataCandidate({ qid: "Q1", label: "Alice", score: 95, description: O.none() })])
+            ? Effect.succeed([
+                new ExternalEntityCandidate({
+                  catalogKey: "wikidata",
+                  id: "Q1",
+                  uri: "http://www.wikidata.org/entity/Q1",
+                  label: "Alice",
+                  score: 95,
+                  description: O.none(),
+                }),
+              ])
             : Effect.succeed([])
         )
       )

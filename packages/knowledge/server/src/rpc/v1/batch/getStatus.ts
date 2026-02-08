@@ -1,5 +1,5 @@
-import {BatchNotFoundError} from "@beep/knowledge-domain/errors";
-import type {Batch} from "@beep/knowledge-domain/rpc/Batch";
+import { BatchNotFoundError } from "@beep/knowledge-domain/errors";
+import type { Batch } from "@beep/knowledge-domain/rpc/Batch";
 import {
   type BatchState,
   Cancelled,
@@ -8,7 +8,7 @@ import {
   Failed,
   Pending,
 } from "@beep/knowledge-domain/value-objects";
-import {WorkflowPersistence} from "@beep/knowledge-server/Workflow";
+import { WorkflowPersistence } from "@beep/knowledge-server/Workflow";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
@@ -32,16 +32,20 @@ const toBatchState = (
   const relationCount = readNumber(output, "relationCount");
 
   return Match.value(status).pipe(
-    Match.when("pending", () => Pending.make({batchId})),
-    Match.when("running", () => Extracting.make({
-      batchId,
-      completedDocuments: successCount,
-      totalDocuments,
-      progress: totalDocuments === 0 ? 0 : Number(successCount) / Number(totalDocuments)
-    })),
-    Match.when("completed", () => Completed.make({batchId, totalDocuments, entityCount, relationCount})),
-    Match.when("cancelled", () => Cancelled.make({batchId, completedDocuments: successCount, totalDocuments})),
-    Match.orElse(() => Failed.make({batchId, failedDocuments: failureCount, error: error ?? "Batch execution failed"})),
+    Match.when("pending", () => Pending.make({ batchId })),
+    Match.when("running", () =>
+      Extracting.make({
+        batchId,
+        completedDocuments: successCount,
+        totalDocuments,
+        progress: totalDocuments === 0 ? 0 : Number(successCount) / Number(totalDocuments),
+      })
+    ),
+    Match.when("completed", () => Completed.make({ batchId, totalDocuments, entityCount, relationCount })),
+    Match.when("cancelled", () => Cancelled.make({ batchId, completedDocuments: successCount, totalDocuments })),
+    Match.orElse(() =>
+      Failed.make({ batchId, failedDocuments: failureCount, error: error ?? "Batch execution failed" })
+    )
   );
 };
 
@@ -49,7 +53,7 @@ export const Handler = Effect.fn("batch_getStatus")(function* (payload: Batch.Ge
   const persistence = yield* WorkflowPersistence;
   const execution = yield* persistence
     .requireBatchExecutionByBatchId(payload.batchId)
-    .pipe(Effect.catchTag("SqlError", () => new BatchNotFoundError({batchId: payload.batchId})));
+    .pipe(Effect.catchTag("SqlError", () => new BatchNotFoundError({ batchId: payload.batchId })));
 
   return toBatchState(payload.batchId, execution.status, execution.input, execution.output, execution.error);
 }, Effect.withSpan("batch_getStatus"));

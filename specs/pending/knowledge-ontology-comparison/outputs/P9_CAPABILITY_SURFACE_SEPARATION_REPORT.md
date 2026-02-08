@@ -2,54 +2,64 @@
 
 **Spec**: `knowledge-ontology-comparison`  
 **Date**: 2026-02-08  
-**Status**: Draft (planned)
+**Status**: Implemented
 
-## Problem Statement
+## Summary
 
-We need “capability parity” with `.repos/effect-ontology` while preserving a clean separation between:
+Phase 7 introduced a concrete external catalog integration (`WikidataClient`) as a first-class exported service, which risked coupling “capability parity” to a specific vendor.
 
-- reusable ontology tooling capabilities (library-like)
-- TodoX wealth management use-case specifics (product/ontology/integration choices)
+Phase 9 refactors reconciliation to depend on a capability-level interface and makes Wikidata an optional integration behind that interface.
 
-Phase 7 introduced `packages/knowledge/server/src/Service/WikidataClient.ts` and exported it via `packages/knowledge/server/src/Service/index.ts`, which risks making a specific external catalog appear to be part of the core capability surface.
+## What Changed
 
-## Observations (Current State)
+### P9-01 External Catalog Abstraction (Replace Wikidata Coupling)
 
-- Phase 7’s targeted capabilities (`P6-06`, `P6-07`, `P6-08`, `P6-09`, `P6-11`) have test evidence and pass the verification suite.
-- `P6-10` remains `PARTIAL` and is an open P2 gap (bundle parity uplift).
-- TodoX requirements live in `documentation/todox/PRD.md` and should not dictate the core service exports in `packages/knowledge/server/src/Service/*`.
-
-## Intended Outcome
-
-1. Reconciliation capability remains present (candidates + review queue semantics), but the external catalog is pluggable.
-2. Default wiring uses a safe “null catalog” so core services don’t force network dependencies.
-3. Wikidata support, if desired, exists as an optional integration layer behind a capability interface.
-4. Bundle composition is more ergonomic and closer to `.repos/effect-ontology` workflow layers.
-5. TodoX PRD language explicitly references the capability layer and treats integrations as optional.
-
-## Proposed Work Items
-
-### P9-01 External Catalog Capability
-
-- New capability interface: `ExternalEntityCatalog` (name TBD).
-- Replace direct `WikidataClient` dependency in `ReconciliationService` with the capability interface.
-- Move Wikidata implementation under an integration boundary (not `Service/` exports).
+- Introduced `ExternalEntityCatalog` as the capability-level interface used by reconciliation:
+  - `packages/knowledge/server/src/Service/ExternalEntityCatalog.ts`
+- Refactored `ReconciliationService` to depend on `ExternalEntityCatalog` instead of a Wikidata-specific client:
+  - `packages/knowledge/server/src/Service/ReconciliationService.ts`
+- Added a safe default live layer that returns no candidates:
+  - `ExternalEntityCatalogNoneLive` in `packages/knowledge/server/src/Service/ExternalEntityCatalog.ts`
+- Added an optional Wikidata integration layer under an integrations boundary:
+  - `packages/knowledge/server/src/Service/Integrations/WikidataCatalog.ts`
+- Removed Wikidata integration from the core public service surface:
+  - `packages/knowledge/server/src/Service/index.ts` no longer exports the integration.
 
 ### P9-02 Bundle Parity Uplift (`P6-10`)
 
-- Expand `Runtime/ServiceBundles.ts` coverage.
-- Add tests to keep bundle composition deterministic and conflict-free.
+- Expanded `packages/knowledge/server/src/Runtime/ServiceBundles.ts` with a reconciliation bundle that is safe by default:
+  - `ReconciliationBundleLive` uses `ExternalEntityCatalogNoneLive` + `StorageMemoryLive` + `ReconciliationServiceLive`.
+- Extended bundle tests to assert the safe-default behavior:
+  - `packages/knowledge/server/test/Resilience/TokenBudgetAndBundles.test.ts`
+
+Note: `P6-10` remains tracked as `OPEN` because knowledge bundles are still a subset of `.repos/effect-ontology`’s `WorkflowLayers.ts` surface. This phase establishes composable capability bundles and removes vendor coupling without claiming full workflow-layer parity.
 
 ### P9-03 TodoX Documentation Alignment
 
-- Update `documentation/todox/PRD.md` to avoid implying Wikidata is a required system component.
-- Add an explicit “capability layer vs integration layer vs domain ontology” separation section.
+- Updated `documentation/todox/PRD.md` to explicitly separate:
+  - reusable capability layer (effect-ontology parity surface), and
+  - optional integrations (external catalogs), and
+  - TodoX wealth-management ontology specifics.
 
-## Acceptance Criteria
+## Test/Verification Evidence
 
-- `packages/knowledge/server/src/Service/index.ts` does not export Wikidata integration code.
-- `ReconciliationService` remains functional with tests, using either:
-  - the null catalog, or
-  - an optional Wikidata integration provided through Layer composition.
-- `P6-10` status is updated with concrete evidence and tests.
+Verification commands (per Phase 9):
+
+```bash
+bun run check --filter @beep/knowledge-domain
+bun run check --filter @beep/knowledge-server
+bun run lint --filter @beep/knowledge-server
+bun test packages/knowledge/server/test/Workflow/
+bun test packages/knowledge/server/test/Resilience/
+bun test packages/knowledge/server/test/Service/
+```
+
+## Success Criteria Mapping
+
+- `ReconciliationService` no longer depends on a hard-coded Wikidata service in its exported public API surface:
+  - Achieved by `ExternalEntityCatalog` dependency + integration moved under `Service/Integrations/*`.
+- `P6-10` is either `FULL` or explicitly documented as intentionally narrower:
+  - Documented as `OPEN` and narrower than reference workflow layers, with targeted uplift applied and tests added.
+- TodoX PRD references “capability parity” as a reusable layer, with integrations treated as optional:
+  - Updated in `documentation/todox/PRD.md`.
 

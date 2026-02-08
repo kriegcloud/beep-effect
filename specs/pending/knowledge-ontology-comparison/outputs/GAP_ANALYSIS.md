@@ -36,7 +36,7 @@ Use `outputs/P6_PARITY_GAP_MATRIX.md` as source of truth.
 | P6-07 | Content enrichment agent | FULL | P2 | Closed |
 | P6-08 | Reconciliation service | FULL | P2 | Closed |
 | P6-09 | LLM resilience fallback chain | FULL | P1 | Retry + circuit feedback + provider fallback chains implemented for LanguageModel + EmbeddingModel with tests |
-| P6-10 | Workflow composition bundles | PARTIAL | P2 | Open uplift target |
+| P6-10 | Workflow composition bundles | OPEN | P2 | Bundle parity uplift track (subset bundles exist; not parity-closed) |
 | P6-11 | Cross-batch resolver standalone service | FULL | P2 | Closed |
 | P6-12 | Multi-modal/image ingestion | GAP | P3 | Deferred candidate |
 

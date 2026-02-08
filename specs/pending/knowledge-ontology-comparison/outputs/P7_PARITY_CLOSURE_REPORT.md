@@ -48,9 +48,9 @@ Close remaining high-value P1/P2 parity gaps versus `.repos/effect-ontology` aft
 | `P6-02` | `DIVERGENCE` | `DIVERGENCE` (revalidate wording/evidence) | Cluster persistence parity (`SqlMessageStorage`/`SqlRunnerStorage`) may still diverge; old evidence paths are stale and must be replaced. | `specs/pending/knowledge-ontology-comparison/outputs/P6_PARITY_GAP_MATRIX.md`, `specs/completed/knowledge-effect-workflow-migration/outputs/P5_LEGACY_REMOVAL_REPORT.md` |
 | `P6-06` | `GAP` | `FULL` | Implemented document classifier service with LLM schema output + tests. | `packages/knowledge/server/src/Service/DocumentClassifier.ts`, `packages/knowledge/server/test/Service/DocumentClassifier.test.ts` |
 | `P6-07` | `GAP` | `FULL` | Implemented content enrichment agent service with structured metadata output + tests. | `packages/knowledge/server/src/Service/ContentEnrichmentAgent.ts`, `packages/knowledge/server/test/Service/ContentEnrichmentAgent.test.ts` |
-| `P6-08` | `GAP` | `FULL` | Implemented Wikidata reconciliation service + reviewable task queue + tests. | `packages/knowledge/server/src/Service/{ReconciliationService,WikidataClient}.ts`, `packages/knowledge/server/test/Service/ReconciliationService.test.ts` |
+| `P6-08` | `GAP` | `FULL` | Implemented reconciliation primitives + reviewable task queue + tests; external catalogs are pluggable integrations. | `packages/knowledge/server/src/Service/{ReconciliationService,ExternalEntityCatalog}.ts`, `packages/knowledge/server/test/Service/ReconciliationService.test.ts` |
 | `P6-09` | `DIVERGENCE` | `FULL` | Added provider fallback chains for both LanguageModel and EmbeddingModel with resilience wrappers + tests. | `packages/knowledge/server/src/LlmControl/{LlmResilience,FallbackLanguageModel}.ts`, `packages/knowledge/server/src/Embedding/{EmbeddingResilience,FallbackEmbeddingModel}.ts`, `packages/knowledge/server/test/Resilience/{LlmResilience,EmbeddingFallback}.test.ts` |
-| `P6-10` | `PARTIAL` | `PARTIAL` (kickoff baseline) | Service bundles exist but parity scope likely narrower than reference workflow layers. | `packages/knowledge/server/src/Runtime/ServiceBundles.ts`, `packages/knowledge/server/test/Resilience/TokenBudgetAndBundles.test.ts` |
+| `P6-10` | `PARTIAL` | `OPEN` (kickoff baseline) | Service bundles exist but parity scope is narrower than reference workflow layers; tracked as an open uplift. | `packages/knowledge/server/src/Runtime/ServiceBundles.ts`, `packages/knowledge/server/test/Resilience/TokenBudgetAndBundles.test.ts` |
 | `P6-11` | `PARTIAL` | `FULL` | Promoted cross-batch resolution to a dedicated service API with schema-safe outputs + tests. | `packages/knowledge/server/src/Service/CrossBatchEntityResolver.ts`, `packages/knowledge/server/test/Service/CrossBatchEntityResolver.test.ts` |
 
 ---
@@ -72,7 +72,7 @@ Close remaining high-value P1/P2 parity gaps versus `.repos/effect-ontology` aft
 
 - Implementation files:
   - `packages/knowledge/server/src/Service/ReconciliationService.ts`
-  - `packages/knowledge/server/src/Service/WikidataClient.ts`
+  - `packages/knowledge/server/src/Service/ExternalEntityCatalog.ts`
 - Test files:
   - `packages/knowledge/server/test/Service/ReconciliationService.test.ts`
 - Status: `FULL`

@@ -54,40 +54,38 @@ const makeWikidataCandidate = (query: string, item: WikidataSearchItem): Externa
     score: scoreCandidate(query, item.label),
   });
 
-const serviceEffect: Effect.Effect<ExternalEntityCatalogShape, never, HttpClient.HttpClient> = Effect.gen(
-  function* () {
-    const http = yield* HttpClient.HttpClient;
+const serviceEffect: Effect.Effect<ExternalEntityCatalogShape, never, HttpClient.HttpClient> = Effect.gen(function* () {
+  const http = yield* HttpClient.HttpClient;
 
-    const searchEntities: ExternalEntityCatalogShape["searchEntities"] = (query, options) =>
-      Effect.gen(function* () {
-        const params = new ExternalEntitySearchOptions(options ?? {});
-        const request = HttpClientRequest.get("https://www.wikidata.org/w/api.php").pipe(
-          HttpClientRequest.setUrlParam("action", "wbsearchentities"),
-          HttpClientRequest.setUrlParam("format", "json"),
-          HttpClientRequest.setUrlParam("search", query),
-          HttpClientRequest.setUrlParam("language", params.language ?? "en"),
-          HttpClientRequest.setUrlParam("limit", String(params.limit ?? 5))
-        );
-
-        const response = yield* http
-          .execute(request)
-          .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(WikidataSearchResponse)), Effect.scoped);
-
-        return A.map(response.search, (item) => makeWikidataCandidate(query, item));
-      }).pipe(
-        Effect.mapError(
-          (e) =>
-            new ExternalEntityCatalogError({
-              message: `Wikidata search failed: ${String(e)}`,
-              cause: e,
-            })
-        ),
-        Effect.withSpan("WikidataCatalog.searchEntities", { attributes: { queryLength: Str.length(query) } })
+  const searchEntities: ExternalEntityCatalogShape["searchEntities"] = (query, options) =>
+    Effect.gen(function* () {
+      const params = new ExternalEntitySearchOptions(options ?? {});
+      const request = HttpClientRequest.get("https://www.wikidata.org/w/api.php").pipe(
+        HttpClientRequest.setUrlParam("action", "wbsearchentities"),
+        HttpClientRequest.setUrlParam("format", "json"),
+        HttpClientRequest.setUrlParam("search", query),
+        HttpClientRequest.setUrlParam("language", params.language ?? "en"),
+        HttpClientRequest.setUrlParam("limit", String(params.limit ?? 5))
       );
 
-    return ExternalEntityCatalog.of({ searchEntities });
-  }
-);
+      const response = yield* http
+        .execute(request)
+        .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(WikidataSearchResponse)), Effect.scoped);
+
+      return A.map(response.search, (item) => makeWikidataCandidate(query, item));
+    }).pipe(
+      Effect.mapError(
+        (e) =>
+          new ExternalEntityCatalogError({
+            message: `Wikidata search failed: ${String(e)}`,
+            cause: e,
+          })
+      ),
+      Effect.withSpan("WikidataCatalog.searchEntities", { attributes: { queryLength: Str.length(query) } })
+    );
+
+  return ExternalEntityCatalog.of({ searchEntities });
+});
 
 /**
  * Optional integration layer.
@@ -96,4 +94,3 @@ const serviceEffect: Effect.Effect<ExternalEntityCatalogShape, never, HttpClient
  * the capability parity surface to a specific external catalog vendor.
  */
 export const WikidataCatalogLive = Layer.effect(ExternalEntityCatalog, serviceEffect);
-

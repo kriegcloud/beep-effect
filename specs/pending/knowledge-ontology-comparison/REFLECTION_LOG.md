@@ -987,3 +987,20 @@ Phase 8 - Repository Law Remediation (In progress; enforcement and remediation a
 ### Concrete Next Steps (Optional)
 1. Decide whether to broaden pre-commit enforcement beyond the knowledge slice.
 2. Consider adding a single `verify` command into `check:all` to ensure repo-law checks are run during routine verification, not only in CI.
+
+---
+
+## Phase 9 Reflection (Capability Surface Separation) (2026-02-08)
+
+### What Changed
+- Reconciliation was refactored to depend on a capability interface (`ExternalEntityCatalog`) rather than a vendor client.
+- A safe default (`ExternalEntityCatalogNoneLive`) was added so reconciliation does not implicitly require network access.
+- Wikidata was moved behind `Service/Integrations/*` and removed from `packages/knowledge/server/src/Service/index.ts` exports.
+
+### Why This Matters
+- “Capability parity” stays about abstract behavior and invariants (candidate scoring + decision thresholds + review queue semantics), not about forcing a particular external catalog.
+- Optional integrations can evolve independently without expanding the public capability surface or pulling vendor assumptions into core services.
+
+### Remaining Risks
+- Persisted reconciliation state is schema-coupled; schema changes must keep backward-compatible decoding or provide a migration path.
+- Bundle parity (`P6-10`) can easily become a dumping ground; bundles should be curated and aligned to real composition needs, not every possible service.

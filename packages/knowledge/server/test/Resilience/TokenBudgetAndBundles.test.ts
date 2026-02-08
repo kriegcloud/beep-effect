@@ -7,7 +7,9 @@ import {
   LlmControlBundleLive,
   LlmProviderBundleLive,
   LlmRuntimeBundleLive,
+  ReconciliationBundleLive,
 } from "@beep/knowledge-server/Runtime/ServiceBundles";
+import { ReconciliationService } from "@beep/knowledge-server/Service/ReconciliationService";
 import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -67,9 +69,23 @@ describe("Resilience", () => {
     it.effect(
       "Layer.mergeAll composes without conflicts",
       Effect.fn(function* () {
-        const merged = Layer.mergeAll(LlmProviderBundleLive, LlmControlBundleLive, LlmRuntimeBundleLive);
+        const merged = Layer.mergeAll(
+          LlmProviderBundleLive,
+          LlmControlBundleLive,
+          LlmRuntimeBundleLive,
+          ReconciliationBundleLive
+        );
         assertTrue(typeof merged === "object");
       })
+    );
+
+    it.effect(
+      "ReconciliationBundleLive uses safe defaults (no external catalog candidates)",
+      Effect.fn(function* () {
+        const svc = yield* ReconciliationService;
+        const result = yield* svc.reconcileEntity("urn:beep:entity:bundle-1", "Alice", []);
+        strictEqual(result.decision, "no_match");
+      }, Effect.provide(ReconciliationBundleLive))
     );
   });
 });

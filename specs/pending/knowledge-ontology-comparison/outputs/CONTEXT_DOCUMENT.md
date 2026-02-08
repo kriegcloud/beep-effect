@@ -1061,7 +1061,7 @@ This context document establishes the patterns, decisions, and integration point
 1. **P0**: Durable workflows (Gap #1), batch state machine (Gap #2), workflow persistence tables (Gap #3)
 2. **P1**: SHACL validation (Gap #4), SPARQL DESCRIBE (Gap #5), named graphs (Gap #6), PROV-O provenance (Gap #7), reasoning profiles (Gap #8), OWL rules (Gap #9), cross-batch orchestration (Gap #10)
 3. **P2**: CircuitBreaker (Gap #11), rate limiting (Gap #12), token budget (Gap #13), layer bundles (Gap #14), NL-to-SPARQL (Gap #15)
-4. **P3**: Content enrichment (Gap #16), document classifier (Gap #17), image extraction (Gap #18), curation workflow (Gap #19), Wikidata linking (Gap #20)
+4. **P3**: Content enrichment (Gap #16), document classifier (Gap #17), image extraction (Gap #18), curation workflow (Gap #19), external catalog linking (Gap #20)
 
 ### Implementation Priorities
 - **Highest priority**: Workflow durability stack (Gaps #1-3) -- blocks production deployment

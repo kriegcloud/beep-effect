@@ -12,8 +12,8 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
-import * as MutableHashMap from "effect/MutableHashMap";
 import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -185,6 +185,6 @@ const getRulesForConfig = (config: ReasoningConfig, customRules: ReadonlyArray<R
     Match.when("owl-sameas", () => owlSameAsRules),
     Match.when("owl-full", () => [...rdfsRules, ...owlRules]),
     Match.when("custom", () => customRules),
-    Match.orElse(() => rdfsRules),
-  )
+    Match.orElse(() => rdfsRules)
+  );
 };

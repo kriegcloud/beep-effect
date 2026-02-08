@@ -117,7 +117,7 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
 
         // Build the token response
         const expiresAt = O.match(account.accessTokenExpiresAt, {
-          onNone: () => DateTime.unsafeNow(),
+          onNone: DateTime.unsafeNow,
           onSome: (date) => DateTime.unsafeMake(date),
         });
 

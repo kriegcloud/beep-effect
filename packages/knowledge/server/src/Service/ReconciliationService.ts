@@ -10,8 +10,8 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { ExternalEntityCandidate, ExternalEntityCatalog, ExternalEntitySearchOptions } from "./ExternalEntityCatalog";
 import { Storage } from "./Storage";
-import { WikidataCandidate, WikidataClient, WikidataSearchOptions } from "./WikidataClient";
 
 const $I = $KnowledgeServerId.create("Service/ReconciliationService");
 
@@ -59,6 +59,7 @@ export class ReconciliationConfig extends S.Class<ReconciliationConfig>($I`Recon
     description: "Reconciliation configuration with defaults (thresholds, candidate count, language).",
   })
 ) {}
+
 export class ReconciliationConfigInput extends S.Class<ReconciliationConfigInput>($I`ReconciliationConfigInput`)(
   {
     autoLinkThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 90 }),
@@ -76,13 +77,13 @@ export class VerificationTask extends S.Class<VerificationTask>($I`VerificationT
     id: S.String,
     entityIri: S.String,
     label: S.String,
-    candidates: S.Array(WikidataCandidate),
+    candidates: S.Array(ExternalEntityCandidate),
     createdAt: BS.DateTimeUtcFromAllAcceptable,
     status: TaskStatus,
-    approvedQid: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+    approvedEntityId: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
   },
   $I.annotations("VerificationTask", {
-    description: "Manual verification task for entity reconciliation (candidates + status + optional approved QID).",
+    description: "Manual verification task for entity reconciliation (candidates + status + optional approved id).",
   })
 ) {}
 
@@ -91,8 +92,10 @@ export class ReconciliationResult extends S.Class<ReconciliationResult>($I`Recon
     entityIri: S.String,
     label: S.String,
     decision: ReconciliationDecision,
-    candidates: S.Array(WikidataCandidate),
-    bestMatch: S.optionalWith(S.OptionFromNullishOr(WikidataCandidate, null), { default: O.none<WikidataCandidate> }),
+    candidates: S.Array(ExternalEntityCandidate),
+    bestMatch: S.optionalWith(S.OptionFromNullishOr(ExternalEntityCandidate, null), {
+      default: O.none<ExternalEntityCandidate>,
+    }),
     verificationTaskId: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
   },
   $I.annotations("ReconciliationResult", {
@@ -100,16 +103,28 @@ export class ReconciliationResult extends S.Class<ReconciliationResult>($I`Recon
   })
 ) {}
 
-export class WikidataLink extends S.Class<WikidataLink>($I`WikidataLink`)(
+export class ExternalCatalogLink extends S.Class<ExternalCatalogLink>($I`ExternalCatalogLink`)(
+  {
+    entityIri: S.String,
+    catalogKey: S.String,
+    externalId: S.String,
+    externalUri: S.String,
+    linkedAt: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("ExternalCatalogLink", {
+    description: "Persisted link between an entity IRI and an external catalog entity id/uri (with timestamp).",
+  })
+) {}
+
+// Backward compatible decode for Phase 7 persisted state (Wikidata-only link schema).
+class LegacyWikidataLink extends S.Class<LegacyWikidataLink>($I`LegacyWikidataLink`)(
   {
     entityIri: S.String,
     qid: S.String,
     wikidataUri: S.String,
     linkedAt: BS.DateTimeUtcFromAllAcceptable,
   },
-  $I.annotations("WikidataLink", {
-    description: "Persisted link between an entity IRI and a Wikidata QID (with timestamp).",
-  })
+  $I.annotations("LegacyWikidataLink", { description: "Legacy persisted Wikidata-only reconciliation link." })
 ) {}
 
 export interface ReconciliationServiceShape {
@@ -122,12 +137,15 @@ export interface ReconciliationServiceShape {
 
   readonly getPendingTasks: () => Effect.Effect<ReadonlyArray<VerificationTask>, ReconciliationError>;
 
-  readonly approveTask: (taskId: string, qid: string) => Effect.Effect<void, ReconciliationError>;
+  readonly approveTask: (taskId: string, approvedEntityId: string) => Effect.Effect<void, ReconciliationError>;
   readonly rejectTask: (taskId: string) => Effect.Effect<void, ReconciliationError>;
 
   readonly getLink: (
     entityIri: string
-  ) => Effect.Effect<O.Option<{ readonly qid: string; readonly wikidataUri: string }>, ReconciliationError>;
+  ) => Effect.Effect<
+    O.Option<{ readonly catalogKey: string; readonly externalId: string; readonly externalUri: string }>,
+    ReconciliationError
+  >;
 
   readonly reconcileBatch: (
     entities: ReadonlyArray<{ readonly iri: string; readonly label: string; readonly types?: ReadonlyArray<string> }>,
@@ -143,10 +161,11 @@ export class ReconciliationService extends Context.Tag($I`ReconciliationService`
 const LINKS_PREFIX = "reconciliation/links/";
 const QUEUE_PREFIX = "reconciliation/queue/";
 
-const encodeWikidataLinkJson = S.encode(S.parseJson(WikidataLink));
+const encodeLinkJson = S.encode(S.parseJson(ExternalCatalogLink));
 const encodeVerificationTaskJson = S.encode(S.parseJson(VerificationTask));
 const decodeVerificationTask = S.decodeUnknown(S.parseJson(VerificationTask));
-const decodeWikidataLink = S.decodeUnknown(S.parseJson(WikidataLink));
+const decodeLink = S.decodeUnknown(S.parseJson(ExternalCatalogLink));
+const decodeLegacyWikidataLink = S.decodeUnknown(S.parseJson(LegacyWikidataLink));
 
 const isReconciliationError = (error: unknown): error is ReconciliationError =>
   P.isObject(error) && P.hasProperty(error, "_tag") && P.isTagged(error, "ReconciliationError");
@@ -162,9 +181,9 @@ const mapError =
           cause: error,
         });
 
-const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataClient | Storage> = Effect.gen(
+const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, ExternalEntityCatalog | Storage> = Effect.gen(
   function* () {
-    const wikidata = yield* WikidataClient;
+    const catalog = yield* ExternalEntityCatalog;
     const storage = yield* Storage;
 
     const generateTaskId = (): string => {
@@ -173,17 +192,21 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
       return `task-${timestamp}-${random}`;
     };
 
-    const storeLink = (entityIri: string, qid: string): Effect.Effect<void, ReconciliationError> =>
+    const storeLink = (
+      entityIri: string,
+      candidate: ExternalEntityCandidate
+    ): Effect.Effect<void, ReconciliationError> =>
       Effect.gen(function* () {
         const now = yield* DateTime.now;
-        const link = new WikidataLink({
+        const link = new ExternalCatalogLink({
           entityIri,
-          qid,
-          wikidataUri: `http://www.wikidata.org/entity/${qid}`,
+          catalogKey: candidate.catalogKey,
+          externalId: candidate.id,
+          externalUri: candidate.uri,
           linkedAt: now,
         });
 
-        const encodedJson = yield* encodeWikidataLinkJson(link);
+        const encodedJson = yield* encodeLinkJson(link);
         yield* storage.put(`${LINKS_PREFIX}${encodeURIComponent(entityIri)}`, encodedJson);
       }).pipe(
         Effect.mapError(
@@ -199,7 +222,7 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
     const queueForVerification = (
       entityIri: string,
       label: string,
-      candidates: ReadonlyArray<WikidataCandidate>
+      candidates: ReadonlyArray<ExternalEntityCandidate>
     ): Effect.Effect<string, ReconciliationError> =>
       Effect.gen(function* () {
         const taskId = generateTaskId();
@@ -211,7 +234,7 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
           candidates: [...candidates],
           createdAt: now,
           status: "pending",
-          approvedQid: O.none(),
+          approvedEntityId: O.none(),
         });
 
         const encodedJson = yield* encodeVerificationTaskJson(task);
@@ -253,9 +276,9 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
           });
         }
 
-        const candidates = yield* wikidata.searchEntities(
+        const candidates = yield* catalog.searchEntities(
           label,
-          new WikidataSearchOptions({ language, limit: maxCandidates })
+          new ExternalEntitySearchOptions({ language, limit: maxCandidates, types: [..._types] })
         );
 
         if (A.isEmptyReadonlyArray(candidates)) {
@@ -272,7 +295,7 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
         const best = candidates[0]!;
 
         if (best.score >= autoLinkThreshold) {
-          yield* storeLink(entityIri, best.qid);
+          yield* storeLink(entityIri, best);
           return new ReconciliationResult({
             entityIri,
             label,
@@ -343,7 +366,7 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
         )
       );
 
-    const approveTask: ReconciliationServiceShape["approveTask"] = (taskId, qid) =>
+    const approveTask: ReconciliationServiceShape["approveTask"] = (taskId, approvedEntityId) =>
       Effect.gen(function* () {
         const key = `${QUEUE_PREFIX}${taskId}`;
         const storedOpt = yield* storage.get(key);
@@ -353,12 +376,20 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
 
         const decoded = yield* decodeVerificationTask(storedOpt.value.value);
 
-        yield* storeLink(decoded.entityIri, qid);
+        const approvedCandidate = A.findFirst(decoded.candidates, (c) => c.id === approvedEntityId);
+        if (O.isNone(approvedCandidate)) {
+          return yield* new ReconciliationError({
+            message: `Approved entity id not in candidate set: ${approvedEntityId}`,
+            entityIri: decoded.entityIri,
+          });
+        }
+
+        yield* storeLink(decoded.entityIri, approvedCandidate.value);
 
         const updated = new VerificationTask({
           ...decoded,
           status: "approved",
-          approvedQid: O.some(qid),
+          approvedEntityId: O.some(approvedEntityId),
         });
 
         const encodedJson = yield* encodeVerificationTaskJson(updated);
@@ -389,10 +420,23 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
         const storedOpt = yield* storage.get(`${LINKS_PREFIX}${encodeURIComponent(entityIri)}`);
         if (O.isNone(storedOpt)) return O.none();
 
-        const decoded = yield* Effect.either(decodeWikidataLink(storedOpt.value.value));
-        if (Either.isLeft(decoded)) return O.none();
+        const decodedNew = yield* Effect.either(decodeLink(storedOpt.value.value));
+        if (Either.isRight(decodedNew)) {
+          return O.some({
+            catalogKey: decodedNew.right.catalogKey,
+            externalId: decodedNew.right.externalId,
+            externalUri: decodedNew.right.externalUri,
+          });
+        }
 
-        return O.some({ qid: decoded.right.qid, wikidataUri: decoded.right.wikidataUri });
+        const decodedLegacy = yield* Effect.either(decodeLegacyWikidataLink(storedOpt.value.value));
+        if (Either.isLeft(decodedLegacy)) return O.none();
+
+        return O.some({
+          catalogKey: "wikidata",
+          externalId: decodedLegacy.right.qid,
+          externalUri: decodedLegacy.right.wikidataUri,
+        });
       });
 
     const reconcileBatch: ReconciliationServiceShape["reconcileBatch"] = (entities, config) =>

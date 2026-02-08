@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { HttpClient } from "@effect/platform";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -35,14 +35,16 @@ export class ExternalEntitySearchOptions extends S.Class<ExternalEntitySearchOpt
     language: S.optionalWith(S.String, { default: () => "en" }),
     limit: S.optionalWith(S.Int.pipe(S.positive()), { default: () => 5 }),
     // Optional hint for catalogs that support type filtering (ignored by catalogs that don't).
-    types: S.optionalWith(S.Array(S.String), { default: () => [] }),
+    types: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
   },
   $I.annotations("ExternalEntitySearchOptions", {
     description: "Options for external catalog entity search (language + limit + optional types hint).",
   })
 ) {}
 
-export class ExternalEntityCatalogError extends S.TaggedError<ExternalEntityCatalogError>($I`ExternalEntityCatalogError`)(
+export class ExternalEntityCatalogError extends S.TaggedError<ExternalEntityCatalogError>(
+  $I`ExternalEntityCatalogError`
+)(
   "ExternalEntityCatalogError",
   {
     message: S.String,
@@ -66,14 +68,3 @@ export class ExternalEntityCatalog extends Context.Tag($I`ExternalEntityCatalog`
 export const ExternalEntityCatalogNoneLive = Layer.succeed(ExternalEntityCatalog, {
   searchEntities: (_query: string, _options?: ExternalEntitySearchOptions) => Effect.succeed([]),
 });
-
-/**
- * Integration helper: lift a `HttpClient`-backed implementation into the catalog capability.
- *
- * This exists to keep Integrations modules thin and consistent.
- */
-export const makeHttpExternalEntityCatalog = (
-  impl: ExternalEntityCatalogShape
-): Layer.Layer<ExternalEntityCatalog, never, HttpClient.HttpClient> =>
-  Layer.effect(ExternalEntityCatalog, Effect.succeed(impl));
-

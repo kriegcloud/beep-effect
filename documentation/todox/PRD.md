@@ -1379,6 +1379,16 @@ const ClientLive = Layer.mergeAll(
 );
 ```
 
+#### Capability Surface Separation (Knowledge)
+
+TodoX’s wealth-management product requirements sit on top of a reusable **knowledge capability layer** (ontology tooling, extraction workflows, reasoning/query, resilience primitives, reconciliation queue semantics).
+
+Important separation rules:
+
+- **Capability parity** means parity of abstract behaviors/invariants with `.repos/effect-ontology`, not parity of a specific external vendor or dataset.
+- **External catalogs** (for entity reconciliation) are optional integrations wired via Layer composition; core reconciliation defaults to a safe “null catalog” (no network dependency).
+- **TodoX domain ontology and product integrations** remain TodoX-specific and should live under `documentation/todox/*` and TodoX code paths, not as exports from the core knowledge service surface.
+
 **Error Handling:**
 
 ```typescript
