@@ -6,8 +6,8 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
-import * as P from "effect/Predicate";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Storage } from "./Storage";
@@ -149,9 +149,7 @@ const decodeVerificationTask = S.decodeUnknown(S.parseJson(VerificationTask));
 const decodeWikidataLink = S.decodeUnknown(S.parseJson(WikidataLink));
 
 const isReconciliationError = (error: unknown): error is ReconciliationError =>
-  P.isObject(error) &&
-  P.hasProperty(error, "_tag") &&
-  P.isTagged(error, "ReconciliationError");
+  P.isObject(error) && P.hasProperty(error, "_tag") && P.isTagged(error, "ReconciliationError");
 
 const mapError =
   (message: string, entityIri = "") =>

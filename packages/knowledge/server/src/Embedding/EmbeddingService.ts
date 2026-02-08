@@ -5,7 +5,7 @@ import type { AssembledEntity } from "@beep/knowledge-server/Extraction/GraphAss
 import { formatEntityForEmbedding } from "@beep/knowledge-server/utils/formatting";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
-import {thunkEffectVoid, thunkEmptyStr, thunkFalse, thunkTrue, thunkZero} from "@beep/utils";
+import { thunkEffectVoid, thunkEmptyStr, thunkFalse, thunkTrue, thunkZero } from "@beep/utils";
 import * as AiError from "@effect/ai/AiError";
 import * as EmbeddingModel from "@effect/ai/EmbeddingModel";
 import * as A from "effect/Array";

@@ -1,10 +1,10 @@
-import {$KnowledgeServerId} from "@beep/identity/packages";
-import {BS} from "@beep/schema";
-import {FileSystem, Path} from "@effect/platform";
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { FileSystem, Path } from "@effect/platform";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import {SqlClient, SqlSchema} from "@effect/sql";
-import {SqliteClient} from "@effect/sql-sqlite-bun";
+import { SqlClient, SqlSchema } from "@effect/sql";
+import { SqliteClient } from "@effect/sql-sqlite-bun";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -30,13 +30,12 @@ export class StorageGenerationConflictError extends S.TaggedError<StorageGenerat
   {
     key: S.String,
     expectedGeneration: S.Number,
-    actualGeneration: S.optionalWith(S.OptionFromNullishOr(S.Number, null), {default: O.none<number>}),
+    actualGeneration: S.optionalWith(S.OptionFromNullishOr(S.Number, null), { default: O.none<number> }),
   },
   $I.annotations("StorageGenerationConflictError", {
     description: "Optimistic concurrency conflict: expected generation does not match current stored generation.",
   })
-) {
-}
+) {}
 
 export type StorageError = StorageGenerationConflictError;
 
@@ -50,8 +49,7 @@ export class StoredValue extends S.Class<StoredValue>($I`StoredValue`)(
   $I.annotations("StoredValue", {
     description: "Storage value with optimistic concurrency generation and last-updated timestamp.",
   })
-) {
-}
+) {}
 
 export class PutOptions extends S.Class<PutOptions>($I`PutOptions`)(
   {
@@ -60,8 +58,7 @@ export class PutOptions extends S.Class<PutOptions>($I`PutOptions`)(
   $I.annotations("PutOptions", {
     description: "Options for Storage.put (expected generation for optimistic concurrency).",
   })
-) {
-}
+) {}
 
 export class DeleteOptions extends S.Class<DeleteOptions>($I`DeleteOptions`)(
   {
@@ -70,15 +67,13 @@ export class DeleteOptions extends S.Class<DeleteOptions>($I`DeleteOptions`)(
   $I.annotations("DeleteOptions", {
     description: "Options for Storage.delete (expected generation for optimistic concurrency).",
   })
-) {
-}
+) {}
 
 export class SignedUrlPurpose extends BS.StringLiteralKit("get", "put").annotations(
   $I.annotations("SignedUrlPurpose", {
     description: "Operation intent for signed URL generation (get = download, put = upload).",
   })
-) {
-}
+) {}
 
 export class SignedUrlOptions extends S.Class<SignedUrlOptions>($I`SignedUrlOptions`)(
   {
@@ -89,8 +84,7 @@ export class SignedUrlOptions extends S.Class<SignedUrlOptions>($I`SignedUrlOpti
     description:
       "Optional parameters for signed URL generation. Backends without signed URLs should return Option.none().",
   })
-) {
-}
+) {}
 
 // -----------------------------------------------------------------------------
 // Outcomes (used internally for Ref.modify determinism)
@@ -100,8 +94,7 @@ export class OutComeTag extends BS.StringLiteralKit("ok", "conflict").annotation
   $I.annotations("OutComeTag", {
     description: "Outcome tag for storage operations",
   })
-) {
-}
+) {}
 
 export const makeOutcomeKind = OutComeTag.toTagged("_tag").composer({});
 
@@ -109,18 +102,15 @@ export class OkPutOutcome extends S.Class<OkPutOutcome>($I`OkPutOutcome`)(
   makeOutcomeKind.ok({
     value: StoredValue,
   })
-) {
-}
+) {}
 
 export class ConflictPutOutcome extends S.Class<ConflictPutOutcome>($I`ConflictPutOutcome`)(
   makeOutcomeKind.conflict({
     error: StorageGenerationConflictError,
   })
-) {
-}
+) {}
 
-export class PutOutcome extends S.Union(OkPutOutcome, ConflictPutOutcome) {
-}
+export class PutOutcome extends S.Union(OkPutOutcome, ConflictPutOutcome) {}
 
 export declare namespace PutOutcome {
   export type Type = typeof PutOutcome.Type;
@@ -131,18 +121,15 @@ export class OkDeleteOutcome extends S.Class<OkDeleteOutcome>($I`OkDeleteOutcome
   makeOutcomeKind.ok({
     value: S.Boolean,
   })
-) {
-}
+) {}
 
 export class ConflictDeleteOutcome extends S.Class<ConflictDeleteOutcome>($I`ConflictDeleteOutcome`)(
   makeOutcomeKind.conflict({
     error: StorageGenerationConflictError,
   })
-) {
-}
+) {}
 
-export class DeleteOutcome extends S.Union(OkDeleteOutcome, ConflictDeleteOutcome) {
-}
+export class DeleteOutcome extends S.Union(OkDeleteOutcome, ConflictDeleteOutcome) {}
 
 export declare namespace DeleteOutcome {
   export type Type = typeof DeleteOutcome.Type;
@@ -157,8 +144,7 @@ export interface StorageShape {
   readonly signedUrl: (key: string, options?: SignedUrlOptions) => Effect.Effect<O.Option<string>>;
 }
 
-export class Storage extends Context.Tag($I`Storage`)<Storage, StorageShape>() {
-}
+export class Storage extends Context.Tag($I`Storage`)<Storage, StorageShape>() {}
 
 const noneSignedUrl: StorageShape["signedUrl"] = Effect.fn("Storage.signedUrl")((_key, _options) =>
   Effect.succeed(O.none())
@@ -171,17 +157,17 @@ const checkExpectedGeneration = (
 ): O.Option<StorageGenerationConflictError> =>
   O.flatMap(expected, (expectedGeneration) =>
     O.match(actual, {
-      onNone: () => O.some(new StorageGenerationConflictError({key, expectedGeneration, actualGeneration: O.none()})),
+      onNone: () => O.some(new StorageGenerationConflictError({ key, expectedGeneration, actualGeneration: O.none() })),
       onSome: (actualGeneration) =>
         expectedGeneration === actualGeneration
           ? O.none()
           : O.some(
-            new StorageGenerationConflictError({
-              key,
-              expectedGeneration,
-              actualGeneration: O.some(actualGeneration),
-            })
-          ),
+              new StorageGenerationConflictError({
+                key,
+                expectedGeneration,
+                actualGeneration: O.some(actualGeneration),
+              })
+            ),
     })
   );
 
@@ -206,9 +192,9 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
 
         const expectedGeneration = O.fromNullable(options?.expectedGeneration);
         const conflict = checkExpectedGeneration(key, expectedGeneration, actualGeneration);
-        if (O.isSome(conflict)) return [new ConflictPutOutcome({error: conflict.value}), state];
+        if (O.isSome(conflict)) return [new ConflictPutOutcome({ error: conflict.value }), state];
 
-        const nextGeneration = O.match(actualGeneration, {onNone: () => 1, onSome: (g) => g + 1});
+        const nextGeneration = O.match(actualGeneration, { onNone: () => 1, onSome: (g) => g + 1 });
         const updatedAt = DateTime.unsafeNow();
 
         const nextValue = new StoredValue({
@@ -218,7 +204,7 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
           updatedAt,
         });
 
-        return [new OkPutOutcome({value: nextValue}), HashMap.set(state, key, nextValue)];
+        return [new OkPutOutcome({ value: nextValue }), HashMap.set(state, key, nextValue)];
       }
     );
 
@@ -237,13 +223,13 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
         const expectedGeneration = O.fromNullable(options?.expectedGeneration);
 
         const conflict = checkExpectedGeneration(key, expectedGeneration, actualGeneration);
-        if (O.isSome(conflict)) return [new ConflictDeleteOutcome({error: conflict.value}), state];
+        if (O.isSome(conflict)) return [new ConflictDeleteOutcome({ error: conflict.value }), state];
 
         if (O.isNone(current)) {
-          return [new OkDeleteOutcome({value: false}), state];
+          return [new OkDeleteOutcome({ value: false }), state];
         }
 
-        return [new OkDeleteOutcome({value: true}), HashMap.remove(state, key)];
+        return [new OkDeleteOutcome({ value: true }), HashMap.remove(state, key)];
       }
     );
 
@@ -263,7 +249,7 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
     );
   });
 
-  return Storage.of({get, put, delete: deleteValue, list, signedUrl: noneSignedUrl});
+  return Storage.of({ get, put, delete: deleteValue, list, signedUrl: noneSignedUrl });
 });
 
 export const StorageMemoryLive = Layer.effect(Storage, serviceEffect);
@@ -279,8 +265,7 @@ export interface StorageLocalConfigShape {
 export class StorageLocalConfig extends Context.Tag($I`StorageLocalConfig`)<
   StorageLocalConfig,
   StorageLocalConfigShape
->() {
-}
+>() {}
 
 export const StorageLocalConfigLive = Layer.effect(
   StorageLocalConfig,
@@ -288,7 +273,7 @@ export const StorageLocalConfigLive = Layer.effect(
     const rootDirectory = yield* Config.string("KNOWLEDGE_STORAGE_LOCAL_ROOT").pipe(
       Config.withDefault("./tmp/knowledge-storage")
     );
-    return StorageLocalConfig.of({rootDirectory});
+    return StorageLocalConfig.of({ rootDirectory });
   })
 );
 
@@ -297,9 +282,8 @@ class StorageLocalMeta extends S.Class<StorageLocalMeta>($I`StorageLocalMeta`)(
     generation: S.Number,
     updatedAtMillis: S.Number,
   },
-  $I.annotations("StorageLocalMeta", {description: "Local backend meta sidecar (generation + updatedAt millis)"})
-) {
-}
+  $I.annotations("StorageLocalMeta", { description: "Local backend meta sidecar (generation + updatedAt millis)" })
+) {}
 
 const encodeMetaJson = S.encode(S.parseJson(StorageLocalMeta));
 const decodeMetaJson = S.decodeUnknown(S.parseJson(StorageLocalMeta));
@@ -313,7 +297,7 @@ const makeStorageLocalService: Effect.Effect<
 > = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const {rootDirectory} = yield* StorageLocalConfig;
+  const { rootDirectory } = yield* StorageLocalConfig;
 
   const rootResolved = path.resolve(rootDirectory);
   const rootPrefix = Str.endsWith(path.sep)(rootResolved) ? rootResolved : `${rootResolved}${path.sep}`;
@@ -326,7 +310,7 @@ const makeStorageLocalService: Effect.Effect<
   // when using readFile/writeFile. Use open + readAlloc/writeAll to avoid passing `signal`.
   const readText = Effect.fn("StorageLocal.readText")((filePath: string) =>
     Effect.scoped(
-      fs.open(filePath, {flag: "r"}).pipe(
+      fs.open(filePath, { flag: "r" }).pipe(
         Effect.flatMap((file) =>
           file.stat.pipe(
             Effect.orDie,
@@ -345,11 +329,11 @@ const makeStorageLocalService: Effect.Effect<
     return Str.startsWith(rootPrefix)(resolved)
       ? Effect.succeed(resolved)
       : // exception(storage-key): treat invalid keys as defects to preserve Storage error surface
-      Effect.dieMessage(`StorageLocal: key escapes rootDirectory: ${key}`);
+        Effect.dieMessage(`StorageLocal: key escapes rootDirectory: ${key}`);
   });
 
   const ensureParentDir = Effect.fn("StorageLocal.ensureParentDir")((filePath: string) =>
-    fs.makeDirectory(path.dirname(filePath), {recursive: true}).pipe(Effect.orDie)
+    fs.makeDirectory(path.dirname(filePath), { recursive: true }).pipe(Effect.orDie)
   );
 
   const readMeta = Effect.fn("StorageLocal.readMeta")((metaPath: string) =>
@@ -358,9 +342,9 @@ const makeStorageLocalService: Effect.Effect<
       Effect.flatMap((exists) =>
         exists
           ? readText(metaPath).pipe(
-            Effect.flatMap((text) => decodeMetaJson(text).pipe(Effect.orDie)),
-            Effect.map(O.some)
-          )
+              Effect.flatMap((text) => decodeMetaJson(text).pipe(Effect.orDie)),
+              Effect.map(O.some)
+            )
           : Effect.succeed(O.none())
       )
     )
@@ -375,7 +359,7 @@ const makeStorageLocalService: Effect.Effect<
       // @effect/platform-node-shared's writeFile passes an AbortSignal that Bun's node:fs rejects.
       // Avoid FileSystem.writeFileString here by going through open + writeAll (no signal involved).
       yield* Effect.scoped(
-        fs.open(tmpPath, {flag: "w"}).pipe(
+        fs.open(tmpPath, { flag: "w" }).pipe(
           Effect.orDie,
           Effect.flatMap((file) => file.writeAll(bytes).pipe(Effect.orDie))
         )
@@ -421,14 +405,14 @@ const makeStorageLocalService: Effect.Effect<
       const conflict = checkExpectedGeneration(key, expectedGeneration, actualGeneration);
       if (O.isSome(conflict)) return yield* conflict.value;
 
-      const nextGeneration = O.match(actualGeneration, {onNone: () => 1, onSome: (g) => g + 1});
+      const nextGeneration = O.match(actualGeneration, { onNone: () => 1, onSome: (g) => g + 1 });
       const updatedAtMillis = DateTime.toEpochMillis(DateTime.unsafeNow());
 
       yield* writeTextAtomic(filePath, value);
-      yield* writeJsonAtomic(metaPath, new StorageLocalMeta({generation: nextGeneration, updatedAtMillis}));
+      yield* writeJsonAtomic(metaPath, new StorageLocalMeta({ generation: nextGeneration, updatedAtMillis }));
 
       const updatedAt = DateTime.unsafeMake(updatedAtMillis);
-      return new StoredValue({key, value, generation: nextGeneration, updatedAt});
+      return new StoredValue({ key, value, generation: nextGeneration, updatedAt });
     })
   );
 
@@ -455,7 +439,7 @@ const makeStorageLocalService: Effect.Effect<
     Effect.gen(function* () {
       const metaSuffix = ".meta.json";
       const metaSuffixLength = Str.length(metaSuffix);
-      const entries = yield* fs.readDirectory(rootResolved, {recursive: true}).pipe(Effect.orDie);
+      const entries = yield* fs.readDirectory(rootResolved, { recursive: true }).pipe(Effect.orDie);
       const metaFiles = A.filter(entries, Str.endsWith(metaSuffix));
 
       const collect = yield* Effect.reduce(metaFiles, A.empty<StoredValue>(), (acc, metaPath) =>
@@ -473,7 +457,7 @@ const makeStorageLocalService: Effect.Effect<
 
           const value = yield* readText(filePath);
           const updatedAt = DateTime.unsafeMake(metaOpt.value.updatedAtMillis);
-          return A.append(acc, new StoredValue({key, value, generation: metaOpt.value.generation, updatedAt}));
+          return A.append(acc, new StoredValue({ key, value, generation: metaOpt.value.generation, updatedAt }));
         })
       );
 
@@ -484,7 +468,7 @@ const makeStorageLocalService: Effect.Effect<
     })
   );
 
-  return Storage.of({get, put, delete: deleteValue, list, signedUrl: noneSignedUrl});
+  return Storage.of({ get, put, delete: deleteValue, list, signedUrl: noneSignedUrl });
 });
 
 export const StorageLocalLive = Layer.provideMerge(
@@ -500,8 +484,7 @@ export interface StorageSqlConfigShape {
   readonly databasePath: string;
 }
 
-export class StorageSqlConfig extends Context.Tag($I`StorageSqlConfig`)<StorageSqlConfig, StorageSqlConfigShape>() {
-}
+export class StorageSqlConfig extends Context.Tag($I`StorageSqlConfig`)<StorageSqlConfig, StorageSqlConfigShape>() {}
 
 export const StorageSqlConfigLive = Layer.effect(
   StorageSqlConfig,
@@ -509,7 +492,7 @@ export const StorageSqlConfigLive = Layer.effect(
     const databasePath = yield* Config.string("KNOWLEDGE_STORAGE_SQLITE_PATH").pipe(
       Config.withDefault("./tmp/knowledge-storage.sqlite")
     );
-    return StorageSqlConfig.of({databasePath});
+    return StorageSqlConfig.of({ databasePath });
   })
 );
 
@@ -520,21 +503,18 @@ class StorageSqlRow extends S.Class<StorageSqlRow>($I`StorageSqlRow`)(
     generation: S.Number,
     updated_at: S.Number,
   },
-  $I.annotations("StorageSqlRow", {description: "SQLite storage row (snake_case column names)"})
-) {
-}
+  $I.annotations("StorageSqlRow", { description: "SQLite storage row (snake_case column names)" })
+) {}
 
 class StorageKeyOnly extends S.Class<StorageKeyOnly>($I`StorageKeyOnly`)(
-  {key: S.String},
-  $I.annotations("StorageKeyOnly", {description: "Key-only select shape for storage"})
-) {
-}
+  { key: S.String },
+  $I.annotations("StorageKeyOnly", { description: "Key-only select shape for storage" })
+) {}
 
 class StorageGenerationOnly extends S.Class<StorageGenerationOnly>($I`StorageGenerationOnly`)(
-  {generation: S.Number},
-  $I.annotations("StorageGenerationOnly", {description: "Generation-only select shape for storage"})
-) {
-}
+  { generation: S.Number },
+  $I.annotations("StorageGenerationOnly", { description: "Generation-only select shape for storage" })
+) {}
 
 const makeStorageSqlService: Effect.Effect<StorageShape, never, SqlClient.SqlClient> = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
@@ -571,7 +551,7 @@ const makeStorageSqlService: Effect.Effect<StorageShape, never, SqlClient.SqlCli
   });
 
   const listRows = SqlSchema.findAll({
-    Request: S.Struct({like: S.String}),
+    Request: S.Struct({ like: S.String }),
     Result: StorageSqlRow,
     execute: (req) =>
       sql`
@@ -585,7 +565,8 @@ const makeStorageSqlService: Effect.Effect<StorageShape, never, SqlClient.SqlCli
   const currentGeneration = SqlSchema.findOne({
     Request: StorageKeyOnly,
     Result: StorageGenerationOnly,
-    execute: (req) => sql`SELECT generation
+    execute: (req) =>
+      sql`SELECT generation
                           FROM knowledge_storage
                           WHERE key = ${req.key}`.pipe(Effect.orDie),
   });
@@ -601,20 +582,20 @@ const makeStorageSqlService: Effect.Effect<StorageShape, never, SqlClient.SqlCli
   };
 
   const get: StorageShape["get"] = Effect.fn("StorageSql.get")((key) =>
-    getRow(new StorageKeyOnly({key})).pipe(Effect.orDie, Effect.map(O.map(toStoredValue)))
+    getRow(new StorageKeyOnly({ key })).pipe(Effect.orDie, Effect.map(O.map(toStoredValue)))
   );
 
   const put: StorageShape["put"] = Effect.fn("StorageSql.put")((key, value, options) =>
     sql
       .withTransaction(
         Effect.gen(function* () {
-          const current = yield* currentGeneration(new StorageKeyOnly({key})).pipe(Effect.orDie);
+          const current = yield* currentGeneration(new StorageKeyOnly({ key })).pipe(Effect.orDie);
           const actualGeneration = O.map(current, (_) => _.generation);
           const expectedGeneration = O.fromNullable(options?.expectedGeneration);
           const conflict = checkExpectedGeneration(key, expectedGeneration, actualGeneration);
           if (O.isSome(conflict)) return yield* conflict.value;
 
-          const nextGeneration = O.match(actualGeneration, {onNone: () => 1, onSome: (g) => g + 1});
+          const nextGeneration = O.match(actualGeneration, { onNone: () => 1, onSome: (g) => g + 1 });
           const updatedAtMillis = DateTime.toEpochMillis(DateTime.unsafeNow());
 
           if (O.isSome(current)) {
@@ -633,7 +614,7 @@ const makeStorageSqlService: Effect.Effect<StorageShape, never, SqlClient.SqlCli
           }
 
           const updatedAt = DateTime.unsafeMake(updatedAtMillis);
-          return new StoredValue({key, value, generation: nextGeneration, updatedAt});
+          return new StoredValue({ key, value, generation: nextGeneration, updatedAt });
         })
       )
       .pipe(Effect.catchTag("SqlError", Effect.die))
@@ -643,7 +624,7 @@ const makeStorageSqlService: Effect.Effect<StorageShape, never, SqlClient.SqlCli
     sql
       .withTransaction(
         Effect.gen(function* () {
-          const current = yield* currentGeneration(new StorageKeyOnly({key})).pipe(Effect.orDie);
+          const current = yield* currentGeneration(new StorageKeyOnly({ key })).pipe(Effect.orDie);
           const actualGeneration = O.map(current, (_) => _.generation);
           const expectedGeneration = O.fromNullable(options?.expectedGeneration);
           const conflict = checkExpectedGeneration(key, expectedGeneration, actualGeneration);
@@ -662,16 +643,16 @@ const makeStorageSqlService: Effect.Effect<StorageShape, never, SqlClient.SqlCli
 
   const list: StorageShape["list"] = Effect.fn("StorageSql.list")((prefix) => {
     const like = P.isString(prefix) ? `${prefix}%` : "%";
-    return listRows({like}).pipe(Effect.orDie, Effect.map(A.map(toStoredValue)));
+    return listRows({ like }).pipe(Effect.orDie, Effect.map(A.map(toStoredValue)));
   });
 
-  return Storage.of({get, put, delete: deleteValue, list, signedUrl: noneSignedUrl});
+  return Storage.of({ get, put, delete: deleteValue, list, signedUrl: noneSignedUrl });
 });
 
 const SqliteLive = Layer.unwrapEffect(
   Effect.gen(function* () {
-    const {databasePath} = yield* StorageSqlConfig;
-    return SqliteClient.layer({filename: databasePath});
+    const { databasePath } = yield* StorageSqlConfig;
+    return SqliteClient.layer({ filename: databasePath });
   })
 );
 
