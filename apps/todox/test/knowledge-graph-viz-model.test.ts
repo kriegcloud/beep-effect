@@ -89,7 +89,7 @@ describe("knowledge-graph/viz/model", () => {
     strictEqual(viz.links[0]?.id, "r1");
 
     // Literal relation is captured for subject.
-    strictEqual((viz.literalsBySubjectId["e1"] ?? []).length, 1);
+    strictEqual((viz.literalsBySubjectId.e1 ?? []).length, 1);
 
     // Dropped link due to missing endpoint is counted.
     strictEqual(viz.stats.droppedLinkCount, 1);
