@@ -5,4 +5,5 @@ export * from "./comment.table";
 export * from "./discussion.table";
 export * from "./document.table";
 export * from "./document-file.table";
+export * from "./document-source.table";
 export * from "./document-version.table";

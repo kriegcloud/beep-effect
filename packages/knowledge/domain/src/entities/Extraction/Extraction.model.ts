@@ -27,6 +27,7 @@ export class Model extends M.Class<Model>($I`ExtractionModel`)(
   makeFields(KnowledgeEntityIds.ExtractionId, {
     organizationId: SharedEntityIds.OrganizationId,
     documentId: DocumentsEntityIds.DocumentId,
+    documentVersionId: BS.FieldOptionOmittable(DocumentsEntityIds.DocumentVersionId),
     sourceUri: BS.FieldOptionOmittable(S.String),
     ontologyId: KnowledgeEntityIds.OntologyId,
     status: S.optionalWith(ExtractionStatus, { default: () => "pending" as const }),

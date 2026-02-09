@@ -86,7 +86,7 @@ Effect-based client contracts and handlers for the Documents slice.
 Provides the client-side API surface for document operations. This package:
 - Defines RPC handlers for document CRUD operations
 - Exports client contracts used by the web app
-- Sits in the documents/client layer, consumed by @beep/web
+- Sits in the documents/client layer, consumed by product Next.js apps (e.g. `@beep/todox`)
 
 ## Key Exports
 
@@ -131,7 +131,7 @@ const AppLayer = Layer.provide(DocumentsClientLive, HttpClientLive)
 
 ## Integration Points
 
-- **Consumed by**: `@beep/web` for document operations in the frontend
+- **Consumed by**: product Next.js apps (e.g. `@beep/todox`) for document operations in the frontend
 - **Depends on**: `@beep/documents-domain` for entity types
 - **Communicates with**: `@beep/documents-server` via RPC contracts
 ```

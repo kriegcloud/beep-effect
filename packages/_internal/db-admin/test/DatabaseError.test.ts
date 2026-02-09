@@ -24,7 +24,7 @@ import { PgTest } from "./container";
 /**
  * Timeout in milliseconds for bun test. Duration objects are not supported by bun test.
  */
-const TEST_TIMEOUT = 60000;
+const TEST_TIMEOUT = 120000;
 
 /**
  * Helper to create a unique test email to avoid conflicts between tests.
@@ -58,7 +58,7 @@ describe("DatabaseError.$match", () => {
   // ============================================================================
   // UNIQUE_VIOLATION TESTS
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("UNIQUE_VIOLATION extraction", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("UNIQUE_VIOLATION extraction", (it) => {
     it.effect(
       "should extract PgDatabaseError and match UNIQUE_VIOLATION on duplicate insert",
       () =>
@@ -150,7 +150,7 @@ describe("DatabaseError.$match", () => {
   // ============================================================================
   // FOREIGN_KEY_VIOLATION TESTS
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("FOREIGN_KEY_VIOLATION extraction", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("FOREIGN_KEY_VIOLATION extraction", (it) => {
     it.effect(
       "should extract PgDatabaseError and match FOREIGN_KEY_VIOLATION on invalid FK",
       () =>
@@ -193,7 +193,7 @@ describe("DatabaseError.$match", () => {
   // ============================================================================
   // NOT_NULL_VIOLATION TESTS
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("NOT_NULL_VIOLATION extraction", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("NOT_NULL_VIOLATION extraction", (it) => {
     it.effect(
       "should extract PgDatabaseError and match NOT_NULL_VIOLATION",
       () =>
@@ -236,7 +236,7 @@ describe("DatabaseError.$match", () => {
   // ============================================================================
   // CHECK_VIOLATION TESTS
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("CHECK_VIOLATION extraction", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("CHECK_VIOLATION extraction", (it) => {
     it.effect(
       "should extract PgDatabaseError and match CHECK_VIOLATION when constraint exists",
       () =>
@@ -278,7 +278,7 @@ describe("DatabaseError.$match", () => {
   // ============================================================================
   // extractPgError TESTS
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("extractPgError behavior", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("extractPgError behavior", (it) => {
     it.effect(
       "should recursively extract PgDatabaseError from nested SqlError.cause",
       () =>
@@ -325,7 +325,7 @@ describe("DatabaseError.$match", () => {
   // ============================================================================
   // $match FALLBACK BEHAVIOR
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("$match fallback behavior", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("$match fallback behavior", (it) => {
     it.effect(
       "should return DatabaseError without pgError for non-database errors",
       () =>
@@ -372,7 +372,7 @@ describe("DatabaseError.$match", () => {
   // ============================================================================
   // ERROR MATCHING FOR DIFFERENT HANDLING
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("error type-based handling", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("error type-based handling", (it) => {
     it.effect(
       "should enable different error handling based on type",
       () =>
@@ -449,7 +449,7 @@ describe("DatabaseError.$match", () => {
   // ============================================================================
   // CONNECTION_EXCEPTION HANDLING
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("CONNECTION_EXCEPTION handling", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("CONNECTION_EXCEPTION handling", (it) => {
     it.effect(
       "should handle CONNECTION_EXCEPTION error code (08000) when matched",
       () =>

@@ -4,7 +4,7 @@
 
 `@beep/iam-client` is the typed contract layer that bridges Better Auth's React client with Effect-first flows across the
 repo. The package centers on contract schemas plus thin Effect implementations using `wrapIamMethod`. UI slices
-(`packages/iam/ui`, `apps/web`) consume these contracts directly through runtime helpers, while adapters keep raw
+(`packages/iam/ui`) consume these contracts directly through runtime helpers, while adapters keep raw
 Better Auth usage isolated to this workspace.
 
 ## Surface Map
@@ -140,6 +140,9 @@ bun run check --filter @beep/iam-client
 - ALWAYS keep namespace imports for every Effect module and repo package (`import * as Effect from "effect/Effect"`,
   `import * as F from "effect/Function"`). Native array/string helpers remain forbidden—pipe through `effect/Array` and
   `effect/String`.
+- Namespace export gotcha: `@beep/iam-client` uses namespace re-exports for some modules (e.g. `export * as Organization from "./mod.ts"`), which means `import { Organization } from "@beep/iam-client"` gives you a namespace wrapper (not the submodule shape). If you need `Organization.Crud.*` or `OAuth2.Link.*`, import from the subpath:
+  - `import { Organization } from "@beep/iam-client/organization"`
+  - `import { OAuth2 } from "@beep/iam-client/oauth2"`
 - Use Effect Schema (`import * as S from "effect/Schema"`) with PascalCase constructors (`S.Struct`, `S.String`, `S.Number`)
   for all validation schemas in forms and API payloads.
 - When integrating with Better Auth, use `wrapIamMethod` from `@beep/iam-client/_internal` to maintain Effect-first semantics
@@ -147,7 +150,6 @@ bun run check --filter @beep/iam-client
 - Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). The `wrapIamMethod` factory handles this when `mutatesSession: true`.
 - Atoms MUST use `withToast` wrapper from `@beep/ui/common/with-toast` for optimistic updates and user feedback.
   Keep atoms narrowly focused on single operations (sign-in, sign-out, password change).
-- Keep `AuthCallback` prefixes aligned with app middleware in `apps/web`. Update both whenever authenticated route trees move.
 
 ## Implemented Handler Patterns
 
@@ -322,7 +324,7 @@ export const layer = Group.toLayer({
 - `PATH="$HOME/.bun/bin:$PATH" bun run --filter @beep/iam-client check` — TypeScript project references build.
 - `PATH="$HOME/.bun/bin:$PATH" bun run --filter @beep/iam-client build` — Emits ESM/CJS bundles; catches export drift when contract directories move.
 - `bun run --filter @beep/iam-client test` — Currently only the placeholder suite; expand alongside new Effect logic.
-- Touching `AuthCallback` or session guards? Also run `bun run --filter apps/web lint` to confirm route and guard
+- Touching `AuthCallback` or session guards? Also run `bun run --filter apps/todox lint` to confirm route and guard
   consumers stay healthy.
 
 ## Contributor Checklist
@@ -402,5 +404,3 @@ export const layer = Group.toLayer({
 
 ### AuthCallback Prefix Synchronization
 - **Symptom**: After sign-in, users redirect to wrong pages or get 404 errors.
-- **Root Cause**: `AuthCallback.privatePrefix` values in this package are out of sync with route middleware in `apps/web`.
-- **Solution**: When adding authenticated routes, update BOTH `packages/iam/client/src/constants.ts` AND the corresponding middleware in `apps/web`. Run `bun run --filter apps/web lint` to catch mismatches.

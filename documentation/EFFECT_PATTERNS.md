@@ -80,6 +80,46 @@ Always use PascalCase exports: `S.Struct`, `S.Array`, `S.String` (never `S.struc
 
 ## Critical Rules
 
+### Layer Composition Conventions (REQUIRED)
+
+Layer graph correctness is demo-critical. Missing provides often show up late (at `Layer.launch(...)`) unless the module boundary forces the type to be explicit.
+
+Rules:
+- Every exported Layer must have an explicit `Layer.Layer<ROut, E, RIn>` annotation.
+- Every `serviceEffect` must have an explicit `Effect.Effect<A, E, R>` annotation.
+- If a Layer is only used in one module, provide dependencies locally in that module.
+- If a dependency set is shared by multiple modules, create an explicit `*BundleLive` Layer and provide that bundle in consumers.
+- Any Layer launched from an app entrypoint must require `never` (`RIn = never`).
+
+Example:
+
+```ts
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+
+export interface MyServiceShape {
+  readonly ping: Effect.Effect<"pong">;
+}
+
+// Note: in this repo, prefer `Context.Tag($I\`...\`)` via `@beep/identity/packages`.
+export class MyService extends Context.Tag("MyService")<MyService, MyServiceShape>() {}
+
+// REQUIRED: explicit dependency / failure typing
+type MyServiceEffect = Effect.Effect<MyServiceShape, never, never>;
+const serviceEffect: MyServiceEffect = Effect.succeed({ ping: Effect.succeed("pong" as const) });
+
+// REQUIRED: explicit Layer typing
+export const MyServiceLive: Layer.Layer<MyService, never, never> = Layer.effect(MyService, serviceEffect);
+```
+
+For app entrypoints, enforce `RIn = never`:
+
+```ts
+// REQUIRED: the layer launched from an app entrypoint must not require any ambient context.
+export const layer: Layer.Layer<Layer.Success<typeof layer_>, Layer.Error<typeof layer_>, never> = layer_;
+```
+
 ### Schema Class Conventions (REQUIRED)
 
 When defining a named, reusable data model (especially anything crossing a boundary like DB rows, external API payloads, RPC payloads), prefer `S.Class` over `S.Struct`.

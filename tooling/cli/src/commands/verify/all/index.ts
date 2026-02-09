@@ -15,6 +15,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { entityIdHandler } from "../entityids/handler.js";
 import { ViolationsFoundError } from "../errors.js";
+import { layerHandler } from "../layers/handler.js";
 import { ciOption, filterOption, formatOption, severityOption } from "../options.js";
 import { patternHandler } from "../patterns/handler.js";
 import { formatReport } from "../reporter.js";
@@ -57,7 +58,7 @@ export const verifyAllCommand = Command.make(
   ({ filter, format, severity, ci }) =>
     Effect.gen(function* () {
       // Run both verifications in parallel
-      const [entityIdReport, patternReport] = yield* Effect.all([
+      const [entityIdReport, patternReport, layerReport] = yield* Effect.all([
         entityIdHandler({
           filter,
           format,
@@ -68,19 +69,32 @@ export const verifyAllCommand = Command.make(
           format,
           severity,
         }),
+        layerHandler({
+          filter,
+          format,
+          severity,
+        }),
       ]);
 
       // Combine violations
-      const allViolations: ReadonlyArray<Violation> = A.appendAll(entityIdReport.violations, patternReport.violations);
+      const allViolations: ReadonlyArray<Violation> = A.appendAll(
+        A.appendAll(entityIdReport.violations, patternReport.violations),
+        layerReport.violations
+      );
 
       // Combine scanned packages
-      const allPackages = A.dedupe(A.appendAll(entityIdReport.scannedPackages, patternReport.scannedPackages));
+      const allPackages = A.dedupe(
+        A.appendAll(
+          A.appendAll(entityIdReport.scannedPackages, patternReport.scannedPackages),
+          layerReport.scannedPackages
+        )
+      );
 
       // Create combined report
       const combinedReport = createReport(
         allViolations,
         allPackages,
-        entityIdReport.scannedFiles + patternReport.scannedFiles
+        entityIdReport.scannedFiles + patternReport.scannedFiles + layerReport.scannedFiles
       );
 
       // Output report

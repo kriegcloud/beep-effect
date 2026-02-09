@@ -16,6 +16,10 @@ Critical infra invariants:
 - `@beep/shared-env` schemas are authoritative: env vars must match exactly.
 - Migrations run as a job (pre-deploy), not at app startup.
 - OTLP traces/logs/metrics must be visible with actionable alerts.
+- Preserve P2 demo-hardening invariants:
+  - Evidence spans are version-pinned (documentVersionId + UTF-16 offsets).
+  - No cross-org leakage (including embeddings/vector search).
+  - `/settings?settingsTab=connections` deep-link must work (OAuth callback URL is contract-locked).
 
 ### Your Mission
 
@@ -58,7 +62,7 @@ Record exact commands, PASS/FAIL, and date:
 terraform plan
 terraform apply
 migrations job run
-smoke test: login -> connections -> /knowledge -> evidence inspect
+smoke test: login -> /settings?settingsTab=connections -> /knowledge -> evidence inspect
 ```
 
 ### Success Criteria

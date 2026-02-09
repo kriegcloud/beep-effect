@@ -1,5 +1,4 @@
 import type { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
-import type { LanguageModel } from "@effect/ai";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
@@ -119,55 +118,4 @@ export const withLlmResilience = <A, E, R, R2 = never>(
     return yield* runAttempt(1);
   });
 
-export interface LlmFallbackChainOptions<E> {
-  /**
-   * Whether a given terminal error should trigger fallback at all.
-   * Defaults to `true` (fallback is allowed).
-   */
-  readonly shouldFallback?: (error: LlmResilienceError<E>) => boolean;
-  /**
-   * Retry budget for the fallback provider. Defaults to 0 to avoid "retry storms".
-   */
-  readonly maxRetries?: number;
-}
-
-/**
- * Runs an LLM operation with `withLlmResilience` against the primary LanguageModel,
- * and (optionally) falls back to a separately-provided `FallbackLanguageModel` once
- * the primary has exhausted retries / reached a terminal condition.
- *
- * Call sites provide an operation builder so the same request can be re-issued
- * against the fallback provider without unsafe casting.
- */
-export const withLlmResilienceWithFallback = <A, E, R>(
-  primaryModel: LanguageModel.Service,
-  fallbackModel: O.Option<LanguageModel.Service>,
-  makeOperation: (model: LanguageModel.Service) => Effect.Effect<A, E, R>,
-  options: Omit<LlmResilienceOptions<A, E, never>, "recoverWith"> & {
-    readonly fallback?: LlmFallbackChainOptions<E>;
-  }
-): Effect.Effect<A, LlmResilienceError<E>, R> => {
-  const { fallback, ...resilience } = options;
-  const shouldFallback = fallback?.shouldFallback ?? (() => true);
-  const fallbackMaxRetries = fallback?.maxRetries ?? 0;
-
-  return withLlmResilience(makeOperation(primaryModel), {
-    ...resilience,
-    recoverWith: (error) =>
-      O.match(fallbackModel, {
-        onNone: () => Effect.fail(error),
-        onSome: (backup) => {
-          if (!shouldFallback(error)) return Effect.fail(error);
-          return Effect.gen(function* () {
-            yield* Effect.logWarning("Primary LLM exhausted, falling back to backup provider").pipe(
-              Effect.annotateLogs({ stage: resilience.stage })
-            );
-            return yield* withLlmResilience(makeOperation(backup), {
-              ...resilience,
-              maxRetries: fallbackMaxRetries,
-            });
-          });
-        },
-      }),
-  });
-};
+// Note: MVP currently does not implement multi-provider/model fallback.

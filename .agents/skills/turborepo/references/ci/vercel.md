@@ -78,7 +78,7 @@ Common variables:
 For monorepos, set the root directory in Vercel:
 
 1. Project Settings > General > Root Directory
-2. Set to the package path (e.g., `apps/web`)
+2. Set to the package path (e.g., `apps/todox`)
 
 Vercel automatically:
 

@@ -188,7 +188,7 @@ MCP Tool Shortcuts:      0 (0%)
 Total Lines:          7,483
 Average File Size:      156 lines
 Largest File:           672 lines (apps/todox/AGENTS.md)
-Smallest File:           56 lines (apps/web/AGENTS.md)
+Smallest File:           56 lines (apps/todox/AGENTS.md)
 ```
 
 ## Next Steps

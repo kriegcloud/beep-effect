@@ -40,6 +40,10 @@ Keep checkpoint handoffs short and executable: current state, decisions made, ne
 
 This spec expects incremental PRs with acceptance gates. Suggested PR sequence:
 
+Gate style (non-negotiable):
+- Gates must be atomic `- [PASS/FAIL] ...` statements (grep-friendly; no prose gates).
+- Verification commands must be shell-safe (prefer single quotes around `rg` patterns; avoid backticks inside double-quotes in `zsh`).
+
 1. **PR0: Connected Accounts + typed scope expansion error**
    - Add Connections UI path for Google link/relink/unlink.
    - Add a typed error contract that includes `missingScopes` and relink parameters.

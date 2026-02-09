@@ -11,7 +11,7 @@
 - **Components** — React components for knowledge graph display and interaction.
 
 ## Usage Snapshots
-- `apps/web/` — Imports knowledge UI components for dashboard views.
+- `apps/todox/` — Imports knowledge UI components for dashboard views.
 - `apps/todox/` — May integrate knowledge graph features in task context.
 
 ## Authoring Guardrails

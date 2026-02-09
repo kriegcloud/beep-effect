@@ -127,6 +127,20 @@ ALWAYS choose the correct Effect Schema type based on the runtime value:
 - Use `S.Redacted` for user-provided credentials to suppress logging
 - Use plain `S.String` for server-generated tokens (already protected)
 
+## Layer Composition (REQUIRED)
+
+Layer graph drift is demo-fatal: it often surfaces late at `Layer.launch(...)` as missing Effect context. Prevent this by forcing module boundaries to be explicit.
+
+- All exported Layers must have an explicit `Layer.Layer<...>` type annotation.
+- All `serviceEffect` values must have an explicit `Effect.Effect<...>` type annotation.
+- If a Layer is only used in one module, provide dependencies in that module.
+- If a dependency set is shared, create an explicit `*BundleLive` layer and provide that bundle in consumers.
+- Any Layer launched from an app entrypoint must require `never` (`RIn = never`).
+
+Enforcement:
+- `bun run verify:layers`
+- `bun run verify:layers:ci`
+
 ## EntityId Usage (MANDATORY)
 
 ALWAYS use branded EntityIds from `@beep/shared-domain` for ID fields. NEVER use plain `S.String`.

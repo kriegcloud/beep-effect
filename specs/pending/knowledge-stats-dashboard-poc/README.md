@@ -85,7 +85,7 @@ Target packages:
 - `packages/knowledge/server` (SQL aggregates + RPC handlers)
 - `packages/knowledge/client` (RPC contracts + schemas)
 - `packages/knowledge/ui` (dashboard components)
-- `apps/web` (page route + wiring) or `apps/todox` (if product decision dictates; decide in P1)
+-  (page route + wiring) or `apps/todox` (if product decision dictates; decide in P1)
 
 ---
 

@@ -33,7 +33,7 @@ Encryption at rest
 
 Client worker pattern
 
-- Worker protocol examples in `packages/shared/client/src/atom/services/ImageCompressionClient.service.ts` and `apps/web/src/app/upload/_lib/atoms/internal/image-compression-worker.ts`.
+- Worker protocol examples in `packages/shared/client/src/atom/services/ImageCompressionClient.service.ts` and `apps/<next-app>/src/app/upload/_lib/atoms/internal/image-compression-worker.ts`.
 
 ## Threat model summary (MVP scope)
 
@@ -150,6 +150,25 @@ For direct PII fields
 - Use `S.Redacted` in schemas and `FieldSensitiveOptionOmittable` for optional columns.
 - Store `EncryptedPayload` for values that must be retrievable.
 - Store `sha256` or HMAC-based lookup token for exact-match search only.
+
+### MVP plaintext exceptions (temporary; demo only)
+
+Current MVP implementation deviates from the storage contracts above (and the “No plaintext raw body stored” gate) in these places:
+
+- `documents_document_version.content`: canonical, version-pinned content used for evidence spans and UTF-16 offsets.
+- `knowledge_email_thread.subject` and `knowledge_email_thread.participants`: thread metadata used for UI and basic thread display.
+
+Hard constraints while these exceptions exist
+
+- Only synthetic/demo orgs and demo provider accounts. Do not ingest real customer data into staging/prod until encryption-at-rest is implemented for these fields.
+- Do not index or embed these fields unless they pass through the redaction pipeline (and treat resulting embeddings/indexes as PII-bearing artifacts).
+- Do not log these values; log only ids, lengths, and counts.
+
+Required follow-up before “real data”
+
+- Store encrypted raw content (via `EncryptionService`) plus a redacted/sanitized derivative for UI/search.
+- Offsets remain defined against the decrypted canonical string for the cited `documentVersionId` (never against a redacted/sanitized derivative).
+- Provide an explicit migration/backfill plan for existing plaintext rows.
 
 ### Logging and telemetry gates
 

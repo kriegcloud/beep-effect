@@ -1,7 +1,7 @@
 # AGENTS — `@beep/runtime-client`
 
 ## Purpose & Fit
-- Anchors every browser surface that needs Effect services, OTLP telemetry, managed runtime assembly, effect-atom registries, and RPC worker access; `BeepProvider` wires these concerns into the App Router shell (`packages/runtime/client/src/beep-provider.tsx`) and mounts inside `apps/web/src/GlobalProviders.tsx`.
+- Anchors every browser surface that needs Effect services, OTLP telemetry, managed runtime assembly, effect-atom registries, and RPC worker access; `BeepProvider` wires these concerns into the App Router shell (`packages/runtime/client/src/beep-provider.tsx`) and mounts inside a Next.js app root (e.g. `apps/<next-app>/src/GlobalProviders.tsx`).
 - Mirrors `@beep/runtime-server` observability defaults while staying browser-safe via Web SDK exporters and local log tuning (`packages/runtime/client/src/layer.ts`).
 - Supplies entry points for IAM/UI slices to run Effects through `ManagedRuntime.make` and `Atom.runtime`, keeping dependency injection aligned with shared domains and worker contracts (`packages/runtime/client/src/runtime.ts`).
 - Pairs with the `@effect-atom/atom-react` registry so atoms created with `Atom.runtime` share the same `LiveManagedRuntime` once `KaServices` is mounted under the app-level `RegistryProvider` (`packages/runtime/client/src/services/ka-services.ts`).
@@ -15,9 +15,9 @@
 - `NetworkMonitor` & `WorkerClient` — gate network-bound Effects on connectivity and expose the RPC worker transport inside the runtime (`packages/runtime/client/src/services/network-monitor.ts`, `packages/runtime/client/src/workers/worker-client.ts`).
 
 ## Usage Snapshots
-- `BeepProvider` hosts global providers before UI shells mount (`apps/web/src/GlobalProviders.tsx`).
-- `KaServices` sits under the `RegistryProvider` at the root layout so all client atoms share the same runtime (`apps/web/src/app/layout.tsx`).
-- `makeRunClientPromise` wraps imperative handlers to preserve spans when bridging to UI callbacks (`apps/web/src/app/dashboard/_layout-client.tsx`).
+- `BeepProvider` hosts global providers before UI shells mount (e.g. `apps/<next-app>/src/GlobalProviders.tsx`).
+- `KaServices` sits under the `RegistryProvider` at the root layout so all client atoms share the same runtime (e.g. `apps/<next-app>/src/app/layout.tsx`).
+- `makeRunClientPromise` wraps imperative handlers to preserve spans when bridging to UI callbacks (e.g. `apps/<next-app>/src/app/**/_layout-client.tsx`).
 
 ## Authoring Guardrails
 - Namespace Effect imports (`import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, `import * as Str from "effect/String";`); native array/string/object helpers remain forbidden—pipe through the Effect collections utilities.

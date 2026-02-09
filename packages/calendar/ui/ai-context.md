@@ -28,7 +28,7 @@ React component library for calendar display and event management. Provides Cale
          v
 |-------------------|
 |    Web Apps       |
-| (apps/web, etc)   |
+| (apps/todox, etc) |
 |-------------------|
 ```
 
@@ -114,5 +114,4 @@ type ViewMode = "month" | "week" | "day" | "list";
 
 - **AGENTS.md** - Detailed contributor guidance for UI authoring
 - `packages/calendar/client` - Data fetching contracts
-- `apps/web` - Primary consumer of calendar UI
 - `packages/ui` - Base component library

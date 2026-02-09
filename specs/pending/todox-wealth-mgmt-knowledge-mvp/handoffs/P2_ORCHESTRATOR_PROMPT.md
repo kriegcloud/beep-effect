@@ -21,6 +21,7 @@ MVP credibility depends on deterministic, restart-safe, evidence-grounded behavi
 Implement and harden the MVP demo path so it is deterministic, restart-safe, and isolation-safe.
 
 - Implement the PR plan in `outputs/P1_PR_BREAKDOWN.md`, preserving all acceptance gates.
+- Keep gates in atomic `- [PASS/FAIL] ...` form; do not rewrite into prose or weaken invariants.
 - Add hardening tests:
   - cross-org leakage tests for every demo critical path, including embeddings/vector search
   - evidence resolvability tests (no dead links)
@@ -63,6 +64,7 @@ bun run test
 
 - [ ] After restart, meeting prep outputs still resolve to evidence spans and highlight correctly.
 - [ ] No relation evidence resolution depends on `relation.extractionId -> extraction.documentId`.
+- [ ] TodoX calls only `apps/server` for Gmail/OAuth actions; no direct Gmail/OAuth calls from Next route handlers.
 - [ ] Cross-org tests exist and pass for: documents, knowledge graph, evidence list, embeddings, meeting prep.
 
 ### Handoff Document

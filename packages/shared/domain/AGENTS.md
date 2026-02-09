@@ -27,7 +27,7 @@
 - **`src/_internal/*`** — Implementation details (`manual-cache` data structures, `path-builder` recursion, `policy.makePermissions`, `policy-builder`). Do not import these directly from downstream slices; they are subject to churn.
 
 ## Usage Snapshots
-- `apps/web/src/providers/AuthGuard.tsx` — redirects anonymous users with `paths.auth.signIn` inside router effects.
+- `apps/<next-app>/src/providers/AuthGuard.tsx` — redirects anonymous users with `paths.auth.signIn` inside router effects.
 - `packages/iam/server/src/adapters/better-auth/BetterAuthBridge.ts` — consumes `IamEntityIds`, `SharedEntityIds`, and `paths` when configuring Better Auth hooks and email URLs.
 - See `EntityIds` for branded ID types.
 - See `test/entities/File/schemas/UploadPath.test.ts` for `File.UploadKey` encode/decode round-trips and shard prefix guarantees.

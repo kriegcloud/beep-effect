@@ -4,7 +4,7 @@ import type { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
 import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import { AuthContext, type AuthContextShape } from "@beep/shared-domain/Policy";
+import { AuthContext } from "@beep/shared-domain/Policy";
 import { thunkTrue } from "@beep/utils";
 import type * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";
@@ -20,8 +20,8 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
-import { OntologyService } from "../Ontology";
+import { ChunkingConfig, defaultChunkingConfig, NlpService, NlpServiceLive, type TextChunk } from "../Nlp";
+import { OntologyService, OntologyServiceLive } from "../Ontology";
 import { ProvenanceEmitter, ProvenanceEmitterLive, RdfStore, RdfStoreLive } from "../Rdf";
 import { ProvenanceMetadata } from "../Rdf/ProvenanceEmitter";
 import { ClassifyInput, DocumentClassifier, DocumentClassifierLive } from "../Service/DocumentClassifier";
@@ -104,7 +104,6 @@ const serviceEffect: Effect.Effect<
   | RdfStore
   | ProvenanceEmitter
   | DocumentClassifier
-  | AuthContext
 > = Effect.gen(function* () {
   const nlp = yield* NlpService;
   const mentionExtractor = yield* MentionExtractor;
@@ -117,9 +116,16 @@ const serviceEffect: Effect.Effect<
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
   const maybeClassifier = yield* Effect.serviceOption(DocumentClassifier);
 
-  const authCtx = yield* AuthContext;
   const run = Effect.fnUntraced(
     function* (text: string, ontologyContent: string, config: ExtractionPipelineConfig) {
+      const actorUserId = yield* Effect.serviceOption(AuthContext).pipe(
+        Effect.map(
+          O.match({
+            onNone: () => "app",
+            onSome: (ctx) => ctx.session.userId,
+          })
+        )
+      );
       const encodedConfig = yield* S.encode(ExtractionPipelineConfig)(config);
       const startTime = yield* DateTime.now;
       const extractionId = KnowledgeEntityIds.ExtractionId.create();
@@ -243,7 +249,7 @@ const serviceEffect: Effect.Effect<
           onNone: () => Effect.logDebug("IncrementalClustering requested but IncrementalClusterer not provided"),
           onSome: Effect.fn(
             function* (clusterer) {
-              const records = yield* buildMentionRecords(mentionResults, authCtx, config, extractionId);
+              const records = yield* buildMentionRecords(mentionResults, actorUserId, config, extractionId);
               yield* clusterer.cluster(records);
               yield* Effect.logInfo("Incremental clustering completed").pipe(
                 Effect.annotateLogs({ mentionCount: A.length(records) })
@@ -269,7 +275,7 @@ const serviceEffect: Effect.Effect<
         new ProvenanceMetadata({
           extractionId,
           documentId: config.documentId,
-          actorUserId: authCtx.session.userId,
+          actorUserId,
           startedAt: startTime,
           endedAt: endTime,
         })
@@ -309,13 +315,15 @@ const serviceEffect: Effect.Effect<
 });
 
 export const ExtractionPipelineLive = Layer.effect(ExtractionPipeline, serviceEffect).pipe(
-  Layer.provide(MentionExtractorLive),
-  Layer.provide(EntityExtractorLive),
-  Layer.provide(RelationExtractorLive),
-  Layer.provide(GraphAssemblerLive),
-  Layer.provide(ProvenanceEmitterLive),
-  Layer.provide(DocumentClassifierLive),
-  Layer.provide(RdfStoreLive)
+  Layer.provideMerge(MentionExtractorLive),
+  Layer.provideMerge(EntityExtractorLive),
+  Layer.provideMerge(RelationExtractorLive),
+  Layer.provideMerge(GraphAssemblerLive),
+  Layer.provideMerge(ProvenanceEmitterLive),
+  Layer.provideMerge(DocumentClassifierLive),
+  Layer.provideMerge(OntologyServiceLive),
+  Layer.provideMerge(RdfStoreLive),
+  Layer.provideMerge(NlpServiceLive)
 );
 
 const mapEntitiesToChunks = (
@@ -365,7 +373,7 @@ const filterUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> 
 
 const buildMentionRecords = (
   mentionResults: readonly MentionExtractionResult[],
-  authCtx: AuthContextShape,
+  actorUserId: string,
   config: ExtractionPipelineConfig,
   extractionId: KnowledgeEntityIds.ExtractionId.Type
 ): Effect.Effect<ReadonlyArray<S.Schema.Type<typeof MentionRecord.Model.insert>>> =>
@@ -391,8 +399,8 @@ const buildMentionRecords = (
           extractedAt: now,
           source: O.some($I`ExtractionPipeline`),
           deletedAt: O.none(),
-          createdBy: authCtx.session.userId,
-          updatedBy: authCtx.session.userId,
+          createdBy: O.some(actorUserId),
+          updatedBy: O.some(actorUserId),
           deletedBy: O.none(),
           resolvedEntityId: O.none(),
         });

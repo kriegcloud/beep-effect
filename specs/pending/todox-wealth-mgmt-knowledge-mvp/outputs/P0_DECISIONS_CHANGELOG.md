@@ -13,7 +13,7 @@
   - Converted remaining items to `PROPOSED` with explicit rationale and added P0 exit checklist.
 
 - Tightened and locked additional decisions:
-  - Locked D-06 to hash the persisted document payload (`sha256(canonicalJson({ title, content, metadata }))`) to preserve evidence-offset determinism.
+  - Locked D-06 to hash only the persisted `title/content` payload (`sha256(canonicalJson({ title, content }))`) to preserve evidence-offset determinism (exclude mailbox/provenance state).
   - Locked D-07 to strict unique forever on the mapping (tombstone + resurrect).
   - Locked D-08 to plan/implement a dedicated `relation_evidence` table as the relation evidence-of-record.
   - Locked D-12 (MVP) to single-node durable workflow topology.
@@ -33,3 +33,17 @@
 - Locked D-17 (MVP) output disclosure policy:
   - Allow disclosure only when evidence-cited and necessary; otherwise redact/minimize.
   - Require a compliance-safe disclaimer and avoid guarantees in meeting-prep output.
+
+- Finalized and locked remaining P0 contracts (to prevent implementation churn):
+  - Locked C-01 with an explicit wire payload shape (`tag/providerId/missingScopes/relink{...}`) so UI can remediate without string matching.
+  - Locked C-06 (provider account selection required) with an explicit wire payload shape so multi-account flows never “pick first”.
+  - Clarified wire-vs-internal tagging: server boundaries must emit `tag` (not `_tag`) for C-01/C-06 payloads so clients never match on Effect internals.
+  - Expanded and locked C-03 Gmail → Documents mapping invariants (mapping key, `sourceThreadId` naming, idempotency, tombstone + resurrect, and providerAccount scoping).
+  - Clarified offset semantics across C-02/C-05: 0-indexed, half-open `[startChar, endChar)` ranges in UTF-16 code units.
+  - Added an explicit evidence-of-record example span in C-02 (pins `documentVersionId` + offsets).
+  - Added a meeting-prep bullet evidence invariant to C-02: `source.meetingPrepBulletId` must be set on evidence rows when filtering by `meetingPrepBulletId`.
+  - Reconciled D-06 `sourceHash` definition with C-03: hash only persisted `title/content` (exclude mailbox-state/provenance fields) to avoid unnecessary version churn.
+
+- Updated `outputs/P1_PR_BREAKDOWN.md` gates to reference the locked contracts:
+  - PR0 now has explicit pass/fail gates for the C-01 scope expansion payload shape.
+  - PR1 now has explicit gates for C-03 mapping invariants and D-06/D-07 idempotency semantics.

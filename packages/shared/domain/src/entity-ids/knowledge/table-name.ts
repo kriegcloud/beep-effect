@@ -30,7 +30,12 @@ export class TableName extends BS.StringLiteralKit(
   Ids.WorkflowActivityId.tableName,
   Ids.WorkflowSignalId.tableName,
   Ids.BatchExecutionId.tableName,
-  Ids.KnowledgeAgentId.tableName
+  Ids.KnowledgeAgentId.tableName,
+  Ids.RelationEvidenceId.tableName,
+  Ids.MeetingPrepBulletId.tableName,
+  Ids.MeetingPrepEvidenceId.tableName,
+  Ids.EmailThreadId.tableName,
+  Ids.EmailThreadMessageId.tableName
 ).annotations(
   $I.annotations("KnowledgeTableName", {
     description: "A sql table name for an entity within the knowledge domain context",

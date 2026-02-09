@@ -12,7 +12,7 @@
 - **Handlers** — Effect-based handlers for client-side knowledge operations.
 
 ## Usage Snapshots
-- `apps/web/` — Imports knowledge client for GraphRAG query interface.
+- `apps/todox/` — Imports knowledge client for GraphRAG query interface.
 - `packages/knowledge/server/` — Server implements contracts defined here.
 
 ## Authoring Guardrails

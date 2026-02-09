@@ -175,6 +175,11 @@ const formatAsSummary = (report: ViolationReport): Effect.Effect<void> =>
     // Group by type category
     const entityIdTypes = ["entityid-domain", "entityid-client", "entityid-table"];
     const patternTypes = ["native-set", "native-map", "native-error", "native-date"];
+    const layerTypes = [
+      "layer-export-missing-annotation",
+      "layer-live-missing-annotation",
+      "serviceeffect-missing-annotation",
+    ];
 
     // EntityId violations
     const hasEntityIdViolations = F.pipe(
@@ -210,6 +215,34 @@ const formatAsSummary = (report: ViolationReport): Effect.Effect<void> =>
           const icon = count.value > 0 ? (isWarning ? pc.yellow("\u26a0") : pc.red("\u2717")) : pc.green("\u2713");
           const label = F.pipe(type, Str.replace("native-", "Native "));
           const suffix = isWarning && count.value > 0 ? " (warning)" : "";
+          yield* Console.log(`  ${icon} ${label}: ${count.value} violations${suffix}`);
+        }
+      }
+      yield* Console.log("");
+    }
+
+    // Layer hygiene violations
+    const hasLayerViolations = F.pipe(
+      layerTypes,
+      A.some((t) => R.has(report.summary.byType, t))
+    );
+
+    if (hasLayerViolations) {
+      yield* Console.log(pc.bold("Layer Hygiene Violations:"));
+      for (const type of layerTypes) {
+        const count = R.get(report.summary.byType, type);
+        if (count._tag === "Some") {
+          const isCritical = type === "layer-export-missing-annotation";
+          const icon = count.value > 0 ? (isCritical ? pc.red("\u2717") : pc.yellow("\u26a0")) : pc.green("\u2713");
+
+          const label = Match.value(type).pipe(
+            Match.when("layer-export-missing-annotation", () => "exported layer missing annotation"),
+            Match.when("layer-live-missing-annotation", () => "exported *Live/*Layer missing annotation"),
+            Match.when("serviceeffect-missing-annotation", () => "serviceEffect missing annotation"),
+            Match.orElse(() => type)
+          );
+
+          const suffix = !isCritical && count.value > 0 ? " (warning)" : "";
           yield* Console.log(`  ${icon} ${label}: ${count.value} violations${suffix}`);
         }
       }

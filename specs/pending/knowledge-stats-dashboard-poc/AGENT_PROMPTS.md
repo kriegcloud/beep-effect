@@ -23,7 +23,7 @@ Deliverable:
 - Write `specs/pending/knowledge-stats-dashboard-poc/outputs/codebase-context.md`
 
 Include:
-- Candidate route location (`apps/web` vs `apps/todox`) with evidence
+- Candidate route location ( vs `apps/todox`) with evidence
 - Confirm how the **Knowledge Base** tab is implemented and where to attach the dashboard route/nav item
 - Existing stats/ontology endpoints, if any
 - Suggested file touch list for P2-P5
@@ -120,7 +120,7 @@ You are implementing Phase 5 for Knowledge Stats Dashboard POC.
 Goal: add a page route and wire RPC -> UI.
 
 Requirements:
-- Choose `apps/web` vs `apps/todox` based on Discovery evidence.
+- Choose  vs `apps/todox` based on Discovery evidence.
 - Ensure dark mode acceptable.
 - Ensure mobile doesn’t hard-break (graph can collapse behind a tab).
 

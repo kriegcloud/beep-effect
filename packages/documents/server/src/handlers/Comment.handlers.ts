@@ -1,5 +1,6 @@
 import { Comment } from "@beep/documents-domain/entities";
 import { CommentRepo } from "@beep/documents-server/db";
+import { Policy } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -14,7 +15,9 @@ import * as Stream from "effect/Stream";
  * - Expected errors (e.g., CommentNotFoundError) pass through to the RPC layer
  * - Unexpected errors (e.g., DbError) are converted to defects via Effect.orDie
  */
-export const CommentHandlersLive = Comment.CommentRpcs.Rpcs.toLayer(
+const CommentRpcsWithMiddleware = Comment.CommentRpcs.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
+
+export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
   Effect.gen(function* () {
     const repo = yield* CommentRepo;
 

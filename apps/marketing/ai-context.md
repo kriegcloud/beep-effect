@@ -74,7 +74,7 @@ import Image from "next/image";
 |----------|-----------|
 | No Effect runtime | Simplicity for static marketing content |
 | Tailwind-only styling | No component library overhead |
-| Separate from @beep/web | Independent deployment, isolated concerns |
+| Separate from @beep/todox | Independent deployment, isolated concerns |
 | Static generation | Performance, SEO, CDN caching |
 
 ## Dependencies
@@ -86,4 +86,3 @@ import Image from "next/image";
 ## Related
 
 - **AGENTS.md** - Detailed contributor guidance
-- **apps/web** - Main application (separate deployment)

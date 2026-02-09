@@ -28,7 +28,7 @@ Critical blocker carried into P5:
 Operational defects observed during P4 reruns (not parser blocker):
 - `bun run lint` failed in `@beep/knowledge-domain#lint` due formatting/import ordering.
 - `bun run test` failed in `@beep/repo-cli#test` due 5000ms timeout in `ast utilities > analyzeSourceFile > analyzes exports from a source file`.
-- `bun run build` failed in `@beep/web#build` due module resolution: `Can't resolve './BatchConfig.value.js'` from `packages/knowledge/domain/src/value-objects/BatchMachine.schema.ts:6:1`.
+- `bun run build` failed in `@beep/todox#build` due module resolution: `Can't resolve './BatchConfig.value.js'` from `packages/knowledge/domain/src/value-objects/BatchMachine.schema.ts:6:1`.
 
 ---
 

@@ -12,7 +12,7 @@ Cross-slice client-side infrastructure bridging server contracts with browser st
 
 ```
 |------------------------|     |------------------------|
-|   apps/web (React)     | --> |  @beep/shared-client   |
+|   apps/* (React)       | --> |  @beep/shared-client   |
 |------------------------|     |------------------------|
                                        |
          |---------------|-------------|---------------|

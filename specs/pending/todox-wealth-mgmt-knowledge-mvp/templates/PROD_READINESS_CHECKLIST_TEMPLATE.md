@@ -4,7 +4,7 @@
 
 ## Release Metadata
 
-- Service/app(s): `[apps/web | apps/todox | apps/server | other]`
+- Service/app(s): `[apps/todox | apps/marketing | apps/server | other]`
 - Environment: `[pilot | staging | prod]`
 - Release id: `[git sha / tag / build id]`
 - Date: `[YYYY-MM-DD]`
@@ -89,4 +89,3 @@
 - Product sign-off: `[name/date]`
 - Engineering sign-off: `[name/date]`
 - Security/compliance sign-off: `[name/date or N/A for MVP with documented rationale]`
-

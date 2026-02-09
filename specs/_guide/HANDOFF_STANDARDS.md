@@ -214,6 +214,11 @@ For EACH external API method in the handoff:
 4. Documented ALL fields including optional/null fields
 ````
 
+#### Closure Rule (No Lingering TBD)
+
+- The Source Verification table must not ship with `TBD` placeholders at phase end.
+- If a method/surface is truly not applicable to the phase, record `N/A` (not `TBD`) with a brief reason.
+
 #### Common Mistakes
 
 **WRONG** (assumed response):

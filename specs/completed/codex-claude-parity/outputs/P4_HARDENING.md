@@ -53,7 +53,7 @@ Result summary:
   - Failing test: `ast utilities > analyzeSourceFile > analyzes exports from a source file`
   - Failure mode: timeout after 5000ms
 - `build_exit=1`
-  - Failing package: `@beep/web#build`
+  - Failing package: `@beep/todox#build`
   - Root error: module resolution failure
   - `Module not found: Can't resolve './BatchConfig.value.js'` from `packages/knowledge/domain/src/value-objects/BatchMachine.schema.ts:6:1`
 

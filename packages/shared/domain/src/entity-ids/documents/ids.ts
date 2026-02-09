@@ -40,6 +40,24 @@ export declare namespace DocumentVersionId {
   }
 }
 
+export const DocumentSourceId = make("document_source", {
+  brand: "DocumentSourceId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("DocumentSourceId", {
+    description: "A unique identifier for a Document provenance/source mapping",
+  })
+);
+
+export declare namespace DocumentSourceId {
+  export type Type = typeof DocumentSourceId.Type;
+  export type Encoded = typeof DocumentSourceId.Encoded;
+  export namespace RowId {
+    export type Type = typeof DocumentSourceId.privateSchema.Type;
+    export type Encoded = typeof DocumentSourceId.privateSchema.Encoded;
+  }
+}
+
 export const DiscussionId = make("discussion", {
   brand: "DiscussionId",
   actions: ["create", "read", "update", "delete", "*"],
@@ -97,6 +115,7 @@ export declare namespace DocumentFileId {
 export const Ids = {
   DocumentId,
   DocumentVersionId,
+  DocumentSourceId,
   DiscussionId,
   CommentId,
   DocumentFileId,

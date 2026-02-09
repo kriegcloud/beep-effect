@@ -32,7 +32,7 @@ The spec is strong on technical depth, contracts, and execution gates, but it mi
 - Orchestrator prompts lack required sections (mission, critical patterns, reference files, success criteria, link to handoff).
 
 3) **Connections UI host is inconsistent across outputs**
-- `R6_OAUTH_SCOPE_EXPANSION_FLOW.md` suggests an `apps/web` Integrations page, but `README.md`, `AGENT_PROMPTS.md`, and `P1_PR_BREAKDOWN.md` assume TodoX settings tab. This is a scope/ownership drift that will fragment UI work.
+- `R6_OAUTH_SCOPE_EXPANSION_FLOW.md` suggests an  Integrations page, but `README.md`, `AGENT_PROMPTS.md`, and `P1_PR_BREAKDOWN.md` assume TodoX settings tab. This is a scope/ownership drift that will fragment UI work.
 
 4) **Evidence.List canonical shape is inconsistent across outputs**
 - `R8_PROVENANCE_PERSISTENCE_AND_API.md` uses `sourceType/sourceId` while `R12_EVIDENCE_MODEL_CANON.md` and `P0_DECISIONS.md` define a different canonical shape (`kind`, `source`, and `documentVersionId`). The spec must lock a single contract.
@@ -141,7 +141,7 @@ Replace the section under **“UI Wiring Location (Suggested)”** with:
 ```markdown
 Given the current UI state, the canonical location is:
 - TodoX Settings → Connections tab (`settingsTab=connections`) in `apps/todox`.
-- `apps/web` should not host this MVP surface.
+-  should not host this MVP surface.
 ```
 
 ### 5) Canonicalize Evidence.List contract across R8/R12

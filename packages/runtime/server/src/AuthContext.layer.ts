@@ -2,7 +2,7 @@ import { BeepError } from "@beep/errors";
 import { Auth, IamDb } from "@beep/iam-server";
 import { IamDbSchema } from "@beep/iam-tables";
 import { Organization, Session, User } from "@beep/shared-domain/entities";
-import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import {
   AuthContext,
   AuthContextHttpMiddleware,
@@ -10,6 +10,7 @@ import {
   type AuthContextShape,
   OAuthAccountsError,
   OAuthTokenError,
+  ProviderAccountSelectionRequiredError,
 } from "@beep/shared-domain/Policy";
 import type { DateTimeInput } from "@beep/shared-tables/columns";
 import * as PlatformHeaders from "@effect/platform/Headers";
@@ -23,6 +24,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import { requireProviderAccountId } from "./AuthContext/providerAccountSelection";
 import * as Authentication from "./Authentication.layer";
 
 /**
@@ -119,36 +121,122 @@ const getAuthContext = Effect.fnUntraced(function* ({
     )
   );
 
+  const listProviderAccounts = ({ providerId, userId }: { readonly providerId: string; readonly userId: string }) =>
+    execute((client) =>
+      client
+        .select()
+        .from(IamDbSchema.account)
+        .where(
+          and(
+            eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
+            eq(IamDbSchema.account.providerId, providerId)
+          )
+        )
+    ).pipe(
+      Effect.map((rows) =>
+        rows.map((acc) => ({
+          providerAccountId: acc.id,
+          accountId: acc.accountId ?? undefined,
+          scope: acc.scope ?? undefined,
+        }))
+      ),
+      Effect.mapError(
+        (error) =>
+          new OAuthAccountsError({
+            message: `Failed to list provider accounts: ${String(error)}`,
+          })
+      )
+    );
+
   return AuthContext.of({
     user,
     session,
     organization: currentOrg,
     oauth: {
-      getAccessToken: ({ providerId, userId }: { providerId: string; userId: string }) =>
-        Effect.tryPromise({
-          try: () => auth.api.getAccessToken({ body: { providerId, userId } }),
-          catch: (error) =>
-            new OAuthTokenError({
-              message: `Failed to get access token: ${String(error)}`,
-              providerId,
-            }),
-        }).pipe(
-          Effect.map((result) => O.fromNullable(result?.accessToken ? { accessToken: result.accessToken } : null))
-        ),
-      getProviderAccount: ({ providerId, userId }: { providerId: string; userId: string }) =>
-        execute((client) =>
-          client
-            .select()
-            .from(IamDbSchema.account)
-            .where(
-              and(
-                eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
-                eq(IamDbSchema.account.providerId, providerId)
+      listProviderAccounts,
+
+      getAccessToken: ({
+        providerId,
+        userId,
+        providerAccountId,
+      }: {
+        providerId: string;
+        userId: string;
+        providerAccountId?: string | undefined;
+      }) =>
+        Effect.gen(function* () {
+          const selectedProviderAccountId = yield* requireProviderAccountId({
+            providerId,
+            providerAccountId,
+            callbackURL: "/settings?settingsTab=connections",
+            listCandidates: listProviderAccounts({ providerId, userId }).pipe(
+              Effect.mapError(
+                (e) =>
+                  new OAuthTokenError({
+                    message: e.message,
+                    providerId,
+                  })
               )
-            )
-        ).pipe(
-          Effect.map(A.head),
-          Effect.map(
+            ),
+          });
+
+          const token = yield* Effect.tryPromise({
+            try: () =>
+              auth.api.getAccessToken({
+                body: {
+                  providerId,
+                  userId,
+                  ...(selectedProviderAccountId !== undefined && { accountId: selectedProviderAccountId }),
+                },
+              }),
+            catch: (error) =>
+              new OAuthTokenError({
+                message: `Failed to get access token: ${String(error)}`,
+                providerId,
+              }),
+          });
+
+          return O.fromNullable(token?.accessToken ? { accessToken: token.accessToken } : null);
+        }),
+
+      getProviderAccount: ({
+        providerId,
+        userId,
+        providerAccountId,
+      }: {
+        providerId: string;
+        userId: string;
+        providerAccountId?: string | undefined;
+      }) =>
+        Effect.gen(function* () {
+          if (providerId === "google" && providerAccountId === undefined) {
+            const candidates = yield* listProviderAccounts({ providerId, userId });
+            return yield* new ProviderAccountSelectionRequiredError({
+              providerId: "google",
+              requiredParam: "providerAccountId",
+              candidates,
+              select: { callbackURL: "/settings?settingsTab=connections" },
+              message: "providerAccountId is required",
+            });
+          }
+
+          const row =
+            providerAccountId === undefined || !IamEntityIds.AccountId.is(providerAccountId)
+              ? O.none()
+              : yield* execute((client) =>
+                  client
+                    .select()
+                    .from(IamDbSchema.account)
+                    .where(
+                      and(
+                        eq(IamDbSchema.account.id, providerAccountId),
+                        eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
+                        eq(IamDbSchema.account.providerId, providerId)
+                      )
+                    )
+                ).pipe(Effect.map(A.head));
+
+          return row.pipe(
             O.map((acc) => ({
               id: acc.id,
               providerId: acc.providerId,
@@ -158,12 +246,14 @@ const getAuthContext = Effect.fnUntraced(function* ({
               accessTokenExpiresAt: O.fromNullable(acc.accessTokenExpiresAt ? toDate(acc.accessTokenExpiresAt) : null),
               refreshToken: O.fromNullable(acc.refreshToken),
             }))
-          ),
-          Effect.mapError(
-            (error) =>
-              new OAuthAccountsError({
-                message: `Failed to get provider account: ${String(error)}`,
-              })
+          );
+        }).pipe(
+          Effect.mapError((error) =>
+            error instanceof ProviderAccountSelectionRequiredError
+              ? error
+              : new OAuthAccountsError({
+                  message: `Failed to get provider account: ${String(error)}`,
+                })
           )
         ),
     },
@@ -257,57 +347,141 @@ const getAuthContextFromToken = Effect.fnUntraced(function* (
       Effect.mapError(() => new BeepError.Unauthorized({ message: "Organization not found" }))
     );
 
+  const listProviderAccounts = ({ providerId, userId }: { readonly providerId: string; readonly userId: string }) =>
+    iamDb
+      .execute((client) =>
+        client
+          .select()
+          .from(IamDbSchema.account)
+          .where(
+            and(
+              eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
+              eq(IamDbSchema.account.providerId, providerId)
+            )
+          )
+      )
+      .pipe(
+        Effect.map((rows) =>
+          rows.map((acc) => ({
+            providerAccountId: acc.id,
+            accountId: acc.accountId ?? undefined,
+            scope: acc.scope ?? undefined,
+          }))
+        ),
+        Effect.mapError(
+          (error) =>
+            new OAuthAccountsError({
+              message: `Failed to list provider accounts: ${String(error)}`,
+            })
+        )
+      );
+
   return AuthContext.of({
     user,
     session,
     organization: currentOrg,
     oauth: {
-      getAccessToken: ({ providerId, userId }: { providerId: string; userId: string }) =>
-        Effect.tryPromise({
-          try: () => auth.api.getAccessToken({ body: { providerId, userId } }),
-          catch: (error) =>
-            new OAuthTokenError({
-              message: `Failed to get access token: ${String(error)}`,
-              providerId,
-            }),
-        }).pipe(
-          Effect.map((result) => O.fromNullable(result?.accessToken ? { accessToken: result.accessToken } : null))
-        ),
-      getProviderAccount: ({ providerId, userId }: { providerId: string; userId: string }) =>
-        iamDb
-          .execute((client) =>
-            client
-              .select()
-              .from(IamDbSchema.account)
-              .where(
-                and(
-                  eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
-                  eq(IamDbSchema.account.providerId, providerId)
-                )
+      listProviderAccounts,
+
+      getAccessToken: ({
+        providerId,
+        userId,
+        providerAccountId,
+      }: {
+        providerId: string;
+        userId: string;
+        providerAccountId?: string | undefined;
+      }) =>
+        Effect.gen(function* () {
+          if (providerId === "google" && providerAccountId === undefined) {
+            const candidates = yield* listProviderAccounts({ providerId, userId }).pipe(
+              Effect.mapError(
+                (e) =>
+                  new OAuthTokenError({
+                    message: e.message,
+                    providerId,
+                  })
               )
-          )
-          .pipe(
-            Effect.map(A.head),
-            Effect.map(
-              O.map((acc) => ({
-                id: acc.id,
-                providerId: acc.providerId,
-                accountId: acc.accountId,
-                userId: acc.userId,
-                scope: O.fromNullable(acc.scope),
-                accessTokenExpiresAt: O.fromNullable(
-                  acc.accessTokenExpiresAt ? toDate(acc.accessTokenExpiresAt) : null
-                ),
-                refreshToken: O.fromNullable(acc.refreshToken),
-              }))
-            ),
-            Effect.mapError(
-              (error) =>
-                new OAuthAccountsError({
+            );
+            return yield* new ProviderAccountSelectionRequiredError({
+              providerId: "google",
+              requiredParam: "providerAccountId",
+              candidates,
+              select: { callbackURL: "/settings?settingsTab=connections" },
+              message: "providerAccountId is required",
+            });
+          }
+
+          const token = yield* Effect.tryPromise({
+            try: () =>
+              auth.api.getAccessToken({
+                body: { providerId, userId, ...(providerAccountId !== undefined && { accountId: providerAccountId }) },
+              }),
+            catch: (error) =>
+              new OAuthTokenError({
+                message: `Failed to get access token: ${String(error)}`,
+                providerId,
+              }),
+          });
+
+          return O.fromNullable(token?.accessToken ? { accessToken: token.accessToken } : null);
+        }),
+
+      getProviderAccount: ({
+        providerId,
+        userId,
+        providerAccountId,
+      }: {
+        providerId: string;
+        userId: string;
+        providerAccountId?: string | undefined;
+      }) =>
+        Effect.gen(function* () {
+          const selectedProviderAccountId = yield* requireProviderAccountId({
+            providerId,
+            providerAccountId,
+            callbackURL: "/settings?settingsTab=connections",
+            listCandidates: listProviderAccounts({ providerId, userId }),
+          });
+
+          const row =
+            selectedProviderAccountId === undefined || !IamEntityIds.AccountId.is(selectedProviderAccountId)
+              ? O.none()
+              : yield* iamDb
+                  .execute((client) =>
+                    client
+                      .select()
+                      .from(IamDbSchema.account)
+                      .where(
+                        and(
+                          eq(IamDbSchema.account.id, selectedProviderAccountId),
+                          eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
+                          eq(IamDbSchema.account.providerId, providerId)
+                        )
+                      )
+                  )
+                  .pipe(Effect.map(A.head));
+
+          return row.pipe(
+            O.map((acc) => ({
+              id: acc.id,
+              providerId: acc.providerId,
+              accountId: acc.accountId,
+              userId: acc.userId,
+              scope: O.fromNullable(acc.scope),
+              accessTokenExpiresAt: O.fromNullable(acc.accessTokenExpiresAt ? toDate(acc.accessTokenExpiresAt) : null),
+              refreshToken: O.fromNullable(acc.refreshToken),
+            }))
+          );
+        }).pipe(
+          Effect.mapError((error) =>
+            error instanceof ProviderAccountSelectionRequiredError
+              ? error
+              : new OAuthAccountsError({
                   message: `Failed to get provider account: ${String(error)}`,
                 })
-            )
-          ),
+          )
+        ),
     },
   });
 });

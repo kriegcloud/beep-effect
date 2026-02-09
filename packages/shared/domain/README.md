@@ -4,7 +4,7 @@ Shared domain logic, entities, and infrastructure primitives for the beep-effect
 
 ## Purpose
 
-`@beep/shared-domain` provides the foundational domain layer consumed across IAM, Documents, and Files slices. It defines branded entity IDs, Effect-based models, RPC contracts, authorization policies, caching primitives, retry strategies, encryption services, and typed routing paths that power `apps/web` and `apps/server`.
+`@beep/shared-domain` provides the foundational domain layer consumed across IAM, Documents, and Files slices. It defines branded entity IDs, Effect-based models, RPC contracts, authorization policies, caching primitives, retry strategies, encryption services, and typed routing paths that power  and `apps/server`.
 
 Built on `@beep/schema` utilities and `@effect/sql/Model`, this package ensures consistent entity definitions, audit tracking, and cross-slice interoperability. RPC contracts enable type-safe client-server communication for file operations and real-time event streaming.
 
@@ -643,7 +643,7 @@ For detailed API documentation, see [AGENTS.md](./AGENTS.md).
 
 ### Apps
 
-- `apps/web` - Uses `paths` for routing, `Policy` for auth guards
+-  - Uses `paths` for routing, `Policy` for auth guards
 - `apps/server` - Consumes entity models, policies, and retry strategies
 
 ### Packages

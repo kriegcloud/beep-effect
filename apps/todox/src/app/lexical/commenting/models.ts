@@ -1,7 +1,7 @@
 import { $TodoxId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
-import { noOp } from "@beep/utils";
+import { hasProperties, noOp } from "@beep/utils";
 import {
   type Provider as _Provider,
   type ProviderAwareness as _ProviderAwareness,
@@ -38,21 +38,6 @@ export class Doc extends S.instanceOf(_Doc).annotations(
 export declare namespace Doc {
   export type Type = typeof Doc.Type;
 }
-export const hasProperties: {
-  <Properties extends A.NonEmptyReadonlyArray<PropertyKey>>(
-    ...properties: Properties
-  ): (self: unknown) => self is { [K in Properties[number]]: unknown };
-  <Properties extends A.NonEmptyReadonlyArray<PropertyKey>>(
-    self: unknown,
-    properties: Properties
-  ): self is { [K in Properties[number]]: unknown };
-} = F.dual(
-  2,
-  <Properties extends A.NonEmptyReadonlyArray<PropertyKey>>(
-    self: unknown,
-    property: Properties
-  ): self is { [K in Properties[number]]: unknown } => P.isObject(self) && A.every(property, P.hasProperty)
-);
 
 export class ProviderAwareness extends S.declare((u: unknown): u is _ProviderAwareness => {
   if (!(P.isRecord(u) || P.isObject(u))) return false;

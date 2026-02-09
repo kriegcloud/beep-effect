@@ -25,7 +25,8 @@ export class GoogleAuthClient extends Context.Tag($I`GoogleAuthClient`)<
      * but lacks the required scopes (supports incremental OAuth flows).
      */
     readonly getValidToken: (
-      scopes: ReadonlyArray<string>
+      scopes: ReadonlyArray<string>,
+      providerAccountId: string
     ) => Effect.Effect<GoogleOAuthToken, GoogleAuthenticationError | GoogleScopeExpansionRequiredError>;
 
     /**
@@ -33,6 +34,9 @@ export class GoogleAuthClient extends Context.Tag($I`GoogleAuthClient`)<
      * automatic refresh, so this method is typically only needed for explicit
      * refresh requests.
      */
-    readonly refreshToken: (refreshToken: string) => Effect.Effect<GoogleOAuthToken, GoogleAuthenticationError>;
+    readonly refreshToken: (
+      refreshToken: string,
+      providerAccountId: string
+    ) => Effect.Effect<GoogleOAuthToken, GoogleAuthenticationError>;
   }
 >() {}

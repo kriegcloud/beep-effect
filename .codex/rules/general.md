@@ -79,6 +79,11 @@ domain -> tables -> server -> client -> ui
 | **DB**       | `bun run db:generate` / `bun run db:migrate` / `bun run db:push` |
 | **Services** | `bun run services:up`                                            |
 
+## Shell Quoting (zsh)
+
+- Avoid backticks inside double-quoted strings in shell commands (command substitution).
+- Prefer single quotes around `rg` patterns, especially when the pattern includes Markdown backticks.
+
 ## Environment & Secrets
 
 - NEVER access `process.env` directly in application code

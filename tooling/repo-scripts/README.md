@@ -202,7 +202,7 @@ bun run gen:secrets /path/to/.env
 Public asset path generator with schema validation and Next.js image optimization.
 
 **Features:**
-- Recursively scans `apps/web/public` directory
+- Recursively scans a Next.js app `public/` directory (e.g. `apps/todox/public`)
 - Converts eligible images to AVIF format
 - Validates paths against strict schema rules
 - Generates TypeScript constants at `@beep/constants/src/_generated/asset-paths.ts`
@@ -425,7 +425,7 @@ This package generates code consumed by other packages in the monorepo:
 **Asset Paths** (`@beep/constants`)
 - Source: `generate-asset-paths.ts`
 - Target: `packages/common/constants/src/_generated/asset-paths.ts`
-- Consumers: `@beep/web`, `@beep/ui` (for type-safe asset references)
+- Consumers: `@beep/todox`, `@beep/ui` (for type-safe asset references)
 
 **Locales** (`@beep/schema`)
 - Source: `generate-locales.ts`

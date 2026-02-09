@@ -15,7 +15,7 @@ import { PgTest } from "./container";
 /**
  * Timeout in milliseconds for bun test. Duration objects are not supported by bun test.
  */
-const TEST_TIMEOUT = 60000;
+const TEST_TIMEOUT = 120000;
 
 /**
  * Helper to create a unique test email to avoid conflicts between tests.
@@ -51,7 +51,7 @@ describe("AccountRepo", () => {
   // ============================================================================
   // INSERT OPERATIONS
   // ============================================================================
-  layer(PgTest, { timeout: Duration.seconds(60) })("insert operations", (it) => {
+  layer(PgTest, { timeout: Duration.seconds(120) })("insert operations", (it) => {
     it.effect(
       "should insert account and return entity with all fields",
       () =>

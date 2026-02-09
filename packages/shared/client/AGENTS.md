@@ -212,7 +212,7 @@ function LoginForm() {
 - Services use client runtime layers for dependency injection
 
 ### With Applications
-- `apps/web` — Consumes file management atoms and client services
+-  — Consumes file management atoms and client services
 - React components use Jotai hooks to access file state and trigger operations
 
 ## Dependencies

@@ -13,6 +13,9 @@ P0 locked the demo narrative and contracts:
 
 - `outputs/P0_DECISIONS.md` is authoritative for decisions/contracts.
 - `outputs/R0_SYNTHESIZED_REPORT_V3.md` is the single synthesis input.
+- Incremental consent remediation contract is locked (C-01).
+- Provider account selection required contract is locked (C-06).
+- Gmail → Documents mapping invariants are locked (C-03).
 - Evidence-of-record and offset drift invariants are locked (C-02, C-05).
 
 ---

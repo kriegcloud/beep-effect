@@ -33,6 +33,10 @@ export class Model extends M.Class<Model>($I`MentionModel`)(
       description: "ID of the source document containing this mention",
     }),
 
+    documentVersionId: DocumentsEntityIds.DocumentVersionId.annotations({
+      description: "Version of the source document this mention is pinned to (C-05)",
+    }),
+
     chunkIndex: BS.FieldOptionOmittable(
       S.NonNegativeInt.annotations({
         description: "Chunk index within the document",

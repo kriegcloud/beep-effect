@@ -46,7 +46,7 @@ Effect-based Next.js configuration utilities that compose security headers, PWA 
 ```typescript
 import { beepNextConfig } from "@beep/build-utils";
 
-export default beepNextConfig("@beep/web");
+export default beepNextConfig("@beep/todox");
 ```
 
 ### Advanced Configuration
@@ -54,7 +54,7 @@ export default beepNextConfig("@beep/web");
 ```typescript
 import { beepNextConfig } from "@beep/build-utils";
 
-const nextConfig = await beepNextConfig("@beep/web", {
+const nextConfig = await beepNextConfig("@beep/todox", {
   reactCompiler: true,
   headers: {
     contentSecurityPolicy: {
@@ -107,4 +107,4 @@ const configWithPWA = withPWA({
 ## Related
 
 - **AGENTS.md** - Detailed contributor guidance and security guardrails
-- **apps/web/next.config.mjs** - Production usage example
+- **apps/todox/next.config.mjs** - Production usage example

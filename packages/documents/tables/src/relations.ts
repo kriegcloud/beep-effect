@@ -1,10 +1,20 @@
 import * as d from "drizzle-orm";
-import { comment, discussion, document, documentFile, documentVersion, organization, user } from "./tables";
+import {
+  comment,
+  discussion,
+  document,
+  documentFile,
+  documentSource,
+  documentVersion,
+  organization,
+  user,
+} from "./tables";
 
 // User relations (redefined for bounded context integrity)
 export const userRelations = d.relations(user, ({ many }) => ({
   documents: many(document, { relationName: "documentOwner" }),
   documentVersions: many(documentVersion, { relationName: "documentVersionAuthor" }),
+  documentSources: many(documentSource, { relationName: "documentSourceOwner" }),
   discussions: many(discussion, { relationName: "discussionAuthor" }),
   comments: many(comment, { relationName: "commentAuthor" }),
   documentFiles: many(documentFile, { relationName: "documentFileOwner" }),
@@ -14,6 +24,7 @@ export const userRelations = d.relations(user, ({ many }) => ({
 export const organizationRelations = d.relations(organization, ({ many }) => ({
   documents: many(document, { relationName: "documentOrganization" }),
   documentVersions: many(documentVersion, { relationName: "documentVersionOrganization" }),
+  documentSources: many(documentSource, { relationName: "documentSourceOrganization" }),
   discussions: many(discussion, { relationName: "discussionOrganization" }),
   comments: many(comment, { relationName: "commentOrganization" }),
   documentFiles: many(documentFile, { relationName: "documentFileOrganization" }),
@@ -40,8 +51,27 @@ export const documentRelations = d.relations(document, ({ one, many }) => ({
     relationName: "documentHierarchy",
   }),
   versions: many(documentVersion),
+  sources: many(documentSource),
   discussions: many(discussion),
   files: many(documentFile),
+}));
+
+// DocumentSource relations
+export const documentSourceRelations = d.relations(documentSource, ({ one }) => ({
+  organization: one(organization, {
+    fields: [documentSource.organizationId],
+    references: [organization.id],
+    relationName: "documentSourceOrganization",
+  }),
+  document: one(document, {
+    fields: [documentSource.documentId],
+    references: [document.id],
+  }),
+  owner: one(user, {
+    fields: [documentSource.userId],
+    references: [user.id],
+    relationName: "documentSourceOwner",
+  }),
 }));
 
 // DocumentVersion relations
