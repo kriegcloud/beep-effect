@@ -19,6 +19,45 @@ The MVP outcome is a single screen (`/knowledge`) where an advisor can:
 
 This is the core differentiator: **Evidence Always**. TodoX does not ask you to “trust the AI.” It shows you exactly where every claim came from.
 
+## Why The Ontology + Knowledge Graph Is A Differentiator (Plain Language)
+
+Most wealth software stores information as disconnected records: a client in one system, tasks in another, emails in an inbox, “context” living in an advisor’s memory. TodoX’s differentiator is that it turns that context into a **shared, computable map**.
+
+### What “Ontology” Means Here
+
+An ontology is a **shared vocabulary** for the firm’s world. It defines:
+
+- The “things that exist” in the business (Household, Client, Account, Life Event, Action Item, Meeting, etc.)
+- The allowed relationships between them (“owns account,” “belongs to household,” “has action item,” “experienced life event”)
+
+This matters because wealth conversations are full of ambiguity. The ontology is how we keep the system precise: an “account” is not just text in an email; it is a typed object connected to a household, with evidence.
+
+### What A “Knowledge Graph” Means Here
+
+A knowledge graph is the **network** created when we connect those things together:
+
+- **Nodes**: the entities (Household, Client, Account, etc.)
+- **Edges**: the relationships (owns, belongs-to, has-action-item, etc.)
+- **Evidence**: every node and edge is backed by source text (highlighted snippets in emails/documents)
+
+The practical payoff is that TodoX can answer questions by following relationships, not by searching keywords.
+
+### How It Works In The MVP (At A High Level)
+
+1. TodoX ingests emails into a “documents” system of record (each email becomes a durable document snapshot).
+2. An extraction step identifies entities and relationships using the ontology (for example: “Thompson Household owns Traditional IRA ending 4521”).
+3. TodoX stores those entities/relationships into the graph, and pins each one to evidence inside the source email.
+4. When you ask for meeting prep, TodoX pulls a **bounded slice of the graph** for that household (recent comms, open actions, life events, accounts) and generates a briefing that links back to evidence.
+
+### Why This Becomes More Powerful Over Time
+
+This structure makes later integrations additive instead of disruptive:
+
+- When we add documents, CRM, custodian feeds, or calendar, we do not start over; we attach those sources to the same ontology and extend the graph.
+- Firm-specific “house styles” become possible (e.g., what the firm considers a risk flag, or how action items should be phrased) without losing auditability.
+
+Most importantly, the knowledge graph is the foundation for “AI that understands relationships” rather than “AI that summarizes a blob of text.”
+
 ## The Problem (In Wealth Management Terms)
 
 For UHNW households, the “truth” of what is happening with the client is spread across:
@@ -228,4 +267,3 @@ The MVP focuses on the email message body for the demo. Attachments are planned 
 - Clear boundaries on what is acceptable to ingest in a pilot environment
 - A few high-value workflows to prioritize (meeting prep, action tracking, life events, household structure)
 - A compliance review of disclaimers, retention expectations, and “acceptable AI assistance” posture
-
