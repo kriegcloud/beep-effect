@@ -174,7 +174,7 @@ const finalBuildRefs = [...expectedRefs, ...extraRefs];
 | App | Build | Check |
 |-----|-------|-------|
 | @beep/server | PASS | PASS |
-| @beep/web | PASS | PASS |
+| @beep/todox | PASS | PASS |
 | @beep/marketing | PASS | PASS |
 | @beep/todox | PASS | SKIP* |
 

@@ -333,5 +333,4 @@ When adding new components:
 ## Versioning and Changes
 
 - Prefer **additive changes** to maintain backward compatibility
-- For breaking changes, coordinate with dependent apps (`apps/web`)
 - Document migrations in PR descriptions for consumer guidance

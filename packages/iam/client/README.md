@@ -8,7 +8,7 @@ Provides the React client layer for authentication and identity management. This
 - Wraps better-auth React client with all required plugins (passkey, SSO, organizations, multi-session, etc.)
 - Exports React hooks for sign-in and sign-up forms with schema validation
 - Provides session management utilities and callback URL sanitization
-- Sits in the IAM slice client layer, consumed by `@beep/iam-ui` and `apps/web`
+- Sits in the IAM slice client layer, consumed by `@beep/iam-ui` and 
 
 ## Installation
 

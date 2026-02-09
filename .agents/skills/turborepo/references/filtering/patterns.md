@@ -78,7 +78,7 @@ turbo run build --filter=./apps/*
 Run in specific directories:
 
 ```bash
-turbo run build --filter=./apps/web --filter=./apps/api
+turbo run build --filter=./apps/todox --filter=./apps/server
 ```
 
 ## Scope-Based

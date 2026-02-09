@@ -65,7 +65,7 @@
 ## Missing Pieces (Concrete)
 - No UI for linking/re-linking accounts exists in IAM UI.
 - No typed RPC error contract exposes `GoogleScopeExpansionRequiredError` data.
-- No explicit “re-link Google” action exists in the MVP UI surface (`apps/todox` Settings → Connections). `apps/web` should not host this MVP surface.
+- No explicit “re-link Google” action exists in the MVP UI surface (`apps/todox` Settings → Connections).  should not host this MVP surface.
 
 ## Recommended End-to-End Handling for `GoogleScopeExpansionRequiredError`
 
@@ -125,7 +125,7 @@ const payload = {
 ### 4. UI Wiring Location (Suggested)
 Given the locked spec decision (D-01), the canonical location is:
 - TodoX Settings → Connections tab (`settingsTab=connections`) in `apps/todox`.
-- `apps/web` should not host this MVP surface.
+-  should not host this MVP surface.
 
 ## Concrete Scope Constants and Usage
 - Gmail scopes live in:

@@ -1,6 +1,5 @@
 "use client";
 
-import { KnowledgeGraph } from "@beep/knowledge-server/Extraction";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import {
   Box,
@@ -16,13 +15,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FC from "effect/FastCheck";
 import type * as Fiber from "effect/Fiber";
 import * as Str from "effect/String";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { knowledgeGraphArbitrary } from "../../features/knowledge-graph/fixtures/knowledgeGraph";
 import {
   degree,
   filterByTypeIri,
@@ -143,7 +142,7 @@ export default function Page() {
   const hoverRafRef = useRef<number | null>(null);
 
   const knowledgeGraph = useMemo(() => {
-    const sample = FC.sample(Arbitrary.make(KnowledgeGraph), { seed, numRuns: 1 });
+    const sample = FC.sample(knowledgeGraphArbitrary, { seed, numRuns: 1 });
     return sample[0] ?? null;
   }, [seed]);
 

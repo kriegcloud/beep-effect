@@ -14,7 +14,7 @@
   - Multi-tenant isolation is enforced with RLS and hardening tests (including embeddings/vector search).
   - Server never selects a default provider account when `providerAccountId` is missing (typed C-06 payload instead).
 - UI surface for OAuth callback deep-links exists:
-  - `/settings` route in `apps/web` redirects to `/dashboard` while preserving `settingsTab=connections` and other query params.
+  - `/settings` route in  redirects to `/dashboard` while preserving `settingsTab=connections` and other query params.
   - Connections tab exists in Account Settings and persists org-level active Google `providerAccountId` via org `metadata`.
 - P3 must preserve these invariants and keep the demo path working under staging URLs.
 - All secrets/env vars must match `@beep/shared-env` schemas; do not introduce ad-hoc env names.
@@ -64,8 +64,8 @@ P3 is infrastructure-focused. External services/providers (Cloud Run, Secret Man
 - PII/logging hardening: Gmail extraction no longer annotates logs with raw query text:
   - `packages/knowledge/server/src/adapters/GmailExtractionAdapter.ts`
 - OAuth callback deep-link compatibility:
-  - `apps/web/src/app/settings/page.tsx`
-  - `apps/web/src/features/account/connections/ConnectionsTabPanel.tsx`
+  - `apps/todox/src/app/settings/page.tsx`
+  - `apps/todox/src/features/account/connections/ConnectionsTabPanel.tsx`
 
 ### Episodic Context (≤1K tokens)
 

@@ -4,7 +4,7 @@
 
 `@beep/iam-client` is the typed contract layer that bridges Better Auth's React client with Effect-first flows across the
 repo. The package centers on contract schemas plus thin Effect implementations using `wrapIamMethod`. UI slices
-(`packages/iam/ui`, `apps/web`) consume these contracts directly through runtime helpers, while adapters keep raw
+(`packages/iam/ui`) consume these contracts directly through runtime helpers, while adapters keep raw
 Better Auth usage isolated to this workspace.
 
 ## Surface Map
@@ -150,7 +150,6 @@ bun run check --filter @beep/iam-client
 - Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). The `wrapIamMethod` factory handles this when `mutatesSession: true`.
 - Atoms MUST use `withToast` wrapper from `@beep/ui/common/with-toast` for optimistic updates and user feedback.
   Keep atoms narrowly focused on single operations (sign-in, sign-out, password change).
-- Keep `AuthCallback` prefixes aligned with app middleware in `apps/web`. Update both whenever authenticated route trees move.
 
 ## Implemented Handler Patterns
 
@@ -325,7 +324,7 @@ export const layer = Group.toLayer({
 - `PATH="$HOME/.bun/bin:$PATH" bun run --filter @beep/iam-client check` — TypeScript project references build.
 - `PATH="$HOME/.bun/bin:$PATH" bun run --filter @beep/iam-client build` — Emits ESM/CJS bundles; catches export drift when contract directories move.
 - `bun run --filter @beep/iam-client test` — Currently only the placeholder suite; expand alongside new Effect logic.
-- Touching `AuthCallback` or session guards? Also run `bun run --filter apps/web lint` to confirm route and guard
+- Touching `AuthCallback` or session guards? Also run `bun run --filter apps/todox lint` to confirm route and guard
   consumers stay healthy.
 
 ## Contributor Checklist
@@ -405,5 +404,3 @@ export const layer = Group.toLayer({
 
 ### AuthCallback Prefix Synchronization
 - **Symptom**: After sign-in, users redirect to wrong pages or get 404 errors.
-- **Root Cause**: `AuthCallback.privatePrefix` values in this package are out of sync with route middleware in `apps/web`.
-- **Solution**: When adding authenticated routes, update BOTH `packages/iam/client/src/constants.ts` AND the corresponding middleware in `apps/web`. Run `bun run --filter apps/web lint` to catch mismatches.

@@ -26,7 +26,7 @@ Produce an actionable codebase context report for implementing the dashboard.
 Write: `specs/pending/knowledge-stats-dashboard-poc/outputs/codebase-context.md`
 
 Include:
-1. Where the dashboard route should live (`apps/web` vs `apps/todox`) and why.
+1. Where the dashboard route should live ( vs `apps/todox`) and why.
 2. Existing knowledge RPC patterns:
    - where v1 RPC endpoints are defined
    - how client contracts map to server handlers

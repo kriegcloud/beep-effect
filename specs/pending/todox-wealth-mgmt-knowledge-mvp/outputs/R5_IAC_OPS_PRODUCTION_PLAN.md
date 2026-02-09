@@ -10,12 +10,12 @@ This plan targets the production posture of the monorepo and is grounded in:
 
 Assumptions that need confirmation:
 - The production backend entry point is `apps/server` (Effect runtime). This is consistent with `apps/server/README.md`.
-- The production Next.js apps are `apps/web` and `apps/todox`, and `apps/marketing` is either a separate public site or optional.
+- The production Next.js apps are  and `apps/todox`, and `apps/marketing` is either a separate public site or optional.
 - `APP_MCP_URL` points to an MCP service that is deployed separately (no standalone MCP app is defined in this repo).
 
 Potential issues to resolve early:
-- `apps/web/README.md` lists `AUTH_SECRET`, but `@beep/shared-env` requires `BETTER_AUTH_SECRET`. Production must align with `BETTER_AUTH_SECRET` or the app will fail schema validation.
-- `apps/web/README.md` lists `REDIS_URL`, but `@beep/shared-env` requires `KV_REDIS_URL` and `KV_REDIS_PASSWORD`. This mismatch should be corrected in deployment config.
+- `apps/todox/README.md` lists `AUTH_SECRET`, but `@beep/shared-env` requires `BETTER_AUTH_SECRET`. Production must align with `BETTER_AUTH_SECRET` or the app will fail schema validation.
+- `apps/todox/README.md` lists `REDIS_URL`, but `@beep/shared-env` requires `KV_REDIS_URL` and `KV_REDIS_PASSWORD`. This mismatch should be corrected in deployment config.
 - `@beep/shared-env` requires non-empty `KV_REDIS_PASSWORD`. `.env.example` sets it to empty string; production needs a real password or schema validation will fail.
 
 ## Recommended deployment topology
@@ -23,7 +23,7 @@ Potential issues to resolve early:
 ### High-level topology (GCP, Cloud Run pattern)
 - **Cloud Run Services**
   - `beep-api`: `apps/server` (Effect backend)
-  - `beep-web`: `apps/web` (Next.js)
+  - `beep-web`:  (Next.js)
   - `beep-todox`: `apps/todox` (Next.js)
   - `beep-marketing`: `apps/marketing` (Next.js)
 - **PostgreSQL**
@@ -88,7 +88,7 @@ Potential issues to resolve early:
 
 1. **Build images** (Bun + Next build)
    - `bun run build --filter @beep/server`
-   - `bun run build --filter @beep/web`
+   - `bun run build --filter @beep/todox`
    - `bun run build --filter @beep/todox`
    - `bun run build --filter @beep/marketing`
 2. **Push images** to Artifact Registry.

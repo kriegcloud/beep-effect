@@ -40,7 +40,7 @@ These are defaults; P1 can revise with evidence.
 - Data source: Postgres via `@effect/sql-pg` + existing knowledge tables.
 - Transport: `@effect/rpc` pattern used in `packages/knowledge/server/src/rpc/v1/`.
 - Validation: Effect Schema on all RPC inputs/outputs (no unchecked decoding).
-- UI: Next.js (App Router) page in `apps/web` unless discovery indicates TodoX-only routing.
+- UI: Next.js (App Router) page in  unless discovery indicates TodoX-only routing.
 - Placement: the dashboard described in this spec should be accessible under the **Knowledge Base** tab in the signed-in app shell navigation.
 - Graph: React Flow (`@xyflow/react`) for 2D schema; “3D” toggle may be deferred unless already present in repo.
 
@@ -95,7 +95,6 @@ Tasks:
 2. Identify existing UI graph usage (React Flow) and component patterns in `@beep/ui`.
 3. Inventory knowledge tables/entities relevant for aggregates (Entity, Relation, Ontology, Extraction, etc.).
 4. Decide target route location:
-   - `apps/web/app/(...)`
    - or `apps/todox/app/(...)`
    - while ensuring the navigation entry lives under the **Knowledge Base** tab.
 

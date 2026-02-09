@@ -11,7 +11,7 @@
 - **Contracts** — RPC schema definitions for calendar operations.
 
 ## Usage Snapshots
-- `apps/web/` — Imports calendar client for scheduling interface.
+- `apps/todox/` — Imports calendar client for scheduling interface.
 - `packages/calendar/server/` — Server implements contracts defined here.
 
 ## Authoring Guardrails

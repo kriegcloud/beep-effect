@@ -1,7 +1,7 @@
 # AGENTS Guide — `@beep/iam-ui`
 
 ## Purpose & Fit
-- Provides the client-side IAM entry points for authentication (currently: sign-in, sign-up) consumed by `apps/web` and any app-shell embedding IAM flows.
+- Provides the client-side IAM entry points for authentication (currently: sign-in, sign-up) consumed by  and any app-shell embedding IAM flows.
 - Bridges Effect-based RPC contracts from `@beep/iam-client` to React components that speak `@beep/ui` form primitives, `@beep/runtime-client` runners, and shared-domain navigation (`paths`).
 - Owns UX glue (headings, dividers, CTA links, recaptcha wiring) so route-level pages stay declarative and do not replicate validation or RPC orchestration.
 - Additional features (recovery, verification, invitation flows) are planned for future implementation.

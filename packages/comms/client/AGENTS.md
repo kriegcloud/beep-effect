@@ -65,7 +65,7 @@ const subscribeToNotifications = Effect.gen(function* () {
 
 ## Integration Points
 
-- **Consumed by**: `@beep/comms-ui` and `@beep/web` for communication features
+- **Consumed by**: `@beep/comms-ui` and product Next.js apps (e.g. `@beep/todox`) for communication features
 - **Depends on**: `@beep/comms-domain` for entity types and value objects
 - **Communicates with**: `@beep/comms-server` via RPC contracts
 

@@ -4,7 +4,7 @@ React UI components for IAM authentication flows (sign-in, sign-up), bridging Ef
 
 ## Purpose
 
-Provides client-side IAM entry points consumed by `apps/web` and any application embedding IAM flows. This package bridges Effect-based RPC contracts from `@beep/iam-client` to React components using `@beep/ui` form primitives, `@beep/runtime-client` runners, and `@beep/shared-domain` navigation paths.
+Provides client-side IAM entry points consumed by  and any application embedding IAM flows. This package bridges Effect-based RPC contracts from `@beep/iam-client` to React components using `@beep/ui` form primitives, `@beep/runtime-client` runners, and `@beep/shared-domain` navigation paths.
 
 Owns the UX orchestration layer (headings, dividers, CTA links, reCAPTCHA wiring) so that route-level pages remain declarative and avoid duplicating validation or RPC orchestration logic.
 
@@ -396,7 +396,7 @@ Currently, the package has placeholder tests (`test/Dummy.test.ts`). Add real te
 ## Related Documentation
 
 - **AGENTS.md** (CLAUDE.md): Detailed package authoring guidelines and quick recipes
-- **apps/web**: Next.js application consuming these components
+- **apps/todox**: Next.js application consuming these components
 - **@beep/iam-client**: RPC contracts and Better Auth client utilities
 - **@beep/runtime-client**: Browser ManagedRuntime documentation
 - **@beep/ui**: Core component library documentation

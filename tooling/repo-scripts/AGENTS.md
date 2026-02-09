@@ -126,7 +126,7 @@ import * as S from "effect/Schema";
 
 const ensureGeneratedAssets = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
-  const raw = yield* fs.readFileString("./apps/web/public/paths.txt");
+  const raw = yield* fs.readFileString("./apps/<next-app>/public/paths.txt");
   const paths = F.pipe(raw, Str.split("\n"), A.filter(Str.isNonEmpty));
   return yield* S.decodeUnknown(AssetPaths)(paths);
 });

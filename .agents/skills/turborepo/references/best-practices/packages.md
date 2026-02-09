@@ -121,7 +121,7 @@ Package handles its own compilation.
 ### Add to Consuming Package
 
 ```json
-// apps/web/package.json
+// apps/todox/package.json
 {
   "dependencies": {
     "@repo/ui": "workspace:*"  // pnpm/bun
@@ -139,7 +139,7 @@ pnpm install  # Updates lockfile with new dependency
 ### Import and Use
 
 ```typescript
-// apps/web/src/page.tsx
+// apps/todox/src/page.tsx
 import { Button } from '@repo/ui/button';
 
 export default function Page() {

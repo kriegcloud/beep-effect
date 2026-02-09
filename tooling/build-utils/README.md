@@ -62,7 +62,7 @@ All configuration is Effect-based with proper error handling, observability span
 
 This package integrates with the beep-effect monorepo tooling layer:
 
-- **Consumed by**: `apps/web`, `apps/marketing` (any Next.js application)
+- **Consumed by**: `apps/todox`, `apps/marketing` (any Next.js application)
 - **Layer**: Tooling (build-time only, not included in runtime bundles)
 - **Pattern**: Effect-based configuration with immutable transformations and observability
 
@@ -73,11 +73,11 @@ This package integrates with the beep-effect monorepo tooling layer:
 The simplest setup provides all defaults (security headers, PWA, MDX, transpilation):
 
 ```typescript
-// apps/web/next.config.mjs
+// apps/todox/next.config.mjs
 import { beepNextConfig } from "@beep/build-utils";
 
 // beepNextConfig returns a Promise<NextConfig>, so we await it
-const config = await beepNextConfig("@beep/web");
+const config = await beepNextConfig("@beep/todox");
 
 export default config;
 ```
@@ -97,10 +97,10 @@ This automatically:
 Override defaults by passing a configuration object:
 
 ```typescript
-// apps/web/next.config.mjs
+// apps/todox/next.config.mjs
 import { beepNextConfig } from "@beep/build-utils";
 
-const config = await beepNextConfig("@beep/web", {
+const config = await beepNextConfig("@beep/todox", {
   // Standard Next.js options
   reactCompiler: true,
   trailingSlash: false,

@@ -25,7 +25,7 @@ Centralized Effect-first constants providing validated literal schemas for envir
                                           v
                                |----------------------|
                                |   @beep/shared-*    |
-                               |   apps/web          |
+                               |   apps/* (Next.js)  |
                                |----------------------|
 ```
 

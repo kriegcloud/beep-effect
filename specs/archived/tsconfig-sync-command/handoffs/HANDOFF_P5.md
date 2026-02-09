@@ -24,7 +24,7 @@ Both sections must be derived from `package.json` dependencies.
 
 | App | Path | Dependencies |
 |-----|------|--------------|
-| `@beep/web` | `apps/web` | ~30+ @beep/* packages |
+| `@beep/todox` |  | ~30+ @beep/* packages |
 | `@beep/todox` | `apps/todox` | ~25+ @beep/* packages |
 | `@beep/marketing` | `apps/marketing` | 0 @beep/* packages |
 
@@ -47,7 +47,7 @@ Both sections must be derived from `package.json` dependencies.
 ```
 
 **3. Missing Paths for Dependencies**
-- `apps/web/tsconfig.json` has paths for `@beep/shared-tables` but it's not in `package.json`
+- `apps/todox/tsconfig.json` has paths for `@beep/shared-tables` but it's not in `package.json`
 - Some dependencies in `package.json` lack corresponding paths entries
 
 **4. Paths vs References Mismatch**
@@ -138,7 +138,7 @@ bun run repo-cli tsconfig-sync --packages-only
 bun run repo-cli tsconfig-sync --apps-only
 
 # Sync specific app
-bun run repo-cli tsconfig-sync --filter @beep/web
+bun run repo-cli tsconfig-sync --filter @beep/todox
 ```
 
 ---
@@ -224,8 +224,8 @@ export const writeAppTsconfig = (
 ### Path Alias Generation
 
 ```typescript
-// For @beep/iam-domain in apps/web:
-// - App dir: apps/web
+// For @beep/iam-domain in apps/todox:
+// - App dir: apps/todox
 // - Pkg dir: packages/iam/domain
 
 const buildPathAlias = (appDir: string, pkgDir: string): [string, string[]][] => {
@@ -318,7 +318,7 @@ bun run repo-cli tsconfig-sync --check
 # Expected: No drift detected
 
 # Verify builds pass
-bun run build --filter @beep/web
+bun run build --filter @beep/todox
 bun run build --filter @beep/todox
 bun run build --filter @beep/marketing
 ```
@@ -329,13 +329,13 @@ bun run build --filter @beep/marketing
 
 | Criterion | Verification |
 |-----------|--------------|
-| Next.js apps detected | Handler processes `apps/web`, `apps/todox`, `apps/marketing` |
+| Next.js apps detected | Handler processes , `apps/todox`, `apps/marketing` |
 | Paths generated from deps | Each @beep/* dep has corresponding path aliases |
 | References generated from deps | Each @beep/* dep has corresponding reference |
 | No duplicate references | `apps/todox` duplicates removed |
 | Invalid references removed | Non-existent packages removed from references |
 | Check mode works | `--check` reports drift for apps |
-| Filter works | `--filter @beep/web` processes only that app |
+| Filter works | `--filter @beep/todox` processes only that app |
 | Build passes | All apps build after sync |
 | Type check passes | All apps pass `bun run check` |
 
@@ -345,10 +345,10 @@ bun run build --filter @beep/marketing
 
 | File | Purpose |
 |------|---------|
-| `apps/web/tsconfig.json` | Example of large Next.js app config |
+| `apps/todox/tsconfig.json` | Example of large Next.js app config |
 | `apps/todox/tsconfig.json` | Example with issues (duplicates, invalid refs) |
 | `apps/marketing/tsconfig.json` | Minimal Next.js app config |
-| `apps/web/package.json` | Dependencies to sync |
+| `apps/todox/package.json` | Dependencies to sync |
 | `apps/todox/package.json` | Dependencies to sync |
 | `tooling/cli/src/commands/tsconfig-sync/handler.ts` | Main handler to extend |
 | `tooling/cli/src/commands/tsconfig-sync/utils/tsconfig-writer.ts` | Utilities to extend |

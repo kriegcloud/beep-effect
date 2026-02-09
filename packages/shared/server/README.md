@@ -13,7 +13,7 @@ Foundational infrastructure services for the beep-effect monorepo, providing Eff
 - **Job Utilities**: Scheduled cleanup tasks for upload sessions
 - **Shared Repositories**: Pre-built repositories for File, Folder, and UploadSession entities
 
-This package sits in the infrastructure layer and is consumed by vertical slices (IAM, Documents) and applications (apps/server, apps/web). Configuration management has been moved to `@beep/shared-env`.
+This package sits in the infrastructure layer and is consumed by vertical slices (IAM, Documents) and applications (`apps/server` and Next.js apps under `apps/*`). Configuration management has been moved to `@beep/shared-env`.
 
 ## Installation
 
@@ -430,7 +430,7 @@ packages/shared/server/
 
 **`apps/server`**: Composes shared infrastructure layers with IAM-specific layers in the server runtime.
 
-**`apps/web`**: Uses shared RPC handlers for file management operations.
+****: Uses shared RPC handlers for file management operations.
 
 ### Feature Slices
 

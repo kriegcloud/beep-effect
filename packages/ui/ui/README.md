@@ -728,7 +728,7 @@ When making changes to this package:
 ## Relationship to Other Packages
 
 - `@beep/ui-core` - Upstream theme primitives and design tokens
-- `apps/web` - Primary consumer of components and layouts
+-  - Primary consumer of components and layouts
 - `packages/*/ui` - Feature-specific UI components that compose these base components
 - `@beep/schema` - Validation schemas used in forms
 - `@beep/utils` - Pure utilities for data transformation

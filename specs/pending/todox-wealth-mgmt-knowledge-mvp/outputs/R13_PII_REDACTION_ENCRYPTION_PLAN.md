@@ -33,7 +33,7 @@ Encryption at rest
 
 Client worker pattern
 
-- Worker protocol examples in `packages/shared/client/src/atom/services/ImageCompressionClient.service.ts` and `apps/web/src/app/upload/_lib/atoms/internal/image-compression-worker.ts`.
+- Worker protocol examples in `packages/shared/client/src/atom/services/ImageCompressionClient.service.ts` and `apps/<next-app>/src/app/upload/_lib/atoms/internal/image-compression-worker.ts`.
 
 ## Threat model summary (MVP scope)
 

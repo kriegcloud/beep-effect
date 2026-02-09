@@ -8,7 +8,7 @@ Current task: build a codebase map and implementation plan evidence for the Know
 
 Success criteria:
 - [ ] Produce `specs/pending/knowledge-stats-dashboard-poc/outputs/codebase-context.md` with:
-  - candidate route location (`apps/web` vs `apps/todox`) with evidence
+  - candidate route location ( vs `apps/todox`) with evidence
   - existing knowledge RPC patterns + where to add v1 stats endpoint
   - existing UI patterns for dashboards + React Flow usage (if any)
   - list of likely files to touch in P2-P5
@@ -29,7 +29,7 @@ Immediate dependencies (read):
 - `packages/knowledge/server/src/Service/`
 - `packages/knowledge/client/src/`
 - `packages/knowledge/ui/src/`
-- `apps/web` and `apps/todox`
+-  and `apps/todox`
 
 ### Episodic Context (<=1K tokens)
 

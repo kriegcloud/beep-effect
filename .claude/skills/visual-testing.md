@@ -45,7 +45,7 @@ bunx playwright install chromium
 ### 2. Create playwright.config.ts
 
 ```typescript
-// apps/web/playwright.config.ts
+// apps/todox/playwright.config.ts
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
@@ -100,7 +100,7 @@ export default defineConfig({
 ### 4. Create Test Directory
 
 ```bash
-mkdir -p apps/web/tests/e2e
+mkdir -p apps/todox/tests/e2e
 ```
 
 ---
@@ -133,7 +133,7 @@ Extract from user request:
 Glob({ pattern: "apps/**/tests/**/*.spec.ts" })
 
 // Search for test utilities
-Grep({ pattern: "test\\(", path: "apps/web/tests" })
+Grep({ pattern: "test\\(", path: "apps/todox/tests" })
 ```
 
 ### Step 3: Identify Test Elements
@@ -393,7 +393,7 @@ test("has no accessibility violations", async ({ page }) => {
 **User request**: "Create visual tests for the Button component"
 
 **Actions**:
-1. Create `apps/web/tests/e2e/button.spec.ts`
+1. Create `apps/todox/tests/e2e/button.spec.ts`
 2. Test all variants (contained, outlined, soft, text)
 3. Test all colors (primary, secondary, error, etc.)
 4. Test sizes (small, medium, large)
@@ -405,7 +405,7 @@ test("has no accessibility violations", async ({ page }) => {
 **User request**: "Create e2e tests for the user registration form"
 
 **Actions**:
-1. Create `apps/web/tests/e2e/registration.spec.ts`
+1. Create `apps/todox/tests/e2e/registration.spec.ts`
 2. Test successful registration flow
 3. Test validation error display
 4. Test form submission with invalid data
@@ -420,7 +420,7 @@ test("has no accessibility violations", async ({ page }) => {
 bun run test:e2e
 
 # Run specific test file
-bun run test:e2e apps/web/tests/e2e/button.spec.ts
+bun run test:e2e apps/todox/tests/e2e/button.spec.ts
 
 # Run with specific browser
 bun run test:e2e --project=chromium

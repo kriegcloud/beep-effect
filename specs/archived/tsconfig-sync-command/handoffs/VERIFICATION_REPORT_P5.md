@@ -16,13 +16,12 @@ Extended `tsconfig-sync` command to synchronize `tsconfig.json` files for Next.j
 
 ### Next.js App Detection
 - Detects Next.js apps via presence of `next.config.*` files
-- Supports: `apps/web`, `apps/todox`, `apps/marketing`
+- Supports: `apps/todox`, `apps/marketing`
 
 ### Path Alias Generation
 - Generates both bare (`@beep/pkg`) and glob (`@beep/pkg/*`) patterns
 - **Self-referential paths**: Each app gets its own internal path alias
   - `@beep/todox/*` → `./src/*` (allows imports like `@beep/todox/types/mail`)
-  - `@beep/web/*` → `./src/*`
   - `@beep/marketing/*` → `./src/*`
 - Special handling for packages with glob-only patterns:
   - `@beep/ui/*` → `../../packages/ui/ui/src/*`
@@ -53,7 +52,6 @@ $ bun run repo-cli tsconfig-sync --apps-only
 Found 61 packages
 No circular dependencies detected
 Processing 3 Next.js app(s)...
-  @beep/web (tsconfig.json): updated 38 paths, 18 refs
   @beep/todox (tsconfig.json): updated 58 paths, 29 refs
   @beep/marketing (tsconfig.json): updated 2 paths, 0 refs
 Sync complete: 3 package(s) updated
@@ -70,7 +68,6 @@ All configurations in sync
 
 | App | @beep/* Deps | Paths Generated | Refs Generated | Status |
 |-----|--------------|-----------------|----------------|--------|
-| web | 18 | 38 | 18 | SYNCED |
 | todox | 29 | 58 | 29 | SYNCED |
 | marketing | 0 | 2 | 0 | SYNCED (self-ref only) |
 
@@ -87,7 +84,6 @@ No tooling packages found - CORRECT
 
 | App | Check Result | Notes |
 |-----|--------------|-------|
-| @beep/web | PASS | 65/65 tasks successful |
 | @beep/todox | FAIL* | Pre-existing type errors in UI components (unrelated to tsconfig-sync) |
 | @beep/marketing | N/A | No check script defined |
 
@@ -116,7 +112,7 @@ All existing tests pass. The 29 skipped tests are integration tests that require
 - `tooling/cli/test/commands/tsconfig-sync/handler.test.ts` - Updated for new schema fields
 
 ### Generated Files
-- `apps/web/tsconfig.json` - Synced paths and references
+- `apps/todox/tsconfig.json` - Synced paths and references
 - `apps/todox/tsconfig.json` - Synced paths and references
 - `apps/marketing/tsconfig.json` - No changes (no @beep/* deps)
 
