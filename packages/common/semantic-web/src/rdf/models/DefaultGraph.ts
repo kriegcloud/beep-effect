@@ -35,7 +35,12 @@ export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
     }
   )
 ) {
+  static readonly Equivalence = S.equivalence(DefaultGraph);
   static readonly new = (value: string) => new DefaultGraph({value});
+
+  equals(that: DefaultGraph): boolean {
+    return DefaultGraph.Equivalence(this, that);
+  }
 }
 
 export class DefaultGraphFromString extends S.transform(

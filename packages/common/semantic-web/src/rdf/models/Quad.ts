@@ -35,7 +35,12 @@ export class Quad extends S.Class<Quad>($I`Quad`)(
     }
   )
 ) {
+  static readonly Equivalence = S.equivalence(Quad);
   static readonly new = (value: string) => new Quad({value});
+
+  equals(that: Quad): boolean {
+    return Quad.Equivalence(this, that);
+  }
 }
 
 export class QuadFromString extends S.transform(

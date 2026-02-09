@@ -35,7 +35,12 @@ export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
     }
   )
 ) {
+  static readonly Equivalence = S.equivalence(NamedNode);
   static readonly new = (value: string) => new NamedNode({value});
+
+  equals(that: NamedNode): boolean {
+    return NamedNode.Equivalence(this, that);
+  }
 }
 
 export class NamedNodeFromString extends S.transform(

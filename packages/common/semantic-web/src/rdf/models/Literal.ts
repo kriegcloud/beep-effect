@@ -35,7 +35,12 @@ export class Literal extends S.Class<Literal>($I`Literal`)(
     }
   )
 ) {
+  static readonly Equivalence = S.equivalence(Literal);
   static readonly new = (value: string) => new Literal({value});
+
+  equals(that: Literal): boolean {
+    return Literal.Equivalence(this, that);
+  }
 }
 
 export class LiteralFromString extends S.transform(

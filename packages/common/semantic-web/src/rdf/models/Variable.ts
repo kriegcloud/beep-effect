@@ -35,7 +35,12 @@ export class Variable extends S.Class<Variable>($I`Variable`)(
     }
   )
 ) {
+  static readonly Equivalence = S.equivalence(Variable);
   static readonly new = (value: string) => new Variable({value});
+
+  equals(that: Variable): boolean {
+    return Variable.Equivalence(this, that);
+  }
 }
 
 export class VariableFromString extends S.transform(

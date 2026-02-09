@@ -35,7 +35,12 @@ export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
     }
   )
 ) {
+  static readonly Equivalence = S.equivalence(BlankNode);
   static readonly new = (value: string) => new BlankNode({value});
+
+  equals(that: BlankNode): boolean {
+    return BlankNode.Equivalence(this, that);
+  }
 }
 
 export class BlankNodeFromString extends S.transform(
