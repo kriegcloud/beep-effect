@@ -34,6 +34,26 @@ export class DevContainerError extends Data.TaggedError("DevContainerError")<{
   cause?: unknown;
 }> {}
 
+type PgTestSingletonState = {
+  containerPromise: Promise<any> | undefined;
+  container: any | undefined;
+  refCount: number;
+  schemaReadyByUri: Map<string, Promise<void>>;
+};
+
+const getPgTestSingletonState = (): PgTestSingletonState => {
+  const g = globalThis as any;
+  if (g.__beep_pg_test_singleton == null) {
+    g.__beep_pg_test_singleton = {
+      containerPromise: undefined,
+      container: undefined,
+      refCount: 0,
+      schemaReadyByUri: new Map<string, Promise<void>>(),
+    } satisfies PgTestSingletonState;
+  }
+  return g.__beep_pg_test_singleton as PgTestSingletonState;
+};
+
 export type SliceDatabaseClients = DocumentsDb.Db | IamDb.Db | KnowledgeDb.Db | SharedDb.Db;
 export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, DbClient.PgClientServices>;
 export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
@@ -128,7 +148,12 @@ const postgresSilentNotices = { onnotice: () => {} } as const;
 const APP_DB_USER = "app_user";
 const APP_DB_PASSWORD = "app_password";
 
+const isTestcontainersReuseEnabled = () =>
+  process.env.TESTCONTAINERS_REUSE_ENABLE === "true" || process.env.TESTCONTAINERS_REUSE_ENABLE === "1";
+
 const setupDocker = Effect.gen(function* () {
+  const singleton = getPgTestSingletonState();
+
   // Make sure to use Postgres 15 with pg_uuidv7 installed
   // Ensure you have the pg_uuidv7 docker image locally
   // You may need to modify pg_uuid's dockerfile to install the extension or build a new image from its base
@@ -137,20 +162,44 @@ const setupDocker = Effect.gen(function* () {
     try: () => import("@testcontainers/postgresql"),
     catch: (cause) => new DevContainerError({ message: "Failed to load testcontainers", cause }),
   });
+
+  singleton.refCount += 1;
+
   const container = yield* Effect.tryPromise({
-    try: () =>
-      new PostgreSqlContainer("pgvector/pgvector:pg17")
-        .withEnvironment({
-          POSTGRES_USER: POSTGRES_USER,
-          POSTGRES_PASSWORD: POSTGRES_PASSWORD,
-          POSTGRES_DB: POSTGRES_DB,
-        })
-        .withExposedPorts(5432)
-        .withWaitStrategy(Wait.forHealthCheck())
-        .start(),
+    try: async () => {
+      if (singleton.container != null) {
+        return singleton.container;
+      }
+
+      if (singleton.containerPromise == null) {
+        const reuseEnabled = isTestcontainersReuseEnabled();
+        singleton.containerPromise = new PostgreSqlContainer("pgvector/pgvector:pg17")
+          .withEnvironment({
+            POSTGRES_USER: POSTGRES_USER,
+            POSTGRES_PASSWORD: POSTGRES_PASSWORD,
+            POSTGRES_DB: POSTGRES_DB,
+          })
+          .withExposedPorts(5432)
+          .withWaitStrategy(Wait.forHealthCheck())
+          .withReuse(reuseEnabled)
+          .start()
+          .then((c: any) => {
+            singleton.container = c;
+            return c;
+          })
+          .catch((e: unknown) => {
+            // Allow retry if startup fails.
+            singleton.containerPromise = undefined;
+            singleton.container = undefined;
+            throw e;
+          });
+      }
+
+      return singleton.containerPromise;
+    },
     catch: (error) =>
       new PgContainerError({
-        message: `Failed to initialize new PgContainer`,
+        message: `Failed to initialize PgContainer`,
         cause: error,
       }),
   });
@@ -179,7 +228,27 @@ const setupDocker = Effect.gen(function* () {
 }).pipe(Effect.provide([BunContext.layer]));
 
 export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
-  scoped: Effect.acquireRelease(setupDocker, ({ container }) => Effect.promise(() => container.stop())),
+  scoped: Effect.acquireRelease(setupDocker, ({ container }) =>
+    Effect.sync(() => {
+      const singleton = getPgTestSingletonState();
+      singleton.refCount = Math.max(0, singleton.refCount - 1);
+
+      // When reuse is enabled, we intentionally keep the container running so subsequent
+      // `bun test` runs can attach quickly.
+      if (isTestcontainersReuseEnabled()) {
+        return;
+      }
+
+      // If nothing in the current process needs the container anymore, stop it.
+      if (singleton.refCount === 0) {
+        const c = singleton.container ?? container;
+        singleton.container = undefined;
+        singleton.containerPromise = undefined;
+        singleton.schemaReadyByUri.clear();
+        void c.stop();
+      }
+    })
+  ),
 }) {
   static readonly Live = Layer.empty.pipe(
     Layer.provideMerge(
@@ -254,21 +323,27 @@ export const PgTest = Layer.scopedContext(
     }
 
     // Apply migrations and bootstrap non-superuser test role using a superuser connection.
-    yield* Effect.acquireUseRelease(
-      Effect.sync(() => {
-        const client = postgres(container.getConnectionUri(), postgresSilentNotices);
-        const db = drizzle(client);
-        return { client, db };
-      }),
-      ({ db }) =>
-        Effect.tryPromise({
-          try: async () => {
-            await migrate(db, { migrationsFolder });
-            dbg("migrations complete");
+    const singleton = getPgTestSingletonState();
+    const connectionUri = container.getConnectionUri();
+    const schemaReady =
+      singleton.schemaReadyByUri.get(connectionUri) ??
+      (async () => {
+        await Effect.runPromise(
+          Effect.acquireUseRelease(
+            Effect.sync(() => {
+              const client = postgres(connectionUri, postgresSilentNotices);
+              const db = drizzle(client);
+              return { client, db };
+            }),
+            ({ db }) =>
+              Effect.tryPromise({
+                try: async () => {
+                  await migrate(db, { migrationsFolder });
+                  dbg("migrations complete");
 
-            dbg("creating/granting app_user");
-            await db.execute(
-              sql.raw(`
+                  dbg("creating/granting app_user");
+                  await db.execute(
+                    sql.raw(`
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${APP_DB_USER}') THEN
@@ -276,49 +351,63 @@ BEGIN
   END IF;
 END $$;
               `)
-            );
-            await db.execute(sql.raw(`GRANT USAGE ON SCHEMA public TO ${APP_DB_USER};`));
-            // Some tests create ad-hoc tables (e.g. CHECK/NOT NULL constraint tests).
-            // Grant CREATE so those tests exercise DatabaseError matching under the non-superuser role.
-            await db.execute(sql.raw(`GRANT CREATE ON SCHEMA public TO ${APP_DB_USER};`));
-            await db.execute(
-              sql.raw(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${APP_DB_USER};`)
-            );
-            await db.execute(sql.raw(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${APP_DB_USER};`));
-            await db.execute(
-              sql.raw(
-                `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${APP_DB_USER};`
-              )
-            );
-            await db.execute(
-              sql.raw(`ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO ${APP_DB_USER};`)
-            );
+                  );
+                  await db.execute(sql.raw(`GRANT USAGE ON SCHEMA public TO ${APP_DB_USER};`));
+                  // Some tests create ad-hoc tables (e.g. CHECK/NOT NULL constraint tests).
+                  // Grant CREATE so those tests exercise DatabaseError matching under the non-superuser role.
+                  await db.execute(sql.raw(`GRANT CREATE ON SCHEMA public TO ${APP_DB_USER};`));
+                  await db.execute(
+                    sql.raw(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${APP_DB_USER};`)
+                  );
+                  await db.execute(sql.raw(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${APP_DB_USER};`));
+                  await db.execute(
+                    sql.raw(
+                      `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${APP_DB_USER};`
+                    )
+                  );
+                  await db.execute(
+                    sql.raw(
+                      `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO ${APP_DB_USER};`
+                    )
+                  );
 
-            // Smoke check: ensure the non-superuser role can connect.
-            const u = new URL(container.getConnectionUri());
-            u.username = APP_DB_USER;
-            u.password = APP_DB_PASSWORD;
-            dbg("app_user smoke connect", { url: `${u.protocol}//${u.host}${u.pathname}` });
-            const appClient = postgres(u.toString(), postgresSilentNotices);
-            const appDb = drizzle(appClient);
-            await appDb.execute(sql`SELECT 1`);
-            await appClient.end();
-            dbg("app_user smoke connect ok");
+                  // Smoke check: ensure the non-superuser role can connect.
+                  const u = new URL(connectionUri);
+                  u.username = APP_DB_USER;
+                  u.password = APP_DB_PASSWORD;
+                  dbg("app_user smoke connect", { url: `${u.protocol}//${u.host}${u.pathname}` });
+                  const appClient = postgres(u.toString(), postgresSilentNotices);
+                  const appDb = drizzle(appClient);
+                  await appDb.execute(sql`SELECT 1`);
+                  await appClient.end();
+                  dbg("app_user smoke connect ok");
 
-            await db.execute(sql`SELECT 1`);
-            dbg("schema ready");
-          },
-          catch: (cause) =>
-            new DomainError({
-              message: "Failed to bootstrap schema for tests",
-              cause,
-            }),
+                  await db.execute(sql`SELECT 1`);
+                  dbg("schema ready");
+                },
+                catch: (cause) =>
+                  new DomainError({
+                    message: "Failed to bootstrap schema for tests",
+                    cause,
+                  }),
+              }),
+            ({ client }) => Effect.promise(() => client.end()).pipe(Effect.ignore)
+          )
+        );
+      })();
+    singleton.schemaReadyByUri.set(connectionUri, schemaReady);
+
+    yield* Effect.tryPromise({
+      try: () => schemaReady,
+      catch: (cause) =>
+        new DomainError({
+          message: "Failed to bootstrap schema for tests",
+          cause,
         }),
-      ({ client }) => Effect.promise(() => client.end()).pipe(Effect.ignore)
-    );
+    });
 
     // Build the app DB layer using the container host/port and app_user credentials.
-    const parsed = PgConnString.parse(container.getConnectionUri());
+    const parsed = PgConnString.parse(connectionUri);
     dbg("building effect pg client config", { host: parsed.host, port: parsed.port, database: parsed.database });
     const configProvider = ConfigProvider.fromJson({
       DB_PG: {
