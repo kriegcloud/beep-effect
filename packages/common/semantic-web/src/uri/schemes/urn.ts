@@ -1,3 +1,5 @@
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { URIComponents, URIOptions, URISchemeHandler } from "../uri.ts";
 import { SCHEMES } from "../uri.ts";
 
@@ -16,12 +18,13 @@ const handler: URISchemeHandler<URNComponents, URNOptions> = {
   scheme: "urn",
 
   parse(components: URIComponents, options: URNOptions): URNComponents {
-    const matches = components.path && components.path.match(URN_PARSE);
+    const matchesOpt = components.path ? Str.match(URN_PARSE)(components.path) : O.none();
     let urnComponents = components as URNComponents;
 
-    if (matches) {
+    if (O.isSome(matchesOpt)) {
+      const matches = matchesOpt.value;
       const scheme = options.scheme || urnComponents.scheme || "urn";
-      const nid = (matches[1] || "").toLowerCase();
+      const nid = Str.toLowerCase(matches[1] || "");
       const nss = matches[2];
       const urnScheme = `${scheme}:${options.nid || nid}`;
       const schemeHandler = SCHEMES[urnScheme];

@@ -1,26 +1,22 @@
-import {$SemanticWebId} from "@beep/identity/packages";
-import {BS} from "@beep/schema";
-import * as S from "effect/Schema";
+import { $SemanticWebId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
+import * as S from "effect/Schema";
 
 const $I = $SemanticWebId.create("idna/errors");
 
 /**
  * Error types that can be thrown by the idna implementation
  */
-export class ErrorType extends BS.StringLiteralKit(
-  "overflow",
-  "not-basic",
-  "invalid-input",
-).annotations(
+export class ErrorType extends BS.StringLiteralKit("overflow", "not-basic", "invalid-input").annotations(
   $I.annotations("ErrorType", {
-    description: "Error types that can be thrown by the idna implementation"
+    description: "Error types that can be thrown by the idna implementation",
   })
 ) {
   /**
- * Error messages for each error type
- */
+   * Error messages for each error type
+   */
   static readonly MESSAGES = {
     overflow: "Overflow: input needs wider integers to process",
     ["not-basic" as const]: "Illegal input >= 0x80 (not a basic code point)",
@@ -39,7 +35,7 @@ export class OverFlowError extends S.TaggedError<OverFlowError>($I`OverFlowError
     input: S.Unknown,
   },
   $I.annotations("OverFlowError", {
-    description: "Overflow error"
+    description: "Overflow error",
   })
 ) {
   override get message() {
@@ -51,10 +47,9 @@ export class NotBasicError extends S.TaggedError<NotBasicError>($I`NotBasicError
   ErrorType.Enum["not-basic"],
   {
     input: S.Unknown,
-
   },
   $I.annotations("NotBasicError", {
-    description: "Not basic error"
+    description: "Not basic error",
   })
 ) {
   override get message() {
@@ -68,7 +63,7 @@ export class InvalidInputError extends S.TaggedError<InvalidInputError>($I`Inval
     input: S.Unknown,
   },
   $I.annotations("InvalidInputError", {
-    description: "Invalid input error"
+    description: "Invalid input error",
   })
 ) {
   override get message() {
@@ -76,14 +71,9 @@ export class InvalidInputError extends S.TaggedError<InvalidInputError>($I`Inval
   }
 }
 
-
-export class IDNAError extends S.Union(
-  OverFlowError,
-  NotBasicError,
-  InvalidInputError
-).annotations(
+export class IDNAError extends S.Union(OverFlowError, NotBasicError, InvalidInputError).annotations(
   $I.annotations("IDNAError", {
-    description: "IDNA error"
+    description: "IDNA error",
   })
 ) {
   static readonly new: {
@@ -92,15 +82,15 @@ export class IDNAError extends S.Union(
   } = F.dual(
     (args: IArguments) => S.is(ErrorType)(args[0]),
     (errorType: ErrorType.Type, input: unknown) => {
-      const param = {input};
+      const param = { input };
 
       return Match.type<ErrorType.Type>().pipe(
         Match.when(ErrorType.Enum.overflow, () => new OverFlowError(param)),
         Match.when(ErrorType.Enum["not-basic"], () => new NotBasicError(param)),
         Match.when(ErrorType.Enum["invalid-input"], () => new InvalidInputError(param)),
-        Match.exhaustive,
+        Match.exhaustive
       )(errorType);
-    },
+    }
   );
 }
 

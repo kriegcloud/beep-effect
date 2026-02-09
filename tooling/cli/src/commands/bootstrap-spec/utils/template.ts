@@ -108,22 +108,29 @@ export const README_TEMPLATE = `# {{specName}}
 |-------|-------|--------|
 | 0 | Scaffolding | doc-writer |
 | 1 | Discovery | codebase-researcher |
-| 2 | Evaluation | code-reviewer |
+| 2 | Evaluation | code-reviewer, architecture-pattern-enforcer |
 | 3 | Synthesis | reflector, doc-writer |
 | 4+ | Iteration | test-writer, package-error-fixer |
 
 ---
 
-## Quick Start
+## Entry Points
 
-See [QUICK_START.md](./QUICK_START.md) for a 5-minute getting started guide.
+- Simple (1 session): start from this README.
+- Medium/Complex: start from \`handoffs/HANDOFF_P1.md\` + \`handoffs/P1_ORCHESTRATOR_PROMPT.md\`.
+
+---
+
+## Quick Start (Optional)
+
+If present, use \`QUICK_START.md\` for a 5-minute getting started guide.
 
 ---
 
 ## Related
 
-- [SPEC_CREATION_GUIDE.md](../SPEC_CREATION_GUIDE.md)
-- [META_SPEC_TEMPLATE.md](../ai-friendliness-audit/META_SPEC_TEMPLATE.md)
+- Spec guide: \`specs/_guide/README.md\`
+- Handoff standards: \`specs/_guide/HANDOFF_STANDARDS.md\`
 `;
 
 /**
@@ -149,7 +156,20 @@ After each phase, document:
 
 ## Reflection Entries
 
-*(Entries will be added after each phase)*
+### P0: Scaffolding (Fill This In)
+
+1. **What Worked**
+   - *(e.g. what structure/templates helped? what was unclear?)*
+2. **What Didn't Work**
+   - *(e.g. missing handoffs, missing prompts, unclear success criteria)*
+3. **Methodology Improvements**
+   - *(e.g. changes to apply to future specs/templates)*
+4. **Prompt Refinements**
+   - *(e.g. how to improve orchestrator/sub-agent prompts)*
+5. **Codebase-Specific Insights**
+   - *(e.g. discovered conventions, tools, verification commands)*
+
+After P0, run the spec-reviewer rubric and fix gaps before implementation.
 
 ---
 
@@ -185,49 +205,25 @@ export const QUICK_START_TEMPLATE = `# {{specName}} Quick Start
 
 ---
 
-## Prerequisites
+## 1) Read the README
 
-- Access to the beep-effect repository
-- Familiarity with Effect patterns
-- Understanding of spec structure
+- \`specs/pending/{{specName}}/README.md\`
 
----
+## 2) Start from the Phase 1 Handoff + Prompt
 
-## Step 1: Understand the Scope
+- \`specs/pending/{{specName}}/handoffs/HANDOFF_P1.md\`
+- \`specs/pending/{{specName}}/handoffs/P1_ORCHESTRATOR_PROMPT.md\`
 
-{{scope}}
+## 3) Produce Discovery Outputs
 
----
+Minimum recommended for medium+ specs:
 
-## Step 2: Run Discovery
+- \`outputs/codebase-context.md\`
 
-\`\`\`bash
-# Launch codebase-researcher to gather context
-# Output: outputs/codebase-context.md
-\`\`\`
+## 4) Execute In Small Checkpoints
 
----
-
-## Step 3: Review Findings
-
-Check \`outputs/codebase-context.md\` for:
-- Affected files and packages
-- Existing patterns to follow
-- Dependencies to consider
-
----
-
-## Step 4: Create Plan
-
-Based on discovery, create:
-- \`outputs/remediation-plan.md\` with prioritized tasks
-- \`HANDOFF_P1.md\` for first iteration
-
----
-
-## Step 5: Execute
-
-Follow the handoff document to complete each phase.
+- Update \`REFLECTION_LOG.md\` after each phase or major checkpoint.
+- If you approach context limits, create a new handoff + orchestrator prompt per \`specs/_guide/HANDOFF_STANDARDS.md\`.
 
 ---
 
@@ -242,8 +238,8 @@ After completion:
 
 ## Need Help?
 
-- [MASTER_ORCHESTRATION.md](./MASTER_ORCHESTRATION.md) - Full workflow
-- [SPEC_CREATION_GUIDE.md](../SPEC_CREATION_GUIDE.md) - General guidance
+- \`MASTER_ORCHESTRATION.md\` (complex specs only) - Full workflow
+- \`specs/_guide/README.md\` - Spec workflow guide
 `;
 
 /**
@@ -307,7 +303,8 @@ This orchestration guide covers the full implementation of this specification.
 
 ### Outputs
 - \`outputs/remediation-plan.md\`
-- \`HANDOFF_P1.md\`
+- \`handoffs/HANDOFF_P1.md\`
+- \`handoffs/P1_ORCHESTRATOR_PROMPT.md\`
 
 ---
 
@@ -386,7 +383,7 @@ Based on the evaluation, create:
 1. Remediation plan with prioritized tasks
 2. Handoff document for implementation
 
-Output: outputs/remediation-plan.md, HANDOFF_P1.md
+Output: outputs/remediation-plan.md, handoffs/HANDOFF_P1.md, handoffs/P1_ORCHESTRATOR_PROMPT.md
 \`\`\`
 
 ---
@@ -463,52 +460,106 @@ export const RUBRICS_TEMPLATE = `# {{specName}}: Evaluation Rubrics
  */
 export const HANDOFF_TEMPLATE = `# {{specName}} Handoff: Phase 1
 
-> Transition from discovery to implementation.
+> Context + constraints to start Phase 1.
 
 ---
 
-## Session Summary
+## Context for Phase 1
 
-| Metric | Status |
-|--------|--------|
-| Spec structure created | Complete |
-| Discovery completed | Pending |
-| Implementation started | Not started |
+### Working Context (≤2K tokens)
+
+- Current task: {{specDescription}}
+- Scope: {{scope}}
+- Success criteria:
+  - [ ] Primary goal achieved
+  - [ ] Outputs generated
+  - [ ] Tests passing
+  - [ ] Documentation updated
+- Constraints:
+  - Follow \`AGENTS.md\` guardrails
+  - Avoid long-running processes without confirmation
+  - Prefer incremental diffs + checkpoints
+
+### Episodic Context (≤1K tokens)
+
+- Phase 0 outcome: spec scaffolded (README + structure created)
+- Next step: run Discovery and write outputs under \`outputs/\`
+
+### Semantic Context (≤500 tokens)
+
+- Repo constants: Bun + Effect-based codebase, strict lint/check/test gates
+- Spec guide: \`specs/_guide/README.md\`
+- Handoff standard: \`specs/_guide/HANDOFF_STANDARDS.md\`
+
+### Procedural Context (links only)
+
+- Entry prompt: \`handoffs/P1_ORCHESTRATOR_PROMPT.md\`
+- Orchestration: \`MASTER_ORCHESTRATION.md\` (complex specs)
+
+## Context Budget Audit
+
+Use \`specs/_guide/HANDOFF_STANDARDS.md\`:
+
+- Direct tool calls: aim ≤ 10 (Yellow 11-15; Red 16+)
+- Large file reads (>200 lines): aim ≤ 2 (Yellow 3-4; Red 5+)
+- Sub-agent delegations: aim ≤ 5
+
+If you hit Yellow/Red zone, create a checkpoint handoff rather than pushing through.
 
 ---
 
-## What Was Accomplished
+## Verification Commands
 
-### Phase 0: Scaffolding
-1. Created spec folder structure
-2. Wrote README.md with purpose and scope
-3. Created REFLECTION_LOG.md template
+\`\`\`bash
+bun run lint
+bun run check
+bun run test
+\`\`\`
+`;
 
----
+/**
+ * P1 orchestrator prompt template for medium+ specs.
+ */
+export const ORCHESTRATOR_PROMPT_TEMPLATE = `# P1 Orchestrator Prompt: {{specName}}
 
-## Remaining Work
+You are the orchestrator for \`specs/pending/{{specName}}/\`.
 
-### Priority 1: Discovery
-- [ ] Research existing patterns
-- [ ] Identify affected files
-- [ ] Document dependencies
+Goal: {{specDescription}}
 
-### Priority 2: Planning
-- [ ] Create remediation plan
-- [ ] Define implementation steps
+Start from:
 
-### Priority 3: Implementation
-- [ ] Execute plan
-- [ ] Write tests
-- [ ] Update documentation
+- \`handoffs/HANDOFF_P1.md\` (context + constraints)
 
----
+Context-budget rule: if you hit Yellow/Red zones per \`specs/_guide/HANDOFF_STANDARDS.md\`, STOP and create a checkpoint handoff + next prompt rather than pushing through.
 
-## Notes for Next Agent
+## Step 0: Delegate (If Available)
 
-1. Start with discovery phase
-2. Document findings in outputs/
-3. Update this handoff as progress is made
+If \`AGENT_PROMPTS.md\` exists, use it to delegate Discovery/Evaluation tasks to sub-agents, then integrate their outputs.
+
+## Step 1: Discovery
+
+Write \`outputs/codebase-context.md\`:
+
+- affected files/packages
+- current patterns to follow
+- dependencies and consumers
+- existing tests and expectations
+
+## Step 2: Plan
+
+Write \`outputs/remediation-plan.md\`:
+
+- incremental steps with checkpoints
+- risks + mitigations
+- test strategy
+
+## Step 3: Implement (Iterate)
+
+Follow the plan in small, reviewable diffs. Keep \`bun run lint\`, \`bun run check\`, and \`bun run test\` green.
+
+## Step 4: Reflect
+
+Update \`REFLECTION_LOG.md\` with what worked, what didn’t, and prompt refinements.
 `;
 
 // -----------------------------------------------------------------------------

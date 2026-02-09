@@ -23,8 +23,7 @@ const handler: URISchemeHandler = {
 
     wsComponents.secure = isSecure(wsComponents);
 
-    wsComponents.resourceName =
-      `${wsComponents.path || "/"}${wsComponents.query ? `?${wsComponents.query}` : ""}`;
+    wsComponents.resourceName = `${wsComponents.path || "/"}${wsComponents.query ? `?${wsComponents.query}` : ""}`;
     wsComponents.path = undefined;
     wsComponents.query = undefined;
 

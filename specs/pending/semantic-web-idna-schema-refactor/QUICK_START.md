@@ -9,6 +9,7 @@
 - `packages/common/semantic-web/src/idna/index.ts`
 - `packages/common/semantic-web/test/idna/idna.test.ts`
 - `packages/common/semantic-web/src/uri/uri.ts`
+- `packages/common/semantic-web/src/uri/schemes/mailto.ts`
 
 ## 2. Generate Discovery Outputs
 
@@ -17,8 +18,11 @@ Create the following files under `specs/pending/semantic-web-idna-schema-refacto
 - `codebase-context.md`
 - `schema-utilities.md`
 - `effect-schema-patterns.md`
+- `effect-module-design.md`
 
 Keep these tight: focus on what will change and what must remain stable.
+In `effect-schema-patterns.md`, include at least one effectful `S.transformOrFail` example (see `.repos/effect/packages/effect/test/Schema/ParseResultEffectful.test.ts`) and at least one in-repo boundary transform (e.g. `URLFromString` or `LocalDateFromString`).
+In `effect-module-design.md`, capture a few “worth mirroring” conventions from `.repos/effect/packages/effect/src/*` (public surface vs `internal/*`, stable exports, documentation style).
 
 ## 3. Decide the IDNA “Value Model”
 
@@ -27,6 +31,9 @@ Before touching code, write down (in `outputs/api-design.md`) what `IDNA` means 
 - what’s stored in `IDNA.value` (recommendation: canonical ASCII output of `toASCII`)
 - what inputs it accepts when decoding from unknown
 - what guarantees it provides to downstream consumers
+- how boundary decoding from `string` works:
+  - recommended: `IDNAFromString = S.transformOrFail(S.String, IDNA, { strict: true, decode: ..., encode: ... })`
+  - note: `transformOrFail` failures must be `ParseResult.ParseIssue` (e.g. `new ParseResult.Type(ast, actual, message)`), and should use the passed `ast` so issues attach to the transformation stage
 
 ## 4. Write the Plan
 
@@ -34,7 +41,7 @@ Create `outputs/plan.md` with:
 
 - incremental steps
 - verification checkpoints per step (compile/tests)
-- compatibility strategy for the default export used by `uri.ts`
+- consumer update strategy (this is a breaking rewrite; update all import sites)
 - test migration notes (how exception-based tests become Effect/Either assertions)
 
 ## 5. Implement + Verify
@@ -50,4 +57,7 @@ If you need to iterate quickly, you can run package-local checks from `packages/
 
 ## Entry Point Prompt
 
-Use `specs/pending/semantic-web-idna-schema-refactor/P1_ORCHESTRATOR_PROMPT.md` as the seed prompt for the orchestrator instance.
+Start from the Phase 1 handoff + prompt:
+
+- `specs/pending/semantic-web-idna-schema-refactor/handoffs/HANDOFF_P1.md`
+- `specs/pending/semantic-web-idna-schema-refactor/handoffs/P1_ORCHESTRATOR_PROMPT.md`

@@ -1,3 +1,4 @@
+import * as Str from "effect/String";
 import type { URIOptions, URISchemeHandler } from "../uri.ts";
 import type { URNComponents } from "./urn.ts";
 
@@ -15,7 +16,7 @@ const handler: URISchemeHandler<UUIDComponents, URIOptions, URNComponents> = {
     uuidComponents.uuid = uuidComponents.nss;
     uuidComponents.nss = undefined;
 
-    if (!options.tolerant && (!uuidComponents.uuid || !uuidComponents.uuid.match(UUID))) {
+    if (!options.tolerant && (!uuidComponents.uuid || !UUID.test(uuidComponents.uuid))) {
       uuidComponents.error = uuidComponents.error || "UUID is not valid.";
     }
 
@@ -24,7 +25,7 @@ const handler: URISchemeHandler<UUIDComponents, URIOptions, URNComponents> = {
 
   serialize(uuidComponents: UUIDComponents, _options: URIOptions): URNComponents {
     const urnComponents = uuidComponents as URNComponents;
-    urnComponents.nss = (uuidComponents.uuid || "").toLowerCase();
+    urnComponents.nss = Str.toLowerCase(uuidComponents.uuid || "");
     return urnComponents;
   },
 };

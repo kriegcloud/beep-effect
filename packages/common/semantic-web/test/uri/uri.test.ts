@@ -1,17 +1,17 @@
 import { describe, expect, it } from "bun:test";
 import {
-  parse,
-  serialize,
-  resolve,
-  normalize,
   equal,
   escapeComponent,
+  normalize,
+  parse,
+  resolve,
+  serialize,
   unescapeComponent,
 } from "@beep/semantic-web/uri/uri";
 import "@beep/semantic-web/uri/schemes";
+import type { MailtoComponents } from "@beep/semantic-web/uri/schemes/mailto";
 import type { URNComponents, URNOptions } from "@beep/semantic-web/uri/schemes/urn";
 import type { UUIDComponents } from "@beep/semantic-web/uri/schemes/urn-uuid";
-import type { MailtoComponents } from "@beep/semantic-web/uri/schemes/mailto";
 import type { WSComponents } from "@beep/semantic-web/uri/schemes/ws";
 import type { URIOptions } from "@beep/semantic-web/uri/uri";
 
@@ -191,7 +191,7 @@ describe("URI", () => {
           path: undefined,
           query: undefined,
           fragment: undefined,
-        }),
+        })
       ).toBe("");
     });
 
@@ -205,7 +205,7 @@ describe("URI", () => {
           path: "",
           query: "",
           fragment: "",
-        }),
+        })
       ).toBe("//@:0?#");
     });
 
@@ -219,14 +219,12 @@ describe("URI", () => {
           path: "path",
           query: "query",
           fragment: "fragment",
-        }),
+        })
       ).toBe("uri://foo:bar@example.com:1/path?query#fragment");
     });
 
     it("should serialize string port", () => {
-      expect(serialize({ scheme: "uri", host: "example.com", port: "9000" })).toBe(
-        "uri://example.com:9000",
-      );
+      expect(serialize({ scheme: "uri", host: "example.com", port: "9000" })).toBe("uri://example.com:9000");
     });
 
     it("should serialize double slash path", () => {
@@ -242,19 +240,13 @@ describe("URI", () => {
     });
 
     it("should serialize mixed IPv4address & reg-name", () => {
-      expect(serialize({ host: "10.10.10.10.example.com" })).toBe(
-        "//10.10.10.10.example.com",
-      );
+      expect(serialize({ host: "10.10.10.10.example.com" })).toBe("//10.10.10.10.example.com");
     });
 
     it("should serialize IPv6address", () => {
       expect(serialize({ host: "2001:db8::7" })).toBe("//[2001:db8::7]");
-      expect(serialize({ host: "::ffff:129.144.52.38" })).toBe(
-        "//[::ffff:129.144.52.38]",
-      );
-      expect(serialize({ host: "2606:2800:220:1:248:1893:25c8:1946" })).toBe(
-        "//[2606:2800:220:1:248:1893:25c8:1946]",
-      );
+      expect(serialize({ host: "::ffff:129.144.52.38" })).toBe("//[::ffff:129.144.52.38]");
+      expect(serialize({ host: "2606:2800:220:1:248:1893:25c8:1946" })).toBe("//[2606:2800:220:1:248:1893:25c8:1946]");
     });
 
     it("should serialize IPv6address with zone identifier", () => {
@@ -317,17 +309,13 @@ describe("URI", () => {
 
     it("should resolve PAEz examples", () => {
       expect(resolve("//www.g.com/", "/adf\ngf")).toBe("//www.g.com/adf%0Agf");
-      expect(resolve("//www.g.com/error\n/bleh/bleh", "..")).toBe(
-        "//www.g.com/error%0A/",
-      );
+      expect(resolve("//www.g.com/error\n/bleh/bleh", "..")).toBe("//www.g.com/error%0A/");
     });
   });
 
   describe("Normalizing", () => {
     it("should normalize percent-encoded characters", () => {
-      expect(normalize("uri://www.example.org/red%09ros\xE9#red")).toBe(
-        "uri://www.example.org/red%09ros%C3%A9#red",
-      );
+      expect(normalize("uri://www.example.org/red%09ros\xE9#red")).toBe("uri://www.example.org/red%09ros%C3%A9#red");
     });
 
     it("should normalize IPv4 addresses", () => {
@@ -335,44 +323,27 @@ describe("URI", () => {
     });
 
     it("should normalize IPv6 addresses", () => {
-      expect(normalize("http://[1080::8:800:200C:417A]/")).toBe(
-        "http://[1080::8:800:200c:417a]/",
-      );
+      expect(normalize("http://[1080::8:800:200C:417A]/")).toBe("http://[1080::8:800:200c:417a]/");
       expect(normalize("//[2001:0db8::0001]/")).toBe("//[2001:db8::1]/");
       expect(normalize("//[2001:db8::1:0000:1]/")).toBe("//[2001:db8::1:0:1]/");
       expect(normalize("//[2001:db8:0:0:0:0:2:1]/")).toBe("//[2001:db8::2:1]/");
-      expect(normalize("//[2001:db8:0:1:1:1:1:1]/")).toBe(
-        "//[2001:db8:0:1:1:1:1:1]/",
-      );
+      expect(normalize("//[2001:db8:0:1:1:1:1:1]/")).toBe("//[2001:db8:0:1:1:1:1:1]/");
       expect(normalize("//[2001:0:0:1:0:0:0:1]/")).toBe("//[2001:0:0:1::1]/");
       expect(normalize("//[2001:db8:0:0:1:0:0:1]/")).toBe("//[2001:db8::1:0:0:1]/");
       expect(normalize("//[2001:DB8::1]/")).toBe("//[2001:db8::1]/");
-      expect(normalize("//[0:0:0:0:0:ffff:192.0.2.1]/")).toBe(
-        "//[::ffff:192.0.2.1]/",
-      );
-      expect(normalize("//[1:2:3:4:5:6:192.0.2.1]/")).toBe(
-        "//[1:2:3:4:5:6:192.0.2.1]/",
-      );
-      expect(normalize("//[1:2:3:4:5:6:192.068.001.000]/")).toBe(
-        "//[1:2:3:4:5:6:192.68.1.0]/",
-      );
+      expect(normalize("//[0:0:0:0:0:ffff:192.0.2.1]/")).toBe("//[::ffff:192.0.2.1]/");
+      expect(normalize("//[1:2:3:4:5:6:192.0.2.1]/")).toBe("//[1:2:3:4:5:6:192.0.2.1]/");
+      expect(normalize("//[1:2:3:4:5:6:192.068.001.000]/")).toBe("//[1:2:3:4:5:6:192.68.1.0]/");
     });
   });
 
   describe("Equals", () => {
     it("should recognize equivalent URIs", () => {
-      expect(
-        equal(
-          "example://a/b/c/%7Bfoo%7D",
-          "eXAMPLE://a/./b/../b/%63/%7bfoo%7d",
-        ),
-      ).toBe(true);
+      expect(equal("example://a/b/c/%7Bfoo%7D", "eXAMPLE://a/./b/../b/%63/%7bfoo%7d")).toBe(true);
     });
 
     it("should recognize equivalent URIs with percent-encoded characters", () => {
-      expect(
-        equal("http://example.org/~user", "http://example.org/%7euser"),
-      ).toBe(true);
+      expect(equal("http://example.org/~user", "http://example.org/%7euser")).toBe(true);
     });
   });
 
@@ -380,7 +351,7 @@ describe("URI", () => {
     it("should escape characters 0-129 correctly", () => {
       for (let d = 0; d <= 129; ++d) {
         const chr = String.fromCharCode(d);
-        if (!chr.match(/[\$\&\+\,\;\=]/)) {
+        if (!chr.match(/[$&+,;=]/)) {
           expect(escapeComponent(chr)).toBe(encodeURIComponent(chr));
         } else {
           expect(escapeComponent(chr)).toBe(chr);
@@ -420,7 +391,7 @@ describe("IRI", () => {
     it("should parse IRI with unicode characters", () => {
       const components = parse(
         "uri://us\xA0er:pa\uD7FFss@example.com:123/o\uF900ne/t\uFDCFwo.t\uFDF0hree?q1=a1\uF8FF\uE000&q2=a2#bo\uFFEFdy",
-        IRI_OPTION,
+        IRI_OPTION
       );
       expect(components.error).toBe(undefined);
       expect(components.scheme).toBe("uri");
@@ -446,44 +417,35 @@ describe("IRI", () => {
             query: "q1=a1\uF8FF\uE000&q2=a2",
             fragment: "bo\uFFEFdy\uE001",
           },
-          IRI_OPTION,
-        ),
+          IRI_OPTION
+        )
       ).toBe(
-        "uri://us\xA0er:pa\uD7FFss@example.com:123/o\uF900ne/t\uFDCFwo.t\uFDF0hree?q1=a1\uF8FF\uE000&q2=a2#bo\uFFEFdy%EE%80%81",
+        "uri://us\xA0er:pa\uD7FFss@example.com:123/o\uF900ne/t\uFDCFwo.t\uFDF0hree?q1=a1\uF8FF\uE000&q2=a2#bo\uFFEFdy%EE%80%81"
       );
     });
   });
 
   describe("Normalizing", () => {
     it("should normalize IRI with unicode characters", () => {
-      expect(
-        normalize(
-          "uri://www.example.org/red%09ros\xE9#red",
-          IRI_OPTION,
-        ),
-      ).toBe("uri://www.example.org/red%09ros\xE9#red");
+      expect(normalize("uri://www.example.org/red%09ros\xE9#red", IRI_OPTION)).toBe(
+        "uri://www.example.org/red%09ros\xE9#red"
+      );
     });
   });
 
   describe("Equals", () => {
     it("should recognize equivalent IRIs", () => {
       expect(
-        equal(
-          "example://a/b/c/%7Bfoo%7D/ros\xE9",
-          "eXAMPLE://a/./b/../b/%63/%7bfoo%7d/ros%C3%A9",
-          IRI_OPTION,
-        ),
+        equal("example://a/b/c/%7Bfoo%7D/ros\xE9", "eXAMPLE://a/./b/../b/%63/%7bfoo%7d/ros%C3%A9", IRI_OPTION)
       ).toBe(true);
     });
   });
 
   describe("Convert IRI to URI", () => {
     it("should convert IRI to URI with percent-encoded unicode", () => {
-      expect(
-        serialize(
-          parse("uri://www.example.org/red%09ros\xE9#red", IRI_OPTION),
-        ),
-      ).toBe("uri://www.example.org/red%09ros%C3%A9#red");
+      expect(serialize(parse("uri://www.example.org/red%09ros\xE9#red", IRI_OPTION))).toBe(
+        "uri://www.example.org/red%09ros%C3%A9#red"
+      );
     });
 
     it("should convert IRI to URI with domain host via punycode", () => {
@@ -493,46 +455,30 @@ describe("IRI", () => {
             iri: true,
             domainHost: true,
           }),
-          { domainHost: true },
-        ),
+          { domainHost: true }
+        )
       ).toBe("uri://xn--rsum-bpad.example.org");
     });
   });
 
   describe("Convert URI to IRI", () => {
     it("should convert URI to IRI with decoded unicode", () => {
-      expect(
-        serialize(
-          parse("uri://www.example.org/D%C3%BCrst"),
-          IRI_OPTION,
-        ),
-      ).toBe("uri://www.example.org/D\xFCrst");
+      expect(serialize(parse("uri://www.example.org/D%C3%BCrst"), IRI_OPTION)).toBe("uri://www.example.org/D\xFCrst");
     });
 
     it("should leave invalid percent-encoded sequences as-is", () => {
-      expect(
-        serialize(
-          parse("uri://www.example.org/D%FCrst"),
-          IRI_OPTION,
-        ),
-      ).toBe("uri://www.example.org/D%FCrst");
+      expect(serialize(parse("uri://www.example.org/D%FCrst"), IRI_OPTION)).toBe("uri://www.example.org/D%FCrst");
     });
 
     it("should keep right-to-left override percent-encoded", () => {
-      expect(
-        serialize(
-          parse("uri://xn--99zt52a.example.org/%e2%80%ae"),
-          IRI_OPTION,
-        ),
-      ).toBe("uri://xn--99zt52a.example.org/%E2%80%AE");
+      expect(serialize(parse("uri://xn--99zt52a.example.org/%e2%80%ae"), IRI_OPTION)).toBe(
+        "uri://xn--99zt52a.example.org/%E2%80%AE"
+      );
     });
 
     it("should convert punycode domain to unicode via domainHost", () => {
       expect(
-        serialize(
-          parse("uri://xn--rsum-bpad.example.org", { domainHost: true }),
-          { iri: true, domainHost: true },
-        ),
+        serialize(parse("uri://xn--rsum-bpad.example.org", { domainHost: true }), { iri: true, domainHost: true })
       ).toBe("uri://r\xE9sum\xE9.example.org");
     });
   });
@@ -541,30 +487,15 @@ describe("IRI", () => {
 describe("HTTP", () => {
   describe("Equals", () => {
     it("should treat default port 80 as equal to no port", () => {
-      expect(
-        equal(
-          "http://abc.com:80/~smith/home.html",
-          "http://abc.com/~smith/home.html",
-        ),
-      ).toBe(true);
+      expect(equal("http://abc.com:80/~smith/home.html", "http://abc.com/~smith/home.html")).toBe(true);
     });
 
     it("should treat percent-encoded tilde as equal to literal tilde", () => {
-      expect(
-        equal(
-          "http://ABC.com/%7Esmith/home.html",
-          "http://abc.com/~smith/home.html",
-        ),
-      ).toBe(true);
+      expect(equal("http://ABC.com/%7Esmith/home.html", "http://abc.com/~smith/home.html")).toBe(true);
     });
 
     it("should be case-insensitive and handle lowercase percent-encoding", () => {
-      expect(
-        equal(
-          "http://ABC.com:/%7esmith/home.html",
-          "http://abc.com/~smith/home.html",
-        ),
-      ).toBe(true);
+      expect(equal("http://ABC.com:/%7esmith/home.html", "http://abc.com/~smith/home.html")).toBe(true);
     });
 
     it("should be scheme-case-insensitive and add trailing slash", () => {
@@ -580,15 +511,11 @@ describe("HTTP", () => {
 describe("HTTPS", () => {
   describe("Equals", () => {
     it("should treat default port 443 as equal to no port", () => {
-      expect(equal("https://example.com", "https://example.com:443/")).toBe(
-        true,
-      );
+      expect(equal("https://example.com", "https://example.com:443/")).toBe(true);
     });
 
     it("should treat empty port as equal to default port 443", () => {
-      expect(equal("https://example.com:/", "https://example.com:443/")).toBe(
-        true,
-      );
+      expect(equal("https://example.com:/", "https://example.com:443/")).toBe(true);
     });
   });
 });
@@ -612,9 +539,7 @@ describe("URN", () => {
 
   describe("Serialization", () => {
     it("should serialize URN components", () => {
-      expect(
-        serialize({ scheme: "urn", nid: "foo", nss: "a123,456" } as URNComponents),
-      ).toBe("urn:foo:a123,456");
+      expect(serialize({ scheme: "urn", nid: "foo", nss: "a123,456" } as URNComponents)).toBe("urn:foo:a123,456");
     });
   });
 
@@ -650,23 +575,17 @@ describe("URN", () => {
     });
 
     it("should resolve URN from same URN base", () => {
-      expect(resolve("urn:some:ip:prop", "urn:some:ip:prop")).toBe(
-        "urn:some:ip:prop",
-      );
+      expect(resolve("urn:some:ip:prop", "urn:some:ip:prop")).toBe("urn:some:ip:prop");
     });
 
     it("should resolve URN from different URN base", () => {
-      expect(resolve("urn:some:other:prop", "urn:some:ip:prop")).toBe(
-        "urn:some:ip:prop",
-      );
+      expect(resolve("urn:some:other:prop", "urn:some:ip:prop")).toBe("urn:some:ip:prop");
     });
   });
 
   describe("UUID Parsing", () => {
     it("should parse valid UUID URN", () => {
-      const components = parse(
-        "urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
-      ) as UUIDComponents;
+      const components = parse("urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6") as UUIDComponents;
       expect(components.error).toBe(undefined);
       expect(components.scheme).toBe("urn");
       expect(components.userinfo).toBe(undefined);
@@ -681,9 +600,7 @@ describe("URN", () => {
     });
 
     it("should report error for invalid UUID URN", () => {
-      const components = parse(
-        "urn:uuid:notauuid-7dec-11d0-a765-00a0c91e6bf6",
-      ) as UUIDComponents;
+      const components = parse("urn:uuid:notauuid-7dec-11d0-a765-00a0c91e6bf6") as UUIDComponents;
       expect(components.error).not.toBe(undefined);
     });
   });
@@ -695,7 +612,7 @@ describe("URN", () => {
           scheme: "urn",
           nid: "uuid",
           uuid: "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
-        } as UUIDComponents),
+        } as UUIDComponents)
       ).toBe("urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6");
     });
 
@@ -705,7 +622,7 @@ describe("URN", () => {
           scheme: "urn",
           nid: "uuid",
           uuid: "notauuid-7dec-11d0-a765-00a0c91e6bf6",
-        } as UUIDComponents),
+        } as UUIDComponents)
       ).toBe("urn:uuid:notauuid-7dec-11d0-a765-00a0c91e6bf6");
     });
   });
@@ -713,20 +630,16 @@ describe("URN", () => {
   describe("UUID Equals", () => {
     it("should be case-insensitive for UUID URN", () => {
       expect(
-        equal(
-          "URN:UUID:F81D4FAE-7DEC-11D0-A765-00A0C91E6BF6",
-          "urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
-        ),
+        equal("URN:UUID:F81D4FAE-7DEC-11D0-A765-00A0C91E6BF6", "urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6")
       ).toBe(true);
     });
   });
 
   describe("NID Override", () => {
     it("should parse with NID override option", () => {
-      const components = parse(
-        "urn:foo:f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
-        { nid: "uuid" } as URNOptions,
-      ) as UUIDComponents;
+      const components = parse("urn:foo:f81d4fae-7dec-11d0-a765-00a0c91e6bf6", {
+        nid: "uuid",
+      } as URNOptions) as UUIDComponents;
       expect(components.error).toBe(undefined);
       expect(components.scheme).toBe("urn");
       expect(components.path).toBe(undefined);
@@ -743,8 +656,8 @@ describe("URN", () => {
             nid: "foo",
             uuid: "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
           } as UUIDComponents,
-          { nid: "uuid" } as URNOptions,
-        ),
+          { nid: "uuid" } as URNOptions
+        )
       ).toBe("urn:foo:f81d4fae-7dec-11d0-a765-00a0c91e6bf6");
     });
   });
@@ -769,24 +682,20 @@ describe("Mailto", () => {
     });
 
     it("should parse mailto with subject", () => {
-      const components = parse(
-        "mailto:infobot@example.com?subject=current-issue",
-      ) as MailtoComponents;
+      const components = parse("mailto:infobot@example.com?subject=current-issue") as MailtoComponents;
       expect(components.to).toEqual(["infobot@example.com"]);
       expect(components.subject).toBe("current-issue");
     });
 
     it("should parse mailto with body", () => {
-      const components = parse(
-        "mailto:infobot@example.com?body=send%20current-issue",
-      ) as MailtoComponents;
+      const components = parse("mailto:infobot@example.com?body=send%20current-issue") as MailtoComponents;
       expect(components.to).toEqual(["infobot@example.com"]);
       expect(components.body).toBe("send current-issue");
     });
 
     it("should parse mailto with multiline body", () => {
       const components = parse(
-        "mailto:infobot@example.com?body=send%20current-issue%0D%0Asend%20index",
+        "mailto:infobot@example.com?body=send%20current-issue%0D%0Asend%20index"
       ) as MailtoComponents;
       expect(components.to).toEqual(["infobot@example.com"]);
       expect(components.body).toBe("send current-issue\x0D\x0Asend index");
@@ -794,7 +703,7 @@ describe("Mailto", () => {
 
     it("should parse mailto with In-Reply-To header", () => {
       const components = parse(
-        "mailto:list@example.org?In-Reply-To=%3C3469A91.D10AF4C@example.com%3E",
+        "mailto:list@example.org?In-Reply-To=%3C3469A91.D10AF4C@example.com%3E"
       ) as MailtoComponents;
       expect(components.to).toEqual(["list@example.org"]);
       expect(components.headers).toEqual({
@@ -803,100 +712,78 @@ describe("Mailto", () => {
     });
 
     it("should parse mailto with subscribe body", () => {
-      const components = parse(
-        "mailto:majordomo@example.com?body=subscribe%20bamboo-l",
-      ) as MailtoComponents;
+      const components = parse("mailto:majordomo@example.com?body=subscribe%20bamboo-l") as MailtoComponents;
       expect(components.to).toEqual(["majordomo@example.com"]);
       expect(components.body).toBe("subscribe bamboo-l");
     });
 
     it("should parse mailto with cc and body", () => {
-      const components = parse(
-        "mailto:joe@example.com?cc=bob@example.com&body=hello",
-      ) as MailtoComponents;
+      const components = parse("mailto:joe@example.com?cc=bob@example.com&body=hello") as MailtoComponents;
       expect(components.to).toEqual(["joe@example.com"]);
       expect(components.body).toBe("hello");
       expect(components.headers).toEqual({ cc: "bob@example.com" });
     });
 
     it("should parse mailto with percent-encoded percent sign", () => {
-      const components = parse(
-        "mailto:gorby%25kremvax@example.com",
-      ) as MailtoComponents;
+      const components = parse("mailto:gorby%25kremvax@example.com") as MailtoComponents;
       expect(components.to).toEqual(["gorby%kremvax@example.com"]);
     });
 
     it("should parse mailto with percent-encoded question mark", () => {
-      const components = parse(
-        "mailto:unlikely%3Faddress@example.com?blat=foop",
-      ) as MailtoComponents;
+      const components = parse("mailto:unlikely%3Faddress@example.com?blat=foop") as MailtoComponents;
       expect(components.to).toEqual(["unlikely?address@example.com"]);
       expect(components.headers).toEqual({ blat: "foop" });
     });
 
     it("should parse mailto with percent-encoded ampersand", () => {
-      const components = parse(
-        "mailto:Mike%26family@example.org",
-      ) as MailtoComponents;
+      const components = parse("mailto:Mike%26family@example.org") as MailtoComponents;
       expect(components.to).toEqual(["Mike&family@example.org"]);
     });
 
     it("should parse mailto with percent-encoded at-sign in quotes", () => {
-      const components = parse(
-        "mailto:%22not%40me%22@example.org",
-      ) as MailtoComponents;
+      const components = parse("mailto:%22not%40me%22@example.org") as MailtoComponents;
       expect(components.to).toEqual(['"not@me"@example.org']);
     });
 
     it("should parse mailto with percent-encoded backslashes in quotes", () => {
-      const components = parse(
-        "mailto:%22oh%5C%5Cno%22@example.org",
-      ) as MailtoComponents;
+      const components = parse("mailto:%22oh%5C%5Cno%22@example.org") as MailtoComponents;
       expect(components.to).toEqual(['"oh\\\\no"@example.org']);
     });
 
     it("should parse mailto with complex percent-encoded local part", () => {
-      const components = parse(
-        "mailto:%22%5C%5C%5C%22it's%5C%20ugly%5C%5C%5C%22%22@example.org",
-      ) as MailtoComponents;
-      expect(components.to).toEqual([
-        '"\\\\\\"it\'s\\ ugly\\\\\\""@example.org',
-      ]);
+      const components = parse("mailto:%22%5C%5C%5C%22it's%5C%20ugly%5C%5C%5C%22%22@example.org") as MailtoComponents;
+      expect(components.to).toEqual(['"\\\\\\"it\'s\\ ugly\\\\\\""@example.org']);
     });
 
     it("should parse mailto with UTF-8 percent-encoded subject", () => {
-      const components = parse(
-        "mailto:user@example.org?subject=caf%C3%A9",
-      ) as MailtoComponents;
+      const components = parse("mailto:user@example.org?subject=caf%C3%A9") as MailtoComponents;
       expect(components.to).toEqual(["user@example.org"]);
       expect(components.subject).toBe("caf\xE9");
     });
 
     it("should parse mailto with Q-encoded subject", () => {
       const components = parse(
-        "mailto:user@example.org?subject=%3D%3Futf-8%3FQ%3Fcaf%3DC3%3DA9%3F%3D",
+        "mailto:user@example.org?subject=%3D%3Futf-8%3FQ%3Fcaf%3DC3%3DA9%3F%3D"
       ) as MailtoComponents;
       expect(components.subject).toBe("=?utf-8?Q?caf=C3=A9?=");
     });
 
     it("should parse mailto with iso-8859-1 Q-encoded subject", () => {
       const components = parse(
-        "mailto:user@example.org?subject=%3D%3Fiso-8859-1%3FQ%3Fcaf%3DE9%3F%3D",
+        "mailto:user@example.org?subject=%3D%3Fiso-8859-1%3FQ%3Fcaf%3DE9%3F%3D"
       ) as MailtoComponents;
       expect(components.subject).toBe("=?iso-8859-1?Q?caf=E9?=");
     });
 
     it("should parse mailto with UTF-8 subject and body", () => {
-      const components = parse(
-        "mailto:user@example.org?subject=caf%C3%A9&body=caf%C3%A9",
-      ) as MailtoComponents;
+      const components = parse("mailto:user@example.org?subject=caf%C3%A9&body=caf%C3%A9") as MailtoComponents;
       expect(components.subject).toBe("caf\xE9");
       expect(components.body).toBe("caf\xE9");
     });
 
     it("should parse mailto with IDN domain", () => {
       const components = parse(
-        "mailto:user@%E7%B4%8D%E8%B1%86.example.org?subject=Test&body=NATTO",
+        "mailto:user@%E7%B4%8D%E8%B1%86.example.org?subject=Test&body=NATTO"
       ) as MailtoComponents;
       expect(components.to).toEqual(["user@xn--99zt52a.example.org"]);
       expect(components.subject).toBe("Test");
@@ -910,7 +797,7 @@ describe("Mailto", () => {
         serialize({
           scheme: "mailto",
           to: ["chris@example.com"],
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:chris@example.com");
     });
 
@@ -920,7 +807,7 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["infobot@example.com"],
           body: "current-issue",
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:infobot@example.com?body=current-issue");
     });
 
@@ -930,7 +817,7 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["infobot@example.com"],
           body: "send current-issue",
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:infobot@example.com?body=send%20current-issue");
     });
 
@@ -940,10 +827,8 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["infobot@example.com"],
           body: "send current-issue\x0D\x0Asend index",
-        } as MailtoComponents),
-      ).toBe(
-        "mailto:infobot@example.com?body=send%20current-issue%0D%0Asend%20index",
-      );
+        } as MailtoComponents)
+      ).toBe("mailto:infobot@example.com?body=send%20current-issue%0D%0Asend%20index");
     });
 
     it("should serialize mailto with In-Reply-To header", () => {
@@ -952,10 +837,8 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["list@example.org"],
           headers: { "In-Reply-To": "<3469A91.D10AF4C@example.com>" },
-        } as MailtoComponents),
-      ).toBe(
-        "mailto:list@example.org?In-Reply-To=%3C3469A91.D10AF4C@example.com%3E",
-      );
+        } as MailtoComponents)
+      ).toBe("mailto:list@example.org?In-Reply-To=%3C3469A91.D10AF4C@example.com%3E");
     });
 
     it("should serialize mailto with subscribe body", () => {
@@ -964,7 +847,7 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["majordomo@example.com"],
           body: "subscribe bamboo-l",
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:majordomo@example.com?body=subscribe%20bamboo-l");
     });
 
@@ -974,7 +857,7 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["joe@example.com"],
           headers: { cc: "bob@example.com", body: "hello" },
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:joe@example.com?cc=bob@example.com&body=hello");
     });
 
@@ -983,7 +866,7 @@ describe("Mailto", () => {
         serialize({
           scheme: "mailto",
           to: ["gorby%25kremvax@example.com"],
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:gorby%25kremvax@example.com");
     });
 
@@ -993,7 +876,7 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["unlikely%3Faddress@example.com"],
           headers: { blat: "foop" },
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:unlikely%3Faddress@example.com?blat=foop");
     });
 
@@ -1002,7 +885,7 @@ describe("Mailto", () => {
         serialize({
           scheme: "mailto",
           to: ["Mike&family@example.org"],
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:Mike%26family@example.org");
     });
 
@@ -1011,7 +894,7 @@ describe("Mailto", () => {
         serialize({
           scheme: "mailto",
           to: ['"not@me"@example.org'],
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:%22not%40me%22@example.org");
     });
 
@@ -1020,7 +903,7 @@ describe("Mailto", () => {
         serialize({
           scheme: "mailto",
           to: ['"oh\\\\no"@example.org'],
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:%22oh%5C%5Cno%22@example.org");
     });
 
@@ -1029,10 +912,8 @@ describe("Mailto", () => {
         serialize({
           scheme: "mailto",
           to: ['"\\\\\\"it\'s\\ ugly\\\\\\""@example.org'],
-        } as MailtoComponents),
-      ).toBe(
-        "mailto:%22%5C%5C%5C%22it's%5C%20ugly%5C%5C%5C%22%22@example.org",
-      );
+        } as MailtoComponents)
+      ).toBe("mailto:%22%5C%5C%5C%22it's%5C%20ugly%5C%5C%5C%22%22@example.org");
     });
 
     it("should serialize mailto with UTF-8 subject", () => {
@@ -1041,7 +922,7 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["user@example.org"],
           subject: "caf\xE9",
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:user@example.org?subject=caf%C3%A9");
     });
 
@@ -1051,10 +932,8 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["user@example.org"],
           subject: "=?utf-8?Q?caf=C3=A9?=",
-        } as MailtoComponents),
-      ).toBe(
-        "mailto:user@example.org?subject=%3D%3Futf-8%3FQ%3Fcaf%3DC3%3DA9%3F%3D",
-      );
+        } as MailtoComponents)
+      ).toBe("mailto:user@example.org?subject=%3D%3Futf-8%3FQ%3Fcaf%3DC3%3DA9%3F%3D");
     });
 
     it("should serialize mailto with iso-8859-1 Q-encoded subject", () => {
@@ -1063,10 +942,8 @@ describe("Mailto", () => {
           scheme: "mailto",
           to: ["user@example.org"],
           subject: "=?iso-8859-1?Q?caf=E9?=",
-        } as MailtoComponents),
-      ).toBe(
-        "mailto:user@example.org?subject=%3D%3Fiso-8859-1%3FQ%3Fcaf%3DE9%3F%3D",
-      );
+        } as MailtoComponents)
+      ).toBe("mailto:user@example.org?subject=%3D%3Fiso-8859-1%3FQ%3Fcaf%3DE9%3F%3D");
     });
 
     it("should serialize mailto with UTF-8 subject and body", () => {
@@ -1076,7 +953,7 @@ describe("Mailto", () => {
           to: ["user@example.org"],
           subject: "caf\xE9",
           body: "caf\xE9",
-        } as MailtoComponents),
+        } as MailtoComponents)
       ).toBe("mailto:user@example.org?subject=caf%C3%A9&body=caf%C3%A9");
     });
 
@@ -1087,30 +964,22 @@ describe("Mailto", () => {
           to: ["us\xE9r@\u7d0d\u8c46.example.org"],
           subject: "Test",
           body: "NATTO",
-        } as MailtoComponents),
-      ).toBe(
-        "mailto:us%C3%A9r@xn--99zt52a.example.org?subject=Test&body=NATTO",
-      );
+        } as MailtoComponents)
+      ).toBe("mailto:us%C3%A9r@xn--99zt52a.example.org?subject=Test&body=NATTO");
     });
   });
 
   describe("Equals", () => {
     it("should equate to-path with to-query syntax", () => {
-      expect(
-        equal(
-          "mailto:addr1@an.example,addr2@an.example",
-          "mailto:?to=addr1@an.example,addr2@an.example",
-        ),
-      ).toBe(true);
+      expect(equal("mailto:addr1@an.example,addr2@an.example", "mailto:?to=addr1@an.example,addr2@an.example")).toBe(
+        true
+      );
     });
 
     it("should equate mixed to-path and to-query syntax", () => {
-      expect(
-        equal(
-          "mailto:?to=addr1@an.example,addr2@an.example",
-          "mailto:addr1@an.example?to=addr2@an.example",
-        ),
-      ).toBe(true);
+      expect(equal("mailto:?to=addr1@an.example,addr2@an.example", "mailto:addr1@an.example?to=addr2@an.example")).toBe(
+        true
+      );
     });
   });
 });
@@ -1127,17 +996,13 @@ describe("WS", () => {
     });
 
     it("should parse ws URI with query", () => {
-      const components = parse(
-        "ws://example.com/foo?bar=baz",
-      ) as WSComponents;
+      const components = parse("ws://example.com/foo?bar=baz") as WSComponents;
       expect(components.resourceName).toBe("/foo?bar=baz");
       expect(components.secure).toBe(false);
     });
 
     it("should parse ws URI with query on root path", () => {
-      const components = parse(
-        "ws://example.com/?bar=baz",
-      ) as WSComponents;
+      const components = parse("ws://example.com/?bar=baz") as WSComponents;
       expect(components.resourceName).toBe("/?bar=baz");
     });
   });
@@ -1148,21 +1013,15 @@ describe("WS", () => {
     });
 
     it("should serialize ws with host", () => {
-      expect(serialize({ scheme: "ws", host: "example.com" })).toBe(
-        "ws://example.com",
-      );
+      expect(serialize({ scheme: "ws", host: "example.com" })).toBe("ws://example.com");
     });
 
     it("should serialize ws with root resourceName", () => {
-      expect(
-        serialize({ scheme: "ws", resourceName: "/" } as WSComponents),
-      ).toBe("ws:");
+      expect(serialize({ scheme: "ws", resourceName: "/" } as WSComponents)).toBe("ws:");
     });
 
     it("should serialize ws with resourceName path", () => {
-      expect(
-        serialize({ scheme: "ws", resourceName: "/foo" } as WSComponents),
-      ).toBe("ws:/foo");
+      expect(serialize({ scheme: "ws", resourceName: "/foo" } as WSComponents)).toBe("ws:/foo");
     });
 
     it("should serialize ws with resourceName path and query", () => {
@@ -1170,20 +1029,16 @@ describe("WS", () => {
         serialize({
           scheme: "ws",
           resourceName: "/foo?bar",
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("ws:/foo?bar");
     });
 
     it("should serialize ws with secure false", () => {
-      expect(
-        serialize({ scheme: "ws", secure: false } as WSComponents),
-      ).toBe("ws:");
+      expect(serialize({ scheme: "ws", secure: false } as WSComponents)).toBe("ws:");
     });
 
     it("should serialize ws with secure true", () => {
-      expect(
-        serialize({ scheme: "ws", secure: true } as WSComponents),
-      ).toBe("wss:");
+      expect(serialize({ scheme: "ws", secure: true } as WSComponents)).toBe("wss:");
     });
 
     it("should serialize ws with host and resourceName", () => {
@@ -1192,7 +1047,7 @@ describe("WS", () => {
           scheme: "ws",
           host: "example.com",
           resourceName: "/foo",
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("ws://example.com/foo");
     });
 
@@ -1202,7 +1057,7 @@ describe("WS", () => {
           scheme: "ws",
           host: "example.com",
           resourceName: "/foo?bar",
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("ws://example.com/foo?bar");
     });
 
@@ -1212,7 +1067,7 @@ describe("WS", () => {
           scheme: "ws",
           host: "example.com",
           secure: false,
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("ws://example.com");
     });
 
@@ -1222,7 +1077,7 @@ describe("WS", () => {
           scheme: "ws",
           host: "example.com",
           secure: true,
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("wss://example.com");
     });
 
@@ -1233,7 +1088,7 @@ describe("WS", () => {
           host: "example.com",
           resourceName: "/foo?bar",
           secure: false,
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("ws://example.com/foo?bar");
     });
 
@@ -1244,24 +1099,20 @@ describe("WS", () => {
           host: "example.com",
           resourceName: "/foo?bar",
           secure: true,
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("wss://example.com/foo?bar");
     });
   });
 
   describe("Equal", () => {
     it("should equate ws URIs with default port and fragment", () => {
-      expect(equal("WS://ABC.COM:80/chat#one", "ws://abc.com/chat")).toBe(
-        true,
-      );
+      expect(equal("WS://ABC.COM:80/chat#one", "ws://abc.com/chat")).toBe(true);
     });
   });
 
   describe("Normalize", () => {
     it("should normalize ws URI by removing default port and fragment", () => {
-      expect(normalize("ws://example.com:80/foo#hash")).toBe(
-        "ws://example.com/foo",
-      );
+      expect(normalize("ws://example.com:80/foo#hash")).toBe("ws://example.com/foo");
     });
   });
 });
@@ -1278,17 +1129,13 @@ describe("WSS", () => {
     });
 
     it("should parse wss URI with query", () => {
-      const components = parse(
-        "wss://example.com/foo?bar=baz",
-      ) as WSComponents;
+      const components = parse("wss://example.com/foo?bar=baz") as WSComponents;
       expect(components.resourceName).toBe("/foo?bar=baz");
       expect(components.secure).toBe(true);
     });
 
     it("should parse wss URI with query on root path", () => {
-      const components = parse(
-        "wss://example.com/?bar=baz",
-      ) as WSComponents;
+      const components = parse("wss://example.com/?bar=baz") as WSComponents;
       expect(components.resourceName).toBe("/?bar=baz");
     });
   });
@@ -1299,21 +1146,15 @@ describe("WSS", () => {
     });
 
     it("should serialize wss with host", () => {
-      expect(serialize({ scheme: "wss", host: "example.com" })).toBe(
-        "wss://example.com",
-      );
+      expect(serialize({ scheme: "wss", host: "example.com" })).toBe("wss://example.com");
     });
 
     it("should serialize wss with root resourceName", () => {
-      expect(
-        serialize({ scheme: "wss", resourceName: "/" } as WSComponents),
-      ).toBe("wss:");
+      expect(serialize({ scheme: "wss", resourceName: "/" } as WSComponents)).toBe("wss:");
     });
 
     it("should serialize wss with resourceName path", () => {
-      expect(
-        serialize({ scheme: "wss", resourceName: "/foo" } as WSComponents),
-      ).toBe("wss:/foo");
+      expect(serialize({ scheme: "wss", resourceName: "/foo" } as WSComponents)).toBe("wss:/foo");
     });
 
     it("should serialize wss with resourceName path and query", () => {
@@ -1321,20 +1162,16 @@ describe("WSS", () => {
         serialize({
           scheme: "wss",
           resourceName: "/foo?bar",
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("wss:/foo?bar");
     });
 
     it("should serialize wss with secure false", () => {
-      expect(
-        serialize({ scheme: "wss", secure: false } as WSComponents),
-      ).toBe("ws:");
+      expect(serialize({ scheme: "wss", secure: false } as WSComponents)).toBe("ws:");
     });
 
     it("should serialize wss with secure true", () => {
-      expect(
-        serialize({ scheme: "wss", secure: true } as WSComponents),
-      ).toBe("wss:");
+      expect(serialize({ scheme: "wss", secure: true } as WSComponents)).toBe("wss:");
     });
 
     it("should serialize wss with host and resourceName", () => {
@@ -1343,7 +1180,7 @@ describe("WSS", () => {
           scheme: "wss",
           host: "example.com",
           resourceName: "/foo",
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("wss://example.com/foo");
     });
 
@@ -1353,7 +1190,7 @@ describe("WSS", () => {
           scheme: "wss",
           host: "example.com",
           resourceName: "/foo?bar",
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("wss://example.com/foo?bar");
     });
 
@@ -1363,7 +1200,7 @@ describe("WSS", () => {
           scheme: "wss",
           host: "example.com",
           secure: false,
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("ws://example.com");
     });
 
@@ -1373,7 +1210,7 @@ describe("WSS", () => {
           scheme: "wss",
           host: "example.com",
           secure: true,
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("wss://example.com");
     });
 
@@ -1384,7 +1221,7 @@ describe("WSS", () => {
           host: "example.com",
           resourceName: "/foo?bar",
           secure: false,
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("ws://example.com/foo?bar");
     });
 
@@ -1395,24 +1232,20 @@ describe("WSS", () => {
           host: "example.com",
           resourceName: "/foo?bar",
           secure: true,
-        } as WSComponents),
+        } as WSComponents)
       ).toBe("wss://example.com/foo?bar");
     });
   });
 
   describe("Equal", () => {
     it("should equate wss URIs with default port and fragment", () => {
-      expect(
-        equal("WSS://ABC.COM:443/chat#one", "wss://abc.com/chat"),
-      ).toBe(true);
+      expect(equal("WSS://ABC.COM:443/chat#one", "wss://abc.com/chat")).toBe(true);
     });
   });
 
   describe("Normalize", () => {
     it("should normalize wss URI by removing default port and fragment", () => {
-      expect(normalize("wss://example.com:443/foo#hash")).toBe(
-        "wss://example.com/foo",
-      );
+      expect(normalize("wss://example.com:443/foo#hash")).toBe("wss://example.com/foo");
     });
   });
 });
