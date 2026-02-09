@@ -1,7 +1,7 @@
-import { deepStrictEqual, describe, effect, expect, it, strictEqual } from "@beep/testkit";
 import { IDNA, IDNAFromString } from "@beep/semantic-web/idna/idna";
+import { deepStrictEqual, describe, effect, expect, it, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
-import * as ParseResult from "effect/ParseResult";
+import type * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
 const ucs2decode = IDNA.ucs2.decode;
@@ -426,4 +426,18 @@ describe("toASCII", () => {
       );
     }
   });
+});
+
+describe("IDNAFromString", () => {
+  effect("should decode to canonical ASCII", () =>
+    S.decodeUnknown(IDNAFromString)("m\xFCnchen.de").pipe(
+      Effect.map((idna) => strictEqual(idna.value, "xn--mnchen-3ya.de"))
+    )
+  );
+
+  effect("should encode back to string", () =>
+    S.encode(IDNAFromString)(IDNA.make({ value: "xn--mnchen-3ya.de" })).pipe(
+      Effect.map((actual) => strictEqual(actual, "xn--mnchen-3ya.de"))
+    )
+  );
 });

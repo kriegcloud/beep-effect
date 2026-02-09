@@ -16,7 +16,7 @@ import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import { toASCII as domainToASCII, toUnicode as domainToUnicode } from "./internal/domain.ts";
 import { decode as punycodeDecode, encode as punycodeEncode } from "./internal/punycode.ts";
-import { ucs2decode, ucs2encode } from "./internal/ucs2.ts";
+import * as _internalUcs from "./internal/ucs2.ts";
 
 const $I = $SemanticWebId.create("idna/idna");
 
@@ -53,10 +53,10 @@ export class IDNA extends S.Class<IDNA>($I`IDNA`)(
   /**
    * UCS-2 helpers (pure, synchronous).
    */
-  static readonly ucs2 = {
-    decode: ucs2decode,
-    encode: ucs2encode,
-  } as const;
+  static readonly ucs2 = ({
+    decode: _internalUcs.ucs2decode,
+    encode: _internalUcs.ucs2encode,
+  } as const);
 
   // ---------------------------------------------------------------------------
   // Result (Either) APIs for synchronous consumers
