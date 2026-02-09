@@ -95,20 +95,17 @@ export class EmbeddingService extends Context.Tag($I`EmbeddingService`)<Embeddin
 const serviceEffect: Effect.Effect<
   EmbeddingServiceShape,
   EmbeddingError,
-  EmbeddingRepo | EmbeddingModel.EmbeddingModel | AuthContext | CentralRateLimiterService
+  EmbeddingRepo | EmbeddingModel.EmbeddingModel | CentralRateLimiterService
 > = Effect.gen(function* () {
   const embeddingModel = yield* EmbeddingModel.EmbeddingModel;
   const repo = yield* EmbeddingRepo;
-  const authCtx = yield* AuthContext;
   const limiter = yield* CentralRateLimiterService;
   const fallbackModel = yield* Effect.serviceOption(FallbackEmbeddingModel).pipe(Effect.map(O.flatten));
-  const organizationId = authCtx.session.activeOrganizationId;
-  const currentUserId = authCtx.session.userId;
 
   const embed = Effect.fn("EmbeddingService.embed")(function* (
     text: string,
     _taskType: TaskType.Type,
-    _organizationId: SharedEntityIds.OrganizationId.Type,
+    organizationId: SharedEntityIds.OrganizationId.Type,
     _ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
   ) {
     const cacheKey = computeCacheKey(text, DEFAULT_EMBEDDING_MODEL);
@@ -142,13 +139,22 @@ const serviceEffect: Effect.Effect<
 
   const embedEntities = Effect.fn("EmbeddingService.embedEntities")(function* (
     entities: ReadonlyArray<AssembledEntity>,
-    _organizationId: SharedEntityIds.OrganizationId.Type,
+    organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
   ) {
     if (A.isEmptyReadonlyArray(entities)) {
       yield* Effect.logDebug("EmbeddingService.embedEntities: no entities to embed");
       return;
     }
+
+    const actorId = yield* Effect.serviceOption(AuthContext).pipe(
+      Effect.map(
+        O.match({
+          onNone: () => "app",
+          onSome: (ctx) => ctx.session.userId,
+        })
+      )
+    );
 
     yield* Effect.logInfo("EmbeddingService.embedEntities: starting").pipe(
       Effect.annotateLogs({ count: entities.length })
@@ -215,8 +221,8 @@ const serviceEffect: Effect.Effect<
               model: DEFAULT_EMBEDDING_MODEL,
               source: O.some("embedding-service"),
               deletedAt: O.none(),
-              createdBy: O.some(currentUserId),
-              updatedBy: O.some(currentUserId),
+              createdBy: O.some(actorId),
+              updatedBy: O.some(actorId),
               deletedBy: O.none(),
             })
             .pipe(
@@ -243,6 +249,7 @@ const serviceEffect: Effect.Effect<
 
   const findSimilar = Effect.fn("EmbeddingService.findSimilar")(function* (
     queryVector: ReadonlyArray<number>,
+    organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 10,
     threshold = 0.7
   ) {
@@ -250,7 +257,7 @@ const serviceEffect: Effect.Effect<
       Effect.annotateLogs({ organizationId, limit, threshold })
     );
 
-    const results = yield* repo.findSimilar(queryVector, limit, threshold).pipe(
+    const results = yield* repo.findSimilar(queryVector, organizationId, limit, threshold).pipe(
       Effect.mapError(
         (error) =>
           new EmbeddingError({
@@ -271,7 +278,7 @@ const serviceEffect: Effect.Effect<
   const getOrCreate = (
     text: string,
     taskType: TaskType.Type,
-    _organizationId: SharedEntityIds.OrganizationId.Type,
+    organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: KnowledgeEntityIds.OntologyId.Type
   ): Effect.Effect<ReadonlyArray<number>, EmbeddingError | CircuitOpenError | RateLimitError> =>
     embed(text, taskType, organizationId, ontologyId);

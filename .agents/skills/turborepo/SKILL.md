@@ -30,10 +30,10 @@ When creating tasks/scripts/pipelines, you MUST:
 
 ```json
 // DO THIS: Scripts in each package
-// apps/web/package.json
+// apps/todox/package.json
 { "scripts": { "build": "next build", "lint": "eslint .", "test": "vitest" } }
 
-// apps/api/package.json
+// apps/server/package.json
 { "scripts": { "build": "tsc", "lint": "eslint .", "test": "vitest" } }
 
 // packages/ui/package.json
@@ -67,7 +67,7 @@ When creating tasks/scripts/pipelines, you MUST:
 // Root package.json
 {
   "scripts": {
-    "build": "cd apps/web && next build && cd ../api && tsc",
+    "build": "cd apps/todox && next build && cd ../server && tsc",
     "lint": "eslint apps/ packages/",
     "test": "vitest"
   }
@@ -754,7 +754,7 @@ A `dev` task with `dependsOn: ["^dev"]` and `persistent: false` in root turbo.js
   }
 }
 
-// Package turbo.json (apps/web/turbo.json)
+// Package turbo.json (apps/todox/turbo.json)
 {
   "extends": ["//"],
   "tasks": {

@@ -129,20 +129,17 @@ const matchesFilter = (filePath: string, filter: O.Option<string>): boolean => {
   if (O.isNone(filter)) return true;
 
   const filterValue = filter.value;
-  // Convert @beep/iam-* to packages/iam/*
   if (filterValue.startsWith("@beep/")) {
     const packagePart = filterValue.slice(6); // Remove "@beep/"
-    // Handle wildcards
-    if (packagePart.endsWith("*")) {
-      const prefix = packagePart.slice(0, -1); // Remove trailing *
-      // Match packages/{slice}/ where slice starts with prefix
-      const sliceMatch = filePath.match(/^packages\/([^/]+)\//);
-      if (sliceMatch?.[1]) {
-        return sliceMatch[1].startsWith(prefix);
-      }
+
+    // Slice wildcard: "@beep/iam-*" -> match "packages/iam/**"
+    const sliceWildcard = packagePart.match(/^([a-z0-9]+)-\*$/);
+    if (sliceWildcard) {
+      return filePath.startsWith(`packages/${sliceWildcard[1]}/`);
     }
-    // Exact match
-    return filePath.includes(packagePart.replace("-", "/"));
+
+    // Exact package match: "@beep/shared-server" -> match "packages/shared/server/**"
+    return filePath.includes(packagePart.replaceAll("-", "/"));
   }
 
   // Generic filter - check if path contains filter

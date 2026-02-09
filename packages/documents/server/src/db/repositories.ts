@@ -7,6 +7,7 @@ export type Repos =
   | repos.CommentRepo
   | repos.DiscussionRepo
   | repos.DocumentFileRepo
+  | repos.DocumentSourceRepo
   | repos.DocumentRepo
   | repos.DocumentVersionRepo;
 
@@ -16,6 +17,7 @@ export const layer: RepoLayer = Layer.mergeAll(
   repos.CommentRepo.Default,
   repos.DiscussionRepo.Default,
   repos.DocumentFileRepo.Default,
+  repos.DocumentSourceRepo.Default,
   repos.DocumentRepo.Default,
   repos.DocumentVersionRepo.Default
 );

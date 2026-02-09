@@ -12,7 +12,7 @@
 - **Plugins** — Code highlighting, tables, links, and formatting plugins.
 
 ## Usage Snapshots
-- `apps/web/` — Imports editor for document creation and editing.
+- `apps/todox/` — Imports editor for document creation and editing.
 - `packages/documents/ui/` — May compose editor components for document views.
 
 ## Authoring Guardrails

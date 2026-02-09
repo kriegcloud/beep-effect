@@ -233,7 +233,7 @@ style: ({ theme }) => ({
 Theme overrides apply globally to MUI components. To test them:
 
 1. **Visual Testing**: Use `visual-testing.md` skill to verify styled components in demo pages
-2. **Demo Pages**: Create a demo page at `apps/web/src/app/demo/[component]/page.tsx`
+2. **Demo Pages**: Create a demo page in a Next.js app at `apps/<next-app>/src/app/demo/[component]/page.tsx`
 3. **Variant Coverage**: Test each variant/color/size combination
 
 **Note**: Theme overrides don't require `data-testid` attributes—those belong on component instances created with `atomic-component.md`.

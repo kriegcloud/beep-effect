@@ -10,7 +10,7 @@ Infrastructure layer for the Communications vertical slice, providing Effect-fir
 - **Service Layer**: Business logic for message delivery and notifications
 - **Integration Points**: External communication provider adapters
 
-This package sits in the infrastructure layer and is consumed by applications (apps/server, apps/web).
+This package sits in the infrastructure layer and is consumed by applications (`apps/server` and Next.js apps under `apps/*`).
 
 ## Installation
 
@@ -118,7 +118,7 @@ bun run --filter @beep/comms-server lint:circular
 
 **`apps/server`**: Composes `CommsDb.layer` and repository layers into server runtime for RPC handlers.
 
-**`apps/web`**: Consumes communications services for email template management and messaging features.
+
 
 ### Feature Slices
 

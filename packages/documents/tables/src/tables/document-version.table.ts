@@ -17,6 +17,9 @@ export const documentVersion = OrgTable.make(DocumentsEntityIds.DocumentVersionI
       .references(() => user.id, { onDelete: "cascade" })
       .$type<SharedEntityIds.UserId.Type>(),
     title: pg.text("title"),
+    // Immutable canonical text snapshot for evidence pinning/highlighting (C-05).
+    // For non-text sources, this may be empty but must never be mutated in place.
+    content: pg.text("content").notNull().default(""),
     contentRich: pg.jsonb("content_rich"),
   },
   (t) => [

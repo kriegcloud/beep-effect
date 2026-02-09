@@ -42,7 +42,7 @@ Apply Turborepo-specific patterns from references to complete the user's request
 **CRITICAL - When creating tasks/scripts/pipelines:**
 
 1. **DO NOT create Root Tasks** - Always create package tasks
-2. Add scripts to each relevant package's `package.json` (e.g., `apps/web/package.json`, `packages/ui/package.json`)
+2. Add scripts to each relevant package's `package.json` (e.g., `apps/todox/package.json`, `packages/ui/package.json`)
 3. Register the task in root `turbo.json`
 4. Root `package.json` only contains `turbo run <task>` - never actual task logic
 

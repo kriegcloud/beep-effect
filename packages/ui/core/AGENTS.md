@@ -110,7 +110,7 @@ The package exposes the following entry points:
   - Prefer `bun run check` when you modify shared types or settings schema to surface TypeScript regressions.
   - For localized overrides, smoke-test via `bun run test --filter theme` (add a targeted test if the filter does not exist yet).
 - **Cross-package impacts**
-  - Downstream surfaces: `@beep/ui` consumes `createTheme`, `Rtl`, `mainDrawerWidth`, and settings schema. Breaking changes here will propagate to the Next.js app (`apps/web`) through `@beep/ui`.
+  - Downstream surfaces: `@beep/ui` consumes `createTheme`, `Rtl`, `mainDrawerWidth`, and settings schema. Breaking changes here will propagate to the Next.js app () through `@beep/ui`.
   - Coordinate updates with `packages/ui` whenever you adjust token names, preset unions, or settings fields.
 
 ## Gotchas

@@ -6,7 +6,7 @@ Production-grade Effect ManagedRuntime for server-side applications with observa
 
 Provides the production-grade Effect runtime that powers all server-side entry points in the beep-effect monorepo. This package bundles observability (logging, tracing, metrics), persistence (database clients, repositories), authentication, and domain services (IAM, Documents) into a single, cohesive ManagedRuntime that ensures consistent telemetry, dependency injection, and error handling across all server contexts.
 
-Acts as the shared runtime for API routes (`apps/web/src/app/api/*`), background jobs, and any Bun/Node hosts, eliminating the need for applications to manually wire up layers.
+Acts as the shared runtime for API routes in Next.js applications (e.g. `apps/<next-app>/src/app/api/*`), background jobs, and any Bun/Node hosts, eliminating the need for applications to manually wire up layers.
 
 ## Installation
 
@@ -349,7 +349,7 @@ The runtime automatically configures based on environment variables:
 
 - **Domain logic**: business rules belong in slice `domain` packages
 - **Application workflows**: orchestration belongs in slice `server` or `api` layers
-- **Route handlers**: specific HTTP endpoint implementations belong in service layers or `apps/web/src/app/api/*`
+- **Route handlers**: specific HTTP endpoint implementations belong in service layers or a Next.js app route layer (e.g. `apps/<next-app>/src/app/api/*`)
 - **Client-side runtime**: use `@beep/runtime-client` for browser contexts
 - **Database migrations**: migrations live in `packages/_internal/db-admin`
 - **Repository implementations**: repositories are in `@beep/iam-server`, `@beep/documents-server`, `@beep/shared-server`
@@ -606,7 +606,7 @@ OpenTelemetry metrics are exported to the configured OTLP endpoint automatically
 - `@beep/iam-server` — Provides Auth service and IAM repositories
 - `@beep/iam-domain` — Provides IAM API contract (HttpApi)
 - `@beep/documents-server` — Provides Documents repositories and storage
-- `apps/web` — Consumes this runtime in API routes and server components
+-  — Consumes this runtime in API routes and server components
 - `apps/server` — Uses this runtime as the foundation for the backend service
 
 ## Testing
@@ -619,7 +619,7 @@ OpenTelemetry metrics are exported to the configured OTLP endpoint automatically
 ## Versioning and Changes
 
 - Critical infrastructure package — **test thoroughly** before changes
-- Breaking changes require coordinating updates across `apps/web` and `apps/server`
+- Breaking changes require coordinating updates across  and `apps/server`
 - For new slice integrations, update this README with integration examples
 - Document any new environment variables or configuration options
 - Update AGENTS.md with new surface map entries when adding exports

@@ -1,7 +1,7 @@
-import type { KnowledgeGraph } from "@beep/knowledge-server/Extraction";
 import * as A from "effect/Array";
 import * as Graph from "effect/Graph";
 import type * as O from "effect/Option";
+import type { KnowledgeGraph } from "../fixtures/knowledgeGraph";
 
 export type VizNode = {
   readonly id: string;

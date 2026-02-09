@@ -1,7 +1,7 @@
 # @beep/build-utils Agent Guide
 
 ## Purpose & Fit
-- Provides Next.js configuration utilities and build-time helpers for the web application
+- Provides Next.js configuration utilities and build-time helpers for monorepo Next.js applications (e.g. `apps/todox`, `apps/marketing`)
 - Wraps security headers, PWA integration, MDX support, and bundle analysis into composable configuration builders
 - Effect-based configuration resolution with schema validation
 - Centralizes build-time tooling to maintain consistency across Next.js builds
@@ -31,7 +31,7 @@
 - **`src/secure-headers/`** — Security header type definitions
 
 ## Usage Snapshots
-- `apps/web/next.config.mjs` — Uses `beepNextConfig` to build production configuration
+- `apps/todox/next.config.mjs` — Uses `beepNextConfig` to build production configuration
 - PWA enabled conditionally via environment variables
 - Bundle analyzer activated with `ANALYZE=true` flag
 - Security headers applied automatically in production builds
@@ -52,14 +52,14 @@
 import { beepNextConfig } from "@beep/build-utils";
 
 // Basic Next.js config (minimal usage - all defaults applied)
-export default beepNextConfig("@beep/web");
+export default beepNextConfig("@beep/todox");
 ```
 
 ```typescript
 import { beepNextConfig } from "@beep/build-utils";
 
 // Advanced Next.js config with custom options
-const nextConfig = await beepNextConfig("@beep/web", {
+const nextConfig = await beepNextConfig("@beep/todox", {
   reactCompiler: true,
   headers: {
     contentSecurityPolicy: {
@@ -102,7 +102,7 @@ const configWithPWA = withPWA({
 // To customize security headers, pass them via the headers option:
 import { beepNextConfig } from "@beep/build-utils";
 
-export default beepNextConfig("@beep/web", {
+export default beepNextConfig("@beep/todox", {
   headers: {
     contentSecurityPolicy: {
       directives: {

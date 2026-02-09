@@ -16,8 +16,8 @@
 | `test/utils/*` | Coverage for env parsing, accumulate aggregation, heading formatting, pretty cause rendering | Use as references when extending behavior. |
 
 ## Usage Snapshots
-- `apps/web/src/features/upload/UploadFileService.ts:46` – aggregates file processing via `accumulateEffectsAndReport(...)`.
-- `apps/web/src/features/upload/observability.ts:1` – composes `withLogContext`, `withRootSpan`, and `withSpanAndMetrics` to instrument the upload pipeline.
+- `apps/<next-app>/src/features/upload/UploadFileService.ts` – aggregates file processing via `accumulateEffectsAndReport(...)`.
+- `apps/<next-app>/src/features/upload/observability.ts` – composes `withLogContext`, `withRootSpan`, and `withSpanAndMetrics` to instrument the upload pipeline.
 - `packages/runtime/server/src/Logger.layer.ts` – configures environment-driven logging for the server runtime.
 - `packages/iam/client/src/errors.ts:51` – uses `BeepError.UnknownError` for IAM-specific error hierarchies.
 - `documentation/PRODUCTION_CHECKLIST.md:69` – documents operational expectations for `makeEnvLoggerLayerFromEnv`, `withEnvLogging`, and `accumulateEffectsAndReport`.

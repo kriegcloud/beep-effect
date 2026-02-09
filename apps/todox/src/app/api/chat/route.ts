@@ -6,7 +6,6 @@
  * @module todox/api/chat
  */
 
-import { serverRuntime } from "@beep/runtime-server";
 import { LlmLive } from "@beep/todox/services/ai";
 import { AiError, LanguageModel, Prompt } from "@effect/ai";
 import * as Effect from "effect/Effect";
@@ -73,7 +72,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     })),
   ]);
 
-  serverRuntime.runFork(
+  Effect.runFork(
     Effect.gen(function* () {
       const model = yield* LanguageModel.LanguageModel;
 

@@ -36,7 +36,9 @@ export const makeOpenAiEmbeddingLayer = (
 
 export const OpenAiEmbeddingLayerConfig: Layer.Layer<EmbeddingModel.EmbeddingModel, ConfigError> = Layer.unwrapEffect(
   Effect.gen(function* () {
-    const apiKey = yield* Config.redacted("OPENAI_API_KEY");
+    const apiKey = yield* Config.redacted("AI_OPENAI_API_KEY").pipe(
+      Config.orElse(() => Config.redacted("OPENAI_API_KEY"))
+    );
     const model = yield* Config.string("OPENAI_EMBEDDING_MODEL").pipe(Config.withDefault(DEFAULT_MODEL));
     const dimensions = yield* Config.integer("OPENAI_EMBEDDING_DIMENSIONS").pipe(
       Config.withDefault(DEFAULT_DIMENSIONS)

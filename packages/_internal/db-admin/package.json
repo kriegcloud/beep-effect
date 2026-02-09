@@ -23,7 +23,7 @@
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "check": "tsc -b tsconfig.json",
-    "test": "dotenvx run -f ../../../.env -- bun test",
+    "test": "TESTCONTAINERS_REUSE_ENABLE=true TESTCONTAINERS_RYUK_DISABLED=true dotenvx run -f ../../../.env -- bun test --preload ./test/setup.ts",
     "dotenvx": "dotenvx run -f ../../../.env --",
     "coverage": "bun test --coverage",
     "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit generate && bun run src/scripts/inject-extensions.ts",

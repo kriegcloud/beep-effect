@@ -48,7 +48,7 @@ Based on heuristics:
 | packages/knowledge/client/AGENTS.md | 47 | 2 | Stub-like |
 | packages/calendar/client/AGENTS.md | 48 | 2 | Minimal |
 | packages/knowledge/domain/AGENTS.md | 52 | 2 | Basic |
-| apps/web/AGENTS.md | 55 | 4 | Light |
+| apps/todox/AGENTS.md | 55 | 4 | Light |
 | packages/calendar/domain/AGENTS.md | 56 | 2 | Minimal |
 | packages/calendar/tables/AGENTS.md | 56 | 2 | Basic |
 | packages/ui/editor/AGENTS.md | 60 | 2 | Sparse |

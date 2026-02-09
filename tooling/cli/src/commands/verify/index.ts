@@ -10,6 +10,7 @@
  * Subcommands:
  *   entityids   - Detect EntityId pattern violations (plain S.String IDs)
  *   patterns    - Detect Effect pattern violations (native Set, Map, Error, Date)
+ *   layers      - Detect Layer hygiene violations (missing Layer.Layer / Effect.Effect annotations)
  *   all         - Run all verification checks
  *
  * Options (shared across subcommands):
@@ -44,6 +45,7 @@ import * as BunPath from "@effect/platform-bun/BunPath";
 import * as Layer from "effect/Layer";
 import { verifyAllCommand } from "./all/index.js";
 import { verifyEntityIdsCommand } from "./entityids/index.js";
+import { verifyLayersCommand } from "./layers/index.js";
 import { verifyPatternsCommand } from "./patterns/index.js";
 
 // -----------------------------------------------------------------------------
@@ -78,7 +80,7 @@ const VerifyServiceLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layerPosi
  */
 export const verifyCommand = Command.make("verify").pipe(
   Command.withDescription("Verify codebase patterns and conventions"),
-  Command.withSubcommands([verifyEntityIdsCommand, verifyPatternsCommand, verifyAllCommand]),
+  Command.withSubcommands([verifyEntityIdsCommand, verifyPatternsCommand, verifyLayersCommand, verifyAllCommand]),
   Command.provide(VerifyServiceLayer)
 );
 
@@ -89,6 +91,7 @@ export const verifyCommand = Command.make("verify").pipe(
 export { verifyAllCommand } from "./all/index.js";
 export { verifyEntityIdsCommand } from "./entityids/index.js";
 export * from "./errors.js";
+export { verifyLayersCommand } from "./layers/index.js";
 export * from "./options.js";
 export { verifyPatternsCommand } from "./patterns/index.js";
 export * from "./schemas.js";

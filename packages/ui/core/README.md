@@ -11,7 +11,7 @@ Design system foundation for the beep-effect monorepo combining Material-UI them
 - Internationalization infrastructure with MUI locale bundles
 - Type-safe utilities for color, typography, storage, and formatting
 
-This package sits at the UI layer foundation, consumed primarily by `@beep/ui` which builds higher-level components on top of these primitives. Applications like `apps/web` use the complete design system through `@beep/ui`.
+This package sits at the UI layer foundation, consumed primarily by `@beep/ui` which builds higher-level components on top of these primitives. Applications like  use the complete design system through `@beep/ui`.
 
 ## Installation
 
@@ -589,7 +589,7 @@ bun run test             # Run tests
 ### Consumed By
 
 - `@beep/ui` - Main UI component library
-- `apps/web` - Next.js frontend application
+-  - Next.js frontend application
 
 ### Dependencies
 

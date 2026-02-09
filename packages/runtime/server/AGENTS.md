@@ -158,7 +158,7 @@ BunRuntime.runMain(program);
 
 ## Integration Points
 
-- **Used by**: `apps/web/src/app/layout.tsx` (server components via `runServerPromise`)
+- **Used by**: Next.js app server components (e.g. `apps/<next-app>/src/app/layout.tsx`) via `runServerPromise`
 - **Used by**: HTTP server entry points (standalone Bun servers)
 - **Provides**: `serverRuntime` for executing server-side Effects with full infrastructure
 - **Composes**: All slice-level services (IAM, Documents, Customization, Comms)

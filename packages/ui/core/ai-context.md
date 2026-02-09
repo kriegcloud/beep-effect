@@ -6,7 +6,7 @@ tags: [ui, theme, mui, design-system, settings, i18n, rtl]
 
 # @beep/ui-core
 
-Foundation package providing design tokens, palette math, typography scales, and MUI component overrides. Serves as the source of truth consumed by `@beep/ui` and ultimately `apps/web`.
+Foundation package providing design tokens, palette math, typography scales, and MUI component overrides. Serves as the source of truth consumed by `@beep/ui` and ultimately .
 
 ## Architecture
 

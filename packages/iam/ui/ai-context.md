@@ -12,7 +12,7 @@ Client-side IAM entry points for authentication flows (sign-in, sign-up) consume
 
 ```
 |-------------------|     |-------------------|     |-------------------|
-|   apps/web        | --> |  @beep/iam-ui     | --> | @beep/iam-client  |
+|   apps/todox      | --> |  @beep/iam-ui     | --> | @beep/iam-client  |
 |   (routes)        |     |  (views, forms)   |     | (RPC contracts)   |
 |-------------------|     |-------------------|     |-------------------|
                                   |

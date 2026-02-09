@@ -11,7 +11,7 @@ Type-safe environment configuration loaders for both client and server contexts.
 - **Type safety**: All environment variables are validated using Effect Schema with detailed error messages
 - **Immutable**: Configurations are loaded once at startup and cannot be mutated
 
-This package sits in the **shared layer** and is consumed by both `apps/web` and `apps/server`.
+This package sits in the **shared layer** and is consumed by both  and `apps/server`.
 
 ## Installation
 

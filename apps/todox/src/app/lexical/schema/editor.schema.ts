@@ -2,7 +2,6 @@ import { $TodoxId } from "@beep/identity/packages";
 import { hasProperties } from "@beep/todox/app/lexical/commenting";
 import { SerializedEditorState } from "@beep/todox/app/lexical/schema/schemas";
 import * as A from "effect/Array";
-import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { LexicalEditor } from "lexical";
@@ -38,25 +37,10 @@ const properties = [
 
 const $I = $TodoxId.create("app/lexical/schema/editor.schema");
 const isEditor = (u: unknown): u is LexicalEditor =>
-  P.isObject(u) &&
+  P.isRecord(u) &&
   hasProperties(...properties)(u) &&
-  P.struct({
-    version: P.or(P.isString, P.isUndefined),
-    ...A.reduce(
-      properties,
-      {} as {
-        readonly [K in Exclude<(typeof properties)[number], "version">]: typeof P.isFunction;
-      },
-      (acc, prop) =>
-        Match.value(prop).pipe(
-          Match.when("version", () => acc),
-          Match.orElse((prop) => ({
-            ...acc,
-            [prop]: P.isFunction,
-          }))
-        )
-    ),
-  })(u);
+  P.or(P.isString, P.isUndefined)(u.version) &&
+  A.every(properties, (prop) => prop === "version" || P.isFunction(u[prop]));
 
 export class Editor extends S.declare((u: unknown): u is LexicalEditor => isEditor(u)).annotations(
   $I.annotations("Editor", {

@@ -23,7 +23,7 @@ Client-side SDK for the calendar vertical slice. Provides RPC contract definitio
          v
 |-------------------|
 |    Web Apps       |
-| (apps/web, etc)   |
+| (apps/todox, etc) |
 |-------------------|
 ```
 
@@ -97,4 +97,3 @@ const ListEventsResponse = S.Array(EventSchema);
 - **AGENTS.md** - Detailed contributor guidance for client authoring
 - `packages/calendar/server` - Server implements contracts defined here
 - `packages/calendar/domain` - Domain types for alignment
-- `apps/web` - Primary consumer of calendar client

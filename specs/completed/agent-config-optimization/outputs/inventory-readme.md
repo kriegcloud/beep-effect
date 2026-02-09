@@ -16,7 +16,7 @@
 | apps/marketing | @beep/marketing | 123 | Yes | Yes | Install, Deps | Yes | No | No |
 | apps/server | @beep/server | 332 | Yes | Yes | Install, Exports, Deps | Yes | Yes | No |
 | apps/todox | @beep/todox | 676 | Yes | Yes | Install | Yes | Yes | No |
-| apps/web | @beep/web | 399 | Yes | Yes | Usage, Exports, Deps | Yes | Yes | No |
+| apps/todox | @beep/todox | 399 | Yes | Yes | Usage, Exports, Deps | Yes | Yes | No |
 | packages/_internal/db-admin | @beep/db-admin | 284 | Yes | Yes | Usage, Exports, Deps | Yes | Yes | No |
 | packages/calendar/client | @beep/calendar-client | - | Yes | No | - | - | - | - |
 | packages/calendar/domain | @beep/calendar-domain | - | Yes | No | - | - | - | - |
@@ -91,7 +91,7 @@
 - **@beep/marketing**: Usage, Key Exports
 - **@beep/server**: Usage
 - **@beep/todox**: Usage, Key Exports, Dependencies
-- **@beep/web**: Installation
+- **@beep/todox**: Installation
 - **@beep/db-admin**: Installation
 - **@beep/constants**: Key Exports, Dependencies
 - **@beep/errors**: Installation
@@ -110,7 +110,7 @@
 - **@beep/marketing**: Missing Effect imports
 - **@beep/server**: Native array methods
 - **@beep/todox**: Native array methods
-- **@beep/web**: Native array methods, async/await
+- **@beep/todox**: Native array methods, async/await
 - **@beep/db-admin**: Native array methods
 - **@beep/constants**: Native array methods, async/await
 - **@beep/errors**: Native array methods

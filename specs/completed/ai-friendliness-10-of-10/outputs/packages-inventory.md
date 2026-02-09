@@ -17,7 +17,7 @@ Total packages: 62
 | apps/marketing | @beep/marketing | ❌ | ✅ |
 | apps/server | @beep/server | ❌ | ✅ |
 | apps/todox | @beep/todox | ❌ | ✅ |
-| apps/web | @beep/web | ❌ | ✅ |
+| apps/todox | @beep/todox | ❌ | ✅ |
 
 ## Tooling (5 packages)
 

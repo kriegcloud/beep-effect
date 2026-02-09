@@ -7,7 +7,7 @@
 Current task: add a page route in the chosen app and wire RPC -> UI.
 
 Success criteria:
-- [ ] Route exists (in `apps/web` or `apps/todox`) and is navigable.
+- [ ] Route exists (in  or `apps/todox`) and is navigable.
 - [ ] Page renders real data from server endpoint.
 - [ ] Dark mode acceptable.
 - [ ] Basic responsive behavior (mobile does not hard-break).
@@ -27,7 +27,7 @@ Immediate dependencies:
 
 ### Procedural Context (links only)
 
-- Next.js patterns used in `apps/web` / `apps/todox`
+- Next.js patterns used in  / `apps/todox`
 
 ## Verification Checklist
 

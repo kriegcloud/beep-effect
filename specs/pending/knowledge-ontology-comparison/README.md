@@ -173,6 +173,8 @@ Note: This spec started as **research and analysis** (P1-P4). It later expanded 
 | **P7** | Capability parity acceleration | orchestrator + implementers | `outputs/P7_PARITY_CLOSURE_REPORT.md` |
 | **P8** | Repository law remediation + enforcement wiring | orchestrator + implementers | `outputs/P8_REPOSITORY_LAW_REMEDIATION_REPORT.md` |
 | **P9** | Capability surface separation (effect-ontology parity vs TodoX use-case) | orchestrator + implementers | `outputs/P9_CAPABILITY_SURFACE_SEPARATION_REPORT.md` |
+| **P10** | TodoX end-to-end integration (Gmail -> knowledge ingestion -> visualization) | orchestrator + implementers | `outputs/P10_TODOX_E2E_GMAIL_KNOWLEDGE_PLAN.md` |
+| **P11** | TodoX wealth management demo MVP (implementation execution) | orchestrator + implementers | `outputs/P11_TODOX_WEALTH_MGMT_DEMO_EXECUTION_SPEC.md` |
 
 ---
 

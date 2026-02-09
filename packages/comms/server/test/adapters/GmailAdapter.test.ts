@@ -17,13 +17,14 @@ import {
   GoogleScopeExpansionRequiredError,
 } from "@beep/google-workspace-domain";
 import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
-import { HttpClient, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
+import { HttpClient, type HttpClientError, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 const encodeBase64Url = (data: string): string => {
   const base64 = btoa(data);
@@ -33,7 +34,7 @@ const encodeBase64Url = (data: string): string => {
 const MockGoogleAuthClient = Layer.succeed(
   GoogleAuthClient,
   GoogleAuthClient.of({
-    getValidToken: (_scopes) =>
+    getValidToken: (_scopes, _providerAccountId) =>
       Effect.succeed(
         new GoogleOAuthToken({
           accessToken: O.some("mock-access-token"),
@@ -43,7 +44,7 @@ const MockGoogleAuthClient = Layer.succeed(
           expiryDate: O.some(DateTime.add(DateTime.unsafeNow(), { hours: 1 })),
         })
       ),
-    refreshToken: () =>
+    refreshToken: (_refreshToken, _providerAccountId) =>
       Effect.fail(
         new GoogleAuthenticationError({
           message: "Mock client does not support refresh",
@@ -55,7 +56,7 @@ const MockGoogleAuthClient = Layer.succeed(
 const MockGoogleAuthClientMissingScopes = Layer.succeed(
   GoogleAuthClient,
   GoogleAuthClient.of({
-    getValidToken: (requiredScopes) =>
+    getValidToken: (requiredScopes, _providerAccountId) =>
       Effect.fail(
         new GoogleScopeExpansionRequiredError({
           message: "Missing required scopes",
@@ -64,7 +65,7 @@ const MockGoogleAuthClientMissingScopes = Layer.succeed(
           missingScopes: A.fromIterable(requiredScopes),
         })
       ),
-    refreshToken: () =>
+    refreshToken: (_refreshToken, _providerAccountId) =>
       Effect.fail(
         new GoogleAuthenticationError({
           message: "Mock client does not support refresh",
@@ -80,21 +81,29 @@ const makeHttpClientMock = (
 ) =>
   Layer.succeed(
     HttpClient.HttpClient,
-    HttpClient.make((request) =>
-      Effect.gen(function* () {
-        const result = yield* handler(request);
-        return HttpClientResponse.fromWeb(
-          request,
-          new Response(JSON.stringify(result.body), {
-            status: result.status,
-            headers: { "Content-Type": "application/json" },
-          })
-        );
-      })
+    // `HttpClient.make` internally re-constructs URLs, which can consult `globalThis.location`
+    // in some runtimes. `makeWith` keeps request URLs stable for tests and lets us encode JSON via Schema.
+    HttpClient.makeWith<never, never, HttpClientError.HttpClientError, never>(
+      (requestEffect) =>
+        Effect.flatMap(requestEffect, (request) =>
+          Effect.gen(function* () {
+            const result = yield* handler(request);
+            const encoded = yield* S.encodeUnknown(S.parseJson(S.Unknown))(result.body);
+            return HttpClientResponse.fromWeb(
+              request,
+              new Response(encoded, {
+                status: result.status,
+                headers: { "Content-Type": "application/json" },
+              })
+            );
+          }).pipe(Effect.catchTag("ParseError", Effect.die))
+        ),
+      (request) => Effect.succeed(request)
     )
   );
 
 describe("GmailAdapter", () => {
+  const providerAccountId = "iam_account__00000000-0000-0000-0000-000000000000";
   describe("listMessages", () => {
     const mockListResponse = {
       messages: [
@@ -159,7 +168,7 @@ describe("GmailAdapter", () => {
       it.effect("returns messages matching query", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const messages = yield* adapter.listMessages("in:inbox", 10);
+          const messages = yield* adapter.listMessages("in:inbox", 10, providerAccountId);
 
           strictEqual(messages.length, 2);
           strictEqual(messages[0]?.id, "msg-1");
@@ -171,7 +180,7 @@ describe("GmailAdapter", () => {
       it.effect("extracts labels correctly", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const messages = yield* adapter.listMessages("in:inbox", 10);
+          const messages = yield* adapter.listMessages("in:inbox", 10, providerAccountId);
 
           strictEqual(messages[0]?.labelIds.length, 2);
           assertTrue(messages[0]?.labelIds.includes("INBOX"));
@@ -182,7 +191,7 @@ describe("GmailAdapter", () => {
       it.effect("parses internalDate to DateTime", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const messages = yield* adapter.listMessages("in:inbox", 10);
+          const messages = yield* adapter.listMessages("in:inbox", 10, providerAccountId);
 
           assertTrue(O.isSome(messages[0]?.internalDate ?? O.none()));
         })
@@ -206,7 +215,7 @@ describe("GmailAdapter", () => {
       it.effect("returns empty array when no messages match", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const messages = yield* adapter.listMessages("label:nonexistent", 10);
+          const messages = yield* adapter.listMessages("label:nonexistent", 10, providerAccountId);
 
           strictEqual(messages.length, 0);
         })
@@ -262,7 +271,7 @@ describe("GmailAdapter", () => {
       it.effect("returns full message details", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const message = yield* adapter.getMessage("msg-123");
+          const message = yield* adapter.getMessage("msg-123", providerAccountId);
 
           strictEqual(message.id, "msg-123");
           strictEqual(message.threadId, "thread-456");
@@ -273,7 +282,7 @@ describe("GmailAdapter", () => {
       it.effect("extracts multipart content", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const message = yield* adapter.getMessage("msg-123");
+          const message = yield* adapter.getMessage("msg-123", providerAccountId);
 
           assertTrue(O.isSome(message.payload));
           const payload = O.getOrThrow(message.payload);
@@ -284,7 +293,7 @@ describe("GmailAdapter", () => {
       it.effect("returns GoogleApiError for non-existent message", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const error = yield* Effect.flip(adapter.getMessage("nonexistent"));
+          const error = yield* Effect.flip(adapter.getMessage("nonexistent", providerAccountId));
 
           assertTrue(error instanceof GoogleApiError);
           strictEqual(error.statusCode, 404);
@@ -314,7 +323,12 @@ describe("GmailAdapter", () => {
       it.effect("sends message and returns response", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const result = yield* adapter.sendMessage("recipient@example.com", "Test Subject", "Test body content");
+          const result = yield* adapter.sendMessage(
+            "recipient@example.com",
+            "Test Subject",
+            "Test body content",
+            providerAccountId
+          );
 
           strictEqual(result.id, "sent-msg-789");
           strictEqual(result.threadId, "new-thread-123");
@@ -339,7 +353,7 @@ describe("GmailAdapter", () => {
       it.effect("returns GoogleApiError for invalid request", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const error = yield* Effect.flip(adapter.sendMessage("invalid-email", "Subject", "Body"));
+          const error = yield* Effect.flip(adapter.sendMessage("invalid-email", "Subject", "Body", providerAccountId));
 
           assertTrue(error instanceof GoogleApiError);
           strictEqual(error.statusCode, 400);
@@ -398,7 +412,7 @@ describe("GmailAdapter", () => {
       it.effect("returns thread with all messages", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const thread = yield* adapter.getThread("thread-abc");
+          const thread = yield* adapter.getThread("thread-abc", providerAccountId);
 
           strictEqual(thread.id, "thread-abc");
           strictEqual(thread.messages.length, 2);
@@ -410,7 +424,7 @@ describe("GmailAdapter", () => {
       it.effect("returns GoogleApiError for non-existent thread", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const error = yield* Effect.flip(adapter.getThread("nonexistent"));
+          const error = yield* Effect.flip(adapter.getThread("nonexistent", providerAccountId));
 
           assertTrue(error instanceof GoogleApiError);
           strictEqual(error.statusCode, 404);
@@ -431,7 +445,7 @@ describe("GmailAdapter", () => {
       it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const error = yield* Effect.flip(adapter.listMessages("in:inbox", 10));
+          const error = yield* Effect.flip(adapter.listMessages("in:inbox", 10, providerAccountId));
 
           assertTrue(error instanceof GoogleScopeExpansionRequiredError);
           assertTrue(error.missingScopes.length > 0);

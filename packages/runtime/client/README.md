@@ -110,7 +110,7 @@ The runtime is composed in layers and exposed to the application through React p
 Mount `BeepProvider` at the root of your Next.js application:
 
 ```typescript
-// apps/web/src/GlobalProviders.tsx
+// apps/<next-app>/src/GlobalProviders.tsx
 import { BeepProvider } from "@beep/runtime-client";
 
 export function GlobalProviders({ children }: { children: React.ReactNode }) {
@@ -125,7 +125,7 @@ export function GlobalProviders({ children }: { children: React.ReactNode }) {
 Mount `KaServices` under the effect-atom `RegistryProvider`:
 
 ```typescript
-// apps/web/src/app/layout.tsx
+// apps/<next-app>/src/app/layout.tsx
 import { RegistryProvider } from "@effect-atom/atom-react";
 import { KaServices } from "@beep/runtime-client";
 
@@ -284,7 +284,7 @@ const checkConnectivity = Effect.gen(function* () {
 
 This package integrates with:
 
-- **`apps/web`** — Next.js frontend mounts `BeepProvider` and `KaServices` in the App Router shell
+- **** — Next.js frontend mounts `BeepProvider` and `KaServices` in the App Router shell
 - **`@beep/runtime-server`** — Server-side runtime counterpart with similar observability patterns
 - **`@beep/iam-client`** / **`@beep/documents-client`** — CLIENT packages consume the runtime to execute client contracts
 - **`@beep/iam-ui`** / **`@beep/documents-ui`** — UI packages use atoms powered by the runtime

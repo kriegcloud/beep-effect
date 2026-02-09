@@ -95,4 +95,4 @@ import { CollaborationPlugin } from "@lexical/react/LexicalCollaborationPlugin";
 
 - **AGENTS.md** - Contributor guardrails and plugin registration patterns
 - **@beep/ui** - Base component patterns consumed by editor
-- **apps/web** - Primary consumer for document editing views
+- **apps/todox** - Primary consumer for document editing views

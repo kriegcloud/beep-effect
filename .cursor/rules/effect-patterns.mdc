@@ -1,8 +1,8 @@
 ---
-alwaysApply: true
+alwaysApply: false
 
-trigger: manual
-description: 
+trigger: always
+description: Enforce Effect repository patterns across TypeScript sources.
 globs:
   - packages/**/src/**/*.ts
   - packages/**/src/**/*.tsx
@@ -92,25 +92,6 @@ S.array(S.number)              // Wrong!
 | effect/Match       | Match      |
 | @effect/sql/Model  | M          |
 
-## Effect Function Boundaries (REQUIRED)
-
-For exported or reusable effectful helpers, prefer `Effect.fn("Name")` with a stable name and explicit cause/error boundary.
-
-```typescript
-// REQUIRED - named helper boundary
-const runActivity = Effect.fn("DurableActivities.runActivity")(
-  function* (executionId: string, activityId: string) {
-    // ...
-    return result;
-  },
-  Effect.catchAllCause((cause) =>
-    Effect.fail(new DurableActivityError({ executionId, activityId, cause }))
-  )
-);
-```
-
-Use `Effect.gen` directly only for local inline orchestration that is not a reusable boundary.
-
 ## Native Method Ban
 
 NEVER use native JavaScript array/string methods. Route ALL operations through Effect utilities:
@@ -148,6 +129,20 @@ ALWAYS choose the correct Effect Schema type based on the runtime value:
 - Use `S.optionalWith({ nullable: true })` for values that may be `null` OR `undefined`
 - Use `S.Redacted` for user-provided credentials to suppress logging
 - Use plain `S.String` for server-generated tokens (already protected)
+
+## Layer Composition (REQUIRED)
+
+Layer graph drift is demo-fatal: it often surfaces late at `Layer.launch(...)` as missing Effect context. Prevent this by forcing module boundaries to be explicit.
+
+- All exported Layers must have an explicit `Layer.Layer<...>` type annotation.
+- All `serviceEffect` values must have an explicit `Effect.Effect<...>` type annotation.
+- If a Layer is only used in one module, provide dependencies in that module.
+- If a dependency set is shared, create an explicit `*BundleLive` layer and provide that bundle in consumers.
+- Any Layer launched from an app entrypoint must require `never` (`RIn = never`).
+
+Enforcement:
+- `bun run verify:layers`
+- `bun run verify:layers:ci`
 
 ## EntityId Usage (MANDATORY)
 
@@ -346,22 +341,8 @@ export class MyError extends S.TaggedError<MyError>()("MyError", {
   message: S.String,
 }) {}
 
-// REQUIRED - yieldable tagged errors should be yielded directly
-yield* new MyError({ message: "Something went wrong" })
-
-// ALLOWED when returning an Effect value from non-generator code
-const fail: Effect.Effect<never, MyError> = new MyError({ message: "Something went wrong" })
+Effect.fail(new MyError({ message: "Something went wrong" }))
 ```
-
-### 2.1 NEVER wrap yieldable tagged errors in `Effect.fail`
-
-If the error type is yieldable (e.g. `Schema.TaggedError`), do not write:
-
-```typescript
-Effect.fail(new MyError({ message: "..." })) // FORBIDDEN
-```
-
-Prefer direct yield/return to satisfy `@effect/language-service` (`effect(unnecessaryFailYieldableError)`).
 
 ### 3. NEVER use non-null assertions
 

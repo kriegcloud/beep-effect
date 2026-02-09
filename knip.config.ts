@@ -30,29 +30,6 @@ const config = {
     "__tests__/**/*.{ts,tsx,js,jsx,mts,cts}"
   ],
   workspaces: {
-    "apps/web": {
-      entry: [
-        "src/app/**/page.{ts,tsx,js,jsx}",
-        "src/app/**/layout.{ts,tsx,js,jsx}",
-        "src/app/**/template.{ts,tsx,js,jsx}",
-        "src/app/**/default.{ts,tsx,js,jsx}",
-        "src/app/**/error.{ts,tsx,js,jsx}",
-        "src/app/**/loading.{ts,tsx,js,jsx}",
-        "src/app/**/route.{ts,tsx,js,jsx}",
-        "src/app/api/**/route.{ts,tsx,js,jsx}",
-        "src/middleware.{ts,tsx,js,jsx}",
-        "middleware.{ts,tsx,js,jsx}",
-        "next.config.{js,mjs,cjs,ts}",
-        "instrumentation.{ts,js}"
-      ],
-      project: [
-        "src/**/*.{ts,tsx,js,jsx}",
-        "app/**/*.{ts,tsx,js,jsx}",
-        "test/**/*.{ts,tsx,js,jsx,mts,cts}",
-        "src/**/*.{test,spec}.{ts,tsx,js,jsx,mts,cts}",
-        "__tests__/**/*.{ts,tsx,js,jsx,mts,cts}"
-      ]
-    },
     "apps/server": {
       entry: ["src/server.ts"],
       project: [

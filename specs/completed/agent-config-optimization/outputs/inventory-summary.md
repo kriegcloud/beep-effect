@@ -33,7 +33,7 @@ This comprehensive inventory analyzed all AGENTS.md files across the beep-effect
 - **Total Lines**: 7,483 lines across 48 files
 - **Average File Size**: 156 lines per file
 - **Largest File**: apps/todox/AGENTS.md (672 lines)
-- **Smallest File**: apps/web/AGENTS.md (56 lines)
+- **Smallest File**: apps/todox/AGENTS.md (56 lines)
 
 ## Issue Breakdown
 

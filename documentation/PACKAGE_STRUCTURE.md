@@ -3,9 +3,8 @@
 ```
 beep-effect/
 ├── apps/
-│   ├── web/              # Next.js App Router frontend
 │   ├── server/           # Effect-based backend runtime
-│   ├── notes/            # Collaborative notes application
+│   ├── todox/            # Next.js App Router product application
 │   └── marketing/        # Marketing website
 ├── packages/
 │   ├── _internal/
@@ -85,8 +84,8 @@ beep-effect/
 Each package may have its own `AGENTS.md` with specific guidance:
 
 ### Applications
-- `apps/web/AGENTS.md` - Next.js frontend application patterns
 - `apps/server/AGENTS.md` - Effect Platform backend server
+- `apps/todox/AGENTS.md` - Next.js product application patterns
 - `apps/marketing/AGENTS.md` - Marketing website
 
 ### Common Layer

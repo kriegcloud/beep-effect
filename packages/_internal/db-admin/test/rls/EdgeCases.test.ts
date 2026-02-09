@@ -22,9 +22,9 @@ import { PgTest } from "../container";
 /**
  * Timeout for edge case tests.
  */
-const TEST_TIMEOUT = 60000;
+const TEST_TIMEOUT = 120000;
 
-layer(PgTest, { timeout: Duration.seconds(60) })("RLS Edge Cases", (it) => {
+layer(PgTest, { timeout: Duration.seconds(120) })("RLS Edge Cases", (it) => {
   /**
    * Test: Empty string context should block all rows.
    *

@@ -18,7 +18,7 @@ Generated: 2026-01-18
 | apps/marketing/AGENTS.md | @beep/marketing | 63 | Yes | Yes | 0 | No | Yes |
 | apps/server/AGENTS.md | @beep/server | 69 | Yes | Yes | 0 | No | No |
 | apps/todox/AGENTS.md | @beep/todox | 672 | Yes | Yes | 0 | No | No |
-| apps/web/AGENTS.md | @beep/web | 56 | Yes | Yes | 0 | No | Yes |
+| apps/todox/AGENTS.md | @beep/todox | 56 | Yes | Yes | 0 | No | Yes |
 | packages/common/constants/AGENTS.md | @beep/constants | 97 | Yes | Yes | 0 | No | No |
 | packages/common/errors/AGENTS.md | @beep/errors | 133 | Yes | Yes | 0 | No | No |
 | packages/common/identity/AGENTS.md | @beep/identity | 78 | Yes | Yes | 0 | No | Yes |

@@ -9,7 +9,6 @@ Extend the `tsconfig-sync` command to sync `tsconfig.json` files for **Next.js a
 P4 fixed critical bugs in `tsconfig-sync` for monorepo packages. Now the command correctly syncs `tsconfig.build.json`, `tsconfig.src.json`, and `tsconfig.test.json` for all 60 packages.
 
 P5 extends this to also sync Next.js app configs:
-- `apps/web/tsconfig.json`
 - `apps/todox/tsconfig.json`
 - `apps/marketing/tsconfig.json`
 
@@ -62,8 +61,8 @@ Read these files to understand the current state:
 - `specs/tsconfig-sync-command/handoffs/HANDOFF_P5.md` (detailed requirements)
 - `tooling/cli/src/commands/tsconfig-sync/handler.ts` (main handler)
 - `tooling/cli/src/commands/tsconfig-sync/utils/tsconfig-writer.ts` (utilities)
-- `apps/web/tsconfig.json` (example app config)
-- `apps/web/package.json` (app dependencies)
+- `apps/todox/tsconfig.json` (example app config)
+- `apps/todox/package.json` (app dependencies)
 
 ### Step 2: Add CLI Options
 
@@ -154,12 +153,10 @@ bun run repo-cli tsconfig-sync
 bun run repo-cli tsconfig-sync --check
 
 # Verify builds
-bun run build --filter @beep/web
 bun run build --filter @beep/todox
 bun run build --filter @beep/marketing
 
 # Verify type check
-bun run check --filter @beep/web
 bun run check --filter @beep/todox
 bun run check --filter @beep/marketing
 ```

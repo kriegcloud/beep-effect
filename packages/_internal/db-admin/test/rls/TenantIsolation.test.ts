@@ -21,9 +21,9 @@ import { PgTest } from "../container";
  * Timeout for tests that interact with the database.
  * Extended to account for container startup time.
  */
-const TEST_TIMEOUT = 60000;
+const TEST_TIMEOUT = 120000;
 
-layer(PgTest, { timeout: Duration.seconds(60) })("RLS Tenant Isolation", (it) => {
+layer(PgTest, { timeout: Duration.seconds(120) })("RLS Tenant Isolation", (it) => {
   // ==========================================================================
   // Basic RLS Policy Tests
   // ==========================================================================

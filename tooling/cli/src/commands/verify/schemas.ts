@@ -38,7 +38,10 @@ export const ViolationType = S.Literal(
   "async-await",
   "promise-usage",
   "unsafe-cast",
-  "direct-json"
+  "direct-json",
+  "layer-export-missing-annotation",
+  "layer-live-missing-annotation",
+  "serviceeffect-missing-annotation"
 );
 
 /**

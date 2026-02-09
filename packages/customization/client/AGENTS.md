@@ -6,7 +6,7 @@ Effect-based client contracts for the Customization slice.
 
 Provides the client-side API surface for customization operations. This package:
 - Defines RPC contracts for user preferences, themes, and hotkey customization
-- Exports typed client handlers consumed by `@beep/web` and other frontend apps
+- Exports typed client handlers consumed by product Next.js apps (e.g. `@beep/todox`) and other frontend apps
 - Sits in the `customization/client` layer of the vertical slice architecture
 - Currently a minimal scaffold awaiting contract definitions as the customization feature matures
 
@@ -54,7 +54,7 @@ domain -> tables -> server -> client -> ui
 
 ### Cross-Package Relationships
 
-- **Consumed by**: `@beep/customization-ui`, `apps/web` (web application)
+- **Consumed by**: `@beep/customization-ui`
 - **Communicates with**: `@beep/customization-server` (via RPC contracts)
 
 ## Usage Patterns

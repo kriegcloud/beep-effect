@@ -186,7 +186,7 @@ Route handlers depend on:
 
 `@beep/iam-server` integrates with the following packages:
 
-- **Consumed by**: `apps/server` (runtime composition), `apps/web` (Better Auth routes)
+- **Consumed by**: `apps/server` (runtime composition),  (Better Auth routes)
 - **Consumes**: `@beep/iam-domain` (entity models), `@beep/iam-tables` (schema definitions)
 - **Shared infrastructure**: `@beep/shared-server` (Db, Email, Repo factories)
 

@@ -1,11 +1,13 @@
 import { Document } from "@beep/documents-domain/entities";
 import { DocumentRepo } from "@beep/documents-server/db";
+import { Policy } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+
 /**
  * RPC handlers for Document entity operations.
  * Each handler implements the corresponding RPC defined in Document.rpc.ts
@@ -14,7 +16,9 @@ import * as Stream from "effect/Stream";
  * - Expected errors (e.g., DocumentNotFoundError) pass through to the RPC layer
  * - Unexpected errors (e.g., DbError) are converted to defects via Effect.orDie
  */
-export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
+const DocumentRpcsWithMiddleware = Document.DocumentRpcs.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
+
+export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
   Effect.gen(function* () {
     const repo = yield* DocumentRepo;
 

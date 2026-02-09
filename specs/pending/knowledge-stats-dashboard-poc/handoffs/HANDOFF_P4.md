@@ -28,7 +28,7 @@ Immediate dependencies:
 
 ### Procedural Context (links only)
 
-- UI patterns: `apps/web` / `apps/todox` existing layout components
+- UI patterns:  / `apps/todox` existing layout components
 
 ## Verification Checklist
 

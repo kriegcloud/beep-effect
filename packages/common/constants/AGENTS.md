@@ -22,7 +22,7 @@
 ## Usage Snapshots
 - `packages/iam/ui/src/sign-in/sign-in-social.tsx` — drives sign-in buttons through `AuthProviderNameValue.filter`, emphasizing non-empty provider lists. Imports from `@beep/shared-env/ClientEnv` for auth provider configuration.
 - `packages/shared/domain/src/value-objects/paths.ts` — uses `PathBuilder` from `@beep/shared-domain/factories` (not from this package) for comprehensive dashboard/auth routes.
-- `apps/web/src/app/manifest.ts` — sources icon URLs from `assetPaths` so manifest entries remain aligned with generated assets.
+- `apps/<next-app>/src/app/manifest.ts` — sources icon URLs from `assetPaths` so manifest entries remain aligned with generated assets.
 - `packages/shared/server/src/services/Upload.service.ts` — imports pagination constants for upload chunk size limits.
 - `packages/shared/server/src/rpc/v1/files/initiate-upload.ts` — uses constants for file upload validation and configuration.
 

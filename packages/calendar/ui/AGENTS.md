@@ -11,7 +11,7 @@
 - **Components** — React components for calendar views and event interaction.
 
 ## Usage Snapshots
-- `apps/web/` — Imports calendar UI components for scheduling views.
+- `apps/todox/` — Imports calendar UI components for scheduling views.
 - `apps/todox/` — May integrate calendar features in task scheduling.
 
 ## Authoring Guardrails

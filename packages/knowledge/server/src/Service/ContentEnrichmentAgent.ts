@@ -1,12 +1,9 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { FallbackLanguageModel } from "@beep/knowledge-server/LlmControl/FallbackLanguageModel";
-import { withLlmResilienceWithFallback } from "@beep/knowledge-server/LlmControl/LlmResilience";
 import { BS } from "@beep/schema";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import type * as DateTime from "effect/DateTime";
-import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -27,6 +24,7 @@ export class SourceChannel extends BS.StringLiteralKit(
     description: "Origin channel for a piece of content being enriched (email/calendar/CRM/documents/web/unknown).",
   })
 ) {}
+
 export declare namespace SourceChannel {
   export type Type = typeof SourceChannel.Type;
 }
@@ -44,6 +42,7 @@ export class WebSourceType extends BS.StringLiteralKit(
     description: "Sub-classification of web content sources when SourceChannel is `web`.",
   })
 ) {}
+
 export declare namespace WebSourceType {
   export type Type = typeof WebSourceType.Type;
 }
@@ -118,25 +117,18 @@ export class ContentEnrichmentAgent extends Context.Tag($I`ContentEnrichmentAgen
   ContentEnrichmentAgentShape
 >() {}
 
-const serviceEffect: Effect.Effect<
-  ContentEnrichmentAgentShape,
-  never,
-  LanguageModel.LanguageModel | FallbackLanguageModel
-> = Effect.gen(function* () {
-  const model = yield* LanguageModel.LanguageModel;
-  const fallback = yield* FallbackLanguageModel;
+const serviceEffect: Effect.Effect<ContentEnrichmentAgentShape, never, LanguageModel.LanguageModel> = Effect.gen(
+  function* () {
+    const model = yield* LanguageModel.LanguageModel;
 
-  return ContentEnrichmentAgent.of({
-    enrich: ({ content, sourceChannel, url }) =>
-      Effect.gen(function* () {
-        const channel: SourceChannel.Type = sourceChannel ?? "unknown";
-        const wordCount = estimateWordCount(content);
+    return ContentEnrichmentAgent.of({
+      enrich: ({ content, sourceChannel, url }) =>
+        Effect.gen(function* () {
+          const channel: SourceChannel.Type = sourceChannel ?? "unknown";
+          const wordCount = estimateWordCount(content);
 
-        const response = yield* withLlmResilienceWithFallback(
-          model,
-          fallback,
-          (llm) =>
-            llm.generateObject({
+          const response = yield* model
+            .generateObject({
               prompt: Prompt.make([
                 Prompt.systemMessage({ content: ENRICHMENT_SYSTEM_PROMPT }),
                 Prompt.userMessage({
@@ -145,32 +137,27 @@ const serviceEffect: Effect.Effect<
               ]),
               schema: EnrichedContent,
               objectName: "EnrichedContent",
-            }),
-          {
-            stage: "entity_extraction",
-            estimatedTokens: Str.length(content),
-            maxRetries: 1,
-            baseRetryDelay: Duration.zero,
-          }
-        ).pipe(
-          Effect.map((r) => r.value),
-          Effect.mapError(
-            (e) =>
-              new ContentEnrichmentError({
-                message: `Content enrichment failed: ${String(e)}`,
-                cause: e,
-              })
-          )
-        );
+            })
+            .pipe(
+              Effect.map((r) => r.value),
+              Effect.mapError(
+                (e) =>
+                  new ContentEnrichmentError({
+                    message: `Content enrichment failed: ${String(e)}`,
+                    cause: e,
+                  })
+              )
+            );
 
-        return new EnrichedContent({
-          ...response,
-          sourceChannel: response.sourceChannel || channel,
-          language: response.language || "en",
-          wordCount: response.wordCount || wordCount,
-        });
-      }),
-  });
-});
+          return new EnrichedContent({
+            ...response,
+            sourceChannel: response.sourceChannel || channel,
+            language: response.language || "en",
+            wordCount: response.wordCount || wordCount,
+          });
+        }),
+    });
+  }
+);
 
 export const ContentEnrichmentAgentLive = Layer.effect(ContentEnrichmentAgent, serviceEffect);

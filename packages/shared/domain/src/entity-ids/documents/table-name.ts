@@ -8,6 +8,7 @@ const $I = $SharedDomainId.create("entity-ids/documents/table-names");
 export class TableName extends BS.StringLiteralKit(
   Ids.DocumentId.tableName,
   Ids.DocumentVersionId.tableName,
+  Ids.DocumentSourceId.tableName,
   Ids.DiscussionId.tableName,
   Ids.CommentId.tableName,
   Ids.DocumentFileId.tableName,

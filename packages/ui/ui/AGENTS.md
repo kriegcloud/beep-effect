@@ -17,7 +17,7 @@
   - Forms/validation: `@tanstack/react-form`, `zod`, `effect`
   - MUI ecosystem: `@mui/x-data-grid`, `@mui/x-date-pickers`, `@mui/x-tree-view`, `@mui/lab`
   - i18n: `i18next`, `react-i18next`, `i18next-browser-languagedetector`, `accept-language`
-- Downstream packages (e.g., `apps/web`) import these modules directly via workspace aliases; breaking surface exports will cascade into app runtimes.
+- Downstream packages (e.g., ) import these modules directly via workspace aliases; breaking surface exports will cascade into app runtimes.
 
 ## Theme & Settings Integration
 - `src/theme/theme-provider.tsx` wraps children with:
@@ -37,7 +37,7 @@
   - `styles` hosts global Tailwind + CSS variable definitions; `theme` contains provider plumbing.
 - Conventions:
   - Namespace Effect utilities (`import * as A from "effect/Array"`, `import * as Str from "effect/String"`) and avoid native array/string methods. The repo’s critical rule applies here just as in `ui-core`.
-  - Prefer collocating component stories/examples near implementation (no Storybook yet—add local demos under `apps/web` when needed).
+  - Prefer collocating component stories/examples near implementation (no Storybook yet—add local demos under  when needed).
   - Keep client/server boundaries explicit via `"use client"` directives at the file top for React 19 compliance.
 
 ## Styling Layers
@@ -45,7 +45,7 @@
   - Declares layered Tailwind imports, font families, baseline resets, and SimpleBar styling.
   - CSS variables come from `@beep/ui-core`’s theme; avoid redefining them locally unless necessary.
 - `components.json` configures shadcn to target `src/styles/globals.css` and maps aliases to package exports. When running `bunx shadcn-ui`, this file must stay in sync with new directories.
-- PostCSS pipeline is minimal (`postcss.config.mjs`), delegating to `@tailwindcss/postcss`. Any plugin additions should be coordinated with Next.js build settings in `apps/web`.
+- PostCSS pipeline is minimal (`postcss.config.mjs`), delegating to `@tailwindcss/postcss`. Any plugin additions should be coordinated with Next.js build settings in .
 - Choose the right styling tool:
   - Use `@beep/ui/styled` helpers for repeated MUI customizations (`styled-text-field`, `outlined-badge`).
   - Use `sx` prop for token-aware tweaks and Tailwind utilities for layout scaffolding (keep `globals.css` authoritative for base tokens).
@@ -69,7 +69,7 @@
   - `bun run test` executes the Vitest suite (add focused tests under `src/**/__tests__` when extending components).
 - Local development:
   - Use `bun run dev` for incremental TypeScript builds (`tsconfig.build.json`).
-  - When debugging CSS, ensure Tailwind classes compile via `globals.css`; the Tailwind CLI is not bundled—rely on Next.js dev server in `apps/web` or run `bunx tailwindcss -i` ad hoc if necessary.
+  - When debugging CSS, ensure Tailwind classes compile via `globals.css`; the Tailwind CLI is not bundled—rely on Next.js dev server in  or run `bunx tailwindcss -i` ad hoc if necessary.
 - Sanity checks before publishing changes:
   - Confirm exported barrels (`src/components/index.ts`, `src/atoms/index.ts`, etc.) match build outputs.
   - Update `components.json` if you add new alias directories to keep shadcn scaffolding usable.

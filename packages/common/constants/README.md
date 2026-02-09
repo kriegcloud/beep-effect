@@ -252,7 +252,7 @@ const directive: CspDirective = "script-src";
 
 #### Working with CSP in Next.js Middleware
 
-Real-world usage from `apps/web/src/proxy.ts`:
+Example usage from a Next.js middleware module (e.g. `apps/<next-app>/src/proxy.ts`):
 
 ```ts
 import { CSP_HEADER } from "@beep/constants";
@@ -606,7 +606,7 @@ export declare namespace MyConstant {
 - **@beep/shared-server** — File upload service (EnvValue)
 - **@beep/shared-domain** — File entity models (EnvValue)
 - **@beep/iam/ui** — Social login buttons
-- **apps/web** — Asset manifests, CSP middleware, environment detection
+- **Next.js apps (`apps/*`)** — Asset manifests, CSP middleware, environment detection
 - **apps/server** — Environment detection, logging configuration
 
 ### Integration Points
@@ -619,7 +619,7 @@ import { EnvValue, AuthProviderNameValue, LogFormat } from "@beep/constants";
 import { AuthProviderNameValue } from "@beep/constants";
 const providers = AuthProviderNameValue.filter(["google", "github"]);
 
-// In apps/web middleware (proxy.ts)
+// In a Next.js app middleware module (e.g. apps/<next-app>/src/proxy.ts)
 import { CSP_HEADER } from "@beep/constants";
 export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
@@ -627,7 +627,7 @@ export async function proxy(request: NextRequest) {
   // ...
 }
 
-// In apps/web manifest.ts
+// In a Next.js app manifest module (e.g. apps/<next-app>/src/app/manifest.ts)
 import { assetPaths } from "@beep/constants";
 export default function manifest(): MetadataRoute.Manifest {
   return {

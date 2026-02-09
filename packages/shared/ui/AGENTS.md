@@ -125,7 +125,7 @@ const CustomReactNode = ReactNode({
 ## Integration Points
 
 ### With Applications
-- `apps/web` - Primary consumer for file management pages in dashboard
+-  - Primary consumer for file management pages in dashboard
 
 ### With Feature Slices
 - `packages/documents/ui` - May compose these components for document-specific workflows

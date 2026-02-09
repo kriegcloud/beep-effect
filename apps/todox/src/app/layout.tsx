@@ -8,7 +8,6 @@ import React from "react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
-import { runServerPromise } from "@beep/runtime-server";
 import { getAppConfig } from "@beep/todox/app-config";
 import { GlobalProviders } from "@beep/todox/global-providers";
 import * as Effect from "effect/Effect";
@@ -38,7 +37,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   await connection();
-  const appConfig = await runServerPromise(getInitialProps, "RootLayout.getInitialProps");
+  const appConfig = await Effect.runPromise(getInitialProps);
   return (
     <>
       <Agentation />
