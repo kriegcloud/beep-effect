@@ -29,6 +29,7 @@ const composers = $I.compose(
   "machine",
   "todox",
   "wrap",
+  "semantic-web",
   "documents-tables",
   "ui",
   "invariant",
@@ -1014,3 +1015,18 @@ export const $GoogleWorkspaceServerId = composers.$GoogleWorkspaceServerId;
  * @since 0.1.0
  */
 export const $MachineId = composers.$MachineId;
+
+/**
+ * Identity composer for the `@beep/semantic-web` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $SemanticWebId } from "@beep/identity/packages"
+ *
+ * const serviceId = $SemanticWebId.make("OWL")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $SemanticWebId = composers.$SemanticWebId;
