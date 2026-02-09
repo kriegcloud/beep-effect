@@ -1,5 +1,6 @@
 import idna from "@beep/semantic-web/idna";
 import * as A from "effect/Array";
+import * as ParseResult from "effect/ParseResult";
 import * as Str from "effect/String";
 import type { URIComponents, URIOptions, URISchemeHandler } from "../uri.ts";
 import { pctDecChars, pctEncChar, unescapeComponent } from "../uri.ts";
@@ -99,11 +100,15 @@ const handler: URISchemeHandler<MailtoComponents> = {
       addr[0] = unescapeComponent(localPart);
 
       if (!options.unicodeSupport) {
-        try {
-          addr[1] = idna.toASCII(Str.toLowerCase(unescapeComponent(domainPart, options)));
-        } catch (e) {
+        const r = idna.toASCIIResult(Str.toLowerCase(unescapeComponent(domainPart, options)));
+        if (r._tag === "Left") {
           mailtoComponents.error =
-            mailtoComponents.error || `Email address's domain name can not be converted to ASCII via punycode: ${e}`;
+            mailtoComponents.error ||
+            `Email address's domain name can not be converted to ASCII via punycode: ${ParseResult.TreeFormatter.formatIssueSync(
+              r.left
+            )}`;
+        } else {
+          addr[1] = r.right;
         }
       } else {
         addr[1] = Str.toLowerCase(unescapeComponent(domainPart, options));
@@ -132,17 +137,18 @@ const handler: URISchemeHandler<MailtoComponents> = {
           .replace(NOT_LOCAL_PART, pctEncChar);
         let domain = Str.slice(atIdx + 1)(toAddr);
 
-        try {
-          domain = !options.iri
-            ? idna.toASCII(Str.toLowerCase(unescapeComponent(domain, options)))
-            : idna.toUnicode(domain);
-        } catch (e) {
+        const r = !options.iri
+          ? idna.toASCIIResult(Str.toLowerCase(unescapeComponent(domain, options)))
+          : idna.toUnicodeResult(domain);
+        if (r._tag === "Left") {
           components.error =
             components.error ||
             "Email address's domain name can not be converted to " +
               (!options.iri ? "ASCII" : "Unicode") +
               " via punycode: " +
-              e;
+              ParseResult.TreeFormatter.formatIssueSync(r.left);
+        } else {
+          domain = r.right;
         }
 
         to[x] = `${localPart}@${domain}`;

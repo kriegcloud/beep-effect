@@ -1,6 +1,27 @@
-import { describe, expect, it } from "bun:test";
-import { decode, encode, IDNA, toASCII, toUnicode, ucs2decode, ucs2encode } from "@beep/semantic-web/idna/idna";
-import { deepStrictEqual, strictEqual } from "@beep/testkit";
+import { deepStrictEqual, describe, effect, expect, it, strictEqual } from "@beep/testkit";
+import { IDNA, IDNAFromString } from "@beep/semantic-web/idna/idna";
+import * as Effect from "effect/Effect";
+import * as ParseResult from "effect/ParseResult";
+import * as S from "effect/Schema";
+
+const ucs2decode = IDNA.ucs2.decode;
+const ucs2encode = IDNA.ucs2.encode;
+
+const expectParseErrorMessage = <A>(eff: Effect.Effect<A, ParseResult.ParseError>, expected: string) =>
+  eff.pipe(
+    Effect.either,
+    Effect.map((either) => {
+      expect(either._tag).toBe("Left");
+      if (either._tag === "Left") {
+        strictEqual(String(either.left), expected);
+      }
+    })
+  );
+
+const encode = IDNA.encode;
+const decode = IDNA.decode;
+const toASCII = IDNA.toASCII;
+const toUnicode = IDNA.toUnicode;
 
 const testData = {
   strings: [
@@ -231,61 +252,63 @@ const testData = {
 };
 
 describe("idna", () => {
-  it("should encode basic strings", () => {
-    strictEqual(encode("m\xFCnchen"), "mnchen-3ya");
-  });
+  effect("should encode basic strings", () =>
+    encode("m\xFCnchen").pipe(Effect.map((actual) => strictEqual(actual, "mnchen-3ya")))
+  );
 
-  it("should decode basic strings", () => {
-    strictEqual(decode("mnchen-3ya"), "m\xFCnchen");
-  });
+  effect("should decode basic strings", () =>
+    decode("mnchen-3ya").pipe(Effect.map((actual) => strictEqual(actual, "m\xFCnchen")))
+  );
 
-  it("should handle empty strings for encode", () => {
-    strictEqual(encode(""), "");
-  });
+  effect("should handle empty strings for encode", () => encode("").pipe(Effect.map((actual) => strictEqual(actual, ""))));
 
-  it("should handle empty strings for decode", () => {
-    strictEqual(decode(""), "");
-  });
+  effect("should handle empty strings for decode", () => decode("").pipe(Effect.map((actual) => strictEqual(actual, ""))));
 
-  it("should throw on invalid decode input", () => {
-    expect(() => decode("abc-!")).toThrow("Invalid input");
-  });
+  effect("should fail on invalid decode input", () => expectParseErrorMessage(decode("abc-!"), "Invalid input"));
 });
 
 describe("toASCII/toUnicode", () => {
-  it("should convert domain names to ASCII", () => {
-    strictEqual(toASCII("m\xFCnchen.de"), "xn--mnchen-3ya.de");
-  });
+  effect("should convert domain names to ASCII", () =>
+    toASCII("m\xFCnchen.de").pipe(Effect.map((actual) => strictEqual(actual, "xn--mnchen-3ya.de")))
+  );
 
-  it("should convert domain names to Unicode", () => {
-    strictEqual(toUnicode("xn--mnchen-3ya.de"), "m\xFCnchen.de");
-  });
+  effect("should convert domain names to Unicode", () =>
+    toUnicode("xn--mnchen-3ya.de").pipe(Effect.map((actual) => strictEqual(actual, "m\xFCnchen.de")))
+  );
 
-  it("should roundtrip domain names", () => {
-    const domain = "m\xFCnchen.de";
-    strictEqual(toUnicode(toASCII(domain)), domain);
-  });
+  effect("should roundtrip domain names", () =>
+    Effect.gen(function* () {
+      const domain = "m\xFCnchen.de";
+      const ascii = yield* toASCII(domain);
+      const unicode = yield* toUnicode(ascii);
+      strictEqual(unicode, domain);
+    })
+  );
 
-  it("should handle email addresses with toASCII", () => {
-    strictEqual(toASCII("user@m\xFCnchen.de"), "user@xn--mnchen-3ya.de");
-  });
+  effect("should handle email addresses with toASCII", () =>
+    toASCII("user@m\xFCnchen.de").pipe(Effect.map((actual) => strictEqual(actual, "user@xn--mnchen-3ya.de")))
+  );
 
-  it("should handle email addresses with toUnicode", () => {
-    strictEqual(toUnicode("user@xn--mnchen-3ya.de"), "user@m\xFCnchen.de");
-  });
+  effect("should handle email addresses with toUnicode", () =>
+    toUnicode("user@xn--mnchen-3ya.de").pipe(Effect.map((actual) => strictEqual(actual, "user@m\xFCnchen.de")))
+  );
 
-  it("should roundtrip email addresses", () => {
-    const email = "user@m\xFCnchen.de";
-    strictEqual(toUnicode(toASCII(email)), email);
-  });
+  effect("should roundtrip email addresses", () =>
+    Effect.gen(function* () {
+      const email = "user@m\xFCnchen.de";
+      const ascii = yield* toASCII(email);
+      const unicode = yield* toUnicode(ascii);
+      strictEqual(unicode, email);
+    })
+  );
 
-  it("should preserve ASCII-only strings with toASCII", () => {
-    strictEqual(toASCII("example.com"), "example.com");
-  });
+  effect("should preserve ASCII-only strings with toASCII", () =>
+    toASCII("example.com").pipe(Effect.map((actual) => strictEqual(actual, "example.com")))
+  );
 
-  it("should preserve ASCII-only strings with toUnicode", () => {
-    strictEqual(toUnicode("example.com"), "example.com");
-  });
+  effect("should preserve ASCII-only strings with toUnicode", () =>
+    toUnicode("example.com").pipe(Effect.map((actual) => strictEqual(actual, "example.com")))
+  );
 });
 
 describe("ucs2", () => {
@@ -345,76 +368,62 @@ describe("ucs2encode", () => {
 
 describe("decode", () => {
   for (const object of testData.strings) {
-    it(object.description ?? `decode '${object.encoded}'`, () => {
-      strictEqual(decode(object.encoded), object.decoded);
-    });
+    effect(object.description ?? `decode '${object.encoded}'`, () =>
+      decode(object.encoded).pipe(Effect.map((actual) => strictEqual(actual, object.decoded)))
+    );
   }
 
-  it("should handle uppercase Z", () => {
-    strictEqual(decode("ZZZ"), "\u7BA5");
-  });
+  effect("should handle uppercase Z", () => decode("ZZZ").pipe(Effect.map((actual) => strictEqual(actual, "\u7BA5"))));
 
-  it("should throw InvalidInputError on 'ls8h='", () => {
-    expect(() => decode("ls8h=")).toThrow("Invalid input");
-  });
+  effect("should fail with Invalid input on 'ls8h='", () => expectParseErrorMessage(decode("ls8h="), "Invalid input"));
 
-  it("should throw NotBasicError on '\\x81-'", () => {
-    expect(() => decode("\x81-")).toThrow("Illegal input >= 0x80 (not a basic code point)");
-  });
+  effect("should fail with Not-basic on '\\x81-'", () =>
+    expectParseErrorMessage(decode("\x81-"), "Illegal input >= 0x80 (not a basic code point)")
+  );
 
-  it("should throw InvalidInputError on '\\x81'", () => {
-    expect(() => decode("\x81")).toThrow("Invalid input");
-  });
+  effect("should fail with Invalid input on '\\x81'", () => expectParseErrorMessage(decode("\x81"), "Invalid input"));
 
-  it("should throw OverFlowError on 'bb000000'", () => {
-    expect(() => decode("bb000000")).toThrow("Overflow: input needs wider integers to process");
-  });
+  effect("should fail with Overflow on 'bb000000'", () =>
+    expectParseErrorMessage(decode("bb000000"), "Overflow: input needs wider integers to process")
+  );
 });
 
 describe("encode", () => {
   for (const object of testData.strings) {
-    it(object.description ?? `encode '${object.decoded}'`, () => {
-      strictEqual(encode(object.decoded), object.encoded);
-    });
+    effect(object.description ?? `encode '${object.decoded}'`, () =>
+      encode(object.decoded).pipe(Effect.map((actual) => strictEqual(actual, object.encoded)))
+    );
   }
 });
 
 describe("toUnicode", () => {
   for (const object of testData.domains) {
     const label = (object as { description?: string }).description ?? `toUnicode('${object.encoded}')`;
-    it(label, () => {
-      strictEqual(toUnicode(object.encoded), object.decoded);
-    });
+    effect(label, () => toUnicode(object.encoded).pipe(Effect.map((actual) => strictEqual(actual, object.decoded))));
   }
 
   for (const object of testData.strings) {
     const label = object.description ?? `passthrough non-xn-- encoded '${object.encoded}'`;
-    it(label, () => {
-      strictEqual(toUnicode(object.encoded), object.encoded);
-    });
+    effect(label, () => toUnicode(object.encoded).pipe(Effect.map((actual) => strictEqual(actual, object.encoded))));
   }
 });
 
 describe("toASCII", () => {
   for (const object of testData.domains) {
     const label = (object as { description?: string }).description ?? `toASCII('${object.decoded}')`;
-    it(label, () => {
-      strictEqual(toASCII(object.decoded), object.encoded);
-    });
+    effect(label, () => toASCII(object.decoded).pipe(Effect.map((actual) => strictEqual(actual, object.encoded))));
   }
 
   for (const object of testData.strings) {
     const label = object.description ?? `passthrough ASCII-only '${object.encoded}'`;
-    it(label, () => {
-      strictEqual(toASCII(object.encoded), object.encoded);
-    });
+    effect(label, () => toASCII(object.encoded).pipe(Effect.map((actual) => strictEqual(actual, object.encoded))));
   }
 
   describe("IDNA2003 separator support", () => {
     for (const object of testData.separators) {
-      it(object.description, () => {
-        strictEqual(toASCII(object.decoded), object.encoded);
-      });
+      effect(object.description, () =>
+        toASCII(object.decoded).pipe(Effect.map((actual) => strictEqual(actual, object.encoded)))
+      );
     }
   });
 });

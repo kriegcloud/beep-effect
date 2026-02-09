@@ -41,12 +41,17 @@ import * as F from "effect/Function";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import type { URIRegExps } from "./model.ts";
 import IRI_PROTOCOL from "./regex-iri";
 import URI_PROTOCOL from "./regex-uri";
-
+// import * as S from "effect/Schema";
+// import { $SemanticWebId } from "@beep/identity/packages";
+// import { BS } from "@beep/schema";
+// const $I = $SemanticWebId.create("uri/uri");
+// export class URIComponents
 export interface URIComponents {
   scheme?: undefined | string;
   userinfo?: undefined | string;
@@ -351,10 +356,15 @@ export const parse: {
 
       if (!options.unicodeSupport && (!schemeHandler || !schemeHandler.unicodeSupport)) {
         if (components.host && (options.domainHost || schemeHandler?.domainHost)) {
-          try {
-            components.host = idna.toASCII(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase());
-          } catch (e) {
-            components.error = components.error || `Host's domain name can not be converted to ASCII via idna: ${e}`;
+          const r = idna.toASCIIResult(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase());
+          if (r._tag === "Left") {
+            components.error =
+              components.error ||
+              `Host's domain name can not be converted to ASCII via idna: ${ParseResult.TreeFormatter.formatIssueSync(
+                r.left
+              )}`;
+          } else {
+            components.host = r.right;
           }
         }
         _normalizeComponentEncoding(components, URI_PROTOCOL);
@@ -445,14 +455,17 @@ export function serialize(components: URIComponents, options: URIOptions = {}): 
     if (protocol.IPV6ADDRESS.test(components.host)) {
       //TODO: normalize IPv6 address as per RFC 5952
     } else if (options.domainHost || schemeHandler?.domainHost) {
-      try {
-        components.host = !options.iri
-          ? idna.toASCII(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase())
-          : idna.toUnicode(components.host);
-      } catch (e) {
+      const r = !options.iri
+        ? idna.toASCIIResult(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase())
+        : idna.toUnicodeResult(components.host);
+      if (r._tag === "Left") {
         components.error =
           components.error ||
-          `Host's domain name can not be converted to ${!options.iri ? "ASCII" : "Unicode"} via idna: ${e}`;
+          `Host's domain name can not be converted to ${!options.iri ? "ASCII" : "Unicode"} via idna: ${ParseResult.TreeFormatter.formatIssueSync(
+            r.left
+          )}`;
+      } else {
+        components.host = r.right;
       }
     }
   }

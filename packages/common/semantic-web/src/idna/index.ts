@@ -1,7 +1,5 @@
-import idna from "./idna";
-
-export { ErrorType } from "./errors";
+export { IDNA, IDNAFromString } from "./idna";
 export * from "./idna";
-export type { DomainCallback, IDNAConfig, MapCallback } from "./model";
 
-export default idna;
+export { default } from "./idna";
+
