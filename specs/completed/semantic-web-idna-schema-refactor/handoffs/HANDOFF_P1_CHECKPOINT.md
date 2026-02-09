@@ -32,15 +32,15 @@ Immediate next steps (follow `outputs/plan.md`):
 ## Completed in this phase
 
 Research outputs (done):
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/codebase-context.md`
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/schema-utilities.md`
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/effect-schema-patterns.md`
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/effect-module-design.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/codebase-context.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/schema-utilities.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/effect-schema-patterns.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/effect-module-design.md`
 
 Design + plan outputs (done):
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/api-design.md`
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/file-layout.md`
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/plan.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/api-design.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/file-layout.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/plan.md`
 
 Key design decisions captured:
 - `IDNA.value` is the canonical ASCII output of `toASCII`.
@@ -62,8 +62,8 @@ Current legacy thrown cases to preserve as typed failures:
 
 ## Procedural Links
 
-- Spec plan: `specs/pending/semantic-web-idna-schema-refactor/outputs/plan.md`
-- Design: `specs/pending/semantic-web-idna-schema-refactor/outputs/api-design.md`
-- Effect patterns: `specs/pending/semantic-web-idna-schema-refactor/outputs/effect-schema-patterns.md`
-- Schema patterns in repo: `specs/pending/semantic-web-idna-schema-refactor/outputs/schema-utilities.md`
+- Spec plan: `specs/completed/semantic-web-idna-schema-refactor/outputs/plan.md`
+- Design: `specs/completed/semantic-web-idna-schema-refactor/outputs/api-design.md`
+- Effect patterns: `specs/completed/semantic-web-idna-schema-refactor/outputs/effect-schema-patterns.md`
+- Schema patterns in repo: `specs/completed/semantic-web-idna-schema-refactor/outputs/schema-utilities.md`
 

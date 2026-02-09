@@ -13,7 +13,7 @@
 
 ## 2. Generate Discovery Outputs
 
-Create the following files under `specs/pending/semantic-web-idna-schema-refactor/outputs/`:
+Create the following files under `specs/completed/semantic-web-idna-schema-refactor/outputs/`:
 
 - `codebase-context.md`
 - `schema-utilities.md`
@@ -59,5 +59,5 @@ If you need to iterate quickly, you can run package-local checks from `packages/
 
 Start from the Phase 1 handoff + prompt:
 
-- `specs/pending/semantic-web-idna-schema-refactor/handoffs/HANDOFF_P1.md`
-- `specs/pending/semantic-web-idna-schema-refactor/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+- `specs/completed/semantic-web-idna-schema-refactor/handoffs/HANDOFF_P1.md`
+- `specs/completed/semantic-web-idna-schema-refactor/handoffs/P1_ORCHESTRATOR_PROMPT.md`

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |-------|-------|
-| Location | `specs/pending/semantic-web-idna-schema-refactor/` |
+| Location | `specs/completed/semantic-web-idna-schema-refactor/` |
 | Complexity | High (Score: ~50) |
 | Overall Grade | 5.0/5 - Excellent (Production Ready) |
 

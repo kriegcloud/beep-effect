@@ -1,10 +1,10 @@
 # P1 Orchestrator Prompt (Checkpoint): Implement IDNA Effect + Schema Rewrite
 
-You are the orchestrator for `specs/pending/semantic-web-idna-schema-refactor`.
+You are the orchestrator for `specs/completed/semantic-web-idna-schema-refactor`.
 
 Resume from checkpoint:
-- Read `specs/pending/semantic-web-idna-schema-refactor/handoffs/HANDOFF_P1_CHECKPOINT.md`.
-- Follow `specs/pending/semantic-web-idna-schema-refactor/outputs/plan.md` exactly.
+- Read `specs/completed/semantic-web-idna-schema-refactor/handoffs/HANDOFF_P1_CHECKPOINT.md`.
+- Follow `specs/completed/semantic-web-idna-schema-refactor/outputs/plan.md` exactly.
 
 Goal:
 - Refactor `packages/common/semantic-web/src/idna` (punycode port) to be Effect-based and Schema-first so errors are typed/explicit and IDNA can be used as a schema.
@@ -34,7 +34,7 @@ Quality gates:
 4. `bun run test`
 
 Deliverables to write:
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/review.md`
-- `specs/pending/semantic-web-idna-schema-refactor/outputs/docs-checklist.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/review.md`
+- `specs/completed/semantic-web-idna-schema-refactor/outputs/docs-checklist.md`
 - Update semantic-web docs with an “IDNA” section and examples.
 

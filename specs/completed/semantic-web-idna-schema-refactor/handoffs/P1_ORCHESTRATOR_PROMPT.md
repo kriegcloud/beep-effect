@@ -1,6 +1,6 @@
 # P1 Orchestrator Prompt: IDNA Effect + Schema Refactor
 
-You are the orchestrator for `specs/pending/semantic-web-idna-schema-refactor`.
+You are the orchestrator for `specs/completed/semantic-web-idna-schema-refactor`.
 
 Goal: refactor `packages/common/semantic-web/src/idna` (punycode port) to be Effect-based and Schema-first so errors are typed/explicit and IDNA can be used as a schema.
 
@@ -34,7 +34,7 @@ Context-budget rule: if you hit Yellow/Red zone per `specs/_guide/HANDOFF_STANDA
 
 Do not sequentially read a large number of files yourself. Delegate the research outputs to sub-agents, then integrate.
 
-Use prompts in `specs/pending/semantic-web-idna-schema-refactor/AGENT_PROMPTS.md`:
+Use prompts in `specs/completed/semantic-web-idna-schema-refactor/AGENT_PROMPTS.md`:
 
 1. `codebase-researcher` → writes `outputs/codebase-context.md`
 2. `schema-expert` → writes `outputs/schema-utilities.md`
@@ -44,7 +44,7 @@ If your environment does not support sub-agents, you must still produce the same
 
 ## Step 1: Research (Write Outputs)
 
-Ensure these exist in `specs/pending/semantic-web-idna-schema-refactor/outputs/`:
+Ensure these exist in `specs/completed/semantic-web-idna-schema-refactor/outputs/`:
 
 1. `codebase-context.md`
 2. `schema-utilities.md`
