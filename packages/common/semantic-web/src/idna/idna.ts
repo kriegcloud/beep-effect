@@ -6,6 +6,22 @@
  * - algorithm core returns `Either.Either<A, ParseResult.ParseIssue>`
  * - public Effect API fails with `ParseResult.ParseError`
  * - schema transform is strict and failures are attached to the passed `ast`
+ *
+ * @example
+ * import * as Effect from "effect/Effect";
+ * import { IDNA } from "@beep/semantic-web/idna";
+ *
+ * const ascii = await IDNA.toASCII("münchen.de").pipe(Effect.runPromise);
+ * // => "xn--mnchen-3ya.de"
+ *
+ * @example
+ * import * as Effect from "effect/Effect";
+ * import * as S from "effect/Schema";
+ * import { IDNAFromString } from "@beep/semantic-web/idna";
+ *
+ * const idna = await S.decodeUnknown(IDNAFromString)("münchen.de").pipe(Effect.runPromise);
+ * idna.value;
+ * // => "xn--mnchen-3ya.de"
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -53,10 +69,10 @@ export class IDNA extends S.Class<IDNA>($I`IDNA`)(
   /**
    * UCS-2 helpers (pure, synchronous).
    */
-  static readonly ucs2 = ({
+  static readonly ucs2 = {
     decode: _internalUcs.ucs2decode,
     encode: _internalUcs.ucs2encode,
-  } as const);
+  } as const;
 
   // ---------------------------------------------------------------------------
   // Result (Either) APIs for synchronous consumers

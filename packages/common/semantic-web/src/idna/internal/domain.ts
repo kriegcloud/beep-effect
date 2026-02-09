@@ -20,10 +20,7 @@ const regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g; // RFC 3490 separators
 
 type Result<A> = Either.Either<A, ParseResult.ParseIssue>;
 
-const mapDomain = (
-  domain: string,
-  callback: (label: string) => Result<string>,
-): Result<string> => {
+const mapDomain = (domain: string, callback: (label: string) => Result<string>): Result<string> => {
   const parts = Str.split(domain, "@");
 
   // In email addresses, only the domain name should be punycoded. Leave
@@ -38,7 +35,7 @@ const mapDomain = (
   const normalized = Str.replace(regexSeparators, "\x2E")(host);
 
   const labels = Str.split(".")(normalized);
-  const out = A.empty<string>()
+  const out = A.empty<string>();
 
   for (const label of labels) {
     const r = callback(label);

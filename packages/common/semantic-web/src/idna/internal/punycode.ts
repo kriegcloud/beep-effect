@@ -166,7 +166,7 @@ export const decode = (ast: AST.AST, input: string): Result<string> => {
  * Punycode string of ASCII-only symbols.
  */
 export const encode = (ast: AST.AST, input: string): Result<string> => {
-  const output = A.empty<string>()
+  const output = A.empty<string>();
 
   // Convert the input in UCS-2 to an array of Unicode code points.
   const inputArray = ucs2decode(input);

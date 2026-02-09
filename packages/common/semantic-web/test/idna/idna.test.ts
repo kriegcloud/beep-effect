@@ -260,9 +260,13 @@ describe("idna", () => {
     decode("mnchen-3ya").pipe(Effect.map((actual) => strictEqual(actual, "m\xFCnchen")))
   );
 
-  effect("should handle empty strings for encode", () => encode("").pipe(Effect.map((actual) => strictEqual(actual, ""))));
+  effect("should handle empty strings for encode", () =>
+    encode("").pipe(Effect.map((actual) => strictEqual(actual, "")))
+  );
 
-  effect("should handle empty strings for decode", () => decode("").pipe(Effect.map((actual) => strictEqual(actual, ""))));
+  effect("should handle empty strings for decode", () =>
+    decode("").pipe(Effect.map((actual) => strictEqual(actual, "")))
+  );
 
   effect("should fail on invalid decode input", () => expectParseErrorMessage(decode("abc-!"), "Invalid input"));
 });

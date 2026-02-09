@@ -49,4 +49,3 @@ export const ucs2encode = (codePoints: ReadonlyArray<number>): string => {
   // This is safe for the existing test corpus and keeps behavior identical.
   return String.fromCodePoint(...codePoints);
 };
-
