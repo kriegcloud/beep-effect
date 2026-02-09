@@ -1,43 +1,65 @@
-# P[N] Orchestrator Prompt Template
+# Phase P[N] Orchestrator Prompt Template
 
-You are executing Phase P[N] of the `[spec-name]` spec: **[phase name]**.
+Copy-paste this prompt to start Phase P[N] execution.
 
-## Hard Rules
+---
 
-- `[planning-only vs implementation allowed]`
-- Scope/non-goals (repeat verbatim): `[bullets]`
-- **Handoff gate (explicit)**: when context feels ~50% consumed (or before large/risky work), STOP and checkpoint:
-  - `handoffs/HANDOFF_P[N].md`
-  - `handoffs/P[N]_ORCHESTRATOR_PROMPT.md`
+## Prompt
 
-## Inputs
+You are implementing Phase P[N] of the `todox-wealth-mgmt-knowledge-mvp` spec: **[phase name]**.
 
-- `[list the exact files to read first]`
+### Context
 
-## Objectives (Pass/Fail)
+[Brief summary of what was completed in previous phases - 2-3 sentences max]
 
-1. `[objective]`
-2. `[objective]`
-3. `[objective]`
+[Key findings or learnings from previous phase that inform this phase]
 
-## Required Outputs (Update In-Place)
+### Your Mission
 
-- `[which spec files must be updated]`
+[Clear, concise description of what this phase accomplishes]
 
-Optional:
+- [Work item 1]
+- [Work item 2]
+- [Work item 3]
 
-- `[new outputs/*.md files to create]`
+### Critical Patterns
 
-## Verification
+[Include 2-5 short code/examples showing key patterns or gotchas]
 
-```bash
-# Record exact commands and PASS/FAIL + date after execution.
+**Pattern Name**:
+```ts
+// Example payload shape / pseudo-code
 ```
 
-## Phase Completion Requirement (Handoffs)
+### Reference Files
 
-At the end of this phase, create/update:
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R0_SYNTHESIZED_REPORT_V3.md` - synthesis input
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P0_DECISIONS.md` - contracts
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P1_PR_BREAKDOWN.md` - PR plan + gates
 
-- `handoffs/HANDOFF_P[N+1].md`
-- `handoffs/P[N+1]_ORCHESTRATOR_PROMPT.md`
+### Verification
 
+[Commands to run after each step]
+
+```bash
+bun run check
+bun run test
+```
+
+### Success Criteria
+
+- [ ] [Specific, measurable completion item 1]
+- [ ] [Specific, measurable completion item 2]
+- [ ] Type check passes
+- [ ] Tests pass
+
+### Handoff Document
+
+Read full context in: `specs/pending/todox-wealth-mgmt-knowledge-mvp/handoffs/HANDOFF_P[N].md`
+
+### Next Phase
+
+After completing Phase P[N]:
+1. Update `REFLECTION_LOG.md` with learnings
+2. Create/update `handoffs/HANDOFF_P[N+1].md`
+3. Create/update `handoffs/P[N+1]_ORCHESTRATOR_PROMPT.md`

@@ -1,5 +1,7 @@
 # R0 Synthesized Report: TodoX Wealth Mgmt Knowledge MVP (Orchestrator)
 
+> Superseded by `outputs/R0_SYNTHESIZED_REPORT_V3.md`. Keep this file for history only; do not use for execution.
+
 ## Inputs Read
 - `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R1_TOP_SPECS_5_OF_5_PATTERNS.md`
 - `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R2_EFFECT_WORKFLOW_CLUSTER_PATTERNS.md`
@@ -242,4 +244,3 @@ Apply these to this spec to avoid rework:
 - Counting/measurement clarifications defined once and reused for acceptance checks.
 
 Refs: `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R1_TOP_SPECS_5_OF_5_PATTERNS.md`
-

@@ -1,84 +1,81 @@
-# Handoff P4
+# Phase P4 Handoff: Production Readiness (Scale / Ops / Compliance)
 
-## Spec
+**Date**: 2026-02-09  
+**From**: Phase P3 (IaC + staging deploy)  
+**To**: Phase P4 (production readiness)  
+**Status**: Ready
 
-- Name: `todox-wealth-mgmt-knowledge-mvp`
-- Location: `specs/pending/todox-wealth-mgmt-knowledge-mvp`
+---
 
-## Phase Goal
+## Phase P3 Summary (What P4 Inherits)
 
-- Production readiness: performance targets, runbooks, retention/audit posture, and rollout plan validated end-to-end.
+- Staging exists (or is planned) with reproducible provisioning/deploy.
+- Observability (OTLP) and migrations-as-a-job are non-negotiable gates.
 
-## Context for Phase 4
+---
 
-### Working Context (keep short)
+## Source Verification (MANDATORY)
 
-- Current task:
-  - Close all production readiness gates (security/compliance, multi-tenant isolation, ops, observability, workflow topology).
-  - Produce runbooks and an operator-ready rollout plan (pilot -> staging -> prod).
-  - Confirm data retention and audit posture for evidence and meeting-prep claims.
-- Success criteria (pass/fail):
-  - Production readiness checklist is complete and signed off.
-  - Load/perf is within agreed targets for multi-tenant usage.
-  - On-call runbooks exist for the primary failure modes.
-  - Rollout is staged with backout steps and monitoring gates.
-- Blocking issues:
-  - `[list any blockers discovered during P3/P4 execution]`
+P4 is production readiness work. If any new external API integrations are added for ops (e.g., paging, incident hooks), verify and record response shapes here.
+
+| Method / Surface | Source File | Line | Test File | Verified |
+|------------------|------------|------|----------|----------|
+| N/A | N/A | N/A | N/A | N/A |
+
+---
+
+## Context for Phase P4
+
+### Working Context (≤2K tokens)
+
+- Current task: close production readiness gates with artifacts that an operator can actually run.
+- Success criteria:
+  - Runbooks exist and are executable (not placeholders): `outputs/P4_RUNBOOK_beep-api_prod.md`.
+  - Production readiness checklist is closed with explicit PASS/FAIL: `outputs/P4_PROD_READINESS_CHECKLIST_prod.md`.
+  - Isolation tests exist and pass in staging.
+  - Retention + audit posture is defined for documents, evidence, and meeting-prep outputs.
+  - Meeting-prep output includes compliance-safe disclaimer and avoids guarantees (D-17).
 - Immediate dependencies:
-  - P3 staging environment exists and is stable.
-  - P2 hardening is complete (evidence + isolation tests).
+  - `outputs/P4_PROD_READINESS_CHECKLIST_prod.md`
+  - `outputs/P4_RUNBOOK_beep-api_prod.md`
+  - `outputs/R15_PII_AI_ARCHITECTURE_RESEARCH_SUMMARY.md`
+  - `inputs/PII_AI_RESEARCH_RAW.md`
 
-### Episodic Context (what just happened)
+### Episodic Context (≤1K tokens)
 
-- Prior phase outcome:
-  - `[summarize what P3 delivered: staging infra, telemetry, migrations job, known issues]`
-- Key decisions made:
-  - `[bullets]`
+- MVP is demo-first, but production posture must be credible for wealth management:
+  - safe-buttons tool boundary (no arbitrary SQL/code)
+  - prompt minimization + citations
+  - no PII logging
 
-### Semantic Context (invariants)
+### Semantic Context (≤500 tokens)
 
 - Security/compliance invariants:
-  - No PII is logged (structured redaction where needed).
-  - Claims shown in meeting-prep are grounded in persisted evidence and include disclaimers (no guarantees).
-  - Retention and audit posture is documented and enforceable.
-- Multi-tenant invariants:
-  - Cross-org leakage is prevented and continuously tested.
+  - evidence is auditable and persisted
+  - disclosure is evidence-cited and necessary only (D-17)
 - Ops invariants:
-  - Backups/DR are configured and tested (at least tabletop for MVP).
-  - Rollback/backout is defined and validated.
+  - backups/restore documented
+  - rollback/backout practiced in staging
 
 ### Procedural Context (links only)
 
 - Spec guide: `specs/_guide/README.md`
 - Handoff standards: `specs/_guide/HANDOFF_STANDARDS.md`
 
-## Completed Work
+---
 
-- `[bullets of what changed in P4 so far]`
+## Context Budget Status
 
-## Current State
+- Direct tool calls: 0 (baseline; update during phase execution)
+- Large file reads (>200 lines): 0 (baseline; update during phase execution)
+- Sub-agent delegations: 0 (baseline; update during phase execution)
+- Zone: Green (baseline; update during phase execution)
 
-- `[what exists now, what is still missing]`
+## Context Budget Checklist
 
-## Next Steps
-
-1. `[next action]`
-2. `[next action]`
-
-## Verification Commands
-
-```bash
-# Record exact commands and PASS/FAIL + date after execution.
-#
-# Include:
-# - load/perf test commands and targets
-# - incident drill / tabletop steps (if applicable)
-# - rollback test steps
-```
-
-## Handoff Gate (Explicit)
-
-- When context feels ~50% consumed (or before large/risky work), STOP and checkpoint:
-  - Update this file (`handoffs/HANDOFF_P4.md`) and the active prompt (`handoffs/P4_ORCHESTRATOR_PROMPT.md`).
-  - Create/update an end-state summary in the spec (e.g. `README.md` links to runbooks and readiness checklist).
-
+- [ ] Working context ≤2,000 tokens
+- [ ] Episodic context ≤1,000 tokens
+- [ ] Semantic context ≤500 tokens
+- [ ] Procedural context is links only
+- [ ] Critical information at document start/end
+- [ ] Total context ≤4,000 tokens

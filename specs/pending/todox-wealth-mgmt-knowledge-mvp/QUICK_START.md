@@ -10,7 +10,7 @@ Gmail ingestion (Google OAuth) → Documents materialization → Knowledge extra
 
 ## Read This First (In Order)
 
-1. `outputs/R0_SYNTHESIZED_REPORT_V2.md` (single source for “what to do next”)
+1. `outputs/R0_SYNTHESIZED_REPORT_V3.md` (single source for “what to do next”)
 2. `README.md` (scope, success criteria, phase plan, decisions to lock)
 3. `AGENT_PROMPTS.md` (orchestration rules + PR breakdown strategy)
 
@@ -24,7 +24,7 @@ If you need a deeper drill-down, jump to:
 ## Where Things Live
 
 - Research + synthesis: `outputs/`
-  - `outputs/R0_SYNTHESIZED_REPORT_V2.md` (orchestrator input)
+  - `outputs/R0_SYNTHESIZED_REPORT_V3.md` (orchestrator input)
   - `outputs/R1_...` through `outputs/R9_...` (explorer reports)
 - Orchestration prompts + phase checkpoints: `handoffs/`
 - Reusable writing templates: `templates/`
@@ -46,4 +46,3 @@ ls -la specs/pending/todox-wealth-mgmt-knowledge-mvp/templates
 # Ensure the explicit handoff gate exists in spec docs
 rg -n \"handoff gate\" specs/pending/todox-wealth-mgmt-knowledge-mvp
 ```
-

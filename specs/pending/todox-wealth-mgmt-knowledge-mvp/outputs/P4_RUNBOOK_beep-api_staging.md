@@ -149,7 +149,7 @@ Env-var truth source (must not drift):
 - Symptoms:
   - UI shows evidence links that cannot resolve to documents/spans; highlight fails.
 - Triage:
-  - Check that persisted span store (e.g. `knowledge.mention`) has documentId + offsets for the referenced items.
+  - Check that persisted span store (e.g. `knowledge.mention`) has `documentId + documentVersionId + offsets` for the referenced items.
   - Validate org scoping (no cross-org IDs).
   - Inspect logs/traces for missing join paths or null IDs.
 - Mitigation:
@@ -164,4 +164,3 @@ Env-var truth source (must not drift):
 ## Change Log
 
 - `TBD (YYYY-MM-DD)`: initial staging runbook stub created.
-

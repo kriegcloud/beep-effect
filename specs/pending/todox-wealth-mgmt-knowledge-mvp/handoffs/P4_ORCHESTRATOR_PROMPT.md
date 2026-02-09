@@ -1,62 +1,87 @@
-# P4 Orchestrator Prompt
+# Phase P4 Orchestrator Prompt
 
-You are executing Phase P4 of the `todox-wealth-mgmt-knowledge-mvp` spec: **Scale / Production Readiness**.
+Copy-paste this prompt to start Phase P4 execution.
 
-## Hard Rules
+---
 
-- P4 is production readiness work: do not widen product scope beyond the MVP demo narrative.
-- Security/compliance is non-negotiable:
-  - no PII logging
-  - explicit disclaimers for meeting-prep output (no guarantees)
-  - retention + audit posture documented for evidence and claims
-- Multi-tenant isolation is non-negotiable: cross-org tests must exist and pass.
-- Observability is required: OTLP + dashboards + actionable alerts must exist and be validated.
-- Workflow topology must be explicit and enforced:
-  - single-node vs multi-node/workflow cluster choice
-  - if multi-node, include table prefixing/ownership/isolation gates
-- **Research stream rule**:
-  - Use `outputs/R0_SYNTHESIZED_REPORT_V2.md` as the source of research truth.
-  - If more detail is needed, commission an explorer report and have it merged into R0 before proceeding.
-- **Handoff gate (explicit)**:
-  - If context feels ~50% consumed (or before starting a large/risky task), STOP and checkpoint:
-    - update `handoffs/HANDOFF_P4.md`
-    - update `handoffs/P4_ORCHESTRATOR_PROMPT.md` with current state + remaining work
-  - At the same gate, update the release/rollout gates in `README.md` so the spec stays operator-ready.
+## Prompt
 
-## Inputs
+You are implementing Phase P4 of the `todox-wealth-mgmt-knowledge-mvp` spec: **Scale / Production Readiness**.
 
-- `README.md` (production readiness gates, rollout plan, phase exit criteria)
-- `AGENT_PROMPTS.md` (acceptance gates to preserve)
-- `outputs/R0_SYNTHESIZED_REPORT_V2.md` (source of research truth)
-- Templates:
-  - `templates/PROD_READINESS_CHECKLIST_TEMPLATE.md`
-  - `templates/RUNBOOK_TEMPLATE.md`
+### Context
 
-## Objectives (Pass/Fail)
+This phase does not change product scope. It makes the MVP safe to operate:
 
-1. Production readiness gates are closed:
-   - Security/compliance, multi-tenant isolation, ops, observability, workflow topology.
-2. Performance and reliability are proven for MVP:
-   - Defined targets and test results exist (latency, error rate, capacity).
-3. Runbooks exist and are usable:
-   - Primary operational tasks and incident playbooks are documented.
-4. Rollout is staged:
-   - Pilot -> staging -> production rollout plan exists with backout and monitoring gates.
+- No PII logging.
+- Meeting-prep output includes compliance-safe disclaimer and avoids guarantees (D-17).
+- Evidence/claims are auditable and persisted with deterministic citations.
+- Cross-org isolation tests exist and pass.
+- Runbooks and rollback are real, not placeholders.
 
-## Required Outputs (Update In-Place)
+### Your Mission
 
-- Update `README.md` with a current, production-ready gate checklist and rollout plan.
-- Produce environment-specific readiness checklists and runbooks using the templates (recommended under `outputs/`).
+Close production readiness with executable artifacts and verified ops checks.
 
-## Verification
+- Close the production readiness checklist and runbooks:
+  - `outputs/P4_PROD_READINESS_CHECKLIST_prod.md`
+  - `outputs/P4_RUNBOOK_beep-api_prod.md`
+- Define/validate retention + audit posture for:
+  - documents
+  - mentions / relation_evidence
+  - meeting-prep bullets + citations
+- Run and record at least one controlled verification of alerts/rollback in staging.
 
-```bash
-# Record exact commands and PASS/FAIL + date after execution.
-#
-# Include:
-# - load/perf tests
-# - isolation tests
-# - disaster recovery / backup restore verification (at least tabletop for MVP)
-# - alert verification (synthetic or controlled failure)
+### Critical Patterns
+
+Include the compliance and operational patterns that must not be skipped.
+
+**Disclosure policy (D-17)**:
+```md
+Default: disclose sensitive details only when evidence-cited and necessary.
+Otherwise: redact/minimize.
+Always: include a compliance-safe disclaimer; avoid guarantees.
 ```
 
+**Operator artifacts must be executable**:
+```md
+Runbooks/checklists must include:
+- exact commands
+- PASS/FAIL criteria
+- rollback/backout steps tested in staging
+```
+
+### Reference Files
+
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P4_PROD_READINESS_CHECKLIST_prod.md`
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P4_RUNBOOK_beep-api_prod.md`
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R15_PII_AI_ARCHITECTURE_RESEARCH_SUMMARY.md`
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/inputs/PII_AI_RESEARCH_RAW.md`
+
+### Verification
+
+Record exact commands, PASS/FAIL, and date:
+
+```bash
+load/perf tests (if defined)
+isolation test suite
+backup/restore verification (at least tabletop; preferably staging restore)
+rollback/backout test in staging
+alert verification (controlled failure)
+```
+
+### Success Criteria
+
+- [ ] Production checklist closed with explicit PASS/FAIL evidence.
+- [ ] Runbooks are executable and include rollback/backout.
+- [ ] Isolation tests pass and cover demo critical path.
+- [ ] Retention + audit posture documented for evidence and meeting-prep claims.
+
+### Handoff Document
+
+Read full context in: `specs/pending/todox-wealth-mgmt-knowledge-mvp/handoffs/HANDOFF_P4.md`
+
+### Next Phase
+
+After completing Phase P4:
+1. Update `REFLECTION_LOG.md` with final learnings
+2. Move spec to `specs/completed/` (`bun run spec:move -- todox-wealth-mgmt-knowledge-mvp completed`)

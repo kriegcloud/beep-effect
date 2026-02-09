@@ -151,10 +151,8 @@ export type AssembledRelation = {
   literalValue?: string;
   literalType?: string;
   confidence: number;
-  evidence?: string; // raw span text
-  evidenceStartChar?: number;
-  evidenceEndChar?: number;
-  sourceId?: string; // required for evidence panel
+  // Note: the UI must not rely on embedded evidence fields on relations.
+  // Evidence is fetched via the canonical `Evidence.List` contract (C-02).
 };
 
 export type KnowledgeGraph = {
@@ -213,17 +211,39 @@ export type GraphRAGRequest = {
 **Goal:** Provide evidence spans for entity selection.
 
 ```ts
+// Canonical contract note:
+// - This spec previously used `sourceId` terminology.
+// - The canonical evidence-of-record contract is `Evidence.List` (C-02) and uses:
+//   `documentId + documentVersionId + offsets` plus a typed `source`.
+
 export type EvidenceSpan = {
-  sourceId: string;
+  documentId: string;
+  documentVersionId: string;
   text: string;
   startChar: number;
   endChar: number;
   confidence?: number;
+  kind: "mention" | "relation" | "bullet";
+  source: {
+    mentionId?: string;
+    relationEvidenceId?: string;
+    meetingPrepBulletId?: string;
+    extractionId?: string;
+    ontologyId?: string;
+  };
 };
 
-export type EntityEvidenceResponse = {
-  entityId: string;
-  spans: EvidenceSpan[];
+export type EvidenceListRequest = {
+  organizationId: string;
+  entityId?: string;
+  relationId?: string;
+  meetingPrepBulletId?: string;
+  documentId?: string;
+  limit?: number;
+};
+
+export type EvidenceListResponse = {
+  evidence: EvidenceSpan[];
 };
 ```
 

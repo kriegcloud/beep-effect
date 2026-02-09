@@ -1,51 +1,84 @@
-# P1 Orchestrator Prompt
+# Phase P1 Orchestrator Prompt
 
-You are executing Phase P1 of the `todox-wealth-mgmt-knowledge-mvp` spec: **MVP Demo Implementation Plan**.
+Copy-paste this prompt to start Phase P1 execution.
 
-## Hard Rules
+---
 
-- This phase produces a plan (PR breakdown + gates). Do not implement product code in P1.
-- Research stream rule: use `outputs/R0_SYNTHESIZED_REPORT_V2.md` as the source of research truth.
-- Keep the MVP constrained to the single demo narrative and `/knowledge` surface.
-- **Handoff gate (explicit)**: when context feels ~50% consumed (or before starting a large/risky task), STOP and checkpoint:
-  - update `handoffs/HANDOFF_P1.md`
-  - update `handoffs/P1_ORCHESTRATOR_PROMPT.md` with current state + remaining work
+## Prompt
 
-## Inputs
+You are implementing Phase P1 of the `todox-wealth-mgmt-knowledge-mvp` spec: **MVP Demo Implementation Plan** (plan only; no product code).
 
-- `README.md` (scope, success criteria, phase plan)
-- `outputs/R0_SYNTHESIZED_REPORT_V2.md` (blockers, decisions, proposed approach)
-- `AGENT_PROMPTS.md` (PR strategy + acceptance gates)
+### Context
 
-## Objectives (What “Done” Means)
+P0 locked contracts in `outputs/P0_DECISIONS.md` and the demo narrative (Gmail → Documents → Knowledge graph → `/knowledge` UI → meeting prep with persisted evidence).
 
-1. Produce a PR-by-PR plan that is implementable without re-deriving requirements.
-2. For each PR, define:
-   - exact feature scope
-   - key files/packages likely impacted (at least at package level)
-   - required schema/RPC contracts
-   - acceptance gates (pass/fail)
-   - verification commands (`bun run check`, targeted tests, etc.)
-3. Define a minimal end-to-end demo checklist aligned with `README.md` success criteria.
+P1 must produce an executable PR plan with pass/fail acceptance gates so P2 can implement without re-deriving requirements.
 
-## Outputs
+### Your Mission
 
-Recommended:
+Produce an executable PR breakdown with concrete gates for every demo-fatal invariant.
 
-- Create `outputs/P1_PR_BREAKDOWN.md` containing the PR plan + gates.
-- Link it from `README.md`.
+- Ensure `outputs/P1_PR_BREAKDOWN.md` fully covers the MVP critical path:
+  - Connections UI + typed incremental consent errors
+  - Gmail → Documents materialization + idempotency + version pinning
+  - Knowledge extraction persistence + embeddings
+  - Multi-account selection + required `providerAccountId`
+  - Thread aggregation read model
+  - Ontology registry wiring
+  - Evidence.List + relation evidence-of-record + migration/backfill
+  - Meeting-prep persistence (demo requirement)
+  - `/knowledge` UI (blocked on persisted evidence)
+- Add acceptance gates for:
+  - “TodoX calls only apps/server for Gmail/OAuth actions”
+  - “No fragile join path for relation evidence”
+  - “Evidence spans always include documentVersionId”
 
-## Verification (Spec Only)
+### Critical Patterns
 
-```bash
-rg -n \"Success Criteria\" specs/pending/todox-wealth-mgmt-knowledge-mvp/README.md
-rg -n \"PR Breakdown Strategy\" specs/pending/todox-wealth-mgmt-knowledge-mvp/AGENT_PROMPTS.md
+Include 2-5 short examples showing non-negotiable gate style and dependency ordering.
+
+**PR gates are pass/fail, not prose**:
+```md
+Acceptance gates:
+- [PASS/FAIL] Evidence.List returns `documentVersionId` for every evidence row.
+- [PASS/FAIL] Relation evidence never requires `relation.extractionId -> extraction.documentId`.
 ```
 
-## Phase Completion Requirement (Handoffs)
+**UI must be blocked on persistence**:
+```md
+Hard dependency (demo integrity):
+- `/knowledge` UI is blocked on persisted evidence-backed meeting prep (no transient-only bullets).
+```
 
-At the end of P1, create/update:
+### Reference Files
 
-- `handoffs/HANDOFF_P2.md`
-- `handoffs/P2_ORCHESTRATOR_PROMPT.md`
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P0_DECISIONS.md` - authoritative contracts
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P1_PR_BREAKDOWN.md` - PR plan to update
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R0_SYNTHESIZED_REPORT_V3.md` - synthesis context
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/README.md` - demo success criteria + phase plan
 
+### Verification
+
+Commands to run after each step:
+
+```bash
+rg -n "PR2A|PR2B|PR2C|Hard dependency|blocked on" specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P1_PR_BREAKDOWN.md
+rg -n "TodoX calls only `apps/server`|documentVersionId|relation\\.extractionId" specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P1_PR_BREAKDOWN.md -S
+```
+
+### Success Criteria
+
+- [ ] PR plan is executable without re-deriving requirements.
+- [ ] Every demo-fatal constraint appears as an acceptance gate.
+- [ ] PR ordering/read order matches dependencies (blockers are listed before dependents).
+
+### Handoff Document
+
+Read full context in: `specs/pending/todox-wealth-mgmt-knowledge-mvp/handoffs/HANDOFF_P1.md`
+
+### Next Phase
+
+After completing Phase P1:
+1. Update `REFLECTION_LOG.md` with learnings
+2. Create/update `handoffs/HANDOFF_P2.md`
+3. Create/update `handoffs/P2_ORCHESTRATOR_PROMPT.md`

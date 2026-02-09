@@ -2,7 +2,8 @@
 
 **Status**: Phase P0 (Decisions + contracts)  
 **Complexity**: Complex (multi-phase, multi-session)  
-**Primary input**: `outputs/R0_SYNTHESIZED_REPORT_V2.md`
+**Primary input**: `outputs/R0_SYNTHESIZED_REPORT_V3.md`
+**PII/AI research (raw)**: `inputs/PII_AI_RESEARCH_RAW.md`  
 **P0 decision record**: `outputs/P0_DECISIONS.md`  
 **P0 decision changelog**: `outputs/P0_DECISIONS_CHANGELOG.md`  
 **P1 execution plan**: `outputs/P1_PR_BREAKDOWN.md`  
@@ -26,7 +27,7 @@ The current repo has most of the building blocks (IAM OAuth2 server/client, Know
 - Missing typed contract for scope expansion errors, which makes deterministic UX impossible.
 - Provenance in RDF is ephemeral/incomplete; UI-grade evidence must be persisted in SQL (primarily `knowledge.mention`).
 
-See `outputs/R0_SYNTHESIZED_REPORT_V2.md` for the full synthesis and “load-bearing decisions”.
+See `outputs/R0_SYNTHESIZED_REPORT_V3.md` for the full synthesis and “load-bearing decisions”.
 
 ## Scope
 
@@ -43,7 +44,7 @@ See `outputs/R0_SYNTHESIZED_REPORT_V2.md` for the full synthesis and “load-bea
   - Extractions persist to SQL tables (entities/relations/mentions)
   - Embeddings computed/stored for extracted entities (so GraphRAG/meeting prep is not “empty”)
 - **Evidence-first contracts**
-  - `Evidence.List` (or equivalent) returns spans with `documentId + offsets` for deterministic highlighting
+  - `Evidence.List` (or equivalent) returns spans with `documentId + documentVersionId + offsets` for deterministic highlighting
   - Relation evidence is resolvable (no optional-join dead ends)
 - **Single Knowledge Base UI route**
   - One `/knowledge` screen (graph + query/meeting-prep + inspector/evidence)
@@ -118,7 +119,7 @@ This spec is organized as a production-oriented plan with explicit gates.
 |------:|------|----------------|------------------|
 | **P0** | Decisions + contracts | `outputs/P0_DECISIONS.md` + locked scope/dataset/contracts | All P0 open questions resolved and recorded; evidence model has no unresolved joins or ambiguous ownership |
 | **P1** | MVP demo implementation plan | `outputs/P1_PR_BREAKDOWN.md` | Plan is executable: each PR has scoped diffs, explicit acceptance gates, and verification commands |
-| **P2** | Hardening | Integrity constraints + meeting-prep evidence persistence + restart safety | Restart-safe demo + org isolation tests + evidence resolvability tests + idempotency validated |
+| **P2** | Hardening | Integrity constraints + restart safety + isolation tests + PII/logging gates | Restart-safe demo + org isolation tests + evidence resolvability tests + idempotency validated |
 | **P3** | IaC / Staging | IaC baseline + migrations job + secrets/OTLP wiring | Staging deploy is reproducible end-to-end; env vars match `@beep/shared-env`; telemetry and alerts verified |
 | **P4** | Scale / Prod readiness | Load tests, runbooks, retention/audit posture, rollout plan | Production readiness checklist complete; runbooks exist; rollout gates defined (pilot -> staging -> prod) |
 
@@ -163,7 +164,7 @@ Concrete environment stubs (this spec):
   - Gmail -> Documents mapping (idempotent materialization per org).
   - Knowledge queries (entities/relations/mentions).
   - Embeddings/vector paths (no mixed org corpus).
-  - Evidence listing/highlighting (documentId + offsets remain org-scoped).
+  - Evidence listing/highlighting (`documentId + documentVersionId + offsets` remain org-scoped).
   - Meeting-prep generation and persisted citations.
 - Query scoping invariants are consistent across services (no "forgot to filter by orgId" edge paths).
 
@@ -230,7 +231,7 @@ Concrete environment stubs (this spec):
 
 ## Key Decisions To Lock In P0 (No Ambiguity)
 
-These decisions are load-bearing for avoiding rework (see `outputs/R0_SYNTHESIZED_REPORT_V2.md`):
+These decisions are load-bearing for avoiding rework (see `outputs/R0_SYNTHESIZED_REPORT_V3.md`):
 
 - OAuth UX surface: implement “Connections” in existing settings tab (`settingsTab=connections`) vs new route.
 - Typed scope expansion contract: define the tagged error payload shape (must include `missingScopes` and relink parameters).
@@ -239,9 +240,9 @@ These decisions are load-bearing for avoiding rework (see `outputs/R0_SYNTHESIZE
 - Immutability policy for Gmail-sourced documents (lock vs editable + materialization policy).
 - Idempotency: exact `sourceHash` inputs and normalization rules.
 - Soft-delete + uniqueness semantics for `document_source` (partial unique on `deleted_at IS NULL` vs strict unique).
-- Relation evidence resolvability: enforce non-null `extractionId` when evidenced OR add `relation.documentId`.
+- Relation evidence resolvability: relation evidence-of-record is `relation_evidence` rows (D-08). Evidence must not depend on `relation.extractionId -> extraction.documentId`.
 - Evidence-of-record: commit to `knowledge.mention` as the span store for entity evidence; deprecate JSONB mentions for UI.
-- Meeting-prep evidence persistence model (bullets -> citations) and when it lands (P2 at latest).
+- Meeting-prep evidence persistence model (bullets -> citations) and when it lands (demo requirement; PR4 blocked on PR5).
 - Knowledge Base UI route decision: a single `/knowledge` screen for demo; other demo pages are dev tools only.
 - Workflow topology decision: `SingleRunner` vs durable cluster; if cluster, prefix/isolate tables and document ownership.
 - Environment contract source-of-truth: `@beep/shared-env` schemas; IaC variables must match exactly.
@@ -250,7 +251,6 @@ These decisions are load-bearing for avoiding rework (see `outputs/R0_SYNTHESIZE
 
 - Which Google scopes are mandatory for the demo path (Gmail only vs Gmail + Calendar) and how are they displayed?
 - What is the minimal WM ontology registry entry (entity/relation sets + required attributes) for the dataset?
-- What is the minimum viable `Evidence.List` contract that supports entity, relation, and meeting-prep bullets?
 - What constitutes a “claim” in meeting prep (bullet, section, sentence) for evidence mapping and audit?
 - What’s the target staging platform (and storage posture, S3-only vs future) for P3?
 
@@ -284,10 +284,10 @@ This spec is designed for multi-session execution.
   - recording an entry in `outputs/P0_DECISIONS_CHANGELOG.md`
   - updating affected gates in `outputs/P1_PR_BREAKDOWN.md`
 
-## Research Inputs (R0-R9)
+## Research Inputs (R0-R16)
 
 - R0 synthesis (use this as the orchestrator’s single input):
-  - `outputs/R0_SYNTHESIZED_REPORT_V2.md`
+  - `outputs/R0_SYNTHESIZED_REPORT_V3.md`
 - Research reports:
   - `outputs/R1_TOP_SPECS_5_OF_5_PATTERNS.md`
   - `outputs/R2_EFFECT_WORKFLOW_CLUSTER_PATTERNS.md`
@@ -298,3 +298,10 @@ This spec is designed for multi-session execution.
   - `outputs/R7_GMAIL_DOCUMENT_MAPPING_DESIGN.md`
   - `outputs/R8_PROVENANCE_PERSISTENCE_AND_API.md`
   - `outputs/R9_TODOX_KNOWLEDGE_BASE_UI_PLAN.md`
+  - `outputs/R10_THREAD_AGGREGATION_LAYER.md`
+  - `outputs/R11_MULTI_ACCOUNT_ORG_PLAN.md`
+  - `outputs/R12_EVIDENCE_MODEL_CANON.md`
+  - `outputs/R13_PII_REDACTION_ENCRYPTION_PLAN.md`
+  - `outputs/R14_IAC_TOOLING_DECISION_SST_VS_TF.md`
+  - `outputs/R15_PII_AI_ARCHITECTURE_RESEARCH_SUMMARY.md`
+  - `outputs/R16_GAPS_AUDIT.md`

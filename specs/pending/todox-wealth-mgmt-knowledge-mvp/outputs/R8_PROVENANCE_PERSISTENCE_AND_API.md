@@ -31,7 +31,7 @@ Reviewed:
 ## Conclusion: Where Evidence Spans Should Live
 
 - **Entity click-through:** Use `knowledge.mention` as the source of truth for spans. It has document IDs and offsets; do not rely on `entity.mentions` JSONB for UI.
-- **Relation click-through:** Use `relation.evidence` for the span, but require a `documentId` to be resolvable. Today that requires `relation.extractionId → extraction.documentId`. This is fragile because `extractionId` is optional.
+- **Relation click-through:** Do not use `relation.evidence` JSONB as the evidence-of-record for UI. It is missing `documentId`, and resolving via `relation.extractionId → extraction.documentId` is fragile and forbidden by P0 contracts. Use `relation_evidence` rows (D-08) so every relation claim resolves directly to `documentId + documentVersionId + offsets`.
 - **Meeting-prep bullet click-through:** Requires a new durable link table to bind bullets to evidence spans (mentions or relations) or directly to source document spans.
 
 ## Minimal Persistence Plan
@@ -39,7 +39,7 @@ Reviewed:
 ### Option A: Reuse Existing Tables (minimum change)
 
 - **Entity evidence:** Query `knowledge.mention` by `entityId` and `organizationId`. This yields spans with document IDs and offsets.
-- **Relation evidence:** Use `relation.evidence` and require `relation.extractionId` to be present. Resolve document via `extraction`.
+- **Relation evidence:** Not acceptable for MVP because it depends on a fragile join path (`relation.extractionId → extraction.documentId`) and cannot return `documentVersionId`. MVP must use `relation_evidence` as evidence-of-record (D-08).
 - **Meeting-prep bullet evidence:** Add a new, minimal table to store bullet text + citations referencing existing `mention` or `relation` records.
 
 ### Option B: Minimal New Schema (recommended)
@@ -93,6 +93,10 @@ Notes:
 
 Design a single evidence endpoint with targeted filters. This avoids multiple overlapping RPCs while supporting entity/relation/bullet use cases.
 
+Canonical contract note:
+- `Evidence.List` MUST match C-02 in `outputs/P0_DECISIONS.md` and the canon in `outputs/R12_EVIDENCE_MODEL_CANON.md`.
+- Any alternative field names in this document are deprecated (e.g. `sourceType/sourceId`).
+
 ### `Evidence.List`
 
 **Request**
@@ -107,20 +111,23 @@ Design a single evidence endpoint with targeted filters. This avoids multiple ov
 - `evidence: EvidenceSpan[]`
 
 **EvidenceSpan**
-- `sourceType: 'mention' | 'relation' | 'document_span'`
-- `sourceId: string` (mentionId or relationId or generated id)
 - `documentId: string`
+- `documentVersionId: string`
 - `startChar: number`
 - `endChar: number`
 - `text: string`
 - `confidence?: number`
-- `extractionId?: string`
+- `kind: "mention" | "relation" | "bullet"`
+- `source: { mentionId?: string; relationEvidenceId?: string; meetingPrepBulletId?: string; extractionId?: string; ontologyId?: string }`
 
 ### Resolution Rules
 
 - If `entityId` is provided: select from `knowledge.mention` by `entityId`.
-- If `relationId` is provided: select from `knowledge.relation` evidence and resolve `documentId` via `extraction` (or direct column if added).
-- If `meetingPrepBulletId` is provided: select from `knowledge_meeting_prep_evidence` and join to mentions/relations/doc spans for `documentId` and offsets.
+- If `relationId` is provided: select from `knowledge.relation_evidence` by `relationId` (no join path required to resolve the span).
+- If `meetingPrepBulletId` is provided: select from `knowledge_meeting_prep_evidence` and resolve:
+  - `mention_id` -> `knowledge.mention` (span)
+  - `relation_evidence_id` -> `knowledge.relation_evidence` (span)
+  - `document_span` -> use inline `(document_id, document_version_id, offsets)` from the citation row
 
 ## Risks and Assumptions (Explicit)
 
@@ -130,6 +137,6 @@ Design a single evidence endpoint with targeted filters. This avoids multiple ov
 
 ## Next Steps
 
-1. Decide whether to add `documentId` to `knowledge.relation` or enforce `extractionId` for all relation evidence.
-2. Implement `Evidence.List` RPC and repo queries for mention/relations/bullet evidence.
-3. Add meeting-prep evidence persistence (minimal tables above) once meeting-prep output is generated.
+1. Implement `Evidence.List` RPC and repo queries for mention/relation_evidence/meeting-prep evidence.
+2. Persist relation evidence as `relation_evidence` rows (D-08); stop treating `relation.evidence` JSONB as UI evidence-of-record.
+3. Persist meeting-prep bullets + citations durably and require `documentVersionId` for deterministic highlighting (C-05).

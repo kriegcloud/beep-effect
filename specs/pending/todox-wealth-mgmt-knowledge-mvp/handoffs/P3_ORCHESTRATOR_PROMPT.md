@@ -1,73 +1,79 @@
-# P3 Orchestrator Prompt
+# Phase P3 Orchestrator Prompt
 
-You are executing Phase P3 of the `todox-wealth-mgmt-knowledge-mvp` spec: **IaC / Staging**.
+Copy-paste this prompt to start Phase P3 execution.
 
-## Hard Rules
+---
 
-- P3 may implement infrastructure and deployment automation, but keep the application scope unchanged (MVP demo only).
-- Enforce environment-schema truth:
-  - `@beep/shared-env` schemas are authoritative; IaC and deployment variables must match them exactly.
-  - Do not introduce ad-hoc env var names that bypass schema validation.
-- Observability is required: OTLP traces/logs/metrics must be wired and verified in staging.
-- Migrations rule: run database migrations as a job (serialized, pre-deploy), not at app startup.
-- **Research stream rule**:
-  - Use `outputs/R0_SYNTHESIZED_REPORT_V2.md` as the source of research truth.
-  - If more IaC detail is needed, commission an explorer report and have it merged into R0 before proceeding.
-- **Handoff gate (explicit)**:
-  - If context feels ~50% consumed (or before starting a large/risky task), STOP and checkpoint:
-    - update `handoffs/HANDOFF_P3.md`
-    - update `handoffs/P3_ORCHESTRATOR_PROMPT.md` with current state + remaining work
-  - At the same gate, create/update next-phase artifacts even if P3 is not complete:
-    - `handoffs/HANDOFF_P4.md`
-    - `handoffs/P4_ORCHESTRATOR_PROMPT.md`
+## Prompt
 
-## Inputs
+You are implementing Phase P3 of the `todox-wealth-mgmt-knowledge-mvp` spec: **IaC / Staging**.
 
-- `README.md` (phase plan, production readiness gates, rollout)
-- `AGENT_PROMPTS.md` (non-negotiable acceptance gates)
-- `outputs/R0_SYNTHESIZED_REPORT_V2.md` (source of research truth)
-- `outputs/R5_IAC_OPS_PRODUCTION_PLAN.md` (only after its key points have been merged into R0; otherwise commission a synthesis update)
-- Templates:
-  - `templates/IAC_GATES_TEMPLATE.md`
-  - `templates/PROD_READINESS_CHECKLIST_TEMPLATE.md`
-  - `templates/RUNBOOK_TEMPLATE.md`
+### Context
 
-## Objectives (Pass/Fail)
+This is infrastructure work only. Product scope remains the MVP demo narrative and `/knowledge` surface.
 
-1. Staging is reproducible:
-   - A staging environment can be provisioned and deployed without manual edits.
-2. Secrets + config are production-shaped:
-   - Secrets live in a secret manager, injected at runtime, never logged.
-   - Env vars align with schema and are validated before deploy.
-3. Database migrations are safe:
-   - A migrations job exists and is run as a pre-deploy step.
-4. Observability is working:
-   - OTLP traces/logs/metrics are visible in dashboards; alerts exist for basic availability and error rates.
-5. Demo smoke path passes in staging:
-   - Login + `/knowledge` render + evidence inspect works against staging data.
+Critical infra invariants:
+- `@beep/shared-env` schemas are authoritative: env vars must match exactly.
+- Migrations run as a job (pre-deploy), not at app startup.
+- OTLP traces/logs/metrics must be visible with actionable alerts.
 
-## Required Outputs (Update In-Place)
+### Your Mission
 
-- Update `README.md` with staging/prod runbook links and gating status as they become concrete.
-- Produce environment-specific checklists using the templates (recommended location under `outputs/`).
+Provision and deploy staging reproducibly with Terraform, and record evidence of successful runs.
 
-## Verification
+- Provision and deploy staging reproducibly (Terraform baseline).
+- Wire secrets via Secret Manager (no plaintext secrets in repo/CI logs).
+- Add a migrations job and ensure failures block deploy.
+- Verify telemetry in staging and record links/commands in outputs.
 
+### Critical Patterns
+
+Include the invariants that must be preserved in infra work.
+
+**Env schema is source of truth**:
 ```bash
-# Record exact commands and PASS/FAIL + date after execution.
-#
-# Include:
-# - terraform plan/apply (or equivalent)
-# - migrations job run
-# - health checks
-# - telemetry verification
-# - demo smoke path
+bun run check
 ```
 
-## Phase Completion Requirement (Handoffs)
+**Migrations as a job**:
+```md
+Deploy flow:
+1. Run migrations job (serialized)
+2. Deploy Cloud Run service
+3. Smoke test demo path
+```
 
-At the end of P3, create/update:
+### Reference Files
 
-- `handoffs/HANDOFF_P4.md`
-- `handoffs/P4_ORCHESTRATOR_PROMPT.md`
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P3_IAC_GATES_staging.md`
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P3_IAC_GATES_prod.md`
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R14_IAC_TOOLING_DECISION_SST_VS_TF.md`
+- `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P4_RUNBOOK_beep-api_staging.md`
 
+### Verification
+
+Record exact commands, PASS/FAIL, and date:
+
+```bash
+terraform plan
+terraform apply
+migrations job run
+smoke test: login -> connections -> /knowledge -> evidence inspect
+```
+
+### Success Criteria
+
+- [ ] Staging is reproducible (no manual edits outside `terraform apply` + deploy pipeline).
+- [ ] Secrets are managed and injected at runtime; none logged.
+- [ ] Telemetry visible; alerts actionable.
+
+### Handoff Document
+
+Read full context in: `specs/pending/todox-wealth-mgmt-knowledge-mvp/handoffs/HANDOFF_P3.md`
+
+### Next Phase
+
+After completing Phase P3:
+1. Update `REFLECTION_LOG.md` with learnings
+2. Create/update `handoffs/HANDOFF_P4.md`
+3. Create/update `handoffs/P4_ORCHESTRATOR_PROMPT.md`

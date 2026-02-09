@@ -1,5 +1,7 @@
 # R0 Synthesized Report V2: TodoX Wealth Mgmt Knowledge MVP (Orchestrator)
 
+> Superseded by `outputs/R0_SYNTHESIZED_REPORT_V3.md`. Keep this file for history only; do not use for execution.
+
 ## Inputs Read (Delta Since V1)
 - Baseline synthesis: `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R0_SYNTHESIZED_REPORT.md` (built from R1-R5)
 - New research: `specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/R6_OAUTH_SCOPE_EXPANSION_FLOW.md`
@@ -36,7 +38,7 @@ This makes Gmail/Calendar-based workflows fragile because:
 - Durable evidence currently exists in SQL, but it is inconsistent:
 
 Evidence store facts:
-- `knowledge.mention` is strong (documentId + offsets).
+- `knowledge.mention` is strong (`documentId + documentVersionId + offsets`).
 - `knowledge.relation.evidence` lacks `documentId`, and `relation.extractionId` is optional, so resolving source docs is fragile.
 - `knowledge.entity.mentions` JSONB omits documentId, so it cannot safely support multi-document provenance if entities are merged.
 
@@ -77,7 +79,7 @@ Evidence store facts:
 
 9. **Define a durable evidence-of-record model (and stop depending on RDF for UI)**
    - Standardize on `knowledge.mention` as the entity evidence source of truth.
-   - Fix relation evidence resolvability (either make `relation.extractionId` mandatory for evidenced relations or add `relation.documentId`/`evidenceDocumentId`).
+   - Fix relation evidence resolvability by using dedicated `relation_evidence` rows (evidence-of-record) that carry `documentId + documentVersionId + offsets`, instead of relying on `relation.extractionId -> extraction.documentId`.
 
 10. **Implement `Evidence.List` RPC to power "Evidence Always" UI**
    - Single endpoint that can return evidence for an entity, relation, or meeting-prep bullet.
@@ -120,16 +122,15 @@ From `R8_PROVENANCE_PERSISTENCE_AND_API.md`, the current state has correctness t
 - Entity evidence decision: treat `knowledge.mention` as the only supported evidence store for entity click-through.
 - Entity evidence action: deprecate/ignore `entity.mentions` JSONB for UI purposes (it cannot disambiguate multi-document evidence).
 
-Relation evidence resolvability decision (pick one):
-1. Enforce `relation.extractionId` non-null whenever `relation.evidence` is present, and require `extraction.documentId` to exist.
-2. Add a direct `relation.documentId` (or `relation.evidenceDocumentId`) so evidence does not depend on an optional join.
+Relation evidence resolvability decision (superseded by P0 contracts):
+- Use dedicated `relation_evidence` rows (D-08) as evidence-of-record, so evidence never depends on `relation.extractionId -> extraction.documentId` and always includes `documentVersionId` for deterministic highlighting (C-02, C-05).
 
 Relation evidence counter-example (breaks naive designs): a relation created/merged across extractions without setting `extractionId` becomes impossible to cite.
 
 - Meeting prep evidence decision: store meeting-prep bullets and citations durably, referencing mentions/relations or raw document spans.
 - Meeting prep evidence risk: without this, "Evidence Always" holds only during a single request and cannot be audited later.
 - Evidence RPC contract decision: implement a single `Evidence.List` endpoint with filters (`entityId?`, `relationId?`, `meetingPrepBulletId?`, `documentId?`).
-- Evidence RPC contract requirement: make `documentId + offsets` mandatory in returned spans so the UI can highlight text deterministically.
+- Evidence RPC contract requirement: make `documentId + documentVersionId + offsets` mandatory in returned spans so the UI can highlight text deterministically.
 
 ## Minimal UI Route Recommendation (MVP)
 
@@ -160,7 +161,7 @@ Deliverables:
 - Gmail -> Documents materialization: `document_source` mapping + document/version creation.
 - Gmail -> Documents idempotency: upsert keyed by `(orgId, providerAccountId, messageId)`.
 - Extraction persistence: write entities/relations/mentions to SQL and compute embeddings.
-- Evidence surfaces: `Evidence.List` returns spans with `documentId + offsets`.
+- Evidence surfaces: `Evidence.List` returns spans with `documentId + documentVersionId + offsets`.
 - Relation evidence is resolvable (no optional-join dead ends).
 - UI: `/knowledge` route wired to real RPCs for graph fetch, GraphRAG query, and evidence panel.
 - No mocks on the happy path.
@@ -226,7 +227,7 @@ Scale gates:
 - Demo dataset contract: define required threads, IDs, and expected entity/edge counts. Gate demo readiness with a reproducible dataset ingestion + assertion script.
 - OAuth linking and scope expansion: define required provider, required scopes, and the relink UX path. Gate Gmail/Calendar-dependent work on a working Connected Accounts screen plus typed scope-expansion errors.
 - Ontology definition: define WM entity + relation sets and required fields. Gate extraction on ontology registry entry existence and validation against unknown types.
-- Provenance and auditability requirements: define "Evidence Always" acceptance criteria and forbid UI facts without evidence spans. Gate UI on evidence endpoints returning `documentId + offsets`.
+- Provenance and auditability requirements: define "Evidence Always" acceptance criteria and forbid UI facts without evidence spans. Gate UI on evidence endpoints returning `documentId + documentVersionId + offsets`.
 - API inventory: enumerate RPC names, request/response schemas, and backing tables. Gate UI work by disallowing mocks on the happy path.
 - Workflow topology and table ownership: record runner mode and cluster table prefixing. Gate multi-node deploy work on an explicit topology decision record.
 - Multi-tenant isolation (orgId/RLS): document scoping on read and write paths and include cross-org leakage tests as acceptance criteria.

@@ -1,80 +1,87 @@
-# Handoff P2
+# Phase P2 Handoff: Hardening (Restart Safety, Isolation, Integrity)
 
-## Spec
+**Date**: 2026-02-09  
+**From**: Phase P1 (PR breakdown + gates)  
+**To**: Phase P2 (implementation + hardening)  
+**Status**: Ready
 
-- Name: `todox-wealth-mgmt-knowledge-mvp`
-- Location: `specs/pending/todox-wealth-mgmt-knowledge-mvp`
+---
 
-## Phase Goal
+## Phase P1 Summary (What P2 Inherits)
 
-- Hardening the MVP demo path so it is restart-safe, evidence-resolvable, and isolation-safe (multi-tenant).
+- P0 contracts are locked in `outputs/P0_DECISIONS.md` (no drift allowed without changelog update).
+- The executable PR plan is `outputs/P1_PR_BREAKDOWN.md`.
+- `/knowledge` UI must not ship without persisted evidence-backed meeting prep (PR4 blocked on PR3 + PR5).
 
-## Context for Phase 2
+---
 
-### Working Context (keep short)
+## Source Verification (MANDATORY)
 
-- Current task:
-  - Implement integrity constraints + idempotency invariants for Gmail -> Documents -> Knowledge.
-  - Make meeting-prep evidence durable (bullets -> citations) and restart-safe.
-  - Add cross-org isolation tests on all demo query paths.
-- Success criteria (pass/fail):
-  - Demo is restart-safe: after a full server restart, `/knowledge` still renders graph + meeting-prep with evidence.
-  - Evidence resolvability: no evidence entry can point to a missing/unjoinable document/span.
-  - Multi-tenant isolation: no cross-org data can be returned by any demo RPC or UI surface (including embeddings).
-  - Idempotency: reruns do not duplicate documents/mentions/extractions.
+P2 will touch external APIs (Google APIs via adapters, Better Auth OAuth flows). Before implementing or changing any response schemas for these APIs, verify shapes against source and record them here.
+
+| Method / Surface | Source File | Line | Test File | Verified |
+|------------------|------------|------|----------|----------|
+| IAM OAuth link flow (`oauth2.link`) | `packages/iam/client/src/oauth2/link/*` | TBD | TBD | N |
+| Account listing (`core.listAccounts`) | `packages/iam/client/src/core/list-accounts/*` | TBD | TBD | N |
+| Google token validation (`getValidToken`) | `packages/integrations/google-workspace/server/src/layers/GoogleAuthClientLive.ts` | TBD | TBD | N |
+| Gmail adapter required scopes + call sites | `packages/comms/server/src/adapters/GmailAdapter.ts` | TBD | TBD | N |
+
+**Verification Process**: follow `specs/_guide/HANDOFF_STANDARDS.md` and replace TBD/N with file:line + Verified=Y when complete.
+
+---
+
+## Context for Phase P2
+
+### Working Context (≤2K tokens)
+
+- Current task: implement and harden the MVP demo path so it is deterministic, restart-safe, and isolation-safe.
+- Success criteria:
+  - Restart-safe: after full server restart, `/knowledge` flow works and evidence highlights resolve.
+  - Evidence integrity: every UI claim resolves to `documentId + documentVersionId + offsets` (C-02, C-05).
+  - No fragile join paths: relation evidence never depends on `relation.extractionId -> extraction.documentId`.
+  - Multi-tenant isolation: cross-org tests cover the entire demo critical path (including embeddings).
+  - Idempotency: reruns do not duplicate documents/extractions/evidence.
 - Blocking issues:
-  - `[list any blockers discovered during P1/P2 execution]`
+  - If any `documentVersionId` is missing in evidence tables, treat it as demo-fatal (offset drift).
 - Immediate dependencies:
-  - P0 decisions recorded in `README.md` (and optional `outputs/P0_DECISIONS.md`)
-  - P1 executable plan (expected in `outputs/P1_PR_BREAKDOWN.md` if created)
+  - `outputs/P0_DECISIONS.md`
+  - `outputs/P1_PR_BREAKDOWN.md`
+  - `outputs/R12_EVIDENCE_MODEL_CANON.md`
+  - `outputs/R13_PII_REDACTION_ENCRYPTION_PLAN.md`
 
-### Episodic Context (what just happened)
+### Episodic Context (≤1K tokens)
 
-- Prior phase outcome:
-  - `[summarize what P1 produced: PR plan, gates, accepted decisions]`
-- Key decisions made:
-  - `[bullets]`
+- The spec previously drifted on evidence shape and UI host; those have been reconciled.
+- The plan now encodes demo-fatal constraints as PR gates (multi-account, thread read model, meeting-prep persistence).
 
-### Semantic Context (invariants)
+### Semantic Context (≤500 tokens)
 
-- Scope and non-goals (verbatim):
-  - The MVP is: Gmail -> Documents -> Knowledge graph -> `/knowledge` UI -> meeting prep with persisted evidence.
-  - Non-goals: calendar sync, webhooks, doc editor, multi-source resolution, Outlook/IMAP.
-  - SQL is the evidence-of-record for UI; RDF provenance is not sufficient for "Evidence Always".
-- Evidence/integrity invariants:
-  - Evidence spans returned to the UI always include `documentId + offsets`.
-  - Relation evidence never becomes unresolvable due to optional joins.
-  - Every meeting-prep claim shown in the demo has at least one evidence span.
+- Non-goals: calendar sync, push watch/webhooks, Outlook/IMAP, doc editor, multi-source resolution.
+- Boundaries: TodoX is demo UI; Gmail/OAuth live behind `apps/server`.
+- Data invariants:
+  - document content is immutable per version; evidence pins to version (C-05).
+  - SQL is evidence-of-record; RDF provenance is supplemental only.
 
 ### Procedural Context (links only)
 
 - Spec guide: `specs/_guide/README.md`
 - Handoff standards: `specs/_guide/HANDOFF_STANDARDS.md`
+- Effect patterns: `documentation/EFFECT_PATTERNS.md`
 
-## Completed Work
+---
 
-- `[bullets of what changed in P2 so far]`
+## Context Budget Status
 
-## Current State
+- Direct tool calls: 0 (baseline; update during phase execution)
+- Large file reads (>200 lines): 0 (baseline; update during phase execution)
+- Sub-agent delegations: 0 (baseline; update during phase execution)
+- Zone: Green (baseline; update during phase execution)
 
-- `[what exists now, what is still missing]`
+## Context Budget Checklist
 
-## Next Steps
-
-1. `[next action]`
-2. `[next action]`
-
-## Verification Commands
-
-```bash
-# Record exact commands and PASS/FAIL + date after execution.
-```
-
-## Handoff Gate (Explicit)
-
-- When context feels ~50% consumed (or before large/risky work), STOP and checkpoint:
-  - Update this file (`handoffs/HANDOFF_P2.md`) and the active prompt (`handoffs/P2_ORCHESTRATOR_PROMPT.md`).
-  - Create/update next-phase artifacts even if P2 is not complete:
-    - `handoffs/HANDOFF_P3.md`
-    - `handoffs/P3_ORCHESTRATOR_PROMPT.md`
-
+- [ ] Working context ≤2,000 tokens
+- [ ] Episodic context ≤1,000 tokens
+- [ ] Semantic context ≤500 tokens
+- [ ] Procedural context is links only
+- [ ] Critical information at document start/end
+- [ ] Total context ≤4,000 tokens

@@ -65,7 +65,7 @@
 ## Missing Pieces (Concrete)
 - No UI for linking/re-linking accounts exists in IAM UI.
 - No typed RPC error contract exposes `GoogleScopeExpansionRequiredError` data.
-- No explicit “re-link Google” action in a user settings screen (apps/web account settings is currently static example UI and not wired to IAM client).
+- No explicit “re-link Google” action exists in the MVP UI surface (`apps/todox` Settings → Connections). `apps/web` should not host this MVP surface.
 
 ## Recommended End-to-End Handling for `GoogleScopeExpansionRequiredError`
 
@@ -116,18 +116,16 @@ export class GoogleScopeExpansionRequired extends S.TaggedError<GoogleScopeExpan
 ```ts
 const payload = {
   providerId: "google",
-  callbackURL: "/settings/integrations/google",
-  errorCallbackURL: "/settings/integrations/google?relink=failed",
+  callbackURL: "/settings?settingsTab=connections",
+  errorCallbackURL: "/settings?settingsTab=connections&relink=failed",
   scopes: [...requiredScopes]
 };
 ```
 
 ### 4. UI Wiring Location (Suggested)
-Given the current UI state, the most direct place to add this is:
-- A new “Integrations” or “Connected Accounts” page in `apps/web` that uses:
-  - `iam.core.listAccounts` to show linked providers and current `scope`.
-  - `iam.oauth2.link` to initiate re-link.
-  - `iam.core.unlinkAccount` for removal.
+Given the locked spec decision (D-01), the canonical location is:
+- TodoX Settings → Connections tab (`settingsTab=connections`) in `apps/todox`.
+- `apps/web` should not host this MVP surface.
 
 ## Concrete Scope Constants and Usage
 - Gmail scopes live in:

@@ -5,12 +5,12 @@
 Research stream roles:
 
 - **Explorers** produce focused `R*` markdown reports in `outputs/` (e.g. OAuth flow, mapping tables, UI plan).
-- **Synthesizer** maintains/updates the single orchestrator input: `outputs/R0_SYNTHESIZED_REPORT_V2.md`.
+- **Synthesizer** maintains/updates the single orchestrator input: `outputs/R0_SYNTHESIZED_REPORT_V3.md`.
 - **Orchestrator** reads **only** `R0` for research context.
 
 Implication:
 
-- Do not load `R1–R9` directly into the orchestrator context.
+- Do not load `R1–R16` directly into the orchestrator context.
 - If `R0` is missing information, request an explorer report (`outputs/R10_...md`) and have the synthesizer fold it into `R0` before proceeding.
 
 ## Scope Enforcement (Repeat Everywhere)
@@ -54,23 +54,36 @@ This spec expects incremental PRs with acceptance gates. Suggested PR sequence:
    - Persist entities/relations/mentions to SQL; compute/store embeddings for extracted entities.
    - Gate: graph/query paths return real data after restart; GraphRAG/meeting prep is not empty due to missing embeddings.
 
-4. **PR3: Evidence surfaces + relation evidence resolvability**
-   - Implement `Evidence.List` (entity/relation/bullet evidence) returning `documentId + offsets`.
-   - Fix relation evidence so it always resolves to a source document (no optional join dead ends).
+4. **PR2A: Multi-account selection + `providerAccountId` enforcement**
+   - Make provider account selection explicit end-to-end (no “pick first linked account” behavior).
+   - Gate: two linked Google accounts cannot be mixed; Gmail sync/extraction requires `providerAccountId`.
+
+5. **PR2B: Thread aggregation read model**
+   - Add Knowledge-owned thread tables and deterministic ordering/anchors for meeting prep and evidence.
+   - Gate: thread view is deterministic across re-sync and restarts.
+
+6. **PR2C: Ontology registry wiring**
+   - Make ontology selection deterministic and deployable (select by registry id).
+   - Gate: extraction selects ontology by id; unknown id fails with a typed error.
+
+7. **PR3: Evidence surfaces + relation evidence-of-record**
+   - Implement `Evidence.List` (entity/relation/bullet evidence) returning `documentId + documentVersionId + offsets`.
+   - Relation evidence must come from `relation_evidence` rows (no `relation.extractionId -> extraction.documentId` join path).
    - Gate: evidence panel can highlight source text deterministically for at least one entity and one relation.
 
-5. **PR4: `/knowledge` UI wiring (single route)**
-   - Implement/choose a single Knowledge Base route wired to real RPCs.
-   - Gate: end-to-end demo narrative works without visiting dev/demo routes.
-
-6. **PR5 (Hardening): Meeting-prep evidence persistence**
+8. **PR5: Meeting-prep evidence persistence (demo requirement)**
    - Persist meeting-prep bullets and citations durably.
    - Gate: “Evidence Always” still holds after server restart and over repeated runs.
+
+9. **PR4: `/knowledge` UI wiring (single route)**
+   - Implement/choose a single Knowledge Base route wired to real RPCs.
+   - Blocker: do not ship `/knowledge` UI without persisted evidence-backed meeting prep (PR4 blocked on PR3 + PR5).
+   - Gate: end-to-end demo narrative works without visiting dev/demo routes.
 
 ## Acceptance Gates (Non-Negotiable)
 
 - OAuth linking and incremental consent are UI-driven (no manual endpoint usage).
-- Evidence spans returned to the UI always include `documentId + offsets`.
+- Evidence spans returned to the UI always include `documentId + documentVersionId + offsets`.
 - Relation evidence never becomes unresolvable due to optional joins.
 - Every meeting-prep claim shown in the demo has at least one evidence span.
 - Multi-tenant isolation is preserved on every demo query path (including embeddings and provenance).
