@@ -91,7 +91,7 @@ export type IdentitySymbol<Value extends string> = symbol & {
  * @category Identity/Annotations
  * @since 0.1.0
  */
-export type SchemaAnnotationExtras<A> = Schema.Annotations.GenericSchema<A>;
+export type SchemaAnnotationExtras<A> = Schema.Annotations.Schema<A>;
 
 /**
  * Identity annotations enriched with schema extras returned by `BeepId.annotations`.

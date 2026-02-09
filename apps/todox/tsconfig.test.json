@@ -30,9 +30,6 @@
       "path": "../../packages/documents/ui"
     },
     {
-      "path": "../../packages/common/identity"
-    },
-    {
       "path": "../../packages/common/invariant"
     },
     {
@@ -49,6 +46,9 @@
     },
     {
       "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/common/identity"
     },
     {
       "path": "../../tooling/build-utils"

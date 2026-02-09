@@ -24,8 +24,8 @@ export class CitationMatch extends S.Class<CitationMatch>($I`CitationMatch`)({
 
 export class SentenceCitations extends S.Class<SentenceCitations>($I`SentenceCitations`)({
   sentence: S.String,
-  entityIds: S.Array(S.String),
-  relationIds: S.Array(S.String),
+  entityIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
+  relationIds: S.Array(KnowledgeEntityIds.RelationId),
 }) {}
 
 const deduplicateIds = (ids: ReadonlyArray<string>): ReadonlyArray<string> => A.dedupe(ids);

@@ -14,6 +14,7 @@
  * @since 0.1.0
  */
 import type { StringTypes } from "@beep/types";
+import * as HttpApiSchema from "@effect/platform/HttpApiSchema";
 import * as A from "effect/Array";
 import * as E from "effect/Either";
 import * as F from "effect/Function";
@@ -207,6 +208,41 @@ const createAnnotations = <const Value extends StringTypes.NonEmptyString>(value
     >;
   }) as TaggedComposer<Value>["annotations"];
 
+const createAnnotationsHttp = <const Value extends StringTypes.NonEmptyString>(value: Value, registry: Registry) =>
+  (<SchemaType = unknown, Next extends StringTypes.NonEmptyString = StringTypes.NonEmptyString>(
+    identifier: SegmentValue<Next>,
+    extras?:
+      | undefined
+      | (SchemaAnnotationExtras<SchemaType> & {
+          /**
+           * HTTP response status annotation consumed by `@effect/platform/HttpApiSchema`.
+           * This will be encoded into the symbol annotation (not left as a string key).
+           */
+          readonly status?: number | undefined;
+        })
+  ) => {
+    const next = ensureSegment(identifier);
+    const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+    // Register with #annotationHttp suffix to differentiate from template tag/make()/annotations() usages.
+    registerIdentity(registry, `${composed}#annotationHttp`);
+    const base = {
+      schemaId: toIdentitySymbol(composed),
+      identifier: next,
+      title: toTitle(next),
+    } satisfies IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>;
+    if (extras === undefined) {
+      return base as IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+    }
+
+    // Converts `{ status }` into the symbol-based annotation expected by HttpApiSchema.
+    const http = HttpApiSchema.annotations<SchemaType>(extras);
+    return { ...base, ...http } as IdentityAnnotationResult<
+      `${Value}/${SegmentValue<Next>}`,
+      SegmentValue<Next>,
+      SchemaType
+    >;
+  }) as TaggedComposer<Value>["annotationsHttp"];
+
 const createComposer = <const Value extends StringTypes.NonEmptyString>(
   value: Value,
   registry: Registry
@@ -258,6 +294,7 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(
     return R.fromEntries(entries) as unknown as TaggedModuleRecord<Value, Segments>;
   };
   tag.annotations = createAnnotations(value, registry);
+  tag.annotationsHttp = createAnnotationsHttp(value, registry);
   tag.create = <const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
     segment: Segment
   ): TaggedComposerResult<Value, Segment> => {
@@ -350,6 +387,14 @@ export type TaggedComposer<Value extends StringTypes.NonEmptyString> = {
   annotations<SchemaType = unknown, Next extends StringTypes.NonEmptyString = StringTypes.NonEmptyString>(
     identifier: SegmentValue<Next>,
     extras?: undefined | SchemaAnnotationExtras<SchemaType>
+  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+  annotationsHttp<SchemaType = unknown, Next extends StringTypes.NonEmptyString = StringTypes.NonEmptyString>(
+    identifier: SegmentValue<Next>,
+    extras?:
+      | undefined
+      | (SchemaAnnotationExtras<SchemaType> & {
+          readonly status?: number | undefined;
+        })
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
   create<const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
     segment: Segment

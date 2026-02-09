@@ -588,6 +588,16 @@
       ],
       "@beep/machine/test/*": [
         "./packages/common/machine/test/*"
+      ],
+      
+            "@beep/semantic-web": [
+        "./packages/common/semantic-web/src/index"
+      ],
+      "@beep/semantic-web/*": [
+        "./packages/common/semantic-web/src/*"
+      ],
+      "@beep/semantic-web/test/*": [
+        "./packages/common/semantic-web/test/*"
       ]
     }
   }

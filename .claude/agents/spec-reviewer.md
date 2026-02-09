@@ -21,14 +21,14 @@ Validates specifications for structural compliance, context engineering quality,
 
 ## Required Files
 
-| File | Required | Purpose | Target Lines |
-|------|----------|---------|--------------|
+| File | Required When | Purpose | Target Lines |
+|------|---------------|---------|--------------|
 | `README.md` | All | Entry point, scope, success criteria | 100-150 |
 | `REFLECTION_LOG.md` | All | Cumulative learnings | Grows over time |
-| `QUICK_START.md` | Complex (3+ phases) | 5-minute triage | 100-150 |
-| `MASTER_ORCHESTRATION.md` | Complex | Full workflow | 400-600 |
-| `AGENT_PROMPTS.md` | Complex | Sub-agent templates | 400-600 |
-| `RUBRICS.md` | Complex | Scoring criteria | 200-400 |
+| `QUICK_START.md` | Medium+ (21+) | 5-minute triage | 100-150 |
+| `MASTER_ORCHESTRATION.md` | High+ (41+) | Full workflow | 400-600 |
+| `AGENT_PROMPTS.md` | High+ (41+) | Sub-agent templates | 400-600 |
+| `RUBRICS.md` | Critical (61+) or explicitly required | Scoring criteria | 200-400 |
 
 ### Directory Layout
 
@@ -121,8 +121,14 @@ Complexity = (Phases × 2) + (Agents × 3) + (CrossPkg × 4) + (ExtDeps × 3) + 
 # Required files
 ls specs/[NAME]/README.md specs/[NAME]/REFLECTION_LOG.md
 
-# Complex spec files
-ls specs/[NAME]/QUICK_START.md specs/[NAME]/MASTER_ORCHESTRATION.md
+# Medium+ spec files
+ls specs/[NAME]/QUICK_START.md
+
+# High+ spec files
+ls specs/[NAME]/MASTER_ORCHESTRATION.md specs/[NAME]/AGENT_PROMPTS.md
+
+# Critical spec files
+ls specs/[NAME]/RUBRICS.md
 
 # Dual handoff validation (CRITICAL)
 ls specs/[NAME]/handoffs/HANDOFF_P*.md

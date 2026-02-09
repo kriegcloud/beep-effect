@@ -1,3 +1,5 @@
+import type { KnowledgeEntityIds } from "@beep/shared-domain";
+
 export interface EvidenceSpan {
   text: string;
   startChar: number;
@@ -6,17 +8,17 @@ export interface EvidenceSpan {
 }
 
 export interface Relation {
-  id: string;
-  subjectId: string;
+  id: KnowledgeEntityIds.RelationId.Type;
+  subjectId: KnowledgeEntityIds.KnowledgeEntityId.Type;
   predicate: string;
-  objectId?: undefined | string;
+  objectId?: undefined | KnowledgeEntityIds.KnowledgeEntityId.Type;
   literalValue?: undefined | string;
   evidence?: undefined | EvidenceSpan;
   groundingConfidence?: undefined | number;
 }
 
 export interface AssembledEntity {
-  id: string;
+  id: KnowledgeEntityIds.KnowledgeEntityId.Type;
   mention: string;
   primaryType: string;
   types: readonly string[];
@@ -61,8 +63,8 @@ export interface GraphRAGResult {
 
 // Entity cluster for resolution display
 export interface EntityCluster {
-  readonly id: string;
-  readonly canonicalEntityId: string;
+  readonly id: KnowledgeEntityIds.EntityClusterId.Type;
+  readonly canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId.Type;
   readonly canonicalEntity: AssembledEntity;
   readonly memberIds: readonly string[];
   readonly memberEntities: readonly AssembledEntity[];
@@ -72,8 +74,8 @@ export interface EntityCluster {
 
 // Same-as link for provenance display
 export interface SameAsLink {
-  readonly id: string;
-  readonly canonicalId: string;
+  readonly id: KnowledgeEntityIds.SameAsLinkId.Type;
+  readonly canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type;
   readonly memberId: string;
   readonly confidence: number;
   readonly reason: string; // "name_similarity", "attribute_match", etc.
@@ -95,7 +97,7 @@ export interface ResolutionResult {
 
 // Extraction session for tracking multiple extractions
 export interface ExtractionSession {
-  readonly id: string;
+  readonly id: KnowledgeEntityIds.ExtractionId.Type;
   readonly timestamp: number;
   readonly sourceText: string;
   readonly entities: readonly AssembledEntity[];

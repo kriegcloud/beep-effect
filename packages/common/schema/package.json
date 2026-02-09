@@ -53,10 +53,10 @@
     "uuid": "catalog:"
   },
   "devDependencies": {
-    "@beep/identity": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/experimental": "catalog:",
     "@effect/sql": "catalog:",

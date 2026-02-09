@@ -40,7 +40,10 @@ export interface SameAsLinkerShape {
     entitySources: MutableHashMap.MutableHashMap<string, string>
   ) => Effect.Effect<SameAsLink[]>;
   readonly areLinked: (entityA: string, entityB: string, links: readonly SameAsLink[]) => Effect.Effect<boolean>;
-  readonly getCanonical: (entityId: string, links: readonly SameAsLink[]) => Effect.Effect<string>;
+  readonly getCanonical: (
+    entityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+    links: readonly SameAsLink[]
+  ) => Effect.Effect<string>;
   readonly computeTransitiveClosure: (links: readonly SameAsLink[]) => Effect.Effect<TransitiveClosure[]>;
   readonly validateLinks: (
     links: readonly SameAsLink[]
@@ -148,9 +151,9 @@ const serviceEffect: Effect.Effect<SameAsLinkerShape> = Effect.succeed({
     })
   ),
 
-  getCanonical: Effect.fn((entityId: string, links: readonly SameAsLink[]) =>
+  getCanonical: Effect.fn((entityId: KnowledgeEntityIds.KnowledgeEntityId.Type, links: readonly SameAsLink[]) =>
     Effect.sync(() => {
-      const canonicalMap = MutableHashMap.empty<string, string>();
+      const canonicalMap = MutableHashMap.empty<string, KnowledgeEntityIds.KnowledgeEntityId.Type>();
       for (const link of links) {
         MutableHashMap.set(canonicalMap, link.memberId, link.canonicalId);
       }

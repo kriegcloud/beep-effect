@@ -112,6 +112,42 @@ export declare namespace DocumentFileId {
   }
 }
 
+export const PageId = make("page", {
+  brand: "PageId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("PageId", {
+    description: "A unique identifier for a Page",
+  })
+);
+
+export declare namespace PageId {
+  export type Type = typeof PageId.Type;
+  export type Encoded = typeof PageId.Encoded;
+  export namespace RowId {
+    export type Type = typeof PageId.privateSchema.Type;
+    export type Encoded = typeof PageId.privateSchema.Encoded;
+  }
+}
+
+export const PageShareId = make("page_share", {
+  brand: "PageShareId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("PageShareId", {
+    description: "A unique identifier for a PageShare",
+  })
+);
+
+export declare namespace PageShareId {
+  export type Type = typeof PageShareId.Type;
+  export type Encoded = typeof PageShareId.Encoded;
+  export namespace RowId {
+    export type Type = typeof PageShareId.privateSchema.Type;
+    export type Encoded = typeof PageShareId.privateSchema.Encoded;
+  }
+}
+
 export const Ids = {
   DocumentId,
   DocumentVersionId,
@@ -119,4 +155,6 @@ export const Ids = {
   DiscussionId,
   CommentId,
   DocumentFileId,
+  PageId,
+  PageShareId,
 } as const;

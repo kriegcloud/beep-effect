@@ -48,9 +48,9 @@
     "next": "catalog:"
   },
   "devDependencies": {
-    "@beep/identity": "workspace:^",
     "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {

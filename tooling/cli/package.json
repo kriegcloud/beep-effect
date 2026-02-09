@@ -66,9 +66,9 @@
     "typescript": "catalog:"
   },
   "devDependencies": {
-    "@beep/identity": "workspace:^",
     "@beep/testkit": "workspace:^",
     "@beep/tooling-utils": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/cli": "catalog:",
     "@effect/cluster": "catalog:",

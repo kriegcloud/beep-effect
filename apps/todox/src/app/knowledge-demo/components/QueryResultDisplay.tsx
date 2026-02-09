@@ -1,5 +1,6 @@
 "use client";
 
+import type { KnowledgeEntityIds } from "@beep/shared-domain";
 import { Badge } from "@beep/todox/components/ui/badge";
 import { Button } from "@beep/todox/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
@@ -17,7 +18,7 @@ import type { AssembledEntity, GraphRAGResult, Relation } from "../types";
 
 interface QueryResultDisplayProps {
   readonly result: GraphRAGResult | null;
-  readonly onEntitySelect?: undefined | ((entityId: string) => void);
+  readonly onEntitySelect?: undefined | ((entityId: KnowledgeEntityIds.KnowledgeEntityId.Type) => void);
 }
 
 function getSimpleType(typeUri: string): string {
@@ -110,7 +111,7 @@ interface EntitiesTabProps {
   readonly entities: readonly AssembledEntity[];
   readonly seeds: readonly AssembledEntity[];
   readonly scores: Record<string, number>;
-  readonly onEntitySelect?: (entityId: string) => void;
+  readonly onEntitySelect?: (entityId: KnowledgeEntityIds.KnowledgeEntityId.Type) => void;
 }
 
 function EntitiesTab({ entities, seeds, scores, onEntitySelect }: EntitiesTabProps) {

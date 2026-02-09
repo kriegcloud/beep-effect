@@ -7,3 +7,4 @@ export * from "./document.table";
 export * from "./document-file.table";
 export * from "./document-source.table";
 export * from "./document-version.table";
+export * from "./page.table";

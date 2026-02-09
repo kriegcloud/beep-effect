@@ -169,6 +169,9 @@
     },
     {
       "path": "packages/common/machine/tsconfig.build.json"
+    },
+        {
+      "path": "packages/common/semantic-web/tsconfig.build.json"
     }
   ]
 }

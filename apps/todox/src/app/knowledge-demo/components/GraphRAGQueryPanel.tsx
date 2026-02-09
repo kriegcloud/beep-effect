@@ -1,5 +1,6 @@
 "use client";
 
+import type { KnowledgeEntityIds } from "@beep/shared-domain";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
 import * as React from "react";
 import { queryGraphRAG } from "../actions";
@@ -11,7 +12,7 @@ import QueryInput from "./QueryInput";
 import { QueryResultDisplay } from "./QueryResultDisplay";
 
 interface GraphRAGQueryPanelProps {
-  readonly onEntitySelect?: undefined | ((entityId: string) => void);
+  readonly onEntitySelect?: undefined | ((entityId: KnowledgeEntityIds.KnowledgeEntityId.Type) => void);
 }
 
 export default function GraphRAGQueryPanel({ onEntitySelect }: GraphRAGQueryPanelProps) {

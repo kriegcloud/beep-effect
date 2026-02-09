@@ -24,7 +24,8 @@ const BEEP = {
   hasDocumentId: IRI.make("urn:beep:hasDocumentId"),
 } as const;
 
-const toEntityIri = (entityId: string): IRI.Type => IRI.make(`urn:beep:entity:${entityId}`);
+const toEntityIri = (entityId: KnowledgeEntityIds.KnowledgeEntityId.Type): IRI.Type =>
+  IRI.make(`urn:beep:entity:${entityId}`);
 
 const toExtractionGraphIri = (extractionId: KnowledgeEntityIds.ExtractionId.Type): IRI.Type =>
   IRI.make(`urn:beep:extraction:${extractionId}`);

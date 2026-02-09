@@ -3,6 +3,9 @@
   "include": ["src"],
   "references": [
     {
+      "path": "../../../tooling/testkit"
+    },
+    {
       "path": "../../../packages/common/types"
     },
     {
