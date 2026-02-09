@@ -4,8 +4,8 @@
  * Creates directory structure and files for a new specification based on
  * complexity level. Supports three complexity levels:
  * - simple: README + REFLECTION_LOG
- * - medium: Adds QUICK_START + outputs/
- * - complex: Full structure with orchestration, templates, handoffs
+ * - medium: Adds QUICK_START + outputs/ + handoffs
+ * - complex: Full structure with orchestration, templates, outputs/, handoffs
  *
  * @module bootstrap-spec/utils/file-generator
  * @since 0.1.0
@@ -24,6 +24,7 @@ import {
   AGENT_PROMPTS_TEMPLATE,
   HANDOFF_TEMPLATE,
   MASTER_ORCHESTRATION_TEMPLATE,
+  ORCHESTRATOR_PROMPT_TEMPLATE,
   QUICK_START_TEMPLATE,
   README_TEMPLATE,
   REFLECTION_LOG_TEMPLATE,
@@ -87,7 +88,7 @@ const getDirectories = (specDir: string, complexity: SpecComplexity): string[] =
   }
 
   if (complexity === "medium") {
-    return [...base, `${specDir}/outputs`];
+    return [...base, `${specDir}/outputs`, `${specDir}/handoffs`];
   }
 
   // complex
@@ -129,6 +130,16 @@ const getFiles = (specDir: string, context: SpecContext): GeneratedFile[] => {
   });
 
   if (context.complexity === "medium") {
+    files.push({
+      path: `${specDir}/handoffs/HANDOFF_P1.md`,
+      content: renderTemplate(HANDOFF_TEMPLATE, context),
+      isNew: true,
+    });
+    files.push({
+      path: `${specDir}/handoffs/P1_ORCHESTRATOR_PROMPT.md`,
+      content: renderTemplate(ORCHESTRATOR_PROMPT_TEMPLATE, context),
+      isNew: true,
+    });
     return files;
   }
 
@@ -158,6 +169,11 @@ const getFiles = (specDir: string, context: SpecContext): GeneratedFile[] => {
     content: renderTemplate(HANDOFF_TEMPLATE, context),
     isNew: true,
   });
+  files.push({
+    path: `${specDir}/handoffs/P1_ORCHESTRATOR_PROMPT.md`,
+    content: renderTemplate(ORCHESTRATOR_PROMPT_TEMPLATE, context),
+    isNew: true,
+  });
 
   return files;
 };
@@ -171,8 +187,8 @@ const getFiles = (specDir: string, context: SpecContext): GeneratedFile[] => {
  *
  * Creates all necessary directories and files based on complexity level:
  * - simple: README.md, REFLECTION_LOG.md
- * - medium: Adds QUICK_START.md, outputs/
- * - complex: Adds MASTER_ORCHESTRATION.md, AGENT_PROMPTS.md, RUBRICS.md, templates/, handoffs/
+ * - medium: Adds QUICK_START.md, outputs/, handoffs/
+ * - complex: Adds MASTER_ORCHESTRATION.md, AGENT_PROMPTS.md, RUBRICS.md, templates/, outputs/, handoffs/
  *
  * @example
  * ```ts

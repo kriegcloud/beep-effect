@@ -222,13 +222,16 @@ The bootstrap-spec command:
 - Generates README.md with spec template
 - Creates REFLECTION_LOG.md for capturing learnings
 - Supports three complexity levels: simple, medium, complex
-- Complex specs include additional HANDOFF and phase files
+- Medium and complex specs include `handoffs/` with an initial dual handoff:
+  - `handoffs/HANDOFF_P1.md`
+  - `handoffs/P1_ORCHESTRATOR_PROMPT.md`
+- Complex specs include additional orchestration files (master orchestration, agent prompts, rubrics, templates)
 - Validates spec name (kebab-case, alphanumeric with hyphens)
 
 **Complexity Levels**:
-- **Simple**: README.md only
-- **Medium** (default): README.md + REFLECTION_LOG.md
-- **Complex**: README.md + REFLECTION_LOG.md + HANDOFF_P1.md + additional phase files
+- **Simple**: README.md + REFLECTION_LOG.md
+- **Medium** (default): + QUICK_START.md, outputs/, handoffs/
+- **Complex**: + MASTER_ORCHESTRATION.md, AGENT_PROMPTS.md, RUBRICS.md, templates/, handoffs/
 
 ### Create Vertical Slice
 

@@ -1,14 +1,6 @@
-import { describe, expect, it } from "bun:test"
-import {
-  decode,
-  encode,
-  IDNA,
-  toASCII,
-  toUnicode,
-  ucs2decode,
-  ucs2encode,
-} from "@beep/semantic-web/idna/idna"
-import { deepStrictEqual, strictEqual } from "@beep/testkit"
+import { describe, expect, it } from "bun:test";
+import { decode, encode, IDNA, toASCII, toUnicode, ucs2decode, ucs2encode } from "@beep/semantic-web/idna/idna";
+import { deepStrictEqual, strictEqual } from "@beep/testkit";
 
 const testData = {
   strings: [
@@ -33,29 +25,23 @@ const testData = {
       encoded: "bcher-kva",
     },
     {
-      description:
-        "long string with both ASCII and non-ASCII characters",
-      decoded:
-        "Willst du die Bl\xFCthe des fr\xFChen, die Fr\xFCchte des sp\xE4teren Jahres",
-      encoded:
-        "Willst du die Blthe des frhen, die Frchte des spteren Jahres-x9e96lkal",
+      description: "long string with both ASCII and non-ASCII characters",
+      decoded: "Willst du die Bl\xFCthe des fr\xFChen, die Fr\xFCchte des sp\xE4teren Jahres",
+      encoded: "Willst du die Blthe des frhen, die Frchte des spteren Jahres-x9e96lkal",
     },
     {
       description: "Arabic (Egyptian)",
-      decoded:
-        "\u0644\u064A\u0647\u0645\u0627\u0628\u062A\u0643\u0644\u0645\u0648\u0634\u0639\u0631\u0628\u064A\u061F",
+      decoded: "\u0644\u064A\u0647\u0645\u0627\u0628\u062A\u0643\u0644\u0645\u0648\u0634\u0639\u0631\u0628\u064A\u061F",
       encoded: "egbpdaj6bu4bxfgehfvwxn",
     },
     {
       description: "Chinese (simplified)",
-      decoded:
-        "\u4ED6\u4EEC\u4E3A\u4EC0\u4E48\u4E0D\u8BF4\u4E2D\u6587",
+      decoded: "\u4ED6\u4EEC\u4E3A\u4EC0\u4E48\u4E0D\u8BF4\u4E2D\u6587",
       encoded: "ihqwcrb4cv8a8dqg056pqjye",
     },
     {
       description: "Chinese (traditional)",
-      decoded:
-        "\u4ED6\u5011\u7232\u4EC0\u9EBD\u4E0D\u8AAA\u4E2D\u6587",
+      decoded: "\u4ED6\u5011\u7232\u4EC0\u9EBD\u4E0D\u8AAA\u4E2D\u6587",
       encoded: "ihqwctvzc91f659drss3x8bo0yb",
     },
     {
@@ -73,8 +59,7 @@ const testData = {
       description: "Hindi (Devanagari)",
       decoded:
         "\u092F\u0939\u0932\u094B\u0917\u0939\u093F\u0928\u094D\u0926\u0940\u0915\u094D\u092F\u094B\u0902\u0928\u0939\u0940\u0902\u092C\u094B\u0932\u0938\u0915\u0924\u0947\u0939\u0948\u0902",
-      encoded:
-        "i1baa7eci9glrd9b2ae1bj0hfcgg6iyaf8o0a1dig0cd",
+      encoded: "i1baa7eci9glrd9b2ae1bj0hfcgg6iyaf8o0a1dig0cd",
     },
     {
       description: "Japanese (kanji and hiragana)",
@@ -86,8 +71,7 @@ const testData = {
       description: "Korean (Hangul syllables)",
       decoded:
         "\uC138\uACC4\uC758\uBAA8\uB4E0\uC0AC\uB78C\uB4E4\uC774\uD55C\uAD6D\uC5B4\uB97C\uC774\uD574\uD55C\uB2E4\uBA74\uC5BC\uB9C8\uB098\uC88B\uC744\uAE4C",
-      encoded:
-        "989aomsvi5e83db1d2a355cv1e0vak1dwrv93d5xbh15a0dt30a5jpsd879ccm6fea98c",
+      encoded: "989aomsvi5e83db1d2a355cv1e0vak1dwrv93d5xbh15a0dt30a5jpsd879ccm6fea98c",
     },
     {
       description: "Russian (Cyrillic)",
@@ -97,16 +81,13 @@ const testData = {
     },
     {
       description: "Spanish",
-      decoded:
-        "Porqu\xE9nopuedensimplementehablarenEspa\xF1ol",
+      decoded: "Porqu\xE9nopuedensimplementehablarenEspa\xF1ol",
       encoded: "PorqunopuedensimplementehablarenEspaol-fmd56a",
     },
     {
       description: "Vietnamese",
-      decoded:
-        "T\u1EA1isaoh\u1ECDkh\xF4ngth\u1EC3ch\u1EC9n\xF3iti\u1EBFngVi\u1EC7t",
-      encoded:
-        "TisaohkhngthchnitingVit-kjcr8268qyxafd2f1b9g",
+      decoded: "T\u1EA1isaoh\u1ECDkh\xF4ngth\u1EC3ch\u1EC9n\xF3iti\u1EBFngVi\u1EC7t",
+      encoded: "TisaohkhngthchnitingVit-kjcr8268qyxafd2f1b9g",
     },
     {
       decoded: "3\u5E74B\u7D44\u91D1\u516B\u5148\u751F",
@@ -117,8 +98,7 @@ const testData = {
       encoded: "-with-SUPER-MONKEYS-pc58ag80a8qai00g7n9n",
     },
     {
-      decoded:
-        "Hello-Another-Way-\u305D\u308C\u305E\u308C\u306E\u5834\u6240",
+      decoded: "Hello-Another-Way-\u305D\u308C\u305E\u308C\u306E\u5834\u6240",
       encoded: "Hello-Another-Way--fc4qua05auwb3674vfr0b",
     },
     {
@@ -138,8 +118,7 @@ const testData = {
       encoded: "d9juau41awczczp",
     },
     {
-      description:
-        "ASCII string that breaks the existing rules for host-name labels",
+      description: "ASCII string that breaks the existing rules for host-name labels",
       decoded: "-> $1.00 <-",
       encoded: "-> $1.00 <--",
     },
@@ -151,39 +130,33 @@ const testData = {
       encoded: "\uD83C\uDF55\uD835\uDC00\uD834\uDF06\uD834\uDF56",
     },
     {
-      description:
-        "U+D800 (high surrogate) followed by non-surrogates",
+      description: "U+D800 (high surrogate) followed by non-surrogates",
       decoded: [55296, 97, 98],
       encoded: "\uD800ab",
     },
     {
-      description:
-        "U+DC00 (low surrogate) followed by non-surrogates",
+      description: "U+DC00 (low surrogate) followed by non-surrogates",
       decoded: [56320, 97, 98],
       encoded: "\uDC00ab",
     },
     {
-      description:
-        "High surrogate followed by another high surrogate",
-      decoded: [0xD800, 0xD800],
+      description: "High surrogate followed by another high surrogate",
+      decoded: [0xd800, 0xd800],
       encoded: "\uD800\uD800",
     },
     {
-      description:
-        "Unmatched high surrogate, followed by a surrogate pair, followed by an unmatched high surrogate",
-      decoded: [0xD800, 0x1D306, 0xD800],
+      description: "Unmatched high surrogate, followed by a surrogate pair, followed by an unmatched high surrogate",
+      decoded: [0xd800, 0x1d306, 0xd800],
       encoded: "\uD800\uD834\uDF06\uD800",
     },
     {
-      description:
-        "Low surrogate followed by another low surrogate",
-      decoded: [0xDC00, 0xDC00],
+      description: "Low surrogate followed by another low surrogate",
+      decoded: [0xdc00, 0xdc00],
       encoded: "\uDC00\uDC00",
     },
     {
-      description:
-        "Unmatched low surrogate, followed by a surrogate pair, followed by an unmatched low surrogate",
-      decoded: [0xDC00, 0x1D306, 0xDC00],
+      description: "Unmatched low surrogate, followed by a surrogate pair, followed by an unmatched low surrogate",
+      decoded: [0xdc00, 0x1d306, 0xdc00],
       encoded: "\uDC00\uD834\uDF06\uDC00",
     },
   ],
@@ -226,8 +199,7 @@ const testData = {
       description: "Email address",
       decoded:
         "\u0434\u0436\u0443\u043C\u043B\u0430@\u0434\u0436p\u0443\u043C\u043B\u0430\u0442\u0435\u0441\u0442.b\u0440\u0444a",
-      encoded:
-        "\u0434\u0436\u0443\u043C\u043B\u0430@xn--p-8sbkgc5ag7bhce.xn--ba-lmcq",
+      encoded: "\u0434\u0436\u0443\u043C\u043B\u0430@xn--p-8sbkgc5ag7bhce.xn--ba-lmcq",
     },
     {
       decoded: "foo\x7F.example",
@@ -256,217 +228,193 @@ const testData = {
       encoded: "xn--maana-pta.com",
     },
   ],
-}
+};
 
 describe("idna", () => {
   it("should encode basic strings", () => {
-    strictEqual(encode("m\xFCnchen"), "mnchen-3ya")
-  })
+    strictEqual(encode("m\xFCnchen"), "mnchen-3ya");
+  });
 
   it("should decode basic strings", () => {
-    strictEqual(decode("mnchen-3ya"), "m\xFCnchen")
-  })
+    strictEqual(decode("mnchen-3ya"), "m\xFCnchen");
+  });
 
   it("should handle empty strings for encode", () => {
-    strictEqual(encode(""), "")
-  })
+    strictEqual(encode(""), "");
+  });
 
   it("should handle empty strings for decode", () => {
-    strictEqual(decode(""), "")
-  })
+    strictEqual(decode(""), "");
+  });
 
   it("should throw on invalid decode input", () => {
-    expect(() => decode("abc-!")).toThrow("Invalid input")
-  })
-})
+    expect(() => decode("abc-!")).toThrow("Invalid input");
+  });
+});
 
 describe("toASCII/toUnicode", () => {
   it("should convert domain names to ASCII", () => {
-    strictEqual(toASCII("m\xFCnchen.de"), "xn--mnchen-3ya.de")
-  })
+    strictEqual(toASCII("m\xFCnchen.de"), "xn--mnchen-3ya.de");
+  });
 
   it("should convert domain names to Unicode", () => {
-    strictEqual(toUnicode("xn--mnchen-3ya.de"), "m\xFCnchen.de")
-  })
+    strictEqual(toUnicode("xn--mnchen-3ya.de"), "m\xFCnchen.de");
+  });
 
   it("should roundtrip domain names", () => {
-    const domain = "m\xFCnchen.de"
-    strictEqual(toUnicode(toASCII(domain)), domain)
-  })
+    const domain = "m\xFCnchen.de";
+    strictEqual(toUnicode(toASCII(domain)), domain);
+  });
 
   it("should handle email addresses with toASCII", () => {
-    strictEqual(
-      toASCII("user@m\xFCnchen.de"),
-      "user@xn--mnchen-3ya.de",
-    )
-  })
+    strictEqual(toASCII("user@m\xFCnchen.de"), "user@xn--mnchen-3ya.de");
+  });
 
   it("should handle email addresses with toUnicode", () => {
-    strictEqual(
-      toUnicode("user@xn--mnchen-3ya.de"),
-      "user@m\xFCnchen.de",
-    )
-  })
+    strictEqual(toUnicode("user@xn--mnchen-3ya.de"), "user@m\xFCnchen.de");
+  });
 
   it("should roundtrip email addresses", () => {
-    const email = "user@m\xFCnchen.de"
-    strictEqual(toUnicode(toASCII(email)), email)
-  })
+    const email = "user@m\xFCnchen.de";
+    strictEqual(toUnicode(toASCII(email)), email);
+  });
 
   it("should preserve ASCII-only strings with toASCII", () => {
-    strictEqual(toASCII("example.com"), "example.com")
-  })
+    strictEqual(toASCII("example.com"), "example.com");
+  });
 
   it("should preserve ASCII-only strings with toUnicode", () => {
-    strictEqual(toUnicode("example.com"), "example.com")
-  })
-})
+    strictEqual(toUnicode("example.com"), "example.com");
+  });
+});
 
 describe("ucs2", () => {
   it("should decode code points", () => {
-    deepStrictEqual(ucs2decode("\u2603"), [9731])
-  })
+    deepStrictEqual(ucs2decode("\u2603"), [9731]);
+  });
 
   it("should encode code points", () => {
-    strictEqual(ucs2encode([9731]), "\u2603")
-  })
+    strictEqual(ucs2encode([9731]), "\u2603");
+  });
 
   it("should roundtrip code points", () => {
-    const original = "\u2603"
-    strictEqual(ucs2encode(ucs2decode(original)), original)
-  })
+    const original = "\u2603";
+    strictEqual(ucs2encode(ucs2decode(original)), original);
+  });
 
   it("should handle surrogate pairs on decode", () => {
-    deepStrictEqual(ucs2decode("\uD83C\uDF0D"), [127757])
-  })
+    deepStrictEqual(ucs2decode("\uD83C\uDF0D"), [127757]);
+  });
 
   it("should handle surrogate pairs on encode", () => {
-    strictEqual(ucs2encode([127757]), "\uD83C\uDF0D")
-  })
+    strictEqual(ucs2encode([127757]), "\uD83C\uDF0D");
+  });
 
   it("should roundtrip surrogate pairs", () => {
-    const original = "\uD83C\uDF0D"
-    strictEqual(ucs2encode(ucs2decode(original)), original)
-  })
-})
+    const original = "\uD83C\uDF0D";
+    strictEqual(ucs2encode(ucs2decode(original)), original);
+  });
+});
 
 it("should expose version", () => {
-  strictEqual(IDNA.version, "0.1.0")
-})
+  strictEqual(IDNA.version, "0.1.0");
+});
 
 describe("ucs2decode", () => {
   for (const object of testData.ucs2) {
     it(object.description, () => {
-      deepStrictEqual(ucs2decode(object.encoded), object.decoded)
-    })
+      deepStrictEqual(ucs2decode(object.encoded), object.decoded);
+    });
   }
-})
+});
 
 describe("ucs2encode", () => {
   for (const object of testData.ucs2) {
     it(object.description, () => {
-      strictEqual(ucs2encode(object.decoded), object.encoded)
-    })
+      strictEqual(ucs2encode(object.decoded), object.encoded);
+    });
   }
 
   it("should not mutate the argument array", () => {
-    const codePoints = [0xD800, 0x1D306, 0xD800]
-    const copy = [...codePoints]
-    ucs2encode(codePoints)
-    deepStrictEqual(codePoints, copy)
-  })
-})
+    const codePoints = [0xd800, 0x1d306, 0xd800];
+    const copy = [...codePoints];
+    ucs2encode(codePoints);
+    deepStrictEqual(codePoints, copy);
+  });
+});
 
 describe("decode", () => {
   for (const object of testData.strings) {
-    it(
-      object.description ?? `decode '${object.encoded}'`,
-      () => {
-        strictEqual(decode(object.encoded), object.decoded)
-      },
-    )
+    it(object.description ?? `decode '${object.encoded}'`, () => {
+      strictEqual(decode(object.encoded), object.decoded);
+    });
   }
 
   it("should handle uppercase Z", () => {
-    strictEqual(decode("ZZZ"), "\u7BA5")
-  })
+    strictEqual(decode("ZZZ"), "\u7BA5");
+  });
 
   it("should throw InvalidInputError on 'ls8h='", () => {
-    expect(() => decode("ls8h=")).toThrow("Invalid input")
-  })
+    expect(() => decode("ls8h=")).toThrow("Invalid input");
+  });
 
   it("should throw NotBasicError on '\\x81-'", () => {
-    expect(() => decode("\x81-")).toThrow(
-      "Illegal input >= 0x80 (not a basic code point)",
-    )
-  })
+    expect(() => decode("\x81-")).toThrow("Illegal input >= 0x80 (not a basic code point)");
+  });
 
   it("should throw InvalidInputError on '\\x81'", () => {
-    expect(() => decode("\x81")).toThrow("Invalid input")
-  })
+    expect(() => decode("\x81")).toThrow("Invalid input");
+  });
 
   it("should throw OverFlowError on 'bb000000'", () => {
-    expect(() => decode("bb000000")).toThrow(
-      "Overflow: input needs wider integers to process",
-    )
-  })
-})
+    expect(() => decode("bb000000")).toThrow("Overflow: input needs wider integers to process");
+  });
+});
 
 describe("encode", () => {
   for (const object of testData.strings) {
-    it(
-      object.description ?? `encode '${object.decoded}'`,
-      () => {
-        strictEqual(encode(object.decoded), object.encoded)
-      },
-    )
+    it(object.description ?? `encode '${object.decoded}'`, () => {
+      strictEqual(encode(object.decoded), object.encoded);
+    });
   }
-})
+});
 
 describe("toUnicode", () => {
   for (const object of testData.domains) {
-    const label =
-      (object as { description?: string }).description ??
-      `toUnicode('${object.encoded}')`
+    const label = (object as { description?: string }).description ?? `toUnicode('${object.encoded}')`;
     it(label, () => {
-      strictEqual(toUnicode(object.encoded), object.decoded)
-    })
+      strictEqual(toUnicode(object.encoded), object.decoded);
+    });
   }
 
   for (const object of testData.strings) {
-    const label =
-      object.description ??
-      `passthrough non-xn-- encoded '${object.encoded}'`
+    const label = object.description ?? `passthrough non-xn-- encoded '${object.encoded}'`;
     it(label, () => {
-      strictEqual(toUnicode(object.encoded), object.encoded)
-    })
+      strictEqual(toUnicode(object.encoded), object.encoded);
+    });
   }
-})
+});
 
 describe("toASCII", () => {
   for (const object of testData.domains) {
-    const label =
-      (object as { description?: string }).description ??
-      `toASCII('${object.decoded}')`
+    const label = (object as { description?: string }).description ?? `toASCII('${object.decoded}')`;
     it(label, () => {
-      strictEqual(toASCII(object.decoded), object.encoded)
-    })
+      strictEqual(toASCII(object.decoded), object.encoded);
+    });
   }
 
   for (const object of testData.strings) {
-    const label =
-      object.description ??
-      `passthrough ASCII-only '${object.encoded}'`
+    const label = object.description ?? `passthrough ASCII-only '${object.encoded}'`;
     it(label, () => {
-      strictEqual(toASCII(object.encoded), object.encoded)
-    })
+      strictEqual(toASCII(object.encoded), object.encoded);
+    });
   }
 
   describe("IDNA2003 separator support", () => {
     for (const object of testData.separators) {
       it(object.description, () => {
-        strictEqual(toASCII(object.decoded), object.encoded)
-      })
+        strictEqual(toASCII(object.decoded), object.encoded);
+      });
     }
-  })
-})
+  });
+});

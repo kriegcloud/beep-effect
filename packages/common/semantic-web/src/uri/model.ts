@@ -1,5 +1,5 @@
-import {$SemanticWebId} from "@beep/identity/packages";
-import {BS} from "@beep/schema";
+import { $SemanticWebId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $SemanticWebId.create("uri/model");
@@ -23,5 +23,4 @@ export class URIRegExps extends S.Class<URIRegExps>($I`URIRegExps`)(
   $I.annotations("URIRegExps", {
     description: "Collection of regular expressions used for URI parsing and validation according to RFC 3986",
   })
-) {
-}
+) {}

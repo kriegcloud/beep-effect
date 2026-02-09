@@ -67,6 +67,8 @@ bun run spec:move -- <spec-name> pending|completed|archived
 | [naming-conventions-refactor](pending/naming-conventions-refactor/) |
 | [rls-implementation](completed/rls-implementation/) |
 | [sanitize-html-schema](pending/sanitize-html-schema/) |
+| [semantic-web-idna-schema-refactor](pending/semantic-web-idna-schema-refactor/) |
+| [semantic-web-uri-schema-refactor](pending/semantic-web-uri-schema-refactor/) |
 | [tagged-values-kit](completed/tagged-values-kit/) |
 | [todox-design](pending/todox-design/) |
 | [tsconfig-sync-completion](pending/tsconfig-sync-completion/) |
