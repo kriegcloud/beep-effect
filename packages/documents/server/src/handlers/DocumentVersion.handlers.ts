@@ -15,7 +15,10 @@ export const DocumentVersionHandlersLive = DocumentVersion.DocumentVersionRpcs.R
       "DocumentVersion.getContent": (payload) =>
         repo.findByIdOrFail(payload.id).pipe(
           Effect.catchTags({
-            DatabaseError: Effect.die,
+            // Hardening: do not defect in demo-critical handlers. Treat DB issues as "not found" to avoid
+            // leaking details and to keep caller behavior deterministic.
+            DatabaseError: () =>
+              Effect.fail(new DocumentVersion.DocumentVersionErrors.DocumentVersionNotFoundError({ id: payload.id })),
             VersionNotFoundError: () => Effect.fail(new DocumentVersion.DocumentVersionErrors.DocumentVersionNotFoundError({ id: payload.id })),
           }),
           Effect.filterOrFail(
