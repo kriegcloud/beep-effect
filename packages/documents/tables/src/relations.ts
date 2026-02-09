@@ -4,37 +4,37 @@ import {
   discussion,
   document,
   documentFile,
+  documentSource,
   documentVersion,
   organization,
   page,
   user,
-  documentSource,
 } from "./tables";
 
 // User relations (redefined for bounded context integrity)
-export const userRelations = d.relations(user, ({many}) => ({
-  documents: many(document, {relationName: "documentOwner"}),
-  documentVersions: many(documentVersion, {relationName: "documentVersionAuthor"}),
-  documentSources: many(documentSource, {relationName: "documentSourceOwner"}),
-  discussions: many(discussion, {relationName: "discussionAuthor"}),
-  comments: many(comment, {relationName: "commentAuthor"}),
-  documentFiles: many(documentFile, {relationName: "documentFileOwner"}),
-  pages: many(page, {relationName: "pageCreatedBy"}),
+export const userRelations = d.relations(user, ({ many }) => ({
+  documents: many(document, { relationName: "documentOwner" }),
+  documentVersions: many(documentVersion, { relationName: "documentVersionAuthor" }),
+  documentSources: many(documentSource, { relationName: "documentSourceOwner" }),
+  discussions: many(discussion, { relationName: "discussionAuthor" }),
+  comments: many(comment, { relationName: "commentAuthor" }),
+  documentFiles: many(documentFile, { relationName: "documentFileOwner" }),
+  pages: many(page, { relationName: "pageCreatedBy" }),
 }));
 
 // Organization relations (redefined for bounded context integrity)
-export const organizationRelations = d.relations(organization, ({many}) => ({
-  documents: many(document, {relationName: "documentOrganization"}),
-  documentVersions: many(documentVersion, {relationName: "documentVersionOrganization"}),
-  documentSources: many(documentSource, {relationName: "documentSourceOrganization"}),
-  discussions: many(discussion, {relationName: "discussionOrganization"}),
-  comments: many(comment, {relationName: "commentOrganization"}),
-  documentFiles: many(documentFile, {relationName: "documentFileOrganization"}),
-  pages: many(page, {relationName: "pageOrganization"}),
+export const organizationRelations = d.relations(organization, ({ many }) => ({
+  documents: many(document, { relationName: "documentOrganization" }),
+  documentVersions: many(documentVersion, { relationName: "documentVersionOrganization" }),
+  documentSources: many(documentSource, { relationName: "documentSourceOrganization" }),
+  discussions: many(discussion, { relationName: "discussionOrganization" }),
+  comments: many(comment, { relationName: "commentOrganization" }),
+  documentFiles: many(documentFile, { relationName: "documentFileOrganization" }),
+  pages: many(page, { relationName: "pageOrganization" }),
 }));
 
 // Document relations
-export const documentRelations = d.relations(document, ({one, many}) => ({
+export const documentRelations = d.relations(document, ({ one, many }) => ({
   organization: one(organization, {
     fields: [document.organizationId],
     references: [organization.id],
@@ -59,7 +59,7 @@ export const documentRelations = d.relations(document, ({one, many}) => ({
   files: many(documentFile),
 }));
 // DocumentSource relations
-export const documentSourceRelations = d.relations(documentSource, ({one}) => ({
+export const documentSourceRelations = d.relations(documentSource, ({ one }) => ({
   organization: one(organization, {
     fields: [documentSource.organizationId],
     references: [organization.id],
@@ -77,7 +77,7 @@ export const documentSourceRelations = d.relations(documentSource, ({one}) => ({
 }));
 
 // Page relations
-export const pageRelations = d.relations(page, ({one, many}) => ({
+export const pageRelations = d.relations(page, ({ one, many }) => ({
   organization: one(organization, {
     fields: [page.organizationId],
     references: [organization.id],
@@ -98,7 +98,7 @@ export const pageRelations = d.relations(page, ({one, many}) => ({
   }),
 }));
 // DocumentVersion relations
-export const documentVersionRelations = d.relations(documentVersion, ({one}) => ({
+export const documentVersionRelations = d.relations(documentVersion, ({ one }) => ({
   organization: one(organization, {
     fields: [documentVersion.organizationId],
     references: [organization.id],
@@ -116,7 +116,7 @@ export const documentVersionRelations = d.relations(documentVersion, ({one}) => 
 }));
 
 // Discussion relations
-export const discussionRelations = d.relations(discussion, ({one, many}) => ({
+export const discussionRelations = d.relations(discussion, ({ one, many }) => ({
   organization: one(organization, {
     fields: [discussion.organizationId],
     references: [organization.id],
@@ -137,7 +137,7 @@ export const discussionRelations = d.relations(discussion, ({one, many}) => ({
 }));
 
 // Comment relations
-export const commentRelations = d.relations(comment, ({one}) => ({
+export const commentRelations = d.relations(comment, ({ one }) => ({
   organization: one(organization, {
     fields: [comment.organizationId],
     references: [organization.id],
@@ -155,7 +155,7 @@ export const commentRelations = d.relations(comment, ({one}) => ({
 }));
 
 // DocumentFile relations
-export const documentFileRelations = d.relations(documentFile, ({one}) => ({
+export const documentFileRelations = d.relations(documentFile, ({ one }) => ({
   organization: one(organization, {
     fields: [documentFile.organizationId],
     references: [organization.id],

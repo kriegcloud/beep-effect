@@ -1,9 +1,9 @@
-
+import { $DocumentsDomainId } from "@beep/identity/packages";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import {PageLocked, PageNotFound} from "../Page.errors.ts";
-import * as Page from "../Page.model.ts"
-import {$DocumentsDomainId} from "@beep/identity/packages";
+import { PageLocked, PageNotFound } from "../Page.errors.ts";
+import * as Page from "../Page.model.ts";
+
 const $I = $DocumentsDomainId.create("entities/Page/contracts/Update");
 
 /**
@@ -17,8 +17,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   $I.annotations("Payload", {
     description: "Payload for the Page.Update rpc",
   })
-) {
-}
+) {}
 
 /**
  * Successful response for the `Page.Update` RPC.
@@ -31,8 +30,7 @@ export class Success extends S.Class<Success>($I`Success`)(
   $I.annotations("Success", {
     description: "Success response for the Page.Update rpc",
   })
-) {
-}
+) {}
 
 /**
  * Typed error channel for the `Page.Update` RPC.
@@ -40,15 +38,12 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @category errors
  * @since 1.0.0
  */
-export class Error extends S.Union(
-  PageNotFound,
-  PageLocked,
-).annotations(
+export class Error extends S.Union(PageNotFound, PageLocked).annotations(
   $I.annotations("Error", {
     description: "Error response for the Page.Update rpc",
-    documentation: "This should Never happen."
-  })) {
-}
+    documentation: "This should Never happen.",
+  })
+) {}
 export declare namespace Error {
   export type Type = typeof Error.Type;
   export type Encoded = typeof Error.Encoded;
@@ -59,11 +54,8 @@ export declare namespace Error {
  * @category contracts
  * @since 1.0.0
  */
-export const Contract = Rpc.make(
-  "Page.Update",
-  {
-    payload: Payload,
-    success: Success,
-    error: Error
-  }
-);
+export const Contract = Rpc.make("Page.Update", {
+  payload: Payload,
+  success: Success,
+  error: Error,
+});

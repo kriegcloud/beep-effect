@@ -1,5 +1,5 @@
-import {$DocumentsDomainId} from "@beep/identity/packages";
-import {DocumentsEntityIds} from "@beep/shared-domain";
+import { $DocumentsDomainId } from "@beep/identity/packages";
+import { DocumentsEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $DocumentsDomainId.create("entities/Page/Page.values");
@@ -14,7 +14,6 @@ export class Breadcrumb extends S.Class<Breadcrumb>($I`Breadcrumb`)(
     icon: S.optional(S.String),
   },
   $I.annotations("Breadcrumb", {
-    description: "Breadcrumb schema for page ancestry."
+    description: "Breadcrumb schema for page ancestry.",
   })
-) {
-}
+) {}

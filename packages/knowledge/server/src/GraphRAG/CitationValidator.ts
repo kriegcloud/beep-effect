@@ -70,7 +70,8 @@ const calculateInferredConfidence = (depth: number): number => {
   return Num.max(MIN_INFERRED_CONFIDENCE, BASE_INFERRED_CONFIDENCE - penalty);
 };
 
-const quadMatchesRelation = (quad: Quad, relationId: KnowledgeEntityIds.RelationId.Type): boolean => quad.predicate === relationId;
+const quadMatchesRelation = (quad: Quad, relationId: KnowledgeEntityIds.RelationId.Type): boolean =>
+  quad.predicate === relationId;
 
 const buildReasoningTrace = (
   provenance: Record<string, { ruleId: string; sourceQuads: ReadonlyArray<string> }>,
@@ -87,7 +88,7 @@ const buildReasoningTrace = (
   return new ReasoningTrace({
     inferenceSteps,
     depth,
-  })
+  });
 };
 
 export interface CitationValidatorShape {

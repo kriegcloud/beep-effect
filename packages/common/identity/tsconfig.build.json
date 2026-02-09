@@ -12,6 +12,9 @@
   },
   "references": [
     {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
+    {
       "path": "../../../packages/common/types/tsconfig.build.json"
     },
     {

@@ -3,9 +3,6 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../../../packages/common/identity"
-    },
-    {
       "path": "../../../../packages/common/invariant"
     },
     {
@@ -13,6 +10,9 @@
     },
     {
       "path": "../../../../packages/common/types"
+    },
+    {
+      "path": "../../../../packages/common/identity"
     },
     {
       "path": "../../../../packages/common/utils"

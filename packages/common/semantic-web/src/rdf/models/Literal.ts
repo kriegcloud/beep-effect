@@ -1,22 +1,15 @@
-import {$SemanticWebId} from "@beep/identity/packages";
-import {ModelType} from "@beep/semantic-web/rdf/values";
-import {pipe} from "effect/Function";
+import { $SemanticWebId } from "@beep/identity/packages";
+import { LanguageDirection, ModelType } from "@beep/semantic-web/rdf/values";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
+
+import { NamedNode } from "./NamedNode";
 
 const $I = $SemanticWebId.create("rdf/models/Literal");
 
-export const LiteralEncoded = S.TemplateLiteral(
-  "<",
-  S.String,
-  ">"
-).annotations(
-  $I.annotations(
-    "LiteralEncoded",
-    {
-      description: "A named node in the RDF graph encoded as a string",
-    }
-  )
+export const LiteralEncoded = S.TemplateLiteral("<", S.String, ">").annotations(
+  $I.annotations("LiteralEncoded", {
+    description: "A named node in the RDF graph encoded as a string",
+  })
 );
 
 export declare namespace LiteralEncoded {
@@ -27,38 +20,29 @@ export declare namespace LiteralEncoded {
 export class Literal extends S.Class<Literal>($I`Literal`)(
   ModelType.makeKind.Literal({
     value: S.NonEmptyString,
+    language: S.NonEmptyString,
+    datatype: NamedNode,
+    direction: LanguageDirection,
   }),
-  $I.annotations(
-    "Literal",
-    {
-      description: "A named node in the RDF graph",
-    }
-  )
+  $I.annotations("Literal", {
+    description: "A named node in the RDF graph",
+  })
 ) {
   static readonly Equivalence = S.equivalence(Literal);
-  static readonly new = (value: string) => new Literal({value});
+  static readonly new = (
+    value: string,
+    language: string,
+    datatype: NamedNode,
+    direction: LanguageDirection.Type = LanguageDirection.Enum[""]
+  ) =>
+    new Literal({
+      value,
+      language,
+      datatype,
+      direction,
+    });
 
   equals(that: Literal): boolean {
     return Literal.Equivalence(this, that);
   }
-}
-
-export class LiteralFromString extends S.transform(
-  LiteralEncoded,
-  Literal,
-  {
-    strict: true,
-    decode: (string) => pipe(
-      string,
-      Str.replace(">", ""),
-      Str.replace("<", ""),
-      Literal.new
-    ),
-    encode: ({value}) => `<${value}>` as const
-  }
-) {
-}
-
-export declare namespace Literal {
-  export type Type = typeof Literal.Type;
 }

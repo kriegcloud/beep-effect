@@ -1,9 +1,9 @@
-import {$DocumentsDomainId} from "@beep/identity/packages";
+import { $DocumentsDomainId } from "@beep/identity/packages";
+import { DocumentsEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import {Breadcrumb} from "../Page.values";
-import {PageNotFound} from "../Page.errors.ts";
-import {DocumentsEntityIds} from "@beep/shared-domain";
+import { PageNotFound } from "../Page.errors.ts";
+import { Breadcrumb } from "../Page.values";
 
 const $I = $DocumentsDomainId.create("entities/Page/contracts/Breadcrumbs");
 
@@ -15,13 +15,12 @@ const $I = $DocumentsDomainId.create("entities/Page/contracts/Breadcrumbs");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    id: DocumentsEntityIds.PageId
+    id: DocumentsEntityIds.PageId,
   },
   $I.annotations("Payload", {
     description: "Payload for the Page.Breadcrumbs rpc",
   })
-) {
-}
+) {}
 
 /**
  * Successful response for the `Page.Breadcrumbs` RPC.
@@ -34,8 +33,7 @@ export class Success extends Breadcrumb.extend<Success>($I`Success`)(
   $I.annotations("Success", {
     description: "Success response for the Page.Breadcrumbs rpc",
   })
-) {
-}
+) {}
 
 /**
  * Typed error channel for the `Page.Breadcrumbs` RPC.
@@ -46,8 +44,8 @@ export class Success extends Breadcrumb.extend<Success>($I`Success`)(
 export class Error extends PageNotFound.annotations(
   $I.annotations("Error", {
     description: "Error response for the Page.Breadcrumbs rpc",
-  })) {
-}
+  })
+) {}
 
 /**
  * RPC contract definition for `Page.Breadcrumbs`.
@@ -55,12 +53,9 @@ export class Error extends PageNotFound.annotations(
  * @category contracts
  * @since 1.0.0
  */
-export const Contract = Rpc.make(
-  "Page.Breadcrumbs",
-  {
-    payload: Payload,
-    success: Success,
-    error: Error,
-    stream: true,
-  }
-);
+export const Contract = Rpc.make("Page.Breadcrumbs", {
+  payload: Payload,
+  success: Success,
+  error: Error,
+  stream: true,
+});

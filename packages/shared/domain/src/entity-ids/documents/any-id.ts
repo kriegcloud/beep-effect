@@ -12,7 +12,7 @@ export class AnyId extends S.Union(
   Ids.CommentId,
   Ids.DocumentFileId,
   Ids.PageId,
-  Ids.PageShareId,
+  Ids.PageShareId
 ).annotations(
   $I.annotations("AnyDocumentsId", {
     description: "Any entity id within the documents domain context",

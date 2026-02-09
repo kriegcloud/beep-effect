@@ -1,1 +1,1 @@
-export * from "./PageShare.model"
+export * from "./PageShare.model";

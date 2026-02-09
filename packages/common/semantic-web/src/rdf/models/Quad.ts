@@ -1,22 +1,13 @@
-import {$SemanticWebId} from "@beep/identity/packages";
-import {ModelType} from "@beep/semantic-web/rdf/values";
-import {pipe} from "effect/Function";
+import { $SemanticWebId } from "@beep/identity/packages";
+import { ModelType } from "@beep/semantic-web/rdf/values";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 
 const $I = $SemanticWebId.create("rdf/models/Quad");
 
-export const QuadEncoded = S.TemplateLiteral(
-  "<",
-  S.String,
-  ">"
-).annotations(
-  $I.annotations(
-    "QuadEncoded",
-    {
-      description: "A named node in the RDF graph encoded as a string",
-    }
-  )
+export const QuadEncoded = S.TemplateLiteral("<", S.String, ">").annotations(
+  $I.annotations("QuadEncoded", {
+    description: "A named node in the RDF graph encoded as a string",
+  })
 );
 
 export declare namespace QuadEncoded {
@@ -26,37 +17,28 @@ export declare namespace QuadEncoded {
 
 export class Quad extends S.Class<Quad>($I`Quad`)(
   ModelType.makeKind.Quad({
-    value: S.NonEmptyString,
+    value: S.String.pipe(S.optionalWith({ default: () => "" })),
+    subject: S.Unknown,
+    predicate: S.Unknown,
+    object: S.Unknown,
+    graph: S.Unknown,
   }),
-  $I.annotations(
-    "Quad",
-    {
-      description: "A named node in the RDF graph",
-    }
-  )
+  $I.annotations("Quad", {
+    description: "A named node in the RDF graph",
+  })
 ) {
   static readonly Equivalence = S.equivalence(Quad);
-  static readonly new = (value: string) => new Quad({value});
+  static readonly new = (subject: unknown, predicate: unknown, object: unknown, graph: unknown) =>
+    new Quad({
+      subject,
+      predicate,
+      object,
+      graph,
+    });
 
   equals(that: Quad): boolean {
     return Quad.Equivalence(this, that);
   }
-}
-
-export class QuadFromString extends S.transform(
-  QuadEncoded,
-  Quad,
-  {
-    strict: true,
-    decode: (string) => pipe(
-      string,
-      Str.replace(">", ""),
-      Str.replace("<", ""),
-      Quad.new
-    ),
-    encode: ({value}) => `<${value}>` as const
-  }
-) {
 }
 
 export declare namespace Quad {

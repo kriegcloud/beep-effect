@@ -1,5 +1,6 @@
 "use client";
 
+import type { KnowledgeEntityIds } from "@beep/shared-domain";
 import { Badge } from "@beep/todox/components/ui/badge";
 import { Button } from "@beep/todox/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
@@ -14,7 +15,7 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as React from "react";
 import type { AssembledEntity, GraphRAGResult, Relation } from "../types";
-import type {KnowledgeEntityIds} from "@beep/shared-domain";
+
 interface QueryResultDisplayProps {
   readonly result: GraphRAGResult | null;
   readonly onEntitySelect?: undefined | ((entityId: KnowledgeEntityIds.KnowledgeEntityId.Type) => void);

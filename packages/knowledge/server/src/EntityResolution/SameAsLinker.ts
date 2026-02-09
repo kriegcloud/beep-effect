@@ -40,7 +40,10 @@ export interface SameAsLinkerShape {
     entitySources: MutableHashMap.MutableHashMap<string, string>
   ) => Effect.Effect<SameAsLink[]>;
   readonly areLinked: (entityA: string, entityB: string, links: readonly SameAsLink[]) => Effect.Effect<boolean>;
-  readonly getCanonical: (entityId: KnowledgeEntityIds.KnowledgeEntityId.Type, links: readonly SameAsLink[]) => Effect.Effect<string>;
+  readonly getCanonical: (
+    entityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+    links: readonly SameAsLink[]
+  ) => Effect.Effect<string>;
   readonly computeTransitiveClosure: (links: readonly SameAsLink[]) => Effect.Effect<TransitiveClosure[]>;
   readonly validateLinks: (
     links: readonly SameAsLink[]

@@ -1,4 +1,4 @@
-import type {KnowledgeEntityIds} from "@beep/shared-domain";
+import type { KnowledgeEntityIds } from "@beep/shared-domain";
 
 export interface EvidenceSpan {
   text: string;
@@ -9,9 +9,9 @@ export interface EvidenceSpan {
 
 export interface Relation {
   id: KnowledgeEntityIds.RelationId.Type;
-  subjectId: string;
+  subjectId: KnowledgeEntityIds.KnowledgeEntityId.Type;
   predicate: string;
-  objectId?: undefined | string;
+  objectId?: undefined | KnowledgeEntityIds.KnowledgeEntityId.Type;
   literalValue?: undefined | string;
   evidence?: undefined | EvidenceSpan;
   groundingConfidence?: undefined | number;
@@ -74,8 +74,8 @@ export interface EntityCluster {
 
 // Same-as link for provenance display
 export interface SameAsLink {
-  readonly id: string;
-  readonly canonicalId: KnowledgeEntityIds.SameAsLinkId.Type;
+  readonly id: KnowledgeEntityIds.SameAsLinkId.Type;
+  readonly canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type;
   readonly memberId: string;
   readonly confidence: number;
   readonly reason: string; // "name_similarity", "attribute_match", etc.

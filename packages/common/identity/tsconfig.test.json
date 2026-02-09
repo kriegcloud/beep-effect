@@ -6,13 +6,13 @@
       "path": "tsconfig.src.json"
     },
     {
+      "path": "../../../tooling/testkit"
+    },
+    {
       "path": "../../../packages/common/types"
     },
     {
       "path": "../../../packages/common/invariant"
-    },
-    {
-      "path": "../../../tooling/testkit/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

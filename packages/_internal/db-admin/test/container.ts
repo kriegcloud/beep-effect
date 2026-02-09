@@ -23,6 +23,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
+import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as PgConnString from "pg-connection-string";
@@ -173,15 +174,16 @@ const setupDocker = Effect.gen(function* () {
 
       if (singleton.containerPromise == null) {
         const reuseEnabled = isTestcontainersReuseEnabled();
-        singleton.containerPromise = new PostgreSqlContainer("pgvector/pgvector:pg17")
+        const containerBuilder = new PostgreSqlContainer("pgvector/pgvector:pg17")
           .withEnvironment({
             POSTGRES_USER: POSTGRES_USER,
             POSTGRES_PASSWORD: POSTGRES_PASSWORD,
             POSTGRES_DB: POSTGRES_DB,
           })
           .withExposedPorts(5432)
-          .withWaitStrategy(Wait.forHealthCheck())
-          .withReuse(reuseEnabled)
+          .withWaitStrategy(Wait.forHealthCheck());
+
+        singleton.containerPromise = (reuseEnabled ? containerBuilder.withReuse() : containerBuilder)
           .start()
           .then((c: any) => {
             singleton.container = c;
@@ -310,6 +312,8 @@ export const PgTest = Layer.scopedContext(
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const { container } = yield* PgContainer;
+    const runtime = yield* Effect.runtime();
+    const runPromise = Runtime.runPromise(runtime);
 
     const currentDir = path.dirname(fileURLToPath(import.meta.url));
     const migrationsFolder = path.join(currentDir, "../drizzle");
@@ -328,7 +332,7 @@ export const PgTest = Layer.scopedContext(
     const schemaReady =
       singleton.schemaReadyByUri.get(connectionUri) ??
       (async () => {
-        await Effect.runPromise(
+        await runPromise(
           Effect.acquireUseRelease(
             Effect.sync(() => {
               const client = postgres(connectionUri, postgresSilentNotices);

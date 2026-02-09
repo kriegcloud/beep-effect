@@ -1,10 +1,12 @@
-import {$DocumentsDomainId} from "@beep/identity/packages";
+import { $DocumentsDomainId } from "@beep/identity/packages";
+import { DocumentsEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
 import * as Page from "../Page.model.ts";
-import {DocumentsEntityIds} from "@beep/shared-domain";
+
 const $I = $DocumentsDomainId.create("entities/Page/contracts/Move");
-import {PageCyclicNesting, PageNotFound} from "../Page.errors.ts";
+
+import { PageCyclicNesting, PageNotFound } from "../Page.errors.ts";
 /**
  * Input payload for the `Page.Move` RPC.
  *
@@ -14,14 +16,13 @@ import {PageCyclicNesting, PageNotFound} from "../Page.errors.ts";
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     id: DocumentsEntityIds.PageId,
-    parentId: S.optionalWith(DocumentsEntityIds.PageId, { as: "Option"}),
-    position: S.optionalWith(S.Number, { as: "Option"}),
+    parentId: S.optionalWith(DocumentsEntityIds.PageId, { as: "Option" }),
+    position: S.optionalWith(S.Number, { as: "Option" }),
   },
   $I.annotations("Payload", {
     description: "Payload for the Page.Move rpc",
   })
-) {
-}
+) {}
 
 /**
  * Successful response for the `Page.Move` RPC.
@@ -34,8 +35,7 @@ export class Success extends S.Class<Success>($I`Success`)(
   $I.annotations("Success", {
     description: "Success response for the Page.Move rpc",
   })
-) {
-}
+) {}
 
 /**
  * Typed error channel for the `Page.Move` RPC.
@@ -43,15 +43,12 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @category errors
  * @since 1.0.0
  */
-export class Error extends S.Union(
-  PageNotFound,
-  PageCyclicNesting
-).annotations(
+export class Error extends S.Union(PageNotFound, PageCyclicNesting).annotations(
   $I.annotations("Error", {
     description: "Error response for the Page.Move rpc",
-    documentation: "This should Never happen."
-  })) {
-}
+    documentation: "This should Never happen.",
+  })
+) {}
 
 /**
  * RPC contract definition for `Page.Move`.
@@ -59,11 +56,8 @@ export class Error extends S.Union(
  * @category contracts
  * @since 1.0.0
  */
-export const Contract = Rpc.make(
-  "Page.Move",
-  {
-    payload: Payload,
-    success: Success,
-    error: Error
-  }
-);
+export const Contract = Rpc.make("Page.Move", {
+  payload: Payload,
+  success: Success,
+  error: Error,
+});

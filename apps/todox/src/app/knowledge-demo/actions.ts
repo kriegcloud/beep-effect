@@ -1,5 +1,6 @@
 "use server";
 
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -17,9 +18,45 @@ import type {
   SameAsLink,
 } from "./types";
 
+const E = {
+  john: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__person-john-smith-mock-0001"),
+  sarah: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__person-sarah-chen-mock-0002"),
+  mike: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__person-mike-wilson-mock-0003"),
+  alex: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__person-alex-rodriguez-mock-0004"),
+  lisa: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__person-lisa-park-mock-0005"),
+  acme: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__org-acme-corp-mock-0006"),
+  engTeam: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__org-engineering-team-mock-0007"),
+  platformTeam: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__org-platform-team-mock-0008"),
+  q4Release: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__project-q4-release-mock-0009"),
+  budgetReview: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__project-budget-review-mock-0010"),
+} as const;
+
+const Rel = {
+  johnWorksAcme: KnowledgeEntityIds.RelationId.make("knowledge_relation__john-works-acme-mock-0001"),
+  sarahWorksAcme: KnowledgeEntityIds.RelationId.make("knowledge_relation__sarah-works-acme-mock-0002"),
+  mikeWorksAcme: KnowledgeEntityIds.RelationId.make("knowledge_relation__mike-works-acme-mock-0003"),
+  sarahMemberEng: KnowledgeEntityIds.RelationId.make("knowledge_relation__sarah-member-eng-mock-0004"),
+  mikeMemberEng: KnowledgeEntityIds.RelationId.make("knowledge_relation__mike-member-eng-mock-0005"),
+  lisaMemberEng: KnowledgeEntityIds.RelationId.make("knowledge_relation__lisa-member-eng-mock-0006"),
+  alexMemberPlatform: KnowledgeEntityIds.RelationId.make("knowledge_relation__alex-member-platform-mock-0007"),
+  sarahReportsJohn: KnowledgeEntityIds.RelationId.make("knowledge_relation__sarah-reports-john-mock-0008"),
+  mikeReportsJohn: KnowledgeEntityIds.RelationId.make("knowledge_relation__mike-reports-john-mock-0009"),
+  johnLeadsQ4: KnowledgeEntityIds.RelationId.make("knowledge_relation__john-leads-q4-mock-0010"),
+  sarahContributesQ4: KnowledgeEntityIds.RelationId.make("knowledge_relation__sarah-contributes-q4-mock-0011"),
+  mikeContributesQ4: KnowledgeEntityIds.RelationId.make("knowledge_relation__mike-contributes-q4-mock-0012"),
+  johnPresentsBudget: KnowledgeEntityIds.RelationId.make("knowledge_relation__john-presents-budget-mock-0013"),
+  q4Deadline: KnowledgeEntityIds.RelationId.make("knowledge_relation__q4-deadline-mock-0014"),
+  budgetQuarter: KnowledgeEntityIds.RelationId.make("knowledge_relation__budget-quarter-mock-0015"),
+  engTeamPartAcme: KnowledgeEntityIds.RelationId.make("knowledge_relation__eng-team-part-acme-mock-0016"),
+  platformTeamPartAcme: KnowledgeEntityIds.RelationId.make("knowledge_relation__platform-team-part-acme-mock-0017"),
+  johnRole: KnowledgeEntityIds.RelationId.make("knowledge_relation__john-role-mock-0018"),
+  sarahRole: KnowledgeEntityIds.RelationId.make("knowledge_relation__sarah-role-mock-0019"),
+  mikeRole: KnowledgeEntityIds.RelationId.make("knowledge_relation__mike-role-mock-0020"),
+} as const;
+
 const MOCK_ENTITIES: AssembledEntity[] = [
   {
-    id: "person-john-smith",
+    id: E.john,
     mention: "John Smith",
     primaryType: "http://schema.org/Person",
     types: ["http://schema.org/Person"],
@@ -28,7 +65,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "John Smith",
   },
   {
-    id: "person-sarah-chen",
+    id: E.sarah,
     mention: "Sarah Chen",
     primaryType: "http://schema.org/Person",
     types: ["http://schema.org/Person"],
@@ -37,7 +74,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "Sarah Chen",
   },
   {
-    id: "person-mike-wilson",
+    id: E.mike,
     mention: "Mike Wilson",
     primaryType: "http://schema.org/Person",
     types: ["http://schema.org/Person"],
@@ -46,7 +83,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "Mike Wilson",
   },
   {
-    id: "person-alex-rodriguez",
+    id: E.alex,
     mention: "Alex Rodriguez",
     primaryType: "http://schema.org/Person",
     types: ["http://schema.org/Person"],
@@ -55,7 +92,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "Alex Rodriguez",
   },
   {
-    id: "person-lisa-park",
+    id: E.lisa,
     mention: "Lisa Park",
     primaryType: "http://schema.org/Person",
     types: ["http://schema.org/Person"],
@@ -64,7 +101,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "Lisa Park",
   },
   {
-    id: "org-acme-corp",
+    id: E.acme,
     mention: "Acme Corp",
     primaryType: "http://schema.org/Organization",
     types: ["http://schema.org/Organization"],
@@ -73,7 +110,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "Acme Corp",
   },
   {
-    id: "org-engineering-team",
+    id: E.engTeam,
     mention: "Engineering team",
     primaryType: "http://schema.org/Organization",
     types: ["http://schema.org/Organization", "http://example.org/Team"],
@@ -82,7 +119,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "Engineering Team",
   },
   {
-    id: "org-platform-team",
+    id: E.platformTeam,
     mention: "Platform team",
     primaryType: "http://schema.org/Organization",
     types: ["http://schema.org/Organization", "http://example.org/Team"],
@@ -91,7 +128,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "Platform Team",
   },
   {
-    id: "project-q4-release",
+    id: E.q4Release,
     mention: "Q4 Release",
     primaryType: "http://example.org/Project",
     types: ["http://example.org/Project"],
@@ -100,7 +137,7 @@ const MOCK_ENTITIES: AssembledEntity[] = [
     canonicalName: "Q4 Release",
   },
   {
-    id: "project-budget-review",
+    id: E.budgetReview,
     mention: "Budget Review",
     primaryType: "http://example.org/Project",
     types: ["http://example.org/Project", "http://schema.org/Event"],
@@ -113,10 +150,10 @@ const MOCK_ENTITIES: AssembledEntity[] = [
 const MOCK_RELATIONS: Relation[] = [
   // Employment & organizational relations
   {
-    id: "rel-john-works-acme",
-    subjectId: "person-john-smith",
+    id: Rel.johnWorksAcme,
+    subjectId: E.john,
     predicate: "http://schema.org/worksFor",
-    objectId: "org-acme-corp",
+    objectId: E.acme,
     evidence: {
       text: "John Smith from Acme Corp",
       startChar: 0,
@@ -126,26 +163,26 @@ const MOCK_RELATIONS: Relation[] = [
     groundingConfidence: 0.94,
   },
   {
-    id: "rel-sarah-works-acme",
-    subjectId: "person-sarah-chen",
+    id: Rel.sarahWorksAcme,
+    subjectId: E.sarah,
     predicate: "http://schema.org/worksFor",
-    objectId: "org-acme-corp",
+    objectId: E.acme,
     groundingConfidence: 0.89,
   },
   {
-    id: "rel-mike-works-acme",
-    subjectId: "person-mike-wilson",
+    id: Rel.mikeWorksAcme,
+    subjectId: E.mike,
     predicate: "http://schema.org/worksFor",
-    objectId: "org-acme-corp",
+    objectId: E.acme,
     groundingConfidence: 0.91,
   },
 
   // Team membership relations
   {
-    id: "rel-sarah-member-eng",
-    subjectId: "person-sarah-chen",
+    id: Rel.sarahMemberEng,
+    subjectId: E.sarah,
     predicate: "http://schema.org/memberOf",
-    objectId: "org-engineering-team",
+    objectId: E.engTeam,
     evidence: {
       text: "Sarah Chen from the Engineering team",
       startChar: 120,
@@ -155,10 +192,10 @@ const MOCK_RELATIONS: Relation[] = [
     groundingConfidence: 0.91,
   },
   {
-    id: "rel-mike-member-eng",
-    subjectId: "person-mike-wilson",
+    id: Rel.mikeMemberEng,
+    subjectId: E.mike,
     predicate: "http://schema.org/memberOf",
-    objectId: "org-engineering-team",
+    objectId: E.engTeam,
     evidence: {
       text: "Mike Wilson, our Tech Lead",
       startChar: 200,
@@ -168,17 +205,17 @@ const MOCK_RELATIONS: Relation[] = [
     groundingConfidence: 0.88,
   },
   {
-    id: "rel-lisa-member-eng",
-    subjectId: "person-lisa-park",
+    id: Rel.lisaMemberEng,
+    subjectId: E.lisa,
     predicate: "http://schema.org/memberOf",
-    objectId: "org-engineering-team",
+    objectId: E.engTeam,
     groundingConfidence: 0.85,
   },
   {
-    id: "rel-alex-member-platform",
-    subjectId: "person-alex-rodriguez",
+    id: Rel.alexMemberPlatform,
+    subjectId: E.alex,
     predicate: "http://schema.org/memberOf",
-    objectId: "org-platform-team",
+    objectId: E.platformTeam,
     evidence: {
       text: "Alex Rodriguez from the Platform team",
       startChar: 350,
@@ -190,10 +227,10 @@ const MOCK_RELATIONS: Relation[] = [
 
   // Reporting structure relations
   {
-    id: "rel-sarah-reports-john",
-    subjectId: "person-sarah-chen",
+    id: Rel.sarahReportsJohn,
+    subjectId: E.sarah,
     predicate: "http://example.org/reportsTo",
-    objectId: "person-john-smith",
+    objectId: E.john,
     evidence: {
       text: "Sarah reports to John Smith",
       startChar: 450,
@@ -203,19 +240,19 @@ const MOCK_RELATIONS: Relation[] = [
     groundingConfidence: 0.82,
   },
   {
-    id: "rel-mike-reports-john",
-    subjectId: "person-mike-wilson",
+    id: Rel.mikeReportsJohn,
+    subjectId: E.mike,
     predicate: "http://example.org/reportsTo",
-    objectId: "person-john-smith",
+    objectId: E.john,
     groundingConfidence: 0.84,
   },
 
   // Project leadership relations
   {
-    id: "rel-john-leads-q4",
-    subjectId: "person-john-smith",
+    id: Rel.johnLeadsQ4,
+    subjectId: E.john,
     predicate: "http://example.org/leadsProject",
-    objectId: "project-q4-release",
+    objectId: E.q4Release,
     evidence: {
       text: "John Smith is leading the Q4 Release",
       startChar: 80,
@@ -225,26 +262,26 @@ const MOCK_RELATIONS: Relation[] = [
     groundingConfidence: 0.93,
   },
   {
-    id: "rel-sarah-contributes-q4",
-    subjectId: "person-sarah-chen",
+    id: Rel.sarahContributesQ4,
+    subjectId: E.sarah,
     predicate: "http://example.org/contributesTo",
-    objectId: "project-q4-release",
+    objectId: E.q4Release,
     groundingConfidence: 0.86,
   },
   {
-    id: "rel-mike-contributes-q4",
-    subjectId: "person-mike-wilson",
+    id: Rel.mikeContributesQ4,
+    subjectId: E.mike,
     predicate: "http://example.org/contributesTo",
-    objectId: "project-q4-release",
+    objectId: E.q4Release,
     groundingConfidence: 0.88,
   },
 
   // Budget review relations
   {
-    id: "rel-john-presents-budget",
-    subjectId: "person-john-smith",
+    id: Rel.johnPresentsBudget,
+    subjectId: E.john,
     predicate: "http://example.org/presents",
-    objectId: "project-budget-review",
+    objectId: E.budgetReview,
     evidence: {
       text: "John will present the Budget Review",
       startChar: 520,
@@ -256,8 +293,8 @@ const MOCK_RELATIONS: Relation[] = [
 
   // Literal value relations (dates, deadlines, etc.)
   {
-    id: "rel-q4-deadline",
-    subjectId: "project-q4-release",
+    id: Rel.q4Deadline,
+    subjectId: E.q4Release,
     predicate: "http://example.org/hasDeadline",
     literalValue: "December 15, 2024",
     evidence: {
@@ -269,8 +306,8 @@ const MOCK_RELATIONS: Relation[] = [
     groundingConfidence: 0.96,
   },
   {
-    id: "rel-budget-quarter",
-    subjectId: "project-budget-review",
+    id: Rel.budgetQuarter,
+    subjectId: E.budgetReview,
     predicate: "http://example.org/forQuarter",
     literalValue: "Q4 2024",
     groundingConfidence: 0.92,
@@ -278,24 +315,24 @@ const MOCK_RELATIONS: Relation[] = [
 
   // Team hierarchy relations
   {
-    id: "rel-eng-team-part-acme",
-    subjectId: "org-engineering-team",
+    id: Rel.engTeamPartAcme,
+    subjectId: E.engTeam,
     predicate: "http://schema.org/parentOrganization",
-    objectId: "org-acme-corp",
+    objectId: E.acme,
     groundingConfidence: 0.95,
   },
   {
-    id: "rel-platform-team-part-acme",
-    subjectId: "org-platform-team",
+    id: Rel.platformTeamPartAcme,
+    subjectId: E.platformTeam,
     predicate: "http://schema.org/parentOrganization",
-    objectId: "org-acme-corp",
+    objectId: E.acme,
     groundingConfidence: 0.95,
   },
 
   // Role relations
   {
-    id: "rel-john-role",
-    subjectId: "person-john-smith",
+    id: Rel.johnRole,
+    subjectId: E.john,
     predicate: "http://schema.org/jobTitle",
     literalValue: "Senior Engineering Manager",
     evidence: {
@@ -307,15 +344,15 @@ const MOCK_RELATIONS: Relation[] = [
     groundingConfidence: 0.97,
   },
   {
-    id: "rel-sarah-role",
-    subjectId: "person-sarah-chen",
+    id: Rel.sarahRole,
+    subjectId: E.sarah,
     predicate: "http://schema.org/jobTitle",
     literalValue: "UX Lead",
     groundingConfidence: 0.91,
   },
   {
-    id: "rel-mike-role",
-    subjectId: "person-mike-wilson",
+    id: Rel.mikeRole,
+    subjectId: E.mike,
     predicate: "http://schema.org/jobTitle",
     literalValue: "Tech Lead",
     evidence: {
@@ -329,16 +366,16 @@ const MOCK_RELATIONS: Relation[] = [
 ];
 
 const MENTION_PATTERNS: Record<string, readonly string[]> = {
-  "person-john-smith": ["john smith", "john", "smith"],
-  "person-sarah-chen": ["sarah chen", "sarah", "chen"],
-  "person-mike-wilson": ["mike wilson", "mike", "wilson"],
-  "person-alex-rodriguez": ["alex rodriguez", "alex", "rodriguez"],
-  "person-lisa-park": ["lisa park", "lisa", "park"],
-  "org-acme-corp": ["acme corp", "acme"],
-  "org-engineering-team": ["engineering team", "engineering"],
-  "org-platform-team": ["platform team", "platform"],
-  "project-q4-release": ["q4 release", "q4"],
-  "project-budget-review": ["budget review", "budget"],
+  [E.john]: ["john smith", "john", "smith"],
+  [E.sarah]: ["sarah chen", "sarah", "chen"],
+  [E.mike]: ["mike wilson", "mike", "wilson"],
+  [E.alex]: ["alex rodriguez", "alex", "rodriguez"],
+  [E.lisa]: ["lisa park", "lisa", "park"],
+  [E.acme]: ["acme corp", "acme"],
+  [E.engTeam]: ["engineering team", "engineering"],
+  [E.platformTeam]: ["platform team", "platform"],
+  [E.q4Release]: ["q4 release", "q4"],
+  [E.budgetReview]: ["budget review", "budget"],
 };
 
 function findMatchingEntities(text: string): readonly AssembledEntity[] {
@@ -406,12 +443,14 @@ function findSeedEntities(query: string): readonly AssembledEntity[] {
 }
 
 function expandFromSeeds(seeds: readonly AssembledEntity[], maxHops: number): readonly AssembledEntity[] {
-  const seedIds = new Set(A.map(seeds, (e) => e.id));
-  const visited = new Set(seedIds);
-  let frontier = [...seedIds];
+  type EntityId = AssembledEntity["id"];
+
+  const seedIds = new Set<EntityId>(A.map(seeds, (e) => e.id));
+  const visited = new Set<EntityId>(seedIds);
+  let frontier: EntityId[] = [...seedIds];
 
   for (let hop = 0; hop < maxHops && frontier.length > 0; hop++) {
-    const nextFrontier: string[] = [];
+    const nextFrontier: EntityId[] = [];
 
     for (const entityId of frontier) {
       const connectedIds = F.pipe(
@@ -716,7 +755,7 @@ function buildClusters(allEntities: readonly AssembledEntity[]): readonly Entity
       const cohesion = calculateCohesion(clusterMembers);
 
       const cluster: EntityCluster = {
-        id: crypto.randomUUID(),
+        id: KnowledgeEntityIds.EntityClusterId.create(),
         canonicalEntityId: canonical.id,
         canonicalEntity: canonical,
         memberIds: A.map(clusterMembers, (e) => e.id),
@@ -764,7 +803,7 @@ function generateSameAsLinks(clusters: readonly EntityCluster[]): readonly SameA
         const similarity = calculateNameSimilarity(cluster.canonicalEntity, member);
 
         return {
-          id: crypto.randomUUID(),
+          id: KnowledgeEntityIds.SameAsLinkId.create(),
           canonicalId: cluster.canonicalEntityId,
           memberId: member.id,
           confidence: similarity,

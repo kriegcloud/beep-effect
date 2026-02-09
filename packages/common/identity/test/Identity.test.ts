@@ -1,7 +1,7 @@
-import { describe, expect, expectTypeOf, test } from "@beep/testkit";
 import * as Identifier from "@beep/identity/Identifier";
 import { __internal } from "@beep/identity/Identifier";
 import type { IdentityString } from "@beep/identity/types";
+import { describe, expect, expectTypeOf, test } from "@beep/testkit";
 import * as HttpApiSchema from "@effect/platform/HttpApiSchema";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

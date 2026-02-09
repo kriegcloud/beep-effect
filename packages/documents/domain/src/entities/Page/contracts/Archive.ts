@@ -1,9 +1,9 @@
-import {$DocumentsDomainId} from "@beep/identity/packages";
+import { NotFoundError } from "@beep/errors";
+import { $DocumentsDomainId } from "@beep/identity/packages";
+import { DocumentsEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
 import * as Page from "../Page.model.ts";
-import {DocumentsEntityIds} from "@beep/shared-domain";
-import {NotFoundError} from "@beep/errors";
 
 const $I = $DocumentsDomainId.create("entities/Page/contracts/Archive");
 
@@ -15,13 +15,12 @@ const $I = $DocumentsDomainId.create("entities/Page/contracts/Archive");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    id: DocumentsEntityIds.PageId
+    id: DocumentsEntityIds.PageId,
   },
   $I.annotations("Payload", {
     description: "Payload for the Page.Archive rpc",
   })
-) {
-}
+) {}
 
 /**
  * Successful response for the `Page.Archive` RPC.
@@ -34,8 +33,7 @@ export class Success extends S.Class<Success>($I`Success`)(
   $I.annotations("Success", {
     description: "Success response for the Page.Archive rpc",
   })
-) {
-}
+) {}
 
 /**
  * Typed error channel for the `Page.Archive` RPC.
@@ -43,8 +41,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @category errors
  * @since 1.0.0
  */
-export class Error extends NotFoundError {
-}
+export class Error extends NotFoundError {}
 
 /**
  * RPC contract definition for `Page.Archive`.
@@ -52,11 +49,8 @@ export class Error extends NotFoundError {
  * @category contracts
  * @since 1.0.0
  */
-export const Contract = Rpc.make(
-  "Page.Archive",
-  {
-    payload: Payload,
-    success: Success,
-    error: Error
-  }
-);
+export const Contract = Rpc.make("Page.Archive", {
+  payload: Payload,
+  success: Success,
+  error: Error,
+});
