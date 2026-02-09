@@ -1,5 +1,7 @@
 import { Rpc as RpcContracts } from "@beep/knowledge-domain";
+import { BatchAggregatorLive, BatchOrchestratorLive } from "@beep/knowledge-server/Workflow";
 import { Policy } from "@beep/shared-domain";
+import * as Layer from "effect/Layer";
 import * as CancelBatch from "./cancelBatch";
 import * as GetStatus from "./getStatus";
 import * as StartBatch from "./startBatch";
@@ -14,4 +16,6 @@ const implementation = BatchRpcsWithMiddleware.of({
   batch_streamProgress: StreamProgress.Handler,
 });
 
-export const layer = BatchRpcsWithMiddleware.toLayer(implementation);
+export const layer = BatchRpcsWithMiddleware.toLayer(implementation).pipe(
+  Layer.provide(Layer.mergeAll(BatchAggregatorLive, BatchOrchestratorLive))
+);

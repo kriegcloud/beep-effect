@@ -51,6 +51,9 @@
       "path": "../../../packages/knowledge/domain/tsconfig.build.json"
     },
     {
+      "path": "../../../packages/shared/env/tsconfig.build.json"
+    },
+    {
       "path": "../../../packages/shared/server/tsconfig.build.json"
     },
     {

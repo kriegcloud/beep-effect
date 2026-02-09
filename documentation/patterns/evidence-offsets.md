@@ -27,8 +27,17 @@ if (endChar < startChar) throw new Error("endChar < startChar");
 if (endChar > content.length) throw new Error("endChar > content.length");
 ```
 
+## Logging and PII Hygiene
+
+- Never log the full `content` string or the highlighted slice. Log `{ documentVersionId, startChar, endChar, contentLength: content.length }`.
+- If deeper debugging is required, log a one-way hash of the slice (not the slice itself).
+
+## Encrypted Storage and Derived Text
+
+- If canonical version content is encrypted at rest, offsets are defined against the decrypted canonical string.
+- Redacted/sanitized/normalized derivatives must never be used for offsets. Any transform that changes code unit positions requires a new `documentVersionId` and new offsets (no drift).
+
 ## Common Failure Modes
 
 - Using Postgres `length(content)` (codepoint length) to validate bounds while the UI slices a JS string (UTF-16 code units).
 - Resolving evidence spans through optional join paths (dead links) instead of storing `(documentVersionId, startChar, endChar)` directly on evidence-of-record rows.
-

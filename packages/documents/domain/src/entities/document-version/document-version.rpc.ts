@@ -13,8 +13,7 @@ export class GetContentPayload extends S.Class<GetContentPayload>($I`GetContentP
     id: DocumentsEntityIds.DocumentVersionId,
   },
   $I.annotations("GetContentPayload", {
-    description:
-      "Fetch the immutable canonical content snapshot for a specific document version (C-05).",
+    description: "Fetch the immutable canonical content snapshot for a specific document version (C-05).",
   })
 ) {}
 
@@ -25,8 +24,7 @@ export class GetContentSuccess extends S.Class<GetContentSuccess>($I`GetContentS
     content: S.String,
   },
   $I.annotations("GetContentSuccess", {
-    description:
-      "Immutable canonical text snapshot pinned to documentVersionId (used for evidence highlighting).",
+    description: "Immutable canonical text snapshot pinned to documentVersionId (used for evidence highlighting).",
   })
 ) {}
 
@@ -37,4 +35,3 @@ export class Rpcs extends RpcGroup.make(
     error: Errors.DocumentVersionNotFoundError,
   })
 ) {}
-

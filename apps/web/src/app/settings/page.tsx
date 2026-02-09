@@ -4,10 +4,7 @@ type Props = {
   readonly searchParams?: Record<string, string | string[] | undefined> | undefined;
 };
 
-const getStringParam = (
-  searchParams: Props["searchParams"],
-  key: string
-): string | undefined => {
+const getStringParam = (searchParams: Props["searchParams"], key: string): string | undefined => {
   const raw = searchParams?.[key];
   if (raw === undefined) return undefined;
   return typeof raw === "string" ? raw : raw[0];

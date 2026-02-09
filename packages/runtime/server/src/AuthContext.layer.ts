@@ -24,8 +24,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import * as Authentication from "./Authentication.layer";
 import { requireProviderAccountId } from "./AuthContext/providerAccountSelection";
+import * as Authentication from "./Authentication.layer";
 
 /**
  * Converts DateTimeInput (string | number | Date | DateTime.Utc) to Date.

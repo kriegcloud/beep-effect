@@ -47,4 +47,3 @@ export const Contract = Rpc.make("generate", {
   success: Success,
   error: Error,
 });
-

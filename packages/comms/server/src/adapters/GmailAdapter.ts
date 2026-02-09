@@ -57,7 +57,10 @@ export class GmailAdapter extends Context.Tag($I`GmailAdapter`)<
       providerAccountId: string
     ) => Effect.Effect<ReadonlyArray<GmailMessage>, GmailAdapterError>;
 
-    readonly getMessage: (messageId: string, providerAccountId: string) => Effect.Effect<GmailMessage, GmailAdapterError>;
+    readonly getMessage: (
+      messageId: string,
+      providerAccountId: string
+    ) => Effect.Effect<GmailMessage, GmailAdapterError>;
 
     readonly sendMessage: (
       to: string,
@@ -248,7 +251,10 @@ export const GmailAdapterLive: Layer.Layer<GmailAdapter, never, GoogleAuthClient
           return messages;
         }).pipe(Effect.withSpan("GmailAdapter.listMessages"));
 
-      const getMessage = (messageId: string, providerAccountId: string): Effect.Effect<GmailMessage, GmailAdapterError> =>
+      const getMessage = (
+        messageId: string,
+        providerAccountId: string
+      ): Effect.Effect<GmailMessage, GmailAdapterError> =>
         Effect.gen(function* () {
           const url = `${GMAIL_API_BASE}/messages/${encodeURIComponent(messageId)}?format=full`;
           const request = HttpClientRequest.get(url);

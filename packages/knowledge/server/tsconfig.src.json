@@ -42,6 +42,9 @@
       "path": "../../../packages/knowledge/domain"
     },
     {
+      "path": "../../../packages/shared/env"
+    },
+    {
       "path": "../../../packages/shared/server"
     },
     {

@@ -1,5 +1,14 @@
 import * as d from "drizzle-orm";
-import { comment, discussion, document, documentFile, documentSource, documentVersion, organization, user } from "./tables";
+import {
+  comment,
+  discussion,
+  document,
+  documentFile,
+  documentSource,
+  documentVersion,
+  organization,
+  user,
+} from "./tables";
 
 // User relations (redefined for bounded context integrity)
 export const userRelations = d.relations(user, ({ many }) => ({

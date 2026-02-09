@@ -16,4 +16,3 @@ export class DocumentVersionNotFoundError extends S.TaggedError<DocumentVersionN
   { id: DocumentsEntityIds.DocumentVersionId },
   HttpApiSchema.annotations({ status: 404 })
 ) {}
-

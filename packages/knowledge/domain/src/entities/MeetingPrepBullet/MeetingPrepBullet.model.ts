@@ -29,4 +29,3 @@ export class Model extends M.Class<Model>($I`MeetingPrepBulletModel`)(
 ) {
   static readonly utils = modelKit(Model);
 }
-

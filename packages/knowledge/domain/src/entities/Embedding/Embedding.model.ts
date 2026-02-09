@@ -4,8 +4,8 @@ import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
-import * as ParseResult from "effect/ParseResult";
 import * as Effect from "effect/Effect";
+import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("entities/Embedding");

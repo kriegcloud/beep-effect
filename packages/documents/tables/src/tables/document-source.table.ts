@@ -44,4 +44,3 @@ export const documentSource = OrgTable.make(DocumentsEntityIds.DocumentSourceId)
       .on(t.organizationId, t.providerAccountId, t.sourceType, t.sourceId),
   ]
 );
-

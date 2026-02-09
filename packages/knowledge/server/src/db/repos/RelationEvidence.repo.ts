@@ -141,7 +141,11 @@ const makeExtensions = Effect.gen(function* () {
   return { findByRelationId, findByIds, searchByText } as const;
 });
 
-const serviceEffect = DbRepo.make(KnowledgeEntityIds.RelationEvidenceId, Entities.RelationEvidence.Model, makeExtensions);
+const serviceEffect = DbRepo.make(
+  KnowledgeEntityIds.RelationEvidenceId,
+  Entities.RelationEvidence.Model,
+  makeExtensions
+);
 
 export type RelationEvidenceRepoShape = Effect.Effect.Success<typeof serviceEffect>;
 
@@ -153,4 +157,3 @@ export class RelationEvidenceRepo extends Context.Tag($I`RelationEvidenceRepo`)<
 export const RelationEvidenceRepoLive = Layer.effect(RelationEvidenceRepo, serviceEffect).pipe(
   Layer.provide(KnowledgeDb.layer)
 );
-

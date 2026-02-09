@@ -27,6 +27,8 @@
 
 - [ ] Secrets live only in a secret manager (no plaintext in IaC vars files).
 - [ ] Runtime env vars align with `@beep/shared-env` schema names and required fields.
+- [ ] IaC state and plan/apply output must not contain secret payloads (only references to secrets/versions).
+- [ ] CI logs, Cloud Run logs, and application logs must not print secrets or PII (no connection strings, no env var dumps).
 - [ ] Rotation plan exists for:
   - [ ] auth secret(s)
   - [ ] OAuth client secrets
@@ -56,6 +58,9 @@ Pre-fill (expected deps for this MVP):
 ## Migrations Gates (Pass/Fail)
 
 - [ ] Migrations run as a job (pre-deploy), serialized, with clear failure handling.
+- [ ] Migration job includes a preflight that fails fast on breaking DDL (e.g. `ADD COLUMN ... NOT NULL` on non-empty tables) unless a backfill plan is executed in the same deploy.
+- [ ] Staging never uses `bun run db:push` (schema drift); only `bun run db:migrate` from versioned migrations.
+- [ ] Migration logs do not echo secrets (`DB_PG_URL`, connection strings) and never dump the full environment.
 - [ ] A failed migration blocks deploy and is observable (alerts/logging).
 - [ ] Roll-forward/rollback strategy is documented for schema changes.
 

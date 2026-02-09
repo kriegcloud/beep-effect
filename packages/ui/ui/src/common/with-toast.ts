@@ -11,36 +11,35 @@ type ToastOptions<A, E, Args extends ReadonlyArray<unknown>> = {
 };
 
 export const withToast = <A, E, Args extends Array<unknown>, R>(options: ToastOptions<A, E, Args>) => {
-  return (self: Effect.Effect<A, E, R>, ...args: Args) =>
-    Effect.gen(function* () {
-      const toastId = toast.loading(
-        typeof options.onWaiting === "string" ? options.onWaiting : options.onWaiting(...args)
-      );
-      return yield* self.pipe(
-        Effect.tap((a) => {
-          toast.success(typeof options.onSuccess === "string" ? options.onSuccess : options.onSuccess(a, ...args), {
-            id: toastId,
-          });
-        }),
-        Effect.tapErrorCause((cause) =>
-          Effect.sync(() => {
-            toast.error(
-              Cause.failureOption(cause).pipe(
-                O.match({
-                  onNone: () =>
-                    options.onDefect
-                      ? typeof options.onDefect === "string"
-                        ? options.onDefect
-                        : options.onDefect(...args)
-                      : "An unknown error occurred",
-                  onSome: (e) =>
-                    typeof options.onFailure === "string" ? options.onFailure : options.onFailure(e, ...args),
-                })
-              ),
-              { id: toastId }
-            );
-          })
-        )
-      );
-    });
+  return Effect.fnUntraced(function* (self: Effect.Effect<A, E, R>, ...args: Args) {
+    const toastId = toast.loading(
+      typeof options.onWaiting === "string" ? options.onWaiting : options.onWaiting(...args)
+    );
+    return yield* self.pipe(
+      Effect.tap((a) => {
+        toast.success(typeof options.onSuccess === "string" ? options.onSuccess : options.onSuccess(a, ...args), {
+          id: toastId,
+        });
+      }),
+      Effect.tapErrorCause((cause) =>
+        Effect.sync(() => {
+          toast.error(
+            Cause.failureOption(cause).pipe(
+              O.match({
+                onNone: () =>
+                  options.onDefect
+                    ? typeof options.onDefect === "string"
+                      ? options.onDefect
+                      : options.onDefect(...args)
+                    : "An unknown error occurred",
+                onSome: (e) =>
+                  typeof options.onFailure === "string" ? options.onFailure : options.onFailure(e, ...args),
+              })
+            ),
+            { id: toastId }
+          );
+        })
+      )
+    );
+  });
 };

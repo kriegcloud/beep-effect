@@ -145,4 +145,3 @@ export type MentionRepoShape = Effect.Effect.Success<typeof serviceEffect>;
 export class MentionRepo extends Context.Tag($I`MentionRepo`)<MentionRepo, MentionRepoShape>() {}
 
 export const MentionRepoLive = Layer.effect(MentionRepo, serviceEffect).pipe(Layer.provide(KnowledgeDb.layer));
-

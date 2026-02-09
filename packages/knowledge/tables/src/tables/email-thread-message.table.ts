@@ -40,4 +40,3 @@ export const emailThreadMessage = OrgTable.make(KnowledgeEntityIds.EmailThreadMe
       .on(t.organizationId, t.providerAccountId, t.sourceId),
   ]
 );
-

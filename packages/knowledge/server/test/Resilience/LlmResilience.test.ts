@@ -1,6 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { CircuitOpenError } from "@beep/knowledge-domain/errors";
-import { withLlmResilience, withLlmResilienceWithFallback } from "@beep/knowledge-server/LlmControl/LlmResilience";
+import { withLlmResilience } from "@beep/knowledge-server/LlmControl/LlmResilience";
 import {
   CentralRateLimiterService,
   CentralRateLimiterServiceTest,
@@ -13,7 +13,6 @@ import type * as Response from "@effect/ai/Response";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -133,7 +132,7 @@ describe("LlmResilience", () => {
   );
 
   effect(
-    "falls back to backup LanguageModel after primary exhausts retries",
+    "retries can wrap a LanguageModel operation",
     Effect.fn(function* () {
       const buildProviderResponse = (value: unknown): Array<Response.PartEncoded> => [
         { type: "text", text: JSON.stringify(value) },
@@ -144,56 +143,45 @@ describe("LlmResilience", () => {
         },
       ];
 
-      const primaryFailing = yield* LanguageModel.make({
-        generateText: () =>
-          Effect.fail(
-            new AiError.UnknownError({
-              module: "test",
-              method: "primary",
-              description: "primary fails",
-            })
-          ),
-        streamText: () =>
-          Stream.fail(
-            new AiError.UnknownError({
-              module: "test",
-              method: "primary.stream",
-              description: "primary stream fails",
-            })
-          ),
-      });
+      const attempts = yield* Ref.make(0);
 
-      const fallbackOk = yield* LanguageModel.make({
-        generateText: (providerOptions) => {
-          if (providerOptions.responseFormat.type === "json") {
-            return Effect.succeed(buildProviderResponse({ ok: true }));
-          }
-          return Effect.succeed(buildProviderResponse("ok"));
-        },
+      const flaky = yield* LanguageModel.make({
+        generateText: () =>
+          Effect.gen(function* () {
+            const current = yield* Ref.updateAndGet(attempts, (n) => n + 1);
+            if (current === 1) {
+              return yield* new AiError.UnknownError({
+                module: "test",
+                method: "primary",
+                description: "first attempt fails",
+              });
+            }
+            return buildProviderResponse({ ok: true });
+          }),
         streamText: () => Stream.empty,
       });
 
       class Result extends S.Class<Result>($I`Result`)(
         { ok: S.Boolean },
-        $I.annotations("Result", { description: "Test-only schema for fallback JSON decode." })
+        $I.annotations("Result", { description: "Test-only schema for JSON decode." })
       ) {}
 
-      const decoded = yield* withLlmResilienceWithFallback(
-        primaryFailing,
-        O.some(fallbackOk),
-        (llm) =>
-          llm.generateObject({
-            prompt: Prompt.make("hi"),
-            schema: Result,
-            objectName: "Result",
-          }),
+      const response = yield* withLlmResilience(
+        flaky.generateObject({
+          prompt: Prompt.make("hi"),
+          schema: Result,
+          objectName: "Result",
+        }),
         {
           stage: "entity_extraction",
-          maxRetries: 0,
+          maxRetries: 1,
+          baseRetryDelay: Duration.zero,
         }
-      ).pipe(Effect.map((r) => S.decodeUnknownSync(Result)(r.value)));
+      );
 
+      const decoded = yield* S.decodeUnknown(Result)(response.value);
       strictEqual(decoded.ok, true);
+      strictEqual(yield* Ref.get(attempts), 2);
     }, Effect.provide(NoopLimiterLayer)),
     TEST_TIMEOUT
   );

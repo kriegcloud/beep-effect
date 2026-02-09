@@ -1,6 +1,6 @@
 export { Batch } from "./Batch";
-export { Evidence } from "./Evidence";
 export { Entity } from "./Entity";
+export { Evidence } from "./Evidence";
 export { Extraction } from "./Extraction";
 export { GraphRag } from "./GraphRag";
 export { MeetingPrep } from "./MeetingPrep";

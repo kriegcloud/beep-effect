@@ -19,7 +19,8 @@ export const DocumentVersionHandlersLive = DocumentVersion.DocumentVersionRpcs.R
             // leaking details and to keep caller behavior deterministic.
             DatabaseError: () =>
               Effect.fail(new DocumentVersion.DocumentVersionErrors.DocumentVersionNotFoundError({ id: payload.id })),
-            VersionNotFoundError: () => Effect.fail(new DocumentVersion.DocumentVersionErrors.DocumentVersionNotFoundError({ id: payload.id })),
+            VersionNotFoundError: () =>
+              Effect.fail(new DocumentVersion.DocumentVersionErrors.DocumentVersionNotFoundError({ id: payload.id })),
           }),
           Effect.filterOrFail(
             // Treat org mismatch as not found to avoid cross-org existence leaks.

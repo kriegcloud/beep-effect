@@ -41,4 +41,3 @@ export class Model extends M.Class<Model>($I`DocumentSourceModel`)(
 ) {
   static readonly utils = modelKit(Model);
 }
-

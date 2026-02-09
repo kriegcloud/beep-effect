@@ -9,4 +9,3 @@ const implementation = MeetingPrepRpcsWithMiddleware.of({
 });
 
 export const layer = MeetingPrepRpcsWithMiddleware.toLayer(implementation);
-

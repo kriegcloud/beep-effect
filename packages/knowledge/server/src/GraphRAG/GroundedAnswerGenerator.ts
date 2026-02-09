@@ -7,8 +7,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { FallbackLanguageModel } from "../LlmControl/FallbackLanguageModel";
-import { withLlmResilienceWithFallback } from "../LlmControl/LlmResilience";
+import { withLlmResilience } from "../LlmControl/LlmResilience";
 import type { Citation } from "./AnswerSchemas";
 import { GroundedAnswer } from "./AnswerSchemas";
 import { extractEntityIds, parseCitations, stripAllCitations } from "./CitationParser";
@@ -49,39 +48,32 @@ export class GroundedAnswerGenerator extends Context.Tag($I`GroundedAnswerGenera
   GroundedAnswerGeneratorShape
 >() {}
 
-const serviceEffect: Effect.Effect<
-  GroundedAnswerGeneratorShape,
-  never,
-  LanguageModel.LanguageModel | FallbackLanguageModel
-> = Effect.gen(function* () {
-  const model = yield* LanguageModel.LanguageModel;
-  const fallback = yield* FallbackLanguageModel;
+const serviceEffect: Effect.Effect<GroundedAnswerGeneratorShape, never, LanguageModel.LanguageModel> = Effect.gen(
+  function* () {
+    const model = yield* LanguageModel.LanguageModel;
 
-  const generate = (context: GraphContext, question: string): Effect.Effect<GroundedAnswer, GenerationError> =>
-    Effect.gen(function* () {
-      yield* Effect.logInfo("GroundedAnswerGenerator.generate: starting").pipe(
-        Effect.annotateLogs({
-          entityCount: A.length(context.entities),
-          relationCount: A.length(context.relations),
-          questionLength: Str.length(question),
-        })
-      );
+    const generate = (context: GraphContext, question: string): Effect.Effect<GroundedAnswer, GenerationError> =>
+      Effect.gen(function* () {
+        yield* Effect.logInfo("GroundedAnswerGenerator.generate: starting").pipe(
+          Effect.annotateLogs({
+            entityCount: A.length(context.entities),
+            relationCount: A.length(context.relations),
+            questionLength: Str.length(question),
+          })
+        );
 
-      const prompts = buildGroundedAnswerPrompt(context, question);
+        const prompts = buildGroundedAnswerPrompt(context, question);
 
-      yield* Effect.logDebug("GroundedAnswerGenerator.generate: prompts built").pipe(
-        Effect.annotateLogs({
-          systemPromptLength: Str.length(prompts.system),
-          userPromptLength: Str.length(prompts.user),
-        })
-      );
+        yield* Effect.logDebug("GroundedAnswerGenerator.generate: prompts built").pipe(
+          Effect.annotateLogs({
+            systemPromptLength: Str.length(prompts.system),
+            userPromptLength: Str.length(prompts.user),
+          })
+        );
 
-      const estimatedTokens = Str.length(prompts.system) + Str.length(prompts.user);
-      const response = yield* withLlmResilienceWithFallback(
-        model,
-        fallback,
-        (llm) =>
-          llm.generateText({
+        const estimatedTokens = Str.length(prompts.system) + Str.length(prompts.user);
+        const response = yield* withLlmResilience(
+          model.generateText({
             prompt: Prompt.make([
               Prompt.systemMessage({ content: prompts.system }),
               Prompt.userMessage({
@@ -89,79 +81,80 @@ const serviceEffect: Effect.Effect<
               }),
             ]),
           }),
-        {
-          stage: "grounding",
-          estimatedTokens,
-          maxRetries: 1,
+          {
+            stage: "grounding",
+            estimatedTokens,
+            maxRetries: 1,
+          }
+        );
+
+        yield* Effect.logDebug("GroundedAnswerGenerator.generate: LLM response received").pipe(
+          Effect.annotateLogs({
+            textLength: Str.length(response.text),
+            hasToolCalls: A.length(response.toolCalls) > 0,
+          })
+        );
+
+        const responseText = response.text;
+
+        if (Str.length(Str.trim(responseText)) === 0) {
+          yield* Effect.logWarning("GroundedAnswerGenerator.generate: empty response from LLM");
+          return new GroundedAnswer({
+            text: DEFAULT_EMPTY_ANSWER_TEXT,
+            citations: [],
+            confidence: 0.0,
+            reasoning: undefined,
+          });
         }
-      );
 
-      yield* Effect.logDebug("GroundedAnswerGenerator.generate: LLM response received").pipe(
-        Effect.annotateLogs({
-          textLength: Str.length(response.text),
-          hasToolCalls: A.length(response.toolCalls) > 0,
-        })
-      );
+        const contextEntityIds = A.map(context.entities, (e) => e.id);
+        const citations = parseCitations(responseText, contextEntityIds);
 
-      const responseText = response.text;
+        yield* Effect.logDebug("GroundedAnswerGenerator.generate: citations parsed").pipe(
+          Effect.annotateLogs({
+            citationCount: A.length(citations),
+            extractedEntityIds: A.length(extractEntityIds(responseText)),
+          })
+        );
 
-      if (Str.length(Str.trim(responseText)) === 0) {
-        yield* Effect.logWarning("GroundedAnswerGenerator.generate: empty response from LLM");
+        const confidence = computeConfidence(citations);
+
+        const cleanText = stripAllCitations(responseText);
+
+        yield* Effect.logInfo("GroundedAnswerGenerator.generate: complete").pipe(
+          Effect.annotateLogs({
+            citationCount: A.length(citations),
+            confidence,
+            textLength: Str.length(cleanText),
+          })
+        );
+
         return new GroundedAnswer({
-          text: DEFAULT_EMPTY_ANSWER_TEXT,
-          citations: [],
-          confidence: 0.0,
+          text: cleanText,
+          citations: A.fromIterable(citations),
+          confidence,
           reasoning: undefined,
         });
-      }
-
-      const contextEntityIds = A.map(context.entities, (e) => e.id);
-      const citations = parseCitations(responseText, contextEntityIds);
-
-      yield* Effect.logDebug("GroundedAnswerGenerator.generate: citations parsed").pipe(
-        Effect.annotateLogs({
-          citationCount: A.length(citations),
-          extractedEntityIds: A.length(extractEntityIds(responseText)),
+      }).pipe(
+        Effect.mapError(
+          (e) =>
+            new GenerationError({
+              message: `Failed to generate grounded answer: ${String(e)}`,
+              cause: e,
+            })
+        ),
+        Effect.withSpan("GroundedAnswerGenerator.generate", {
+          captureStackTrace: false,
+          attributes: {
+            entityCount: A.length(context.entities),
+            relationCount: A.length(context.relations),
+          },
         })
       );
 
-      const confidence = computeConfidence(citations);
-
-      const cleanText = stripAllCitations(responseText);
-
-      yield* Effect.logInfo("GroundedAnswerGenerator.generate: complete").pipe(
-        Effect.annotateLogs({
-          citationCount: A.length(citations),
-          confidence,
-          textLength: Str.length(cleanText),
-        })
-      );
-
-      return new GroundedAnswer({
-        text: cleanText,
-        citations: A.fromIterable(citations),
-        confidence,
-        reasoning: undefined,
-      });
-    }).pipe(
-      Effect.mapError(
-        (e) =>
-          new GenerationError({
-            message: `Failed to generate grounded answer: ${String(e)}`,
-            cause: e,
-          })
-      ),
-      Effect.withSpan("GroundedAnswerGenerator.generate", {
-        captureStackTrace: false,
-        attributes: {
-          entityCount: A.length(context.entities),
-          relationCount: A.length(context.relations),
-        },
-      })
-    );
-
-  return GroundedAnswerGenerator.of({ generate });
-});
+    return GroundedAnswerGenerator.of({ generate });
+  }
+);
 
 export const GroundedAnswerGeneratorLive = Layer.effect(GroundedAnswerGenerator, serviceEffect);
 

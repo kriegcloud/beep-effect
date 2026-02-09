@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { ActivityFailedError, OntologyParseError, type WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
 import { ExtractionProgressEvent } from "@beep/knowledge-domain/value-objects";
+import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
 import { BS } from "@beep/schema";
 import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as AiError from "@effect/ai/AiError";
@@ -19,11 +20,12 @@ import * as Str from "effect/String";
 import {
   ExtractionPipeline,
   ExtractionPipelineConfig,
+  ExtractionPipelineLive,
   ExtractionResult,
   type ExtractionResult as ExtractionResultType,
 } from "../Extraction/ExtractionPipeline";
 import { ProgressStream } from "./ProgressStream";
-import { WorkflowPersistence } from "./WorkflowPersistence";
+import { WorkflowPersistence, WorkflowPersistenceLive } from "./WorkflowPersistence";
 
 const $I = $KnowledgeServerId.create("Workflow/ExtractionWorkflow");
 
@@ -359,8 +361,13 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
       )
     );
   })
+).pipe(
+  Layer.provideMerge(WorkflowRuntimeLive),
+  Layer.provideMerge(WorkflowPersistenceLive),
+  Layer.provideMerge(ExtractionPipelineLive)
 );
 
 export const ExtractionWorkflowLive = Layer.effect(ExtractionWorkflow, serviceEffect).pipe(
-  Layer.provideMerge(ExtractionEngineWorkflowLayer)
+  Layer.provideMerge(ExtractionEngineWorkflowLayer),
+  Layer.provideMerge(ExtractionPipelineLive)
 );

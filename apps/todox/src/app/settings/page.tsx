@@ -21,4 +21,3 @@ export default function Page({ searchParams }: Props) {
 
   return <ConnectionsSettingsPage />;
 }
-

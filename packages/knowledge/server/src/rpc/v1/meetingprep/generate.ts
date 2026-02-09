@@ -1,12 +1,7 @@
-import { Entities, Rpc } from "@beep/knowledge-domain";
+import { Entities, type Rpc } from "@beep/knowledge-domain";
 import type { MeetingPrep } from "@beep/knowledge-domain/rpc/MeetingPrep";
-import {
-  MeetingPrepBulletRepo,
-  MeetingPrepEvidenceRepo,
-  RelationEvidenceRepo,
-} from "@beep/knowledge-server/db";
-import { Policy } from "@beep/shared-domain";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { MeetingPrepBulletRepo, MeetingPrepEvidenceRepo, RelationEvidenceRepo } from "@beep/knowledge-server/db";
+import { KnowledgeEntityIds, Policy } from "@beep/shared-domain";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -37,10 +32,9 @@ export const Handler = Effect.fn("meetingprep_generate")(function* (payload: Mee
 
     // Deterministic selection rule: search by snippet text first, fall back to newest evidence.
     const matching = yield* relationEvidenceRepo.searchByText(payload.query, organizationId, maxBullets);
-    const chosen =
-      A.isEmptyReadonlyArray(matching)
-        ? yield* relationEvidenceRepo.searchByText("", organizationId, maxBullets)
-        : matching;
+    const chosen = A.isEmptyReadonlyArray(matching)
+      ? yield* relationEvidenceRepo.searchByText("", organizationId, maxBullets)
+      : matching;
 
     if (A.isEmptyReadonlyArray(chosen)) {
       return { meetingPrepId: "", bullets: [], disclaimer: DISCLAIMER };

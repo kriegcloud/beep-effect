@@ -14,4 +14,3 @@ export const meetingPrepBullet = OrgTable.make(KnowledgeEntityIds.MeetingPrepBul
     pg.index("meeting_prep_bullet_meeting_prep_id_bullet_index_idx").on(t.meetingPrepId, t.bulletIndex),
   ]
 );
-

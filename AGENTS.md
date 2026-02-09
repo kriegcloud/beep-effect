@@ -109,6 +109,9 @@ For Cursor IDE parity workflows and adaptations, use:
 7. **Shell Quoting (zsh)**: Avoid backticks inside double-quoted strings (command substitution). Prefer single quotes around `rg` patterns, especially when the pattern includes Markdown backticks.
 8. **Dirty Worktrees Are OK**: Do not treat a non-clean git status as a blocker. This repo often runs multiple agents in parallel on the same branch. Only require a clean worktree for operations that strictly need it (e.g. certain codemods, `git subtree`, history rewriting). Never revert/stash/clean unless explicitly requested.
 9. **UI Icon Hygiene**: The `@beep/ui` `Iconify` wrapper is typed against a constrained icon id union. If a new icon id fails `tsc`, prefer an icon id already used in the repo, or extend the icon catalog/types first (do not “just use any icon id” and leave type errors).
+10. **Demo-Critical Handler Safety**: In demo-critical HTTP/RPC handlers, do not use `Effect.die` / `Effect.orDie` for recoverable failures (DB, parsing, upstream). A defect can bypass `catchTag` and crash the demo path. Translate failures into typed errors or deterministic empty/none responses at the boundary.
+11. **Atomic Writes (Demo Invariants)**: Any multi-table write that must preserve an invariant (e.g. meeting-prep bullet + citations) must run in a SQL transaction (`SqlClient.withTransaction` or equivalent). Partial writes that leave orphan rows are demo-fatal.
+12. **PII + Secret Logging Hygiene**: Never log raw PII-bearing strings (Gmail queries, subjects, participants, document content) or secrets (DB URLs/connection strings, OAuth secrets, access/refresh tokens). If you need diagnostics, log `{ hasX, len, count }`, ids, or a one-way hash, and keep values `Redacted`.
 
 ## Specifications
 

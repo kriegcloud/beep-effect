@@ -323,7 +323,12 @@ describe("GmailAdapter", () => {
       it.effect("sends message and returns response", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const result = yield* adapter.sendMessage("recipient@example.com", "Test Subject", "Test body content", providerAccountId);
+          const result = yield* adapter.sendMessage(
+            "recipient@example.com",
+            "Test Subject",
+            "Test body content",
+            providerAccountId
+          );
 
           strictEqual(result.id, "sent-msg-789");
           strictEqual(result.threadId, "new-thread-123");

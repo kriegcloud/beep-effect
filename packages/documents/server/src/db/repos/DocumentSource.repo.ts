@@ -1,12 +1,12 @@
 import { Entities } from "@beep/documents-domain";
 import { DocumentsDb } from "@beep/documents-server/db";
 import { $DocumentsServerId } from "@beep/identity/packages";
-import { DocumentsEntityIds, IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { DocumentsEntityIds, type IamEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { DbRepo } from "@beep/shared-domain/factories";
 import { DbClient } from "@beep/shared-server";
 import { and, eq, isNull } from "drizzle-orm";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import type * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { dependencies } from "./_common";
@@ -19,7 +19,11 @@ export class DocumentSourceRepo extends Effect.Service<DocumentSourceRepo>()($I`
   effect: Effect.gen(function* () {
     const { makeQuery } = yield* DocumentsDb.Db;
 
-    const baseRepo = yield* DbRepo.make(DocumentsEntityIds.DocumentSourceId, Entities.DocumentSource.Model, Effect.succeed({}));
+    const baseRepo = yield* DbRepo.make(
+      DocumentsEntityIds.DocumentSourceId,
+      Entities.DocumentSource.Model,
+      Effect.succeed({})
+    );
 
     const findByMappingKey = makeQuery(
       (
@@ -70,5 +74,8 @@ export class DocumentSourceRepo extends Effect.Service<DocumentSourceRepo>()($I`
   }),
 }) {}
 
-export const DocumentSourceRepoLive: Layer.Layer<DocumentSourceRepo, never, DbClient.SliceDbRequirements | DocumentsDb.Db> =
-  DocumentSourceRepo.Default;
+export const DocumentSourceRepoLive: Layer.Layer<
+  DocumentSourceRepo,
+  never,
+  DbClient.SliceDbRequirements | DocumentsDb.Db
+> = DocumentSourceRepo.Default;

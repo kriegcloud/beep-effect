@@ -51,4 +51,3 @@ export class Model extends M.Class<Model>($I`RelationEvidenceModel`)(
 ) {
   static readonly utils = modelKit(Model);
 }
-

@@ -1,5 +1,6 @@
 import { Comment, Discussion } from "@beep/documents-domain/entities";
 import { CommentRepo, DiscussionRepo } from "@beep/documents-server/db";
+import { Policy } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import { pipe } from "effect";
 import * as A from "effect/Array";
@@ -24,7 +25,9 @@ const transformToUser = <T extends { author: unknown }>(item: T): Omit<T, "autho
  * - Expected errors (e.g., DiscussionNotFoundError) pass through to the RPC layer
  * - Unexpected errors (e.g., DbError) are converted to defects via Effect.orDie
  */
-export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
+const DiscussionRpcsWithMiddleware = Discussion.DiscussionRpcs.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
+
+export const DiscussionHandlersLive = DiscussionRpcsWithMiddleware.toLayer(
   Effect.gen(function* () {
     const discussionRepo = yield* DiscussionRepo;
     const commentRepo = yield* CommentRepo;

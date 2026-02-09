@@ -337,7 +337,10 @@ export interface GmailExtractionAdapterShape {
     providerAccountId: string,
     maxResults?: undefined | number
   ) => Effect.Effect<ReadonlyArray<ExtractedEmailDocument>, GmailExtractionError.Type>;
-  readonly extractThreadContext: (threadId: string, providerAccountId: string) => Effect.Effect<ThreadContext, GmailExtractionError.Type>;
+  readonly extractThreadContext: (
+    threadId: string,
+    providerAccountId: string
+  ) => Effect.Effect<ThreadContext, GmailExtractionError.Type>;
 }
 
 export class GmailExtractionAdapter extends Context.Tag($I`GmailExtractionAdapter`)<

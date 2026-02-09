@@ -60,4 +60,3 @@ describe("AuthContext providerAccountId enforcement (C-06)", () => {
     expect(callCount).toBe(0);
   });
 });
-

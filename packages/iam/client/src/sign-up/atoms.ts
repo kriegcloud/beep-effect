@@ -12,20 +12,28 @@
  */
 
 import * as Common from "@beep/iam-client/_internal";
-import { withToast } from "@beep/ui/common";
+import { toastEffect } from "@beep/ui/common";
 import { useAtomSet } from "@effect-atom/atom-react";
+import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
 import { runtime, Service } from "./service.ts";
 
 const EmailAtom = runtime.fn(
   F.flow(
     Service.Email,
-    withToast({
-      onDefect: "An unknown error occurred",
-      onFailure: (e) => e.message,
-      onSuccess: "Signed up successfully",
-      onWaiting: "Signing up...",
+    Effect.catchTag("UnknownIamError", Effect.die),
+    toastEffect({
+      whenFailure: (e) =>
+        Cause.failureOption(e.cause).pipe(
+          O.match({
+            onNone: O.none<string>,
+            onSome: (e) => O.some(e.message),
+          })
+        ),
+      whenSuccess: "Signed up successfully",
+      whenLoading: "Signing up...",
     }),
     Effect.asVoid
   )

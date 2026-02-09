@@ -1,10 +1,9 @@
-import { $RuntimeServerId } from "@beep/identity/packages";
 import { Comment, Discussion, Document, DocumentVersion } from "@beep/documents-domain/entities";
-import { Handlers as DocumentsHandlers, DocumentsDb, DocumentsRepos } from "@beep/documents-server";
+import { DocumentsDb, Handlers as DocumentsHandlers, DocumentsRepos } from "@beep/documents-server";
+import { $RuntimeServerId } from "@beep/identity/packages";
 import { Rpc as KnowledgeDomainRpc } from "@beep/knowledge-domain";
-import { Rpc as KnowledgeServerRpc, KnowledgeRepos } from "@beep/knowledge-server";
-import { Policy } from "@beep/shared-domain";
-import { SharedRpcs } from "@beep/shared-domain";
+import { KnowledgeRepos, Rpc as KnowledgeServerRpc } from "@beep/knowledge-server";
+import { Policy, SharedRpcs } from "@beep/shared-domain";
 import { SharedServerRpcs } from "@beep/shared-server/rpc";
 import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
 import * as RpcSerialization from "@effect/rpc/RpcSerialization";
@@ -54,8 +53,7 @@ const SharedRpcLayer = RpcServer.layerHttpRouter({
   Layer.provide(AuthContextRpcMiddlewaresLayer)
 );
 
-const DocumentsRpcs = Document.DocumentRpcs.Rpcs
-  .merge(Discussion.DiscussionRpcs.Rpcs)
+const DocumentsRpcs = Document.DocumentRpcs.Rpcs.merge(Discussion.DiscussionRpcs.Rpcs)
   .merge(Comment.CommentRpcs.Rpcs)
   .merge(DocumentVersion.DocumentVersionRpcs.Rpcs)
   .middleware(Policy.AuthContextRpcMiddleware)
@@ -73,21 +71,17 @@ const DocumentsRpcLayer = RpcServer.layerHttpRouter({
   Layer.provide(AuthContextRpcMiddlewaresLayer),
   // Provide Documents slice handler implementations and DB repos (sequential to satisfy dependencies).
   Layer.provide(
-    DocumentsHandlers.DocumentsHandlersLive.pipe(
-      Layer.provide(DocumentsRepos.layer),
-      Layer.provide(DocumentsDb.layer)
-    )
+    DocumentsHandlers.DocumentsHandlersLive.pipe(Layer.provide(DocumentsRepos.layer), Layer.provide(DocumentsDb.layer))
   )
 );
 
-const KnowledgeRpcs = KnowledgeDomainRpc.Batch.Rpcs
-  .merge(KnowledgeDomainRpc.Entity.Rpcs)
+const KnowledgeRpcs = KnowledgeDomainRpc.Batch.Rpcs.merge(KnowledgeDomainRpc.Entity.Rpcs)
   .merge(KnowledgeDomainRpc.Relation.Rpcs)
   .merge(KnowledgeDomainRpc.GraphRag.Rpcs)
   .merge(KnowledgeDomainRpc.Evidence.Rpcs)
   .merge(KnowledgeDomainRpc.MeetingPrep.Rpcs)
-  .merge(KnowledgeDomainRpc.Ontology.Rpcs)
-  .merge(KnowledgeDomainRpc.Extraction.Rpcs)
+  // .merge(KnowledgeDomainRpc.Ontology.Rpcs)
+  // .merge(KnowledgeDomainRpc.Extraction.Rpcs)
   .middleware(Policy.AuthContextRpcMiddleware)
   .middleware(RpcLogger);
 
@@ -106,20 +100,3 @@ const KnowledgeRpcLayer = RpcServer.layerHttpRouter({
 );
 
 export const layer = Layer.mergeAll(SharedRpcLayer, DocumentsRpcLayer, KnowledgeRpcLayer);
-// const rpcLayer = RpcServer.layerHttpRouter({
-//   group: SharedRpcs.V1.Rpcs,
-//   path: "/v1/shared/rpc",
-//   protocol: "websocket",
-//   spanPrefix: "rpc",
-//   disableFatalDefects: true,
-// }).pipe(Layer.provide(Layer.mergeAll(SharedServerRpcs.layer)), Layer.provide(AuthContextLive.layer));
-//
-// const rpcsLayer = Layer.mergeAll(rpcLayer).pipe(Layer.provide(AuthContextLive.layer));
-//
-// export const layer = RpcServer.layerHttpRouter({
-//   group: SharedRpcs.V1.Rpcs.middleware(RpcLogger),
-//   path: "/v1/documents/rpc",
-//   protocol: "websocket",
-//   spanPrefix: "rpc",
-//   disableFatalDefects: true,
-// }).pipe(Layer.provideMerge(rpcsLayer), Layer.provide(RpcLoggerLive), Layer.provide(RpcSerialization.layerNdjson));

@@ -44,4 +44,3 @@ export const meetingPrepEvidence = OrgTable.make(KnowledgeEntityIds.MeetingPrepE
     pg.index("meeting_prep_evidence_extraction_id_idx").on(t.extractionId),
   ]
 );
-

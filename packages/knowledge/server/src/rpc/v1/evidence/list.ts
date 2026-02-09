@@ -1,6 +1,6 @@
-import { Entities, Rpc } from "@beep/knowledge-domain";
+import type { Entities, Rpc } from "@beep/knowledge-domain";
 import type { Evidence } from "@beep/knowledge-domain/rpc/Evidence";
-import { MentionRepo, MeetingPrepEvidenceRepo, RelationEvidenceRepo } from "@beep/knowledge-server/db";
+import { MeetingPrepEvidenceRepo, MentionRepo, RelationEvidenceRepo } from "@beep/knowledge-server/db";
 import { Policy } from "@beep/shared-domain";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as A from "effect/Array";
@@ -179,7 +179,6 @@ export const Handler = Effect.fn("evidence_list")(function* (payload: Evidence.L
                 },
               });
             }
-            continue;
           }
         }
 

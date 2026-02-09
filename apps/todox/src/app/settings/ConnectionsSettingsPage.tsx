@@ -6,6 +6,7 @@ import { Organization } from "@beep/iam-client/organization";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { Iconify } from "@beep/ui/atoms";
 import { toast } from "@beep/ui/molecules";
+import { Result } from "@effect-atom/atom-react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -19,7 +20,6 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { Result } from "@effect-atom/atom-react";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -31,8 +31,7 @@ const ACTIVE_GOOGLE_PROVIDER_ACCOUNT_ID_KEY = "google.activeProviderAccountId" a
 
 const MetadataRecord = S.Record({ key: S.String, value: S.Unknown });
 
-const decodeMetadata = (input: unknown): Record<string, unknown> =>
-  S.is(MetadataRecord)(input) ? input : {};
+const decodeMetadata = (input: unknown): Record<string, unknown> => (S.is(MetadataRecord)(input) ? input : {});
 
 const getMetadataString = (metadata: Record<string, unknown>, key: string): string | undefined => {
   const value = metadata[key];
@@ -61,15 +60,14 @@ export function ConnectionsSettingsPage() {
   }, [sessionResult]);
 
   const activeOrganizationIdOpt = React.useMemo(
-    () =>
-      sessionData.pipe(
-        O.flatMap((s) => O.fromNullable(s.session.activeOrganizationId ?? null))
-      ),
+    () => sessionData.pipe(O.flatMap((s) => O.fromNullable(s.session.activeOrganizationId ?? null))),
     [sessionData]
   );
 
   const [googleAccounts, setGoogleAccounts] = React.useState<ReadonlyArray<Core.ListAccounts.Account>>([]);
-  const [activeGoogleProviderAccountId, setActiveGoogleProviderAccountId] = React.useState<string | undefined>(undefined);
+  const [activeGoogleProviderAccountId, setActiveGoogleProviderAccountId] = React.useState<string | undefined>(
+    undefined
+  );
   const [loading, setLoading] = React.useState(false);
 
   const reload = React.useCallback(async () => {
@@ -163,7 +161,9 @@ export function ConnectionsSettingsPage() {
 
             const next: Record<string, unknown> =
               providerAccountId === undefined
-                ? Object.fromEntries(Object.entries(metadata).filter(([k]) => k !== ACTIVE_GOOGLE_PROVIDER_ACCOUNT_ID_KEY))
+                ? Object.fromEntries(
+                    Object.entries(metadata).filter(([k]) => k !== ACTIVE_GOOGLE_PROVIDER_ACCOUNT_ID_KEY)
+                  )
                 : { ...metadata, [ACTIVE_GOOGLE_PROVIDER_ACCOUNT_ID_KEY]: providerAccountId };
 
             yield* Organization.Crud.Update.Handler({
@@ -289,4 +289,3 @@ export function ConnectionsSettingsPage() {
     </Box>
   );
 }
-

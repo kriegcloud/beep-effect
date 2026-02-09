@@ -9,4 +9,3 @@ const implementation = EvidenceRpcsWithMiddleware.of({
 });
 
 export const layer = EvidenceRpcsWithMiddleware.toLayer(implementation);
-

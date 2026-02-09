@@ -298,10 +298,15 @@ describe("GoogleCalendarAdapter", () => {
         Effect.gen(function* () {
           const adapter = yield* GoogleCalendarAdapter;
 
-          const event = yield* adapter.updateEvent("primary", "event-1", {
-            summary: "Updated Meeting Title",
-            description: "Updated description",
-          }, providerAccountId);
+          const event = yield* adapter.updateEvent(
+            "primary",
+            "event-1",
+            {
+              summary: "Updated Meeting Title",
+              description: "Updated description",
+            },
+            providerAccountId
+          );
 
           strictEqual(event.id, "event-1");
           strictEqual(event.summary, "Updated Meeting Title");

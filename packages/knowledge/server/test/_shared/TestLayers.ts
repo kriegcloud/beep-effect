@@ -1,4 +1,3 @@
-import { FallbackLanguageModel } from "@beep/knowledge-server/LlmControl/FallbackLanguageModel";
 import { ParsedClassDefinition, ParsedPropertyDefinition } from "@beep/knowledge-server/Ontology/OntologyParser";
 import { OntologyContext } from "@beep/knowledge-server/Ontology/OntologyService";
 import { LanguageModel } from "@effect/ai";
@@ -7,15 +6,14 @@ import type * as Response from "@effect/ai/Response";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as Stream from "effect/Stream";
 
-type LlmEnv = LanguageModel.LanguageModel | FallbackLanguageModel;
+type LlmEnv = LanguageModel.LanguageModel;
 
 export interface MockLanguageModelOptions {
-  readonly generateObject?: unknown | ((objectName: string | undefined) => unknown | Effect.Effect<unknown>);
+  readonly generateObject?: unknown | ((objectName: string | undefined) => unknown);
   readonly usage?: {
     readonly inputTokens: number;
     readonly outputTokens: number;
@@ -84,8 +82,7 @@ export const withLanguageModel: {
       }
 
       if (P.isFunction(options.generateObject)) {
-        const result = options.generateObject(objectName);
-        return Effect.isEffect(result) ? (result as Effect.Effect<unknown, never, never>) : Effect.succeed(result);
+        return Effect.succeed(options.generateObject(objectName));
       }
 
       return Effect.succeed(options.generateObject);
@@ -102,9 +99,8 @@ export const withLanguageModel: {
       streamText: () => Stream.empty,
     });
 
-    return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService).pipe(
-      Effect.provideService(FallbackLanguageModel, O.none())
-    ) as Effect.Effect<A, E, Exclude<R, LlmEnv>>;
+    // `provideServiceEffect` removes `LanguageModel.LanguageModel` from the required environment.
+    return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService);
   }
 );
 
@@ -120,9 +116,7 @@ const provideTextLanguageModel = <A, E, R>(
     streamText: () => Stream.empty,
   });
 
-  return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService).pipe(
-    Effect.provideService(FallbackLanguageModel, O.none())
-  ) as Effect.Effect<A, E, Exclude<R, LlmEnv>>;
+  return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService);
 };
 
 export function withTextLanguageModel(
@@ -161,9 +155,7 @@ export const createFailingMockLlm =
       generateText: () => Effect.fail(error),
       streamText: () => Stream.fail(error),
     });
-    return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService).pipe(
-      Effect.provideService(FallbackLanguageModel, O.none())
-    ) as Effect.Effect<A, AiError.AiError | E2, Exclude<R, LlmEnv>>;
+    return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService);
   };
 
 export const createTrackingMockLlm = <A>(response: A) =>
@@ -182,9 +174,7 @@ export const createTrackingMockLlm = <A>(response: A) =>
         streamText: () => Stream.empty,
       });
 
-      return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService).pipe(
-        Effect.provideService(FallbackLanguageModel, O.none())
-      ) as Effect.Effect<A2, E, Exclude<R, LlmEnv>>;
+      return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService);
     };
 
     const getCalls = Ref.get(callsRef);

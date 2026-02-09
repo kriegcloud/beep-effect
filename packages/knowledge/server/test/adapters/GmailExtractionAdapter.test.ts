@@ -389,7 +389,9 @@ describe("GmailExtractionAdapter", () => {
       it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const error = yield* Effect.flip(adapter.extractEmailsForKnowledgeGraph("label:INBOX", providerAccountId, 10));
+          const error = yield* Effect.flip(
+            adapter.extractEmailsForKnowledgeGraph("label:INBOX", providerAccountId, 10)
+          );
 
           assertTrue(error instanceof GoogleScopeExpansionRequiredError);
           assertTrue(A.isNonEmptyReadonlyArray(error.missingScopes));

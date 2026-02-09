@@ -9,22 +9,20 @@
 
 import { EmbeddingRepo } from "@beep/knowledge-server/db";
 import { Handler as EvidenceListHandler } from "@beep/knowledge-server/rpc/v1/evidence/list";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import { Policy } from "@beep/shared-domain";
+import { DocumentsEntityIds, KnowledgeEntityIds, Policy, SharedEntityIds } from "@beep/shared-domain";
 import { Organization, Session, User } from "@beep/shared-domain/entities";
 import { layer, strictEqual } from "@beep/testkit";
 import { assertTenantIsolation, clearTestTenant, withTestTenant } from "@beep/testkit/rls";
 import * as SqlClient from "@effect/sql/SqlClient";
+import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { PgTest } from "../container";
 
 const TEST_TIMEOUT = 120000;
 
-const mkVec = (hotIndex: number): ReadonlyArray<number> =>
-  A.makeBy(768, (i) => (i === hotIndex ? 1 : 0));
+const mkVec = (hotIndex: number): ReadonlyArray<number> => A.makeBy(768, (i) => (i === hotIndex ? 1 : 0));
 
 const mkAuthContext = (organizationId: SharedEntityIds.OrganizationId.Type, userId: SharedEntityIds.UserId.Type) =>
   Policy.AuthContext.of({
@@ -198,8 +196,14 @@ layer(PgTest, { timeout: Duration.seconds(120) })("Demo Critical Path Hardening"
         const resB = yield* withTestTenant(orgB, repo.findSimilar(vec, orgB, 10, 0.0));
 
         // Fail loud if results include an unexpected embedding id.
-        strictEqual(resA.some((r) => r.id === embB.id), false);
-        strictEqual(resB.some((r) => r.id === embA.id), false);
+        strictEqual(
+          resA.some((r) => r.id === embB.id),
+          false
+        );
+        strictEqual(
+          resB.some((r) => r.id === embA.id),
+          false
+        );
       }),
     TEST_TIMEOUT
   );
@@ -222,16 +226,10 @@ layer(PgTest, { timeout: Duration.seconds(120) })("Demo Critical Path Hardening"
         const authB = mkAuthContext(orgB, userB);
 
         const runAsOrgA = (payload: Parameters<typeof EvidenceListHandler>[0]) =>
-          withTestTenant(
-            orgA,
-            EvidenceListHandler(payload).pipe(Effect.provideService(Policy.AuthContext, authA))
-          );
+          withTestTenant(orgA, EvidenceListHandler(payload).pipe(Effect.provideService(Policy.AuthContext, authA)));
 
         const runAsOrgB = (payload: Parameters<typeof EvidenceListHandler>[0]) =>
-          withTestTenant(
-            orgB,
-            EvidenceListHandler(payload).pipe(Effect.provideService(Policy.AuthContext, authB))
-          );
+          withTestTenant(orgB, EvidenceListHandler(payload).pipe(Effect.provideService(Policy.AuthContext, authB)));
 
         // Seed evidence only in orgB.
         const docB = DocumentsEntityIds.DocumentId.create();

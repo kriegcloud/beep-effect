@@ -44,3 +44,4 @@ export * from "@beep/utils/guards/isNonEmptyRecord.guard";
  * @since 0.1.0
  */
 export * from "@beep/utils/guards/isUnsafeProperty.guard";
+export * from "./hasProperties.guard";

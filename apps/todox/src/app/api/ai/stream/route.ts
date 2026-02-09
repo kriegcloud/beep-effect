@@ -7,7 +7,6 @@
  * @module todox/api/ai/stream
  */
 
-import { serverRuntime } from "@beep/runtime-server";
 import { LlmLive, TextImprovementService } from "@beep/todox/services/ai";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
@@ -43,7 +42,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   const responseStream = new TransformStream<Uint8Array, Uint8Array>();
   const writer = responseStream.writable.getWriter();
 
-  serverRuntime.runFork(
+  Effect.runFork(
     Effect.gen(function* () {
       const service = yield* TextImprovementService;
 

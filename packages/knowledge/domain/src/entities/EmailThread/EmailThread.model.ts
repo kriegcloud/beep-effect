@@ -37,4 +37,3 @@ export class Model extends M.Class<Model>($I`EmailThreadModel`)(
 ) {
   static readonly utils = modelKit(Model);
 }
-

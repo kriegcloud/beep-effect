@@ -56,7 +56,11 @@ const makeExtensions = Effect.gen(function* () {
   return { listByMeetingPrepId } as const;
 });
 
-const serviceEffect = DbRepo.make(KnowledgeEntityIds.MeetingPrepBulletId, Entities.MeetingPrepBullet.Model, makeExtensions);
+const serviceEffect = DbRepo.make(
+  KnowledgeEntityIds.MeetingPrepBulletId,
+  Entities.MeetingPrepBullet.Model,
+  makeExtensions
+);
 
 export type MeetingPrepBulletRepoShape = Effect.Effect.Success<typeof serviceEffect>;
 
@@ -68,4 +72,3 @@ export class MeetingPrepBulletRepo extends Context.Tag($I`MeetingPrepBulletRepo`
 export const MeetingPrepBulletRepoLive = Layer.effect(MeetingPrepBulletRepo, serviceEffect).pipe(
   Layer.provide(KnowledgeDb.layer)
 );
-

@@ -31,4 +31,3 @@ export const relationEvidence = OrgTable.make(KnowledgeEntityIds.RelationEvidenc
     pg.index("relation_evidence_char_range_idx").on(t.documentId, t.startChar, t.endChar),
   ]
 );
-

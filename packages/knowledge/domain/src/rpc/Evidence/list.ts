@@ -62,4 +62,3 @@ export const Contract = Rpc.make("list", {
   success: Success,
   error: Error,
 });
-

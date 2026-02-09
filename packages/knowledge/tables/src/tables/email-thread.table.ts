@@ -24,4 +24,3 @@ export const emailThread = OrgTable.make(KnowledgeEntityIds.EmailThreadId)(
       .on(t.organizationId, t.providerAccountId, t.sourceThreadId),
   ]
 );
-
