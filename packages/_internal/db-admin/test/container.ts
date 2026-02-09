@@ -155,9 +155,11 @@ const setupDocker = Effect.gen(function* () {
       }),
   });
 
-  const connectionString = `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${container.getHost()}:${container.getFirstMappedPort()}/${POSTGRES_DB}`;
-  dbg("container started", { host: container.getHost(), port: container.getFirstMappedPort() });
-  yield* Effect.logInfo(`Connection string: ${connectionString}`);
+  const host = container.getHost();
+  const port = container.getFirstMappedPort();
+  const connectionString = `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${host}:${port}/${POSTGRES_DB}`;
+  dbg("container started", { host, port });
+  yield* Effect.logInfo("PgTest container started").pipe(Effect.annotateLogs({ host, port, database: POSTGRES_DB }));
   const client = postgres(connectionString, postgresSilentNotices);
 
   const db = drizzle(client);

@@ -14,6 +14,14 @@ import * as Redacted from "effect/Redacted";
 
 const GOOGLE_PROVIDER = "google";
 
+const messageFromUnknown = (e: unknown): string => {
+  if (typeof e === "object" && e !== null && "message" in e) {
+    const m = (e as { readonly message?: unknown }).message;
+    if (typeof m === "string") return m;
+  }
+  return String(e);
+};
+
 /**
  * Dependencies for GoogleAuthClientLive.
  *
@@ -60,7 +68,7 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
             Effect.mapError(
               (e) =>
                 new GoogleAuthenticationError({
-                  message: (e as any).message ?? String(e),
+                  message: messageFromUnknown(e),
                   suggestion: "User may need to re-authorize Google Workspace access",
                 })
             )
@@ -87,7 +95,7 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
             Effect.mapError(
               (e) =>
                 new GoogleAuthenticationError({
-                  message: (e as any).message ?? String(e),
+                  message: messageFromUnknown(e),
                   suggestion: "Check Better Auth configuration",
                 })
             )
@@ -146,7 +154,7 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
             Effect.mapError(
               (e) =>
                 new GoogleAuthenticationError({
-                  message: (e as any).message ?? String(e),
+                  message: messageFromUnknown(e),
                   suggestion: "User may need to re-authorize Google Workspace access",
                 })
             )

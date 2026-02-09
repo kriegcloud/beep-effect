@@ -8,7 +8,10 @@
  */
 
 import { EmbeddingRepo } from "@beep/knowledge-server/db";
+import { Handler as EvidenceListHandler } from "@beep/knowledge-server/rpc/v1/evidence/list";
 import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { Policy } from "@beep/shared-domain";
+import { Organization, Session, User } from "@beep/shared-domain/entities";
 import { layer, strictEqual } from "@beep/testkit";
 import { assertTenantIsolation, clearTestTenant, withTestTenant } from "@beep/testkit/rls";
 import * as SqlClient from "@effect/sql/SqlClient";
@@ -22,6 +25,18 @@ const TEST_TIMEOUT = 120000;
 
 const mkVec = (hotIndex: number): ReadonlyArray<number> =>
   A.makeBy(768, (i) => (i === hotIndex ? 1 : 0));
+
+const mkAuthContext = (organizationId: SharedEntityIds.OrganizationId.Type, userId: SharedEntityIds.UserId.Type) =>
+  Policy.AuthContext.of({
+    user: { ...User.Model.MockOne(), id: userId },
+    session: { ...Session.Model.MockOne(), userId, activeOrganizationId: organizationId },
+    organization: { ...Organization.Model.MockOne(), id: organizationId, ownerUserId: userId },
+    oauth: {
+      getAccessToken: (_params) => Effect.succeed(O.none()),
+      getProviderAccount: (_params) => Effect.succeed(O.none()),
+      listProviderAccounts: (_params) => Effect.succeed([]),
+    },
+  });
 
 const seedTenant = (orgId: SharedEntityIds.OrganizationId.Type, userId: SharedEntityIds.UserId.Type, email: string) =>
   Effect.gen(function* () {
@@ -185,6 +200,118 @@ layer(PgTest, { timeout: Duration.seconds(120) })("Demo Critical Path Hardening"
         // Fail loud if results include an unexpected embedding id.
         strictEqual(resA.some((r) => r.id === embB.id), false);
         strictEqual(resB.some((r) => r.id === embA.id), false);
+      }),
+    TEST_TIMEOUT
+  );
+
+  it.effect(
+    "cross-org leakage: Evidence.List returns no evidence for other-org ids (entity/relation/bullet/document filters)",
+    () =>
+      Effect.gen(function* () {
+        const sql = yield* SqlClient.SqlClient;
+
+        const orgA = SharedEntityIds.OrganizationId.create();
+        const orgB = SharedEntityIds.OrganizationId.create();
+        const userA = SharedEntityIds.UserId.create();
+        const userB = SharedEntityIds.UserId.create();
+
+        yield* withTestTenant(orgA, seedTenant(orgA, userA, "ela@example.com"));
+        yield* withTestTenant(orgB, seedTenant(orgB, userB, "elb@example.com"));
+
+        const authA = mkAuthContext(orgA, userA);
+        const authB = mkAuthContext(orgB, userB);
+
+        const runAsOrgA = (payload: Parameters<typeof EvidenceListHandler>[0]) =>
+          withTestTenant(
+            orgA,
+            EvidenceListHandler(payload).pipe(Effect.provideService(Policy.AuthContext, authA))
+          );
+
+        const runAsOrgB = (payload: Parameters<typeof EvidenceListHandler>[0]) =>
+          withTestTenant(
+            orgB,
+            EvidenceListHandler(payload).pipe(Effect.provideService(Policy.AuthContext, authB))
+          );
+
+        // Seed evidence only in orgB.
+        const docB = DocumentsEntityIds.DocumentId.create();
+        const docvB = DocumentsEntityIds.DocumentVersionId.create();
+        const content = "B🙂"; // include surrogate pair to exercise UTF-16 validations in Evidence.List
+
+        yield* withTestTenant(
+          orgB,
+          Effect.all([
+            sql`INSERT INTO documents_document (id, organization_id, user_id, title, content)
+                VALUES (${docB}, ${orgB}, ${userB}, 'B', ${content})
+                ON CONFLICT (id) DO NOTHING`,
+            sql`INSERT INTO documents_document_version (id, organization_id, document_id, user_id, title, content)
+                VALUES (${docvB}, ${orgB}, ${docB}, ${userB}, 'B', ${content})
+                ON CONFLICT (id) DO NOTHING`,
+          ])
+        );
+
+        const entityB = KnowledgeEntityIds.KnowledgeEntityId.create();
+        yield* withTestTenant(
+          orgB,
+          sql`INSERT INTO knowledge_mention (
+                id, organization_id, entity_id, document_id, document_version_id,
+                text, start_char, end_char, is_primary
+              ) VALUES (
+                ${KnowledgeEntityIds.MentionId.create()}, ${orgB}, ${entityB}, ${docB}, ${docvB},
+                '🙂', 1, 3, true
+              )`
+        );
+
+        const relationB = KnowledgeEntityIds.RelationId.create();
+        yield* withTestTenant(
+          orgB,
+          sql`INSERT INTO knowledge_relation (id, organization_id, subject_id, predicate, object_id, ontology_id)
+              VALUES (${relationB}, ${orgB}, ${entityB}, 'p', ${KnowledgeEntityIds.KnowledgeEntityId.create()}, 'default')`
+        );
+        yield* withTestTenant(
+          orgB,
+          sql`INSERT INTO knowledge_relation_evidence (
+                id, organization_id, relation_id, document_id, document_version_id,
+                start_char, end_char, text
+              ) VALUES (
+                ${KnowledgeEntityIds.RelationEvidenceId.create()}, ${orgB}, ${relationB}, ${docB}, ${docvB},
+                1, 3, '🙂'
+              )`
+        );
+
+        const bulletB = KnowledgeEntityIds.MeetingPrepBulletId.create();
+        yield* withTestTenant(
+          orgB,
+          sql`INSERT INTO knowledge_meeting_prep_bullet (id, organization_id, meeting_prep_id, bullet_index, text)
+              VALUES (${bulletB}, ${orgB}, 'run_b', 0, 'B')`
+        );
+        yield* withTestTenant(
+          orgB,
+          sql`INSERT INTO knowledge_meeting_prep_evidence (
+                id, organization_id, bullet_id, source_type,
+                document_id, document_version_id, start_char, end_char, text
+              ) VALUES (
+                ${KnowledgeEntityIds.MeetingPrepEvidenceId.create()}, ${orgB}, ${bulletB}, 'document_span',
+                ${docB}, ${docvB}, 1, 3, '🙂'
+              )`
+        );
+
+        // Positive smoke: orgB can resolve its own evidence (ensures the seed is valid).
+        const okEntity = yield* runAsOrgB({ organizationId: orgB, entityId: entityB });
+        strictEqual(okEntity.items.length > 0, true);
+
+        // Leak checks: orgA must never see orgB evidence even if it knows the ids.
+        const leakEntity = yield* runAsOrgA({ organizationId: orgA, entityId: entityB });
+        strictEqual(leakEntity.items.length, 0);
+
+        const leakRelation = yield* runAsOrgA({ organizationId: orgA, relationId: relationB });
+        strictEqual(leakRelation.items.length, 0);
+
+        const leakBullet = yield* runAsOrgA({ organizationId: orgA, meetingPrepBulletId: bulletB });
+        strictEqual(leakBullet.items.length, 0);
+
+        const leakDocument = yield* runAsOrgA({ organizationId: orgA, documentId: docB });
+        strictEqual(leakDocument.items.length, 0);
       }),
     TEST_TIMEOUT
   );
@@ -406,15 +533,30 @@ layer(PgTest, { timeout: Duration.seconds(120) })("Demo Critical Path Hardening"
               )`
         );
 
+        const bulletIsoA = KnowledgeEntityIds.MeetingPrepBulletId.create();
+        const bulletIsoB = KnowledgeEntityIds.MeetingPrepBulletId.create();
+
         yield* withTestTenant(
           orgA,
           sql`INSERT INTO knowledge_meeting_prep_bullet (id, organization_id, meeting_prep_id, bullet_index, text)
-              VALUES (${KnowledgeEntityIds.MeetingPrepBulletId.create()}, ${orgA}, 'run_a', 0, 'A')`
+              VALUES (${bulletIsoA}, ${orgA}, 'run_a', 0, 'A')`
         );
         yield* withTestTenant(
           orgB,
           sql`INSERT INTO knowledge_meeting_prep_bullet (id, organization_id, meeting_prep_id, bullet_index, text)
-              VALUES (${KnowledgeEntityIds.MeetingPrepBulletId.create()}, ${orgB}, 'run_b', 0, 'B')`
+              VALUES (${bulletIsoB}, ${orgB}, 'run_b', 0, 'B')`
+        );
+
+        // meeting_prep_evidence is demo-critical (citations). Validate it is tenant isolated too.
+        yield* withTestTenant(
+          orgA,
+          sql`INSERT INTO knowledge_meeting_prep_evidence (id, organization_id, bullet_id, source_type)
+              VALUES (${KnowledgeEntityIds.MeetingPrepEvidenceId.create()}, ${orgA}, ${bulletIsoA}, 'document_span')`
+        );
+        yield* withTestTenant(
+          orgB,
+          sql`INSERT INTO knowledge_meeting_prep_evidence (id, organization_id, bullet_id, source_type)
+              VALUES (${KnowledgeEntityIds.MeetingPrepEvidenceId.create()}, ${orgB}, ${bulletIsoB}, 'document_span')`
         );
 
         yield* assertTenantIsolation(
@@ -443,6 +585,17 @@ layer(PgTest, { timeout: Duration.seconds(120) })("Demo Critical Path Hardening"
           Effect.gen(function* () {
             const rows = yield* sql`
               SELECT organization_id as "organizationId", id FROM knowledge_meeting_prep_bullet ORDER BY id
+            `;
+            return rows as ReadonlyArray<{ organizationId: string; id: string }>;
+          })
+        );
+
+        yield* assertTenantIsolation(
+          orgA,
+          orgB,
+          Effect.gen(function* () {
+            const rows = yield* sql`
+              SELECT organization_id as "organizationId", id FROM knowledge_meeting_prep_evidence ORDER BY id
             `;
             return rows as ReadonlyArray<{ organizationId: string; id: string }>;
           })

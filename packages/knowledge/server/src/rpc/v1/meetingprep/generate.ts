@@ -7,6 +7,7 @@ import {
 } from "@beep/knowledge-server/db";
 import { Policy } from "@beep/shared-domain";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
+import * as SqlClient from "@effect/sql/SqlClient";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -32,6 +33,7 @@ export const Handler = Effect.fn("meetingprep_generate")(function* (payload: Mee
     const relationEvidenceRepo = yield* RelationEvidenceRepo;
     const bulletRepo = yield* MeetingPrepBulletRepo;
     const evidenceRepo = yield* MeetingPrepEvidenceRepo;
+    const sql = yield* SqlClient.SqlClient;
 
     // Deterministic selection rule: search by snippet text first, fall back to newest evidence.
     const matching = yield* relationEvidenceRepo.searchByText(payload.query, organizationId, maxBullets);
@@ -47,53 +49,60 @@ export const Handler = Effect.fn("meetingprep_generate")(function* (payload: Mee
     const meetingPrepId = `meeting_prep__${crypto.randomUUID()}`;
     const actorId = session.userId;
 
-    const bullets = yield* Effect.forEach(
-      A.take(chosen, maxBullets),
-      (re, idx) =>
-        Effect.gen(function* () {
-          const bulletInsert = Entities.MeetingPrepBullet.Model.insert.make({
-            id: KnowledgeEntityIds.MeetingPrepBulletId.create(),
-            organizationId,
-            meetingPrepId,
-            bulletIndex: idx,
-            text: bulletTextFromRelation(re),
-            source: O.some("meetingprep_generate"),
-            deletedAt: O.none(),
-            createdBy: actorId,
-            updatedBy: actorId,
-            deletedBy: O.none(),
-          });
+    const bullets = yield* sql.withTransaction(
+      Effect.forEach(
+        A.take(chosen, maxBullets),
+        (re, idx) =>
+          Effect.gen(function* () {
+            const bulletInsert = Entities.MeetingPrepBullet.Model.insert.make({
+              id: KnowledgeEntityIds.MeetingPrepBulletId.create(),
+              organizationId,
+              meetingPrepId,
+              bulletIndex: idx,
+              text: bulletTextFromRelation(re),
+              source: O.some("meetingprep_generate"),
+              deletedAt: O.none(),
+              createdBy: actorId,
+              updatedBy: actorId,
+              deletedBy: O.none(),
+            });
 
-          const bullet = yield* bulletRepo.insert(bulletInsert);
+            const bullet = yield* bulletRepo.insert(bulletInsert);
 
-          // Persist at least one citation per bullet, sourced from relation_evidence (D-08).
-          const evidenceInsert = Entities.MeetingPrepEvidence.Model.insert.make({
-            id: KnowledgeEntityIds.MeetingPrepEvidenceId.create(),
-            organizationId,
-            bulletId: bullet.id,
-            sourceType: "relation",
-            relationEvidenceId: O.some(re.id),
-            extractionId: re.extractionId,
-            source: O.some("meetingprep_generate"),
-            deletedAt: O.none(),
-            createdBy: actorId,
-            updatedBy: actorId,
-            deletedBy: O.none(),
-          });
+            // Persist at least one citation per bullet, sourced from relation_evidence (D-08).
+            const evidenceInsert = Entities.MeetingPrepEvidence.Model.insert.make({
+              id: KnowledgeEntityIds.MeetingPrepEvidenceId.create(),
+              organizationId,
+              bulletId: bullet.id,
+              sourceType: "relation",
+              relationEvidenceId: O.some(re.id),
+              extractionId: re.extractionId,
+              source: O.some("meetingprep_generate"),
+              deletedAt: O.none(),
+              createdBy: actorId,
+              updatedBy: actorId,
+              deletedBy: O.none(),
+            });
 
-          yield* evidenceRepo.insertVoid(evidenceInsert);
+            yield* evidenceRepo.insertVoid(evidenceInsert);
 
-          return {
-            id: bullet.id,
-            meetingPrepId: bullet.meetingPrepId,
-            bulletIndex: bullet.bulletIndex,
-            text: bullet.text,
-          } satisfies typeof Rpc.MeetingPrep.Generate.Bullet.Type;
-        }),
-      { concurrency: 1 }
+            return {
+              id: bullet.id,
+              meetingPrepId: bullet.meetingPrepId,
+              bulletIndex: bullet.bulletIndex,
+              text: bullet.text,
+            } satisfies typeof Rpc.MeetingPrep.Generate.Bullet.Type;
+          }),
+        { concurrency: 1 }
+      )
     );
 
     // Guardrail: never return bullets without citations (D-10).
     return { meetingPrepId, bullets, disclaimer: DISCLAIMER };
-  }).pipe(Effect.catchTag("DatabaseError", () => Effect.succeed({ meetingPrepId: "", bullets: [], disclaimer: DISCLAIMER })));
+  }).pipe(
+    Effect.catchTags({
+      DatabaseError: () => Effect.succeed({ meetingPrepId: "", bullets: [], disclaimer: DISCLAIMER }),
+      SqlError: () => Effect.succeed({ meetingPrepId: "", bullets: [], disclaimer: DISCLAIMER }),
+    })
+  );
 }, Effect.withSpan("meetingprep_generate"));

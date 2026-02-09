@@ -39,7 +39,11 @@ const validateWithDocumentContent = (
       FROM ${sql(DOCUMENT_VERSION_TABLE)}
       WHERE organization_id = ${organizationId}
         AND id IN ${sql.in(uniqueDocVersionIds)}
-    `.pipe(Effect.orDie);
+    `.pipe(
+      // Hardening: Evidence.List must never defect. If we cannot validate bounds due to a DB error,
+      // omit spans deterministically rather than leaking invalid offsets.
+      Effect.catchAll(() => Effect.succeed([] as const))
+    );
 
     const lenById = new Map(rows.map((r) => [r.id, r.content.length] as const));
 

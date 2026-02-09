@@ -2,7 +2,7 @@ import { BeepError } from "@beep/errors";
 import { Auth, IamDb } from "@beep/iam-server";
 import { IamDbSchema } from "@beep/iam-tables";
 import { Organization, Session, User } from "@beep/shared-domain/entities";
-import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import {
   AuthContext,
   AuthContextHttpMiddleware,
@@ -221,7 +221,7 @@ const getAuthContext = Effect.fnUntraced(function* ({
           }
 
           const row =
-            providerAccountId === undefined
+            providerAccountId === undefined || !IamEntityIds.AccountId.is(providerAccountId)
               ? O.none()
               : yield* execute((client) =>
                   client
@@ -229,7 +229,7 @@ const getAuthContext = Effect.fnUntraced(function* ({
                     .from(IamDbSchema.account)
                     .where(
                       and(
-                        eq(IamDbSchema.account.id, providerAccountId as any),
+                        eq(IamDbSchema.account.id, providerAccountId),
                         eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
                         eq(IamDbSchema.account.providerId, providerId)
                       )
@@ -445,7 +445,7 @@ const getAuthContextFromToken = Effect.fnUntraced(function* (
           });
 
           const row =
-            selectedProviderAccountId === undefined
+            selectedProviderAccountId === undefined || !IamEntityIds.AccountId.is(selectedProviderAccountId)
               ? O.none()
               : yield* iamDb
                   .execute((client) =>
@@ -454,7 +454,7 @@ const getAuthContextFromToken = Effect.fnUntraced(function* (
                       .from(IamDbSchema.account)
                       .where(
                         and(
-                          eq(IamDbSchema.account.id, selectedProviderAccountId as any),
+                          eq(IamDbSchema.account.id, selectedProviderAccountId),
                           eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
                           eq(IamDbSchema.account.providerId, providerId)
                         )

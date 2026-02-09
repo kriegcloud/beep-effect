@@ -403,7 +403,8 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
     const extractEmailsForKnowledgeGraph = (query: string, providerAccountId: string, maxResults = 50) =>
       Effect.gen(function* () {
         yield* Effect.logDebug("Extracting emails for knowledge graph").pipe(
-          Effect.annotateLogs({ query, maxResults })
+          // Hardening (C-04 / R13): do not log raw query text, which can contain PII (emails, names, subjects).
+          Effect.annotateLogs({ maxResults, hasQuery: !Str.isEmpty(query) })
         );
 
         const listResponse = yield* makeAuthorizedRequest(
