@@ -4,7 +4,7 @@
 
 ## Status
 
-- Status: `pending`
+- Status: `completed`
 - Package: `packages/common/semantic-web`
 - Target module: `packages/common/semantic-web/src/idna/*`
 

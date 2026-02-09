@@ -42,7 +42,7 @@ Refactor `packages/common/semantic-web/src/idna` (punycode port) into an Effect-
 
 **Phase 1 outputs to produce**
 
-Write these files under `specs/pending/semantic-web-idna-schema-refactor/outputs/`:
+Write these files under `specs/completed/semantic-web-idna-schema-refactor/outputs/`:
 
 - `codebase-context.md`
 - `schema-utilities.md`
@@ -77,10 +77,10 @@ Write these files under `specs/pending/semantic-web-idna-schema-refactor/outputs
 - Spec guide: `specs/_guide/README.md`
 - Handoff standards: `specs/_guide/HANDOFF_STANDARDS.md`
 - Spec entry points:
-  - `specs/pending/semantic-web-idna-schema-refactor/README.md`
-  - `specs/pending/semantic-web-idna-schema-refactor/QUICK_START.md`
-  - `specs/pending/semantic-web-idna-schema-refactor/handoffs/P1_ORCHESTRATOR_PROMPT.md`
-  - `specs/pending/semantic-web-idna-schema-refactor/AGENT_PROMPTS.md`
+  - `specs/completed/semantic-web-idna-schema-refactor/README.md`
+  - `specs/completed/semantic-web-idna-schema-refactor/QUICK_START.md`
+  - `specs/completed/semantic-web-idna-schema-refactor/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+  - `specs/completed/semantic-web-idna-schema-refactor/AGENT_PROMPTS.md`
 
 ## Context Budget Audit
 

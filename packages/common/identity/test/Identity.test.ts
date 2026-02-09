@@ -1,13 +1,14 @@
-import { describe, expect, expectTypeOf, it } from "bun:test";
+import { describe, expect, expectTypeOf, test } from "@beep/testkit";
 import * as Identifier from "@beep/identity/Identifier";
 import { __internal } from "@beep/identity/Identifier";
 import type { IdentityString } from "@beep/identity/types";
+import * as HttpApiSchema from "@effect/platform/HttpApiSchema";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 
 describe("Identifier v2", () => {
-  it("builds root and composed namespaces with $ accessors", () => {
+  test("builds root and composed namespaces with $ accessors", () => {
     const { $BeepId } = Identifier.make("beep");
     const { $SchemaId, $SharedDomainId } = $BeepId.compose("schema", "shared-domain");
     expect($BeepId.string()).toBe("@beep" as IdentityString<"@beep">);
@@ -19,7 +20,7 @@ describe("Identifier v2", () => {
     expect(nested).toBe("@beep/schema/custom/dates" as IdentityString<"@beep/schema/custom/dates">);
   });
 
-  it("returns identity strings from tagged templates", () => {
+  test("returns identity strings from tagged templates", () => {
     const { $BeepId } = Identifier.make("beep");
     const { $SchemaId } = $BeepId.compose("schema");
 
@@ -28,7 +29,7 @@ describe("Identifier v2", () => {
     expectTypeOf(serviceId).toExtend<IdentityString<`@beep/schema/${string}`>>();
   });
 
-  it("rejects interpolations and invalid tag shapes", () => {
+  test("rejects interpolations and invalid tag shapes", () => {
     const { $BeepId } = Identifier.make("beep");
     const { $SchemaId } = $BeepId.compose("schema");
 
@@ -39,7 +40,7 @@ describe("Identifier v2", () => {
     ).toThrow("Identifier template tags must use a single literal segment.");
   });
 
-  it("rejects invalid bases and module segments", () => {
+  test("rejects invalid bases and module segments", () => {
     expect(() => Identifier.make("!beep" as unknown as "!beep")).toThrow(
       "Identity bases must use alphanumeric, hyphen, or underscore characters and start/end with alphanumeric."
     );
@@ -63,7 +64,7 @@ describe("Identifier v2", () => {
     );
   });
 
-  it("normalizes optional @beep prefix on base", () => {
+  test("normalizes optional @beep prefix on base", () => {
     const { $RuntimeId } = Identifier.make("@beep/runtime");
     expect($RuntimeId.string()).toBe("@beep/runtime" as IdentityString<"@beep/runtime">);
 
@@ -83,7 +84,7 @@ describe("Identifier v2", () => {
     expect($XId.string()).toBe("@beep/x" as IdentityString<"@beep/x">);
   });
 
-  it("provides annotations with titles and stable symbols", () => {
+  test("provides annotations with titles and stable symbols", () => {
     const { $BeepId } = Identifier.make("beep");
     const { $SchemaId } = $BeepId.compose("schema");
 
@@ -105,7 +106,7 @@ describe("Identifier v2", () => {
     expect(extended.schemaId).toBe(base.schemaId);
   });
 
-  it("covers internal helpers", () => {
+  test("covers internal helpers", () => {
     expect(__internal.toTaggedKey("foo")).toBe("$FooId");
     expect(__internal.toPascalIdentifier("foo-bar")).toBe("FooBar");
     expect(__internal.toTitle("fooBar_baz")).toBe("FooBar Baz");
@@ -114,17 +115,41 @@ describe("Identifier v2", () => {
     expect(() => __internal.ensureBaseSegment(123 as unknown as string)).toThrow("Identity bases must be strings.");
     expect(__internal.normalizeBase("@beep/foo" as const)).toBe("foo");
   });
+
+  test("annotationsHttp encodes HttpApiSchema status as a symbol annotation", () => {
+    const { $BeepId } = Identifier.make("beep");
+    const { $SchemaId } = $BeepId.compose("schema");
+
+    const ann = $SchemaId.annotationsHttp<string>("MyHttpSchema", { description: "Custom", status: 201 });
+
+    // `status` should not be present as a string key; it must be encoded via HttpApiSchema's unique symbol.
+    expect("status" in ann).toBe(false);
+    expect(HttpApiSchema.AnnotationStatus in ann).toBe(true);
+    expect(Object.getOwnPropertySymbols(ann)).toContain(HttpApiSchema.AnnotationStatus);
+
+    const schema = S.String.annotations(ann);
+    expect(HttpApiSchema.getStatus(schema.ast, 0)).toBe(201);
+  });
+
+  test("annotationsHttp without extras does not set HttpApiSchema status", () => {
+    const { $BeepId } = Identifier.make("beep");
+    const { $SchemaId } = $BeepId.compose("schema");
+
+    const ann = $SchemaId.annotationsHttp<string>("MyHttpSchema");
+    const schema = S.String.annotations(ann);
+    expect(HttpApiSchema.getStatus(schema.ast, 999)).toBe(999);
+  });
 });
 
 describe("Identity Registry", () => {
-  it("registers root identity on make() call", () => {
+  test("registers root identity on make() call", () => {
     const { $TestId } = Identifier.make("test");
 
     const values = [...$TestId.identityRegistry];
     expect(values).toEqual(["@beep/test"]);
   });
 
-  it("tracks identities created via compose", () => {
+  test("tracks identities created via compose", () => {
     const { $TestId } = Identifier.make("test");
     $TestId.compose("module-a", "module-b");
 
@@ -134,7 +159,7 @@ describe("Identity Registry", () => {
     expect(values).toContain("@beep/test/module-b");
   });
 
-  it("tracks identities created via create", () => {
+  test("tracks identities created via create", () => {
     const { $TestId } = Identifier.make("test");
     const child = $TestId.create("child");
     child.create("grandchild");
@@ -144,7 +169,7 @@ describe("Identity Registry", () => {
     expect(values).toContain("@beep/test/child/grandchild");
   });
 
-  it("tracks identities created via template tags", () => {
+  test("tracks identities created via template tags", () => {
     const { $TestId } = Identifier.make("test");
     const { $ModuleId } = $TestId.compose("module");
     $ModuleId`ServiceA`;
@@ -155,7 +180,7 @@ describe("Identity Registry", () => {
     expect(values).toContain("@beep/test/module/ServiceB");
   });
 
-  it("tracks identities created via make method", () => {
+  test("tracks identities created via make method", () => {
     const { $TestId } = Identifier.make("test");
     $TestId.make("CustomPath");
 
@@ -163,7 +188,7 @@ describe("Identity Registry", () => {
     expect(values).toContain("@beep/test/CustomPath");
   });
 
-  it("tracks identities created via annotations with #annotation suffix", () => {
+  test("tracks identities created via annotations with #annotation suffix", () => {
     const { $TestId } = Identifier.make("test");
     const { $SchemaId } = $TestId.compose("schema");
     $SchemaId.annotations("MyEntity");
@@ -175,7 +200,18 @@ describe("Identity Registry", () => {
     expect(values).toContain("@beep/test/schema/AnotherEntity#annotation");
   });
 
-  it("shares registry across all derived composers", () => {
+  test("tracks identities created via annotationsHttp with #annotationHttp suffix", () => {
+    const { $TestId } = Identifier.make("test");
+    const { $SchemaId } = $TestId.compose("schema");
+    $SchemaId.annotationsHttp("MyEntity");
+    $SchemaId.annotationsHttp("AnotherEntity", { status: 400, description: "With extras" });
+
+    const values = [...$TestId.identityRegistry];
+    expect(values).toContain("@beep/test/schema/MyEntity#annotationHttp");
+    expect(values).toContain("@beep/test/schema/AnotherEntity#annotationHttp");
+  });
+
+  test("shares registry across all derived composers", () => {
     const { $TestId } = Identifier.make("test");
     const { $ChildId } = $TestId.compose("child");
     const grandchild = $ChildId.create("grandchild");

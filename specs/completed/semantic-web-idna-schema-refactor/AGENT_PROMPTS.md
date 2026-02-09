@@ -4,11 +4,11 @@
 
 ## codebase-researcher → outputs/codebase-context.md
 
-You are the `codebase-researcher` for `specs/pending/semantic-web-idna-schema-refactor`.
+You are the `codebase-researcher` for `specs/completed/semantic-web-idna-schema-refactor`.
 
 Task: map the current IDNA module surface and its in-repo consumers so a breaking rewrite can be performed safely.
 
-Write `specs/pending/semantic-web-idna-schema-refactor/outputs/codebase-context.md` containing:
+Write `specs/completed/semantic-web-idna-schema-refactor/outputs/codebase-context.md` containing:
 
 - Current exports and their shapes:
   - `packages/common/semantic-web/src/idna/index.ts`
@@ -30,11 +30,11 @@ Constraints:
 
 ## schema-expert → outputs/schema-utilities.md
 
-You are the `schema-expert` for `specs/pending/semantic-web-idna-schema-refactor`.
+You are the `schema-expert` for `specs/completed/semantic-web-idna-schema-refactor`.
 
 Task: find and summarize in-repo Schema-first patterns and utilities that are relevant to implementing `IDNA` as `S.Class` and building `IDNAFromString` with `S.transformOrFail`.
 
-Write `specs/pending/semantic-web-idna-schema-refactor/outputs/schema-utilities.md` containing:
+Write `specs/completed/semantic-web-idna-schema-refactor/outputs/schema-utilities.md` containing:
 
 - Useful patterns/utilities in `packages/common/schema` that might help:
   - branded string patterns
@@ -56,11 +56,11 @@ Constraints:
 
 ## effect-researcher → outputs/effect-schema-patterns.md + outputs/effect-module-design.md
 
-You are the `effect-researcher` for `specs/pending/semantic-web-idna-schema-refactor`.
+You are the `effect-researcher` for `specs/completed/semantic-web-idna-schema-refactor`.
 
 Task A: summarize the canonical `transformOrFail` / `ParseResult` patterns from Effect itself.
 
-Write `specs/pending/semantic-web-idna-schema-refactor/outputs/effect-schema-patterns.md` containing:
+Write `specs/completed/semantic-web-idna-schema-refactor/outputs/effect-schema-patterns.md` containing:
 
 - Key points from `.repos/effect/packages/effect/src/Schema.ts` relevant to:
   - `S.transformOrFail`
@@ -74,7 +74,7 @@ Write `specs/pending/semantic-web-idna-schema-refactor/outputs/effect-schema-pat
 
 Task B: capture module design conventions worth mirroring.
 
-Write `specs/pending/semantic-web-idna-schema-refactor/outputs/effect-module-design.md` containing:
+Write `specs/completed/semantic-web-idna-schema-refactor/outputs/effect-module-design.md` containing:
 
 - Patterns to mirror from `.repos/effect/packages/effect/src/*`:
   - public surface vs `internal/*` helpers

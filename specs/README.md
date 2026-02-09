@@ -67,7 +67,6 @@ bun run spec:move -- <spec-name> pending|completed|archived
 | [naming-conventions-refactor](pending/naming-conventions-refactor/) |
 | [rls-implementation](completed/rls-implementation/) |
 | [sanitize-html-schema](pending/sanitize-html-schema/) |
-| [semantic-web-idna-schema-refactor](pending/semantic-web-idna-schema-refactor/) |
 | [semantic-web-uri-schema-refactor](pending/semantic-web-uri-schema-refactor/) |
 | [tagged-values-kit](completed/tagged-values-kit/) |
 | [todox-design](pending/todox-design/) |
@@ -91,6 +90,7 @@ bun run spec:move -- <spec-name> pending|completed|archived
 | [repo-cli-verify-commands](completed/repo-cli-verify-commands/) |
 | [scripts-to-cli-migration](completed/scripts-to-cli-migration/) |
 | [spec-creation-improvements](completed/spec-creation-improvements/) |
+| [semantic-web-idna-schema-refactor](completed/semantic-web-idna-schema-refactor/) |
 
 ## Archived Specs
 
