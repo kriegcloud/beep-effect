@@ -14,10 +14,10 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as React from "react";
 import type { AssembledEntity, GraphRAGResult, Relation } from "../types";
-
+import type {KnowledgeEntityIds} from "@beep/shared-domain";
 interface QueryResultDisplayProps {
   readonly result: GraphRAGResult | null;
-  readonly onEntitySelect?: undefined | ((entityId: string) => void);
+  readonly onEntitySelect?: undefined | ((entityId: KnowledgeEntityIds.KnowledgeEntityId.Type) => void);
 }
 
 function getSimpleType(typeUri: string): string {
@@ -110,7 +110,7 @@ interface EntitiesTabProps {
   readonly entities: readonly AssembledEntity[];
   readonly seeds: readonly AssembledEntity[];
   readonly scores: Record<string, number>;
-  readonly onEntitySelect?: (entityId: string) => void;
+  readonly onEntitySelect?: (entityId: KnowledgeEntityIds.KnowledgeEntityId.Type) => void;
 }
 
 function EntitiesTab({ entities, seeds, scores, onEntitySelect }: EntitiesTabProps) {

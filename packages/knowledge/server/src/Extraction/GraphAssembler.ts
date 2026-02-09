@@ -86,7 +86,7 @@ export declare namespace AssembledEntityAttributes {
 
 export class AssembledEntity extends S.Class<AssembledEntity>($I`AssembledEntity`)(
   {
-    id: S.String,
+    id: KnowledgeEntityIds.KnowledgeEntityId,
     mention: S.String,
     primaryType: S.String,
     types: S.Array(S.String),
@@ -101,10 +101,10 @@ export class AssembledEntity extends S.Class<AssembledEntity>($I`AssembledEntity
 
 export class AssembledRelation extends S.Class<AssembledRelation>($I`AssembledRelation`)(
   {
-    id: S.String,
-    subjectId: S.String,
+    id: KnowledgeEntityIds.RelationId,
+    subjectId: KnowledgeEntityIds.KnowledgeEntityId,
     predicate: S.String,
-    objectId: S.optional(S.String),
+    objectId: S.optional(KnowledgeEntityIds.KnowledgeEntityId),
     literalValue: S.optional(S.String),
     literalType: S.optional(S.String),
     confidence: S.Number,

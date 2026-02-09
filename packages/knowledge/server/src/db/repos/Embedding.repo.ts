@@ -19,7 +19,7 @@ export class SimilarityResult extends S.Class<SimilarityResult>($I`SimilarityRes
   {
     id: KnowledgeEntityIds.EmbeddingId,
     entityType: Entities.Embedding.EntityType,
-    entityId: S.String,
+    entityId: KnowledgeEntityIds.KnowledgeEntityId,
     contentText: S.optional(S.String),
     similarity: S.Number,
   },

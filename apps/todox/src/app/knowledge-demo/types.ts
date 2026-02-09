@@ -1,3 +1,5 @@
+import type {KnowledgeEntityIds} from "@beep/shared-domain";
+
 export interface EvidenceSpan {
   text: string;
   startChar: number;
@@ -6,7 +8,7 @@ export interface EvidenceSpan {
 }
 
 export interface Relation {
-  id: string;
+  id: KnowledgeEntityIds.RelationId.Type;
   subjectId: string;
   predicate: string;
   objectId?: undefined | string;
@@ -16,7 +18,7 @@ export interface Relation {
 }
 
 export interface AssembledEntity {
-  id: string;
+  id: KnowledgeEntityIds.KnowledgeEntityId.Type;
   mention: string;
   primaryType: string;
   types: readonly string[];
@@ -61,8 +63,8 @@ export interface GraphRAGResult {
 
 // Entity cluster for resolution display
 export interface EntityCluster {
-  readonly id: string;
-  readonly canonicalEntityId: string;
+  readonly id: KnowledgeEntityIds.EntityClusterId.Type;
+  readonly canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId.Type;
   readonly canonicalEntity: AssembledEntity;
   readonly memberIds: readonly string[];
   readonly memberEntities: readonly AssembledEntity[];
@@ -73,7 +75,7 @@ export interface EntityCluster {
 // Same-as link for provenance display
 export interface SameAsLink {
   readonly id: string;
-  readonly canonicalId: string;
+  readonly canonicalId: KnowledgeEntityIds.SameAsLinkId.Type;
   readonly memberId: string;
   readonly confidence: number;
   readonly reason: string; // "name_similarity", "attribute_match", etc.
@@ -95,7 +97,7 @@ export interface ResolutionResult {
 
 // Extraction session for tracking multiple extractions
 export interface ExtractionSession {
-  readonly id: string;
+  readonly id: KnowledgeEntityIds.ExtractionId.Type;
   readonly timestamp: number;
   readonly sourceText: string;
   readonly entities: readonly AssembledEntity[];
