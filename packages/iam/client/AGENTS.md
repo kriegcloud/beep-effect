@@ -140,6 +140,9 @@ bun run check --filter @beep/iam-client
 - ALWAYS keep namespace imports for every Effect module and repo package (`import * as Effect from "effect/Effect"`,
   `import * as F from "effect/Function"`). Native array/string helpers remain forbidden—pipe through `effect/Array` and
   `effect/String`.
+- Namespace export gotcha: `@beep/iam-client` uses namespace re-exports for some modules (e.g. `export * as Organization from "./mod.ts"`), which means `import { Organization } from "@beep/iam-client"` gives you a namespace wrapper (not the submodule shape). If you need `Organization.Crud.*` or `OAuth2.Link.*`, import from the subpath:
+  - `import { Organization } from "@beep/iam-client/organization"`
+  - `import { OAuth2 } from "@beep/iam-client/oauth2"`
 - Use Effect Schema (`import * as S from "effect/Schema"`) with PascalCase constructors (`S.Struct`, `S.String`, `S.Number`)
   for all validation schemas in forms and API payloads.
 - When integrating with Better Auth, use `wrapIamMethod` from `@beep/iam-client/_internal` to maintain Effect-first semantics

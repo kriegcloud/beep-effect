@@ -6,9 +6,7 @@ import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import type * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
-import * as Eq from "effect/Equal";
 import * as Layer from "effect/Layer";
-import * as P from "effect/Predicate";
 import * as AuthContext from "./AuthContext.layer";
 import { BetterAuthRouterLive } from "./BetterAuthRouter.layer";
 import * as Logger from "./Logger.layer";
@@ -48,7 +46,10 @@ export const layer = HttpLayerRouter.serve(AllRoutes, {
   HttpMiddleware.withTracerDisabledWhen(
     (request) =>
       BS.HttpMethod.is.OPTIONS(request.method) ||
-      P.or(Eq.equals("/v1/health"), Eq.equals("/v1/documents/rpc"))(request.url)
+      request.url === "/v1/health" ||
+      request.url === "/v1/shared/rpc" ||
+      request.url === "/v1/documents/rpc" ||
+      request.url === "/v1/knowledge/rpc"
   ),
   HttpMiddleware.withSpanNameGenerator((request: HttpServerRequest.HttpServerRequest) => {
     let path = request.url;

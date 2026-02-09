@@ -53,14 +53,20 @@ export class GmailAdapter extends Context.Tag($I`GmailAdapter`)<
   {
     readonly listMessages: (
       query: string,
-      maxResults: number
+      maxResults: number,
+      providerAccountId: string
     ) => Effect.Effect<ReadonlyArray<GmailMessage>, GmailAdapterError>;
 
-    readonly getMessage: (messageId: string) => Effect.Effect<GmailMessage, GmailAdapterError>;
+    readonly getMessage: (messageId: string, providerAccountId: string) => Effect.Effect<GmailMessage, GmailAdapterError>;
 
-    readonly sendMessage: (to: string, subject: string, body: string) => Effect.Effect<GmailMessage, GmailAdapterError>;
+    readonly sendMessage: (
+      to: string,
+      subject: string,
+      body: string,
+      providerAccountId: string
+    ) => Effect.Effect<GmailMessage, GmailAdapterError>;
 
-    readonly getThread: (threadId: string) => Effect.Effect<GmailThread, GmailAdapterError>;
+    readonly getThread: (threadId: string, providerAccountId: string) => Effect.Effect<GmailThread, GmailAdapterError>;
   }
 >() {}
 
@@ -163,18 +169,20 @@ export const GmailAdapterLive: Layer.Layer<GmailAdapter, never, GoogleAuthClient
       const authClient = yield* GoogleAuthClient;
       const httpClient = yield* HttpClient.HttpClient;
 
-      const getAuthHeader = Effect.gen(function* () {
-        const token = yield* authClient.getValidToken(REQUIRED_SCOPES);
-        const accessToken = O.getOrThrow(token.accessToken);
-        return `Bearer ${accessToken}`;
-      });
+      const getAuthHeader = (providerAccountId: string) =>
+        Effect.gen(function* () {
+          const token = yield* authClient.getValidToken(REQUIRED_SCOPES, providerAccountId);
+          const accessToken = O.getOrThrow(token.accessToken);
+          return `Bearer ${accessToken}`;
+        });
 
       const makeAuthorizedRequest = <T>(
         request: HttpClientRequest.HttpClientRequest,
-        spanName: string
+        spanName: string,
+        providerAccountId: string
       ): Effect.Effect<T, GmailAdapterError> =>
         Effect.gen(function* () {
-          const authHeader = yield* getAuthHeader;
+          const authHeader = yield* getAuthHeader(providerAccountId);
           const authorizedRequest = HttpClientRequest.setHeader(request, "Authorization", authHeader);
 
           const response = yield* httpClient.execute(authorizedRequest).pipe(
@@ -214,7 +222,8 @@ export const GmailAdapterLive: Layer.Layer<GmailAdapter, never, GoogleAuthClient
 
       const listMessages = (
         query: string,
-        maxResults: number
+        maxResults: number,
+        providerAccountId: string
       ): Effect.Effect<ReadonlyArray<GmailMessage>, GmailAdapterError> =>
         Effect.gen(function* () {
           const url = `${GMAIL_API_BASE}/messages?q=${encodeURIComponent(query)}&maxResults=${maxResults}`;
@@ -222,7 +231,8 @@ export const GmailAdapterLive: Layer.Layer<GmailAdapter, never, GoogleAuthClient
 
           const listResponse = yield* makeAuthorizedRequest<RawListMessagesResponse>(
             request,
-            "GmailAdapter.listMessages"
+            "GmailAdapter.listMessages",
+            providerAccountId
           );
 
           const messageRefs = listResponse.messages ?? [];
@@ -231,24 +241,33 @@ export const GmailAdapterLive: Layer.Layer<GmailAdapter, never, GoogleAuthClient
           }
 
           const messages = yield* Effect.all(
-            A.map(messageRefs, (ref) => getMessage(ref.id)),
+            A.map(messageRefs, (ref) => getMessage(ref.id, providerAccountId)),
             { concurrency: 5 }
           );
 
           return messages;
         }).pipe(Effect.withSpan("GmailAdapter.listMessages"));
 
-      const getMessage = (messageId: string): Effect.Effect<GmailMessage, GmailAdapterError> =>
+      const getMessage = (messageId: string, providerAccountId: string): Effect.Effect<GmailMessage, GmailAdapterError> =>
         Effect.gen(function* () {
           const url = `${GMAIL_API_BASE}/messages/${encodeURIComponent(messageId)}?format=full`;
           const request = HttpClientRequest.get(url);
 
-          const rawMessage = yield* makeAuthorizedRequest<RawGmailMessage>(request, "GmailAdapter.getMessage");
+          const rawMessage = yield* makeAuthorizedRequest<RawGmailMessage>(
+            request,
+            "GmailAdapter.getMessage",
+            providerAccountId
+          );
 
           return translateGmailMessage(rawMessage);
         }).pipe(Effect.withSpan("GmailAdapter.getMessage"), Effect.annotateLogs({ messageId }));
 
-      const sendMessage = (to: string, subject: string, body: string): Effect.Effect<GmailMessage, GmailAdapterError> =>
+      const sendMessage = (
+        to: string,
+        subject: string,
+        body: string,
+        providerAccountId: string
+      ): Effect.Effect<GmailMessage, GmailAdapterError> =>
         Effect.gen(function* () {
           const rawMessage = createRfc2822Message(to, subject, body);
           const encodedMessage = encodeBase64Url(rawMessage);
@@ -269,18 +288,23 @@ export const GmailAdapterLive: Layer.Layer<GmailAdapter, never, GoogleAuthClient
 
           const rawResponse = yield* makeAuthorizedRequest<RawGmailMessage>(
             requestWithBody,
-            "GmailAdapter.sendMessage"
+            "GmailAdapter.sendMessage",
+            providerAccountId
           );
 
           return translateGmailMessage(rawResponse);
         }).pipe(Effect.withSpan("GmailAdapter.sendMessage"), Effect.annotateLogs({ to: Str.slice(0, 3)(to) + "***" }));
 
-      const getThread = (threadId: string): Effect.Effect<GmailThread, GmailAdapterError> =>
+      const getThread = (threadId: string, providerAccountId: string): Effect.Effect<GmailThread, GmailAdapterError> =>
         Effect.gen(function* () {
           const url = `${GMAIL_API_BASE}/threads/${encodeURIComponent(threadId)}?format=full`;
           const request = HttpClientRequest.get(url);
 
-          const rawThread = yield* makeAuthorizedRequest<RawGmailThread>(request, "GmailAdapter.getThread");
+          const rawThread = yield* makeAuthorizedRequest<RawGmailThread>(
+            request,
+            "GmailAdapter.getThread",
+            providerAccountId
+          );
 
           return translateGmailThread(rawThread);
         }).pipe(Effect.withSpan("GmailAdapter.getThread"), Effect.annotateLogs({ threadId }));

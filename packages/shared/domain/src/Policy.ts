@@ -88,6 +88,38 @@ export class OAuthAccountsError extends Schema.TaggedError<OAuthAccountsError>()
 }) {}
 
 /**
+ * Candidate provider accounts for deterministic selection (no server defaults).
+ *
+ * NOTE: This is intentionally minimal and must not include tokens/secrets.
+ */
+export const ProviderAccountCandidate = Schema.Struct({
+  providerAccountId: Schema.String, // IAM `account.id`
+  accountId: Schema.optional(Schema.String), // external provider identifier (label for UI)
+  scope: Schema.optional(Schema.String), // optional; UX/debug display only
+}).annotations({
+  identifier: "ProviderAccountCandidate",
+});
+export type ProviderAccountCandidate = typeof ProviderAccountCandidate.Type;
+
+/**
+ * Typed error payload when providerAccountId is required but missing (C-06).
+ *
+ * This is demo-fatal if violated: the server must never pick an arbitrary linked account.
+ */
+export class ProviderAccountSelectionRequiredError extends Schema.TaggedError<ProviderAccountSelectionRequiredError>()(
+  "ProviderAccountSelectionRequiredError",
+  {
+    providerId: Schema.Literal("google"),
+    requiredParam: Schema.Literal("providerAccountId"),
+    candidates: Schema.Array(ProviderAccountCandidate),
+    select: Schema.Struct({
+      callbackURL: Schema.Literal("/settings?settingsTab=connections"),
+    }),
+    message: Schema.optional(Schema.String),
+  }
+) {}
+
+/**
  * OAuth account information from the account table.
  * Contains full token and scope details needed by integration packages.
  */
@@ -123,7 +155,8 @@ export type OAuthApi = {
   readonly getAccessToken: (params: {
     providerId: string;
     userId: string;
-  }) => Effect.Effect<O.Option<OAuthTokenResult>, OAuthTokenError>;
+    providerAccountId?: string | undefined;
+  }) => Effect.Effect<O.Option<OAuthTokenResult>, OAuthTokenError | ProviderAccountSelectionRequiredError>;
 
   /**
    * Gets OAuth account details for a specific provider.
@@ -132,7 +165,17 @@ export type OAuthApi = {
   readonly getProviderAccount: (params: {
     providerId: string;
     userId: string;
-  }) => Effect.Effect<O.Option<OAuthAccount>, OAuthAccountsError>;
+    providerAccountId?: string | undefined;
+  }) => Effect.Effect<O.Option<OAuthAccount>, OAuthAccountsError | ProviderAccountSelectionRequiredError>;
+
+  /**
+   * Lists provider accounts for deterministic selection UX (C-06).
+   * Must never include tokens/secrets.
+   */
+  readonly listProviderAccounts: (params: {
+    providerId: string;
+    userId: string;
+  }) => Effect.Effect<ReadonlyArray<ProviderAccountCandidate>, OAuthAccountsError>;
 };
 
 export type AuthContextShape = {

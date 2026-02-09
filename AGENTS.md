@@ -108,6 +108,7 @@ For Cursor IDE parity workflows and adaptations, use:
 6. **Do Not Auto-Start**: Never launch long-running dev or server commands without confirmation
 7. **Shell Quoting (zsh)**: Avoid backticks inside double-quoted strings (command substitution). Prefer single quotes around `rg` patterns, especially when the pattern includes Markdown backticks.
 8. **Dirty Worktrees Are OK**: Do not treat a non-clean git status as a blocker. This repo often runs multiple agents in parallel on the same branch. Only require a clean worktree for operations that strictly need it (e.g. certain codemods, `git subtree`, history rewriting). Never revert/stash/clean unless explicitly requested.
+9. **UI Icon Hygiene**: The `@beep/ui` `Iconify` wrapper is typed against a constrained icon id union. If a new icon id fails `tsc`, prefer an icon id already used in the repo, or extend the icon catalog/types first (do not “just use any icon id” and leave type errors).
 
 ## Specifications
 

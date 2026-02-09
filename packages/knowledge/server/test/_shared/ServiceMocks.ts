@@ -80,7 +80,7 @@ export const makeGoogleAuthClientLayer = (options?: {
   return Layer.succeed(
     GoogleAuthClient,
     GoogleAuthClient.of({
-      getValidToken: (requiredScopes) =>
+      getValidToken: (requiredScopes, _providerAccountId) =>
         missingScopes
           ? Effect.fail(
               new GoogleScopeExpansionRequiredError({
@@ -99,7 +99,7 @@ export const makeGoogleAuthClientLayer = (options?: {
                 expiryDate: O.some(DateTime.add(DateTime.unsafeNow(), { hours: 1 })),
               })
             ),
-      refreshToken: () =>
+      refreshToken: (_refreshToken, _providerAccountId) =>
         Effect.fail(
           new GoogleAuthenticationError({
             message: "Mock client does not support refresh",

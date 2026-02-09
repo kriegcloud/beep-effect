@@ -1,6 +1,4 @@
 import * as pg from "drizzle-orm/pg-core";
-import * as A from "effect/Array";
-import { pipe } from "effect/Function";
 import * as Str from "effect/String";
 // =============================================================================
 // Custom Types
@@ -16,17 +14,21 @@ import * as Str from "effect/String";
  * @category Custom Types
  */
 export const vectorN = (dimension: number) =>
-  pg.customType<{ data: ReadonlyArray<number>; driverData: string }>({
+  // Note: we intentionally expose pgvector values as their literal string form ("[0.1,0.2,...]").
+  // Runtime code decodes/encodes via Effect Schema at the boundary, and the DB driver expects the literal.
+  pg.customType<{ data: string; driverData: string }>({
     dataType() {
       return `vector(${dimension})`;
     },
-    toDriver(value: ReadonlyArray<number>): string {
-      return `[${value.join(",")}]`;
+    toDriver(value: string): string {
+      const trimmed = value.trim();
+      if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+        throw new Error(`Invalid pgvector literal for vector(${dimension}): expected "[...]", got "${value}"`);
+      }
+      return trimmed;
     },
-    fromDriver(value: string): ReadonlyArray<number> {
-      // Parse "[0.1,0.2,...]" format from PostgreSQL
-      const cleaned = Str.replace(/^\[|]$/g, "")(value);
-      return pipe(cleaned, Str.split(","), A.map(Number));
+    fromDriver(value: string): string {
+      return Str.trim(value);
     },
   });
 

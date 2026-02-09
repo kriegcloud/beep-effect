@@ -42,3 +42,20 @@ This log captures phase-end learnings so subsequent phases improve instead of re
   - In P2, treat any acceptance gate failure as a hard stop; do not “paper over” gaps with UI mocks.
   - Add tests early for `Evidence.List returns documentVersionId for every evidence row` and `Relation evidence never requires relation.extractionId -> extraction.documentId`.
   - Keep `/knowledge` UI work blocked until PR3 + PR5 gates are green (persisted evidence + meeting prep).
+
+## Phase P2 (Hardening)
+
+- Date: 2026-02-09
+- What worked:
+  - Wrote hardening tests that fail loud on multi-tenant leakage, including embeddings/vector search, and that assert evidence resolvability + restart-safety via version-pinned UTF-16 spans.
+  - Made evidence bounds validation deterministic by validating against immutable `documentVersion.content.length` in JS (UTF-16), avoiding Postgres `length()` semantics drift.
+  - Removed “pick first linked account” behavior by enforcing typed C-06 failure for missing `providerAccountId`, and added a small unit-testable helper to prevent regressions.
+  - Added an OAuth callback compatibility route (`/settings`) and a Connections tab surface that supports linking/unlinking and persisting an org-level active Google `providerAccountId`.
+- What failed / surprised us:
+  - The `@beep/ui` `Iconify` wrapper uses a constrained icon union; new icon ids not in the catalog will fail typecheck even if they exist upstream.
+  - Next.js `searchParams` typing (string vs string[]) is easy to get subtly wrong; prefer explicit `typeof raw === "string"` narrowing.
+  - Better Auth organization CRUD surfaces do not expose `organization.settings`; org-level persistence had to use `organization.metadata` for MVP.
+- Changes for next phase:
+  - Treat the Connections tab as the single source of truth for account selection; if additional demo surfaces invoke Google adapters, they must plumb `providerAccountId` explicitly from this selection (never server defaults).
+  - If infra work introduces staging domains, ensure `/settings?settingsTab=connections` continues to resolve (redirects are acceptable, but the callback URL string is locked by contract).
+  - Consider adding a small E2E smoke test in CI for the OAuth callback deep link + persisted org metadata selection once staging exists.

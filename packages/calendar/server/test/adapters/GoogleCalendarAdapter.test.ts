@@ -22,18 +22,19 @@ import {
   GoogleScopeExpansionRequiredError,
 } from "@beep/google-workspace-domain";
 import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
-import { HttpClient, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
+import { HttpClient, type HttpClientError, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 const MockGoogleAuthClient = Layer.succeed(
   GoogleAuthClient,
   GoogleAuthClient.of({
-    getValidToken: (_scopes) =>
+    getValidToken: (_scopes, _providerAccountId) =>
       Effect.succeed(
         new GoogleOAuthToken({
           accessToken: O.some("mock-access-token"),
@@ -43,7 +44,7 @@ const MockGoogleAuthClient = Layer.succeed(
           expiryDate: O.some(DateTime.add(DateTime.unsafeNow(), { hours: 1 })),
         })
       ),
-    refreshToken: () =>
+    refreshToken: (_refreshToken, _providerAccountId) =>
       Effect.fail(
         new GoogleAuthenticationError({
           message: "Mock client does not support refresh",
@@ -55,7 +56,7 @@ const MockGoogleAuthClient = Layer.succeed(
 const MockGoogleAuthClientMissingScopes = Layer.succeed(
   GoogleAuthClient,
   GoogleAuthClient.of({
-    getValidToken: (requiredScopes) =>
+    getValidToken: (requiredScopes, _providerAccountId) =>
       Effect.fail(
         new GoogleScopeExpansionRequiredError({
           message: "Missing required scopes",
@@ -64,7 +65,7 @@ const MockGoogleAuthClientMissingScopes = Layer.succeed(
           missingScopes: A.fromIterable(requiredScopes),
         })
       ),
-    refreshToken: () =>
+    refreshToken: (_refreshToken, _providerAccountId) =>
       Effect.fail(
         new GoogleAuthenticationError({
           message: "Mock client does not support refresh",
@@ -80,21 +81,27 @@ const makeHttpClientMock = (
 ) =>
   Layer.succeed(
     HttpClient.HttpClient,
-    HttpClient.make((request) =>
-      Effect.gen(function* () {
-        const result = yield* handler(request);
-        return HttpClientResponse.fromWeb(
-          request,
-          new Response(JSON.stringify(result.body), {
-            status: result.status,
-            headers: { "Content-Type": "application/json" },
-          })
-        );
-      })
+    HttpClient.makeWith<never, never, HttpClientError.HttpClientError, never>(
+      (requestEffect) =>
+        Effect.flatMap(requestEffect, (request) =>
+          Effect.gen(function* () {
+            const result = yield* handler(request);
+            const encoded = yield* S.encodeUnknown(S.parseJson(S.Unknown))(result.body);
+            return HttpClientResponse.fromWeb(
+              request,
+              new Response(encoded, {
+                status: result.status,
+                headers: { "Content-Type": "application/json" },
+              })
+            );
+          }).pipe(Effect.catchTag("ParseError", Effect.die))
+        ),
+      (request) => Effect.succeed(request)
     )
   );
 
 describe("GoogleCalendarAdapter", () => {
+  const providerAccountId = "iam_account__00000000-0000-0000-0000-000000000000";
   describe("listEvents", () => {
     const mockListEventsResponse = {
       items: [
@@ -149,7 +156,7 @@ describe("GoogleCalendarAdapter", () => {
           const now = DateTime.unsafeNow();
           const weekLater = DateTime.add(now, { days: 7 });
 
-          const events = yield* adapter.listEvents("primary", now, weekLater);
+          const events = yield* adapter.listEvents("primary", now, weekLater, providerAccountId);
 
           strictEqual(events.length, 2);
           strictEqual(events[0]?.id, "event-1");
@@ -167,7 +174,7 @@ describe("GoogleCalendarAdapter", () => {
           const now = DateTime.unsafeNow();
           const weekLater = DateTime.add(now, { days: 7 });
 
-          const events = yield* adapter.listEvents("primary", now, weekLater);
+          const events = yield* adapter.listEvents("primary", now, weekLater, providerAccountId);
 
           strictEqual(events[0]?.attendees.length, 1);
           strictEqual(events[0]?.attendees[0], "user@example.com");
@@ -192,7 +199,7 @@ describe("GoogleCalendarAdapter", () => {
           const now = DateTime.unsafeNow();
           const weekLater = DateTime.add(now, { days: 7 });
 
-          const error = yield* Effect.flip(adapter.listEvents("nonexistent", now, weekLater));
+          const error = yield* Effect.flip(adapter.listEvents("nonexistent", now, weekLater, providerAccountId));
 
           assertTrue(error instanceof GoogleApiError);
           strictEqual(error.statusCode, 404);
@@ -246,7 +253,7 @@ describe("GoogleCalendarAdapter", () => {
             attendees: ["invitee@example.com"],
           };
 
-          const event = yield* adapter.createEvent("primary", input);
+          const event = yield* adapter.createEvent("primary", input, providerAccountId);
 
           strictEqual(event.id, "new-event-123");
           strictEqual(event.summary, "New Meeting");
@@ -294,7 +301,7 @@ describe("GoogleCalendarAdapter", () => {
           const event = yield* adapter.updateEvent("primary", "event-1", {
             summary: "Updated Meeting Title",
             description: "Updated description",
-          });
+          }, providerAccountId);
 
           strictEqual(event.id, "event-1");
           strictEqual(event.summary, "Updated Meeting Title");
@@ -326,14 +333,14 @@ describe("GoogleCalendarAdapter", () => {
       it.effect("deletes event successfully", () =>
         Effect.gen(function* () {
           const adapter = yield* GoogleCalendarAdapter;
-          yield* adapter.deleteEvent("primary", "event-1");
+          yield* adapter.deleteEvent("primary", "event-1", providerAccountId);
         })
       );
 
       it.effect("returns GoogleApiError for non-existent event", () =>
         Effect.gen(function* () {
           const adapter = yield* GoogleCalendarAdapter;
-          const error = yield* Effect.flip(adapter.deleteEvent("primary", "nonexistent"));
+          const error = yield* Effect.flip(adapter.deleteEvent("primary", "nonexistent", providerAccountId));
 
           assertTrue(error instanceof GoogleApiError);
           strictEqual(error.statusCode, 404);
@@ -357,7 +364,7 @@ describe("GoogleCalendarAdapter", () => {
           const now = DateTime.unsafeNow();
           const weekLater = DateTime.add(now, { days: 7 });
 
-          const error = yield* Effect.flip(adapter.listEvents("primary", now, weekLater));
+          const error = yield* Effect.flip(adapter.listEvents("primary", now, weekLater, providerAccountId));
 
           assertTrue(error instanceof GoogleScopeExpansionRequiredError);
           assertTrue(error.missingScopes.length > 0);

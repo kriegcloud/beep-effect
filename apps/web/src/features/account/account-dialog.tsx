@@ -17,6 +17,7 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import React from "react";
 // import { GeneralTabPanel } from "@/features/account/general/GeneralTabPanel";
+import { ConnectionsTabPanel } from "@/features/account/connections/ConnectionsTabPanel";
 import { LocalizationTabPanel } from "@/features/account/localization/LocalizationTabPanel";
 import { SecurityTabPanel } from "@/features/account/security/SecurityTabPanel";
 import { AccountNotificationsView } from "@/features/account/view";
@@ -59,6 +60,13 @@ const NAV_ITEMS = (handleTab: (tab: AccountSettingsTabSearchParamValue.Type) => 
       icon: <Iconify width={24} icon="ic:round-vpn-key" />,
       onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.security),
       render: () => <SecurityTabPanel />,
+    },
+    {
+      slug: AccountSettingsTabSearchParamValue.Enum.connections,
+      label: "Connections",
+      icon: <Iconify width={24} icon="material-symbols:add" />,
+      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.connections),
+      render: () => <ConnectionsTabPanel />,
     },
     {
       slug: AccountSettingsTabSearchParamValue.Enum.localization,

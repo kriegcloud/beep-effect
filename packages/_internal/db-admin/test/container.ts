@@ -3,6 +3,7 @@ import { DocumentsRepos } from "@beep/documents-server";
 import { DocumentsDb } from "@beep/documents-server/db";
 import { IamRepos } from "@beep/iam-server";
 import { IamDb } from "@beep/iam-server/db";
+import { KnowledgeDb, KnowledgeRepos } from "@beep/knowledge-server/db";
 import { DbClient, SharedDb, SharedRepos, TenantContext } from "@beep/shared-server";
 import { TenantContextTag } from "@beep/testkit/rls";
 import * as FileSystem from "@effect/platform/FileSystem";
@@ -33,21 +34,23 @@ export class DevContainerError extends Data.TaggedError("DevContainerError")<{
   cause?: unknown;
 }> {}
 
-export type SliceDatabaseClients = DocumentsDb.Db | IamDb.Db | SharedDb.Db;
+export type SliceDatabaseClients = DocumentsDb.Db | IamDb.Db | KnowledgeDb.Db | SharedDb.Db;
 export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, DbClient.PgClientServices>;
 export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
   IamDb.layer,
   DocumentsDb.layer,
+  KnowledgeDb.layer,
   SharedDb.layer
 );
 
-type SliceRepositories = DocumentsRepos.Repos | IamRepos.Repos | SharedRepos.Repos;
+type SliceRepositories = DocumentsRepos.Repos | IamRepos.Repos | KnowledgeRepos.Repos | SharedRepos.Repos;
 //
 // type L = Layer.Layer.Context<typeof IamRepos.layer>
 type SliceReposLive = Layer.Layer<SliceRepositories, never, DbClient.PgClientServices | SliceDatabaseClients>;
 export const SliceReposLive: SliceReposLive = Layer.mergeAll(
   IamRepos.layer,
   DocumentsRepos.layer,
+  KnowledgeRepos.layer,
   SharedRepos.layer
 ).pipe(Layer.orDie);
 
@@ -110,6 +113,21 @@ const POSTGRES_USER = "test";
 const POSTGRES_PASSWORD = "test";
 const POSTGRES_DB = "test";
 
+const PG_TEST_DEBUG = process.env.PG_TEST_DEBUG === "1";
+const dbg = (...args: ReadonlyArray<unknown>) => {
+  if (PG_TEST_DEBUG) {
+    // Bun test output can suppress Effect logger output; use stderr for debugging.
+    console.error("[PgTest]", ...args);
+  }
+};
+
+const postgresSilentNotices = { onnotice: () => {} } as const;
+
+// Non-superuser role used by tests to ensure RLS is actually enforced.
+// The container bootstrap user is effectively superuser and would bypass RLS.
+const APP_DB_USER = "app_user";
+const APP_DB_PASSWORD = "app_password";
+
 const setupDocker = Effect.gen(function* () {
   // Make sure to use Postgres 15 with pg_uuidv7 installed
   // Ensure you have the pg_uuidv7 docker image locally
@@ -138,8 +156,9 @@ const setupDocker = Effect.gen(function* () {
   });
 
   const connectionString = `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${container.getHost()}:${container.getFirstMappedPort()}/${POSTGRES_DB}`;
+  dbg("container started", { host: container.getHost(), port: container.getFirstMappedPort() });
   yield* Effect.logInfo(`Connection string: ${connectionString}`);
-  const client = postgres(connectionString);
+  const client = postgres(connectionString, postgresSilentNotices);
 
   const db = drizzle(client);
 
@@ -215,69 +234,105 @@ export class PgContainer extends Effect.Service<PgContainer>()("PgContainer", {
   );
 }
 
-const ApplySchemaDump = Layer.effectDiscard(
+export const PgTest = Layer.scopedContext(
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-
     const { container } = yield* PgContainer;
 
     const currentDir = path.dirname(fileURLToPath(import.meta.url));
     const migrationsFolder = path.join(currentDir, "../drizzle");
+    dbg("starting migrations", { migrationsFolder });
     yield* Effect.logInfo(`Migration path: ${migrationsFolder}`);
     if (!(yield* fs.exists(migrationsFolder))) {
       return yield* new DomainError({
         message: "Migrations directory not found",
-        cause: {
-          path: migrationsFolder,
-        },
+        cause: { path: migrationsFolder },
       });
     }
-    const client = postgres(container.getConnectionUri());
-    const db = drizzle(client);
 
-    yield* Effect.tryPromise({
-      try: () => migrate(db, { migrationsFolder }),
-      catch: () =>
-        new DomainError({
-          message: "Failed to apply migrations",
-          cause: new Error("Failed to apply migrations"),
+    // Apply migrations and bootstrap non-superuser test role using a superuser connection.
+    yield* Effect.acquireUseRelease(
+      Effect.sync(() => {
+        const client = postgres(container.getConnectionUri(), postgresSilentNotices);
+        const db = drizzle(client);
+        return { client, db };
+      }),
+      ({ db }) =>
+        Effect.tryPromise({
+          try: async () => {
+            await migrate(db, { migrationsFolder });
+            dbg("migrations complete");
+
+            dbg("creating/granting app_user");
+            await db.execute(
+              sql.raw(`
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${APP_DB_USER}') THEN
+    CREATE ROLE ${APP_DB_USER} LOGIN PASSWORD '${APP_DB_PASSWORD}';
+  END IF;
+END $$;
+              `)
+            );
+            await db.execute(sql.raw(`GRANT USAGE ON SCHEMA public TO ${APP_DB_USER};`));
+            // Some tests create ad-hoc tables (e.g. CHECK/NOT NULL constraint tests).
+            // Grant CREATE so those tests exercise DatabaseError matching under the non-superuser role.
+            await db.execute(sql.raw(`GRANT CREATE ON SCHEMA public TO ${APP_DB_USER};`));
+            await db.execute(
+              sql.raw(`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${APP_DB_USER};`)
+            );
+            await db.execute(sql.raw(`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${APP_DB_USER};`));
+            await db.execute(
+              sql.raw(
+                `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${APP_DB_USER};`
+              )
+            );
+            await db.execute(
+              sql.raw(`ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO ${APP_DB_USER};`)
+            );
+
+            // Smoke check: ensure the non-superuser role can connect.
+            const u = new URL(container.getConnectionUri());
+            u.username = APP_DB_USER;
+            u.password = APP_DB_PASSWORD;
+            dbg("app_user smoke connect", { url: `${u.protocol}//${u.host}${u.pathname}` });
+            const appClient = postgres(u.toString(), postgresSilentNotices);
+            const appDb = drizzle(appClient);
+            await appDb.execute(sql`SELECT 1`);
+            await appClient.end();
+            dbg("app_user smoke connect ok");
+
+            await db.execute(sql`SELECT 1`);
+            dbg("schema ready");
+          },
+          catch: (cause) =>
+            new DomainError({
+              message: "Failed to bootstrap schema for tests",
+              cause,
+            }),
         }),
-    });
-    yield* Effect.logInfo(`Confirming database is ready.`);
-    yield* Effect.tryPromise({
-      try: () => db.execute(sql`SELECT 1`),
-      catch: () =>
-        new DomainError({
-          message: "Failed to confirm database is ready",
-          cause: new Error("Failed to confirm database is ready"),
-        }),
-    });
-  })
-).pipe(Layer.provide([BunContext.layer, PgContainer.Default]), Layer.orDie);
+      ({ client }) => Effect.promise(() => client.end()).pipe(Effect.ignore)
+    );
 
-const PgClientTest = Layer.unwrapEffect(
-  Effect.gen(function* () {
-    const { container } = yield* PgContainer;
-
-    // Parse connection URI into components
+    // Build the app DB layer using the container host/port and app_user credentials.
     const parsed = PgConnString.parse(container.getConnectionUri());
-
-    // Create ConfigProvider with NESTED structure
+    dbg("building effect pg client config", { host: parsed.host, port: parsed.port, database: parsed.database });
     const configProvider = ConfigProvider.fromJson({
       DB_PG: {
         HOST: parsed.host ?? "localhost",
         PORT: String(parsed.port ?? 5432),
-        USER: parsed.user ?? "postgres",
-        PASSWORD: parsed.password ?? "postgres",
+        USER: APP_DB_USER,
+        PASSWORD: APP_DB_PASSWORD,
         DATABASE: parsed.database ?? "postgres",
         SSL: "false",
       },
     });
 
-    // Use PgClient.layer WITHOUT explicit params, apply ConfigProvider
-    return CoreSliceServicesLive(DbClient.layer).pipe(Layer.provide(Layer.setConfigProvider(configProvider)));
-  })
-).pipe(Layer.provide(PgContainer.Default), Layer.orDie);
+    // Ensure config reads in DbClient/ConnectionConfig occur under our provider.
+    yield* Effect.withConfigProviderScoped(configProvider);
+    dbg("constructing CoreSliceServicesLive(DbClient.layer)");
 
-export const PgTest = ApplySchemaDump.pipe(Layer.provideMerge(PgClientTest));
+    return yield* Layer.build(CoreSliceServicesLive(DbClient.layer));
+  })
+).pipe(Layer.provide([BunContext.layer, PgContainer.Default]), Layer.orDie);

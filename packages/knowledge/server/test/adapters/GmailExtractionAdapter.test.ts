@@ -23,6 +23,7 @@ const MockGoogleAuthClient = makeGoogleAuthClientLayer();
 const MockGoogleAuthClientMissingScopes = makeGoogleAuthClientLayer({ missingScopes: true });
 
 describe("GmailExtractionAdapter", () => {
+  const providerAccountId = "iam_account__00000000-0000-0000-0000-000000000000";
   describe("extractEmailsForKnowledgeGraph", () => {
     const mockListResponse = {
       messages: [
@@ -130,7 +131,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("extracts emails with correct structure", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10);
+          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", providerAccountId, 10);
 
           strictEqual(A.length(documents), 2);
           assertTrue(documents[0] instanceof ExtractedEmailDocument);
@@ -143,7 +144,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("extracts email metadata correctly", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10);
+          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", providerAccountId, 10);
 
           const metadata = documents[0]?.metadata;
           strictEqual(metadata?.from, "alice@company.com");
@@ -161,7 +162,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("extracts plain text content from multipart", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10);
+          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", providerAccountId, 10);
 
           const doc2 = documents[1];
           strictEqual(doc2?.title, "Project Alpha - Weekly Status");
@@ -173,7 +174,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("includes extractedAt timestamp", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10);
+          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", providerAccountId, 10);
 
           for (const doc of documents) {
             assertTrue(doc.extractedAt !== undefined);
@@ -184,7 +185,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("parses email date from internalDate", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10);
+          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", providerAccountId, 10);
 
           assertTrue(O.isSome(documents[0]?.metadata.date ?? O.none()));
         })
@@ -208,7 +209,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("returns empty array when no messages match", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:nonexistent", 10);
+          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:nonexistent", providerAccountId, 10);
 
           strictEqual(A.length(documents), 0);
         })
@@ -326,7 +327,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("extracts thread with all messages", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const context = yield* adapter.extractThreadContext("thread-conversation");
+          const context = yield* adapter.extractThreadContext("thread-conversation", providerAccountId);
 
           strictEqual(context.threadId, "thread-conversation");
           strictEqual(A.length(context.messages), 3);
@@ -337,7 +338,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("collects all unique participants", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const context = yield* adapter.extractThreadContext("thread-conversation");
+          const context = yield* adapter.extractThreadContext("thread-conversation", providerAccountId);
 
           assertTrue(A.contains(context.participants, "alice@company.com"));
           assertTrue(A.contains(context.participants, "bob@company.com"));
@@ -349,7 +350,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("calculates date range correctly", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const context = yield* adapter.extractThreadContext("thread-conversation");
+          const context = yield* adapter.extractThreadContext("thread-conversation", providerAccountId);
 
           assertTrue(DateTime.lessThanOrEqualTo(context.dateRange.earliest, context.dateRange.latest));
         })
@@ -358,7 +359,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("returns GoogleApiError for empty thread", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const error = yield* Effect.flip(adapter.extractThreadContext("empty-thread"));
+          const error = yield* Effect.flip(adapter.extractThreadContext("empty-thread", providerAccountId));
 
           assertTrue(error instanceof GoogleApiError);
           assertTrue(Str.includes("no messages")(error.message));
@@ -368,7 +369,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("returns GoogleApiError for non-existent thread", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const error = yield* Effect.flip(adapter.extractThreadContext("nonexistent"));
+          const error = yield* Effect.flip(adapter.extractThreadContext("nonexistent", providerAccountId));
 
           assertTrue(error instanceof GoogleApiError);
         })
@@ -388,7 +389,7 @@ describe("GmailExtractionAdapter", () => {
       it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailExtractionAdapter;
-          const error = yield* Effect.flip(adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10));
+          const error = yield* Effect.flip(adapter.extractEmailsForKnowledgeGraph("label:INBOX", providerAccountId, 10));
 
           assertTrue(error instanceof GoogleScopeExpansionRequiredError);
           assertTrue(A.isNonEmptyReadonlyArray(error.missingScopes));

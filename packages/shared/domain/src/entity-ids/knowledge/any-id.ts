@@ -29,7 +29,12 @@ export class AnyId extends S.Union(
   Ids.WorkflowActivityId,
   Ids.WorkflowSignalId,
   Ids.BatchExecutionId,
-  Ids.KnowledgeAgentId
+  Ids.KnowledgeAgentId,
+  Ids.RelationEvidenceId,
+  Ids.MeetingPrepBulletId,
+  Ids.MeetingPrepEvidenceId,
+  Ids.EmailThreadId,
+  Ids.EmailThreadMessageId
 ).annotations(
   $I.annotations("AnyKnowledgeId", {
     description: "Any entity id within the knowledge domain context",

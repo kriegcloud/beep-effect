@@ -334,9 +334,10 @@ const buildExtractedDocument = (message: GmailMessage, extractedAt: DateTime.Utc
 export interface GmailExtractionAdapterShape {
   readonly extractEmailsForKnowledgeGraph: (
     query: string,
+    providerAccountId: string,
     maxResults?: undefined | number
   ) => Effect.Effect<ReadonlyArray<ExtractedEmailDocument>, GmailExtractionError.Type>;
-  readonly extractThreadContext: (threadId: string) => Effect.Effect<ThreadContext, GmailExtractionError.Type>;
+  readonly extractThreadContext: (threadId: string, providerAccountId: string) => Effect.Effect<ThreadContext, GmailExtractionError.Type>;
 }
 
 export class GmailExtractionAdapter extends Context.Tag($I`GmailExtractionAdapter`)<
@@ -351,9 +352,10 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
 
     const makeAuthorizedRequest = Effect.fn(function* <A, I, R>(
       request: HttpClientRequest.HttpClientRequest,
-      schema: S.Schema<A, I, R>
+      schema: S.Schema<A, I, R>,
+      providerAccountId: string
     ) {
-      const token = yield* auth.getValidToken(REQUIRED_SCOPES);
+      const token = yield* auth.getValidToken(REQUIRED_SCOPES, providerAccountId);
       const accessToken = O.getOrThrow(token.accessToken);
 
       return yield* http.execute(request.pipe(HttpClientRequest.bearerToken(accessToken))).pipe(
@@ -370,12 +372,13 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
       );
     });
 
-    const fetchMessage = (messageId: string) =>
+    const fetchMessage = (messageId: string, providerAccountId: string) =>
       makeAuthorizedRequest(
         HttpClientRequest.get(`${GMAIL_API_BASE}/messages/${messageId}`).pipe(
           HttpClientRequest.setUrlParam("format", "full")
         ),
-        GmailMessage
+        GmailMessage,
+        providerAccountId
       ).pipe(
         Effect.withSpan("GmailExtractionAdapter.fetchMessage", {
           captureStackTrace: false,
@@ -383,12 +386,13 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
         })
       );
 
-    const fetchThread = (threadId: string) =>
+    const fetchThread = (threadId: string, providerAccountId: string) =>
       makeAuthorizedRequest(
         HttpClientRequest.get(`${GMAIL_API_BASE}/threads/${threadId}`).pipe(
           HttpClientRequest.setUrlParam("format", "full")
         ),
-        GmailThread
+        GmailThread,
+        providerAccountId
       ).pipe(
         Effect.withSpan("GmailExtractionAdapter.fetchThread", {
           captureStackTrace: false,
@@ -396,7 +400,7 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
         })
       );
 
-    const extractEmailsForKnowledgeGraph = (query: string, maxResults = 50) =>
+    const extractEmailsForKnowledgeGraph = (query: string, providerAccountId: string, maxResults = 50) =>
       Effect.gen(function* () {
         yield* Effect.logDebug("Extracting emails for knowledge graph").pipe(
           Effect.annotateLogs({ query, maxResults })
@@ -407,7 +411,8 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
             HttpClientRequest.setUrlParam("q", query),
             HttpClientRequest.setUrlParam("maxResults", String(maxResults))
           ),
-          GmailMessagesListResponse
+          GmailMessagesListResponse,
+          providerAccountId
         );
 
         const messageRefs = listResponse.messages ?? [];
@@ -419,7 +424,7 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
         yield* Effect.logDebug("Fetching message details").pipe(Effect.annotateLogs({ count: A.length(messageRefs) }));
 
         const messages = yield* Effect.all(
-          A.map(messageRefs, (ref) => fetchMessage(ref.id)),
+          A.map(messageRefs, (ref) => fetchMessage(ref.id, providerAccountId)),
           { concurrency: 10 }
         );
 
@@ -441,11 +446,11 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
         })
       );
 
-    const extractThreadContext = (threadId: string) =>
+    const extractThreadContext = (threadId: string, providerAccountId: string) =>
       Effect.gen(function* () {
         yield* Effect.logDebug("Extracting thread context").pipe(Effect.annotateLogs({ threadId }));
 
-        const thread = yield* fetchThread(threadId);
+        const thread = yield* fetchThread(threadId, providerAccountId);
         const messages = thread.messages ?? [];
 
         if (A.isEmptyReadonlyArray(messages)) {

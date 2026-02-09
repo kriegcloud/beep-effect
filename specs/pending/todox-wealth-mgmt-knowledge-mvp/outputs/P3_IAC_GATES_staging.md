@@ -81,6 +81,7 @@ Pre-fill (expected posture):
 - [ ] Images are pinned by digest (or equivalent immutability).
 - [ ] Deploy is automated (CI/CD) with environment promotion steps.
 - [ ] Smoke tests exist and run post-deploy (health + `/knowledge` critical paths).
+- [ ] `/settings?settingsTab=connections` resolves in staging (OAuth callback URL contract; redirects are acceptable).
 - [ ] Rollback is documented and verified (at least once in staging).
 
 Pre-fill (primary service):
@@ -90,4 +91,3 @@ Pre-fill (primary service):
 ## Notes / Decisions
 
 - `TBD: region, DNS, service naming conventions, and whether Postgres/Redis are Cloud-managed or VM-hosted per effect-ontology patterns.`
-

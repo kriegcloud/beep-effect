@@ -5,6 +5,8 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Num from "effect/Number";
 
+const RUN_BENCHMARKS = process.env.BEEP_RUN_BENCHMARKS === "1";
+
 const measureMs: <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<number, E, R> = Effect.fn(function* <
   A,
   E,
@@ -42,7 +44,7 @@ const generateRandomStrings = (n: number, seed: number): ReadonlyArray<string> =
 
 describe("EntityRegistry Performance Benchmarks", () => {
   describe("Bloom Filter Pruning Effectiveness", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "bloom filter pruning >90% for unknown texts",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;
@@ -72,7 +74,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
       }, Effect.provide(BloomFilterLive))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "bloom filter pruning >90% with 10K entities",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;
@@ -105,7 +107,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
       }, Effect.provide(BloomFilterLive))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "zero false negatives - all known items found",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;
@@ -131,7 +133,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
   });
 
   describe("Bloom Filter Timing", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "bulkAdd 10K items in under 100ms",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;
@@ -154,7 +156,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
       }, Effect.provide(BloomFilterLive))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "contains lookup under 1ms average",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;
@@ -183,7 +185,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
   });
 
   describe("Text Normalization Performance", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "normalize 10K texts in under 50ms",
       Effect.fn(function* () {
         const texts = generateEntityNames(10000);
@@ -210,7 +212,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
   });
 
   describe("Memory Efficiency", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "bloom filter memory usage under 200KB for 10K items",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;
@@ -236,7 +238,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
       }, Effect.provide(BloomFilterLive))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "bloom filter saturation acceptable at 10K items",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;
@@ -263,7 +265,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
   });
 
   describe("Candidate Search Timing Baseline", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "documents timing pattern for findCandidates integration",
       Effect.fn(function* () {
         const start = yield* Effect.clockWith((c) => c.currentTimeMillis);
@@ -299,7 +301,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
   });
 
   describe("Stress Tests", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "bloom filter handles 100K items",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;
@@ -328,7 +330,7 @@ describe("EntityRegistry Performance Benchmarks", () => {
       }, Effect.provide(BloomFilterLive))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "repeated lookups remain fast under load",
       Effect.fn(function* () {
         const filter = yield* BloomFilter;

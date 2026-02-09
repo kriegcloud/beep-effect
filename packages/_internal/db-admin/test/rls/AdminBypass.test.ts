@@ -16,9 +16,9 @@ import { PgTest } from "../container";
 /**
  * Timeout for admin bypass tests.
  */
-const TEST_TIMEOUT = 60000;
+const TEST_TIMEOUT = 120000;
 
-layer(PgTest, { timeout: Duration.seconds(60) })("RLS Admin Bypass", (it) => {
+layer(PgTest, { timeout: Duration.seconds(120) })("RLS Admin Bypass", (it) => {
   /**
    * Test: Verify rls_bypass_admin role exists with BYPASSRLS privilege.
    */

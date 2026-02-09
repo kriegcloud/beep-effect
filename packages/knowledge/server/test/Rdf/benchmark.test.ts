@@ -9,6 +9,7 @@ import * as Num from "effect/Number";
 import { makeRdfBuilderSerializerLayer } from "../_shared/LayerBuilders";
 
 const TestLayer = makeRdfBuilderSerializerLayer();
+const RUN_BENCHMARKS = process.env.BEEP_RUN_BENCHMARKS === "1";
 
 const EX = "http://example.org/";
 
@@ -36,7 +37,7 @@ const measureMs: <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<numb
 
 describe("Rdf Performance Benchmarks", () => {
   describe("Batch Operations", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should add 1000 quads via batch in under 100ms",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
@@ -60,7 +61,7 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should document individual add performance baseline",
       Effect.fn(function* () {
         const store = yield* RdfStore;
@@ -90,7 +91,7 @@ describe("Rdf Performance Benchmarks", () => {
   });
 
   describe("Query Performance", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should match after bulk load efficiently",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
@@ -131,7 +132,7 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should count matches efficiently",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
@@ -156,7 +157,7 @@ describe("Rdf Performance Benchmarks", () => {
   });
 
   describe("Serialization Performance", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should serialize 1000 quads to Turtle efficiently",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
@@ -178,7 +179,7 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should serialize 1000 quads to N-Triples efficiently",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
@@ -200,7 +201,7 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should serialize quads directly without store efficiently",
       Effect.fn(function* () {
         const serializer = yield* Serializer;
@@ -221,7 +222,7 @@ describe("Rdf Performance Benchmarks", () => {
   });
 
   describe("Stress Tests", () => {
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should handle 10000 quads batch add",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
@@ -245,7 +246,7 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live(
+    live.runIf(RUN_BENCHMARKS)(
       "should round-trip 1000 quads through serialization",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;

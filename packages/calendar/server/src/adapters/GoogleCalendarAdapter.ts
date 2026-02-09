@@ -121,7 +121,8 @@ export class GoogleCalendarAdapter extends Context.Tag($I`GoogleCalendarAdapter`
     readonly listEvents: (
       calendarId: string,
       timeMin: DateTime.Utc,
-      timeMax: DateTime.Utc
+      timeMax: DateTime.Utc,
+      providerAccountId: string
     ) => Effect.Effect<ReadonlyArray<CalendarEvent>, GoogleCalendarAdapterError>;
 
     /**
@@ -129,7 +130,8 @@ export class GoogleCalendarAdapter extends Context.Tag($I`GoogleCalendarAdapter`
      */
     readonly createEvent: (
       calendarId: string,
-      event: CreateEventInput
+      event: CreateEventInput,
+      providerAccountId: string
     ) => Effect.Effect<CalendarEvent, GoogleCalendarAdapterError>;
 
     /**
@@ -138,13 +140,18 @@ export class GoogleCalendarAdapter extends Context.Tag($I`GoogleCalendarAdapter`
     readonly updateEvent: (
       calendarId: string,
       eventId: string,
-      updates: UpdateEventInput
+      updates: UpdateEventInput,
+      providerAccountId: string
     ) => Effect.Effect<CalendarEvent, GoogleCalendarAdapterError>;
 
     /**
      * Deletes an event from a Google Calendar.
      */
-    readonly deleteEvent: (calendarId: string, eventId: string) => Effect.Effect<void, GoogleCalendarAdapterError>;
+    readonly deleteEvent: (
+      calendarId: string,
+      eventId: string,
+      providerAccountId: string
+    ) => Effect.Effect<void, GoogleCalendarAdapterError>;
   }
 >() {}
 
@@ -225,9 +232,10 @@ export const GoogleCalendarAdapterLive: Layer.Layer<
       listEvents: Effect.fn("GoogleCalendarAdapter.listEvents")(function* (
         calendarId: string,
         timeMin: DateTime.Utc,
-        timeMax: DateTime.Utc
+        timeMax: DateTime.Utc,
+        providerAccountId: string
       ) {
-        const token = yield* auth.getValidToken(REQUIRED_SCOPES);
+        const token = yield* auth.getValidToken(REQUIRED_SCOPES, providerAccountId);
         const accessToken = O.getOrThrow(token.accessToken);
 
         const endpoint = `/calendars/${encodeURIComponent(calendarId)}/events`;
@@ -268,9 +276,10 @@ export const GoogleCalendarAdapterLive: Layer.Layer<
 
       createEvent: Effect.fn("GoogleCalendarAdapter.createEvent")(function* (
         calendarId: string,
-        event: CreateEventInput
+        event: CreateEventInput,
+        providerAccountId: string
       ) {
-        const token = yield* auth.getValidToken(REQUIRED_SCOPES);
+        const token = yield* auth.getValidToken(REQUIRED_SCOPES, providerAccountId);
         const accessToken = O.getOrThrow(token.accessToken);
 
         const endpoint = `/calendars/${encodeURIComponent(calendarId)}/events`;
@@ -310,9 +319,10 @@ export const GoogleCalendarAdapterLive: Layer.Layer<
       updateEvent: Effect.fn("GoogleCalendarAdapter.updateEvent")(function* (
         calendarId: string,
         eventId: string,
-        updates: UpdateEventInput
+        updates: UpdateEventInput,
+        providerAccountId: string
       ) {
-        const token = yield* auth.getValidToken(REQUIRED_SCOPES);
+        const token = yield* auth.getValidToken(REQUIRED_SCOPES, providerAccountId);
         const accessToken = O.getOrThrow(token.accessToken);
 
         const endpoint = `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
@@ -375,8 +385,12 @@ export const GoogleCalendarAdapterLive: Layer.Layer<
         return fromGoogleFormat(json as GoogleCalendarEventResponse);
       }),
 
-      deleteEvent: Effect.fn("GoogleCalendarAdapter.deleteEvent")(function* (calendarId: string, eventId: string) {
-        const token = yield* auth.getValidToken(REQUIRED_SCOPES);
+      deleteEvent: Effect.fn("GoogleCalendarAdapter.deleteEvent")(function* (
+        calendarId: string,
+        eventId: string,
+        providerAccountId: string
+      ) {
+        const token = yield* auth.getValidToken(REQUIRED_SCOPES, providerAccountId);
         const accessToken = O.getOrThrow(token.accessToken);
 
         const endpoint = `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;

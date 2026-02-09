@@ -467,6 +467,128 @@ export declare namespace KnowledgeAgentId {
   export type Encoded = S.Schema.Encoded<typeof KnowledgeAgentId>;
 }
 
+/**
+ * RelationEvidence ID for relation evidence-of-record spans.
+ *
+ * Identifier for first-class evidence rows tied to relations.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const RelationEvidenceId = make("relation_evidence", {
+  brand: "RelationEvidenceId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("RelationEvidenceId", {
+    description: "A unique identifier for a relation evidence span",
+  })
+);
+
+export declare namespace RelationEvidenceId {
+  export type Type = S.Schema.Type<typeof RelationEvidenceId>;
+  export type Encoded = S.Schema.Encoded<typeof RelationEvidenceId>;
+  export namespace RowId {
+    export type Type = typeof RelationEvidenceId.privateSchema.Type;
+    export type Encoded = typeof RelationEvidenceId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * MeetingPrepBullet ID for persisted meeting-prep bullet outputs.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const MeetingPrepBulletId = make("meeting_prep_bullet", {
+  brand: "MeetingPrepBulletId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("MeetingPrepBulletId", {
+    description: "A unique identifier for a meeting-prep bullet output",
+  })
+);
+
+export declare namespace MeetingPrepBulletId {
+  export type Type = S.Schema.Type<typeof MeetingPrepBulletId>;
+  export type Encoded = S.Schema.Encoded<typeof MeetingPrepBulletId>;
+  export namespace RowId {
+    export type Type = typeof MeetingPrepBulletId.privateSchema.Type;
+    export type Encoded = typeof MeetingPrepBulletId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * MeetingPrepEvidence ID for persisted meeting-prep citations.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const MeetingPrepEvidenceId = make("meeting_prep_evidence", {
+  brand: "MeetingPrepEvidenceId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("MeetingPrepEvidenceId", {
+    description: "A unique identifier for a meeting-prep evidence/citation row",
+  })
+);
+
+export declare namespace MeetingPrepEvidenceId {
+  export type Type = S.Schema.Type<typeof MeetingPrepEvidenceId>;
+  export type Encoded = S.Schema.Encoded<typeof MeetingPrepEvidenceId>;
+  export namespace RowId {
+    export type Type = typeof MeetingPrepEvidenceId.privateSchema.Type;
+    export type Encoded = typeof MeetingPrepEvidenceId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * EmailThread ID for the thread aggregation read model.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const EmailThreadId = make("email_thread", {
+  brand: "EmailThreadId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("EmailThreadId", {
+    description: "A unique identifier for a knowledge-owned email thread read model row",
+  })
+);
+
+export declare namespace EmailThreadId {
+  export type Type = S.Schema.Type<typeof EmailThreadId>;
+  export type Encoded = S.Schema.Encoded<typeof EmailThreadId>;
+  export namespace RowId {
+    export type Type = typeof EmailThreadId.privateSchema.Type;
+    export type Encoded = typeof EmailThreadId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * EmailThreadMessage ID for thread message rows.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const EmailThreadMessageId = make("email_thread_message", {
+  brand: "EmailThreadMessageId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("EmailThreadMessageId", {
+    description: "A unique identifier for a knowledge-owned email thread message row",
+  })
+);
+
+export declare namespace EmailThreadMessageId {
+  export type Type = S.Schema.Type<typeof EmailThreadMessageId>;
+  export type Encoded = S.Schema.Encoded<typeof EmailThreadMessageId>;
+  export namespace RowId {
+    export type Type = typeof EmailThreadMessageId.privateSchema.Type;
+    export type Encoded = typeof EmailThreadMessageId.privateSchema.Encoded;
+  }
+}
+
 export const Ids = {
   EmbeddingId,
   KnowledgeEntityId,
@@ -485,4 +607,9 @@ export const Ids = {
   WorkflowSignalId,
   BatchExecutionId,
   KnowledgeAgentId,
+  RelationEvidenceId,
+  MeetingPrepBulletId,
+  MeetingPrepEvidenceId,
+  EmailThreadId,
+  EmailThreadMessageId,
 } as const;

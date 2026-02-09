@@ -45,7 +45,7 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
     const { user, oauth } = yield* AuthContext;
 
     return GoogleAuthClient.of({
-      getValidToken: Effect.fn(function* (requiredScopes) {
+      getValidToken: Effect.fn(function* (requiredScopes, providerAccountId) {
         // Use Better Auth's getAccessToken which handles:
         // 1. Token retrieval from account table
         // 2. Automatic refresh if expired
@@ -54,12 +54,13 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
           .getAccessToken({
             providerId: GOOGLE_PROVIDER,
             userId: user.id,
+            providerAccountId,
           })
           .pipe(
             Effect.mapError(
               (e) =>
                 new GoogleAuthenticationError({
-                  message: e.message,
+                  message: (e as any).message ?? String(e),
                   suggestion: "User may need to re-authorize Google Workspace access",
                 })
             )
@@ -80,12 +81,13 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
           .getProviderAccount({
             providerId: GOOGLE_PROVIDER,
             userId: user.id,
+            providerAccountId,
           })
           .pipe(
             Effect.mapError(
               (e) =>
                 new GoogleAuthenticationError({
-                  message: e.message,
+                  message: (e as any).message ?? String(e),
                   suggestion: "Check Better Auth configuration",
                 })
             )
@@ -130,7 +132,7 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
         });
       }, Effect.withSpan("GoogleAuthClient.getValidToken")),
 
-      refreshToken: Effect.fn(function* (_refreshToken) {
+      refreshToken: Effect.fn(function* (_refreshToken, providerAccountId) {
         // Better Auth handles refresh automatically via getAccessToken
         // This method is provided for explicit refresh requests, but
         // normally callers should just use getValidToken which auto-refreshes
@@ -138,12 +140,13 @@ export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAu
           .getAccessToken({
             providerId: GOOGLE_PROVIDER,
             userId: user.id,
+            providerAccountId,
           })
           .pipe(
             Effect.mapError(
               (e) =>
                 new GoogleAuthenticationError({
-                  message: e.message,
+                  message: (e as any).message ?? String(e),
                   suggestion: "User may need to re-authorize Google Workspace access",
                 })
             )

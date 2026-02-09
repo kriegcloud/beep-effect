@@ -129,6 +129,12 @@ Boundary rules to keep intact:
 - Avoid cross-slice DB coupling: store IAM account identifiers as typed strings, not foreign keys.
 - Treat SQL as the evidence-of-record for UI; RDF provenance can exist, but must not be the UI source of truth.
 
+## Implementation Notes (MVP)
+
+- Org-level active Google account selection is persisted on the organization record as metadata (Better Auth org CRUD consistently exposes `metadata`):
+  - key: `google.activeProviderAccountId`
+  - value: IAM `account.id` (the `providerAccountId` required by C-06)
+
 ## Phase Plan (To Production)
 
 This spec is organized as a production-oriented plan with explicit gates.
