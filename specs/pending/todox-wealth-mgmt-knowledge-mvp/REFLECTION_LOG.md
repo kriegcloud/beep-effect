@@ -49,13 +49,17 @@ This log captures phase-end learnings so subsequent phases improve instead of re
 - What worked:
   - Wrote hardening tests that fail loud on multi-tenant leakage, including embeddings/vector search, and that assert evidence resolvability + restart-safety via version-pinned UTF-16 spans.
   - Made evidence bounds validation deterministic by validating against immutable `documentVersion.content.length` in JS (UTF-16), avoiding Postgres `length()` semantics drift.
+  - Hardened demo RPCs to avoid defects: Evidence.List no longer uses `orDie` for DB reads, and MeetingPrep.Generate persists bullets + citations atomically via a SQL transaction.
   - Removed “pick first linked account” behavior by enforcing typed C-06 failure for missing `providerAccountId`, and added a small unit-testable helper to prevent regressions.
   - Added an OAuth callback compatibility route (`/settings`) and a Connections tab surface that supports linking/unlinking and persisting an org-level active Google `providerAccountId`.
+  - Expanded hardening coverage: cross-org leakage tests now include Evidence.List and `knowledge_meeting_prep_evidence`, and adapter logs no longer include raw Gmail query text (PII guardrail).
 - What failed / surprised us:
   - The `@beep/ui` `Iconify` wrapper uses a constrained icon union; new icon ids not in the catalog will fail typecheck even if they exist upstream.
   - Next.js `searchParams` typing (string vs string[]) is easy to get subtly wrong; prefer explicit `typeof raw === "string"` narrowing.
   - Better Auth organization CRUD surfaces do not expose `organization.settings`; org-level persistence had to use `organization.metadata` for MVP.
+  - It was easy to accidentally reintroduce defect paths (`orDie` / `die`) inside demo-critical handlers, which bypass `catchTag` blocks and turn recoverable DB issues into demo-visible crashes.
 - Changes for next phase:
   - Treat the Connections tab as the single source of truth for account selection; if additional demo surfaces invoke Google adapters, they must plumb `providerAccountId` explicitly from this selection (never server defaults).
   - If infra work introduces staging domains, ensure `/settings?settingsTab=connections` continues to resolve (redirects are acceptable, but the callback URL string is locked by contract).
   - Consider adding a small E2E smoke test in CI for the OAuth callback deep link + persisted org metadata selection once staging exists.
+  - Add a review gate for “no PII in logs/annotations” in adapters and “no defects in demo RPCs” (avoid `orDie`/`die` in request handlers unless explicitly justified and contained).

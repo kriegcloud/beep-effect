@@ -53,12 +53,16 @@ P3 is infrastructure-focused. External services/providers (Cloud Run, Secret Man
 
 - Evidence resolvability is validated against immutable document version content length in JS (UTF-16):
   - `packages/knowledge/server/src/rpc/v1/evidence/list.ts`
-- Meeting prep generation persists output; restart-safety is asserted in DB hardening tests:
+- Meeting prep generation persists output transactionally (bullets + citations are inserted atomically); restart-safety is asserted in DB hardening tests:
   - `packages/knowledge/server/src/rpc/v1/meetingprep/generate.ts`
   - `packages/_internal/db-admin/test/hardening/DemoCriticalPathHardening.test.ts`
 - Provider account selection is enforced and unit-tested:
   - `packages/runtime/server/src/AuthContext/providerAccountSelection.ts`
   - `packages/runtime/server/test/AuthContextProviderAccountSelection.test.ts`
+- Cross-org leakage coverage was expanded to include Evidence.List and `knowledge_meeting_prep_evidence`:
+  - `packages/_internal/db-admin/test/hardening/DemoCriticalPathHardening.test.ts`
+- PII/logging hardening: Gmail extraction no longer annotates logs with raw query text:
+  - `packages/knowledge/server/src/adapters/GmailExtractionAdapter.ts`
 - OAuth callback deep-link compatibility:
   - `apps/web/src/app/settings/page.tsx`
   - `apps/web/src/features/account/connections/ConnectionsTabPanel.tsx`
