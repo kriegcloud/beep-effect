@@ -66,6 +66,25 @@ Each slice follows `domain -> tables -> server -> client -> ui`. Cross-slice imp
 
 See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for detailed Effect patterns, import conventions, and critical rules.
 
+## Layer Composition Standards (Demo-Critical)
+
+Layer graph drift is an easy way to ship code that compiles locally but fails at the application boundary (`Layer.launch(...)`) due to missing services. These rules exist to keep layer composition deterministic and reviewable.
+
+- **All exported Layers must have an explicit `Layer.Layer<...>` type annotation.**
+  - Rationale: forces the module boundary to declare provided services, failure channel, and required dependencies.
+- **All `serviceEffect` values must have an explicit `Effect.Effect<...>` type annotation.**
+  - Rationale: prevents silent dependency drift as implementation evolves.
+- **Prefer local provisioning when not shared.**
+  - If a layer is only consumed by one module, provide its dependencies in that module (avoid unnecessary “global bundles”).
+- **Create explicit bundles for shared wiring.**
+  - If a dependency set is shared across multiple modules, create a `*BundleLive` (or similar) layer that wires those dependencies once, then provide that bundle in consumers.
+- **Application entrypoint must be runnable (`RIn = never`).**
+  - Any layer launched from an app entry point (e.g. `@beep/runtime-server/Server.layer`) must require `never` so `Layer.launch(...)` is restart-safe and does not depend on “ambient” context.
+
+Mechanical enforcement:
+- `bun run verify:layers` (local)
+- `bun run verify:layers:ci` (fails on critical layer hygiene issues)
+
 ## Codex Parity Surface
 
 For Codex parity workflows and adaptations, use:

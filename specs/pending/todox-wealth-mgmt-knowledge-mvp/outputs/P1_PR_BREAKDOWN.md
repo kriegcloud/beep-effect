@@ -32,6 +32,7 @@ Hard dependency (demo integrity):
 - Safe-buttons only (D-15): LLM cannot emit executable SQL/code; all actions go through approved RPC/tools.
 - Prompt minimization (D-16): meeting prep/Q&A uses context slices + citations; no full inbox/thread content by default.
 - Record-of-truth rule: extraction state, evidence spans, and meeting prep outputs persist to Postgres. Redis/KV is permitted only for caches, rate limits, queues, and short-lived workflow scratch state.
+- Layer graph safety: exported Layers use explicit `Layer.Layer<...>` annotations and `serviceEffect` uses explicit `Effect.Effect<...>` annotations; app entrypoint layers must require `never` (`RIn = never`). Verify via `bun run verify:layers` / `bun run verify:layers:ci`.
 
 ## Global Demo-Fatal Acceptance Gates (Must Stay True)
 
@@ -42,6 +43,7 @@ Acceptance gates:
 - [PASS/FAIL] Evidence spans always include `documentVersionId` and use UTF-16 JS string indices, 0-indexed, end-exclusive: `[startChar, endChar)`.
 - [PASS/FAIL] Relation evidence never requires `relation.extractionId -> extraction.documentId` to resolve spans.
 - [PASS/FAIL] `/knowledge` UI is blocked on persisted evidence-backed meeting prep (no transient-only bullets).
+- [PASS/FAIL] `bun run verify:layers:ci` reports 0 critical layer hygiene violations (no untyped exported `layer`).
 
 ## PR0: Connected Accounts + Typed Scope Expansion Contract
 

@@ -357,9 +357,6 @@
       "@beep/runtime-client/test/*": [
         "./packages/runtime/client/test/*"
       ],
-      "@/*": [
-        "./apps/web/src/*"
-      ],
       "@beep/db-admin": [
         "./packages/_internal/db-admin/src/index"
       ],

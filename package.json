@@ -66,6 +66,8 @@
     "agents:validate": "bun repo-cli agents-validate",
     "agents:validate:strict": "bun repo-cli agents-validate --strict --pre-commit",
     "verify:entityids": "bun run repo-cli verify entityids",
+    "verify:layers": "bun run repo-cli verify layers",
+    "verify:layers:ci": "bun run repo-cli verify layers --ci",
     "verify:patterns": "bun run repo-cli verify patterns",
     "verify:patterns:ci": "bun run repo-cli verify patterns --ci",
     "verify:all": "bun run repo-cli verify all",

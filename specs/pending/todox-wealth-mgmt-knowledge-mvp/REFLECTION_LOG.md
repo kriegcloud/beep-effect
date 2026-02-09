@@ -58,8 +58,10 @@ This log captures phase-end learnings so subsequent phases improve instead of re
   - Next.js `searchParams` typing (string vs string[]) is easy to get subtly wrong; prefer explicit `typeof raw === "string"` narrowing.
   - Better Auth organization CRUD surfaces do not expose `organization.settings`; org-level persistence had to use `organization.metadata` for MVP.
   - It was easy to accidentally reintroduce defect paths (`orDie` / `die`) inside demo-critical handlers, which bypass `catchTag` blocks and turn recoverable DB issues into demo-visible crashes.
+  - Layer composition drift was easy to overlook during spec/plan work; missing provides surfaced late as `Layer.launch(...)` missing context errors. Adding explicit `Layer.Layer<...>` / `Effect.Effect<...>` annotations and a mechanical `verify:layers` check would have caught this earlier.
 - Changes for next phase:
   - Treat the Connections tab as the single source of truth for account selection; if additional demo surfaces invoke Google adapters, they must plumb `providerAccountId` explicitly from this selection (never server defaults).
   - If infra work introduces staging domains, ensure `/settings?settingsTab=connections` continues to resolve (redirects are acceptable, but the callback URL string is locked by contract).
   - Consider adding a small E2E smoke test in CI for the OAuth callback deep link + persisted org metadata selection once staging exists.
   - Add a review gate for “no PII in logs/annotations” in adapters and “no defects in demo RPCs” (avoid `orDie`/`die` in request handlers unless explicitly justified and contained).
+  - Treat layer graph correctness as a first-class gate: require `bun run verify:layers:ci` and keep app entrypoint layers `RIn = never`.

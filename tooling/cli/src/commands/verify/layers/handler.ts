@@ -1,12 +1,16 @@
 /**
- * @file EntityId Verification Handler
+ * @file Layer Composition Verification Handler
  *
- * Detection logic for EntityId pattern violations in the codebase.
- * Finds plain S.String ID fields and missing .$type<>() on table columns.
+ * Detection logic for Layer composition hygiene in the codebase.
  *
- * Detection patterns ported from scripts/verify-entityids.sh
+ * This verifier focuses on two high-signal guardrails:
+ * - Exported layer values should have an explicit `Layer.Layer<...>` type annotation.
+ * - `serviceEffect` values should have an explicit `Effect.Effect<...>` type annotation.
  *
- * @module verify/entityids/handler
+ * The goal is to make layer graphs "self-documenting" at the module boundary so missing
+ * dependencies surface early (especially at `Layer.launch(...)` entry points).
+ *
+ * @module verify/layers/handler
  * @since 0.1.0
  */
 
@@ -32,60 +36,59 @@ import {
 // -----------------------------------------------------------------------------
 
 /**
- * Detection pattern configuration for EntityId violations.
+ * Detection pattern configuration for Layer hygiene violations.
  */
 interface DetectionPattern {
   /** Unique name for the pattern */
-  name: ViolationType;
+  readonly name: ViolationType;
   /** Human-readable description */
-  description: string;
+  readonly description: string;
   /** Glob pattern for files to scan */
-  glob: string;
+  readonly glob: string;
   /** Primary regex pattern to match */
-  pattern: RegExp;
-  /** Secondary context pattern (line must also match this) */
-  contextPattern: RegExp;
-  /** Exclude pattern (skip lines matching this) */
-  excludePattern?: RegExp;
+  readonly pattern: RegExp;
+  /** Glob patterns to exclude */
+  readonly excludeGlobs?: ReadonlyArray<string>;
   /** Severity of violations */
-  severity: ViolationSeverity;
+  readonly severity: ViolationSeverity;
   /** Suggested fix */
-  suggestion: string;
+  readonly suggestion: string;
 }
 
 /**
- * EntityId detection patterns.
- *
- * Ported from scripts/verify-entityids.sh
+ * Layer hygiene detection patterns.
  */
-const ENTITYID_PATTERNS: ReadonlyArray<DetectionPattern> = [
+const LAYER_PATTERNS: ReadonlyArray<DetectionPattern> = [
   {
-    name: "entityid-domain",
-    description: "Plain S.String ID in domain model",
-    glob: "packages/*/domain/src/entities/**/*.ts",
-    pattern: /:\s*S\.String/,
-    contextPattern: /(id|Id):/i,
+    name: "layer-export-missing-annotation",
+    description: "Exported `layer` must have an explicit `Layer.Layer<...>` type annotation",
+    glob: "packages/*/server/src/**/*.ts",
+    excludeGlobs: ["**/*.test.ts", "**/test/**/*.ts"],
+    // Matches only the untyped form: `export const layer = ...`
+    pattern: /^export\s+const\s+layer\s*=/,
     severity: "critical",
-    suggestion: "Use EntityId from @beep/shared-domain (e.g., IamEntityIds.MemberId)",
+    suggestion: "Add an explicit type: `export const layer: Layer.Layer<...> = ...`",
   },
   {
-    name: "entityid-client",
-    description: "Plain S.String ID in client schema",
-    glob: "packages/*/client/src/**/*.ts",
-    pattern: /:\s*S\.String/,
-    contextPattern: /(id|Id):/i,
-    severity: "critical",
-    suggestion: "Use EntityId from @beep/shared-domain",
+    name: "layer-live-missing-annotation",
+    description: "Exported Layer value should have an explicit `Layer.Layer<...>` type annotation",
+    glob: "packages/*/server/src/**/*.ts",
+    excludeGlobs: ["**/*.test.ts", "**/test/**/*.ts"],
+    // Common exported layer naming conventions: `FooLive`, `FooLayer`, `FooBundleLive`, etc.
+    // Matches only the untyped form: `export const FooLive = ...`
+    pattern: /^export\s+const\s+\w+(?:Live|Layer|BundleLive|BundleLayer)\s*=/,
+    severity: "warning",
+    suggestion: "Add an explicit type: `export const FooLive: Layer.Layer<...> = ...`",
   },
   {
-    name: "entityid-table",
-    description: "Missing .$type<>() on table ID column",
-    glob: "packages/*/tables/src/tables/**/*.ts",
-    pattern: /pg\.text\([^)]+\)\.notNull\(\)/,
-    contextPattern: /(id|Id)/i,
-    excludePattern: /\.\$type</,
-    severity: "critical",
-    suggestion: "Add .$type<EntityId.Type>() to the column definition",
+    name: "serviceeffect-missing-annotation",
+    description: "`serviceEffect` must have an explicit `Effect.Effect<...>` type annotation",
+    glob: "packages/*/server/src/**/*.ts",
+    excludeGlobs: ["**/*.test.ts", "**/test/**/*.ts"],
+    // Matches only the untyped form: `const serviceEffect = ...`
+    pattern: /^const\s+serviceEffect\s*=/,
+    severity: "warning",
+    suggestion: "Add an explicit type: `const serviceEffect: Effect.Effect<...> = ...`",
   },
 ];
 
@@ -94,9 +97,9 @@ const ENTITYID_PATTERNS: ReadonlyArray<DetectionPattern> = [
 // -----------------------------------------------------------------------------
 
 /**
- * Options for EntityId verification.
+ * Options for Layer verification.
  */
-export interface EntityIdVerifyOptions {
+export interface LayerVerifyOptions {
   /** Package filter pattern (e.g., "@beep/iam-*") */
   readonly filter: O.Option<string>;
   /** Output format */
@@ -112,9 +115,14 @@ export interface EntityIdVerifyOptions {
 /**
  * Match files against a glob pattern relative to repo root.
  */
-const matchGlob = (pattern: string, repoRoot: string) =>
+const matchGlob = (pattern: string, repoRoot: string, ignorePatterns?: ReadonlyArray<string>) =>
   Effect.tryPromise({
-    try: () => glob(pattern, { cwd: repoRoot, nodir: true, ignore: ["**/node_modules/**"] }),
+    try: () =>
+      glob(pattern, {
+        cwd: repoRoot,
+        nodir: true,
+        ignore: ["**/node_modules/**", ...(ignorePatterns ?? [])],
+      }),
     catch: (error) =>
       new GlobError({
         pattern,
@@ -129,6 +137,7 @@ const matchesFilter = (filePath: string, filter: O.Option<string>): boolean => {
   if (O.isNone(filter)) return true;
 
   const filterValue = filter.value;
+
   if (filterValue.startsWith("@beep/")) {
     const packagePart = filterValue.slice(6); // Remove "@beep/"
 
@@ -155,14 +164,14 @@ const scanFileForPattern = (filePath: string, content: string, pattern: Detectio
   return F.pipe(
     lines,
     A.map((line, index) => {
-      // Check primary pattern
-      if (!pattern.pattern.test(line)) return O.none();
+      const trimmed = Str.trim(line);
 
-      // Check context pattern
-      if (!pattern.contextPattern.test(line)) return O.none();
+      // Avoid flagging patterns in comment-only lines (common in docs/examples).
+      if (Str.startsWith("//")(trimmed) || Str.startsWith("/*")(trimmed) || Str.startsWith("*")(trimmed)) {
+        return O.none();
+      }
 
-      // Check exclude pattern
-      if (pattern.excludePattern?.test(line)) return O.none();
+      if (!pattern.pattern.test(trimmed)) return O.none();
 
       return O.some(
         new Violation({
@@ -171,7 +180,7 @@ const scanFileForPattern = (filePath: string, content: string, pattern: Detectio
           filePath,
           line: index + 1,
           message: pattern.description,
-          codeSnippet: Str.trim(line),
+          codeSnippet: trimmed,
           suggestion: pattern.suggestion,
         })
       );
@@ -189,7 +198,7 @@ const scanForPattern = (pattern: DetectionPattern, repoRoot: string, filter: O.O
     const path = yield* Path.Path;
 
     // Match files
-    const allFiles = yield* matchGlob(pattern.glob, repoRoot);
+    const allFiles = yield* matchGlob(pattern.glob, repoRoot, pattern.excludeGlobs);
 
     // Apply filter
     const filteredFiles = F.pipe(
@@ -201,7 +210,6 @@ const scanForPattern = (pattern: DetectionPattern, repoRoot: string, filter: O.O
     const allViolations: Violation[] = [];
     for (const file of filteredFiles) {
       const fullPath = path.join(repoRoot, file);
-
       const content = yield* fs.readFileString(fullPath).pipe(Effect.catchAll(() => Effect.succeed("")));
 
       if (Str.isNonEmpty(content)) {
@@ -221,7 +229,7 @@ const scanForPattern = (pattern: DetectionPattern, repoRoot: string, filter: O.O
 // -----------------------------------------------------------------------------
 
 /**
- * Run EntityId verification and return violations.
+ * Run Layer verification and return violations.
  *
  * @param options - Verification options
  * @returns Effect yielding the violation report
@@ -229,17 +237,15 @@ const scanForPattern = (pattern: DetectionPattern, repoRoot: string, filter: O.O
  * @since 0.1.0
  * @category handlers
  */
-export const entityIdHandler = (
-  options: EntityIdVerifyOptions
+export const layerHandler = (
+  options: LayerVerifyOptions
 ): Effect.Effect<ViolationReport, GlobError, FileSystem.FileSystem | Path.Path | RepoUtils> =>
   Effect.gen(function* () {
     const repo = yield* RepoUtils;
     const repoRoot = repo.REPOSITORY_ROOT;
 
     // Scan all patterns
-    const results = yield* Effect.all(
-      A.map(ENTITYID_PATTERNS, (pattern) => scanForPattern(pattern, repoRoot, options.filter))
-    );
+    const results = yield* Effect.all(A.map(LAYER_PATTERNS, (p) => scanForPattern(p, repoRoot, options.filter)));
 
     // Aggregate violations
     const allViolations = F.pipe(
@@ -274,4 +280,4 @@ export const entityIdHandler = (
     );
 
     return createReport(filteredViolations, packages, totalFiles);
-  }).pipe(Effect.withSpan("entityIdHandler"));
+  }).pipe(Effect.withSpan("layerHandler"));
