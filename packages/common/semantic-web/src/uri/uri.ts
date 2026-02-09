@@ -34,56 +34,100 @@
  * or implied, of Gary Court.
  */
 
-import { invariant } from "@beep/invariant";
+import { $SemanticWebId } from "@beep/identity/packages";
 import idna from "@beep/semantic-web/idna";
 import * as A from "effect/Array";
-import * as F from "effect/Function";
+import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
 import type { URIRegExps } from "./model.ts";
+
 import IRI_PROTOCOL from "./regex-iri";
 import URI_PROTOCOL from "./regex-uri";
-// import * as S from "effect/Schema";
-// import { $SemanticWebId } from "@beep/identity/packages";
-// import { BS } from "@beep/schema";
-// const $I = $SemanticWebId.create("uri/uri");
-// export class URIComponents
-export interface URIComponents {
-  scheme?: undefined | string;
-  userinfo?: undefined | string;
-  host?: undefined | string;
-  port?: undefined | number | string;
-  path?: undefined | string;
-  query?: undefined | string;
-  fragment?: undefined | string;
-  reference?: undefined | string;
-  error?: undefined | string;
+
+const $I = $SemanticWebId.create("uri/uri");
+
+const URISchemeString = S.String.pipe(
+  S.pattern(/^[A-Za-z][A-Za-z0-9+.-]*$/, {
+    identifier: "URISchemeString",
+    message: () => "Scheme must match RFC 3986: ALPHA *( ALPHA / DIGIT / '+' / '-' / '.' ).",
+  })
+);
+
+// WHATWG constrains ports to a 16-bit unsigned integer (0-65535). RFC 3986 only says *DIGIT
+// but in practice higher values are unusable and should be rejected.
+const URIPort = S.NonNegativeInt.pipe(
+  S.lessThanOrEqualTo(65535, {
+    identifier: "URIPort",
+    message: () => "Port must be an integer between 0 and 65535.",
+  })
+);
+
+const URIPath = S.String.annotations({ identifier: "URIPath" });
+
+const URIQuery = S.String.annotations({ identifier: "URIQuery" });
+
+const URIReference = S.Literal("same-document", "relative", "absolute", "uri").annotations({
+  identifier: "URIReference",
+});
+
+export class URIComponents extends S.Struct({
+  scheme: S.optional(URISchemeString),
+  userinfo: S.optional(S.String),
+  host: S.optional(S.String),
+  port: S.optional(URIPort),
+  // RFC 3986: path is never undefined (but it can be empty).
+  path: URIPath,
+  query: S.optional(URIQuery),
+  fragment: S.optional(S.String),
+  reference: S.optional(URIReference),
+})
+  .pipe(S.mutable)
+  .annotations(
+    $I.annotations("URIComponents.Type", {
+      description: "URI components",
+    })
+  ) {}
+
+export declare namespace URIComponents {
+  export type Type = typeof URIComponents.Type;
 }
 
-export interface URIOptions {
-  scheme?: undefined | string;
-  reference?: undefined | string;
-  tolerant?: undefined | boolean;
-  absolutePath?: undefined | boolean;
-  iri?: undefined | boolean;
-  unicodeSupport?: undefined | boolean;
-  domainHost?: undefined | boolean;
-}
+export class URIOptions extends S.Class<URIOptions>($I`URIOptions`)({
+  scheme: S.optional(S.String),
+  reference: S.optional(S.String),
+  tolerant: S.optional(S.Boolean),
+  absolutePath: S.optional(S.Boolean),
+  iri: S.optional(S.Boolean),
+  unicodeSupport: S.optional(S.Boolean),
+  domainHost: S.optional(S.Boolean),
+}) {}
 
 export interface URISchemeHandler<
-  Components extends URIComponents = URIComponents,
+  Components extends URIComponents.Type = URIComponents.Type,
   Options extends URIOptions = URIOptions,
-  ParentComponents extends URIComponents = URIComponents,
+  ParentComponents extends URIComponents.Type = URIComponents.Type,
 > {
   scheme: string;
 
-  parse(components: ParentComponents, options: Options): Components;
+  parse(
+    components: ParentComponents,
+    options: Options,
+    ast?: AST.AST
+  ): Either.Either<Components, ParseResult.ParseIssue>;
 
-  serialize(components: Components, options: Options): ParentComponents;
+  serialize(
+    components: Components,
+    options: Options,
+    ast?: AST.AST
+  ): Either.Either<ParentComponents, ParseResult.ParseIssue>;
 
   unicodeSupport?: undefined | boolean;
   domainHost?: undefined | boolean;
@@ -91,6 +135,21 @@ export interface URISchemeHandler<
 }
 
 export const SCHEMES: { [scheme: string]: URISchemeHandler } = {};
+
+const DEFAULT_ISSUE_AST = S.String.ast;
+
+const typeIssue = (ast: AST.AST | undefined, actual: unknown, message: string): ParseResult.ParseIssue =>
+  new ParseResult.Type(ast ?? DEFAULT_ISSUE_AST, actual, message);
+
+const effectFromEitherIssue = <A>(
+  either: Either.Either<A, ParseResult.ParseIssue>
+): Effect.Effect<A, ParseResult.ParseIssue> =>
+  Either.isLeft(either) ? Effect.fail(either.left) : Effect.succeed(either.right);
+
+const effectFromEitherParseError = <A>(
+  either: Either.Either<A, ParseResult.ParseIssue>
+): Effect.Effect<A, ParseResult.ParseError> =>
+  Either.isLeft(either) ? Effect.fail(ParseResult.parseError(either.left)) : Effect.succeed(either.right);
 
 export function pctEncChar(chr: string): string {
   const c = chr.charCodeAt(0);
@@ -143,7 +202,7 @@ export function pctDecChars(str: string): string {
   return newStr;
 }
 
-function _normalizeComponentEncoding(components: URIComponents, protocol: URIRegExps) {
+function _normalizeComponentEncoding(components: URIComponents.Type, protocol: URIRegExps) {
   function decodeUnreserved(str: string): string {
     const decStr = pctDecChars(str);
     return !decStr.match(protocol.UNRESERVED) ? str : decStr;
@@ -227,17 +286,21 @@ function _normalizeIPv6(host: string, protocol: URIRegExps): string {
       fields[fieldCount - 1] = _normalizeIPv4(fields[fieldCount - 1]!, protocol);
     }
 
-    const allZeroFields = A.reduce(fields, [] as Array<{ index: number; length: number }>, (acc, field, index) => {
-      if (!field || field === "0") {
-        const lastLongest = pipe(A.last(acc), O.getOrUndefined);
-        if (lastLongest && lastLongest.index + lastLongest.length === index) {
-          lastLongest.length++;
-        } else {
-          acc.push({ index, length: 1 });
+    const allZeroFields = A.reduce(
+      fields,
+      A.empty<{ readonly index: number; length: number }>(),
+      (acc, field, index) => {
+        if (!field || field === "0") {
+          const lastLongest = pipe(A.last(acc), O.getOrUndefined);
+          if (lastLongest && lastLongest.index + lastLongest.length === index) {
+            lastLongest.length++;
+          } else {
+            acc.push({ index, length: 1 });
+          }
         }
+        return acc;
       }
-      return acc;
-    });
+    );
 
     const longestZeroFields = pipe(
       allZeroFields,
@@ -273,117 +336,125 @@ const URI_PARSE =
   /^(?:([^:/?#]+):)?(?:\/\/((?:([^/?#@]*)@)?(\[[^/?#\]]+]|[^/?#:]*)(?::(\d*))?))?([^?#]*)(?:\?([^#]*))?(?:#([\s\S]*))?/i;
 const NO_MATCH_IS_UNDEFINED = "".match(/(){0}/)?.[1] === undefined;
 
-export const parse: {
-  (options?: URIOptions): (uriString: string) => URIComponents;
-  (uriString: string, options?: URIOptions): URIComponents;
-} = F.dual(
-  (args: IArguments) => P.isString(args[0]),
-  (uriString: string, options: URIOptions = {}): URIComponents => {
-    const components: URIComponents = {};
-    const protocol = options.iri !== false ? IRI_PROTOCOL : URI_PROTOCOL;
+const parseEither = (
+  uriString: string,
+  options: URIOptions = {},
+  ast?: AST.AST
+): Either.Either<URIComponents.Type, ParseResult.ParseIssue> => {
+  const components: URIComponents.Type = { path: "" };
+  const protocol = options.iri !== false ? IRI_PROTOCOL : URI_PROTOCOL;
+  const issue = (actual: unknown, message: string) => typeIssue(ast, actual, message);
 
-    if (options.reference === "suffix") uriString = `${options.scheme ? `${options.scheme}:` : ""}//${uriString}`;
+  let input = uriString;
+  if (options.reference === "suffix") input = `${options.scheme ? `${options.scheme}:` : ""}//${input}`;
 
-    const matchesOpt = Str.match(URI_PARSE)(uriString);
-
-    if (O.isSome(matchesOpt)) {
-      const matches = matchesOpt.value;
-      if (NO_MATCH_IS_UNDEFINED) {
-        components.scheme = pipe(A.get(1)(matches), O.getOrUndefined);
-        components.userinfo = pipe(A.get(3)(matches), O.getOrUndefined);
-        components.host = pipe(A.get(4)(matches), O.getOrUndefined);
-        pipe(
-          A.get(5)(matches),
-          O.map((port) => {
-            components.port = Number.parseInt(port, 10);
-          })
-        );
-        components.path = pipe(
-          A.get(6)(matches),
-          O.getOrElse(() => Str.empty)
-        );
-        components.query = pipe(A.get(7)(matches), O.getOrUndefined);
-        components.fragment = pipe(A.get(8)(matches), O.getOrUndefined);
-
-        if (Number.isNaN(components.port)) {
-          components.port = matches[5];
-        }
-      } else {
-        components.scheme = matches[1] || undefined;
-        components.userinfo = Str.includes("@")(uriString) ? matches[3] : undefined;
-        components.host = Str.includes("//")(uriString) ? matches[4] : undefined;
-        pipe(
-          A.get(5)(matches),
-          O.map((port) => {
-            components.port = Number.parseInt(port, 10);
-          })
-        );
-        components.path = matches[6] || "";
-        components.query = Str.includes("?")(uriString) ? matches[7] : undefined;
-        components.fragment = Str.includes("#")(uriString) ? matches[8] : undefined;
-
-        if (Number.isNaN(components.port)) {
-          components.port = Str.match(/\/\/[\s\S]*:(?:\/|\?|#|$)/)(uriString).pipe(O.isSome) ? matches[4] : undefined;
-        }
-      }
-
-      if (components.host) {
-        components.host = _normalizeIPv6(_normalizeIPv4(components.host, protocol), protocol);
-      }
-
-      if (
-        components.scheme === undefined &&
-        components.userinfo === undefined &&
-        components.host === undefined &&
-        components.port === undefined &&
-        !components.path &&
-        components.query === undefined
-      ) {
-        components.reference = "same-document";
-      } else if (components.scheme === undefined) {
-        components.reference = "relative";
-      } else if (components.fragment === undefined) {
-        components.reference = "absolute";
-      } else {
-        components.reference = "uri";
-      }
-
-      if (options.reference && options.reference !== "suffix" && options.reference !== components.reference) {
-        components.error = components.error || `URI is not a ${options.reference} reference.`;
-      }
-
-      const schemeHandler = SCHEMES[pipe(options.scheme || components.scheme || "", Str.toLowerCase)];
-
-      if (!options.unicodeSupport && (!schemeHandler || !schemeHandler.unicodeSupport)) {
-        if (components.host && (options.domainHost || schemeHandler?.domainHost)) {
-          const r = idna.toASCIIResult(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase());
-          if (r._tag === "Left") {
-            components.error =
-              components.error ||
-              `Host's domain name can not be converted to ASCII via idna: ${ParseResult.TreeFormatter.formatIssueSync(
-                r.left
-              )}`;
-          } else {
-            components.host = r.right;
-          }
-        }
-        _normalizeComponentEncoding(components, URI_PROTOCOL);
-      } else {
-        _normalizeComponentEncoding(components, protocol);
-      }
-
-      if (schemeHandler?.parse) {
-        schemeHandler.parse(components, options);
-      }
-    } else {
-      components.error = components.error || "URI can not be parsed.";
-    }
-
-    return components;
+  const matchesOpt = Str.match(URI_PARSE)(input);
+  if (O.isNone(matchesOpt)) {
+    return Either.left(issue(uriString, "URI can not be parsed."));
   }
-);
 
-function _recomposeAuthority(components: URIComponents, options: URIOptions): string | undefined {
+  const matches = matchesOpt.value;
+  if (NO_MATCH_IS_UNDEFINED) {
+    components.scheme = pipe(A.get(1)(matches), O.getOrUndefined);
+    components.userinfo = pipe(A.get(3)(matches), O.getOrUndefined);
+    components.host = pipe(A.get(4)(matches), O.getOrUndefined);
+    const portRaw = pipe(A.get(5)(matches), O.getOrUndefined);
+    if (portRaw !== undefined && portRaw.length > 0) {
+      const n = Number.parseInt(portRaw, 10);
+      if (!Number.isSafeInteger(n) || n < 0 || n > 65535) {
+        return Either.left(issue(portRaw, "Port must be an integer between 0 and 65535."));
+      }
+      components.port = n;
+    }
+    components.path = pipe(
+      A.get(6)(matches),
+      O.getOrElse(() => Str.empty)
+    );
+    components.query = pipe(A.get(7)(matches), O.getOrUndefined);
+    components.fragment = pipe(A.get(8)(matches), O.getOrUndefined);
+  } else {
+    components.scheme = matches[1] || undefined;
+    components.userinfo = Str.includes("@")(input) ? matches[3] : undefined;
+    components.host = Str.includes("//")(input) ? matches[4] : undefined;
+    const portRaw = matches[5] || undefined;
+    if (portRaw !== undefined && portRaw.length > 0) {
+      const n = Number.parseInt(portRaw, 10);
+      if (!Number.isSafeInteger(n) || n < 0 || n > 65535) {
+        return Either.left(issue(portRaw, "Port must be an integer between 0 and 65535."));
+      }
+      components.port = n;
+    }
+    components.path = matches[6] || "";
+    components.query = Str.includes("?")(input) ? matches[7] : undefined;
+    components.fragment = Str.includes("#")(input) ? matches[8] : undefined;
+  }
+
+  if (components.host) {
+    components.host = _normalizeIPv6(_normalizeIPv4(components.host, protocol), protocol);
+  }
+
+  if (
+    components.scheme === undefined &&
+    components.userinfo === undefined &&
+    components.host === undefined &&
+    components.port === undefined &&
+    !components.path &&
+    components.query === undefined
+  ) {
+    components.reference = "same-document";
+  } else if (components.scheme === undefined) {
+    components.reference = "relative";
+  } else if (components.fragment === undefined) {
+    components.reference = "absolute";
+  } else {
+    components.reference = "uri";
+  }
+
+  if (options.reference && options.reference !== "suffix" && options.reference !== components.reference) {
+    return Either.left(issue(uriString, `URI is not a ${options.reference} reference.`));
+  }
+
+  if (components.scheme !== undefined && !/^[A-Za-z][A-Za-z0-9+.-]*$/.test(components.scheme)) {
+    return Either.left(
+      issue(components.scheme, "Scheme must match RFC 3986: ALPHA *( ALPHA / DIGIT / '+' / '-' / '.' ).")
+    );
+  }
+
+  const schemeHandler = SCHEMES[pipe(options.scheme || components.scheme || "", Str.toLowerCase)];
+
+  if (!options.unicodeSupport && (!schemeHandler || !schemeHandler.unicodeSupport)) {
+    if (components.host && (options.domainHost || schemeHandler?.domainHost)) {
+      const r = idna.toASCIIResult(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase());
+      if (Either.isLeft(r)) {
+        return Either.left(
+          issue(
+            uriString,
+            `Host's domain name can not be converted to ASCII via idna: ${ParseResult.TreeFormatter.formatIssueSync(r.left)}`
+          )
+        );
+      }
+      components.host = r.right;
+    }
+    _normalizeComponentEncoding(components, URI_PROTOCOL);
+  } else {
+    _normalizeComponentEncoding(components, protocol);
+  }
+
+  if (schemeHandler?.parse) {
+    return schemeHandler.parse(components, options, ast);
+  }
+
+  return Either.right(components);
+};
+
+export function parse(
+  uriString: string,
+  options?: URIOptions
+): Effect.Effect<URIComponents.Type, ParseResult.ParseError> {
+  return effectFromEitherParseError(parseEither(uriString, options));
+}
+
+function _recomposeAuthority(components: URIComponents.Type, options: URIOptions): string | undefined {
   const protocol = options.iri !== false ? IRI_PROTOCOL : URI_PROTOCOL;
   const uriTokens = A.empty<string>();
 
@@ -401,7 +472,7 @@ function _recomposeAuthority(components: URIComponents, options: URIOptions): st
     );
   }
 
-  if (P.isNumber(components.port) || P.isString(components.port)) {
+  if (components.port !== undefined) {
     uriTokens.push(":");
     uriTokens.push(String(components.port));
   }
@@ -416,26 +487,23 @@ const RDS5 = /^\/?[\s\S]*?(?=\/|$)/;
 
 export function removeDotSegments(input: string): string {
   const output: Array<string> = [];
+  let rest = input;
 
-  while (Str.isNonEmpty(input)) {
-    if (O.isSome(Str.match(RDS1)(input))) {
-      input = Str.replace(RDS1, "")(input);
-    } else if (O.isSome(Str.match(RDS2)(input))) {
-      input = Str.replace(RDS2, "/")(input);
-    } else if (O.isSome(Str.match(RDS3)(input))) {
-      input = Str.replace(RDS3, "/")(input);
+  while (Str.isNonEmpty(rest)) {
+    if (O.isSome(Str.match(RDS1)(rest))) {
+      rest = Str.replace(RDS1, "")(rest);
+    } else if (O.isSome(Str.match(RDS2)(rest))) {
+      rest = Str.replace(RDS2, "/")(rest);
+    } else if (O.isSome(Str.match(RDS3)(rest))) {
+      rest = Str.replace(RDS3, "/")(rest);
       output.pop();
-    } else if (input === "." || input === "..") {
-      input = "";
+    } else if (rest === "." || rest === "..") {
+      rest = "";
     } else {
-      const im = Str.match(RDS5)(input);
-      invariant(O.isSome(im), "Unexpected dot segment condition", {
-        file: "@beep/semantic-web/uri",
-        line: 0,
-        args: [input],
-      });
-      const s = im.value[0];
-      input = Str.slice(Str.length(s))(input);
+      const im = Str.match(RDS5)(rest);
+      if (O.isNone(im)) break;
+      const s = im.value[0] ?? "";
+      rest = Str.slice(Str.length(s))(rest);
       output.push(s);
     }
   }
@@ -443,41 +511,66 @@ export function removeDotSegments(input: string): string {
   return A.join(output, "");
 }
 
-export function serialize(components: URIComponents, options: URIOptions = {}): string {
+const serializeEither = (
+  components: URIComponents.Type,
+  options: URIOptions = {},
+  ast?: AST.AST
+): Either.Either<string, ParseResult.ParseIssue> => {
   const protocol = options.iri ? IRI_PROTOCOL : URI_PROTOCOL;
-  const uriTokens: Array<string> = [];
+  const issue = (actual: unknown, message: string) => typeIssue(ast, actual, message);
+  const uriTokens = A.empty<string>();
 
   const schemeHandler = SCHEMES[pipe(options.scheme || components.scheme || "", Str.toLowerCase)];
 
-  if (schemeHandler?.serialize) schemeHandler.serialize(components, options);
+  let mutable: URIComponents.Type = { ...components };
 
-  if (components.host) {
-    if (protocol.IPV6ADDRESS.test(components.host)) {
-      //TODO: normalize IPv6 address as per RFC 5952
+  if (schemeHandler?.serialize) {
+    const r = schemeHandler.serialize(mutable, options, ast);
+    if (Either.isLeft(r)) return Either.left(r.left);
+    mutable = r.right;
+  }
+
+  if (mutable.host) {
+    if (protocol.IPV6ADDRESS.test(mutable.host)) {
+      // TODO: normalize IPv6 address as per RFC 5952
     } else if (options.domainHost || schemeHandler?.domainHost) {
       const r = !options.iri
-        ? idna.toASCIIResult(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase())
-        : idna.toUnicodeResult(components.host);
-      if (r._tag === "Left") {
-        components.error =
-          components.error ||
-          `Host's domain name can not be converted to ${!options.iri ? "ASCII" : "Unicode"} via idna: ${ParseResult.TreeFormatter.formatIssueSync(
-            r.left
-          )}`;
-      } else {
-        components.host = r.right;
+        ? idna.toASCIIResult(mutable.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase())
+        : idna.toUnicodeResult(mutable.host);
+      if (Either.isLeft(r)) {
+        return Either.left(
+          issue(
+            mutable.host,
+            `Host's domain name can not be converted to ${!options.iri ? "ASCII" : "Unicode"} via idna: ${ParseResult.TreeFormatter.formatIssueSync(
+              r.left
+            )}`
+          )
+        );
       }
+      mutable.host = r.right;
     }
   }
 
-  _normalizeComponentEncoding(components, protocol);
+  _normalizeComponentEncoding(mutable, protocol);
 
-  if (options.reference !== "suffix" && components.scheme) {
-    uriTokens.push(components.scheme);
+  if (mutable.scheme !== undefined && !/^[A-Za-z][A-Za-z0-9+.-]*$/.test(mutable.scheme)) {
+    return Either.left(
+      issue(mutable.scheme, "Scheme must match RFC 3986: ALPHA *( ALPHA / DIGIT / '+' / '-' / '.' ).")
+    );
+  }
+
+  if (mutable.port !== undefined) {
+    if (!Number.isSafeInteger(mutable.port) || mutable.port < 0 || mutable.port > 65535) {
+      return Either.left(issue(mutable.port, "Port must be an integer between 0 and 65535."));
+    }
+  }
+
+  if (options.reference !== "suffix" && mutable.scheme) {
+    uriTokens.push(mutable.scheme);
     uriTokens.push(":");
   }
 
-  const authority = _recomposeAuthority(components, options);
+  const authority = _recomposeAuthority(mutable, options);
   if (authority !== undefined) {
     if (options.reference !== "suffix") {
       uriTokens.push("//");
@@ -485,13 +578,13 @@ export function serialize(components: URIComponents, options: URIOptions = {}): 
 
     uriTokens.push(authority);
 
-    if (components.path && components.path.charAt(0) !== "/") {
+    if (mutable.path && mutable.path.charAt(0) !== "/") {
       uriTokens.push("/");
     }
   }
 
-  if (components.path !== undefined) {
-    let s = components.path;
+  {
+    let s = mutable.path;
 
     if (!options.absolutePath && (!schemeHandler || !schemeHandler.absolutePath)) {
       s = removeDotSegments(s);
@@ -504,46 +597,63 @@ export function serialize(components: URIComponents, options: URIOptions = {}): 
     uriTokens.push(s);
   }
 
-  if (components.query !== undefined) {
+  if (mutable.query !== undefined) {
     uriTokens.push("?");
-    uriTokens.push(components.query);
+    uriTokens.push(mutable.query);
   }
 
-  if (components.fragment !== undefined) {
+  if (mutable.fragment !== undefined) {
     uriTokens.push("#");
-    uriTokens.push(components.fragment);
+    uriTokens.push(mutable.fragment);
   }
 
-  return A.join(uriTokens, "");
+  return Either.right(A.join(uriTokens, ""));
+};
+
+export function serialize(
+  components: URIComponents.Type,
+  options?: URIOptions
+): Effect.Effect<string, ParseResult.ParseError> {
+  return effectFromEitherParseError(serializeEither(components, options));
 }
 
-export function resolveComponents(
-  base: URIComponents,
-  relative: URIComponents,
+const resolveComponentsEither = (
+  base: URIComponents.Type,
+  relative: URIComponents.Type,
   options: URIOptions = {},
-  skipNormalization?: boolean
-): URIComponents {
-  const target: URIComponents = {};
+  skipNormalization?: undefined | boolean
+): Either.Either<URIComponents.Type, ParseResult.ParseIssue> => {
+  const target: URIComponents.Type = { path: "" };
 
   if (!skipNormalization) {
-    base = parse(serialize(base, options), options);
-    relative = parse(serialize(relative, options), options);
+    const baseNormalized = pipe(
+      serializeEither(base, options),
+      Either.flatMap((s) => parseEither(s, options))
+    );
+    if (Either.isLeft(baseNormalized)) return baseNormalized;
+    base = baseNormalized.right;
+
+    const relativeNormalized = pipe(
+      serializeEither(relative, options),
+      Either.flatMap((s) => parseEither(s, options))
+    );
+    if (Either.isLeft(relativeNormalized)) return relativeNormalized;
+    relative = relativeNormalized.right;
   }
-  options = options || {};
 
   if (!options.tolerant && relative.scheme) {
     target.scheme = relative.scheme;
     target.userinfo = relative.userinfo;
     target.host = relative.host;
     target.port = relative.port;
-    target.path = removeDotSegments(relative.path || "");
+    target.path = removeDotSegments(relative.path);
     target.query = relative.query;
   } else {
     if (relative.userinfo !== undefined || relative.host !== undefined || relative.port !== undefined) {
       target.userinfo = relative.userinfo;
       target.host = relative.host;
       target.port = relative.port;
-      target.path = removeDotSegments(relative.path || "");
+      target.path = removeDotSegments(relative.path);
       target.query = relative.query;
     } else {
       if (!relative.path) {
@@ -577,53 +687,288 @@ export function resolveComponents(
 
   target.fragment = relative.fragment;
 
-  return target;
+  return Either.right(target);
+};
+
+export function resolveComponents(
+  base: URIComponents.Type,
+  relative: URIComponents.Type,
+  options?: URIOptions,
+  skipNormalization?: boolean
+): Effect.Effect<URIComponents.Type, ParseResult.ParseError> {
+  return effectFromEitherParseError(resolveComponentsEither(base, relative, options, skipNormalization));
 }
 
-export function resolve(baseURI: string, relativeURI: string, options?: URIOptions): string {
+export function resolve(
+  baseURI: string,
+  relativeURI: string,
+  options?: URIOptions
+): Effect.Effect<string, ParseResult.ParseError> {
   const schemelessOptions: URIOptions = { scheme: "null" as const, ...options };
-  return serialize(
-    resolveComponents(
-      parse(baseURI, schemelessOptions),
-      parse(relativeURI, schemelessOptions),
-      schemelessOptions,
-      true
-    ),
-    schemelessOptions
+
+  return effectFromEitherParseError(
+    pipe(
+      parseEither(baseURI, schemelessOptions),
+      Either.flatMap((baseComponents) =>
+        pipe(
+          parseEither(relativeURI, schemelessOptions),
+          Either.flatMap((relativeComponents) =>
+            pipe(
+              resolveComponentsEither(baseComponents, relativeComponents, schemelessOptions, true),
+              Either.flatMap((resolved) => serializeEither(resolved, schemelessOptions))
+            )
+          )
+        )
+      )
+    )
   );
 }
 
-export function normalize(uri: string, options?: URIOptions): string;
-export function normalize(uri: URIComponents, options?: URIOptions): URIComponents;
-export function normalize(uri: string | URIComponents, options?: URIOptions): string | URIComponents {
+export function normalize(uri: string, options?: URIOptions): Effect.Effect<string, ParseResult.ParseError>;
+export function normalize(
+  uri: URIComponents.Type,
+  options?: URIOptions
+): Effect.Effect<URIComponents.Type, ParseResult.ParseError>;
+export function normalize(
+  uri: string | URIComponents.Type,
+  options?: URIOptions
+): Effect.Effect<string | URIComponents.Type, ParseResult.ParseError> {
   if (P.isString(uri)) {
-    return serialize(parse(uri, options), options);
+    return effectFromEitherParseError(
+      pipe(
+        parseEither(uri, options),
+        Either.flatMap((components) => serializeEither(components, options))
+      )
+    );
   }
-  return parse(serialize(uri, options), options);
+
+  return effectFromEitherParseError(
+    pipe(
+      serializeEither(uri, options),
+      Either.flatMap((s) => parseEither(s, options))
+    )
+  );
 }
 
-export function equal(uriA: string, uriB: string, options?: URIOptions): boolean;
-export function equal(uriA: URIComponents, uriB: URIComponents, options?: URIOptions): boolean;
-export function equal(uriA: string | URIComponents, uriB: string | URIComponents, options?: URIOptions): boolean {
-  const serializedA = P.isString(uriA) ? serialize(parse(uriA, options), options) : serialize(uriA, options);
-  const serializedB = P.isString(uriB) ? serialize(parse(uriB, options), options) : serialize(uriB, options);
-  return serializedA === serializedB;
+export function equal(uriA: string, uriB: string, options?: URIOptions): Effect.Effect<boolean, ParseResult.ParseError>;
+export function equal(
+  uriA: URIComponents.Type,
+  uriB: URIComponents.Type,
+  options?: URIOptions
+): Effect.Effect<boolean, ParseResult.ParseError>;
+export function equal(
+  uriA: string | URIComponents.Type,
+  uriB: string | URIComponents.Type,
+  options?: URIOptions
+): Effect.Effect<boolean, ParseResult.ParseError> {
+  const serializedA = P.isString(uriA)
+    ? pipe(
+        parseEither(uriA, options),
+        Either.flatMap((components) => serializeEither(components, options))
+      )
+    : serializeEither(uriA, options);
+
+  const serializedB = P.isString(uriB)
+    ? pipe(
+        parseEither(uriB, options),
+        Either.flatMap((components) => serializeEither(components, options))
+      )
+    : serializeEither(uriB, options);
+
+  return effectFromEitherParseError(
+    pipe(
+      serializedA,
+      Either.flatMap((a) =>
+        pipe(
+          serializedB,
+          Either.map((b) => a === b)
+        )
+      )
+    )
+  );
 }
 
-export const escapeComponent: {
-  (options?: URIOptions): (str: string) => string;
-  (str: string, options?: URIOptions): string;
-} = F.dual(
-  (args: IArguments) => P.isString(args[0]),
-  (str: string, options?: URIOptions): string =>
-    str?.toString().replace(!options || !options.iri ? URI_PROTOCOL.ESCAPE : IRI_PROTOCOL.ESCAPE, pctEncChar)
+export function escapeComponent(str: string, options?: URIOptions): string {
+  return str?.toString().replace(!options || !options.iri ? URI_PROTOCOL.ESCAPE : IRI_PROTOCOL.ESCAPE, pctEncChar);
+}
+
+export function unescapeComponent(str: string, options?: URIOptions): string {
+  return str
+    ?.toString()
+    .replace(!options || !options.iri ? URI_PROTOCOL.PCT_ENCODED : IRI_PROTOCOL.PCT_ENCODED, pctDecChars);
+}
+
+const URI_SCHEMA_OPTIONS: URIOptions = { iri: false, unicodeSupport: false };
+const IRI_SCHEMA_OPTIONS: URIOptions = { iri: true, unicodeSupport: true };
+
+const normalizeStringEither = (
+  uriString: string,
+  options: URIOptions,
+  ast?: AST.AST
+): Either.Either<string, ParseResult.ParseIssue> =>
+  pipe(
+    parseEither(uriString, options, ast),
+    Either.flatMap((components) => serializeEither(components, options, ast))
+  );
+
+/**
+ * Canonical, normalized URI string (e.g. result of `normalize(...)` under the URI schema defaults).
+ *
+ * This is a brand used to preserve the "already normalized" invariant in the type system while
+ * remaining JSON-friendly (runtime representation is still a `string`).
+ */
+export class URIString extends S.String.pipe(S.brand("URIString")).annotations(
+  $I.annotations("URIString", {
+    description: "Canonical, normalized URI string",
+  })
+) {}
+
+export declare namespace URIString {
+  export type Type = typeof URIString.Type;
+  export type Encoded = typeof URIString.Encoded;
+}
+
+/**
+ * Canonical, normalized IRI string (e.g. result of `normalize(...)` under the IRI schema defaults).
+ */
+export class IRIString extends S.String.pipe(S.brand("IRIString")).annotations(
+  $I.annotations("IRIString", {
+    description: "Canonical, normalized IRI string",
+  })
+) {}
+
+export declare namespace IRIString {
+  export type Type = typeof IRIString.Type;
+  export type Encoded = typeof IRIString.Encoded;
+}
+
+export class URI extends S.Class<URI>($I`URI`)(
+  { value: URIString },
+  $I.annotations("URI", {
+    description: "URI value model (canonical normalized serialization stored in `.value`)",
+  })
+) {
+  static parse(uriString: string, options?: URIOptions) {
+    return parse(uriString, options);
+  }
+
+  static serialize(components: URIComponents.Type, options?: URIOptions) {
+    return serialize(components, options);
+  }
+
+  static resolveComponents(
+    base: URIComponents.Type,
+    relative: URIComponents.Type,
+    options?: URIOptions,
+    skipNormalization?: boolean
+  ) {
+    return resolveComponents(base, relative, options, skipNormalization);
+  }
+
+  static resolve(baseURI: string, relativeURI: string, options?: URIOptions) {
+    return resolve(baseURI, relativeURI, options);
+  }
+
+  static normalize(uri: string, options?: URIOptions): Effect.Effect<string, ParseResult.ParseError>;
+  static normalize(
+    uri: URIComponents.Type,
+    options?: URIOptions
+  ): Effect.Effect<URIComponents.Type, ParseResult.ParseError>;
+  static normalize(uri: string | URIComponents.Type, options?: URIOptions) {
+    return P.isString(uri) ? normalize(uri, options) : normalize(uri, options);
+  }
+
+  static equal(uriA: string, uriB: string, options?: URIOptions): Effect.Effect<boolean, ParseResult.ParseError>;
+  static equal(
+    uriA: URIComponents.Type,
+    uriB: URIComponents.Type,
+    options?: URIOptions
+  ): Effect.Effect<boolean, ParseResult.ParseError>;
+  static equal(uriA: string | URIComponents.Type, uriB: string | URIComponents.Type, options?: URIOptions) {
+    if (P.isString(uriA)) {
+      if (P.isString(uriB)) {
+        return equal(uriA, uriB, options);
+      }
+      return Effect.zipWith(
+        Effect.flatMap(parse(uriA, options), (components) => serialize(components, options)),
+        serialize(uriB, options),
+        (a, b) => a === b
+      );
+    }
+
+    if (P.isString(uriB)) {
+      return Effect.zipWith(
+        serialize(uriA, options),
+        Effect.flatMap(parse(uriB, options), (components) => serialize(components, options)),
+        (a, b) => a === b
+      );
+    }
+
+    return equal(uriA, uriB, options);
+  }
+
+  static escapeComponent(str: string, options?: URIOptions) {
+    return escapeComponent(str, options);
+  }
+
+  static unescapeComponent(str: string, options?: URIOptions) {
+    return unescapeComponent(str, options);
+  }
+
+  override toString(): string {
+    return this.value;
+  }
+}
+
+export class IRI extends S.Class<IRI>($I`IRI`)(
+  { value: IRIString },
+  $I.annotations("IRI", {
+    description: "IRI value model (canonical normalized serialization stored in `.value`)",
+  })
+) {
+  override toString(): string {
+    return this.value;
+  }
+}
+
+export const URIStringFromString = S.transformOrFail(S.String, URIString, {
+  strict: true,
+  decode: (s, _options, ast) => pipe(normalizeStringEither(s, URI_SCHEMA_OPTIONS, ast), effectFromEitherIssue),
+  encode: (uri) => Effect.succeed(uri),
+}).annotations(
+  $I.annotations("URIStringFromString", {
+    description: "Strict transform from string into canonical normalized URI string",
+  })
 );
 
-export const unescapeComponent: {
-  (options?: URIOptions): (str: string) => string;
-  (str: string, options?: URIOptions): string;
-} = F.dual(
-  (args: IArguments) => P.isString(args[0]),
-  (str: string, options?: URIOptions): string =>
-    str?.toString().replace(!options || !options.iri ? URI_PROTOCOL.PCT_ENCODED : IRI_PROTOCOL.PCT_ENCODED, pctDecChars)
+export const IRIStringFromString = S.transformOrFail(S.String, IRIString, {
+  strict: true,
+  decode: (s, _options, ast) => pipe(normalizeStringEither(s, IRI_SCHEMA_OPTIONS, ast), effectFromEitherIssue),
+  encode: (iri) => Effect.succeed(iri),
+}).annotations(
+  $I.annotations("IRIStringFromString", {
+    description: "Strict transform from string into canonical normalized IRI string",
+  })
 );
+
+export const URIFromString = S.transformOrFail(S.String, URI, {
+  strict: true,
+  decode: (s, _options, ast) =>
+    pipe(
+      normalizeStringEither(s, URI_SCHEMA_OPTIONS, ast),
+      effectFromEitherIssue,
+      Effect.map((value) => ({ value }))
+    ),
+  encode: (uri) => Effect.succeed(uri.value),
+});
+
+export const IRIFromString = S.transformOrFail(S.String, IRI, {
+  strict: true,
+  decode: (s, _options, ast) =>
+    pipe(
+      normalizeStringEither(s, IRI_SCHEMA_OPTIONS, ast),
+      effectFromEitherIssue,
+      Effect.map((value) => ({ value }))
+    ),
+  encode: (iri) => Effect.succeed(iri.value),
+});

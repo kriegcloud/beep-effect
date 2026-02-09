@@ -1,5 +1,5 @@
 import * as d from "drizzle-orm";
-import { comment, discussion, document, documentFile, documentVersion, organization, user } from "./tables";
+import { comment, discussion, document, documentFile, documentVersion, organization, page, user } from "./tables";
 
 // User relations (redefined for bounded context integrity)
 export const userRelations = d.relations(user, ({ many }) => ({
@@ -8,6 +8,7 @@ export const userRelations = d.relations(user, ({ many }) => ({
   discussions: many(discussion, { relationName: "discussionAuthor" }),
   comments: many(comment, { relationName: "commentAuthor" }),
   documentFiles: many(documentFile, { relationName: "documentFileOwner" }),
+  pages: many(page, { relationName: "pageCreatedBy" }),
 }));
 
 // Organization relations (redefined for bounded context integrity)
@@ -17,6 +18,7 @@ export const organizationRelations = d.relations(organization, ({ many }) => ({
   discussions: many(discussion, { relationName: "discussionOrganization" }),
   comments: many(comment, { relationName: "commentOrganization" }),
   documentFiles: many(documentFile, { relationName: "documentFileOrganization" }),
+  pages: many(page, { relationName: "pageOrganization" }),
 }));
 
 // Document relations
@@ -42,6 +44,28 @@ export const documentRelations = d.relations(document, ({ one, many }) => ({
   versions: many(documentVersion),
   discussions: many(discussion),
   files: many(documentFile),
+}));
+
+// Page relations
+export const pageRelations = d.relations(page, ({ one, many }) => ({
+  organization: one(organization, {
+    fields: [page.organizationId],
+    references: [organization.id],
+    relationName: "pageOrganization",
+  }),
+  createdBy: one(user, {
+    fields: [page.createdById],
+    references: [user.id],
+    relationName: "pageCreatedBy",
+  }),
+  parentPage: one(page, {
+    fields: [page.parentId],
+    references: [page.id],
+    relationName: "pageHierarchy",
+  }),
+  childPages: many(page, {
+    relationName: "pageHierarchy",
+  }),
 }));
 
 // DocumentVersion relations

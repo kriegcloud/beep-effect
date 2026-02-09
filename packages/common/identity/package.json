@@ -37,9 +37,12 @@
     "docgen": "bunx docgen"
   },
   "peerDependencies": {
+    "@effect/platform": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/testkit": "workspace:^",
+    "@effect/platform": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
     "effect": "catalog:"
   },
