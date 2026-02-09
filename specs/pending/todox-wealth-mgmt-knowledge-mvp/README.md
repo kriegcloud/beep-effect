@@ -1,6 +1,6 @@
 # TodoX Wealth Mgmt Knowledge MVP
 
-**Status**: Phase P0 (Decisions + contracts)  
+**Status**: Phase P1 (MVP demo implementation plan ready)  
 **Complexity**: Complex (multi-phase, multi-session)  
 **Primary input**: `outputs/R0_SYNTHESIZED_REPORT_V3.md`
 **PII/AI research (raw)**: `inputs/PII_AI_RESEARCH_RAW.md`  
@@ -77,6 +77,26 @@ The demo is “pass” only if ALL are true:
   - one meeting-prep bullet
 - No cross-household/org data appears in any query path used in the demo.
 - Output avoids guarantees and includes a compliance-safe disclaimer where applicable.
+
+## Demo Script (5 Minutes, End-to-End)
+
+This is the concrete demo narrative the PR gates must support (no manual endpoint calls).
+
+1. Login to TodoX.
+2. Settings → Connections:
+   - Link Google.
+   - If Gmail scopes are missing, see a deterministic relink prompt driven by the typed C-01 payload.
+   - Confirm current scopes are displayed.
+3. Select the active Google `providerAccountId` for the org (multi-account safe; PR2A).
+4. Trigger Gmail → Documents materialization for the selected account (PR1).
+   - Re-run the same action and confirm idempotency (no duplicate docs, stable IDs).
+5. Trigger extraction + embeddings (PR2).
+6. Open `/knowledge`:
+   - Graph shows the expected WM entities/relations.
+   - Clicking an entity/relation shows evidence highlights (PR3) pinned to `documentVersionId` (C-05).
+7. Generate meeting prep:
+   - Output bullets persist with citations (PR5).
+   - Refresh the page and confirm bullets + citations still resolve to highlights.
 
 ## Architecture Overview (Gmail -> Docs -> Knowledge -> UI)
 
@@ -235,6 +255,7 @@ These decisions are load-bearing for avoiding rework (see `outputs/R0_SYNTHESIZE
 
 - OAuth UX surface: implement “Connections” in existing settings tab (`settingsTab=connections`) vs new route.
 - Typed scope expansion contract: define the tagged error payload shape (must include `missingScopes` and relink parameters).
+- Provider account selection required contract: define the tagged error payload shape used when `providerAccountId` is missing (no defaults / no “pick first”).
 - Gmail materialization identity: decide what `providerAccountId` means (IAM account id vs external provider identity).
 - Message-to-document policy: `1 message = 1 document` for MVP vs attachments-as-documents (future).
 - Immutability policy for Gmail-sourced documents (lock vs editable + materialization policy).

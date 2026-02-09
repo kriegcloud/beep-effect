@@ -19,10 +19,10 @@ P1 must produce an executable PR plan with pass/fail acceptance gates so P2 can 
 Produce an executable PR breakdown with concrete gates for every demo-fatal invariant.
 
 - Ensure `outputs/P1_PR_BREAKDOWN.md` fully covers the MVP critical path:
-  - Connections UI + typed incremental consent errors
-  - Gmail → Documents materialization + idempotency + version pinning
+  - Connections UI + typed incremental consent errors (C-01)
+  - Gmail → Documents materialization + idempotency + version pinning (C-03, C-05)
   - Knowledge extraction persistence + embeddings
-  - Multi-account selection + required `providerAccountId`
+  - Multi-account selection + required `providerAccountId` (C-06; no defaults)
   - Thread aggregation read model
   - Ontology registry wiring
   - Evidence.List + relation evidence-of-record + migration/backfill

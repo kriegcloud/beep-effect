@@ -2,7 +2,7 @@
 
 **Spec**: `specs/pending/todox-wealth-mgmt-knowledge-mvp`  
 **Phase**: P1 (MVP demo implementation plan)  
-**Status**: Draft (depends on finalizing `outputs/P0_DECISIONS.md`)  
+**Status**: Ready (P0 contracts locked; gates are authoritative)  
 
 This document turns the spec into small, reviewable PRs with explicit acceptance gates.
 
@@ -32,17 +32,28 @@ Deliverables:
   - relink with expanded scopes
   - unlink
   - display current scope string
-- A typed error contract surfaced from Gmail/Calendar-dependent endpoints:
-  - includes `missingScopes` + relink params (per `outputs/P0_DECISIONS.md`)
+- A typed error contract surfaced from Gmail-dependent endpoints (C-01):
+  - payload includes `tag + providerId + missingScopes + relink{ callbackURL, errorCallbackURL, scopes }`
+  - no string matching on error messages; client branches on `tag`
+  - relink uses IAM `oauth2.link` with the `relink.scopes` + callback URLs from the payload
 
 Acceptance gates (pass/fail):
 - Missing scopes produces a deterministic UI relink prompt.
+- Scope error payload matches C-01 exactly (machine-readable remediation; no ad-hoc fields):
+  - `tag = "GoogleScopeExpansionRequiredError"`
+  - `providerId = "google"`
+  - `missingScopes.length > 0`
+  - `relink.callbackURL` + `relink.errorCallbackURL` point to TodoX Settings → Connections (D-01)
+  - `missingScopes ⊆ relink.scopes`
+- Tests enforce wire-level matching (no string/instance matching):
+  - a test asserts the serialized payload includes `tag` (not `_tag`) and client logic branches on `tag`
 - A user can link/relink entirely via UI (no manual endpoint calls).
 - TodoX calls only `apps/server` for OAuth/Gmail actions; no Next route handler calls to Gmail APIs.
 
 P0 decision dependencies:
 - D-01 (LOCKED): OAuth UX surface = settings tab `connections`
 - D-02 (LOCKED): typed scope expansion contract (no string matching)
+- C-01 (LOCKED): typed scope expansion error payload (wire shape + relink params)
 
 Verification commands:
 ```bash
@@ -60,11 +71,25 @@ Deliverables:
 - Materializer service:
   - creates/updates document + version
   - upserts mapping row
-  - stores minimal metadata (`threadId`, `sourceHash`, etc.)
+  - stores minimal metadata (`sourceThreadId`, `sourceHash`, etc.) per C-03
+  - persists an immutable canonical text blob addressable by `documentVersionId` (C-05):
+    - simplest path: add/store a `content` (text) snapshot on the version record
+    - if an alternative store is used, `documentVersionId` MUST still resolve to an immutable text string (no silent remap)
+    - repo note: today, `documents.documentVersion` does not store a plain text snapshot; expect to add a `content` field to:
+      - `packages/documents/tables/src/tables/document-version.table.ts`
+      - `packages/documents/domain/src/entities/document-version/document-version.model.ts`
 
 Acceptance gates:
 - Re-running sync does not duplicate documents.
 - Mapping is org-scoped and provider-account-scoped (no collisions across linked accounts).
+- Tombstone + resurrect (D-07) preserves identity:
+  - tombstoning `document_source` then re-syncing resurrects the mapping row (no second row)
+  - resurrect reuses the same `documentId` (new version only if `sourceHash` changes)
+- SourceHash determinism (D-06):
+  - `sourceHash` is computed from the exact persisted canonical content string used for highlighting
+  - no lossy whitespace normalization that would drift offsets (new version required for any length-changing transform)
+- Version pinning (demo-fatal, C-05):
+  - materialization produces a stable `documentVersionId` whose canonical text content can be fetched later for highlighting
 - No cross-slice DB foreign keys introduced (IAM id stored as typed string).
 
 P0 decision dependencies:
@@ -74,6 +99,7 @@ P0 decision dependencies:
 - D-06 (LOCKED): sourceHash hashes the exact persisted content string used for highlighting
 - D-07 (LOCKED): strict unique forever mapping with tombstone + resurrect semantics
 - D-18 (LOCKED): evidence spans pinned to a specific document version + offsets (no silent drift)
+- C-03 (LOCKED): Gmail → Documents mapping invariants (key + idempotency + tombstone rules)
 
 Verification commands:
 ```bash
@@ -90,12 +116,18 @@ Deliverables:
   - extraction row lifecycle
   - entities
   - relations
-  - mentions (span store)
+  - mentions (span store) with version pinning:
+    - every mention row stores `documentId + documentVersionId + startChar + endChar` (C-05)
+    - repo note: today, `knowledge.mention` lacks `documentVersionId`; expect to extend:
+      - `packages/knowledge/tables/src/tables/mention.table.ts`
   - embeddings for extracted entities
 
 Acceptance gates:
 - After extraction, GraphRAG queries return non-empty results for the demo dataset.
 - Restart does not lose extracted graph state (SQL is record-of-truth).
+- Mention evidence is version-pinned (demo-fatal):
+  - no mention row exists without a `documentVersionId`
+  - offsets are interpretable against the immutable version content string (C-05)
 
 Verification commands:
 ```bash
@@ -114,8 +146,10 @@ Rationale (why this must exist in MVP):
 Deliverables:
 - Update OAuth token retrieval and any Gmail sync/extraction entrypoints to require:
   - `providerAccountId` (LOCKED D-03): IAM `account.id`
+  - repo note: today, `AuthContext.oauth.getProviderAccount` selects `A.head` and will silently pick an arbitrary linked account:
+    - `packages/runtime/server/src/AuthContext.layer.ts`
 - Add a deterministic failure mode:
-  - if multiple Google accounts are linked and no `providerAccountId` is provided, error with a typed payload (not "pick first")
+  - if no `providerAccountId` is provided, error with a typed payload (C-06) and never "pick first"
 - Add org-level connection selection persistence:
   - org chooses which provider accounts are active for sync/extraction
   - UI supports selecting the active account for the org (minimal surface: dropdown + "active" badge)
@@ -124,12 +158,25 @@ Acceptance gates:
 - Two linked Google accounts cannot be mixed:
   - sync for account A never ingests account B data even if both are linked to the same user.
 - All Gmail → Documents sync calls require `providerAccountId` (no defaults).
+- Missing `providerAccountId` returns a typed selection error payload that matches C-06 (no string matching):
+  - `tag = "ProviderAccountSelectionRequiredError"`
+  - `providerId = "google"`
+  - `requiredParam = "providerAccountId"`
+  - `candidates.length > 0` and contains IAM account ids (no tokens)
+  - a test asserts the server does not select an arbitrary linked account when missing the param
+- Org-level selection persistence works end-to-end (demo-critical):
+  - the org’s active `providerAccountId` is persisted and survives restart
+  - all sync/extraction calls still pass `providerAccountId` explicitly (no hidden server defaults)
 
 Verification commands:
 ```bash
 bun run check
 bun run test
 ```
+
+P0 decision dependencies:
+- D-03 (LOCKED): providerAccountId = IAM `account.id`
+- C-06 (LOCKED): provider account selection required error payload (typed, no defaults)
 
 ## PR2B: Thread Aggregation Read Model (Planned P0, Needed for Meeting Prep)
 
@@ -142,8 +189,8 @@ Deliverables:
 - Sync logic:
   - after `document_source` upsert (PR1), upsert message rows and map message → documentId
   - maintain `ingestSeq` (monotonic, never renumbered) and a deterministic `sortKey` for display ordering
- - Define soft-delete semantics aligned with D-07:
-   - tombstoning a `document_source` must not delete/recreate thread rows in a way that renumbers `ingestSeq` or creates duplicates.
+- Define soft-delete semantics aligned with D-07:
+  - tombstoning a `document_source` must not delete/recreate thread rows in a way that renumbers `ingestSeq` or creates duplicates.
 
 Acceptance gates:
 - Thread view can list message documents deterministically even after re-sync and restarts.
@@ -182,6 +229,7 @@ Goal: make “Evidence Always” real and deterministic in UI.
 Deliverables:
 - `Evidence.List` endpoint/RPC:
   - supports entity, relation, and meeting-prep bullet filters
+  - MUST match C-02 canonical contract (typed `source` shape + required `documentVersionId`)
   - returns `documentId + documentVersionId + offsets` spans (per C-05)
 - Implement dedicated relation evidence persistence:
   - create `relation_evidence` table (or equivalent) so relation citations are first-class records
@@ -198,10 +246,15 @@ Acceptance gates:
 - Hard gate (no fragile join paths): relation evidence resolution must not depend on `relation.extractionId -> extraction.documentId`.
   - If `relation_evidence` cannot directly return `(documentId, documentVersionId, startChar, endChar)`, the PR is incomplete.
 - Evidence.List requires `providerAccountId`-scoped access (ties to PR2A) and can power thread-based UX (ties to PR2B).
+- Tests enforce highlight semantics (demo-fatal):
+  - at least one test asserts `highlightedText === documentContent.slice(startChar, endChar)` (0-indexed, end-exclusive)
+  - bounds are validated (no negative indices; `startChar <= endChar`; out-of-range spans are rejected or omitted)
 
 P0 decision dependencies:
 - D-08 (LOCKED): dedicated `relation_evidence` table is the relation evidence-of-record
 - D-09 (LOCKED): SQL is evidence-of-record; Evidence.List returns docId+offset spans
+- C-02 (LOCKED): Evidence.List canonical contract (request filters + response shape)
+- C-05 (LOCKED): offset drift invariant contract (version pin + UTF-16 offsets)
 
 Verification commands:
 ```bash
@@ -216,11 +269,21 @@ Goal: make meeting-prep auditable and restart-safe (bullets → citations).
 Deliverables:
 - Persist meeting-prep output as:
   - structured sections/bullets
-  - citations referencing evidence spans
+  - citations referencing evidence spans (C-02/C-05):
+    - citations MUST resolve to `documentId + documentVersionId + startChar + endChar` (no drift)
+    - citations MAY reference `mentionId` / `relationEvidenceId` or store an inline document span (but must still include `documentVersionId`)
 - Evidence retrieval supports bullet click-through.
 
 Acceptance gates:
 - After restart, meeting-prep bullets still resolve to citations and highlights.
+- Evidence.List can power bullet click-through:
+  - `Evidence.List({ meetingPrepBulletId })` returns only version-pinned spans (`documentVersionId` required)
+  - at least one bullet in the demo has a citation whose source is `relation_evidence` (D-08), not JSONB
+- Evidence-first UI policy is enforced for meeting prep:
+  - every displayed bullet has at least one persisted citation that resolves to an evidence span
+  - bullets without evidence are not displayed as facts
+- Output posture is compliant with D-17:
+  - meeting-prep output includes a compliance-safe disclaimer and avoids guarantees/advice language
 
 Verification commands:
 ```bash

@@ -27,7 +27,7 @@ These are the contracts that most directly determine whether the demo is credibl
    - `providerAccountId` stored in `documents.document_source` is **IAM `account.id`** (typed string, no FK) (D-03 LOCKED; R7).
    - Granularity is **1 Gmail message = 1 document** for MVP (D-04 LOCKED).
    - Gmail-sourced docs are immutable/locked in MVP (D-05 LOCKED).
-   - Materialization idempotency uses `sourceHash = sha256(canonicalJson({ title, content, metadata }))` where `content` is the exact persisted string used for evidence offsets (D-06 LOCKED).
+   - Materialization idempotency uses `sourceHash = sha256(canonicalJson({ title, content }))` where `content` is the exact persisted string used for evidence offsets (D-06 LOCKED).
    - Soft delete semantics for mapping are tombstone + resurrect to preserve stable identity (D-07 LOCKED).
 
 3. **Evidence-of-record is SQL spans (not RDF)**
