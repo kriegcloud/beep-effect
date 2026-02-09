@@ -4,56 +4,56 @@ import {pipe} from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $SemanticWebId.create("rdf/models/NamedNode");
+const $I = $SemanticWebId.create("rdf/models/Literal");
 
-export const NamedNodeEncoded = S.TemplateLiteral(
+export const LiteralEncoded = S.TemplateLiteral(
   "<",
   S.String,
   ">"
 ).annotations(
   $I.annotations(
-    "NamedNodeEncoded",
+    "LiteralEncoded",
     {
       description: "A named node in the RDF graph encoded as a string",
     }
   )
 );
 
-export declare namespace NamedNodeEncoded {
-  export type Type = typeof NamedNodeEncoded.Type;
-  export type Encoded = typeof NamedNodeEncoded.Encoded;
+export declare namespace LiteralEncoded {
+  export type Type = typeof LiteralEncoded.Type;
+  export type Encoded = typeof LiteralEncoded.Encoded;
 }
 
-export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
-  ModelType.makeKind.NamedNode({
+export class Literal extends S.Class<Literal>($I`Literal`)(
+  ModelType.makeKind.Literal({
     value: S.NonEmptyString,
   }),
   $I.annotations(
-    "NamedNode",
+    "Literal",
     {
       description: "A named node in the RDF graph",
     }
   )
 ) {
-  static readonly new = (value: string) => new NamedNode({value});
+  static readonly new = (value: string) => new Literal({value});
 }
 
-export class NamedNodeFromString extends S.transform(
-  NamedNodeEncoded,
-  NamedNode,
+export class LiteralFromString extends S.transform(
+  LiteralEncoded,
+  Literal,
   {
     strict: true,
     decode: (string) => pipe(
       string,
       Str.replace(">", ""),
       Str.replace("<", ""),
-      NamedNode.new
+      Literal.new
     ),
     encode: ({value}) => `<${value}>` as const
   }
 ) {
 }
 
-export declare namespace NamedNode {
-  export type Type = typeof NamedNode.Type;
+export declare namespace Literal {
+  export type Type = typeof Literal.Type;
 }

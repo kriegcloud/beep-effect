@@ -4,56 +4,56 @@ import {pipe} from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $SemanticWebId.create("rdf/models/NamedNode");
+const $I = $SemanticWebId.create("rdf/models/Quad");
 
-export const NamedNodeEncoded = S.TemplateLiteral(
+export const QuadEncoded = S.TemplateLiteral(
   "<",
   S.String,
   ">"
 ).annotations(
   $I.annotations(
-    "NamedNodeEncoded",
+    "QuadEncoded",
     {
       description: "A named node in the RDF graph encoded as a string",
     }
   )
 );
 
-export declare namespace NamedNodeEncoded {
-  export type Type = typeof NamedNodeEncoded.Type;
-  export type Encoded = typeof NamedNodeEncoded.Encoded;
+export declare namespace QuadEncoded {
+  export type Type = typeof QuadEncoded.Type;
+  export type Encoded = typeof QuadEncoded.Encoded;
 }
 
-export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
-  ModelType.makeKind.NamedNode({
+export class Quad extends S.Class<Quad>($I`Quad`)(
+  ModelType.makeKind.Quad({
     value: S.NonEmptyString,
   }),
   $I.annotations(
-    "NamedNode",
+    "Quad",
     {
       description: "A named node in the RDF graph",
     }
   )
 ) {
-  static readonly new = (value: string) => new NamedNode({value});
+  static readonly new = (value: string) => new Quad({value});
 }
 
-export class NamedNodeFromString extends S.transform(
-  NamedNodeEncoded,
-  NamedNode,
+export class QuadFromString extends S.transform(
+  QuadEncoded,
+  Quad,
   {
     strict: true,
     decode: (string) => pipe(
       string,
       Str.replace(">", ""),
       Str.replace("<", ""),
-      NamedNode.new
+      Quad.new
     ),
     encode: ({value}) => `<${value}>` as const
   }
 ) {
 }
 
-export declare namespace NamedNode {
-  export type Type = typeof NamedNode.Type;
+export declare namespace Quad {
+  export type Type = typeof Quad.Type;
 }
