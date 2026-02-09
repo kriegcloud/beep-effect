@@ -2,6 +2,13 @@
 
 > Refactor `packages/common/semantic-web/src/uri` (uri-js port) to be Effect-based and Schema-first, with strict error handling and a schema export named `URI`.
 
+## Entry Points
+
+- Phase 1 handoff: `specs/pending/semantic-web-uri-schema-refactor/handoffs/HANDOFF_P1.md`
+- Phase 1 prompt (seed prompt): `specs/pending/semantic-web-uri-schema-refactor/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+- Phase 1 delegation prompts: `specs/pending/semantic-web-uri-schema-refactor/AGENT_PROMPTS.md`
+- 5-minute triage: `specs/pending/semantic-web-uri-schema-refactor/QUICK_START.md`
+
 ## Status
 
 - Status: `pending`
@@ -158,7 +165,9 @@ During Discovery, explicitly examine similar upstream patterns in `.repos/effect
 
 ## Phase Plan (Orchestrator-Driven)
 
-This spec is intended to be executed by an orchestrator instance. Use `P1_ORCHESTRATOR_PROMPT.md` as the primary entry point.
+This spec is intended to be executed by an orchestrator instance. Use `handoffs/P1_ORCHESTRATOR_PROMPT.md` as the seed prompt.
+
+Note: `P1_ORCHESTRATOR_PROMPT.md` at the spec root is kept as a pointer for compatibility with older scaffolds.
 
 ### Phase 1: Research (Discovery)
 

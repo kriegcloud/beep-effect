@@ -61,4 +61,8 @@ Run from repo root:
 
 ## Entry Point Prompt
 
-Use `specs/pending/semantic-web-uri-schema-refactor/P1_ORCHESTRATOR_PROMPT.md` as the seed prompt for the orchestrator instance.
+Use the Phase 1 handoff prompt:
+
+- `specs/pending/semantic-web-uri-schema-refactor/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+
+The root `P1_ORCHESTRATOR_PROMPT.md` is a pointer kept for compatibility.
