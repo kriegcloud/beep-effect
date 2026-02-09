@@ -42,6 +42,7 @@ You are implementing Phase P[N] of the `todox-wealth-mgmt-knowledge-mvp` spec: *
 [Commands to run after each step]
 
 ```bash
+# Prefer single quotes around rg patterns (zsh: backticks in double-quotes trigger command substitution).
 bun run check
 bun run test
 ```

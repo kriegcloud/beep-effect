@@ -62,8 +62,9 @@ Hard dependency (demo integrity):
 Commands to run after each step:
 
 ```bash
-rg -n "PR2A|PR2B|PR2C|Hard dependency|blocked on" specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P1_PR_BREAKDOWN.md
-rg -n "TodoX calls only `apps/server`|documentVersionId|relation\\.extractionId" specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P1_PR_BREAKDOWN.md -S
+# Use single quotes: in zsh, backticks inside double-quotes trigger command substitution.
+rg -n 'PR2A|PR2B|PR2C|Hard dependency|blocked on' specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P1_PR_BREAKDOWN.md
+rg -n 'TodoX calls only `apps/server`|documentVersionId|relation\\.extractionId' specs/pending/todox-wealth-mgmt-knowledge-mvp/outputs/P1_PR_BREAKDOWN.md -S
 ```
 
 ### Success Criteria

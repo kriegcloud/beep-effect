@@ -71,6 +71,7 @@
     "verify:all": "bun run repo-cli verify all",
     "spec:status:check": "bash scripts/specs/spec-status.sh check",
     "spec:move": "bash scripts/specs/spec-status.sh move",
+    "spec:gates:check": "bash scripts/specs/spec-gates.sh check",
     "dev:https": "bun run dotenvx -- bunx turbo run dev:https --concurrency=36",
     "dev": "bun run dotenvx -- bunx turbo run dev --concurrency=36",
     "bootstrap": "bunx tsx ./tooling/repo-scripts/src/bootstrap.ts",

@@ -50,9 +50,9 @@
 
 ```bash
 # Record exact commands and PASS/FAIL + date after execution.
+# Prefer single quotes around rg patterns (zsh: backticks in double-quotes trigger command substitution).
 ```
 
 ## Handoff Gate (Explicit)
 
 - When context feels ~50% consumed (or before large/risky work), STOP and checkpoint this handoff + next-phase prompt even if the phase is not complete.
-
