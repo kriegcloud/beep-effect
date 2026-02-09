@@ -12,6 +12,7 @@
 - P0 contracts are locked in `outputs/P0_DECISIONS.md` (no drift allowed without changelog update).
 - The executable PR plan is `outputs/P1_PR_BREAKDOWN.md`.
 - `/knowledge` UI must not ship without persisted evidence-backed meeting prep (PR4 blocked on PR3 + PR5).
+- P1 gates are intentionally atomic `- [PASS/FAIL] ...` statements; treat them as executable checklists, not prose.
 
 ---
 
@@ -38,6 +39,7 @@ P2 will touch external APIs (Google APIs via adapters, Better Auth OAuth flows).
 - Success criteria:
   - Restart-safe: after full server restart, `/knowledge` flow works and evidence highlights resolve.
   - Evidence integrity: every UI claim resolves to `documentId + documentVersionId + offsets` (C-02, C-05).
+  - Boundary integrity: TodoX calls only `apps/server` for Gmail/OAuth actions (no direct Gmail calls from Next route handlers).
   - No fragile join paths: relation evidence never depends on `relation.extractionId -> extraction.documentId`.
   - Multi-tenant isolation: cross-org tests cover the entire demo critical path (including embeddings).
   - Idempotency: reruns do not duplicate documents/extractions/evidence.

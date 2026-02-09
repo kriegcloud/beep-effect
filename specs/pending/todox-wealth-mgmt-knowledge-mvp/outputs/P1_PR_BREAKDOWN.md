@@ -2,13 +2,24 @@
 
 **Spec**: `specs/pending/todox-wealth-mgmt-knowledge-mvp`  
 **Phase**: P1 (MVP demo implementation plan)  
-**Status**: Ready (P0 contracts locked; gates are authoritative)  
+**Status**: Ready (P0 contracts locked; gates are authoritative)
 
 This document turns the spec into small, reviewable PRs with explicit acceptance gates.
 
 Decision dependencies:
 - P0 decision record: `outputs/P0_DECISIONS.md`
 - Any change to `LOCKED` decisions must be recorded in: `outputs/P0_DECISIONS_CHANGELOG.md`
+
+## Non-Negotiable Gate Style (Examples)
+
+Acceptance gates:
+- [PASS/FAIL] TodoX calls only `apps/server` for Gmail/OAuth actions.
+- [PASS/FAIL] Evidence.List returns `documentVersionId` for every evidence row.
+- [PASS/FAIL] Relation evidence never requires `relation.extractionId -> extraction.documentId`.
+- [PASS/FAIL] Evidence spans always include `documentVersionId`.
+
+Hard dependency (demo integrity):
+- `/knowledge` UI is blocked on persisted evidence-backed meeting prep (no transient-only bullets).
 
 ## Global Rules (Apply to Every PR)
 
@@ -22,12 +33,22 @@ Decision dependencies:
 - Prompt minimization (D-16): meeting prep/Q&A uses context slices + citations; no full inbox/thread content by default.
 - Record-of-truth rule: extraction state, evidence spans, and meeting prep outputs persist to Postgres. Redis/KV is permitted only for caches, rate limits, queues, and short-lived workflow scratch state.
 
+## Global Demo-Fatal Acceptance Gates (Must Stay True)
+
+Acceptance gates:
+- [PASS/FAIL] TodoX calls only `apps/server` for Gmail/OAuth actions.
+- [PASS/FAIL] Server never selects a default provider account when `providerAccountId` is missing; it returns the typed C-06 payload instead.
+- [PASS/FAIL] Evidence.List returns `documentVersionId` for every evidence row.
+- [PASS/FAIL] Evidence spans always include `documentVersionId` and use UTF-16 JS string indices, 0-indexed, end-exclusive: `[startChar, endChar)`.
+- [PASS/FAIL] Relation evidence never requires `relation.extractionId -> extraction.documentId` to resolve spans.
+- [PASS/FAIL] `/knowledge` UI is blocked on persisted evidence-backed meeting prep (no transient-only bullets).
+
 ## PR0: Connected Accounts + Typed Scope Expansion Contract
 
 Goal: unblock Google link/relink UX and deterministic scope expansion remediation.
 
 Deliverables:
-- A “Connections” UI (settings tab) that can:
+- A "Connections" UI (settings tab) that can:
   - link Google
   - relink with expanded scopes
   - unlink
@@ -37,18 +58,16 @@ Deliverables:
   - no string matching on error messages; client branches on `tag`
   - relink uses IAM `oauth2.link` with the `relink.scopes` + callback URLs from the payload
 
-Acceptance gates (pass/fail):
-- Missing scopes produces a deterministic UI relink prompt.
-- Scope error payload matches C-01 exactly (machine-readable remediation; no ad-hoc fields):
-  - `tag = "GoogleScopeExpansionRequiredError"`
-  - `providerId = "google"`
-  - `missingScopes.length > 0`
-  - `relink.callbackURL` + `relink.errorCallbackURL` point to TodoX Settings → Connections (D-01)
-  - `missingScopes ⊆ relink.scopes`
-- Tests enforce wire-level matching (no string/instance matching):
-  - a test asserts the serialized payload includes `tag` (not `_tag`) and client logic branches on `tag`
-- A user can link/relink entirely via UI (no manual endpoint calls).
-- TodoX calls only `apps/server` for OAuth/Gmail actions; no Next route handler calls to Gmail APIs.
+Acceptance gates:
+- [PASS/FAIL] Missing scopes produces a deterministic UI relink prompt driven by the typed C-01 payload (no string matching).
+- [PASS/FAIL] Scope error payload serializes `tag` (not `_tag`) and `tag === "GoogleScopeExpansionRequiredError"`.
+- [PASS/FAIL] Scope error payload includes `providerId === "google"`.
+- [PASS/FAIL] Scope error payload includes `missingScopes.length > 0` and `missingScopes ⊆ relink.scopes`.
+- [PASS/FAIL] Scope error payload includes `relink.callbackURL === "/settings?settingsTab=connections"`.
+- [PASS/FAIL] Scope error payload includes `relink.errorCallbackURL === "/settings?settingsTab=connections&relink=failed"`.
+- [PASS/FAIL] Client branches on `payload.tag` (and optionally `providerId`), not `instanceof` or substring matching.
+- [PASS/FAIL] A user can link, relink (scope expansion), and unlink entirely via the Settings → Connections UI (no manual endpoint calls).
+- [PASS/FAIL] TodoX calls only `apps/server` for OAuth/Gmail actions; no Next route handler calls to Google APIs.
 
 P0 decision dependencies:
 - D-01 (LOCKED): OAuth UX surface = settings tab `connections`
@@ -80,17 +99,15 @@ Deliverables:
       - `packages/documents/domain/src/entities/document-version/document-version.model.ts`
 
 Acceptance gates:
-- Re-running sync does not duplicate documents.
-- Mapping is org-scoped and provider-account-scoped (no collisions across linked accounts).
-- Tombstone + resurrect (D-07) preserves identity:
-  - tombstoning `document_source` then re-syncing resurrects the mapping row (no second row)
-  - resurrect reuses the same `documentId` (new version only if `sourceHash` changes)
-- SourceHash determinism (D-06):
-  - `sourceHash` is computed from the exact persisted canonical content string used for highlighting
-  - no lossy whitespace normalization that would drift offsets (new version required for any length-changing transform)
-- Version pinning (demo-fatal, C-05):
-  - materialization produces a stable `documentVersionId` whose canonical text content can be fetched later for highlighting
-- No cross-slice DB foreign keys introduced (IAM id stored as typed string).
+- [PASS/FAIL] Mapping key is enforced as unique (including tombstones): `(organizationId, providerAccountId, sourceType="gmail", sourceId=gmailMessageId)`.
+- [PASS/FAIL] Re-running materialization for the same mapping key reuses the same `documentId` (no duplicate documents).
+- [PASS/FAIL] Mapping is org-scoped and provider-account-scoped (Gmail message ids do not collide across linked accounts).
+- [PASS/FAIL] If `sourceHash` is unchanged, materialization creates 0 new document versions and does not mutate the canonical stored content string.
+- [PASS/FAIL] If `sourceHash` changes, materialization creates exactly 1 new document version and updates the mapping row’s `sourceHash`.
+- [PASS/FAIL] `sourceHash` is computed from the exact persisted canonical content string used for highlighting (D-06); no lossy normalization that can drift offsets.
+- [PASS/FAIL] Tombstone + resurrect (D-07): tombstoning the mapping then re-syncing resurrects the same mapping row and reuses the same `documentId` (new version only if `sourceHash` changes).
+- [PASS/FAIL] Version pinning (C-05): materialization produces a stable `documentVersionId` that resolves to an immutable text string used for highlighting.
+- [PASS/FAIL] No cross-slice DB foreign keys are introduced; `providerAccountId` is stored as a typed string (IAM `account.id`) per D-03.
 
 P0 decision dependencies:
 - D-03 (LOCKED): providerAccountId = IAM `account.id` stored as typed string
@@ -123,11 +140,11 @@ Deliverables:
   - embeddings for extracted entities
 
 Acceptance gates:
-- After extraction, GraphRAG queries return non-empty results for the demo dataset.
-- Restart does not lose extracted graph state (SQL is record-of-truth).
-- Mention evidence is version-pinned (demo-fatal):
-  - no mention row exists without a `documentVersionId`
-  - offsets are interpretable against the immutable version content string (C-05)
+- [PASS/FAIL] After extraction, GraphRAG queries return non-empty results for the demo dataset (no “empty graph” failure mode).
+- [PASS/FAIL] Restart does not lose extracted graph state; SQL is record-of-truth (no process-local-only provenance).
+- [PASS/FAIL] No mention row exists without a `documentVersionId` (demo-fatal, C-05).
+- [PASS/FAIL] Mention offsets are interpretable against the immutable version content string referenced by `documentVersionId` (C-05).
+- [PASS/FAIL] Embeddings are persisted for extracted entities and can be queried to support similarity search (no transient-only vectors).
 
 Verification commands:
 ```bash
@@ -155,18 +172,14 @@ Deliverables:
   - UI supports selecting the active account for the org (minimal surface: dropdown + "active" badge)
 
 Acceptance gates:
-- Two linked Google accounts cannot be mixed:
-  - sync for account A never ingests account B data even if both are linked to the same user.
-- All Gmail → Documents sync calls require `providerAccountId` (no defaults).
-- Missing `providerAccountId` returns a typed selection error payload that matches C-06 (no string matching):
-  - `tag = "ProviderAccountSelectionRequiredError"`
-  - `providerId = "google"`
-  - `requiredParam = "providerAccountId"`
-  - `candidates.length > 0` and contains IAM account ids (no tokens)
-  - a test asserts the server does not select an arbitrary linked account when missing the param
-- Org-level selection persistence works end-to-end (demo-critical):
-  - the org’s active `providerAccountId` is persisted and survives restart
-  - all sync/extraction calls still pass `providerAccountId` explicitly (no hidden server defaults)
+- [PASS/FAIL] Two linked Google accounts cannot be mixed: syncing for account A never ingests account B data (even when linked to the same user).
+- [PASS/FAIL] All Gmail → Documents sync and extraction calls require `providerAccountId` (no defaults; no “pick first linked account”).
+- [PASS/FAIL] Missing `providerAccountId` returns the typed C-06 payload (no string matching).
+- [PASS/FAIL] C-06 wire payload fields match exactly: `tag === "ProviderAccountSelectionRequiredError"`, `providerId === "google"`, `requiredParam === "providerAccountId"`.
+- [PASS/FAIL] C-06 payload includes `candidates.length > 0` and candidates contain IAM `account.id` values only (no tokens/secrets).
+- [PASS/FAIL] A test asserts the server does not select an arbitrary linked account when `providerAccountId` is missing.
+- [PASS/FAIL] Org-level selection persistence works end-to-end and survives restart: the org’s active `providerAccountId` is persisted.
+- [PASS/FAIL] UI always passes `providerAccountId` explicitly to sync/extraction calls (no hidden server defaults).
 
 Verification commands:
 ```bash
@@ -190,12 +203,13 @@ Deliverables:
   - after `document_source` upsert (PR1), upsert message rows and map message → documentId
   - maintain `ingestSeq` (monotonic, never renumbered) and a deterministic `sortKey` for display ordering
 - Define soft-delete semantics aligned with D-07:
-  - tombstoning a `document_source` must not delete/recreate thread rows in a way that renumbers `ingestSeq` or creates duplicates.
+  - tombstoning a `document_source` must not delete/recreate thread rows in a way that renumbers `ingestSeq` or creates duplicates
 
 Acceptance gates:
-- Thread view can list message documents deterministically even after re-sync and restarts.
-- Thread-level meeting prep can reference message evidence spans without drift.
-- Tombstone + resurrect does not duplicate thread messages and does not change `ingestSeq` for existing messages.
+- [PASS/FAIL] Thread view can list message documents deterministically even after re-sync and restarts.
+- [PASS/FAIL] Thread-level meeting prep can reference message evidence spans without drift (doc version + offsets remain valid).
+- [PASS/FAIL] Tombstone + resurrect does not duplicate thread messages and does not change `ingestSeq` for existing messages.
+- [PASS/FAIL] `ingestSeq` is monotonic and never renumbered; ordering is stable via deterministic `sortKey`.
 
 Verification commands:
 ```bash
@@ -213,8 +227,9 @@ Deliverables:
 - Extraction pipeline accepts `ontologyId` (registry id) and loads the ontology from the registry.
 
 Acceptance gates:
-- A user can select an ontology by id in the demo UI without manual configuration.
-- Extraction fails with a typed error if an unknown/disabled ontology id is requested (no silent fallback).
+- [PASS/FAIL] A user can select an ontology by id in the demo UI without manual configuration.
+- [PASS/FAIL] Extraction fails with a typed error if an unknown/disabled ontology id is requested (no silent fallback).
+- [PASS/FAIL] Ontology registry ids are stable across restarts and deploys (no “random id per boot”).
 
 Verification commands:
 ```bash
@@ -239,16 +254,15 @@ Deliverables:
   - `relation_evidence` always stores `documentId + documentVersionId + offsets` directly (no optional join path required)
 
 Acceptance gates:
-- Evidence panel can highlight source text deterministically for:
-  - one entity mention
-  - one relation/claim
-- No evidence item can exist without a resolvable source doc/span.
-- Hard gate (no fragile join paths): relation evidence resolution must not depend on `relation.extractionId -> extraction.documentId`.
-  - If `relation_evidence` cannot directly return `(documentId, documentVersionId, startChar, endChar)`, the PR is incomplete.
-- Evidence.List requires `providerAccountId`-scoped access (ties to PR2A) and can power thread-based UX (ties to PR2B).
-- Tests enforce highlight semantics (demo-fatal):
-  - at least one test asserts `highlightedText === documentContent.slice(startChar, endChar)` (0-indexed, end-exclusive)
-  - bounds are validated (no negative indices; `startChar <= endChar`; out-of-range spans are rejected or omitted)
+- [PASS/FAIL] Evidence.List matches C-02 exactly (request filters + response shape), including required `documentVersionId`.
+- [PASS/FAIL] Evidence.List returns `documentVersionId` for every evidence row.
+- [PASS/FAIL] Evidence panel can highlight source text deterministically for at least 1 entity mention and 1 relation/claim.
+- [PASS/FAIL] Highlight semantics match C-05: `highlightedText === documentContent.slice(startChar, endChar)` (0-indexed, end-exclusive).
+- [PASS/FAIL] Bounds are validated (`startChar >= 0`, `endChar >= startChar`, `endChar <= content.length`); invalid spans are rejected/omitted deterministically.
+- [PASS/FAIL] Relation evidence is sourced from dedicated `relation_evidence` rows (D-08), not JSONB fields.
+- [PASS/FAIL] Relation evidence rows store `(documentId, documentVersionId, startChar, endChar)` directly (no optional join required).
+- [PASS/FAIL] No fragile join path for relation evidence: relation evidence never requires `relation.extractionId -> extraction.documentId` to resolve spans.
+- [PASS/FAIL] Migration/backfill is present and best-effort: legacy `relation.evidence` JSONB does not break Evidence.List for existing demo data.
 
 P0 decision dependencies:
 - D-08 (LOCKED): dedicated `relation_evidence` table is the relation evidence-of-record
@@ -275,15 +289,12 @@ Deliverables:
 - Evidence retrieval supports bullet click-through.
 
 Acceptance gates:
-- After restart, meeting-prep bullets still resolve to citations and highlights.
-- Evidence.List can power bullet click-through:
-  - `Evidence.List({ meetingPrepBulletId })` returns only version-pinned spans (`documentVersionId` required)
-  - at least one bullet in the demo has a citation whose source is `relation_evidence` (D-08), not JSONB
-- Evidence-first UI policy is enforced for meeting prep:
-  - every displayed bullet has at least one persisted citation that resolves to an evidence span
-  - bullets without evidence are not displayed as facts
-- Output posture is compliant with D-17:
-  - meeting-prep output includes a compliance-safe disclaimer and avoids guarantees/advice language
+- [PASS/FAIL] Meeting-prep output persists to SQL as structured sections/bullets plus citations (D-10).
+- [PASS/FAIL] After restart, meeting-prep bullets still resolve to citations and highlights.
+- [PASS/FAIL] Every displayed bullet has at least 1 persisted citation that resolves to `documentId + documentVersionId + startChar + endChar`.
+- [PASS/FAIL] Evidence.List can power bullet click-through: `Evidence.List({ meetingPrepBulletId })` returns only version-pinned spans (`documentVersionId` required).
+- [PASS/FAIL] At least 1 bullet in the demo has a citation whose source is `relation_evidence` (D-08), not JSONB.
+- [PASS/FAIL] Output posture is compliant with D-17: meeting-prep output includes a compliance-safe disclaimer and avoids guarantees/advice language.
 
 Verification commands:
 ```bash
@@ -296,7 +307,9 @@ bun run test  --filter @beep/knowledge-server
 Goal: wire the demo to real APIs and consolidate UI into one route.
 
 Hard dependency (demo integrity):
-- PR4 is blocked on PR3 + PR5 being complete. Shipping `/knowledge` without persisted evidence-backed meeting prep produces a UI that looks plausible but cannot satisfy auditability or restart-safety.
+- PR4 is blocked on PR3 + PR5 being complete.
+- `/knowledge` UI is blocked on persisted evidence-backed meeting prep (no transient-only bullets).
+- Shipping `/knowledge` without persisted evidence-backed meeting prep produces a UI that looks plausible but cannot satisfy auditability or restart-safety.
 
 Deliverables:
 - `/knowledge` page:
@@ -306,8 +319,9 @@ Deliverables:
 - No happy-path mocks; UI uses real endpoints.
 
 Acceptance gates:
-- 5-minute demo script runs start-to-finish without visiting dev/demo routes.
-- Meeting prep output shown in UI always has persisted citations (no transient-only bullets).
+- [PASS/FAIL] 5-minute demo script runs start-to-finish without visiting dev/demo routes.
+- [PASS/FAIL] `/knowledge` UI shows meeting prep only when it has persisted citations; no transient-only bullets.
+- [PASS/FAIL] `/knowledge` UI evidence panel resolves highlights only via Evidence.List (no local “best effort” evidence).
 
 Verification commands:
 ```bash
@@ -324,7 +338,7 @@ Deliverables:
 - Migrations job, Secret Manager wiring, OTLP wiring, DNS/TLS, CORS locked down.
 
 Acceptance gates:
-- Staging deploy is reproducible end-to-end; smoke test passes.
+- [PASS/FAIL] Staging deploy is reproducible end-to-end; smoke test passes.
 
 ## PR7: Production Readiness Closure (P4)
 
@@ -337,4 +351,4 @@ Deliverables:
 - Pilot → staging → prod rollout gate documentation.
 
 Acceptance gates:
-- Runbooks exist and are executable; rollback is verified in staging; backups/restore documented.
+- [PASS/FAIL] Runbooks exist and are executable; rollback is verified in staging; backups/restore documented.
