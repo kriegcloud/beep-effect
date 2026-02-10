@@ -4,7 +4,7 @@ import { User } from "@beep/shared-domain/entities";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
-import * as Comment from "../comment";
+import * as Comment from "../Comment";
 import * as Errors from "./discussion.errors";
 import { Model } from "./discussion.model";
 

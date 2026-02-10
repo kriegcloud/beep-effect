@@ -817,7 +817,7 @@ const generatePlaceholderRepo = (context: SliceContext): string =>
 import { ${context.SliceName}Db } from "@beep/${context.sliceName}-server/db";
 import { $${context.SliceName}ServerId } from "@beep/identity/packages";
 import { ${context.SliceName}EntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 import * as Effect from "effect/Effect";
 import { dependencies } from "./_common";
 

@@ -124,7 +124,7 @@ bun run --filter @beep/comms-server lint:circular
 
 **Communications** (`packages/comms/*`):
 - Uses `DbClient.make` to create `CommsDb` with Communications-specific Drizzle schema
-- Leverages `DbRepo.make` from `@beep/shared-domain/factories` for email template repositories
+- Leverages `DbRepo.make` from `@beep/shared-server/factories` for email template repositories
 
 ## Related Packages
 

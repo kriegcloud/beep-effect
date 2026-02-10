@@ -1,7 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

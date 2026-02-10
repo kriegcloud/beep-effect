@@ -3,13 +3,13 @@
 ## Purpose & Fit
 - Provides the infrastructure layer for the documents slice, wiring domain models from `@beep/documents-domain` to database services via repositories.
 - Exposes ready-to-merge Layers (`DocumentsDb.Db.layer`, `DocumentsRepos.layer`) that slot into app runtime layers in `packages/runtime/server`.
-- Implements repository pattern using `DbRepo.make` from `@beep/shared-domain/factories`, safeguarding tagged error handling and telemetry conventions for persistence operations.
+- Implements repository pattern using `DbRepo.make` from `@beep/shared-server/factories`, safeguarding tagged error handling and telemetry conventions for persistence operations.
 
 ## Surface Map
 - **`DocumentsDb.Db`** — Context tag to access the scoped database client with documents tables schema (`packages/documents/server/src/db/Db/Db.ts`).
 - **`DocumentsDb.Db.layer`** — Layer providing the scoped database connection built on `DbClient.make` with documents tables schema.
 - **`DocumentsRepos.layer`** — Aggregated layer exporting all document repositories (`packages/documents/server/src/db/repositories.ts`).
-- **Repository Services** — Built via `DbRepo.make` from `@beep/shared-domain/factories`, providing type-safe database operations:
+- **Repository Services** — Built via `DbRepo.make` from `@beep/shared-server/factories`, providing type-safe database operations:
   - `CommentRepo` — Comment persistence and queries.
   - `DiscussionRepo` — Discussion thread operations.
   - `DocumentFileRepo` — File attachment management.
@@ -31,7 +31,7 @@
 
 ## Authoring Guardrails
 - ALWAYS import Effect namespaces (`Effect`, `Layer`, `Context`, `A`, `Str`, etc.) and honor the no-native array/string guardrail; match patterns already present in `DbRepo.make`.
-- Build new repositories by extending existing repo implementations; reuse `DbRepo.make` from `@beep/shared-domain/factories` to inherit telemetry + error mapping.
+- Build new repositories by extending existing repo implementations; reuse `DbRepo.make` from `@beep/shared-server/factories` to inherit telemetry + error mapping.
 - NEVER inspect `process.env` within this package; use `@beep/shared-env` for typed environment access.
 - Treat `SignedUrlService` as the abstraction over S3 operations—add new helpers there and expose functions through generated accessors.
 - When new tables land in `@beep/documents-tables`, update `DocumentsDb.Db` consumers and refresh migrations via `packages/_internal/db-admin` before trusting runtime layers.
@@ -63,7 +63,7 @@
   When adding new query methods to an existing repository, follow this pattern from `packages/documents/server/src/db/repos/Document.repo.ts`:
 
   ```ts
-  import { DbRepo } from "@beep/shared-domain/factories";
+  import { DbRepo } from "@beep/shared-server/factories";
   import { DocumentsDb } from "@beep/documents-server/db";
   import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
   import { Document, Entities } from "@beep/documents-domain";

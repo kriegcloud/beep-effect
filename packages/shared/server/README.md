@@ -36,7 +36,7 @@ This package sits in the infrastructure layer and is consumed by vertical slices
 | `Upload` | Namespace | Upload service with S3 pre-signed URLs |
 | `SharedServerRpcs` | Namespace | RPC handlers layer for file operations |
 
-**Note**: Repository factory (`DbRepo.make`) and database errors (`DatabaseError`) are now exported from `@beep/shared-domain/factories` and `@beep/shared-domain/errors` respectively.
+**Note**: Repository factory (`DbRepo.make`) is exported from `@beep/shared-server/factories`. `DbRepo` type contracts live in `@beep/shared-domain/factories/db-repo`. Database errors (`DatabaseError`) are exported from `@beep/shared-domain/errors`.
 
 **Note**: `FolderRepo` is available through the `SharedRepos` namespace export, not as a top-level export.
 
@@ -98,7 +98,7 @@ const updateWithTx = Effect.gen(function* () {
 #### Creating a Repository with Custom Queries
 
 ```typescript
-import * as DbRepo from "@beep/shared-domain/factories/DbRepo";
+import { DbRepo } from "@beep/shared-server/factories";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { MyEntity } from "./entities";
 import { MyDb } from "./db";
@@ -474,7 +474,7 @@ packages/shared/server/
 ### Repository Factories
 
 - Create new repos in `src/db/repos/<Entity>.repo.ts`
-- Use `DbRepo.make(idSchema, model, maker)` pattern (from `@beep/shared-domain/factories`)
+- Use `DbRepo.make(idSchema, model, maker)` pattern (from `@beep/shared-server/factories`)
 - Export via `src/db/repos/index.ts` if top-level, or via namespace
 - Add custom queries in the `maker` Effect block
 - Update `SharedRepos` if adding shared entity repos
@@ -507,7 +507,7 @@ packages/shared/server/
 ## Notes
 
 - **Configuration Migration**: `serverEnv` and `clientEnv` have been moved to `@beep/shared-env`. This package consumes configuration via dependency injection.
-- **Repository Factory Migration**: `DbRepo.make` and `DatabaseError` have been moved to `@beep/shared-domain`. Import from `@beep/shared-domain/factories/DbRepo` and `@beep/shared-domain/errors` respectively.
+- **Repository Factory Split**: `DbRepo.make` runtime lives in `@beep/shared-server/factories`. `DbRepo` type contracts live in `@beep/shared-domain/factories/db-repo`. Database errors (`DatabaseError`) are exported from `@beep/shared-domain/errors`.
 - **Effect-First**: All database operations, repository methods, and service calls use Effect for error handling and observability.
 - **Telemetry**: Repository factories auto-generate telemetry spans and structured logging via `Effect.withSpan`.
 - **Email Rendering**: Email templates use React Email components for consistent HTML rendering.

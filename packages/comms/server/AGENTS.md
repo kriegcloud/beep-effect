@@ -24,7 +24,7 @@
 
 ## Authoring Guardrails
 - ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `Layer`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
-- Repositories MUST use `DbRepo.make` factories from `@beep/shared-domain/factories` with domain entities from `@beep/comms-domain`.
+- Repositories MUST use `DbRepo.make` factories from `@beep/shared-server/factories` with domain entities from `@beep/comms-domain`.
 - Keep repository methods focused on data access — business logic belongs in services or domain layer.
 - Use Effect for all async operations — no bare Promises or async/await.
 - Email sending MUST use the Email service from `@beep/shared-server` with proper error channels.
@@ -49,7 +49,7 @@
   import { CommsDb } from "@beep/comms-server/db";
   import { $CommsServerId } from "@beep/identity/packages";
   import { CommsEntityIds } from "@beep/shared-domain";
-  import { DbRepo } from "@beep/shared-domain/factories";
+  import { DbRepo } from "@beep/shared-server/factories";
   import * as Effect from "effect/Effect";
 
   const $I = $CommsServerId.create("db/repos/email-template.repo");
@@ -208,7 +208,7 @@ export interface GmailMessage {
 
 ## Contributor Checklist
 - [ ] Ensure repository methods align with domain entity schemas from `@beep/comms-domain`.
-- [ ] Use `DbRepo.make` from `@beep/shared-domain/factories` for all repository implementations.
+- [ ] Use `DbRepo.make` from `@beep/shared-server/factories` for all repository implementations.
 - [ ] Maintain typed error channels — wrap database errors in `DatabaseError` from `@beep/shared-domain/errors`.
 - [ ] Add integration tests with Effect test utilities from `@beep/testkit`.
 - [ ] Update `CommsRepos.layer` in `src/db/repositories.ts` when adding new repositories.

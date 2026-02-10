@@ -5,7 +5,6 @@ import { AuthContext } from "@beep/shared-domain/Policy";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Stream from "effect/Stream";
 
 /**
  * RPC handlers for Comment entity operations.
@@ -15,7 +14,7 @@ import * as Stream from "effect/Stream";
  * - Expected errors (e.g., CommentNotFoundError) pass through to the RPC layer
  * - Unexpected errors (e.g., DbError) are converted to defects via Effect.orDie
  */
-const CommentRpcsWithMiddleware = Comment.CommentRpcs.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
+const CommentRpcsWithMiddleware = Comment.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
 
 export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
   Effect.gen(function* () {
@@ -25,7 +24,7 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
     const decodeCommentInsert = S.decode(Comment.Model.insert);
 
     return {
-      get: (payload) =>
+      Get: (payload) =>
         repo
           .findByIdOrFail(payload.id)
           .pipe(
@@ -33,19 +32,17 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
             Effect.withSpan("CommentHandlers.get", { attributes: { id: payload.id } })
           ),
 
-      listByDiscussion: (payload) =>
+      ListByDiscussion: (payload) =>
         repo
           .listByDiscussion({
             discussionId: payload.discussionId,
           })
           .pipe(
-            Effect.map(Stream.fromIterable),
             Effect.catchTag("DatabaseError", Effect.die),
-            Stream.unwrap,
-            Stream.withSpan("CommentHandlers.listByDiscussion")
+            Effect.withSpan("CommentHandlers.ListByDiscussion", { attributes: { discussionId: payload.discussionId } })
           ),
 
-      create: Effect.fn("CommentHandlers.create")(
+      Create: Effect.fn("CommentHandlers.Create")(
         function* (payload) {
           const authContext = yield* AuthContext;
           // Decode to apply defaults from the insert schema
@@ -62,7 +59,7 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
         Effect.catchTag("ParseError", Effect.die)
       ),
 
-      update: (payload) =>
+      Update: (payload) =>
         Effect.gen(function* () {
           const comment = yield* repo.findByIdOrFail(payload.id);
           return yield* repo.updateContent({
@@ -75,7 +72,7 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
           Effect.withSpan("CommentHandlers.update", { attributes: { id: payload.id } })
         ),
 
-      delete: (payload) =>
+      Delete: (payload) =>
         repo.findByIdOrFail(payload.id).pipe(
           Effect.flatMap(() => repo.hardDelete(payload.id)),
           Effect.catchTag("DatabaseError", Effect.die),

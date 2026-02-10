@@ -1,10 +1,10 @@
 import { Entities } from "@beep/documents-domain";
-import { CommentNotFoundError } from "@beep/documents-domain/entities/comment/comment.errors";
+import { Comment } from "@beep/documents-domain/entities";
 import { DocumentsDb } from "@beep/documents-server/db";
 import { $DocumentsServerId } from "@beep/identity/packages";
 import { DocumentsEntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-domain/factories";
 import { DbClient } from "@beep/shared-server";
+import { DbRepo } from "@beep/shared-server/factories";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as O from "effect/Option";
@@ -12,6 +12,8 @@ import * as S from "effect/Schema";
 import { dependencies } from "./_common";
 
 const $I = $DocumentsServerId.create("db/repos/CommentRepo");
+
+
 
 export class CommentRepo extends Effect.Service<CommentRepo>()($I`CommentRepo`, {
   dependencies,
@@ -26,11 +28,14 @@ export class CommentRepo extends Effect.Service<CommentRepo>()($I`CommentRepo`, 
      */
     const findByIdOrFail = (
       id: DocumentsEntityIds.CommentId.Type
-    ): Effect.Effect<typeof Entities.Comment.Model.Type, CommentNotFoundError | DbClient.DatabaseError> =>
+    ): Effect.Effect<
+      typeof Entities.Comment.Model.Type,
+      Comment.CommentNotFoundError | DbClient.DatabaseError
+    > =>
       baseRepo.findById(id).pipe(
         Effect.flatMap(
           O.match({
-            onNone: () => Effect.fail(new CommentNotFoundError({ id })),
+            onNone: () => Effect.fail(new Comment.CommentNotFoundError({ id })),
             onSome: Effect.succeed,
           })
         ),

@@ -5,7 +5,7 @@ Infrastructure layer for the IAM slice. Provides Effect Layers, repositories, an
 ## Purpose
 
 `@beep/iam-server` implements the infrastructure layer for Identity and Access Management, providing:
-- Database repositories for all IAM entities (23 repos) using the `DbRepo.make` factory pattern from `@beep/shared-domain/factories`
+- Database repositories for all IAM entities (23 repos) using the `DbRepo.make` factory pattern from `@beep/shared-server/factories`
 - Better Auth service integration with custom plugins and database hooks
 - Effect-based API route handlers for authentication flows
 - Email service for authentication-related communications
@@ -197,7 +197,7 @@ Route handlers depend on:
 - Database hooks automatically create personal organizations on signup and set session context
 - All secrets use `Redacted<string>` to prevent accidental logging exposure
 - Better Auth integration is exposed via `Auth.Service` - never import `better-auth` directly in application code
-- Repositories follow the `DbRepo.make` factory pattern from `@beep/shared-domain/factories`
+- Repositories follow the `DbRepo.make` factory pattern from `@beep/shared-server/factories`
 - Email functionality is integrated into `Auth.Service` via `@beep/shared-server/Email` with React templates
 
 ## Examples
@@ -208,7 +208,7 @@ When extending the IAM infrastructure with a new entity repository within this p
 
 ```typescript
 // File: src/db/repos/AuditLog.repo.ts
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 import { Entities } from "@beep/iam-domain";
 import { IamDb } from "@beep/iam-server/db";
 import { $IamServerId } from "@beep/identity/packages";

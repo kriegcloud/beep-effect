@@ -1,4 +1,4 @@
-export * as Comment from "./comment";
+export * as Comment from "./Comment";
 export * as Discussion from "./discussion";
 export * as Document from "./document";
 export * as DocumentFile from "./document-file";

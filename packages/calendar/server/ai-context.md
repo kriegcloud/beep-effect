@@ -71,7 +71,7 @@ import * as Effect from "effect/Effect";
 import { Entities } from "@beep/calendar-domain";
 import { CalendarDb } from "@beep/calendar-server/db";
 import { CalendarEntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 
 export class CalendarEventRepo extends Effect.Service<CalendarEventRepo>()(
   "@beep/calendar-server/repos/CalendarEventRepo",

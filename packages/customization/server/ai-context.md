@@ -67,7 +67,7 @@ const getUserHotkeys = (userId: string) =>
 
 ```typescript
 import * as Effect from "effect/Effect";
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 import { CustomizationEntityIds } from "@beep/shared-domain";
 import { Entities } from "@beep/customization-domain";
 import { CustomizationDb } from "@beep/customization-server/db";

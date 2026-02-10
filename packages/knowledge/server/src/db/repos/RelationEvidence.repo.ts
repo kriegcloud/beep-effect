@@ -2,7 +2,7 @@ import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";

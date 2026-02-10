@@ -195,8 +195,8 @@ This package integrates with:
 - **Server Runtime** (`@beep/runtime-server`) — Provides database and repository layers to the server-side ManagedRuntime
 - **Documents Domain** (`@beep/documents-domain`) — Implements persistence for domain entities
 - **Documents Tables** (`@beep/documents-tables`) — Uses Drizzle schemas for database operations
-- **Shared Server** (`@beep/shared-server`) — Built on `DbClient.make` pattern from shared infrastructure
-- **Shared Domain** (`@beep/shared-domain`) — Uses `DbRepo.make` factory for repositories
+- **Shared Server** (`@beep/shared-server`) — Shared server infrastructure (`DbClient.make`, `DbRepo.make`, Email, Upload)
+- **Shared Domain** (`@beep/shared-domain`) — Shared entity IDs, errors, and type contracts (including `DbRepo` types)
 - **DB Admin** (`@beep/db-admin`) — Migration validation and test container setup
 
 ## Architecture
@@ -211,7 +211,7 @@ Follows the vertical slice layering pattern with clear separation of concerns:
 - Schema registration
 
 ### Repository Layer
-Each repository extends base CRUD operations from `DbRepo.make` (`@beep/shared-domain/factories`) with domain-specific queries:
+Each repository extends base CRUD operations from `DbRepo.make` (`@beep/shared-server/factories`) with domain-specific queries:
 - **CommentRepo** — Comment CRUD and queries
 - **DiscussionRepo** — Discussion thread management
 - **DocumentFileRepo** — File attachment relationships

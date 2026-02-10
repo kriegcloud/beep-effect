@@ -232,7 +232,7 @@ import { KnowledgeDb } from "@beep/knowledge-server/db";
 import { dependencies } from "@beep/knowledge-server/db/repos/_common";
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 import * as Effect from "effect/Effect";
 
 const $I = $KnowledgeServerId.create("db/repos/EntityRepo");

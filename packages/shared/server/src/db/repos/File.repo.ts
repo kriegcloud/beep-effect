@@ -6,8 +6,8 @@
 import { $SharedServerId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { File, Folder } from "@beep/shared-domain/entities";
-import { DbRepo } from "@beep/shared-domain/factories";
 import { SharedDb } from "@beep/shared-server";
+import { DbRepo } from "@beep/shared-server/factories";
 import { file, folder } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as A from "effect/Array";

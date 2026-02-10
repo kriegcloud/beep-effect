@@ -55,7 +55,7 @@ import * as Effect from "effect/Effect";
 import { Entities } from "@beep/comms-domain";
 import { CommsDb } from "@beep/comms-server/db";
 import { CommsEntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 import { $CommsServerId } from "@beep/identity/packages";
 
 const $I = $CommsServerId.create("db/repos/email-template.repo");

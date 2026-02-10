@@ -9,7 +9,7 @@
 - **Database**
   - `IamDb.Db` (`src/db/Db/Db.ts`): scoped Layer wrapping `@beep/shared-server/DbClient` factory with IAM schema.
 - **Repositories**
-  - Individual repos (`src/db/repos/*.repo.ts`): `Effect.Service` wrappers around `DbRepo.make` (from `@beep/shared-domain/factories`) for each IAM table, auto-registered in `IamRepos.layer`.
+  - Individual repos (`src/db/repos/*.repo.ts`): `Effect.Service` wrappers around `DbRepo.make` (from `@beep/shared-server/factories`) for each IAM table, auto-registered in `IamRepos.layer`.
   - `IamRepos.layer` (`src/db/repositories.ts`): merges all repo Layers; expected to be provided alongside `IamDb.Db`.
 - **Auth Services**
   - `Auth.Emails` (`src/adapters/better-auth/Emails.ts`): email send helpers (verification, reset, invitations, OTP) via `@beep/shared-server/Email`.
@@ -58,7 +58,7 @@ const account = await TestIamRuntime.runPromise(program);
 ```
 
 ```ts
-import { DbRepo } from "@beep/shared-domain/factories";
+import { DbRepo } from "@beep/shared-server/factories";
 import { Entities } from "@beep/iam-domain";
 import { dependencies } from "@beep/iam-server/db/repos/_common";
 import { IamDb } from "@beep/iam-server/db";
@@ -122,7 +122,7 @@ export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
 - NEVER include sensitive tokens directly in email body text—use secure, time-limited URLs.
 
 ## Contributor Checklist
-- [ ] New repos: use `DbRepo.make` from `@beep/shared-domain/factories`, register dependencies in `_common.ts`, export via `repos/index.ts`, and append `.Default` to `IamRepos.layer` in `repositories.ts`.
+- [ ] New repos: use `DbRepo.make` from `@beep/shared-server/factories`, register dependencies in `_common.ts`, export via `repos/index.ts`, and append `.Default` to `IamRepos.layer` in `repositories.ts`.
 - [ ] Better Auth plugin changes: update corresponding schema additions in `Options.ts` plus invitation/email hooks; ensure all plugins are registered.
 - [ ] Configuration tweaks: use `serverEnv` from `@beep/shared-env/ServerEnv`; document required env keys in `documentation/patterns/` if new secrets arise.
 - [ ] Layer graphs: validate wiring by running `bun run check --filter @beep/iam-server` and inspecting for missing service requirements.
