@@ -1,10 +1,10 @@
 /**
- * Update Comment contract.
+ * Get Page contract.
  *
  * Export contract (keep stable across entities):
  * - `Payload`, `Success`, `Failure`, `Contract`
  *
- * @module documents-domain/entities/Comment/contracts/Update.contract
+ * @module documents-domain/entities/Page/contracts/Get.contract
  * @since 1.0.0
  * @category contracts
  */
@@ -14,52 +14,50 @@ import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import * as CommentErrors from "../Comment.errors";
-import * as Comment from "../Comment.model";
+import * as PageErrors from "../Page.errors";
+import * as Page from "../Page.model";
 
-const $I = $DocumentsDomainId.create("entities/Comment/contracts/Update.contract");
+const $I = $DocumentsDomainId.create("entities/Page/contracts/Get.contract");
 
 /**
- * Input payload for `Comment.Update`.
+ * Input payload for `Page.Get`.
  *
  * @since 1.0.0
  * @category models
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    id: DocumentsEntityIds.CommentId,
-    content: S.optional(S.String),
-    contentRich: S.optional(S.Unknown),
+    id: DocumentsEntityIds.PageId,
   },
   $I.annotations("Payload", {
-    description: "Payload for the Update Comment contract.",
+    description: "Payload for the Get Page contract.",
   })
 ) {}
 
 /**
- * Success response for `Comment.Update`.
+ * Success response for `Page.Get`.
  *
  * @since 1.0.0
  * @category DTO
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    data: Comment.Model.json
+    data: Page.Model.json,
   },
   $I.annotations("Success", {
-    description: "Success response for the Update Comment contract.",
+    description: "Success response for the Get Page contract.",
   })
 ) {}
 
 /**
- * Failure response for `Comment.Update`.
+ * Failure response for `Page.Get`.
  *
  * @since 1.0.0
  * @category errors
  */
 export const Failure = S.Union(
-  CommentErrors.CommentNotFoundError,
-  CommentErrors.CommentPermissionDeniedError,
+  PageErrors.PageNotFound,
+  PageErrors.PagePermissionDenied,
 );
 
 /**
@@ -69,20 +67,20 @@ export const Failure = S.Union(
 export type Failure = typeof Failure.Type;
 
 /**
- * Tagged request contract for `Comment.Update`.
+ * Tagged request contract for `Page.Get`.
  *
  * @since 1.0.0
  * @category contracts
  */
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
-  "Update",
+  "Get",
   {
     payload: Payload.fields,
     success: Success,
     failure: Failure,
   },
   $I.annotationsHttp("Contract", {
-    description: "Update Comment Request Contract.",
+    description: "Get Page Request Contract.",
   })
 ) {
   /**
@@ -107,9 +105,9 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Http = HttpApiEndpoint.patch("Update", "/:id")
+  static readonly Http = HttpApiEndpoint.get("Get", "/:id")
     .setPayload(Payload)
-    .addError(CommentErrors.CommentNotFoundError)
-    .addError(CommentErrors.CommentPermissionDeniedError)
+    .addError(PageErrors.PageNotFound)
+    .addError(PageErrors.PagePermissionDenied)
     .addSuccess(Success);
 }

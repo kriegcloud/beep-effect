@@ -18,9 +18,9 @@ import { Create, Delete, Get, ListByDiscussion, Update } from "./contracts";
  * @category http
  */
 export class Http extends HttpApiGroup.make("comments")
-  .add(Get.Contract.Endpoint)
-  .add(ListByDiscussion.Contract.Endpoint)
-  .add(Create.Contract.Endpoint)
-  .add(Update.Contract.Endpoint)
-  .add(Delete.Contract.Endpoint)
+  .add(Get.Contract.Http)
+  .add(ListByDiscussion.Contract.Http)
+  .add(Create.Contract.Http)
+  .add(Update.Contract.Http)
+  .add(Delete.Contract.Http)
   .prefix("/comments") {}

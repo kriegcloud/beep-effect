@@ -1,66 +1,70 @@
 /**
- * Update Comment contract.
+ * List Trash Pages contract.
+ *
+ * Cursor-paginated listing of archived/trashed pages for a given organization.
+ * The cursor is opaque to clients; server implementations encode
+ * ordering state (e.g. timestamp + id) as needed.
  *
  * Export contract (keep stable across entities):
  * - `Payload`, `Success`, `Failure`, `Contract`
  *
- * @module documents-domain/entities/Comment/contracts/Update.contract
+ * @module documents-domain/entities/Page/contracts/ListTrash.contract
  * @since 1.0.0
  * @category contracts
  */
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import { DocumentsEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import * as CommentErrors from "../Comment.errors";
-import * as Comment from "../Comment.model";
+import * as Page from "../Page.model";
 
-const $I = $DocumentsDomainId.create("entities/Comment/contracts/Update.contract");
+const $I = $DocumentsDomainId.create("entities/Page/contracts/ListTrash.contract");
 
 /**
- * Input payload for `Comment.Update`.
+ * Input payload for `Page.ListTrash`.
  *
  * @since 1.0.0
  * @category models
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    id: DocumentsEntityIds.CommentId,
-    content: S.optional(S.String),
-    contentRich: S.optional(S.Unknown),
+    organizationId: SharedEntityIds.OrganizationId,
+    search: S.optionalWith(S.String, { as: "Option" }),
+    cursor: S.optionalWith(S.String, { as: "Option" }),
+    limit: S.optionalWith(BS.PosInt, { as: "Option" }),
   },
   $I.annotations("Payload", {
-    description: "Payload for the Update Comment contract.",
+    description: "Payload for the ListTrash Page contract.",
   })
 ) {}
 
 /**
- * Success response for `Comment.Update`.
+ * Success response for `Page.ListTrash`.
  *
  * @since 1.0.0
  * @category DTO
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    data: Comment.Model.json
+    data: S.Array(Page.Model.json),
+    nextCursor: BS.FieldOptionOmittable(S.String),
+    hasMore: S.Boolean,
   },
   $I.annotations("Success", {
-    description: "Success response for the Update Comment contract.",
+    description: "Paginated list of trashed pages for an organization.",
   })
 ) {}
 
 /**
- * Failure response for `Comment.Update`.
+ * Failure response for `Page.ListTrash`.
  *
  * @since 1.0.0
  * @category errors
  */
-export const Failure = S.Union(
-  CommentErrors.CommentNotFoundError,
-  CommentErrors.CommentPermissionDeniedError,
-);
+export const Failure = S.Never;
 
 /**
  * @since 1.0.0
@@ -69,20 +73,20 @@ export const Failure = S.Union(
 export type Failure = typeof Failure.Type;
 
 /**
- * Tagged request contract for `Comment.Update`.
+ * Tagged request contract for `Page.ListTrash`.
  *
  * @since 1.0.0
  * @category contracts
  */
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
-  "Update",
+  "ListTrash",
   {
     payload: Payload.fields,
     success: Success,
     failure: Failure,
   },
   $I.annotationsHttp("Contract", {
-    description: "Update Comment Request Contract.",
+    description: "ListTrash Page Request Contract.",
   })
 ) {
   /**
@@ -107,9 +111,7 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Http = HttpApiEndpoint.patch("Update", "/:id")
+  static readonly Http = HttpApiEndpoint.get("ListTrash", "/trash")
     .setPayload(Payload)
-    .addError(CommentErrors.CommentNotFoundError)
-    .addError(CommentErrors.CommentPermissionDeniedError)
     .addSuccess(Success);
 }

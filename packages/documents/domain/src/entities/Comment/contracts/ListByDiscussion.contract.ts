@@ -1,8 +1,9 @@
 /**
  * List Comments By Discussion contract.
  *
- * This is a single-source-of-truth contract: it derives the RPC schema, HTTP endpoint,
- * and AI tool definition from the same Effect Schema request.
+ * Cursor-paginated listing of comments for a given discussion.
+ * The cursor is opaque to clients; server implementations encode
+ * ordering state (e.g. timestamp + id) as needed.
  *
  * Export contract (keep stable across entities):
  * - `Payload`, `Success`, `Failure`, `Contract`
@@ -12,11 +13,11 @@
  * @category contracts
  */
 import { $DocumentsDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { DocumentsEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
-import * as RpcSchema from "@effect/rpc/RpcSchema";
 import * as S from "effect/Schema";
 import * as Comment from "../Comment.model";
 
@@ -31,52 +32,51 @@ const $I = $DocumentsDomainId.create("entities/Comment/contracts/ListByDiscussio
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     discussionId: DocumentsEntityIds.DiscussionId,
+    cursor: S.optional(S.String),
+    limit: S.optionalWith(S.Number.pipe(S.int(), S.between(1, 100)), { default: () => 20 }),
   },
   $I.annotations("Payload", {
     description: "Payload for the ListByDiscussion Comment contract.",
   })
 ) {}
-/**
- * Failure response for `Comment.ListByDiscussion`.
- *
- * @since 1.0.0
- * @category errors
- */
-export class Failure extends S.Never.annotations(
-  $I.annotations("Failure", {
-    description: "No typed failure for the ListByDiscussion Comment contract.",
-  })
-) {}
+
 /**
  * Success response for `Comment.ListByDiscussion`.
  *
  * @since 1.0.0
  * @category DTO
  */
-export const Success = RpcSchema.Stream({
-  success: S.Array(Comment.Model.json).annotations(
-    $I.annotationsHttp("Success", {
-      status: 200,
-      description: "Success response for the ListByDiscussion Comment contract.",
-    })
-  ),
-  failure: S.Never,
-});
+export class Success extends S.Class<Success>($I`Success`)(
+  {
+    data: S.Array(Comment.Model.json),
+    nextCursor: BS.FieldOptionOmittable(S.String),
+    hasMore: S.Boolean,
+  },
+  $I.annotations("Success", {
+    description: "Paginated list of comments for a discussion.",
+  })
+) {}
 
 /**
- * `Success` TypeScript type for `Comment.ListByDiscussion`.
+ * Failure response for `Comment.ListByDiscussion`.
  *
  * @since 1.0.0
- * @category DTO
+ * @category errors
  */
-export type Success = S.Schema.Type<typeof Success>;
+export const Failure = S.Never;
+
+/**
+ * @since 1.0.0
+ * @category errors
+ */
+export type Failure = typeof Failure.Type;
 
 /**
  * Tagged request contract for `Comment.ListByDiscussion`.
  *
  * This class is the schema source of truth:
  * - `Contract.Rpc` is used by `Comment.rpc.ts`
- * - `Contract.Endpoint` is used by `Comment.http.ts`
+ * - `Contract.Http` is used by `Comment.http.ts`
  * - `Contract.Tool` is used by `Comment.tool.ts`
  *
  * @since 1.0.0
@@ -115,5 +115,7 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Endpoint = HttpApiEndpoint.get("ListByDiscussion", "/").setPayload(Payload).addSuccess(Success);
+  static readonly Http = HttpApiEndpoint.get("ListByDiscussion", "/")
+    .setPayload(Payload)
+    .addSuccess(Success);
 }

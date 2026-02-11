@@ -10,11 +10,11 @@
  */
 import { $DocumentsDomainId } from "@beep/identity/packages";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import { OperationFailedError } from "@beep/shared-domain/errors";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
+import * as CommentErrors from "../Comment.errors";
 import * as Comment from "../Comment.model";
 
 const $I = $DocumentsDomainId.create("entities/Comment/contracts/Create.contract");
@@ -46,7 +46,9 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  * @category DTO
  */
 export class Success extends S.Class<Success>($I`Success`)(
-  Comment.Model.json,
+  {
+    data: Comment.Model.json
+  },
   $I.annotations("Success", {
     description: "Success response for the Create Comment contract.",
   })
@@ -55,12 +57,19 @@ export class Success extends S.Class<Success>($I`Success`)(
 /**
  * Failure response for `Comment.Create`.
  *
- * Note: This operation currently does not surface typed domain errors.
- *
  * @since 1.0.0
  * @category errors
  */
-export class Failure extends OperationFailedError {}
+export const Failure = S.Union(
+  CommentErrors.CommentTooLongError,
+  CommentErrors.CommentPermissionDeniedError,
+);
+
+/**
+ * @since 1.0.0
+ * @category errors
+ */
+export type Failure = typeof Failure.Type;
 
 /**
  * Tagged request contract for `Comment.Create`.
@@ -101,8 +110,9 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Endpoint = HttpApiEndpoint.post("Create", "/")
+  static readonly Http = HttpApiEndpoint.post("Create", "/")
     .setPayload(Payload)
-    .addError(Failure)
+    .addError(CommentErrors.CommentTooLongError)
+    .addError(CommentErrors.CommentPermissionDeniedError)
     .addSuccess(Success, { status: 201 });
 }

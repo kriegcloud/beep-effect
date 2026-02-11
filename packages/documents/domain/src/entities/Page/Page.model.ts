@@ -1,3 +1,14 @@
+/**
+ * Page model schema.
+ *
+ * This is the canonical schema for Page data at the domain boundary.
+ * Server persistence layers should prefer `Model.insert` / `Model.update` when decoding inputs
+ * so defaults are applied consistently.
+ *
+ * @module documents-domain/entities/Page/Page.model
+ * @since 1.0.0
+ * @category models
+ */
 import { $DocumentsDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -31,12 +42,12 @@ export class Model extends M.Class<Model>($I`PageModel`)(
     layoutConfig: BS.FieldOptionOmittable(S.Unknown),
     ontologyId: BS.FieldOptionOmittable(KnowledgeEntityIds.OntologyId),
     textStyle: BS.toOptionalWithDefault(TextStyle)("default"),
-    smallText: BS.toOptionalWithDefault(S.Boolean)(false),
-    fullWidth: BS.toOptionalWithDefault(S.Boolean)(false),
-    lockPage: BS.toOptionalWithDefault(S.Boolean)(false),
-    toc: BS.toOptionalWithDefault(S.Boolean)(true),
-    isArchived: BS.toOptionalWithDefault(S.Boolean)(false),
-    isPublished: BS.toOptionalWithDefault(S.Boolean)(false),
+    smallText: BS.BoolWithDefault(false),
+    fullWidth: BS.BoolWithDefault(false),
+    lockPage: BS.BoolWithDefault(false),
+    toc: BS.BoolWithDefault(true),
+    isArchived: BS.BoolWithDefault(false),
+    isPublished: BS.BoolWithDefault(false),
     defaultAccess: BS.toOptionalWithDefault(DefaultAccess)("private"),
     shareToken: BS.FieldOptionOmittable(S.String),
     position: BS.FieldOptionOmittable(S.Number),
