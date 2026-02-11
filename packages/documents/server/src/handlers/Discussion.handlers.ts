@@ -108,7 +108,7 @@ export const DiscussionHandlersLive = DiscussionRpcsWithMiddleware.toLayer(
           const { data: discussion } = yield* discussionRepo.create(discussionInsertData);
 
           // Create initial comment if contentRich provided
-          if (payload.contentRich && payload.contentRich.length > 0) {
+          if (payload.contentRich) {
             const commentInsertData = yield* decodeCommentInsert({
               organizationId: payload.organizationId,
               discussionId: discussion.id,

@@ -1,3 +1,4 @@
+import type { SerializedEditorStateEnvelope } from "@beep/documents-domain/value-objects";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { DocumentsEntityIds } from "@beep/shared-domain";
 import { OrgTable, user } from "@beep/shared-tables";
@@ -20,7 +21,7 @@ export const documentVersion = OrgTable.make(DocumentsEntityIds.DocumentVersionI
     // Immutable canonical text snapshot for evidence pinning/highlighting (C-05).
     // For non-text sources, this may be empty but must never be mutated in place.
     content: pg.text("content").notNull().default(""),
-    contentRich: pg.jsonb("content_rich"),
+    contentRich: pg.jsonb("content_rich").$type<SerializedEditorStateEnvelope.Encoded | null>(),
   },
   (t) => [
     // Organization ID index for RLS filtering

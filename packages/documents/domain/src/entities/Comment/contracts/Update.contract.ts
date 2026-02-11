@@ -14,6 +14,7 @@ import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
+import { SerializedEditorStateEnvelope } from "../../../value-objects";
 import * as CommentErrors from "../Comment.errors";
 import * as Comment from "../Comment.model";
 
@@ -29,7 +30,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     id: DocumentsEntityIds.CommentId,
     content: S.optional(S.String),
-    contentRich: S.optional(S.Unknown),
+    contentRich: S.optional(SerializedEditorStateEnvelope),
   },
   $I.annotations("Payload", {
     description: "Payload for the Update Comment contract.",

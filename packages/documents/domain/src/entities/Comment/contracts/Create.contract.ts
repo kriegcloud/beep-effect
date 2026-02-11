@@ -15,6 +15,7 @@ import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
+import { SerializedEditorStateEnvelope } from "../../../value-objects";
 import * as Comment from "../Comment.model";
 
 const $I = $DocumentsDomainId.create("entities/Comment/contracts/Create.contract");
@@ -32,7 +33,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     organizationId: SharedEntityIds.OrganizationId,
     discussionId: DocumentsEntityIds.DiscussionId,
     content: S.String,
-    contentRich: S.optional(S.Unknown),
+    contentRich: S.optional(SerializedEditorStateEnvelope),
   },
   $I.annotations("Payload", {
     description: "Payload for the Create Comment contract.",

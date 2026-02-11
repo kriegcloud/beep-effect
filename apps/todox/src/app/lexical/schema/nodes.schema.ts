@@ -1,7 +1,7 @@
 import { $TodoxId } from "@beep/identity/packages";
-import { SerializedLexicalNode } from "@beep/todox/app/lexical/schema/schemas";
 import * as S from "effect/Schema";
 import { Editor, SerializedEditor } from "./editor.schema";
+import { SerializedLexicalNode } from "./schemas";
 
 const $I = $TodoxId.create("app/lexical/schema/nodes.schema");
 
