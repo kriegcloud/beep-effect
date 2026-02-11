@@ -4,12 +4,13 @@
  * Export contract (keep stable across entities):
  * - `Payload`, `Success`, `Failure`, `Contract`
  *
- * @module documents-domain/entities/Comment/contracts/Create.contract
+ * @module @beep/documents-domain/entities/Comment/contracts/Create.contract
  * @since 1.0.0
  * @category contracts
  */
 import { $DocumentsDomainId } from "@beep/identity/packages";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { OperationFailedError } from "@beep/shared-domain/errors";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
@@ -59,11 +60,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @since 1.0.0
  * @category errors
  */
-export class Failure extends S.Never.annotations(
-  $I.annotations("Failure", {
-    description: "No typed failure for the Create Comment contract.",
-  })
-) {}
+export class Failure extends OperationFailedError {}
 
 /**
  * Tagged request contract for `Comment.Create`.
@@ -106,5 +103,6 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    */
   static readonly Endpoint = HttpApiEndpoint.post("Create", "/")
     .setPayload(Payload)
+    .addError(Failure)
     .addSuccess(Success, { status: 201 });
 }

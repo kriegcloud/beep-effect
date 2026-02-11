@@ -19,10 +19,8 @@ import type * as M from "@effect/sql/Model";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
-import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import type * as Schema from "effect/Schema";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -104,6 +102,48 @@ const tableNameToSpanPrefix = <TableName extends string>(tableName: TableName): 
   return `${name}Repo`;
 };
 
+const isRecord = (u: unknown): u is Record<string, unknown> => typeof u === "object" && u !== null && !Array.isArray(u);
+
+const toSpanScalar = (u: unknown): string | number | boolean | undefined => {
+  if (typeof u === "string" || typeof u === "number" || typeof u === "boolean") return u;
+  if (typeof u === "bigint") return String(u);
+  return undefined;
+};
+
+/**
+ * Summarize a write payload for span attributes without recording raw values.
+ *
+ * IDs are safe to record (per repo guardrails), but other field values may contain PII
+ * (e.g. comment/document content) and must not be attached to spans.
+ */
+const summarizeWritePayload = (
+  prefix: string,
+  payload: unknown
+): Record<string, string | number | boolean | undefined> => {
+  if (Array.isArray(payload)) {
+    const first = payload[0];
+    const firstKeys = isRecord(first) ? Object.keys(first).sort() : [];
+    return {
+      [`${prefix}.rows`]: payload.length,
+      [`${prefix}.firstKeyCount`]: firstKeys.length,
+      [`${prefix}.firstKeys`]: firstKeys.join(","),
+    };
+  }
+
+  if (isRecord(payload)) {
+    const keys = Object.keys(payload).sort();
+    return {
+      [`${prefix}.keyCount`]: keys.length,
+      [`${prefix}.keys`]: keys.join(","),
+      [`${prefix}.id`]: toSpanScalar(payload.id),
+    };
+  }
+
+  return {
+    [`${prefix}.type`]: typeof payload,
+  };
+};
+
 type MakeBaseRepoEffect<
   Model extends M.Any,
   Id extends keyof Model["Type"] & keyof Model["update"]["Type"] & keyof Model["fields"],
@@ -138,23 +178,10 @@ const makeBaseRepo = <
       insert: Model["insert"]["Type"]
     ): Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["insert"]["Context"]> =>
       insertSchema(insert).pipe(
-        Effect.catchTags({
-          NoSuchElementException: (e) => Effect.die(e),
-          ParseError: (e) => Effect.die(e),
-        }),
-        Effect.tapErrorCause((c) =>
-          Effect.gen(function* () {
-            const causeJson = yield* S.encode(S.parseJson({ space: 2 }))(c);
-            yield* Effect.log("CAUSE: ", causeJson);
-            const failure = yield* Cause.failureOption(c);
-            const failureJson = yield* S.encode(S.parseJson({ space: 2 }))(failure);
-            yield* Effect.log("FAILURE: ", failureJson);
-          })
-        ),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.insert`, {
           captureStackTrace: false,
-          attributes: { insert },
+          attributes: summarizeWritePayload("insert", insert),
         })
       );
 
@@ -171,11 +198,10 @@ const makeBaseRepo = <
       insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
     ): Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]> =>
       insertManyVoidSchema(insert).pipe(
-        Effect.catchTag("ParseError", (e) => Effect.die(e)),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.insertManyVoid`, {
           captureStackTrace: false,
-          attributes: { insert },
+          attributes: summarizeWritePayload("insertMany", insert),
         })
       );
 
@@ -188,11 +214,10 @@ const makeBaseRepo = <
       insert: Model["insert"]["Type"]
     ): Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]> =>
       insertVoidSchema(insert).pipe(
-        Effect.catchTag("ParseError", (e) => Effect.die(e)),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.insertVoid`, {
           captureStackTrace: false,
-          attributes: { insert },
+          attributes: summarizeWritePayload("insertVoid", insert),
         })
       );
 
@@ -211,14 +236,13 @@ const makeBaseRepo = <
       update: Model["update"]["Type"]
     ): Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["update"]["Context"]> =>
       updateSchema(update).pipe(
-        Effect.catchTags({
-          ParseError: (e) => Effect.die(e),
-          NoSuchElementException: (e) => Effect.die(e),
-        }),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.update`, {
           captureStackTrace: false,
-          attributes: { update },
+          attributes: {
+            id: isRecord(update) ? toSpanScalar(update[idColumn]) : undefined,
+            ...summarizeWritePayload("update", update),
+          },
         })
       );
 
@@ -236,11 +260,13 @@ const makeBaseRepo = <
       update: Model["update"]["Type"]
     ): Effect.Effect<void, DatabaseError, Model["Context"] | Model["update"]["Context"]> =>
       updateVoidSchema(update).pipe(
-        Effect.catchTag("ParseError", (e) => Effect.die(e)),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.updateVoid`, {
           captureStackTrace: false,
-          attributes: { update },
+          attributes: {
+            id: isRecord(update) ? toSpanScalar(update[idColumn]) : undefined,
+            ...summarizeWritePayload("updateVoid", update),
+          },
         })
       );
 
@@ -262,7 +288,6 @@ const makeBaseRepo = <
       Model["Context"] | S.Schema.Context<Model["fields"][Id]>
     > =>
       findByIdSchema(id).pipe(
-        Effect.catchTag("ParseError", (e) => Effect.die(e)),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.findById`, {
           captureStackTrace: false,
@@ -280,10 +305,10 @@ const makeBaseRepo = <
     });
 
     const delete_ = (
-      id: Schema.Schema.Type<Model["fields"][Id]>
-    ): Effect.Effect<void, never, Schema.Schema.Context<Model["fields"][Id]>> =>
+      id: S.Schema.Type<Model["fields"][Id]>
+    ): Effect.Effect<void, DatabaseError, S.Schema.Context<Model["fields"][Id]>> =>
       deleteSchema(id).pipe(
-        Effect.orDie,
+        Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.delete`, {
           captureStackTrace: false,
           attributes: { id },

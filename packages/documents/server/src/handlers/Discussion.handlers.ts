@@ -1,6 +1,7 @@
 import { Comment, Discussion } from "@beep/documents-domain/entities";
 import { CommentRepo, DiscussionRepo } from "@beep/documents-server/db";
 import { Policy } from "@beep/shared-domain";
+import { OperationFailedError } from "@beep/shared-domain/errors";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import { pipe } from "effect";
 import * as A from "effect/Array";
@@ -23,7 +24,7 @@ const transformToUser = <T extends { author: unknown }>(item: T): Omit<T, "autho
  *
  * Error handling strategy:
  * - Expected errors (e.g., DiscussionNotFoundError) pass through to the RPC layer
- * - Unexpected errors (e.g., DbError) are converted to defects via Effect.orDie
+ * - Database/parsing failures are translated into typed, deterministic failures (no defects)
  */
 const DiscussionRpcsWithMiddleware = Discussion.DiscussionRpcs.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
 
@@ -43,7 +44,10 @@ export const DiscussionHandlersLive = DiscussionRpcsWithMiddleware.toLayer(
             ...transformToUser(discussion),
             comments: pipe(discussion.comments, A.map(transformToUser)),
           })),
-          Effect.catchTag("DatabaseError", Effect.die),
+          // Treat DB failures as "not found" to avoid leaking details and to keep caller behavior deterministic.
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Discussion.DiscussionErrors.DiscussionNotFoundError({ id: payload.id }))
+          ),
           Effect.withSpan("DiscussionHandlers.get", { attributes: { id: payload.id } })
         ),
 
@@ -64,7 +68,7 @@ export const DiscussionHandlersLive = DiscussionRpcsWithMiddleware.toLayer(
                 )
               )
             ),
-            Effect.catchTag("DatabaseError", Effect.die),
+            Effect.catchTag("DatabaseError", () => Effect.succeed(Stream.empty)),
             Stream.unwrap,
             Stream.withSpan("DiscussionHandlers.listByDocument")
           ),
@@ -82,8 +86,12 @@ export const DiscussionHandlersLive = DiscussionRpcsWithMiddleware.toLayer(
           const result = yield* discussionRepo.create(insertData);
           return { id: result.id };
         },
-        Effect.catchTag("DatabaseError", Effect.die),
-        Effect.catchTag("ParseError", Effect.die)
+        Effect.catchTag("DatabaseError", () =>
+          Effect.fail(new OperationFailedError({ operation: "Discussion.Create", reason: "database_error" }))
+        ),
+        Effect.catchTag("ParseError", () =>
+          Effect.fail(new OperationFailedError({ operation: "Discussion.Create", reason: "parse_error" }))
+        )
       ),
 
       createWithComment: Effect.fn("DiscussionHandlers.createWithComment")(
@@ -113,22 +121,28 @@ export const DiscussionHandlersLive = DiscussionRpcsWithMiddleware.toLayer(
 
           return { id: discussion.id };
         },
-        Effect.catchTag("DatabaseError", Effect.die),
-        Effect.catchTag("ParseError", Effect.die)
+        Effect.catchTag("DatabaseError", () =>
+          Effect.fail(new OperationFailedError({ operation: "Discussion.CreateWithComment", reason: "database_error" }))
+        ),
+        Effect.catchTag("ParseError", () =>
+          Effect.fail(new OperationFailedError({ operation: "Discussion.CreateWithComment", reason: "parse_error" }))
+        )
       ),
 
       resolve: (payload) =>
-        discussionRepo
-          .resolve(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DiscussionHandlers.resolve", { attributes: { id: payload.id } })
+        discussionRepo.resolve(payload.id).pipe(
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Discussion.DiscussionErrors.DiscussionNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DiscussionHandlers.resolve", { attributes: { id: payload.id } })
+        ),
 
       delete: (payload) =>
         discussionRepo.findByIdOrFail(payload.id).pipe(
           Effect.flatMap(() => discussionRepo.hardDelete(payload.id)),
-          Effect.catchTag("DatabaseError", Effect.die),
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Discussion.DiscussionErrors.DiscussionNotFoundError({ id: payload.id }))
+          ),
           Effect.withSpan("DiscussionHandlers.delete", { attributes: { id: payload.id } })
         ),
     };

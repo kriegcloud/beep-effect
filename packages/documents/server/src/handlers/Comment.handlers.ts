@@ -1,6 +1,7 @@
 import { Comment } from "@beep/documents-domain/entities";
 import { CommentRepo } from "@beep/documents-server/db";
 import { Policy } from "@beep/shared-domain";
+import { OperationFailedError } from "@beep/shared-domain/errors";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -12,7 +13,7 @@ import * as S from "effect/Schema";
  *
  * Error handling strategy:
  * - Expected errors (e.g., CommentNotFoundError) pass through to the RPC layer
- * - Unexpected errors (e.g., DbError) are converted to defects via Effect.orDie
+ * - Database/parsing failures are translated into typed, deterministic failures (no defects)
  */
 const CommentRpcsWithMiddleware = Comment.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
 
@@ -25,12 +26,13 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
 
     return {
       Get: (payload) =>
-        repo
-          .findByIdOrFail(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("CommentHandlers.get", { attributes: { id: payload.id } })
+        repo.findByIdOrFail(payload.id).pipe(
+          // Treat DB failures as "not found" to avoid leaking details and to keep caller behavior deterministic.
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Comment.CommentErrors.CommentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("CommentHandlers.get", { attributes: { id: payload.id } })
+        ),
 
       ListByDiscussion: (payload) =>
         repo
@@ -38,7 +40,7 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
             discussionId: payload.discussionId,
           })
           .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
+            Effect.catchTag("DatabaseError", () => Effect.succeed([])),
             Effect.withSpan("CommentHandlers.ListByDiscussion", { attributes: { discussionId: payload.discussionId } })
           ),
 
@@ -55,8 +57,12 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
           });
           return yield* repo.create(insertData);
         },
-        Effect.catchTag("DatabaseError", Effect.die),
-        Effect.catchTag("ParseError", Effect.die)
+        Effect.catchTag("DatabaseError", () =>
+          Effect.fail(new OperationFailedError({ operation: "Comment.Create", reason: "database_error" }))
+        ),
+        Effect.catchTag("ParseError", () =>
+          Effect.fail(new OperationFailedError({ operation: "Comment.Create", reason: "parse_error" }))
+        )
       ),
 
       Update: (payload) =>
@@ -68,14 +74,18 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
             ...(payload.contentRich !== undefined && { contentRich: O.some(payload.contentRich) }),
           });
         }).pipe(
-          Effect.catchTag("DatabaseError", Effect.die),
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Comment.CommentErrors.CommentNotFoundError({ id: payload.id }))
+          ),
           Effect.withSpan("CommentHandlers.update", { attributes: { id: payload.id } })
         ),
 
       Delete: (payload) =>
         repo.findByIdOrFail(payload.id).pipe(
           Effect.flatMap(() => repo.hardDelete(payload.id)),
-          Effect.catchTag("DatabaseError", Effect.die),
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Comment.CommentErrors.CommentNotFoundError({ id: payload.id }))
+          ),
           Effect.withSpan("CommentHandlers.delete", { attributes: { id: payload.id } })
         ),
     };

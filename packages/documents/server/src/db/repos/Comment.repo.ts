@@ -13,8 +13,6 @@ import { dependencies } from "./_common";
 
 const $I = $DocumentsServerId.create("db/repos/CommentRepo");
 
-
-
 export class CommentRepo extends Effect.Service<CommentRepo>()($I`CommentRepo`, {
   dependencies,
   accessors: true,
@@ -28,10 +26,7 @@ export class CommentRepo extends Effect.Service<CommentRepo>()($I`CommentRepo`, 
      */
     const findByIdOrFail = (
       id: DocumentsEntityIds.CommentId.Type
-    ): Effect.Effect<
-      typeof Entities.Comment.Model.Type,
-      Comment.CommentNotFoundError | DbClient.DatabaseError
-    > =>
+    ): Effect.Effect<typeof Entities.Comment.Model.Type, Comment.CommentNotFoundError | DbClient.DatabaseError> =>
       baseRepo.findById(id).pipe(
         Effect.flatMap(
           O.match({

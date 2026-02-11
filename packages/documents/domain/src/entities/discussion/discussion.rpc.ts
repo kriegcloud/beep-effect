@@ -1,6 +1,7 @@
 import { $DocumentsDomainId } from "@beep/identity/packages";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { User } from "@beep/shared-domain/entities";
+import { OperationFailedError } from "@beep/shared-domain/errors";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
@@ -65,7 +66,7 @@ export class Rpcs extends RpcGroup.make(
       documentContent: S.String.pipe(S.minLength(1), S.maxLength(MAX_DOCUMENT_CONTENT_LENGTH)),
     },
     success: S.Struct({ id: DocumentsEntityIds.DiscussionId }),
-    error: S.Never,
+    error: OperationFailedError,
   }),
 
   /**
@@ -80,7 +81,7 @@ export class Rpcs extends RpcGroup.make(
       discussionId: S.optional(DocumentsEntityIds.DiscussionId),
     },
     success: S.Struct({ id: DocumentsEntityIds.DiscussionId }),
-    error: S.Never,
+    error: OperationFailedError,
   }),
 
   /**

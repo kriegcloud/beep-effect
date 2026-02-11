@@ -1,6 +1,7 @@
 import { Document } from "@beep/documents-domain/entities";
 import { DocumentRepo } from "@beep/documents-server/db";
 import { Policy } from "@beep/shared-domain";
+import { OperationFailedError } from "@beep/shared-domain/errors";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -14,7 +15,7 @@ import * as Stream from "effect/Stream";
  *
  * Error handling strategy:
  * - Expected errors (e.g., DocumentNotFoundError) pass through to the RPC layer
- * - Unexpected errors (e.g., DbError) are converted to defects via Effect.orDie
+ * - Database/parsing failures are translated into typed, deterministic failures (no defects)
  */
 const DocumentRpcsWithMiddleware = Document.DocumentRpcs.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
 
@@ -27,12 +28,13 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
 
     return {
       get: (payload) =>
-        repo
-          .findByIdOrFail(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DocumentHandlers.get", { attributes: { id: payload.id } })
+        repo.findByIdOrFail(payload.id).pipe(
+          // Treat DB failures as "not found" to avoid leaking details and to keep caller behavior deterministic.
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DocumentHandlers.get", { attributes: { id: payload.id } })
+        ),
 
       listByUser: (payload) =>
         repo
@@ -42,7 +44,7 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
           })
           .pipe(
             Effect.map(Stream.fromIterable),
-            Effect.catchTag("DatabaseError", Effect.die),
+            Effect.catchTag("DatabaseError", () => Effect.succeed(Stream.empty)),
             Stream.unwrap,
             Stream.withSpan("DocumentHandlers.listByUser")
           ),
@@ -58,7 +60,7 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
           })
           .pipe(
             Effect.map(Stream.fromIterable),
-            Effect.catchTag("DatabaseError", Effect.die),
+            Effect.catchTag("DatabaseError", () => Effect.succeed(Stream.empty)),
             Stream.unwrap,
             Stream.withSpan("DocumentHandlers.list")
           ),
@@ -73,7 +75,7 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
           });
         }).pipe(
           Effect.map(Stream.fromIterable),
-          Effect.catchTag("DatabaseError", Effect.die),
+          Effect.catchTag("DatabaseError", () => Effect.succeed(Stream.empty)),
           Stream.unwrap,
           Stream.withSpan("DocumentHandlers.listTrash")
         ),
@@ -85,7 +87,7 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
           })
           .pipe(
             Effect.map(Stream.fromIterable),
-            Effect.catchTag("DatabaseError", Effect.die),
+            Effect.catchTag("DatabaseError", () => Effect.succeed(Stream.empty)),
             Stream.unwrap,
             Stream.withSpan("DocumentHandlers.listChildren")
           ),
@@ -110,7 +112,7 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
                 }))
               )
             ),
-            Effect.catchTag("DatabaseError", Effect.die),
+            Effect.catchTag("DatabaseError", () => Effect.succeed(Stream.empty)),
             Stream.unwrap,
             Stream.withSpan("DocumentHandlers.search")
           ),
@@ -129,70 +131,76 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
           });
           return yield* repo.insert(insertData);
         },
-        Effect.catchTag("DatabaseError", Effect.die),
-        Effect.catchTag("ParseError", Effect.die)
+        Effect.catchTag("DatabaseError", () =>
+          Effect.fail(new OperationFailedError({ operation: "Document.Create", reason: "database_error" }))
+        ),
+        Effect.catchTag("ParseError", () =>
+          Effect.fail(new OperationFailedError({ operation: "Document.Create", reason: "parse_error" }))
+        )
       ),
 
       update: (payload) =>
-        repo
-          .update(payload)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DocumentHandlers.update", { attributes: { id: payload.id } })
+        repo.update(payload).pipe(
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DocumentHandlers.update", { attributes: { id: payload.id } })
+        ),
 
       archive: (payload) =>
-        repo
-          .archive(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DocumentHandlers.archive", { attributes: { id: payload.id } })
+        repo.archive(payload.id).pipe(
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DocumentHandlers.archive", { attributes: { id: payload.id } })
+        ),
 
       restore: (payload) =>
-        repo
-          .restore(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DocumentHandlers.restore", { attributes: { id: payload.id } })
+        repo.restore(payload.id).pipe(
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DocumentHandlers.restore", { attributes: { id: payload.id } })
+        ),
 
       publish: (payload) =>
-        repo
-          .publish(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DocumentHandlers.publish", { attributes: { id: payload.id } })
+        repo.publish(payload.id).pipe(
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DocumentHandlers.publish", { attributes: { id: payload.id } })
+        ),
 
       unpublish: (payload) =>
-        repo
-          .unpublish(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DocumentHandlers.unpublish", { attributes: { id: payload.id } })
+        repo.unpublish(payload.id).pipe(
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DocumentHandlers.unpublish", { attributes: { id: payload.id } })
+        ),
 
       lock: (payload) =>
-        repo
-          .lock(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DocumentHandlers.lock", { attributes: { id: payload.id } })
+        repo.lock(payload.id).pipe(
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DocumentHandlers.lock", { attributes: { id: payload.id } })
+        ),
 
       unlock: (payload) =>
-        repo
-          .unlock(payload.id)
-          .pipe(
-            Effect.catchTag("DatabaseError", Effect.die),
-            Effect.withSpan("DocumentHandlers.unlock", { attributes: { id: payload.id } })
+        repo.unlock(payload.id).pipe(
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),
+          Effect.withSpan("DocumentHandlers.unlock", { attributes: { id: payload.id } })
+        ),
 
       delete: (payload) =>
         repo.findByIdOrFail(payload.id).pipe(
           Effect.flatMap(() => repo.hardDelete(payload.id)),
-          Effect.catchTag("DatabaseError", Effect.die),
+          Effect.catchTag("DatabaseError", () =>
+            Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
+          ),
           Effect.withSpan("DocumentHandlers.delete", { attributes: { id: payload.id } })
         ),
     };

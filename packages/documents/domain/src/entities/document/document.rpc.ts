@@ -1,5 +1,6 @@
 import { $DocumentsDomainId } from "@beep/identity/packages";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { OperationFailedError } from "@beep/shared-domain/errors";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
@@ -116,7 +117,7 @@ export class Rpcs extends RpcGroup.make(
       contentRich: S.optional(S.Unknown),
     },
     success: Model.json,
-    error: S.Never,
+    error: OperationFailedError,
   }),
 
   /**

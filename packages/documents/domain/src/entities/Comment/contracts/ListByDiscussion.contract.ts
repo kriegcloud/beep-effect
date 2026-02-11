@@ -112,7 +112,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Endpoint = HttpApiEndpoint.get("ListByDiscussion", "/")
-    .setPayload(Payload)
-    .addSuccess(Success);
+  static readonly Endpoint = HttpApiEndpoint.get("ListByDiscussion", "/").setPayload(Payload).addSuccess(Success);
 }
