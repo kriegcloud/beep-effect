@@ -684,3 +684,4 @@
 {"eventType":"start","timestamp":"2026-02-11T07:30:09.383Z","sessionId":"620ed8fe-4014-4567-bf3b-e4abc2a4c3a3","agentType":"Explore","triggeredBy":"auto"}
 {"eventType":"start","timestamp":"2026-02-11T07:30:14.024Z","sessionId":"620ed8fe-4014-4567-bf3b-e4abc2a4c3a3","agentType":"codebase-explorer","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-11T07:30:24.949Z","sessionId":"620ed8fe-4014-4567-bf3b-e4abc2a4c3a3","agentType":"codebase-explorer","durationMs":10925,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-11T07:32:20.481Z","sessionId":"620ed8fe-4014-4567-bf3b-e4abc2a4c3a3","agentType":"unknown","durationMs":0,"outcome":"success"}
