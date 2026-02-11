@@ -165,11 +165,10 @@
     "@ariakit/react": "^0.4.21",
     "@babel/cli": "^7.28.6",
     "@babel/core": "^7.29.0",
-        "@babel/plugin-transform-export-namespace-from": "^7.27.1",
+    "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "^7.28.6",
     "dompurify": "^3.3.1",
     "@types/dompurify": "^3.2.0",
-
     "playwright": "^1.58.2",
     "@babel/preset-react": "^7.28.5",
     "use-stick-to-bottom": "^1.1.3",
