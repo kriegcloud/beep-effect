@@ -175,13 +175,14 @@ const makeBaseRepo = <
     });
 
     const insert = (
-      insert: Model["insert"]["Type"]
-    ): Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["insert"]["Context"]> =>
-      insertSchema(insert).pipe(
+      payload: Model["insert"]["Type"]
+    ): Effect.Effect<{ readonly data: Model["Type"] }, DatabaseError, Model["Context"] | Model["insert"]["Context"]> =>
+      insertSchema(payload).pipe(
+        Effect.map((data) => ({ data }) as const),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.insert`, {
           captureStackTrace: false,
-          attributes: summarizeWritePayload("insert", insert),
+          attributes: summarizeWritePayload("insert", payload),
         })
       );
 
@@ -194,14 +195,14 @@ const makeBaseRepo = <
       `,
     });
 
-    const insertManyVoid = (
-      insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-    ): Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]> =>
-      insertManyVoidSchema(insert).pipe(
+    const insertManyVoid = (payload: {
+      readonly items: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>;
+    }): Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]> =>
+      insertManyVoidSchema(payload.items).pipe(
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.insertManyVoid`, {
           captureStackTrace: false,
-          attributes: summarizeWritePayload("insertMany", insert),
+          attributes: summarizeWritePayload("insertMany", payload.items),
         })
       );
 
@@ -211,13 +212,13 @@ const makeBaseRepo = <
     });
 
     const insertVoid = (
-      insert: Model["insert"]["Type"]
+      payload: Model["insert"]["Type"]
     ): Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]> =>
-      insertVoidSchema(insert).pipe(
+      insertVoidSchema(payload).pipe(
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.insertVoid`, {
           captureStackTrace: false,
-          attributes: summarizeWritePayload("insertVoid", insert),
+          attributes: summarizeWritePayload("insertVoid", payload),
         })
       );
 
@@ -233,15 +234,16 @@ const makeBaseRepo = <
     });
 
     const update = (
-      update: Model["update"]["Type"]
-    ): Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["update"]["Context"]> =>
-      updateSchema(update).pipe(
+      payload: Model["update"]["Type"]
+    ): Effect.Effect<{ readonly data: Model["Type"] }, DatabaseError, Model["Context"] | Model["update"]["Context"]> =>
+      updateSchema(payload).pipe(
+        Effect.map((data) => ({ data }) as const),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.update`, {
           captureStackTrace: false,
           attributes: {
-            id: isRecord(update) ? toSpanScalar(update[idColumn]) : undefined,
-            ...summarizeWritePayload("update", update),
+            id: isRecord(payload) ? toSpanScalar(payload[idColumn]) : undefined,
+            ...summarizeWritePayload("update", payload),
           },
         })
       );
@@ -257,15 +259,15 @@ const makeBaseRepo = <
     });
 
     const updateVoid = (
-      update: Model["update"]["Type"]
+      payload: Model["update"]["Type"]
     ): Effect.Effect<void, DatabaseError, Model["Context"] | Model["update"]["Context"]> =>
-      updateVoidSchema(update).pipe(
+      updateVoidSchema(payload).pipe(
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.updateVoid`, {
           captureStackTrace: false,
           attributes: {
-            id: isRecord(update) ? toSpanScalar(update[idColumn]) : undefined,
-            ...summarizeWritePayload("updateVoid", update),
+            id: isRecord(payload) ? toSpanScalar(payload[idColumn]) : undefined,
+            ...summarizeWritePayload("updateVoid", payload),
           },
         })
       );
@@ -280,18 +282,19 @@ const makeBaseRepo = <
       `,
     });
 
-    const findById = (
-      id: S.Schema.Type<Model["fields"][Id]>
-    ): Effect.Effect<
-      O.Option<Model["Type"]>,
+    const findById = (payload: {
+      readonly id: S.Schema.Type<Model["fields"][Id]>;
+    }): Effect.Effect<
+      O.Option<{ readonly data: Model["Type"] }>,
       DatabaseError,
       Model["Context"] | S.Schema.Context<Model["fields"][Id]>
     > =>
-      findByIdSchema(id).pipe(
+      findByIdSchema(payload.id).pipe(
+        Effect.map(O.map((data) => ({ data }) as const)),
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.findById`, {
           captureStackTrace: false,
-          attributes: { id },
+          attributes: { id: payload.id },
         })
       );
 
@@ -304,14 +307,14 @@ const makeBaseRepo = <
       `,
     });
 
-    const delete_ = (
-      id: S.Schema.Type<Model["fields"][Id]>
-    ): Effect.Effect<void, DatabaseError, S.Schema.Context<Model["fields"][Id]>> =>
-      deleteSchema(id).pipe(
+    const delete_ = (payload: {
+      readonly id: S.Schema.Type<Model["fields"][Id]>;
+    }): Effect.Effect<void, DatabaseError, S.Schema.Context<Model["fields"][Id]>> =>
+      deleteSchema(payload.id).pipe(
         Effect.mapError(DatabaseError.$match),
         Effect.withSpan(`${spanPrefix}.delete`, {
           captureStackTrace: false,
-          attributes: { id },
+          attributes: { id: payload.id },
         })
       );
     return {

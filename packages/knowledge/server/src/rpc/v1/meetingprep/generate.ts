@@ -61,7 +61,7 @@ export const Handler = Effect.fn("meetingprep_generate")(function* (payload: Mee
               deletedBy: O.none(),
             });
 
-            const bullet = yield* bulletRepo.insert(bulletInsert);
+            const { data: bullet } = yield* bulletRepo.insert(bulletInsert);
 
             // Persist at least one citation per bullet, sourced from relation_evidence (D-08).
             const evidenceInsert = Entities.MeetingPrepEvidence.Model.insert.make({

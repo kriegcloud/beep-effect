@@ -55,7 +55,8 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
             content: payload.content,
             contentRich: payload.contentRich,
           });
-          return yield* repo.create(insertData);
+          const { data } = yield* repo.create(insertData);
+          return data;
         },
         Effect.catchTag("DatabaseError", () =>
           Effect.fail(new OperationFailedError({ operation: "Comment.Create", reason: "database_error" }))
@@ -68,11 +69,12 @@ export const CommentHandlersLive = CommentRpcsWithMiddleware.toLayer(
       Update: (payload) =>
         Effect.gen(function* () {
           const comment = yield* repo.findByIdOrFail(payload.id);
-          return yield* repo.updateContent({
+          const { data } = yield* repo.updateContent({
             ...comment,
             ...(payload.content !== undefined && { content: payload.content }),
             ...(payload.contentRich !== undefined && { contentRich: O.some(payload.contentRich) }),
           });
+          return data;
         }).pipe(
           Effect.catchTag("DatabaseError", () =>
             Effect.fail(new Comment.CommentErrors.CommentNotFoundError({ id: payload.id }))

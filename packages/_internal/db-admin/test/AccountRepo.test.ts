@@ -64,14 +64,14 @@ describe("AccountRepo", () => {
             email: makeTestEmail("account-insert"),
             name: "Account Insert Test User",
           });
-          const insertedUser = yield* userRepo.insert(mockedUser);
+          const { data: insertedUser } = yield* userRepo.insert(mockedUser);
 
           const mockedAccount = makeMockAccount({
             userId: insertedUser.id,
             accountId: `google-${crypto.randomUUID()}`,
             providerId: "google",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
 
           // Verify schema conformance
           assertTrue(S.is(Entities.Account.Model)(inserted));
@@ -101,16 +101,16 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("unique-accounts") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("unique-accounts") }));
 
-          const account1 = yield* accountRepo.insert(
+          const { data: account1 } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `github-${crypto.randomUUID()}`,
               providerId: "github",
             })
           );
-          const account2 = yield* accountRepo.insert(
+          const { data: account2 } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `twitter-${crypto.randomUUID()}`,
@@ -135,7 +135,7 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("insert-void-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("insert-void-account") }));
 
           const accountId = `void-${crypto.randomUUID()}`;
           const mockedAccount = makeMockAccount({
@@ -165,22 +165,22 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("find-some-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("find-some-account") }));
 
           const mockedAccount = makeMockAccount({
             userId: user.id,
             accountId: `find-some-${crypto.randomUUID()}`,
             providerId: "github",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
 
-          const found = yield* accountRepo.findById(inserted.id);
+          const found = yield* accountRepo.findById({ id: inserted.id });
 
           strictEqual(found._tag, "Some");
           if (found._tag === "Some") {
-            deepStrictEqual(found.value.id, inserted.id);
-            strictEqual(found.value.providerId, "github");
-            deepStrictEqual(found.value.userId, user.id);
+            deepStrictEqual(found.value.data.id, inserted.id);
+            strictEqual(found.value.data.providerId, "github");
+            deepStrictEqual(found.value.data.userId, user.id);
           }
         }),
       TEST_TIMEOUT
@@ -194,7 +194,7 @@ describe("AccountRepo", () => {
 
           // Use a valid AccountId format that doesn't exist (EntityId format: account__uuid)
           const nonExistentId = "iam_account__00000000-0000-0000-0000-000000000000";
-          const result = yield* accountRepo.findById(nonExistentId);
+          const result = yield* accountRepo.findById({ id: nonExistentId });
 
           assertNone(result);
         }),
@@ -209,32 +209,34 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("find-complete-account") }));
+          const { data: user } = yield* userRepo.insert(
+            makeMockUser({ email: makeTestEmail("find-complete-account") })
+          );
 
           const mockedAccount = makeMockAccount({
             userId: user.id,
             accountId: `complete-${crypto.randomUUID()}`,
             providerId: "linkedin",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
-          const found = yield* accountRepo.findById(inserted.id);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
+          const found = yield* accountRepo.findById({ id: inserted.id });
 
           strictEqual(found._tag, "Some");
           if (found._tag === "Some") {
             // Verify all expected fields exist
-            expect(found.value).toHaveProperty("id");
-            expect(found.value).toHaveProperty("accountId");
-            expect(found.value).toHaveProperty("providerId");
-            expect(found.value).toHaveProperty("userId");
-            expect(found.value).toHaveProperty("accessToken");
-            expect(found.value).toHaveProperty("refreshToken");
-            expect(found.value).toHaveProperty("idToken");
-            expect(found.value).toHaveProperty("accessTokenExpiresAt");
-            expect(found.value).toHaveProperty("refreshTokenExpiresAt");
-            expect(found.value).toHaveProperty("scope");
-            expect(found.value).toHaveProperty("password");
-            expect(found.value).toHaveProperty("createdAt");
-            expect(found.value).toHaveProperty("updatedAt");
+            expect(found.value.data).toHaveProperty("id");
+            expect(found.value.data).toHaveProperty("accountId");
+            expect(found.value.data).toHaveProperty("providerId");
+            expect(found.value.data).toHaveProperty("userId");
+            expect(found.value.data).toHaveProperty("accessToken");
+            expect(found.value.data).toHaveProperty("refreshToken");
+            expect(found.value.data).toHaveProperty("idToken");
+            expect(found.value.data).toHaveProperty("accessTokenExpiresAt");
+            expect(found.value.data).toHaveProperty("refreshTokenExpiresAt");
+            expect(found.value.data).toHaveProperty("scope");
+            expect(found.value.data).toHaveProperty("password");
+            expect(found.value.data).toHaveProperty("createdAt");
+            expect(found.value.data).toHaveProperty("updatedAt");
           }
         }),
       TEST_TIMEOUT
@@ -247,17 +249,17 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("update-provider") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("update-provider") }));
 
           const mockedAccount = makeMockAccount({
             userId: user.id,
             accountId: `update-${crypto.randomUUID()}`,
             providerId: "google",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
 
           // Action: update - spread existing entity and override specific fields
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...inserted,
             providerId: "google-oauth2",
           });
@@ -278,20 +280,20 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("update-scope") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("update-scope") }));
 
           const mockedAccount = makeMockAccount({
             userId: user.id,
             accountId: `scope-${crypto.randomUUID()}`,
             providerId: "google",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
 
           // Initially should be None
           strictEqual(inserted.scope._tag, "None");
 
           // Update with scope
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...inserted,
             scope: O.some("email profile openid"),
           });
@@ -313,14 +315,16 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("update-persist-account") }));
+          const { data: user } = yield* userRepo.insert(
+            makeMockUser({ email: makeTestEmail("update-persist-account") })
+          );
 
           const mockedAccount = makeMockAccount({
             userId: user.id,
             accountId: `persist-${crypto.randomUUID()}`,
             providerId: "github",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
 
           yield* accountRepo.update({
             ...inserted,
@@ -328,12 +332,12 @@ describe("AccountRepo", () => {
           });
 
           // Verify by fetching fresh
-          const found = yield* accountRepo.findById(inserted.id);
+          const found = yield* accountRepo.findById({ id: inserted.id });
 
           strictEqual(found._tag, "Some");
           if (found._tag === "Some") {
             strictEqual(
-              O.getOrElse(found.value.scope, () => ""),
+              O.getOrElse(found.value.data.scope, () => ""),
               "repo user:email"
             );
           }
@@ -348,14 +352,14 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("update-void-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("update-void-account") }));
 
           const mockedAccount = makeMockAccount({
             userId: user.id,
             accountId: `void-update-${crypto.randomUUID()}`,
             providerId: "google",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
 
           // updateVoid returns void
           const result = yield* accountRepo.updateVoid({
@@ -366,12 +370,12 @@ describe("AccountRepo", () => {
           strictEqual(result, undefined);
 
           // Verify the update was persisted
-          const found = yield* accountRepo.findById(inserted.id);
+          const found = yield* accountRepo.findById({ id: inserted.id });
 
           strictEqual(found._tag, "Some");
           if (found._tag === "Some") {
             strictEqual(
-              O.getOrElse(found.value.scope, () => ""),
+              O.getOrElse(found.value.data.scope, () => ""),
               "drive.readonly"
             );
           }
@@ -386,24 +390,24 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("delete-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("delete-account") }));
 
           const mockedAccount = makeMockAccount({
             userId: user.id,
             accountId: `delete-${crypto.randomUUID()}`,
             providerId: "github",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
 
           // Verify account exists
-          const beforeDelete = yield* accountRepo.findById(inserted.id);
+          const beforeDelete = yield* accountRepo.findById({ id: inserted.id });
           strictEqual(beforeDelete._tag, "Some");
 
           // Delete
-          yield* accountRepo.delete(inserted.id);
+          yield* accountRepo.delete({ id: inserted.id });
 
           // Verify account no longer exists
-          const afterDelete = yield* accountRepo.findById(inserted.id);
+          const afterDelete = yield* accountRepo.findById({ id: inserted.id });
           assertNone(afterDelete);
         }),
       TEST_TIMEOUT
@@ -417,7 +421,7 @@ describe("AccountRepo", () => {
 
           // Deleting a non-existent ID should not throw (EntityId format: iam_account__uuid)
           const nonExistentId = "iam_account__00000000-0000-0000-0000-000000000000";
-          const result = yield* Effect.either(accountRepo.delete(nonExistentId));
+          const result = yield* Effect.either(accountRepo.delete({ id: nonExistentId }));
 
           // Should succeed (void operation on non-existent is typically a no-op)
           strictEqual(result._tag, "Right");
@@ -432,7 +436,7 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("batch-accounts") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("batch-accounts") }));
 
           const prefix = crypto.randomUUID();
           const accounts = [
@@ -454,12 +458,12 @@ describe("AccountRepo", () => {
           ] as const;
 
           // Type assertion needed for NonEmptyArray
-          const result = yield* accountRepo.insertManyVoid(
-            accounts as unknown as readonly [
+          const result = yield* accountRepo.insertManyVoid({
+            items: accounts as unknown as readonly [
               typeof Entities.Account.Model.insert.Type,
               ...(typeof Entities.Account.Model.insert.Type)[],
-            ]
-          );
+            ],
+          });
 
           strictEqual(result, undefined);
         }),
@@ -473,7 +477,7 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("duplicate-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("duplicate-account") }));
 
           const accountId = `dup-${crypto.randomUUID()}`;
           const account1 = makeMockAccount({
@@ -511,17 +515,19 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // First create a valid account to get a proper structure for update
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("update-nonexistent-account") }));
+          const { data: user } = yield* userRepo.insert(
+            makeMockUser({ email: makeTestEmail("update-nonexistent-account") })
+          );
 
           const mockedAccount = makeMockAccount({
             userId: user.id,
             accountId: `temp-${crypto.randomUUID()}`,
             providerId: "google",
           });
-          const inserted = yield* accountRepo.insert(mockedAccount);
+          const { data: inserted } = yield* accountRepo.insert(mockedAccount);
 
           // Delete the account
-          yield* accountRepo.delete(inserted.id);
+          yield* accountRepo.delete({ id: inserted.id });
 
           // Now try to update the deleted (non-existent) account
           // The repo uses Effect.die for NoSuchElementException, so we use Exit to catch it
@@ -546,7 +552,7 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Setup: Create user for FK
-          const user = yield* userRepo.insert(
+          const { data: user } = yield* userRepo.insert(
             makeMockUser({
               email: makeTestEmail("crud-workflow-account"),
               name: "CRUD Account Test User",
@@ -559,19 +565,19 @@ describe("AccountRepo", () => {
             accountId: `crud-${crypto.randomUUID()}`,
             providerId: "google",
           });
-          const created = yield* accountRepo.insert(mockedAccount);
+          const { data: created } = yield* accountRepo.insert(mockedAccount);
           assertTrue(S.is(Entities.Account.Model)(created));
 
           // READ
-          const read = yield* accountRepo.findById(created.id);
+          const read = yield* accountRepo.findById({ id: created.id });
           strictEqual(read._tag, "Some");
           if (read._tag === "Some") {
-            strictEqual(read.value.providerId, "google");
-            deepStrictEqual(read.value.userId, user.id);
+            strictEqual(read.value.data.providerId, "google");
+            deepStrictEqual(read.value.data.userId, user.id);
           }
 
           // UPDATE
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...created,
             scope: O.some("email profile"),
             providerId: "google-oauth2",
@@ -583,21 +589,21 @@ describe("AccountRepo", () => {
           );
 
           // Verify update persisted
-          const readAfterUpdate = yield* accountRepo.findById(created.id);
+          const readAfterUpdate = yield* accountRepo.findById({ id: created.id });
           strictEqual(readAfterUpdate._tag, "Some");
           if (readAfterUpdate._tag === "Some") {
-            strictEqual(readAfterUpdate.value.providerId, "google-oauth2");
+            strictEqual(readAfterUpdate.value.data.providerId, "google-oauth2");
             strictEqual(
-              O.getOrElse(readAfterUpdate.value.scope, () => ""),
+              O.getOrElse(readAfterUpdate.value.data.scope, () => ""),
               "email profile"
             );
           }
 
           // DELETE
-          yield* accountRepo.delete(created.id);
+          yield* accountRepo.delete({ id: created.id });
 
           // Verify deletion
-          const readAfterDelete = yield* accountRepo.findById(created.id);
+          const readAfterDelete = yield* accountRepo.findById({ id: created.id });
           assertNone(readAfterDelete);
         }),
       TEST_TIMEOUT
@@ -613,10 +619,10 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("access-token-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("access-token-account") }));
 
           // Create without accessToken
-          const accountWithoutToken = yield* accountRepo.insert(
+          const { data: accountWithoutToken } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `no-token-${crypto.randomUUID()}`,
@@ -628,7 +634,7 @@ describe("AccountRepo", () => {
           strictEqual(accountWithoutToken.accessToken._tag, "None");
 
           // Update with accessToken
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...accountWithoutToken,
             accessToken: O.some(Redacted.make("ya29.a0ARrdaM_test_access_token")),
           });
@@ -649,9 +655,11 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("refresh-token-account") }));
+          const { data: user } = yield* userRepo.insert(
+            makeMockUser({ email: makeTestEmail("refresh-token-account") })
+          );
 
-          const account = yield* accountRepo.insert(
+          const { data: account } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `refresh-${crypto.randomUUID()}`,
@@ -661,7 +669,7 @@ describe("AccountRepo", () => {
 
           strictEqual(account.refreshToken._tag, "None");
 
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...account,
             refreshToken: O.some(Redacted.make("1//0test_refresh_token")),
           });
@@ -682,9 +690,9 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("id-token-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("id-token-account") }));
 
-          const account = yield* accountRepo.insert(
+          const { data: account } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `id-token-${crypto.randomUUID()}`,
@@ -694,7 +702,7 @@ describe("AccountRepo", () => {
 
           strictEqual(account.idToken._tag, "None");
 
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...account,
             idToken: O.some(Redacted.make("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.test_id_token")),
           });
@@ -715,9 +723,9 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("scope-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("scope-account") }));
 
-          const account = yield* accountRepo.insert(
+          const { data: account } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `scope-test-${crypto.randomUUID()}`,
@@ -727,7 +735,7 @@ describe("AccountRepo", () => {
 
           strictEqual(account.scope._tag, "None");
 
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...account,
             scope: O.some("openid email profile https://www.googleapis.com/auth/drive.readonly"),
           });
@@ -749,10 +757,10 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("password-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("password-account") }));
 
           // Create credential-based account
-          const account = yield* accountRepo.insert(
+          const { data: account } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `credential-${crypto.randomUUID()}`,
@@ -764,7 +772,7 @@ describe("AccountRepo", () => {
 
           // Update with a valid password (must have uppercase, lowercase, number, special char)
           const validPassword = BS.Password.make("TestP@ssw0rd!");
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...account,
             password: O.some(validPassword),
           });
@@ -782,9 +790,9 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("multi-token-account") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("multi-token-account") }));
 
-          const account = yield* accountRepo.insert(
+          const { data: account } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `multi-${crypto.randomUUID()}`,
@@ -793,7 +801,7 @@ describe("AccountRepo", () => {
           );
 
           // Update with all token fields at once
-          const updated = yield* accountRepo.update({
+          const { data: updated } = yield* accountRepo.update({
             ...account,
             accessToken: O.some(Redacted.make("access-token-value")),
             refreshToken: O.some(Redacted.make("refresh-token-value")),
@@ -807,20 +815,20 @@ describe("AccountRepo", () => {
           strictEqual(updated.scope._tag, "Some");
 
           // Verify persisted
-          const found = yield* accountRepo.findById(account.id);
+          const found = yield* accountRepo.findById({ id: account.id });
           strictEqual(found._tag, "Some");
           if (found._tag === "Some") {
-            if (found.value.accessToken._tag === "Some") {
-              strictEqual(Redacted.value(found.value.accessToken.value), "access-token-value");
+            if (found.value.data.accessToken._tag === "Some") {
+              strictEqual(Redacted.value(found.value.data.accessToken.value), "access-token-value");
             }
-            if (found.value.refreshToken._tag === "Some") {
-              strictEqual(Redacted.value(found.value.refreshToken.value), "refresh-token-value");
+            if (found.value.data.refreshToken._tag === "Some") {
+              strictEqual(Redacted.value(found.value.data.refreshToken.value), "refresh-token-value");
             }
-            if (found.value.idToken._tag === "Some") {
-              strictEqual(Redacted.value(found.value.idToken.value), "id-token-value");
+            if (found.value.data.idToken._tag === "Some") {
+              strictEqual(Redacted.value(found.value.data.idToken.value), "id-token-value");
             }
             strictEqual(
-              O.getOrElse(found.value.scope, () => ""),
+              O.getOrElse(found.value.data.scope, () => ""),
               "email profile"
             );
           }
@@ -835,7 +843,7 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user
-          const user = yield* userRepo.insert(
+          const { data: user } = yield* userRepo.insert(
             makeMockUser({
               email: makeTestEmail("fk-test"),
               name: "FK Test User",
@@ -843,7 +851,7 @@ describe("AccountRepo", () => {
           );
 
           // Create account linked to user
-          const account = yield* accountRepo.insert(
+          const { data: account } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `fk-${crypto.randomUUID()}`,
@@ -855,10 +863,10 @@ describe("AccountRepo", () => {
           deepStrictEqual(account.userId, user.id);
 
           // Verify we can find the account and it still has correct userId
-          const found = yield* accountRepo.findById(account.id);
+          const found = yield* accountRepo.findById({ id: account.id });
           strictEqual(found._tag, "Some");
           if (found._tag === "Some") {
-            deepStrictEqual(found.value.userId, user.id);
+            deepStrictEqual(found.value.data.userId, user.id);
           }
         }),
       TEST_TIMEOUT
@@ -872,7 +880,7 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user
-          const user = yield* userRepo.insert(
+          const { data: user } = yield* userRepo.insert(
             makeMockUser({
               email: makeTestEmail("multi-provider"),
               name: "Multi Provider User",
@@ -880,7 +888,7 @@ describe("AccountRepo", () => {
           );
 
           // Create multiple accounts for same user with different providers
-          const googleAccount = yield* accountRepo.insert(
+          const { data: googleAccount } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `google-${crypto.randomUUID()}`,
@@ -888,7 +896,7 @@ describe("AccountRepo", () => {
             })
           );
 
-          const githubAccount = yield* accountRepo.insert(
+          const { data: githubAccount } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `github-${crypto.randomUUID()}`,
@@ -896,7 +904,7 @@ describe("AccountRepo", () => {
             })
           );
 
-          const twitterAccount = yield* accountRepo.insert(
+          const { data: twitterAccount } = yield* accountRepo.insert(
             makeMockAccount({
               userId: user.id,
               accountId: `twitter-${crypto.randomUUID()}`,

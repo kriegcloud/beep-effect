@@ -57,11 +57,11 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo
       typeof Entities.Document.Model.Type,
       Document.DocumentErrors.DocumentNotFoundError | DbClient.DatabaseError
     > =>
-      baseRepo.findById(id).pipe(
+      baseRepo.findById({ id }).pipe(
         Effect.flatMap(
           O.match({
             onNone: () => Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id })),
-            onSome: Effect.succeed,
+            onSome: ({ data }) => Effect.succeed(data),
           })
         ),
         Effect.withSpan("DocumentRepo.findByIdOrFail", { attributes: { id } })
@@ -246,7 +246,8 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo
     const archive = (id: DocumentsEntityIds.DocumentId.Type) =>
       Effect.gen(function* () {
         const doc = yield* findByIdOrFail(id);
-        return yield* baseRepo.update({ ...doc, isArchived: true });
+        const { data } = yield* baseRepo.update({ ...doc, isArchived: true });
+        return data;
       }).pipe(Effect.withSpan("DocumentRepo.archive", { attributes: { id } }));
 
     /**
@@ -255,7 +256,8 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo
     const restore = (id: DocumentsEntityIds.DocumentId.Type) =>
       Effect.gen(function* () {
         const doc = yield* findByIdOrFail(id);
-        return yield* baseRepo.update({ ...doc, isArchived: false });
+        const { data } = yield* baseRepo.update({ ...doc, isArchived: false });
+        return data;
       }).pipe(Effect.withSpan("DocumentRepo.restore", { attributes: { id } }));
 
     /**
@@ -264,7 +266,8 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo
     const publish = (id: DocumentsEntityIds.DocumentId.Type) =>
       Effect.gen(function* () {
         const doc = yield* findByIdOrFail(id);
-        return yield* baseRepo.update({ ...doc, isPublished: true });
+        const { data } = yield* baseRepo.update({ ...doc, isPublished: true });
+        return data;
       }).pipe(Effect.withSpan("DocumentRepo.publish", { attributes: { id } }));
 
     /**
@@ -273,7 +276,8 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo
     const unpublish = (id: DocumentsEntityIds.DocumentId.Type) =>
       Effect.gen(function* () {
         const doc = yield* findByIdOrFail(id);
-        return yield* baseRepo.update({ ...doc, isPublished: false });
+        const { data } = yield* baseRepo.update({ ...doc, isPublished: false });
+        return data;
       }).pipe(Effect.withSpan("DocumentRepo.unpublish", { attributes: { id } }));
 
     /**
@@ -282,7 +286,8 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo
     const lock = (id: DocumentsEntityIds.DocumentId.Type) =>
       Effect.gen(function* () {
         const doc = yield* findByIdOrFail(id);
-        return yield* baseRepo.update({ ...doc, lockPage: true });
+        const { data } = yield* baseRepo.update({ ...doc, lockPage: true });
+        return data;
       }).pipe(Effect.withSpan("DocumentRepo.lock", { attributes: { id } }));
 
     /**
@@ -291,14 +296,15 @@ export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo
     const unlock = (id: DocumentsEntityIds.DocumentId.Type) =>
       Effect.gen(function* () {
         const doc = yield* findByIdOrFail(id);
-        return yield* baseRepo.update({ ...doc, lockPage: false });
+        const { data } = yield* baseRepo.update({ ...doc, lockPage: false });
+        return data;
       }).pipe(Effect.withSpan("DocumentRepo.unlock", { attributes: { id } }));
 
     /**
      * Hard delete a document permanently
      */
     const hardDelete = (id: DocumentsEntityIds.DocumentId.Type) =>
-      baseRepo.delete(id).pipe(Effect.withSpan("DocumentRepo.hardDelete", { attributes: { id } }));
+      baseRepo.delete({ id }).pipe(Effect.withSpan("DocumentRepo.hardDelete", { attributes: { id } }));
 
     return {
       ...baseRepo,

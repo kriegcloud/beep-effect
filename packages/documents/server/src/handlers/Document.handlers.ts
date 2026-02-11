@@ -129,7 +129,8 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
             contentRich: payload.contentRich,
             parentDocumentId: payload.parentDocumentId,
           });
-          return yield* repo.insert(insertData);
+          const { data } = yield* repo.insert(insertData);
+          return data;
         },
         Effect.catchTag("DatabaseError", () =>
           Effect.fail(new OperationFailedError({ operation: "Document.Create", reason: "database_error" }))
@@ -141,6 +142,7 @@ export const DocumentHandlersLive = DocumentRpcsWithMiddleware.toLayer(
 
       update: (payload) =>
         repo.update(payload).pipe(
+          Effect.map(({ data }) => data),
           Effect.catchTag("DatabaseError", () =>
             Effect.fail(new Document.DocumentErrors.DocumentNotFoundError({ id: payload.id }))
           ),

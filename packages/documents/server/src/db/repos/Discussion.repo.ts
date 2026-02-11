@@ -54,11 +54,11 @@ export class DiscussionRepo extends Effect.Service<DiscussionRepo>()($I`Discussi
     const findByIdOrFail = (
       id: DocumentsEntityIds.DiscussionId.Type
     ): Effect.Effect<typeof Entities.Discussion.Model.Type, DiscussionNotFoundError | DbClient.DatabaseError> =>
-      baseRepo.findById(id).pipe(
+      baseRepo.findById({ id }).pipe(
         Effect.flatMap(
           O.match({
             onNone: () => Effect.fail(new DiscussionNotFoundError({ id })),
-            onSome: Effect.succeed,
+            onSome: ({ data }) => Effect.succeed(data),
           })
         ),
         Effect.withSpan("DiscussionRepo.findByIdOrFail", { attributes: { id } })
@@ -173,7 +173,8 @@ export class DiscussionRepo extends Effect.Service<DiscussionRepo>()($I`Discussi
     const resolve = (id: DocumentsEntityIds.DiscussionId.Type) =>
       Effect.gen(function* () {
         const discussion = yield* findByIdOrFail(id);
-        return yield* baseRepo.update({ ...discussion, isResolved: true });
+        const { data } = yield* baseRepo.update({ ...discussion, isResolved: true });
+        return data;
       }).pipe(Effect.withSpan("DiscussionRepo.resolve", { attributes: { id } }));
 
     /**
@@ -182,14 +183,15 @@ export class DiscussionRepo extends Effect.Service<DiscussionRepo>()($I`Discussi
     const unresolve = (id: DocumentsEntityIds.DiscussionId.Type) =>
       Effect.gen(function* () {
         const discussion = yield* findByIdOrFail(id);
-        return yield* baseRepo.update({ ...discussion, isResolved: false });
+        const { data } = yield* baseRepo.update({ ...discussion, isResolved: false });
+        return data;
       }).pipe(Effect.withSpan("DiscussionRepo.unresolve", { attributes: { id } }));
 
     /**
      * Hard delete a discussion (cascade deletes comments via FK)
      */
     const hardDelete = (id: DocumentsEntityIds.DiscussionId.Type) =>
-      baseRepo.delete(id).pipe(Effect.withSpan("DiscussionRepo.hardDelete", { attributes: { id } }));
+      baseRepo.delete({ id }).pipe(Effect.withSpan("DiscussionRepo.hardDelete", { attributes: { id } }));
 
     return {
       ...baseRepo,

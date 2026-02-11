@@ -34,26 +34,36 @@ export interface BaseRepo<
   Id extends keyof Model["Type"] & keyof Model["update"]["Type"] & keyof Model["fields"],
 > {
   readonly insert: (
-    insert: Model["insert"]["Type"]
-  ) => Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
+    payload: Model["insert"]["Type"]
+  ) => Effect.Effect<{ readonly data: Model["Type"] }, DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
+
   readonly insertVoid: (
-    insert: Model["insert"]["Type"]
+    payload: Model["insert"]["Type"]
   ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
+
   readonly update: (
-    update: Model["update"]["Type"]
-  ) => Effect.Effect<Model["Type"], DatabaseError, Model["Context"] | Model["update"]["Context"]>;
+    payload: Model["update"]["Type"]
+  ) => Effect.Effect<{ readonly data: Model["Type"] }, DatabaseError, Model["Context"] | Model["update"]["Context"]>;
+
   readonly updateVoid: (
-    update: Model["update"]["Type"]
+    payload: Model["update"]["Type"]
   ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["update"]["Context"]>;
-  readonly findById: (
-    id: S.Schema.Type<Model["fields"][Id]>
-  ) => Effect.Effect<O.Option<Model["Type"]>, DatabaseError, Model["Context"] | S.Schema.Context<Model["fields"][Id]>>;
-  readonly delete: (
-    id: S.Schema.Type<Model["fields"][Id]>
-  ) => Effect.Effect<void, DatabaseError, S.Schema.Context<Model["fields"][Id]>>;
-  readonly insertManyVoid: (
-    insert: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>
-  ) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
+
+  readonly findById: (payload: {
+    readonly id: S.Schema.Type<Model["fields"][Id]>;
+  }) => Effect.Effect<
+    O.Option<{ readonly data: Model["Type"] }>,
+    DatabaseError,
+    Model["Context"] | S.Schema.Context<Model["fields"][Id]>
+  >;
+
+  readonly delete: (payload: {
+    readonly id: S.Schema.Type<Model["fields"][Id]>;
+  }) => Effect.Effect<void, DatabaseError, S.Schema.Context<Model["fields"][Id]>>;
+
+  readonly insertManyVoid: (payload: {
+    readonly items: A.NonEmptyReadonlyArray<Model["insert"]["Type"]>;
+  }) => Effect.Effect<void, DatabaseError, Model["Context"] | Model["insert"]["Context"]>;
 }
 
 /**
