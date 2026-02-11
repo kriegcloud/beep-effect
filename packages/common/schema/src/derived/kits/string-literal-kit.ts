@@ -15,6 +15,8 @@
  */
 
 import { DiscriminatedStruct } from "@beep/schema/core/generics";
+import type { TaggedUnion } from "@beep/schema/core/generics/tagged-union";
+import { TaggedUnion as TaggedUnionFactory } from "@beep/schema/core/generics/tagged-union";
 import { mergeFields } from "@beep/schema/core/utils/merge-fields";
 import type { UnsafeTypes } from "@beep/types";
 import { ArrayUtils, enumFromStringArray } from "@beep/utils";
@@ -27,8 +29,6 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import type * as Types from "effect/Types";
-import type { TaggedUnion } from "../../core/generics/tagged-union";
-import { TaggedUnion as TaggedUnionFactory } from "../../core/generics/tagged-union";
 
 export type LiteralsType = A.NonEmptyReadonlyArray<string>;
 
@@ -361,6 +361,9 @@ const buildIsGuards = <Literals extends LiteralsType>(literals: Literals): IsGua
   return R.fromEntries(entries) as IsGuards<Literals>;
 };
 
+
+// const buildMakeFn = <Literals extends LiteralsType>(literals: Literals):
+
 /**
  * Factory for creating string literal kits without enum mapping.
  *
@@ -407,7 +410,6 @@ export function makeLiteralKit<
   enumMapping: ValidMapping<Literals, Mapping>,
   ast?: AST.AST | undefined
 ): ILiteralKit<Literals, Mapping>;
-
 /**
  * Implementation of string literal kit factory.
  *
