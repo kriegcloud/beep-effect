@@ -39,11 +39,11 @@ export class DocumentFileRepo extends Effect.Service<DocumentFileRepo>()($I`Docu
     const findByIdOrFail = (
       id: DocumentsEntityIds.DocumentFileId.Type
     ): Effect.Effect<typeof Entities.DocumentFile.Model.Type, FileNotFoundError | DbClient.DatabaseError> =>
-      baseRepo.findById(id).pipe(
+      baseRepo.findById({ id }).pipe(
         Effect.flatMap(
           O.match({
             onNone: () => Effect.fail(new FileNotFoundError({ id })),
-            onSome: Effect.succeed,
+            onSome: ({ data }) => Effect.succeed(data),
           })
         ),
         Effect.withSpan("DocumentFileRepo.findByIdOrFail", { attributes: { id } })
@@ -113,7 +113,7 @@ export class DocumentFileRepo extends Effect.Service<DocumentFileRepo>()($I`Docu
      * Hard delete a file record
      */
     const hardDelete = (id: DocumentsEntityIds.DocumentFileId.Type) =>
-      baseRepo.delete(id).pipe(Effect.withSpan("DocumentFileRepo.hardDelete", { attributes: { id } }));
+      baseRepo.delete({ id }).pipe(Effect.withSpan("DocumentFileRepo.hardDelete", { attributes: { id } }));
 
     return {
       ...baseRepo,
