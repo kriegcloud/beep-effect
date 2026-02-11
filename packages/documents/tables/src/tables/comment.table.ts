@@ -1,3 +1,4 @@
+import type { SerializedEditorStateEnvelope } from "@beep/documents-domain/value-objects";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { DocumentsEntityIds } from "@beep/shared-domain";
 import { OrgTable, user } from "@beep/shared-tables";
@@ -17,7 +18,7 @@ export const comment = OrgTable.make(DocumentsEntityIds.CommentId)(
       .references(() => user.id, { onDelete: "cascade" })
       .$type<SharedEntityIds.UserId.Type>(),
     content: pg.text("content").notNull(),
-    contentRich: pg.jsonb("content_rich"),
+    contentRich: pg.jsonb("content_rich").$type<SerializedEditorStateEnvelope.Encoded | null>(),
     isEdited: pg.boolean("is_edited").notNull().default(false),
   },
   (t) => [
