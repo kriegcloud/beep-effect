@@ -1,6 +1,6 @@
-import { Event, Slot, State } from "effect-machine";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
+import { Event, Slot, State } from "effect-machine";
 
 import { BatchConfig } from "./BatchConfig.value";
 
