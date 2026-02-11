@@ -13,7 +13,7 @@ export const Handler: HandlerEffect = Effect.fn("files_createFolder")(
   function* (payload: Files.CreateFolder.Payload) {
     const { user, organization } = yield* Policy.AuthContext;
     const folderRepo = yield* FolderRepo;
-    return yield* folderRepo.insert({
+    const { data } = yield* folderRepo.insert({
       id: SharedEntityIds.FolderId.create(),
       source: O.some("user"),
       createdBy: O.some(user.id),
@@ -24,6 +24,7 @@ export const Handler: HandlerEffect = Effect.fn("files_createFolder")(
       userId: user.id,
       name: payload.folderName,
     });
+    return data;
   },
   Effect.catchTags({
     DatabaseError: Effect.die,

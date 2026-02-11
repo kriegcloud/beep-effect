@@ -53,11 +53,11 @@ export class DocumentVersionRepo extends Effect.Service<DocumentVersionRepo>()($
     const findByIdOrFail = (
       id: DocumentsEntityIds.DocumentVersionId.Type
     ): Effect.Effect<typeof Entities.DocumentVersion.Model.Type, VersionNotFoundError | DbClient.DatabaseError> =>
-      baseRepo.findById(id).pipe(
+      baseRepo.findById({ id }).pipe(
         Effect.flatMap(
           O.match({
             onNone: () => Effect.fail(new VersionNotFoundError({ id })),
-            onSome: Effect.succeed,
+            onSome: ({ data }) => Effect.succeed(data),
           })
         ),
         Effect.withSpan("DocumentVersionRepo.findByIdOrFail", { attributes: { id } })
@@ -134,7 +134,7 @@ export class DocumentVersionRepo extends Effect.Service<DocumentVersionRepo>()($
      * Hard delete a version
      */
     const hardDelete = (id: DocumentsEntityIds.DocumentVersionId.Type) =>
-      baseRepo.delete(id).pipe(Effect.withSpan("DocumentVersionRepo.hardDelete", { attributes: { id } }));
+      baseRepo.delete({ id }).pipe(Effect.withSpan("DocumentVersionRepo.hardDelete", { attributes: { id } }));
 
     return {
       ...baseRepo,

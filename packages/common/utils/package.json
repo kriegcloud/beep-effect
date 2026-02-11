@@ -28,7 +28,7 @@
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
     "dev": "tsc -b tsconfig.build.json --watch",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo --noEmit -p tsconfig.json",
     "test": "bun test",
     "coverage": "bun test --coverage",
     "lint": "biome check .",

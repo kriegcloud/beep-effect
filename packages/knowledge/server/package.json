@@ -28,7 +28,7 @@
     "build-esm": "tsc -b tsconfig.build.json",
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo --noEmit -p tsconfig.json",
     "test": "bun test",
     "coverage": "bun test --coverage",
     "lint": "biome check .",
@@ -39,7 +39,6 @@
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/google-workspace-domain": "workspace:^",
-    "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/google-workspace-client": "workspace:^",
     "@beep/knowledge-domain": "workspace:^",
@@ -54,14 +53,14 @@
     "@effect/sql-pg": "catalog:",
     "@effect/sql-sqlite-bun": "catalog:",
     "drizzle-orm": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "effect-machine": "catalog:"
   },
   "devDependencies": {
     "@beep/testkit": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/google-workspace-domain": "workspace:^",
-    "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/google-workspace-client": "workspace:^",
     "@beep/knowledge-domain": "workspace:^",

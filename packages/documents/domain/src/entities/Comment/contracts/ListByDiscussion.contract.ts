@@ -16,6 +16,7 @@ import { DocumentsEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
+import * as RpcSchema from "@effect/rpc/RpcSchema";
 import * as S from "effect/Schema";
 import * as Comment from "../Comment.model";
 
@@ -35,27 +36,6 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     description: "Payload for the ListByDiscussion Comment contract.",
   })
 ) {}
-
-/**
- * Success response for `Comment.ListByDiscussion`.
- *
- * @since 1.0.0
- * @category DTO
- */
-export const Success = S.Array(Comment.Model.json).annotations(
-  $I.annotations("Success", {
-    description: "Success response for the ListByDiscussion Comment contract.",
-  })
-);
-
-/**
- * `Success` TypeScript type for `Comment.ListByDiscussion`.
- *
- * @since 1.0.0
- * @category DTO
- */
-export type Success = S.Schema.Type<typeof Success>;
-
 /**
  * Failure response for `Comment.ListByDiscussion`.
  *
@@ -67,6 +47,29 @@ export class Failure extends S.Never.annotations(
     description: "No typed failure for the ListByDiscussion Comment contract.",
   })
 ) {}
+/**
+ * Success response for `Comment.ListByDiscussion`.
+ *
+ * @since 1.0.0
+ * @category DTO
+ */
+export const Success = RpcSchema.Stream({
+  success: S.Array(Comment.Model.json).annotations(
+    $I.annotationsHttp("Success", {
+      status: 200,
+      description: "Success response for the ListByDiscussion Comment contract.",
+    })
+  ),
+  failure: S.Never,
+});
+
+/**
+ * `Success` TypeScript type for `Comment.ListByDiscussion`.
+ *
+ * @since 1.0.0
+ * @category DTO
+ */
+export type Success = S.Schema.Type<typeof Success>;
 
 /**
  * Tagged request contract for `Comment.ListByDiscussion`.

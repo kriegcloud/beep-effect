@@ -67,7 +67,9 @@ describe("DatabaseError.$match", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("unique-violation-test") }));
+          const { data: user } = yield* userRepo.insert(
+            makeMockUser({ email: makeTestEmail("unique-violation-test") })
+          );
 
           // Create first account successfully
           const accountId = `unique-${crypto.randomUUID()}`;
@@ -381,7 +383,7 @@ describe("DatabaseError.$match", () => {
           const accountRepo = yield* AccountRepo;
 
           // Create user for valid FK
-          const user = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("type-handling") }));
+          const { data: user } = yield* userRepo.insert(makeMockUser({ email: makeTestEmail("type-handling") }));
 
           // Test UNIQUE_VIOLATION handling
           const accountId = `type-test-${crypto.randomUUID()}`;

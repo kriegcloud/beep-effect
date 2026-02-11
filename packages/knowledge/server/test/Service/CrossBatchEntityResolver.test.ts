@@ -104,7 +104,7 @@ describe("CrossBatchEntityResolver", () => {
       });
 
       const entityRepoStub: EntityRepoShape = {
-        insert: () => Ref.update(entityRepoInserts, (n) => n + 1).pipe(Effect.as(existingEntity)),
+        insert: () => Ref.update(entityRepoInserts, (n) => n + 1).pipe(Effect.as({ data: existingEntity })),
         insertVoid: () => Ref.update(entityRepoInserts, (n) => n + 1).pipe(Effect.asVoid),
         insertManyVoid: () => Effect.die("not implemented"),
         update: () => Effect.die("not implemented"),

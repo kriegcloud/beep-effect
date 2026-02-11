@@ -23,7 +23,7 @@
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo --noEmit -p tsconfig.json",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "bun test",

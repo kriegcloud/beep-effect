@@ -208,7 +208,6 @@
       "@beep/ui-editor/test/*": [
         "./packages/ui/editor/test/*"
       ],
-      
       "@beep/ui-spreadsheet": [
         "./packages/ui/spreadsheet/src/index"
       ],
@@ -218,7 +217,6 @@
       "@beep/ui-spreadsheet/test/*": [
         "./packages/ui/spreadsheet/test/*"
       ],
-      
       "@beep/shared-env": [
         "./packages/shared/env/src/index"
       ],
@@ -228,7 +226,7 @@
       "@beep/shared-env/test/*": [
         "./packages/shared/env/test/*"
       ],
-       "@beep/shared-ai": [
+      "@beep/shared-ai": [
         "./packages/shared/ai/src/index"
       ],
       "@beep/shared-ai/*": [
@@ -552,7 +550,6 @@
       "@beep/knowledge-ui/*": [
         "./packages/knowledge/ui/src/*"
       ],
-
       "@beep/google-workspace-domain": [
         "./packages/integrations/google-workspace/domain/src/index"
       ],
@@ -580,17 +577,7 @@
       "@beep/google-workspace-server/test/*": [
         "./packages/integrations/google-workspace/server/test/*"
       ],
-      "@beep/machine": [
-        "./packages/common/machine/src/index"
-      ],
-      "@beep/machine/*": [
-        "./packages/common/machine/src/*"
-      ],
-      "@beep/machine/test/*": [
-        "./packages/common/machine/test/*"
-      ],
-      
-            "@beep/semantic-web": [
+      "@beep/semantic-web": [
         "./packages/common/semantic-web/src/index"
       ],
       "@beep/semantic-web/*": [

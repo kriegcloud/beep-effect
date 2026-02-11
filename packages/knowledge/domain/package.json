@@ -27,7 +27,7 @@
     "build-esm": "tsc -b tsconfig.build.json",
     "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
     "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo --noEmit -p tsconfig.json",
     "test": "bun test",
     "coverage": "bun test --coverage",
     "lint": "biome check .",
@@ -36,21 +36,21 @@
   },
   "peerDependencies": {
     "@beep/schema": "workspace:^",
-    "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@effect/experimental": "catalog:",
     "@effect/sql": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "effect-machine": "catalog:"
   },
   "devDependencies": {
     "@beep/schema": "workspace:^",
-    "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@effect/docgen": "catalog:",
     "@effect/experimental": "catalog:",
     "@effect/sql": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "effect-machine": "catalog:"
   },
   "effect": {
     "generateExports": {

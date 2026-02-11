@@ -47,8 +47,8 @@ export const SplitServiceLive = Layer.effect(
         readonly entityId: KnowledgeEntityIds.KnowledgeEntityId.Type;
         readonly mentionRecordIds: ReadonlyArray<KnowledgeEntityIds.MentionRecordId.Type>;
       }) {
-        const maybeEntity = yield* entityRepo.findById(params.entityId);
-        const originalEntity = yield* maybeEntity.pipe(
+        const maybeEntity = yield* entityRepo.findById({ id: params.entityId });
+        const originalEntity = yield* O.map(maybeEntity, ({ data }) => data).pipe(
           Effect.mapError(
             () =>
               new SplitError({
@@ -94,7 +94,7 @@ export const SplitServiceLive = Layer.effect(
 
         const newEntityId = KnowledgeEntityIds.KnowledgeEntityId.create();
 
-        const newEntity = yield* entityRepo.insert({
+        const { data: newEntity } = yield* entityRepo.insert({
           id: newEntityId,
           organizationId: originalEntity.organizationId,
           mention: firstMention.rawText,
@@ -153,8 +153,8 @@ export const SplitServiceLive = Layer.effect(
 
     const unmerge = Effect.fnUntraced(
       function* (mergeHistoryId: KnowledgeEntityIds.MergeHistoryId.Type) {
-        const maybeRecord = yield* mergeHistoryRepo.findById(mergeHistoryId);
-        const historyRecord = yield* maybeRecord.pipe(
+        const maybeRecord = yield* mergeHistoryRepo.findById({ id: mergeHistoryId });
+        const historyRecord = yield* O.map(maybeRecord, ({ data }) => data).pipe(
           Effect.mapError(
             (_) =>
               new SplitError({
@@ -168,7 +168,9 @@ export const SplitServiceLive = Layer.effect(
           organizationId
         );
 
-        const sourceEntityExists = yield* entityRepo.findById(historyRecord.sourceEntityId).pipe(Effect.map(O.isSome));
+        const sourceEntityExists = yield* entityRepo
+          .findById({ id: historyRecord.sourceEntityId })
+          .pipe(Effect.map(O.isSome));
 
         if (sourceEntityExists) {
           yield* Effect.forEach(
@@ -179,13 +181,13 @@ export const SplitServiceLive = Layer.effect(
         } else {
           const restoredEntityId = historyRecord.sourceEntityId;
 
-          const maybeTargetEntity = yield* entityRepo.findById(historyRecord.targetEntityId);
+          const maybeTargetEntity = yield* entityRepo.findById({ id: historyRecord.targetEntityId });
           const targetEntity = yield* O.match(maybeTargetEntity, {
             onNone: () =>
               new SplitError({
                 message: `Target entity not found for unmerge: ${historyRecord.targetEntityId}`,
               }),
-            onSome: Effect.succeed,
+            onSome: ({ data }) => Effect.succeed(data),
           });
 
           const restoredMention = O.match(A.head(mentionsOnTarget), {
