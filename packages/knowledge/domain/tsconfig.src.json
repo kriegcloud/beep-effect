@@ -24,9 +24,6 @@
       "path": "../../../packages/common/constants"
     },
     {
-      "path": "../../../packages/common/machine"
-    },
-    {
       "path": "../../../packages/common/errors"
     },
     {

@@ -36,9 +36,6 @@
       "path": "../../../packages/integrations/google-workspace/domain/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/common/machine/tsconfig.build.json"
-    },
-    {
       "path": "../../../packages/common/errors/tsconfig.build.json"
     },
     {

@@ -658,3 +658,5 @@
 {"eventType":"stop","timestamp":"2026-02-11T04:09:16.905Z","sessionId":"85958db4-21f4-4ae4-a8f1-c5077c9b0b3d","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-11T04:26:33.576Z","sessionId":"85958db4-21f4-4ae4-a8f1-c5077c9b0b3d","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-11T04:38:36.267Z","sessionId":"85958db4-21f4-4ae4-a8f1-c5077c9b0b3d","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-11T05:45:19.156Z","sessionId":"88b712e2-3eea-472f-85c1-f757c32f4280","agentType":"general-purpose","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-11T06:13:14.074Z","sessionId":"88b712e2-3eea-472f-85c1-f757c32f4280","agentType":"general-purpose","durationMs":1674918,"outcome":"success"}

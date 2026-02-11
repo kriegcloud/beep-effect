@@ -153,6 +153,7 @@
     "3d-force-graph": "^1.79.1",
     "katex": "^0.16.28",
     "y-websocket": "^3.0.0",
+    "effect-machine": "^0.6.0",
     "react-error-boundary": "^6.1.0",
     "@excalidraw/excalidraw": "^0.18.0",
     "@ai-sdk/google": "^3.0.24",
