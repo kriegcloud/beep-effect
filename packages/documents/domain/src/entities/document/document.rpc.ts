@@ -4,6 +4,7 @@ import { OperationFailedError } from "@beep/shared-domain/errors";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
+import { SerializedEditorStateEnvelope } from "../../value-objects";
 import * as Errors from "./document.errors";
 import { Model } from "./document.model";
 
@@ -114,7 +115,7 @@ export class Rpcs extends RpcGroup.make(
       parentDocumentId: S.optional(DocumentsEntityIds.DocumentId),
       title: S.optional(S.String.pipe(S.maxLength(500))),
       content: S.optional(S.String),
-      contentRich: S.optional(S.Unknown),
+      contentRich: S.optional(SerializedEditorStateEnvelope),
     },
     success: Model.json,
     error: OperationFailedError,

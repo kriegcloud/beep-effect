@@ -16,7 +16,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { DefaultAccess, PageType, TextStyle } from "../../value-objects";
+import { DefaultAccess, PageType, SerializedEditorStateEnvelope, TextStyle } from "../../value-objects";
 
 const $I = $DocumentsDomainId.create("entities/Page/Page.model");
 
@@ -37,7 +37,7 @@ export class Model extends M.Class<Model>($I`PageModel`)(
     coverImage: BS.FieldOptionOmittable(BS.URLString),
     type: BS.toOptionalWithDefault(PageType)("document"),
     content: BS.FieldOptionOmittable(S.String),
-    contentRich: BS.FieldOptionOmittable(S.Unknown),
+    contentRich: BS.FieldOptionOmittable(SerializedEditorStateEnvelope),
     yjsSnapshot: BS.FieldOptionOmittable(S.Uint8ArrayFromSelf),
     layoutConfig: BS.FieldOptionOmittable(S.Unknown),
     ontologyId: BS.FieldOptionOmittable(KnowledgeEntityIds.OntologyId),

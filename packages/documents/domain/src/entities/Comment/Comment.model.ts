@@ -16,6 +16,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import { SerializedEditorStateEnvelope } from "../../value-objects";
 
 const $I = $DocumentsDomainId.create("entities/Comment/Comment.model");
 
@@ -33,8 +34,8 @@ export class Model extends M.Class<Model>($I`CommentModel`)(
     discussionId: DocumentsEntityIds.DiscussionId,
     userId: SharedEntityIds.UserId,
     content: S.String,
-    contentRich: BS.FieldOptionOmittable(S.Unknown),
-    isEdited: BS.BoolWithDefault(false),
+    contentRich: BS.FieldOptionOmittable(SerializedEditorStateEnvelope),
+    isEdited:  BS.BoolWithDefault(false),
   }),
   $I.annotations("CommentModel", {
     description: "Comment model representing individual comments within discussions.",

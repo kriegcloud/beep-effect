@@ -1,3 +1,4 @@
+import type { SerializedEditorStateEnvelope } from "@beep/documents-domain/value-objects";
 import { DefaultAccess, PageType } from "@beep/documents-domain/value-objects";
 import { BS } from "@beep/schema";
 import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -24,7 +25,7 @@ export const page = OrgTable.make(DocumentsEntityIds.PageId)(
     coverImage: pg.text("cover_image"),
     type: pageTypePgEnum("type").notNull().default("document"),
     content: pg.text("content"),
-    contentRich: pg.jsonb("content_rich"),
+    contentRich: pg.jsonb("content_rich").$type<SerializedEditorStateEnvelope.Encoded | null>(),
     yjsSnapshot: bytea("yjs_snapshot"),
     layoutConfig: pg.jsonb("layout_config"),
     ontologyId: pg.text("ontology_id").$type<KnowledgeEntityIds.OntologyId.Type>(),

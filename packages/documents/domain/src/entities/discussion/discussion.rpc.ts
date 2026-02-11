@@ -5,6 +5,7 @@ import { OperationFailedError } from "@beep/shared-domain/errors";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
+import { SerializedEditorStateEnvelope } from "../../value-objects";
 import * as Comment from "../Comment";
 import * as Errors from "./discussion.errors";
 import { Model } from "./discussion.model";
@@ -77,7 +78,7 @@ export class Rpcs extends RpcGroup.make(
       organizationId: SharedEntityIds.OrganizationId,
       documentId: DocumentsEntityIds.DocumentId,
       documentContent: S.String.pipe(S.minLength(1), S.maxLength(MAX_DOCUMENT_CONTENT_LENGTH)),
-      contentRich: S.optional(S.Array(S.Unknown)),
+      contentRich: S.optional(SerializedEditorStateEnvelope),
       discussionId: S.optional(DocumentsEntityIds.DiscussionId),
     },
     success: S.Struct({ id: DocumentsEntityIds.DiscussionId }),

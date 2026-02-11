@@ -14,6 +14,7 @@
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./files": "./src/files/index.ts",
+    "./services": "./src/services/index.ts",
     "./*": "./src/*.ts"
   },
   "repository": {
@@ -55,7 +56,9 @@
     "@uswriting/exiftool": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-    "pdf-lib": "catalog:"
+    "pdf-lib": "catalog:",
+    "lexical": "catalog:",
+    "@lexical/headless": "catalog:"
   },
   "devDependencies": {
     "@beep/identity": "workspace:^",
@@ -80,7 +83,9 @@
     "@uswriting/exiftool": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-    "pdf-lib": "catalog:"
+    "pdf-lib": "catalog:",
+    "lexical": "catalog:",
+    "@lexical/headless": "catalog:"
   },
   "effect": {
     "generateExports": {

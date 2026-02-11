@@ -5,7 +5,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { TextStyle } from "../../value-objects";
+import { SerializedEditorStateEnvelope, TextStyle } from "../../value-objects";
 
 const $I = $DocumentsDomainId.create("entities/document/document.model");
 
@@ -22,7 +22,7 @@ export class Model extends M.Class<Model>($I`DocumentModel`)(
     parentDocumentId: BS.FieldOptionOmittable(DocumentsEntityIds.DocumentId),
     title: BS.FieldOptionOmittable(S.String.pipe(S.maxLength(500))),
     content: BS.FieldOptionOmittable(S.String),
-    contentRich: BS.FieldOptionOmittable(S.Unknown),
+    contentRich: BS.FieldOptionOmittable(SerializedEditorStateEnvelope),
     yjsSnapshot: BS.FieldOptionOmittable(S.Uint8ArrayFromSelf),
     coverImage: BS.FieldOptionOmittable(S.String),
     icon: BS.FieldOptionOmittable(S.String),
