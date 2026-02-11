@@ -1,10 +1,10 @@
 import { $TodoxId } from "@beep/identity/packages";
-import { hasProperties } from "@beep/todox/app/lexical/commenting";
-import { SerializedEditorState } from "@beep/todox/app/lexical/schema/schemas";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { LexicalEditor } from "lexical";
+import { hasProperties } from "../commenting";
+import { SerializedEditorState } from "./schemas";
 
 const properties = [
   "version",

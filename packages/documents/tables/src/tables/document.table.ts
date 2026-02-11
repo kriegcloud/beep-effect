@@ -1,3 +1,4 @@
+import type { SerializedEditorStateEnvelope } from "@beep/documents-domain/value-objects";
 import { TextStyle } from "@beep/documents-domain/value-objects";
 import { BS } from "@beep/schema";
 import type { SharedEntityIds } from "@beep/shared-domain";
@@ -20,7 +21,7 @@ export const document = OrgTable.make(DocumentsEntityIds.DocumentId)(
     parentDocumentId: pg.text("parent_document_id").$type<DocumentsEntityIds.DocumentId.Type>(),
     title: pg.text("title"),
     content: pg.text("content"),
-    contentRich: pg.jsonb("content_rich"),
+    contentRich: pg.jsonb("content_rich").$type<SerializedEditorStateEnvelope.Encoded | null>(),
     yjsSnapshot: bytea("yjs_snapshot"),
     coverImage: pg.text("cover_image"),
     icon: pg.text("icon"),
