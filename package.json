@@ -126,6 +126,7 @@
     "@types/aws-lambda": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
+    "@typescript/native-preview": "^7.0.0-dev.20260210.1",
     "babel-plugin-annotate-pure-calls": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
     "happy-dom": "catalog:",

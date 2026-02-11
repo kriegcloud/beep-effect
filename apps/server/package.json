@@ -20,7 +20,7 @@
     "lint": "biome check .",
     "test": "bun test",
     "lint:fix": "biome check . --write",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo --noEmit -p tsconfig.json",
     "dotenvx": "dotenvx run -f ../../.env --",
     "lint:circular": "bunx madge -c .",
     "coverage": "bun test --coverage",
