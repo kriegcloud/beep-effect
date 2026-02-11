@@ -83,7 +83,7 @@ export const DiscussionHandlersLive = DiscussionRpcsWithMiddleware.toLayer(
             userId: authContext.user.id,
             documentContent: payload.documentContent,
           });
-          const result = yield* discussionRepo.create(insertData);
+          const { data: result } = yield* discussionRepo.create(insertData);
           return { id: result.id };
         },
         Effect.catchTag("DatabaseError", () =>
@@ -105,7 +105,7 @@ export const DiscussionHandlersLive = DiscussionRpcsWithMiddleware.toLayer(
             userId: authContext.user.id,
             documentContent: payload.documentContent,
           });
-          const discussion = yield* discussionRepo.create(discussionInsertData);
+          const { data: discussion } = yield* discussionRepo.create(discussionInsertData);
 
           // Create initial comment if contentRich provided
           if (payload.contentRich && payload.contentRich.length > 0) {

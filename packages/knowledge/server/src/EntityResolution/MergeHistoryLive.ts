@@ -25,7 +25,7 @@ export const MergeHistoryLive = Layer.effect(
           const id = KnowledgeEntityIds.MergeHistoryId.create();
           const now = yield* DateTime.now;
 
-          return yield* repo.insert({
+          const { data } = yield* repo.insert({
             id,
             organizationId: organizationId,
             sourceEntityId: params.sourceEntityId,
@@ -40,6 +40,7 @@ export const MergeHistoryLive = Layer.effect(
             updatedBy: O.some(currentUserId),
             deletedBy: O.none(),
           });
+          return data;
         }).pipe(
           Effect.withSpan($I`MergeHistory.recordMerge`, {
             attributes: {

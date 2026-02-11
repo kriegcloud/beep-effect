@@ -13,20 +13,57 @@
  * @category repos
  */
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import { DocumentsEntityIds } from "@beep/shared-domain";
+import type { DocumentsEntityIds } from "@beep/shared-domain";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
-import * as S from "effect/Schema";
-import * as Comment from "./Comment.model";
-import type { Get } from "./contracts";
+import type * as S from "effect/Schema";
+import type * as Comment from "./Comment.model";
+import type { ListByDiscussion, Update } from "./contracts";
 
 const $I = $DocumentsDomainId.create("entities/Comment/Comment.repo");
 
-const ListByDiscussionPayload = S.Struct({
-  discussionId: DocumentsEntityIds.DiscussionId,
-});
+export type RepoShape = DbRepo.DbRepoSuccess<
+  typeof Comment.Model,
+  {
+    /**
+     * List all comments for a discussion.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly listByDiscussion: DbRepo.Method<{
+      payload: typeof ListByDiscussion.Payload;
+      success: typeof ListByDiscussion.Success;
+    }>;
 
-const ListByDiscussionSuccess = S.Array(Comment.Model);
+    /**
+     * Update comment content (implementations typically set `isEdited = true`).
+     *
+     * `Get.Failure` is intentionally included to document the desired behavior:
+     * implementations should translate "missing row" into a typed not-found error
+     * rather than defecting.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly updateContent: DbRepo.Method<{
+      payload: typeof Update.Payload;
+      success: typeof Update.Success;
+      failure: typeof Update.Failure;
+    }>;
+
+    /**
+     * Hard delete a comment by id.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly hardDelete: DbRepo.Method<{
+      payload: typeof DocumentsEntityIds.CommentId;
+      success: typeof S.Void;
+    }>;
+  }
+>;
 
 /**
  * Comment repository service tag.
@@ -36,48 +73,4 @@ const ListByDiscussionSuccess = S.Array(Comment.Model);
  * @since 1.0.0
  * @category repos
  */
-export class Repo extends Context.Tag($I`Repo`)<
-  Repo,
-  DbRepo.DbRepoSuccess<
-    typeof Comment.Model,
-    {
-      /**
-       * List all comments for a discussion.
-       *
-       * @since 1.0.0
-       * @category repos
-       */
-      readonly listByDiscussion: DbRepo.Method<{
-        payload: typeof ListByDiscussionPayload;
-        success: typeof ListByDiscussionSuccess;
-      }>;
-
-      /**
-       * Update comment content (implementations typically set `isEdited = true`).
-       *
-       * `Get.Failure` is intentionally included to document the desired behavior:
-       * implementations should translate "missing row" into a typed not-found error
-       * rather than defecting.
-       *
-       * @since 1.0.0
-       * @category repos
-       */
-      readonly updateContent: DbRepo.Method<{
-        payload: typeof Comment.Model.update;
-        success: typeof Comment.Model;
-        failure: typeof Get.Failure;
-      }>;
-
-      /**
-       * Hard delete a comment by id.
-       *
-       * @since 1.0.0
-       * @category repos
-       */
-      readonly hardDelete: DbRepo.Method<{
-        payload: typeof DocumentsEntityIds.CommentId;
-        success: typeof S.Void;
-      }>;
-    }
-  >
->() {}
+export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}
