@@ -547,29 +547,6 @@
         "effect": "catalog:",
       },
     },
-    "packages/common/machine": {
-      "name": "@beep/machine",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/invariant": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/testkit": "workspace:^",
-        "@beep/types": "workspace:^",
-        "@effect/build-utils": "catalog:",
-        "@effect/docgen": "catalog:",
-        "@total-typescript/ts-reset": "catalog:",
-        "effect": "catalog:",
-      },
-      "peerDependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/invariant": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "@effect/platform": "catalog:",
-        "effect": "catalog:",
-      },
-    },
     "packages/common/schema": {
       "name": "@beep/schema",
       "version": "0.0.0",
@@ -1409,7 +1386,6 @@
       "name": "@beep/knowledge-domain",
       "version": "0.0.0",
       "devDependencies": {
-        "@beep/machine": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@effect/docgen": "catalog:",
@@ -1417,14 +1393,15 @@
         "@effect/sql": "catalog:",
         "@total-typescript/ts-reset": "catalog:",
         "effect": "catalog:",
+        "effect-machine": "catalog:",
       },
       "peerDependencies": {
-        "@beep/machine": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@effect/experimental": "catalog:",
         "@effect/sql": "catalog:",
         "effect": "catalog:",
+        "effect-machine": "catalog:",
       },
     },
     "packages/knowledge/server": {
@@ -1442,7 +1419,6 @@
         "@beep/google-workspace-domain": "workspace:^",
         "@beep/knowledge-domain": "workspace:^",
         "@beep/knowledge-tables": "workspace:^",
-        "@beep/machine": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-env": "workspace:^",
@@ -1467,7 +1443,6 @@
         "@beep/google-workspace-domain": "workspace:^",
         "@beep/knowledge-domain": "workspace:^",
         "@beep/knowledge-tables": "workspace:^",
-        "@beep/machine": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-env": "workspace:^",
@@ -1482,6 +1457,7 @@
         "@effect/sql-sqlite-bun": "catalog:",
         "drizzle-orm": "catalog:",
         "effect": "catalog:",
+        "effect-machine": "catalog:",
       },
     },
     "packages/knowledge/tables": {
@@ -2792,6 +2768,7 @@
     "drizzle-zero": "^0.17.3",
     "dub": "^0.71.2",
     "effect": "^3.19.16",
+    "effect-machine": "^0.6.0",
     "embla-carousel-react": "^8.6.0",
     "emoji-picker-react": "^4.18.0",
     "es-toolkit": "^1.44.0",
@@ -3317,8 +3294,6 @@
     "@beep/knowledge-tables": ["@beep/knowledge-tables@workspace:packages/knowledge/tables"],
 
     "@beep/knowledge-ui": ["@beep/knowledge-ui@workspace:packages/knowledge/ui"],
-
-    "@beep/machine": ["@beep/machine@workspace:packages/common/machine"],
 
     "@beep/marketing": ["@beep/marketing@workspace:apps/marketing"],
 
@@ -5543,6 +5518,8 @@
     "ee-first": ["ee-first@1.1.1", "", {}, "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="],
 
     "effect": ["effect@3.19.16", "", { "dependencies": { "@standard-schema/spec": "^1.0.0", "fast-check": "^3.23.1" } }, "sha512-7+XC3vGrbAhCHd8LTFHvnZjRpZKZ8YHRZqJTkpNoxcJ2mCyNs2SwI+6VkV/ij8Y3YW7wfBN4EbU06/F5+m/wkQ=="],
+
+    "effect-machine": ["effect-machine@0.6.0", "", { "dependencies": { "effect": "^3.19.16" }, "peerDependencies": { "@effect/cluster": "^0.56.0", "@effect/rpc": "^0.73.0" }, "optionalPeers": ["@effect/cluster", "@effect/rpc"] }, "sha512-srliHGIuTfRvOmZ4d0RT+s9Umkmva3sin2MpwA0+R4G0NXoOjf3lCOA3ZbG1YyNB+X72WKpSMSu6/JiAxiDYhQ=="],
 
     "ejs": ["ejs@3.1.10", "", { "dependencies": { "jake": "^10.8.5" }, "bin": { "ejs": "bin/cli.js" } }, "sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA=="],
 

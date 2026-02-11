@@ -168,9 +168,6 @@
       "path": "packages/integrations/google-workspace/client/tsconfig.build.json"
     },
     {
-      "path": "packages/common/machine/tsconfig.build.json"
-    },
-        {
       "path": "packages/common/semantic-web/tsconfig.build.json"
     }
   ]

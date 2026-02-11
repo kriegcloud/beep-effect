@@ -39,7 +39,6 @@
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/google-workspace-domain": "workspace:^",
-    "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/google-workspace-client": "workspace:^",
     "@beep/knowledge-domain": "workspace:^",
@@ -54,14 +53,14 @@
     "@effect/sql-pg": "catalog:",
     "@effect/sql-sqlite-bun": "catalog:",
     "drizzle-orm": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "effect-machine": "catalog:"
   },
   "devDependencies": {
     "@beep/testkit": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/google-workspace-domain": "workspace:^",
-    "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/google-workspace-client": "workspace:^",
     "@beep/knowledge-domain": "workspace:^",

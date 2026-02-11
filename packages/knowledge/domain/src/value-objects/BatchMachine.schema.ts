@@ -1,4 +1,4 @@
-import { Event, Slot, State } from "@beep/machine";
+import { Event, Slot, State } from "effect-machine";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
