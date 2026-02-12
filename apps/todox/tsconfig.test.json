@@ -147,9 +147,6 @@
       "path": "../../packages/customization/server"
     },
     {
-      "path": "../../packages/documents/server"
-    },
-    {
       "path": "../../packages/iam/server"
     },
     {
@@ -163,6 +160,9 @@
     },
     {
       "path": "../../packages/iam/ui"
+    },
+    {
+      "path": "../../packages/documents/server"
     }
   ],
   "compilerOptions": {

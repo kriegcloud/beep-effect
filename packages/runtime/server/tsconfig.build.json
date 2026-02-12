@@ -57,9 +57,6 @@
       "path": "../../../packages/customization/domain/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/documents/domain/tsconfig.build.json"
-    },
-    {
       "path": "../../../packages/integrations/google-workspace/server/tsconfig.build.json"
     },
     {
@@ -87,9 +84,6 @@
       "path": "../../../packages/customization/tables/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/documents/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../../packages/iam/tables/tsconfig.build.json"
     },
     {
@@ -105,13 +99,19 @@
       "path": "../../../packages/customization/server/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/documents/server/tsconfig.build.json"
-    },
-    {
       "path": "../../../packages/iam/server/tsconfig.build.json"
     },
     {
       "path": "../../../packages/knowledge/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/documents/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/documents/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/documents/tables/tsconfig.build.json"
     }
   ]
 }

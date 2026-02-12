@@ -144,9 +144,6 @@
       "path": "../../packages/customization/server/tsconfig.build.json"
     },
     {
-      "path": "../../packages/documents/server/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/iam/server/tsconfig.build.json"
     },
     {
@@ -160,6 +157,9 @@
     },
     {
       "path": "../../packages/iam/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/server/tsconfig.build.json"
     }
   ]
 }
