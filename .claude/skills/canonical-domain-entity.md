@@ -798,3 +798,54 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
     .addSuccess(Success, { status: 204 });
 }
 ```
+
+## Parallel Migration Coordination
+
+When migrating multiple entities concurrently with a swarm of agents, follow these coordination rules to prevent contention and data loss.
+
+### Barrel File Ownership
+
+**Rule: Only the ORCHESTRATOR updates barrel files. Agents MUST NOT modify `entities/index.ts`.**
+
+Agents create their entity directories and all files within, but leave the barrel file untouched. After all agents complete, the orchestrator updates the barrel in a single pass. This eliminates:
+- Race conditions where two agents overwrite each other's barrel changes
+- Partial updates where Agent A updates its entries but not Agent B's
+- Broken imports when old directories are deleted but the barrel still references them
+
+### Turn Budget Estimates
+
+Plan agent capacity based on entity complexity:
+
+| Entity Type | Tool Calls | Files Created | Recommended max_turns |
+|------------|-----------|--------------|----------------------|
+| Simple (CRUD-only, no custom methods) | ~20 | ~12 | 80 |
+| Custom methods (1-5 methods) | ~40-60 | ~15-20 | 120 |
+| Custom methods (6-10 methods) | ~80-100 | ~20-30 | 150 |
+| Legacy RPC + >10 methods | ~120-150 | ~25-40 | 200 |
+
+**Rule: Any entity with >8 custom methods gets its own dedicated agent.** Do not batch it with other entities.
+
+### Cleanup Protocol
+
+**Rule: Agents do NOT delete old directories. The orchestrator handles all cleanup.**
+
+Migration agents:
+1. Create new PascalCase directories with all canonical files
+2. Do NOT delete old kebab-case directories
+3. Do NOT modify the parent barrel file
+4. Report completion with list of files created
+
+Orchestrator cleanup (after all agents complete):
+1. Update barrel files to PascalCase paths
+2. Run import sweep: `grep -r 'from "@beep/<pkg>/entities/[a-z]' packages/`
+3. Fix any broken downstream imports
+4. Delete old kebab-case directories
+5. Run type verification on domain + all downstream packages
+
+### Pre-flight Checklist
+
+Before spawning migration agents, the orchestrator verifies:
+- [ ] All required EntityIds exist in the relevant EntityIds file
+- [ ] Current barrel file state is clean (no uncommitted changes)
+- [ ] Reference implementation (Comment entity) is accessible
+- [ ] Server repo files are readable for custom method signature extraction

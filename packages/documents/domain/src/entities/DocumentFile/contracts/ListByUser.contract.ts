@@ -43,7 +43,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
 ) {
   static readonly Rpc = Rpc.fromTaggedRequest(Contract);
   static readonly Tool = Tool.fromTaggedRequest(Contract);
-  static readonly Http = HttpApiEndpoint.get("ListByUser", "/by-user")
-    .setPayload(Payload)
-    .addSuccess(Success);
+  static readonly Http = HttpApiEndpoint.get("ListByUser", "/by-user").setPayload(Payload).addSuccess(Success);
 }

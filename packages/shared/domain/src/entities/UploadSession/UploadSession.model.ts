@@ -5,7 +5,7 @@ import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import { HmacSignature } from "../../services/EncryptionService/schemas";
-import * as File from "../file";
+import * as File from "../File";
 import { UploadSessionMetadata } from "./schemas";
 
 const $I = $SharedDomainId.create("entities/UploadSession/UploadSession.model");

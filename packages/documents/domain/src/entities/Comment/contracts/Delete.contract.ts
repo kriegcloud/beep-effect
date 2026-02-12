@@ -51,10 +51,7 @@ export class Success extends S.Void.annotations(
  * @since 1.0.0
  * @category errors
  */
-export const Failure = S.Union(
-  CommentErrors.CommentNotFoundError,
-  CommentErrors.CommentPermissionDeniedError,
-);
+export const Failure = S.Union(CommentErrors.CommentNotFoundError, CommentErrors.CommentPermissionDeniedError);
 
 /**
  * @since 1.0.0

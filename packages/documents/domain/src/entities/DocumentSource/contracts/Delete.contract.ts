@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   DocumentSourceErrors.DocumentSourceNotFoundError,
-  DocumentSourceErrors.DocumentSourcePermissionDeniedError,
+  DocumentSourceErrors.DocumentSourcePermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

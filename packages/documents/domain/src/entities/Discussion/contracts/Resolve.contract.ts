@@ -29,7 +29,7 @@ export class Success extends S.Class<Success>($I`Success`)(
 
 export const Failure = S.Union(
   DiscussionErrors.DiscussionNotFoundError,
-  DiscussionErrors.DiscussionAlreadyResolvedError,
+  DiscussionErrors.DiscussionAlreadyResolvedError
 );
 export type Failure = typeof Failure.Type;
 

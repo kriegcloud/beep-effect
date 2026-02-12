@@ -7,4 +7,4 @@ export class Rpcs extends RpcGroup.make(
   ListByDocument.Contract.Rpc,
   CreateSnapshot.Contract.Rpc,
   HardDelete.Contract.Rpc
-) {}
+).prefix("DocumentVersion_") {}

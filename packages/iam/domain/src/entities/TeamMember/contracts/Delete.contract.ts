@@ -17,7 +17,10 @@ export class Success extends S.Void.annotations(
   $I.annotations("Success", { description: "Success response for the Delete TeamMember contract." })
 ) {}
 
-export const Failure = S.Union(TeamMemberErrors.TeamMemberNotFoundError, TeamMemberErrors.TeamMemberPermissionDeniedError);
+export const Failure = S.Union(
+  TeamMemberErrors.TeamMemberNotFoundError,
+  TeamMemberErrors.TeamMemberPermissionDeniedError
+);
 export type Failure = typeof Failure.Type;
 
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(

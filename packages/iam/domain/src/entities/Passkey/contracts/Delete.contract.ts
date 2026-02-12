@@ -17,10 +17,7 @@ export class Success extends S.Void.annotations(
   $I.annotations("Success", { description: "Success response for the Delete Passkey contract." })
 ) {}
 
-export const Failure = S.Union(
-  PasskeyErrors.PasskeyNotFoundError,
-  PasskeyErrors.PasskeyPermissionDeniedError,
-);
+export const Failure = S.Union(PasskeyErrors.PasskeyNotFoundError, PasskeyErrors.PasskeyPermissionDeniedError);
 export type Failure = typeof Failure.Type;
 
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(

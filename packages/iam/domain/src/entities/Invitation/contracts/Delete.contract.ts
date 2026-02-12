@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   InvitationErrors.InvitationNotFoundError,
-  InvitationErrors.InvitationPermissionDeniedError,
+  InvitationErrors.InvitationPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

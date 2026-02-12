@@ -14,7 +14,6 @@
  */
 import { PageType } from "@beep/documents-domain/value-objects";
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
 import { DocumentsEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -35,7 +34,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     parentId: DocumentsEntityIds.PageId,
     type: S.optionalWith(PageType, { as: "Option" }),
     cursor: S.optionalWith(S.String, { as: "Option" }),
-    limit: S.optionalWith(BS.PosInt, { as: "Option" }),
+    limit: S.optionalWith(S.NumberFromString.pipe(S.int(), S.positive()), { as: "Option" }),
   },
   $I.annotations("Payload", {
     description: "Payload for the ListChildren Page contract.",
@@ -51,7 +50,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
 export class Success extends S.Class<Success>($I`Success`)(
   {
     data: S.Array(Page.Model.json),
-    nextCursor: BS.FieldOptionOmittable(S.String),
+    nextCursor: S.optionalWith(S.String, { as: "Option" }),
     hasMore: S.Boolean,
   },
   $I.annotations("Success", {
@@ -112,7 +111,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Http = HttpApiEndpoint.get("ListChildren", "/children")
-    .setPayload(Payload)
-    .addSuccess(Success);
+  static readonly Http = HttpApiEndpoint.get("ListChildren", "/children").setPayload(Payload).addSuccess(Success);
 }

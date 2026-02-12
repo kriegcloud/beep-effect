@@ -35,7 +35,7 @@ export class Model extends M.Class<Model>($I`CommentModel`)(
     userId: SharedEntityIds.UserId,
     content: S.String,
     contentRich: BS.FieldOptionOmittable(SerializedEditorStateEnvelope),
-    isEdited:  BS.BoolWithDefault(false),
+    isEdited: BS.BoolWithDefault(false),
   }),
   $I.annotations("CommentModel", {
     description: "Comment model representing individual comments within discussions.",
@@ -43,4 +43,3 @@ export class Model extends M.Class<Model>($I`CommentModel`)(
 ) {
   static readonly utils = modelKit(Model);
 }
-

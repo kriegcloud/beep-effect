@@ -13,9 +13,9 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     query: S.String,
     organizationId: SharedEntityIds.OrganizationId,
     userId: S.optional(SharedEntityIds.UserId),
-    includeArchived: S.optional(S.Boolean),
-    limit: S.optional(S.Int.pipe(S.positive())),
-    offset: S.optional(S.Int.pipe(S.nonNegative())),
+    includeArchived: S.optional(S.BooleanFromString),
+    limit: S.optional(S.NumberFromString.pipe(S.int(), S.positive())),
+    offset: S.optional(S.NumberFromString.pipe(S.int(), S.nonNegative())),
   },
   $I.annotations("Payload", {
     description: "Payload for the Search Document Contract.",
@@ -47,7 +47,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
 ) {
   static readonly Rpc = Rpc.fromTaggedRequest(Contract);
   static readonly Tool = Tool.fromTaggedRequest(Contract);
-  static readonly Http = HttpApiEndpoint.get("Search", "/search")
-    .setPayload(Payload)
-    .addSuccess(Success);
+  static readonly Http = HttpApiEndpoint.get("Search", "/search").setPayload(Payload).addSuccess(Success);
 }

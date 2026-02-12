@@ -26,11 +26,14 @@ export class CommentRepo extends Effect.Service<CommentRepo>()($I`CommentRepo`, 
      */
     const findByIdOrFail = (
       id: DocumentsEntityIds.CommentId.Type
-    ): Effect.Effect<typeof Entities.Comment.Model.Type, Comment.CommentNotFoundError | DbClient.DatabaseError> =>
+    ): Effect.Effect<
+      typeof Entities.Comment.Model.Type,
+      Comment.CommentErrors.CommentNotFoundError | DbClient.DatabaseError
+    > =>
       baseRepo.findById({ id }).pipe(
         Effect.flatMap(
           O.match({
-            onNone: () => Effect.fail(new Comment.CommentNotFoundError({ id })),
+            onNone: () => new Comment.CommentErrors.CommentNotFoundError({ id }),
             onSome: ({ data }) => Effect.succeed(data),
           })
         ),

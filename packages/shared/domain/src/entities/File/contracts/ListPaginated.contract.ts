@@ -4,16 +4,16 @@ import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
+import * as Folder from "../../Folder";
 import * as File from "../File.model";
-import * as Folder from "../../folder";
 
 const $I = $SharedDomainId.create("entities/File/contracts/ListPaginated.contract");
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     userId: SharedEntityIds.UserId,
-    offset: S.NonNegativeInt,
-    limit: S.NonNegativeInt,
+    offset: S.NumberFromString.pipe(S.int(), S.nonNegative()),
+    limit: S.NumberFromString.pipe(S.int(), S.nonNegative()),
   },
   $I.annotations("Payload", {
     description: "Payload for the ListPaginated File contract.",
@@ -50,7 +50,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
 ) {
   static readonly Rpc = Rpc.fromTaggedRequest(Contract);
   static readonly Tool = Tool.fromTaggedRequest(Contract);
-  static readonly Http = HttpApiEndpoint.get("ListPaginatedFiles", "/")
-    .setPayload(Payload)
-    .addSuccess(Success);
+  static readonly Http = HttpApiEndpoint.get("ListPaginatedFiles", "/").setPayload(Payload).addSuccess(Success);
 }

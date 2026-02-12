@@ -1,7 +1,7 @@
 import { $SharedDomainId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as S from "effect/Schema";
-import * as File from "../file";
+import * as File from "../File";
 
 const $I = $SharedDomainId.create("entities/UploadSession/UploadSession.errors");
 
@@ -39,9 +39,5 @@ export class UploadSessionRepoError extends S.TaggedError<UploadSessionRepoError
   })
 ) {}
 
-export const Errors = S.Union(
-  UploadSessionNotFoundError,
-  UploadSessionPermissionDeniedError,
-  UploadSessionRepoError,
-);
+export const Errors = S.Union(UploadSessionNotFoundError, UploadSessionPermissionDeniedError, UploadSessionRepoError);
 export type Errors = typeof Errors.Type;

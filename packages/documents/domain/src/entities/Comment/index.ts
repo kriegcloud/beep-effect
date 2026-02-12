@@ -20,10 +20,10 @@
  * @category entities
  */
 export * from "./Comment.entity";
+export * as CommentErrors from "./Comment.errors";
 export * from "./Comment.http";
 export * from "./Comment.model";
 export * from "./Comment.repo";
-export * from "./Comment.tool";
-export * as CommentErrors from "./Comment.errors";
 export * as Rpcs from "./Comment.rpc";
+export * from "./Comment.tool";
 export * as Contracts from "./contracts";

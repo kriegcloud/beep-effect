@@ -1,14 +1,13 @@
-import {$SchemaId} from "@beep/identity/packages";
-import {invariant } from "@beep/invariant";
+import { $SchemaId } from "@beep/identity/packages";
+import { invariant } from "@beep/invariant";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import {StringLiteralKit} from "../derived";
+import { StringLiteralKit } from "../derived";
 
 const $I = $SchemaId.create("primitives/Temperature");
-
 
 /** @internal */
 type Split<S extends string, Delimiter extends string> = string extends S | ""
@@ -18,24 +17,14 @@ type Split<S extends string, Delimiter extends string> = string extends S | ""
     : [S];
 
 /** @internal */
-const splitLiteral = <S extends string, Delimiter extends string>(
-  str: S,
-  delimiter: Delimiter,
-): Split<S, Delimiter> => Str.split(delimiter)(str) as Split<S, Delimiter>;
+const splitLiteral = <S extends string, Delimiter extends string>(str: S, delimiter: Delimiter): Split<S, Delimiter> =>
+  Str.split(delimiter)(str) as Split<S, Delimiter>;
 
-export class TemperatureUnit extends StringLiteralKit(
-  "c",
-  "f",
-  "k",
-).annotations(
-  $I.annotations(
-    "TemperatureUnit",
-    {
-      description: "Unit of temperature measurement: Celsius (c), Fahrenheit (f), or Kelvin (k)",
-    }
-  )
-) {
-}
+export class TemperatureUnit extends StringLiteralKit("c", "f", "k").annotations(
+  $I.annotations("TemperatureUnit", {
+    description: "Unit of temperature measurement: Celsius (c), Fahrenheit (f), or Kelvin (k)",
+  })
+) {}
 
 export declare namespace TemperatureUnit {
   export type Type = typeof TemperatureUnit.Type;
@@ -50,8 +39,7 @@ export class Kelvin extends S.Number.pipe(S.greaterThanOrEqualTo(0), S.brand("Ke
   $I.annotations("Kelvin", {
     description: "Temperature in Kelvin (absolute scale), must be >= 0.",
   })
-) {
-}
+) {}
 
 export declare namespace Kelvin {
   export type Type = typeof Kelvin.Type;
@@ -66,8 +54,7 @@ export class Celsius extends S.Number.pipe(S.greaterThanOrEqualTo(-273.15), S.br
   $I.annotations("Celsius", {
     description: "Temperature in Celsius, must be >= -273.15 (absolute zero).",
   })
-) {
-}
+) {}
 
 export declare namespace Celsius {
   export type Type = typeof Celsius.Type;
@@ -82,8 +69,7 @@ export class Fahrenheit extends S.Number.pipe(S.greaterThanOrEqualTo(-459.67), S
   $I.annotations("Fahrenheit", {
     description: "Temperature in Fahrenheit, must be >= -459.67 (absolute zero).",
   })
-) {
-}
+) {}
 
 export declare namespace Fahrenheit {
   export type Type = typeof Fahrenheit.Type;
@@ -131,15 +117,19 @@ export class Temperature extends S.Union(Kelvin, Celsius, Fahrenheit).annotation
    * @since 1.0.0
    * @category Temperature Conversions
    */
-  public static readonly CelsiusToFahrenheit: (c: S.Schema.Type<Celsius>) => S.Schema.Type<Fahrenheit> =
-    F.compose(Temperature.celsiusToKelvin, Temperature.kelvinToFahrenheit);
+  public static readonly CelsiusToFahrenheit: (c: S.Schema.Type<Celsius>) => S.Schema.Type<Fahrenheit> = F.compose(
+    Temperature.celsiusToKelvin,
+    Temperature.kelvinToFahrenheit
+  );
 
   /**
    * @since 1.0.0
    * @category Temperature Conversions
    */
-  public static readonly FahrenheitToCelsius: (k: S.Schema.Type<Fahrenheit>) => S.Schema.Type<Celsius> =
-    F.compose(Temperature.fahrenheitToKelvin, Temperature.kelvinToCelsius);
+  public static readonly FahrenheitToCelsius: (k: S.Schema.Type<Fahrenheit>) => S.Schema.Type<Celsius> = F.compose(
+    Temperature.fahrenheitToKelvin,
+    Temperature.kelvinToCelsius
+  );
 }
 
 export declare namespace Temperature {
@@ -151,22 +141,17 @@ export declare namespace Temperature {
  * @since 1.0.0
  * @category Temperature Schemas
  */
-export class KelvinFromString extends S.transform(
-  S.TemplateLiteral(S.Number, "k"),
-  Kelvin,
-  {
-    encode: (value: number) => `${value}k` as const,
-    decode: (valueStr: `${number}k`) => {
-      const [value] = splitLiteral(valueStr, "k");
-      return Number(value);
-    },
+export class KelvinFromString extends S.transform(S.TemplateLiteral(S.Number, "k"), Kelvin, {
+  encode: (value: number) => `${value}k` as const,
+  decode: (valueStr: `${number}k`) => {
+    const [value] = splitLiteral(valueStr, "k");
+    return Number(value);
   },
-).annotations(
+}).annotations(
   $I.annotations("KelvinFromString", {
     description: "Transforms a template literal string like '273.15k' into a branded Kelvin value.",
   })
-) {
-}
+) {}
 
 export declare namespace KelvinFromString {
   export type Type = typeof KelvinFromString.Type;
@@ -177,22 +162,17 @@ export declare namespace KelvinFromString {
  * @since 1.0.0
  * @category Temperature Schemas
  */
-export class CelsiusFromString extends S.transform(
-  S.TemplateLiteral(S.Number, S.Literal("c")),
-  Celsius,
-  {
-    encode: (value: number) => `${value}c` as const,
-    decode: (valueStr: `${number}c`) => {
-      const [value] = splitLiteral(valueStr, "c");
-      return Number(value);
-    },
+export class CelsiusFromString extends S.transform(S.TemplateLiteral(S.Number, S.Literal("c")), Celsius, {
+  encode: (value: number) => `${value}c` as const,
+  decode: (valueStr: `${number}c`) => {
+    const [value] = splitLiteral(valueStr, "c");
+    return Number(value);
   },
-).annotations(
+}).annotations(
   $I.annotations("CelsiusFromString", {
     description: "Transforms a template literal string like '25c' into a branded Celsius value.",
   })
-) {
-}
+) {}
 
 export declare namespace CelsiusFromString {
   export type Type = typeof CelsiusFromString.Type;
@@ -203,22 +183,17 @@ export declare namespace CelsiusFromString {
  * @since 1.0.0
  * @category Temperature Schemas
  */
-export class FahrenheitFromString extends S.transform(
-  S.TemplateLiteral(S.Number, S.Literal("f")),
-  Fahrenheit,
-  {
-    encode: (value: number) => `${value}f` as const,
-    decode: (valueStr: `${number}f`) => {
-      const [value] = splitLiteral(valueStr, "f");
-      return Number(value);
-    },
+export class FahrenheitFromString extends S.transform(S.TemplateLiteral(S.Number, S.Literal("f")), Fahrenheit, {
+  encode: (value: number) => `${value}f` as const,
+  decode: (valueStr: `${number}f`) => {
+    const [value] = splitLiteral(valueStr, "f");
+    return Number(value);
   },
-).annotations(
+}).annotations(
   $I.annotations("FahrenheitFromString", {
     description: "Transforms a template literal string like '98.6f' into a branded Fahrenheit value.",
   })
-) {
-}
+) {}
 
 export declare namespace FahrenheitFromString {
   export type Type = typeof FahrenheitFromString.Type;
@@ -235,11 +210,11 @@ export class TemperatureFromString extends S.transformOrFail(
   {
     encode: (value) => ParseResult.succeed(`${value}k` as const),
     decode: (valueStr: `${number}c` | `${number}f` | `${number}k`) => {
-      const unit = Str.slice(-1)(valueStr)
+      const unit = Str.slice(-1)(valueStr);
       invariant(S.is(TemperatureUnit)(unit), "Invalid temperature unit", {
         file: "@beep/schema/primitives/Temperature.ts",
         line: 176,
-        args: [unit]
+        args: [unit],
       });
 
       const [value] = splitLiteral(valueStr, unit);
@@ -249,15 +224,14 @@ export class TemperatureFromString extends S.transformOrFail(
         Match.when("c", () => ParseResult.succeed(Temperature.celsiusToKelvin(Celsius.make(num)))),
         Match.when("f", () => ParseResult.succeed(Temperature.fahrenheitToKelvin(Fahrenheit.make(num)))),
         Match.exhaustive
-      )
+      );
     },
-  },
+  }
 ).annotations(
   $I.annotations("TemperatureFromString", {
     description: "Parses a unit-suffixed temperature string (e.g. '25c', '77f', '300k') and normalizes to Kelvin.",
   })
-) {
-}
+) {}
 
 export declare namespace TemperatureFromString {
   export type Type = typeof TemperatureFromString.Type;

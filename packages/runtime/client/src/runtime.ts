@@ -9,7 +9,10 @@ export const makeAtomRuntime = Atom.context({
   memoMap: Atom.defaultMemoMap,
 });
 makeAtomRuntime.addGlobalLayer(clientRuntimeLayer);
-export const clientRuntime = ManagedRuntime.make(clientRuntimeLayer);
+export const clientRuntime: ManagedRuntime.ManagedRuntime<
+  Layer.Layer.Success<ClientRuntimeLayer>,
+  never
+> = ManagedRuntime.make(clientRuntimeLayer);
 
 // ============================================================================
 // Runtime helpers

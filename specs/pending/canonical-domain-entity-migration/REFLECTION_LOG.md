@@ -121,6 +121,48 @@ After each phase, document:
 - **Better-Auth adapter has a single direct entity import**: `Options.ts` imports `@beep/iam-domain/entities/Member` directly for its `MemberRoleEnum` usage. All other server files use the barrel.
 - **23 entities fully canonical**: Account, ApiKey, DeviceCode, Invitation, Jwks, Member, OrganizationRole, Passkey, RateLimit, ScimProvider, SsoProvider, Subscription, TeamMember, TwoFactor, Verification, WalletAddress, OAuthAccessToken, OAuthClient, OAuthConsent, OAuthRefreshToken, CalendarEvent, EmailTemplate, UserHotkey.
 
+### Phase 3: Wave 2 Shared + Documents Entity Migration (2026-02-12)
+
+**Duration**: ~35 minutes total (swarm execution + cleanup + verification)
+**Scope**: 14 entities (8 Shared + 6 Documents), ~194 files created, 65 contracts, 41 custom repo method extensions
+
+#### 1. What Worked
+
+- **4-agent swarm with complexity-based batching**: Splitting entities into simple (6), custom-repo (3), bare-docs (2), and legacy-RPC (3) batches let agents work at appropriate difficulty levels. Batches 1-3 completed without issues.
+- **Embedded before/after code patterns in agent prompts**: Agents produced correct error annotations, repo contracts, and contract files on first pass when templates were embedded directly.
+- **Dedicated cleanup agent with bypassPermissions**: After all agents completed, a single cleanup agent handled old directory deletion, import path fixes, and verification in one pass. This was cleaner than asking each agent to handle its own cleanup.
+- **Central import sweep by orchestrator**: Running `grep -r 'from "@beep/<pkg>/entities/[a-z]' packages/` ONCE after all agents finished caught all 4 remaining broken imports, vs fragmented per-agent sweeps that missed cross-package references.
+
+#### 2. What Didn't Work
+
+- **Barrel file contention**: Two agents (`simple-shared` and `custom-shared`) both needed to update `packages/shared/domain/src/entities/index.ts`. `custom-shared` deferred to `simple-shared`, but `simple-shared` only updated its own 5 entries, leaving File/Folder/UploadSession at lowercase `./file`, `./folder`, `./upload-session`. The old directories were then deleted, creating broken imports that persisted into the commit. **Root cause**: No explicit barrel ownership rule.
+- **Agent turn exhaustion on Document entity**: The `docs-legacy` agent ran out of turns mid-Document (13 custom methods, 16 contracts, 27 files). Discussion and DocumentVersion completed fine, but Document required a manual follow-up message listing exactly what files were missing. The 3-entity batch was too heavy — Document alone needed more turns than the other two combined.
+- **`rm -rf` universally denied by permission policy**: All 4 agents had directory deletion denied. This is a predictable friction point that added latency and required workarounds. Future phases should use `mode: bypassPermissions` for agents that need to delete directories, OR handle all cleanup centrally.
+- **docs-bare barrel update conflicted with docs-legacy**: Both agents updated `packages/documents/domain/src/entities/index.ts`. The second agent to write it overwrote the first's changes, requiring manual reconciliation.
+
+#### 3. Methodology Improvements
+
+- **Single barrel owner rule**: The ORCHESTRATOR must update barrel files AFTER all agents complete. Agents MUST NOT modify barrel files. This eliminates contention entirely and prevents the partial-update bug from Phase 3.
+- **Entity complexity budget**: Any entity with >8 custom methods should get its own dedicated agent. Document (13 methods) should never share a batch with other entities.
+- **Turn budget by complexity**: Estimate ~4 tool calls per simple entity, ~15 per custom-method entity, ~25 per legacy RPC entity. Use `max_turns` parameter for complex batches.
+- **Cleanup as explicit orchestrator step**: Remove all "delete old directories" instructions from agent prompts. Add explicit "Step 5: Cleanup" in orchestrator that spawns a single cleanup agent with `bypassPermissions`.
+- **Pre-flight EntityId verification**: Before spawning agents, orchestrator verifies all required EntityIds exist and reads barrel files to confirm starting state.
+
+#### 4. Prompt Refinements
+
+- Agent prompts should explicitly state: "Do NOT modify the barrel file (entities/index.ts). The orchestrator handles barrel updates."
+- Include `max_turns: 150` for agents handling entities with >5 custom methods.
+- For legacy RPC entities, include the exact list of inline types to extract: "Extract `DiscussionWithComments` to `schemas/DiscussionWithComments.schema.ts`" — this saves agents from having to discover the inline types themselves.
+- When an agent gets a follow-up message listing missing files, it completes successfully. Proactive "you still need X, Y, Z" messages are more effective than asking "what's your status?"
+
+#### 5. Codebase-Specific Insights
+
+- **File/Folder/UploadSession have schema dependencies on Organization**: The `UploadKey.schema.ts` imports from `../Organization`. When `simple-shared` renamed `organization/` to `Organization/`, it needed to fix these cross-entity references within the shared domain.
+- **Documents legacy RPC files define inline response types**: `DiscussionWithComments`, `VersionWithAuthorSchema`, `SearchResultSchema` are all defined inline in `.rpc.ts` files. These must be extracted to `schemas/` directories before the RPC files can be replaced.
+- **Documents error files use `HttpApiSchema.annotations({ status: N })`**: These need migration to `$I.annotationsHttp("ErrorName", { status: N, description: "..." })`. The migration is mechanical but error-prone if agents don't read the existing error files first.
+- **Cross-slice repo pattern confirmed**: User/Organization/Session/Team domain models in `@beep/shared-domain` with server repos in `@beep/iam-server`. The repo CONTRACT goes in domain, the IMPLEMENTATION stays in server. This pattern will repeat for Knowledge entities.
+- **14 entities fully canonical (Phase 3)**: AuditLog, Organization, Session, Team, User, File, Folder, UploadSession, PageShare, DocumentFile, DocumentSource, Discussion, DocumentVersion, Document. Combined with Phase 2's 23, total is now 37 of 58.
+
 ---
 
 ---

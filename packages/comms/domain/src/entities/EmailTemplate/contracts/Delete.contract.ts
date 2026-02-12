@@ -19,7 +19,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   EmailTemplateErrors.EmailTemplateNotFoundError,
-  EmailTemplateErrors.EmailTemplatePermissionDeniedError,
+  EmailTemplateErrors.EmailTemplatePermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

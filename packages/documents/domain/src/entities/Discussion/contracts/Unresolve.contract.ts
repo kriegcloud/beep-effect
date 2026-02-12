@@ -27,10 +27,7 @@ export class Success extends S.Class<Success>($I`Success`)(
   })
 ) {}
 
-export const Failure = S.Union(
-  DiscussionErrors.DiscussionNotFoundError,
-  DiscussionErrors.DiscussionNotResolvedError,
-);
+export const Failure = S.Union(DiscussionErrors.DiscussionNotFoundError, DiscussionErrors.DiscussionNotResolvedError);
 export type Failure = typeof Failure.Type;
 
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(

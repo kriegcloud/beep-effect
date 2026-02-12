@@ -12,8 +12,7 @@ export const DiscussionWithComments = S.Struct({
   comments: S.Array(
     S.Struct({
       user: User.Model.select.pick("image", "name", "id", "_rowId"),
-      ...Comment.Model.select
-        .pick("id", "_rowId", "contentRich", "createdAt", "discussionId", "isEdited", "updatedAt")
+      ...Comment.Model.select.pick("id", "_rowId", "contentRich", "createdAt", "discussionId", "isEdited", "updatedAt")
         .fields,
     })
   ),

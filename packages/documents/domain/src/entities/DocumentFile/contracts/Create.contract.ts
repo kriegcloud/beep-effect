@@ -1,5 +1,4 @@
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -13,7 +12,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     organizationId: SharedEntityIds.OrganizationId,
     userId: SharedEntityIds.UserId,
-    documentId: BS.FieldOptionOmittable(DocumentsEntityIds.DocumentId),
+    documentId: S.optionalWith(DocumentsEntityIds.DocumentId, { as: "Option" }),
     size: S.Int,
     url: S.String,
     appUrl: S.String,
@@ -49,7 +48,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
 ) {
   static readonly Rpc = Rpc.fromTaggedRequest(Contract);
   static readonly Tool = Tool.fromTaggedRequest(Contract);
-  static readonly Http = HttpApiEndpoint.post("Create", "/")
-    .setPayload(Payload)
-    .addSuccess(Success, { status: 201 });
+  static readonly Http = HttpApiEndpoint.post("Create", "/").setPayload(Payload).addSuccess(Success, { status: 201 });
 }

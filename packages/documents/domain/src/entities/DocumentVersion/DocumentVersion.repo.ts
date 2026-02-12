@@ -2,8 +2,8 @@ import { $DocumentsDomainId } from "@beep/identity/packages";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
 import type * as S from "effect/Schema";
-import type * as DocumentVersion from "./DocumentVersion.model";
 import type { CreateSnapshot, Get, GetContent, HardDelete, ListByDocument } from "./contracts";
+import type * as DocumentVersion from "./DocumentVersion.model";
 
 const $I = $DocumentsDomainId.create("entities/DocumentVersion/DocumentVersion.repo");
 

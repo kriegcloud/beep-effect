@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   DeviceCodeErrors.DeviceCodeNotFoundError,
-  DeviceCodeErrors.DeviceCodePermissionDeniedError,
+  DeviceCodeErrors.DeviceCodePermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

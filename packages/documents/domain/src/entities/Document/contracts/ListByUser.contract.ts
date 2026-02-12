@@ -13,7 +13,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     userId: SharedEntityIds.UserId,
     organizationId: SharedEntityIds.OrganizationId,
     cursor: S.optional(DocumentsEntityIds.DocumentId),
-    limit: S.optional(S.Int.pipe(S.positive())),
+    limit: S.optional(S.NumberFromString.pipe(S.int(), S.positive())),
   },
   $I.annotations("Payload", {
     description: "Payload for the ListByUser Document Contract.",
@@ -45,7 +45,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
 ) {
   static readonly Rpc = Rpc.fromTaggedRequest(Contract);
   static readonly Tool = Tool.fromTaggedRequest(Contract);
-  static readonly Http = HttpApiEndpoint.get("ListByUser", "/by-user")
-    .setPayload(Payload)
-    .addSuccess(Success);
+  static readonly Http = HttpApiEndpoint.get("ListByUser", "/by-user").setPayload(Payload).addSuccess(Success);
 }

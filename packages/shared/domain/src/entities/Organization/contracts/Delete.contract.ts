@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   OrganizationErrors.OrganizationNotFoundError,
-  OrganizationErrors.OrganizationPermissionDeniedError,
+  OrganizationErrors.OrganizationPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

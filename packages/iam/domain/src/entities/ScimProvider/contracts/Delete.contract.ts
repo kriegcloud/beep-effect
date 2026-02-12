@@ -19,7 +19,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   ScimProviderErrors.ScimProviderNotFoundError,
-  ScimProviderErrors.ScimProviderPermissionDeniedError,
+  ScimProviderErrors.ScimProviderPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

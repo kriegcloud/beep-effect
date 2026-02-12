@@ -14,7 +14,6 @@
  */
 import { PageType } from "@beep/documents-domain/value-objects";
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -35,9 +34,9 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     query: S.String,
     organizationId: SharedEntityIds.OrganizationId,
     type: S.optionalWith(PageType, { as: "Option" }),
-    includeArchived: S.optionalWith(S.Boolean, { as: "Option" }),
+    includeArchived: S.optionalWith(S.BooleanFromString, { as: "Option" }),
     cursor: S.optionalWith(S.String, { as: "Option" }),
-    limit: S.optionalWith(BS.PosInt, { as: "Option" }),
+    limit: S.optionalWith(S.NumberFromString.pipe(S.int(), S.positive()), { as: "Option" }),
   },
   $I.annotations("Payload", {
     description: "Payload for the Search Page contract.",
@@ -53,7 +52,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
 export class Success extends S.Class<Success>($I`Success`)(
   {
     data: S.Array(Page.Model.json),
-    nextCursor: BS.FieldOptionOmittable(S.String),
+    nextCursor: S.optionalWith(S.String, { as: "Option" }),
     hasMore: S.Boolean,
   },
   $I.annotations("Success", {
@@ -114,7 +113,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Http = HttpApiEndpoint.get("Search", "/search")
-    .setPayload(Payload)
-    .addSuccess(Success);
+  static readonly Http = HttpApiEndpoint.get("Search", "/search").setPayload(Payload).addSuccess(Success);
 }

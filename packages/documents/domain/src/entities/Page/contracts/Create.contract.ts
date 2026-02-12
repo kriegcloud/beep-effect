@@ -52,10 +52,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @since 1.0.0
  * @category errors
  */
-export const Failure = S.Union(
-  PageErrors.PageNotFound,
-  PageErrors.PageLocked,
-);
+export const Failure = S.Union(PageErrors.PageNotFound, PageErrors.PageLocked);
 
 /**
  * @since 1.0.0

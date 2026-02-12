@@ -16,7 +16,7 @@ export class Model extends M.Class<Model>($I`DocumentVersionModel`)(
     userId: SharedEntityIds.UserId,
     title: BS.FieldOptionOmittable(S.String.pipe(S.maxLength(500))),
     content: S.optionalWith(S.String, { default: () => "" }),
-    contentRich: BS.FieldOptionOmittable(SerializedEditorStateEnvelope),
+    contentRich: BS.JsonFromStringOption(SerializedEditorStateEnvelope),
   }),
   $I.annotations("DocumentVersionModel", {
     description: "Document version model representing version history for documents.",

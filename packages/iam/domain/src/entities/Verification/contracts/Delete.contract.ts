@@ -19,7 +19,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   VerificationErrors.VerificationNotFoundError,
-  VerificationErrors.VerificationPermissionDeniedError,
+  VerificationErrors.VerificationPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

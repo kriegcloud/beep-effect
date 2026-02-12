@@ -1,5 +1,4 @@
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -15,7 +14,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     providerAccountId: IamEntityIds.AccountId,
     sourceType: S.String,
     sourceId: S.String,
-    includeDeleted: BS.BoolWithDefault(false),
+    includeDeleted: S.optionalWith(S.BooleanFromString, { default: () => false }),
   },
   $I.annotations("Payload", {
     description: "Payload for the FindByMappingKey DocumentSource contract.",
@@ -24,10 +23,11 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
 
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    data: BS.FieldOptionOmittable(DocumentSource.Model.json),
+    data: S.optionalWith(DocumentSource.Model.json, { as: "Option" }),
   },
   $I.annotations("Success", {
-    description: "Success response for the FindByMappingKey DocumentSource contract. Data is absent when no matching source exists.",
+    description:
+      "Success response for the FindByMappingKey DocumentSource contract. Data is absent when no matching source exists.",
   })
 ) {}
 

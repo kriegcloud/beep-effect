@@ -1,8 +1,8 @@
 import { $DocumentsDomainId } from "@beep/identity/packages";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
-import type * as DocumentFile from "./DocumentFile.model";
 import type { Create, Get, HardDelete, ListByDocument, ListByUser } from "./contracts";
+import type * as DocumentFile from "./DocumentFile.model";
 
 const $I = $DocumentsDomainId.create("entities/DocumentFile/DocumentFile.repo");
 
@@ -11,7 +11,7 @@ export type RepoShape = DbRepo.DbRepoSuccess<
   {
     readonly findByIdOrFail: DbRepo.Method<{
       payload: typeof Get.Payload;
-      success: DocumentFile.Model;
+      success: typeof DocumentFile.Model;
       failure: typeof Get.Failure;
     }>;
     readonly listByDocument: DbRepo.Method<{

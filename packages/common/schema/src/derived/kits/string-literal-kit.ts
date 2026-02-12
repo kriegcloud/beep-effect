@@ -361,7 +361,6 @@ const buildIsGuards = <Literals extends LiteralsType>(literals: Literals): IsGua
   return R.fromEntries(entries) as IsGuards<Literals>;
 };
 
-
 // const buildMakeFn = <Literals extends LiteralsType>(literals: Literals):
 
 /**

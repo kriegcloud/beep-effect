@@ -1,5 +1,4 @@
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -14,7 +13,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     organizationId: SharedEntityIds.OrganizationId,
     documentId: DocumentsEntityIds.DocumentId,
-    title: BS.FieldOptionOmittable(S.String.pipe(S.maxLength(500))),
+    title: S.optionalWith(S.String.pipe(S.maxLength(500)), { as: "Option" }),
     content: S.optional(S.String),
     contentRich: S.optional(SerializedEditorStateEnvelope),
   },

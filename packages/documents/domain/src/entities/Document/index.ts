@@ -1,9 +1,9 @@
+export * as Contracts from "./contracts";
 export * from "./Document.entity";
+export * as DocumentErrors from "./Document.errors";
 export * from "./Document.http";
 export * from "./Document.model";
 export * from "./Document.repo";
-export * from "./Document.tool";
-export * as DocumentErrors from "./Document.errors";
 export * as Rpcs from "./Document.rpc";
-export * as Contracts from "./contracts";
+export * from "./Document.tool";
 export * as Schemas from "./schemas";

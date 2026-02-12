@@ -19,12 +19,13 @@
  * @since 1.0.0
  * @category entities
  */
+
+export * as Contracts from "./contracts";
 export * from "./Page.entity";
+export * as PageErrors from "./Page.errors";
 export * from "./Page.http";
 export * from "./Page.model";
 export * from "./Page.repo";
+export * as Rpcs from "./Page.rpc";
 export * from "./Page.tool";
 export * from "./Page.values";
-export * as PageErrors from "./Page.errors";
-export * as Rpcs from "./Page.rpc";
-export * as Contracts from "./contracts";

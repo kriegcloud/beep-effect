@@ -19,7 +19,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   UserHotkeyErrors.UserHotkeyNotFoundError,
-  UserHotkeyErrors.UserHotkeyPermissionDeniedError,
+  UserHotkeyErrors.UserHotkeyPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

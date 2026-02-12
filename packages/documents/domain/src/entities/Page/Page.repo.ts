@@ -16,7 +16,6 @@ import { $DocumentsDomainId } from "@beep/identity/packages";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
 import type * as S from "effect/Schema";
-import type * as Page from "./Page.model";
 import type {
   Archive,
   Breadcrumbs,
@@ -35,6 +34,7 @@ import type {
   UnPublish,
   Update,
 } from "./contracts";
+import type * as Page from "./Page.model";
 
 const $I = $DocumentsDomainId.create("entities/Page/Page.repo");
 

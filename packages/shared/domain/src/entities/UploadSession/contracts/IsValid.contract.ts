@@ -3,7 +3,7 @@ import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import * as File from "../../file";
+import * as File from "../../File";
 import * as UploadSessionErrors from "../UploadSession.errors";
 
 const $I = $SharedDomainId.create("entities/UploadSession/contracts/IsValid.contract");
@@ -22,7 +22,8 @@ export class Success extends S.Class<Success>($I`Success`)(
     data: S.Boolean,
   },
   $I.annotations("Success", {
-    description: "Success response for the IsValid UploadSession contract. Returns whether the session exists and is not expired.",
+    description:
+      "Success response for the IsValid UploadSession contract. Returns whether the session exists and is not expired.",
   })
 ) {}
 

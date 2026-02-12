@@ -45,7 +45,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    data: Comment.Model.json
+    data: Comment.Model.json,
   },
   $I.annotations("Success", {
     description: "Success response for the Update Comment contract.",
@@ -58,10 +58,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @since 1.0.0
  * @category errors
  */
-export const Failure = S.Union(
-  CommentErrors.CommentNotFoundError,
-  CommentErrors.CommentPermissionDeniedError,
-);
+export const Failure = S.Union(CommentErrors.CommentNotFoundError, CommentErrors.CommentPermissionDeniedError);
 
 /**
  * @since 1.0.0

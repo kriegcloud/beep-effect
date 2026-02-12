@@ -17,10 +17,7 @@ export class Success extends S.Void.annotations(
   $I.annotations("Success", { description: "Success response for the Delete RateLimit contract." })
 ) {}
 
-export const Failure = S.Union(
-  RateLimitErrors.RateLimitNotFoundError,
-  RateLimitErrors.RateLimitPermissionDeniedError,
-);
+export const Failure = S.Union(RateLimitErrors.RateLimitNotFoundError, RateLimitErrors.RateLimitPermissionDeniedError);
 export type Failure = typeof Failure.Type;
 
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(

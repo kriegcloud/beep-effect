@@ -23,10 +23,7 @@ export class Success extends S.Void.annotations(
   })
 ) {}
 
-export const Failure = S.Union(
-  ApiKeyErrors.ApiKeyNotFoundError,
-  ApiKeyErrors.ApiKeyPermissionDeniedError,
-);
+export const Failure = S.Union(ApiKeyErrors.ApiKeyNotFoundError, ApiKeyErrors.ApiKeyPermissionDeniedError);
 export type Failure = typeof Failure.Type;
 
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(

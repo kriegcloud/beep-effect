@@ -19,7 +19,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   SubscriptionErrors.SubscriptionNotFoundError,
-  SubscriptionErrors.SubscriptionPermissionDeniedError,
+  SubscriptionErrors.SubscriptionPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

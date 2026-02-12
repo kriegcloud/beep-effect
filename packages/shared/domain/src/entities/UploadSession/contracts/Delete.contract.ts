@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   UploadSessionErrors.UploadSessionNotFoundError,
-  UploadSessionErrors.UploadSessionPermissionDeniedError,
+  UploadSessionErrors.UploadSessionPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

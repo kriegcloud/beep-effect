@@ -2,7 +2,7 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { AnyEntityId, EntityKind, SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as S from "effect/Schema";
-import * as File from "../../file";
+import * as File from "../../File";
 
 const $I = $SharedDomainId.create("entities/UploadSession/schemas/UploadSessionMetadata");
 

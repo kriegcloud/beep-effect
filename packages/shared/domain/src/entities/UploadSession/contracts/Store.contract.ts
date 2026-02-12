@@ -1,14 +1,14 @@
 import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { HmacSignature } from "@beep/shared-domain/services/EncryptionService/schemas";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import { HmacSignature } from "../../../services/EncryptionService/schemas";
-import * as File from "../../file";
-import * as UploadSessionErrors from "../UploadSession.errors";
+import * as File from "../../File";
 import { UploadSessionMetadata } from "../schemas";
+import * as UploadSessionErrors from "../UploadSession.errors";
 
 const $I = $SharedDomainId.create("entities/UploadSession/contracts/Store.contract");
 

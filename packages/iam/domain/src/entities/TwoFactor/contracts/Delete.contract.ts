@@ -17,10 +17,7 @@ export class Success extends S.Void.annotations(
   $I.annotations("Success", { description: "Success response for the Delete TwoFactor contract." })
 ) {}
 
-export const Failure = S.Union(
-  TwoFactorErrors.TwoFactorNotFoundError,
-  TwoFactorErrors.TwoFactorPermissionDeniedError,
-);
+export const Failure = S.Union(TwoFactorErrors.TwoFactorNotFoundError, TwoFactorErrors.TwoFactorPermissionDeniedError);
 export type Failure = typeof Failure.Type;
 
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(

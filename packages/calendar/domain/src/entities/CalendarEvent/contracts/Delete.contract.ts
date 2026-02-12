@@ -19,7 +19,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   CalendarEventErrors.CalendarEventNotFoundError,
-  CalendarEventErrors.CalendarEventPermissionDeniedError,
+  CalendarEventErrors.CalendarEventPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

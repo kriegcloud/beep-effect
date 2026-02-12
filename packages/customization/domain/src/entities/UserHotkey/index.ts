@@ -1,8 +1,8 @@
+export * as Contracts from "./contracts";
 export * from "./UserHotkey.entity";
+export * as UserHotkeyErrors from "./UserHotkey.errors";
 export * from "./UserHotkey.http";
 export * from "./UserHotkey.model";
 export * from "./UserHotkey.repo";
-export * from "./UserHotkey.tool";
-export * as UserHotkeyErrors from "./UserHotkey.errors";
 export * as Rpcs from "./UserHotkey.rpc";
-export * as Contracts from "./contracts";
+export * from "./UserHotkey.tool";

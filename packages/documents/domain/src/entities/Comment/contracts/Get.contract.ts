@@ -45,7 +45,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    data: Comment.Model.json
+    data: Comment.Model.json,
   },
   $I.annotations("Success", {
     description: "Success response for the Get Comment Contract.",

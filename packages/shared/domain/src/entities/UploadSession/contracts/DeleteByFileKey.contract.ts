@@ -3,7 +3,7 @@ import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import * as File from "../../file";
+import * as File from "../../File";
 import * as UploadSessionErrors from "../UploadSession.errors";
 
 const $I = $SharedDomainId.create("entities/UploadSession/contracts/DeleteByFileKey.contract");

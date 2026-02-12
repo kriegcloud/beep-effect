@@ -17,7 +17,7 @@ export class Model extends M.Class<Model>($I`DocumentModel`)(
     parentDocumentId: BS.FieldOptionOmittable(DocumentsEntityIds.DocumentId),
     title: BS.FieldOptionOmittable(S.String.pipe(S.maxLength(500))),
     content: BS.FieldOptionOmittable(S.String),
-    contentRich: BS.FieldOptionOmittable(SerializedEditorStateEnvelope),
+    contentRich: BS.JsonFromStringOption(SerializedEditorStateEnvelope),
     yjsSnapshot: BS.FieldOptionOmittable(S.Uint8ArrayFromSelf),
     coverImage: BS.FieldOptionOmittable(S.String),
     icon: BS.FieldOptionOmittable(S.String),

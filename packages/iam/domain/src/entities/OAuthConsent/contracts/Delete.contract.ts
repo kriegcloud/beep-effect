@@ -19,7 +19,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   OAuthConsentErrors.OAuthConsentNotFoundError,
-  OAuthConsentErrors.OAuthConsentPermissionDeniedError,
+  OAuthConsentErrors.OAuthConsentPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 
