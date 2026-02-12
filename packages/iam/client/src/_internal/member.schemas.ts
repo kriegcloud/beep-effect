@@ -1,4 +1,4 @@
-import * as Member from "@beep/iam-domain/entities/member";
+import * as Member from "@beep/iam-domain/entities/Member";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";

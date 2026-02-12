@@ -5,7 +5,7 @@
  */
 import { $SharedServerId } from "@beep/identity/packages";
 import { File, UploadSession } from "@beep/shared-domain/entities";
-import type { UploadSessionMetadata } from "@beep/shared-domain/entities/upload-session";
+import type { UploadSessionMetadata } from "@beep/shared-domain/entities/UploadSession";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import type { HmacSignature } from "@beep/shared-domain/services/EncryptionService/schemas";
 import { SharedDb } from "@beep/shared-server";

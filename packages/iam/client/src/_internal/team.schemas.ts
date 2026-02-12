@@ -1,4 +1,4 @@
-import * as TeamMemberModel from "@beep/iam-domain/entities/team-member";
+import * as TeamMemberModel from "@beep/iam-domain/entities/TeamMember";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";

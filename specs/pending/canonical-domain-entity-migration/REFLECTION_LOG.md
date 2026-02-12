@@ -78,6 +78,49 @@ After each phase, document:
 - **6 custom return types** need extraction into contracts (SimilarityResult, DiscussionWithCommentsSchema, etc.) -- deferred to Waves 2-3.
 - **Empty team.policy.ts** in shared/domain Team entity -- flagged for potential removal during migration.
 
+### Phase 2: Wave 1 Simple Entity Migration (2026-02-11)
+
+**Duration**: ~60 minutes total (swarm execution + post-migration fixes + verification)
+
+#### 1. What Worked
+
+- **4-agent swarm parallelization**: All 23 entities across 4 batches (3 IAM + 1 cross-slice) were migrated concurrently. The swarm completed entity scaffolding in ~20 minutes, far faster than sequential execution would have taken.
+- **Canonical pattern templates**: Embedding complete Get/Delete contract templates, error schemas, and repo contracts in the HANDOFF_P2.md enabled agents to produce correct code on first pass for the majority of entities.
+- **Barrel export updates**: Updating all 4 domain package barrel exports (IAM, Calendar, Comms, Customization) from kebab-case to PascalCase imports worked seamlessly since the old directories were renamed, not duplicated.
+- **Empty repo extensions for CRUD-only entities**: Using `DbRepo.DbRepoSuccess<typeof Model, {}>` for all Wave 1 entities was the right call -- zero entities needed custom extensions.
+- **Cross-slice batch grouping**: Putting OAuth entities (IAM) alongside CalendarEvent, EmailTemplate, and UserHotkey in one batch minimized agent context switching while keeping batch sizes balanced.
+
+#### 2. What Didn't Work
+
+- **MCP refactor tools unreliable for directory renames**: The MCP TypeScript refactor server was intended for compiler-aware renames but agents fell back to manual file creation in many cases. This left some old kebab-case directories as dead artifacts alongside the new PascalCase directories.
+- **Downstream import paths not auto-updated**: Renaming directories from kebab-case to PascalCase broke import paths in 6 downstream files (5 IAM client schemas + 1 IAM server adapter). These required manual post-migration fixes because:
+  - TypeScript path aliases with wildcards (`@beep/iam-domain/*`) resolve to actual filesystem paths
+  - Barrel exports at package root worked fine (they re-export from `./Member`, not the full subpath)
+  - Direct subpath imports like `@beep/iam-domain/entities/member` broke when directory renamed to `Member`
+- **Old kebab-case directories left behind**: The migration created new PascalCase directories but the old kebab-case barrel re-exports (`entities/account/index.ts` → `export * from "../Account"`) had to be manually cleaned up.
+- **Barrel exports had mixed states**: Some old index.ts files were updated to re-export from new paths rather than being fully replaced, creating temporary confusion about which was canonical.
+
+#### 3. Methodology Improvements
+
+- **Post-migration import fix sweep is mandatory**: After any directory rename wave, immediately grep for remaining kebab-case import paths across the full monorepo: `grep -r 'from "@beep/iam-domain/entities/[a-z]' packages/` to catch ALL downstream breakage.
+- **Verify downstream consumers, not just domain packages**: Phase 2 initially only checked domain packages. The IAM client and server failures were only caught when explicitly running `check --filter @beep/iam-client` and `check --filter @beep/iam-server`.
+- **Include downstream packages in verification checklist**: For future waves, verify: domain + tables + server + client for each slice.
+- **Clean up old directories in the same commit**: Don't leave old kebab-case directories with re-export stubs -- delete them in the same pass as migration to avoid confusion.
+
+#### 4. Prompt Refinements
+
+- Future agent prompts should include: "After renaming, IMMEDIATELY grep for remaining kebab-case import paths in ALL packages that depend on this domain package."
+- Add explicit downstream consumer list per batch: "IAM domain consumers: @beep/iam-tables, @beep/iam-server, @beep/iam-client -- verify all after migration."
+- Reduce reliance on MCP refactor tools for directory renames; prefer direct file creation + old directory deletion with manual import path fixup.
+
+#### 5. Codebase-Specific Insights
+
+- **TypeScript path wildcards are case-sensitive on Linux**: `@beep/iam-domain/entities/member` resolves to `packages/iam/domain/src/entities/member/` on the filesystem. After rename to `Member/`, the lowercase import path 404s.
+- **Barrel re-exports mask rename issues**: `import { Entities } from "@beep/iam-domain"` works regardless of directory naming because the barrel in `entities/index.ts` uses relative paths (`./Member`). Only direct subpath imports break.
+- **IAM client transformation schemas import entity subpaths directly**: Files like `_internal/api-key.schemas.ts` import from `@beep/iam-domain/entities/ApiKey` rather than through the barrel. This pattern is fragile to directory renames.
+- **Better-Auth adapter has a single direct entity import**: `Options.ts` imports `@beep/iam-domain/entities/Member` directly for its `MemberRoleEnum` usage. All other server files use the barrel.
+- **23 entities fully canonical**: Account, ApiKey, DeviceCode, Invitation, Jwks, Member, OrganizationRole, Passkey, RateLimit, ScimProvider, SsoProvider, Subscription, TeamMember, TwoFactor, Verification, WalletAddress, OAuthAccessToken, OAuthClient, OAuthConsent, OAuthRefreshToken, CalendarEvent, EmailTemplate, UserHotkey.
+
 ---
 
 ---

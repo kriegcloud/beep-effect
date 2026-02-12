@@ -1,4 +1,4 @@
-import * as ApiKeyModel from "@beep/iam-domain/entities/api-key";
+import * as ApiKeyModel from "@beep/iam-domain/entities/ApiKey";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
