@@ -5,6 +5,6 @@ import type * as PageShare from "./PageShare.model";
 
 const $I = $DocumentsDomainId.create("entities/PageShare/PageShare.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof PageShare.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof PageShare.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

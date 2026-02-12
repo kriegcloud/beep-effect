@@ -1,7 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { Entities } from "@beep/knowledge-domain";
 import { MergeError } from "@beep/knowledge-domain/errors";
 import { MergeHistory } from "@beep/knowledge-domain/services";
-import { MergeHistoryRepo } from "@beep/knowledge-server/db/repos/MergeHistory.repo";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as DateTime from "effect/DateTime";
@@ -14,7 +14,7 @@ const $I = $KnowledgeServerId.create("EntityResolution/MergeHistoryLive");
 export const MergeHistoryLive = Layer.effect(
   MergeHistory,
   Effect.gen(function* () {
-    const repo = yield* MergeHistoryRepo;
+    const repo = yield* Entities.MergeHistory.Repo;
     const authCtx = yield* AuthContext;
     const organizationId = authCtx.session.activeOrganizationId;
     const currentUserId = authCtx.user.id;

@@ -1,8 +1,13 @@
 import { describe } from "bun:test";
+import { Entities as DocEntities } from "@beep/documents-domain";
 import { Document } from "@beep/documents-domain/entities";
 import type { SerializedEditorStateEnvelope } from "@beep/documents-domain/value-objects";
-import { DocumentRepo } from "@beep/documents-server/db";
-import { OrganizationRepo, UserRepo } from "@beep/iam-server/db";
+import { Entities as IamEntities } from "@beep/iam-domain";
+
+const DocumentRepo = DocEntities.Document.Repo;
+const OrganizationRepo = IamEntities.Organization.Repo;
+const UserRepo = IamEntities.User.Repo;
+
 import { BS } from "@beep/schema";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { Organization, User } from "@beep/shared-domain/entities";

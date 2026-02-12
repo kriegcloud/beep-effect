@@ -5,6 +5,6 @@ import type * as User from "./User.model";
 
 const $I = $SharedDomainId.create("entities/User/User.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof User.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof User.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

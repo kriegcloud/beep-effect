@@ -1,12 +1,10 @@
-import type { CustomizationDb } from "@beep/customization-server/db";
+import type { Entities } from "@beep/customization-domain";
 import type { DbClient } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
-import * as repos from "./repos";
+import * as Live from "../entities";
 
-export type Repos = repos.UserHotkeyRepo;
+export type Repos = Entities.UserHotkey.Repo;
 
-export type ReposLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements | CustomizationDb.Db>;
+export type ReposLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements>;
 
-export const layer: ReposLayer = Layer.mergeAll(repos.UserHotkeyRepo.Default);
-
-export * from "./repos";
+export const layer: ReposLayer = Layer.mergeAll(Live.UserHotkeyLive.RepoLive);

@@ -1,8 +1,6 @@
+import { Entities } from "@beep/knowledge-domain";
 import { type MergeError, SplitError } from "@beep/knowledge-domain/errors";
 import { MergeHistory, SplitService } from "@beep/knowledge-domain/services";
-import { EntityRepo } from "@beep/knowledge-server/db/repos/Entity.repo";
-import { MentionRecordRepo } from "@beep/knowledge-server/db/repos/MentionRecord.repo";
-import { MergeHistoryRepo } from "@beep/knowledge-server/db/repos/MergeHistory.repo";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import type { DatabaseError } from "@beep/shared-domain/errors";
 import { AuthContext } from "@beep/shared-domain/Policy";
@@ -35,9 +33,9 @@ const wrapSplitError =
 export const SplitServiceLive = Layer.effect(
   SplitService,
   Effect.gen(function* () {
-    const entityRepo = yield* EntityRepo;
-    const mentionRecordRepo = yield* MentionRecordRepo;
-    const mergeHistoryRepo = yield* MergeHistoryRepo;
+    const entityRepo = yield* Entities.Entity.Repo;
+    const mentionRecordRepo = yield* Entities.MentionRecord.Repo;
+    const mergeHistoryRepo = yield* Entities.MergeHistory.Repo;
     const mergeHistory = yield* MergeHistory;
     const authContext = yield* AuthContext;
     const organizationId = authContext.session.activeOrganizationId;

@@ -18,8 +18,6 @@ Pg.types.setTypeParser(Pg.types.builtins.TIMESTAMPTZ, F.identity);
 Pg.types.setTypeParser(Pg.types.builtins.JSON, F.identity);
 Pg.types.setTypeParser(Pg.types.builtins.JSONB, F.identity);
 
-const types = Pg.types;
-
 export interface PgClientConfig {
   readonly host: string;
   readonly port: number;
@@ -56,7 +54,7 @@ const PgConfig = Config.nested("DB_PG")(
     transformQueryNames: Config.succeed(Str.camelToSnake),
     transformResultNames: Config.succeed(Str.snakeToCamel),
     transformJson: Config.succeed(true),
-    types: Config.succeed(types),
+    types: Config.succeed(Pg.types),
     idleTimeout: F.pipe(Duration.seconds(10), Config.succeed),
     connectTimeout: F.pipe(Duration.seconds(10), Config.succeed),
     application_name: Config.succeed("@beep/shared-server"),

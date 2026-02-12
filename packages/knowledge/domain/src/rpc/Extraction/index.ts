@@ -1,1 +1,1 @@
-export * as Extraction from "./_rpcs";
+export * as Extraction from "../../entities/Extraction/Extraction.rpc";

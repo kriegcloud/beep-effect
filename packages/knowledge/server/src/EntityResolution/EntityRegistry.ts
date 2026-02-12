@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { type Entities, Errors, ValueObjects } from "@beep/knowledge-domain";
+import { Entities, Errors, ValueObjects } from "@beep/knowledge-domain";
 import { Policy } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -9,7 +9,6 @@ import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import type * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { EntityRepo } from "../db/repos/Entity.repo";
 import { EmbeddingService } from "../Embedding/EmbeddingService";
 import { cosineSimilarity } from "../utils/vector";
 import { BloomFilter } from "./BloomFilter";
@@ -53,9 +52,9 @@ export class EntityRegistry extends Context.Tag($I`EntityRegistry`)<EntityRegist
 const serviceEffect: Effect.Effect<
   EntityRegistryShape,
   never,
-  EntityRepo | BloomFilter | EmbeddingService | Policy.AuthContext
+  Entities.Entity.Repo | BloomFilter | EmbeddingService | Policy.AuthContext
 > = Effect.gen(function* () {
-  const entityRepo = yield* EntityRepo;
+  const entityRepo = yield* Entities.Entity.Repo;
   const bloomFilter = yield* BloomFilter;
   const embeddingService = yield* EmbeddingService;
   const authContext = yield* Policy.AuthContext;

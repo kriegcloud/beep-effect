@@ -5,6 +5,6 @@ import type * as Jwks from "./Jwks.model";
 
 const $I = $IamDomainId.create("entities/Jwks/Jwks.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof Jwks.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof Jwks.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

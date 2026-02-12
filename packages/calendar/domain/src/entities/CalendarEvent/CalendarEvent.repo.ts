@@ -5,5 +5,5 @@ import type * as CalendarEvent from "./CalendarEvent.model";
 
 const $I = $CalendarDomainId.create("entities/CalendarEvent/CalendarEvent.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof CalendarEvent.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof CalendarEvent.Model>;
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

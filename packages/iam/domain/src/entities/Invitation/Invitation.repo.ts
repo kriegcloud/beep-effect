@@ -5,6 +5,6 @@ import type * as Invitation from "./Invitation.model";
 
 const $I = $IamDomainId.create("entities/Invitation/Invitation.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof Invitation.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof Invitation.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

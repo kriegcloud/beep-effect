@@ -5,6 +5,6 @@ import type * as Account from "./Account.model";
 
 const $I = $IamDomainId.create("entities/Account/Account.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof Account.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof Account.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

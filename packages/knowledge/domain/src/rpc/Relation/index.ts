@@ -1,1 +1,1 @@
-export * as Relation from "./_rpcs";
+export * as Relation from "../../entities/Relation/Relation.rpc";

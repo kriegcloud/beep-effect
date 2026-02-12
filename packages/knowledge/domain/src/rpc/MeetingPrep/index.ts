@@ -1,1 +1,1 @@
-export * as MeetingPrep from "./_rpcs";
+export * as MeetingPrep from "../../entities/MeetingPrep/MeetingPrep.rpc";

@@ -1,8 +1,7 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
 import { Rpc as KnowledgeDomainRpc } from "@beep/knowledge-domain";
 import { KnowledgeRepos, Rpc as KnowledgeServerRpc } from "@beep/knowledge-server";
-import { Policy, SharedRpcs } from "@beep/shared-domain";
-import { SharedServerRpcs } from "@beep/shared-server/rpc";
+import { Policy } from "@beep/shared-domain";
 import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
 import * as RpcSerialization from "@effect/rpc/RpcSerialization";
 import * as RpcServer from "@effect/rpc/RpcServer";
@@ -38,26 +37,12 @@ export const RpcLoggerLive: Layer.Layer<RpcLogger, never, never> = Layer.succeed
   )
 );
 
-const SharedRpcLayer = RpcServer.layerHttpRouter({
-  group: SharedRpcs.V1.Rpcs.middleware(RpcLogger),
-  path: "/v1/shared/rpc",
-  protocol: "websocket",
-  spanPrefix: "rpc",
-  disableFatalDefects: true,
-}).pipe(
-  Layer.provide(RpcLoggerLive),
-  Layer.provide(RpcSerialization.layerNdjson),
-  Layer.provide(SharedServerRpcs.layer),
-  Layer.provide(AuthContextRpcMiddlewaresLayer)
-);
 
 const KnowledgeRpcs = KnowledgeDomainRpc.Batch.Rpcs.merge(KnowledgeDomainRpc.Entity.Rpcs)
   .merge(KnowledgeDomainRpc.Relation.Rpcs)
   .merge(KnowledgeDomainRpc.GraphRag.Rpcs)
   .merge(KnowledgeDomainRpc.Evidence.Rpcs)
   .merge(KnowledgeDomainRpc.MeetingPrep.Rpcs)
-  // .merge(KnowledgeDomainRpc.Ontology.Rpcs)
-  // .merge(KnowledgeDomainRpc.Extraction.Rpcs)
   .middleware(Policy.AuthContextRpcMiddleware)
   .middleware(RpcLogger);
 
@@ -75,4 +60,4 @@ const KnowledgeRpcLayer = RpcServer.layerHttpRouter({
   Layer.provide(KnowledgeServerRpc.V1.layer.pipe(Layer.provide(KnowledgeRepos.layer)))
 );
 
-export const layer = Layer.mergeAll(SharedRpcLayer, KnowledgeRpcLayer);
+export const layer = Layer.mergeAll(KnowledgeRpcLayer);

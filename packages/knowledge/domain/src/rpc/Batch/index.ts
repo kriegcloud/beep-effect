@@ -1,1 +1,1 @@
-export * as Batch from "./_rpcs";
+export * as Batch from "../../entities/Batch/Batch.rpc";

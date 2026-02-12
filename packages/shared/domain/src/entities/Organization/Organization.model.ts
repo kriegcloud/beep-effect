@@ -8,7 +8,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as FC from "effect/FastCheck";
 import * as S from "effect/Schema";
 import { SharedEntityIds } from "../../entity-ids";
-import { OrganizationType, OrganizationTypeEnum, SubscriptionStatus, SubscriptionTier } from "./schemas";
+import { OrganizationType, OrganizationTypeEnum, SubscriptionStatus, SubscriptionTier } from "./Organization.values";
 
 const $I = $SharedDomainId.create("entities/Organization/Organization.model");
 

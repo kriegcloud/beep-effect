@@ -1,1 +1,1 @@
-export * as GraphRag from "./_rpcs";
+export * as GraphRag from "../../entities/GraphRag/GraphRag.rpc";

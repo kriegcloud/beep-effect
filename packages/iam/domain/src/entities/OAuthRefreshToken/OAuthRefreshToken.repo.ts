@@ -5,5 +5,5 @@ import type * as OAuthRefreshToken from "./OAuthRefreshToken.model";
 
 const $I = $IamDomainId.create("entities/OAuthRefreshToken/OAuthRefreshToken.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof OAuthRefreshToken.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof OAuthRefreshToken.Model>;
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

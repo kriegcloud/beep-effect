@@ -1,3 +1,4 @@
+export * as KnowledgeAgent from "./Agent";
 export * as Batch from "./Batch";
 export * as ClassDefinition from "./ClassDefinition";
 export * as EmailThread from "./EmailThread";
@@ -5,7 +6,10 @@ export * as EmailThreadMessage from "./EmailThreadMessage";
 export * as Embedding from "./Embedding";
 export * as Entity from "./Entity";
 export * as EntityCluster from "./EntityCluster";
+export * as Evidence from "./Evidence";
 export * as Extraction from "./Extraction";
+export * as GraphRag from "./GraphRag";
+export * as MeetingPrep from "./MeetingPrep";
 export * as MeetingPrepBullet from "./MeetingPrepBullet";
 export * as MeetingPrepEvidence from "./MeetingPrepEvidence";
 export * as Mention from "./Mention";

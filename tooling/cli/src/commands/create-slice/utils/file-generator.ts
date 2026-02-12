@@ -829,7 +829,7 @@ export class PlaceholderRepo extends Effect.Service<PlaceholderRepo>()($I\`Place
   effect: Effect.gen(function* () {
     yield* ${context.SliceName}Db.Db;
 
-    return yield* DbRepo.make(${context.SliceName}EntityIds.PlaceholderId, Entities.Placeholder.Model, Effect.succeed({}));
+    return yield* DbRepo.make(${context.SliceName}EntityIds.PlaceholderId, Entities.Placeholder.Model);
   }),
 }) {}
 `;

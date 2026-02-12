@@ -13,7 +13,7 @@
  */
 export type NonEmptyString<T extends string = string> = T extends "" ? never : T;
 
-/**
+/**CreateEnumType
  * Non-empty string literal that is entirely lowercase.
  *
  * @example

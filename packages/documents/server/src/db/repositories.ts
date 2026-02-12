@@ -1,25 +1,23 @@
-import type { DocumentsDb } from "@beep/documents-server/db";
+import type { Entities } from "@beep/documents-domain";
 import type { DbClient } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
-import * as repos from "./repos";
+import * as Live from "../entities";
 
 export type Repos =
-  | repos.CommentRepo
-  | repos.DiscussionRepo
-  | repos.DocumentFileRepo
-  | repos.DocumentSourceRepo
-  | repos.DocumentRepo
-  | repos.DocumentVersionRepo;
+  | Entities.Comment.Repo
+  | Entities.Discussion.Repo
+  | Entities.DocumentFile.Repo
+  | Entities.DocumentSource.Repo
+  | Entities.DocumentVersion.Repo
+  | Entities.Document.Repo;
 
-export type RepoLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements | DocumentsDb.Db>;
+export type RepoLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements>;
 
 export const layer: RepoLayer = Layer.mergeAll(
-  repos.CommentRepo.Default,
-  repos.DiscussionRepo.Default,
-  repos.DocumentFileRepo.Default,
-  repos.DocumentSourceRepo.Default,
-  repos.DocumentRepo.Default,
-  repos.DocumentVersionRepo.Default
+  Live.CommentLive.RepoLive,
+  Live.DiscussionLive.RepoLive,
+  Live.DocumentFileLive.RepoLive,
+  Live.DocumentSourceLive.RepoLive,
+  Live.DocumentVersionLive.RepoLive,
+  Live.DocumentLive.RepoLive
 );
-
-export * from "./repos";
