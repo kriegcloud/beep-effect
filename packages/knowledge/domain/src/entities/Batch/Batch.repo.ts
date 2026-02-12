@@ -5,6 +5,6 @@ import type * as Batch from "./Batch.model";
 
 const $I = $KnowledgeDomainId.create("entities/Batch/Batch.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof Batch.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof Batch.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

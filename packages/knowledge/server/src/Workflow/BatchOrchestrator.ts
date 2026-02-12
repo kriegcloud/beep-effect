@@ -1,4 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { Entities } from "@beep/knowledge-domain";
 import type {
   BatchAlreadyRunningError,
   BatchNotFoundError,
@@ -17,7 +18,6 @@ import {
   ResolutionCompleted,
   ResolutionStarted,
 } from "@beep/knowledge-domain/value-objects";
-import { MentionRecordRepo } from "@beep/knowledge-server/db/repos/MentionRecord.repo";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
 import { BS } from "@beep/schema";
 import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -227,7 +227,7 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
   const workflow = yield* ExtractionWorkflow;
   const emitter = yield* BatchEventEmitter;
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
-  const maybeMentionRecordRepo = yield* Effect.serviceOption(MentionRecordRepo);
+  const maybeMentionRecordRepo = yield* Effect.serviceOption(Entities.MentionRecord.Repo);
   const persistence = yield* WorkflowPersistence;
   const batchId = KnowledgeEntityIds.BatchExecutionId.make(payload.batchId);
 

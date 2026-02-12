@@ -14,6 +14,6 @@ export class PlaceholderRepo extends Effect.Service<PlaceholderRepo>()($I`Placeh
   effect: Effect.gen(function* () {
     yield* {{SliceName}}Db.Db;
 
-    return yield* DbRepo.make({{SliceName}}EntityIds.PlaceholderId, Entities.Placeholder.Model, Effect.succeed({}));
+    return yield* DbRepo.make({{SliceName}}EntityIds.PlaceholderId, Entities.Placeholder.Model);
   }),
 }) {}

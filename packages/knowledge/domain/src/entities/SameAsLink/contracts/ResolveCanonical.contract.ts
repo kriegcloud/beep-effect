@@ -13,8 +13,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     organizationId: SharedEntityIds.OrganizationId,
   },
   $I.annotations("Payload", {
-    description:
-      "Payload for the ResolveCanonical SameAsLink contract (recursive CTE to walk sameAs chains).",
+    description: "Payload for the ResolveCanonical SameAsLink contract (recursive CTE to walk sameAs chains).",
   })
 ) {}
 
@@ -44,7 +43,5 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
 ) {
   static readonly Rpc = Rpc.fromTaggedRequest(Contract);
   static readonly Tool = Tool.fromTaggedRequest(Contract);
-  static readonly Http = HttpApiEndpoint.get("ResolveCanonical", "/resolve")
-    .setPayload(Payload)
-    .addSuccess(Success);
+  static readonly Http = HttpApiEndpoint.get("ResolveCanonical", "/resolve").setPayload(Payload).addSuccess(Success);
 }

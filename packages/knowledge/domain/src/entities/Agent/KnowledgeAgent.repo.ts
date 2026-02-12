@@ -5,6 +5,6 @@ import type * as KnowledgeAgent from "./KnowledgeAgent.model";
 
 const $I = $KnowledgeDomainId.create("entities/Agent/KnowledgeAgent.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof KnowledgeAgent.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof KnowledgeAgent.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

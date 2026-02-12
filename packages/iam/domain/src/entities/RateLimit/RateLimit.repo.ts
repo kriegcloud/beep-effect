@@ -5,6 +5,6 @@ import type * as RateLimit from "./RateLimit.model";
 
 const $I = $IamDomainId.create("entities/RateLimit/RateLimit.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof RateLimit.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof RateLimit.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

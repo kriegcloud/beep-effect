@@ -1,12 +1,10 @@
-import type { CalendarDb } from "@beep/calendar-server/db";
+import type { Entities } from "@beep/calendar-domain";
 import type { DbClient } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
-import * as repos from "./repos";
+import * as Live from "../entities";
 
-export type Repos = repos.CalendarEventRepo;
+export type Repos = Entities.CalendarEvent.Repo;
 
-export type ReposLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements | CalendarDb.Db>;
+export type ReposLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements>;
 
-export const layer: ReposLayer = Layer.mergeAll(repos.CalendarEventRepo.Default);
-
-export * from "./repos";
+export const layer: ReposLayer = Layer.mergeAll(Live.CalendarEventLive.RepoLive);

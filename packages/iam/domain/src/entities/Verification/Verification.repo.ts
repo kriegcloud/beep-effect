@@ -5,6 +5,6 @@ import type * as Verification from "./Verification.model";
 
 const $I = $IamDomainId.create("entities/Verification/Verification.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof Verification.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof Verification.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

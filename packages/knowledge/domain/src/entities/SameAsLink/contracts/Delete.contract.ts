@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   SameAsLinkErrors.SameAsLinkNotFoundError,
-  SameAsLinkErrors.SameAsLinkPermissionDeniedError,
+  SameAsLinkErrors.SameAsLinkPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

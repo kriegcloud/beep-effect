@@ -1,7 +1,5 @@
 import { Entities, ValueObjects } from "@beep/knowledge-domain";
 import { MergeHistory } from "@beep/knowledge-domain/services";
-import { EntityRepo, type EntityRepoShape } from "@beep/knowledge-server/db/repos/Entity.repo";
-import { MentionRecordRepo, type MentionRecordRepoShape } from "@beep/knowledge-server/db/repos/MentionRecord.repo";
 import { EntityRegistry } from "@beep/knowledge-server/EntityResolution/EntityRegistry";
 import {
   CrossBatchEntityResolver,
@@ -103,7 +101,7 @@ describe("CrossBatchEntityResolver", () => {
         getBloomFilterStats: () => Effect.die("not implemented"),
       });
 
-      const entityRepoStub: EntityRepoShape = {
+      const entityRepoStub: Entities.Entity.RepoShape = {
         insert: () => Ref.update(entityRepoInserts, (n) => n + 1).pipe(Effect.as({ data: existingEntity })),
         insertVoid: () => Ref.update(entityRepoInserts, (n) => n + 1).pipe(Effect.asVoid),
         insertManyVoid: () => Effect.die("not implemented"),
@@ -117,9 +115,9 @@ describe("CrossBatchEntityResolver", () => {
         countByOrganization: () => Effect.die("not implemented"),
         findByNormalizedText: () => Effect.die("not implemented"),
       };
-      const entityRepoLayer = Layer.succeed(EntityRepo, entityRepoStub);
+      const entityRepoLayer = Layer.succeed(Entities.Entity.Repo, entityRepoStub);
 
-      const mentionRepoStub: MentionRecordRepoShape = {
+      const mentionRepoStub: Entities.MentionRecord.RepoShape = {
         insert: () => Effect.die("not implemented"),
         insertVoid: () => Effect.die("not implemented"),
         insertManyVoid: () => Effect.die("not implemented"),
@@ -133,7 +131,7 @@ describe("CrossBatchEntityResolver", () => {
         updateResolvedEntityId: (mentionRecordId, entityId) =>
           Ref.update(mentionUpdates, A.append({ mentionId: mentionRecordId, entityId })).pipe(Effect.asVoid),
       };
-      const mentionRepoLayer = Layer.succeed(MentionRecordRepo, mentionRepoStub);
+      const mentionRepoLayer = Layer.succeed(Entities.MentionRecord.Repo, mentionRepoStub);
 
       const mergeHistoryLayer = Layer.succeed(MergeHistory, {
         recordMerge: () => Effect.die("not implemented"),

@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   PropertyDefinitionErrors.PropertyDefinitionNotFoundError,
-  PropertyDefinitionErrors.PropertyDefinitionPermissionDeniedError,
+  PropertyDefinitionErrors.PropertyDefinitionPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

@@ -1,26 +1,30 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import type { DatabaseError } from "@beep/shared-domain/errors";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
+import type * as Effect from "effect/Effect";
 import type * as RelationEvidence from "./RelationEvidence.model";
-import type { FindByIds, FindByRelationId, SearchByText } from "./contracts";
 
 const $I = $KnowledgeDomainId.create("entities/RelationEvidence/RelationEvidence.repo");
 
 export type RepoShape = DbRepo.DbRepoSuccess<
   typeof RelationEvidence.Model,
   {
-    readonly findByRelationId: DbRepo.Method<{
-      payload: typeof FindByRelationId.Payload;
-      success: typeof FindByRelationId.Success;
-    }>;
-    readonly findByIds: DbRepo.Method<{
-      payload: typeof FindByIds.Payload;
-      success: typeof FindByIds.Success;
-    }>;
-    readonly searchByText: DbRepo.Method<{
-      payload: typeof SearchByText.Payload;
-      success: typeof SearchByText.Success;
-    }>;
+    readonly findByRelationId: (
+      relationId: KnowledgeEntityIds.RelationId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type,
+      limit?: number
+    ) => Effect.Effect<ReadonlyArray<RelationEvidence.Model>, DatabaseError>;
+    readonly findByIds: (
+      ids: ReadonlyArray<KnowledgeEntityIds.RelationEvidenceId.Type>,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<ReadonlyArray<RelationEvidence.Model>, DatabaseError>;
+    readonly searchByText: (
+      query: string,
+      organizationId: SharedEntityIds.OrganizationId.Type,
+      limit?: number
+    ) => Effect.Effect<ReadonlyArray<RelationEvidence.Model>, DatabaseError>;
   }
 >;
 

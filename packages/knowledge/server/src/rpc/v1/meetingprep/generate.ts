@@ -1,6 +1,5 @@
 import { Entities, type Rpc } from "@beep/knowledge-domain";
 import type { MeetingPrep } from "@beep/knowledge-domain/rpc/MeetingPrep";
-import { MeetingPrepBulletRepo, MeetingPrepEvidenceRepo, RelationEvidenceRepo } from "@beep/knowledge-server/db";
 import { KnowledgeEntityIds, Policy } from "@beep/shared-domain";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as A from "effect/Array";
@@ -25,9 +24,9 @@ export const Handler = Effect.fn("meetingprep_generate")(function* (payload: Mee
     const organizationId = payload.organizationId;
     const maxBullets = payload.maxBullets ?? 5;
 
-    const relationEvidenceRepo = yield* RelationEvidenceRepo;
-    const bulletRepo = yield* MeetingPrepBulletRepo;
-    const evidenceRepo = yield* MeetingPrepEvidenceRepo;
+    const relationEvidenceRepo = yield* Entities.RelationEvidence.Repo;
+    const bulletRepo = yield* Entities.MeetingPrepBullet.Repo;
+    const evidenceRepo = yield* Entities.MeetingPrepEvidence.Repo;
     const sql = yield* SqlClient.SqlClient;
 
     // Deterministic selection rule: search by snippet text first, fall back to newest evidence.

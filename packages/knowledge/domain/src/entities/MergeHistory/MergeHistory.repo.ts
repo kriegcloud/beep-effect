@@ -1,46 +1,38 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import type { DatabaseError } from "@beep/shared-domain/errors";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
-import type * as S from "effect/Schema";
+import type * as Effect from "effect/Effect";
 import type * as MergeHistory from "./MergeHistory.model";
-import type {
-  Delete,
-  FindByOrganization,
-  FindBySourceEntity,
-  FindByTargetEntity,
-  FindByUser,
-} from "./contracts";
 
 const $I = $KnowledgeDomainId.create("entities/MergeHistory/MergeHistory.repo");
 
 export type RepoShape = DbRepo.DbRepoSuccess<
   typeof MergeHistory.Model,
   {
-    readonly findByTargetEntity: DbRepo.Method<{
-      payload: typeof FindByTargetEntity.Payload;
-      success: typeof FindByTargetEntity.Success;
-    }>;
+    readonly findByTargetEntity: (
+      targetEntityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<ReadonlyArray<MergeHistory.Model>, DatabaseError>;
 
-    readonly findBySourceEntity: DbRepo.Method<{
-      payload: typeof FindBySourceEntity.Payload;
-      success: typeof FindBySourceEntity.Success;
-    }>;
+    readonly findBySourceEntity: (
+      sourceEntityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<ReadonlyArray<MergeHistory.Model>, DatabaseError>;
 
-    readonly findByUser: DbRepo.Method<{
-      payload: typeof FindByUser.Payload;
-      success: typeof FindByUser.Success;
-    }>;
+    readonly findByUser: (
+      userId: SharedEntityIds.UserId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type,
+      limit?: number
+    ) => Effect.Effect<ReadonlyArray<MergeHistory.Model>, DatabaseError>;
 
-    readonly findByOrganization: DbRepo.Method<{
-      payload: typeof FindByOrganization.Payload;
-      success: typeof FindByOrganization.Success;
-    }>;
+    readonly findByOrganization: (
+      organizationId: SharedEntityIds.OrganizationId.Type,
+      limit?: number
+    ) => Effect.Effect<ReadonlyArray<MergeHistory.Model>, DatabaseError>;
 
-    readonly hardDelete: DbRepo.Method<{
-      payload: typeof Delete.Payload;
-      success: typeof S.Void;
-      failure: typeof Delete.Failure;
-    }>;
+    readonly hardDelete: (mergeHistoryId: KnowledgeEntityIds.MergeHistoryId.Type) => Effect.Effect<void, DatabaseError>;
   }
 >;
 

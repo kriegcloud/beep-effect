@@ -22,8 +22,7 @@ export class ClassDefinitionPermissionDeniedError extends S.TaggedError<ClassDef
   },
   $I.annotationsHttp("ClassDefinitionPermissionDeniedError", {
     status: 403,
-    description:
-      "Thrown when the user lacks permission to perform the requested action on the class definition.",
+    description: "Thrown when the user lacks permission to perform the requested action on the class definition.",
   })
 ) {}
 

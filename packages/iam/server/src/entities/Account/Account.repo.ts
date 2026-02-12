@@ -1,11 +1,13 @@
-import {Entities} from "@beep/iam-domain";
-import type {IamDb} from "@beep/iam-server/db";
-import {IamEntityIds} from "@beep/shared-domain";
-import {DbRepo} from "@beep/shared-server/factories";
-import type * as SqlClient from "@effect/sql/SqlClient";
-import * as Effect from "effect/Effect";
+import { Entities } from "@beep/iam-domain";
+import { IamDb } from "@beep/iam-server/db";
+import { IamEntityIds } from "@beep/shared-domain";
+import type { DbClient } from "@beep/shared-server";
+import { DbRepo } from "@beep/shared-server/factories";
 import * as Layer from "effect/Layer";
 
-const serviceEffect = DbRepo.make(IamEntityIds.AccountId, Entities.Account.Model, Effect.succeed({}));
+const serviceEffect = DbRepo.make(IamEntityIds.AccountId, Entities.Account.Model);
 
-export const AccountRepoLive: Layer.Layer<Entities.Account.Repo, never, IamDb.Db | SqlClient.SqlClient> = Layer.effect(Entities.Account.Repo, serviceEffect);
+export const RepoLive: Layer.Layer<Entities.Account.Repo, never, DbClient.SliceDbRequirements> = Layer.effect(
+  Entities.Account.Repo,
+  serviceEffect
+).pipe(Layer.provide(IamDb.layer));

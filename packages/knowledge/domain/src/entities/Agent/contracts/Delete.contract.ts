@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   KnowledgeAgentErrors.KnowledgeAgentNotFoundError,
-  KnowledgeAgentErrors.KnowledgeAgentPermissionDeniedError,
+  KnowledgeAgentErrors.KnowledgeAgentPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

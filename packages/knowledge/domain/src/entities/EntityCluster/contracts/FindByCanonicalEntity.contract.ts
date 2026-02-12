@@ -23,7 +23,8 @@ export class Success extends S.Class<Success>($I`Success`)(
     data: S.optionalWith(EntityCluster.Model.json, { as: "Option" }),
   },
   $I.annotations("Success", {
-    description: "Success response for the FindByCanonicalEntity EntityCluster contract. Data is null when no match found.",
+    description:
+      "Success response for the FindByCanonicalEntity EntityCluster contract. Data is null when no match found.",
   })
 ) {}
 

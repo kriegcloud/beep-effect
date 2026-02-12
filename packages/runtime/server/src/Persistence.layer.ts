@@ -18,16 +18,15 @@ export type DbClients =
   | CalendarDb.Db
   | KnowledgeDb.Db;
 
-const sliceClientsLayer: Layer.Layer<DbClients, never, DbClient.SliceDbRequirements | S3Service> =
-  Layer.mergeAll(
-    SharedDb.layer,
-    IamDb.layer,
-    DocumentsDb.layer,
-    CustomizationDb.layer,
-    CommsDb.layer,
-    CalendarDb.layer,
-    KnowledgeDb.layer
-  );
+const sliceClientsLayer: Layer.Layer<DbClients, never, DbClient.SliceDbRequirements | S3Service> = Layer.mergeAll(
+  SharedDb.layer,
+  IamDb.layer,
+  DocumentsDb.layer,
+  CustomizationDb.layer,
+  CommsDb.layer,
+  CalendarDb.layer,
+  KnowledgeDb.layer
+);
 
 const persistenceInfraLayer: Layer.Layer<DbClient.SliceDbRequirements | S3Service, never, never> = Layer.mergeAll(
   DbClient.layer,

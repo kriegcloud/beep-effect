@@ -5,6 +5,6 @@ import type * as WalletAddress from "./WalletAddress.model";
 
 const $I = $IamDomainId.create("entities/WalletAddress/WalletAddress.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof WalletAddress.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof WalletAddress.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

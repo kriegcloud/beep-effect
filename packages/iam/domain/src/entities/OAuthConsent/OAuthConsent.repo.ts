@@ -5,5 +5,5 @@ import type * as OAuthConsent from "./OAuthConsent.model";
 
 const $I = $IamDomainId.create("entities/OAuthConsent/OAuthConsent.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof OAuthConsent.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof OAuthConsent.Model>;
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

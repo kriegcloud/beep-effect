@@ -22,8 +22,7 @@ export class EmailThreadMessagePermissionDeniedError extends S.TaggedError<Email
   },
   $I.annotationsHttp("EmailThreadMessagePermissionDeniedError", {
     status: 403,
-    description:
-      "Thrown when the user lacks permission to perform the requested action on the email thread message.",
+    description: "Thrown when the user lacks permission to perform the requested action on the email thread message.",
   })
 ) {}
 

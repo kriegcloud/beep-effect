@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   MeetingPrepBulletErrors.MeetingPrepBulletNotFoundError,
-  MeetingPrepBulletErrors.MeetingPrepBulletPermissionDeniedError,
+  MeetingPrepBulletErrors.MeetingPrepBulletPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

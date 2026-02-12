@@ -5,6 +5,6 @@ import type * as TwoFactor from "./TwoFactor.model";
 
 const $I = $IamDomainId.create("entities/TwoFactor/TwoFactor.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof TwoFactor.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof TwoFactor.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

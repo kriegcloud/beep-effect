@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   MeetingPrepEvidenceErrors.MeetingPrepEvidenceNotFoundError,
-  MeetingPrepEvidenceErrors.MeetingPrepEvidencePermissionDeniedError,
+  MeetingPrepEvidenceErrors.MeetingPrepEvidencePermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

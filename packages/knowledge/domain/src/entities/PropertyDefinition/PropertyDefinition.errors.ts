@@ -22,8 +22,7 @@ export class PropertyDefinitionPermissionDeniedError extends S.TaggedError<Prope
   },
   $I.annotationsHttp("PropertyDefinitionPermissionDeniedError", {
     status: 403,
-    description:
-      "Thrown when the user lacks permission to perform the requested action on the property definition.",
+    description: "Thrown when the user lacks permission to perform the requested action on the property definition.",
   })
 ) {}
 

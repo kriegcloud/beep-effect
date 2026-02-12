@@ -5,6 +5,6 @@ import type * as Extraction from "./Extraction.model";
 
 const $I = $KnowledgeDomainId.create("entities/Extraction/Extraction.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof Extraction.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof Extraction.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

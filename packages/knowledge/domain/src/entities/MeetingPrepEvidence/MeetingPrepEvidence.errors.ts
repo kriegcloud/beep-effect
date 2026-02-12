@@ -22,8 +22,7 @@ export class MeetingPrepEvidencePermissionDeniedError extends S.TaggedError<Meet
   },
   $I.annotationsHttp("MeetingPrepEvidencePermissionDeniedError", {
     status: 403,
-    description:
-      "Thrown when the user lacks permission to perform the requested action on the meeting prep evidence.",
+    description: "Thrown when the user lacks permission to perform the requested action on the meeting prep evidence.",
   })
 ) {}
 

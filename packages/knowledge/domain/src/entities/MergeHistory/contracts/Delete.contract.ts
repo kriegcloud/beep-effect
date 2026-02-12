@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   MergeHistoryErrors.MergeHistoryNotFoundError,
-  MergeHistoryErrors.MergeHistoryPermissionDeniedError,
+  MergeHistoryErrors.MergeHistoryPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

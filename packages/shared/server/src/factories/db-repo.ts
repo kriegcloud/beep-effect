@@ -330,30 +330,55 @@ const makeBaseRepo = <
 /**
  * Creates a repository with standard CRUD operations and optional extensions.
  *
+ * When called without a `maker` argument, returns a base repository with only
+ * CRUD operations and `never` for both error and requirements channels.
+ *
  * @category Repo
  * @since 0.1.0
  */
-export const make = <
+export function make<
+  TableName extends string,
+  Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+  Model extends M.Any,
+>(idSchema: EntityId.EntityId<TableName, Brand, LinkedActions>, model: Model): DbRepoTypes.DbRepo<Model, never, never>;
+
+export function make<
   TableName extends string,
   Brand extends string,
   const LinkedActions extends A.NonEmptyReadonlyArray<string>,
   Model extends M.Any,
   SE,
   SR,
+  TExtra extends Record<string, UnsafeTypes.UnsafeAny>,
+>(
+  idSchema: EntityId.EntityId<TableName, Brand, LinkedActions>,
+  model: Model,
+  maker: Effect.Effect<TExtra, SE, SR>
+): DbRepoTypes.DbRepo<Model, SE, SR, TExtra>;
+
+export function make<
+  TableName extends string,
+  Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+  Model extends M.Any,
+  SE = never,
+  SR = never,
   TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
 >(
   idSchema: EntityId.EntityId<TableName, Brand, LinkedActions>,
   model: Model,
-  maker?: Effect.Effect<TExtra, SE, SR> | undefined
-): DbRepoTypes.DbRepo<Model, SE, SR, TExtra> =>
-  Effect.flatMap(
+  maker?: Effect.Effect<TExtra, SE, SR>
+): DbRepoTypes.DbRepo<Model, SE, SR, TExtra> {
+  return Effect.flatMap(
     Effect.all([
       O.fromNullable(maker).pipe(O.getOrElse(() => Effect.succeed({} as TExtra))),
-      makeBaseRepo(model, { idColumn: "id" as const, idSchema: idSchema }),
+      makeBaseRepo(model, { idColumn: "id" as const, idSchema }),
     ]),
     ([extra, baseRepo]) =>
       Effect.succeed({
         ...baseRepo,
         ...extra,
       })
-  );
+  ) as DbRepoTypes.DbRepo<Model, SE, SR, TExtra>;
+}

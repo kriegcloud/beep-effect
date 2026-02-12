@@ -1,56 +1,52 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import type { DatabaseError } from "@beep/shared-domain/errors";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
+import type * as Effect from "effect/Effect";
+import type * as O from "effect/Option";
 import type * as SameAsLink from "./SameAsLink.model";
-import type {
-  CountMembers,
-  Delete,
-  DeleteByCanonical,
-  FindByCanonical,
-  FindByMember,
-  FindBySource,
-  FindHighConfidence,
-  ResolveCanonical,
-} from "./contracts";
 
 const $I = $KnowledgeDomainId.create("entities/SameAsLink/SameAsLink.repo");
 
 export type RepoShape = DbRepo.DbRepoSuccess<
   typeof SameAsLink.Model,
   {
-    readonly findByCanonical: DbRepo.Method<{
-      payload: typeof FindByCanonical.Payload;
-      success: typeof FindByCanonical.Success;
-    }>;
-    readonly findByMember: DbRepo.Method<{
-      payload: typeof FindByMember.Payload;
-      success: typeof FindByMember.Success;
-    }>;
-    readonly resolveCanonical: DbRepo.Method<{
-      payload: typeof ResolveCanonical.Payload;
-      success: typeof ResolveCanonical.Success;
-    }>;
-    readonly findHighConfidence: DbRepo.Method<{
-      payload: typeof FindHighConfidence.Payload;
-      success: typeof FindHighConfidence.Success;
-    }>;
-    readonly findBySource: DbRepo.Method<{
-      payload: typeof FindBySource.Payload;
-      success: typeof FindBySource.Success;
-    }>;
-    readonly deleteByCanonical: DbRepo.Method<{
-      payload: typeof DeleteByCanonical.Payload;
-      success: typeof DeleteByCanonical.Success;
-    }>;
-    readonly countMembers: DbRepo.Method<{
-      payload: typeof CountMembers.Payload;
-      success: typeof CountMembers.Success;
-    }>;
-    readonly hardDelete: DbRepo.Method<{
-      payload: typeof Delete.Payload;
-      success: typeof Delete.Success;
-      failure: typeof Delete.Failure;
-    }>;
+    readonly findByCanonical: (
+      canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<ReadonlyArray<SameAsLink.Model>, DatabaseError>;
+
+    readonly findByMember: (
+      memberId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<O.Option<SameAsLink.Model>, DatabaseError>;
+
+    readonly resolveCanonical: (
+      entityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<KnowledgeEntityIds.KnowledgeEntityId.Type, DatabaseError>;
+
+    readonly findHighConfidence: (
+      minConfidence: number,
+      organizationId: SharedEntityIds.OrganizationId.Type,
+      limit?: number
+    ) => Effect.Effect<ReadonlyArray<SameAsLink.Model>, DatabaseError>;
+
+    readonly findBySource: (
+      sourceId: string,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<ReadonlyArray<SameAsLink.Model>, DatabaseError>;
+
+    readonly deleteByCanonical: (
+      canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<void, DatabaseError>;
+
+    readonly countMembers: (
+      canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<number, DatabaseError>;
   }
 >;
 

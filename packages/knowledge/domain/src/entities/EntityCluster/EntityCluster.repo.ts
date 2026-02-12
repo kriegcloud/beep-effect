@@ -1,52 +1,43 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import type { DatabaseError } from "@beep/shared-domain/errors";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
-import type * as S from "effect/Schema";
+import type * as Effect from "effect/Effect";
+import type * as O from "effect/Option";
 import type * as EntityCluster from "./EntityCluster.model";
-import type {
-  Delete,
-  DeleteByOntology,
-  FindByCanonicalEntity,
-  FindByMember,
-  FindByOntology,
-  FindHighCohesion,
-} from "./contracts";
 
 const $I = $KnowledgeDomainId.create("entities/EntityCluster/EntityCluster.repo");
 
 export type RepoShape = DbRepo.DbRepoSuccess<
   typeof EntityCluster.Model,
   {
-    readonly findByCanonicalEntity: DbRepo.Method<{
-      payload: typeof FindByCanonicalEntity.Payload;
-      success: typeof FindByCanonicalEntity.Success;
-    }>;
+    readonly findByCanonicalEntity: (
+      canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<O.Option<EntityCluster.Model>, DatabaseError>;
 
-    readonly findByMember: DbRepo.Method<{
-      payload: typeof FindByMember.Payload;
-      success: typeof FindByMember.Success;
-    }>;
+    readonly findByMember: (
+      memberId: KnowledgeEntityIds.KnowledgeEntityId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<O.Option<EntityCluster.Model>, DatabaseError>;
 
-    readonly findByOntology: DbRepo.Method<{
-      payload: typeof FindByOntology.Payload;
-      success: typeof FindByOntology.Success;
-    }>;
+    readonly findByOntology: (
+      ontologyId: KnowledgeEntityIds.OntologyId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type,
+      limit?: number
+    ) => Effect.Effect<ReadonlyArray<EntityCluster.Model>, DatabaseError>;
 
-    readonly findHighCohesion: DbRepo.Method<{
-      payload: typeof FindHighCohesion.Payload;
-      success: typeof FindHighCohesion.Success;
-    }>;
+    readonly findHighCohesion: (
+      minCohesion: number,
+      organizationId: SharedEntityIds.OrganizationId.Type,
+      limit?: number
+    ) => Effect.Effect<ReadonlyArray<EntityCluster.Model>, DatabaseError>;
 
-    readonly deleteByOntology: DbRepo.Method<{
-      payload: typeof DeleteByOntology.Payload;
-      success: typeof S.Void;
-    }>;
-
-    readonly hardDelete: DbRepo.Method<{
-      payload: typeof Delete.Payload;
-      success: typeof S.Void;
-      failure: typeof Delete.Failure;
-    }>;
+    readonly deleteByOntology: (
+      ontologyId: KnowledgeEntityIds.OntologyId.Type,
+      organizationId: SharedEntityIds.OrganizationId.Type
+    ) => Effect.Effect<void, DatabaseError>;
   }
 >;
 

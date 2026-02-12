@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   ClassDefinitionErrors.ClassDefinitionNotFoundError,
-  ClassDefinitionErrors.ClassDefinitionPermissionDeniedError,
+  ClassDefinitionErrors.ClassDefinitionPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

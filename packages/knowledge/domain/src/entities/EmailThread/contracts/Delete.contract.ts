@@ -25,7 +25,7 @@ export class Success extends S.Void.annotations(
 
 export const Failure = S.Union(
   EmailThreadErrors.EmailThreadNotFoundError,
-  EmailThreadErrors.EmailThreadPermissionDeniedError,
+  EmailThreadErrors.EmailThreadPermissionDeniedError
 );
 export type Failure = typeof Failure.Type;
 

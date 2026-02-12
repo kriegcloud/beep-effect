@@ -5,6 +5,6 @@ import type * as EmailThreadMessage from "./EmailThreadMessage.model";
 
 const $I = $KnowledgeDomainId.create("entities/EmailThreadMessage/EmailThreadMessage.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof EmailThreadMessage.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof EmailThreadMessage.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

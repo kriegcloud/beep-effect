@@ -5,6 +5,6 @@ import type * as Ontology from "./Ontology.model";
 
 const $I = $KnowledgeDomainId.create("entities/Ontology/Ontology.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof Ontology.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof Ontology.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

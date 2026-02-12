@@ -22,8 +22,7 @@ export class RelationEvidencePermissionDeniedError extends S.TaggedError<Relatio
   },
   $I.annotationsHttp("RelationEvidencePermissionDeniedError", {
     status: 403,
-    description:
-      "Thrown when the user lacks permission to perform the requested action on the relation evidence.",
+    description: "Thrown when the user lacks permission to perform the requested action on the relation evidence.",
   })
 ) {}
 

@@ -1,12 +1,5 @@
 import * as AiToolkit from "@effect/ai/Toolkit";
-import {
-  Delete,
-  FindByOrganization,
-  FindBySourceEntity,
-  FindByTargetEntity,
-  FindByUser,
-  Get,
-} from "./contracts";
+import { Delete, FindByOrganization, FindBySourceEntity, FindByTargetEntity, FindByUser, Get } from "./contracts";
 
 export const Toolkit = AiToolkit.make(
   Get.Contract.Tool,

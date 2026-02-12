@@ -5,6 +5,6 @@ import type * as ScimProvider from "./ScimProvider.model";
 
 const $I = $IamDomainId.create("entities/ScimProvider/ScimProvider.repo");
 
-export type RepoShape = DbRepo.DbRepoSuccess<typeof ScimProvider.Model, {}>;
+export type RepoShape = DbRepo.DbRepoSuccess<typeof ScimProvider.Model>;
 
 export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

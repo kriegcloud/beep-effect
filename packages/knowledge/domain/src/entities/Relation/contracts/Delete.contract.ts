@@ -23,10 +23,7 @@ export class Success extends S.Void.annotations(
   })
 ) {}
 
-export const Failure = S.Union(
-  RelationErrors.RelationNotFoundError,
-  RelationErrors.RelationPermissionDeniedError,
-);
+export const Failure = S.Union(RelationErrors.RelationNotFoundError, RelationErrors.RelationPermissionDeniedError);
 export type Failure = typeof Failure.Type;
 
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(

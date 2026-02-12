@@ -22,8 +22,7 @@ export class MeetingPrepBulletPermissionDeniedError extends S.TaggedError<Meetin
   },
   $I.annotationsHttp("MeetingPrepBulletPermissionDeniedError", {
     status: 403,
-    description:
-      "Thrown when the user lacks permission to perform the requested action on the meeting prep bullet.",
+    description: "Thrown when the user lacks permission to perform the requested action on the meeting prep bullet.",
   })
 ) {}
 
