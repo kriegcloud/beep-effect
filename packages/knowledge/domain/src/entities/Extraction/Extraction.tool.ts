@@ -1,4 +1,4 @@
 import * as AiToolkit from "@effect/ai/Toolkit";
-import { Delete, Get } from "./contracts";
+import { Cancel, Extract, GetStatus } from "./contracts";
 
-export const Toolkit = AiToolkit.make(Get.Contract.Tool, Delete.Contract.Tool);
+export const Toolkit = AiToolkit.make(Cancel.Contract.Tool, Extract.Contract.Tool, GetStatus.Contract.Tool);

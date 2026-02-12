@@ -1,7 +1,3 @@
 import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
-import { Delete, Get } from "./contracts";
 
-export class Http extends HttpApiGroup.make("email-threads")
-  .add(Get.Contract.Http)
-  .add(Delete.Contract.Http)
-  .prefix("/email-threads") {}
+export class Http extends HttpApiGroup.make("email-threads").prefix("/email-threads") {}

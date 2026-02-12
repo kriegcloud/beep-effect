@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./MergeHistory.entity";
 export * as MergeHistoryErrors from "./MergeHistory.errors";
 export * from "./MergeHistory.http";

@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./Mention.entity";
 export * as MentionErrors from "./Mention.errors";
 export * from "./Mention.http";

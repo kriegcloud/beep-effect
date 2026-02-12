@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./EmailThreadMessage.entity";
 export * as EmailThreadMessageErrors from "./EmailThreadMessage.errors";
 export * from "./EmailThreadMessage.http";

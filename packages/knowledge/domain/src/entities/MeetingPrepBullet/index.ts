@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./MeetingPrepBullet.entity";
 export * as MeetingPrepBulletErrors from "./MeetingPrepBullet.errors";
 export * from "./MeetingPrepBullet.http";

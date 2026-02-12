@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./SameAsLink.entity";
 export * as SameAsLinkErrors from "./SameAsLink.errors";
 export * from "./SameAsLink.http";

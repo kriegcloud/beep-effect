@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./MeetingPrepEvidence.entity";
 export * as MeetingPrepEvidenceErrors from "./MeetingPrepEvidence.errors";
 export * from "./MeetingPrepEvidence.http";

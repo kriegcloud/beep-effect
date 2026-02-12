@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./EntityCluster.entity";
 export * as EntityClusterErrors from "./EntityCluster.errors";
 export * from "./EntityCluster.http";

@@ -1,20 +1,13 @@
 import * as RpcGroup from "@effect/rpc/RpcGroup";
-import {
-  CountByOrganization,
-  Delete,
-  FindByEntityIds,
-  FindByPredicate,
-  FindBySourceIds,
-  FindByTargetIds,
-  Get,
-} from "./contracts";
+import { Count, Create, Delete, Get, ListByEntity, ListByPredicate } from "./contracts";
 
 export class Rpcs extends RpcGroup.make(
-  Get.Contract.Rpc,
+  Count.Contract.Rpc,
+  Create.Contract.Rpc,
   Delete.Contract.Rpc,
-  FindBySourceIds.Contract.Rpc,
-  FindByTargetIds.Contract.Rpc,
-  FindByEntityIds.Contract.Rpc,
-  FindByPredicate.Contract.Rpc,
-  CountByOrganization.Contract.Rpc
-) {}
+  Get.Contract.Rpc,
+  ListByEntity.Contract.Rpc,
+  ListByPredicate.Contract.Rpc
+).prefix("relation_") {}
+
+export { Count, Create, Delete, Get, ListByEntity, ListByPredicate };

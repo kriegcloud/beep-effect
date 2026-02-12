@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./RelationEvidence.entity";
 export * as RelationEvidenceErrors from "./RelationEvidence.errors";
 export * from "./RelationEvidence.http";

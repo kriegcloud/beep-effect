@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./Embedding.entity";
 export * as EmbeddingErrors from "./Embedding.errors";
 export * from "./Embedding.http";

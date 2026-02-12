@@ -1,1 +1,1 @@
-export * as Entity from "./_rpcs";
+export * as Entity from "../../entities/Entity/Entity.rpc";

@@ -5,4 +5,3 @@ export * from "./ClassDefinition.model";
 export * from "./ClassDefinition.repo";
 export * as Rpcs from "./ClassDefinition.rpc";
 export * from "./ClassDefinition.tool";
-export * as Contracts from "./contracts";

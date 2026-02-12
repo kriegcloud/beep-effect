@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./KnowledgeAgent.entity";
 export * as KnowledgeAgentErrors from "./KnowledgeAgent.errors";
 export * from "./KnowledgeAgent.http";

@@ -6,20 +6,15 @@ import {
   WorkflowRuntimeBundleLive,
 } from "@beep/knowledge-server/Runtime/ServiceBundles";
 import * as Layer from "effect/Layer";
-import * as Batch from "./batch";
-import * as Entity from "./entity";
-import * as Evidence from "./evidence";
-import * as GraphRAG from "./graphrag";
-import * as MeetingPrep from "./meetingprep";
-import * as Relation from "./relation";
+import * as Live from "../../entities";
 
 export const layer = Layer.mergeAll(
-  Batch.layer,
-  Entity.layer,
-  Relation.layer,
-  GraphRAG.layer,
-  Evidence.layer,
-  MeetingPrep.layer
+  Live.BatchLive.Rpc.layer,
+  Live.EntityLive.Rpc.layer,
+  Live.RelationLive.Rpc.layer,
+  Live.GraphRAGLive.Rpc.layer,
+  Live.EvidenceLive.Rpc.layer,
+  Live.MeetingPrepLive.Rpc.layer
 ).pipe(
   Layer.provide(LlmControlBundleLive),
   Layer.provide(LlmProviderBundleLive),

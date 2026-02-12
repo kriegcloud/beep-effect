@@ -1,20 +1,10 @@
 import * as AiToolkit from "@effect/ai/Toolkit";
-import {
-  CountByOrganization,
-  Delete,
-  FindByIds,
-  FindByNormalizedText,
-  FindByOntology,
-  FindByType,
-  Get,
-} from "./contracts";
+import { Count, Create, Delete, Get, Update } from "./contracts";
 
 export const Toolkit = AiToolkit.make(
-  Get.Contract.Tool,
+  Count.Contract.Tool,
+  Create.Contract.Tool,
   Delete.Contract.Tool,
-  FindByIds.Contract.Tool,
-  FindByOntology.Contract.Tool,
-  FindByType.Contract.Tool,
-  CountByOrganization.Contract.Tool,
-  FindByNormalizedText.Contract.Tool
+  Get.Contract.Tool,
+  Update.Contract.Tool
 );

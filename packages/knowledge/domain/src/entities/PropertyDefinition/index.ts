@@ -1,4 +1,3 @@
-export * as Contracts from "./contracts";
 export * from "./PropertyDefinition.entity";
 export * as PropertyDefinitionErrors from "./PropertyDefinition.errors";
 export * from "./PropertyDefinition.http";
