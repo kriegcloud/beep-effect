@@ -253,7 +253,7 @@ const AppRpcLayer = Layer.mergeAll(
 
 **Provided RPC handlers**:
 - `files_listFiles` — List files and folders with pagination
-- `files_createFolder` — Create a new folder
+- `files_CreateFolder` — Create a new folder
 - `files_moveFiles` — Move files to a folder
 - `files_deleteFiles` — Delete files
 - `files_deleteFolders` — Delete folders

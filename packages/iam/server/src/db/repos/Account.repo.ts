@@ -1,19 +1,17 @@
-import { Entities } from "@beep/iam-domain";
-import { IamDb } from "@beep/iam-server/db";
-import { dependencies } from "@beep/iam-server/db/repos/_common";
-import { $IamServerId } from "@beep/identity/packages";
-import { IamEntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-server/factories";
+import {Entities} from "@beep/iam-domain";
+import {IamDb} from "@beep/iam-server/db";
+import {IamEntityIds} from "@beep/shared-domain";
+import {DbRepo} from "@beep/shared-server/factories";
+import type * as SqlClient from "@effect/sql/SqlClient";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 
-const $I = $IamServerId.create("db/repos/AccountRepo");
+const serviceEffect = DbRepo.make(IamEntityIds.AccountId, Entities.Account.Model, Effect.gen(function* () {
+  yield* IamDb.Db;
 
-export class AccountRepo extends Effect.Service<AccountRepo>()($I`AccountRepo`, {
-  dependencies,
-  accessors: true,
-  effect: Effect.gen(function* () {
-    yield* IamDb.Db;
+  return {
 
-    return yield* DbRepo.make(IamEntityIds.AccountId, Entities.Account.Model, Effect.succeed({}));
-  }),
-}) {}
+  };
+}));
+
+export const AccountRepoLive: Layer.Layer<Entities.Account.Repo, never, IamDb.Db | SqlClient.SqlClient> = Layer.effect(Entities.Account.Repo, serviceEffect);

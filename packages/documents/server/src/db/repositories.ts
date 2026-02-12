@@ -8,7 +8,6 @@ export type Repos =
   | repos.DiscussionRepo
   | repos.DocumentFileRepo
   | repos.DocumentSourceRepo
-  | repos.DocumentRepo
   | repos.DocumentVersionRepo;
 
 export type RepoLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements | DocumentsDb.Db>;
@@ -18,7 +17,6 @@ export const layer: RepoLayer = Layer.mergeAll(
   repos.DiscussionRepo.Default,
   repos.DocumentFileRepo.Default,
   repos.DocumentSourceRepo.Default,
-  repos.DocumentRepo.Default,
   repos.DocumentVersionRepo.Default
 );
 

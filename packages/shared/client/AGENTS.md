@@ -21,7 +21,7 @@
 - **`atoms/cancelUpload.atom.ts`** — Write-only atom to cancel uploads
 - **`atoms/deleteFiles.atom.ts`** — Write-only atom to delete files/folders
 - **`atoms/moveFiles.atom.ts`** — Write-only atom to move files between folders
-- **`atoms/createFolderAtom.ts`** — Create new folders
+- **`atoms/CreateFolderAtom.ts`** — Create new folders
 - **`atoms/filesEventStream.atom.ts`** — Atom managing SSE connection for file events
 - **`atoms/toggleFileSelection.atom.ts`** — Toggle individual file selection
 - **`atoms/toggleFolderSelection.atom.ts`** — Toggle folder selection with children
@@ -113,7 +113,7 @@ const program = Effect.gen(function* () {
   const files = yield* api.list();
 
   // Create folder
-  yield* api.createFolder({ name: "My Folder", parentId: null });
+  yield* api.CreateFolder({ name: "My Folder", parentId: null });
 
   return files;
 });

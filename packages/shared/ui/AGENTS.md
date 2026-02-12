@@ -149,7 +149,7 @@ This package consumes the following atoms from `@beep/shared-client/atom`:
 | `uploadAtom(uploadId)` | Individual upload progress tracking (compression, upload, sync phases) |
 | `cancelUploadAtom` | Action atom for canceling active uploads |
 | `toggleFileSelectionAtom` | Action atom for toggling file selection state |
-| `createFolderAtom` | Action atom for creating new folders |
+| `CreateFolderAtom` | Action atom for creating new folders |
 | `moveFilesAtom` | Action atom for moving files to different folders |
 | `deleteFilesAtom` | Action atom for deleting files and folders |
 

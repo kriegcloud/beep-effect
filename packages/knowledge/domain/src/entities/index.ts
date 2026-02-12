@@ -1,3 +1,4 @@
+export * as KnowledgeAgent from "./Agent";
 export * as Batch from "./Batch";
 export * as ClassDefinition from "./ClassDefinition";
 export * as EmailThread from "./EmailThread";
