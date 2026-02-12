@@ -1,4 +1,4 @@
-import * as OrganizationRoleModel from "@beep/iam-domain/entities/organization-role";
+import * as OrganizationRoleModel from "@beep/iam-domain/entities/OrganizationRole";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";

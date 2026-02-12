@@ -51,12 +51,13 @@ export class Success extends S.Void.annotations(
  * @since 1.0.0
  * @category errors
  */
-export class Failure extends CommentErrors.CommentNotFoundError.annotations(
-  $I.annotationsHttp("Failure", {
-    status: 404,
-    description: "Comment not found error for the Delete Comment contract.",
-  })
-) {}
+export const Failure = S.Union(CommentErrors.CommentNotFoundError, CommentErrors.CommentPermissionDeniedError);
+
+/**
+ * @since 1.0.0
+ * @category errors
+ */
+export type Failure = typeof Failure.Type;
 
 /**
  * Tagged request contract for `Comment.Delete`.
@@ -97,8 +98,9 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Endpoint = HttpApiEndpoint.del("Delete", "/:id")
+  static readonly Http = HttpApiEndpoint.del("Delete", "/:id")
     .setPayload(Payload)
-    .addError(Failure)
+    .addError(CommentErrors.CommentNotFoundError)
+    .addError(CommentErrors.CommentPermissionDeniedError)
     .addSuccess(Success, { status: 204 });
 }

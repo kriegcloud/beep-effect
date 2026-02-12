@@ -1,5 +1,5 @@
 import type { Auth } from "@beep/iam-server";
-import * as Organization from "@beep/shared-domain/entities/organization";
+import * as Organization from "@beep/shared-domain/entities/Organization";
 import { clientEnv } from "@beep/shared-env/ClientEnv";
 import { asyncNoOp } from "@beep/utils";
 import type { BetterAuthClientOptions } from "@better-auth/core";

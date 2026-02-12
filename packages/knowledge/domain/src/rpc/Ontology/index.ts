@@ -1,1 +1,1 @@
-export * as Ontology from "./_rpcs";
+export * as Ontology from "../../entities/Ontology/Ontology.rpc";

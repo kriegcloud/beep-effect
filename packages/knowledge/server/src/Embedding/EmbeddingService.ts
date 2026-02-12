@@ -1,6 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { Entities } from "@beep/knowledge-domain";
+import type { SimilarityResult } from "@beep/knowledge-domain/entities/Embedding/Embedding.values";
 import type { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
-import { EmbeddingRepo, type SimilarityResult } from "@beep/knowledge-server/db/repos/Embedding.repo";
 import type { AssembledEntity } from "@beep/knowledge-server/Extraction/GraphAssembler";
 import { formatEntityForEmbedding } from "@beep/knowledge-server/utils/formatting";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
@@ -95,10 +96,10 @@ export class EmbeddingService extends Context.Tag($I`EmbeddingService`)<Embeddin
 const serviceEffect: Effect.Effect<
   EmbeddingServiceShape,
   EmbeddingError,
-  EmbeddingRepo | EmbeddingModel.EmbeddingModel | CentralRateLimiterService
+  Entities.Embedding.Repo | EmbeddingModel.EmbeddingModel | CentralRateLimiterService
 > = Effect.gen(function* () {
   const embeddingModel = yield* EmbeddingModel.EmbeddingModel;
-  const repo = yield* EmbeddingRepo;
+  const repo = yield* Entities.Embedding.Repo;
   const limiter = yield* CentralRateLimiterService;
   const fallbackModel = yield* Effect.serviceOption(FallbackEmbeddingModel).pipe(Effect.map(O.flatten));
 

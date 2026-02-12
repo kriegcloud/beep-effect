@@ -52,7 +52,7 @@ Unlike slice-specific CLIENTs (`@beep/iam-client`, `@beep/documents-client`), th
 | `cancelUpload.atom` | Write-only atom to cancel uploads |
 | `deleteFiles.atom` | Write-only atom to delete files/folders |
 | `moveFiles.atom` | Write-only atom to move files between folders |
-| `createFolderAtom` | Write-only atom to create folders |
+| `CreateFolderAtom` | Write-only atom to create folders |
 | `toggleFileSelection.atom` | Write-only atom to toggle file selection |
 | `toggleFolderSelection.atom` | Write-only atom to toggle folder selection |
 | `clearSelection.atom` | Write-only atom to clear all selections |
@@ -118,7 +118,7 @@ const program = Effect.gen(function* () {
   const files = yield* api.list();
 
   // Create folder
-  yield* api.createFolder({ name: "My Folder", parentId: null });
+  yield* api.CreateFolder({ name: "My Folder", parentId: null });
 
   // Upload file
   const upload = yield* api.initiateUpload({

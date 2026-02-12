@@ -7,13 +7,8 @@ import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { AccessLevel, ShareType } from "../../value-objects";
 
-const $I = $DocumentsDomainId.create("entities/page-share/page-share.model");
+const $I = $DocumentsDomainId.create("entities/PageShare/PageShare.model");
 
-/**
- * PageShare model representing a permission entry for page access.
- * Supports sharing with individual users, teams, organizations,
- * or via link tokens with configurable access levels and expiration.
- */
 export class Model extends M.Class<Model>($I`PageShareModel`)(
   makeFields(DocumentsEntityIds.PageShareId, {
     pageId: DocumentsEntityIds.PageId,

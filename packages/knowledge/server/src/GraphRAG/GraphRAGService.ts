@@ -22,9 +22,9 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
-import { EntityRepo, EntityRepoLive } from "../db/repos/Entity.repo";
-import { RelationRepo, RelationRepoLive } from "../db/repos/Relation.repo";
 import { type EmbeddingError, EmbeddingService } from "../Embedding";
+import { RepoLive as EntityRepoLive } from "../entities/Entity";
+import { RepoLive as RelationRepoLive } from "../entities/Relation";
 import {
   type QueryResult,
   type SparqlGenerationError,
@@ -131,11 +131,11 @@ export class GraphRAGService extends Context.Tag($I`GraphRAGService`)<GraphRAGSe
 const serviceEffect: Effect.Effect<
   GraphRAGServiceShape,
   never,
-  EmbeddingService | EntityRepo | RelationRepo | SparqlGenerator | SparqlService
+  EmbeddingService | Entities.Entity.Repo | Entities.Relation.Repo | SparqlGenerator | SparqlService
 > = Effect.gen(function* () {
   const embeddingService = yield* EmbeddingService;
-  const entityRepo = yield* EntityRepo;
-  const relationRepo = yield* RelationRepo;
+  const entityRepo = yield* Entities.Entity.Repo;
+  const relationRepo = yield* Entities.Relation.Repo;
   const sparqlGenerator = yield* SparqlGenerator;
   const sparqlService = yield* SparqlService;
 
@@ -381,7 +381,7 @@ const traverseGraph = (
   seedIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
   maxHops: number,
   organizationId: SharedEntityIds.OrganizationId.Type,
-  relationRepo: Context.Tag.Service<RelationRepo>
+  relationRepo: Context.Tag.Service<Entities.Relation.Repo>
 ): Effect.Effect<
   {
     allEntityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>;

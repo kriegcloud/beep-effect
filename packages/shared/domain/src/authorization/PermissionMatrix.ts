@@ -14,6 +14,8 @@
  * @module authorization/PermissionMatrix
  */
 
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import { Action } from "../entity-ids";
 import type { BaseRole } from "./BaseRole.ts";
 import type { FunctionalRole } from "./FunctionalRole.ts";
@@ -271,37 +273,33 @@ import type { FunctionalRole } from "./FunctionalRole.ts";
 /**
  * Get permissions for a base role
  */
-export const getBaseRolePermissions = (role: BaseRole.Type): ReadonlySet<Action.Type> => {
-  switch (role) {
-    case "owner":
-      return new Set(Action.Options);
-    case "admin":
-      return new Set(Action.Options);
-    case "viewer":
-      return new Set(Action.Options);
-    case "member":
-      // Member has no default permissions - must have functional roles
-      return new Set(Action.Options);
-  }
-};
+export const getBaseRolePermissions = (role: BaseRole.Type): ReadonlySet<Action.Type> =>
+  F.pipe(
+    role,
+    Match.type<BaseRole.Type>().pipe(
+      Match.when("owner", () => new Set(Action.Options)),
+      Match.when("admin", () => new Set(Action.Options)),
+      Match.when("viewer", () => new Set(Action.Options)),
+      Match.when("member", () => new Set(Action.Options)),
+      Match.exhaustive
+    )
+  );
 
 /**
  * Get permissions for a functional role
  */
-export const getFunctionalRolePermissions = (role: FunctionalRole): ReadonlySet<Action.Type> => {
-  switch (role) {
-    case "controller":
-      return new Set(Action.Options);
-    case "finance_manager":
-      return new Set(Action.Options);
-    case "accountant":
-      return new Set(Action.Options);
-    case "period_admin":
-      return new Set(Action.Options);
-    case "consolidation_manager":
-      return new Set(Action.Options);
-  }
-};
+export const getFunctionalRolePermissions = (role: FunctionalRole): ReadonlySet<Action.Type> =>
+  F.pipe(
+    role,
+    Match.type<FunctionalRole>().pipe(
+      Match.when("controller", () => new Set(Action.Options)),
+      Match.when("finance_manager", () => new Set(Action.Options)),
+      Match.when("accountant", () => new Set(Action.Options)),
+      Match.when("period_admin", () => new Set(Action.Options)),
+      Match.when("consolidation_manager", () => new Set(Action.Options)),
+      Match.exhaustive
+    )
+  );
 
 /**
  * Compute effective permissions for a user given their role and functional roles

@@ -1,9 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { type Entities, ValueObjects } from "@beep/knowledge-domain";
+import { Entities, ValueObjects } from "@beep/knowledge-domain";
 import { ClusterError } from "@beep/knowledge-domain/errors";
 import { MergeHistory } from "@beep/knowledge-domain/services";
-import { EntityRepo } from "@beep/knowledge-server/db/repos/Entity.repo";
-import { MentionRecordRepo } from "@beep/knowledge-server/db/repos/MentionRecord.repo";
 import { EntityRegistry } from "@beep/knowledge-server/EntityResolution/EntityRegistry";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
@@ -63,11 +61,11 @@ export class CrossBatchEntityResolver extends Context.Tag($I`CrossBatchEntityRes
 const serviceEffect: Effect.Effect<
   CrossBatchEntityResolverShape,
   never,
-  EntityRegistry | EntityRepo | MentionRecordRepo | MergeHistory
+  EntityRegistry | Entities.Entity.Repo | Entities.MentionRecord.Repo | MergeHistory
 > = Effect.gen(function* () {
   const entityRegistry = yield* EntityRegistry;
-  const entityRepo = yield* EntityRepo;
-  const mentionRecordRepo = yield* MentionRecordRepo;
+  const entityRepo = yield* Entities.Entity.Repo;
+  const mentionRecordRepo = yield* Entities.MentionRecord.Repo;
   const mergeHistory = yield* MergeHistory;
 
   const resolveMention = (

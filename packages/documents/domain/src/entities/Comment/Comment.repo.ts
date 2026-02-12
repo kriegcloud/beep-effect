@@ -13,12 +13,11 @@
  * @category repos
  */
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import type { DocumentsEntityIds } from "@beep/shared-domain";
 import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
 import type * as S from "effect/Schema";
 import type * as Comment from "./Comment.model";
-import type { ListByDiscussion, Update } from "./contracts";
+import type { Delete, ListByDiscussion, Update } from "./contracts";
 
 const $I = $DocumentsDomainId.create("entities/Comment/Comment.repo");
 
@@ -59,8 +58,9 @@ export type RepoShape = DbRepo.DbRepoSuccess<
      * @category repos
      */
     readonly hardDelete: DbRepo.Method<{
-      payload: typeof DocumentsEntityIds.CommentId;
+      payload: typeof Delete.Payload;
       success: typeof S.Void;
+      failure: typeof Delete.Failure;
     }>;
   }
 >;

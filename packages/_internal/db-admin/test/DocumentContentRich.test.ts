@@ -1,8 +1,13 @@
 import { describe } from "bun:test";
+import { Entities as DocEntities } from "@beep/documents-domain";
 import { Document } from "@beep/documents-domain/entities";
 import type { SerializedEditorStateEnvelope } from "@beep/documents-domain/value-objects";
-import { DocumentRepo } from "@beep/documents-server/db";
-import { OrganizationRepo, UserRepo } from "@beep/iam-server/db";
+import { Entities as IamEntities } from "@beep/iam-domain";
+
+const DocumentRepo = DocEntities.Document.Repo;
+const OrganizationRepo = IamEntities.Organization.Repo;
+const UserRepo = IamEntities.User.Repo;
+
 import { BS } from "@beep/schema";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { Organization, User } from "@beep/shared-domain/entities";
@@ -55,10 +60,10 @@ const setupTestContext = Effect.gen(function* () {
   const userRepo = yield* UserRepo;
   const orgRepo = yield* OrganizationRepo;
 
-  const user = yield* userRepo.insert(
+  const { data: user } = yield* userRepo.insert(
     makeMockUser({ email: makeTestEmail("doc-content-rich"), name: "ContentRich Test User" })
   );
-  const org = yield* orgRepo.insert(makeMockOrganization(user.id));
+  const { data: org } = yield* orgRepo.insert(makeMockOrganization(user.id));
 
   yield* setTestTenant(org.id);
 
@@ -119,12 +124,12 @@ describe("Document contentRich round-trip", () => {
             contentRich,
           });
 
-          const inserted = yield* docRepo.insert(docInsert);
+          const { data: inserted } = yield* docRepo.insert(docInsert);
           assertTrue(S.is(Document.Model)(inserted));
 
-          const found = unwrapSome(yield* docRepo.findById(inserted.id), "document findById");
+          const found = unwrapSome(yield* docRepo.findById({ id: inserted.id }), "document findById");
 
-          const retrievedContentRich = unwrapSome(found.contentRich, "contentRich");
+          const retrievedContentRich = unwrapSome(found.data.contentRich, "contentRich");
 
           strictEqual(retrievedContentRich.root.type, "root");
           strictEqual(retrievedContentRich.root.version, 1);
@@ -173,11 +178,11 @@ describe("Document contentRich round-trip", () => {
             title: "No ContentRich Test",
           });
 
-          const inserted = yield* docRepo.insert(docInsert);
-          const found = unwrapSome(yield* docRepo.findById(inserted.id), "document findById");
+          const { data: inserted } = yield* docRepo.insert(docInsert);
+          const found = unwrapSome(yield* docRepo.findById({ id: inserted.id }), "document findById");
 
           // contentRich should be None when not provided
-          assertTrue(O.isNone(found.contentRich));
+          assertTrue(O.isNone(found.data.contentRich));
         }),
       TEST_TIMEOUT
     );
@@ -198,7 +203,7 @@ describe("Document contentRich round-trip", () => {
           const docInsert = makeMockDocument(organizationId, userId, {
             title: "Update ContentRich Test",
           });
-          const inserted = yield* docRepo.insert(docInsert);
+          const { data: inserted } = yield* docRepo.insert(docInsert);
           assertTrue(O.isNone(inserted.contentRich));
 
           const newContentRich: SerializedEditorStateEnvelope.Type = {
@@ -219,7 +224,7 @@ describe("Document contentRich round-trip", () => {
           };
 
           // Update with contentRich
-          const updated = yield* docRepo.update({
+          const { data: updated } = yield* docRepo.update({
             ...inserted,
             contentRich: O.some(newContentRich),
           });
@@ -227,13 +232,13 @@ describe("Document contentRich round-trip", () => {
           assertTrue(O.isSome(updated.contentRich));
 
           // Verify the update persisted
-          const found = unwrapSome(yield* docRepo.findById(inserted.id), "document findById");
-          assertTrue(O.isSome(found.contentRich));
+          const found = unwrapSome(yield* docRepo.findById({ id: inserted.id }), "document findById");
+          assertTrue(O.isSome(found.data.contentRich));
 
-          if (O.isSome(found.contentRich)) {
-            strictEqual(found.contentRich.value.root.type, "root");
-            assertTrue(A.length(found.contentRich.value.root.children) >= 1);
-            const firstChild = unwrapSome(A.get(found.contentRich.value.root.children, 0), "first child");
+          if (O.isSome(found.data.contentRich)) {
+            strictEqual(found.data.contentRich.value.root.type, "root");
+            assertTrue(A.length(found.data.contentRich.value.root.children) >= 1);
+            const firstChild = unwrapSome(A.get(found.data.contentRich.value.root.children, 0), "first child");
             strictEqual(firstChild.type, "paragraph");
           }
         }),
@@ -274,9 +279,9 @@ describe("Document contentRich round-trip", () => {
             contentRich: contentWithNodeState,
           });
 
-          const inserted = yield* docRepo.insert(docInsert);
-          const found = unwrapSome(yield* docRepo.findById(inserted.id), "document findById");
-          const retrievedRich = unwrapSome(found.contentRich, "contentRich");
+          const { data: inserted } = yield* docRepo.insert(docInsert);
+          const found = unwrapSome(yield* docRepo.findById({ id: inserted.id }), "document findById");
+          const retrievedRich = unwrapSome(found.data.contentRich, "contentRich");
 
           const child = unwrapSome(A.get(retrievedRich.root.children, 0), "collapsible-heading child");
           assertTrue(child.$ !== undefined);
@@ -310,9 +315,9 @@ describe("Document contentRich round-trip", () => {
             contentRich: contentWithEmptyChildren,
           });
 
-          const inserted = yield* docRepo.insert(docInsert);
-          const found = unwrapSome(yield* docRepo.findById(inserted.id), "document findById");
-          const retrievedRich = unwrapSome(found.contentRich, "contentRich");
+          const { data: inserted } = yield* docRepo.insert(docInsert);
+          const found = unwrapSome(yield* docRepo.findById({ id: inserted.id }), "document findById");
+          const retrievedRich = unwrapSome(found.data.contentRich, "contentRich");
 
           assertTrue(A.isEmptyReadonlyArray(retrievedRich.root.children));
         }),
@@ -374,9 +379,9 @@ describe("Document contentRich round-trip", () => {
             contentRich: deeplyNested,
           });
 
-          const inserted = yield* docRepo.insert(docInsert);
-          const found = unwrapSome(yield* docRepo.findById(inserted.id), "document findById");
-          const retrievedRich = unwrapSome(found.contentRich, "contentRich");
+          const { data: inserted } = yield* docRepo.insert(docInsert);
+          const found = unwrapSome(yield* docRepo.findById({ id: inserted.id }), "document findById");
+          const retrievedRich = unwrapSome(found.data.contentRich, "contentRich");
 
           strictEqual(A.length(retrievedRich.root.children), 2);
 
@@ -426,9 +431,9 @@ describe("Document contentRich round-trip", () => {
             contentRich: contentWithNullDirection,
           });
 
-          const inserted = yield* docRepo.insert(docInsert);
-          const found = unwrapSome(yield* docRepo.findById(inserted.id), "document findById");
-          const retrievedRich = unwrapSome(found.contentRich, "contentRich");
+          const { data: inserted } = yield* docRepo.insert(docInsert);
+          const found = unwrapSome(yield* docRepo.findById({ id: inserted.id }), "document findById");
+          const retrievedRich = unwrapSome(found.data.contentRich, "contentRich");
 
           strictEqual(retrievedRich.root.direction, null);
         }),
@@ -458,9 +463,9 @@ describe("Document contentRich round-trip", () => {
             contentRich: contentWithNumericFormat,
           });
 
-          const inserted = yield* docRepo.insert(docInsert);
-          const found = unwrapSome(yield* docRepo.findById(inserted.id), "document findById");
-          const retrievedRich = unwrapSome(found.contentRich, "contentRich");
+          const { data: inserted } = yield* docRepo.insert(docInsert);
+          const found = unwrapSome(yield* docRepo.findById({ id: inserted.id }), "document findById");
+          const retrievedRich = unwrapSome(found.data.contentRich, "contentRich");
 
           strictEqual(retrievedRich.root.format, 5);
         }),

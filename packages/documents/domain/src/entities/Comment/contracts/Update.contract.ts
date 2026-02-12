@@ -44,7 +44,9 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  * @category DTO
  */
 export class Success extends S.Class<Success>($I`Success`)(
-  Comment.Model.json,
+  {
+    data: Comment.Model.json,
+  },
   $I.annotations("Success", {
     description: "Success response for the Update Comment contract.",
   })
@@ -56,12 +58,13 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @since 1.0.0
  * @category errors
  */
-export class Failure extends CommentErrors.CommentNotFoundError.annotations(
-  $I.annotationsHttp("Failure", {
-    status: 404,
-    description: "Comment not found error for the Update Comment contract.",
-  })
-) {}
+export const Failure = S.Union(CommentErrors.CommentNotFoundError, CommentErrors.CommentPermissionDeniedError);
+
+/**
+ * @since 1.0.0
+ * @category errors
+ */
+export type Failure = typeof Failure.Type;
 
 /**
  * Tagged request contract for `Comment.Update`.
@@ -102,8 +105,9 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
    * @since 1.0.0
    * @category http
    */
-  static readonly Endpoint = HttpApiEndpoint.patch("Update", "/:id")
+  static readonly Http = HttpApiEndpoint.patch("Update", "/:id")
     .setPayload(Payload)
-    .addError(Failure)
+    .addError(CommentErrors.CommentNotFoundError)
+    .addError(CommentErrors.CommentPermissionDeniedError)
     .addSuccess(Success);
 }

@@ -114,7 +114,7 @@ if (!hydrated) return null;
 | `filesAtom` | File and folder tree data |
 | `activeUploadsAtom` | Currently uploading files with progress |
 | `selectedFilesAtom` | Selected file/folder IDs for bulk operations |
-| `createFolderAtom` | Action for creating folders |
+| `CreateFolderAtom` | Action for creating folders |
 | `moveFilesAtom` | Action for moving files |
 | `deleteFilesAtom` | Action for deleting files/folders |
 

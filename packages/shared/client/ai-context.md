@@ -100,7 +100,7 @@ import { FilesApi } from "@beep/shared-client/atom/services";
 const program = Effect.gen(function* () {
   const api = yield* FilesApi.Service;
   const files = yield* api.list();
-  yield* api.createFolder({ name: "New Folder", parentId: null });
+  yield* api.CreateFolder({ name: "New Folder", parentId: null });
   return files;
 });
 ```

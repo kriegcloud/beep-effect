@@ -1,16 +1,14 @@
+import type { File, Folder, UploadSession } from "@beep/shared-domain/entities";
 import type { DbClient } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
-import type { SharedDb } from "../db";
-import * as repos from "./repos";
+import * as Live from "../entities";
 
-export * from "./repos";
+export type Repos = File.Repo | Folder.Repo | UploadSession.Repo;
 
-export type Repos = repos.FileRepo | repos.FolderRepo | repos.UploadSessionRepo;
-
-export type ReposLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements | SharedDb.Db>;
+export type ReposLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements>;
 
 export const layer: ReposLayer = Layer.mergeAll(
-  repos.FileRepo.Default,
-  repos.FolderRepo.Default,
-  repos.UploadSessionRepo.Default
+  Live.FileLive.RepoLive,
+  Live.FolderLive.RepoLive,
+  Live.UploadSessionLive.RepoLive
 );

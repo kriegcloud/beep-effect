@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { EnvValue } from "@beep/constants";
 import { BS } from "@beep/schema";
 import { File } from "@beep/shared-domain/entities";
-import * as Organization from "@beep/shared-domain/entities/organization";
+import * as Organization from "@beep/shared-domain/entities/Organization";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";

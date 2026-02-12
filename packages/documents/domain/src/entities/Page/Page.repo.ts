@@ -1,16 +1,26 @@
+/**
+ * Page repository contract (domain).
+ *
+ * This module intentionally lives in the domain package:
+ * - Slice server packages implement this contract against the real database.
+ * - Domain code can depend on the *shape* of persistence without importing server layers.
+ *
+ * Custom repo methods should prefer schema-derived signatures (`DbRepo.Method`) so
+ * payload/success types and required schema contexts stay mechanically consistent.
+ *
+ * @module documents-domain/entities/Page/Page.repo
+ * @since 1.0.0
+ * @category repos
+ */
 import { $DocumentsDomainId } from "@beep/identity/packages";
-import * as Arbitrary from "effect/Arbitrary";
-import * as A from "effect/Array";
+import type * as DbRepo from "@beep/shared-domain/factories/db-repo";
 import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import * as FC from "effect/FastCheck";
-import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
-import {
+import type * as S from "effect/Schema";
+import type {
   Archive,
   Breadcrumbs,
   Create,
-  type Delete,
+  Delete,
   Get,
   List,
   ListChildren,
@@ -24,138 +34,211 @@ import {
   UnPublish,
   Update,
 } from "./contracts";
-import * as Page from "./Page.model";
+import type * as Page from "./Page.model";
 
 const $I = $DocumentsDomainId.create("entities/Page/Page.repo");
 
-type PayloadMap = {
-  readonly Archive: Archive.Payload;
-  readonly Breadcrumbs: Breadcrumbs.Payload;
-  readonly Create: Create.Payload;
-  readonly Delete: Delete.Payload;
-  readonly Get: Get.Payload;
-  readonly List: List.Payload;
-  readonly ListChildren: ListChildren.Payload;
-  readonly ListTrash: ListTrash.Payload;
-  readonly Lock: Lock.Payload;
-  readonly Move: Move.Payload;
-  readonly Publish: Publish.Payload;
-  readonly Restore: Restore.Payload;
-  readonly Search: Search.Payload;
-  readonly UnPublish: UnPublish.Payload;
-  readonly Unlock: Unlock.Payload;
-  readonly Update: Update.Payload;
-};
+export type RepoShape = DbRepo.DbRepoSuccess<
+  typeof Page.Model,
+  {
+    /**
+     * Retrieve a single page by id.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly get: DbRepo.Method<{
+      payload: typeof Get.Payload;
+      success: typeof Get.Success;
+      failure: typeof Get.Failure;
+    }>;
 
-type PayloadIndex<T extends keyof PayloadMap> = PayloadMap[T];
+    /**
+     * Cursor-paginated listing of pages for an organization.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly list: DbRepo.Method<{
+      payload: typeof List.Payload;
+      success: typeof List.Success;
+    }>;
 
-type SuccessMap = {
-  readonly Archive: Archive.Success;
-  readonly Breadcrumbs: Breadcrumbs.Success;
-  readonly Create: Create.Success;
-  readonly Delete: void;
-  readonly Get: Get.Success;
-  readonly List: List.Success;
-  readonly ListChildren: ListChildren.Success;
-  readonly ListTrash: ListTrash.Success;
-  readonly Lock: Lock.Success;
-  readonly Move: Move.Success;
-  readonly Publish: Publish.Success;
-  readonly Restore: Restore.Success;
-  readonly Search: Search.Success;
-  readonly UnPublish: UnPublish.Success;
-  readonly Unlock: Unlock.Success;
-  readonly Update: Update.Success;
-};
+    /**
+     * Cursor-paginated listing of child pages for a given parent.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly listChildren: DbRepo.Method<{
+      payload: typeof ListChildren.Payload;
+      success: typeof ListChildren.Success;
+    }>;
 
-type SuccessIndex<T extends keyof SuccessMap> = SuccessMap[T];
+    /**
+     * Cursor-paginated listing of archived/trashed pages.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly listTrash: DbRepo.Method<{
+      payload: typeof ListTrash.Payload;
+      success: typeof ListTrash.Success;
+    }>;
 
-export interface Shape {
-  readonly Archive: (payload: Archive.Payload) => Effect.Effect<Archive.Success, Archive.Error, never>;
-  readonly Breadcrumbs: (payload: Breadcrumbs.Payload) => Effect.Effect<Breadcrumbs.Success, Breadcrumbs.Error, never>;
-  readonly Create: (payload: Create.Payload) => Effect.Effect<Create.Success, Create.Error, never>;
-  readonly Delete: (payload: Delete.Payload) => Effect.Effect<void, Delete.Error, never>;
-  readonly Get: (payload: Get.Payload) => Effect.Effect<Get.Success, Get.Error, never>;
-  readonly List: (payload: List.Payload) => Effect.Effect<List.Success, List.Error, never>;
-  readonly ListChildren: (
-    payload: ListChildren.Payload
-  ) => Effect.Effect<ListChildren.Success, ListChildren.Error, never>;
-  readonly ListTrash: (payload: ListTrash.Payload) => Effect.Effect<ListTrash.Success, ListTrash.Error, never>;
-  readonly Lock: (payload: Lock.Payload) => Effect.Effect<Lock.Success, Lock.Error, never>;
-  readonly Move: (payload: Move.Payload) => Effect.Effect<Move.Success, Move.Error, never>;
-  readonly Publish: (payload: Publish.Payload) => Effect.Effect<Publish.Success, Publish.Error, never>;
-  readonly Restore: (payload: Restore.Payload) => Effect.Effect<Restore.Success, Restore.Error, never>;
-  readonly Search: (payload: Search.Payload) => Effect.Effect<Search.Success, Search.Error, never>;
-  readonly UnPublish: (payload: UnPublish.Payload) => Effect.Effect<UnPublish.Success, UnPublish.Error, never>;
-  readonly Unlock: (payload: Unlock.Payload) => Effect.Effect<Unlock.Success, Unlock.Error, never>;
-  readonly Update: (payload: Update.Payload) => Effect.Effect<Update.Success, Update.Error, never>;
-}
+    /**
+     * Full-text search of pages within an organization.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly search: DbRepo.Method<{
+      payload: typeof Search.Payload;
+      success: typeof Search.Success;
+    }>;
 
-export class Repo extends Context.Tag($I`Repo`)<Repo, Shape>() {}
+    /**
+     * Create a new page.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly create: DbRepo.Method<{
+      payload: typeof Create.Payload;
+      success: typeof Create.Success;
+      failure: typeof Create.Failure;
+    }>;
 
-type MockerOptions = {
-  qty?: undefined | number;
-};
+    /**
+     * Update an existing page.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly updatePage: DbRepo.Method<{
+      payload: typeof Update.Payload;
+      success: typeof Update.Success;
+      failure: typeof Update.Failure;
+    }>;
 
-const samplePage = (opts?: MockerOptions) =>
-  A.head(FC.sample(Arbitrary.make(Page.Model.json), opts?.qty ?? 1)).pipe(O.getOrThrow);
+    /**
+     * Soft-delete (archive) a page by id.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly archive: DbRepo.Method<{
+      payload: typeof Archive.Payload;
+      success: typeof Archive.Success;
+      failure: typeof Archive.Failure;
+    }>;
 
-type Overrides = Partial<{
-  readonly [K in keyof Shape]: (payload: PayloadIndex<K>, opts?: MockerOptions) => SuccessIndex<K>;
-}>;
+    /**
+     * Restore a previously archived page.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly restore: DbRepo.Method<{
+      payload: typeof Restore.Payload;
+      success: typeof Restore.Success;
+      failure: typeof Restore.Failure;
+    }>;
 
-export const makeTestLayer = (overrides?: Overrides) => {
-  const o = overrides ?? {};
+    /**
+     * Lock a page to prevent further edits.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly lock: DbRepo.Method<{
+      payload: typeof Lock.Payload;
+      success: typeof Lock.Success;
+      failure: typeof Lock.Failure;
+    }>;
 
-  // Default mock behavior: succeed with arbitrary Success values.
-  // For Page-like Success payloads, also shallow-merge the request payload into the result
-  // so ids/organizationId/parentId assertions can be written naturally in tests.
-  const impl: Shape = {
-    Archive: (payload) =>
-      Effect.succeed(o.Archive?.(payload) ?? new Archive.Success({ ...samplePage(), id: payload.id })),
-    Breadcrumbs: (payload) => Effect.succeed(o.Breadcrumbs?.(payload) ?? new Breadcrumbs.Success({ id: payload.id })),
-    Create: (payload) => Effect.succeed(o.Create?.(payload) ?? new Create.Success({ ...samplePage(), ...payload })),
-    Delete: (payload) => Effect.succeed(o.Delete?.(payload) ?? undefined),
-    Get: (payload) => Effect.succeed(o.Get?.(payload) ?? new Get.Success({ ...samplePage(), id: payload.id })),
-    List: (payload) =>
-      Effect.succeed(
-        o.List?.(payload) ?? new List.Success({ ...samplePage(), organizationId: payload.organizationId })
-      ),
-    ListChildren: (payload) =>
-      Effect.succeed(
-        o.ListChildren?.(payload) ?? new ListChildren.Success({ ...samplePage(), parentId: payload.parentId })
-      ),
-    ListTrash: (payload) =>
-      Effect.succeed(
-        o.ListTrash?.(payload) ?? new ListTrash.Success({ ...samplePage(), organizationId: payload.organizationId })
-      ),
-    Lock: (payload) =>
-      Effect.succeed(o.Lock?.(payload) ?? new Lock.Success({ ...samplePage(), id: payload.id, lockPage: true })),
-    Move: (payload) =>
-      Effect.succeed(
-        o.Move?.(payload) ??
-          new Move.Success({ ...samplePage(), id: payload.id, parentId: payload.parentId, position: payload.position })
-      ),
-    Publish: (payload) =>
-      Effect.succeed(
-        o.Publish?.(payload) ?? new Publish.Success({ ...samplePage(), id: payload.id, isPublished: true })
-      ),
-    Restore: (payload) =>
-      Effect.succeed(
-        o.Restore?.(payload) ?? new Restore.Success({ ...samplePage(), id: payload.id, isArchived: false })
-      ),
-    Search: (payload) =>
-      Effect.succeed(
-        o.Search?.(payload) ?? new Search.Success({ ...samplePage(), organizationId: payload.organizationId })
-      ),
-    UnPublish: (payload) =>
-      Effect.succeed(
-        o.UnPublish?.(payload) ?? new UnPublish.Success({ ...samplePage(), id: payload.id, isPublished: false })
-      ),
-    Unlock: (payload) =>
-      Effect.succeed(o.Unlock?.(payload) ?? new Unlock.Success({ ...samplePage(), id: payload.id, lockPage: false })),
-    Update: (payload) => Effect.succeed(o.Update?.(payload) ?? new Update.Success({ ...samplePage(), ...payload })),
-  };
+    /**
+     * Unlock a previously locked page.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly unlock: DbRepo.Method<{
+      payload: typeof Unlock.Payload;
+      success: typeof Unlock.Success;
+      failure: typeof Unlock.Failure;
+    }>;
 
-  return Layer.succeed(Repo, impl);
-};
+    /**
+     * Move a page to a new parent and/or position.
+     *
+     * Implementations should validate against cyclic nesting.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly move: DbRepo.Method<{
+      payload: typeof Move.Payload;
+      success: typeof Move.Success;
+      failure: typeof Move.Failure;
+    }>;
+
+    /**
+     * Publish a page for public access.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly publish: DbRepo.Method<{
+      payload: typeof Publish.Payload;
+      success: typeof Publish.Success;
+      failure: typeof Publish.Failure;
+    }>;
+
+    /**
+     * Revoke public access to a page.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly unPublish: DbRepo.Method<{
+      payload: typeof UnPublish.Payload;
+      success: typeof UnPublish.Success;
+      failure: typeof UnPublish.Failure;
+    }>;
+
+    /**
+     * Stream breadcrumb ancestry for a given page.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly breadcrumbs: DbRepo.Method<{
+      payload: typeof Breadcrumbs.Payload;
+      success: typeof Breadcrumbs.Success;
+      failure: typeof Breadcrumbs.Failure;
+    }>;
+
+    /**
+     * Permanently delete a page by id.
+     *
+     * @since 1.0.0
+     * @category repos
+     */
+    readonly hardDelete: DbRepo.Method<{
+      payload: typeof Delete.Payload;
+      success: typeof S.Void;
+      failure: typeof Delete.Failure;
+    }>;
+  }
+>;
+
+/**
+ * Page repository service tag.
+ *
+ * Base CRUD methods come from `DbRepo.DbRepoSuccess<typeof Page.Model, ...>`.
+ *
+ * @since 1.0.0
+ * @category repos
+ */
+export class Repo extends Context.Tag($I`Repo`)<Repo, RepoShape>() {}

@@ -53,12 +53,12 @@
     "@effect/sql-drizzle": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@effect/workflow": "catalog:",
+    "@lexical/headless": "catalog:",
     "@uswriting/exiftool": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-    "pdf-lib": "catalog:",
     "lexical": "catalog:",
-    "@lexical/headless": "catalog:"
+    "pdf-lib": "catalog:"
   },
   "devDependencies": {
     "@beep/identity": "workspace:^",
@@ -79,13 +79,13 @@
     "@effect/sql-drizzle": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@effect/workflow": "catalog:",
+    "@lexical/headless": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
     "@uswriting/exiftool": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-    "pdf-lib": "catalog:",
     "lexical": "catalog:",
-    "@lexical/headless": "catalog:"
+    "pdf-lib": "catalog:"
   },
   "effect": {
     "generateExports": {
