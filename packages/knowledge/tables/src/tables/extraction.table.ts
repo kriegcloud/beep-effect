@@ -1,14 +1,14 @@
 import type { Extraction } from "@beep/knowledge-domain/entities";
-import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { type WorkspacesEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import { datetime } from "@beep/shared-tables/columns";
 import * as pg from "drizzle-orm/pg-core";
 
 export const extraction = OrgTable.make(KnowledgeEntityIds.ExtractionId)(
   {
-    documentId: pg.text("document_id").notNull().$type<DocumentsEntityIds.DocumentId.Type>(),
+    documentId: pg.text("document_id").notNull().$type<WorkspacesEntityIds.DocumentId.Type>(),
     // Version pinning for evidence integrity. Existing rows may be NULL until backfilled.
-    documentVersionId: pg.text("document_version_id").$type<DocumentsEntityIds.DocumentVersionId.Type>(),
+    documentVersionId: pg.text("document_version_id").$type<WorkspacesEntityIds.DocumentVersionId.Type>(),
     sourceUri: pg.text("source_uri"),
     ontologyId: pg.text("ontology_id").notNull().$type<KnowledgeEntityIds.OntologyId.Type>(),
     status: pg.text("status").notNull().default("pending").$type<Extraction.ExtractionStatus.Type>(),

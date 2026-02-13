@@ -141,29 +141,29 @@
       "@beep/customization-ui/*": [
         "../../packages/customization/ui/src/*"
       ],
-      "@beep/documents-client": [
-        "../../packages/documents/client/src/index"
+      "@beep/workspaces-client": [
+        "../../packages/workspaces/client/src/index"
       ],
-      "@beep/documents-client/*": [
-        "../../packages/documents/client/src/*"
+      "@beep/workspaces-client/*": [
+        "../../packages/workspaces/client/src/*"
       ],
-      "@beep/documents-domain": [
-        "../../packages/documents/domain/src/index"
+      "@beep/workspaces-domain": [
+        "../../packages/workspaces/domain/src/index"
       ],
-      "@beep/documents-domain/*": [
-        "../../packages/documents/domain/src/*"
+      "@beep/workspaces-domain/*": [
+        "../../packages/workspaces/domain/src/*"
       ],
-      "@beep/documents-tables": [
-        "../../packages/documents/tables/src/index"
+      "@beep/workspaces-tables": [
+        "../../packages/workspaces/tables/src/index"
       ],
-      "@beep/documents-tables/*": [
-        "../../packages/documents/tables/src/*"
+      "@beep/workspaces-tables/*": [
+        "../../packages/workspaces/tables/src/*"
       ],
-      "@beep/documents-ui": [
-        "../../packages/documents/ui/src/index"
+      "@beep/workspaces-ui": [
+        "../../packages/workspaces/ui/src/index"
       ],
-      "@beep/documents-ui/*": [
-        "../../packages/documents/ui/src/*"
+      "@beep/workspaces-ui/*": [
+        "../../packages/workspaces/ui/src/*"
       ],
       "@beep/errors/client": [
         "../../packages/common/errors/src/client"
@@ -425,16 +425,16 @@
       "path": "../../packages/customization/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/documents/client/tsconfig.build.json"
+      "path": "../../packages/workspaces/client/tsconfig.build.json"
     },
     {
-      "path": "../../packages/documents/domain/tsconfig.build.json"
+      "path": "../../packages/workspaces/domain/tsconfig.build.json"
     },
     {
-      "path": "../../packages/documents/tables/tsconfig.build.json"
+      "path": "../../packages/workspaces/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/documents/ui/tsconfig.build.json"
+      "path": "../../packages/workspaces/ui/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/client/tsconfig.build.json"

@@ -100,13 +100,13 @@
       "path": "../../packages/runtime/server"
     },
     {
-      "path": "../../packages/documents/tables"
+      "path": "../../packages/workspaces/tables"
     },
     {
-      "path": "../../packages/documents/server"
+      "path": "../../packages/workspaces/server"
     },
     {
-      "path": "../../packages/documents/domain"
+      "path": "../../packages/workspaces/domain"
     }
   ],
   "compilerOptions": {

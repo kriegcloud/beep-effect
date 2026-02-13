@@ -17,7 +17,7 @@ describe("Dummy", () => {
 //
 // // import { EmbeddingRepo } from "@beep/knowledge-server/db";
 // import { Handler as EvidenceListHandler } from "@beep/knowledge-server/rpc/v1/evidence/list";
-// import { DocumentsEntityIds, KnowledgeEntityIds, Policy, SharedEntityIds } from "@beep/shared-domain";
+// import { WorkspacesEntityIds, KnowledgeEntityIds, Policy, SharedEntityIds } from "@beep/shared-domain";
 // import { Organization, Session, User } from "@beep/shared-domain/entities";
 // import { layer, strictEqual } from "@beep/testkit";
 // import { assertTenantIsolation, clearTestTenant, withTestTenant } from "@beep/testkit/rls";
@@ -65,7 +65,7 @@ describe("Dummy", () => {
 //
 // // layer(PgTest, { timeout: Duration.seconds(120) })("Demo Critical Path Hardening", (it) => {
 // //   it.effect(
-// //     "cross-org leakage: documents_document_source is tenant isolated",
+// //     "cross-org leakage: workspaces_document_source is tenant isolated",
 // //     () =>
 // //       Effect.gen(function* () {
 // //         const sql = yield* SqlClient.SqlClient;
@@ -79,19 +79,19 @@ describe("Dummy", () => {
 // //         yield* withTestTenant(orgA, seedTenant(orgA, userA, "a@example.com"));
 // //         yield* withTestTenant(orgB, seedTenant(orgB, userB, "b@example.com"));
 // //
-// //         const docA = DocumentsEntityIds.DocumentId.create();
-// //         const docB = DocumentsEntityIds.DocumentId.create();
-// //         const docvA = DocumentsEntityIds.DocumentVersionId.create();
-// //         const docvB = DocumentsEntityIds.DocumentVersionId.create();
+// //         const docA = WorkspacesEntityIds.DocumentId.create();
+// //         const docB = WorkspacesEntityIds.DocumentId.create();
+// //         const docvA = WorkspacesEntityIds.DocumentVersionId.create();
+// //         const docvB = WorkspacesEntityIds.DocumentVersionId.create();
 // //
 // //         // Seed minimal documents + versions for each org (required FK target).
 // //         yield* withTestTenant(
 // //           orgA,
 // //           Effect.all([
-// //             sql`INSERT INTO documents_document (id, organization_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document (id, organization_id, user_id, title, content)
 // //                 VALUES (${docA}, ${orgA}, ${userA}, 'A', 'A')
 // //                 ON CONFLICT (id) DO NOTHING`,
-// //             sql`INSERT INTO documents_document_version (id, organization_id, document_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document_version (id, organization_id, document_id, user_id, title, content)
 // //                 VALUES (${docvA}, ${orgA}, ${docA}, ${userA}, 'A', 'A')
 // //                 ON CONFLICT (id) DO NOTHING`,
 // //           ])
@@ -99,20 +99,20 @@ describe("Dummy", () => {
 // //         yield* withTestTenant(
 // //           orgB,
 // //           Effect.all([
-// //             sql`INSERT INTO documents_document (id, organization_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document (id, organization_id, user_id, title, content)
 // //                 VALUES (${docB}, ${orgB}, ${userB}, 'B', 'B')
 // //                 ON CONFLICT (id) DO NOTHING`,
-// //             sql`INSERT INTO documents_document_version (id, organization_id, document_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document_version (id, organization_id, document_id, user_id, title, content)
 // //                 VALUES (${docvB}, ${orgB}, ${docB}, ${userB}, 'B', 'B')
 // //                 ON CONFLICT (id) DO NOTHING`,
 // //           ])
 // //         );
 // //
 // //         // Insert document_source mapping rows per org (demo-critical: mapping is evidence-adjacent provenance).
-// //         const docSourceA = DocumentsEntityIds.DocumentSourceId.create();
+// //         const docSourceA = WorkspacesEntityIds.DocumentSourceId.create();
 // //         yield* withTestTenant(
 // //           orgA,
-// //           sql`INSERT INTO documents_document_source (
+// //           sql`INSERT INTO workspaces_document_source (
 // //                 id, organization_id, document_id, user_id, provider_account_id, source_type, source_id, source_hash
 // //               ) VALUES (
 // //                 ${docSourceA}, ${orgA}, ${docA}, ${userA}, 'acct_a', 'gmail', 'msg_a', 'hash_a'
@@ -120,10 +120,10 @@ describe("Dummy", () => {
 // //         );
 // //         yield* withTestTenant(
 // //           orgB,
-// //           sql`INSERT INTO documents_document_source (
+// //           sql`INSERT INTO workspaces_document_source (
 // //                 id, organization_id, document_id, user_id, provider_account_id, source_type, source_id, source_hash
 // //               ) VALUES (
-// //                 ${DocumentsEntityIds.DocumentSourceId.create()}, ${orgB}, ${docB}, ${userB}, 'acct_b', 'gmail', 'msg_b', 'hash_b'
+// //                 ${WorkspacesEntityIds.DocumentSourceId.create()}, ${orgB}, ${docB}, ${userB}, 'acct_b', 'gmail', 'msg_b', 'hash_b'
 // //               )`
 // //         );
 // //
@@ -133,7 +133,7 @@ describe("Dummy", () => {
 // //           Effect.gen(function* () {
 // //             const rows = yield* sql`
 // //               SELECT organization_id as "organizationId", id, source_id as "sourceId"
-// //               FROM documents_document_source
+// //               FROM workspaces_document_source
 // //               ORDER BY id
 // //             `;
 // //             return rows as ReadonlyArray<{ organizationId: string; id: string; sourceId: string }>;
@@ -240,17 +240,17 @@ describe("Dummy", () => {
 // //           withTestTenant(orgB, EvidenceListHandler(payload).pipe(Effect.provideService(Policy.AuthContext, authB)));
 // //
 // //         // Seed evidence only in orgB.
-// //         const docB = DocumentsEntityIds.DocumentId.create();
-// //         const docvB = DocumentsEntityIds.DocumentVersionId.create();
+// //         const docB = WorkspacesEntityIds.DocumentId.create();
+// //         const docvB = WorkspacesEntityIds.DocumentVersionId.create();
 // //         const content = "B🙂"; // include surrogate pair to exercise UTF-16 validations in Evidence.List
 // //
 // //         yield* withTestTenant(
 // //           orgB,
 // //           Effect.all([
-// //             sql`INSERT INTO documents_document (id, organization_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document (id, organization_id, user_id, title, content)
 // //                 VALUES (${docB}, ${orgB}, ${userB}, 'B', ${content})
 // //                 ON CONFLICT (id) DO NOTHING`,
-// //             sql`INSERT INTO documents_document_version (id, organization_id, document_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document_version (id, organization_id, document_id, user_id, title, content)
 // //                 VALUES (${docvB}, ${orgB}, ${docB}, ${userB}, 'B', ${content})
 // //                 ON CONFLICT (id) DO NOTHING`,
 // //           ])
@@ -332,17 +332,17 @@ describe("Dummy", () => {
 // //         const userA = SharedEntityIds.UserId.create();
 // //         yield* withTestTenant(orgA, seedTenant(orgA, userA, "ev@example.com"));
 // //
-// //         const documentId = DocumentsEntityIds.DocumentId.create();
-// //         const documentVersionId = DocumentsEntityIds.DocumentVersionId.create();
+// //         const documentId = WorkspacesEntityIds.DocumentId.create();
+// //         const documentVersionId = WorkspacesEntityIds.DocumentVersionId.create();
 // //         const content = "A🙂B"; // emoji is 2 UTF-16 code units
 // //
 // //         yield* withTestTenant(
 // //           orgA,
 // //           Effect.all([
-// //             sql`INSERT INTO documents_document (id, organization_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document (id, organization_id, user_id, title, content)
 // //                 VALUES (${documentId}, ${orgA}, ${userA}, 'EV', ${content})
 // //                 ON CONFLICT (id) DO NOTHING`,
-// //             sql`INSERT INTO documents_document_version (id, organization_id, document_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document_version (id, organization_id, document_id, user_id, title, content)
 // //                 VALUES (${documentVersionId}, ${orgA}, ${documentId}, ${userA}, 'EV', ${content})
 // //                 ON CONFLICT (id) DO NOTHING`,
 // //           ])
@@ -416,7 +416,7 @@ describe("Dummy", () => {
 // //               m.text as "text"
 // //             FROM knowledge_meeting_prep_evidence mpe
 // //             JOIN knowledge_mention m ON m.id = mpe.mention_id
-// //             JOIN documents_document_version dv ON dv.id = m.document_version_id
+// //             JOIN workspaces_document_version dv ON dv.id = m.document_version_id
 // //             WHERE mpe.bullet_id = ${bulletId}
 // //           `
 // //         );
@@ -452,19 +452,19 @@ describe("Dummy", () => {
 // //         yield* withTestTenant(orgA, seedTenant(orgA, userA, "ia@example.com"));
 // //         yield* withTestTenant(orgB, seedTenant(orgB, userB, "ib@example.com"));
 // //
-// //         const docIsoA = DocumentsEntityIds.DocumentId.create();
-// //         const docvIsoA = DocumentsEntityIds.DocumentVersionId.create();
-// //         const docIsoB = DocumentsEntityIds.DocumentId.create();
-// //         const docvIsoB = DocumentsEntityIds.DocumentVersionId.create();
+// //         const docIsoA = WorkspacesEntityIds.DocumentId.create();
+// //         const docvIsoA = WorkspacesEntityIds.DocumentVersionId.create();
+// //         const docIsoB = WorkspacesEntityIds.DocumentId.create();
+// //         const docvIsoB = WorkspacesEntityIds.DocumentVersionId.create();
 // //
 // //         // Minimal docs/versions for each org (FK targets)
 // //         yield* withTestTenant(
 // //           orgA,
 // //           Effect.all([
-// //             sql`INSERT INTO documents_document (id, organization_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document (id, organization_id, user_id, title, content)
 // //                 VALUES (${docIsoA}, ${orgA}, ${userA}, 'A', 'A')
 // //                 ON CONFLICT (id) DO NOTHING`,
-// //             sql`INSERT INTO documents_document_version (id, organization_id, document_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document_version (id, organization_id, document_id, user_id, title, content)
 // //                 VALUES (${docvIsoA}, ${orgA}, ${docIsoA}, ${userA}, 'A', 'A')
 // //                 ON CONFLICT (id) DO NOTHING`,
 // //           ])
@@ -472,10 +472,10 @@ describe("Dummy", () => {
 // //         yield* withTestTenant(
 // //           orgB,
 // //           Effect.all([
-// //             sql`INSERT INTO documents_document (id, organization_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document (id, organization_id, user_id, title, content)
 // //                 VALUES (${docIsoB}, ${orgB}, ${userB}, 'B', 'B')
 // //                 ON CONFLICT (id) DO NOTHING`,
-// //             sql`INSERT INTO documents_document_version (id, organization_id, document_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document_version (id, organization_id, document_id, user_id, title, content)
 // //                 VALUES (${docvIsoB}, ${orgB}, ${docIsoB}, ${userB}, 'B', 'B')
 // //                 ON CONFLICT (id) DO NOTHING`,
 // //           ])
@@ -620,17 +620,17 @@ describe("Dummy", () => {
 // //         const userA = SharedEntityIds.UserId.create();
 // //         yield* withTestTenant(orgA, seedTenant(orgA, userA, "rs@example.com"));
 // //
-// //         const documentId = DocumentsEntityIds.DocumentId.create();
-// //         const documentVersionId = DocumentsEntityIds.DocumentVersionId.create();
+// //         const documentId = WorkspacesEntityIds.DocumentId.create();
+// //         const documentVersionId = WorkspacesEntityIds.DocumentVersionId.create();
 // //         const content = "Restart-safe";
 // //
 // //         yield* withTestTenant(
 // //           orgA,
 // //           Effect.all([
-// //             sql`INSERT INTO documents_document (id, organization_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document (id, organization_id, user_id, title, content)
 // //                 VALUES (${documentId}, ${orgA}, ${userA}, 'RS', ${content})
 // //                 ON CONFLICT (id) DO NOTHING`,
-// //             sql`INSERT INTO documents_document_version (id, organization_id, document_id, user_id, title, content)
+// //             sql`INSERT INTO workspaces_document_version (id, organization_id, document_id, user_id, title, content)
 // //                 VALUES (${documentVersionId}, ${orgA}, ${documentId}, ${userA}, 'RS', ${content})
 // //                 ON CONFLICT (id) DO NOTHING`,
 // //           ])
@@ -680,7 +680,7 @@ describe("Dummy", () => {
 // //               m.text as "text"
 // //             FROM knowledge_meeting_prep_evidence mpe
 // //             JOIN knowledge_mention m ON m.id = mpe.mention_id
-// //             JOIN documents_document_version dv ON dv.id = m.document_version_id
+// //             JOIN workspaces_document_version dv ON dv.id = m.document_version_id
 // //             WHERE mpe.id = ${rsEvidenceId}
 // //           `
 // //         );

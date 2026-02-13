@@ -6,7 +6,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 
-const DOCUMENT_VERSION_TABLE = "documents_document_version" as const;
+const DOCUMENT_VERSION_TABLE = "workspaces_document_version" as const;
 
 type EvidenceItem = typeof Rpc.Evidence.List.EvidenceItem.Type;
 

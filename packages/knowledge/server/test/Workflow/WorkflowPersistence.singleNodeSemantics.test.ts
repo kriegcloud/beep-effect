@@ -15,7 +15,7 @@ import {
   executeBatchEngineWorkflow,
   WorkflowPersistence,
 } from "@beep/knowledge-server/Workflow";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -25,7 +25,7 @@ import * as Stream from "effect/Stream";
 import { makeExtractionWorkflowTestLayer } from "../_shared/LayerBuilders";
 
 const organizationId = SharedEntityIds.OrganizationId.create();
-const documentId = DocumentsEntityIds.DocumentId.create();
+const documentId = WorkspacesEntityIds.DocumentId.create();
 
 const makeSuccessExtraction = (documentId: string): ExtractionResult =>
   new ExtractionResult({

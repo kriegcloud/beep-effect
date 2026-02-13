@@ -34,8 +34,8 @@
       "@beep/iam-tables/*": ["../../iam/tables/src/*.js"],
       "@beep/iam-server": ["../../iam/server/src/index.js"],
       "@beep/iam-server/*": ["../../iam/server/src/*.js"],
-      "@beep/documents-server": ["../../documents/server/src/index.js"],
-      "@beep/documents-server/*": ["../../documents/server/src/*.js"],
+      "@beep/workspaces-server": ["../../workspaces/server/src/index.js"],
+      "@beep/workspaces-server/*": ["../../workspaces/server/src/*.js"],
       "@beep/customization-server": ["../../customization/server/src/index.js"],
       "@beep/customization-server/*": ["../../customization/server/src/*.js"]
     }

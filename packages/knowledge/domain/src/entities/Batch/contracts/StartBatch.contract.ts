@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BatchAlreadyRunningError, InvalidStateTransitionError } from "@beep/knowledge-domain/errors";
 import { BatchConfig } from "@beep/knowledge-domain/value-objects";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
@@ -11,7 +11,7 @@ const $I = $KnowledgeDomainId.create("entities/Batch/contracts/StartBatch.contra
 
 export class BatchDocument extends S.Class<BatchDocument>($I`BatchDocument`)(
   {
-    documentId: DocumentsEntityIds.DocumentId,
+    documentId: WorkspacesEntityIds.DocumentId,
     text: S.String,
   },
   $I.annotations("BatchDocument", {

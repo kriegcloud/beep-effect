@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("value-objects/batch-event");
@@ -21,7 +21,7 @@ export class DocumentStarted extends S.TaggedClass<DocumentStarted>($I`DocumentS
   "BatchEvent.DocumentStarted",
   {
     batchId: KnowledgeEntityIds.BatchExecutionId,
-    documentId: DocumentsEntityIds.DocumentId,
+    documentId: WorkspacesEntityIds.DocumentId,
     documentIndex: S.NonNegativeInt,
     timestamp: BS.DateTimeUtcFromAllAcceptable,
   },
@@ -34,7 +34,7 @@ export class DocumentCompleted extends S.TaggedClass<DocumentCompleted>($I`Docum
   "BatchEvent.DocumentCompleted",
   {
     batchId: KnowledgeEntityIds.BatchExecutionId,
-    documentId: DocumentsEntityIds.DocumentId,
+    documentId: WorkspacesEntityIds.DocumentId,
     entityCount: S.NonNegativeInt,
     relationCount: S.NonNegativeInt,
     timestamp: BS.DateTimeUtcFromAllAcceptable,
@@ -48,7 +48,7 @@ export class DocumentFailed extends S.TaggedClass<DocumentFailed>($I`DocumentFai
   "BatchEvent.DocumentFailed",
   {
     batchId: KnowledgeEntityIds.BatchExecutionId,
-    documentId: DocumentsEntityIds.DocumentId,
+    documentId: WorkspacesEntityIds.DocumentId,
     error: S.String,
     timestamp: BS.DateTimeUtcFromAllAcceptable,
   },
@@ -61,7 +61,7 @@ export class StageProgress extends S.TaggedClass<StageProgress>($I`StageProgress
   "BatchEvent.StageProgress",
   {
     batchId: KnowledgeEntityIds.BatchExecutionId,
-    documentId: DocumentsEntityIds.DocumentId,
+    documentId: WorkspacesEntityIds.DocumentId,
     stage: S.String,
     progress: S.Number.pipe(S.between(0, 1)),
     timestamp: BS.DateTimeUtcFromAllAcceptable,

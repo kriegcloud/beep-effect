@@ -29,7 +29,7 @@ const composers = $I.compose(
   "todox",
   "wrap",
   "semantic-web",
-  "documents-tables",
+  "workspaces-tables",
   "ui",
   "invariant",
   "build-utils",
@@ -37,7 +37,7 @@ const composers = $I.compose(
   "server",
   "web",
   "schema",
-  "documents-domain",
+  "workspaces-domain",
   "runtime-server",
   "iam-client",
   "ui-editor",
@@ -51,12 +51,12 @@ const composers = $I.compose(
   "shared-tables",
   "ui-core",
   "errors",
-  "documents-client",
-  "documents-ui",
+  "workspaces-client",
+  "workspaces-ui",
   "constants",
   "testkit",
   "tooling-utils",
-  "documents-server",
+  "workspaces-server",
   "shared-domain",
   "db-admin",
   "iam-tables",
@@ -146,7 +146,7 @@ export const $RepoScriptsId = composers.$RepoScriptsId;
 export const $IamServerId = composers.$IamServerId;
 
 /**
- * Identity composer for the `@beep/documents-tables` namespace.
+ * Identity composer for the `@beep/workspaces-tables` namespace.
  *
  * @example
  * ```typescript
@@ -158,7 +158,7 @@ export const $IamServerId = composers.$IamServerId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsTablesId = composers.$DocumentsTablesId;
+export const $WorkspacesTablesId = composers.$WorkspacesTablesId;
 
 /**
  * Identity composer for the `@beep/ui` namespace.
@@ -221,7 +221,7 @@ export const $WebId = composers.$WebId;
 export const $SchemaId = composers.$SchemaId;
 
 /**
- * Identity composer for the `@beep/documents-domain` namespace.
+ * Identity composer for the `@beep/workspaces-domain` namespace.
  *
  * @example
  * ```typescript
@@ -233,7 +233,7 @@ export const $SchemaId = composers.$SchemaId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsDomainId = composers.$DocumentsDomainId;
+export const $WorkspacesDomainId = composers.$WorkspacesDomainId;
 
 /**
  * Identity composer for the `@beep/runtime-server` namespace.
@@ -416,7 +416,7 @@ export const $ErrorsId = composers.$ErrorsId;
 export const $BuildUtilsId = composers.$BuildUtilsId;
 
 /**
- * Identity composer for the `@beep/documents-client` namespace.
+ * Identity composer for the `@beep/workspaces-client` namespace.
  *
  * @example
  * ```typescript
@@ -428,10 +428,10 @@ export const $BuildUtilsId = composers.$BuildUtilsId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsClientId = composers.$DocumentsClientId;
+export const $WorkspacesClientId = composers.$WorkspacesClientId;
 
 /**
- * Identity composer for the `@beep/documents-ui` namespace.
+ * Identity composer for the `@beep/workspaces-ui` namespace.
  *
  * @example
  * ```typescript
@@ -443,7 +443,7 @@ export const $DocumentsClientId = composers.$DocumentsClientId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsUiId = composers.$DocumentsUiId;
+export const $WorkspacesUiId = composers.$WorkspacesUiId;
 
 /**
  * Identity composer for the `@beep/constants` namespace.
@@ -506,7 +506,7 @@ export const $ToolingUtilsId = composers.$ToolingUtilsId;
 export const $RepoCliId = composers.$RepoCliId;
 
 /**
- * Identity composer for the `@beep/documents-server` namespace.
+ * Identity composer for the `@beep/workspaces-server` namespace.
  *
  * @example
  * ```typescript
@@ -518,7 +518,7 @@ export const $RepoCliId = composers.$RepoCliId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsServerId = composers.$DocumentsServerId;
+export const $WorkspacesServerId = composers.$WorkspacesServerId;
 
 /**
  * Identity composer for the `@beep/shared-domain` namespace.

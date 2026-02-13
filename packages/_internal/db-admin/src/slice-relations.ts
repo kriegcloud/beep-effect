@@ -2,14 +2,15 @@
 export { calendarEventRelations } from "@beep/calendar-tables/relations";
 export {} from "@beep/comms-tables/relations";
 export { userHotkeyRelations } from "@beep/customization-tables/relations";
-/* Documents */
+/* Workspaces */
 export {
-  commentRelations,
-  discussionRelations,
-  documentFileRelations,
-  documentRelations,
-  documentVersionRelations,
-} from "@beep/documents-tables/relations";
+  workspaceCommentRelations,
+  workspaceDiscussionRelations,
+  workspaceFileRelations,
+  workspacePageRelations,
+  workspaceSnapshotRelations,
+  workspaceSourceLinkRelations,
+} from "@beep/workspaces-tables/relations";
 /* Iam */
 export {
   accountRelations,

@@ -5,7 +5,7 @@
   "packageManager": "bun@1.3.2",
   "workspaces": [
     "packages/common/*",
-    "packages/documents/*",
+    "packages/workspaces/*",
     "packages/iam/*",
     "packages/_internal/*",
     "packages/runtime/*",

@@ -15,8 +15,8 @@ export class TableName extends BS.StringLiteralKit(
   Ids.PageId.tableName,
   Ids.PageShareId.tableName
 ).annotations(
-  $I.annotations("DocumentsTableName", {
-    description: "A sql table name for an entity within the documents domain context",
+  $I.annotations("WorkspacesTableName", {
+    description: "A sql table name for an entity within the workspaces domain context",
   })
 ) {}
 

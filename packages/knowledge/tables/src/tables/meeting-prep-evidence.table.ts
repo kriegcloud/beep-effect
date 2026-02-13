@@ -1,4 +1,4 @@
-import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { type WorkspacesEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { meetingPrepBullet } from "./meeting-prep-bullet.table";
@@ -26,8 +26,8 @@ export const meetingPrepEvidence = OrgTable.make(KnowledgeEntityIds.MeetingPrepE
       .references(() => relationEvidence.id, { onDelete: "cascade" })
       .$type<KnowledgeEntityIds.RelationEvidenceId.Type>(),
 
-    documentId: pg.text("document_id").$type<DocumentsEntityIds.DocumentId.Type>(),
-    documentVersionId: pg.text("document_version_id").$type<DocumentsEntityIds.DocumentVersionId.Type>(),
+    documentId: pg.text("document_id").$type<WorkspacesEntityIds.DocumentId.Type>(),
+    documentVersionId: pg.text("document_version_id").$type<WorkspacesEntityIds.DocumentVersionId.Type>(),
     startChar: pg.integer("start_char"),
     endChar: pg.integer("end_char"),
     text: pg.text("text"),

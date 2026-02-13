@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "srcDir": "src",
+  "outDir": "docs",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/workspaces/client/src/",
+  "exclude": ["src/internal/**/*.ts"],
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ES2024",
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@beep/workspaces-client": ["./src/index.ts"],
+      "@beep/workspaces-client/*": ["./src/*"],
+      "@beep/types": ["../../common/types/src/index.js"],
+      "@beep/types/*": ["../../common/types/src/*.js"],
+      "@beep/shared-domain": ["../../shared/domain/src/index.js"],
+      "@beep/shared-domain/*": ["../../shared/domain/src/*.js"],
+      "@beep/shared-client": ["../../shared/client/src/index.js"],
+      "@beep/shared-client/*": ["../../shared/client/src/*.js"],
+      "@beep/schema": ["../../common/schema/src/index.js"],
+      "@beep/schema/*": ["../../common/schema/src/*.js"],
+      "@beep/utils": ["../../common/utils/src/index.js"],
+      "@beep/utils/*": ["../../common/utils/src/*.js"],
+      "@beep/identity": ["../../common/identity/src/index.js"],
+      "@beep/identity/*": ["../../common/identity/src/*.js"],
+      "@beep/errors/client": ["../../common/errors/src/client.js"],
+      "@beep/errors/shared": ["../../common/errors/src/shared.js"],
+      "@beep/errors/server": ["../../common/errors/src/server.js"],
+      "@beep/constants": ["../../common/constants/src/index.js"],
+      "@beep/constants/*": ["../../common/constants/src/*.js"],
+      "@beep/invariant": ["../../common/invariant/src/index.js"],
+      "@beep/invariant/*": ["../../common/invariant/src/*.js"],
+      "@beep/workspaces-domain": ["../domain/src/index.js"],
+      "@beep/workspaces-domain/*": ["../domain/src/*.js"],
+      "@beep/workspaces-server": ["../server/src/index.js"],
+      "@beep/workspaces-server/*": ["../server/src/*.js"]
+    }
+  }
+}

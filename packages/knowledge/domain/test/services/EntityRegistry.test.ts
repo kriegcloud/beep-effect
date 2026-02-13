@@ -1,6 +1,6 @@
 import { MentionRecord } from "@beep/knowledge-domain/entities";
 import { EntityRegistry } from "@beep/knowledge-domain/services";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -29,7 +29,7 @@ const makeMentionRecord = (
     version: 1,
     organizationId: SharedEntityIds.OrganizationId.create(),
     extractionId: KnowledgeEntityIds.ExtractionId.create(),
-    documentId: DocumentsEntityIds.DocumentId.create(),
+    documentId: WorkspacesEntityIds.DocumentId.create(),
     chunkIndex: overrides?.chunkIndex ?? 0,
     rawText: overrides?.rawText ?? "Cristiano Ronaldo",
     mentionType: overrides?.mentionType ?? "http://schema.org/Person",

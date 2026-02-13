@@ -1,4 +1,4 @@
-import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { type WorkspacesEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
@@ -8,8 +8,8 @@ export const mention = OrgTable.make(KnowledgeEntityIds.MentionId)(
     text: pg.text("text").notNull(),
     startChar: pg.integer("start_char").notNull(),
     endChar: pg.integer("end_char").notNull(),
-    documentId: pg.text("document_id").notNull().$type<DocumentsEntityIds.DocumentId.Type>(),
-    documentVersionId: pg.text("document_version_id").notNull().$type<DocumentsEntityIds.DocumentVersionId.Type>(),
+    documentId: pg.text("document_id").notNull().$type<WorkspacesEntityIds.DocumentId.Type>(),
+    documentVersionId: pg.text("document_version_id").notNull().$type<WorkspacesEntityIds.DocumentVersionId.Type>(),
     chunkIndex: pg.integer("chunk_index"),
     extractionId: pg.text("extraction_id").$type<KnowledgeEntityIds.ExtractionId.Type>(),
     confidence: pg.real("confidence"),

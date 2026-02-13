@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
@@ -16,7 +16,7 @@ export class Model extends M.Class<Model>($I`MentionRecordModel`)(
       description: "ID of the extraction run that produced this mention",
     }),
 
-    documentId: DocumentsEntityIds.DocumentId.annotations({
+    documentId: WorkspacesEntityIds.DocumentId.annotations({
       description: "ID of the source document where this mention was extracted",
     }),
 

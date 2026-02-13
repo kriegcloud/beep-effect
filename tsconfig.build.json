@@ -78,19 +78,19 @@
       "path": "packages/ui/spreadsheet/tsconfig.build.json"
     },
     {
-      "path": "packages/documents/client/tsconfig.build.json"
+      "path": "packages/workspaces/client/tsconfig.build.json"
     },
     {
-      "path": "packages/documents/ui/tsconfig.build.json"
+      "path": "packages/workspaces/ui/tsconfig.build.json"
     },
     {
-      "path": "packages/documents/domain/tsconfig.build.json"
+      "path": "packages/workspaces/domain/tsconfig.build.json"
     },
     {
-      "path": "packages/documents/tables/tsconfig.build.json"
+      "path": "packages/workspaces/tables/tsconfig.build.json"
     },
     {
-      "path": "packages/documents/server/tsconfig.build.json"
+      "path": "packages/workspaces/server/tsconfig.build.json"
     },
     {
       "path": "packages/runtime/server/tsconfig.build.json"

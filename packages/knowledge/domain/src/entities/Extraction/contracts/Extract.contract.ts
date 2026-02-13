@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { ExtractionError } from "@beep/knowledge-domain/errors";
 import { ExtractionConfig } from "@beep/knowledge-domain/value-objects";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
@@ -12,7 +12,7 @@ const $I = $KnowledgeDomainId.create("entities/Extraction/contracts/Extract.cont
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    documentId: DocumentsEntityIds.DocumentId,
+    documentId: WorkspacesEntityIds.DocumentId,
     organizationId: SharedEntityIds.OrganizationId,
     ontologyId: KnowledgeEntityIds.OntologyId,
     sourceUri: S.optional(S.String),

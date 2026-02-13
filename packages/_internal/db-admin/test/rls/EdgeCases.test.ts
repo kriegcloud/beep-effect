@@ -346,11 +346,11 @@ layer(PgTest, { timeout: Duration.seconds(120) })("RLS Edge Cases", (it) => {
         // - 4 from 0001_custom_rls_extensions.sql (custom policies)
         const expectedTables = [
           "comms_email_template",
-          "documents_comment",
-          "documents_discussion",
-          "documents_document",
-          "documents_document_file",
-          "documents_document_version",
+          "workspaces_comment",
+          "workspaces_discussion",
+          "workspaces_document",
+          "workspaces_document_file",
+          "workspaces_document_version",
           "iam_apikey",
           "iam_invitation", // Custom migration (nullable organizationId)
           "iam_member",

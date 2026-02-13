@@ -20,7 +20,7 @@ import {
 } from "@beep/knowledge-domain/value-objects";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Workflow, WorkflowEngine } from "@effect/workflow";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -41,7 +41,7 @@ import { WorkflowPersistence, WorkflowPersistenceLive } from "./WorkflowPersiste
 const $I = $KnowledgeServerId.create("Workflow/BatchOrchestrator");
 
 export class BatchOrchestratorDocument extends S.Class<BatchOrchestratorDocument>($I`BatchOrchestratorDocument`)({
-  documentId: DocumentsEntityIds.DocumentId,
+  documentId: WorkspacesEntityIds.DocumentId,
   text: S.String,
   ontologyContent: S.String,
 }) {}
@@ -55,7 +55,7 @@ export class BatchOrchestratorParams extends S.Class<BatchOrchestratorParams>($I
 }) {}
 
 export class DocumentResult extends S.Class<DocumentResult>($I`DocumentResult`)({
-  documentId: DocumentsEntityIds.DocumentId,
+  documentId: WorkspacesEntityIds.DocumentId,
   result: S.Either({
     right: ExtractionResult,
     left: S.String,
@@ -84,7 +84,7 @@ export class BatchOrchestrator extends Context.Tag($I`BatchOrchestrator`)<
 >() {}
 
 export class EngineDocument extends S.Class<EngineDocument>($I`EngineDocument`)({
-  documentId: DocumentsEntityIds.DocumentId,
+  documentId: WorkspacesEntityIds.DocumentId,
   text: S.String,
   ontologyContent: S.String,
 }) {}
@@ -144,7 +144,7 @@ export class EngineBatchPayload extends S.Class<EngineBatchPayload>($I`EngineBat
 }) {}
 
 export class EngineDocumentResult extends S.Class<EngineDocumentResult>($I`EngineDocumentResult`)({
-  documentId: DocumentsEntityIds.DocumentId,
+  documentId: WorkspacesEntityIds.DocumentId,
   success: S.Boolean,
   extraction: S.NullOr(ExtractionResult),
   error: S.NullOr(S.String),

@@ -1,6 +1,8 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
-  "include": ["test"],
+  "include": [
+    "test"
+  ],
   "references": [
     {
       "path": "tsconfig.src.json"
@@ -39,7 +41,7 @@
       "path": "../../../packages/customization/domain"
     },
     {
-      "path": "../../../packages/documents/domain"
+      "path": "../../../packages/workspaces/domain"
     },
     {
       "path": "../../../packages/iam/domain"
@@ -57,13 +59,13 @@
       "path": "../../../packages/customization/tables"
     },
     {
-      "path": "../../../packages/documents/tables"
+      "path": "../../../packages/workspaces/tables"
     },
     {
       "path": "../../../packages/iam/tables"
     },
     {
-      "path": "../../../packages/documents/server"
+      "path": "../../../packages/workspaces/server"
     },
     {
       "path": "../../../packages/iam/server"
@@ -88,7 +90,10 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true,

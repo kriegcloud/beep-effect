@@ -9,7 +9,7 @@ import {
   RdfStore,
   RdfStoreLive,
 } from "@beep/knowledge-server/Rdf";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -54,7 +54,7 @@ const graphFixture: KnowledgeGraph = {
 
 const metadataFixture = new ProvenanceMetadata({
   extractionId: KnowledgeEntityIds.ExtractionId.create(),
-  documentId: DocumentsEntityIds.DocumentId.create(),
+  documentId: WorkspacesEntityIds.DocumentId.create(),
   actorUserId: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
   startedAt: DateTime.unsafeFromDate(new Date("2026-01-10T10:00:00.000Z")),
   endedAt: DateTime.unsafeFromDate(new Date("2026-01-10T10:00:05.000Z")),

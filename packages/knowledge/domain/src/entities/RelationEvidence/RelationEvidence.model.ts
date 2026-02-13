@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
@@ -17,11 +17,11 @@ export class Model extends M.Class<Model>($I`RelationEvidenceModel`)(
       description: "Relation this evidence span supports",
     }),
 
-    documentId: DocumentsEntityIds.DocumentId.annotations({
+    documentId: WorkspacesEntityIds.DocumentId.annotations({
       description: "ID of the source document containing this evidence span",
     }),
 
-    documentVersionId: DocumentsEntityIds.DocumentVersionId.annotations({
+    documentVersionId: WorkspacesEntityIds.DocumentVersionId.annotations({
       description: "Version of the source document this evidence is pinned to (C-05)",
     }),
 

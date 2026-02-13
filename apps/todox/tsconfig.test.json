@@ -24,10 +24,10 @@
       "path": "../../packages/customization/ui"
     },
     {
-      "path": "../../packages/documents/client"
+      "path": "../../packages/workspaces/client"
     },
     {
-      "path": "../../packages/documents/ui"
+      "path": "../../packages/workspaces/ui"
     },
     {
       "path": "../../packages/common/invariant"
@@ -90,7 +90,7 @@
       "path": "../../packages/customization/domain"
     },
     {
-      "path": "../../packages/documents/domain"
+      "path": "../../packages/workspaces/domain"
     },
     {
       "path": "../../packages/integrations/google-workspace/server"
@@ -123,7 +123,7 @@
       "path": "../../packages/customization/tables"
     },
     {
-      "path": "../../packages/documents/tables"
+      "path": "../../packages/workspaces/tables"
     },
     {
       "path": "../../packages/iam/tables"
@@ -162,7 +162,7 @@
       "path": "../../packages/iam/ui"
     },
     {
-      "path": "../../packages/documents/server"
+      "path": "../../packages/workspaces/server"
     }
   ],
   "compilerOptions": {
@@ -202,14 +202,14 @@
       "@beep/iam-server/*": ["../../packages/iam/server/src/*"],
       "@beep/iam-client": ["../../packages/iam/client/src/index"],
       "@beep/iam-client/*": ["../../packages/iam/client/src/*"],
-      "@beep/documents-domain": ["../../packages/documents/domain/src/index"],
-      "@beep/documents-domain/*": ["../../packages/documents/domain/src/*"],
-      "@beep/documents-tables": ["../../packages/documents/tables/src/index"],
-      "@beep/documents-tables/*": ["../../packages/documents/tables/src/*"],
-      "@beep/documents-server": ["../../packages/documents/server/src/index"],
-      "@beep/documents-server/*": ["../../packages/documents/server/src/*"],
-      "@beep/documents-client": ["../../packages/documents/client/src/index"],
-      "@beep/documents-client/*": ["../../packages/documents/client/src/*"],
+      "@beep/workspaces-domain": ["../../packages/workspaces/domain/src/index"],
+      "@beep/workspaces-domain/*": ["../../packages/workspaces/domain/src/*"],
+      "@beep/workspaces-tables": ["../../packages/workspaces/tables/src/index"],
+      "@beep/workspaces-tables/*": ["../../packages/workspaces/tables/src/*"],
+      "@beep/workspaces-server": ["../../packages/workspaces/server/src/index"],
+      "@beep/workspaces-server/*": ["../../packages/workspaces/server/src/*"],
+      "@beep/workspaces-client": ["../../packages/workspaces/client/src/index"],
+      "@beep/workspaces-client/*": ["../../packages/workspaces/client/src/*"],
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
       "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],

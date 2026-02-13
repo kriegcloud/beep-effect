@@ -18,10 +18,10 @@
       "@beep/errors/client": ["../../packages/common/errors/src/client.js"],
       "@beep/errors/shared": ["../../packages/common/errors/src/shared.js"],
       "@beep/errors/server": ["../../packages/common/errors/src/server.js"],
-      "@beep/documents-server": [
-        "../../packages/documents/server/src/index.js"
+      "@beep/workspaces-server": [
+        "../../packages/workspaces/server/src/index.js"
       ],
-      "@beep/documents-server/*": ["../../packages/documents/server/src/*.js"],
+      "@beep/workspaces-server/*": ["../../packages/workspaces/server/src/*.js"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index.js"],
       "@beep/iam-domain/*": ["../../packages/iam/domain/src/*.js"],
       "@beep/iam-server": ["../../packages/iam/server/src/index.js"],

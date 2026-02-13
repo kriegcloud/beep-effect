@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
@@ -26,8 +26,8 @@ export declare namespace ExtractionStatus {
 export class Model extends M.Class<Model>($I`ExtractionModel`)(
   makeFields(KnowledgeEntityIds.ExtractionId, {
     organizationId: SharedEntityIds.OrganizationId,
-    documentId: DocumentsEntityIds.DocumentId,
-    documentVersionId: BS.FieldOptionOmittable(DocumentsEntityIds.DocumentVersionId),
+    documentId: WorkspacesEntityIds.DocumentId,
+    documentVersionId: BS.FieldOptionOmittable(WorkspacesEntityIds.DocumentVersionId),
     sourceUri: BS.FieldOptionOmittable(S.String),
     ontologyId: KnowledgeEntityIds.OntologyId,
     status: S.optionalWith(ExtractionStatus, { default: () => "pending" as const }),

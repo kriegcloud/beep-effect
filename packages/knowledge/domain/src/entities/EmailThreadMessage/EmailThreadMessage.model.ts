@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, IamEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, IamEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
@@ -14,7 +14,7 @@ export class Model extends M.Class<Model>($I`EmailThreadMessageModel`)(
     threadId: KnowledgeEntityIds.EmailThreadId,
     providerAccountId: IamEntityIds.AccountId,
     sourceId: S.String,
-    documentId: DocumentsEntityIds.DocumentId,
+    documentId: WorkspacesEntityIds.DocumentId,
     sourceInternalDate: BS.FieldOptionOmittable(BS.DateTimeUtcFromAllAcceptable),
     sourceHistoryId: BS.FieldOptionOmittable(S.String),
     sourceHash: BS.FieldOptionOmittable(S.String),

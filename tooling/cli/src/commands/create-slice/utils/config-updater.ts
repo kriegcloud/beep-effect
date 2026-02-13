@@ -224,7 +224,7 @@ export const updateTsconfigReferences = (
  * Adds to both peerDependencies and devDependencies:
  * - `@beep/{sliceName}-server`: "workspace:^"
  *
- * Pattern matches existing entries like @beep/documents-server, @beep/iam-server.
+ * Pattern matches existing entries like @beep/workspaces-server, @beep/iam-server.
  *
  * @param sliceName - The name of the new slice (e.g., "notifications")
  * @returns Effect that updates the package.json file
@@ -340,7 +340,7 @@ export const updateRootPackageJsonWorkspaces = (
  * - `@beep/{sliceName}-tables`: "workspace:^"
  * - `@beep/{sliceName}-server`: "workspace:^"
  *
- * Pattern matches existing entries like @beep/documents-tables, @beep/iam-server.
+ * Pattern matches existing entries like @beep/workspaces-tables, @beep/iam-server.
  *
  * @param sliceName - The name of the new slice (e.g., "notifications")
  * @returns Effect that updates the package.json file

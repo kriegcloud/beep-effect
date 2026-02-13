@@ -1,6 +1,8 @@
 {
   "extends": "./tsconfig.src.json",
-  "include": ["drizzle.config.ts"],
+  "include": [
+    "drizzle.config.ts"
+  ],
   "references": [
     {
       "path": "../../../packages/common/identity"
@@ -36,7 +38,7 @@
       "path": "../../../packages/customization/domain"
     },
     {
-      "path": "../../../packages/documents/domain"
+      "path": "../../../packages/workspaces/domain"
     },
     {
       "path": "../../../packages/iam/domain"
@@ -54,13 +56,13 @@
       "path": "../../../packages/customization/tables"
     },
     {
-      "path": "../../../packages/documents/tables"
+      "path": "../../../packages/workspaces/tables"
     },
     {
       "path": "../../../packages/iam/tables"
     },
     {
-      "path": "../../../packages/documents/server"
+      "path": "../../../packages/workspaces/server"
     },
     {
       "path": "../../../packages/iam/server"
@@ -85,7 +87,10 @@
     }
   ],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "rootDir": ".",
     "outDir": "build"
   }

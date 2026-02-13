@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { FailurePolicy } from "@beep/knowledge-domain/value-objects";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
@@ -30,7 +30,7 @@ export class Model extends M.Class<Model>($I`BatchExecutionModel`)(
     organizationId: SharedEntityIds.OrganizationId,
     ontologyId: KnowledgeEntityIds.OntologyId,
     status: S.optionalWith(BatchExecutionStatus, { default: () => "pending" as const }),
-    documentIds: S.Array(DocumentsEntityIds.DocumentId),
+    documentIds: S.Array(WorkspacesEntityIds.DocumentId),
     totalDocuments: S.NonNegativeInt,
     completedDocuments: S.optionalWith(S.NonNegativeInt, { default: () => 0 }),
     failedDocuments: S.optionalWith(S.NonNegativeInt, { default: () => 0 }),
