@@ -1,0 +1,3 @@
+{
+  "extends": "@zero/tsconfig/base"
+}

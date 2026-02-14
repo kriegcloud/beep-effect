@@ -1,0 +1,13 @@
+{
+  "extends": "@zero/tsconfig/base",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "rootDirs": [".", "./.react-router/types"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", "worker-configuration.d.ts"],
+  "exclude": ["node_modules"]
+}
