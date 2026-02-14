@@ -138,7 +138,7 @@
     "playwright-core": "catalog:",
     "prettier": "catalog:",
     "syncpack": "catalog:",
-    "turbo": "^2.8.7",
+    "turbo": "^2.8.8",
     "typescript": "catalog:"
   },
   "lint-staged": {
