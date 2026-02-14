@@ -7,7 +7,7 @@ import { type ExternalToast, toast } from "sonner";
 
 type StateCommon = string;
 
-export type OnLoading<Args> =
+export type OnWaiting<Args> =
   | StateCommon
   | ((args: { readonly registry: Registry.Registry; readonly args: Args }) => StateCommon);
 
@@ -24,7 +24,7 @@ export type OnFailure<E, Args> =
     }) => O.Option<StateCommon>);
 
 export type ToastOpts<A, E, Args extends ReadonlyArray<unknown>> = {
-  readonly onLoading: OnLoading<Args>;
+  readonly onWaiting: OnWaiting<Args>;
   readonly onSuccess: OnSuccess<A, Args>;
   readonly onFailure: OnFailure<E, Args>;
   readonly options?: undefined | Omit<ExternalToast, "id">;
@@ -36,7 +36,7 @@ export const toastEffect =
     Effect.gen(function* () {
       const registry = yield* Registry.AtomRegistry;
       const toastId = toast.loading(
-        P.isFunction(options.onLoading) ? options.onLoading({ registry, args }) : options.onLoading,
+        P.isFunction(options.onWaiting) ? options.onWaiting({ registry, args }) : options.onWaiting,
         options.options
       );
       const result = yield* self.pipe(

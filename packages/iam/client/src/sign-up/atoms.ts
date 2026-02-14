@@ -33,7 +33,7 @@ const EmailAtom = runtime.fn(
           })
         ),
       onSuccess: "Signed up successfully",
-      onLoading: "Signing up...",
+      onWaiting: "Signing up...",
     }),
     Effect.asVoid
   )
