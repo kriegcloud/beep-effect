@@ -27,7 +27,9 @@ export function ThemeProvider({ themeOverrides, nonce, children, ...other }: The
   return (
     <ThemeVarsProvider disableTransitionOnChange theme={theme} {...other}>
       <CssBaseline />
-      <Rtl nonce={nonce} direction={settings.state.direction ?? "ltr"}>{children}</Rtl>
+      <Rtl nonce={nonce} direction={settings.state.direction ?? "ltr"}>
+        {children}
+      </Rtl>
     </ThemeVarsProvider>
   );
 }

@@ -119,9 +119,7 @@ export const buildCspHeaderWithNonce = (nonce: string): string =>
     A.fromIterable,
     A.map(([directive, values]) => {
       const nonceToken = `'nonce-${nonce}'`;
-      const finalValues = A.some(NONCE_DIRECTIVES, (d) => d === directive)
-        ? A.append(values, nonceToken)
-        : values;
+      const finalValues = A.some(NONCE_DIRECTIVES, (d) => d === directive) ? A.append(values, nonceToken) : values;
       return `${directive} ${A.join(finalValues, " ")}`;
     }),
     A.join("; "),

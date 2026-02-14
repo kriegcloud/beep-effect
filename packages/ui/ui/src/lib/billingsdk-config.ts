@@ -1,5 +1,3 @@
-
-
 export interface Plan {
   id: string;
   title: string;
@@ -105,8 +103,7 @@ export const plans: Plan[] = [
   {
     id: "enterprise",
     title: "Enterprise",
-    description:
-      "For organizations that need more support and compliance features.",
+    description: "For organizations that need more support and compliance features.",
     currency: "$",
     monthlyPrice: "Custom",
     yearlyPrice: "Custom",
