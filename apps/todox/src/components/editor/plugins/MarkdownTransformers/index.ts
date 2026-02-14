@@ -315,8 +315,9 @@ export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
  * since EMAIL_COMPOSE_NODES does not register code-related nodes.
  */
 const withoutCodeDeps = (transformers: ReadonlyArray<Transformer>): Array<Transformer> =>
-  A.filter(transformers, (t) =>
-    !("dependencies" in t && A.some(t.dependencies, (d) => d === CodeNode || d === CodeHighlightNode))
+  A.filter(
+    transformers,
+    (t) => !("dependencies" in t && A.some(t.dependencies, (d) => d === CodeNode || d === CodeHighlightNode))
   );
 
 /**
