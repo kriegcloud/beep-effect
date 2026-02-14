@@ -5,6 +5,7 @@ import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { cn } from "@beep/ui-core/utils";
 import { thunk } from "@beep/utils";
 import * as Permissions from "@effect/platform-browser/Permissions";
+import { CaretUpDownIcon, CheckIcon, MicrophoneIcon, MicrophoneSlashIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Eq from "effect/Equal";
@@ -13,7 +14,6 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Check, ChevronsUpDown, Mic, MicOff } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./button";
@@ -141,9 +141,13 @@ export function MicSelector({ value, onValueChange, muted, onMutedChange, disabl
           />
         }
       >
-        {isMuted ? <MicOff className="h-4 w-4 flex-shrink-0" /> : <Mic className="h-4 w-4 flex-shrink-0" />}
+        {isMuted ? (
+          <MicrophoneSlashIcon className="h-4 w-4 flex-shrink-0" />
+        ) : (
+          <MicrophoneIcon className="h-4 w-4 flex-shrink-0" />
+        )}
         <span className="flex-1 truncate text-left">{currentDevice.label}</span>
-        <ChevronsUpDown className="h-3 w-3 flex-shrink-0" />
+        <CaretUpDownIcon className="h-3 w-3 flex-shrink-0" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" side="top" className="w-72">
         {loading ? (
@@ -159,7 +163,7 @@ export function MicSelector({ value, onValueChange, muted, onMutedChange, disabl
               className="flex items-center justify-between"
             >
               <span className="truncate">{device.label}</span>
-              {selectedDevice === device.deviceId && <Check className="h-4 w-4 flex-shrink-0" />}
+              {selectedDevice === device.deviceId && <CheckIcon className="h-4 w-4 flex-shrink-0" />}
             </DropdownMenuItem>
           ))
         )}
@@ -176,7 +180,7 @@ export function MicSelector({ value, onValueChange, muted, onMutedChange, disabl
                 }}
                 className="h-8 gap-2"
               >
-                {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                {isMuted ? <MicrophoneSlashIcon className="h-4 w-4" /> : <MicrophoneIcon className="h-4 w-4" />}
                 <span className="text-sm">{isMuted ? "Unmute" : "Mute"}</span>
               </Button>
               <div className="bg-accent ml-auto w-16 overflow-hidden rounded-md p-1.5">

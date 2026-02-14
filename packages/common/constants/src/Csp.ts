@@ -15,10 +15,11 @@ export const CSP_DIRECTIVES = {
   "worker-src": ["'self'", "blob:"],
   "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
   "font-src": ["'self'", "https://fonts.gstatic.com", "https://fonts.scalar.com"],
+  "style-src-attr": ["'unsafe-inline'"],
   "style-src-elem": [
     "'self'",
-    "https://fonts.googleapis.com",
     "'unsafe-inline'",
+    "https://fonts.googleapis.com",
     "https://www.googletagmanager.com",
     "https://cdn.jsdelivr.net",
   ],
@@ -97,3 +98,32 @@ const buildCspHeader = (directives: Record<string, ReadonlyArray<string>>): stri
  * This constant replaces the dynamic CSP loading from environment variables.
  */
 export const CSP_HEADER = buildCspHeader(CSP_DIRECTIVES);
+
+/**
+ * Directives that receive nonce injection.
+ *
+ * Currently empty because:
+ * - CSP spec: `'unsafe-inline'` is ignored when a nonce is present in the same directive
+ * - Next.js, MUI, React DOM, and Turbopack all inject inline scripts/styles without nonce support
+ * - Adding nonces to directives that also need `'unsafe-inline'` breaks those injections
+ *
+ * The nonce infrastructure (generation, header threading, Emotion cache, base-ui CSPProvider)
+ * remains in place. Re-enable by adding directive names here when the ecosystem supports it.
+ */
+const NONCE_DIRECTIVES: ReadonlyArray<string> = [];
+
+export const buildCspHeaderWithNonce = (nonce: string): string =>
+  F.pipe(
+    CSP_DIRECTIVES,
+    Struct.entries,
+    A.fromIterable,
+    A.map(([directive, values]) => {
+      const nonceToken = `'nonce-${nonce}'`;
+      const finalValues = A.some(NONCE_DIRECTIVES, (d) => d === directive)
+        ? A.append(values, nonceToken)
+        : values;
+      return `${directive} ${A.join(finalValues, " ")}`;
+    }),
+    A.join("; "),
+    Str.concat(";")
+  );

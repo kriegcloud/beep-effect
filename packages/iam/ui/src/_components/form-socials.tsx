@@ -1,7 +1,7 @@
-import { Iconify } from "@beep/ui/atoms/index";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import { GithubLogoIcon, GoogleLogoIcon, XLogoIcon } from "@phosphor-icons/react";
 
 type FormSocialsProps = BoxProps & {
   readonly signInWithGoogle?: (() => void) | undefined;
@@ -23,13 +23,13 @@ export function FormSocials({ sx, signInWithGoogle, singInWithGithub, signInWith
       {...other}
     >
       <IconButton color="inherit" onClick={signInWithGoogle}>
-        <Iconify width={22} icon="socials:google" />
+        <GoogleLogoIcon size={22} />
       </IconButton>
       <IconButton color="inherit" onClick={singInWithGithub}>
-        <Iconify width={22} icon="socials:github" />
+        <GithubLogoIcon size={22} />
       </IconButton>
       <IconButton color="inherit" onClick={signInWithTwitter}>
-        <Iconify width={22} icon="socials:twitter" />
+        <XLogoIcon size={22} />
       </IconButton>
     </Box>
   );

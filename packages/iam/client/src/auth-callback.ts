@@ -5,13 +5,13 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 const privateRoutePrefixes = [
-  paths.dashboard.root,
-  paths.settings.root,
-  paths.admin.root,
-  paths.organizations.root,
-  paths.auth.device.root,
+  "/dashboard",
+  "/settings",
+  "/admin",
+  "/organizations",
+  paths.auth.signIn,
   "/account",
-  paths.fileManager.root,
+  "/file-manager",
 ] as const;
 
 const stripFragment = (value: string) =>
@@ -35,7 +35,7 @@ const startsWithPrefix = (pathname: string) =>
 
 const isAbsolutePath = (value: string) => Str.startsWith("/")(value) && !Str.startsWith("//")(value);
 export const paramName = "callbackURL";
-export const defaultTarget = `${paths.dashboard.root}`;
+export const defaultTarget = "/dashboard";
 
 export type SearchParamsLike = Pick<URLSearchParams, "get">;
 

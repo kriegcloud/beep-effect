@@ -1,11 +1,10 @@
 import { UploadIllustration } from "@beep/ui/assets/illustrations";
-import { Iconify } from "@beep/ui/atoms/iconify";
 import { mergeClasses } from "@beep/ui-core/utils";
-
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import FormHelperText from "@mui/material/FormHelperText";
+import { CloudArrowUpIcon, XIcon } from "@phosphor-icons/react";
 import { useDropzone } from "react-dropzone";
 import { uploadClasses } from "../classes";
 import { MultiFilePreview } from "../components/multi-file-preview";
@@ -89,7 +88,7 @@ export function Upload({
                 size="small"
                 variant="contained"
                 onClick={onUpload}
-                startIcon={<Iconify icon="eva:cloud-upload-fill" />}
+                startIcon={<CloudArrowUpIcon weight="fill" />}
                 loading={loading && multiple}
                 loadingPosition="start"
               >
@@ -118,7 +117,7 @@ export function Upload({
 
       {isSingleFileSelected && (
         <DeleteButton size="small" onClick={onDelete}>
-          <Iconify icon="mingcute:close-line" width={16} />
+          <XIcon size={16} />
         </DeleteButton>
       )}
 

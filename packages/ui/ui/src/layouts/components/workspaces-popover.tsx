@@ -1,6 +1,6 @@
 "use client";
 
-import { Iconify, Label } from "@beep/ui/atoms";
+import { Label } from "@beep/ui/atoms";
 import { usePopover } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import { CustomPopover } from "@beep/ui/organisms";
@@ -14,6 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import type { SxProps, Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { CaretUpDownIcon, PlusIcon } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 
 export type WorkspacesPopoverProps = ButtonBaseProps & {
@@ -105,7 +106,7 @@ export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopover
         {workspace?.plan}
       </Label>
 
-      <Iconify width={16} icon="carbon:chevron-sort" sx={{ color: "text.disabled" }} />
+      <CaretUpDownIcon size={16} style={{ color: "var(--mui-palette-text-disabled)" }} />
     </ButtonBase>
   );
 
@@ -144,7 +145,7 @@ export function WorkspacesPopover({ data = [], sx, ...other }: WorkspacesPopover
 
       <Button
         fullWidth
-        startIcon={<Iconify width={18} icon="mingcute:add-line" />}
+        startIcon={<PlusIcon size={18} />}
         onClick={() => {
           onClose();
         }}

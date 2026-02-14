@@ -1,6 +1,6 @@
 "use client";
 import { AnimateBorder } from "@beep/ui/animate";
-import { Iconify, Label } from "@beep/ui/atoms";
+import { Label } from "@beep/ui/atoms";
 import { useBoolean, usePathname } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import { useAuthAdapterProvider } from "@beep/ui/providers";
@@ -16,6 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import { PlusIcon, XIcon } from "@phosphor-icons/react";
 import { AccountButton } from "./account-button";
 import { UpgradeBlock } from "./nav-upgrade";
 import { SignOutButton } from "./sign-out-button";
@@ -132,7 +133,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
             position: "absolute",
           }}
         >
-          <Iconify icon="mingcute:close-line" />
+          <XIcon size={20} />
         </IconButton>
 
         <Scrollbar>
@@ -186,7 +187,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
                   }),
                 ]}
               >
-                <Iconify icon="mingcute:add-line" />
+                <PlusIcon size={20} />
               </IconButton>
             </Tooltip>
           </Box>

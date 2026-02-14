@@ -2,8 +2,10 @@ import { mergeClasses } from "@beep/ui-core/utils";
 import type { ListSubheaderProps } from "@mui/material/ListSubheader";
 import ListSubheader from "@mui/material/ListSubheader";
 import { styled } from "@mui/material/styles";
-import { Iconify, iconifyClasses } from "../../../atoms";
+import { CaretDownIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { navSectionClasses } from "../styles";
+
+const subheaderIconClass = "nav-subheader__icon";
 
 export type NavSubheaderProps = ListSubheaderProps & { open?: boolean | undefined };
 
@@ -14,7 +16,9 @@ export const NavSubheader = styled(({ open, children, className, ...other }: Nav
     {...other}
     className={mergeClasses([navSectionClasses.subheader, className])}
   >
-    <Iconify width={16} icon={open ? "eva:arrow-ios-downward-fill" : "eva:arrow-ios-forward-fill"} />
+    <span className={subheaderIconClass}>
+      {open ? <CaretDownIcon size={16} weight="fill" /> : <CaretRightIcon size={16} weight="fill" />}
+    </span>
     {children}
   </ListSubheader>
 ))(({ theme }) => ({
@@ -31,10 +35,11 @@ export const NavSubheader = styled(({ open, children, className, ...other }: Nav
   transition: theme.transitions.create(["color", "padding-left"], {
     duration: theme.transitions.duration.standard,
   }),
-  [`& .${iconifyClasses.root}`]: {
+  [`& .${subheaderIconClass}`]: {
     left: -4,
     opacity: 0,
     position: "absolute",
+    display: "inline-flex",
     transition: theme.transitions.create(["opacity"], {
       duration: theme.transitions.duration.standard,
     }),
@@ -42,6 +47,6 @@ export const NavSubheader = styled(({ open, children, className, ...other }: Nav
   "&:hover": {
     paddingLeft: theme.spacing(2),
     color: "var(--nav-subheader-hover-color)",
-    [`& .${iconifyClasses.root}`]: { opacity: 1 },
+    [`& .${subheaderIconClass}`]: { opacity: 1 },
   },
 }));

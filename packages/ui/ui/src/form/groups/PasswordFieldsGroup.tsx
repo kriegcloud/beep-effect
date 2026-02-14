@@ -1,5 +1,4 @@
 "use client";
-import { Iconify } from "@beep/ui/atoms/iconify/iconify";
 import { useBoolean } from "@beep/ui/hooks/use-boolean";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -9,6 +8,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
+import { CheckIcon, EyeClosedIcon, EyeIcon, XIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import React from "react";
@@ -193,7 +193,7 @@ export const PasswordFieldsGroup = withFieldGroup({
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton onClick={showPassword.onToggle} edge="end">
-                        <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
+                        {showPassword.value ? <EyeIcon weight="bold" /> : <EyeClosedIcon weight="bold" />}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -207,9 +207,9 @@ export const PasswordFieldsGroup = withFieldGroup({
             <ListItem key={index} sx={{ p: 0, paddingLeft: 1 }}>
               <ListItemIcon sx={{ minWidth: 24, "& svg": { width: 18 } }}>
                 {error.pass ? (
-                  <Iconify icon={"eva:checkmark-fill"} fill={theme.palette.success.main} />
+                  <CheckIcon weight="fill" style={{ color: theme.palette.success.main }} />
                 ) : (
-                  <Iconify icon={"material-symbols:close"} fill={theme.palette.error.main} />
+                  <XIcon style={{ color: theme.palette.error.main }} />
                 )}
               </ListItemIcon>
               <ListItemText
@@ -243,7 +243,7 @@ export const PasswordFieldsGroup = withFieldGroup({
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton onClick={showPasswordConfirm.onToggle} edge="end">
-                        <Iconify icon={showPasswordConfirm.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
+                        {showPasswordConfirm.value ? <EyeIcon weight="bold" /> : <EyeClosedIcon weight="bold" />}
                       </IconButton>
                     </InputAdornment>
                   ),

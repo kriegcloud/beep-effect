@@ -1,4 +1,3 @@
-import { Iconify } from "@beep/ui/atoms";
 import { usePathname, useRouter } from "@beep/ui/hooks";
 import { SearchNotFound } from "@beep/ui/messages";
 import { RouterLink } from "@beep/ui/routing";
@@ -11,6 +10,7 @@ import { inputBaseClasses } from "@mui/material/InputBase";
 import Link, { linkClasses } from "@mui/material/Link";
 import type { SxProps, Theme } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 import type { NavItemData } from "./nav-config-components";
 
@@ -93,7 +93,7 @@ export function NavSearch({ navData = [], sx }: NavSearchProps) {
               ...params.InputProps,
               startAdornment: (
                 <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: "text.disabled" }} />
+                  <MagnifyingGlassIcon size={20} weight="fill" style={{ color: "var(--mui-palette-text-disabled)" }} />
                 </InputAdornment>
               ),
             },

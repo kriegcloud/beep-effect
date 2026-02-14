@@ -7,8 +7,8 @@ import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from
 import { Separator } from "@beep/ui/components/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { cn } from "@beep/ui-core/utils";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { ChevronDown } from "lucide-react";
 import type { ComponentProps, ElementType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 
@@ -136,7 +136,7 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
           <>
             <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
             <div>
-              <ChevronDown className="size-3.5 text-muted-foreground" data-icon />
+              <CaretDownIcon className="size-3.5 text-muted-foreground" data-icon />
             </div>
           </>
         ) : (
@@ -212,7 +212,7 @@ export function ToolbarSplitButtonSecondary({
       role="button"
       {...props}
     >
-      <ChevronDown className="size-3.5 text-muted-foreground" data-icon />
+      <CaretDownIcon className="size-3.5 text-muted-foreground" data-icon />
     </span>
   );
 }

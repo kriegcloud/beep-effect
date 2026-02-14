@@ -1,7 +1,6 @@
 "use client";
 
 import { transitionTap, varHover, varTap } from "@beep/ui/animate";
-import { Iconify } from "@beep/ui/atoms";
 import { usePopover } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import { CustomPopover } from "@beep/ui/organisms";
@@ -15,6 +14,7 @@ import ListItemText from "@mui/material/ListItemText";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Typography from "@mui/material/Typography";
+import { UsersThreeIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import { m } from "framer-motion";
@@ -125,7 +125,7 @@ export function ContactsPopover({ data = [], sx, ...other }: ContactsPopoverProp
         ]}
         {...other}
       >
-        <Iconify icon="solar:users-group-rounded-bold-duotone" width={24} />
+        <UsersThreeIcon size={24} weight="duotone" />
       </IconButton>
 
       {renderMenuList()}

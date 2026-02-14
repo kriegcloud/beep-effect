@@ -1,10 +1,9 @@
-import { Iconify } from "@beep/ui/atoms";
 import { createNavItem, navItemStyles, navSectionClasses } from "@beep/ui/routing";
-
 import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { CSSObject } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import type { NavItemProps } from "../types";
 
 export function NavItem({
@@ -42,7 +41,11 @@ export function NavItem({
     >
       <ItemTitle {...ownerState}> {title}</ItemTitle>
 
-      {hasChild && <ItemArrow {...ownerState} icon="eva:arrow-ios-downward-fill" />}
+      {hasChild && (
+        <ItemArrow {...ownerState}>
+          <CaretDownIcon size={16} weight="fill" />
+        </ItemArrow>
+      )}
     </ItemRoot>
   );
 }
@@ -126,6 +129,7 @@ const ItemTitle = styled("span", { shouldForwardProp })<StyledState>(({ theme })
 /**
  * @slot arrow
  */
-const ItemArrow = styled(Iconify, { shouldForwardProp })<StyledState>(({ theme }) => ({
+const ItemArrow = styled("span", { shouldForwardProp })<StyledState>(({ theme }) => ({
   ...navItemStyles.arrow(theme),
+  display: "inline-flex",
 }));

@@ -2,7 +2,7 @@
 
 import { mergeClasses } from "@beep/ui-core/utils";
 import Tooltip from "@mui/material/Tooltip";
-import { Iconify } from "../iconify";
+import { CloudArrowDownIcon, XIcon } from "@phosphor-icons/react";
 import { fileThumbnailClasses } from "./classes";
 import { DownloadButton, RemoveButton, ThumbnailImage, ThumbnailRoot } from "./styles";
 import type { FileThumbnailProps } from "./types";
@@ -54,13 +54,13 @@ export function FileThumbnail({
     <>
       {onRemove && (
         <RemoveButton onClick={onRemove} className={fileThumbnailClasses.removeBtn} {...slotProps?.removeBtn}>
-          <Iconify icon="mingcute:close-line" width={12} />
+          <XIcon size={12} />
         </RemoveButton>
       )}
 
       {onDownload && (
         <DownloadButton onClick={onDownload} className={fileThumbnailClasses.downloadBtn} {...slotProps?.downloadBtn}>
-          <Iconify width={24} icon="eva:cloud-download-fill" />
+          <CloudArrowDownIcon size={24} weight="fill" />
         </DownloadButton>
       )}
     </>

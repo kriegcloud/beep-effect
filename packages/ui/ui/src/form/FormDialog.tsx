@@ -1,4 +1,3 @@
-import { Iconify } from "@beep/ui/atoms";
 import type { DialogProps } from "@mui/material";
 import {
   Button,
@@ -11,6 +10,7 @@ import {
   dialogClasses,
   IconButton,
 } from "@mui/material";
+import { XIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { useFormContext } from "./useAppForm";
 export interface FormDialogProps extends DialogProps {
@@ -55,7 +55,7 @@ const FormDialog: React.FC<React.PropsWithChildren<FormDialogProps>> = (props) =
           >
             {props.title}
             <IconButton onClick={props.handleDialogClose}>
-              <Iconify icon="material-symbols:close" width={20} height={20} />
+              <XIcon size={20} />
             </IconButton>
           </DialogTitle>
           <DialogContent sx={{ pb: 3 }}>

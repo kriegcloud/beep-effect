@@ -1,11 +1,11 @@
 import type { FileThumbnailProps } from "@beep/ui/atoms";
-import { FileThumbnail, getFileMeta, Iconify, useFilesPreview } from "@beep/ui/atoms";
-
+import { FileThumbnail, getFileMeta, useFilesPreview } from "@beep/ui/atoms";
 import { fData, mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import IconButton from "@mui/material/IconButton";
 import ListItemText from "@mui/material/ListItemText";
 import type { Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
+import { XIcon } from "@phosphor-icons/react";
 import { uploadClasses } from "../classes";
 import type { FilesUploadType, UploadProps } from "../types";
 
@@ -82,7 +82,7 @@ export function MultiFilePreview({
 
           {onRemove && (
             <IconButton size="small" onClick={() => onRemove(file)}>
-              <Iconify width={16} icon="mingcute:close-line" />
+              <XIcon size={16} />
             </IconButton>
           )}
         </PreviewItem>

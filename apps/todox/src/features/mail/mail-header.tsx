@@ -1,9 +1,9 @@
-import { Iconify } from "@beep/ui/atoms/iconify";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
+import { ChatCircleDotsIcon, EnvelopeSimpleIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 
 // ----------------------------------------------------------------------
 
@@ -27,12 +27,12 @@ export function MailHeader({ onOpenNav, onOpenMail, sx, ...other }: Props) {
       {...other}
     >
       <IconButton onClick={onOpenNav}>
-        <Iconify icon="solar:letter-bold" />
+        <EnvelopeSimpleIcon weight="bold" />
       </IconButton>
 
       {onOpenMail && (
         <IconButton onClick={onOpenMail}>
-          <Iconify icon="solar:chat-round-dots-bold" />
+          <ChatCircleDotsIcon weight="bold" />
         </IconButton>
       )}
 
@@ -44,7 +44,7 @@ export function MailHeader({ onOpenNav, onOpenMail, sx, ...other }: Props) {
           input: {
             startAdornment: (
               <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: "text.disabled" }} />
+                <MagnifyingGlassIcon weight="fill" style={{ color: "text.disabled" }} />
               </InputAdornment>
             ),
           },

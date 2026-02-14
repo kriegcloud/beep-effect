@@ -1,7 +1,7 @@
-import { Iconify } from "@beep/ui/atoms/iconify";
 import { useBackToTop } from "@beep/ui/hooks";
 import type { FabProps } from "@mui/material/Fab";
 import Fab from "@mui/material/Fab";
+import { CaretDoubleUpIcon } from "@phosphor-icons/react";
 import type React from "react";
 import { cloneElement } from "react";
 
@@ -40,7 +40,7 @@ export function BackToTopButton({ sx, isDebounce, renderButton, scrollThreshold 
       ]}
       {...other}
     >
-      <Iconify width={24} icon="solar:double-alt-arrow-up-bold-duotone" />
+      <CaretDoubleUpIcon size={24} weight="duotone" />
     </Fab>
   );
 }

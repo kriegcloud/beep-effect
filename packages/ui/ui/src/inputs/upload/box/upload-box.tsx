@@ -1,5 +1,5 @@
-import { Iconify } from "@beep/ui/atoms";
 import { mergeClasses } from "@beep/ui-core/utils";
+import { CloudArrowUpIcon } from "@phosphor-icons/react";
 import { useDropzone } from "react-dropzone";
 import { uploadClasses } from "../classes";
 import type { UploadProps } from "../types";
@@ -24,7 +24,7 @@ export function UploadBox({ sx, error, disabled, className, placeholder, ...drop
       sx={sx ?? {}}
     >
       <input {...getInputProps()} />
-      {placeholder ?? <Iconify icon="eva:cloud-upload-fill" width={28} />}
+      {placeholder ?? <CloudArrowUpIcon size={28} weight="fill" />}
     </UploadArea>
   );
 }

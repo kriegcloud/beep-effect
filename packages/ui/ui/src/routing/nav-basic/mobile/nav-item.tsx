@@ -1,9 +1,9 @@
-import { Iconify } from "@beep/ui/atoms";
 import { mergeClasses } from "@beep/ui-core/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { CSSObject } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
+import { CaretDownIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { navBasicClasses, navItemStyles } from "../styles";
 import type { NavItemProps } from "../types";
 import { createNavItem } from "../utils";
@@ -88,12 +88,9 @@ export function NavItem({
       )}
 
       {hasChild && (
-        <ItemArrow
-          {...ownerState}
-          icon={open ? "eva:arrow-ios-downward-fill" : "eva:arrow-ios-forward-fill"}
-          className={navBasicClasses.item.arrow}
-          sx={slotProps?.arrow ?? {}}
-        />
+        <ItemArrow {...ownerState} className={navBasicClasses.item.arrow} sx={slotProps?.arrow ?? {}}>
+          {open ? <CaretDownIcon size={16} weight="fill" /> : <CaretRightIcon size={16} weight="fill" />}
+        </ItemArrow>
       )}
     </ItemRoot>
   );
@@ -219,6 +216,7 @@ const ItemInfo = styled("span", { shouldForwardProp })<StyledState>(() => ({
 /**
  * @slot arrow
  */
-const ItemArrow = styled(Iconify, { shouldForwardProp })<StyledState>(({ theme }) => ({
+const ItemArrow = styled("span", { shouldForwardProp })<StyledState>(({ theme }) => ({
   ...navItemStyles.arrow(theme),
+  display: "inline-flex",
 }));

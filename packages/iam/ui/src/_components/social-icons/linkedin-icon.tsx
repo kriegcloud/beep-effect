@@ -1,3 +1,3 @@
-import { Iconify } from "@beep/ui/atoms/iconify/index";
+import { LinkedinLogoIcon } from "@phosphor-icons/react";
 
-export const LinkedinIcon = () => <Iconify icon={"socials:linkedin"} sx={{ width: "100%", height: "100%" }} />;
+export const LinkedinIcon = () => <LinkedinLogoIcon style={{ width: "100%", height: "100%" }} />;

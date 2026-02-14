@@ -16,7 +16,7 @@ import * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
 import { useCallback } from "react";
 
-const DEFAULT_CAPTCHA_ENDPOINTS = [paths.auth.signUp, paths.auth.signIn, paths.auth.requestResetPassword] as const;
+const DEFAULT_CAPTCHA_ENDPOINTS = [paths.auth.signUp, paths.auth.signIn, paths.auth.forgotPassword] as const;
 
 const sanitizeActionName = F.flow(
   (action: string): string => (Str.startsWith("/")(action) ? Str.substring(1)(action) : action),

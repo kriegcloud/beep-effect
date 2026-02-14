@@ -1,9 +1,9 @@
-import { Iconify } from "@beep/ui/atoms";
-
 import { rgbaFromChannel } from "@beep/ui-core/utils";
+import Box from "@mui/material/Box";
 import type { IconButtonProps } from "@mui/material/IconButton";
 import IconButton from "@mui/material/IconButton";
 import type { Theme } from "@mui/material/styles";
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 
 export type NavToggleButtonProps = IconButtonProps & {
   readonly isNavMini: boolean;
@@ -37,13 +37,15 @@ export function NavToggleButton({ isNavMini, sx, ...other }: NavToggleButtonProp
       ]}
       {...other}
     >
-      <Iconify
-        width={16}
-        icon={isNavMini ? "eva:arrow-ios-forward-fill" : "eva:arrow-ios-back-fill"}
+      <Box
+        component="span"
         sx={(theme: Theme) => ({
+          display: "inline-flex",
           ...(theme.direction === "rtl" && { transform: "scaleX(-1)" }),
         })}
-      />
+      >
+        {isNavMini ? <CaretRightIcon size={16} weight="fill" /> : <CaretLeftIcon size={16} weight="fill" />}
+      </Box>
     </IconButton>
   );
 }

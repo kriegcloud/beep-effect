@@ -1,8 +1,9 @@
 import { BS } from "@beep/schema";
-import { getFileMeta, Iconify, useFilePreview } from "@beep/ui/atoms";
+import { getFileMeta, useFilePreview } from "@beep/ui/atoms";
 import { mergeClasses } from "@beep/ui-core/utils";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
+import { CameraPlusIcon } from "@phosphor-icons/react";
 import * as S from "effect/Schema";
 import { useDropzone } from "react-dropzone";
 import { uploadClasses } from "../classes";
@@ -39,7 +40,7 @@ export function UploadAvatar({
 
   const renderPlaceholder = () => (
     <PlaceholderContainer className={uploadClasses.placeholder.root}>
-      <Iconify icon="solar:camera-add-bold" width={32} className={uploadClasses.placeholder.icon} />
+      <CameraPlusIcon size={32} weight="bold" className={uploadClasses.placeholder.icon} />
       <Typography variant="caption" className={uploadClasses.placeholder.title}>
         {hasSelectedFile ? "Update photo" : "Upload photo"}
       </Typography>

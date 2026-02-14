@@ -1,4 +1,4 @@
-import { CSP_HEADER } from "@beep/constants";
+import { buildCspHeaderWithNonce } from "@beep/constants";
 import { getSessionCookie } from "better-auth/cookies";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -76,8 +76,8 @@ const getCallbackURL = (queryParams: URLSearchParams): string =>
 // Route matching utilities
 // ============================================================================
 
-const withCsp = (response: NextResponse) => {
-  response.headers.set("Content-Security-Policy", CSP_HEADER);
+const withCsp = (cspHeader: string) => (response: NextResponse) => {
+  response.headers.set("Content-Security-Policy", cspHeader);
   return response;
 };
 
@@ -92,8 +92,13 @@ const matchesPrefix = (pathname: string, prefixes: ReadonlyArray<string>) =>
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const cspHeader = buildCspHeaderWithNonce(nonce);
+  const applyCsp = withCsp(cspHeader);
+
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("Content-Security-Policy", CSP_HEADER);
+  requestHeaders.set("Content-Security-Policy", cspHeader);
+  requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("x-url", request.url);
 
   const isAuthRoute = matchesExact(pathname, AUTH_ROUTES);
@@ -110,7 +115,7 @@ export async function proxy(request: NextRequest) {
         headers: requestHeaders,
       },
     });
-    return withCsp(response);
+    return applyCsp(response);
   }
 
   const sessionCookie = getSessionCookie(request);
@@ -120,7 +125,7 @@ export async function proxy(request: NextRequest) {
     const callbackParams = new URLSearchParams(request.nextUrl.search);
     const target = getCallbackURL(callbackParams);
     const redirectUrl = new URL(target, request.url);
-    return withCsp(NextResponse.redirect(redirectUrl));
+    return applyCsp(NextResponse.redirect(redirectUrl));
   }
 
   // Redirect unauthenticated users to sign-in for private routes
@@ -131,7 +136,7 @@ export async function proxy(request: NextRequest) {
     if (sanitized !== DEFAULT_TARGET) {
       signInUrl.searchParams.set(CALLBACK_PARAM_NAME, sanitized);
     }
-    return withCsp(NextResponse.redirect(signInUrl));
+    return applyCsp(NextResponse.redirect(signInUrl));
   }
 
   const response = NextResponse.next({
@@ -140,7 +145,7 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  return withCsp(response);
+  return applyCsp(response);
 }
 
 export const config = {

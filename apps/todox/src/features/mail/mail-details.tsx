@@ -1,6 +1,6 @@
 "use client";
 import type { Mail, MailLabel } from "@beep/todox/types/mail";
-import { FileThumbnail, Iconify, Label } from "@beep/ui/atoms";
+import { FileThumbnail, Label } from "@beep/ui/atoms";
 import { Markdown } from "@beep/ui/data-display";
 import { useBoolean } from "@beep/ui/hooks";
 import { EmptyContent } from "@beep/ui/molecules";
@@ -20,6 +20,23 @@ import Stack from "@mui/material/Stack";
 import { darken, alpha as hexAlpha, lighten, useTheme } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import {
+  ArchiveIcon,
+  ArrowBendDoubleUpLeftIcon,
+  ArrowBendUpLeftIcon,
+  ArrowBendUpRightIcon,
+  CaretDownIcon,
+  CaretUpIcon,
+  CloudArrowDownIcon,
+  DotsThreeVerticalIcon,
+  EnvelopeOpenIcon,
+  ImageIcon,
+  PaperclipIcon,
+  PaperPlaneTiltIcon,
+  StarIcon,
+  TagIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import { LexicalEditor } from "../../components/editor";
 
 // ----------------------------------------------------------------------
@@ -72,8 +89,8 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
       <Box sx={{ display: "flex", flex: "1 1 auto", alignItems: "center", justifyContent: "flex-end" }}>
         <Checkbox
           color="warning"
-          icon={<Iconify icon="eva:star-outline" />}
-          checkedIcon={<Iconify icon="eva:star-fill" />}
+          icon={<StarIcon />}
+          checkedIcon={<StarIcon weight="fill" />}
           checked={isStarred.value}
           onChange={isStarred.onToggle}
           slotProps={{
@@ -86,8 +103,8 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
 
         <Checkbox
           color="warning"
-          icon={<Iconify icon="ic:round-label-important" />}
-          checkedIcon={<Iconify icon="ic:round-label-important" />}
+          icon={<TagIcon weight="fill" />}
+          checkedIcon={<TagIcon weight="fill" />}
           checked={isImportant.value}
           onChange={isImportant.onToggle}
           slotProps={{
@@ -100,24 +117,24 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
 
         <Tooltip title="Archive">
           <IconButton>
-            <Iconify icon="solar:archive-down-minimlistic-bold" />
+            <ArchiveIcon weight="bold" />
           </IconButton>
         </Tooltip>
 
         <Tooltip title="Mark Unread">
           <IconButton>
-            <Iconify icon="solar:letter-unread-bold" />
+            <EnvelopeOpenIcon weight="bold" />
           </IconButton>
         </Tooltip>
 
         <Tooltip title="Trash">
           <IconButton>
-            <Iconify icon="solar:trash-bin-trash-bold" />
+            <TrashIcon weight="bold" />
           </IconButton>
         </Tooltip>
 
         <IconButton>
-          <Iconify icon="eva:more-vertical-fill" />
+          <DotsThreeVerticalIcon weight="fill" />
         </IconButton>
       </Box>
     </>
@@ -140,15 +157,15 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
       <Stack spacing={0.5}>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
           <IconButton size="small">
-            <Iconify width={18} icon="solar:reply-bold" />
+            <ArrowBendUpLeftIcon size={18} weight="bold" />
           </IconButton>
 
           <IconButton size="small">
-            <Iconify width={18} icon="solar:multiple-forward-left-broken" />
+            <ArrowBendDoubleUpLeftIcon size={18} />
           </IconButton>
 
           <IconButton size="small">
-            <Iconify width={18} icon="solar:forward-bold" />
+            <ArrowBendUpRightIcon size={18} weight="bold" />
           </IconButton>
         </Box>
 
@@ -194,13 +211,13 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
           onClick={showAttachments.onToggle}
           sx={{ borderRadius: 0.5, typography: "caption", color: "text.secondary" }}
         >
-          <Iconify icon="eva:attach-2-fill" sx={{ mr: 0.5 }} />
+          <PaperclipIcon weight="fill" style={{ marginRight: 4 }} />
           {mail?.attachments.length} attachments
-          <Iconify
-            icon={showAttachments.value ? "eva:arrow-ios-upward-fill" : "eva:arrow-ios-downward-fill"}
-            width={16}
-            sx={{ ml: 0.5 }}
-          />
+          {showAttachments.value ? (
+            <CaretUpIcon size={16} weight="fill" style={{ marginLeft: 4 }} />
+          ) : (
+            <CaretDownIcon size={16} weight="fill" style={{ marginLeft: 4 }} />
+          )}
         </ButtonBase>
 
         <ButtonBase
@@ -213,7 +230,7 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
             fontWeight: "fontWeightSemiBold",
           }}
         >
-          <Iconify width={18} icon="eva:cloud-download-fill" /> Download
+          <CloudArrowDownIcon size={18} weight="fill" /> Download
         </ButtonBase>
       </Box>
 
@@ -243,16 +260,16 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <IconButton>
-          <Iconify icon="solar:gallery-add-bold" />
+          <ImageIcon weight="bold" />
         </IconButton>
 
         <IconButton>
-          <Iconify icon="eva:attach-2-fill" />
+          <PaperclipIcon weight="fill" />
         </IconButton>
 
         <Stack sx={{ flexGrow: 1 }} />
 
-        <Button color="primary" variant="contained" endIcon={<Iconify icon="custom:send-fill" />}>
+        <Button color="primary" variant="contained" endIcon={<PaperPlaneTiltIcon weight="fill" />}>
           Send
         </Button>
       </Box>

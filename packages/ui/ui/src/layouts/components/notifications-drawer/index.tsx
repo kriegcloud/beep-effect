@@ -1,7 +1,7 @@
 "use client";
 
 import { transitionTap, varHover, varTap } from "@beep/ui/animate";
-import { Iconify, Label } from "@beep/ui/atoms";
+import { Label } from "@beep/ui/atoms";
 import { useBoolean } from "@beep/ui/hooks";
 import { Scrollbar } from "@beep/ui/molecules";
 import Badge from "@mui/material/Badge";
@@ -14,6 +14,7 @@ import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import { BellRingingIcon, ChecksIcon, GearSixIcon, XIcon } from "@phosphor-icons/react";
 import { m } from "framer-motion";
 import { useCallback, useState } from "react";
 import type { NotificationItemProps } from "./notification-item";
@@ -70,17 +71,17 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
       {!!totalUnRead && (
         <Tooltip title="Mark all as read">
           <IconButton color="primary" onClick={handleMarkAllAsRead}>
-            <Iconify icon="eva:done-all-fill" />
+            <ChecksIcon size={20} weight="fill" />
           </IconButton>
         </Tooltip>
       )}
 
       <IconButton onClick={onClose} sx={{ display: { xs: "inline-flex", sm: "none" } }}>
-        <Iconify icon="mingcute:close-line" />
+        <XIcon size={20} />
       </IconButton>
 
       <IconButton>
-        <Iconify icon="solar:settings-bold-duotone" />
+        <GearSixIcon size={20} weight="duotone" />
       </IconButton>
     </Box>
   );
@@ -131,7 +132,7 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
         {...other}
       >
         <Badge badgeContent={totalUnRead} color="error">
-          <Iconify width={24} icon="solar:bell-bing-bold-duotone" />
+          <BellRingingIcon size={24} weight="duotone" />
         </Badge>
       </IconButton>
 

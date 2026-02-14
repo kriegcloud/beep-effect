@@ -3,6 +3,7 @@
 import { Button } from "@beep/todox/components/ui/button";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { DraggableBlockPlugin_EXPERIMENTAL } from "@lexical/react/LexicalDraggableBlockPlugin";
+import { DotsSixVerticalIcon, PlusIcon } from "@phosphor-icons/react";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type { NodeKey } from "lexical";
@@ -14,7 +15,6 @@ import {
   $isParagraphNode,
   $isTextNode,
 } from "lexical";
-import { GripVertical, Plus } from "lucide-react";
 import type { JSX } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as ReactDOM from "react-dom";
@@ -266,13 +266,13 @@ export default function DraggableBlockPlugin({
               className="draggable-block-button"
               onClick={openComponentPicker}
             >
-              <Plus className="size-3.5" />
+              <PlusIcon className="size-3.5" />
             </Button>
             <div
               className="draggable-block-handle flex items-center justify-center w-6 h-6 rounded hover:bg-muted text-muted-foreground cursor-grab"
               title="Drag to move"
             >
-              <GripVertical className="size-3.5" />
+              <DotsSixVerticalIcon className="size-3.5" />
             </div>
           </div>
         }

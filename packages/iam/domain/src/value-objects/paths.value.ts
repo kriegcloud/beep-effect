@@ -1,18 +1,18 @@
 import { BS } from "@beep/schema";
 import { PathBuilder } from "@beep/shared-domain/factories";
 
-const authPaths = PathBuilder.createRoot("/auth");
+const auth = PathBuilder.make("/auth");
 
 export const authViewPaths = PathBuilder.collection({
-  signIn: authPaths.child("sign-in"),
-  signUp: authPaths.child("sign-up"),
-  signOut: authPaths.child("sign-out"),
-  callback: authPaths.child("callback"),
-  forgotPassword: authPaths.child("forgot-password"),
-  recoverAccount: authPaths.child("recover-account"),
-  resetPassword: authPaths.child("reset-password"),
-  twoFactor: authPaths.child("two-factor"),
-  acceptInvitation: authPaths.child("accept-invitation"),
+  signIn: auth("sign-in"),
+  signUp: auth("sign-up"),
+  signOut: auth("sign-out"),
+  callback: auth("callback"),
+  forgotPassword: auth("forgot-password"),
+  recoverAccount: auth("recover-account"),
+  resetPassword: auth("reset-password"),
+  twoFactor: auth("two-factor"),
+  acceptInvitation: auth("accept-invitation"),
 });
 
 export class AccountSettingsTabSearchParamValue extends BS.StringLiteralKit(
@@ -36,20 +36,16 @@ export declare namespace AccountSettingsTabSearchParamValue {
 
 export const accountViewPaths = {
   settings: (pathname: string) => (tab: typeof AccountSettingsTabSearchParamValue.Type) =>
-    PathBuilder.dynamicQueries(pathname)({
+    PathBuilder.make(pathname as `/${string}`).withQuery({
       settingsTab: tab,
     }),
 } as const;
 
 export type AccountViewPaths = typeof accountViewPaths;
 
-// Organization-scoped views
 export const organizationViewPaths = {
-  /** @default "settings" */
   SETTINGS: "settings",
-  /** @default "members" */
   MEMBERS: "members",
-  /** @default "api-keys" */
   API_KEYS: "api-keys",
 };
 

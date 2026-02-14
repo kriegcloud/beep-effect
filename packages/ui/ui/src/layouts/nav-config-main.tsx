@@ -1,10 +1,10 @@
-import { Iconify } from "@beep/ui/atoms";
+import { HouseIcon } from "@phosphor-icons/react";
 import type { NavMainProps } from "./main/nav/types";
 
 export const navData: NavMainProps["data"] = [
   {
     title: "Home",
     path: "/",
-    icon: <Iconify width={22} icon="solar:home-angle-bold-duotone" />,
+    icon: <HouseIcon size={22} weight="duotone" />,
   },
 ];

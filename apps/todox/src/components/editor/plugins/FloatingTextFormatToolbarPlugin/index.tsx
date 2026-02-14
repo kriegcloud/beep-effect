@@ -6,6 +6,18 @@ import { $isCodeHighlightNode } from "@lexical/code";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
+import {
+  ChatCenteredDotsIcon,
+  CodeIcon,
+  LinkIcon,
+  TextAaIcon,
+  TextBIcon,
+  TextItalicIcon,
+  TextStrikethroughIcon,
+  TextSubscriptIcon,
+  TextSuperscriptIcon,
+  TextUnderlineIcon,
+} from "@phosphor-icons/react";
 import * as Str from "effect/String";
 import {
   $getSelection,
@@ -18,20 +30,6 @@ import {
   type LexicalEditor,
   SELECTION_CHANGE_COMMAND,
 } from "lexical";
-import {
-  Bold,
-  CaseLower,
-  CaseSensitive,
-  CaseUpper,
-  Code,
-  Italic,
-  Link,
-  MessageSquarePlus,
-  Strikethrough,
-  Subscript,
-  Superscript,
-  Underline,
-} from "lucide-react";
 import type { JSX } from "react";
 import { type Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -207,7 +205,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold")}
                   aria-label="Bold"
                 >
-                  <Bold size={iconSize} />
+                  <TextBIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -224,7 +222,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic")}
                   aria-label="Italic"
                 >
-                  <Italic size={iconSize} />
+                  <TextItalicIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -241,7 +239,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline")}
                   aria-label="Underline"
                 >
-                  <Underline size={iconSize} />
+                  <TextUnderlineIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -258,7 +256,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough")}
                   aria-label="Strikethrough"
                 >
-                  <Strikethrough size={iconSize} />
+                  <TextStrikethroughIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -275,7 +273,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "subscript")}
                   aria-label="Subscript"
                 >
-                  <Subscript size={iconSize} />
+                  <TextSubscriptIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -292,7 +290,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "superscript")}
                   aria-label="Superscript"
                 >
-                  <Superscript size={iconSize} />
+                  <TextSuperscriptIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -310,7 +308,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "uppercase")}
                   aria-label="Uppercase"
                 >
-                  <CaseUpper size={iconSize} />
+                  <TextAaIcon size={iconSize} weight="bold" />
                 </Toggle>
               }
             />
@@ -327,7 +325,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "lowercase")}
                   aria-label="Lowercase"
                 >
-                  <CaseLower size={iconSize} />
+                  <TextAaIcon size={iconSize} weight="thin" />
                 </Toggle>
               }
             />
@@ -344,7 +342,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "capitalize")}
                   aria-label="Capitalize"
                 >
-                  <CaseSensitive size={iconSize} />
+                  <TextAaIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -362,7 +360,7 @@ function TextFormatFloatingToolbar({
                   onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code")}
                   aria-label="Code"
                 >
-                  <Code size={iconSize} />
+                  <CodeIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -374,7 +372,7 @@ function TextFormatFloatingToolbar({
             <TooltipTrigger
               render={
                 <Toggle size="sm" pressed={isLink} onPressedChange={insertLink} aria-label="Link">
-                  <Link size={iconSize} />
+                  <LinkIcon size={iconSize} />
                 </Toggle>
               }
             />
@@ -394,7 +392,7 @@ function TextFormatFloatingToolbar({
               aria-label="Comment"
               className="hidden lg:flex"
             >
-              <MessageSquarePlus size={iconSize} />
+              <ChatCenteredDotsIcon size={iconSize} />
             </Toggle>
           }
         />

@@ -1,10 +1,10 @@
-import { Iconify } from "@beep/ui/atoms";
-
 import { rgbaFromChannel } from "@beep/ui-core/utils";
+import Box from "@mui/material/Box";
 import type { ButtonBaseProps } from "@mui/material/ButtonBase";
 import ButtonBase from "@mui/material/ButtonBase";
 import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
+import { ArrowCounterClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
 
 type LargeBlockProps = React.ComponentProps<typeof LargeBlockRoot> & {
   readonly title: string;
@@ -45,13 +45,15 @@ export function LargeBlock({ sx, title, tooltip, children, canReset, onReset, ..
       <LargeLabel>
         {canReset && (
           <ButtonBase disableRipple onClick={onReset} sx={{ ml: -0.5, mr: 0.5 }}>
-            <Iconify width={14} icon="solar:restart-bold" sx={{ opacity: 0.64 }} />
+            <ArrowCounterClockwiseIcon size={14} weight="bold" style={{ opacity: 0.64 }} />
           </ButtonBase>
         )}
         {title}
         {tooltip && (
           <Tooltip title={tooltip} placement="right" arrow>
-            <Iconify width={14} icon="eva:info-outline" sx={{ ml: 0.5, mr: -0.5, opacity: 0.48, cursor: "pointer" }} />
+            <Box component="span" sx={{ ml: 0.5, mr: -0.5, opacity: 0.48, cursor: "pointer", display: "inline-flex" }}>
+              <InfoIcon size={14} />
+            </Box>
           </Tooltip>
         )}
       </LargeLabel>
@@ -105,7 +107,7 @@ export function SmallBlock({ label, canReset, onReset, sx, children, ...other }:
   return (
     <SmallBlockRoot sx={sx ?? {}} {...other}>
       <SmallLabel disableRipple canReset={Boolean(canReset)} onClick={canReset ? onReset : undefined}>
-        {canReset && <Iconify width={14} icon="solar:restart-bold" />}
+        {canReset && <ArrowCounterClockwiseIcon size={14} weight="bold" />}
         {label}
       </SmallLabel>
       {children}

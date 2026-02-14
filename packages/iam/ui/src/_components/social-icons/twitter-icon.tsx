@@ -1,5 +1,5 @@
-import { Iconify } from "@beep/ui/atoms/iconify/index";
+import { XLogoIcon } from "@phosphor-icons/react";
 
 export const TwitterIcon = () => {
-  return <Iconify icon="socials:twitter" sx={{ height: "100%", width: "100%" }} />;
+  return <XLogoIcon style={{ height: "100%", width: "100%" }} />;
 };

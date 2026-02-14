@@ -213,7 +213,6 @@
     "@fontsource-variable/nunito-sans": "catalog:",
     "@fontsource-variable/public-sans": "catalog:",
     "@fontsource/barlow": "catalog:",
-    "@iconify/react": "catalog:",
     "@lexical/code": "catalog:",
     "@lexical/link": "catalog:",
     "@lexical/list": "catalog:",
@@ -248,7 +247,6 @@
     "input-otp": "catalog:",
     "lexical": "catalog:",
     "lowlight": "catalog:",
-    "lucide-react": "catalog:",
     "mdi-material-ui": "catalog:",
     "next": "catalog:",
     "next-themes": "catalog:",
@@ -306,7 +304,6 @@
     "@fontsource-variable/nunito-sans": "catalog:",
     "@fontsource-variable/public-sans": "catalog:",
     "@fontsource/barlow": "catalog:",
-    "@iconify/react": "catalog:",
     "@lexical/code": "catalog:",
     "@lexical/link": "catalog:",
     "@lexical/list": "catalog:",
@@ -338,8 +335,8 @@
     "accept-language": "catalog:",
     "ai": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
-    "class-variance-authority": "catalog:",
-    "clsx": "catalog:",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "cmdk": "catalog:",
     "copyfiles": "catalog:",
     "effect": "catalog:",
@@ -350,7 +347,6 @@
     "input-otp": "catalog:",
     "lexical": "catalog:",
     "lowlight": "catalog:",
-    "lucide-react": "catalog:",
     "mdi-material-ui": "catalog:",
     "next": "catalog:",
     "next-themes": "catalog:",
@@ -373,7 +369,7 @@
     "sonner": "catalog:",
     "stylis": "catalog:",
     "stylis-plugin-rtl": "catalog:",
-    "tailwind-merge": "catalog:",
+    "tailwind-merge": "^3.4.0",
     "tailwind-scrollbar-hide": "catalog:",
     "tailwindcss": "catalog:",
     "tailwindcss-animate": "catalog:",
@@ -382,5 +378,9 @@
     "uuid": "catalog:",
     "vaul": "catalog:",
     "zod": "catalog:"
+  },
+  "dependencies": {
+    "lucide-react": "^0.564.0",
+    "motion": "^12.34.0"
   }
 }

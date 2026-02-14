@@ -1,9 +1,9 @@
 "use client";
-import { Iconify } from "@beep/ui/atoms";
 import type { Skin } from "@emoji-mart/data";
 import data from "@emoji-mart/data/sets/15/apple.json";
 import Picker from "@emoji-mart/react";
 import { Button, Popover, Tooltip, useTheme } from "@mui/material";
+import { SmileyIcon } from "@phosphor-icons/react";
 import React, { type JSX } from "react";
 
 type PickerProps = React.ComponentProps<typeof Picker>;
@@ -32,7 +32,7 @@ export const EmojiPicker = ({ handleEmojiSelect, actionButtonEle, ...rest }: Emo
         ) : (
           <Tooltip title="Emoji">
             <Button variant="contained" shape="square" color="primary">
-              <Iconify icon="material-symbols:mood-outline-rounded" fontSize={20} />
+              <SmileyIcon size={20} />
             </Button>
           </Tooltip>
         )}

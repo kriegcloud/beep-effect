@@ -1,5 +1,6 @@
-import { Iconify, Label, SvgColor } from "@beep/ui/atoms";
+import { Label, SvgColor } from "@beep/ui/atoms";
 import type { NavSectionProps } from "@beep/ui/routing";
+import { ArrowSquareOutIcon, BellRingingIcon } from "@phosphor-icons/react";
 
 const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} />;
 
@@ -95,7 +96,7 @@ export const navData: NavSectionProps["data"] = [
         path: "#label",
         icon: ICONS.label,
         info: (
-          <Label color="info" variant="inverted" startIcon={<Iconify icon="solar:bell-bing-bold-duotone" />}>
+          <Label color="info" variant="inverted" startIcon={<BellRingingIcon weight="duotone" />}>
             NEW
           </Label>
         ),
@@ -122,7 +123,7 @@ export const navData: NavSectionProps["data"] = [
         title: "External link",
         path: "https://www.google.com/",
         icon: ICONS.external,
-        info: <Iconify width={18} icon="eva:external-link-fill" />,
+        info: <ArrowSquareOutIcon size={18} weight="fill" />,
       },
     ],
   },

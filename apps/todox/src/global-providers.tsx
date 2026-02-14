@@ -1,5 +1,6 @@
 "use client";
 
+import { CSPProvider } from "@base-ui/react/csp-provider";
 import { BeepProvider } from "@beep/runtime-client";
 import RecaptchaV3Atom from "@beep/shared-client/services/react-recaptcha-v3/recaptcha-v3-atom";
 import type { AppConfig } from "@beep/todox/app-config";
@@ -27,38 +28,40 @@ type GlobalProviders = {
 export function GlobalProviders({ children, appConfig }: GlobalProviders) {
   return (
     <BeepProvider>
-      <InitColorSchemeScript
-        modeStorageKey={themeConfig.modeStorageKey}
-        attribute={"class"}
-        defaultMode={themeConfig.defaultMode}
-      />
-      <I18nProvider lang={appConfig.i18nLang}>
-        {/*{isDev && <TanStackDevtools plugins={[formDevtoolsPlugin()]} />}*/}
-        <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
-          <LocalizationProvider>
-            <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-              <ThemeProvider
-                themeOverrides={themeOverrides}
-                modeStorageKey={themeConfig.modeStorageKey}
-                defaultMode={themeConfig.defaultMode}
-              >
-                <RecaptchaV3Atom>
-                  <BreakpointsProvider>
-                    <ConfirmProvider>
-                      <MotionLazy>
-                        <Snackbar />
-                        <ProgressBar />
-                        <SettingsDrawer defaultSettings={defaultSettings} />
-                        {children}
-                      </MotionLazy>
-                    </ConfirmProvider>
-                  </BreakpointsProvider>
-                </RecaptchaV3Atom>
-              </ThemeProvider>
-            </AppRouterCacheProvider>
-          </LocalizationProvider>
-        </SettingsProvider>
-      </I18nProvider>
+      <CSPProvider>
+        <InitColorSchemeScript
+          modeStorageKey={themeConfig.modeStorageKey}
+          attribute={"class"}
+          defaultMode={themeConfig.defaultMode}
+        />
+        <I18nProvider lang={appConfig.i18nLang}>
+          {/*{isDev && <TanStackDevtools plugins={[formDevtoolsPlugin()]} />}*/}
+          <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
+            <LocalizationProvider>
+              <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+                <ThemeProvider
+                  themeOverrides={themeOverrides}
+                  modeStorageKey={themeConfig.modeStorageKey}
+                  defaultMode={themeConfig.defaultMode}
+                >
+                  <RecaptchaV3Atom>
+                    <BreakpointsProvider>
+                      <ConfirmProvider>
+                        <MotionLazy>
+                          <Snackbar />
+                          <ProgressBar />
+                          <SettingsDrawer defaultSettings={defaultSettings} />
+                          {children}
+                        </MotionLazy>
+                      </ConfirmProvider>
+                    </BreakpointsProvider>
+                  </RecaptchaV3Atom>
+                </ThemeProvider>
+              </AppRouterCacheProvider>
+            </LocalizationProvider>
+          </SettingsProvider>
+        </I18nProvider>
+      </CSPProvider>
     </BeepProvider>
   );
 }

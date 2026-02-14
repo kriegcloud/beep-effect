@@ -1,9 +1,9 @@
 "use client";
-import { Iconify } from "@beep/ui/atoms";
 import Button from "@mui/material/Button";
 import type { ChipProps } from "@mui/material/Chip";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
+import { TrashIcon } from "@phosphor-icons/react";
 import type React from "react";
 
 export const chipProps: ChipProps = { size: "small", variant: "soft" };
@@ -25,7 +25,7 @@ export function FiltersResult({ sx, onReset, children, totalResults, ...other }:
       <ResultContent>
         {children}
 
-        <Button color="error" onClick={onReset} startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}>
+        <Button color="error" onClick={onReset} startIcon={<TrashIcon weight="bold" />}>
           Clear
         </Button>
       </ResultContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Iconify, Label } from "@beep/ui/atoms";
+import { Label } from "@beep/ui/atoms";
 import { Scrollbar } from "@beep/ui/molecules";
 import type { SettingsDrawerProps, SettingsState } from "@beep/ui-core/settings/types";
 import { themeConfig } from "@beep/ui-core/theme/theme-config";
@@ -14,6 +14,7 @@ import SvgIcon from "@mui/material/SvgIcon";
 import { useColorScheme } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import { ArrowCounterClockwiseIcon, XIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect } from "react";
 import { useSettingsContext } from "../context/use-settings-context";
 import { BaseOption } from "./base-option";
@@ -71,14 +72,14 @@ export function SettingsDrawer({ sx, defaultSettings }: SettingsDrawerProps) {
       <Tooltip title="Reset all">
         <IconButton onClick={handleReset}>
           <Badge color="error" variant="dot" invisible={!settings.canReset}>
-            <Iconify icon="solar:restart-bold" />
+            <ArrowCounterClockwiseIcon weight="bold" />
           </Badge>
         </IconButton>
       </Tooltip>
 
       <Tooltip title="Close">
         <IconButton onClick={settings.onCloseDrawer}>
-          <Iconify icon="mingcute:close-line" />
+          <XIcon />
         </IconButton>
       </Tooltip>
     </Box>

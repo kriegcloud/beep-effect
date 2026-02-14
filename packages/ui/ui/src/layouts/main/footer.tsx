@@ -1,5 +1,4 @@
 import { paths } from "@beep/shared-domain";
-import { Iconify } from "@beep/ui/atoms";
 import { Logo } from "@beep/ui/branding";
 import { RouterLink } from "@beep/ui/routing";
 import Box from "@mui/material/Box";
@@ -11,6 +10,7 @@ import Link from "@mui/material/Link";
 import type { Breakpoint } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { FacebookLogoIcon, InstagramLogoIcon, LinkedinLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react";
 
 export const _socials = [
   {
@@ -118,10 +118,10 @@ export function Footer({ sx, layoutQuery = "md", ...other }: FooterProps & { lay
             >
               {_socials.map((social) => (
                 <IconButton key={social.label}>
-                  {social.value === "twitter" && <Iconify icon="socials:twitter" />}
-                  {social.value === "facebook" && <Iconify icon="socials:facebook" />}
-                  {social.value === "instagram" && <Iconify icon="socials:instagram" />}
-                  {social.value === "linkedin" && <Iconify icon="socials:linkedin" />}
+                  {social.value === "twitter" && <TwitterLogoIcon size={20} />}
+                  {social.value === "facebook" && <FacebookLogoIcon size={20} />}
+                  {social.value === "instagram" && <InstagramLogoIcon size={20} />}
+                  {social.value === "linkedin" && <LinkedinLogoIcon size={20} />}
                 </IconButton>
               ))}
             </Box>

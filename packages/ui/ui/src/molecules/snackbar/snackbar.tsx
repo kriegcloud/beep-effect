@@ -1,7 +1,7 @@
 "use client";
 
-import { Iconify } from "@beep/ui/atoms";
 import Portal from "@mui/material/Portal";
+import { CheckCircleIcon, InfoIcon, WarningCircleIcon, WarningIcon } from "@phosphor-icons/react";
 import { snackbarClasses } from "./classes";
 import { SnackbarRoot } from "./styles";
 
@@ -40,10 +40,10 @@ export function Snackbar() {
         }}
         icons={{
           loading: <span className={snackbarClasses.loadingIcon} />,
-          info: <Iconify className={snackbarClasses.iconSvg} icon="solar:info-circle-bold" />,
-          success: <Iconify className={snackbarClasses.iconSvg} icon="solar:check-circle-bold" />,
-          warning: <Iconify className={snackbarClasses.iconSvg} icon="solar:danger-triangle-bold" />,
-          error: <Iconify className={snackbarClasses.iconSvg} icon="solar:danger-bold" />,
+          info: <InfoIcon className={snackbarClasses.iconSvg} weight="bold" />,
+          success: <CheckCircleIcon className={snackbarClasses.iconSvg} weight="bold" />,
+          warning: <WarningIcon className={snackbarClasses.iconSvg} weight="bold" />,
+          error: <WarningCircleIcon className={snackbarClasses.iconSvg} weight="bold" />,
         }}
       />
     </Portal>

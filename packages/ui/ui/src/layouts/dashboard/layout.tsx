@@ -11,7 +11,14 @@ import Box from "@mui/material/Box";
 import { iconButtonClasses } from "@mui/material/IconButton";
 import type { Breakpoint } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
-import { Iconify } from "../../atoms";
+import {
+  GearSixIcon,
+  HouseIcon,
+  NotepadIcon,
+  ReceiptIcon,
+  ShieldCheckIcon,
+  UserCircleIcon,
+} from "@phosphor-icons/react";
 import { AccountDrawer } from "../components/account-drawer";
 import { ContactsPopover } from "../components/contacts-popover";
 import { LanguagePopover } from "../components/language-popover";
@@ -184,34 +191,34 @@ export function DashboardLayout({
               {
                 label: "Home",
                 href: "/",
-                icon: <Iconify icon="solar:home-angle-bold-duotone" />,
+                icon: <HouseIcon size={20} weight="duotone" />,
               },
               {
                 label: "Profile",
                 href: "#",
-                icon: <Iconify icon="custom:profile-duotone" />,
+                icon: <UserCircleIcon size={20} weight="duotone" />,
               },
               {
                 label: "Projects",
                 href: "#",
-                icon: <Iconify icon="solar:notes-bold-duotone" />,
+                icon: <NotepadIcon size={20} weight="duotone" />,
                 info: "3",
               },
               {
                 label: "Subscription",
                 href: "#",
-                icon: <Iconify icon="custom:invoice-duotone" />,
+                icon: <ReceiptIcon size={20} weight="duotone" />,
               },
               {
                 label: "Security",
                 href: "#",
-                icon: <Iconify icon="solar:shield-keyhole-bold-duotone" />,
+                icon: <ShieldCheckIcon size={20} weight="duotone" />,
               },
               {
                 label: "Account settings",
                 href: "#",
                 onClick: () => onClickAccountSettings(),
-                icon: <Iconify icon="solar:settings-bold-duotone" />,
+                icon: <GearSixIcon size={20} weight="duotone" />,
               },
             ]}
           />

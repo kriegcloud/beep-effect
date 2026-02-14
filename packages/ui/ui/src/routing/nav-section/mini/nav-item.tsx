@@ -3,7 +3,7 @@ import ButtonBase from "@mui/material/ButtonBase";
 import type { CSSObject } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
-import { Iconify } from "../../../atoms";
+import { CaretRightIcon, InfoIcon } from "@phosphor-icons/react";
 import { navItemStyles, navSectionClasses } from "../styles";
 import type { NavItemProps } from "../types";
 import { createNavItem } from "../utils";
@@ -73,12 +73,9 @@ export function NavItem({
 
       {caption && (
         <Tooltip title={caption} arrow placement="right">
-          <ItemCaptionIcon
-            {...ownerState}
-            icon="eva:info-outline"
-            className={navSectionClasses.item.caption}
-            sx={slotProps?.caption ?? {}}
-          />
+          <ItemCaptionIcon {...ownerState} className={navSectionClasses.item.caption} sx={slotProps?.caption ?? {}}>
+            <InfoIcon size={16} />
+          </ItemCaptionIcon>
         </Tooltip>
       )}
 
@@ -89,12 +86,9 @@ export function NavItem({
       )}
 
       {hasChild && (
-        <ItemArrow
-          {...ownerState}
-          icon="eva:arrow-ios-forward-fill"
-          className={navSectionClasses.item.arrow}
-          sx={slotProps?.arrow ?? {}}
-        />
+        <ItemArrow {...ownerState} className={navSectionClasses.item.arrow} sx={slotProps?.arrow ?? {}}>
+          <CaretRightIcon size={16} weight="fill" />
+        </ItemArrow>
       )}
     </ItemRoot>
   );
@@ -201,8 +195,9 @@ const ItemTitle = styled("span", { shouldForwardProp })<StyledState>(({ active, 
 /**
  * @slot caption icon
  */
-const ItemCaptionIcon = styled(Iconify, { shouldForwardProp })<StyledState>({
+const ItemCaptionIcon = styled("span", { shouldForwardProp })<StyledState>({
   ...navItemStyles.captionIcon,
+  display: "inline-flex",
   color: "var(--nav-item-caption-color)",
   variants: [
     {
@@ -220,8 +215,9 @@ const ItemInfo = styled("span", { shouldForwardProp })<StyledState>(navItemStyle
 /**
  * @slot arrow
  */
-const ItemArrow = styled(Iconify, { shouldForwardProp })<StyledState>(({ theme }) => ({
+const ItemArrow = styled("span", { shouldForwardProp })<StyledState>(({ theme }) => ({
   ...navItemStyles.arrow(theme),
+  display: "inline-flex",
   variants: [
     {
       props: { variant: "rootItem" },

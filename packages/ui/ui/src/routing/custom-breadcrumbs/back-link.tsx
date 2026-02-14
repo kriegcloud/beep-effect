@@ -1,7 +1,9 @@
-import { Iconify, iconifyClasses } from "@beep/ui/atoms";
 import type { LinkProps } from "@mui/material/Link";
 import Link from "@mui/material/Link";
+import { CaretLeftIcon } from "@phosphor-icons/react";
 import { RouterLink } from "../RouterLink";
+
+const backLinkIconClass = "back-link__icon";
 
 export type BackLinkProps = LinkProps & {
   readonly label?: string | undefined;
@@ -16,7 +18,8 @@ export function BackLink({ sx, label, ...other }: BackLinkProps) {
       sx={[
         (theme) => ({
           verticalAlign: "middle",
-          [`& .${iconifyClasses.root}`]: {
+          [`& .${backLinkIconClass}`]: {
+            display: "inline-flex",
             verticalAlign: "inherit",
             transform: "translateY(-2px)",
             ml: {
@@ -29,7 +32,7 @@ export function BackLink({ sx, label, ...other }: BackLinkProps) {
             }),
           },
           "&:hover": {
-            [`& .${iconifyClasses.root}`]: {
+            [`& .${backLinkIconClass}`]: {
               opacity: 0.48,
             },
           },
@@ -38,7 +41,9 @@ export function BackLink({ sx, label, ...other }: BackLinkProps) {
       ]}
       {...other}
     >
-      <Iconify width={18} icon="eva:arrow-ios-back-fill" />
+      <span className={backLinkIconClass}>
+        <CaretLeftIcon size={18} weight="fill" />
+      </span>
       {label}
     </Link>
   );

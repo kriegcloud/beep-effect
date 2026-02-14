@@ -4,7 +4,6 @@ import { GmailScopes } from "@beep/google-workspace-domain";
 import { Core, OAuth2 } from "@beep/iam-client";
 import { Organization } from "@beep/iam-client/organization";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
-import { Iconify } from "@beep/ui/atoms";
 import { toast } from "@beep/ui/molecules";
 import { Result } from "@effect-atom/atom-react";
 import Box from "@mui/material/Box";
@@ -20,6 +19,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { CaretRightIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -205,7 +205,7 @@ export function ConnectionsSettingsPage() {
           <CardActions sx={{ px: 2, py: 1.5, gap: 1, flexWrap: "wrap" }}>
             <Button
               variant="contained"
-              startIcon={<Iconify icon="material-symbols:add" />}
+              startIcon={<PlusIcon />}
               onClick={() => void handleLink(undefined)}
               disabled={loading}
             >
@@ -213,7 +213,7 @@ export function ConnectionsSettingsPage() {
             </Button>
             <Button
               variant="outlined"
-              startIcon={<Iconify icon="material-symbols:chevron-right" />}
+              startIcon={<CaretRightIcon />}
               onClick={() => void handleLink(DEFAULT_GOOGLE_SCOPES)}
               disabled={loading}
             >
@@ -222,7 +222,7 @@ export function ConnectionsSettingsPage() {
             <Button
               variant="outlined"
               color="error"
-              startIcon={<Iconify icon="material-symbols:close" />}
+              startIcon={<XIcon />}
               onClick={() => void handleUnlink()}
               disabled={loading}
             >

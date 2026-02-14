@@ -1,4 +1,3 @@
-import { Iconify } from "@beep/ui/atoms/iconify";
 import { useBoolean } from "@beep/ui/hooks";
 import { rgbaFromChannel } from "@beep/ui-core/utils";
 import Backdrop from "@mui/material/Backdrop";
@@ -10,6 +9,14 @@ import Paper from "@mui/material/Paper";
 import Portal from "@mui/material/Portal";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import {
+  ArrowsInSimpleIcon,
+  ArrowsOutSimpleIcon,
+  ImageIcon,
+  PaperclipIcon,
+  PaperPlaneTiltIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { LexicalEditor } from "../../components/editor";
 
@@ -76,11 +83,11 @@ export function MailCompose({ onCloseCompose }: Props) {
           </Typography>
 
           <IconButton onClick={fullScreen.onToggle}>
-            <Iconify icon={fullScreen.value ? "eva:collapse-fill" : "eva:expand-fill"} />
+            {fullScreen.value ? <ArrowsInSimpleIcon weight="fill" /> : <ArrowsOutSimpleIcon weight="fill" />}
           </IconButton>
 
           <IconButton onClick={onCloseCompose}>
-            <Iconify icon="mingcute:close-line" />
+            <XIcon />
           </IconButton>
         </Box>
 
@@ -133,16 +140,16 @@ export function MailCompose({ onCloseCompose }: Props) {
 
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <IconButton>
-              <Iconify icon="solar:gallery-add-bold" />
+              <ImageIcon weight="bold" />
             </IconButton>
 
             <IconButton>
-              <Iconify icon="eva:attach-2-fill" />
+              <PaperclipIcon weight="fill" />
             </IconButton>
 
             <Box sx={{ flexGrow: 1 }} />
 
-            <Button variant="contained" color="primary" endIcon={<Iconify icon="custom:send-fill" />}>
+            <Button variant="contained" color="primary" endIcon={<PaperPlaneTiltIcon weight="fill" />}>
               Send
             </Button>
           </Box>

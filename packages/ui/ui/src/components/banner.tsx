@@ -1,6 +1,6 @@
 import { cn } from "@beep/ui-core/utils";
+import { CheckCircleIcon, InfoIcon, SpinnerGapIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { AlertCircleIcon, CheckCircleIcon, InfoIcon, Loader2Icon, XIcon } from "lucide-react";
 import type * as React from "react";
 
 const bannerVariants = cva("relative flex items-center gap-3 rounded-lg border px-4 py-3 text-sm", {
@@ -25,9 +25,9 @@ const variantIcons: Record<BannerVariant, React.ReactNode> = {
   default: <InfoIcon className="size-4 shrink-0" />,
   info: <InfoIcon className="size-4 shrink-0" />,
   success: <CheckCircleIcon className="size-4 shrink-0" />,
-  warning: <AlertCircleIcon className="size-4 shrink-0" />,
-  destructive: <AlertCircleIcon className="size-4 shrink-0" />,
-  loading: <Loader2Icon className="size-4 shrink-0 animate-spin" />,
+  warning: <WarningCircleIcon className="size-4 shrink-0" />,
+  destructive: <WarningCircleIcon className="size-4 shrink-0" />,
+  loading: <SpinnerGapIcon className="size-4 shrink-0 animate-spin" />,
 };
 
 type BannerRootProps = React.ComponentProps<"div"> &

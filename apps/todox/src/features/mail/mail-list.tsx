@@ -1,5 +1,4 @@
 import type { Mails } from "@beep/todox/types/mail";
-import { Iconify } from "@beep/ui/atoms/iconify";
 import { EmptyContent } from "@beep/ui/molecules/empty-content";
 import { Scrollbar } from "@beep/ui/molecules/scrollbar";
 import Box from "@mui/material/Box";
@@ -9,6 +8,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 
 import { MailItem } from "./mail-item";
 import { MailItemSkeleton } from "./mail-skeleton";
@@ -97,7 +97,7 @@ export function MailList({
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Iconify icon="eva:search-fill" sx={{ color: "text.disabled" }} />
+                    <MagnifyingGlassIcon weight="fill" style={{ color: "text.disabled" }} />
                   </InputAdornment>
                 ),
               },

@@ -1,4 +1,3 @@
-import { Iconify } from "@beep/ui/atoms";
 import { usePopover } from "@beep/ui/hooks";
 import { FlagIcon } from "@beep/ui/icons";
 import { SearchNotFound } from "@beep/ui/messages";
@@ -12,6 +11,7 @@ import MenuList from "@mui/material/MenuList";
 import Popover from "@mui/material/Popover";
 import SvgIcon from "@mui/material/SvgIcon";
 import TextField from "@mui/material/TextField";
+import { CaretDownIcon, MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import type { CountryListProps, PhoneCountry } from "./types";
 
@@ -96,15 +96,18 @@ export function CountryListPopover({
       {renderFlag()}
 
       {!disabled && (
-        <Iconify
-          icon="eva:chevron-down-fill"
+        <Box
+          component="span"
           sx={{
             ml: 0.25,
             flexShrink: 0,
             color: "text.disabled",
+            display: "inline-flex",
             ...(open && { color: "text.primary" }),
           }}
-        />
+        >
+          <CaretDownIcon weight="fill" />
+        </Box>
       )}
 
       <Box
@@ -184,13 +187,15 @@ export function CountryListPopover({
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: "text.disabled" }} />
+                  <Box component="span" sx={{ color: "text.disabled", display: "inline-flex" }}>
+                    <MagnifyingGlassIcon weight="fill" />
+                  </Box>
                 </InputAdornment>
               ),
               endAdornment: searchCountry && (
                 <InputAdornment position="end">
                   <IconButton size="small" edge="end" onClick={() => onSearchCountry("")}>
-                    <Iconify width={16} icon="mingcute:close-line" />
+                    <XIcon size={16} />
                   </IconButton>
                 </InputAdornment>
               ),

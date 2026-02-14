@@ -1,6 +1,4 @@
 import { countries } from "@beep/ui/assets/data/countries";
-import { Iconify } from "@beep/ui/atoms";
-
 import { debounce } from "@beep/utils";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -9,6 +7,7 @@ import { inputBaseClasses } from "@mui/material/InputBase";
 import { useTheme } from "@mui/material/styles";
 import type { TextFieldProps } from "@mui/material/TextField";
 import TextField from "@mui/material/TextField";
+import { XIcon } from "@phosphor-icons/react";
 import { forwardRef, useCallback, useMemo, useState } from "react";
 import PhoneNumberInput, { parsePhoneNumber } from "react-phone-number-input/input";
 import { CountryListPopover } from "./list-popover";
@@ -124,7 +123,7 @@ export function PhoneInput({
           endAdornment: normalizedValue && (
             <InputAdornment position="end">
               <IconButton size="small" edge="end" onClick={handleClearInput}>
-                <Iconify width={16} icon="mingcute:close-line" />
+                <XIcon size={16} />
               </IconButton>
             </InputAdornment>
           ),

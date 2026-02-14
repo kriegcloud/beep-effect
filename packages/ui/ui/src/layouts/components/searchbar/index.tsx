@@ -1,6 +1,6 @@
 "use client";
 
-import { Iconify, Label } from "@beep/ui/atoms";
+import { Label } from "@beep/ui/atoms";
 import { useBoolean } from "@beep/ui/hooks";
 import { SearchNotFound } from "@beep/ui/messages";
 import { Scrollbar } from "@beep/ui/molecules";
@@ -18,6 +18,7 @@ import MenuList from "@mui/material/MenuList";
 import type { Breakpoint } from "@mui/material/styles";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
@@ -114,7 +115,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
           },
         }}
       >
-        <Iconify icon="eva:search-fill" />
+        <MagnifyingGlassIcon size={20} weight="fill" />
       </Box>
 
       <Label
@@ -197,7 +198,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
           onChange={handleSearch}
           startAdornment={
             <InputAdornment position="start">
-              <Iconify icon="eva:search-fill" width={24} sx={{ color: "text.disabled" }} />
+              <MagnifyingGlassIcon size={24} weight="fill" style={{ color: "var(--mui-palette-text-disabled)" }} />
             </InputAdornment>
           }
           endAdornment={<Label sx={{ letterSpacing: 1, color: "text.secondary" }}>esc</Label>}

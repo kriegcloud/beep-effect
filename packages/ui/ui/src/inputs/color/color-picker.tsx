@@ -1,8 +1,8 @@
-import { Iconify } from "@beep/ui/atoms";
 import { mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import ButtonBase from "@mui/material/ButtonBase";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { alpha as hexAlpha, styled } from "@mui/material/styles";
+import { CheckIcon } from "@phosphor-icons/react";
 import type * as A from "effect/Array";
 import type React from "react";
 import { useCallback } from "react";
@@ -92,10 +92,11 @@ export function ColorPicker({
                 <ItemIcon
                   color={color}
                   hasSelected={hasSelected}
-                  icon="eva:checkmark-fill"
                   className={colorPickerClasses.item.icon}
                   {...slotProps?.icon}
-                />
+                >
+                  <CheckIcon weight="fill" style={{ width: "100%", height: "100%" }} />
+                </ItemIcon>
               </ItemContainer>
             </ItemRoot>
           </li>
@@ -151,11 +152,15 @@ const ItemContainer = styled("span", {
   ],
 }));
 
-const ItemIcon = styled(Iconify, {
+const ItemIcon = styled("span", {
   shouldForwardProp: (prop: string) => !["color", "hasSelected", "sx"].includes(prop),
 })<{ color: string; hasSelected: boolean }>(({ color, theme }) => ({
   width: 0,
   height: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  overflow: "hidden",
   color: theme.palette.getContrastText(color),
   transition: theme.transitions.create(["all"], {
     duration: theme.transitions.duration.shortest,

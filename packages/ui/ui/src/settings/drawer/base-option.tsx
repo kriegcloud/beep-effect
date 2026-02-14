@@ -1,11 +1,11 @@
-import { Iconify } from "@beep/ui/atoms";
-
 import { rgbaFromChannel } from "@beep/ui-core/utils";
+import Box from "@mui/material/Box";
 import type { ButtonBaseProps } from "@mui/material/ButtonBase";
 import ButtonBase from "@mui/material/ButtonBase";
 import Switch from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
+import { InfoIcon } from "@phosphor-icons/react";
 
 export type BaseOptionProps = Omit<ButtonBaseProps, "action"> & {
   readonly label: string;
@@ -29,7 +29,9 @@ export function BaseOption({ sx, icon, label, action, tooltip, selected, onChang
 
         {tooltip && (
           <Tooltip arrow title={tooltip} slotProps={{ tooltip: { sx: { maxWidth: 240, mr: 0.5 } } }}>
-            <Iconify width={16} icon="eva:info-outline" sx={{ cursor: "pointer", color: "text.disabled" }} />
+            <Box component="span" sx={{ cursor: "pointer", color: "text.disabled", display: "inline-flex" }}>
+              <InfoIcon size={16} />
+            </Box>
           </Tooltip>
         )}
       </BottomContainer>

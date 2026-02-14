@@ -1,7 +1,7 @@
-import { Iconify } from "@beep/ui/atoms/index";
 import { RouterLink } from "@beep/ui/routing/index";
 import type { LinkProps } from "@mui/material/Link";
 import Link from "@mui/material/Link";
+import { CaretLeftIcon } from "@phosphor-icons/react";
 
 type FormReturnLinkProps = LinkProps & {
   readonly href: string;
@@ -28,7 +28,7 @@ export function FormReturnLink({ sx, href, label, icon, children, ...other }: Fo
       ]}
       {...other}
     >
-      {icon || <Iconify width={16} icon="eva:arrow-ios-back-fill" />}
+      {icon || <CaretLeftIcon size={16} weight="fill" />}
       {label || "Return to sign in"}
       {children}
     </Link>

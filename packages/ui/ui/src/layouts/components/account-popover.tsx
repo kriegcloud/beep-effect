@@ -1,4 +1,3 @@
-import { paths } from "@beep/shared-domain";
 import { Label } from "@beep/ui/atoms";
 import { usePathname, usePopover } from "@beep/ui/hooks";
 import { CustomPopover } from "@beep/ui/organisms";
@@ -59,7 +58,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
       <MenuList sx={{ p: 1, my: 1, "& li": { p: 0 } }}>
         {data.map((option) => {
           const rootLabel = pathname.includes("/dashboard") ? "Home" : "Dashboard";
-          const rootHref = pathname.includes("/dashboard") ? "/" : paths.dashboard.root;
+          const rootHref = pathname.includes("/dashboard") ? "/" : "/dashboard";
 
           return (
             <MenuItem key={option.label}>

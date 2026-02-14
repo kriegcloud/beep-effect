@@ -1,11 +1,11 @@
 import type { MailLabel } from "@beep/todox/types/mail";
-import { Iconify } from "@beep/ui/atoms/iconify";
 import { EmptyContent } from "@beep/ui/molecules/empty-content";
 import { Scrollbar } from "@beep/ui/molecules/scrollbar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
 import Stack from "@mui/material/Stack";
+import { PenIcon } from "@phosphor-icons/react";
 
 import { MailNavItem } from "./mail-nav-item";
 import { MailNavItemSkeleton } from "./mail-skeleton";
@@ -72,7 +72,7 @@ export function MailNav({
           fullWidth
           color="inherit"
           variant="contained"
-          startIcon={<Iconify icon="solar:pen-bold" />}
+          startIcon={<PenIcon weight="bold" />}
           onClick={onToggleCompose}
         >
           Compose

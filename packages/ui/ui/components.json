@@ -14,28 +14,11 @@
   "menuColor": "default",
   "menuAccent": "subtle",
   "aliases": {
-    "utils": "@beep/ui-core/utils",
     "components": "@beep/ui/components",
-    "hooks": "@beep/ui/hooks",
-    "lib": "@beep/ui/lib",
+    "utils": "@beep/ui-core/utils",
     "ui": "@beep/ui/components",
-    "animate": "@beep/ui/animate",
-    "assets": "@beep/ui/assets",
-    "atoms": "@beep/ui/atoms",
-    "branding": "@beep/ui/branding",
-    "form": "@beep/ui/form",
-    "icons": "@beep/ui/icons",
-    "inputs": "@beep/ui/inputs",
-    "layouts": "@beep/ui/layouts",
-    "messages": "@beep/ui/messages",
-    "molecules": "@beep/ui/molecules",
-    "organisms": "@beep/ui/organisms",
-    "progress": "@beep/ui/progress",
-    "routing": "@beep/ui/routing",
-    "sections": "@beep/ui/sections",
-    "settings": "@beep/ui/settings",
-    "theme": "@beep/ui/theme",
-    "styled": "@beep/ui/styled"
+    "lib": "@beep/ui/lib",
+    "hooks": "@beep/ui/hooks"
   },
   "registries": {
     "@mui-treasury": "https://mui-treasury.com/r/{name}.json",
@@ -43,6 +26,7 @@
     "@elevenlabs-ui": "https://ui.elevenlabs.io/r/{name}.json",
     "@prompt-kit": "https://www.prompt-kit.com/c/{name}.json",
     "@tour": "https://onboarding-tour.vercel.app/r/{name}.json",
-    "@shadcn-editor": "https://shadcn-editor.vercel.app/r/{name}.json"
+    "@shadcn-editor": "https://shadcn-editor.vercel.app/r/{name}.json",
+    "@billingsdk": "https://billingsdk.com/r/{name}.json"
   }
 }

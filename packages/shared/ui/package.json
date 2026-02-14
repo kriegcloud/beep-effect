@@ -41,8 +41,7 @@
     "@beep/shared-client": "workspace:^",
     "@beep/ui": "workspace:^",
     "@effect-atom/atom-react": "catalog:",
-    "effect": "catalog:",
-    "lucide-react": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@beep/identity": "workspace:^",
@@ -56,8 +55,7 @@
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
-    "effect": "catalog:",
-    "lucide-react": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {

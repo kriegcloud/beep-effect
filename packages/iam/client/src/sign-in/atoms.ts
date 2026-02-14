@@ -13,24 +13,25 @@
  */
 
 import * as Common from "@beep/iam-client/_internal";
-import {toastEffect} from "@beep/ui/common";
-import {useAtomSet} from "@effect-atom/atom-react";
+import { toastEffect } from "@beep/ui/common";
+import { useAtomSet } from "@effect-atom/atom-react";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import {runtime, Service} from "./service.ts";
+import { runtime, Service } from "./service.ts";
 
 const EmailAtom = runtime.fn(
   F.flow(
     Service.Email,
     toastEffect({
-      onFailure: (e) => Cause.failureOption(e.cause).pipe(
-        O.match({
-          onNone: O.none<string>,
-          onSome: (e) => O.some(e.message),
-        })
-      ),
+      onFailure: (e) =>
+        Cause.failureOption(e.cause).pipe(
+          O.match({
+            onNone: O.none<string>,
+            onSome: (e) => O.some(e.message),
+          })
+        ),
       onSuccess: "Signed in successfully",
       onWaiting: "Signing in...",
     }),
@@ -42,12 +43,13 @@ const UsernameAtom = runtime.fn(
   F.flow(
     Service.Username,
     toastEffect({
-      onFailure: (e) => Cause.failureOption(e.cause).pipe(
-        O.match({
-          onNone: O.none<string>,
-          onSome: (e) => O.some(e.message),
-        })
-      ),
+      onFailure: (e) =>
+        Cause.failureOption(e.cause).pipe(
+          O.match({
+            onNone: O.none<string>,
+            onSome: (e) => O.some(e.message),
+          })
+        ),
       onSuccess: "Signed in successfully",
       onWaiting: "Signing in...",
     }),

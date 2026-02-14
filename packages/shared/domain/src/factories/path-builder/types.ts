@@ -1,14 +1,28 @@
 import type { BS } from "@beep/schema";
 import type { StringTypes, UnsafeTypes } from "@beep/types";
 
-export type Segment<S extends string> = S extends "" ? never : S extends `/${string}` ? never : S;
+export type Segment<S extends string> = S extends ""
+  ? never
+  : S extends `/${string}`
+    ? never
+    : S extends `${string}/${string}`
+      ? never
+      : S;
 
-export interface Instance<R extends StringTypes.NonEmptyString> {
-  <S extends StringTypes.NonEmptyString>(segment: Segment<S>): `${R}/${S}`;
+export type AppendPath<R extends `/${string}`, S extends string> = R extends "/" ? `/${S}` : `${R}/${S}`;
 
-  readonly root: R;
+export interface PathInstance<R extends `/${string}`> {
+  // Direct function call — full literal preservation: auth("sign-in") → "/auth/sign-in"
+  <const S extends string>(segment: Segment<S>): AppendPath<R, S> & `/${string}`;
+  // Tagged template with tuple — literal preservation: auth(["sign-in"]) → "/auth/sign-in"
+  <const S extends string>(strings: readonly [S]): AppendPath<R, S> & `/${string}`;
+  // Tagged template — preserves root prefix: auth`sign-in` → "/auth/${string}"
+  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): `${R}/${string}` & `/${string}`;
 
-  child<S extends StringTypes.NonEmptyString>(child: Segment<S>): Instance<`${R}/${S}`>;
+  string(): R;
+  create<const S extends string>(segment: Segment<S>): PathInstance<AppendPath<R, S> & `/${string}`>;
+  dynamic: <P extends string>(param: P) => AppendPath<R, P> & `/${string}`;
+  withQuery<const Params extends Record<string, string>>(params: Params): `${R}?${string}`;
 }
 
 export type UrlPathLiteral = `/${string}`;

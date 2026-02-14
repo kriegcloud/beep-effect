@@ -1,24 +1,34 @@
 import type { MailLabel } from "@beep/todox/types/mail";
-import type { IconifyName } from "@beep/ui/atoms/iconify";
-import { Iconify } from "@beep/ui/atoms/iconify";
 import Box from "@mui/material/Box";
 import type { ListItemButtonProps } from "@mui/material/ListItemButton";
 import ListItemButton from "@mui/material/ListItemButton";
+import type { Icon } from "@phosphor-icons/react";
+import {
+  BookmarkSimpleIcon,
+  EnvelopeSimpleIcon,
+  FileTextIcon,
+  PaperPlaneTiltIcon,
+  StarIcon,
+  TagIcon,
+  TrashIcon,
+  TrayIcon,
+  WarningIcon,
+} from "@phosphor-icons/react";
 
 // ----------------------------------------------------------------------
 
-const LABEL_ICONS: Record<string, IconifyName> = {
-  all: "solar:letter-bold",
-  inbox: "solar:inbox-bold",
-  trash: "solar:trash-bin-trash-bold",
-  drafts: "solar:file-text-bold",
-  spam: "solar:danger-bold",
-  sent: "custom:send-fill",
-  starred: "eva:star-fill",
-  important: "ic:round-label-important",
-  social: "solar:tag-horizontal-bold-duotone",
-  promotions: "solar:tag-horizontal-bold-duotone",
-  forums: "solar:tag-horizontal-bold-duotone",
+const LABEL_ICONS: Record<string, Icon> = {
+  all: EnvelopeSimpleIcon,
+  inbox: TrayIcon,
+  trash: TrashIcon,
+  drafts: FileTextIcon,
+  spam: WarningIcon,
+  sent: PaperPlaneTiltIcon,
+  starred: StarIcon,
+  important: BookmarkSimpleIcon,
+  social: TagIcon,
+  promotions: TagIcon,
+  forums: TagIcon,
 };
 
 // ----------------------------------------------------------------------
@@ -30,7 +40,7 @@ type Props = ListItemButtonProps & {
 };
 
 export function MailNavItem({ selected, label, onClickNavItem, ...other }: Props) {
-  const labelIcon = LABEL_ICONS[label.name] ?? "solar:tag-horizontal-bold-duotone";
+  const LabelIcon = LABEL_ICONS[label.name] ?? TagIcon;
 
   return (
     <Box component="li" sx={{ display: "flex" }}>
@@ -47,7 +57,7 @@ export function MailNavItem({ selected, label, onClickNavItem, ...other }: Props
         }}
         {...other}
       >
-        <Iconify icon={labelIcon} width={22} sx={{ color: label.color }} />
+        <LabelIcon size={22} weight="bold" style={{ color: label.color ?? undefined }} />
 
         <Box
           component="span"

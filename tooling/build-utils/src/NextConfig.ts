@@ -34,7 +34,6 @@ import type {
 const layer = Layer.provideMerge(BunContext.layer, FsUtilsLive);
 
 const defaultOptimizeImports = HashSet.make(
-  "@iconify/react",
   "@mui/x-date-pickers",
   "@mui/lab",
   "@mui/icons-material",

@@ -1,8 +1,8 @@
 "use client";
 
-import type { LucideProps } from "lucide-react";
+import type { IconProps } from "@phosphor-icons/react";
 
-export function BorderAllIcon(props: LucideProps) {
+export function BorderAllIcon(props: IconProps) {
   return (
     <svg
       role={"img"}
@@ -33,7 +33,7 @@ export function BorderAllIcon(props: LucideProps) {
   );
 }
 
-export function BorderBottomIcon(props: LucideProps) {
+export function BorderBottomIcon(props: IconProps) {
   return (
     <svg
       role={"img"}
@@ -76,7 +76,7 @@ export function BorderBottomIcon(props: LucideProps) {
   );
 }
 
-export function BorderLeftIcon(props: LucideProps) {
+export function BorderLeftIcon(props: IconProps) {
   return (
     <svg
       role={"img"}
@@ -119,7 +119,7 @@ export function BorderLeftIcon(props: LucideProps) {
   );
 }
 
-export function BorderNoneIcon(props: LucideProps) {
+export function BorderNoneIcon(props: IconProps) {
   return (
     <svg
       role={"img"}
@@ -168,7 +168,7 @@ export function BorderNoneIcon(props: LucideProps) {
   );
 }
 
-export function BorderRightIcon(props: LucideProps) {
+export function BorderRightIcon(props: IconProps) {
   return (
     <svg
       role={"img"}
@@ -211,7 +211,7 @@ export function BorderRightIcon(props: LucideProps) {
   );
 }
 
-export function BorderTopIcon(props: LucideProps) {
+export function BorderTopIcon(props: IconProps) {
   return (
     <svg
       role={"img"}

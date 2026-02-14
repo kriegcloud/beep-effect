@@ -2,7 +2,6 @@
 import { SignIn } from "@beep/iam-client/sign-in";
 import { useCaptcha } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
-import { Iconify } from "@beep/ui/atoms";
 import * as UIForm from "@beep/ui/form";
 import { useBoolean, useIsHydrated } from "@beep/ui/hooks";
 import { RouterLink } from "@beep/ui/routing/index";
@@ -11,6 +10,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Link from "@mui/material/Link";
+import { EyeClosedIcon, EyeIcon } from "@phosphor-icons/react";
 
 /**
  * Loading fallback component for consistent styling.
@@ -70,7 +70,7 @@ const SignInEmailFormContent = () => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton onClick={showPassword.onToggle} edge="end">
-                        <Iconify icon={showPassword.value ? "solar:eye-bold" : "solar:eye-closed-bold"} />
+                        {showPassword.value ? <EyeIcon weight="bold" /> : <EyeClosedIcon weight="bold" />}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -81,7 +81,7 @@ const SignInEmailFormContent = () => {
         />
         <Link
           component={RouterLink}
-          href={paths.auth.resetPassword}
+          href={paths.auth.forgotPassword}
           variant="body2"
           color="inherit"
           sx={{ alignSelf: "flex-end" }}
