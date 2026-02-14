@@ -1,9 +1,9 @@
 import * as Comment from "./Comment";
 import * as Discussion from "./Discussion";
+import * as Page from "./Document";
 import * as DocumentFile from "./DocumentFile";
 import * as DocumentSource from "./DocumentSource";
 import * as DocumentVersion from "./DocumentVersion";
-import * as Page from "./Document";
 import type * as Workspace from "./Workspace";
 
 /**
@@ -22,32 +22,32 @@ export type WorkspaceItemKind = (typeof WorkspaceItemKinds)[keyof typeof Workspa
 
 export type PageRef = {
   readonly kind: "page";
-  readonly id: typeof Page.Model.Type["id"];
+  readonly id: (typeof Page.Model.Type)["id"];
 };
 
 export type FileRef = {
   readonly kind: "file";
-  readonly id: typeof DocumentFile.Model.Type["id"];
+  readonly id: (typeof DocumentFile.Model.Type)["id"];
 };
 
 export type SourceRef = {
   readonly kind: "source";
-  readonly id: typeof DocumentSource.Model.Type["id"];
+  readonly id: (typeof DocumentSource.Model.Type)["id"];
 };
 
 export type DiscussionRef = {
   readonly kind: "discussion";
-  readonly id: typeof Discussion.Model.Type["id"];
+  readonly id: (typeof Discussion.Model.Type)["id"];
 };
 
 export type CommentRef = {
   readonly kind: "comment";
-  readonly id: typeof Comment.Model.Type["id"];
+  readonly id: (typeof Comment.Model.Type)["id"];
 };
 
 export type SnapshotRef = {
   readonly kind: "snapshot";
-  readonly id: typeof DocumentVersion.Model.Type["id"];
+  readonly id: (typeof DocumentVersion.Model.Type)["id"];
 };
 
 export type WorkspaceItemRef = PageRef | FileRef | SourceRef | DiscussionRef | CommentRef | SnapshotRef;

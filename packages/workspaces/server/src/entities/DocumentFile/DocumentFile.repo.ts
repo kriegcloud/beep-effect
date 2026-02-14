@@ -1,8 +1,8 @@
-import { Entities } from "@beep/workspaces-domain";
-import { WorkspacesDb } from "@beep/workspaces-server/db";
-import { WorkspacesEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { type SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { DbClient } from "@beep/shared-server";
 import { DbRepo } from "@beep/shared-server/factories";
+import { Entities } from "@beep/workspaces-domain";
+import { WorkspacesDb } from "@beep/workspaces-server/db";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

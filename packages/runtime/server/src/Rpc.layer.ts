@@ -37,7 +37,6 @@ export const RpcLoggerLive: Layer.Layer<RpcLogger, never, never> = Layer.succeed
   )
 );
 
-
 const KnowledgeRpcs = KnowledgeDomainRpc.Batch.Rpcs.merge(KnowledgeDomainRpc.Entity.Rpcs)
   .merge(KnowledgeDomainRpc.Relation.Rpcs)
   .merge(KnowledgeDomainRpc.GraphRag.Rpcs)

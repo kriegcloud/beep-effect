@@ -6,7 +6,7 @@ import {
 import { KnowledgeGraph, KnowledgeGraphStats } from "@beep/knowledge-server/Extraction/GraphAssembler";
 import type { DocumentResult } from "@beep/knowledge-server/Workflow";
 import { BatchAggregator, BatchAggregatorLive } from "@beep/knowledge-server/Workflow";
-import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { describe, effect, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

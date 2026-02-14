@@ -1,7 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
 import { BS } from "@beep/schema";
-import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";

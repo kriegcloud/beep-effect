@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { WorkspacesEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcSchema from "@effect/rpc/RpcSchema";
 import * as S from "effect/Schema";

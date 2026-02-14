@@ -1,4 +1,4 @@
-import type { WorkspacesEntityIds, IamEntityIds } from "@beep/shared-domain";
+import type { IamEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import { datetime } from "@beep/shared-tables/columns";

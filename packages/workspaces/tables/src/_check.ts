@@ -3,13 +3,9 @@ import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type * as tables from "./schema";
 
 // Document type checks
-export const _checkSelectDocument: typeof Page.Model.select.Encoded = {} as InferSelectModel<
-  typeof tables.document
->;
+export const _checkSelectDocument: typeof Page.Model.select.Encoded = {} as InferSelectModel<typeof tables.document>;
 
-export const _checkInsertDocument: typeof Page.Model.insert.Encoded = {} as InferInsertModel<
-  typeof tables.document
->;
+export const _checkInsertDocument: typeof Page.Model.insert.Encoded = {} as InferInsertModel<typeof tables.document>;
 
 // DocumentVersion type checks
 export const _checkSelectDocumentVersion: typeof DocumentVersion.Model.select.Encoded = {} as InferSelectModel<

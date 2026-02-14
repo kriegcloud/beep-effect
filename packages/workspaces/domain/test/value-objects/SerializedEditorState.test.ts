@@ -1,9 +1,9 @@
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import {
   SerializedEditorStateEnvelope,
   SerializedElementNodeEnvelope,
   SerializedTextNodeEnvelope,
 } from "@beep/workspaces-domain/value-objects/SerializedEditorState";
-import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";

@@ -5,7 +5,7 @@ import {
   CrossBatchEntityResolver,
   CrossBatchEntityResolverLive,
 } from "@beep/knowledge-server/Service/CrossBatchEntityResolver";
-import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";

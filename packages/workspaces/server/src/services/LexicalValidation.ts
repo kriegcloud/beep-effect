@@ -1,5 +1,5 @@
-import type {SerializedEditorStateEnvelope} from "@beep/workspaces-domain/value-objects";
-import {$WorkspacesServerId} from "@beep/identity/packages";
+import { $WorkspacesServerId } from "@beep/identity/packages";
+import type { SerializedEditorStateEnvelope } from "@beep/workspaces-domain/value-objects";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -74,7 +74,7 @@ export class LexicalValidation extends Effect.Service<LexicalValidation>()($I`Le
       // internal EditorState graph, which proves the state is
       // structurally valid. Unknown node types are surfaced via
       // the onError callback.
-      return yield * Effect.try({
+      return yield* Effect.try({
         try: () => {
           let capturedError: unknown = undefined;
 

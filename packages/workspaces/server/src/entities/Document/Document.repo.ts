@@ -1,9 +1,9 @@
-import { Entities } from "@beep/workspaces-domain";
-import { Page } from "@beep/workspaces-domain/entities";
-import { WorkspacesDb } from "@beep/workspaces-server/db";
 import { SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { DbClient } from "@beep/shared-server";
 import { DbRepo } from "@beep/shared-server/factories";
+import { Entities } from "@beep/workspaces-domain";
+import { Page } from "@beep/workspaces-domain/entities";
+import { WorkspacesDb } from "@beep/workspaces-server/db";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as Effect from "effect/Effect";
@@ -36,10 +36,7 @@ const serviceEffect = Effect.gen(function* () {
 
   const findByIdOrFail = (
     id: WorkspacesEntityIds.DocumentId.Type
-  ): Effect.Effect<
-    typeof Entities.Page.Model.Type,
-    Page.PageErrors.DocumentNotFoundError | DbClient.DatabaseError
-  > =>
+  ): Effect.Effect<typeof Entities.Page.Model.Type, Page.PageErrors.DocumentNotFoundError | DbClient.DatabaseError> =>
     baseRepo.findById({ id }).pipe(
       Effect.flatMap(
         O.match({

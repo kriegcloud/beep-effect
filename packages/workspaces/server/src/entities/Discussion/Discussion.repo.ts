@@ -1,10 +1,10 @@
-import { Entities } from "@beep/workspaces-domain";
-import { DiscussionNotFoundError } from "@beep/workspaces-domain/entities/Discussion/Discussion.errors";
-import { WorkspacesDb } from "@beep/workspaces-server/db";
 import { WorkspacesEntityIds } from "@beep/shared-domain";
 import { User } from "@beep/shared-domain/entities";
 import { DbClient } from "@beep/shared-server";
 import { DbRepo } from "@beep/shared-server/factories";
+import { Entities } from "@beep/workspaces-domain";
+import { DiscussionNotFoundError } from "@beep/workspaces-domain/entities/Discussion/Discussion.errors";
+import { WorkspacesDb } from "@beep/workspaces-server/db";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";

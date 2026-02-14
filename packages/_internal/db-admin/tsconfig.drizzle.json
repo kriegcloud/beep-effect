@@ -1,8 +1,6 @@
 {
   "extends": "./tsconfig.src.json",
-  "include": [
-    "drizzle.config.ts"
-  ],
+  "include": ["drizzle.config.ts"],
   "references": [
     {
       "path": "../../../packages/common/identity"
@@ -87,10 +85,7 @@
     }
   ],
   "compilerOptions": {
-    "types": [
-      "node",
-      "bun"
-    ],
+    "types": ["node", "bun"],
     "rootDir": ".",
     "outDir": "build"
   }

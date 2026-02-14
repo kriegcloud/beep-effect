@@ -1,6 +1,6 @@
-import * as DbSchema from "@beep/workspaces-tables/schema";
 import { $WorkspacesServerId } from "@beep/identity/packages";
 import { DbClient } from "@beep/shared-server";
+import * as DbSchema from "@beep/workspaces-tables/schema";
 import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
 

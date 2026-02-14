@@ -4,7 +4,7 @@ import { ActivityFailedError, OntologyParseError, type WorkflowNotFoundError } f
 import { ExtractionProgressEvent } from "@beep/knowledge-domain/value-objects";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
 import { BS } from "@beep/schema";
-import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as AiError from "@effect/ai/AiError";
 import * as HttpServerError from "@effect/platform/HttpServerError";
 import type * as SqlError from "@effect/sql/SqlError";

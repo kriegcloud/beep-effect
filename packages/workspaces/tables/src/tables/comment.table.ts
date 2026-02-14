@@ -1,7 +1,7 @@
-import type { SerializedEditorStateEnvelope } from "@beep/workspaces-domain/value-objects";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { WorkspacesEntityIds } from "@beep/shared-domain";
 import { OrgTable, user } from "@beep/shared-tables";
+import type { SerializedEditorStateEnvelope } from "@beep/workspaces-domain/value-objects";
 import * as pg from "drizzle-orm/pg-core";
 import { discussion } from "./discussion.table";
 

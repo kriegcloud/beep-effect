@@ -1,5 +1,5 @@
 import { $WorkspacesDomainId } from "@beep/identity/packages";
-import { WorkspacesEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";

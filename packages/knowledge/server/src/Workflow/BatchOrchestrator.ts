@@ -20,7 +20,7 @@ import {
 } from "@beep/knowledge-domain/value-objects";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
 import { BS } from "@beep/schema";
-import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { Workflow, WorkflowEngine } from "@effect/workflow";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";

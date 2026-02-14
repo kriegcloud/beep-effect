@@ -1,4 +1,4 @@
-import { type WorkspacesEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type WorkspacesEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { relation } from "./relation.table";

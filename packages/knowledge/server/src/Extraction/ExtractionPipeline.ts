@@ -3,7 +3,7 @@ import { MentionRecord } from "@beep/knowledge-domain/entities";
 import type { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
-import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import { thunkTrue } from "@beep/utils";
 import type * as AiError from "@effect/ai/AiError";

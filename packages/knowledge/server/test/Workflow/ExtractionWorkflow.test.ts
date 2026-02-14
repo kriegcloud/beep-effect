@@ -7,7 +7,7 @@ import {
   KnowledgeGraphStats,
 } from "@beep/knowledge-server/Extraction";
 import { ExtractionWorkflow, WorkflowPersistence } from "@beep/knowledge-server/Workflow";
-import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

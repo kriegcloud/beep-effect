@@ -1,5 +1,5 @@
-import type { Entities } from "@beep/workspaces-domain";
 import type { DbClient } from "@beep/shared-server";
+import type { Entities } from "@beep/workspaces-domain";
 import * as Layer from "effect/Layer";
 import * as Live from "../entities";
 

@@ -1,8 +1,6 @@
 {
   "extends": "../../../tsconfig.base.jsonc",
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "exclude": [],
   "references": [
     {
@@ -88,10 +86,7 @@
     }
   ],
   "compilerOptions": {
-    "types": [
-      "node",
-      "bun"
-    ],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "rootDir": "src",
     "moduleResolution": "bundler",

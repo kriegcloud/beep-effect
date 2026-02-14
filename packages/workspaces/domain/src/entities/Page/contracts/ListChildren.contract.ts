@@ -12,9 +12,10 @@
  * @since 1.0.0
  * @category contracts
  */
-import { PageType } from "@beep/workspaces-domain/value-objects";
+
 import { $WorkspacesDomainId } from "@beep/identity/packages";
 import { WorkspacesEntityIds } from "@beep/shared-domain";
+import { PageType } from "@beep/workspaces-domain/value-objects";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";

@@ -21,7 +21,9 @@
       "@beep/workspaces-server": [
         "../../packages/workspaces/server/src/index.js"
       ],
-      "@beep/workspaces-server/*": ["../../packages/workspaces/server/src/*.js"],
+      "@beep/workspaces-server/*": [
+        "../../packages/workspaces/server/src/*.js"
+      ],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index.js"],
       "@beep/iam-domain/*": ["../../packages/iam/domain/src/*.js"],
       "@beep/iam-server": ["../../packages/iam/server/src/index.js"],

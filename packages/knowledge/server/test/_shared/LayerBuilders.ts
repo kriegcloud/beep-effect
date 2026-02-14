@@ -17,7 +17,7 @@ import {
   WorkflowPersistence,
   type WorkflowPersistenceShape,
 } from "@beep/knowledge-server/Workflow/WorkflowPersistence";
-import { WorkspacesEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import type { LanguageModel } from "@effect/ai";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

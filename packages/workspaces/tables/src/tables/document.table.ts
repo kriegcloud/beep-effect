@@ -1,9 +1,9 @@
-import { TextStyle } from "@beep/workspaces-domain/value-objects";
 import { BS } from "@beep/schema";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { WorkspacesEntityIds } from "@beep/shared-domain";
 import { OrgTable, user } from "@beep/shared-tables";
 import { bytea } from "@beep/shared-tables/columns/bytea";
+import { TextStyle } from "@beep/workspaces-domain/value-objects";
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
