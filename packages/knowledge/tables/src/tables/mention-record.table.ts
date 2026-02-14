@@ -1,4 +1,4 @@
-import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type WorkspacesEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import { datetime } from "@beep/shared-tables/columns";
 import * as pg from "drizzle-orm/pg-core";
@@ -7,7 +7,7 @@ import { sql } from "drizzle-orm/sql";
 export const mentionRecord = OrgTable.make(KnowledgeEntityIds.MentionRecordId)(
   {
     extractionId: pg.text("extraction_id").notNull().$type<KnowledgeEntityIds.ExtractionId.Type>(),
-    documentId: pg.text("document_id").notNull().$type<DocumentsEntityIds.DocumentId.Type>(),
+    documentId: pg.text("document_id").notNull().$type<WorkspacesEntityIds.DocumentId.Type>(),
     chunkIndex: pg.integer("chunk_index").notNull(),
     rawText: pg.text("raw_text").notNull(),
     mentionType: pg.text("mention_type").notNull(),

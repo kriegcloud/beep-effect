@@ -292,50 +292,35 @@
       "@beep/iam-ui/test/*": [
         "./packages/iam/ui/test/*"
       ],
-      "@beep/documents-domain": [
-        "./packages/documents/domain/src/index"
+      "@beep/workspaces-domain": [
+        "./packages/workspaces/domain/src/index"
       ],
-      "@beep/documents-domain/*": [
-        "./packages/documents/domain/src/*"
+      "@beep/workspaces-domain/*": [
+        "./packages/workspaces/domain/src/*"
       ],
-      "@beep/documents-domain/test/*": [
-        "./packages/documents/domain/test/*"
+      "@beep/workspaces-tables": [
+        "./packages/workspaces/tables/src/index"
       ],
-      "@beep/documents-tables": [
-        "./packages/documents/tables/src/index"
+      "@beep/workspaces-tables/*": [
+        "./packages/workspaces/tables/src/*"
       ],
-      "@beep/documents-tables/*": [
-        "./packages/documents/tables/src/*"
+      "@beep/workspaces-server": [
+        "./packages/workspaces/server/src/index"
       ],
-      "@beep/documents-tables/test/*": [
-        "./packages/documents/tables/test/*"
+      "@beep/workspaces-server/*": [
+        "./packages/workspaces/server/src/*"
       ],
-      "@beep/documents-server": [
-        "./packages/documents/server/src/index"
+      "@beep/workspaces-client": [
+        "./packages/workspaces/client/src/index"
       ],
-      "@beep/documents-server/*": [
-        "./packages/documents/server/src/*"
+      "@beep/workspaces-client/*": [
+        "./packages/workspaces/client/src/*"
       ],
-      "@beep/documents-server/test/*": [
-        "./packages/documents/server/test/*"
+      "@beep/workspaces-ui": [
+        "./packages/workspaces/ui/src/index"
       ],
-      "@beep/documents-client": [
-        "./packages/documents/client/src/index"
-      ],
-      "@beep/documents-client/*": [
-        "./packages/documents/client/src/*"
-      ],
-      "@beep/documents-client/test/*": [
-        "./packages/documents/client/test/*"
-      ],
-      "@beep/documents-ui": [
-        "./packages/documents/ui/src/index"
-      ],
-      "@beep/documents-ui/*": [
-        "./packages/documents/ui/src/*"
-      ],
-      "@beep/documents-ui/test/*": [
-        "./packages/documents/ui/test/*"
+      "@beep/workspaces-ui/*": [
+        "./packages/workspaces/ui/src/*"
       ],
       "@beep/runtime-server": [
         "./packages/runtime/server/src/index"

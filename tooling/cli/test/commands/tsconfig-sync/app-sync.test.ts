@@ -77,21 +77,21 @@ const buildAppPaths = (
 describe("P0 Regression: Next.js Transitive Dependencies", () => {
   effect("includes direct AND transitive deps in path aliases", () =>
     Effect.gen(function* () {
-      // Scenario: apps/web depends on @beep/documents-server
-      // @beep/documents-server depends on @beep/documents-domain
+      // Scenario: apps/web depends on @beep/workspaces-server
+      // @beep/workspaces-server depends on @beep/workspaces-domain
       // Result: apps/web tsconfig should have BOTH path aliases
 
-      const directDeps = HashSet.make("@beep/documents-server");
+      const directDeps = HashSet.make("@beep/workspaces-server");
       let adjacencyList = HashMap.empty<string, HashSet.HashSet<string>>();
-      adjacencyList = HashMap.set(adjacencyList, "@beep/documents-server", HashSet.make("@beep/documents-domain"));
-      adjacencyList = HashMap.set(adjacencyList, "@beep/documents-domain", HashSet.make("@beep/shared-domain"));
+      adjacencyList = HashMap.set(adjacencyList, "@beep/workspaces-server", HashSet.make("@beep/workspaces-domain"));
+      adjacencyList = HashMap.set(adjacencyList, "@beep/workspaces-domain", HashSet.make("@beep/shared-domain"));
       adjacencyList = HashMap.set(adjacencyList, "@beep/shared-domain", HashSet.empty());
 
       const transitiveDeps = yield* computeAppTransitiveDeps(directDeps, adjacencyList);
 
       // P0 FIX: Should include ALL - direct + transitive
-      assertTrue(HashSet.has(transitiveDeps, "@beep/documents-server"));
-      assertTrue(HashSet.has(transitiveDeps, "@beep/documents-domain"));
+      assertTrue(HashSet.has(transitiveDeps, "@beep/workspaces-server"));
+      assertTrue(HashSet.has(transitiveDeps, "@beep/workspaces-domain"));
       assertTrue(HashSet.has(transitiveDeps, "@beep/shared-domain"));
       strictEqual(HashSet.size(transitiveDeps), 3);
     })

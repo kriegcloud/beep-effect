@@ -1,0 +1,1792 @@
+-- Auto-injected by inject-extensions.ts
+
+-- Extensions
+CREATE EXTENSION IF NOT EXISTS vector;--> statement-breakpoint
+CREATE EXTENSION IF NOT EXISTS pg_trgm;--> statement-breakpoint
+
+-- Admin bypass role
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'rls_bypass_admin') THEN
+    CREATE ROLE rls_bypass_admin WITH BYPASSRLS NOLOGIN;
+    COMMENT ON ROLE rls_bypass_admin IS 'Role that bypasses RLS for administrative operations';
+  END IF;
+END
+$$;--> statement-breakpoint
+
+CREATE TYPE "public"."organization_type_enum" AS ENUM('individual', 'team', 'enterprise');--> statement-breakpoint
+CREATE TYPE "public"."subscription_status_enum" AS ENUM('active', 'canceled');--> statement-breakpoint
+CREATE TYPE "public"."subscription_tier_enum" AS ENUM('free', 'plus', 'pro', 'enterprise');--> statement-breakpoint
+CREATE TYPE "public"."user_role_enum" AS ENUM('admin', 'user');--> statement-breakpoint
+CREATE TYPE "public"."text_style_enum" AS ENUM('default', 'serif', 'mono');--> statement-breakpoint
+CREATE TYPE "public"."default_access_enum" AS ENUM('private', 'restricted', 'organization');--> statement-breakpoint
+CREATE TYPE "public"."page_type_enum" AS ENUM('document', 'dashboard', 'client-database', 'workspace', 'template');--> statement-breakpoint
+CREATE TYPE "public"."device_code_status_enum" AS ENUM('pending', 'approved', 'denied');--> statement-breakpoint
+CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'cancelled', 'accepted');--> statement-breakpoint
+CREATE TYPE "public"."member_role_enum" AS ENUM('admin', 'member', 'owner');--> statement-breakpoint
+CREATE TYPE "public"."member_status_enum" AS ENUM('active', 'inactive', 'offline', 'suspended', 'deleted', 'invited');--> statement-breakpoint
+CREATE TABLE "calendar_calendar_event" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text NOT NULL,
+	"description" text,
+	CONSTRAINT "calendar_calendar_event_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "comms_email_template" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"user_id" integer NOT NULL,
+	"name" text NOT NULL,
+	"subject" text,
+	"body" text,
+	"to" jsonb,
+	"cc" jsonb,
+	"bcc" jsonb,
+	CONSTRAINT "comms_email_template_id_unique" UNIQUE("id"),
+	CONSTRAINT "uidx_email_template_org_id_user_id_name_unique" UNIQUE("organization_id","user_id","name")
+);
+--> statement-breakpoint
+ALTER TABLE "comms_email_template" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "shared_organization" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text NOT NULL,
+	"slug" text NOT NULL,
+	"logo" text,
+	"metadata" text,
+	"type" "organization_type_enum" DEFAULT 'individual' NOT NULL,
+	"owner_user_id" text NOT NULL,
+	"is_personal" boolean DEFAULT false NOT NULL,
+	"max_members" integer,
+	"features" jsonb,
+	"settings" jsonb,
+	"subscription_tier" "subscription_tier_enum" DEFAULT 'free' NOT NULL,
+	"subscription_status" "subscription_status_enum" DEFAULT 'active' NOT NULL,
+	CONSTRAINT "shared_organization_id_unique" UNIQUE("id"),
+	CONSTRAINT "shared_organization_slug_unique" UNIQUE("slug")
+);
+--> statement-breakpoint
+CREATE TABLE "shared_team" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text NOT NULL,
+	"description" text,
+	"slug" text NOT NULL,
+	"metadata" text,
+	"logo" text,
+	CONSTRAINT "shared_team_id_unique" UNIQUE("id"),
+	CONSTRAINT "shared_team_slug_unique" UNIQUE("slug")
+);
+--> statement-breakpoint
+ALTER TABLE "shared_team" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "shared_user" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text NOT NULL,
+	"email" text NOT NULL,
+	"email_verified" boolean DEFAULT false NOT NULL,
+	"upload_limit" integer DEFAULT 100000000 NOT NULL,
+	"image" text,
+	"role" "user_role_enum" DEFAULT 'user' NOT NULL,
+	"banned" boolean DEFAULT false NOT NULL,
+	"ban_reason" text,
+	"ban_expires" timestamp with time zone,
+	"is_anonymous" boolean DEFAULT false NOT NULL,
+	"phone_number" text,
+	"phone_number_verified" boolean DEFAULT false NOT NULL,
+	"two_factor_enabled" boolean DEFAULT false NOT NULL,
+	"username" text,
+	"display_username" text,
+	"stripe_customer_id" text,
+	"last_login_method" text,
+	CONSTRAINT "shared_user_id_unique" UNIQUE("id"),
+	CONSTRAINT "shared_user_email_unique" UNIQUE("email"),
+	CONSTRAINT "shared_user_phone_number_unique" UNIQUE("phone_number"),
+	CONSTRAINT "shared_user_username_unique" UNIQUE("username")
+);
+--> statement-breakpoint
+CREATE TABLE "customization_user_hotkey" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"user_id" text NOT NULL,
+	"shortcuts" jsonb NOT NULL,
+	CONSTRAINT "customization_user_hotkey_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "workspaces_page" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"created_by_id" text NOT NULL,
+	"parent_id" text,
+	"title" text,
+	"icon" text,
+	"cover_image" text,
+	"type" "page_type_enum" DEFAULT 'document' NOT NULL,
+	"content" text,
+	"content_rich" jsonb,
+	"yjs_snapshot" "bytea",
+	"layout_config" jsonb,
+	"ontology_id" text,
+	"text_style" text_style_enum DEFAULT 'default' NOT NULL,
+	"small_text" boolean DEFAULT false NOT NULL,
+	"full_width" boolean DEFAULT false NOT NULL,
+	"lock_page" boolean DEFAULT false NOT NULL,
+	"toc" boolean DEFAULT true NOT NULL,
+	"is_archived" boolean DEFAULT false NOT NULL,
+	"is_published" boolean DEFAULT false NOT NULL,
+	"default_access" "default_access_enum" DEFAULT 'private' NOT NULL,
+	"share_token" text,
+	"position" double precision,
+	"metadata" jsonb,
+	CONSTRAINT "workspaces_page_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "workspaces_page" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "workspaces_comment" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"discussion_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	"content" text NOT NULL,
+	"content_rich" jsonb,
+	"is_edited" boolean DEFAULT false NOT NULL,
+	CONSTRAINT "workspaces_comment_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "workspaces_comment" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "workspaces_discussion" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"document_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	"document_content" text NOT NULL,
+	"document_content_rich" jsonb,
+	"is_resolved" boolean DEFAULT false NOT NULL,
+	CONSTRAINT "workspaces_discussion_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "workspaces_discussion" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "workspaces_document_file" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"user_id" text NOT NULL,
+	"document_id" text,
+	"size" integer NOT NULL,
+	"url" text NOT NULL,
+	"app_url" text NOT NULL,
+	"type" text NOT NULL,
+	CONSTRAINT "workspaces_document_file_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "workspaces_document_file" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "workspaces_document" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"user_id" text NOT NULL,
+	"template_id" text,
+	"parent_document_id" text,
+	"title" text,
+	"content" text,
+	"content_rich" jsonb,
+	"yjs_snapshot" "bytea",
+	"cover_image" text,
+	"icon" text,
+	"is_published" boolean DEFAULT false NOT NULL,
+	"is_archived" boolean DEFAULT false NOT NULL,
+	"text_style" text_style_enum DEFAULT 'default' NOT NULL,
+	"small_text" boolean DEFAULT false NOT NULL,
+	"full_width" boolean DEFAULT false NOT NULL,
+	"lock_page" boolean DEFAULT false NOT NULL,
+	"toc" boolean DEFAULT true NOT NULL,
+	CONSTRAINT "workspaces_document_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "workspaces_document" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "workspaces_document_version" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"document_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	"title" text,
+	"content" text DEFAULT '' NOT NULL,
+	"content_rich" jsonb,
+	CONSTRAINT "workspaces_document_version_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "workspaces_document_version" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "workspaces_document_source" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"document_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	"provider_account_id" text NOT NULL,
+	"source_type" text NOT NULL,
+	"source_id" text NOT NULL,
+	"source_thread_id" text,
+	"source_uri" text,
+	"source_internal_date" timestamp with time zone,
+	"source_history_id" text,
+	"source_hash" text NOT NULL,
+	CONSTRAINT "workspaces_document_source_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "workspaces_document_source" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "shared_file" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"key" text NOT NULL,
+	"url" text NOT NULL,
+	"name" text NOT NULL,
+	"size" integer NOT NULL,
+	"mime_type" text NOT NULL,
+	"user_id" text NOT NULL,
+	"folder_id" text NOT NULL,
+	"uploaded_by_user_id" text NOT NULL,
+	"metadata" text NOT NULL,
+	CONSTRAINT "shared_file_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "shared_file" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "shared_session" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"expires_at" timestamp with time zone NOT NULL,
+	"token" text NOT NULL,
+	"ip_address" text,
+	"user_agent" text,
+	"user_id" text NOT NULL,
+	"impersonated_by" text,
+	"active_organization_id" text NOT NULL,
+	"active_team_id" text,
+	CONSTRAINT "shared_session_id_unique" UNIQUE("id"),
+	CONSTRAINT "shared_session_token_unique" UNIQUE("token"),
+	CONSTRAINT "session_expires_after_created_check" CHECK ("shared_session"."expires_at" > "shared_session"."created_at")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_account" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"account_id" text NOT NULL,
+	"provider_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	"access_token" text,
+	"refresh_token" text,
+	"id_token" text,
+	"access_token_expires_at" timestamp with time zone,
+	"refresh_token_expires_at" timestamp with time zone,
+	"scope" text,
+	"password" text,
+	CONSTRAINT "iam_account_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_apikey" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text,
+	"start" text,
+	"prefix" text,
+	"key" text NOT NULL,
+	"user_id" text NOT NULL,
+	"refill_interval" integer,
+	"refill_amount" integer,
+	"last_refill_at" timestamp with time zone,
+	"enabled" boolean DEFAULT true NOT NULL,
+	"rate_limit_enabled" boolean DEFAULT true NOT NULL,
+	"rate_limit_time_window" integer DEFAULT 86400000 NOT NULL,
+	"rate_limit_max" integer DEFAULT 10 NOT NULL,
+	"request_count" integer,
+	"remaining" integer,
+	"last_request" timestamp with time zone,
+	"expires_at" timestamp with time zone,
+	"permissions" text,
+	"metadata" text,
+	CONSTRAINT "iam_apikey_id_unique" UNIQUE("id"),
+	CONSTRAINT "apikey_request_count_non_negative_check" CHECK ("iam_apikey"."request_count" IS NULL OR "iam_apikey"."request_count" >= 0),
+	CONSTRAINT "apikey_refill_amount_non_negative_check" CHECK ("iam_apikey"."refill_amount" IS NULL OR "iam_apikey"."refill_amount" >= 0),
+	CONSTRAINT "apikey_rate_limit_time_window_positive_check" CHECK ("iam_apikey"."rate_limit_time_window" IS NULL OR "iam_apikey"."rate_limit_time_window" > 0),
+	CONSTRAINT "apikey_rate_limit_max_positive_check" CHECK ("iam_apikey"."rate_limit_max" IS NULL OR "iam_apikey"."rate_limit_max" > 0),
+	CONSTRAINT "apikey_remaining_non_negative_check" CHECK ("iam_apikey"."remaining" IS NULL OR "iam_apikey"."remaining" >= 0)
+);
+--> statement-breakpoint
+ALTER TABLE "iam_apikey" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_device_code" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"device_code" text NOT NULL,
+	"user_code" text NOT NULL,
+	"user_id" text,
+	"expires_at" timestamp with time zone NOT NULL,
+	"status" "device_code_status_enum" DEFAULT 'pending' NOT NULL,
+	"last_polled_at" timestamp with time zone,
+	"polling_interval" integer,
+	"client_id" text,
+	"scope" text,
+	CONSTRAINT "iam_device_code_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_invitation" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"email" text NOT NULL,
+	"role" text,
+	"team_id" text,
+	"status" "invitation_status_enum" DEFAULT 'pending' NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"inviter_id" text NOT NULL,
+	CONSTRAINT "iam_invitation_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "iam_invitation" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_jwks" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"public_key" text NOT NULL,
+	"private_key" text NOT NULL,
+	"expires_at" timestamp with time zone,
+	CONSTRAINT "iam_jwks_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_member" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"user_id" text NOT NULL,
+	"role" "member_role_enum" DEFAULT 'member' NOT NULL,
+	"status" "member_status_enum" DEFAULT 'active' NOT NULL,
+	"invited_by" text,
+	"invited_at" timestamp with time zone,
+	"joined_at" timestamp with time zone,
+	"last_active_at" timestamp with time zone,
+	"permissions" text,
+	CONSTRAINT "iam_member_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "iam_member" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_oauth_access_token" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"token" text,
+	"client_id" text NOT NULL,
+	"session_id" text,
+	"user_id" text,
+	"reference_id" text,
+	"refresh_id" text,
+	"expires_at" timestamp with time zone,
+	"scopes" text[] NOT NULL,
+	CONSTRAINT "iam_oauth_access_token_id_unique" UNIQUE("id"),
+	CONSTRAINT "iam_oauth_access_token_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_oauth_client" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"client_id" text NOT NULL,
+	"client_secret" text,
+	"disabled" boolean DEFAULT false NOT NULL,
+	"skip_consent" boolean,
+	"enable_end_session" boolean,
+	"scopes" text[],
+	"user_id" text,
+	"name" text,
+	"uri" text,
+	"icon" text,
+	"contacts" text[],
+	"tos" text,
+	"policy" text,
+	"software_id" text,
+	"software_version" text,
+	"software_statement" text,
+	"redirect_uris" text[] NOT NULL,
+	"post_logout_redirect_uris" text[],
+	"token_endpoint_auth_method" text,
+	"grant_types" text[],
+	"response_types" text[],
+	"public" boolean,
+	"type" text,
+	"reference_id" text,
+	"metadata" jsonb,
+	CONSTRAINT "iam_oauth_client_id_unique" UNIQUE("id"),
+	CONSTRAINT "iam_oauth_client_client_id_unique" UNIQUE("client_id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_oauth_consent" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"client_id" text NOT NULL,
+	"user_id" text,
+	"reference_id" text,
+	"scopes" text[] NOT NULL,
+	CONSTRAINT "iam_oauth_consent_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_oauth_refresh_token" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"token" text NOT NULL,
+	"client_id" text NOT NULL,
+	"session_id" text,
+	"user_id" text NOT NULL,
+	"reference_id" text,
+	"expires_at" timestamp with time zone,
+	"revoked" timestamp with time zone,
+	"scopes" text[] NOT NULL,
+	CONSTRAINT "iam_oauth_refresh_token_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_organization_role" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"role" text NOT NULL,
+	"permission" text NOT NULL,
+	CONSTRAINT "iam_organization_role_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "iam_organization_role" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_passkey" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text NOT NULL,
+	"public_key" text NOT NULL,
+	"user_id" text NOT NULL,
+	"credential_i_d" text NOT NULL,
+	"counter" integer NOT NULL,
+	"device_type" text NOT NULL,
+	"backed_up" boolean DEFAULT false NOT NULL,
+	"transports" text,
+	"aaguid" text,
+	CONSTRAINT "iam_passkey_id_unique" UNIQUE("id"),
+	CONSTRAINT "passkey_counter_non_negative_check" CHECK ("iam_passkey"."counter" >= 0)
+);
+--> statement-breakpoint
+CREATE TABLE "iam_rate_limit" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"key" text,
+	"count" integer,
+	"last_request" bigint,
+	CONSTRAINT "iam_rate_limit_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_scim_provider" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"provider_id" text NOT NULL,
+	"scim_token" text NOT NULL,
+	CONSTRAINT "iam_scim_provider_id_unique" UNIQUE("id"),
+	CONSTRAINT "iam_scim_provider_provider_id_unique" UNIQUE("provider_id"),
+	CONSTRAINT "iam_scim_provider_scim_token_unique" UNIQUE("scim_token")
+);
+--> statement-breakpoint
+ALTER TABLE "iam_scim_provider" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_sso_provider" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"issuer" text NOT NULL,
+	"oidc_config" text,
+	"saml_config" text,
+	"user_id" text,
+	"provider_id" text NOT NULL,
+	"domain" text NOT NULL,
+	CONSTRAINT "iam_sso_provider_id_unique" UNIQUE("id"),
+	CONSTRAINT "iam_sso_provider_provider_id_unique" UNIQUE("provider_id")
+);
+--> statement-breakpoint
+ALTER TABLE "iam_sso_provider" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_subscription" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"plan" text NOT NULL,
+	"reference_id" text NOT NULL,
+	"stripe_customer_id" text,
+	"stripe_subscription_id" text,
+	"status" text DEFAULT 'incomplete' NOT NULL,
+	"period_start" timestamp with time zone,
+	"period_end" timestamp with time zone,
+	"cancel_at_period_end" boolean DEFAULT false NOT NULL,
+	"seats" integer,
+	CONSTRAINT "iam_subscription_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "iam_subscription" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_team_member" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"team_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	CONSTRAINT "iam_team_member_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "iam_team_member" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_two_factor" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"secret" text NOT NULL,
+	"backup_codes" text NOT NULL,
+	"user_id" text NOT NULL,
+	CONSTRAINT "iam_two_factor_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "iam_two_factor" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "iam_verification" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"identifier" text NOT NULL,
+	"value" text NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	CONSTRAINT "iam_verification_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_wallet_address" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"user_id" text NOT NULL,
+	"address" text NOT NULL,
+	"chain_id" integer NOT NULL,
+	"is_primary" boolean DEFAULT false NOT NULL,
+	CONSTRAINT "iam_wallet_address_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "knowledge_batch_execution" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"ontology_id" text NOT NULL,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"document_ids" jsonb NOT NULL,
+	"total_documents" integer NOT NULL,
+	"completed_documents" integer DEFAULT 0 NOT NULL,
+	"failed_documents" integer DEFAULT 0 NOT NULL,
+	"entity_count" integer,
+	"relation_count" integer,
+	"concurrency" integer DEFAULT 3 NOT NULL,
+	"failure_policy" text DEFAULT 'continue-on-failure' NOT NULL,
+	"max_retries" integer DEFAULT 2 NOT NULL,
+	"enable_entity_resolution" boolean DEFAULT true NOT NULL,
+	"started_at" timestamp with time zone,
+	"completed_at" timestamp with time zone,
+	"error" text,
+	"config" jsonb,
+	CONSTRAINT "knowledge_batch_execution_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_batch_execution" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_class_definition" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"ontology_id" text NOT NULL,
+	"iri" text NOT NULL,
+	"label" text NOT NULL,
+	"comment" text,
+	"local_name" text,
+	"properties" jsonb,
+	"pref_labels" jsonb,
+	"alt_labels" jsonb,
+	"hidden_labels" jsonb,
+	"definition" text,
+	"scope_note" text,
+	"example" text,
+	"broader" jsonb,
+	"narrower" jsonb,
+	"related" jsonb,
+	"equivalent_class" jsonb,
+	"exact_match" jsonb,
+	"close_match" jsonb,
+	CONSTRAINT "knowledge_class_definition_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_class_definition" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_email_thread" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"provider_account_id" text NOT NULL,
+	"source_type" text DEFAULT 'gmail' NOT NULL,
+	"source_thread_id" text NOT NULL,
+	"subject" text,
+	"participants" text[],
+	"date_range_earliest" timestamp with time zone,
+	"date_range_latest" timestamp with time zone,
+	"last_synced_at" timestamp with time zone,
+	CONSTRAINT "knowledge_email_thread_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_email_thread" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_email_thread_message" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"thread_id" text NOT NULL,
+	"provider_account_id" text NOT NULL,
+	"source_id" text NOT NULL,
+	"document_id" text NOT NULL,
+	"source_internal_date" timestamp with time zone,
+	"source_history_id" text,
+	"source_hash" text,
+	"ingest_seq" bigint NOT NULL,
+	"sort_key" text NOT NULL,
+	CONSTRAINT "knowledge_email_thread_message_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_email_thread_message" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_embedding" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"entity_type" text NOT NULL,
+	"entity_id" text NOT NULL,
+	"ontology_id" text,
+	"embedding" vector(768) NOT NULL,
+	"content_text" text,
+	"model" text DEFAULT 'nomic-embed-text-v1.5' NOT NULL,
+	CONSTRAINT "knowledge_embedding_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_embedding" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_entity" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"mention" text NOT NULL,
+	"types" jsonb NOT NULL,
+	"attributes" jsonb NOT NULL,
+	"ontology_id" text,
+	"document_id" text,
+	"source_uri" text,
+	"extraction_id" text,
+	"grounding_confidence" real,
+	"mentions" jsonb,
+	CONSTRAINT "knowledge_entity_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_entity" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_entity_cluster" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"canonical_entity_id" text NOT NULL,
+	"member_ids" jsonb NOT NULL,
+	"cohesion" real NOT NULL,
+	"shared_types" jsonb NOT NULL,
+	"ontology_id" text,
+	CONSTRAINT "knowledge_entity_cluster_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_entity_cluster" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_extraction" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"document_id" text NOT NULL,
+	"document_version_id" text,
+	"source_uri" text,
+	"ontology_id" text NOT NULL,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"started_at" timestamp with time zone,
+	"completed_at" timestamp with time zone,
+	"entity_count" integer,
+	"relation_count" integer,
+	"chunk_count" integer,
+	"total_tokens" integer,
+	"error_message" text,
+	"config" jsonb,
+	CONSTRAINT "knowledge_extraction_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_extraction" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_meeting_prep_bullet" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"meeting_prep_id" text NOT NULL,
+	"bullet_index" integer NOT NULL,
+	"text" text NOT NULL,
+	CONSTRAINT "knowledge_meeting_prep_bullet_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_meeting_prep_bullet" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_meeting_prep_evidence" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"bullet_id" text NOT NULL,
+	"source_type" text NOT NULL,
+	"mention_id" text,
+	"relation_evidence_id" text,
+	"document_id" text,
+	"document_version_id" text,
+	"start_char" integer,
+	"end_char" integer,
+	"text" text,
+	"confidence" real,
+	"extraction_id" text,
+	CONSTRAINT "knowledge_meeting_prep_evidence_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_meeting_prep_evidence" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_mention" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"entity_id" text NOT NULL,
+	"text" text NOT NULL,
+	"start_char" integer NOT NULL,
+	"end_char" integer NOT NULL,
+	"document_id" text NOT NULL,
+	"document_version_id" text NOT NULL,
+	"chunk_index" integer,
+	"extraction_id" text,
+	"confidence" real,
+	"is_primary" boolean DEFAULT false NOT NULL,
+	"context" text,
+	CONSTRAINT "knowledge_mention_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_mention" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_mention_record" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"extraction_id" text NOT NULL,
+	"document_id" text NOT NULL,
+	"chunk_index" integer NOT NULL,
+	"raw_text" text NOT NULL,
+	"mention_type" text NOT NULL,
+	"confidence" real NOT NULL,
+	"response_hash" text NOT NULL,
+	"extracted_at" timestamp with time zone NOT NULL,
+	"resolved_entity_id" text,
+	CONSTRAINT "knowledge_mention_record_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_mention_record" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_merge_history" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"source_entity_id" text NOT NULL,
+	"target_entity_id" text NOT NULL,
+	"merge_reason" text NOT NULL,
+	"confidence" real NOT NULL,
+	"merged_by" text,
+	"merged_at" timestamp with time zone NOT NULL,
+	CONSTRAINT "knowledge_merge_history_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_merge_history" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_ontology" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text NOT NULL,
+	"namespace" text NOT NULL,
+	"ontology_version" text DEFAULT '1.0.0' NOT NULL,
+	"description" text,
+	"status" text DEFAULT 'active' NOT NULL,
+	"format" text DEFAULT 'turtle' NOT NULL,
+	"content_hash" text,
+	"storage_path" text,
+	"class_count" integer,
+	"property_count" integer,
+	"metadata" jsonb,
+	CONSTRAINT "knowledge_ontology_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_ontology" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_property_definition" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"ontology_id" text NOT NULL,
+	"iri" text NOT NULL,
+	"label" text NOT NULL,
+	"comment" text,
+	"local_name" text,
+	"domain" jsonb,
+	"range" jsonb,
+	"range_type" text DEFAULT 'object' NOT NULL,
+	"is_functional" boolean DEFAULT false NOT NULL,
+	"inverse_of" jsonb,
+	"pref_labels" jsonb,
+	"alt_labels" jsonb,
+	"hidden_labels" jsonb,
+	"definition" text,
+	"scope_note" text,
+	"example" text,
+	"broader" jsonb,
+	"narrower" jsonb,
+	"related" jsonb,
+	"exact_match" jsonb,
+	"close_match" jsonb,
+	CONSTRAINT "knowledge_property_definition_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_property_definition" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_relation" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"subject_id" text NOT NULL,
+	"predicate" text NOT NULL,
+	"object_id" text,
+	"literal_value" text,
+	"literal_type" text,
+	"ontology_id" text DEFAULT 'default' NOT NULL,
+	"extraction_id" text,
+	"evidence" jsonb,
+	"grounding_confidence" real,
+	CONSTRAINT "knowledge_relation_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_relation" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_relation_evidence" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"relation_id" text NOT NULL,
+	"document_id" text NOT NULL,
+	"document_version_id" text NOT NULL,
+	"start_char" integer NOT NULL,
+	"end_char" integer NOT NULL,
+	"text" text NOT NULL,
+	"confidence" real,
+	"extraction_id" text,
+	CONSTRAINT "knowledge_relation_evidence_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_relation_evidence" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_same_as_link" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"canonical_id" text NOT NULL,
+	"member_id" text NOT NULL,
+	"confidence" real NOT NULL,
+	"source_id" text,
+	CONSTRAINT "knowledge_same_as_link_id_unique" UNIQUE("id"),
+	CONSTRAINT "same_as_unique" UNIQUE("canonical_id","member_id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_same_as_link" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_workflow_activity" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"execution_id" text NOT NULL,
+	"activity_name" text NOT NULL,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"input" jsonb,
+	"output" jsonb,
+	"error" text,
+	"started_at" timestamp with time zone,
+	"completed_at" timestamp with time zone,
+	"attempt" integer DEFAULT 1 NOT NULL,
+	"duration_ms" integer,
+	CONSTRAINT "knowledge_workflow_activity_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_workflow_activity" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_workflow_execution" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"workflow_type" text NOT NULL,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"input" jsonb,
+	"output" jsonb,
+	"error" text,
+	"started_at" timestamp with time zone,
+	"completed_at" timestamp with time zone,
+	"last_activity_name" text,
+	"retry_count" integer DEFAULT 0 NOT NULL,
+	CONSTRAINT "knowledge_workflow_execution_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_workflow_execution" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "knowledge_workflow_signal" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"execution_id" text NOT NULL,
+	"signal_name" text NOT NULL,
+	"payload" jsonb,
+	"delivered_at" timestamp with time zone,
+	"acknowledged" boolean DEFAULT false NOT NULL,
+	CONSTRAINT "knowledge_workflow_signal_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "knowledge_workflow_signal" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "shared_folder" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"user_id" text NOT NULL,
+	"name" text NOT NULL,
+	CONSTRAINT "shared_folder_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+ALTER TABLE "shared_folder" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "shared_upload_session" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"file_key" text NOT NULL,
+	"signature" text NOT NULL,
+	"metadata" jsonb NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	CONSTRAINT "shared_upload_session_id_unique" UNIQUE("id"),
+	CONSTRAINT "shared_upload_session_file_key_unique" UNIQUE("file_key")
+);
+--> statement-breakpoint
+ALTER TABLE "shared_upload_session" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "comms_email_template" ADD CONSTRAINT "comms_email_template_user_id_shared_user__row_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("_row_id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "comms_email_template" ADD CONSTRAINT "comms_email_template_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_organization" ADD CONSTRAINT "shared_organization_owner_user_id_shared_user_id_fk" FOREIGN KEY ("owner_user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_team" ADD CONSTRAINT "shared_team_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "customization_user_hotkey" ADD CONSTRAINT "customization_user_hotkey_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_page" ADD CONSTRAINT "workspaces_page_created_by_id_shared_user_id_fk" FOREIGN KEY ("created_by_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_page" ADD CONSTRAINT "workspaces_page_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "workspaces_comment" ADD CONSTRAINT "workspaces_comment_discussion_id_workspaces_discussion_id_fk" FOREIGN KEY ("discussion_id") REFERENCES "public"."workspaces_discussion"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_comment" ADD CONSTRAINT "workspaces_comment_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_comment" ADD CONSTRAINT "workspaces_comment_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "workspaces_discussion" ADD CONSTRAINT "workspaces_discussion_document_id_workspaces_document_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."workspaces_document"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_discussion" ADD CONSTRAINT "workspaces_discussion_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_discussion" ADD CONSTRAINT "workspaces_discussion_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "workspaces_document_file" ADD CONSTRAINT "workspaces_document_file_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_document_file" ADD CONSTRAINT "workspaces_document_file_document_id_workspaces_document_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."workspaces_document"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_document_file" ADD CONSTRAINT "workspaces_document_file_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "workspaces_document" ADD CONSTRAINT "workspaces_document_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_document" ADD CONSTRAINT "workspaces_document_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "workspaces_document_version" ADD CONSTRAINT "workspaces_document_version_document_id_workspaces_document_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."workspaces_document"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_document_version" ADD CONSTRAINT "workspaces_document_version_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_document_version" ADD CONSTRAINT "workspaces_document_version_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "workspaces_document_source" ADD CONSTRAINT "workspaces_document_source_document_id_workspaces_document_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."workspaces_document"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_document_source" ADD CONSTRAINT "workspaces_document_source_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "workspaces_document_source" ADD CONSTRAINT "workspaces_document_source_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_file" ADD CONSTRAINT "shared_file_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "shared_file" ADD CONSTRAINT "shared_file_folder_id_shared_folder_id_fk" FOREIGN KEY ("folder_id") REFERENCES "public"."shared_folder"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "shared_file" ADD CONSTRAINT "shared_file_uploaded_by_user_id_shared_user_id_fk" FOREIGN KEY ("uploaded_by_user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "shared_file" ADD CONSTRAINT "shared_file_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_session" ADD CONSTRAINT "shared_session_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_session" ADD CONSTRAINT "shared_session_impersonated_by_shared_user_id_fk" FOREIGN KEY ("impersonated_by") REFERENCES "public"."shared_user"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_session" ADD CONSTRAINT "shared_session_active_organization_id_shared_organization_id_fk" FOREIGN KEY ("active_organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_session" ADD CONSTRAINT "shared_session_active_team_id_shared_team_id_fk" FOREIGN KEY ("active_team_id") REFERENCES "public"."shared_team"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_account" ADD CONSTRAINT "iam_account_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_apikey" ADD CONSTRAINT "iam_apikey_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_apikey" ADD CONSTRAINT "iam_apikey_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_device_code" ADD CONSTRAINT "iam_device_code_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_invitation" ADD CONSTRAINT "iam_invitation_team_id_shared_team_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."shared_team"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_invitation" ADD CONSTRAINT "iam_invitation_inviter_id_shared_user_id_fk" FOREIGN KEY ("inviter_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_invitation" ADD CONSTRAINT "iam_invitation_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_member" ADD CONSTRAINT "iam_member_invited_by_shared_user_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."shared_user"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_member" ADD CONSTRAINT "iam_member_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_client_id_iam_oauth_client_client_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."iam_oauth_client"("client_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_session_id_shared_session_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."shared_session"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_refresh_id_iam_oauth_refresh_token_id_fk" FOREIGN KEY ("refresh_id") REFERENCES "public"."iam_oauth_refresh_token"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_client" ADD CONSTRAINT "iam_oauth_client_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_consent" ADD CONSTRAINT "iam_oauth_consent_client_id_iam_oauth_client_client_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."iam_oauth_client"("client_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_consent" ADD CONSTRAINT "iam_oauth_consent_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_refresh_token" ADD CONSTRAINT "iam_oauth_refresh_token_client_id_iam_oauth_client_client_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."iam_oauth_client"("client_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_refresh_token" ADD CONSTRAINT "iam_oauth_refresh_token_session_id_shared_session_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."shared_session"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_refresh_token" ADD CONSTRAINT "iam_oauth_refresh_token_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_organization_role" ADD CONSTRAINT "iam_organization_role_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_passkey" ADD CONSTRAINT "iam_passkey_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_scim_provider" ADD CONSTRAINT "iam_scim_provider_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_sso_provider" ADD CONSTRAINT "iam_sso_provider_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_sso_provider" ADD CONSTRAINT "iam_sso_provider_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_subscription" ADD CONSTRAINT "iam_subscription_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_team_member" ADD CONSTRAINT "iam_team_member_team_id_shared_team_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."shared_team"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_team_member" ADD CONSTRAINT "iam_team_member_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_team_member" ADD CONSTRAINT "iam_team_member_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_two_factor" ADD CONSTRAINT "iam_two_factor_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_two_factor" ADD CONSTRAINT "iam_two_factor_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "iam_wallet_address" ADD CONSTRAINT "iam_wallet_address_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_batch_execution" ADD CONSTRAINT "knowledge_batch_execution_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_class_definition" ADD CONSTRAINT "class_def_ontology_fk" FOREIGN KEY ("ontology_id") REFERENCES "public"."knowledge_ontology"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_class_definition" ADD CONSTRAINT "knowledge_class_definition_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_email_thread" ADD CONSTRAINT "knowledge_email_thread_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_email_thread_message" ADD CONSTRAINT "knowledge_email_thread_message_thread_id_knowledge_email_thread_id_fk" FOREIGN KEY ("thread_id") REFERENCES "public"."knowledge_email_thread"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_email_thread_message" ADD CONSTRAINT "knowledge_email_thread_message_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_embedding" ADD CONSTRAINT "knowledge_embedding_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_entity" ADD CONSTRAINT "knowledge_entity_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_entity_cluster" ADD CONSTRAINT "entity_cluster_canonical_fk" FOREIGN KEY ("canonical_entity_id") REFERENCES "public"."knowledge_entity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_entity_cluster" ADD CONSTRAINT "knowledge_entity_cluster_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_extraction" ADD CONSTRAINT "knowledge_extraction_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_meeting_prep_bullet" ADD CONSTRAINT "knowledge_meeting_prep_bullet_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_meeting_prep_evidence" ADD CONSTRAINT "knowledge_meeting_prep_evidence_bullet_id_knowledge_meeting_prep_bullet_id_fk" FOREIGN KEY ("bullet_id") REFERENCES "public"."knowledge_meeting_prep_bullet"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_meeting_prep_evidence" ADD CONSTRAINT "knowledge_meeting_prep_evidence_mention_id_knowledge_mention_id_fk" FOREIGN KEY ("mention_id") REFERENCES "public"."knowledge_mention"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_meeting_prep_evidence" ADD CONSTRAINT "knowledge_meeting_prep_evidence_relation_evidence_id_knowledge_relation_evidence_id_fk" FOREIGN KEY ("relation_evidence_id") REFERENCES "public"."knowledge_relation_evidence"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_meeting_prep_evidence" ADD CONSTRAINT "knowledge_meeting_prep_evidence_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_mention" ADD CONSTRAINT "knowledge_mention_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_mention_record" ADD CONSTRAINT "knowledge_mention_record_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_merge_history" ADD CONSTRAINT "knowledge_merge_history_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_ontology" ADD CONSTRAINT "knowledge_ontology_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_property_definition" ADD CONSTRAINT "prop_def_ontology_fk" FOREIGN KEY ("ontology_id") REFERENCES "public"."knowledge_ontology"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_property_definition" ADD CONSTRAINT "knowledge_property_definition_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_relation" ADD CONSTRAINT "knowledge_relation_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_relation_evidence" ADD CONSTRAINT "knowledge_relation_evidence_relation_id_knowledge_relation_id_fk" FOREIGN KEY ("relation_id") REFERENCES "public"."knowledge_relation"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_relation_evidence" ADD CONSTRAINT "knowledge_relation_evidence_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_same_as_link" ADD CONSTRAINT "knowledge_same_as_link_canonical_id_knowledge_entity_id_fk" FOREIGN KEY ("canonical_id") REFERENCES "public"."knowledge_entity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_same_as_link" ADD CONSTRAINT "knowledge_same_as_link_member_id_knowledge_entity_id_fk" FOREIGN KEY ("member_id") REFERENCES "public"."knowledge_entity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_same_as_link" ADD CONSTRAINT "knowledge_same_as_link_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_workflow_activity" ADD CONSTRAINT "knowledge_workflow_activity_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_workflow_execution" ADD CONSTRAINT "knowledge_workflow_execution_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "knowledge_workflow_signal" ADD CONSTRAINT "knowledge_workflow_signal_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_folder" ADD CONSTRAINT "shared_folder_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "shared_folder" ADD CONSTRAINT "shared_folder_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "shared_upload_session" ADD CONSTRAINT "shared_upload_session_org_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+CREATE INDEX "calendar_calendarEvent_name_idx" ON "calendar_calendar_event" USING btree ("name");--> statement-breakpoint
+CREATE INDEX "idx_email_template_user_id" ON "comms_email_template" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_org_id" ON "comms_email_template" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "organization_name_idx" ON "shared_organization" USING btree ("name");--> statement-breakpoint
+CREATE INDEX "organization_slug_idx" ON "shared_organization" USING btree ("slug");--> statement-breakpoint
+CREATE INDEX "organization_type_idx" ON "shared_organization" USING btree ("type");--> statement-breakpoint
+CREATE INDEX "organization_owner_idx" ON "shared_organization" USING btree ("owner_user_id");--> statement-breakpoint
+CREATE INDEX "organization_personal_idx" ON "shared_organization" USING btree ("is_personal") WHERE "shared_organization"."is_personal" = true;--> statement-breakpoint
+CREATE INDEX "organization_subscription_idx" ON "shared_organization" USING btree ("subscription_tier","subscription_status");--> statement-breakpoint
+CREATE INDEX "team_organization_id_idx" ON "shared_team" USING btree ("organization_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "team_org_name_unique_idx" ON "shared_team" USING btree ("organization_id","name");--> statement-breakpoint
+CREATE INDEX "team_name_idx" ON "shared_team" USING btree ("name");--> statement-breakpoint
+CREATE INDEX "user_email_idx" ON "shared_user" USING btree ("email");--> statement-breakpoint
+CREATE INDEX "user_active_idx" ON "shared_user" USING btree ("id","email_verified") WHERE "shared_user"."banned" IS NOT TRUE AND "shared_user"."email_verified" = true;--> statement-breakpoint
+CREATE INDEX "user_role_idx" ON "shared_user" USING btree ("role") WHERE "shared_user"."role" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "user_banned_expires_idx" ON "shared_user" USING btree ("ban_expires") WHERE "shared_user"."banned" = true AND "shared_user"."ban_expires" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "user_2fa_enabled_idx" ON "shared_user" USING btree ("two_factor_enabled") WHERE "shared_user"."two_factor_enabled" = true;--> statement-breakpoint
+CREATE INDEX "user_hotkeys_shortcuts_idx" ON "customization_user_hotkey" USING btree ("shortcuts");--> statement-breakpoint
+CREATE INDEX "page_organization_id_idx" ON "workspaces_page" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "page_created_by_id_idx" ON "workspaces_page" USING btree ("created_by_id");--> statement-breakpoint
+CREATE INDEX "page_parent_id_idx" ON "workspaces_page" USING btree ("parent_id");--> statement-breakpoint
+CREATE INDEX "page_type_idx" ON "workspaces_page" USING btree ("type");--> statement-breakpoint
+CREATE INDEX "page_is_archived_idx" ON "workspaces_page" USING btree ("is_archived");--> statement-breakpoint
+CREATE INDEX "page_is_published_idx" ON "workspaces_page" USING btree ("is_published");--> statement-breakpoint
+CREATE UNIQUE INDEX "page_share_token_idx" ON "workspaces_page" USING btree ("share_token");--> statement-breakpoint
+CREATE INDEX "page_position_idx" ON "workspaces_page" USING btree ("parent_id","position");--> statement-breakpoint
+CREATE INDEX "page_search_idx" ON "workspaces_page" USING gin ((
+        setweight(to_tsvector('english', coalesce("title", '')), 'A') ||
+        setweight(to_tsvector('english', coalesce("content", '')), 'B')
+      ));--> statement-breakpoint
+CREATE INDEX "comment_organization_id_idx" ON "workspaces_comment" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "comment_discussion_idx" ON "workspaces_comment" USING btree ("discussion_id");--> statement-breakpoint
+CREATE INDEX "comment_user_idx" ON "workspaces_comment" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "discussion_org_id_idx" ON "workspaces_discussion" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "discussion_document_idx" ON "workspaces_discussion" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "discussion_user_idx" ON "workspaces_discussion" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "discussion_is_resolved_idx" ON "workspaces_discussion" USING btree ("is_resolved");--> statement-breakpoint
+CREATE INDEX "document_file_org_id_idx" ON "workspaces_document_file" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "document_file_user_idx" ON "workspaces_document_file" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "document_file_document_idx" ON "workspaces_document_file" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "document_file_type_idx" ON "workspaces_document_file" USING btree ("type");--> statement-breakpoint
+CREATE INDEX "document_organization_id_idx" ON "workspaces_document" USING btree ("organization_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "document_user_template_idx" ON "workspaces_document" USING btree ("user_id","template_id");--> statement-breakpoint
+CREATE INDEX "document_user_idx" ON "workspaces_document" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "document_parent_idx" ON "workspaces_document" USING btree ("parent_document_id");--> statement-breakpoint
+CREATE INDEX "document_is_published_idx" ON "workspaces_document" USING btree ("is_published");--> statement-breakpoint
+CREATE INDEX "document_is_archived_idx" ON "workspaces_document" USING btree ("is_archived");--> statement-breakpoint
+CREATE INDEX "document_search_idx" ON "workspaces_document" USING gin ((
+        setweight(to_tsvector('english', coalesce("title", '')), 'A') ||
+        setweight(to_tsvector('english', coalesce("content", '')), 'B')
+      ));--> statement-breakpoint
+CREATE INDEX "document_version_org_id_idx" ON "workspaces_document_version" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "document_version_document_idx" ON "workspaces_document_version" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "document_version_user_idx" ON "workspaces_document_version" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "document_source_org_id_idx" ON "workspaces_document_source" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "document_source_document_id_idx" ON "workspaces_document_source" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "document_source_user_id_idx" ON "workspaces_document_source" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "document_source_provider_account_id_idx" ON "workspaces_document_source" USING btree ("provider_account_id");--> statement-breakpoint
+CREATE INDEX "document_source_thread_id_idx" ON "workspaces_document_source" USING btree ("source_thread_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "document_source_org_provider_source_uidx" ON "workspaces_document_source" USING btree ("organization_id","provider_account_id","source_type","source_id");--> statement-breakpoint
+CREATE INDEX "file_organization_id_idx" ON "shared_file" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "session_token_idx" ON "shared_session" USING btree ("token");--> statement-breakpoint
+CREATE INDEX "session_user_id_idx" ON "shared_session" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "session_expires_at_idx" ON "shared_session" USING btree ("expires_at");--> statement-breakpoint
+CREATE INDEX "session_user_expires_idx" ON "shared_session" USING btree ("user_id","expires_at");--> statement-breakpoint
+CREATE INDEX "session_active_org_idx" ON "shared_session" USING btree ("active_organization_id");--> statement-breakpoint
+CREATE INDEX "session_active_team_idx" ON "shared_session" USING btree ("active_team_id");--> statement-breakpoint
+CREATE INDEX "session_impersonated_by_idx" ON "shared_session" USING btree ("impersonated_by");--> statement-breakpoint
+CREATE INDEX "session_user_org_active_idx" ON "shared_session" USING btree ("user_id","active_organization_id","expires_at");--> statement-breakpoint
+CREATE INDEX "account_user_id_idx" ON "iam_account" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "account_provider_account_unique_idx" ON "iam_account" USING btree ("provider_id","account_id");--> statement-breakpoint
+CREATE INDEX "account_provider_id_idx" ON "iam_account" USING btree ("provider_id");--> statement-breakpoint
+CREATE INDEX "account_user_provider_idx" ON "iam_account" USING btree ("user_id","provider_id");--> statement-breakpoint
+CREATE INDEX "account_access_token_expires_idx" ON "iam_account" USING btree ("access_token_expires_at") WHERE "iam_account"."access_token_expires_at" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "account_refresh_token_expires_idx" ON "iam_account" USING btree ("refresh_token_expires_at") WHERE "iam_account"."refresh_token_expires_at" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "api_key_organization_id_idx" ON "iam_apikey" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "invitation_organization_id_idx" ON "iam_invitation" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "invitation_inviter_id_idx" ON "iam_invitation" USING btree ("inviter_id");--> statement-breakpoint
+CREATE INDEX "invitation_email_idx" ON "iam_invitation" USING btree ("email");--> statement-breakpoint
+CREATE UNIQUE INDEX "invitation_org_email_unique_idx" ON "iam_invitation" USING btree ("organization_id","email") WHERE "iam_invitation"."status" = 'pending';--> statement-breakpoint
+CREATE INDEX "invitation_status_idx" ON "iam_invitation" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "invitation_expires_at_idx" ON "iam_invitation" USING btree ("expires_at");--> statement-breakpoint
+CREATE INDEX "invitation_pending_idx" ON "iam_invitation" USING btree ("organization_id","status","expires_at") WHERE "iam_invitation"."status" = 'pending';--> statement-breakpoint
+CREATE INDEX "invitation_team_id_idx" ON "iam_invitation" USING btree ("team_id") WHERE "iam_invitation"."team_id" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "member_organization_id_idx" ON "iam_member" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "member_user_id_idx" ON "iam_member" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "member_org_user_unique_idx" ON "iam_member" USING btree ("organization_id","user_id");--> statement-breakpoint
+CREATE INDEX "member_org_role_idx" ON "iam_member" USING btree ("organization_id","role");--> statement-breakpoint
+CREATE INDEX "member_role_idx" ON "iam_member" USING btree ("role");--> statement-breakpoint
+CREATE INDEX "member_status_idx" ON "iam_member" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "member_org_status_idx" ON "iam_member" USING btree ("organization_id","status");--> statement-breakpoint
+CREATE INDEX "member_invited_by_idx" ON "iam_member" USING btree ("invited_by");--> statement-breakpoint
+CREATE INDEX "member_last_active_idx" ON "iam_member" USING btree ("last_active_at");--> statement-breakpoint
+CREATE INDEX "oauth_access_token_client_id_idx" ON "iam_oauth_access_token" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "oauth_access_token_user_id_idx" ON "iam_oauth_access_token" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "oauth_access_token_session_id_idx" ON "iam_oauth_access_token" USING btree ("session_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "oauth_client_client_id_uidx" ON "iam_oauth_client" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "oauth_client_user_id_idx" ON "iam_oauth_client" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "oauth_consent_client_id_idx" ON "iam_oauth_consent" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "oauth_consent_user_id_idx" ON "iam_oauth_consent" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "oauth_consent_client_user_uidx" ON "iam_oauth_consent" USING btree ("client_id","user_id");--> statement-breakpoint
+CREATE INDEX "oauth_refresh_token_client_id_idx" ON "iam_oauth_refresh_token" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "oauth_refresh_token_user_id_idx" ON "iam_oauth_refresh_token" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "oauth_refresh_token_session_id_idx" ON "iam_oauth_refresh_token" USING btree ("session_id");--> statement-breakpoint
+CREATE INDEX "organization_role_org_id_idx" ON "iam_organization_role" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "scim_provider_org_id_idx" ON "iam_scim_provider" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "sso_provider_org_id_idx" ON "iam_sso_provider" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "subscription_organization_id_idx" ON "iam_subscription" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "team_member_organization_id_idx" ON "iam_team_member" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "team_member_team_id_idx" ON "iam_team_member" USING btree ("team_id");--> statement-breakpoint
+CREATE INDEX "team_member_user_id_idx" ON "iam_team_member" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "team_member_team_user_unique_idx" ON "iam_team_member" USING btree ("team_id","user_id");--> statement-breakpoint
+CREATE INDEX "team_member_team_user_idx" ON "iam_team_member" USING btree ("team_id","user_id");--> statement-breakpoint
+CREATE INDEX "two_factor_organization_id_idx" ON "iam_two_factor" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "verification_identifier_idx" ON "iam_verification" USING btree ("identifier");--> statement-breakpoint
+CREATE INDEX "verification_identifier_value_idx" ON "iam_verification" USING btree ("identifier","value");--> statement-breakpoint
+CREATE INDEX "verification_expires_at_idx" ON "iam_verification" USING btree ("expires_at");--> statement-breakpoint
+CREATE INDEX "verification_active_idx" ON "iam_verification" USING btree ("identifier","expires_at");--> statement-breakpoint
+CREATE UNIQUE INDEX "wallet_address_user_chain_id_unique_idx" ON "iam_wallet_address" USING btree ("user_id","address","chain_id");--> statement-breakpoint
+CREATE INDEX "batch_execution_organization_id_idx" ON "knowledge_batch_execution" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "batch_execution_status_idx" ON "knowledge_batch_execution" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "batch_execution_org_status_idx" ON "knowledge_batch_execution" USING btree ("organization_id","status");--> statement-breakpoint
+CREATE INDEX "class_definition_organization_id_idx" ON "knowledge_class_definition" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "class_definition_ontology_id_idx" ON "knowledge_class_definition" USING btree ("ontology_id");--> statement-breakpoint
+CREATE INDEX "class_definition_iri_idx" ON "knowledge_class_definition" USING btree ("iri");--> statement-breakpoint
+CREATE INDEX "class_definition_label_idx" ON "knowledge_class_definition" USING btree ("label");--> statement-breakpoint
+CREATE UNIQUE INDEX "class_definition_ontology_iri_idx" ON "knowledge_class_definition" USING btree ("ontology_id","iri");--> statement-breakpoint
+CREATE INDEX "email_thread_organization_id_idx" ON "knowledge_email_thread" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "email_thread_provider_account_id_idx" ON "knowledge_email_thread" USING btree ("provider_account_id");--> statement-breakpoint
+CREATE INDEX "email_thread_source_thread_id_idx" ON "knowledge_email_thread" USING btree ("source_thread_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "email_thread_org_provider_source_thread_uidx" ON "knowledge_email_thread" USING btree ("organization_id","provider_account_id","source_thread_id");--> statement-breakpoint
+CREATE INDEX "email_thread_message_organization_id_idx" ON "knowledge_email_thread_message" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "email_thread_message_thread_id_idx" ON "knowledge_email_thread_message" USING btree ("thread_id");--> statement-breakpoint
+CREATE INDEX "email_thread_message_provider_account_id_idx" ON "knowledge_email_thread_message" USING btree ("provider_account_id");--> statement-breakpoint
+CREATE INDEX "email_thread_message_source_id_idx" ON "knowledge_email_thread_message" USING btree ("source_id");--> statement-breakpoint
+CREATE INDEX "email_thread_message_document_id_idx" ON "knowledge_email_thread_message" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "email_thread_message_thread_sort_key_idx" ON "knowledge_email_thread_message" USING btree ("thread_id","sort_key");--> statement-breakpoint
+CREATE UNIQUE INDEX "email_thread_message_org_provider_source_uidx" ON "knowledge_email_thread_message" USING btree ("organization_id","provider_account_id","source_id");--> statement-breakpoint
+CREATE INDEX "embedding_organization_id_idx" ON "knowledge_embedding" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "entity_organization_id_idx" ON "knowledge_entity" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "entity_ontology_id_idx" ON "knowledge_entity" USING btree ("ontology_id");--> statement-breakpoint
+CREATE INDEX "entity_document_id_idx" ON "knowledge_entity" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "entity_extraction_id_idx" ON "knowledge_entity" USING btree ("extraction_id");--> statement-breakpoint
+CREATE INDEX "entity_cluster_canonical_idx" ON "knowledge_entity_cluster" USING btree ("canonical_entity_id");--> statement-breakpoint
+CREATE INDEX "entity_cluster_org_idx" ON "knowledge_entity_cluster" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "entity_cluster_ontology_idx" ON "knowledge_entity_cluster" USING btree ("ontology_id");--> statement-breakpoint
+CREATE INDEX "extraction_organization_id_idx" ON "knowledge_extraction" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "extraction_document_id_idx" ON "knowledge_extraction" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "extraction_document_version_id_idx" ON "knowledge_extraction" USING btree ("document_version_id");--> statement-breakpoint
+CREATE INDEX "extraction_ontology_id_idx" ON "knowledge_extraction" USING btree ("ontology_id");--> statement-breakpoint
+CREATE INDEX "extraction_status_idx" ON "knowledge_extraction" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "extraction_status_created_at_idx" ON "knowledge_extraction" USING btree ("status","created_at");--> statement-breakpoint
+CREATE INDEX "meeting_prep_bullet_organization_id_idx" ON "knowledge_meeting_prep_bullet" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "meeting_prep_bullet_meeting_prep_id_idx" ON "knowledge_meeting_prep_bullet" USING btree ("meeting_prep_id");--> statement-breakpoint
+CREATE INDEX "meeting_prep_bullet_meeting_prep_id_bullet_index_idx" ON "knowledge_meeting_prep_bullet" USING btree ("meeting_prep_id","bullet_index");--> statement-breakpoint
+CREATE INDEX "meeting_prep_evidence_organization_id_idx" ON "knowledge_meeting_prep_evidence" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "meeting_prep_evidence_bullet_id_idx" ON "knowledge_meeting_prep_evidence" USING btree ("bullet_id");--> statement-breakpoint
+CREATE INDEX "meeting_prep_evidence_source_type_idx" ON "knowledge_meeting_prep_evidence" USING btree ("source_type");--> statement-breakpoint
+CREATE INDEX "meeting_prep_evidence_mention_id_idx" ON "knowledge_meeting_prep_evidence" USING btree ("mention_id");--> statement-breakpoint
+CREATE INDEX "meeting_prep_evidence_relation_evidence_id_idx" ON "knowledge_meeting_prep_evidence" USING btree ("relation_evidence_id");--> statement-breakpoint
+CREATE INDEX "meeting_prep_evidence_document_id_idx" ON "knowledge_meeting_prep_evidence" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "meeting_prep_evidence_extraction_id_idx" ON "knowledge_meeting_prep_evidence" USING btree ("extraction_id");--> statement-breakpoint
+CREATE INDEX "mention_organization_id_idx" ON "knowledge_mention" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "mention_entity_id_idx" ON "knowledge_mention" USING btree ("entity_id");--> statement-breakpoint
+CREATE INDEX "mention_document_id_idx" ON "knowledge_mention" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "mention_document_version_id_idx" ON "knowledge_mention" USING btree ("document_version_id");--> statement-breakpoint
+CREATE INDEX "mention_extraction_id_idx" ON "knowledge_mention" USING btree ("extraction_id");--> statement-breakpoint
+CREATE INDEX "mention_char_range_idx" ON "knowledge_mention" USING btree ("document_id","start_char","end_char");--> statement-breakpoint
+CREATE INDEX "mention_primary_idx" ON "knowledge_mention" USING btree ("entity_id","is_primary");--> statement-breakpoint
+CREATE INDEX "mention_record_organization_id_idx" ON "knowledge_mention_record" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "mention_record_extraction_id_idx" ON "knowledge_mention_record" USING btree ("extraction_id");--> statement-breakpoint
+CREATE INDEX "mention_record_document_id_idx" ON "knowledge_mention_record" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "mention_record_resolved_entity_id_idx" ON "knowledge_mention_record" USING btree ("resolved_entity_id");--> statement-breakpoint
+CREATE INDEX "mention_record_org_extraction_idx" ON "knowledge_mention_record" USING btree ("organization_id","extraction_id");--> statement-breakpoint
+CREATE INDEX "mention_record_raw_text_idx" ON "knowledge_mention_record" USING gin ("raw_text" gin_trgm_ops);--> statement-breakpoint
+CREATE INDEX "mention_record_document_chunk_idx" ON "knowledge_mention_record" USING btree ("document_id","chunk_index");--> statement-breakpoint
+CREATE INDEX "merge_history_organization_id_idx" ON "knowledge_merge_history" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "merge_history_target_entity_id_idx" ON "knowledge_merge_history" USING btree ("target_entity_id");--> statement-breakpoint
+CREATE INDEX "merge_history_source_entity_id_idx" ON "knowledge_merge_history" USING btree ("source_entity_id");--> statement-breakpoint
+CREATE INDEX "merge_history_org_target_idx" ON "knowledge_merge_history" USING btree ("organization_id","target_entity_id");--> statement-breakpoint
+CREATE INDEX "ontology_organization_id_idx" ON "knowledge_ontology" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "ontology_name_idx" ON "knowledge_ontology" USING btree ("name");--> statement-breakpoint
+CREATE INDEX "ontology_namespace_idx" ON "knowledge_ontology" USING btree ("namespace");--> statement-breakpoint
+CREATE INDEX "ontology_status_idx" ON "knowledge_ontology" USING btree ("status");--> statement-breakpoint
+CREATE UNIQUE INDEX "ontology_org_namespace_name_version_idx" ON "knowledge_ontology" USING btree ("organization_id","namespace","name","ontology_version");--> statement-breakpoint
+CREATE INDEX "property_definition_organization_id_idx" ON "knowledge_property_definition" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "property_definition_ontology_id_idx" ON "knowledge_property_definition" USING btree ("ontology_id");--> statement-breakpoint
+CREATE INDEX "property_definition_iri_idx" ON "knowledge_property_definition" USING btree ("iri");--> statement-breakpoint
+CREATE INDEX "property_definition_label_idx" ON "knowledge_property_definition" USING btree ("label");--> statement-breakpoint
+CREATE INDEX "property_definition_range_type_idx" ON "knowledge_property_definition" USING btree ("range_type");--> statement-breakpoint
+CREATE UNIQUE INDEX "property_definition_ontology_iri_idx" ON "knowledge_property_definition" USING btree ("ontology_id","iri");--> statement-breakpoint
+CREATE INDEX "relation_organization_id_idx" ON "knowledge_relation" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "relation_subject_id_idx" ON "knowledge_relation" USING btree ("subject_id");--> statement-breakpoint
+CREATE INDEX "relation_object_id_idx" ON "knowledge_relation" USING btree ("object_id");--> statement-breakpoint
+CREATE INDEX "relation_predicate_idx" ON "knowledge_relation" USING btree ("predicate");--> statement-breakpoint
+CREATE INDEX "relation_ontology_id_idx" ON "knowledge_relation" USING btree ("ontology_id");--> statement-breakpoint
+CREATE INDEX "relation_extraction_id_idx" ON "knowledge_relation" USING btree ("extraction_id");--> statement-breakpoint
+CREATE INDEX "relation_triple_idx" ON "knowledge_relation" USING btree ("subject_id","predicate","object_id");--> statement-breakpoint
+CREATE INDEX "relation_evidence_organization_id_idx" ON "knowledge_relation_evidence" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "relation_evidence_relation_id_idx" ON "knowledge_relation_evidence" USING btree ("relation_id");--> statement-breakpoint
+CREATE INDEX "relation_evidence_document_id_idx" ON "knowledge_relation_evidence" USING btree ("document_id");--> statement-breakpoint
+CREATE INDEX "relation_evidence_document_version_id_idx" ON "knowledge_relation_evidence" USING btree ("document_version_id");--> statement-breakpoint
+CREATE INDEX "relation_evidence_extraction_id_idx" ON "knowledge_relation_evidence" USING btree ("extraction_id");--> statement-breakpoint
+CREATE INDEX "relation_evidence_char_range_idx" ON "knowledge_relation_evidence" USING btree ("document_id","start_char","end_char");--> statement-breakpoint
+CREATE INDEX "same_as_canonical_idx" ON "knowledge_same_as_link" USING btree ("canonical_id");--> statement-breakpoint
+CREATE INDEX "same_as_member_idx" ON "knowledge_same_as_link" USING btree ("member_id");--> statement-breakpoint
+CREATE INDEX "same_as_org_idx" ON "knowledge_same_as_link" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "workflow_activity_organization_id_idx" ON "knowledge_workflow_activity" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "workflow_activity_execution_id_idx" ON "knowledge_workflow_activity" USING btree ("execution_id");--> statement-breakpoint
+CREATE INDEX "workflow_activity_execution_name_idx" ON "knowledge_workflow_activity" USING btree ("execution_id","activity_name");--> statement-breakpoint
+CREATE INDEX "workflow_activity_status_idx" ON "knowledge_workflow_activity" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "workflow_execution_organization_id_idx" ON "knowledge_workflow_execution" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "workflow_execution_status_idx" ON "knowledge_workflow_execution" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "workflow_execution_type_status_idx" ON "knowledge_workflow_execution" USING btree ("workflow_type","status");--> statement-breakpoint
+CREATE INDEX "workflow_signal_organization_id_idx" ON "knowledge_workflow_signal" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "workflow_signal_execution_id_idx" ON "knowledge_workflow_signal" USING btree ("execution_id");--> statement-breakpoint
+CREATE INDEX "workflow_signal_execution_name_idx" ON "knowledge_workflow_signal" USING btree ("execution_id","signal_name");--> statement-breakpoint
+CREATE INDEX "workflow_signal_undelivered_idx" ON "knowledge_workflow_signal" USING btree ("execution_id","acknowledged");--> statement-breakpoint
+CREATE INDEX "folder_organization_id_idx" ON "shared_folder" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "folder_user_idx" ON "shared_folder" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "upload_session_org_id_idx" ON "shared_upload_session" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "upload_session_expires_at_idx" ON "shared_upload_session" USING btree ("expires_at");--> statement-breakpoint
+CREATE INDEX "upload_session_file_key_idx" ON "shared_upload_session" USING btree ("file_key");--> statement-breakpoint
+CREATE POLICY "tenant_isolation_comms_email_template" ON "comms_email_template" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_shared_team" ON "shared_team" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_workspaces_page" ON "workspaces_page" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_workspaces_comment" ON "workspaces_comment" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_workspaces_discussion" ON "workspaces_discussion" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_workspaces_document_file" ON "workspaces_document_file" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_workspaces_document" ON "workspaces_document" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_workspaces_document_version" ON "workspaces_document_version" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_workspaces_document_source" ON "workspaces_document_source" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_shared_file" ON "shared_file" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_apikey" ON "iam_apikey" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_invitation" ON "iam_invitation" AS PERMISSIVE FOR ALL TO public USING (organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_member" ON "iam_member" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_organization_role" ON "iam_organization_role" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_scim_provider" ON "iam_scim_provider" AS PERMISSIVE FOR ALL TO public USING (organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_sso_provider" ON "iam_sso_provider" AS PERMISSIVE FOR ALL TO public USING (organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_subscription" ON "iam_subscription" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_team_member" ON "iam_team_member" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_iam_two_factor" ON "iam_two_factor" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_batch_execution" ON "knowledge_batch_execution" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_class_definition" ON "knowledge_class_definition" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_email_thread" ON "knowledge_email_thread" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_email_thread_message" ON "knowledge_email_thread_message" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_embedding" ON "knowledge_embedding" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_entity" ON "knowledge_entity" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_entity_cluster" ON "knowledge_entity_cluster" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_extraction" ON "knowledge_extraction" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_meeting_prep_bullet" ON "knowledge_meeting_prep_bullet" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_meeting_prep_evidence" ON "knowledge_meeting_prep_evidence" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_mention" ON "knowledge_mention" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_mention_record" ON "knowledge_mention_record" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_merge_history" ON "knowledge_merge_history" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_ontology" ON "knowledge_ontology" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_property_definition" ON "knowledge_property_definition" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_relation" ON "knowledge_relation" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_relation_evidence" ON "knowledge_relation_evidence" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_same_as_link" ON "knowledge_same_as_link" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_workflow_activity" ON "knowledge_workflow_activity" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_workflow_execution" ON "knowledge_workflow_execution" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_knowledge_workflow_signal" ON "knowledge_workflow_signal" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_shared_folder" ON "shared_folder" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint
+CREATE POLICY "tenant_isolation_shared_upload_session" ON "shared_upload_session" AS PERMISSIVE FOR ALL TO public USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text) WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);
+-- Session table RLS (uses active_organization_id) - injected by inject-extensions.ts
+ALTER TABLE shared_session ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE POLICY tenant_isolation_shared_session ON shared_session
+  FOR ALL
+  USING (active_organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text)
+  WITH CHECK (active_organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);--> statement-breakpoint

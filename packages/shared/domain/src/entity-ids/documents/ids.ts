@@ -2,7 +2,7 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import { EntityId } from "@beep/schema/identity";
 
 const $I = $SharedDomainId.create("entity-ids/documents/ids");
-const make = EntityId.builder("documents");
+const make = EntityId.builder("workspaces");
 
 export class DocumentId extends make("document", {
   brand: "DocumentId",

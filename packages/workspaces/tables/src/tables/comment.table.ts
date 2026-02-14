@@ -1,0 +1,30 @@
+import type { SharedEntityIds } from "@beep/shared-domain";
+import { WorkspacesEntityIds } from "@beep/shared-domain";
+import { OrgTable, user } from "@beep/shared-tables";
+import type { SerializedEditorStateEnvelope } from "@beep/workspaces-domain/value-objects";
+import * as pg from "drizzle-orm/pg-core";
+import { discussion } from "./discussion.table";
+
+export const comment = OrgTable.make(WorkspacesEntityIds.CommentId)(
+  {
+    discussionId: pg
+      .text("discussion_id")
+      .notNull()
+      .references(() => discussion.id, { onDelete: "cascade" })
+      .$type<WorkspacesEntityIds.DiscussionId.Type>(),
+    userId: pg
+      .text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" })
+      .$type<SharedEntityIds.UserId.Type>(),
+    content: pg.text("content").notNull(),
+    contentRich: pg.jsonb("content_rich").$type<SerializedEditorStateEnvelope.Encoded | null>(),
+    isEdited: pg.boolean("is_edited").notNull().default(false),
+  },
+  (t) => [
+    // Organization ID index for RLS filtering
+    pg.index("comment_organization_id_idx").on(t.organizationId),
+    pg.index("comment_discussion_idx").on(t.discussionId),
+    pg.index("comment_user_idx").on(t.userId),
+  ]
+);

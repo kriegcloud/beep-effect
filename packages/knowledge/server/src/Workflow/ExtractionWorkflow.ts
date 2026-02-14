@@ -4,7 +4,7 @@ import { ActivityFailedError, OntologyParseError, type WorkflowNotFoundError } f
 import { ExtractionProgressEvent } from "@beep/knowledge-domain/value-objects";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as AiError from "@effect/ai/AiError";
 import * as HttpServerError from "@effect/platform/HttpServerError";
 import type * as SqlError from "@effect/sql/SqlError";
@@ -67,7 +67,7 @@ export declare namespace ExtractionWorkflowConfig {
 }
 
 export class ExtractionWorkflowParams extends S.Class<ExtractionWorkflowParams>($I`ExtractionWorkflowParams`)({
-  documentId: DocumentsEntityIds.DocumentId,
+  documentId: WorkspacesEntityIds.DocumentId,
   organizationId: S.optional(SharedEntityIds.OrganizationId),
   // Some callers (notably tests and batch orchestrator) rely on the workflow generating an ID
   // when none is provided.
@@ -107,7 +107,7 @@ const makePipelineConfig = (params: ExtractionWorkflowParams, ontologyId: Knowle
   new ExtractionPipelineConfig({
     organizationId: SharedEntityIds.OrganizationId.make(params.organizationId),
     ontologyId,
-    documentId: DocumentsEntityIds.DocumentId.make(params.documentId),
+    documentId: WorkspacesEntityIds.DocumentId.make(params.documentId),
     sourceUri: O.none(),
     chunkingConfig: O.none(),
     mentionMinConfidence: O.none(),
@@ -176,7 +176,7 @@ export declare namespace ExtractionEnginePayloadRetryOwner {
 }
 
 const makeExtractionEnginePayloadRetryOwner = ExtractionEnginePayloadRetryOwner.toTagged("retryOwner").composer({
-  documentId: DocumentsEntityIds.DocumentId,
+  documentId: WorkspacesEntityIds.DocumentId,
   organizationId: SharedEntityIds.OrganizationId,
   ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
   text: S.String,

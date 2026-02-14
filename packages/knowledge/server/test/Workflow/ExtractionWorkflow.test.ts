@@ -7,7 +7,7 @@ import {
   KnowledgeGraphStats,
 } from "@beep/knowledge-server/Extraction";
 import { ExtractionWorkflow, WorkflowPersistence } from "@beep/knowledge-server/Workflow";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -18,7 +18,7 @@ import { makeExtractionWorkflowTestLayer } from "../_shared/LayerBuilders";
 import { makeWorkflowPersistenceShape, type WorkflowStatusUpdate } from "../_shared/ServiceMocks";
 
 const organizationId = SharedEntityIds.OrganizationId.create();
-const documentId = DocumentsEntityIds.DocumentId.create();
+const documentId = WorkspacesEntityIds.DocumentId.create();
 
 describe("ExtractionWorkflow", () => {
   effect(
@@ -106,7 +106,7 @@ describe("ExtractionWorkflow", () => {
                 config: new ExtractionPipelineConfig({
                   organizationId: SharedEntityIds.OrganizationId.create(),
                   ontologyId: KnowledgeEntityIds.OntologyId.create(),
-                  documentId: DocumentsEntityIds.DocumentId.create(),
+                  documentId: WorkspacesEntityIds.DocumentId.create(),
                   sourceUri: O.none(),
                   chunkingConfig: O.none(),
                   mentionMinConfidence: O.none(),

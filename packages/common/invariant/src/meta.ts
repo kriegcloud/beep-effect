@@ -34,7 +34,7 @@ import * as S from "effect/Schema";
  * import { CallMetadata } from "@beep/invariant";
  *
  * const decode = S.decodeUnknownSync(CallMetadata);
- * const meta = decode({ file: "packages/documents/domain/src/Uploader.ts", line: 17, args: ["tenant-1"] });
+ * const meta = decode({ file: "packages/workspaces/domain/src/Uploader.ts", line: 17, args: ["tenant-1"] });
  * ```
  * @category Invariant/Metadata
  * @since 0.1.0

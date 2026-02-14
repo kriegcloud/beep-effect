@@ -1,4 +1,4 @@
-import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type WorkspacesEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 import { relation } from "./relation.table";
@@ -11,8 +11,8 @@ export const relationEvidence = OrgTable.make(KnowledgeEntityIds.RelationEvidenc
       .references(() => relation.id, { onDelete: "cascade" })
       .$type<KnowledgeEntityIds.RelationId.Type>(),
 
-    documentId: pg.text("document_id").notNull().$type<DocumentsEntityIds.DocumentId.Type>(),
-    documentVersionId: pg.text("document_version_id").notNull().$type<DocumentsEntityIds.DocumentVersionId.Type>(),
+    documentId: pg.text("document_id").notNull().$type<WorkspacesEntityIds.DocumentId.Type>(),
+    documentVersionId: pg.text("document_version_id").notNull().$type<WorkspacesEntityIds.DocumentVersionId.Type>(),
 
     startChar: pg.integer("start_char").notNull(),
     endChar: pg.integer("end_char").notNull(),

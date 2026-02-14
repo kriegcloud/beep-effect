@@ -48,7 +48,6 @@ export const layer = HttpLayerRouter.serve(AllRoutes, {
       BS.HttpMethod.is.OPTIONS(request.method) ||
       request.url === "/v1/health" ||
       request.url === "/v1/shared/rpc" ||
-      request.url === "/v1/documents/rpc" ||
       request.url === "/v1/knowledge/rpc"
   ),
   HttpMiddleware.withSpanNameGenerator((request: HttpServerRequest.HttpServerRequest) => {

@@ -71,8 +71,8 @@ const createRealisticContext = (): WorkspaceContext => {
     "@beep/iam-ui": ["@beep/iam-client", "@beep/iam-domain"],
 
     // Documents slice
-    "@beep/documents-domain": ["@beep/schema", "@beep/types"],
-    "@beep/documents-server": ["@beep/documents-domain"],
+    "@beep/workspaces-domain": ["@beep/schema", "@beep/types"],
+    "@beep/workspaces-server": ["@beep/workspaces-domain"],
   };
 
   let depIndex = HashMap.empty<WorkspacePkgKeyT, RepoDepMapValueT>();

@@ -19,7 +19,7 @@ import {
   executeBatchEngineWorkflow,
   WorkflowPersistence,
 } from "@beep/knowledge-server/Workflow";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -146,9 +146,9 @@ describe("BatchOrchestrator engine parity", () => {
   effect(
     "preserves continue-on-failure semantics and event ordering",
     Effect.fn(function* () {
-      const doc1 = DocumentsEntityIds.DocumentId.create();
-      const doc2 = DocumentsEntityIds.DocumentId.create();
-      const doc3 = DocumentsEntityIds.DocumentId.create();
+      const doc1 = WorkspacesEntityIds.DocumentId.create();
+      const doc2 = WorkspacesEntityIds.DocumentId.create();
+      const doc3 = WorkspacesEntityIds.DocumentId.create();
 
       const output = yield* runScenario({
         payload: {
@@ -190,9 +190,9 @@ describe("BatchOrchestrator engine parity", () => {
   effect(
     "preserves abort-all semantics and stops after first failure",
     Effect.fn(function* () {
-      const doc1 = DocumentsEntityIds.DocumentId.create();
-      const doc2 = DocumentsEntityIds.DocumentId.create();
-      const doc3 = DocumentsEntityIds.DocumentId.create();
+      const doc1 = WorkspacesEntityIds.DocumentId.create();
+      const doc2 = WorkspacesEntityIds.DocumentId.create();
+      const doc3 = WorkspacesEntityIds.DocumentId.create();
 
       const output = yield* runScenario({
         payload: {
@@ -230,8 +230,8 @@ describe("BatchOrchestrator engine parity", () => {
   effect(
     "uses orchestrator-owned retry in retry-failed policy",
     Effect.fn(function* () {
-      const doc1 = DocumentsEntityIds.DocumentId.create();
-      const doc2 = DocumentsEntityIds.DocumentId.create();
+      const doc1 = WorkspacesEntityIds.DocumentId.create();
+      const doc2 = WorkspacesEntityIds.DocumentId.create();
       const invocations = new Map<string, number>();
 
       const output = yield* runScenario({
@@ -276,8 +276,8 @@ describe("BatchOrchestrator engine parity", () => {
   effect(
     "emits BatchFailed and failed execution status when all documents fail",
     Effect.fn(function* () {
-      const doc1 = DocumentsEntityIds.DocumentId.create();
-      const doc2 = DocumentsEntityIds.DocumentId.create();
+      const doc1 = WorkspacesEntityIds.DocumentId.create();
+      const doc2 = WorkspacesEntityIds.DocumentId.create();
 
       const output = yield* runScenario({
         payload: {

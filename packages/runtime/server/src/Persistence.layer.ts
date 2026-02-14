@@ -1,7 +1,6 @@
 import { CalendarDb } from "@beep/calendar-server/db";
 import { CommsDb } from "@beep/comms-server/db";
 import { CustomizationDb } from "@beep/customization-server/db";
-import { DocumentsDb } from "@beep/documents-server/db";
 import { IamDb } from "@beep/iam-server/db";
 import { KnowledgeDb } from "@beep/knowledge-server/db";
 import { DbClient } from "@beep/shared-server";
@@ -9,19 +8,11 @@ import { SharedDb } from "@beep/shared-server/db";
 import { S3Service } from "@effect-aws/client-s3/S3Service";
 import * as Layer from "effect/Layer";
 
-export type DbClients =
-  | SharedDb.Db
-  | IamDb.Db
-  | DocumentsDb.Db
-  | CustomizationDb.Db
-  | CommsDb.Db
-  | CalendarDb.Db
-  | KnowledgeDb.Db;
+export type DbClients = SharedDb.Db | IamDb.Db | CustomizationDb.Db | CommsDb.Db | CalendarDb.Db | KnowledgeDb.Db;
 
 const sliceClientsLayer: Layer.Layer<DbClients, never, DbClient.SliceDbRequirements | S3Service> = Layer.mergeAll(
   SharedDb.layer,
   IamDb.layer,
-  DocumentsDb.layer,
   CustomizationDb.layer,
   CommsDb.layer,
   CalendarDb.layer,
@@ -39,7 +30,7 @@ export type Services = DbClient.SliceDbRequirements | DbClients | S3Service;
  * Persistence infrastructure layer providing database clients and storage services.
  *
  * This layer wires together:
- * - Slice-specific database clients (Iam, Documents, Shared, Customization, Comms)
+ * - Slice-specific database clients (Iam, Shared, Customization, Comms, Calendar, Knowledge)
  * - Shared database connection pool and configuration
  * - S3 storage service for file uploads
  * - Upload service for managing file transfers

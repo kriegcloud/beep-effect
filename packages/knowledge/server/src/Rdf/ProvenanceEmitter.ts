@@ -1,7 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -35,7 +35,7 @@ const toActivityIri = (extractionId: KnowledgeEntityIds.ExtractionId.Type): IRI.
 
 const toAgentIri = (userId: SharedEntityIds.UserId.Type): IRI.Type => IRI.make(`urn:beep:user:${userId}`);
 
-const toDocumentIri = (documentId: DocumentsEntityIds.DocumentId.Type): IRI.Type =>
+const toDocumentIri = (documentId: WorkspacesEntityIds.DocumentId.Type): IRI.Type =>
   IRI.make(`urn:beep:document:${documentId}`);
 
 const toAttributePredicate = (raw: string): IRI.Type => {
@@ -65,7 +65,7 @@ const dedupeQuads = (quads: ReadonlyArray<Quad>): ReadonlyArray<Quad> => {
 
 export class ProvenanceMetadata extends S.Class<ProvenanceMetadata>($I`ProvenanceMetadata`)({
   extractionId: KnowledgeEntityIds.ExtractionId,
-  documentId: DocumentsEntityIds.DocumentId,
+  documentId: WorkspacesEntityIds.DocumentId,
   actorUserId: SharedEntityIds.UserId,
   startedAt: BS.DateTimeUtcFromAllAcceptable,
   endedAt: BS.DateTimeUtcFromAllAcceptable,

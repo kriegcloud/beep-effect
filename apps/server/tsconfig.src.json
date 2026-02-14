@@ -49,9 +49,6 @@
       "path": "../../packages/customization/domain"
     },
     {
-      "path": "../../packages/documents/domain"
-    },
-    {
       "path": "../../packages/integrations/google-workspace/server"
     },
     {
@@ -79,9 +76,6 @@
       "path": "../../packages/customization/tables"
     },
     {
-      "path": "../../packages/documents/tables"
-    },
-    {
       "path": "../../packages/iam/tables"
     },
     {
@@ -97,9 +91,6 @@
       "path": "../../packages/customization/server"
     },
     {
-      "path": "../../packages/documents/server"
-    },
-    {
       "path": "../../packages/iam/server"
     },
     {
@@ -107,6 +98,15 @@
     },
     {
       "path": "../../packages/runtime/server"
+    },
+    {
+      "path": "../../packages/workspaces/tables"
+    },
+    {
+      "path": "../../packages/workspaces/server"
+    },
+    {
+      "path": "../../packages/workspaces/domain"
     }
   ],
   "compilerOptions": {

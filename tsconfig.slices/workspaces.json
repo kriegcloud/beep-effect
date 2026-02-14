@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/workspaces/domain/tsconfig.build.json" },
+    { "path": "../packages/workspaces/tables/tsconfig.build.json" },
+    { "path": "../packages/workspaces/server/tsconfig.build.json" },
+    { "path": "../packages/workspaces/client/tsconfig.build.json" },
+    { "path": "../packages/workspaces/ui/tsconfig.build.json" }
+  ]
+}

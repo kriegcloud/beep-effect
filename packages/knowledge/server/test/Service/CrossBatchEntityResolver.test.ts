@@ -5,7 +5,7 @@ import {
   CrossBatchEntityResolver,
   CrossBatchEntityResolverLive,
 } from "@beep/knowledge-server/Service/CrossBatchEntityResolver";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -21,7 +21,7 @@ describe("CrossBatchEntityResolver", () => {
       const now = yield* DateTime.now;
 
       const orgId = SharedEntityIds.OrganizationId.create();
-      const docId = DocumentsEntityIds.DocumentId.create();
+      const docId = WorkspacesEntityIds.DocumentId.create();
       const extractionId = KnowledgeEntityIds.ExtractionId.create();
       const userId = SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321");
 

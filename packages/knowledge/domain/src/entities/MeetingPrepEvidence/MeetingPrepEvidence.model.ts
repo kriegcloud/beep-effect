@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
 import { BS } from "@beep/schema";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
@@ -32,8 +32,8 @@ export class Model extends M.Class<Model>($I`MeetingPrepEvidenceModel`)(
     mentionId: BS.FieldOptionOmittable(KnowledgeEntityIds.MentionId),
     relationEvidenceId: BS.FieldOptionOmittable(KnowledgeEntityIds.RelationEvidenceId),
 
-    documentId: BS.FieldOptionOmittable(DocumentsEntityIds.DocumentId),
-    documentVersionId: BS.FieldOptionOmittable(DocumentsEntityIds.DocumentVersionId),
+    documentId: BS.FieldOptionOmittable(WorkspacesEntityIds.DocumentId),
+    documentVersionId: BS.FieldOptionOmittable(WorkspacesEntityIds.DocumentVersionId),
     startChar: BS.FieldOptionOmittable(S.NonNegativeInt),
     endChar: BS.FieldOptionOmittable(S.NonNegativeInt),
     text: BS.FieldOptionOmittable(S.String),

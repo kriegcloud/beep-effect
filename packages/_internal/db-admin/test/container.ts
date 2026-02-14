@@ -1,11 +1,10 @@
 import { fileURLToPath } from "node:url";
-import { DocumentsRepos } from "@beep/documents-server";
-import { DocumentsDb } from "@beep/documents-server/db";
 import { IamRepos } from "@beep/iam-server";
 import { IamDb } from "@beep/iam-server/db";
 import { KnowledgeDb, KnowledgeRepos } from "@beep/knowledge-server/db";
 import { DbClient, SharedDb, SharedRepos, TenantContext } from "@beep/shared-server";
 import { TenantContextTag } from "@beep/testkit/rls";
+import { WorkspacesDb, WorkspacesRepos } from "@beep/workspaces-server/db";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunContext from "@effect/platform-bun/BunContext";
@@ -55,22 +54,22 @@ const getPgTestSingletonState = (): PgTestSingletonState => {
   return g.__beep_pg_test_singleton as PgTestSingletonState;
 };
 
-export type SliceDatabaseClients = DocumentsDb.Db | IamDb.Db | KnowledgeDb.Db | SharedDb.Db;
+export type SliceDatabaseClients = WorkspacesDb.Db | IamDb.Db | KnowledgeDb.Db | SharedDb.Db;
 export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, DbClient.PgClientServices>;
 export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
   IamDb.layer,
-  DocumentsDb.layer,
+  WorkspacesDb.layer,
   KnowledgeDb.layer,
   SharedDb.layer
 );
 
-type SliceRepositories = DocumentsRepos.Repos | IamRepos.Repos | KnowledgeRepos.Repos | SharedRepos.Repos;
+type SliceRepositories = WorkspacesRepos.Repos | IamRepos.Repos | KnowledgeRepos.Repos | SharedRepos.Repos;
 //
 // type L = Layer.Layer.Context<typeof IamRepos.layer>
 type SliceReposLive = Layer.Layer<SliceRepositories, never, DbClient.PgClientServices | SliceDatabaseClients>;
 export const SliceReposLive: SliceReposLive = Layer.mergeAll(
   IamRepos.layer,
-  DocumentsRepos.layer,
+  WorkspacesRepos.layer,
   KnowledgeRepos.layer,
   SharedRepos.layer
 ).pipe(Layer.orDie);

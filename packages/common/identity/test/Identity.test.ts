@@ -294,7 +294,7 @@ describe("Identity Registry", () => {
   //   docsModels`Document`; // Same path = duplicate!
   //
   //   expect(warnSpy).toHaveBeenCalledTimes(1);
-  //   expect(warnSpy.mock.calls[0]?.[0]).toContain("@beep/documents-domain/models/Document");
+  //   expect(warnSpy.mock.calls[0]?.[0]).toContain("@beep/workspaces-domain/models/Document");
   //   expect(warnSpy.mock.calls[0]?.[0]).toContain("copy-paste error");
   //
   //   warnSpy.mockRestore();

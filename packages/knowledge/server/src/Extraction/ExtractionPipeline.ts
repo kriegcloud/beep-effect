@@ -3,7 +3,7 @@ import { MentionRecord } from "@beep/knowledge-domain/entities";
 import type { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import { thunkTrue } from "@beep/utils";
 import type * as AiError from "@effect/ai/AiError";
@@ -38,7 +38,7 @@ export class ExtractionPipelineConfig extends S.Class<ExtractionPipelineConfig>(
   {
     organizationId: SharedEntityIds.OrganizationId,
     ontologyId: KnowledgeEntityIds.OntologyId,
-    documentId: DocumentsEntityIds.DocumentId,
+    documentId: WorkspacesEntityIds.DocumentId,
     sourceUri: S.optionalWith(S.String, { as: "Option" }),
     chunkingConfig: S.optionalWith(ChunkingConfig, { as: "Option" }),
     mentionMinConfidence: S.optionalWith(Confidence, { as: "Option" }),
@@ -380,7 +380,7 @@ const buildMentionRecords = (
   Effect.gen(function* () {
     const now = yield* DateTime.now;
     const orgId = SharedEntityIds.OrganizationId.make(config.organizationId);
-    const docId = DocumentsEntityIds.DocumentId.make(config.documentId);
+    const docId = WorkspacesEntityIds.DocumentId.make(config.documentId);
     let rowIdSeq = 0;
 
     return A.flatMap(mentionResults, (result) =>

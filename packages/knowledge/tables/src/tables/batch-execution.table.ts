@@ -1,4 +1,4 @@
-import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type WorkspacesEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import { datetime } from "@beep/shared-tables/columns";
 import * as pg from "drizzle-orm/pg-core";
@@ -7,7 +7,7 @@ export const batchExecution = OrgTable.make(KnowledgeEntityIds.BatchExecutionId)
   {
     ontologyId: pg.text("ontology_id").notNull().$type<KnowledgeEntityIds.OntologyId.Type>(),
     status: pg.text("status").notNull().default("pending"),
-    documentIds: pg.jsonb("document_ids").notNull().$type<ReadonlyArray<DocumentsEntityIds.DocumentId.Type>>(),
+    documentIds: pg.jsonb("document_ids").notNull().$type<ReadonlyArray<WorkspacesEntityIds.DocumentId.Type>>(),
     totalDocuments: pg.integer("total_documents").notNull(),
     completedDocuments: pg.integer("completed_documents").notNull().default(0),
     failedDocuments: pg.integer("failed_documents").notNull().default(0),

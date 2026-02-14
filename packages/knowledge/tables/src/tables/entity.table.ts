@@ -1,4 +1,4 @@
-import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type WorkspacesEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
@@ -8,7 +8,7 @@ export const entity = OrgTable.make(KnowledgeEntityIds.KnowledgeEntityId)(
     types: pg.jsonb("types").notNull().$type<readonly [string, ...string[]]>(),
     attributes: pg.jsonb("attributes").notNull().$type<Record<string, string | number | boolean>>(),
     ontologyId: pg.text("ontology_id").$type<KnowledgeEntityIds.OntologyId.Type>(),
-    documentId: pg.text("document_id").$type<DocumentsEntityIds.DocumentId.Type>(),
+    documentId: pg.text("document_id").$type<WorkspacesEntityIds.DocumentId.Type>(),
     sourceUri: pg.text("source_uri"),
     extractionId: pg.text("extraction_id").$type<KnowledgeEntityIds.ExtractionId.Type>(),
     groundingConfidence: pg.real("grounding_confidence"),

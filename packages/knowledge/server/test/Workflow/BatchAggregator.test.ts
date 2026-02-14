@@ -6,7 +6,7 @@ import {
 import { KnowledgeGraph, KnowledgeGraphStats } from "@beep/knowledge-server/Extraction/GraphAssembler";
 import type { DocumentResult } from "@beep/knowledge-server/Workflow";
 import { BatchAggregator, BatchAggregatorLive } from "@beep/knowledge-server/Workflow";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { describe, effect, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -40,7 +40,7 @@ const makeSuccessResult = (docId: string, entityCount: number, relationCount: nu
       config: new ExtractionPipelineConfig({
         organizationId: SharedEntityIds.OrganizationId.create(),
         ontologyId: KnowledgeEntityIds.OntologyId.create(),
-        documentId: DocumentsEntityIds.DocumentId.create(),
+        documentId: WorkspacesEntityIds.DocumentId.create(),
         sourceUri: O.none(),
         chunkingConfig: O.none(),
         mentionMinConfidence: O.none(),

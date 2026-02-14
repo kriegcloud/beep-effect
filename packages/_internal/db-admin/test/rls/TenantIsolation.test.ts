@@ -58,11 +58,11 @@ layer(PgTest, { timeout: Duration.seconds(120) })("RLS Tenant Isolation", (it) =
   );
 
   it.effect(
-    "blocks SELECT on documents_document without tenant context",
+    "blocks SELECT on workspaces_document without tenant context",
     () =>
       Effect.gen(function* () {
         const sql = yield* SqlClient.SqlClient;
-        const result = yield* sql`SELECT * FROM documents_document LIMIT 10`;
+        const result = yield* sql`SELECT * FROM workspaces_document LIMIT 10`;
         strictEqual(result.length, 0);
       }),
     TEST_TIMEOUT
@@ -229,11 +229,11 @@ layer(PgTest, { timeout: Duration.seconds(120) })("RLS Tenant Isolation", (it) =
         // - 0001_custom_rls_extensions.sql: Custom policies for special tables (4 tables)
         const expectedTables = [
           "comms_email_template",
-          "documents_comment",
-          "documents_discussion",
-          "documents_document",
-          "documents_document_file",
-          "documents_document_version",
+          "workspaces_comment",
+          "workspaces_discussion",
+          "workspaces_document",
+          "workspaces_document_file",
+          "workspaces_document_version",
           "iam_apikey",
           "iam_invitation", // Custom migration
           "iam_member",

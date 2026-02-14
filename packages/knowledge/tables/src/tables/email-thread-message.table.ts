@@ -1,4 +1,4 @@
-import type { DocumentsEntityIds, IamEntityIds } from "@beep/shared-domain";
+import type { IamEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import { datetime } from "@beep/shared-tables/columns";
@@ -16,7 +16,7 @@ export const emailThreadMessage = OrgTable.make(KnowledgeEntityIds.EmailThreadMe
     providerAccountId: pg.text("provider_account_id").notNull().$type<IamEntityIds.AccountId.Type>(),
     sourceId: pg.text("source_id").notNull(),
 
-    documentId: pg.text("document_id").notNull().$type<DocumentsEntityIds.DocumentId.Type>(),
+    documentId: pg.text("document_id").notNull().$type<WorkspacesEntityIds.DocumentId.Type>(),
 
     sourceInternalDate: datetime("source_internal_date"),
     sourceHistoryId: pg.text("source_history_id"),
