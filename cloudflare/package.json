@@ -1,0 +1,21 @@
+{
+  "name": "effect-claude-agent-sdk-cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@effect/experimental": "^0.58.0",
+    "@effect/sql": "^0.49.0",
+    "@effect/sql-d1": "^0.47.0",
+    "@effect/sql-sqlite-do": "^0.27.0",
+    "effect": "^3.19.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250515.0",
+    "typescript": "^5.0.0"
+  }
+}

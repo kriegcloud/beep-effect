@@ -1,0 +1,22 @@
+name = "effect-sync"
+main = "src/worker.ts"
+compatibility_date = "2026-02-01"
+
+[durable_objects]
+bindings = [{ name = "SYNC_DO", class_name = "SyncDurableObject" }]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SyncDurableObject"]
+
+# Optional D1 binding
+# [[d1_databases]]
+# binding = "SYNC_DB"
+# database_name = "sync-db"
+# database_id = "REPLACE_ME"
+
+# Optional auth token
+# [vars]
+# SYNC_AUTH_TOKEN = "replace-me"
+# SYNC_ALLOW_QUERY_TOKEN = "true" # allow ?token= (default false)
+# SYNC_STORAGE = "do" # "do" | "d1"
