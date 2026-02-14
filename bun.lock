@@ -2867,7 +2867,7 @@
     "react-i18next": "^16.5.4",
     "react-markdown": "^10.1.0",
     "react-phone-number-input": "^3.4.14",
-    "react-resizable-panels": "^4.6.3",
+    "react-resizable-panels": "^4.6.4",
     "react-router-dom": "^7.13.0",
     "react-textarea-autosize": "^8.5.9",
     "react-use": "^17.6.0",
@@ -7041,7 +7041,7 @@
 
     "react-remove-scroll-bar": ["react-remove-scroll-bar@2.3.8", "", { "dependencies": { "react-style-singleton": "^2.2.2", "tslib": "^2.0.0" }, "peerDependencies": { "@types/react": "*", "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" }, "optionalPeers": ["@types/react"] }, "sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q=="],
 
-    "react-resizable-panels": ["react-resizable-panels@4.6.3", "", { "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" } }, "sha512-nO5ksnCTdnV4YrRNw/OrZrX8ffh0sPA+2uM8kJbF19c8PRNuhH7ojJFE+UisAg2HFQFqIPmmW8bANrJNtIdXeA=="],
+    "react-resizable-panels": ["react-resizable-panels@4.6.4", "", { "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" } }, "sha512-E7Szs1xyaMZ7xOI2gG4TECNz4r/gmpV1AsXyZRnER6OQnfFf9uclFmrHHZR3h/iF8vQS+nQ1LKyZv9bzwGxPSg=="],
 
     "react-spring": ["react-spring@10.0.3", "", { "dependencies": { "@react-spring/core": "~10.0.3", "@react-spring/konva": "~10.0.3", "@react-spring/native": "~10.0.3", "@react-spring/three": "~10.0.3", "@react-spring/web": "~10.0.3", "@react-spring/zdog": "~10.0.3" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-opangIUqCLmkf7+AJZAlM4fLlvzdzWOG/yqAzylKjUoe97Tsjgouz1PsDLu6C9uckvcaMfb4wS/VXiU6dULz5A=="],
 
