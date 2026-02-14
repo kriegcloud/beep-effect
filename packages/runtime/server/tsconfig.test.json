@@ -99,13 +99,13 @@
       "path": "../../../packages/knowledge/server"
     },
     {
+      "path": "../../../packages/workspaces/tables"
+    },
+    {
       "path": "../../../packages/workspaces/domain"
     },
     {
       "path": "../../../packages/workspaces/server"
-    },
-    {
-      "path": "../../../packages/workspaces/tables"
     }
   ],
   "compilerOptions": {

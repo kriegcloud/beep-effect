@@ -33,9 +33,6 @@
       "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../../packages/workspaces/domain"
-    },
-    {
       "path": "../../../packages/shared/env"
     },
     {
@@ -43,6 +40,9 @@
     },
     {
       "path": "../../../packages/shared/tables"
+    },
+    {
+      "path": "../../../packages/workspaces/domain"
     },
     {
       "path": "../../../packages/workspaces/tables"

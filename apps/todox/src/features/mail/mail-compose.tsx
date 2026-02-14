@@ -11,7 +11,7 @@ import Portal from "@mui/material/Portal";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useCallback, useEffect, useState } from "react";
-import { Editor } from "../editor";
+import { LexicalEditor } from "../../components/editor";
 
 // ----------------------------------------------------------------------
 
@@ -124,17 +124,11 @@ export function MailCompose({ onCloseCompose }: Props) {
             flexDirection: "column",
           }}
         >
-          <Editor
-            value={message}
+          <LexicalEditor
+            initialMarkdown={message}
             onChange={handleChangeMessage}
             placeholder="Type a message"
-            slotProps={{
-              wrapper: { ...(fullScreen.value && { minHeight: 0, flex: "1 1 auto" }) },
-            }}
-            sx={{
-              maxHeight: 480,
-              ...(fullScreen.value && { maxHeight: 1, flex: "1 1 auto" }),
-            }}
+            fullscreenEnabled
           />
 
           <Box sx={{ display: "flex", alignItems: "center" }}>

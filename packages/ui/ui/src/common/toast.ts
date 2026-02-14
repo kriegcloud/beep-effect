@@ -7,15 +7,15 @@ import { type ExternalToast, toast } from "sonner";
 
 type StateCommon = string;
 
-export type WhenLoading<Args> =
+export type OnLoading<Args> =
   | StateCommon
   | ((args: { readonly registry: Registry.Registry; readonly args: Args }) => StateCommon);
 
-export type WhenSuccess<A, Args> =
+export type OnSuccess<A, Args> =
   | StateCommon
   | ((args: { readonly registry: Registry.Registry; readonly result: A; args: Args }) => StateCommon);
 
-export type WhenFailure<E, Args> =
+export type OnFailure<E, Args> =
   | StateCommon
   | ((args: {
       readonly registry: Registry.Registry;
@@ -24,9 +24,9 @@ export type WhenFailure<E, Args> =
     }) => O.Option<StateCommon>);
 
 export type ToastOpts<A, E, Args extends ReadonlyArray<unknown>> = {
-  readonly whenLoading: WhenLoading<Args>;
-  readonly whenSuccess: WhenSuccess<A, Args>;
-  readonly whenFailure: WhenFailure<E, Args>;
+  readonly onLoading: OnLoading<Args>;
+  readonly onSuccess: OnSuccess<A, Args>;
+  readonly onFailure: OnFailure<E, Args>;
   readonly options?: undefined | Omit<ExternalToast, "id">;
 };
 
@@ -36,15 +36,15 @@ export const toastEffect =
     Effect.gen(function* () {
       const registry = yield* Registry.AtomRegistry;
       const toastId = toast.loading(
-        P.isFunction(options.whenLoading) ? options.whenLoading({ registry, args }) : options.whenLoading,
+        P.isFunction(options.onLoading) ? options.onLoading({ registry, args }) : options.onLoading,
         options.options
       );
       const result = yield* self.pipe(
         Effect.tapErrorCause((cause) =>
           Effect.sync(() => {
-            const message = P.isFunction(options.whenFailure)
-              ? options.whenFailure({ registry, cause, args })
-              : options.whenFailure;
+            const message = P.isFunction(options.onFailure)
+              ? options.onFailure({ registry, cause, args })
+              : options.onFailure;
             if (O.isOption(message) && O.isNone(message)) return toast.dismiss(toastId);
             toast.error(O.isOption(message) ? message.value : message, {
               id: toastId,
@@ -54,9 +54,9 @@ export const toastEffect =
           })
         )
       );
-      const message = P.isFunction(options.whenSuccess)
-        ? options.whenSuccess({ registry, result, args })
-        : options.whenSuccess;
+      const message = P.isFunction(options.onSuccess)
+        ? options.onSuccess({ registry, result, args })
+        : options.onSuccess;
       toast.success(message, { id: toastId, ...options.options });
       return result;
     });

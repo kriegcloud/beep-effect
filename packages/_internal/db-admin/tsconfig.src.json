@@ -37,9 +37,6 @@
       "path": "../../../packages/customization/domain"
     },
     {
-      "path": "../../../packages/workspaces/domain"
-    },
-    {
       "path": "../../../packages/iam/domain"
     },
     {
@@ -52,19 +49,22 @@
       "path": "../../../packages/shared/tables"
     },
     {
-      "path": "../../../packages/customization/tables"
+      "path": "../../../packages/workspaces/domain"
     },
     {
-      "path": "../../../packages/workspaces/tables"
+      "path": "../../../packages/customization/tables"
     },
     {
       "path": "../../../packages/iam/tables"
     },
     {
-      "path": "../../../packages/workspaces/server"
+      "path": "../../../packages/workspaces/tables"
     },
     {
       "path": "../../../packages/iam/server"
+    },
+    {
+      "path": "../../../packages/workspaces/server"
     },
     {
       "path": "../../../packages/calendar/tables"

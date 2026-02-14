@@ -25,15 +25,15 @@ const EmailAtom = runtime.fn(
     Service.Email,
     Effect.catchTag("UnknownIamError", Effect.die),
     toastEffect({
-      whenFailure: (e) =>
+      onFailure: (e) =>
         Cause.failureOption(e.cause).pipe(
           O.match({
             onNone: O.none<string>,
             onSome: (e) => O.some(e.message),
           })
         ),
-      whenSuccess: "Signed up successfully",
-      whenLoading: "Signing up...",
+      onSuccess: "Signed up successfully",
+      onLoading: "Signing up...",
     }),
     Effect.asVoid
   )

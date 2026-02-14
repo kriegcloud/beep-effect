@@ -5,6 +5,7 @@
     "moduleDetection": "force",
     "downlevelIteration": true,
     "emitDecoratorMetadata": true,
+
     "experimentalDecorators": true,
     "allowImportingTsExtensions": false,
     "isolatedModules": true,
@@ -91,14 +92,6 @@
       ],
       "@beep/customization-ui": ["../../packages/customization/ui/src/index"],
       "@beep/customization-ui/*": ["../../packages/customization/ui/src/*"],
-      "@beep/workspaces-client": ["../../packages/workspaces/client/src/index"],
-      "@beep/workspaces-client/*": ["../../packages/workspaces/client/src/*"],
-      "@beep/workspaces-domain": ["../../packages/workspaces/domain/src/index"],
-      "@beep/workspaces-domain/*": ["../../packages/workspaces/domain/src/*"],
-      "@beep/workspaces-tables": ["../../packages/workspaces/tables/src/index"],
-      "@beep/workspaces-tables/*": ["../../packages/workspaces/tables/src/*"],
-      "@beep/workspaces-ui": ["../../packages/workspaces/ui/src/index"],
-      "@beep/workspaces-ui/*": ["../../packages/workspaces/ui/src/*"],
       "@beep/errors/client": ["../../packages/common/errors/src/client"],
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
       "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
@@ -169,6 +162,14 @@
       "@beep/ui/*": ["../../packages/ui/ui/src/*"],
       "@beep/utils": ["../../packages/common/utils/src/index"],
       "@beep/utils/*": ["../../packages/common/utils/src/*"],
+      "@beep/workspaces-client": ["../../packages/workspaces/client/src/index"],
+      "@beep/workspaces-client/*": ["../../packages/workspaces/client/src/*"],
+      "@beep/workspaces-domain": ["../../packages/workspaces/domain/src/index"],
+      "@beep/workspaces-domain/*": ["../../packages/workspaces/domain/src/*"],
+      "@beep/workspaces-tables": ["../../packages/workspaces/tables/src/index"],
+      "@beep/workspaces-tables/*": ["../../packages/workspaces/tables/src/*"],
+      "@beep/workspaces-ui": ["../../packages/workspaces/ui/src/index"],
+      "@beep/workspaces-ui/*": ["../../packages/workspaces/ui/src/*"],
       "@beep/wrap": ["../../packages/common/wrap/src/index"],
       "@beep/wrap/*": ["../../packages/common/wrap/src/*"]
     }
@@ -251,18 +252,6 @@
       "path": "../../packages/customization/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/workspaces/client/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/workspaces/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/workspaces/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/workspaces/ui/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/iam/client/tsconfig.build.json"
     },
     {
@@ -327,6 +316,18 @@
     },
     {
       "path": "../../packages/ui/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/workspaces/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/workspaces/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/workspaces/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/workspaces/ui/tsconfig.build.json"
     },
     {
       "path": "../../tooling/testkit/tsconfig.build.json"

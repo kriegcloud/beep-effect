@@ -139,7 +139,7 @@ export class QueryType extends BS.StringLiteralKit(
   "OTHER"
 ) {
   static readonly Set = new Set(QueryType.Options);
-  static readonly $match = Match.type<string>().pipe(
+  static readonly match = Match.type<string>().pipe(
     Match.when(Str.startsWith("select"), thunk(QueryType.Enum.SELECT)),
     Match.when(Str.startsWith("insert"), thunk(QueryType.Enum.INSERT)),
     Match.when(Str.startsWith("update"), thunk(QueryType.Enum.UPDATE)),
@@ -150,7 +150,7 @@ export class QueryType extends BS.StringLiteralKit(
     Match.orElse(thunk(QueryType.Enum.OTHER))
   );
   static readonly getQueryType = (query: string): QueryType.Type =>
-    pipe(query, Str.trim, Str.toLowerCase, QueryType.$match);
+    pipe(query, Str.trim, Str.toLowerCase, QueryType.match);
 
   static readonly getQueryTypeStyle = (
     type: QueryType.Type

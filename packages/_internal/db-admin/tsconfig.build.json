@@ -44,9 +44,6 @@
       "path": "../../../packages/customization/domain/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/workspaces/domain/tsconfig.build.json"
-    },
-    {
       "path": "../../../packages/iam/domain/tsconfig.build.json"
     },
     {
@@ -59,19 +56,22 @@
       "path": "../../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/customization/tables/tsconfig.build.json"
+      "path": "../../../packages/workspaces/domain/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/workspaces/tables/tsconfig.build.json"
+      "path": "../../../packages/customization/tables/tsconfig.build.json"
     },
     {
       "path": "../../../packages/iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/workspaces/server/tsconfig.build.json"
+      "path": "../../../packages/workspaces/tables/tsconfig.build.json"
     },
     {
       "path": "../../../packages/iam/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/workspaces/server/tsconfig.build.json"
     },
     {
       "path": "../../../packages/calendar/tables/tsconfig.build.json"

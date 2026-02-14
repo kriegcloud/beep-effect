@@ -33,10 +33,10 @@
       "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../../packages/workspaces/domain"
+      "path": "../../../packages/shared/tables"
     },
     {
-      "path": "../../../packages/shared/tables"
+      "path": "../../../packages/workspaces/domain"
     }
   ],
   "compilerOptions": {

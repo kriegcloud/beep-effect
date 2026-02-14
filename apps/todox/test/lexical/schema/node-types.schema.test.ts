@@ -34,7 +34,7 @@ import {
   SerializedTextNodeTyped,
   SerializedTweetNode,
   SerializedYouTubeNode,
-} from "../../../src/app/lexical/schema/node-types.schema";
+} from "../../../src/components/editor/schema/node-types.schema";
 
 // ---------------------------------------------------------------------------
 // Helpers

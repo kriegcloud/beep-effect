@@ -29,6 +29,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import type * as Types from "effect/Types";
+import type { Unify } from "effect/Unify";
 
 export type LiteralsType = A.NonEmptyReadonlyArray<string>;
 
@@ -207,11 +208,11 @@ type MatchCases<Literals extends LiteralsType> = {
 type MatchFn<Literals extends LiteralsType> = {
   <const Cases extends MatchCases<Literals>>(
     cases: Cases & { [K in Exclude<keyof Cases, Literals[number]>]: never }
-  ): (value: Literals[number]) => Types.Unify<ReturnType<Cases[Literals[number]]>>;
+  ): (value: Literals[number]) => Unify<ReturnType<Cases[Literals[number]]>>;
   <const Cases extends MatchCases<Literals>>(
     value: Literals[number],
     cases: Cases & { [K in Exclude<keyof Cases, Literals[number]>]: never }
-  ): Types.Unify<ReturnType<Cases[Literals[number]]>>;
+  ): Unify<ReturnType<Cases[Literals[number]]>>;
 };
 
 type LiteralKitEnum<
@@ -489,22 +490,22 @@ export function makeLiteralKit<
 
   function $match<const Cases extends MatchCases<Literals>>(
     cases: Cases & { [K in Exclude<keyof Cases, Literals[number]>]: never }
-  ): (value: Literals[number]) => Types.Unify<ReturnType<Cases[Literals[number]]>>;
+  ): (value: Literals[number]) => Unify<ReturnType<Cases[Literals[number]]>>;
   function $match<const Cases extends MatchCases<Literals>>(
     value: Literals[number],
     cases: Cases & { [K in Exclude<keyof Cases, Literals[number]>]: never }
-  ): Types.Unify<ReturnType<Cases[Literals[number]]>>;
+  ): Unify<ReturnType<Cases[Literals[number]]>>;
   function $match<const Cases extends MatchCases<Literals>>(): unknown {
     if (arguments.length === 1) {
       const cases = arguments[0] as Cases;
       return (value: Literals[number]) =>
-        (cases[value as Literals[number]] as (value: Literals[number]) => unknown)(value) as Types.Unify<
+        (cases[value as Literals[number]] as (value: Literals[number]) => unknown)(value) as Unify<
           ReturnType<Cases[Literals[number]]>
         >;
     }
     const value = arguments[0] as Literals[number];
     const cases = arguments[1] as Cases;
-    return (cases[value as Literals[number]] as (value: Literals[number]) => unknown)(value) as Types.Unify<
+    return (cases[value as Literals[number]] as (value: Literals[number]) => unknown)(value) as Unify<
       ReturnType<Cases[Literals[number]]>
     >;
   }

@@ -1,11 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import "./themes/editor-theme.css";
+import "../../components/editor/themes/editor-theme.css";
 
 // Dynamic import to avoid SSR issues with Lexical
 // Lexical requires browser APIs and must be rendered client-side only
-const PlaygroundApp = dynamic(() => import("./App"), {
+const PlaygroundApp = dynamic(() => import("../../components/editor/App"), {
   ssr: false,
   loading: () => (
     <div className="flex h-screen w-full items-center justify-center">

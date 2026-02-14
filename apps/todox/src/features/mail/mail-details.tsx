@@ -20,7 +20,7 @@ import Stack from "@mui/material/Stack";
 import { darken, alpha as hexAlpha, lighten, useTheme } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { Editor } from "../editor";
+import { LexicalEditor } from "../../components/editor";
 
 // ----------------------------------------------------------------------
 
@@ -239,7 +239,7 @@ export function MailDetails({ mail, renderLabel, error, loading }: Props) {
 
   const renderEditor = () => (
     <>
-      <Editor sx={{ maxHeight: 320 }} />
+      <LexicalEditor placeholder="Write a reply..." />
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <IconButton>
