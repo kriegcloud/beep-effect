@@ -590,7 +590,7 @@ export const discriminatorStartsWith: <D extends string>(
   Pr,
   Ret
 > = internal.discriminatorStartsWith
-
+ive
 /**
  * Matches values based on a field that serves as a discriminator, mapping each
  * possible value to a corresponding handler.
@@ -688,7 +688,7 @@ export const discriminatorsExhaustive: <D extends string>(
 ) => <I, F, A, Pr>(
   self: Matcher<I, F, R, A, Pr, Ret>
 ) => [Pr] extends [never] ? (u: I) => Unify<A | ReturnType<P[keyof P]>> : Unify<A | ReturnType<P[keyof P]>> =
-  internal.discriminatorsExhaustive
+  internal.discriminatorsExhaust
 
 /**
  * The `Match.tag` function allows pattern matching based on the `_tag` field in

@@ -200,6 +200,20 @@ type IsGuards<Literals extends LiteralsType> = {
   readonly [K in Literals[number] & string]: (i: unknown) => i is K;
 };
 
+type MatchCases<Literals extends LiteralsType> = {
+  readonly [K in Literals[number]]: (value: K) => unknown;
+};
+
+type MatchFn<Literals extends LiteralsType> = {
+  <const Cases extends MatchCases<Literals>>(
+    cases: Cases & { [K in Exclude<keyof Cases, Literals[number]>]: never }
+  ): (value: Literals[number]) => Types.Unify<ReturnType<Cases[Literals[number]]>>;
+  <const Cases extends MatchCases<Literals>>(
+    value: Literals[number],
+    cases: Cases & { [K in Exclude<keyof Cases, Literals[number]>]: never }
+  ): Types.Unify<ReturnType<Cases[Literals[number]]>>;
+};
+
 type LiteralKitEnum<
   Literals extends LiteralsType,
   Mapping extends MappingType<Literals> | undefined,
@@ -225,6 +239,7 @@ export interface ILiteralKit<Literals extends LiteralsType, Mapping extends Mapp
   readonly is: IsGuards<Literals>;
   readonly omitOptions: OmitOptions<Literals>;
   readonly pickOptions: PickOptions<Literals>;
+  readonly $match: MatchFn<Literals>;
   readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => ILiteralKit<Keys, undefined>;
   readonly toTagged: <const D extends string>(discriminator: D) => TaggedMembersResult<Literals, D>;
 }
@@ -472,6 +487,28 @@ export function makeLiteralKit<
       ArrayUtils.NonEmptyReadonly.filter((lit) => !A.contains(keys, lit))
     ) as unknown as A.NonEmptyReadonlyArray<Exclude<Literals[number], Keys[number]>>;
 
+  function $match<const Cases extends MatchCases<Literals>>(
+    cases: Cases & { [K in Exclude<keyof Cases, Literals[number]>]: never }
+  ): (value: Literals[number]) => Types.Unify<ReturnType<Cases[Literals[number]]>>;
+  function $match<const Cases extends MatchCases<Literals>>(
+    value: Literals[number],
+    cases: Cases & { [K in Exclude<keyof Cases, Literals[number]>]: never }
+  ): Types.Unify<ReturnType<Cases[Literals[number]]>>;
+  function $match<const Cases extends MatchCases<Literals>>(): unknown {
+    if (arguments.length === 1) {
+      const cases = arguments[0] as Cases;
+      return (value: Literals[number]) =>
+        (cases[value as Literals[number]] as (value: Literals[number]) => unknown)(value) as Types.Unify<
+          ReturnType<Cases[Literals[number]]>
+        >;
+    }
+    const value = arguments[0] as Literals[number];
+    const cases = arguments[1] as Cases;
+    return (cases[value as Literals[number]] as (value: Literals[number]) => unknown)(value) as Types.Unify<
+      ReturnType<Cases[Literals[number]]>
+    >;
+  }
+
   return class WithStatics extends S.make<Literals[number]>(ast) {
     static override annotations(annotations: S.Annotations.Schema<Literals[number]>): ILiteralKit<Literals, Mapping> {
       return (
@@ -486,6 +523,7 @@ export function makeLiteralKit<
     static Options = literals;
     static Enum = Enum;
     static is = buildIsGuards(literals);
+    static $match = $match;
     static derive = <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
       ...keys: Keys
     ): ILiteralKit<Keys, undefined> => makeLiteralKit(keys, undefined);
