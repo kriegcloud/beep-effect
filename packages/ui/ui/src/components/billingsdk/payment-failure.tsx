@@ -1,17 +1,15 @@
 "use client";
 
-import * as React from "react";
-import { XCircle, RefreshCw, Home, Mail } from "lucide-react";
-import { Button } from "@beep/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@beep/components/ui/card";
+import { Button } from "@beep/ui/components/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@beep/ui/components/card";
 import { cn } from "@beep/ui-core/utils";
+import {
+  HouseIcon as Home,
+  EnvelopeSimpleIcon as Mail,
+  ArrowClockwiseIcon as RefreshCw,
+  XCircleIcon as XCircle,
+} from "@phosphor-icons/react";
+import * as React from "react";
 
 export interface PaymentFailureProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -76,10 +74,7 @@ export interface PaymentFailureProps extends React.HTMLAttributes<HTMLDivElement
   onTertiary?: () => void;
 }
 
-export const PaymentFailure = React.forwardRef<
-  HTMLDivElement,
-  PaymentFailureProps
->(
+export const PaymentFailure = React.forwardRef<HTMLDivElement, PaymentFailureProps>(
   (
     {
       className,
@@ -101,7 +96,7 @@ export const PaymentFailure = React.forwardRef<
       onTertiary,
       ...props
     },
-    ref,
+    ref
   ) => {
     return (
       <Card ref={ref} className={cn("w-full max-w-md", className)} {...props}>
@@ -113,18 +108,14 @@ export const PaymentFailure = React.forwardRef<
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">{title}</CardTitle>
-            <CardDescription className="mt-2 text-base">
-              {subtitle}
-            </CardDescription>
+            <CardDescription className="mt-2 text-base">{subtitle}</CardDescription>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-4">
           {reasons.length > 0 && (
             <div className="bg-muted space-y-2 rounded-lg p-4">
-              <h3 className="text-sm font-semibold">
-                Common reasons for payment failure:
-              </h3>
+              <h3 className="text-sm font-semibold">Common reasons for payment failure:</h3>
               <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
                 {reasons.map((reason) => (
                   <li key={reason}>{reason}</li>
@@ -133,19 +124,11 @@ export const PaymentFailure = React.forwardRef<
             </div>
           )}
 
-          {message && (
-            <p className="text-muted-foreground text-center text-sm">
-              {message}
-            </p>
-          )}
+          {message && <p className="text-muted-foreground text-center text-sm">{message}</p>}
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-2">
-          <Button
-            onClick={onRetry}
-            className="w-full"
-            disabled={isRetrying || !onRetry}
-          >
+          <Button onClick={onRetry} className="w-full" disabled={isRetrying || !onRetry}>
             {isRetrying ? (
               <>
                 <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -162,22 +145,14 @@ export const PaymentFailure = React.forwardRef<
           {(onSecondary || onTertiary) && (
             <div className="flex w-full gap-2">
               {onSecondary && (
-                <Button
-                  onClick={onSecondary}
-                  variant="outline"
-                  className="flex-1"
-                >
+                <Button onClick={onSecondary} variant="outline" className="flex-1">
                   <Home className="mr-2 h-4 w-4" />
                   {secondaryButtonText}
                 </Button>
               )}
 
               {onTertiary && (
-                <Button
-                  onClick={onTertiary}
-                  variant="outline"
-                  className="flex-1"
-                >
+                <Button onClick={onTertiary} variant="outline" className="flex-1">
                   <Mail className="mr-2 h-4 w-4" />
                   {tertiaryButtonText}
                 </Button>
@@ -187,7 +162,7 @@ export const PaymentFailure = React.forwardRef<
         </CardFooter>
       </Card>
     );
-  },
+  }
 );
 
 PaymentFailure.displayName = "PaymentFailure";

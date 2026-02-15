@@ -1,19 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Button } from "@beep/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/ui/components/card";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
 import { cn } from "@beep/ui-core/utils";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@beep/components/ui/card";
-import { Input } from "@beep/components/ui/input";
-import { Label } from "@beep/components/ui/label";
-import { Button } from "@beep/components/ui/button";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRightIcon as ArrowRight, CheckIcon as Check } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 
 export interface finalTextProps {
   text: string;
@@ -28,11 +22,7 @@ export interface PaymentCardProps {
   feature2?: string;
   feature2description?: string;
   finalText?: finalTextProps[];
-  onPay?: (data: {
-    cardNumber: string;
-    expiry: string;
-    cvc: string;
-  }) => Promise<void> | void;
+  onPay?: (data: { cardNumber: string; expiry: string; cvc: string }) => Promise<void> | void;
   className?: string;
 }
 
@@ -88,13 +78,8 @@ export function PaymentCard({
   };
 
   const handlePay = () => {
-    if (validate()) {
-      if (onPay) {
-        onPay({ cardNumber, expiry, cvc });
-        console.log("Payment processed!");
-      } else {
-        console.log("error");
-      }
+    if (validate() && onPay) {
+      onPay({ cardNumber, expiry, cvc });
     }
   };
 
@@ -128,9 +113,7 @@ export function PaymentCard({
                   </div>
                   <div className="flex items-center justify-between border-t pt-2">
                     <span className="font-medium">Total</span>
-                    <span className="text-xl font-semibold tabular-nums">
-                      ${price || "320"}.00
-                    </span>
+                    <span className="text-xl font-semibold tabular-nums">${price || "320"}.00</span>
                   </div>
                 </div>
               </CardContent>
@@ -146,12 +129,9 @@ export function PaymentCard({
                   <div className="flex gap-3">
                     <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" />
                     <div className="space-y-1">
-                      <p className="text-sm leading-none font-medium">
-                        {feature || "Payment & Invoice"}
-                      </p>
+                      <p className="text-sm leading-none font-medium">{feature || "Payment & Invoice"}</p>
                       <p className="text-muted-foreground text-sm">
-                        {featuredescription ||
-                          "Automated billing and detailed transaction records"}
+                        {featuredescription || "Automated billing and detailed transaction records"}
                       </p>
                     </div>
                   </div>
@@ -159,12 +139,9 @@ export function PaymentCard({
                   <div className="flex gap-3">
                     <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" />
                     <div className="space-y-1">
-                      <p className="text-sm leading-none font-medium">
-                        {feature2 || "Priority Support"}
-                      </p>
+                      <p className="text-sm leading-none font-medium">{feature2 || "Priority Support"}</p>
                       <p className="text-muted-foreground text-sm">
-                        {feature2description ||
-                          "Faster response times and technical support"}
+                        {feature2description || "Faster response times and technical support"}
                       </p>
                     </div>
                   </div>
@@ -178,10 +155,7 @@ export function PaymentCard({
         <Card className="order-1 md:order-2">
           <CardHeader>
             <CardTitle>{title || "Complete your payment"}</CardTitle>
-            <CardDescription>
-              {description ||
-                "Enter your card details to finalize your subscription"}
-            </CardDescription>
+            <CardDescription>{description || "Enter your card details to finalize your subscription"}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Card Number */}
@@ -218,9 +192,7 @@ export function PaymentCard({
                   maxLength={19}
                 />
               </div>
-              {errors.card && (
-                <p className="text-destructive text-sm">{errors.card}</p>
-              )}
+              {errors.card && <p className="text-destructive text-sm">{errors.card}</p>}
             </div>
 
             {/* Expiry and CVC */}
@@ -235,9 +207,7 @@ export function PaymentCard({
                   placeholder="MM/YY"
                   maxLength={5}
                 />
-                {errors.expiry && (
-                  <p className="text-destructive text-sm">{errors.expiry}</p>
-                )}
+                {errors.expiry && <p className="text-destructive text-sm">{errors.expiry}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="cvc">CVC</Label>
@@ -250,9 +220,7 @@ export function PaymentCard({
                   placeholder="123"
                   maxLength={4}
                 />
-                {errors.cvc && (
-                  <p className="text-destructive text-sm">{errors.cvc}</p>
-                )}
+                {errors.cvc && <p className="text-destructive text-sm">{errors.cvc}</p>}
               </div>
             </div>
 
@@ -260,12 +228,7 @@ export function PaymentCard({
             <div className="space-y-2">
               <Label htmlFor="discount">Discount code (optional)</Label>
               <div className="flex gap-2">
-                <Input
-                  id="discount"
-                  placeholder="Enter code"
-                  maxLength={12}
-                  className="flex-1"
-                />
+                <Input id="discount" placeholder="Enter code" maxLength={12} className="flex-1" />
                 <Button variant="secondary" type="button">
                   Apply
                 </Button>

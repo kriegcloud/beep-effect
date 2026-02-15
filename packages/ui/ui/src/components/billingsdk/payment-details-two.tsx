@@ -1,42 +1,24 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { Input } from "@beep/components/ui/input";
-import { Label } from "@beep/components/ui/label";
-import { Textarea } from "@beep/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@beep/components/ui/select";
-import {
-  detectCardType,
-  formatCardNumber,
-  formatExpiryDate,
-  validateLuhn,
-} from "@beep/utils/card-validation";
-import {
-  Check,
-  CreditCard,
-  Shield,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { useState, useEffect } from "react";
+import { Button } from "@beep/ui/components/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@beep/ui/components/card";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/ui/components/select";
+import { Textarea } from "@beep/ui/components/textarea";
+import { detectCardType, formatCardNumber, formatExpiryDate, validateLuhn } from "@beep/ui/lib/card-validation";
 import { cn } from "@beep/ui-core/utils";
-import { Button } from "@beep/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@beep/components/ui/card";
-import { motion, AnimatePresence } from "motion/react";
-import { Country, State, City } from "country-state-city";
+  CheckIcon as Check,
+  CaretLeftIcon as ChevronLeft,
+  CaretRightIcon as ChevronRight,
+  CreditCardIcon as CreditCard,
+  ShieldIcon as Shield,
+} from "@phosphor-icons/react";
+import { useForm } from "@tanstack/react-form";
+import { City, Country, State } from "country-state-city";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 
 export interface PaymentFormData {
   nameOnCard?: string;
@@ -54,6 +36,30 @@ export interface PaymentFormData {
   general?: string;
 }
 
+interface PaymentDetailsTwoProps {
+  className?: string;
+  onSubmit?: (data: PaymentFormData) => Promise<void> | void;
+  onDiscard?: () => void;
+  countries?: { name: string; isoCode: string }[];
+  states?: { name: string; isoCode: string }[];
+  cities?: { name: string }[];
+}
+
+const cardDefaultValues: PaymentFormData = {
+  nameOnCard: "",
+  cardNumber: "",
+  validTill: "",
+  cvv: "",
+  firstName: "",
+  middleLastName: "",
+  country: "",
+  state: "",
+  city: "",
+  billingAddress: "",
+  pinCode: "",
+  contactNumber: "",
+};
+
 const CardLogo = ({ type }: { type: string }) => {
   switch (type) {
     case "visa":
@@ -65,8 +71,8 @@ const CardLogo = ({ type }: { type: string }) => {
     case "mastercard":
       return (
         <div className="flex items-center">
-          <div className="h-5 w-5 rounded-full bg-red-500"></div>
-          <div className="-ml-2 h-5 w-5 rounded-full bg-orange-400"></div>
+          <div className="h-5 w-5 rounded-full bg-red-500" />
+          <div className="-ml-2 h-5 w-5 rounded-full bg-orange-400" />
         </div>
       );
     case "amex":
@@ -99,110 +105,182 @@ export function PaymentDetailsTwo({
   countries,
   states,
   cities,
-}: {
-  className?: string;
-  onSubmit?: (data: PaymentFormData) => void;
-  onDiscard?: () => void;
-  countries?: { name: string; isoCode: string }[];
-  states?: { name: string; isoCode: string }[];
-  cities?: { name: string }[];
-}) {
+}: PaymentDetailsTwoProps) {
   const [step, setStep] = useState(1);
   const [cardType, setCardType] = useState("");
   const [isSaved, setIsSaved] = useState(false);
-  const [defaultCountries, setDefaultCountries] = useState<
-    { name: string; isoCode: string }[]
-  >([]);
-  const [defaultStates, setDefaultStates] = useState<
-    { name: string; isoCode: string }[]
-  >([]);
+  const [errors, setErrors] = useState<Partial<Record<keyof PaymentFormData, string>>>({});
+  const [defaultCountries, setDefaultCountries] = useState<{ name: string; isoCode: string }[]>([]);
+  const [defaultStates, setDefaultStates] = useState<{ name: string; isoCode: string }[]>([]);
   const [defaultCities, setDefaultCities] = useState<{ name: string }[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [selectedState, setSelectedState] = useState<string>("");
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<PaymentFormData>({
-    defaultValues: {
-      nameOnCard: "",
-      cardNumber: "",
-      validTill: "",
-      cvv: "",
-      firstName: "",
-      middleLastName: "",
-      country: "",
-      state: "",
-      city: "",
-      billingAddress: "",
-      pinCode: "",
-      contactNumber: "",
+  const form = useForm<PaymentFormData>({
+    defaultValues: cardDefaultValues,
+    onSubmit: async ({ value }) => {
+      if (!onSubmit) {
+        return;
+      }
+
+      await onSubmit(value);
+      setIsSaved(true);
     },
   });
 
+  const values = form.state.values;
+  const isSubmitting = form.state.isSubmitting;
+
   useEffect(() => {
-    // fetch all countries
-    if (countries && countries?.length > 0) {
+    if (countries && countries.length > 0) {
       setDefaultCountries(countries);
     } else {
-      const countryData = Country.getAllCountries();
-      setDefaultCountries(countryData);
+      setDefaultCountries(Country.getAllCountries());
     }
-  }, []);
+  }, [countries]);
 
   useEffect(() => {
     if (states && states.length > 0) {
       setDefaultStates(states);
     } else {
-      const stateData = State.getStatesOfCountry(selectedCountry);
-      setDefaultStates(stateData);
+      setDefaultStates(State.getStatesOfCountry(selectedCountry));
     }
-  }, [selectedCountry]);
+  }, [selectedCountry, states]);
 
   useEffect(() => {
     if (cities && cities.length > 0) {
       setDefaultCities(cities);
     } else {
-      const cityData = City.getCitiesOfState(selectedCountry, selectedState);
-      setDefaultCities(cityData);
+      setDefaultCities(City.getCitiesOfState(selectedCountry, selectedState));
     }
-  }, [selectedCountry, selectedState]);
+  }, [selectedCountry, selectedState, cities]);
 
-  const handleFormSubmit = async (data: PaymentFormData) => {
-    if (!onSubmit) return;
-    try {
-      await onSubmit(data);
-      setIsSaved(true);
-    } catch (err) {
-      console.error(err);
+  const clearError = (field: keyof PaymentFormData) => {
+    setErrors((prev) => {
+      if (!prev[field]) {
+        return prev;
+      }
+
+      return { ...prev, [field]: undefined };
+    });
+  };
+
+  const setFieldValue = <K extends keyof PaymentFormData>(field: K, value: string) => {
+    form.setFieldValue(field, value);
+    clearError(field);
+  };
+
+  const validateStepOne = () => {
+    const nextErrors: Partial<Record<keyof PaymentFormData, string>> = {};
+    const cardNumber = values.cardNumber ?? "";
+    const expiry = values.validTill ?? "";
+    const cvv = values.cvv ?? "";
+
+    if (!(values.nameOnCard ?? "").trim()) {
+      nextErrors.nameOnCard = "Name is required";
     }
+
+    if (!cardNumber || validateLuhn(cardNumber) !== true) {
+      nextErrors.cardNumber = "Card number is invalid";
+    }
+
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+      nextErrors.validTill = "Valid expiry date is required (MM/YY)";
+    } else {
+      const [mm, yy] = expiry.split("/").map(Number);
+      const now = new Date();
+      const expiryDate = new Date(2000 + yy, mm - 1, 1);
+      if (mm < 1 || mm > 12) {
+        nextErrors.validTill = "Invalid month";
+      } else if (expiryDate < now) {
+        nextErrors.validTill = "Card expired";
+      }
+    }
+
+    const expectedCvvLength = cardType === "amex" ? 4 : 3;
+    if (cvv.length !== expectedCvvLength) {
+      nextErrors.cvv = `CVV must be ${expectedCvvLength} digits`;
+    }
+
+    return nextErrors;
+  };
+
+  const validateStepTwo = () => {
+    const nextErrors: Partial<Record<keyof PaymentFormData, string>> = {};
+
+    if (!(values.firstName ?? "").trim()) {
+      nextErrors.firstName = "Required";
+    }
+
+    if (!(values.middleLastName ?? "").trim()) {
+      nextErrors.middleLastName = "Required";
+    }
+
+    if (!(values.billingAddress ?? "").trim()) {
+      nextErrors.billingAddress = "Required";
+    }
+
+    if (!/^[0-9]{6}$/.test(values.pinCode ?? "")) {
+      nextErrors.pinCode = "Invalid pincode";
+    }
+
+    if (!/^[0-9]{10}$/.test(values.contactNumber ?? "")) {
+      nextErrors.contactNumber = "Invalid number";
+    }
+
+    return nextErrors;
   };
 
   const handleDiscardClick = () => {
     if (onDiscard) {
       onDiscard();
-    } else {
-      reset();
-      setIsSaved(false);
+      return;
     }
+
+    form.reset();
+    setStep(1);
+    setCardType("");
+    setIsSaved(false);
+    setErrors({});
   };
 
-  const formatAndSetCard = (val: string) => {
-    const raw = val.replace(/\s+/g, "");
-    const formatted = formatCardNumber(raw);
-    setValue("cardNumber", formatted);
+  const formatAndSetCard = (value: string) => {
+    const formatted = formatCardNumber(value.replace(/\s+/g, ""));
+    setFieldValue("cardNumber", formatted);
     setCardType(detectCardType(formatted));
   };
 
   const handleNext = () => {
+    const nextErrors = validateStepOne();
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    setErrors({});
     setStep(2);
   };
 
-  const handleBack = () => {
-    setStep(1);
+  const handleFormSubmit = async () => {
+    const nextErrors = {
+      ...validateStepOne(),
+      ...validateStepTwo(),
+    };
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    setErrors({});
+    try {
+      await form.handleSubmit();
+    } catch {
+      setErrors((prev) => ({
+        ...prev,
+        general: "Failed to save payment details. Please try again.",
+      }));
+    }
   };
 
   return (
@@ -211,21 +289,17 @@ export function PaymentDetailsTwo({
         <div>
           <CardTitle>Payment Details</CardTitle>
           <CardDescription className="mt-1.5">
-            {step === 1
-              ? "Enter your card information"
-              : "Enter your billing address"}
+            {step === 1 ? "Enter your card information" : "Enter your billing address"}
           </CardDescription>
+          {errors.general && <p className="text-destructive mt-2 text-sm">{errors.general}</p>}
         </div>
 
-        {/* Progress Indicator */}
         <div className="flex items-center gap-2">
           <div className="flex flex-1 items-center gap-2">
             <div
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors",
-                step === 1
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-primary/20 text-primary",
+                step === 1 ? "bg-primary text-primary-foreground" : "bg-primary/20 text-primary"
               )}
             >
               1
@@ -234,7 +308,7 @@ export function PaymentDetailsTwo({
               <div
                 className={cn(
                   "bg-primary h-full rounded-full transition-all duration-300",
-                  step === 2 ? "w-full" : "w-0",
+                  step === 2 ? "w-full" : "w-0"
                 )}
               />
             </div>
@@ -242,9 +316,7 @@ export function PaymentDetailsTwo({
           <div
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors",
-              step === 2
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground",
+              step === 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
             )}
           >
             2
@@ -252,7 +324,12 @@ export function PaymentDetailsTwo({
         </div>
       </CardHeader>
 
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleFormSubmit();
+        }}
+      >
         <CardContent className="min-h-[420px] py-6">
           <AnimatePresence mode="wait">
             {step === 1 ? (
@@ -269,15 +346,10 @@ export function PaymentDetailsTwo({
                   <Input
                     id="nameOnCard"
                     placeholder="John Doe"
-                    {...register("nameOnCard", {
-                      required: "Name is required",
-                    })}
+                    value={values.nameOnCard ?? ""}
+                    onChange={(event) => setFieldValue("nameOnCard", event.target.value)}
                   />
-                  {errors.nameOnCard && (
-                    <p className="text-destructive text-sm">
-                      {errors.nameOnCard.message}
-                    </p>
-                  )}
+                  {errors.nameOnCard && <p className="text-destructive text-sm">{errors.nameOnCard}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -293,19 +365,11 @@ export function PaymentDetailsTwo({
                       maxLength={20}
                       inputMode="numeric"
                       pattern="[0-9 ]*"
-                      {...register("cardNumber", {
-                        required: "Card number is required",
-                        validate: (val) =>
-                          val ? validateLuhn(val) : "Invalid card number",
-                      })}
-                      onChange={(e) => formatAndSetCard(e.target.value)}
+                      value={values.cardNumber ?? ""}
+                      onChange={(event) => formatAndSetCard(event.target.value)}
                     />
                   </div>
-                  {errors.cardNumber && (
-                    <p className="text-destructive text-sm">
-                      {errors.cardNumber.message}
-                    </p>
-                  )}
+                  {errors.cardNumber && <p className="text-destructive text-sm">{errors.cardNumber}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -316,30 +380,10 @@ export function PaymentDetailsTwo({
                       className="font-mono"
                       placeholder="MM/YY"
                       maxLength={5}
-                      {...register("validTill", {
-                        required: "Valid expiry date is required (MM/YY)",
-                        validate: (val?: string) => {
-                          if (!val)
-                            return "Valid expiry date is required (MM/YY)";
-                          if (!/^\d{2}\/\d{2}$/.test(val))
-                            return "Invalid format (MM/YY)";
-                          const [mm, yy] = val.split("/").map(Number);
-                          if (mm < 1 || mm > 12) return "Invalid month";
-                          const now = new Date();
-                          const expiry = new Date(2000 + yy, mm - 1, 1);
-                          if (expiry < now) return "Card expired";
-                          return true;
-                        },
-                      })}
-                      onChange={(e) =>
-                        setValue("validTill", formatExpiryDate(e.target.value))
-                      }
+                      value={values.validTill ?? ""}
+                      onChange={(event) => setFieldValue("validTill", formatExpiryDate(event.target.value))}
                     />
-                    {errors.validTill && (
-                      <p className="text-destructive text-sm">
-                        {errors.validTill.message}
-                      </p>
-                    )}
+                    {errors.validTill && <p className="text-destructive text-sm">{errors.validTill}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="cvv">CVV</Label>
@@ -353,20 +397,15 @@ export function PaymentDetailsTwo({
                         maxLength={4}
                         inputMode="numeric"
                         pattern="[0-9 ]*"
-                        {...register("cvv", {
-                          required: "Valid CVV is required",
-                          validate: (val) =>
-                            (cardType === "amex"
-                              ? val?.length === 4
-                              : val?.length === 3) || "Invalid CVV length",
-                        })}
+                        value={values.cvv ?? ""}
+                        onChange={(event) => {
+                          const numericValue = event.target.value.replace(/\D/g, "");
+                          const maxLength = cardType === "amex" ? 4 : 3;
+                          setFieldValue("cvv", numericValue.slice(0, maxLength));
+                        }}
                       />
                     </div>
-                    {errors.cvv && (
-                      <p className="text-destructive text-sm">
-                        {errors.cvv.message}
-                      </p>
-                    )}
+                    {errors.cvv && <p className="text-destructive text-sm">{errors.cvv}</p>}
                   </div>
                 </div>
               </motion.div>
@@ -385,26 +424,20 @@ export function PaymentDetailsTwo({
                     <Input
                       id="firstName"
                       placeholder="John"
-                      {...register("firstName", { required: "Required" })}
+                      value={values.firstName ?? ""}
+                      onChange={(event) => setFieldValue("firstName", event.target.value)}
                     />
-                    {errors.firstName && (
-                      <p className="text-destructive text-sm">
-                        {errors.firstName.message}
-                      </p>
-                    )}
+                    {errors.firstName && <p className="text-destructive text-sm">{errors.firstName}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="middleLastName">Last name</Label>
                     <Input
                       id="middleLastName"
                       placeholder="Doe"
-                      {...register("middleLastName", { required: "Required" })}
+                      value={values.middleLastName ?? ""}
+                      onChange={(event) => setFieldValue("middleLastName", event.target.value)}
                     />
-                    {errors.middleLastName && (
-                      <p className="text-destructive text-sm">
-                        {errors.middleLastName.message}
-                      </p>
-                    )}
+                    {errors.middleLastName && <p className="text-destructive text-sm">{errors.middleLastName}</p>}
                   </div>
                 </div>
 
@@ -412,18 +445,22 @@ export function PaymentDetailsTwo({
                   <div className="space-y-2">
                     <Label htmlFor="country">Country</Label>
                     <Select
-                      onValueChange={(val) => {
-                        setValue("country", val);
-                        setSelectedCountry(val);
+                      value={values.country ?? ""}
+                      onValueChange={(value) => {
+                        setFieldValue("country", value);
+                        setFieldValue("state", "");
+                        setFieldValue("city", "");
+                        setSelectedCountry(value);
+                        setSelectedState("");
                       }}
                     >
                       <SelectTrigger id="country">
                         <SelectValue placeholder="Select country" />
                       </SelectTrigger>
                       <SelectContent>
-                        {defaultCountries.map((c) => (
-                          <SelectItem key={c.isoCode} value={c.isoCode}>
-                            {c.name}
+                        {defaultCountries.map((country) => (
+                          <SelectItem key={country.isoCode} value={country.isoCode}>
+                            {country.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -433,9 +470,11 @@ export function PaymentDetailsTwo({
                   <div className="space-y-2">
                     <Label htmlFor="state">State</Label>
                     <Select
-                      onValueChange={(val) => {
-                        setValue("state", val);
-                        setSelectedState(val);
+                      value={values.state ?? ""}
+                      onValueChange={(value) => {
+                        setFieldValue("state", value);
+                        setFieldValue("city", "");
+                        setSelectedState(value);
                       }}
                     >
                       <SelectTrigger id="state">
@@ -443,13 +482,13 @@ export function PaymentDetailsTwo({
                       </SelectTrigger>
                       <SelectContent>
                         {defaultStates.length > 0 ? (
-                          defaultStates.map((s) => (
-                            <SelectItem key={s.isoCode} value={s.isoCode}>
-                              {s.name}{" "}
+                          defaultStates.map((state) => (
+                            <SelectItem key={state.isoCode} value={state.isoCode}>
+                              {state.name}
                             </SelectItem>
                           ))
                         ) : (
-                          <SelectItem disabled value="No state found">
+                          <SelectItem disabled value="no-state-found">
                             No state found
                           </SelectItem>
                         )}
@@ -459,19 +498,19 @@ export function PaymentDetailsTwo({
 
                   <div className="space-y-2">
                     <Label htmlFor="city">City</Label>
-                    <Select onValueChange={(val) => setValue("city", val)}>
+                    <Select value={values.city ?? ""} onValueChange={(value) => setFieldValue("city", value)}>
                       <SelectTrigger id="city">
                         <SelectValue placeholder="Select city" />
                       </SelectTrigger>
                       <SelectContent>
                         {defaultCities.length > 0 ? (
-                          defaultCities.map((c) => (
-                            <SelectItem key={c.name} value={c.name}>
-                              {c.name}
+                          defaultCities.map((city) => (
+                            <SelectItem key={city.name} value={city.name}>
+                              {city.name}
                             </SelectItem>
                           ))
                         ) : (
-                          <SelectItem disabled value="No city found">
+                          <SelectItem disabled value="no-city-found">
                             No city found
                           </SelectItem>
                         )}
@@ -485,13 +524,10 @@ export function PaymentDetailsTwo({
                   <Textarea
                     id="billingAddress"
                     placeholder="Enter Billing Address"
-                    {...register("billingAddress", { required: "Required" })}
+                    value={values.billingAddress ?? ""}
+                    onChange={(event) => setFieldValue("billingAddress", event.target.value)}
                   />
-                  {errors.billingAddress && (
-                    <p className="text-destructive text-sm">
-                      {errors.billingAddress.message}
-                    </p>
-                  )}
+                  {errors.billingAddress && <p className="text-destructive text-sm">{errors.billingAddress}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -500,19 +536,13 @@ export function PaymentDetailsTwo({
                     <Input
                       id="pinCode"
                       placeholder="110024"
-                      {...register("pinCode", {
-                        required: "Required",
-                        pattern: {
-                          value: /^[0-9]{6}$/,
-                          message: "Invalid pincode",
-                        },
-                      })}
+                      value={values.pinCode ?? ""}
+                      onChange={(event) => {
+                        const numericValue = event.target.value.replace(/\D/g, "").slice(0, 6);
+                        setFieldValue("pinCode", numericValue);
+                      }}
                     />
-                    {errors.pinCode && (
-                      <p className="text-destructive text-sm">
-                        {errors.pinCode.message}
-                      </p>
-                    )}
+                    {errors.pinCode && <p className="text-destructive text-sm">{errors.pinCode}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -520,19 +550,13 @@ export function PaymentDetailsTwo({
                     <Input
                       id="contactNumber"
                       placeholder="9991023558"
-                      {...register("contactNumber", {
-                        required: "Required",
-                        pattern: {
-                          value: /^[0-9]{10}$/,
-                          message: "Invalid number",
-                        },
-                      })}
+                      value={values.contactNumber ?? ""}
+                      onChange={(event) => {
+                        const numericValue = event.target.value.replace(/\D/g, "").slice(0, 10);
+                        setFieldValue("contactNumber", numericValue);
+                      }}
                     />
-                    {errors.contactNumber && (
-                      <p className="text-destructive text-sm">
-                        {errors.contactNumber.message}
-                      </p>
-                    )}
+                    {errors.contactNumber && <p className="text-destructive text-sm">{errors.contactNumber}</p>}
                   </div>
                 </div>
               </motion.div>
@@ -543,33 +567,21 @@ export function PaymentDetailsTwo({
         <CardFooter className="bg-muted/30 flex justify-between border-t py-6">
           {step === 1 ? (
             <>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handleDiscardClick}
-              >
+              <Button type="button" variant="ghost" onClick={handleDiscardClick}>
                 Cancel
               </Button>
-              <Button
-                type="button"
-                onClick={handleNext}
-                className="min-w-[100px]"
-              >
+              <Button type="button" onClick={handleNext} className="min-w-[100px]">
                 Next
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </>
           ) : (
             <>
-              <Button type="button" variant="ghost" onClick={handleBack}>
+              <Button type="button" variant="ghost" onClick={() => setStep(1)}>
                 <ChevronLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting || isSaved}
-                className="min-w-[120px]"
-              >
+              <Button type="submit" disabled={isSubmitting || isSaved} className="min-w-[120px]">
                 <AnimatePresence mode="wait" initial={false}>
                   {isSubmitting ? (
                     <motion.div
@@ -594,12 +606,7 @@ export function PaymentDetailsTwo({
                       <span>Saved</span>
                     </motion.div>
                   ) : (
-                    <motion.span
-                      key="default"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
+                    <motion.span key="default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                       Save Changes
                     </motion.span>
                   )}

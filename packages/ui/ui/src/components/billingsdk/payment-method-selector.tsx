@@ -1,21 +1,21 @@
 "use client";
 
+import { Badge } from "@beep/ui/components/badge";
+import { Button } from "@beep/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@beep/ui/components/card";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
+import {
+  ArrowRightIcon as ArrowRight,
+  CreditCardIcon as CreditCard,
+  BankIcon as Landmark,
+  QrCodeIcon as QrCode,
+  WalletIcon as Wallet,
+  XIcon as X,
+} from "@phosphor-icons/react";
+import { AnimatePresence, motion } from "motion/react";
 import type React from "react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import {
-  X,
-  CreditCard,
-  QrCode,
-  Wallet,
-  Landmark,
-  ArrowRight,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@beep/components/ui/card";
-import { Button } from "@beep/components/ui/button";
-import { Input } from "@beep/components/ui/input";
-import { Label } from "@beep/components/ui/label";
-import { Badge } from "@beep/components/ui/badge";
 
 type PaymentMethod = "cards" | "digital-wallets" | "upi" | "bnpl-services";
 
@@ -48,12 +48,7 @@ const paymentOptions: PaymentOption[] = [
     icon: <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />,
     examples: ["Visa", "Mastercard", "American Express", "Discover"],
     details: "Secure card payments with fraud protection",
-    features: [
-      "Instant processing",
-      "Worldwide acceptance",
-      "Cashback rewards",
-      "Purchase protection",
-    ],
+    features: ["Instant processing", "Worldwide acceptance", "Cashback rewards", "Purchase protection"],
   },
   {
     id: "digital-wallets",
@@ -62,12 +57,7 @@ const paymentOptions: PaymentOption[] = [
     icon: <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />,
     examples: ["Apple Pay", "Google Pay", "Cash App", "Venmo"],
     details: "Quick and secure mobile payments",
-    features: [
-      "Touch/Face ID security",
-      "No card details shared",
-      "Fast checkout",
-      "Loyalty integration",
-    ],
+    features: ["Touch/Face ID security", "No card details shared", "Fast checkout", "Loyalty integration"],
   },
   {
     id: "upi",
@@ -76,12 +66,7 @@ const paymentOptions: PaymentOption[] = [
     icon: <QrCode className="h-4 w-4 sm:h-5 sm:w-5" />,
     examples: ["PhonePe", "Google Pay", "Paytm", "BHIM"],
     details: "Real-time bank-to-bank transfers",
-    features: [
-      "24/7 availability",
-      "No transaction fees",
-      "QR code payments",
-      "Bank account linking",
-    ],
+    features: ["24/7 availability", "No transaction fees", "QR code payments", "Bank account linking"],
   },
   {
     id: "bnpl-services",
@@ -90,12 +75,7 @@ const paymentOptions: PaymentOption[] = [
     icon: <Landmark className="h-4 w-4 sm:h-5 sm:w-5" />,
     examples: ["Klarna", "Affirm", "Afterpay", "Sezzle"],
     details: "Buy now, pay later in installments",
-    features: [
-      "Split payments",
-      "No interest options",
-      "Flexible terms",
-      "Credit building",
-    ],
+    features: ["Split payments", "No interest options", "Flexible terms", "Credit building"],
   },
 ];
 
@@ -104,12 +84,8 @@ export interface PaymentMethodSelectorProps {
   onProceed?: (method: PaymentMethod, data: FormData) => void;
 }
 
-export function PaymentMethodSelector({
-  onProceed,
-}: PaymentMethodSelectorProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
-    null,
-  );
+export function PaymentMethodSelector({ onProceed }: PaymentMethodSelectorProps) {
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
   const [formData, setFormData] = useState<FormData>({});
 
   const handleMethodSelect = (method: PaymentMethod) => {
@@ -143,10 +119,7 @@ export function PaymentMethodSelector({
           >
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div className="col-span-2">
-                <Label
-                  htmlFor="cardNumber"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="cardNumber" className="text-foreground text-xs font-medium sm:text-sm">
                   Card Number
                 </Label>
                 <Input
@@ -154,17 +127,12 @@ export function PaymentMethodSelector({
                   type="text"
                   placeholder="1234 5678 9012 3456"
                   value={formData.cardNumber || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("cardNumber", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("cardNumber", e.target.value)}
                   className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="expiryDate"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="expiryDate" className="text-foreground text-xs font-medium sm:text-sm">
                   Expiry Date
                 </Label>
                 <Input
@@ -172,17 +140,12 @@ export function PaymentMethodSelector({
                   type="text"
                   placeholder="MM/YY"
                   value={formData.expiryDate || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("expiryDate", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("expiryDate", e.target.value)}
                   className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="cvv"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="cvv" className="text-foreground text-xs font-medium sm:text-sm">
                   CVV
                 </Label>
                 <Input
@@ -190,17 +153,12 @@ export function PaymentMethodSelector({
                   type="text"
                   placeholder="123"
                   value={formData.cvv || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("cvv", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("cvv", e.target.value)}
                   className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
                 />
               </div>
               <div className="col-span-2">
-                <Label
-                  htmlFor="cardholderName"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="cardholderName" className="text-foreground text-xs font-medium sm:text-sm">
                   Cardholder Name
                 </Label>
                 <Input
@@ -233,10 +191,7 @@ export function PaymentMethodSelector({
           >
             <div className="space-y-4">
               <div>
-                <Label
-                  htmlFor="email"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="email" className="text-foreground text-xs font-medium sm:text-sm">
                   Email Address
                 </Label>
                 <Input
@@ -244,17 +199,12 @@ export function PaymentMethodSelector({
                   type="email"
                   placeholder="john@example.com"
                   value={formData.email || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("email", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("email", e.target.value)}
                   className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="phone"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="phone" className="text-foreground text-xs font-medium sm:text-sm">
                   Phone Number
                 </Label>
                 <Input
@@ -262,17 +212,14 @@ export function PaymentMethodSelector({
                   type="tel"
                   placeholder="+1 (555) 123-4567"
                   value={formData.phone || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("phone", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phone", e.target.value)}
                   className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
                 />
               </div>
             </div>
             <div className="bg-muted/20 border-border/30 rounded-lg border p-3">
               <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">
-                You'll be redirected to your selected wallet app to complete the
-                payment securely.
+                You'll be redirected to your selected wallet app to complete the payment securely.
               </p>
             </div>
           </motion.div>
@@ -292,10 +239,7 @@ export function PaymentMethodSelector({
             onClick={(e) => e.stopPropagation()}
           >
             <div>
-              <Label
-                htmlFor="upiId"
-                className="text-foreground text-xs font-medium sm:text-sm"
-              >
+              <Label htmlFor="upiId" className="text-foreground text-xs font-medium sm:text-sm">
                 UPI ID
               </Label>
               <Input
@@ -303,16 +247,13 @@ export function PaymentMethodSelector({
                 type="text"
                 placeholder="yourname@paytm"
                 value={formData.upiId || ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleInputChange("upiId", e.target.value)
-                }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("upiId", e.target.value)}
                 className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
               />
             </div>
             <div className="bg-muted/20 border-border/30 rounded-lg border p-3">
               <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">
-                Enter your UPI ID to receive a payment request. Complete the
-                payment in your UPI app.
+                Enter your UPI ID to receive a payment request. Complete the payment in your UPI app.
               </p>
             </div>
           </motion.div>
@@ -333,10 +274,7 @@ export function PaymentMethodSelector({
           >
             <div className="space-y-4">
               <div>
-                <Label
-                  htmlFor="bnplEmail"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="bnplEmail" className="text-foreground text-xs font-medium sm:text-sm">
                   Email Address
                 </Label>
                 <Input
@@ -344,17 +282,12 @@ export function PaymentMethodSelector({
                   type="email"
                   placeholder="john@example.com"
                   value={formData.email || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("email", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("email", e.target.value)}
                   className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="bnplPhone"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="bnplPhone" className="text-foreground text-xs font-medium sm:text-sm">
                   Phone Number
                 </Label>
                 <Input
@@ -362,22 +295,14 @@ export function PaymentMethodSelector({
                   type="tel"
                   placeholder="+1 (555) 123-4567"
                   value={formData.phone || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("phone", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phone", e.target.value)}
                   className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="income"
-                  className="text-foreground text-xs font-medium sm:text-sm"
-                >
+                <Label htmlFor="income" className="text-foreground text-xs font-medium sm:text-sm">
                   Annual Income
-                  <Badge
-                    variant="secondary"
-                    className="px-1.5 py-0.5 text-[10px]"
-                  >
+                  <Badge variant="secondary" className="px-1.5 py-0.5 text-[10px]">
                     Optional
                   </Badge>
                 </Label>
@@ -386,17 +311,14 @@ export function PaymentMethodSelector({
                   type="text"
                   placeholder="$50,000"
                   value={formData.income || ""}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("income", e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("income", e.target.value)}
                   className="border-border/50 focus:border-primary/50 mt-1.5 transition-colors"
                 />
               </div>
             </div>
             <div className="bg-muted/20 border-border/30 rounded-lg border p-3">
               <p className="text-muted-foreground text-xs leading-relaxed sm:text-sm">
-                You'll be redirected to complete a quick eligibility check and
-                set up your payment plan.
+                You'll be redirected to complete a quick eligibility check and set up your payment plan.
               </p>
             </div>
           </motion.div>
@@ -410,12 +332,8 @@ export function PaymentMethodSelector({
   return (
     <Card className="mx-auto w-full max-w-lg overflow-hidden text-left shadow-lg">
       <CardHeader className="px-4 pb-2 sm:px-6">
-        <CardTitle className="text-base font-semibold">
-          Payment Methods
-        </CardTitle>
-        <p className="text-muted-foreground text-sm">
-          Choose your preferred payment method to continue
-        </p>
+        <CardTitle className="text-base font-semibold">Payment Methods</CardTitle>
+        <p className="text-muted-foreground text-sm">Choose your preferred payment method to continue</p>
       </CardHeader>
 
       <CardContent className="space-y-3 px-4 sm:px-6">
@@ -428,9 +346,7 @@ export function PaymentMethodSelector({
                 key={option.id}
                 onClick={() => handleMethodSelect(option.id)}
                 className={`cursor-pointer rounded-lg border p-4 shadow-sm transition-all duration-300 hover:shadow-md ${
-                  isSelected
-                    ? "border-primary shadow-md"
-                    : "border-border hover:border-primary/50"
+                  isSelected ? "border-primary shadow-md" : "border-border hover:border-primary/50"
                 }`}
               >
                 {isSelected && (
@@ -467,16 +383,12 @@ export function PaymentMethodSelector({
                   <div className="flex-1 text-left">
                     <h3
                       className={`font-medium transition-colors ${
-                        isSelected
-                          ? "text-primary"
-                          : "text-foreground hover:text-primary"
+                        isSelected ? "text-primary" : "text-foreground hover:text-primary"
                       }`}
                     >
                       {option.name}
                     </h3>
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      {option.description}
-                    </p>
+                    <p className="text-muted-foreground mt-1 text-xs">{option.description}</p>
                   </div>
                 </div>
 
