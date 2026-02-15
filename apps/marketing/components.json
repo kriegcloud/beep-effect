@@ -1,0 +1,32 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-nova",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "zinc",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "phosphor",
+  "menuColor": "default",
+  "menuAccent": "subtle",
+  "aliases": {
+    "components": "@beep/todox/components",
+    "utils": "@beep/todox/lib/utils",
+    "ui": "@beep/todox/components/ui",
+    "lib": "@beep/todox/lib",
+    "hooks": "@beep/todox/hooks"
+  },
+  "registries": {
+    "@mui-treasury": "https://mui-treasury.com/r/{name}.json",
+    "@basecn": "https://basecn.dev/r/{name}.json",
+    "@elevenlabs-ui": "https://ui.elevenlabs.io/r/{name}.json",
+    "@prompt-kit": "https://www.prompt-kit.com/c/{name}.json",
+    "@tour": "https://onboarding-tour.vercel.app/r/{name}.json",
+    "@shadcn-editor": "https://shadcn-editor.vercel.app/r/{name}.json",
+    "@billingsdk": "https://billingsdk.com/r/{name}.json"
+  }
+}
