@@ -1,5 +1,4 @@
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
@@ -16,9 +15,8 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     permission: Common.Permission,
     organizationId: S.optional(SharedEntityIds.OrganizationId),
   },
-  formValuesAnnotation({
-    permission: {},
-    organizationId: undefined,
+  $I.annotations("Payload", {
+    description: "Payload schema for this operation.",
   })
 ) {}
 

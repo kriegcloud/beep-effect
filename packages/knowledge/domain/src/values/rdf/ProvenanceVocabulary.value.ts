@@ -4,7 +4,7 @@ import * as S from "effect/Schema";
 
 import { IRI } from "./Quad.value";
 
-const $I = $KnowledgeDomainId.create("values/rdf/ProvenanceVocabulary.value.value");
+const $I = $KnowledgeDomainId.create("values/rdf/ProvenanceVocabulary.value");
 
 export const PROV_NAMESPACE = "http://www.w3.org/ns/prov#" as const;
 

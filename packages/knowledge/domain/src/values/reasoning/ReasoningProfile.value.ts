@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("values/reasoning/ReasoningProfile.value.value");
+const $I = $KnowledgeDomainId.create("values/reasoning/ReasoningProfile.value");
 
 export class ReasoningProfile extends BS.StringLiteralKit(
   "rdfs-full",

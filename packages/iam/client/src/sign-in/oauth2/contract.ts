@@ -9,7 +9,6 @@
  * @since 0.1.0
  */
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as W from "@beep/wrap";
@@ -44,15 +43,8 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     requestSignUp: S.optional(S.Boolean),
     additionalData: S.optional(S.Record({ key: S.String, value: S.Unknown })),
   },
-  formValuesAnnotation({
-    providerId: "",
-    callbackURL: undefined,
-    errorCallbackURL: undefined,
-    newUserCallbackURL: undefined,
-    disableRedirect: undefined,
-    scopes: undefined,
-    requestSignUp: undefined,
-    additionalData: undefined,
+  $I.annotations("Payload", {
+    description: "Payload schema for this operation.",
   })
 ) {}
 

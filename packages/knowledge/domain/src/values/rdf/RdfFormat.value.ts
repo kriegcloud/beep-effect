@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 
-const $I = $KnowledgeDomainId.create("values/rdf/RdfFormat.value.value");
+const $I = $KnowledgeDomainId.create("values/rdf/RdfFormat.value");
 
 export class RdfFormat extends BS.StringLiteralKit("Turtle", "NTriples", "JSONLD").annotations(
   $I.annotations("RdfFormat", {

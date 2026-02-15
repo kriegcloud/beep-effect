@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("values/rdf/Quad.value.value");
+const $I = $KnowledgeDomainId.create("values/rdf/Quad.value");
 
 export class IRI extends S.NonEmptyTrimmedString.pipe(S.brand("IRI")).annotations(
   $I.annotations("IRI", {

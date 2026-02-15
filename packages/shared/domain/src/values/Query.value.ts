@@ -3,7 +3,7 @@ import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $SharedDomainId.create("values/Query.value.value");
+const $I = $SharedDomainId.create("values/Query.value");
 
 export class SortOrder extends BS.StringLiteralKit("asc", "desc").annotations(
   $I.annotations("SortOrder", {

@@ -2,7 +2,7 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $SharedDomainId.create("values/Plan.value.value");
+const $I = $SharedDomainId.create("values/Plan.value");
 
 export class PlanType extends BS.StringLiteralKit("monthly", "yearly").annotations(
   $I.annotations("PlanType", {

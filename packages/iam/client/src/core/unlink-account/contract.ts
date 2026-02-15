@@ -10,7 +10,6 @@
  * @since 0.1.0
  */
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
@@ -36,8 +35,8 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     providerId: S.String, // External OAuth provider ID (e.g., "google", "github") - intentionally S.String
   },
-  formValuesAnnotation({
-    providerId: "",
+  $I.annotations("Payload", {
+    description: "Payload schema for this operation.",
   })
 ) {}
 

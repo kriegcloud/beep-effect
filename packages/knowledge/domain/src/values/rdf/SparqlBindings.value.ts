@@ -4,7 +4,7 @@
  * Data structures for SPARQL query results following the W3C SPARQL
  * Results format specification.
  *
- * @module knowledge-domain/values/rdf/SparqlBindings.value.value
+ * @module knowledge-domain/values/rdf/SparqlBindings.value
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 
 import { Term } from "./Quad.value";
 
-const $I = $KnowledgeDomainId.create("values/rdf/SparqlBindings.value.value");
+const $I = $KnowledgeDomainId.create("values/rdf/SparqlBindings.value");
 
 /**
  * VariableName - SPARQL variable name (without ? prefix)

@@ -6,7 +6,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $KnowledgeDomainId.create("values/rdf/NamedGraph.value.value");
+const $I = $KnowledgeDomainId.create("values/rdf/NamedGraph.value");
 
 export class NamedGraphScheme extends BS.StringLiteralKit("http", "https", "urn").annotations(
   $I.annotations("NamedGraphScheme", {
