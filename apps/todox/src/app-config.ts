@@ -6,7 +6,9 @@ import { detectLanguage as detectLanguageHandler } from "@beep/ui-core/i18n/serv
 import { defaultSettings } from "@beep/ui-core/settings";
 import { detectSettings as detectSettingsHandler } from "@beep/ui-core/settings/server";
 import type { SettingsState } from "@beep/ui-core/settings/types";
-import type { Direction } from "@mui/material/styles";
+
+type Direction = "ltr" | "rtl";
+
 import * as Effect from "effect/Effect";
 
 export const isDev = EnvValue.is.dev(serverEnv.app.env);

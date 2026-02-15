@@ -81,7 +81,7 @@ Patterns that do NOT transfer (TodoX-specific needs):
 
 - [ ] Zero MUI component imports in `apps/todox` (shadcn v3 + base-ui only)
 - [ ] No file exceeds 300 lines
-- [ ] All features organized in `/features/{domain}/` directories
+- [ ] Slice-scoped features in `packages/{slice}/ui/`; cross-slice composition in `apps/todox/src/features/`
 - [ ] State management uses `@effect-atom/atom-react` for all state (reactive, server, URL, storage)
 - [ ] All routes use Next.js App Router with proper RSC/client boundaries
 - [ ] `bun run check --filter @beep/todox` passes
@@ -107,6 +107,6 @@ Patterns that do NOT transfer (TodoX-specific needs):
 - Keeping MUI components alongside shadcn v3 - pick one (shadcn v3)
 - Monolithic page files - max 300 lines per file
 - Local state where `Atom.searchParam` or `Atom` should be used
-- Putting slice-scoped frontend code in `apps/todox` instead of `packages/{slice}/client` and `packages/{slice}/ui`
+- Putting slice-scoped frontend code in `apps/todox` instead of `packages/{slice}/client` and `packages/{slice}/ui` -- app shell (navbar, sidebar, layout) is app-level and stays in `apps/todox/src/components/`; slice features (workspace, knowledge, calendar) go in their respective packages
 - Implementing settings before core workspace/dashboard features
 - Generic AI chat UI - every response needs evidence linking

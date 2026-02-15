@@ -11,7 +11,7 @@
 **Success Criteria**:
 
 - [ ] `page.tsx` reduced to <100 lines (imports + layout JSX)
-- [ ] All extracted components render without visual regression
+- [ ] All extracted components render without visual regression (verify: `bun run check --filter @beep/todox` passes + manual visual inspection via `bun run dev` on the `/app-layout` route)
 - [ ] No inline SVG icons remain (all replaced with Phosphor)
 - [ ] No hardcoded mock data in components (centralized in `data/mock.ts` with typed interfaces)
 - [ ] All client component files have `"use client"` as first line where needed
@@ -24,7 +24,7 @@
 
 - shadcn v3 uses `@base-ui/react` (NOT radix). Verify in `apps/todox/components.json`: `style: "base-nova"`, `iconLibrary: "phosphor"`
 - Icons: Phosphor ONLY (`@phosphor-icons/react`). No lucide-react. No inline SVGs.
-- No new MUI imports. Existing `styled()` on line 2 of page.tsx must be replaced with Tailwind during extraction.
+- No new MUI imports introduced. Remove the unused `styled` import and `StyledAvatar` definition from page.tsx (they are dead code). Do NOT modify `global-providers.tsx` -- its MUI providers (`InitColorSchemeScript`, `AppRouterCacheProvider`) are deferred to a later phase.
 - Do NOT modify `globals.css` (~2,700 lines, production-ready) or `global-providers.tsx` (production-ready).
 
 **Work Items**:
@@ -33,9 +33,9 @@
 |---|------|-------------|--------|
 | 1 | Audit the prototype | Read full page.tsx. Catalog: UI sections with line ranges, inline SVGs with Phosphor equivalents, mock data locations, MUI usage, already-extracted component divergence, commented-out code intent. Also review `mini-sidebar/`, `navbar/`, `sidebar/`, `side-panel/` directories. | `outputs/prototype-audit.md` |
 | 2 | Extract AppShell layout | Outermost structural component: MiniSidebar, WorkspaceSidebar, main content, SidePanel, Navbar. Use `react-resizable-panels` via existing `ui/resizable.tsx`. | `components/app-shell/app-shell.tsx` + `index.ts` |
-| 3 | Extract navigation components | Verify existing extractions in `mini-sidebar/`, `navbar/`, `sidebar/` match page.tsx. Reconcile divergence. Remove inline duplicates. Decide flat vs grouped structure. | Updated component directories |
-| 4 | Replace inline SVGs with Phosphor | Use audit from WI-1. Match original sizes. Custom SVGs with no Phosphor equivalent go in `components/icons/`. | All component files updated |
-| 5 | Remove mock data, establish contracts | Create `types/` for interfaces, `data/mock.ts` for centralized mock data. Components accept data via props/context. Plain TS interfaces (not Effect Schema yet). | `types/`, `data/mock.ts` |
+| 3 | Extract navigation components | Extracted components in `mini-sidebar/`, `navbar/`, `sidebar/`, `side-panel/` are the TARGET state (page.tsx is the SOURCE). Reconcile divergence: merge newer page.tsx content INTO extracted components, wire imports, delete inline duplicates. Decide flat vs grouped structure. Reconciliation rule: the extracted components (e.g., `top-navbar.tsx` which already uses Phosphor icons) represent the TARGET state. page.tsx is the SOURCE of current content. Strategy: (1) merge any newer content from page.tsx into extracted components, (2) wire page.tsx to import from extracted components, (3) delete duplicated inline code from page.tsx. | Updated component directories |
+| 4 | Replace inline SVGs with Phosphor | Use audit from WI-1. Match original sizes. Custom SVGs with no Phosphor equivalent go in `components/icons/`. Decision rule: The settings gear icon (page.tsx line 67-81) maps to Phosphor `<GearSix>`. For other custom SVGs with complex `fillRule='evenodd'` paths, first check Phosphor's icon catalog. If no match exists, wrap the SVG in a `components/icons/{IconName}.tsx` component (e.g., `components/icons/CustomSettingsIcon.tsx`). There are ~7 custom SVGs and ~32 standard Lucide icons. | All component files updated |
+| 5 | Remove mock data, establish contracts | Create `types/` for interfaces, `data/mock.ts` for centralized mock data. Components accept data via props/context. Mock data includes: navigation items, user profile data (e.g., 'benjamintoppold'), workspace names, sidebar menu items. It does NOT include: CSS values, icon sizes, layout constants, or Tailwind class strings. Plain TS interfaces (not Effect Schema yet). | `types/`, `data/mock.ts` |
 
 **Blocking Issues**: None identified. All dependencies are local to `apps/todox`.
 
@@ -75,6 +75,7 @@
 - Already-extracted components may have diverged from page.tsx; audit must reconcile
 - CSS classes from `globals.css` (e.g., `header-panel-orb-backdrop`) must continue working after extraction
 - Some components depend on React context from `global-providers.tsx`; verify extracted components stay within provider tree
+- Route groups (`(app)/`, `(auth)/`, `(settings)/`) are Phase 2 scope. P1 keeps `app-layout/page.tsx` in its current location. Do NOT move route files.
 
 ---
 
@@ -88,6 +89,11 @@ bun tsc --noEmit --isolatedModules apps/todox/src/components/app-shell/app-shell
 ```
 
 Document any pre-existing errors in the reflection log.
+
+**Pre-existing lint errors** (fix during P1):
+- Line 113: biome suppression comment with `<explanation>` placeholder -- replace with actual explanation or remove if suppression is no longer needed
+- Line 2: unsorted imports -- run `bun run lint:fix --filter @beep/todox` to auto-fix
+- 6 unrelated warnings exist in demo/editor/chart files -- ignore, they are out of P1 scope.
 
 ---
 

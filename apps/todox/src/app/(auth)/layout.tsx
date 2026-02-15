@@ -8,7 +8,7 @@ type Props = {
   readonly children: React.ReactNode;
 };
 
-export default function SignInLayout({ children }: Props) {
+export default function AuthLayout({ children }: Props) {
   return (
     <GuestGuard
       pendingFallback={

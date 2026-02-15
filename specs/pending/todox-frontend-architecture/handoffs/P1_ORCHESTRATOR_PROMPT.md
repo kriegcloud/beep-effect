@@ -25,6 +25,8 @@ TodoX is an AI-native wealth management knowledge platform for RIAs/MFOs serving
 
 All paths above are relative to `apps/todox/src/`.
 
+**IMPORTANT: These components are the TARGET state, not stale code.** `top-navbar.tsx` already uses Phosphor icons. Do NOT create duplicate directories. Merge any newer content from page.tsx INTO these components, then wire page.tsx to import them.
+
 ### Your Mission
 
 Break apart `page.tsx` into properly organized components WITHOUT changing visual behavior. This is a pure extraction refactor. The end state is `page.tsx` under 100 lines that imports and composes extracted modules.
@@ -41,11 +43,13 @@ Create `apps/todox/src/components/app-shell/` with `app-shell.tsx` (arranges Min
 
 #### Step 3: Extract/Reconcile Navigation
 
-For each existing extraction in `mini-sidebar/`, `navbar/`, `sidebar/`, `side-panel/`: compare against what page.tsx renders, update whichever is stale, ensure page.tsx imports from extracted components with no duplicate inline code.
+For each existing extraction in `mini-sidebar/`, `navbar/`, `sidebar/`, `side-panel/`: compare against what page.tsx renders, update whichever is stale, ensure page.tsx imports from extracted components with no duplicate inline code. Route groups are Phase 2 scope. Keep `app-layout/page.tsx` in place.
 
 #### Step 4: Replace Icons
 
 Replace every inline `<svg>` with its Phosphor equivalent (`<IconName size={N} weight="regular" />`). For SVGs with no match, create components in `components/icons/`. Update ALL component files, not just page.tsx.
+
+Pre-audit finding: 32 standard Lucide icons (straightforward Phosphor mapping) + 7 custom SVGs with complex paths. Settings gear (line 67-81) = Phosphor `<GearSix>`. Custom SVGs with no Phosphor match go in `components/icons/`.
 
 #### Step 5: Clean Mock Data
 
@@ -102,6 +106,8 @@ Document any pre-existing errors in `specs/pending/todox-frontend-architecture/R
 - [ ] No new MUI imports (existing usage documented)
 - [ ] `bun run check --filter @beep/todox` passes (or pre-existing errors documented)
 - [ ] `bun run lint:fix --filter @beep/todox` passes
+
+**Pre-existing lint errors** (fix during P1): page.tsx line 113 has a biome suppression with `<explanation>` placeholder, line 2 has unsorted imports. Run `bun run lint:fix` after extraction. Typecheck is clean (105/105 tasks pass).
 
 ### Handoff Document
 

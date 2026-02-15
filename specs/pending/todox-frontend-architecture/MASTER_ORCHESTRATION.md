@@ -26,7 +26,7 @@ Feature-based directory structure under `apps/todox/src/features/`, where each d
 |----------|----------|
 | **RSC vs Client** | Default to RSC. Add `"use client"` only for interactive components requiring hooks, event handlers, or browser APIs. Layout shells and data-fetching wrappers stay as RSC. |
 | **Feature isolation** | Each feature module exports a public API via `index.ts`. No cross-feature imports except through shared components or hooks. |
-| **Vertical slice scoping** | When frontend code can be scoped to a single vertical slice, it MUST live in `packages/{slice}/client` and `packages/{slice}/ui`, NOT in `apps/todox`. See `packages/iam/client` and `packages/iam/ui` for canonical examples. App-level code in `apps/todox` is for shell, routing, and cross-slice composition only. |
+| **Vertical slice scoping** | When frontend code can be scoped to a single vertical slice, it MUST live in `packages/{slice}/client` and `packages/{slice}/ui`, NOT in `apps/todox`. See `packages/iam/client` and `packages/iam/ui` for canonical examples. App-level code in `apps/todox` is for shell, routing, and cross-slice composition only. P1-P2 work (app shell, layout, navigation) is app-level infrastructure -- it correctly lives in `apps/todox/src/components/`. The slice scoping rule applies to P3+ features: workspace-specific UI goes in `packages/workspaces/ui/`, knowledge graph UI goes in `packages/knowledge/ui/`, etc. Cross-slice composition (e.g., dashboard assembling widgets from multiple slices) stays in `apps/todox`. |
 | **Design system** | shadcn v3 (`base-nova` style) + `@base-ui/react` primitives. NO radix. NO MUI component imports. |
 | **Icon system** | Phosphor React exclusively. NO lucide. NO inline SVGs. |
 
@@ -114,25 +114,12 @@ apps/todox/src/
 │   ├── layout.tsx                      # Root layout (providers, fonts, metadata)
 │   └── globals.css                     # Theme system (existing, production-ready)
 │
-├── features/                           # Domain feature modules
-│   ├── workspace/                      # Workspace navigation & management
-│   │   ├── components/
-│   │   │   ├── workspace-sidebar.tsx   # Workspace tree navigation
-│   │   │   ├── workspace-header.tsx    # Workspace header bar
-│   │   │   ├── workspace-card.tsx      # Workspace item in list
-│   │   │   └── page-tree.tsx           # Hierarchical page tree
-│   │   ├── hooks/
-│   │   │   ├── use-workspace.ts        # Active workspace state
-│   │   │   └── use-page-tree.ts        # Page hierarchy state
-│   │   ├── types/
-│   │   │   └── index.ts               # Workspace types
-│   │   └── index.ts                    # Public API barrel
-│   │
-│   ├── dashboard/                      # FlexLayout dashboard system
+├── features/                           # Cross-slice composition ONLY
+│   ├── dashboard/                      # FlexLayout dashboard (assembles widgets from multiple slices)
 │   │   ├── components/
 │   │   │   ├── dashboard-shell.tsx     # FlexLayout container
 │   │   │   ├── widget-slot.tsx         # Widget container
-│   │   │   └── widgets/               # Individual dashboard widgets
+│   │   │   └── widgets/               # Cross-slice widget wrappers
 │   │   │       ├── recent-activity.tsx
 │   │   │       ├── upcoming-meetings.tsx
 │   │   │       └── action-items.tsx
@@ -142,67 +129,10 @@ apps/todox/src/
 │   │   │   └── index.ts
 │   │   └── index.ts
 │   │
-│   ├── knowledge/                      # Knowledge graph exploration
-│   │   ├── components/
-│   │   │   ├── graph-explorer.tsx      # Force-directed graph view
-│   │   │   ├── entity-detail.tsx       # Entity detail panel
-│   │   │   ├── relation-table.tsx      # Relationship table
-│   │   │   └── search-panel.tsx        # Knowledge search
-│   │   ├── hooks/
-│   │   │   └── use-knowledge-graph.ts
-│   │   ├── viz/                        # Existing visualization code (migrate from features/knowledge-graph/viz/)
-│   │   │   ├── color.ts
-│   │   │   ├── model.ts
-│   │   │   ├── render.ts
-│   │   │   └── simulation.ts
-│   │   ├── types/
-│   │   │   └── index.ts
-│   │   └── index.ts
-│   │
-│   ├── comms/                          # Email + calendar integration
-│   │   ├── components/
-│   │   │   ├── mail/                   # Email components (migrate from features/mail/)
-│   │   │   │   ├── mail-list.tsx
-│   │   │   │   ├── mail-detail.tsx
-│   │   │   │   ├── mail-compose.tsx
-│   │   │   │   └── mail-nav.tsx
-│   │   │   └── calendar/
-│   │   │       ├── calendar-view.tsx
-│   │   │       └── event-card.tsx
-│   │   ├── hooks/
-│   │   │   ├── use-mail.ts
-│   │   │   └── use-calendar.ts
-│   │   ├── provider/                   # Existing mail provider (migrate)
-│   │   │   └── mail-provider.tsx
-│   │   ├── types/
-│   │   │   └── index.ts
-│   │   └── index.ts
-│   │
-│   ├── ai-chat/                        # Evidence-backed AI chat
-│   │   ├── components/
-│   │   │   ├── chat-panel.tsx          # AI chat with evidence linking
-│   │   │   ├── evidence-card.tsx       # Source citation card
-│   │   │   ├── meeting-prep.tsx        # GraphRAG meeting prep results
-│   │   │   └── action-extraction.tsx   # Action item extraction display
-│   │   ├── hooks/
-│   │   │   └── use-ai-chat.ts
-│   │   ├── types/
-│   │   │   └── index.ts
-│   │   └── index.ts
-│   │
-│   └── settings/                       # Settings views
+│   └── settings/                       # Cross-slice settings shell (forms delegate to slice packages)
 │       ├── components/
 │       │   ├── settings-shell.tsx      # Settings sidebar + content area
-│       │   ├── settings-nav.tsx        # Settings navigation sidebar
-│       │   ├── account-form.tsx        # Account settings form
-│       │   ├── password-form.tsx       # Password change form
-│       │   ├── connections-list.tsx    # Connected accounts list
-│       │   ├── sessions-table.tsx     # Active sessions table
-│       │   ├── notifications-form.tsx # Notification preferences
-│       │   ├── integrations-grid.tsx  # Integration management
-│       │   └── workspace-settings/
-│       │       ├── overview.tsx        # Workspace overview settings
-│       │       └── members-table.tsx   # Workspace members table
+│       │   └── settings-nav.tsx        # Settings navigation sidebar
 │       ├── hooks/
 │       │   └── use-settings-nav.ts
 │       ├── types/
@@ -273,6 +203,21 @@ apps/todox/src/
 └── proxy.ts                            # Existing proxy
 ```
 
+### Slice-Scoped Feature Packages
+
+Slice-specific UI lives in vertical slice packages, NOT in `apps/todox/src/features/`. See `REFERENCE_BRIDGE.md` Section 3 for complete component mapping.
+
+| Slice | Package | Key Components |
+|-------|---------|----------------|
+| Workspace | `packages/workspaces/ui/src/` | Workspace sidebar, page tree, workspace card, workspace header |
+| Knowledge + AI | `packages/knowledge/ui/src/` | Graph explorer, entity detail, chat panel, evidence card, meeting prep, action extraction |
+| Comms | `packages/comms/ui/src/` | Mail list/detail/compose, calendar view, event card |
+| Calendar | `packages/calendar/ui/src/` | Calendar views, scheduling interface |
+| IAM | `packages/iam/ui/src/` | Account forms, security settings, session table, connected accounts |
+| Customization | `packages/customization/ui/src/` | Theme preferences, hotkey configuration |
+
+Route files in `apps/todox/src/app/` import from these packages and compose them within the AppShell.
+
 ---
 
 ## 3. Phase Details
@@ -292,18 +237,21 @@ apps/todox/src/
 |---|-----------|-------------|-------------|
 | 1.1 | **Audit the prototype** | Map every distinct section in page.tsx: identify the Navbar (lines 19-160), MiniSidebar (lines 172-567), WorkspaceSidebar (lines 596-1290), ContentHeader (lines 1292-1323), ContentArea (lines 1324-1365), and portal roots. Catalog all inline SVG icons and map each to its Phosphor React equivalent. | `outputs/prototype-audit.md` |
 | 1.2 | **Extract AppShell skeleton** | Create `components/app-shell/app-shell.tsx` with the L-shaped frame: Navbar (top, 48px) + MiniSidebar (left, 50px) + content area. Use `children` prop for content injection. | `components/app-shell/app-shell.tsx`, `components/app-shell/content-area.tsx` |
-| 1.3 | **Extract Navbar component** | Extract lines 19-160 into `components/app-shell/navbar.tsx`. Replace inline SVGs with Phosphor icons: `GearSix`, `Bell`, `User`. Extract breadcrumb into `components/navigation/breadcrumb.tsx`. | `components/app-shell/navbar.tsx`, `components/navigation/breadcrumb.tsx` |
+| 1.3 | **Extract Navbar component** | Extract lines 19-160 into `components/app-shell/navbar.tsx`. Replace inline SVGs with Phosphor icons: `GearSix`, `Bell`, `User`. Extract breadcrumb into `components/navigation/breadcrumb.tsx`. **Reconciliation**: Existing extracted components in `navbar/`, `sidebar/`, `mini-sidebar/`, `side-panel/` are the TARGET state -- they are more current than page.tsx (e.g., `top-navbar.tsx` already uses Phosphor icons). Merge newer page.tsx content into them, then wire page.tsx to import from these directories. Do NOT create duplicate directories like `components/app-shell/navbar.tsx` when `components/navbar/top-navbar.tsx` already exists. | `components/app-shell/navbar.tsx`, `components/navigation/breadcrumb.tsx` |
 | 1.4 | **Extract MiniSidebar component** | Extract lines 172-567 into `components/app-shell/mini-sidebar.tsx`. Replace inline SVGs with Phosphor icons: `MagnifyingGlass`, `Clock`, `Users`, `CheckSquare`, `CalendarBlank`, `Star`, `Plus`, `Megaphone`, `Question`, `GearSix`. Extract workspace avatar into reusable component. | `components/app-shell/mini-sidebar.tsx`, `components/navigation/nav-item.tsx` |
-| 1.5 | **Extract WorkspaceSidebar + settings nav** | Extract lines 596-1290 into `components/app-shell/workspace-sidebar.tsx` and `features/settings/components/settings-nav.tsx`. Remove all mock data hardcoding. Replace inline SVGs with Phosphor icons. Remove commented-out Taskade integration links. | `components/app-shell/workspace-sidebar.tsx`, `features/settings/components/settings-nav.tsx` |
+| 1.5 | **Extract WorkspaceSidebar + settings nav** | Extract lines 596-1290 into `components/app-shell/workspace-sidebar.tsx` and `features/settings/components/settings-nav.tsx` (component extraction into the cross-slice settings shell -- NOT creating a feature module). Remove all mock data hardcoding; centralize in `data/mock.ts` with typed interfaces. Replace inline SVGs with Phosphor icons. Remove commented-out Taskade integration links. | `components/app-shell/workspace-sidebar.tsx`, `features/settings/components/settings-nav.tsx` |
 
 #### Success Criteria
 
 - [ ] `app-layout/page.tsx` reduced to <100 lines of route composition importing extracted components
 - [ ] Zero inline SVG elements (all replaced with Phosphor React icons)
-- [ ] Zero `styled` MUI imports
-- [ ] All extracted components render identically to the prototype when composed
+- [ ] Zero `styled` MUI imports in page.tsx (remove unused `styled` import and `StyledAvatar` definition). `global-providers.tsx` MUI providers are deferred to Phase 2.
+- [ ] All extracted components render identically to the prototype when composed (verify via `bun run check --filter @beep/todox` + manual `bun run dev` inspection on `/app-layout` route)
 - [ ] `bun run check --filter @beep/todox` passes
 - [ ] `bun run lint --filter @beep/todox` passes
+- [ ] No hardcoded mock data in component files (centralized in `data/mock.ts`)
+- [ ] No file exceeds 300 lines
+- [ ] `globals.css`, `global-providers.tsx`, `components/editor/`, and `components/ui/` unchanged (production-ready, DO NOT modify)
 
 #### Detailed Component Map (from prototype audit)
 
@@ -354,7 +302,7 @@ page.tsx (1,380 lines)
 | 2.3 | **Create Phosphor icon system** | Create `components/icons/index.ts` that re-exports commonly used Phosphor icons with standardized size presets (`sm=16, md=20, lg=24`). Add a mapping file from the prototype audit showing old inline SVG to Phosphor equivalent. | `components/icons/index.ts` |
 | 2.4 | **Consolidate CSS variables** | Audit `globals.css` (66KB). Remove any MUI-specific CSS variable references. Verify oklch color system is complete. Add any missing design tokens for new components. Ensure dark mode toggle works via `data-theme` attribute or class strategy. | `app/globals.css` updates |
 | 2.5 | **Build responsive breakpoint system** | Create `hooks/use-media-query.ts` for responsive behavior. Define breakpoints: mobile (<768px sidebar collapses to sheet), tablet (768-1024px sidebar auto-collapses), desktop (>1024px full layout). Implement mobile sidebar as `Sheet` overlay. | `hooks/use-media-query.ts`, mobile sidebar behavior |
-| 2.6 | **Set up route groups** | Create `(app)/layout.tsx`, `(auth)/layout.tsx`, `(settings)/layout.tsx` with appropriate shell wrappers. Move existing auth pages under `(auth)/`. Create settings layout with AppShell + settings nav sidebar. | `app/(app)/layout.tsx`, `app/(auth)/layout.tsx`, `app/(settings)/layout.tsx` |
+| 2.6 | **Set up route groups** | Create `(app)/layout.tsx`, `(auth)/layout.tsx`, `(settings)/layout.tsx` with appropriate shell wrappers. Move existing auth pages under `(auth)/`. Create settings layout with AppShell + settings nav sidebar. Route groups (`(app)/`, `(auth)/`, `(settings)/`) are Phase 2 scope. Phase 1 does NOT move any route files. | `app/(app)/layout.tsx`, `app/(auth)/layout.tsx`, `app/(settings)/layout.tsx` |
 
 #### Success Criteria
 
@@ -380,12 +328,12 @@ page.tsx (1,380 lines)
 
 | # | Work Item | Description | Output Files |
 |---|-----------|-------------|-------------|
-| 3.1 | **Create feature module template** | Establish the canonical feature module structure: `components/`, `hooks/`, `types/`, `index.ts`. Create a reference implementation that other features follow. Document the pattern in a code comment in the first feature module. | Template applied to `features/workspace/` |
-| 3.2 | **Build workspace navigation sidebar** | Create `features/workspace/components/workspace-sidebar.tsx` with workspace tree, page hierarchy, and drag-and-drop reordering. Use `runtime.atom()` for workspace data fetching (see `packages/iam/client` for canonical atom patterns). Wire to `(app)/layout.tsx` via the resizable AppShell panel. | `features/workspace/` module |
+| 3.1 | **Create feature module template** | Establish the canonical feature module structure: `components/`, `hooks/`, `types/`, `index.ts`. Create a reference implementation that other features follow. Document the pattern in a code comment in the first feature module. | Template applied to first slice package (see slice-scoped packages table above) |
+| 3.2 | **Build workspace navigation sidebar** | Create workspace navigation components in `packages/workspaces/ui/src/` with workspace tree, page hierarchy, and drag-and-drop reordering. Use `runtime.atom()` for workspace data fetching (see `packages/iam/client` for canonical atom patterns). Wire to `(app)/layout.tsx` via the resizable AppShell panel. | `packages/workspaces/ui/src/` components |
 | 3.3 | **Build dashboard framework** | Create `features/dashboard/components/dashboard-shell.tsx` using FlexLayout for widget arrangement. Define widget slot interface. Create placeholder widgets: `recent-activity`, `upcoming-meetings`, `action-items`. Wire to `(app)/dashboard/page.tsx`. | `features/dashboard/` module |
 | 3.4 | **Integrate Lexical editor** | Create `(app)/workspace/[id]/[pageId]/page.tsx` that renders the existing Lexical + Liveblocks editor (`components/editor/`). Ensure the editor loads within the AppShell content area with proper height management. | Route file + editor integration |
-| 3.5 | **Build knowledge graph panel** | Migrate existing `features/knowledge-graph/viz/` into `features/knowledge/`. Create `features/knowledge/components/graph-explorer.tsx` wrapping the existing force-directed graph renderer. Wire to `(app)/knowledge/page.tsx`. | `features/knowledge/` module |
-| 3.6 | **Workspace management views** | Create workspace creation dialog and workspace settings entry point. Wire workspace selector in the MiniSidebar to navigate between workspaces. | `features/workspace/components/workspace-card.tsx`, create dialog |
+| 3.5 | **Build knowledge graph panel** | Migrate existing `features/knowledge-graph/viz/` into `packages/knowledge/ui/src/viz/`. Create `packages/knowledge/ui/src/components/graph-explorer.tsx` wrapping the existing force-directed graph renderer. Wire to `(app)/knowledge/page.tsx`. | `packages/knowledge/ui/src/` components |
+| 3.6 | **Workspace management views** | Create workspace creation dialog and workspace settings entry point. Wire workspace selector in the MiniSidebar to navigate between workspaces. | `packages/workspaces/ui/src/components/workspace-card.tsx`, create dialog |
 
 #### Success Criteria
 
@@ -395,7 +343,7 @@ page.tsx (1,380 lines)
 - [ ] Lexical editor loads within workspace page route
 - [ ] Knowledge graph renders existing visualization
 - [ ] Workspace switching works via MiniSidebar
-- [ ] All features organized in `/features/{domain}/` directories
+- [ ] Slice-scoped features in `packages/{slice}/ui/`; cross-slice composition in `apps/todox/src/features/`
 - [ ] No file exceeds 300 lines
 - [ ] `bun run check --filter @beep/todox` passes
 
@@ -414,7 +362,7 @@ page.tsx (1,380 lines)
 | # | Work Item | Description | Output Files |
 |---|-----------|-------------|-------------|
 | 4.1 | **Build settings shell** | Create `features/settings/components/settings-shell.tsx`. Settings uses the AppShell's own WorkspaceSidebar slot for settings navigation (replaces workspace tree with settings nav when in `(settings)/` route group). Content area shows the active settings page. | `features/settings/components/settings-shell.tsx`, `features/settings/components/settings-nav.tsx` |
-| 4.2 | **Account settings** | Create `features/settings/components/account-form.tsx` with profile photo upload, display name, email, timezone, language. Use React Hook Form + Effect Schema for validation. Wire to `(settings)/settings/account/page.tsx`. | `features/settings/components/account-form.tsx` |
+| 4.2 | **Account settings** | Create `features/settings/components/account-form.tsx` with profile photo upload, display name, email, timezone, language. Use TanStack Form + Effect Schema for validation. Wire to `(settings)/settings/account/page.tsx`. | `features/settings/components/account-form.tsx` |
 | 4.3 | **Security settings** | Create password change form (`password-form.tsx`) and connected accounts list (`connections-list.tsx`). Sessions table with device info, IP, last active, and revoke button. Wire to respective route pages. | `password-form.tsx`, `connections-list.tsx`, `sessions-table.tsx` |
 | 4.4 | **Notification preferences** | Create `notifications-form.tsx` with toggles for email digest, meeting reminders, action item alerts, knowledge graph updates. Group by notification category. | `features/settings/components/notifications-form.tsx` |
 | 4.5 | **Integration management** | Create `integrations-grid.tsx` showing available integrations: Gmail OAuth, Google Calendar, Outlook (coming soon). Each card shows connection status, connect/disconnect action. Wire to `(settings)/settings/integrations/page.tsx`. | `features/settings/components/integrations-grid.tsx` |
@@ -440,11 +388,11 @@ page.tsx (1,380 lines)
 
 | # | Work Item | Description | Output Files |
 |---|-----------|-------------|-------------|
-| 5.1 | **Email thread view** | Migrate existing `features/mail/` into `features/comms/components/mail/`. Refactor to use shadcn v3 components. Create thread view with inline AI annotations showing extracted entities and relationships. Wire to `(app)/comms/mail/page.tsx`. | `features/comms/components/mail/` |
-| 5.2 | **Calendar integration view** | Create `features/comms/components/calendar/calendar-view.tsx` showing Google Calendar events. Highlight meetings with available prep data. "Prepare" button triggers meeting prep. Wire to `(app)/comms/calendar/page.tsx`. | `features/comms/components/calendar/` |
-| 5.3 | **AI chat panel with evidence linking** | Create `features/ai-chat/components/chat-panel.tsx`. This is NOT generic chat. Every AI response includes `evidence-card.tsx` components linking claims to source text. Evidence cards show: source document, relevant quote, confidence score, link to full context. Panel opens in the AppShell's right side panel. | `features/ai-chat/` module |
-| 5.4 | **Meeting prep view** | Create `features/ai-chat/components/meeting-prep.tsx`. The hero feature view: input a client name, get a comprehensive prep brief with sections for recent communications, portfolio changes, pending action items, relationship context. Every fact links to evidence. Wire to a dedicated route or as a side panel view. | `features/ai-chat/components/meeting-prep.tsx` |
-| 5.5 | **Action item extraction** | Create `features/ai-chat/components/action-extraction.tsx`. Display action items extracted from emails and meetings with: assignee, due date, source context, priority. Sortable table using `components/data-display/data-table.tsx`. | `features/ai-chat/components/action-extraction.tsx` |
+| 5.1 | **Email thread view** | Migrate existing `features/mail/` into `packages/comms/ui/src/components/mail/`. Refactor to use shadcn v3 components. Create thread view with inline AI annotations showing extracted entities and relationships. Wire to `(app)/comms/mail/page.tsx`. | `packages/comms/ui/src/components/mail/` |
+| 5.2 | **Calendar integration view** | Create `features/comms/components/calendar/calendar-view.tsx` showing Google Calendar events. Highlight meetings with available prep data. "Prepare" button triggers meeting prep. Wire to `(app)/comms/calendar/page.tsx`. | `packages/comms/ui/src/components/calendar/` (or `packages/calendar/ui/src/`) |
+| 5.3 | **AI chat panel with evidence linking** | Create evidence-linked chat components in `packages/knowledge/ui/src/`. This is NOT generic chat. Every AI response includes `evidence-card.tsx` components linking claims to source text. Evidence cards show: source document, relevant quote, confidence score, link to full context. Panel opens in the AppShell's right side panel. | `packages/knowledge/ui/src/` components |
+| 5.4 | **Meeting prep view** | Create `features/ai-chat/components/meeting-prep.tsx`. The hero feature view: input a client name, get a comprehensive prep brief with sections for recent communications, portfolio changes, pending action items, relationship context. Every fact links to evidence. Wire to a dedicated route or as a side panel view. | `packages/knowledge/ui/src/components/meeting-prep.tsx` |
+| 5.5 | **Action item extraction** | Create `features/ai-chat/components/action-extraction.tsx`. Display action items extracted from emails and meetings with: assignee, due date, source context, priority. Sortable table using `components/data-display/data-table.tsx`. | `packages/knowledge/ui/src/components/action-extraction.tsx` |
 | 5.6 | **Client context aggregation** | Create a view that aggregates all knowledge about a specific client: communication history, meeting notes, portfolio data, relationships, action items. This is the "single pane of glass" for client context. | Client context view component |
 
 #### Success Criteria
@@ -484,7 +432,7 @@ page.tsx (1,380 lines)
 - [ ] `bun run lint --filter @beep/todox` passes
 - [ ] Zero MUI component imports in `apps/todox/`
 - [ ] No file exceeds 300 lines
-- [ ] All features organized in `/features/{domain}/` directories
+- [ ] Slice-scoped features in `packages/{slice}/ui/`; cross-slice composition in `apps/todox/src/features/`
 
 ---
 
@@ -630,6 +578,10 @@ find apps/todox/src -name "*.tsx" -o -name "*.ts" | xargs wc -l | sort -rn | hea
 # Expected: no file > 300 lines (except globals.css and editor files)
 ```
 
+### Pre-existing Lint Errors
+
+Pre-existing lint issues in `page.tsx`: line 113 (biome suppression placeholder) and line 2 (unsorted imports). P1 agent should fix these as part of the extraction work. 6 warnings in unrelated files (demo, editor, chart) are out of scope.
+
 ### Pre-Commit Checklist
 
 Before committing any phase:
@@ -675,6 +627,6 @@ Before committing any phase:
 | Generic AI chat UI | Misses the core value proposition of evidence linking | Every AI response must include evidence cards with source citations |
 | Implementing settings before core features | Settings are important but not the hero flow | Build workspace + dashboard + knowledge first (Phase 3), then settings (Phase 4) |
 | Inline SVGs | 60% of prototype line count is SVG paths | Use Phosphor React icons exclusively |
-| Direct cross-feature imports | Creates coupling between feature modules | Import through `components/` (shared) or `hooks/` (shared) |
+| Direct cross-package imports | Creates coupling between vertical slices | Import through `@beep/shared-*` or `@beep/common-*` packages |
 | Rewriting globals.css | 66KB of production-ready oklch tokens | Only add/remove specific variables, never rewrite |
 | Using `import { styled } from "@mui/material/styles"` | MUI dependency that must be eliminated | Use Tailwind CSS classes |

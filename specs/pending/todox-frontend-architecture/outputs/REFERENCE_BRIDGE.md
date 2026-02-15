@@ -400,10 +400,15 @@ When making UI decisions, follow this priority order:
 
 ### 5.5 File Organization Rules
 
-- Features go in `apps/todox/src/features/{domain}/`
-- Shared components go in `apps/todox/src/components/ui/` (shadcn-managed)
-- Shell components go in `apps/todox/src/components/{navbar,sidebar}/`
-- Package-level UI components go in `packages/{slice}/ui/src/`
+- **App shell** components (navbar, sidebar, layout) go in `apps/todox/src/components/{navbar,sidebar,app-shell}/`
+- **Shared UI** components go in `apps/todox/src/components/ui/` (shadcn-managed)
+- **Slice-scoped features** go in their vertical slice packages:
+  - Workspace UI: `packages/workspaces/ui/src/`
+  - Knowledge graph UI: `packages/knowledge/ui/src/`
+  - Calendar UI: `packages/calendar/ui/src/`
+  - Comms UI: `packages/comms/ui/src/`
+  - IAM UI: `packages/iam/ui/src/`
+- **Cross-slice composition** (dashboard assembling widgets from multiple slices) stays in `apps/todox`
 - No file exceeds 300 lines
 - All routes use Next.js App Router: `apps/todox/src/app/{route}/page.tsx`
 
