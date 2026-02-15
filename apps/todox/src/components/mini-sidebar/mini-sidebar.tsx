@@ -169,18 +169,18 @@ interface NavItem {
 }
 
 const mainNavItems: NavItem[] = [
-  { title: "Home", icon: HouseIcon, url: "#" },
-  { title: "Projects", icon: FolderIcon, url: "#", isActive: true },
+  { title: "Home", icon: HouseIcon, url: "/app-layout" },
+  { title: "Dashboard", icon: GridFourIcon, url: "/dashboard" },
   { title: "AI Agents", icon: RobotIcon, url: "#" },
-  { title: "Automations", icon: GridFourIcon, url: "#" },
-  { title: "Media", icon: BookOpenIcon, url: "#" },
+  { title: "Knowledge", icon: BookOpenIcon, url: "/knowledge" },
+  { title: "Projects", icon: FolderIcon, url: "#", isActive: true },
 ];
 
 const bottomNavItems: NavItem[] = [
   { title: "Tasks", icon: CheckSquareIcon, url: "#" },
   { title: "Calendar", icon: CalendarIcon, url: "#" },
   { title: "Favorites", icon: StarIcon, url: "#" },
-  { title: "Settings", icon: GearIcon, url: "#" },
+  { title: "Settings", icon: GearIcon, url: "/settings" },
 ];
 
 interface MiniSidebarPanelProps {

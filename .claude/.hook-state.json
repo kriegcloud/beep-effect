@@ -1,8 +1,8 @@
 {
-  "lastCallMs": 1771135516372,
+  "lastCallMs": 1771137169932,
   "skillIndex": {
-    "loadedAt": 1771133968591,
-    "directoryMtime": 1771092705353,
+    "loadedAt": 1771136217154,
+    "directoryMtime": 1771136162337,
     "skills": [
       {
         "name": "effect-ai-prompt",
@@ -531,6 +531,33 @@
         ]
       },
       {
+        "name": "ai-elements",
+        "keywords": [
+          "elements",
+          "new",
+          "chat",
+          "interface",
+          "components",
+          "library",
+          "following",
+          "established",
+          "composable",
+          "patterns",
+          "shadcn/ui",
+          "integration",
+          "vercel",
+          "sdk",
+          "conventions",
+          "when",
+          "creating",
+          "packages/elements/src",
+          "user",
+          "asks",
+          "add",
+          "component"
+        ]
+      },
+      {
         "name": "typeclass-design",
         "keywords": [
           "typeclass",
@@ -999,7 +1026,7 @@
     ]
   },
   "patternCache": {
-    "loadedAt": 1771134678768,
+    "loadedAt": 1771136495929,
     "directoryMtime": 1769711271602,
     "patterns": [
       {

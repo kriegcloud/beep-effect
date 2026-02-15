@@ -7,6 +7,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@beep/todo
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@beep/todox/components/ui/sheet";
 import { useBreakpoint } from "@beep/todox/hooks/use-media-query";
 import { cn } from "@beep/todox/lib/utils";
+import { WorkspaceTree } from "@beep/workspaces-ui";
 import { ListIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as React from "react";
@@ -32,30 +33,6 @@ const mockUser: User = {
 };
 
 // ---------------------------------------------------------------------------
-// WorkspaceSidebar (placeholder for Phase 3)
-// ---------------------------------------------------------------------------
-
-interface WorkspaceSidebarProps {
-  readonly className?: undefined | string;
-}
-
-function WorkspaceSidebar({ className }: WorkspaceSidebarProps) {
-  return (
-    <div
-      data-slot="workspace-sidebar"
-      className={cn("flex h-full flex-col border-r border-shade-gray-300 bg-sidebar/50", className)}
-    >
-      <div className="flex items-center gap-2 border-b border-shade-gray-300 px-4 py-3">
-        <span className="text-sm font-semibold text-foreground">Workspace</span>
-      </div>
-      <div className="flex flex-1 items-center justify-center p-4">
-        <span className="text-xs text-muted-foreground">Navigation content (Phase 3)</span>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // MobileSidebarSheet
 // ---------------------------------------------------------------------------
 
@@ -78,7 +55,7 @@ function MobileSidebarSheet({ open, onOpenChange }: MobileSidebarSheetProps) {
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation</SheetTitle>
         </SheetHeader>
-        <WorkspaceSidebar />
+        <WorkspaceTree className="bg-sidebar/50" />
       </SheetContent>
     </Sheet>
   );
@@ -167,7 +144,7 @@ function DesktopPanelLayout({ children, showWorkspaceSidebar }: DesktopPanelLayo
         collapsedSize="0px"
         className="hidden md:block"
       >
-        <WorkspaceSidebar />
+        <WorkspaceTree className="bg-sidebar/50" />
       </ResizablePanel>
 
       <ResizableHandle className="hidden md:flex" />

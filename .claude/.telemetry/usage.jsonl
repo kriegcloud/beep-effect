@@ -1264,3 +1264,13 @@
 {"eventType":"stop","timestamp":"2026-02-15T05:54:43.652Z","sessionId":"f4bb54a6-67d8-43d9-ae61-29b0120ecfc5","agentType":"react-expert","durationMs":226380,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-15T05:56:09.953Z","sessionId":"f4bb54a6-67d8-43d9-ae61-29b0120ecfc5","agentType":"general-purpose","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-15T05:58:18.129Z","sessionId":"f4bb54a6-67d8-43d9-ae61-29b0120ecfc5","agentType":"general-purpose","durationMs":128176,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-15T06:20:27.943Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"react-expert","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-15T06:20:57.837Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"general-purpose","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-15T06:21:13.747Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"react-expert","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-15T06:21:30.203Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"react-expert","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-15T06:22:13.333Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"react-expert","durationMs":43130,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-15T06:23:58.495Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-15T06:24:37.044Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-15T06:25:37.866Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-15T06:27:43.767Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-15T06:28:52.874Z","sessionId":"41c3149a-de1a-4cbe-8560-5982d3a85933","agentType":"react-expert","triggeredBy":"auto"}

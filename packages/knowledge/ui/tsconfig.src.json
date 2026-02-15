@@ -10,6 +10,9 @@
     },
     {
       "path": "../../../packages/knowledge/domain"
+    },
+    {
+      "path": "../../../packages/common/utils"
     }
   ],
   "compilerOptions": {
@@ -19,6 +22,7 @@
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "jsx": "react-jsx"
   }
 }

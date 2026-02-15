@@ -34,14 +34,20 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@babel/preset-react": "catalog:",
+    "@beep/utils": "workspace:^",
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
+    "@types/react": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "effect": {
     "generateExports": {

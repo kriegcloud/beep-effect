@@ -21,7 +21,7 @@ import * as FC from "effect/FastCheck";
 import type * as Fiber from "effect/Fiber";
 import * as Str from "effect/String";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { knowledgeGraphArbitrary } from "../../features/knowledge-graph/fixtures/knowledgeGraph";
+import { knowledgeGraphArbitrary } from "@beep/knowledge-ui/fixtures/knowledgeGraph";
 import {
   degree,
   filterByTypeIri,
@@ -33,14 +33,14 @@ import {
   type VizLiteralRelation,
   type VizNode,
   vizFromEffectGraph,
-} from "../../features/knowledge-graph/viz/model";
+} from "@beep/knowledge-ui/viz/model";
 import {
   type ForceGraphSimulation,
   makeForceGraphSimulation,
   type PointerInput,
   type ResizeInput,
   type WheelInput,
-} from "../../features/knowledge-graph/viz/simulation";
+} from "@beep/knowledge-ui/viz/simulation";
 
 const SchemaOrgTypes = [
   "https://schema.org/Event",
