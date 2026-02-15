@@ -2,7 +2,7 @@ import { $CalendarDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-const $I = $CalendarDomainId.create("values/CalendarColorOption");
+const $I = $CalendarDomainId.create("values/CalendarColorOption.value");
 
 export class CalendarColorOption extends BS.StringLiteralKit(
   "primary.main",
