@@ -8,7 +8,7 @@ export type TodoPriority = "high" | "medium" | "low" | "none";
 export interface TodoLabel {
   readonly id: string;
   readonly name: string;
-  readonly color?: undefined |  string;
+  readonly color?: undefined | string;
 }
 
 export interface TodoSubtask {
@@ -20,23 +20,23 @@ export interface TodoSubtask {
 export interface TodoProject {
   readonly id: string;
   readonly name: string;
-  readonly color?: undefined |  string;
+  readonly color?: undefined | string;
 }
 
 export interface TodoItemProps {
   readonly id: string;
   readonly title: string;
-  readonly description?: undefined |  string;
+  readonly description?: undefined | string;
   readonly completed: boolean;
   readonly priority: TodoPriority;
-  readonly dueDate?: undefined |  Date | string;
-  readonly labels?: undefined |  TodoLabel[];
-  readonly subtasks?: undefined |  TodoSubtask[];
-  readonly project?: undefined |  TodoProject;
-  readonly onToggleComplete?: undefined |  ((id: string, completed: boolean) => void);
-  readonly onClick?: undefined |  ((id: string) => void);
-  readonly isSelected?: undefined |  boolean;
-  readonly className?: undefined |  string;
+  readonly dueDate?: undefined | Date | string;
+  readonly labels?: undefined | TodoLabel[];
+  readonly subtasks?: undefined | TodoSubtask[];
+  readonly project?: undefined | TodoProject;
+  readonly onToggleComplete?: undefined | ((id: string, completed: boolean) => void);
+  readonly onClick?: undefined | ((id: string) => void);
+  readonly isSelected?: undefined | boolean;
+  readonly className?: undefined | string;
 }
 
 const priorityConfig = {

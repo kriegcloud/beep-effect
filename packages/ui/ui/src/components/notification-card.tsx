@@ -12,21 +12,21 @@ export interface NotificationAction {
   readonly id: string;
   readonly label: string;
   readonly type: ActionType;
-  readonly style?: undefined |  ActionStyle;
-  readonly executed?: undefined |  boolean;
+  readonly style?: undefined | ActionStyle;
+  readonly executed?: undefined | boolean;
 }
 
 export interface NotificationCardProps {
   readonly id: string;
   readonly title: string;
   readonly body: string;
-  readonly status?: undefined |  NotificationStatus;
-  readonly createdAt?: undefined |  Date | string;
-  readonly actions?: undefined |  NotificationAction[];
-  readonly onMarkAsRead?: undefined |  ((id: string) => void);
-  readonly onAction?: undefined |  ((notificationId: string, actionId: string, actionType: ActionType) => void);
-  readonly loadingActionId?: undefined |  string;
-  readonly className?: undefined |  string;
+  readonly status?: undefined | NotificationStatus;
+  readonly createdAt?: undefined | Date | string;
+  readonly actions?: undefined | NotificationAction[];
+  readonly onMarkAsRead?: undefined | ((id: string) => void);
+  readonly onAction?: undefined | ((notificationId: string, actionId: string, actionType: ActionType) => void);
+  readonly loadingActionId?: undefined | string;
+  readonly className?: undefined | string;
 }
 
 const formatDate = (date: Date | string): string => {

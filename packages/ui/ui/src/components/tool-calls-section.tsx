@@ -8,28 +8,28 @@ import { useMemo, useState } from "react";
 export interface ToolCallEntry {
   readonly tool_name: string;
   readonly tool_category: string;
-  readonly message?: undefined |  string;
-  readonly show_category?: undefined |  boolean;
-  readonly tool_call_id?: undefined |  string;
-  readonly inputs?: undefined |  Record<string, unknown>;
-  readonly output?: undefined |  string;
-  readonly icon_url?: undefined |  string;
-  readonly integration_name?: undefined |  string;
+  readonly message?: undefined | string;
+  readonly show_category?: undefined | boolean;
+  readonly tool_call_id?: undefined | string;
+  readonly inputs?: undefined | Record<string, unknown>;
+  readonly output?: undefined | string;
+  readonly icon_url?: undefined | string;
+  readonly integration_name?: undefined | string;
 }
 
 export interface IntegrationInfo {
-  readonly iconUrl?: undefined |  string;
-  readonly name?: undefined |  string;
+  readonly iconUrl?: undefined | string;
+  readonly name?: undefined | string;
 }
 
 export interface ToolCallsSectionProps {
   readonly toolCalls: ToolCallEntry[];
-  readonly integrations?: undefined |  Map<string, IntegrationInfo>;
-  readonly maxIconsToShow?: undefined |  number;
-  readonly defaultExpanded?: undefined |  boolean;
-  readonly className?: undefined |  string;
-  readonly renderIcon?: undefined |  ((call: ToolCallEntry) => ReactNode);
-  readonly renderContent?: undefined |  ((content: unknown) => ReactNode);
+  readonly integrations?: undefined | Map<string, IntegrationInfo>;
+  readonly maxIconsToShow?: undefined | number;
+  readonly defaultExpanded?: undefined | boolean;
+  readonly className?: undefined | string;
+  readonly renderIcon?: undefined | ((call: ToolCallEntry) => ReactNode);
+  readonly renderContent?: undefined | ((content: unknown) => ReactNode);
 }
 
 const formatToolName = (name: string): string =>

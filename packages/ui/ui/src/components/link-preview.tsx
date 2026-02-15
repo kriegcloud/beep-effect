@@ -18,7 +18,7 @@ interface LinkPreviewProps {
   readonly href: string;
   readonly children: ReactNode;
   readonly className?: undefined | string;
-  readonly metadata?: undefined |  null | Partial<UrlMetadata>;
+  readonly metadata?: undefined | null | Partial<UrlMetadata>;
 }
 
 const isEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
