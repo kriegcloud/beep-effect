@@ -1,0 +1,227 @@
+---
+title: Search Results Tabs
+description: A beautiful component for displaying search results with web pages, images, and news in an organized, interactive layout.
+---
+
+<ComponentPreview name="search-results-tabs/default" />
+
+### Web Results Only
+
+<ComponentPreview name="search-results-tabs/web-only" />
+
+### News Results
+
+<ComponentPreview name="search-results-tabs/news" />
+ 
+ ## Usage in Gaia
+ 
+ Segments global search. Filters by messages, files, or actions instantly.
+ 
+ ## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+{" "}
+
+<TabsContent value="automatic">
+  <InstallCommand component="search-results-tabs" />
+</TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/search-results-tabs.tsx" />
+
+Install required dependencies:
+
+```bash
+pnpm add framer-motion @hugeicons/react @hugeicons/core-free-icons
+```
+
+Make sure you have these shadcn components installed:
+
+```bash
+npx shadcn@latest add button popover skeleton
+```
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+```tsx
+import { SearchResultsTabs } from "@/components/ui/search-results-tabs";
+
+export default function Example() {
+  const searchResults = {
+    web: [
+      {
+        title: "Example Site",
+        url: "https://example.com",
+        content: "Description of the website...",
+      },
+    ],
+    images: [
+      "https://images.unsplash.com/photo-1...",
+      "https://images.unsplash.com/photo-2...",
+    ],
+    news: [
+      {
+        title: "News Article",
+        url: "https://news.example.com",
+        content: "Article content...",
+        score: 0.95,
+        date: "2025-11-10",
+      },
+    ],
+  };
+
+  return <SearchResultsTabs search_results={searchResults} />;
+}
+```
+
+## Features
+
+- **Multiple Result Types**: Display web results, images, and news articles
+- **Interactive Images**: Animated, rotatable image cards with lazy loading
+- **Web Sources Popover**: Compact button that expands to show all web results
+- **News Cards**: Styled news articles with scores and dates
+- **Favicon Integration**: Automatically fetches and displays site favicons
+- **Image Validation**: Only displays images that successfully load
+- **Responsive Design**: Adapts to different screen sizes
+- **Smooth Animations**: Powered by Framer Motion for polished interactions
+
+## Types
+
+### SearchResults
+
+```tsx
+interface SearchResults {
+  web?: WebResult[];
+  images?: string[] | ImageResult[];
+  news?: NewsResult[];
+}
+```
+
+### WebResult
+
+```tsx
+interface WebResult {
+  title: string;
+  url: string;
+  content: string;
+  date?: string;
+}
+```
+
+### ImageResult
+
+```tsx
+interface ImageResult {
+  url: string;
+  title?: string;
+}
+```
+
+### NewsResult
+
+```tsx
+interface NewsResult {
+  title: string;
+  url: string;
+  content: string;
+  score?: number;
+  date?: string;
+}
+```
+
+## Props
+
+| Prop           | Type                       | Default   | Description                             |
+| -------------- | -------------------------- | --------- | --------------------------------------- |
+| search_results | SearchResults              | -         | Object containing web, images, and news |
+| onImageClick   | (imageUrl: string) => void | undefined | Callback when an image is clicked       |
+
+## Examples
+
+### Web Results Only
+
+```tsx
+<SearchResultsTabs
+  search_results={{
+    web: [
+      {
+        title: "Example",
+        url: "https://example.com",
+        content: "Description",
+      },
+    ],
+  }}
+/>
+```
+
+### Images Only
+
+```tsx
+<SearchResultsTabs
+  search_results={{
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+    ],
+  }}
+/>
+```
+
+### With Image Click Handler
+
+```tsx
+const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+<SearchResultsTabs
+  search_results={{ images: [...] }}
+  onImageClick={setSelectedImage}
+/>
+```
+
+### News Only
+
+```tsx
+<SearchResultsTabs
+  search_results={{
+    news: [
+      {
+        title: "Article Title",
+        url: "https://news.example.com",
+        content: "Article excerpt...",
+        score: 0.95,
+        date: "2025-11-10",
+      },
+    ],
+  }}
+/>
+```
+
+## Use Cases
+
+- **AI Chat Interfaces**: Display search results from AI assistants
+- **Search Engines**: Show web, image, and news results
+- **Research Tools**: Organize multiple types of search data
+- **News Aggregators**: Present news articles with scores
+- **Image Search**: Display image results with lazy loading
+- **Knowledge Bases**: Show related resources and articles
+
+## Notes
+
+- Images are validated before display to ensure they load properly
+- Favicons are automatically fetched from Google's favicon service
+- The component handles empty result arrays gracefully
+- Images use Next.js Image component for optimization
+- Web results are displayed in a popover to save space
+- All animations are powered by Framer Motion
+- Supports both string arrays and ImageResult objects for images

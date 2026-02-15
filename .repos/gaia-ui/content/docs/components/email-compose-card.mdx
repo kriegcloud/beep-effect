@@ -1,0 +1,55 @@
+---
+title: Email Compose Card
+description: An AI-powered email composition card with recipient validation, smart inputs, and beautiful styling.
+---
+
+<ComponentPreview name="email-compose-card/default" />
+ 
+## Usage in Gaia
+ 
+Native email experience inside the AI. Draft, edit, and send without context switching.
+ 
+## Overview
+
+The Email Compose Card is a comprehensive component for composing and sending emails, featuring:
+- Chip-based recipient input with validation
+- Subject and Body editing
+- Smart "Edit" and "View" modes
+- Integration ready for AI-generated content reviews
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+  <TabsContent value="automatic">
+    <InstallCommand component="email-compose-card" />
+  </TabsContent>
+  <TabsContent value="manual">
+    1. Copy and paste the following code into your project.
+    
+    <SourceCode filePath="registry/new-york/ui/email-compose-card.tsx" />
+    
+    2. Update the import paths to match your project structure.
+  </TabsContent>
+</Tabs>
+
+## Props
+
+### EmailComposeCardProps
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| subject | string | - | The subject line content |
+| body | string | - | The body content |
+| recipients | string[] | [] | Initial list of recipient emails |
+| mode | "view" \| "edit" | "edit" | Current display mode |
+| recipientQuery | string | - | Optional context string (e.g., prompt used to generate email) |
+| onSubjectChange | (value: string) => void | - | Callback when subject changes |
+| onBodyChange | (value: string) => void | - | Callback when body changes |
+| onRecipientsChange | (recipients: string[]) => void | - | Callback when recipients change |
+| onSend | () => void | - | Callback for send action |
+| onCancel | () => void | - | Callback for cancel action |
+| isSending | boolean | false | Loading state for send action |
