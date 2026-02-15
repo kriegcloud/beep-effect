@@ -1,0 +1,35 @@
+---
+title: "Components"
+description: "Here you can find all the components available in the library. We are working on adding more components."
+---
+
+import { ComponentPreviewTooltip } from "@/registry/new-york/ui/component-preview-tooltip";
+import { getNavigation } from "@/lib/navigation";
+import Link from "next/link";
+
+export const ComponentsList = () => {
+  const navigation = getNavigation();
+  const componentsSection = navigation.find(
+    (section) => section.title === "Components"
+  );
+  const components = componentsSection?.items || [];
+
+return (
+
+<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  {components.map((component, index) => {
+    const componentName = component.href.split("/").pop();
+    return (
+      <Link key={index} href={component.href}>
+        <ComponentPreviewTooltip componentName={componentName} side="top">
+          <div className="font-normal text-base hover:underline underline-offset-8">
+            {component.title}
+          </div>
+        </ComponentPreviewTooltip>
+      </Link>
+    );
+  })}
+</div>
+); };
+
+<ComponentsList />

@@ -1,0 +1,218 @@
+---
+title: Chat Composer
+description: A chat message input component with file attachments, auto-growing textarea, and tool integration support.
+---
+
+<ComponentPreview name="composer/default" />
+ 
+ ## Usage in Gaia
+ 
+ The brain of the app. Handles everything: text, files, slash commands, and tool execution.
+ 
+ ## With Attached Files
+
+<ComponentPreview name="composer/with-files" />
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+<TabsContent value="automatic">
+  <InstallCommand component="composer" />
+</TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/composer.tsx" />
+
+This component requires the following dependencies:
+
+```bash
+npx shadcn@latest add file-preview slash-command-dropdown
+```
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+### Basic Usage
+
+```tsx
+import { Composer } from "@/components/ui/composer";
+
+export default function Chat() {
+  return (
+    <Composer
+      placeholder="What can I do for you today?"
+      onSubmit={(message, files) => {
+        console.log("Message:", message);
+        console.log("Files:", files);
+      }}
+    />
+  );
+}
+```
+
+### With Tools
+
+Integrate with the SlashCommandDropdown by providing tools:
+
+```tsx
+import { Composer, Tool } from "@/components/ui/composer";
+
+const tools: Tool[] = [
+  {
+    name: "web_search",
+    category: "search",
+    description: "Search the web for information",
+  },
+  {
+    name: "image_generation",
+    category: "creative",
+    description: "Generate images from text descriptions",
+  },
+];
+
+export default function ChatWithTools() {
+  return (
+    <Composer
+      tools={tools}
+      onToolSelect={(tool) => {
+        console.log("Selected tool:", tool);
+      }}
+      onSubmit={(message) => {
+        console.log("Sent:", message);
+      }}
+    />
+  );
+}
+```
+
+### With Context Menu
+
+Add a dropdown to the plus button with custom options:
+
+```tsx
+import { Composer, ComposerContextOption } from "@/components/ui/composer";
+import { HugeiconsIcon, AttachmentIcon, Image01Icon } from "@/components/icons";
+
+const contextOptions: ComposerContextOption[] = [
+  {
+    id: "attach",
+    label: "Attach Files",
+    description: "Upload documents or images",
+    icon: <HugeiconsIcon icon={AttachmentIcon} size={18} />,
+    onClick: () => openFilePicker(),
+  },
+  {
+    id: "image",
+    label: "Add Image",
+    description: "Upload or generate an image",
+    icon: <HugeiconsIcon icon={Image01Icon} size={18} />,
+    onClick: () => openImagePicker(),
+  },
+];
+
+export default function ChatWithContext() {
+  return (
+    <Composer
+      contextOptions={contextOptions}
+      onSubmit={(message) => console.log(message)}
+    />
+  );
+}
+```
+
+### With File Attachments
+
+```tsx
+import { useState } from "react";
+import { Composer, UploadedFile } from "@/components/ui/composer";
+
+export default function ChatWithFiles() {
+  const [files, setFiles] = useState<UploadedFile[]>([]);
+
+  return (
+    <Composer
+      attachedFiles={files}
+      onRemoveFile={(id) => {
+        setFiles((prev) => prev.filter((f) => f.id !== id));
+      }}
+      onSubmit={(message, files) => {
+        console.log("Sending:", message, files);
+        setFiles([]);
+      }}
+    />
+  );
+}
+```
+
+## Props
+
+### Composer
+
+| Prop             | Type                                              | Default                           | Description                                  |
+| ---------------- | ------------------------------------------------- | --------------------------------- | -------------------------------------------- |
+| placeholder      | string                                            | "What can I do for you today?"    | Placeholder text for the input              |
+| onSubmit         | (message: string, files?: UploadedFile[]) => void | -                                 | Callback when message is submitted          |
+| onChange         | (value: string) => void                           | -                                 | Callback when input value changes           |
+| disabled         | boolean                                           | false                             | Whether the composer is disabled            |
+| showToolsButton  | boolean                                           | true                              | Whether to show the tools button            |
+| tools            | Tool[]                                            | []                                | Available tools for slash command dropdown  |
+| onToolSelect     | (tool: Tool) => void                              | -                                 | Callback when a tool is selected            |
+| contextOptions   | ComposerContextOption[]                           | -                                 | Options for the plus button dropdown        |
+| onAttachClick    | () => void                                        | -                                 | Callback when attach clicked (no options)   |
+| autoFocus        | boolean                                           | false                             | Whether to auto-focus the input             |
+| maxRows          | number                                            | 8                                 | Maximum rows for the textarea               |
+| defaultValue     | string                                            | ""                                | Initial uncontrolled value                  |
+| value            | string                                            | -                                 | Controlled value                            |
+| className        | string                                            | -                                 | Additional className for the container      |
+| attachedFiles    | UploadedFile[]                                    | []                                | Attached files to display                   |
+| onRemoveFile     | (id: string) => void                              | -                                 | Callback to remove an attached file         |
+
+### Tool
+
+| Property    | Type        | Required | Description                    |
+| ----------- | ----------- | -------- | ------------------------------ |
+| name        | string      | Yes      | Tool identifier                |
+| category    | string      | Yes      | Category for grouping          |
+| description | string      | No       | Description shown in dropdown  |
+| icon        | ReactNode   | No       | Custom icon for the tool       |
+
+### ComposerContextOption
+
+| Property    | Type        | Required | Description                    |
+| ----------- | ----------- | -------- | ------------------------------ |
+| id          | string      | Yes      | Unique identifier              |
+| label       | string      | Yes      | Display label                  |
+| description | string      | No       | Description text               |
+| icon        | ReactNode   | No       | Icon element                   |
+| onClick     | () => void  | No       | Click handler                  |
+
+### UploadedFile
+
+| Property    | Type    | Required | Description                    |
+| ----------- | ------- | -------- | ------------------------------ |
+| id          | string  | Yes      | Unique file identifier         |
+| name        | string  | Yes      | File name                      |
+| type        | string  | Yes      | MIME type                      |
+| url         | string  | Yes      | File URL or blob URL           |
+| description | string  | No       | File description               |
+| isUploading | boolean | No       | Loading state                  |
+
+## Features
+
+- **Auto-growing textarea** - Expands as you type, up to `maxRows`
+- **File attachments** - Display and manage attached files using FilePreview
+- **Tools integration** - Built-in SlashCommandDropdown for tool selection
+- **Context menu** - Customizable dropdown for the plus button
+- **Keyboard shortcuts** - Enter to send, Shift+Enter for new line, Escape to close
+- **Primary color** - #00bbff for enabled states
+- **Accessible** - Proper ARIA labels and keyboard navigation

@@ -1,0 +1,63 @@
+---
+title: Component Preview Tooltip
+description: A hover tooltip that shows a live preview of any component, perfect for navigation menus and component galleries.
+---
+
+<ComponentPreview name="component-preview-tooltip/default" />
+
+## Usage in Gaia
+
+Speeds up development. Lets us preview components instantly in the registry.
+
+## Why Use This?
+
+When browsing a component library, users often want to quickly see what a component looks like without navigating away from the current page. This tooltip provides instant visual feedback on hover, making it easier to find the right component.
+
+## Features
+
+- **Dynamic Loading** - Lazy loads preview components on hover
+- **Positioning** - Show tooltip on left, right, top, or bottom
+- **Fallback** - Graceful handling when preview isn't available
+- **Animations** - Smooth fade and zoom transitions
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="automatic">
+    <InstallCommand component="component-preview-tooltip" />
+  </TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/component-preview-tooltip.tsx" />
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+```tsx
+import { ComponentPreviewTooltip } from "@/components/ui/component-preview-tooltip";
+
+// In your sidebar or component list
+<ComponentPreviewTooltip componentName="todo-item" side="right">
+  <Link href="/docs/components/todo-item">
+    Todo Item
+  </Link>
+</ComponentPreviewTooltip>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| componentName | string | - | Name of the component (matches preview folder name) |
+| children | ReactNode | - | Element that triggers the tooltip on hover |
+| side | "left" \| "right" \| "top" \| "bottom" | "right" | Tooltip position |

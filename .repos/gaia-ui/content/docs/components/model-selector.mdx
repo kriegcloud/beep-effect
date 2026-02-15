@@ -1,0 +1,82 @@
+---
+title: Model Selector
+description: A dropdown selector for choosing AI models with provider information and pro badges.
+---
+
+<ComponentPreview name="model-selector/default" />
+
+## Usage in Gaia
+
+Power to the user. Swap between models (GPT-4, Claude) on the fly.
+
+## Features
+
+- **Model List** - Display available AI models with icons
+- **Provider Info** - Shows model provider (OpenAI, Anthropic, etc.)
+- **Pro Badge** - Indicates premium models
+- **Description** - Optional model description
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="automatic">
+    <InstallCommand component="model-selector" />
+  </TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/model-selector.tsx" />
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+```tsx
+import { ModelSelector } from "@/components/ui/model-selector";
+import { useState } from "react";
+
+const models = [
+  { id: "gpt-4", name: "GPT-4", provider: "OpenAI", isPro: true },
+  { id: "claude", name: "Claude", provider: "Anthropic" },
+];
+
+export default function Example() {
+  const [selected, setSelected] = useState(models[0]);
+  
+  return (
+    <ModelSelector
+      models={models}
+      selectedModel={selected}
+      onSelect={setSelected}
+    />
+  );
+}
+```
+
+## Props
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| models | AIModel[] | Array of available models |
+| selectedModel | AIModel | Currently selected model |
+| onSelect | (model) => void | Selection callback |
+| disabled | boolean | Disable the selector |
+
+### AIModel
+
+| Property | Type | Description |
+| --- | --- | --- |
+| id | string | Unique identifier |
+| name | string | Display name |
+| provider | string | Provider name |
+| icon | string | Icon URL |
+| isPro | boolean | Show pro badge |
+| description | string | Model description |
