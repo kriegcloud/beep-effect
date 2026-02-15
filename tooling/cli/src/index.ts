@@ -39,6 +39,7 @@ import { bootstrapSpecCommand } from "./commands/bootstrap-spec/index.js";
 import { contextFreshnessCommand } from "./commands/context-freshness/index.js";
 import { createSliceCommand } from "./commands/create-slice/index.js";
 import { docgenCommand } from "./commands/docgen.js";
+import { enronCommand } from "./commands/enron/index.js";
 import { envCommand } from "./commands/env.js";
 import { findMissingDocsCommand } from "./commands/find-missing-docs.js";
 import { syncCommand } from "./commands/sync.js";
@@ -58,6 +59,7 @@ const repoCommand = CliCommand.make("beep").pipe(
     contextFreshnessCommand,
     createSliceCommand,
     docgenCommand,
+    enronCommand,
     findMissingDocsCommand,
     envCommand,
     syncCommand,

@@ -1131,3 +1131,17 @@
 {"eventType":"stop","timestamp":"2026-02-14T23:12:09.295Z","sessionId":"885ac899-247a-4df5-8040-7b72964027d6","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-14T23:37:24.467Z","sessionId":"885ac899-247a-4df5-8040-7b72964027d6","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-14T23:59:07.802Z","sessionId":"4ba80b7f-a097-4d98-a975-707b7a4cd86b","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-15T01:49:06.915Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"codebase-explorer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-15T01:53:18.897Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"codebase-explorer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-15T01:53:22.631Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"Explore","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-15T01:53:26.569Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"Explore","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-15T01:53:42.514Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"Explore","durationMs":15945,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-15T01:55:13.684Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-15T01:56:25.861Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-15T02:04:47.983Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-15T02:05:09.814Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-15T02:07:24.388Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","durationMs":134574,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-15T02:11:31.713Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-15T02:13:41.082Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","durationMs":129369,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-15T02:14:57.083Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-15T02:16:29.782Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","durationMs":92699,"outcome":"success"}
