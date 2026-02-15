@@ -1,0 +1,114 @@
+---
+title: Link Preview
+description: An interactive link component with rich preview tooltip showing website metadata like title, description, and images.
+---
+
+<ComponentPreview name="link-preview/default" />
+ 
+## Usage in Gaia
+ 
+No more naked URLs. Auto-unfurls links to show titles and thumbnails.
+ 
+## Why Use Link Preview?
+
+Link Preview is perfect for enhancing user experience in content-rich applications where you need to display external links with context. It's especially useful in:
+
+- **Markdown Renderers**: When rendering markdown content (blog posts, documentation, comments), automatically show rich previews for external links
+- **Chat Applications**: Give users context about shared links without leaving the conversation
+- **Content Management Systems**: Help editors and readers preview linked resources inline
+- **Documentation Sites**: Provide quick previews of referenced articles, APIs, or tools
+- **Social Feeds**: Show rich link cards similar to Twitter, LinkedIn, or Slack
+- **Knowledge Bases**: Help users understand linked resources before clicking
+
+Instead of forcing users to click blind links, they can hover to see the destination's title, description, and preview image - making it easier to decide if the link is relevant to them.
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+{" "}
+
+<TabsContent value="automatic">
+  <InstallCommand component="link-preview" />
+</TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/link-preview.tsx" />
+
+Install required dependencies:
+
+```bash
+pnpm add @hugeicons/react @hugeicons/core-free-icons
+```
+
+Make sure you have the Tooltip component installed:
+
+```bash
+npx shadcn@latest add tooltip
+```
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+```tsx
+import { LinkPreview } from "@/components/ui/link-preview";
+
+export default function Example() {
+  return (
+    <p className="text-zinc-300">
+      Check out the{" "}
+      <LinkPreview href="https://github.com/theexperiencecompany/gaia">
+        GAIA repository
+      </LinkPreview>{" "}
+      to learn more about this open-source AI assistant.
+    </p>
+  );
+}
+```
+
+## How It Works
+
+The component fetches the URL directly from the frontend and extracts metadata from the HTML response, including:
+
+- Open Graph tags (`og:title`, `og:description`, `og:image`)
+- Twitter Card tags (`twitter:title`, `twitter:description`, `twitter:image`)
+- Standard HTML meta tags and `<title>` elements
+- Favicons and site names
+
+**Note**: This approach may face CORS restrictions on some websites. For production use with external URLs, consider using a backend proxy or a dedicated metadata service.
+
+## Features
+
+- **Lazy Loading**: Only fetches metadata when the link comes into view
+- **Error Handling**: Graceful fallbacks for failed fetches
+- **Image Optimization**: Handles missing or broken images/favicons
+- **Intersection Observer**: Performance-optimized with viewport detection
+- **Customizable**: Custom styling via className prop
+- **Lightweight**: No external caching dependencies, just simple fetch
+
+## Props
+
+| Prop      | Type                | Default                                      | Description                     |
+| --------- | ------------------- | -------------------------------------------- | ------------------------------- |
+| href      | string              | -                                            | The URL to preview              |
+| children  | ReactNode \| string | -                                            | Link text content               |
+| className | string              | "cursor-pointer rounded-sm bg-primary/20..." | Custom CSS classes for the link |
+
+## Notes
+
+- Fetches URL metadata directly from the frontend (may face CORS issues with some sites)
+- For production use with external URLs, consider using a backend proxy or CORS proxy service
+- Metadata is fetched once when the link comes into view
+- Invalid URLs and email addresses are automatically detected and skipped
+- Preview tooltip appears on hover with website info, images, and description
+- The component automatically cleans up on unmount to prevent memory leaks
+- Works best with URLs that have proper Open Graph or Twitter Card meta tags

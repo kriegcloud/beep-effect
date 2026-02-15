@@ -1,0 +1,244 @@
+---
+title: Wave Spinner
+description: A beautiful animated loading spinner with wave effects, multiple patterns, colors, and highly customizable animations.
+---
+
+<ComponentPreview name="wave-spinner/default" />
+ 
+## Usage in Gaia
+ 
+Elegant loading feedback. Shows activity during AI processing, data fetching, and async operations.
+ 
+## Features
+
+- **10 Color Presets**: Primary blue, success, warning, danger, and accent colors
+- **7 Grid Patterns**: 3×3, 2×2, 4×4, line, diamond, cross, circle
+- **9 Animation Styles**: Diagonal waves, ripple, horizontal, vertical, spiral
+- **3 Dot Shapes**: Square, rounded, circular
+- **5 Sizes**: Extra small to extra large
+- **Custom Colors**: Support any CSS color value
+- **Accessible**: ARIA labels and reduced motion support
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+<TabsContent value="automatic">
+  <InstallCommand component="wave-spinner" />
+</TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/wave-spinner.tsx" />
+
+Also copy the CSS file for animations:
+
+<SourceCode filePath="registry/new-york/ui/wave-spinner.css" />
+
+Install required dependencies:
+
+```bash
+npm install class-variance-authority
+```
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+```tsx
+import { WaveSpinner } from "@/components/ui/wave-spinner";
+
+export default function Example() {
+  return <WaveSpinner />;
+}
+```
+
+## Examples
+
+### Color Presets
+
+Choose from 10 built-in color presets that match the design system.
+
+<ComponentPreview name="wave-spinner/colors" />
+
+### Grid Patterns
+
+Different grid layouts for varied visual effects.
+
+<ComponentPreview name="wave-spinner/patterns" />
+
+### Animation Styles
+
+Multiple delay patterns create different wave animations.
+
+<ComponentPreview name="wave-spinner/animations" />
+
+### Dot Shapes
+
+Customize the shape of individual dots.
+
+<ComponentPreview name="wave-spinner/shapes" />
+
+### Custom Combinations
+
+Mix and match colors, patterns, and animations.
+
+<ComponentPreview name="wave-spinner/custom" />
+
+### In Context
+
+Real-world usage examples with buttons and loading states.
+
+<ComponentPreview name="wave-spinner/in-context" />
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| color | ColorPreset \| string | "primary" | Color preset name or any CSS color |
+| pattern | GridPattern | "square3x3" | Grid layout pattern |
+| animation | DelayPattern | "diagonalTL" | Animation delay pattern |
+| duration | number | 0.7 | Animation duration in seconds |
+| dotShape | "square" \| "rounded" \| "circle" | "square" | Shape of individual dots |
+| size | "xs" \| "sm" \| "md" \| "lg" \| "xl" | "md" | Overall spinner size |
+| className | string | - | Additional CSS classes |
+| aria-label | string | "Loading" | Accessibility label |
+
+## Type Exports
+
+The component exports several types and constants for external use:
+
+```tsx
+import {
+  WaveSpinner,
+  COLOR_PRESETS,
+  DELAY_PATTERNS,
+  GRID_CONFIGS,
+  type WaveSpinnerProps,
+  type ColorPreset,
+  type DelayPattern,
+  type GridPattern,
+} from "@/components/ui/wave-spinner";
+```
+
+### ColorPreset
+
+Available color preset names:
+
+| Preset | Hex Value | Usage |
+| --- | --- | --- |
+| primary | #00bbff | GAIA brand, primary actions |
+| success | #22c55e | Success states |
+| warning | #f59e0b | Warning states |
+| danger | #ef4444 | Error/destructive states |
+| muted | #71717a | Subtle loading indicators |
+| purple | #a855f7 | Accent |
+| cyan | #06b6d4 | Accent |
+| rose | #f43f5e | Accent |
+| indigo | #6366f1 | Accent |
+| emerald | #10b981 | Accent |
+
+### GridPattern
+
+Available grid pattern options:
+
+| Pattern | Description |
+| --- | --- |
+| square3x3 | Standard 3×3 grid (9 dots) |
+| square2x2 | Minimal 2×2 grid (4 dots) |
+| square4x4 | Detailed 4×4 grid (16 dots) |
+| line | Single row (3 dots) |
+| diamond | Diamond arrangement (5 dots) |
+| cross | Cross/plus arrangement (5 dots) |
+| circle | Circular arrangement (8 dots) |
+
+### DelayPattern
+
+Animation delay patterns:
+
+| Pattern | Description |
+| --- | --- |
+| diagonalTL | Wave from top-left corner |
+| diagonalTR | Wave from top-right corner |
+| diagonalBL | Wave from bottom-left corner |
+| diagonalBR | Wave from bottom-right corner |
+| ripple | Ripple from center outward |
+| horizontal | Left-to-right wave |
+| vertical | Top-to-bottom wave |
+| random | Randomized appearance |
+| spiral | Spiral from center |
+
+## Accessibility
+
+The Wave Spinner includes built-in accessibility features:
+
+- **ARIA Role**: Uses `role="status"` to indicate loading state
+- **ARIA Label**: Customizable via `aria-label` prop
+- **Reduced Motion**: Respects `prefers-reduced-motion` media query
+
+```tsx
+<WaveSpinner aria-label="Loading user data..." />
+```
+
+## Custom Colors
+
+Pass any valid CSS color value:
+
+```tsx
+// Hex color
+<WaveSpinner color="#ff6b6b" />
+
+// RGB
+<WaveSpinner color="rgb(255, 107, 107)" />
+
+// HSL
+<WaveSpinner color="hsl(0, 100%, 71%)" />
+
+// CSS variable
+<WaveSpinner color="var(--my-brand-color)" />
+```
+
+## Button Loading State
+
+Common pattern for buttons with loading state:
+
+```tsx
+import { WaveSpinner } from "@/components/ui/wave-spinner";
+
+function SubmitButton({ isLoading, children }) {
+  return (
+    <button disabled={isLoading}>
+      {isLoading && (
+        <WaveSpinner 
+          color="#ffffff" 
+          size="xs" 
+          pattern="line" 
+        />
+      )}
+      {isLoading ? "Loading..." : children}
+    </button>
+  );
+}
+```
+
+## Animation Speed
+
+Adjust the animation duration for different contexts:
+
+```tsx
+// Fast (urgent feedback)
+<WaveSpinner duration={0.5} />
+
+// Default
+<WaveSpinner duration={0.7} />
+
+// Slow (background processes)
+<WaveSpinner duration={1.2} />
+```
