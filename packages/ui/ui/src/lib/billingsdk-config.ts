@@ -1,28 +1,28 @@
 export interface Plan {
-  id: string;
-  title: string;
-  description: string;
-  highlight?: boolean;
-  type?: "monthly" | "yearly";
-  currency?: string;
-  monthlyPrice: string;
-  yearlyPrice: string;
-  buttonText: string;
-  badge?: string;
-  features: {
-    name: string;
-    icon: string;
-    iconColor?: string;
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly highlight?: undefined | boolean;
+  readonly type?: undefined | "monthly" | "yearly";
+  readonly currency?: undefined | string;
+  readonly monthlyPrice: string;
+  readonly yearlyPrice: string;
+  readonly buttonText: string;
+  readonly badge?: undefined | string;
+  readonly features: {
+    readonly name: string;
+    readonly icon: string;
+    readonly iconColor?: undefined | string;
   }[];
 }
 
 export interface CurrentPlan {
-  plan: Plan;
-  type: "monthly" | "yearly" | "custom";
-  price?: string;
-  nextBillingDate: string;
-  paymentMethod: string;
-  status: "active" | "inactive" | "past_due" | "cancelled";
+  readonly plan: Plan;
+  readonly type: "monthly" | "yearly" | "custom";
+  readonly price?: undefined | string;
+  readonly nextBillingDate: string;
+  readonly paymentMethod: string;
+  readonly status: "active" | "inactive" | "past_due" | "cancelled";
 }
 
 export const plans: Plan[] = [

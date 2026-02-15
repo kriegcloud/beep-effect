@@ -1,0 +1,86 @@
+---
+title: Installation
+description: Add GAIA UI components to your project in seconds.
+---
+
+## Quick Install
+
+Add any component directly to your project using the CLI:
+
+```bash
+npx shadcn@latest add https://ui.heygaia.io/r/raised-button.json
+```
+
+That's it! The component is now in your project, ready to use.
+
+## Prerequisites
+
+GAIA UI works with any React project that has:
+
+- **Tailwind CSS** configured
+- **Path aliases** set up (typically `@/*` pointing to your project root)
+
+Most modern setups already have these. If you're using Next.js, Vite with React, or any Tailwind-based starter, you're good to go.
+
+### Utility Function
+
+Components use a `cn()` helper for class merging. If you don't have one yet, create `lib/utils.ts`:
+
+```ts
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+Install the dependencies:
+
+```bash
+npm install clsx tailwind-merge
+```
+
+### Icons (Optional)
+
+Some components use [Hugeicons](https://hugeicons.com). Install if needed:
+
+```bash
+npm install @hugeicons/react @hugeicons/core-free-icons
+```
+
+## Adding Components
+
+### Via CLI (Recommended)
+
+Every component has a one-line install command. Find the component you want in our [library](/docs/components/raised-button), then run:
+
+```bash
+npx shadcn@latest add https://ui.heygaia.io/r/[component-name].json
+```
+
+The CLI automatically:
+- Installs required dependencies
+- Installs any GAIA UI components it depends on
+- Places the component in your `components/ui` folder
+
+### Manual Copy
+
+Prefer to copy-paste? Each component page has a "Code" tab. Copy the code and save it to your project.
+
+## Using Components
+
+Import from your components folder:
+
+```tsx
+import { RaisedButton } from "@/components/ui/raised-button";
+
+export default function Page() {
+  return <RaisedButton>Get Started</RaisedButton>;
+}
+```
+
+## Next Steps
+
+- Browse the [component library](/docs/components/raised-button)
+- Check out [examples and templates](/docs/gallery)

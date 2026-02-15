@@ -1,0 +1,67 @@
+---
+title: File Dropzone
+description: A drag-and-drop file upload zone with preview, validation, and file management.
+---
+
+<ComponentPreview name="file-dropzone/default" />
+
+## Usage in Gaia
+
+Drag and drop anywhere. The fastest way to get files into the context window.
+
+## Features
+
+- **Drag & Drop** - Drop files directly into the zone
+- **Click to Browse** - Fallback file input
+- **Image Preview** - Thumbnails for image files
+- **File Validation** - Size and count limits
+- **Remove Files** - Delete individual files
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="automatic">
+    <InstallCommand component="file-dropzone" />
+  </TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/file-dropzone.tsx" />
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+```tsx
+import { FileDropzone } from "@/components/ui/file-dropzone";
+
+export default function Example() {
+  return (
+    <FileDropzone
+      onFilesDropped={(files) => console.log(files)}
+      accept="image/*,.pdf"
+      maxSize={5 * 1024 * 1024}
+      maxFiles={5}
+    />
+  );
+}
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| onFilesDropped | (files) => void | - | Callback with dropped files |
+| accept | string | - | Accepted file types |
+| multiple | boolean | true | Allow multiple files |
+| maxSize | number | 10MB | Max file size in bytes |
+| maxFiles | number | 10 | Maximum number of files |
+| disabled | boolean | false | Disable the dropzone |
