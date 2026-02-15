@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import type { BadArgument, PlatformError, SystemError } from "@effect/platform/Error";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -7,15 +8,20 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import PostalMime, { addressParser, type Address, type Email } from "postal-mime";
+import PostalMime, { type Address, addressParser, type Email } from "postal-mime";
 import { EnronEmail } from "./schemas.js";
-import type { PlatformError, BadArgument, SystemError } from "@effect/platform/Error";
+
 const FALLBACK_FOLDER = "unknown";
 const FALLBACK_USER = "unknown";
 const NO_SUBJECT = "(No Subject)";
 
 const STRONG_SIGNATURE_PATTERNS = [/^--\s*$/, /^__+$/, /^sent from my/i] as const;
-const SIGNATURE_CLOSING_PATTERNS = [/^thanks[!,\s]*$/i, /^best[!,\s]*$/i, /^regards[!,\s]*$/i, /^sincerely[!,\s]*$/i] as const;
+const SIGNATURE_CLOSING_PATTERNS = [
+  /^thanks[!,\s]*$/i,
+  /^best[!,\s]*$/i,
+  /^regards[!,\s]*$/i,
+  /^sincerely[!,\s]*$/i,
+] as const;
 const QUOTED_REPLY_PATTERNS = [/^on .+wrote:\s*$/i, /^-{2,}\s*original message\s*-{2,}$/i, /^from:\s.+/i] as const;
 
 export class EnronParseError extends S.TaggedError<EnronParseError>()("EnronParseError", {
@@ -91,7 +97,10 @@ const normalizeAddress = (value: string): O.Option<string> => {
 
 const flattenAddress = (address: Address): ReadonlyArray<string> => {
   if ("group" in address && A.isArray(address.group)) {
-    return F.pipe(address.group, A.flatMap((entry) => flattenAddress(entry)));
+    return F.pipe(
+      address.group,
+      A.flatMap((entry) => flattenAddress(entry))
+    );
   }
 
   if ("address" in address && typeof address.address === "string") {
@@ -123,10 +132,19 @@ const parseAddressCollection = (
 ): ReadonlyArray<string> => {
   const fromValues = F.pipe(
     O.fromNullable(values),
-    O.map((addresses) => F.pipe(addresses, A.flatMap((address) => flattenAddress(address)), A.dedupe))
+    O.map((addresses) =>
+      F.pipe(
+        addresses,
+        A.flatMap((address) => flattenAddress(address)),
+        A.dedupe
+      )
+    )
   );
 
-  return F.pipe(fromValues, O.getOrElse(() => parseAddressHeader(fallbackHeaderValue)));
+  return F.pipe(
+    fromValues,
+    O.getOrElse(() => parseAddressHeader(fallbackHeaderValue))
+  );
 };
 
 const parseSender = (email: Email, fromHeaderValue: string | undefined): O.Option<string> => {
@@ -136,7 +154,10 @@ const parseSender = (email: Email, fromHeaderValue: string | undefined): O.Optio
   );
 
   const fromHeader = F.pipe(parseAddressHeader(fromHeaderValue), A.head);
-  return F.pipe(fromField, O.orElse(() => fromHeader));
+  return F.pipe(
+    fromField,
+    O.orElse(() => fromHeader)
+  );
 };
 
 const parseMessageIds = (rawValue: string | undefined): ReadonlyArray<string> => {
@@ -146,7 +167,11 @@ const parseMessageIds = (rawValue: string | undefined): ReadonlyArray<string> =>
 
   const fromAngles = rawValue.match(/<[^>]+>/g);
   if (fromAngles !== null) {
-    return F.pipe(fromAngles, A.filterMap((value) => normalizeMessageIdOption(value)), A.dedupe);
+    return F.pipe(
+      fromAngles,
+      A.filterMap((value) => normalizeMessageIdOption(value)),
+      A.dedupe
+    );
   }
 
   return F.pipe(
@@ -229,7 +254,12 @@ const findSignatureStart = (lines: ReadonlyArray<string>): number => {
 };
 
 export const normalizeEmailBody = (input: string): string => {
-  const normalized = F.pipe(input, Str.replaceAll(/\r\n/g, "\n"), Str.replaceAll(/\r/g, "\n"), Str.replaceAll(/\u0000/g, ""));
+  const normalized = F.pipe(
+    input,
+    Str.replaceAll(/\r\n/g, "\n"),
+    Str.replaceAll(/\r/g, "\n"),
+    Str.replaceAll(/\u0000/g, "")
+  );
 
   if (Str.isEmpty(Str.trim(normalized))) {
     return Str.empty;
@@ -358,7 +388,9 @@ export const parseEmail = (raw: string, options?: ParseEmailOptions): Effect.Eff
     return yield* decodeEmail(email);
   });
 
-const listMaildirFiles = (dirPath: string): Effect.Effect<ReadonlyArray<string>, EnronFileError | PlatformError, FileSystem.FileSystem> =>
+const listMaildirFiles = (
+  dirPath: string
+): Effect.Effect<ReadonlyArray<string>, EnronFileError | PlatformError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
 
@@ -511,7 +543,9 @@ const splitMaildirPath = (relativeFilePath: string): { readonly user: string; re
   return { user, folder };
 };
 
-export const parseCsvContent = (csvContent: string): Effect.Effect<ReadonlyArray<EnronEmail>, EnronParseError | EnronFileError> =>
+export const parseCsvContent = (
+  csvContent: string
+): Effect.Effect<ReadonlyArray<EnronEmail>, EnronParseError | EnronFileError> =>
   Effect.gen(function* () {
     const rows = yield* parseCsvRows(csvContent);
 
@@ -546,7 +580,11 @@ export const parseCsvFile = (
 
 export const parseMaildir = (
   dirPath: string
-): Effect.Effect<ReadonlyArray<EnronEmail>, EnronParseError | BadArgument | SystemError | EnronFileError, FileSystem.FileSystem> =>
+): Effect.Effect<
+  ReadonlyArray<EnronEmail>,
+  EnronParseError | BadArgument | SystemError | EnronFileError,
+  FileSystem.FileSystem
+> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const files = yield* listMaildirFiles(dirPath);

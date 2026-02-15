@@ -2,12 +2,12 @@ import { createHash } from "node:crypto";
 import { basename, join } from "node:path";
 import * as ProcessCommand from "@effect/platform/Command";
 import type * as CommandExecutor from "@effect/platform/CommandExecutor";
+import type { BadArgument, PlatformError, SystemError } from "@effect/platform/Error";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { threadToEnronDocuments } from "./document-bridge.js";
-import type { PlatformError, BadArgument, SystemError } from "@effect/platform/Error";
 import {
   EnronFileError,
   type EnronParseError,
@@ -17,17 +17,17 @@ import {
   parseEmail,
 } from "./parser.js";
 import type { EnronDocument, EnronEmail, EnronThread } from "./schemas.js";
+import { reconstructThreads } from "./thread-reconstructor.js";
 import {
+  compareScoredThreads,
   DEFAULT_THREAD_SCORE_WEIGHTS,
-  THREAD_DIVERSITY_CATEGORIES,
   type ScoredEnronThread,
+  scoreThreads,
+  THREAD_DIVERSITY_CATEGORIES,
   type ThreadDiversityCategory,
   type ThreadScorerOptions,
   type ThreadScoreWeights,
-  compareScoredThreads,
-  scoreThreads,
 } from "./thread-scorer.js";
-import { reconstructThreads } from "./thread-reconstructor.js";
 
 export const ENRON_RAW_DATASET_URI = "s3://static.vaultctx.com/todox/test-data/enron/raw/enron_mail_20150507.tar.gz";
 export const ENRON_CURATED_PREFIX_URI = "s3://static.vaultctx.com/todox/test-data/enron/curated";
@@ -425,7 +425,11 @@ const collectMaildirFiles = (
 const parseMaildirForCuration = (
   dirPath: string,
   options?: CurateMaildirOptions
-): Effect.Effect<ReadonlyArray<EnronEmail>, EnronFileError | EnronParseError | BadArgument | SystemError, FileSystem.FileSystem> =>
+): Effect.Effect<
+  ReadonlyArray<EnronEmail>,
+  EnronFileError | EnronParseError | BadArgument | SystemError,
+  FileSystem.FileSystem
+> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const limit = options?.maildirMessageLimit;
@@ -473,7 +477,8 @@ export const selectCuratedThreads = (
   const selectedCoverage = createCoverageRecord();
   const availableCoverage = computeAvailableCoverage(sorted);
 
-  const canFit = (thread: ScoredEnronThread): boolean => selectedMessageCount + thread.thread.messages.length <= bounds.max;
+  const canFit = (thread: ScoredEnronThread): boolean =>
+    selectedMessageCount + thread.thread.messages.length <= bounds.max;
 
   const trySelect = (thread: ScoredEnronThread): boolean => {
     if (selectedIds.has(thread.thread.threadId) || !canFit(thread)) {
@@ -522,7 +527,8 @@ export const selectCuratedThreads = (
     }
 
     return sorted.find(
-      (thread) => !selectedIds.has(thread.thread.threadId) && selectedMessageCount + thread.thread.messages.length <= bounds.max
+      (thread) =>
+        !selectedIds.has(thread.thread.threadId) && selectedMessageCount + thread.thread.messages.length <= bounds.max
     );
   };
 
@@ -556,7 +562,13 @@ export const selectCuratedThreads = (
       minimumThreadsPerCategory,
       diversityCategories: THREAD_DIVERSITY_CATEGORIES,
       scoringWeights,
-      deterministicTieBreakers: ["score(desc)", "messageCount(desc)", "participantCount(desc)", "dateRange.start(asc)", "threadId(asc)"],
+      deterministicTieBreakers: [
+        "score(desc)",
+        "messageCount(desc)",
+        "participantCount(desc)",
+        "dateRange.start(asc)",
+        "threadId(asc)",
+      ],
     },
   };
 };
@@ -570,9 +582,13 @@ export const curateFromThreads = (
     const selection = selectCuratedThreads(scoredThreads, options);
     const curatedThreads = selection.selectedThreads.map(toCuratedThreadRecord);
 
-    const nestedDocuments = yield* Effect.forEach(selection.selectedThreads, (thread) => threadToEnronDocuments(thread.thread), {
-      concurrency: "unbounded",
-    }).pipe(
+    const nestedDocuments = yield* Effect.forEach(
+      selection.selectedThreads,
+      (thread) => threadToEnronDocuments(thread.thread),
+      {
+        concurrency: "unbounded",
+      }
+    ).pipe(
       Effect.mapError(
         (cause) =>
           new EnronCurationError({
@@ -625,7 +641,11 @@ export const curateFromCsvFile = (
 export const curateFromMaildir = (
   dirPath: string,
   options?: CurateMaildirOptions
-): Effect.Effect<CuratedDatasetResult, EnronFileError | EnronParseError | EnronCurationError | BadArgument | SystemError, FileSystem.FileSystem> =>
+): Effect.Effect<
+  CuratedDatasetResult,
+  EnronFileError | EnronParseError | EnronCurationError | BadArgument | SystemError,
+  FileSystem.FileSystem
+> =>
   Effect.gen(function* () {
     const emails = yield* parseMaildirForCuration(dirPath, options);
     return yield* curateFromEmails(emails, options);
@@ -742,10 +762,18 @@ export const uploadCuratedArtifacts = (
     const destinationUri = options?.destinationUri ?? ENRON_CURATED_PREFIX_URI;
     const awsExecutable = options?.awsExecutable ?? "aws";
 
-    const paths = [writtenArtifacts.threadsPath, writtenArtifacts.documentsPath, writtenArtifacts.manifestPath] as const;
-    const uploadedUris = yield* Effect.forEach(paths, (path) => uploadSingleArtifact(path, destinationUri, awsExecutable), {
-      concurrency: 1,
-    });
+    const paths = [
+      writtenArtifacts.threadsPath,
+      writtenArtifacts.documentsPath,
+      writtenArtifacts.manifestPath,
+    ] as const;
+    const uploadedUris = yield* Effect.forEach(
+      paths,
+      (path) => uploadSingleArtifact(path, destinationUri, awsExecutable),
+      {
+        concurrency: 1,
+      }
+    );
 
     return {
       destinationUri,

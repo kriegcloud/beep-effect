@@ -61,7 +61,10 @@ const computeDateRange = (messages: ReadonlyArray<EnronEmail>): EnronThreadDateR
   return new EnronThreadDateRange({ start, end });
 };
 
-const computeDepth = (messages: ReadonlyArray<EnronEmail>, parentByMessageId: ReadonlyMap<string, string | undefined>): number => {
+const computeDepth = (
+  messages: ReadonlyArray<EnronEmail>,
+  parentByMessageId: ReadonlyMap<string, string | undefined>
+): number => {
   const messageIds = new Set(messages.map((message) => message.messageId));
   const memo = new Map<string, number>();
 

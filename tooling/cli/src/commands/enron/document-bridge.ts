@@ -1,14 +1,19 @@
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import type * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import { makeDeterministicEmailId, makeDeterministicId } from "./parser.js";
 import { EnronDocument, EnronDocumentSpan, type EnronEmail, type EnronThread } from "./schemas.js";
-import type * as ParseResult from "effect/ParseResult";
+
 const decodeDocument = (input: unknown): Effect.Effect<EnronDocument, ParseResult.ParseError> =>
   S.decodeUnknown(EnronDocument)(input);
 
 const dedupeRecipients = (email: EnronEmail): ReadonlyArray<string> =>
-  A.dedupe([...email.to, ...email.cc, ...email.bcc].map((value) => value.trim().toLowerCase()).filter((value) => value.length > 0));
+  A.dedupe(
+    [...email.to, ...email.cc, ...email.bcc]
+      .map((value) => value.trim().toLowerCase())
+      .filter((value) => value.length > 0)
+  );
 
 const buildBodySpans = (body: string): ReadonlyArray<EnronDocumentSpan> => {
   if (body.length === 0) {

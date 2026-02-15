@@ -1,10 +1,8 @@
+import { describe, expect, test } from "bun:test";
 import { createHash, randomUUID } from "node:crypto";
 import { rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import { tmpdir } from "node:os";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import { describe, expect, test } from "bun:test";
-import * as Effect from "effect/Effect";
+import { join } from "node:path";
 import { loadCuratedDocuments, readCuratedInfo, syncCuratedCache } from "@beep/repo-cli/commands/enron/cache";
 import { formatEnronInfoOutput, serializeCuratedDocumentsNdjson } from "@beep/repo-cli/commands/enron/index";
 import {
@@ -15,6 +13,8 @@ import {
   S3DataSource,
   type S3DataSource as S3DataSourceService,
 } from "@beep/repo-cli/commands/enron/s3-client";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as Effect from "effect/Effect";
 
 interface CuratedFixture {
   readonly threadsJson: string;
@@ -217,7 +217,7 @@ describe("enron/cache", () => {
       expect(initial.status).toBe("miss");
 
       const documentsPath = join(cacheDirectory, "documents.json");
-      await writeFile(documentsPath, "{\n  \"corrupt\": true\n}\n", "utf8");
+      await writeFile(documentsPath, '{\n  "corrupt": true\n}\n', "utf8");
 
       const afterCorruption = await runWithDeps(syncCuratedCache({ cacheDirectory }), mockS3.service);
       expect(afterCorruption.status).toBe("artifact-mismatch");

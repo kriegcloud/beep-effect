@@ -1,8 +1,8 @@
+import * as Path from "node:path";
+import { makeDeterministicEmailId, normalizeEmailBody, parseEmail } from "@beep/repo-cli/commands/enron/parser";
 import { describe, effect, expect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
-import * as Path from "node:path";
-import { makeDeterministicEmailId, normalizeEmailBody, parseEmail } from "@beep/repo-cli/commands/enron/parser";
 
 const fixturePath = (name: string) => Path.join(import.meta.dir, "fixtures", name);
 const readFixture = (name: string): Effect.Effect<string> => Effect.promise(() => Bun.file(fixturePath(name)).text());

@@ -6,23 +6,23 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
+  type CuratedCacheSyncResult,
   DEFAULT_ENRON_CACHE_DIRECTORY,
-  EnronDataCache,
-  EnronDataCacheLive,
   type EnronCacheOptions,
   type EnronCuratedInfo,
+  EnronDataCache,
+  EnronDataCacheLive,
   type LoadedCuratedDocuments,
-  type CuratedCacheSyncResult,
 } from "./cache.js";
 import {
+  type CurateMaildirOptions,
+  type CuratorSelectionOptions,
   curateFromCsvFile,
   curateFromMaildir,
   writeCuratedArtifacts,
-  type CurateMaildirOptions,
-  type CuratorSelectionOptions,
 } from "./curator.js";
-import type { EnronDocument } from "./schemas.js";
 import { S3DataSourceLive } from "./s3-client.js";
+import type { EnronDocument } from "./schemas.js";
 
 const DEFAULT_CURATE_OUTPUT_DIRECTORY = ".data/enron/curated";
 
@@ -152,9 +152,7 @@ export const formatEnronInfoOutput = (info: EnronCuratedInfo): string => {
   ];
 
   for (const artifact of [...info.artifacts].sort((left, right) => left.fileName.localeCompare(right.fileName))) {
-    lines.push(
-      `artifact:${artifact.fileName} bytes=${artifact.bytes} sha256=${artifact.sha256} path=${artifact.path}`
-    );
+    lines.push(`artifact:${artifact.fileName} bytes=${artifact.bytes} sha256=${artifact.sha256} path=${artifact.path}`);
   }
 
   return `${lines.join("\n")}\n`;
@@ -169,10 +167,7 @@ const compareDocuments = (left: EnronDocument, right: EnronDocument): number => 
   return left.metadata.messageId.localeCompare(right.metadata.messageId);
 };
 
-export const serializeCuratedDocumentsNdjson = (
-  documents: ReadonlyArray<EnronDocument>,
-  limit?: number
-): string => {
+export const serializeCuratedDocumentsNdjson = (documents: ReadonlyArray<EnronDocument>, limit?: number): string => {
   const sorted = [...documents].sort(compareDocuments);
   const selected = limit === undefined ? sorted : sorted.slice(0, limit);
 

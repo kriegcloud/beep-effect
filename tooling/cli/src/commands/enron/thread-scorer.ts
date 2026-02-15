@@ -6,7 +6,11 @@ export const FINANCIAL_KEYWORDS = ["deal", "position", "risk", "compensation", "
 export const ACTION_ITEM_KEYWORDS = ["please", "need", "deadline", "follow up", "action"] as const;
 
 const FORWARDED_SUBJECT_PATTERNS = [/^fwd\s*:/i, /^fw\s*:/i] as const;
-const FORWARDED_BODY_PATTERNS = [/^[-\s]*original message[-\s]*$/gim, /^begin forwarded message:/gim, /^forwarded by:/gim] as const;
+const FORWARDED_BODY_PATTERNS = [
+  /^[-\s]*original message[-\s]*$/gim,
+  /^begin forwarded message:/gim,
+  /^forwarded by:/gim,
+] as const;
 
 export const THREAD_DIVERSITY_CATEGORIES = [
   "financial",
@@ -166,7 +170,8 @@ const computeLengthSignal = (thread: EnronThread): ThreadLengthDiversitySignal =
 
   const minLength = lengths.length > 0 ? Math.min(...lengths) : 0;
   const maxLength = lengths.length > 0 ? Math.max(...lengths) : 0;
-  const averageLength = lengths.length > 0 ? Math.round(lengths.reduce((sum, length) => sum + length, 0) / lengths.length) : 0;
+  const averageLength =
+    lengths.length > 0 ? Math.round(lengths.reduce((sum, length) => sum + length, 0) / lengths.length) : 0;
 
   return {
     terseCount,
@@ -370,7 +375,10 @@ export const scoreThread = (thread: EnronThread, options?: ThreadScorerOptions):
   };
 };
 
-export const scoreThreads = (threads: ReadonlyArray<EnronThread>, options?: ThreadScorerOptions): ReadonlyArray<ScoredEnronThread> =>
+export const scoreThreads = (
+  threads: ReadonlyArray<EnronThread>,
+  options?: ThreadScorerOptions
+): ReadonlyArray<ScoredEnronThread> =>
   [...threads].map((thread) => scoreThread(thread, options)).sort(compareScoredThreads);
 
 export const scoreThreadsEffect = (

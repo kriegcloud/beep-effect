@@ -7,15 +7,14 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { EnronDocument } from "./schemas.js";
 import {
-
   ENRON_CURATED_MANIFEST_URI,
   ENRON_CURATED_S3_PREFIX_URI,
   type EnronS3DataSourceError,
   S3DataSource,
   type S3DataSource as S3DataSourceService,
 } from "./s3-client.js";
+import { EnronDocument } from "./schemas.js";
 
 const MANIFEST_FILE_NAME = "manifest.json";
 const DOCUMENTS_FILE_NAME = "documents.json";
@@ -117,7 +116,8 @@ const sha256Hex = (value: string): string => createHash("sha256").update(value, 
 
 const utf8Bytes = (value: string): number => Buffer.byteLength(value, "utf8");
 
-const resolveCacheDirectory = (options?: EnronCacheOptions): string => options?.cacheDirectory ?? DEFAULT_ENRON_CACHE_DIRECTORY;
+const resolveCacheDirectory = (options?: EnronCacheOptions): string =>
+  options?.cacheDirectory ?? DEFAULT_ENRON_CACHE_DIRECTORY;
 
 const manifestPath = (cacheDirectory: string): string => join(cacheDirectory, MANIFEST_FILE_NAME);
 
@@ -160,7 +160,10 @@ const removeDirectory = (path: string): Effect.Effect<void, never> =>
   Effect.tryPromise({
     try: () => rm(path, { recursive: true, force: true }),
     catch: () => undefined,
-  }).pipe(Effect.asVoid, Effect.catchAll(() => Effect.void));
+  }).pipe(
+    Effect.asVoid,
+    Effect.catchAll(() => Effect.void)
+  );
 
 const readFileString = (path: string, message: string): Effect.Effect<string, EnronCacheError> =>
   Effect.tryPromise({
@@ -299,7 +302,9 @@ const downloadCuratedArtifacts = (
   Effect.gen(function* () {
     const downloadedArtifacts: Array<string> = [];
 
-    for (const artifact of [...remoteManifest.manifest.artifacts].sort((left, right) => left.fileName.localeCompare(right.fileName))) {
+    for (const artifact of [...remoteManifest.manifest.artifacts].sort((left, right) =>
+      left.fileName.localeCompare(right.fileName)
+    )) {
       const artifactUri = `${ENRON_CURATED_S3_PREFIX_URI}/${artifact.fileName}`;
       const artifactContent = yield* s3DataSource.downloadText(artifactUri);
 
@@ -327,7 +332,11 @@ const downloadCuratedArtifacts = (
       downloadedArtifacts.push(artifact.fileName);
     }
 
-    yield* writeFileString(manifestPath(cacheDirectory), remoteManifest.manifestJson, "Failed to write curated manifest into cache");
+    yield* writeFileString(
+      manifestPath(cacheDirectory),
+      remoteManifest.manifestJson,
+      "Failed to write curated manifest into cache"
+    );
 
     return downloadedArtifacts;
   });

@@ -5,8 +5,8 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { EnronDataCache, EnronDataCacheLive } from "./cache.js";
-import type { EnronDocument } from "./schemas.js";
 import { S3DataSourceLive } from "./s3-client.js";
+import type { EnronDocument } from "./schemas.js";
 
 const DEFAULT_DOCUMENT_LIMIT = 25;
 const DEFAULT_DOCUMENT_OFFSET = 0;
@@ -15,11 +15,21 @@ const DEFAULT_OUTPUT_PATH = join(process.cwd(), "specs/pending/enron-data-pipeli
 
 const personTypeHints = ["person", "individual"] as const;
 const organizationTypeHints = ["organization", "company", "corp", "inc", "llc", "ltd", "bank", "energy"] as const;
-const instrumentTypeHints = ["instrument", "deal", "contract", "portfolio", "risk", "position", "equity", "bond"] as const;
+const instrumentTypeHints = [
+  "instrument",
+  "deal",
+  "contract",
+  "portfolio",
+  "risk",
+  "position",
+  "equity",
+  "bond",
+] as const;
 const actionTypeHints = ["action", "task", "follow", "deadline", "request"] as const;
 const amountTypeHints = ["amount", "money", "monetary", "price", "value"] as const;
 
-const organizationMentionPattern = /\b[A-Z][A-Za-z&.'-]*(?:\s+[A-Z][A-Za-z&.'-]*)*\s(?:Corp|Corporation|Company|Inc|LLC|Ltd|Bank|Energy)\b/g;
+const organizationMentionPattern =
+  /\b[A-Z][A-Za-z&.'-]*(?:\s+[A-Z][A-Za-z&.'-]*)*\s(?:Corp|Corporation|Company|Inc|LLC|Ltd|Bank|Energy)\b/g;
 const personMentionPattern = /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2}\b/g;
 const emailMentionPattern = /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi;
 const instrumentMentionPattern = /\b(?:portfolio|swap|derivative|bond|equity|contract|deal|position|risk)\b/gi;
@@ -190,10 +200,7 @@ interface DeterministicExtractionResult {
 }
 
 interface DeterministicExtractionPipeline {
-  readonly run: (
-    document: EnronDocument,
-    ontology: OntologySummary
-  ) => Effect.Effect<DeterministicExtractionResult>;
+  readonly run: (document: EnronDocument, ontology: OntologySummary) => Effect.Effect<DeterministicExtractionResult>;
 }
 
 const DeterministicExtractionPipeline = Context.GenericTag<DeterministicExtractionPipeline>(
@@ -202,7 +209,8 @@ const DeterministicExtractionPipeline = Context.GenericTag<DeterministicExtracti
 
 const normalizeWhitespace = (value: string): string => value.replace(/\s+/g, " ").trim();
 
-const lowerIncludes = (haystack: string, needle: string): boolean => haystack.toLowerCase().includes(needle.toLowerCase());
+const lowerIncludes = (haystack: string, needle: string): boolean =>
+  haystack.toLowerCase().includes(needle.toLowerCase());
 
 const parseIntOption = (rawValue: string, flagName: string): number => {
   const parsed = Number.parseInt(rawValue, 10);
@@ -520,7 +528,9 @@ const pickTypeIri = (mention: string, classIris: ReadonlyArray<string>): string 
   }
 
   if (/(portfolio|swap|derivative|bond|equity|contract|deal|position|risk)/.test(normalized)) {
-    return pickByHint(classIris, instrumentTypeHints) ?? classIris[0] ?? "https://todox.dev/ontology/wm/FinancialInstrument";
+    return (
+      pickByHint(classIris, instrumentTypeHints) ?? classIris[0] ?? "https://todox.dev/ontology/wm/FinancialInstrument"
+    );
   }
 
   if (/(follow up|deadline|action|review|send)/.test(normalized)) {
@@ -542,26 +552,36 @@ const pickPredicate = (propertyIris: ReadonlyArray<string>, mention: string): st
   const normalized = mention.toLowerCase();
 
   if (/\$[0-9]/.test(normalized)) {
-    return pickByHint(propertyIris, amountTypeHints) ?? propertyIris[0] ?? "https://todox.dev/ontology/wm/reportsAmount";
+    return (
+      pickByHint(propertyIris, amountTypeHints) ?? propertyIris[0] ?? "https://todox.dev/ontology/wm/reportsAmount"
+    );
   }
 
   if (/(corp|organization|company|inc|llc|ltd|bank|energy)/.test(normalized)) {
     return (
-      pickByHint(propertyIris, organizationTypeHints) ?? propertyIris[0] ?? "https://todox.dev/ontology/wm/mentionsOrganization"
+      pickByHint(propertyIris, organizationTypeHints) ??
+      propertyIris[0] ??
+      "https://todox.dev/ontology/wm/mentionsOrganization"
     );
   }
 
   if (/(portfolio|swap|derivative|bond|equity|contract|deal|risk|position)/.test(normalized)) {
     return (
-      pickByHint(propertyIris, instrumentTypeHints) ?? propertyIris[0] ?? "https://todox.dev/ontology/wm/discussesInstrument"
+      pickByHint(propertyIris, instrumentTypeHints) ??
+      propertyIris[0] ??
+      "https://todox.dev/ontology/wm/discussesInstrument"
     );
   }
 
   if (/(follow up|deadline|action|review|send)/.test(normalized)) {
-    return pickByHint(propertyIris, actionTypeHints) ?? propertyIris[0] ?? "https://todox.dev/ontology/wm/requestsAction";
+    return (
+      pickByHint(propertyIris, actionTypeHints) ?? propertyIris[0] ?? "https://todox.dev/ontology/wm/requestsAction"
+    );
   }
 
-  return pickByHint(propertyIris, personTypeHints) ?? propertyIris[0] ?? "https://todox.dev/ontology/wm/mentionsParticipant";
+  return (
+    pickByHint(propertyIris, personTypeHints) ?? propertyIris[0] ?? "https://todox.dev/ontology/wm/mentionsParticipant"
+  );
 };
 
 const buildEntities = (
@@ -829,7 +849,10 @@ const buildAggregateQuality = (documents: ReadonlyArray<DocumentExtractionRecord
     0
   );
   const totalEvidenceChecks = documents.reduce((total, document) => total + document.validation.evidenceChecks, 0);
-  const totalInvalidEvidence = documents.reduce((total, document) => total + document.validation.invalidEvidence.length, 0);
+  const totalInvalidEvidence = documents.reduce(
+    (total, document) => total + document.validation.invalidEvidence.length,
+    0
+  );
   const totalHallucinationChecks = documents.reduce(
     (total, document) => total + document.validation.hallucinationChecks,
     0
@@ -1021,9 +1044,7 @@ const extractionHarnessProgram = (
     };
   });
 
-export const runExtractionHarness = (
-  options: HarnessCliOptions
-): Effect.Effect<ExtractionHarnessReport, never> => {
+export const runExtractionHarness = (options: HarnessCliOptions): Effect.Effect<ExtractionHarnessReport, never> => {
   const cacheLayer = EnronDataCacheLive.pipe(Layer.provideMerge(S3DataSourceLive));
 
   return extractionHarnessProgram(options).pipe(

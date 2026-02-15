@@ -17,10 +17,13 @@ export class EnronS3UriError extends S.TaggedError<EnronS3UriError>()("EnronS3Ur
   message: S.String,
 }) {}
 
-export class EnronS3ObjectNotFoundError extends S.TaggedError<EnronS3ObjectNotFoundError>()("EnronS3ObjectNotFoundError", {
-  uri: S.String,
-  message: S.String,
-}) {}
+export class EnronS3ObjectNotFoundError extends S.TaggedError<EnronS3ObjectNotFoundError>()(
+  "EnronS3ObjectNotFoundError",
+  {
+    uri: S.String,
+    message: S.String,
+  }
+) {}
 
 export class EnronS3TransportError extends S.TaggedError<EnronS3TransportError>()("EnronS3TransportError", {
   uri: S.String,

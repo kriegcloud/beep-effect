@@ -1,7 +1,7 @@
-import { describe, effect, expect, strictEqual } from "@beep/testkit";
-import * as Effect from "effect/Effect";
 import { EnronEmail, EnronThread, EnronThreadDateRange } from "@beep/repo-cli/commands/enron/schemas";
 import { scoreThread, scoreThreads } from "@beep/repo-cli/commands/enron/thread-scorer";
+import { describe, effect, expect, strictEqual } from "@beep/testkit";
+import * as Effect from "effect/Effect";
 
 interface MakeThreadOptions {
   readonly threadId: string;
@@ -25,7 +25,8 @@ const makeThread = (options: MakeThreadOptions): EnronThread => {
       cc: [],
       bcc: [],
       date: new Date(baseDate.getTime() + index * 60_000),
-      subject: options.forwarded && index > 0 ? `Fwd: ${options.subjectPrefix} ${index}` : `${options.subjectPrefix} ${index}`,
+      subject:
+        options.forwarded && index > 0 ? `Fwd: ${options.subjectPrefix} ${index}` : `${options.subjectPrefix} ${index}`,
       messageId,
       inReplyTo: index === 0 ? undefined : `<${options.threadId}-${index - 1}@enron.com>`,
       references: index === 0 ? [] : [`<${options.threadId}-0@enron.com>`],

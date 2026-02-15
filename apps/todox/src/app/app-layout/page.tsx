@@ -1,42 +1,41 @@
 "use client";
-import { styled } from "@mui/material/styles";
 
-import {assetPaths} from "@beep/constants";
+import { assetPaths } from "@beep/constants";
+import { styled } from "@mui/material/styles";
 
 const StyledAvatar = styled("div")`
 background: linear-gradient(135deg, rgb(40, 164, 40) 0%, rgb(71, 195, 122) 100%); --space-avatar-bg: transparent;
-`
+`;
 
 const Page = () => {
-
   return (
     <div className={"flex h-dvh w-dvw flex-col"}>
       <div className={"relative"}>
         <div className={"header-panel-orb-backdrop"}>
-          <div className={"header-panel-orb-primary"}/>
-          <div className={"header-panel-orb-secondary"}/>
+          <div className={"header-panel-orb-primary"} />
+          <div className={"header-panel-orb-secondary"} />
         </div>
         <div
-          className={"header-with-orb-glow group/logo border-shade-gray-300 mt-safe-top grid h-12 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-x-2 px-4"}
+          className={
+            "header-with-orb-glow group/logo border-shade-gray-300 mt-safe-top grid h-12 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-x-2 px-4"
+          }
         >
-          <nav
-            aria-label={"Breadcrumb"}
-            className={"flex items-center gap-x-1"}
-          >
+          <nav aria-label={"Breadcrumb"} className={"flex items-center gap-x-1"}>
             <div className={"flex items-center"}>
-              <div
-                className={"flex h-8 w-8 items-center justify-center"}
-                data-global-panel-toggle={"true"}
-              >
+              <div className={"flex h-8 w-8 items-center justify-center"} data-global-panel-toggle={"true"}>
                 <a
-                  className={"flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ease-in-out hover:bg-shade-gray-200 hover:scale-105 dark:hover:bg-shade-gray-500"}
+                  className={
+                    "flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ease-in-out hover:bg-shade-gray-200 hover:scale-105 dark:hover:bg-shade-gray-500"
+                  }
                   href={"/"}
                   data-discover={"true"}
                 >
                   <img
                     src={"/logo.avif"}
                     alt={"Beep"}
-                    className={"h-7 w-7 rounded-full border border-black/10 transition-transform ease-in-out dark:border-white/10"}
+                    className={
+                      "h-7 w-7 rounded-full border border-black/10 transition-transform ease-in-out dark:border-white/10"
+                    }
                   />
                 </a>
               </div>
@@ -55,7 +54,7 @@ const Page = () => {
                 className="lucide lucide-slash text-shade-gray-500 h-3 w-3 shrink-0 -rotate-[30deg]"
                 aria-hidden="true"
               >
-                <path d="M22 2 2 22"/>
+                <path d="M22 2 2 22" />
               </svg>
             </div>
             <div className="flex items-center">
@@ -79,9 +78,11 @@ const Page = () => {
                     fillRule="evenodd"
                   />
                 </svg>
-                <span className="shrink-0 flex items-center">Settings</span></a></div>
+                <span className="shrink-0 flex items-center">Settings</span>
+              </a>
+            </div>
           </nav>
-          <div className="flex min-w-0 items-center justify-center"/>
+          <div className="flex min-w-0 items-center justify-center" />
           <div className="flex items-center justify-end gap-1">
             <div className="hidden md:flex">
               <button
@@ -103,10 +104,8 @@ const Page = () => {
                   className="lucide lucide-bell h-4 w-4"
                   aria-hidden="true"
                 >
-                  <path d="M10.268 21a2 2 0 0 0 3.464 0"/>
-                  <path
-                    d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"
-                  />
+                  <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+                  <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
                 </svg>
               </button>
             </div>
@@ -139,17 +138,9 @@ const Page = () => {
                     height="1em"
                     viewBox="0 0 24 24"
                   >
-                    <g
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                    >
-                      <path d="M12 20v-9m2-4a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4zm.12-3.12L16 2"/>
-                      <path
-                        d="M21 21a4 4 0 0 0-3.81-4M21 5a4 4 0 0 1-3.55 3.97M22 13h-4M3 21a4 4 0 0 1 3.81-4M3 5a4 4 0 0 0 3.55 3.97M6 13H2M8 2l1.88 1.88M9 7.13V6a3 3 0 1 1 6 0v1.13"
-                      />
+                    <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
+                      <path d="M12 20v-9m2-4a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4zm.12-3.12L16 2" />
+                      <path d="M21 21a4 4 0 0 0-3.81-4M21 5a4 4 0 0 1-3.55 3.97M22 13h-4M3 21a4 4 0 0 1 3.81-4M3 5a4 4 0 0 0 3.55 3.97M6 13H2M8 2l1.88 1.88M9 7.13V6a3 3 0 1 1 6 0v1.13" />
                     </g>
                   </svg>
                 </div>
@@ -159,14 +150,14 @@ const Page = () => {
         </div>
       </div>
       <div
-        className={"relative flex h-full w-full md:overflow-hidden md:max-h-none max-md:max-h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]"}
+        className={
+          "relative flex h-full w-full md:overflow-hidden md:max-h-none max-md:max-h-[calc(100dvh-3rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]"
+        }
       >
-        <div
-          className="pointer-events-none absolute left-0 top-0 z-[60] h-full w-auto pb-2.5 pl-[calc(0.5rem_+_1px)] pt-0.5"
-        >
+        <div className="pointer-events-none absolute left-0 top-0 z-[60] h-full w-auto pb-2.5 pl-[calc(0.5rem_+_1px)] pt-0.5">
           <div
             className="bg-shade-gray-50/50 border-shade-gray-300 relative inset-0 h-full w-full origin-left transform overflow-hidden rounded-bl-lg rounded-tl-lg border-r border-solid backdrop-blur-lg"
-            style={{opacity: 0, width: 0}}
+            style={{ opacity: 0, width: 0 }}
           />
         </div>
         <div className={"left-0 top-0 z-[99] h-full w-auto pb-2.5 pl-1.5 pt-0.5 relative"}>
@@ -175,88 +166,85 @@ const Page = () => {
             style={{
               width: "50px",
               height: "100%",
-              opacity: 1
+              opacity: 1,
             }}
           >
             <div
               className="flex h-full w-full flex-col items-center overflow-hidden rounded-bl-lg rounded-tl-lg"
-              style={{width: "50px"}}
+              style={{ width: "50px" }}
             >
-              <div
-                className="no-scrollbar relative flex h-full flex-col items-center overflow-hidden rounded-bl-lg rounded-tl-lg px-2"
-              >
+              <div className="no-scrollbar relative flex h-full flex-col items-center overflow-hidden rounded-bl-lg rounded-tl-lg px-2">
                 <div className="relative flex flex-shrink-0 flex-col items-center gap-1.5 overflow-hidden pt-3">
-                  <div className="flex flex-shrink-0 flex-col gap-1.5"><a
-                    className="flex items-center justify-center"
-                    href="/search"
-                    data-discover="true"
-                  ><span
-                    className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
-                    data-state="closed"
-                  ><svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-search size-5"
-                    aria-hidden="true"
-                  ><path
-                    d="m21 21-4.34-4.34"
-                  /><circle
-                    cx="11"
-                    cy="11"
-                    r="8"
-                  /></svg></span></a><a
-                    className="flex items-center justify-center"
-                    href="/recent"
-                    data-discover="true"
-                  ><span
-                    className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
-                    data-state="closed"
-                  ><svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-clock size-5"
-                    aria-hidden="true"
-                  ><path
-                    d="M12 6v6l4 2"
-                  /><circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                  /></svg></span></a><a
-                    className="flex items-center justify-center"
-                    href="/shared"
-                    data-discover="true"
-                  ><span
-                    className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
-                    data-state="closed"
-                  ><svg
-                    role={"img"}
-                    className="size-5"
-                    fill="currentColor"
-                    height="20"
-                    strokeWidth="0"
-                    width="20"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  ><path
-                    d="M3.88552 6.12014C3.8862 3.79073 5.77501 1.90234 8.10457 1.90234C10.4345 1.90234 12.3236 3.79142 12.3236 6.1214C12.3236 8.45138 10.4345 10.3405 8.10457 10.3405H8.0794H8.07715C5.75485 10.3327 3.8775 8.44321 3.88552 6.12014ZM8.10457 3.25234C6.52018 3.25234 5.23552 4.537 5.23552 6.1214V6.12393C5.22961 7.7013 6.50401 8.98462 8.08055 8.99046H8.10457C9.68897 8.99046 10.9736 7.7058 10.9736 6.1214C10.9736 4.537 9.68897 3.25234 8.10457 3.25234ZM13.1733 3.36138C13.2482 2.99618 13.6049 2.7608 13.9701 2.83564C15.4943 3.14801 16.6416 4.49613 16.6406 6.11314C16.6404 7.66264 15.5876 8.96274 14.1608 9.34408C13.8006 9.44035 13.4306 9.22643 13.3343 8.86627C13.2381 8.50613 13.452 8.13613 13.8121 8.03987C14.6641 7.81218 15.2906 7.03509 15.2906 6.11272C15.2912 5.15045 14.608 4.34443 13.6991 4.15816C13.3339 4.08331 13.0985 3.72658 13.1733 3.36138ZM13.8471 11.5951C13.8471 11.2222 14.1494 10.9201 14.5221 10.9201C15.4773 10.9201 16.3633 11.2421 17.0202 11.7178C17.6524 12.1757 18.1905 12.8709 18.1905 13.6667C18.1905 14.6057 17.4486 15.4312 16.472 15.6606C16.1091 15.7458 15.7458 15.5207 15.6605 15.1578C15.5754 14.7948 15.8005 14.4316 16.1634 14.3464C16.6324 14.2362 16.8405 13.8794 16.8405 13.6667C16.8405 13.4856 16.6892 13.145 16.2284 12.8112C15.7922 12.4953 15.1814 12.2701 14.5221 12.2701C14.1494 12.2701 13.8471 11.9679 13.8471 11.5951ZM4.57429 13.8524C3.66345 14.4242 3.2499 15.1015 3.2499 15.6749C3.2499 15.9482 3.33893 16.1481 3.50565 16.3211C3.68838 16.5108 3.98893 16.6907 4.43599 16.8405C5.33696 17.1426 6.62783 17.2567 8.10457 17.2567C9.58826 17.2567 10.8781 17.1384 11.7761 16.8331C12.2215 16.6816 12.5207 16.5003 12.7029 16.3095C12.8694 16.1349 12.9585 15.9332 12.9585 15.6586C12.9585 15.0883 12.5442 14.415 11.6304 13.8459C10.7377 13.29 9.48139 12.9163 8.10457 12.9163C6.72039 12.9163 5.46465 13.2934 4.57429 13.8524ZM3.85645 12.7091C4.98135 12.0028 6.49044 11.5663 8.10457 11.5663C9.70983 11.5663 11.2179 11.9985 12.3441 12.6999C13.4492 13.3882 14.3085 14.4236 14.3085 15.6586C14.3085 16.2867 14.0812 16.8205 13.6796 17.2414C13.2935 17.646 12.7727 17.9201 12.2107 18.1112C11.0938 18.4911 9.61921 18.6067 8.10457 18.6067C6.59924 18.6067 5.12528 18.4955 4.00693 18.1206C3.44433 17.932 2.9216 17.6606 2.53348 17.2578C2.12932 16.8383 1.8999 16.3046 1.8999 15.6749C1.8999 14.442 2.75203 13.4025 3.85645 12.7091Z"
-                    fillRule="evenodd"
-                  /></svg></span></a>
-                    <div className="my-2.5 h-px w-full"/>
+                  <div className="flex flex-shrink-0 flex-col gap-1.5">
+                    <a className="flex items-center justify-center" href="/search" data-discover="true">
+                      <span
+                        className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
+                        data-state="closed"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-search size-5"
+                          aria-hidden="true"
+                        >
+                          <path d="m21 21-4.34-4.34" />
+                          <circle cx="11" cy="11" r="8" />
+                        </svg>
+                      </span>
+                    </a>
+                    <a className="flex items-center justify-center" href="/recent" data-discover="true">
+                      <span
+                        className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
+                        data-state="closed"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-clock size-5"
+                          aria-hidden="true"
+                        >
+                          <path d="M12 6v6l4 2" />
+                          <circle cx="12" cy="12" r="10" />
+                        </svg>
+                      </span>
+                    </a>
+                    <a className="flex items-center justify-center" href="/shared" data-discover="true">
+                      <span
+                        className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
+                        data-state="closed"
+                      >
+                        <svg
+                          role={"img"}
+                          className="size-5"
+                          fill="currentColor"
+                          height="20"
+                          strokeWidth="0"
+                          width="20"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3.88552 6.12014C3.8862 3.79073 5.77501 1.90234 8.10457 1.90234C10.4345 1.90234 12.3236 3.79142 12.3236 6.1214C12.3236 8.45138 10.4345 10.3405 8.10457 10.3405H8.0794H8.07715C5.75485 10.3327 3.8775 8.44321 3.88552 6.12014ZM8.10457 3.25234C6.52018 3.25234 5.23552 4.537 5.23552 6.1214V6.12393C5.22961 7.7013 6.50401 8.98462 8.08055 8.99046H8.10457C9.68897 8.99046 10.9736 7.7058 10.9736 6.1214C10.9736 4.537 9.68897 3.25234 8.10457 3.25234ZM13.1733 3.36138C13.2482 2.99618 13.6049 2.7608 13.9701 2.83564C15.4943 3.14801 16.6416 4.49613 16.6406 6.11314C16.6404 7.66264 15.5876 8.96274 14.1608 9.34408C13.8006 9.44035 13.4306 9.22643 13.3343 8.86627C13.2381 8.50613 13.452 8.13613 13.8121 8.03987C14.6641 7.81218 15.2906 7.03509 15.2906 6.11272C15.2912 5.15045 14.608 4.34443 13.6991 4.15816C13.3339 4.08331 13.0985 3.72658 13.1733 3.36138ZM13.8471 11.5951C13.8471 11.2222 14.1494 10.9201 14.5221 10.9201C15.4773 10.9201 16.3633 11.2421 17.0202 11.7178C17.6524 12.1757 18.1905 12.8709 18.1905 13.6667C18.1905 14.6057 17.4486 15.4312 16.472 15.6606C16.1091 15.7458 15.7458 15.5207 15.6605 15.1578C15.5754 14.7948 15.8005 14.4316 16.1634 14.3464C16.6324 14.2362 16.8405 13.8794 16.8405 13.6667C16.8405 13.4856 16.6892 13.145 16.2284 12.8112C15.7922 12.4953 15.1814 12.2701 14.5221 12.2701C14.1494 12.2701 13.8471 11.9679 13.8471 11.5951ZM4.57429 13.8524C3.66345 14.4242 3.2499 15.1015 3.2499 15.6749C3.2499 15.9482 3.33893 16.1481 3.50565 16.3211C3.68838 16.5108 3.98893 16.6907 4.43599 16.8405C5.33696 17.1426 6.62783 17.2567 8.10457 17.2567C9.58826 17.2567 10.8781 17.1384 11.7761 16.8331C12.2215 16.6816 12.5207 16.5003 12.7029 16.3095C12.8694 16.1349 12.9585 15.9332 12.9585 15.6586C12.9585 15.0883 12.5442 14.415 11.6304 13.8459C10.7377 13.29 9.48139 12.9163 8.10457 12.9163C6.72039 12.9163 5.46465 13.2934 4.57429 13.8524ZM3.85645 12.7091C4.98135 12.0028 6.49044 11.5663 8.10457 11.5663C9.70983 11.5663 11.2179 11.9985 12.3441 12.6999C13.4492 13.3882 14.3085 14.4236 14.3085 15.6586C14.3085 16.2867 14.0812 16.8205 13.6796 17.2414C13.2935 17.646 12.7727 17.9201 12.2107 18.1112C11.0938 18.4911 9.61921 18.6067 8.10457 18.6067C6.59924 18.6067 5.12528 18.4955 4.00693 18.1206C3.44433 17.932 2.9216 17.6606 2.53348 17.2578C2.12932 16.8383 1.8999 16.3046 1.8999 15.6749C1.8999 14.442 2.75203 13.4025 3.85645 12.7091Z"
+                            fillRule="evenodd"
+                          />
+                        </svg>
+                      </span>
+                    </a>
+                    <div className="my-2.5 h-px w-full" />
                   </div>
                 </div>
                 <div
@@ -265,16 +253,13 @@ const Page = () => {
                     flexShrink: 0,
                     minHeight: "120px",
                     scrollBehavior: "smooth",
-                    opacity: 1
+                    opacity: 1,
                   }}
                 >
-                  <div className=" mb-3 h-px w-full"/>
+                  <div className=" mb-3 h-px w-full" />
                   <div>
                     <div className="flex flex-col items-center pb-8">
-                      <div
-                        data-rbd-droppable-id="spaces"
-                        data-rbd-droppable-context-id="0"
-                      >
+                      <div data-rbd-droppable-id="spaces" data-rbd-droppable-context-id="0">
                         <div
                           className="mb-3 last:mb-2"
                           data-rbd-draggable-context-id="0"
@@ -286,25 +271,21 @@ const Page = () => {
                           data-rbd-drag-handle-context-id="0"
                           draggable="false"
                         >
-                          <div data-state="closed"><a
-                            className="relative flex items-center justify-center [&amp;&gt;*]:transition-[filter,box-shadow] [&amp;&gt;*]:duration-300 [&amp;&gt;*]:ease-out hover:[&amp;&gt;*]:brightness-[1.15]"
-                            href="/spaces/Yufy1godJk9Yddwv"
-                            data-discover="true"
-                          >
-                            <StyledAvatar
-                              className="flex items-center justify-center rounded-[40%] shadow-sm !size-7 [&amp;&gt;*&gt;*]:!size-7"
+                          <div data-state="closed">
+                            <a
+                              className="relative flex items-center justify-center [&amp;&gt;*]:transition-[filter,box-shadow] [&amp;&gt;*]:duration-300 [&amp;&gt;*]:ease-out hover:[&amp;&gt;*]:brightness-[1.15]"
+                              href="/spaces/Yufy1godJk9Yddwv"
+                              data-discover="true"
                             >
-                              <div
-                                className="flex h-full w-full items-center justify-center [&amp;&gt;*&gt;*]:!bg-transparent [&amp;&gt;*&gt;*]:text-center [&amp;&gt;*]:flex [&amp;&gt;*]:items-center [&amp;&gt;*]:justify-center [&amp;&gt;*]:!bg-transparent !rounded-[40%]"
-                              >
-                                <div className="sc-dPKAra iuIVrI relative !bg-transparent"><img
-                                  src={assetPaths.logo}
-                                  alt="Workspace"
-                                  className="sc-fuExOL chHJJg"
-                                /></div>
-                              </div>
-                            </StyledAvatar>
-                          </a></div>
+                              <StyledAvatar className="flex items-center justify-center rounded-[40%] shadow-sm !size-7 [&amp;&gt;*&gt;*]:!size-7">
+                                <div className="flex h-full w-full items-center justify-center [&amp;&gt;*&gt;*]:!bg-transparent [&amp;&gt;*&gt;*]:text-center [&amp;&gt;*]:flex [&amp;&gt;*]:items-center [&amp;&gt;*]:justify-center [&amp;&gt;*]:!bg-transparent !rounded-[40%]">
+                                  <div className="sc-dPKAra iuIVrI relative !bg-transparent">
+                                    <img src={assetPaths.logo} alt="Workspace" className="sc-fuExOL chHJJg" />
+                                  </div>
+                                </div>
+                              </StyledAvatar>
+                            </a>
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center justify-between gap-x-4 text-sm">
@@ -314,7 +295,7 @@ const Page = () => {
                           data-state="closed"
                           style={{
                             width: "32px",
-                            height: "32px"
+                            height: "32px",
                           }}
                         >
                           <svg
@@ -342,98 +323,95 @@ const Page = () => {
                     flexShrink: 99999,
                     minHeight: "0px",
                     flexBasis: "auto",
-                    opacity: 1
+                    opacity: 1,
                   }}
                 >
-                  <div className="mt-2 h-px w-full bg-transparent"/>
+                  <div className="mt-2 h-px w-full bg-transparent" />
                   <div
                     className="flex flex-col gap-1.5"
                     style={{
                       opacity: 1,
                       height: "auto",
-                      transform: "none"
+                      transform: "none",
                     }}
-                  ><a
-                    className="flex items-center justify-center"
-                    href="/my-tasks"
-                    data-discover="true"
-                  ><span
-                    className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
-                    data-state="closed"
-                  ><svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-square-check-big size-5"
-                    aria-hidden="true"
-                  ><path
-                    d="M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344"
-                  /><path
-                    d="m9 11 3 3L22 4"
-                  /></svg></span></a><a
-                    className="flex items-center justify-center"
-                    href="/calendar"
-                    data-discover="true"
-                  ><span
-                    className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
-                    data-state="closed"
-                  ><svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-calendar size-5"
-                    aria-hidden="true"
-                  ><path
-                    d="M8 2v4"
-                  /><path d="M16 2v4"/><rect
-                    width="18"
-                    height="18"
-                    x="3"
-                    y="4"
-                    rx="2"
-                  /><path
-                    d="M3 10h18"
-                  /></svg></span></a><a
-                    className="flex items-center justify-center"
-                    href="/lists/starred"
-                    data-discover="true"
-                  ><span
-                    className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
-                    data-state="closed"
-                  ><svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-star size-5"
-                    aria-hidden="true"
-                  ><path
-                    d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"
-                  /></svg></span></a>
+                  >
+                    <a className="flex items-center justify-center" href="/my-tasks" data-discover="true">
+                      <span
+                        className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
+                        data-state="closed"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-square-check-big size-5"
+                          aria-hidden="true"
+                        >
+                          <path d="M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344" />
+                          <path d="m9 11 3 3L22 4" />
+                        </svg>
+                      </span>
+                    </a>
+                    <a className="flex items-center justify-center" href="/calendar" data-discover="true">
+                      <span
+                        className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
+                        data-state="closed"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-calendar size-5"
+                          aria-hidden="true"
+                        >
+                          <path d="M8 2v4" />
+                          <path d="M16 2v4" />
+                          <rect width="18" height="18" x="3" y="4" rx="2" />
+                          <path d="M3 10h18" />
+                        </svg>
+                      </span>
+                    </a>
+                    <a className="flex items-center justify-center" href="/lists/starred" data-discover="true">
+                      <span
+                        className="relative flex cursor-pointer items-center justify-center size-8 p-1 rounded-xl border-0 shadow-none text-textcolor-900 duration-20 transition ease-in-out hover:bg-appcolor-300 bg-transparent"
+                        data-state="closed"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-star size-5"
+                          aria-hidden="true"
+                        >
+                          <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+                        </svg>
+                      </span>
+                    </a>
                     <button
                       type={"button"}
                       className="text-textcolor-900 hover:bg-appcolor-200 relative flex cursor-pointer items-center justify-center rounded-xl border-0 p-0 shadow-none transition-colors duration-200 ease-in-out"
                       data-state="closed"
                       style={{
                         width: "32px",
-                        height: "32px"
+                        height: "32px",
                       }}
                     >
                       <svg
@@ -483,12 +461,12 @@ const Page = () => {
                           className="lucide lucide-chevron-up size-4"
                           aria-hidden="true"
                         >
-                          <path d="m18 15-6-6-6 6"/>
+                          <path d="m18 15-6-6-6 6" />
                         </svg>
                       </button>
                     </div>
                   </div>
-                  <div className="mt-2 h-px w-full bg-transparent"/>
+                  <div className="mt-2 h-px w-full bg-transparent" />
                   <div className="flex flex-col gap-1.5">
                     <button
                       className="text-textcolor-900 hover:bg-appcolor-200 relative flex size-8 cursor-pointer items-center justify-center rounded-xl border-0 p-0 shadow-none transition-colors duration-200 ease-in-out"
@@ -566,47 +544,28 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <div
-          className={"relative flex h-full w-full flex-1 overflow-hidden px-2 pb-2"}
-        >
-          <div
-            id={"secondary-panel-desktop-portal-root"}
-            className={"contents"}
-          />
-          <div
-            id="app-header-portal-root"
-            className="relative"
-          />
-          <div
-            className={"z-1 border-shade-gray-300 relative flex flex-1 flex-col overflow-clip rounded-xl border"}
-          >
+        <div className={"relative flex h-full w-full flex-1 overflow-hidden px-2 pb-2"}>
+          <div id={"secondary-panel-desktop-portal-root"} className={"contents"} />
+          <div id="app-header-portal-root" className="relative" />
+          <div className={"z-1 border-shade-gray-300 relative flex flex-1 flex-col overflow-clip rounded-xl border"}>
             <div className="header-panel-orb-backdrop">
-              <div className="header-panel-orb-primary"/>
-              <div className="header-panel-orb-secondary"/>
+              <div className="header-panel-orb-primary" />
+              <div className="header-panel-orb-secondary" />
             </div>
             <div className={"relative flex min-h-0 w-full flex-1 overflow-hidden"}>
-              <div
-                className={"overflow-hidden relative h-full"}
-                style={{width: "auto"}}
-              >
-                <div
-                  className={"space-step2 relative flex h-full border-appcolor-300"}
-                  style={{opacity: 1}}
-                >
-                  <div
-                    className="relative h-full overflow-hidden border-r"
-                    style={{width: "200px", opacity: 1}}
-                  >
+              <div className={"overflow-hidden relative h-full"} style={{ width: "auto" }}>
+                <div className={"space-step2 relative flex h-full border-appcolor-300"} style={{ opacity: 1 }}>
+                  <div className="relative h-full overflow-hidden border-r" style={{ width: "200px", opacity: 1 }}>
                     <div className="orb-backdrop !z-0">
-                      <div className="orb-primary"/>
-                      <div className="orb-secondary"/>
+                      <div className="orb-primary" />
+                      <div className="orb-secondary" />
                     </div>
                     <div
                       className={"absolute left-0 top-0 flex h-full w-full flex-col overflow-auto"}
                       style={{
                         width: "280px",
                         opacity: 1,
-                        transform: "none"
+                        transform: "none",
                       }}
                     >
                       <div className={"px-2 py-3"}>
@@ -630,12 +589,8 @@ const Page = () => {
                                   className="lucide lucide-user h-5 w-5"
                                   aria-hidden="true"
                                 >
-                                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                                  <circle
-                                    cx="12"
-                                    cy="7"
-                                    r="4"
-                                  />
+                                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                  <circle cx="12" cy="7" r="4" />
                                 </svg>
                                 General
                               </div>
@@ -652,15 +607,11 @@ const Page = () => {
                                 className="lucide lucide-chevron-down h-4 w-4 transition-transform duration-200 ease-in-out group-hover:scale-105"
                                 aria-hidden="true"
                               >
-                                <path d="m6 9 6 6 6-6"/>
+                                <path d="m6 9 6 6 6-6" />
                               </svg>
                             </button>
-                            <div
-                              className="overflow-hidden transition-all duration-300 ease-in-out max-h-96 opacity-100"
-                            >
-                              <div
-                                className="bg-appcolor-50/40 dark:bg-appcolor-100/40 ml-1 space-y-0.5 rounded-lg border-0 p-1.5 shadow-sm backdrop-blur-md"
-                              >
+                            <div className="overflow-hidden transition-all duration-300 ease-in-out max-h-96 opacity-100">
+                              <div className="bg-appcolor-50/40 dark:bg-appcolor-100/40 ml-1 space-y-0.5 rounded-lg border-0 p-1.5 shadow-sm backdrop-blur-md">
                                 <a
                                   aria-current="page"
                                   className="liquid-nav-item-dark flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-textcolor-600 hover:text-textcolor-800 transition-all duration-200 ease-in-out ml-4 liquid-nav-item-dark selected text-textcolor-900 font-medium"
@@ -680,83 +631,81 @@ const Page = () => {
                                     className="lucide lucide-user h-4 w-4"
                                     aria-hidden="true"
                                   >
-                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                                    <circle
-                                      cx="12"
-                                      cy="7"
-                                      r="4"
-                                    />
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
                                   </svg>
-                                  Account</a><a
-                                className="liquid-nav-item-dark flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-textcolor-600 hover:text-textcolor-800 transition-all duration-200 ease-in-out ml-4"
-                                href="/settings/password"
-                                data-discover="true"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="lucide lucide-key h-4 w-4"
-                                  aria-hidden="true"
+                                  Account
+                                </a>
+                                <a
+                                  className="liquid-nav-item-dark flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-textcolor-600 hover:text-textcolor-800 transition-all duration-200 ease-in-out ml-4"
+                                  href="/settings/password"
+                                  data-discover="true"
                                 >
-                                  <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/>
-                                  <path d="m21 2-9.6 9.6"/>
-                                  <circle
-                                    cx="7.5"
-                                    cy="15.5"
-                                    r="5.5"
-                                  />
-                                </svg>
-                                Password</a><a
-                                className="liquid-nav-item-dark flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-textcolor-600 hover:text-textcolor-800 transition-all duration-200 ease-in-out ml-4"
-                                href="/settings/sso"
-                                data-discover="true"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="lucide lucide-link h-4 w-4"
-                                  aria-hidden="true"
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="lucide lucide-key h-4 w-4"
+                                    aria-hidden="true"
+                                  >
+                                    <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" />
+                                    <path d="m21 2-9.6 9.6" />
+                                    <circle cx="7.5" cy="15.5" r="5.5" />
+                                  </svg>
+                                  Password
+                                </a>
+                                <a
+                                  className="liquid-nav-item-dark flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-textcolor-600 hover:text-textcolor-800 transition-all duration-200 ease-in-out ml-4"
+                                  href="/settings/sso"
+                                  data-discover="true"
                                 >
-                                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                                </svg>
-                                Connected Accounts</a><a
-                                className="liquid-nav-item-dark flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-textcolor-600 hover:text-textcolor-800 transition-all duration-200 ease-in-out ml-4"
-                                href="/settings/sessions"
-                                data-discover="true"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="lucide lucide-shield h-4 w-4"
-                                  aria-hidden="true"
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="lucide lucide-link h-4 w-4"
+                                    aria-hidden="true"
+                                  >
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                                  </svg>
+                                  Connected Accounts
+                                </a>
+                                <a
+                                  className="liquid-nav-item-dark flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-textcolor-600 hover:text-textcolor-800 transition-all duration-200 ease-in-out ml-4"
+                                  href="/settings/sessions"
+                                  data-discover="true"
                                 >
-                                  <path
-                                    d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
-                                  />
-                                </svg>
-                                Sessions</a></div>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="lucide lucide-shield h-4 w-4"
+                                    aria-hidden="true"
+                                  >
+                                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                                  </svg>
+                                  Sessions
+                                </a>
+                              </div>
                             </div>
                           </div>
                           <a
@@ -778,14 +727,11 @@ const Page = () => {
                               className="lucide lucide-user h-5 w-5"
                               aria-hidden="true"
                             >
-                              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                              <circle
-                                cx="12"
-                                cy="7"
-                                r="4"
-                              />
+                              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                              <circle cx="12" cy="7" r="4" />
                             </svg>
-                            General</a>
+                            General
+                          </a>
                           <a
                             className="liquid-nav-item-dark flex min-h-8 cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-textcolor-700 hover:text-textcolor-900 transition-all duration-200 ease-in-out"
                             href="/settings/plans"
@@ -804,16 +750,13 @@ const Page = () => {
                               className="lucide lucide-rocket h-5 w-5"
                               aria-hidden="true"
                             >
-                              <path
-                                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
-                              />
-                              <path
-                                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
-                              />
-                              <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
-                              <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                              <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                              <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                              <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                              <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
                             </svg>
-                            Plans</a>
+                            Plans
+                          </a>
                           <a
                             className="liquid-nav-item-dark flex min-h-8 cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-textcolor-700 hover:text-textcolor-900 transition-all duration-200 ease-in-out"
                             href="/settings/usage"
@@ -832,14 +775,15 @@ const Page = () => {
                               className="lucide lucide-chart-no-axes-combined h-5 w-5"
                               aria-hidden="true"
                             >
-                              <path d="M12 16v5"/>
-                              <path d="M16 14v7"/>
-                              <path d="M20 10v11"/>
-                              <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/>
-                              <path d="M4 18v3"/>
-                              <path d="M8 14v7"/>
+                              <path d="M12 16v5" />
+                              <path d="M16 14v7" />
+                              <path d="M20 10v11" />
+                              <path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15" />
+                              <path d="M4 18v3" />
+                              <path d="M8 14v7" />
                             </svg>
-                            Usage &amp; Billing</a>
+                            Usage &amp; Billing
+                          </a>
                           <a
                             className="liquid-nav-item-dark flex min-h-8 cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-textcolor-700 hover:text-textcolor-900 transition-all duration-200 ease-in-out"
                             href="/settings/credits"
@@ -858,18 +802,10 @@ const Page = () => {
                               className="lucide lucide-gift h-5 w-5"
                               aria-hidden="true"
                             >
-                              <rect
-                                x="3"
-                                y="8"
-                                width="18"
-                                height="4"
-                                rx="1"
-                              />
-                              <path d="M12 8v13"/>
-                              <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/>
-                              <path
-                                d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"
-                              />
+                              <rect x="3" y="8" width="18" height="4" rx="1" />
+                              <path d="M12 8v13" />
+                              <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+                              <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" />
                             </svg>
                             Credits &amp; Rewards
                           </a>
@@ -892,10 +828,10 @@ const Page = () => {
                                   className="lucide lucide-plug h-5 w-5"
                                   aria-hidden="true"
                                 >
-                                  <path d="M12 22v-5"/>
-                                  <path d="M9 8V2"/>
-                                  <path d="M15 8V2"/>
-                                  <path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>
+                                  <path d="M12 22v-5" />
+                                  <path d="M9 8V2" />
+                                  <path d="M15 8V2" />
+                                  <path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z" />
                                 </svg>
                                 Integrations
                               </div>
@@ -912,7 +848,7 @@ const Page = () => {
                                 className="lucide lucide-chevron-down h-4 w-4 transition-transform duration-200 ease-in-out group-hover:scale-105"
                                 aria-hidden="true"
                               >
-                                <path d="m6 9 6 6 6-6"/>
+                                <path d="m6 9 6 6 6-6" />
                               </svg>
                             </button>
                             {/*<div className="overflow-hidden transition-all duration-300 ease-in-out max-h-96 opacity-100">*/}
@@ -1109,12 +1045,11 @@ const Page = () => {
                               className="lucide lucide-bell h-5 w-5"
                               aria-hidden="true"
                             >
-                              <path d="M10.268 21a2 2 0 0 0 3.464 0"/>
-                              <path
-                                d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"
-                              />
+                              <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+                              <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
                             </svg>
-                            Notifications</a>
+                            Notifications
+                          </a>
                           <a
                             className="liquid-nav-item-dark flex min-h-8 cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-textcolor-700 hover:text-textcolor-900 transition-all duration-200 ease-in-out"
                             href="/settings/archives"
@@ -1133,17 +1068,12 @@ const Page = () => {
                               className="lucide lucide-archive h-5 w-5"
                               aria-hidden="true"
                             >
-                              <rect
-                                width="20"
-                                height="5"
-                                x="2"
-                                y="3"
-                                rx="1"
-                              />
-                              <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
-                              <path d="M10 12h4"/>
+                              <rect width="20" height="5" x="2" y="3" rx="1" />
+                              <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+                              <path d="M10 12h4" />
                             </svg>
-                            Archives</a>
+                            Archives
+                          </a>
                           <div>
                             <button
                               type={"button"}
@@ -1163,12 +1093,8 @@ const Page = () => {
                                   className="lucide lucide-settings h-5 w-5"
                                   aria-hidden="true"
                                 >
-                                  <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>
-                                  <circle
-                                    cx="12"
-                                    cy="12"
-                                    r="3"
-                                  />
+                                  <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+                                  <circle cx="12" cy="12" r="3" />
                                 </svg>
                                 Manage
                               </div>
@@ -1185,7 +1111,7 @@ const Page = () => {
                                 className="lucide lucide-chevron-down h-4 w-4 transition-transform duration-200 ease-in-out group-hover:scale-105"
                                 aria-hidden="true"
                               >
-                                <path d="m6 9 6 6 6-6"/>
+                                <path d="m6 9 6 6 6-6" />
                               </svg>
                             </button>
                             {/*<div className="overflow-hidden transition-all duration-300 ease-in-out max-h-96 opacity-100">*/}
@@ -1254,12 +1180,11 @@ const Page = () => {
                             {/*</div>*/}
                           </div>
                           <div className="flex flex-col">
-                            <div className="styled__OverlineTitle-sc-1223950e-1 gWupuW"><a
-                              className=""
-                              href="/settings/manage"
-                              data-discover="true"
-                            >Workspace
-                              Settings</a></div>
+                            <div className="styled__OverlineTitle-sc-1223950e-1 gWupuW">
+                              <a className="" href="/settings/manage" data-discover="true">
+                                Workspace Settings
+                              </a>
+                            </div>
                             <a
                               className="liquid-nav-item-dark text-appcolor-800 relative flex cursor-pointer items-center gap-3 rounded-lg px-3 py-1 text-sm transition-all duration-200 ease-in-out"
                               href="/settings/manage/Yufy1godJk9Yddwv"
@@ -1271,30 +1196,25 @@ const Page = () => {
                                   background: "linear-gradient(135deg, rgb(40, 164, 40) 0%, rgb(71, 195, 122) 100%)",
                                 }}
                               >
-                                <div
-                                  className="flex h-full w-full items-center justify-center [&amp;&gt;*&gt;*]:!bg-transparent [&amp;&gt;*&gt;*]:text-center [&amp;&gt;*]:flex [&amp;&gt;*]:items-center [&amp;&gt;*]:justify-center [&amp;&gt;*]:!bg-transparent !rounded-[40%]"
-                                >
-                                  <div className="sc-dPKAra iuIVrI relative !bg-transparent"><img
-                                    src={assetPaths.logo}
-                                    alt="Workspace"
-                                    className="sc-fuExOL chHJJg"
-                                  /></div>
+                                <div className="flex h-full w-full items-center justify-center [&amp;&gt;*&gt;*]:!bg-transparent [&amp;&gt;*&gt;*]:text-center [&amp;&gt;*]:flex [&amp;&gt;*]:items-center [&amp;&gt;*]:justify-center [&amp;&gt;*]:!bg-transparent !rounded-[40%]">
+                                  <div className="sc-dPKAra iuIVrI relative !bg-transparent">
+                                    <img src={assetPaths.logo} alt="Workspace" className="sc-fuExOL chHJJg" />
+                                  </div>
                                 </div>
                               </div>
-                              <span className="w-full truncate">Workspace</span></a></div>
+                              <span className="w-full truncate">Workspace</span>
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
               <div className={"grid w-full flex-1 overflow-x-hidden transition-all duration-300"}>
                 <div className={"flex h-full flex-col overflow-hidden"}>
                   <div className={"flex h-full w-full flex-1 flex-col overflow-hidden"}>
-                    <div
-                      className="border-shade-gray-300 header-with-orb-glow border-b h-10 px-2 flex shrink-0 items-center justify-between"
-                    >
+                    <div className="border-shade-gray-300 header-with-orb-glow border-b h-10 px-2 flex shrink-0 items-center justify-between">
                       <button
                         type={"button"}
                         aria-label="Toggle settings panel"
@@ -1325,57 +1245,66 @@ const Page = () => {
                       <div className={"flex h-full shrink-0 grow basis-0 flex-col overflow-y-auto"}>
                         <div className="px-4 py-6 sm:px-8">
                           <div className="flex flex-col gap-y-4">
-                            <div className="space-y-0.5"><h1
-                              className="text-shade-gray-1200 text-2xl font-bold"
-                            >General</h1><p
-                              className="text-shade-gray-800 text-sm leading-relaxed"
-                            >Update your profile, display name,
-                              timezone, and language preferences. <a
-                                rel="noopener noreferrer"
-                                target="_blank"
-                                href="https://help.taskade.com/en/articles/8958487-account-settings"
-                                className="text-primary hover:text-primary/80"
-                              >Learn
-                                more.</a></p></div>
-                            <div className="hidden sm:flex"><a
-                              aria-current="page"
-                              className="AccountTabs__StyledNavLink-sc-a9bbfe19-0 hssqxQ active"
-                              href="/settings"
-                              data-discover="true"
-                            >Account</a><a
-                              className="AccountTabs__StyledNavLink-sc-a9bbfe19-0 hssqxQ"
-                              href="/settings/password"
-                              data-discover="true"
-                            >Password</a><a
-                              className="AccountTabs__StyledNavLink-sc-a9bbfe19-0 hssqxQ"
-                              href="/settings/sso"
-                              data-discover="true"
-                            >Connected Accounts</a><a
-                              className="AccountTabs__StyledNavLink-sc-a9bbfe19-0 hssqxQ"
-                              href="/settings/sessions"
-                              data-discover="true"
-                            >Sessions</a></div>
+                            <div className="space-y-0.5">
+                              <h1 className="text-shade-gray-1200 text-2xl font-bold">General</h1>
+                              <p className="text-shade-gray-800 text-sm leading-relaxed">
+                                Update your profile, display name, timezone, and language preferences.{" "}
+                                <a
+                                  rel="noopener noreferrer"
+                                  target="_blank"
+                                  href="https://help.taskade.com/en/articles/8958487-account-settings"
+                                  className="text-primary hover:text-primary/80"
+                                >
+                                  Learn more.
+                                </a>
+                              </p>
+                            </div>
+                            <div className="hidden sm:flex">
+                              <a
+                                aria-current="page"
+                                className="AccountTabs__StyledNavLink-sc-a9bbfe19-0 hssqxQ active"
+                                href="/settings"
+                                data-discover="true"
+                              >
+                                Account
+                              </a>
+                              <a
+                                className="AccountTabs__StyledNavLink-sc-a9bbfe19-0 hssqxQ"
+                                href="/settings/password"
+                                data-discover="true"
+                              >
+                                Password
+                              </a>
+                              <a
+                                className="AccountTabs__StyledNavLink-sc-a9bbfe19-0 hssqxQ"
+                                href="/settings/sso"
+                                data-discover="true"
+                              >
+                                Connected Accounts
+                              </a>
+                              <a
+                                className="AccountTabs__StyledNavLink-sc-a9bbfe19-0 hssqxQ"
+                                href="/settings/sessions"
+                                data-discover="true"
+                              >
+                                Sessions
+                              </a>
+                            </div>
                           </div>
                         </div>
-                        <div className={"flex-1 px-4 sm:px-8"}>
-                          beep
-                        </div>
+                        <div className={"flex-1 px-4 sm:px-8"}>beep</div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div
-                id="secondary-panel-mobile-portal-root"
-                className="contents"
-              />
+              <div id="secondary-panel-mobile-portal-root" className="contents" />
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-
 };
 
 export default Page;

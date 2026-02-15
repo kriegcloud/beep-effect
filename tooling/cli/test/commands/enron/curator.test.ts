@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
-import { describe, effect, expect, strictEqual } from "@beep/testkit";
-import * as Effect from "effect/Effect";
 import { curateFromEmails } from "@beep/repo-cli/commands/enron/curator";
 import { EnronEmail } from "@beep/repo-cli/commands/enron/schemas";
+import { describe, effect, expect, strictEqual } from "@beep/testkit";
+import * as Effect from "effect/Effect";
 
 interface ThreadFactoryOptions {
   readonly threadSeed: string;
@@ -30,7 +30,8 @@ const makeThreadEmails = (options: ThreadFactoryOptions): ReadonlyArray<EnronEma
       cc: [],
       bcc: [],
       date: new Date(start + index * 60_000),
-      subject: options.forwarded && index > 0 ? `Fwd: ${options.baseSubject} ${index}` : `${options.baseSubject} ${index}`,
+      subject:
+        options.forwarded && index > 0 ? `Fwd: ${options.baseSubject} ${index}` : `${options.baseSubject} ${index}`,
       messageId,
       inReplyTo: index === 0 ? undefined : `<${options.threadSeed}-${index - 1}@enron.com>`,
       references: index === 0 ? [] : [`<${options.threadSeed}-0@enron.com>`],

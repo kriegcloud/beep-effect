@@ -1,8 +1,8 @@
-import { describe, effect, expect, strictEqual } from "@beep/testkit";
-import * as Effect from "effect/Effect";
 import * as Path from "node:path";
 import { parseEmail } from "@beep/repo-cli/commands/enron/parser";
 import { reconstructThreads } from "@beep/repo-cli/commands/enron/thread-reconstructor";
+import { describe, effect, expect, strictEqual } from "@beep/testkit";
+import * as Effect from "effect/Effect";
 
 const fixturePath = (name: string) => Path.join(import.meta.dir, "fixtures", name);
 const readFixture = (name: string): Effect.Effect<string> => Effect.promise(() => Bun.file(fixturePath(name)).text());
@@ -51,7 +51,9 @@ describe("enron/thread-reconstructor", () => {
       const threads = reconstructThreads([root, orphan]);
       strictEqual(threads.length, 2);
 
-      const orphanThread = threads.find((thread) => thread.messages.some((message) => message.messageId === orphan.messageId));
+      const orphanThread = threads.find((thread) =>
+        thread.messages.some((message) => message.messageId === orphan.messageId)
+      );
       if (orphanThread === undefined) {
         throw new Error("Expected orphan thread");
       }
