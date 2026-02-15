@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BatchNotFoundError } from "@beep/knowledge-domain/errors";
-import { BatchState } from "@beep/knowledge-domain/value-objects";
+import { BatchState } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";

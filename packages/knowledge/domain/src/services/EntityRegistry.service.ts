@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import type { Entity, MentionRecord } from "@beep/knowledge-domain/entities";
 import type { RegistryError } from "@beep/knowledge-domain/errors/Registry.errors";
-import type { EntityCandidate } from "@beep/knowledge-domain/value-objects/EntityCandidate.value";
+import type { EntityCandidate } from "@beep/knowledge-domain/values/EntityCandidate.value.value";
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
 

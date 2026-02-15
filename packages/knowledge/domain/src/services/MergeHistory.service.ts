@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import type * as Entities from "@beep/knowledge-domain/entities";
 import type { MergeError } from "@beep/knowledge-domain/errors/Merge.errors";
-import type { MergeParams } from "@beep/knowledge-domain/value-objects/MergeParams.value";
+import type { MergeParams } from "@beep/knowledge-domain/values/MergeParams.value.value";
 import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";

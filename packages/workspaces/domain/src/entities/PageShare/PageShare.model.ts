@@ -5,7 +5,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { AccessLevel, ShareType } from "../../value-objects";
+import { AccessLevel, ShareType } from "../../values";
 
 const $I = $WorkspacesDomainId.create("entities/PageShare/PageShare.model");
 

@@ -5,7 +5,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { ClassIri } from "../../value-objects/ClassIri.value";
+import { ClassIri } from "../../values/ClassIri.value.value";
 
 const $I = $KnowledgeDomainId.create("entities/ClassDefinition");
 

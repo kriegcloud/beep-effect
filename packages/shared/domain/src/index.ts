@@ -6,4 +6,4 @@ export * from "./entity-ids/entity-kind";
 export * as Policy from "./Policy";
 export * from "./Retry";
 export * from "./services";
-export * from "./value-objects";
+export * from "./values";

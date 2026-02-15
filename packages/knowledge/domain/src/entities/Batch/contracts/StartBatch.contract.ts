@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BatchAlreadyRunningError, InvalidStateTransitionError } from "@beep/knowledge-domain/errors";
-import { BatchConfig } from "@beep/knowledge-domain/value-objects";
+import { BatchConfig } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";

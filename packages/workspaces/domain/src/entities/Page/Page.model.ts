@@ -16,7 +16,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { DefaultAccess, PageType, SerializedEditorStateEnvelope, TextStyle } from "../../value-objects";
+import { DefaultAccess, PageType, SerializedEditorStateEnvelope, TextStyle } from "../../values";
 
 const $I = $WorkspacesDomainId.create("entities/Page/Page.model");
 

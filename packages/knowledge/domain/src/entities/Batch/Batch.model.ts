@@ -1,5 +1,5 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
-import { FailurePolicy } from "@beep/knowledge-domain/value-objects";
+import { FailurePolicy } from "@beep/knowledge-domain/values";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
