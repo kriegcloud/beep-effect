@@ -2,24 +2,24 @@ export interface Plan {
   readonly id: string;
   readonly title: string;
   readonly description: string;
-  readonly highlight?: undefined |  boolean;
-  readonly type?: undefined |  "monthly" | "yearly";
-  readonly currency?: undefined |  string;
+  readonly highlight?: undefined | boolean;
+  readonly type?: undefined | "monthly" | "yearly";
+  readonly currency?: undefined | string;
   readonly monthlyPrice: string;
   readonly yearlyPrice: string;
   readonly buttonText: string;
-  readonly badge?: undefined |  string;
+  readonly badge?: undefined | string;
   readonly features: {
     readonly name: string;
     readonly icon: string;
-    readonly iconColor?: undefined |  string;
+    readonly iconColor?: undefined | string;
   }[];
 }
 
 export interface CurrentPlan {
   readonly plan: Plan;
   readonly type: "monthly" | "yearly" | "custom";
-  readonly price?: undefined |  string;
+  readonly price?: undefined | string;
   readonly nextBillingDate: string;
   readonly paymentMethod: string;
   readonly status: "active" | "inactive" | "past_due" | "cancelled";

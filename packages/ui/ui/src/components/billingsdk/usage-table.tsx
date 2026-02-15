@@ -13,16 +13,16 @@ export interface UsageItem {
   readonly cacheRead: number;
   readonly output: number;
   readonly totalTokens: number;
-  readonly apiCost?: undefined |  number;
-  readonly costToYou?: undefined |  number;
+  readonly apiCost?: undefined | number;
+  readonly costToYou?: undefined | number;
 }
 
 interface UsageTableProps {
-  readonly className?: undefined |  string;
-  readonly title?: undefined |  string;
-  readonly description?: undefined |  string;
+  readonly className?: undefined | string;
+  readonly title?: undefined | string;
+  readonly description?: undefined | string;
   readonly usageHistory: UsageItem[];
-  readonly showTotal?: undefined |  boolean;
+  readonly showTotal?: undefined | boolean;
 }
 
 export function UsageTable({

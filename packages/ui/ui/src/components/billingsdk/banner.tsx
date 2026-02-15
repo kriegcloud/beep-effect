@@ -8,17 +8,26 @@ import type React from "react";
 import { useEffect, useState } from "react";
 
 export interface BannerProps {
-  readonly variant?: undefined |  "default" | "minimal" | "popup" | "destructive" | "warning" | "success" | "info" | "announcement";
+  readonly variant?:
+    | undefined
+    | "default"
+    | "minimal"
+    | "popup"
+    | "destructive"
+    | "warning"
+    | "success"
+    | "info"
+    | "announcement";
   readonly title: string;
-  readonly description?: undefined |  string;
-  readonly buttonText?: undefined |  string;
-  readonly buttonIcon?: undefined |  React.ReactNode;
-  readonly buttonLink?: undefined |  string;
-  readonly dismissable?: undefined |  boolean;
-  readonly className?: undefined |  string;
-  readonly autoDismiss?: undefined |  number; // in ms
-  readonly onDismiss?: undefined |  (() => void);
-  readonly gradientColors?: undefined |  string[];
+  readonly description?: undefined | string;
+  readonly buttonText?: undefined | string;
+  readonly buttonIcon?: undefined | React.ReactNode;
+  readonly buttonLink?: undefined | string;
+  readonly dismissable?: undefined | boolean;
+  readonly className?: undefined | string;
+  readonly autoDismiss?: undefined | number; // in ms
+  readonly onDismiss?: undefined | (() => void);
+  readonly gradientColors?: undefined | string[];
 }
 
 export function Banner({

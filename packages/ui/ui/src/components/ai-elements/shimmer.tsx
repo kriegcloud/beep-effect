@@ -22,10 +22,10 @@ const getMotionComponent = (element: keyof JSX.IntrinsicElements) => {
 
 export interface TextShimmerProps {
   readonly children: string;
-  readonly as?: undefined |  ElementType;
-  readonly className?: undefined |  string;
-  readonly duration?: undefined |  number;
-  readonly spread?: undefined |  number;
+  readonly as?: undefined | ElementType;
+  readonly className?: undefined | string;
+  readonly duration?: undefined | number;
+  readonly spread?: undefined | number;
 }
 
 const ShimmerComponent = ({ children, as: Component = "p", className, duration = 2, spread = 2 }: TextShimmerProps) => {

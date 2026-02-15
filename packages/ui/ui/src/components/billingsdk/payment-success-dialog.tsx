@@ -1,11 +1,11 @@
 "use client";
 
-import {Button} from "@beep/ui/components/button";
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@beep/ui/components/dialog";
-import {cn} from "@beep/ui-core/utils";
-import {CheckCircleIcon as CheckCircle2} from "@phosphor-icons/react";
-import {AnimatePresence, motion} from "motion/react";
-import {forwardRef, useEffect, useImperativeHandle, useMemo, useState} from "react";
+import { Button } from "@beep/ui/components/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@beep/ui/components/dialog";
+import { cn } from "@beep/ui-core/utils";
+import { CheckCircleIcon as CheckCircle2 } from "@phosphor-icons/react";
+import { AnimatePresence, motion } from "motion/react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 
 export interface PaymentSuccessDialogProps {
   readonly title?: undefined | string;
@@ -106,36 +106,33 @@ export const PaymentSuccessDialog = forwardRef<PaymentSuccessDialogRef, PaymentS
     }, []);
 
     return (
-      <Dialog
-        open={openState}
-        onOpenChange={setOpenState}
-      >
+      <Dialog open={openState} onOpenChange={setOpenState}>
         <DialogContent className={cn("w-[95%] sm:max-w-[560px] p-0 overflow-hidden text-foreground", className)}>
           <div className="relative">
             <div className="p-7 flex flex-col items-center text-center gap-5">
               <div className="relative">
                 <motion.div
                   className="absolute inset-0 -z-10 mx-auto size-20 rounded-full blur-xl"
-                  style={{background: "var(--primary)", opacity: 0.12}}
-                  initial={{scale: 0.9, opacity: 0}}
-                  animate={{scale: 1, opacity: 0.12}}
-                  transition={{duration: 0.5, ease: "easeOut"}}
+                  style={{ background: "var(--primary)", opacity: 0.12 }}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 0.12 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
                 />
                 <div className="relative">
                   <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center border border-primary/30 shadow-sm">
-                    <CheckCircle2 className="size-10 text-primary"/>
+                    <CheckCircle2 className="size-10 text-primary" />
                   </div>
                   <motion.span
                     className="absolute inset-0 rounded-full border-2 border-primary/30"
-                    initial={{scale: 0.9, opacity: 0.5}}
-                    animate={{scale: 1.25, opacity: 0}}
-                    transition={{duration: 1.2, repeat: Number.POSITIVE_INFINITY, ease: "easeOut"}}
+                    initial={{ scale: 0.9, opacity: 0.5 }}
+                    animate={{ scale: 1.25, opacity: 0 }}
+                    transition={{ duration: 1.2, repeat: Number.POSITIVE_INFINITY, ease: "easeOut" }}
                   />
                   <motion.span
                     className="absolute inset-0 rounded-full border-2 border-accent/30"
-                    initial={{scale: 0.9, opacity: 0.5}}
-                    animate={{scale: 1.6, opacity: 0}}
-                    transition={{duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: "easeOut", delay: 0.2}}
+                    initial={{ scale: 0.9, opacity: 0.5 }}
+                    animate={{ scale: 1.6, opacity: 0 }}
+                    transition={{ duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: "easeOut", delay: 0.2 }}
                   />
                 </div>
               </div>
@@ -148,9 +145,9 @@ export const PaymentSuccessDialog = forwardRef<PaymentSuccessDialogRef, PaymentS
               <div className="flex flex-col items-center gap-1">
                 <motion.div
                   className="text-4xl font-semibold tracking-tight"
-                  initial={{y: 6, opacity: 0}}
-                  animate={{y: 0, opacity: 1}}
-                  transition={{type: "spring", stiffness: 280, damping: 22}}
+                  initial={{ y: 6, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 280, damping: 22 }}
                 >
                   {currencySymbol}
                   {price}
@@ -185,9 +182,9 @@ export const PaymentSuccessDialog = forwardRef<PaymentSuccessDialogRef, PaymentS
               {confettiActive && (
                 <motion.div
                   className="pointer-events-none absolute inset-0"
-                  initial={{opacity: 0}}
-                  animate={{opacity: 1}}
-                  exit={{opacity: 0}}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
                   {confetti.map((c) => (
                     <motion.span
@@ -200,9 +197,9 @@ export const PaymentSuccessDialog = forwardRef<PaymentSuccessDialogRef, PaymentS
                         height: c.size * 0.6,
                         backgroundColor: `var(${c.colorVar})`,
                       }}
-                      initial={{y: -20, rotate: c.rotation}}
-                      animate={{y: 360 + Math.random() * 80, x: `${c.xEnd}%`, rotate: c.rotation + 720}}
-                      transition={{duration: 1.8 + Math.random() * 0.8, delay: c.delay, ease: "easeOut"}}
+                      initial={{ y: -20, rotate: c.rotation }}
+                      animate={{ y: 360 + Math.random() * 80, x: `${c.xEnd}%`, rotate: c.rotation + 720 }}
+                      transition={{ duration: 1.8 + Math.random() * 0.8, delay: c.delay, ease: "easeOut" }}
                     />
                   ))}
                 </motion.div>

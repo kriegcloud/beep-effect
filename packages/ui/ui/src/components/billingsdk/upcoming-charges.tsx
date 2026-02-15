@@ -14,9 +14,9 @@ export interface ChargeItem {
 }
 
 export interface UpcomingChargesProps {
-  readonly className?: undefined |  string;
-  readonly title?: undefined |  string;
-  readonly description?: undefined |  string;
+  readonly className?: undefined | string;
+  readonly title?: undefined | string;
+  readonly description?: undefined | string;
   readonly nextBillingDate: string;
   readonly totalAmount: string;
   readonly charges: ChargeItem[];

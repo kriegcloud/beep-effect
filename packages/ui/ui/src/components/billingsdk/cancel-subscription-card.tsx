@@ -12,19 +12,19 @@ export interface CancelSubscriptionCardProps {
   readonly title: string;
   readonly description: string;
   readonly plan: Plan;
-  readonly leftPanelImageUrl?: undefined |  string;
-  readonly warningTitle?: undefined |  string;
-  readonly warningText?: undefined |  string;
-  readonly keepButtonText?: undefined |  string;
-  readonly continueButtonText?: undefined |  string;
-  readonly finalTitle?: undefined |  string;
-  readonly finalSubtitle?: undefined |  string;
-  readonly finalWarningText?: undefined |  string;
-  readonly goBackButtonText?: undefined |  string;
-  readonly confirmButtonText?: undefined |  string;
+  readonly leftPanelImageUrl?: undefined | string;
+  readonly warningTitle?: undefined | string;
+  readonly warningText?: undefined | string;
+  readonly keepButtonText?: undefined | string;
+  readonly continueButtonText?: undefined | string;
+  readonly finalTitle?: undefined | string;
+  readonly finalSubtitle?: undefined | string;
+  readonly finalWarningText?: undefined | string;
+  readonly goBackButtonText?: undefined | string;
+  readonly confirmButtonText?: undefined | string;
   readonly onCancel: (planId: string) => Promise<void> | void;
-  readonly onKeepSubscription?: undefined |  ((planId: string) => Promise<void> | void);
-  readonly className?: undefined |  string;
+  readonly onKeepSubscription?: undefined | ((planId: string) => Promise<void> | void);
+  readonly className?: undefined | string;
 }
 
 export function CancelSubscriptionCard({

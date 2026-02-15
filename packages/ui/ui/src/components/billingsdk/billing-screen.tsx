@@ -1,17 +1,21 @@
 "use client";
 
-import {Button} from "@beep/ui/components/button";
-import {cn} from "@beep/ui-core/utils";
-import {InfoIcon} from "@phosphor-icons/react";
-import {motion, useMotionValue, useSpring, useTransform} from "motion/react";
+import { Button } from "@beep/ui/components/button";
+import { cn } from "@beep/ui-core/utils";
+import { InfoIcon } from "@phosphor-icons/react";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import type React from "react";
-import {useRef} from "react";
+import { useRef } from "react";
 
 // Internal CreditCard component (not exported)
-function CreditCard({balance, username, className}: {
+function CreditCard({
+  balance,
+  username,
+  className,
+}: {
   readonly balance: string;
   readonly username: string;
-  readonly className?: undefined | string
+  readonly className?: undefined | string;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
@@ -95,9 +99,9 @@ function CreditCard({balance, username, className}: {
               "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, transparent 100%)",
             borderRadius: "12px 12px 0 0",
           }}
-          initial={{opacity: 0}}
-          whileHover={{opacity: 1}}
-          transition={{duration: 0.3}}
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         />
 
         {/* Left edge highlight */}
@@ -108,9 +112,9 @@ function CreditCard({balance, username, className}: {
               "linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 50%, transparent 100%)",
             borderRadius: "12px 0 0 12px",
           }}
-          initial={{opacity: 0}}
-          whileHover={{opacity: 1}}
-          transition={{duration: 0.3}}
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         />
 
         {/* Bottom edge highlight */}
@@ -120,9 +124,9 @@ function CreditCard({balance, username, className}: {
             background: "linear-gradient(0deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)",
             borderRadius: "0 0 12px 12px",
           }}
-          initial={{opacity: 0}}
-          whileHover={{opacity: 1}}
-          transition={{duration: 0.3}}
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         />
 
         {/* Right edge highlight */}
@@ -132,9 +136,9 @@ function CreditCard({balance, username, className}: {
             background: "linear-gradient(270deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.05) 50%, transparent 100%)",
             borderRadius: "0 12px 12px 0",
           }}
-          initial={{opacity: 0}}
-          whileHover={{opacity: 1}}
-          transition={{duration: 0.3}}
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         />
 
         {/* Card content */}
@@ -167,10 +171,10 @@ export interface BillingScreenProps {
   readonly resetDays?: undefined | number;
   readonly autoRechargeEnabled?: undefined | boolean;
   // Callbacks
-  readonly onViewPlans?: undefined |  (() => void);
-  readonly onCancelPlan?: undefined |  (() => void);
-  readonly onBuyCredits?: undefined |  (() => void);
-  readonly onEnableAutoRecharge?: undefined |  (() => void);
+  readonly onViewPlans?: undefined | (() => void);
+  readonly onCancelPlan?: undefined | (() => void);
+  readonly onBuyCredits?: undefined | (() => void);
+  readonly onEnableAutoRecharge?: undefined | (() => void);
 }
 
 export function BillingScreen({
@@ -211,16 +215,10 @@ export function BillingScreen({
               <p className="text-muted-foreground text-sm">Renews on {renewalDate}</p>
             </div>
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={onViewPlans}
-              >
+              <Button variant="outline" onClick={onViewPlans}>
                 View Plans
               </Button>
-              <Button
-                variant="outline"
-                onClick={onCancelPlan}
-              >
+              <Button variant="outline" onClick={onCancelPlan}>
                 Cancel Plan
               </Button>
             </div>
@@ -248,10 +246,7 @@ export function BillingScreen({
               <div className="flex flex-col gap-6 md:flex-row md:items-center">
                 {/* Credit Card Visual */}
                 <div className="w-52 flex-shrink-0">
-                  <CreditCard
-                    balance={totalBalance}
-                    username={username}
-                  />
+                  <CreditCard balance={totalBalance} username={username} />
                 </div>
 
                 {/* Credit Breakdown */}
@@ -264,7 +259,7 @@ export function BillingScreen({
                   <div className="flex items-center justify-between py-2">
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground">Monthly Credits</span>
-                      <InfoIcon className="text-muted-foreground h-4 w-4"/>
+                      <InfoIcon className="text-muted-foreground h-4 w-4" />
                     </div>
                     <span className="font-mono">
                       {monthlyCredits} / {monthlyCreditsLimit}
@@ -274,7 +269,7 @@ export function BillingScreen({
                   <div className="flex items-center justify-between py-2">
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground">Purchased Credits</span>
-                      <InfoIcon className="text-muted-foreground h-4 w-4"/>
+                      <InfoIcon className="text-muted-foreground h-4 w-4" />
                     </div>
                     <span className="font-mono">{purchasedCredits}</span>
                   </div>
@@ -291,7 +286,7 @@ export function BillingScreen({
             <div className="bg-muted/30 border-border border-t p-6">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-start gap-3">
-                  <InfoIcon className="text-muted-foreground mt-0.5 h-5 w-5 flex-shrink-0"/>
+                  <InfoIcon className="text-muted-foreground mt-0.5 h-5 w-5 flex-shrink-0" />
                   <div>
                     <p className="font-medium">Auto-recharge is {autoRechargeEnabled ? "enabled" : "not enabled"}.</p>
                     <p className="text-muted-foreground text-sm">
@@ -301,11 +296,7 @@ export function BillingScreen({
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  className="bg-transparent md:flex-shrink-0"
-                  onClick={onEnableAutoRecharge}
-                >
+                <Button variant="outline" className="bg-transparent md:flex-shrink-0" onClick={onEnableAutoRecharge}>
                   {autoRechargeEnabled ? "Disable" : "Enable"}
                 </Button>
               </div>

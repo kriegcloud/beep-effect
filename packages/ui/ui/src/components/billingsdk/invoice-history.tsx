@@ -16,16 +16,16 @@ export interface InvoiceItem {
   readonly date: string;
   readonly amount: string;
   readonly status: "paid" | "refunded" | "open" | "void";
-  readonly invoiceUrl?: undefined |  string;
-  readonly description?: undefined |  string;
+  readonly invoiceUrl?: undefined | string;
+  readonly description?: undefined | string;
 }
 
 interface InvoiceHistoryProps {
-  readonly className?: undefined |  string;
-  readonly title?: undefined |  string;
-  readonly description?: undefined |  string;
+  readonly className?: undefined | string;
+  readonly title?: undefined | string;
+  readonly description?: undefined | string;
   readonly invoices: InvoiceItem[];
-  readonly onDownload?: undefined |  ((invoiceId: string) => void);
+  readonly onDownload?: undefined | ((invoiceId: string) => void);
 }
 
 export function InvoiceHistory({

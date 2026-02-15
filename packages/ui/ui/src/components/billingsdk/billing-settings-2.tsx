@@ -22,20 +22,22 @@ export interface FeatureToggle {
 export interface InputField {
   readonly id: string;
   readonly name: string;
-  readonly value?: undefined |  string;
-  readonly defaultValue?: undefined |  string;
+  readonly value?: undefined | string;
+  readonly defaultValue?: undefined | string;
   readonly placeholder: string;
   readonly onChange: (value: string) => void;
   readonly label: string;
-  readonly helperText?: undefined |  string;
-  readonly type?: undefined |  "text" | "email" | "tel" | "url" | "number";
-  readonly required?: undefined |  boolean;
-  readonly validation?: undefined |  {
-    readonly minLength?: undefined |  number;
-    readonly maxLength?: undefined |  number;
-    readonly pattern?: undefined |  RegExp;
-    readonly customValidator?: undefined |  ((value: string) => string | null);
-  };
+  readonly helperText?: undefined | string;
+  readonly type?: undefined | "text" | "email" | "tel" | "url" | "number";
+  readonly required?: undefined | boolean;
+  readonly validation?:
+    | undefined
+    | {
+        readonly minLength?: undefined | number;
+        readonly maxLength?: undefined | number;
+        readonly pattern?: undefined | RegExp;
+        readonly customValidator?: undefined | ((value: string) => string | null);
+      };
 }
 
 export interface ValidationError {
@@ -44,20 +46,20 @@ export interface ValidationError {
 }
 
 export interface BillingSettings2Props {
-  readonly className?: undefined |  string;
-  readonly title?: undefined |  string;
-  readonly features?: undefined |  FeatureToggle[];
-  readonly inputFields?: undefined |  InputField[];
-  readonly onSave?: undefined |  (() => void);
-  readonly onCancel?: undefined |  (() => void);
-  readonly saveButtonText?: undefined |  string;
-  readonly cancelButtonText?: undefined |  string;
-  readonly currencies?: undefined |  string[]; // Array of currency codes to show (e.g., ['USD', 'EUR', 'GBP'])
-  readonly currencyOptions?: undefined |  { readonly value: string; readonly label: string }[]; // Override for custom currency options
-  readonly defaultCurrency?: undefined |  string;
-  readonly onCurrencyChange?: undefined |  ((value: string) => void);
-  readonly enableValidation?: undefined |  boolean;
-  readonly currencyRequired?: undefined |  boolean;
+  readonly className?: undefined | string;
+  readonly title?: undefined | string;
+  readonly features?: undefined | FeatureToggle[];
+  readonly inputFields?: undefined | InputField[];
+  readonly onSave?: undefined | (() => void);
+  readonly onCancel?: undefined | (() => void);
+  readonly saveButtonText?: undefined | string;
+  readonly cancelButtonText?: undefined | string;
+  readonly currencies?: undefined | string[]; // Array of currency codes to show (e.g., ['USD', 'EUR', 'GBP'])
+  readonly currencyOptions?: undefined | { readonly value: string; readonly label: string }[]; // Override for custom currency options
+  readonly defaultCurrency?: undefined | string;
+  readonly onCurrencyChange?: undefined | ((value: string) => void);
+  readonly enableValidation?: undefined | boolean;
+  readonly currencyRequired?: undefined | boolean;
 }
 
 // Validation helper functions

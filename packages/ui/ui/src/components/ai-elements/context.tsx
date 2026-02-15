@@ -333,7 +333,7 @@ export const ContextCacheUsage = ({ className, children, ...props }: ContextCach
   );
 };
 
-const TokensWithCost = ({ tokens, costText }: { tokens?: undefined |  number; costText?: undefined |  string }) => (
+const TokensWithCost = ({ tokens, costText }: { tokens?: undefined | number; costText?: undefined | string }) => (
   <span>
     {tokens === undefined
       ? "—"

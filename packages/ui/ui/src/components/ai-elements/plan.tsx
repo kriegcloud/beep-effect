@@ -32,7 +32,7 @@ const usePlan = () => {
 };
 
 export type PlanProps = ComponentProps<typeof Collapsible> & {
-  readonly isStreaming?: undefined |  boolean;
+  readonly isStreaming?: undefined | boolean;
 };
 
 export const Plan = ({ className, isStreaming = false, children, ...props }: PlanProps) => (

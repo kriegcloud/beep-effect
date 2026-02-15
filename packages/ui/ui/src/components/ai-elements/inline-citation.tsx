@@ -1,13 +1,13 @@
 "use client";
 
-import {Badge} from "@beep/ui/components/badge";
-import type {CarouselApi} from "@beep/ui/components/carousel";
-import {Carousel, CarouselContent, CarouselItem} from "@beep/ui/components/carousel";
-import {HoverCard, HoverCardContent, HoverCardTrigger} from "@beep/ui/components/hover-card";
-import {cn} from "@beep/ui-core/utils";
-import {ArrowLeftIcon, ArrowRightIcon} from "@phosphor-icons/react";
-import type {ComponentProps} from "react";
-import {createContext, useCallback, useContext, useEffect, useState} from "react";
+import { Badge } from "@beep/ui/components/badge";
+import type { CarouselApi } from "@beep/ui/components/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "@beep/ui/components/carousel";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@beep/ui/components/hover-card";
+import { cn } from "@beep/ui-core/utils";
+import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import type { ComponentProps } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 export type InlineCitationProps = ComponentProps<"span">;
 
@@ -166,9 +166,9 @@ export const InlineCitationCarouselNext = ({ className, ...props }: InlineCitati
 };
 
 export type InlineCitationSourceProps = ComponentProps<"div"> & {
-  readonly title?: undefined |  string;
-  readonly url?: undefined |  string;
-  readonly description?: undefined |  string;
+  readonly title?: undefined | string;
+  readonly url?: undefined | string;
+  readonly description?: undefined | string;
 };
 
 export const InlineCitationSource = ({

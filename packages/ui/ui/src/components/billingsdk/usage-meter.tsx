@@ -15,12 +15,12 @@ export interface Usage {
 
 export interface UsageMeterProps {
   readonly usage: Usage[];
-  readonly className?: undefined |  string;
-  readonly variant?: undefined |  "linear" | "circle";
-  readonly size?: undefined |  "sm" | "md" | "lg";
-  readonly title?: undefined |  string;
-  readonly description?: undefined |  string;
-  readonly progressColor?: undefined |  "default" | "usage";
+  readonly className?: undefined | string;
+  readonly variant?: undefined | "linear" | "circle";
+  readonly size?: undefined | "sm" | "md" | "lg";
+  readonly title?: undefined | string;
+  readonly description?: undefined | string;
+  readonly progressColor?: undefined | "default" | "usage";
 }
 
 function CircleUsageItem({

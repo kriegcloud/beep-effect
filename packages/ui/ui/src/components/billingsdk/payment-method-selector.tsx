@@ -30,14 +30,14 @@ interface PaymentOption {
 }
 
 interface FormData {
-  readonly cardNumber?: undefined |  string;
-  readonly expiryDate?: undefined |  string;
-  readonly cvv?: undefined |  string;
-  readonly cardholderName?: undefined |  string;
-  readonly email?: undefined |  string;
-  readonly phone?: undefined |  string;
-  readonly upiId?: undefined |  string;
-  readonly income?: undefined |  string;
+  readonly cardNumber?: undefined | string;
+  readonly expiryDate?: undefined | string;
+  readonly cvv?: undefined | string;
+  readonly cardholderName?: undefined | string;
+  readonly email?: undefined | string;
+  readonly phone?: undefined | string;
+  readonly upiId?: undefined | string;
+  readonly income?: undefined | string;
 }
 
 const paymentOptions: PaymentOption[] = [
@@ -80,8 +80,8 @@ const paymentOptions: PaymentOption[] = [
 ];
 
 export interface PaymentMethodSelectorProps {
-  readonly className?: undefined |  string;
-  readonly onProceed?: undefined |  ((method: PaymentMethod, data: FormData) => void);
+  readonly className?: undefined | string;
+  readonly onProceed?: undefined | ((method: PaymentMethod, data: FormData) => void);
 }
 
 export function PaymentMethodSelector({ onProceed }: PaymentMethodSelectorProps) {

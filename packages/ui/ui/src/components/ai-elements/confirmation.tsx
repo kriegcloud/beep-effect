@@ -9,9 +9,9 @@ import { createContext, useContext } from "react";
 
 type ToolUIPartApproval =
   | {
-     readonly  id: string;
-     readonly  approved?: undefined | never;
-     readonly  reason?: undefined | never;
+      readonly id: string;
+      readonly approved?: undefined | never;
+      readonly reason?: undefined | never;
     }
   | {
       readonly id: string;
@@ -86,7 +86,7 @@ export const ConfirmationRequest = ({ children }: ConfirmationRequestProps) => {
 };
 
 export interface ConfirmationAcceptedProps {
- readonly children?: undefined | ReactNode;
+  readonly children?: undefined | ReactNode;
 }
 
 export const ConfirmationAccepted = ({ children }: ConfirmationAcceptedProps) => {

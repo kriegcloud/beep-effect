@@ -24,9 +24,9 @@ const useChainOfThought = () => {
 };
 
 export type ChainOfThoughtProps = ComponentProps<"div"> & {
-  readonly open?: undefined |  boolean;
-  readonly defaultOpen?: undefined |  boolean;
-  readonly onOpenChange?: undefined |  ((open: boolean) => void);
+  readonly open?: undefined | boolean;
+  readonly defaultOpen?: undefined | boolean;
+  readonly onOpenChange?: undefined | ((open: boolean) => void);
 };
 
 type ControllableValueOptions<T> = {
@@ -98,8 +98,8 @@ export const ChainOfThoughtHeader = memo(({ className, children, ...props }: Cha
 export type ChainOfThoughtStepProps = ComponentProps<"div"> & {
   readonly icon?: undefined | Icon;
   readonly label: ReactNode;
-  readonly description?: undefined |  ReactNode;
-  readonly status?: undefined |  "complete" | "active" | "pending";
+  readonly description?: undefined | ReactNode;
+  readonly status?: undefined | "complete" | "active" | "pending";
 };
 
 const stepStatusStyles = {
@@ -176,7 +176,7 @@ export const ChainOfThoughtContent = memo(({ className, children, ...props }: Ch
 });
 
 export type ChainOfThoughtImageProps = ComponentProps<"div"> & {
-  readonly caption?: undefined |  string;
+  readonly caption?: undefined | string;
 };
 
 export const ChainOfThoughtImage = memo(({ className, children, caption, ...props }: ChainOfThoughtImageProps) => (

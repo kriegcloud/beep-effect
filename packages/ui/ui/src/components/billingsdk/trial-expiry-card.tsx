@@ -8,14 +8,14 @@ import { CheckIcon as Check } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 export interface TrialExpiryCardProps {
-  readonly trialEndDate?: undefined |  Date | string | number;
-  readonly daysRemaining?: undefined |  number;
-  readonly onUpgrade?: undefined |  (() => void | Promise<void>);
-  readonly className?: undefined |  string;
-  readonly title?: undefined |  string;
-  readonly description?: undefined |  string;
-  readonly upgradeButtonText?: undefined |  string;
-  readonly features?: undefined |  string[];
+  readonly trialEndDate?: undefined | Date | string | number;
+  readonly daysRemaining?: undefined | number;
+  readonly onUpgrade?: undefined | (() => void | Promise<void>);
+  readonly className?: undefined | string;
+  readonly title?: undefined | string;
+  readonly description?: undefined | string;
+  readonly upgradeButtonText?: undefined | string;
+  readonly features?: undefined | string[];
 }
 
 interface TimeRemaining {

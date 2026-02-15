@@ -118,7 +118,7 @@ const validateLuhn = (cardNumber: string): boolean => {
  * @param validators - Optional validation configuration
  * @returns Object containing validation errors
  */
-const validateForm = (data: PaymentFormData, validators?: undefined |  ValidationConfig): Partial<PaymentFormData> => {
+const validateForm = (data: PaymentFormData, validators?: undefined | ValidationConfig): Partial<PaymentFormData> => {
   const errors: Partial<PaymentFormData> = {};
   const cardType = detectCardType(data.cardNumber || "");
 
@@ -220,31 +220,31 @@ const CardLogo = ({ type }: { type: string }) => {
  */
 export interface PaymentFormData {
   /** Name as it appears on the card */
-  nameOnCard?: undefined |  string;
+  nameOnCard?: undefined | string;
   /** Card number (will be formatted automatically) */
-  cardNumber?: undefined |  string;
+  cardNumber?: undefined | string;
   /** Expiry date in MM/YY format */
-  validTill?: undefined |  string;
+  validTill?: undefined | string;
   /** Card verification value (CVV) */
-  cvv?: undefined |  string;
+  cvv?: undefined | string;
   /** Customer's first name */
-  firstName?: undefined |  string;
+  firstName?: undefined | string;
   /** Customer's middle and last name */
-  middleLastName?: undefined |  string;
+  middleLastName?: undefined | string;
   /** Customer's country */
-  country?: undefined |  string;
+  country?: undefined | string;
   /** Customer's state */
-  state?: undefined |  string;
+  state?: undefined | string;
   /** Customer's city */
-  city?: undefined |  string;
+  city?: undefined | string;
   /** Customer's billing address */
-  billingAddress?: undefined |  string;
+  billingAddress?: undefined | string;
   /** Customer's PIN code */
-  pinCode?: undefined |  string;
+  pinCode?: undefined | string;
   /** Customer's phone number */
-  contactNumber?: undefined |  string;
+  contactNumber?: undefined | string;
   /** General form error message */
-  general?: undefined |  string;
+  general?: undefined | string;
 }
 
 /**
@@ -252,15 +252,15 @@ export interface PaymentFormData {
  */
 export interface ValidationConfig {
   /** Custom PIN code validation regex */
-  pinCode?: undefined |  RegExp;
+  pinCode?: undefined | RegExp;
   /** Custom PIN code error message */
-  pinCodeErrorMessage?: undefined |  string;
+  pinCodeErrorMessage?: undefined | string;
   /** Custom contact number validation regex */
-  contactNumber?: undefined |  RegExp;
+  contactNumber?: undefined | RegExp;
   /** Custom contact number error message */
-  contactNumberErrorMessage?: undefined |  string;
+  contactNumberErrorMessage?: undefined | string;
   /** Country code for phone validation */
-  countryCode?: undefined |  string;
+  countryCode?: undefined | string;
 }
 
 /**
@@ -268,33 +268,33 @@ export interface ValidationConfig {
  */
 export interface PaymentFormProps {
   /** Additional CSS classes for styling */
-  className?: undefined |  string;
+  className?: undefined | string;
   /** Main title for the payment form */
-  title?: undefined |  string;
+  title?: undefined | string;
   /** Description text below the title */
-  description?: undefined |  string;
+  description?: undefined | string;
   /** Initial form data */
-  initialData?: undefined |  Partial<PaymentFormData>;
+  initialData?: undefined | Partial<PaymentFormData>;
   /** Validation configuration */
-  validators?: undefined |  ValidationConfig;
+  validators?: undefined | ValidationConfig;
   /** Callback when form is submitted */
-  onSubmit?: undefined |  ((data: PaymentFormData) => void | Promise<void>);
+  onSubmit?: undefined | ((data: PaymentFormData) => void | Promise<void>);
   /** Callback when discard button is clicked */
-  onDiscard?: undefined |  (() => void);
+  onDiscard?: undefined | (() => void);
   /** Text for submit button */
-  submitButtonText?: undefined |  string;
+  submitButtonText?: undefined | string;
   /** Text for discard button */
-  discardButtonText?: undefined |  string;
+  discardButtonText?: undefined | string;
   /** External loading state */
-  isLoading?: undefined |  boolean;
+  isLoading?: undefined | boolean;
   /** Show success confirmation modal */
-  showConfirmation?: undefined |  boolean;
+  showConfirmation?: undefined | boolean;
   /** Title for confirmation modal */
-  confirmationTitle?: undefined |  string;
+  confirmationTitle?: undefined | string;
   /** Message for confirmation modal */
-  confirmationMessage?: undefined |  string;
+  confirmationMessage?: undefined | string;
   /** Callback when confirmation is closed */
-  onConfirmationClose?: undefined |  (() => void);
+  onConfirmationClose?: undefined | (() => void);
 }
 
 /**

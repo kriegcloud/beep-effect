@@ -13,7 +13,7 @@ import { cn } from "@beep/ui-core/utils";
 import { CalendarIcon as Calendar, CreditCardIcon as CreditCard } from "@phosphor-icons/react";
 
 export interface SubscriptionManagementProps {
-  readonly className?: undefined |  string;
+  readonly className?: undefined | string;
   readonly currentPlan: CurrentPlan;
   readonly cancelSubscription: CancelSubscriptionDialogProps;
   readonly updatePlan: UpdatePlanDialogProps;

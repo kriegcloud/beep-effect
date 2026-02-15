@@ -21,28 +21,28 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 export interface PaymentFormData {
-  readonly nameOnCard?: undefined |  string;
-  readonly cardNumber?: undefined |  string;
-  readonly validTill?: undefined |  string;
-  readonly cvv?: undefined |  string;
-  readonly firstName?: undefined |  string;
-  readonly middleLastName?: undefined |  string;
-  readonly country?: undefined |  string;
-  readonly state?: undefined |  string;
-  readonly city?: undefined |  string;
-  readonly billingAddress?: undefined |  string;
-  readonly pinCode?: undefined |  string;
-  readonly contactNumber?: undefined |  string;
-  readonly general?: undefined |  string;
+  readonly nameOnCard?: undefined | string;
+  readonly cardNumber?: undefined | string;
+  readonly validTill?: undefined | string;
+  readonly cvv?: undefined | string;
+  readonly firstName?: undefined | string;
+  readonly middleLastName?: undefined | string;
+  readonly country?: undefined | string;
+  readonly state?: undefined | string;
+  readonly city?: undefined | string;
+  readonly billingAddress?: undefined | string;
+  readonly pinCode?: undefined | string;
+  readonly contactNumber?: undefined | string;
+  readonly general?: undefined | string;
 }
 
 interface PaymentDetailsTwoProps {
-  readonly className?: undefined |  string;
-  readonly onSubmit?: undefined |  ((data: PaymentFormData) => Promise<void> | void);
-  readonly onDiscard?: undefined |  (() => void);
-  readonly countries?: undefined |  { readonly name: string; readonly isoCode: string }[];
-  readonly states?: undefined |  { readonly name: string; readonly isoCode: string }[];
-  readonly cities?: undefined |  { readonly name: string }[];
+  readonly className?: undefined | string;
+  readonly onSubmit?: undefined | ((data: PaymentFormData) => Promise<void> | void);
+  readonly onDiscard?: undefined | (() => void);
+  readonly countries?: undefined | { readonly name: string; readonly isoCode: string }[];
+  readonly states?: undefined | { readonly name: string; readonly isoCode: string }[];
+  readonly cities?: undefined | { readonly name: string }[];
 }
 
 const cardDefaultValues = {

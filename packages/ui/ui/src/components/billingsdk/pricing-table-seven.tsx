@@ -158,12 +158,12 @@ export interface PricingTableSevenPlan {
   readonly description: string;
   readonly price: number;
   readonly users: number;
-  readonly popular?: undefined |  boolean;
+  readonly popular?: undefined | boolean;
 }
 
 export interface FeatureItemRecord {
   readonly name: string;
-  readonly tooltip?: undefined |  boolean;
+  readonly tooltip?: undefined | boolean;
   readonly [planId: string]: boolean | string | undefined;
 }
 
@@ -175,10 +175,10 @@ export interface FeatureCategory {
 export interface PricingTableSevenProps extends VariantProps<typeof sectionVariants> {
   readonly plans: PricingTableSevenPlan[];
   readonly features: FeatureCategory[];
-  readonly title?: undefined |  string;
-  readonly description?: undefined |  string;
+  readonly title?: undefined | string;
+  readonly description?: undefined | string;
   readonly onPlanSelect?: undefined | ((planId: string) => void);
-  readonly className?: undefined |  string;
+  readonly className?: undefined | string;
 }
 
 export function PricingTableSeven({

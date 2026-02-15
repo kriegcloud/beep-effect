@@ -24,7 +24,7 @@ interface CardInfo {
   readonly last4: string;
   readonly brand: string;
   readonly expiry: string;
-  readonly primary?: undefined |  boolean;
+  readonly primary?: undefined | boolean;
 }
 
 interface BillingSettingsProps {
@@ -52,7 +52,7 @@ interface BillingSettingsProps {
 
   readonly usageLimitAlerts: boolean;
   readonly onUsageLimitAlertsChange: (value: boolean) => void;
-  readonly className?: undefined |  string;
+  readonly className?: undefined | string;
 }
 
 interface SettingItemProps {

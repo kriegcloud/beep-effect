@@ -8,14 +8,14 @@ export interface UsageResource {
   readonly name: string;
   readonly used: number;
   readonly limit: number;
-  readonly percentage?: undefined |  number;
-  readonly unit?: undefined |  string;
+  readonly percentage?: undefined | number;
+  readonly unit?: undefined | string;
 }
 
 export interface DetailedUsageTableProps {
-  readonly className?: undefined |  string;
-  readonly title?: undefined |  string;
-  readonly description?: undefined |  string;
+  readonly className?: undefined | string;
+  readonly title?: undefined | string;
+  readonly description?: undefined | string;
   readonly resources: UsageResource[];
 }
 

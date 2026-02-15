@@ -6,21 +6,21 @@ import { motion, useMotionValueEvent, useSpring, useTransform } from "motion/rea
 import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 export type UsageBasedPricingProps = {
-  readonly className?: undefined |  string;
-  readonly min?: undefined |  number;
-  readonly max?: undefined |  number;
-  readonly step?: undefined |  number;
-  readonly snapTo?: undefined |  number;
-  readonly value?: undefined |  number;
-  readonly defaultValue?: undefined |  number;
-  readonly onChange?: undefined |  ((value: number) => void);
-  readonly onChangeEnd?: undefined |  ((value: number) => void);
-  readonly currency?: undefined |  string;
-  readonly basePrice?: undefined |  number;
-  readonly includedCredits?: undefined |  number;
-  readonly unitPricePerCredit?: undefined |  number;
-  readonly title?: undefined |  string;
-  readonly subtitle?: undefined |  string;
+  readonly className?: undefined | string;
+  readonly min?: undefined | number;
+  readonly max?: undefined | number;
+  readonly step?: undefined | number;
+  readonly snapTo?: undefined | number;
+  readonly value?: undefined | number;
+  readonly defaultValue?: undefined | number;
+  readonly onChange?: undefined | ((value: number) => void);
+  readonly onChangeEnd?: undefined | ((value: number) => void);
+  readonly currency?: undefined | string;
+  readonly basePrice?: undefined | number;
+  readonly includedCredits?: undefined | number;
+  readonly unitPricePerCredit?: undefined | number;
+  readonly title?: undefined | string;
+  readonly subtitle?: undefined | string;
 };
 
 function clamp(v: number, min: number, max: number) {

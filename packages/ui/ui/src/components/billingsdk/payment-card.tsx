@@ -17,13 +17,15 @@ export interface PaymentCardProps {
   readonly title: string;
   readonly description: string;
   readonly price: string;
-  readonly feature?: undefined |  string;
-  readonly featuredescription?: undefined |  string;
-  readonly feature2?: undefined |  string;
-  readonly feature2description?: undefined |  string;
-  readonly finalText?: undefined |  finalTextProps[];
-  readonly onPay?: undefined |  ((data: { readonly cardNumber: string; readonly expiry: string; readonly cvc: string }) => Promise<void> | void);
-  readonly className?: undefined |  string;
+  readonly feature?: undefined | string;
+  readonly featuredescription?: undefined | string;
+  readonly feature2?: undefined | string;
+  readonly feature2description?: undefined | string;
+  readonly finalText?: undefined | finalTextProps[];
+  readonly onPay?:
+    | undefined
+    | ((data: { readonly cardNumber: string; readonly expiry: string; readonly cvc: string }) => Promise<void> | void);
+  readonly className?: undefined | string;
 }
 
 export function PaymentCard({
@@ -43,9 +45,9 @@ export function PaymentCard({
   const [cvc, setCvc] = useState("");
   const [index, setIndex] = useState(0);
   const [errors, setErrors] = useState<{
-    card?: undefined |  string;
-    expiry?: undefined |  string;
-    cvc?: undefined |  string;
+    card?: undefined | string;
+    expiry?: undefined | string;
+    cvc?: undefined | string;
   }>({});
 
   const validate = () => {

@@ -31,11 +31,11 @@ export const useReasoning = () => {
 };
 
 export type ReasoningProps = Omit<ComponentProps<typeof Collapsible>, "defaultOpen" | "onOpenChange" | "open"> & {
-  readonly isStreaming?: undefined |  boolean;
-  readonly open?: undefined |  boolean;
-  readonly defaultOpen?: undefined |  boolean;
-  readonly onOpenChange?: undefined |  ((open: boolean) => void);
-  readonly duration?: undefined |  number;
+  readonly isStreaming?: undefined | boolean;
+  readonly open?: undefined | boolean;
+  readonly defaultOpen?: undefined | boolean;
+  readonly onOpenChange?: undefined | ((open: boolean) => void);
+  readonly duration?: undefined | number;
 };
 
 const AUTO_CLOSE_DELAY = 1000;
@@ -156,10 +156,10 @@ export const Reasoning = memo(
 );
 
 export type ReasoningTriggerProps = ComponentProps<typeof CollapsibleTrigger> & {
-  readonly getThinkingMessage?: undefined |  ((isStreaming: boolean, duration?: undefined |  number) => ReactNode);
+  readonly getThinkingMessage?: undefined | ((isStreaming: boolean, duration?: undefined | number) => ReactNode);
 };
 
-const defaultGetThinkingMessage = (isStreaming: boolean, duration?: undefined |  number) => {
+const defaultGetThinkingMessage = (isStreaming: boolean, duration?: undefined | number) => {
   if (isStreaming || duration === 0) {
     return <Shimmer duration={1}>Thinking...</Shimmer>;
   }
