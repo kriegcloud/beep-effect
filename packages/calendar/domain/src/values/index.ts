@@ -3,7 +3,7 @@
  *
  * Add value objects here as needed.
  */
-export * from "./calendar-color-option.value";
+export * from "./CalendarColorOption.value";
 export * from "./calendar-event.value";
 export * from "./calendar-filter.value";
 export * from "./calendar-range.value";

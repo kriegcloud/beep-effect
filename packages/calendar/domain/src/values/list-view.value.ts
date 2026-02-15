@@ -2,7 +2,7 @@ import { $CalendarDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-const $I = $CalendarDomainId.create("value-objects/list-view");
+const $I = $CalendarDomainId.create("values/list-view");
 
 export class ListView extends BS.StringLiteralKit("list", "listDay", "listWeek", "listMonth", "listYear").annotations(
   $I.annotations("ListView", {

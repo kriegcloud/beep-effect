@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { ValidationSeverity } from "./shacl-policy.value";
 
-const $I = $KnowledgeDomainId.create("value-objects/validation-report");
+const $I = $KnowledgeDomainId.create("values/validation-report");
 
 export class ValidationFinding extends S.Class<ValidationFinding>($I`ValidationFinding`)({
   shapeId: S.String,

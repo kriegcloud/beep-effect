@@ -1,7 +1,7 @@
 import { $WorkspacesDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 
-const $I = $WorkspacesDomainId.create("value-objects/AccessLevel.value");
+const $I = $WorkspacesDomainId.create("values/AccessLevel.value");
 
 export class AccessLevel extends BS.StringLiteralKit("view", "comment", "edit", "full").annotations(
   $I.annotations("AccessLevel", {

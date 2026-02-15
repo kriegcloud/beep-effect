@@ -3,7 +3,7 @@ import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/batch-event");
+const $I = $KnowledgeDomainId.create("values/batch-event");
 
 export class BatchCreated extends S.TaggedClass<BatchCreated>($I`BatchCreated`)(
   "BatchEvent.BatchCreated",

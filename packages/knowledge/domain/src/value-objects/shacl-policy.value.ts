@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/shacl-policy");
+const $I = $KnowledgeDomainId.create("values/shacl-policy");
 
 export class ValidationSeverity extends BS.StringLiteralKit("Info", "Warning", "Violation").annotations(
   $I.annotations("ValidationSeverity", {

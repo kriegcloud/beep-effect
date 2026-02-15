@@ -3,7 +3,7 @@ import { BS } from "@beep/schema";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/extraction-progress");
+const $I = $KnowledgeDomainId.create("values/extraction-progress");
 
 export class ExtractionProgressStatus extends BS.StringLiteralKit("started", "completed", "failed").annotations(
   $I.annotations("ExtractionProgressStatus", {

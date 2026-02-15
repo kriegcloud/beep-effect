@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/token-budget.value");
+const $I = $KnowledgeDomainId.create("values/token-budget.value");
 
 export class TokenBudgetStage extends BS.StringLiteralKit(
   "entity_extraction",

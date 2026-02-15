@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/extraction-config");
+const $I = $KnowledgeDomainId.create("values/extraction-config");
 
 export class ExtractionConfig extends S.Class<ExtractionConfig>($I`ExtractionConfig`)(
   {

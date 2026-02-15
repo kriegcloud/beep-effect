@@ -1,7 +1,7 @@
 import { $WorkspacesDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $WorkspacesDomainId.create("value-objects/SerializedEditorState");
+const $I = $WorkspacesDomainId.create("values/SerializedEditorState");
 
 // ---------------------------------------------------------------------------
 // SerializedLexicalNodeEnvelope — base node

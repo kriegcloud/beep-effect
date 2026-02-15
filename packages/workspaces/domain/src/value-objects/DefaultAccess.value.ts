@@ -1,7 +1,7 @@
 import { $WorkspacesDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 
-const $I = $WorkspacesDomainId.create("value-objects/DefaultAccess.value");
+const $I = $WorkspacesDomainId.create("values/DefaultAccess.value");
 
 export class DefaultAccess extends BS.StringLiteralKit("private", "restricted", "organization").annotations(
   $I.annotations("DefaultAccess", {

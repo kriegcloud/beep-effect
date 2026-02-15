@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { Quad } from "../rdf/Quad";
 
-const $I = $KnowledgeDomainId.create("value-objects/reasoning/InferenceResult");
+const $I = $KnowledgeDomainId.create("values/reasoning/InferenceResult");
 
 export class InferenceProvenance extends S.Class<InferenceProvenance>($I`InferenceProvenance`)({
   ruleId: S.String.annotations({

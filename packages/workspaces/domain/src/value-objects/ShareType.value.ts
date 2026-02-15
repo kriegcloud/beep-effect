@@ -1,7 +1,7 @@
 import { $WorkspacesDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 
-const $I = $WorkspacesDomainId.create("value-objects/ShareType.value");
+const $I = $WorkspacesDomainId.create("values/ShareType.value");
 
 export class ShareType extends BS.StringLiteralKit("user", "team", "organization", "link").annotations(
   $I.annotations("ShareType", {

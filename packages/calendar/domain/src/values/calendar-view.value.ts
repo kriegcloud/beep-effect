@@ -2,7 +2,7 @@ import { $CalendarDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-const $I = $CalendarDomainId.create("value-objects/calendar-view");
+const $I = $CalendarDomainId.create("values/calendar-view");
 
 // Combined view options from ListView, DayGridView, and TimeGridView
 export class CalendarView extends BS.StringLiteralKit(

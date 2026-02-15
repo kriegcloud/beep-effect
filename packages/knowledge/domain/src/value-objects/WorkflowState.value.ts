@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/workflow-state");
+const $I = $KnowledgeDomainId.create("values/workflow-state");
 
 export class WorkflowExecutionStatus extends BS.StringLiteralKit(
   "pending",

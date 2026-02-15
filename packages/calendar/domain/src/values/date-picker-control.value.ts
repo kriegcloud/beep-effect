@@ -2,7 +2,7 @@ import { $CalendarDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-const $I = $CalendarDomainId.create("value-objects/date-picker-control");
+const $I = $CalendarDomainId.create("values/date-picker-control");
 
 export const DatePickerControl = BS.OptionFromNullishOptionalProperty(
   BS.DateTimeUtcFromAllAcceptable,

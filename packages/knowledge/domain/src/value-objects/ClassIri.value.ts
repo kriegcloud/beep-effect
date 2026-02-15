@@ -10,7 +10,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $KnowledgeDomainId.create("value-objects/ClassIri");
+const $I = $KnowledgeDomainId.create("values/ClassIri");
 
 export class ClassIRIScheme extends BS.StringLiteralKit("http", "https", "urn", "file").annotations(
   $I.annotations("ClassIRIScheme", {

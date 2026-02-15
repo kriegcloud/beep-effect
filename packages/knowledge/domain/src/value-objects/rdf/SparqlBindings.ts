@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 
 import { Term } from "./Quad";
 
-const $I = $KnowledgeDomainId.create("value-objects/rdf/SparqlBindings");
+const $I = $KnowledgeDomainId.create("values/rdf/SparqlBindings");
 
 /**
  * VariableName - SPARQL variable name (without ? prefix)

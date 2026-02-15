@@ -1,7 +1,7 @@
 import { $WorkspacesDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 
-const $I = $WorkspacesDomainId.create("value-objects/PageType.value");
+const $I = $WorkspacesDomainId.create("values/PageType.value");
 
 export class PageType extends BS.StringLiteralKit(
   "document",

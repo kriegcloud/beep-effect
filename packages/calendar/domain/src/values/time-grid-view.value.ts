@@ -2,7 +2,7 @@ import { $CalendarDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-const $I = $CalendarDomainId.create("value-objects/time-grid-view");
+const $I = $CalendarDomainId.create("values/time-grid-view");
 
 export class TimeGridView extends BS.StringLiteralKit("timeGrid", "timeGridDay", "timeGridWeek").annotations(
   $I.annotations("TimeGridView", {

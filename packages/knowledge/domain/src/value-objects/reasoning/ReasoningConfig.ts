@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { ReasoningProfile } from "./ReasoningProfile";
 
-const $I = $KnowledgeDomainId.create("value-objects/reasoning/ReasoningConfig");
+const $I = $KnowledgeDomainId.create("values/reasoning/ReasoningConfig");
 
 const PositiveInt = S.Int.pipe(
   S.positive(),

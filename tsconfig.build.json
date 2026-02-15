@@ -102,9 +102,6 @@
       "path": "apps/server/tsconfig.build.json"
     },
     {
-      "path": "apps/marketing/tsconfig.json"
-    },
-    {
       "path": "apps/todox/tsconfig.json"
     },
     {

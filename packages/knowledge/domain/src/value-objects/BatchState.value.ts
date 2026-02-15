@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/batch-state");
+const $I = $KnowledgeDomainId.create("values/batch-state");
 
 export class Pending extends S.TaggedClass<Pending>($I`Pending`)(
   "BatchState.Pending",

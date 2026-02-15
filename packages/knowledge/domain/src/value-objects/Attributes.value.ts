@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/Attributes");
+const $I = $KnowledgeDomainId.create("values/Attributes");
 
 export class Attributes extends S.Record({
   key: S.String,

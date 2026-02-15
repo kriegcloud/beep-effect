@@ -2,7 +2,7 @@ import { $CommsDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $CommsDomainId.create("value-objects/logging.values");
+const $I = $CommsDomainId.create("values/logging.values");
 
 export class TraceSpanStatus extends BS.StringLiteralKit("started", "completed", "error").annotations(
   $I.annotations("TraceSpanStatus", {

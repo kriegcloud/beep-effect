@@ -8,9 +8,6 @@
       "path": "../apps/server/tsconfig.build.json"
     },
     {
-      "path": "../apps/marketing/tsconfig.build.json"
-    },
-    {
       "path": "../apps/todox/tsconfig.build.json"
     }
   ]

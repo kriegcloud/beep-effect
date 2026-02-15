@@ -2,7 +2,7 @@ import { $CalendarDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { DatePickerControl } from "./date-picker-control.value";
 
-const $I = $CalendarDomainId.create("value-objects/calendar-filter");
+const $I = $CalendarDomainId.create("values/calendar-filter");
 
 export class CalendarFilter extends S.Class<CalendarFilter>($I`CalendarFilter`)(
   {

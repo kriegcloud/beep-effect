@@ -3,7 +3,7 @@ import { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
-const $I = $CommsDomainId.create("value-objects/mail.values");
+const $I = $CommsDomainId.create("values/mail.values");
 
 export class LabelColor extends S.Class<LabelColor>($I`LabelColor`)(
   {

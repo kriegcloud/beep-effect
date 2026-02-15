@@ -3,7 +3,7 @@ import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 import { MergeReason } from "../entities/MergeHistory/MergeHistory.model";
 
-const $I = $KnowledgeDomainId.create("value-objects/MergeParams");
+const $I = $KnowledgeDomainId.create("values/MergeParams");
 
 export class MergeParams extends S.Class<MergeParams>($I`MergeParams`)(
   {

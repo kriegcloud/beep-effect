@@ -2,7 +2,7 @@ import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/sparql/SparqlQuery");
+const $I = $KnowledgeDomainId.create("values/sparql/SparqlQuery");
 
 export class SparqlQueryType extends BS.StringLiteralKit("SELECT", "CONSTRUCT", "ASK", "DESCRIBE").annotations(
   $I.annotations("SparqlQueryType", {

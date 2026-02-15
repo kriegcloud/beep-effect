@@ -3,7 +3,7 @@ import * as S from "effect/Schema";
 
 import { BlankNode, Graph, IRI, Term } from "./Quad";
 
-const $I = $KnowledgeDomainId.create("value-objects/rdf/QuadPattern");
+const $I = $KnowledgeDomainId.create("values/rdf/QuadPattern");
 
 export const SubjectPattern = S.optional(S.Union(IRI, BlankNode)).annotations(
   $I.annotations("SubjectPattern", {

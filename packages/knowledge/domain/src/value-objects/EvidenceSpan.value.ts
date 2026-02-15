@@ -1,7 +1,7 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $KnowledgeDomainId.create("value-objects/EvidenceSpan");
+const $I = $KnowledgeDomainId.create("values/EvidenceSpan");
 
 export class EvidenceSpan extends S.Class<EvidenceSpan>($I`EvidenceSpan`)({
   text: S.String,
