@@ -4,11 +4,11 @@
  * Add value objects here as needed.
  */
 export * from "./CalendarColorOption.value";
-export * from "./calendar-event.value";
-export * from "./calendar-filter.value";
-export * from "./calendar-range.value";
-export * from "./calendar-view.value";
-export * from "./date-picker-control.value";
-export * from "./day-grid-view.value";
-export * from "./list-view.value";
-export * from "./time-grid-view.value";
+export * from "./CalendarEvent.value";
+export * from "./CalendarFilter.value";
+export * from "./CalendarRange.value";
+export * from "./CalendarView.value";
+export * from "./DatePickerControl.value";
+export * from "./DayGridView.value";
+export * from "./ListView.value";
+export * from "./TimeGridView.value";
