@@ -1,0 +1,101 @@
+@prefix enron: <https://todox.dev/test/enron/> .
+@prefix wm: <https://todox.dev/ontology/wm/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+enron:EnronTestOntology
+  a owl:Ontology ;
+  rdfs:label "TodoX Enron Extraction Test Ontology" ;
+  rdfs:comment "Ontology used for deterministic extraction validation on curated Enron test data." .
+
+wm:EmailMessage
+  a owl:Class ;
+  rdfs:label "Email Message" ;
+  rdfs:comment "A source email document processed by the extraction pipeline." ;
+  skos:prefLabel "Email Message" .
+
+wm:Person
+  a owl:Class ;
+  rdfs:label "Person" ;
+  rdfs:comment "Human participant mentioned in an email exchange." ;
+  skos:prefLabel "Person" ;
+  skos:altLabel "Individual" .
+
+wm:Organization
+  a owl:Class ;
+  rdfs:label "Organization" ;
+  rdfs:comment "Corporate or institutional party mentioned in an email." ;
+  skos:prefLabel "Organization" ;
+  skos:altLabel "Company" .
+
+wm:FinancialInstrument
+  a owl:Class ;
+  rdfs:label "Financial Instrument" ;
+  rdfs:comment "A deal, contract, product, or other investable financial instrument." ;
+  skos:prefLabel "Financial Instrument" ;
+  skos:altLabel "Deal" ;
+  skos:altLabel "Contract" .
+
+wm:ActionItem
+  a owl:Class ;
+  rdfs:label "Action Item" ;
+  rdfs:comment "A requested follow-up task that can be attributed to one or more participants." ;
+  skos:prefLabel "Action Item" .
+
+wm:MonetaryAmount
+  a owl:Class ;
+  rdfs:label "Monetary Amount" ;
+  rdfs:comment "A money amount appearing in a message, such as budget or pricing values." ;
+  skos:prefLabel "Monetary Amount" .
+
+wm:mentionsParticipant
+  a owl:ObjectProperty ;
+  rdfs:label "mentions participant" ;
+  rdfs:comment "Links an email message to a participant mention." ;
+  rdfs:domain wm:EmailMessage ;
+  rdfs:range wm:Person ;
+  skos:prefLabel "mentions participant" .
+
+wm:mentionsOrganization
+  a owl:ObjectProperty ;
+  rdfs:label "mentions organization" ;
+  rdfs:comment "Links an email message to an organization mention." ;
+  rdfs:domain wm:EmailMessage ;
+  rdfs:range wm:Organization ;
+  skos:prefLabel "mentions organization" .
+
+wm:discussesInstrument
+  a owl:ObjectProperty ;
+  rdfs:label "discusses instrument" ;
+  rdfs:comment "Links an email message to a financial instrument under discussion." ;
+  rdfs:domain wm:EmailMessage ;
+  rdfs:range wm:FinancialInstrument ;
+  skos:prefLabel "discusses instrument" .
+
+wm:requestsAction
+  a owl:ObjectProperty ;
+  rdfs:label "requests action" ;
+  rdfs:comment "Links an email message to an explicit requested follow-up action." ;
+  rdfs:domain wm:EmailMessage ;
+  rdfs:range wm:ActionItem ;
+  skos:prefLabel "requests action" .
+
+wm:reportsAmount
+  a owl:DatatypeProperty ;
+  a owl:FunctionalProperty ;
+  rdfs:label "reports amount" ;
+  rdfs:comment "Associates an email message with a monetary value found in text." ;
+  rdfs:domain wm:EmailMessage ;
+  rdfs:range xsd:decimal ;
+  skos:prefLabel "reports amount" .
+
+wm:hasThreadReference
+  a owl:DatatypeProperty ;
+  rdfs:label "has thread reference" ;
+  rdfs:comment "Associates an email message with a normalized thread reference string." ;
+  rdfs:domain wm:EmailMessage ;
+  rdfs:range xsd:string ;
+  skos:prefLabel "has thread reference" .

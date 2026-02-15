@@ -296,7 +296,7 @@ const serviceEffect: Effect.Effect<
 
       return new ExtractionResult({
         graph,
-        stats: {
+        stats: new ExtractionResultStats({
           chunkCount: A.length(chunks),
           mentionCount: A.length(allMentions),
           entityCount: graph.stats.entityCount,
@@ -304,7 +304,7 @@ const serviceEffect: Effect.Effect<
           tokensUsed: totalTokens,
           durationMs,
           clusteringEnabled,
-        },
+        }),
         config,
       });
     },
