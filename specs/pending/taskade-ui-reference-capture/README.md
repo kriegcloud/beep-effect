@@ -90,6 +90,17 @@ This spec defines a systematic workflow for a Claude Code instance to:
 | **P4** | Settings Features | 11-13 | 4 |
 | **P5** | Settings Admin + Review | 14-17 + review | 6 |
 
+## Timeline Estimate
+
+| Phase | Views | Est. Duration | Critical Path |
+|-------|-------|---------------|---------------|
+| P1 | 3 | 1-2 hours | Tool setup + first capture validation |
+| P2 | 4 | 1-2 hours | Sub-tab navigation pattern |
+| P3 | 3 | 1 hour | Card/table patterns |
+| P4 | 3 | 1 hour | Expandable sections |
+| P5 | 4 + synthesis | 2-3 hours | Cross-cutting synthesis |
+| **Total** | **17 views** | **6-10 hours** | Session management |
+
 ## Related Documents
 
 | Document | Purpose |

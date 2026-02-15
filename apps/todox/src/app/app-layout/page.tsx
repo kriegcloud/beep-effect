@@ -298,7 +298,7 @@ const Page = () => {
                                 className="flex h-full w-full items-center justify-center [&amp;&gt;*&gt;*]:!bg-transparent [&amp;&gt;*&gt;*]:text-center [&amp;&gt;*]:flex [&amp;&gt;*]:items-center [&amp;&gt;*]:justify-center [&amp;&gt;*]:!bg-transparent !rounded-[40%]"
                               >
                                 <div className="sc-dPKAra iuIVrI relative !bg-transparent"><img
-                                  src="https://files.taskade.com/space-avatars/77a5611e-45e1-43c0-8f3d-05a2de2fc05c/h_60,w_60/hdpi.png"
+                                  src={assetPaths.logo}
                                   alt="Workspace"
                                   className="sc-fuExOL chHJJg"
                                 /></div>
