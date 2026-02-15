@@ -1,41 +1,40 @@
-# enron-knowledge-demo-integration Quick Start
+# Enron Knowledge Demo Integration Quick Start
 
-> 5-minute guide to get started with this specification.
+> Fast-start checklist for this spec.
 
 ---
 
-## 1) Read the README
+## 1) Read Core Spec Docs
 
-- `specs/pending/enron-knowledge-demo-integration/README.md`
+- `README.md`
+- `MASTER_ORCHESTRATION.md`
+- `RUBRICS.md`
 
-## 2) Start from the Phase 1 Handoff + Prompt
+## 2) Start from Phase 1 Handoff + Prompt
 
-- `specs/pending/enron-knowledge-demo-integration/handoffs/HANDOFF_P1.md`
-- `specs/pending/enron-knowledge-demo-integration/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+- `handoffs/HANDOFF_P1.md`
+- `handoffs/P1_ORCHESTRATOR_PROMPT.md`
 
-## 3) Produce Discovery Outputs
-
-Minimum recommended for medium+ specs:
+## 3) Produce Discovery Outputs First
 
 - `outputs/codebase-context.md`
+- `outputs/current-vs-target-matrix.md`
 
-## 4) Execute In Small Checkpoints
+## 4) Respect Locked Decisions
 
-- Update `REFLECTION_LOG.md` after each phase or major checkpoint.
-- If you approach context limits, create a new handoff + orchestrator prompt per `specs/_guide/HANDOFF_STANDARDS.md`.
+- Curated scenarios only
+- Explicit `Ingest Scenario`
+- Full-thread extraction with deterministic cap (25 docs)
+- Org-scoped persistence
+- `ENABLE_ENRON_KNOWLEDGE_DEMO` gate
 
----
+## 5) Verify Early, Not Just At The End
 
-## Verification
+```bash
+bun run check --filter @beep/todox
+bun run check --filter @beep/server
+bun run check --filter @beep/runtime-server
+bun run check --filter @beep/knowledge-server
+```
 
-After completion:
-- [ ] All success criteria met
-- [ ] REFLECTION_LOG.md updated
-- [ ] Tests passing
-
----
-
-## Need Help?
-
-- `MASTER_ORCHESTRATION.md` (complex specs only) - Full workflow
-- `specs/_guide/README.md` - Spec workflow guide
+Then run tests for touched packages before phase handoff.
