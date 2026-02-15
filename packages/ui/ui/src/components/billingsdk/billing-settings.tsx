@@ -20,46 +20,46 @@ const tabs = [
 ];
 
 interface CardInfo {
-  id: string;
-  last4: string;
-  brand: string;
-  expiry: string;
-  primary?: boolean;
+  readonly id: string;
+  readonly last4: string;
+  readonly brand: string;
+  readonly expiry: string;
+  readonly primary?: undefined |  boolean;
 }
 
 interface BillingSettingsProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  readonly activeTab: string;
+  readonly onTabChange: (tab: string) => void;
 
-  emailNotifications: boolean;
-  onEmailNotificationsChange: (value: boolean) => void;
+  readonly emailNotifications: boolean;
+  readonly onEmailNotificationsChange: (value: boolean) => void;
 
-  usageAlerts: boolean;
-  onUsageAlertsChange: (value: boolean) => void;
+  readonly usageAlerts: boolean;
+  readonly onUsageAlertsChange: (value: boolean) => void;
 
-  invoiceReminders: boolean;
-  onInvoiceRemindersChange: (value: boolean) => void;
+  readonly invoiceReminders: boolean;
+  readonly onInvoiceRemindersChange: (value: boolean) => void;
 
-  cards: CardInfo[];
-  onAddCard: () => void;
+  readonly cards: CardInfo[];
+  readonly onAddCard: () => void;
 
-  invoiceFormat: "PDF" | "HTML";
-  onInvoiceFormatChange: (format: "PDF" | "HTML") => void;
-  onEditBillingAddress: () => void;
+  readonly invoiceFormat: "PDF" | "HTML";
+  readonly onInvoiceFormatChange: (format: "PDF" | "HTML") => void;
+  readonly onEditBillingAddress: () => void;
 
-  overageProtection: boolean;
-  onOverageProtectionChange: (value: boolean) => void;
+  readonly overageProtection: boolean;
+  readonly onOverageProtectionChange: (value: boolean) => void;
 
-  usageLimitAlerts: boolean;
-  onUsageLimitAlertsChange: (value: boolean) => void;
-  className?: string;
+  readonly usageLimitAlerts: boolean;
+  readonly onUsageLimitAlertsChange: (value: boolean) => void;
+  readonly className?: undefined |  string;
 }
 
 interface SettingItemProps {
-  title: string;
-  description: string;
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
+  readonly title: string;
+  readonly description: string;
+  readonly checked: boolean;
+  readonly onCheckedChange: (checked: boolean) => void;
 }
 
 function SettingItem({ title, description, checked, onCheckedChange }: SettingItemProps) {
@@ -82,8 +82,8 @@ function SettingItem({ title, description, checked, onCheckedChange }: SettingIt
 }
 
 interface TabNavigationProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  readonly activeTab: string;
+  readonly onTabChange: (tab: string) => void;
 }
 
 function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
@@ -92,6 +92,7 @@ function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
       {tabs.map((tab) => (
         <button
           key={tab.id}
+          type="button"
           onClick={() => onTabChange(tab.id)}
           className={`ring-offset-background focus-visible:ring-ring inline-flex flex-1 items-center justify-center rounded-md px-2 py-1 text-xs font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 sm:px-3 sm:text-sm ${
             activeTab === tab.id

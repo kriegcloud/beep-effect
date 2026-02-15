@@ -20,24 +20,24 @@ import { useState } from "react";
 type PaymentMethod = "cards" | "digital-wallets" | "upi" | "bnpl-services";
 
 interface PaymentOption {
-  id: PaymentMethod;
-  name: string;
-  description: string;
-  icon: React.ReactNode;
-  examples: string[];
-  details: string;
-  features: string[];
+  readonly id: PaymentMethod;
+  readonly name: string;
+  readonly description: string;
+  readonly icon: React.ReactNode;
+  readonly examples: string[];
+  readonly details: string;
+  readonly features: string[];
 }
 
 interface FormData {
-  cardNumber?: string;
-  expiryDate?: string;
-  cvv?: string;
-  cardholderName?: string;
-  email?: string;
-  phone?: string;
-  upiId?: string;
-  income?: string;
+  readonly cardNumber?: undefined |  string;
+  readonly expiryDate?: undefined |  string;
+  readonly cvv?: undefined |  string;
+  readonly cardholderName?: undefined |  string;
+  readonly email?: undefined |  string;
+  readonly phone?: undefined |  string;
+  readonly upiId?: undefined |  string;
+  readonly income?: undefined |  string;
 }
 
 const paymentOptions: PaymentOption[] = [
@@ -80,8 +80,8 @@ const paymentOptions: PaymentOption[] = [
 ];
 
 export interface PaymentMethodSelectorProps {
-  className?: string;
-  onProceed?: (method: PaymentMethod, data: FormData) => void;
+  readonly className?: undefined |  string;
+  readonly onProceed?: undefined |  ((method: PaymentMethod, data: FormData) => void);
 }
 
 export function PaymentMethodSelector({ onProceed }: PaymentMethodSelectorProps) {

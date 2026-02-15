@@ -9,24 +9,24 @@ import { CircleIcon as Circle, XIcon as X } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 export interface CancelSubscriptionDialogProps {
-  title: string;
-  description: string;
-  plan: Plan;
-  triggerButtonText?: string;
-  leftPanelImageUrl?: string;
-  warningTitle?: string;
-  warningText?: string;
-  keepButtonText?: string;
-  continueButtonText?: string;
-  finalTitle?: string;
-  finalSubtitle?: string;
-  finalWarningText?: string;
-  goBackButtonText?: string;
-  confirmButtonText?: string;
-  onCancel: (planId: string) => Promise<void> | void;
-  onKeepSubscription?: (planId: string) => Promise<void> | void;
-  onDialogClose?: () => void;
-  className?: string;
+  readonly title: string;
+  readonly description: string;
+  readonly plan: Plan;
+  readonly triggerButtonText?: undefined |  string;
+  readonly leftPanelImageUrl?: undefined |  string;
+  readonly warningTitle?: undefined |  string;
+  readonly warningText?: undefined |  string;
+  readonly keepButtonText?: undefined |  string;
+  readonly continueButtonText?: undefined |  string;
+  readonly finalTitle?: undefined |  string;
+  readonly finalSubtitle?: undefined |  string;
+  readonly finalWarningText?: undefined |  string;
+  readonly goBackButtonText?: undefined |  string;
+  readonly confirmButtonText?: undefined |  string;
+  readonly onCancel: (planId: string) => Promise<void> | void;
+  readonly onKeepSubscription?: undefined |  ((planId: string) => Promise<void> | void);
+  readonly onDialogClose?: undefined |  (() => void);
+  readonly className?: undefined |  string;
 }
 
 export function CancelSubscriptionDialog({
@@ -143,7 +143,6 @@ export function CancelSubscriptionDialog({
         </DialogClose>
         {leftPanelImageUrl && (
           <div className="relative hidden min-h-[500px] w-full overflow-hidden md:block md:w-1/2">
-            {/* biome-ignore lint/performance/noImgElement: Source image is fully controlled by caller */}
             <img
               src={leftPanelImageUrl}
               alt="Cancel Subscription"

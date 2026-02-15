@@ -21,31 +21,31 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 export interface PaymentFormData {
-  nameOnCard?: string;
-  cardNumber?: string;
-  validTill?: string;
-  cvv?: string;
-  firstName?: string;
-  middleLastName?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  billingAddress?: string;
-  pinCode?: string;
-  contactNumber?: string;
-  general?: string;
+  readonly nameOnCard?: undefined |  string;
+  readonly cardNumber?: undefined |  string;
+  readonly validTill?: undefined |  string;
+  readonly cvv?: undefined |  string;
+  readonly firstName?: undefined |  string;
+  readonly middleLastName?: undefined |  string;
+  readonly country?: undefined |  string;
+  readonly state?: undefined |  string;
+  readonly city?: undefined |  string;
+  readonly billingAddress?: undefined |  string;
+  readonly pinCode?: undefined |  string;
+  readonly contactNumber?: undefined |  string;
+  readonly general?: undefined |  string;
 }
 
 interface PaymentDetailsTwoProps {
-  className?: string;
-  onSubmit?: (data: PaymentFormData) => Promise<void> | void;
-  onDiscard?: () => void;
-  countries?: { name: string; isoCode: string }[];
-  states?: { name: string; isoCode: string }[];
-  cities?: { name: string }[];
+  readonly className?: undefined |  string;
+  readonly onSubmit?: undefined |  ((data: PaymentFormData) => Promise<void> | void);
+  readonly onDiscard?: undefined |  (() => void);
+  readonly countries?: undefined |  { readonly name: string; readonly isoCode: string }[];
+  readonly states?: undefined |  { readonly name: string; readonly isoCode: string }[];
+  readonly cities?: undefined |  { readonly name: string }[];
 }
 
-const cardDefaultValues: PaymentFormData = {
+const cardDefaultValues = {
   nameOnCard: "",
   cardNumber: "",
   validTill: "",
@@ -60,7 +60,9 @@ const cardDefaultValues: PaymentFormData = {
   contactNumber: "",
 };
 
-const CardLogo = ({ type }: { type: string }) => {
+type PaymentFormValues = typeof cardDefaultValues;
+
+const CardLogo = ({ type }: { readonly type: string }) => {
   switch (type) {
     case "visa":
       return (
@@ -116,7 +118,7 @@ export function PaymentDetailsTwo({
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
 
-  const form = useForm<PaymentFormData>({
+  const form = useForm({
     defaultValues: cardDefaultValues,
     onSubmit: async ({ value }) => {
       if (!onSubmit) {
@@ -165,8 +167,47 @@ export function PaymentDetailsTwo({
     });
   };
 
-  const setFieldValue = <K extends keyof PaymentFormData>(field: K, value: string) => {
-    form.setFieldValue(field, value);
+  const setFieldValue = (field: keyof PaymentFormValues, value: string) => {
+    switch (field) {
+      case "nameOnCard":
+        form.setFieldValue("nameOnCard", value);
+        break;
+      case "cardNumber":
+        form.setFieldValue("cardNumber", value);
+        break;
+      case "validTill":
+        form.setFieldValue("validTill", value);
+        break;
+      case "cvv":
+        form.setFieldValue("cvv", value);
+        break;
+      case "firstName":
+        form.setFieldValue("firstName", value);
+        break;
+      case "middleLastName":
+        form.setFieldValue("middleLastName", value);
+        break;
+      case "country":
+        form.setFieldValue("country", value);
+        break;
+      case "state":
+        form.setFieldValue("state", value);
+        break;
+      case "city":
+        form.setFieldValue("city", value);
+        break;
+      case "billingAddress":
+        form.setFieldValue("billingAddress", value);
+        break;
+      case "pinCode":
+        form.setFieldValue("pinCode", value);
+        break;
+      case "contactNumber":
+        form.setFieldValue("contactNumber", value);
+        break;
+      default:
+        return;
+    }
     clearError(field);
   };
 
@@ -187,7 +228,7 @@ export function PaymentDetailsTwo({
     if (!/^\d{2}\/\d{2}$/.test(expiry)) {
       nextErrors.validTill = "Valid expiry date is required (MM/YY)";
     } else {
-      const [mm, yy] = expiry.split("/").map(Number);
+      const [mm = 0, yy = 0] = expiry.split("/").map(Number);
       const now = new Date();
       const expiryDate = new Date(2000 + yy, mm - 1, 1);
       if (mm < 1 || mm > 12) {
@@ -447,10 +488,11 @@ export function PaymentDetailsTwo({
                     <Select
                       value={values.country ?? ""}
                       onValueChange={(value) => {
-                        setFieldValue("country", value);
+                        const nextCountry = value ?? "";
+                        setFieldValue("country", nextCountry);
                         setFieldValue("state", "");
                         setFieldValue("city", "");
-                        setSelectedCountry(value);
+                        setSelectedCountry(nextCountry);
                         setSelectedState("");
                       }}
                     >
@@ -472,9 +514,10 @@ export function PaymentDetailsTwo({
                     <Select
                       value={values.state ?? ""}
                       onValueChange={(value) => {
-                        setFieldValue("state", value);
+                        const nextState = value ?? "";
+                        setFieldValue("state", nextState);
                         setFieldValue("city", "");
-                        setSelectedState(value);
+                        setSelectedState(nextState);
                       }}
                     >
                       <SelectTrigger id="state">
@@ -498,7 +541,7 @@ export function PaymentDetailsTwo({
 
                   <div className="space-y-2">
                     <Label htmlFor="city">City</Label>
-                    <Select value={values.city ?? ""} onValueChange={(value) => setFieldValue("city", value)}>
+                    <Select value={values.city ?? ""} onValueChange={(value) => setFieldValue("city", value ?? "")}>
                       <SelectTrigger id="city">
                         <SelectValue placeholder="Select city" />
                       </SelectTrigger>

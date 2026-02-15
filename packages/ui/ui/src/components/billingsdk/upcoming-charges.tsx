@@ -6,20 +6,20 @@ import { cn } from "@beep/ui-core/utils";
 import { CalendarIcon as Calendar } from "@phosphor-icons/react";
 
 export interface ChargeItem {
-  id: string;
-  description: string;
-  amount: string;
-  date: string;
-  type: "prorated" | "recurring" | "one-time";
+  readonly id: string;
+  readonly description: string;
+  readonly amount: string;
+  readonly date: string;
+  readonly type: "prorated" | "recurring" | "one-time";
 }
 
 export interface UpcomingChargesProps {
-  className?: string;
-  title?: string;
-  description?: string;
-  nextBillingDate: string;
-  totalAmount: string;
-  charges: ChargeItem[];
+  readonly className?: undefined |  string;
+  readonly title?: undefined |  string;
+  readonly description?: undefined |  string;
+  readonly nextBillingDate: string;
+  readonly totalAmount: string;
+  readonly charges: ChargeItem[];
 }
 
 export function UpcomingCharges({

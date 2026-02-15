@@ -12,52 +12,52 @@ import { useMemo, useState } from "react";
 
 // Define types for our props
 export interface FeatureToggle {
-  id: string;
-  label: string;
-  description: string;
-  enabled: boolean;
-  onToggle: (enabled: boolean) => void;
+  readonly id: string;
+  readonly label: string;
+  readonly description: string;
+  readonly enabled: boolean;
+  readonly onToggle: (enabled: boolean) => void;
 }
 
 export interface InputField {
-  id: string;
-  name: string;
-  value?: string;
-  defaultValue?: string;
-  placeholder: string;
-  onChange: (value: string) => void;
-  label: string;
-  helperText?: string;
-  type?: "text" | "email" | "tel" | "url" | "number";
-  required?: boolean;
-  validation?: {
-    minLength?: number;
-    maxLength?: number;
-    pattern?: RegExp;
-    customValidator?: (value: string) => string | null;
+  readonly id: string;
+  readonly name: string;
+  readonly value?: undefined |  string;
+  readonly defaultValue?: undefined |  string;
+  readonly placeholder: string;
+  readonly onChange: (value: string) => void;
+  readonly label: string;
+  readonly helperText?: undefined |  string;
+  readonly type?: undefined |  "text" | "email" | "tel" | "url" | "number";
+  readonly required?: undefined |  boolean;
+  readonly validation?: undefined |  {
+    readonly minLength?: undefined |  number;
+    readonly maxLength?: undefined |  number;
+    readonly pattern?: undefined |  RegExp;
+    readonly customValidator?: undefined |  ((value: string) => string | null);
   };
 }
 
 export interface ValidationError {
-  field: string;
-  message: string;
+  readonly field: string;
+  readonly message: string;
 }
 
 export interface BillingSettings2Props {
-  className?: string;
-  title?: string;
-  features?: FeatureToggle[];
-  inputFields?: InputField[];
-  onSave?: () => void;
-  onCancel?: () => void;
-  saveButtonText?: string;
-  cancelButtonText?: string;
-  currencies?: string[]; // Array of currency codes to show (e.g., ['USD', 'EUR', 'GBP'])
-  currencyOptions?: { value: string; label: string }[]; // Override for custom currency options
-  defaultCurrency?: string;
-  onCurrencyChange?: (value: string) => void;
-  enableValidation?: boolean;
-  currencyRequired?: boolean;
+  readonly className?: undefined |  string;
+  readonly title?: undefined |  string;
+  readonly features?: undefined |  FeatureToggle[];
+  readonly inputFields?: undefined |  InputField[];
+  readonly onSave?: undefined |  (() => void);
+  readonly onCancel?: undefined |  (() => void);
+  readonly saveButtonText?: undefined |  string;
+  readonly cancelButtonText?: undefined |  string;
+  readonly currencies?: undefined |  string[]; // Array of currency codes to show (e.g., ['USD', 'EUR', 'GBP'])
+  readonly currencyOptions?: undefined |  { readonly value: string; readonly label: string }[]; // Override for custom currency options
+  readonly defaultCurrency?: undefined |  string;
+  readonly onCurrencyChange?: undefined |  ((value: string) => void);
+  readonly enableValidation?: undefined |  boolean;
+  readonly currencyRequired?: undefined |  boolean;
 }
 
 // Validation helper functions
@@ -277,11 +277,12 @@ export function BillingSettings2({
   };
 
   // Enhanced currency change handler
-  const handleCurrencyChange = (value: string, originalOnChange: (value: string) => void) => {
+  const handleCurrencyChange = (value: string | null, originalOnChange: (value: string) => void) => {
+    const nextValue = value ?? "";
     // Clear currency error when user makes a selection
     clearCurrencyError();
     // Call the original onChange handler
-    originalOnChange(value);
+    originalOnChange(nextValue);
   };
   return (
     <Card className={cn("mx-auto max-w-2xl", className)}>

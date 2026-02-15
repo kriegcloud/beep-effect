@@ -12,11 +12,11 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
 
 export interface UpdatePlanCardProps {
-  currentPlan: Plan;
-  plans: Plan[];
-  onPlanChange: (planId: string) => void;
-  className?: string;
-  title?: string;
+  readonly currentPlan: Plan;
+  readonly plans: Plan[];
+  readonly onPlanChange: (planId: string) => void;
+  readonly className?: undefined |  string;
+  readonly title?: undefined |  string;
 }
 
 const easing = [0.4, 0, 0.2, 1] as const;

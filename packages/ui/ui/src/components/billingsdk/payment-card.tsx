@@ -14,16 +14,16 @@ export interface finalTextProps {
 }
 
 export interface PaymentCardProps {
-  title: string;
-  description: string;
-  price: string;
-  feature?: string;
-  featuredescription?: string;
-  feature2?: string;
-  feature2description?: string;
-  finalText?: finalTextProps[];
-  onPay?: (data: { cardNumber: string; expiry: string; cvc: string }) => Promise<void> | void;
-  className?: string;
+  readonly title: string;
+  readonly description: string;
+  readonly price: string;
+  readonly feature?: undefined |  string;
+  readonly featuredescription?: undefined |  string;
+  readonly feature2?: undefined |  string;
+  readonly feature2description?: undefined |  string;
+  readonly finalText?: undefined |  finalTextProps[];
+  readonly onPay?: undefined |  ((data: { readonly cardNumber: string; readonly expiry: string; readonly cvc: string }) => Promise<void> | void);
+  readonly className?: undefined |  string;
 }
 
 export function PaymentCard({
@@ -43,9 +43,9 @@ export function PaymentCard({
   const [cvc, setCvc] = useState("");
   const [index, setIndex] = useState(0);
   const [errors, setErrors] = useState<{
-    card?: string;
-    expiry?: string;
-    cvc?: string;
+    card?: undefined |  string;
+    expiry?: undefined |  string;
+    cvc?: undefined |  string;
   }>({});
 
   const validate = () => {
@@ -60,7 +60,7 @@ export function PaymentCard({
     if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) {
       newErrors.expiry = "Enter a valid expiry date (MM/YY).";
     } else {
-      const [month, year] = expiry.split("/").map(Number);
+      const [month = 0, year = 0] = expiry.split("/").map(Number);
       const now = new Date();
       const expDate = new Date(2000 + year, month - 1);
       if (expDate < now) {

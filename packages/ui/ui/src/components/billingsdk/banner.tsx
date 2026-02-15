@@ -8,17 +8,17 @@ import type React from "react";
 import { useEffect, useState } from "react";
 
 export interface BannerProps {
-  variant?: "default" | "minimal" | "popup" | "destructive" | "warning" | "success" | "info" | "announcement";
-  title: string;
-  description?: string;
-  buttonText?: string;
-  buttonIcon?: React.ReactNode;
-  buttonLink?: string;
-  dismissable?: boolean;
-  className?: string;
-  autoDismiss?: number; // in ms
-  onDismiss?: () => void;
-  gradientColors?: string[];
+  readonly variant?: undefined |  "default" | "minimal" | "popup" | "destructive" | "warning" | "success" | "info" | "announcement";
+  readonly title: string;
+  readonly description?: undefined |  string;
+  readonly buttonText?: undefined |  string;
+  readonly buttonIcon?: undefined |  React.ReactNode;
+  readonly buttonLink?: undefined |  string;
+  readonly dismissable?: undefined |  boolean;
+  readonly className?: undefined |  string;
+  readonly autoDismiss?: undefined |  number; // in ms
+  readonly onDismiss?: undefined |  (() => void);
+  readonly gradientColors?: undefined |  string[];
 }
 
 export function Banner({
@@ -41,6 +41,7 @@ export function Banner({
       const timer = setTimeout(() => handleDismiss(), autoDismiss);
       return () => clearTimeout(timer);
     }
+    return;
   }, [isVisible, autoDismiss]);
 
   const handleDismiss = () => {
@@ -177,7 +178,7 @@ export function Banner({
     if (!gradientColors || gradientColors.length === 0) return null;
 
     // Use the exact gradient from the example or custom colors with proper spacing
-    let gradientStops;
+    let gradientStops: string;
     if (gradientColors.length === 4) {
       // Match the original example exactly
       gradientStops = `${gradientColors[0]} 0%, ${gradientColors[1]} 12.5%, ${gradientColors[2]} 25%, ${gradientColors[3]} 37.5%, ${gradientColors[0]} 50%`;

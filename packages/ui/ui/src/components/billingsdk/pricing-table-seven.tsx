@@ -153,32 +153,32 @@ const buttonVariants = cva("w-full transition-all duration-300 hover:cursor-poin
 
 // TypeScript interfaces
 export interface PricingTableSevenPlan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  users: number;
-  popular?: boolean;
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly price: number;
+  readonly users: number;
+  readonly popular?: undefined |  boolean;
 }
 
 export interface FeatureItemRecord {
-  name: string;
-  tooltip?: boolean;
-  [planId: string]: boolean | string | undefined;
+  readonly name: string;
+  readonly tooltip?: undefined |  boolean;
+  readonly [planId: string]: boolean | string | undefined;
 }
 
 export interface FeatureCategory {
-  category: string;
-  items: FeatureItemRecord[];
+  readonly category: string;
+  readonly items: FeatureItemRecord[];
 }
 
 export interface PricingTableSevenProps extends VariantProps<typeof sectionVariants> {
-  plans: PricingTableSevenPlan[];
-  features: FeatureCategory[];
-  title?: string;
-  description?: string;
-  onPlanSelect?: (planId: string) => void;
-  className?: string;
+  readonly plans: PricingTableSevenPlan[];
+  readonly features: FeatureCategory[];
+  readonly title?: undefined |  string;
+  readonly description?: undefined |  string;
+  readonly onPlanSelect?: undefined | ((planId: string) => void);
+  readonly className?: undefined |  string;
 }
 
 export function PricingTableSeven({
@@ -237,11 +237,12 @@ export function PricingTableSeven({
           <div className="relative">
             <Slider
               value={sliderValue}
-              onValueChange={(e) => {
-                setSliderValue(e);
-                setSelectedPlan(
-                  plans.filter((plan) => plan.users >= e[0])[0]?.id || plans.find((plan) => plan.popular)?.id!
-                );
+              onValueChange={(value) => {
+                const nextSliderValue = Array.isArray(value) ? [...value] : [value];
+                setSliderValue(nextSliderValue);
+                const nextUsers = nextSliderValue[0] ?? 1;
+                const matchedPlan = plans.find((plan) => plan.users >= nextUsers);
+                setSelectedPlan(matchedPlan?.id ?? plans.find((plan) => plan.popular)?.id ?? plans[0]?.id ?? "");
               }}
               max={25}
               min={1}
@@ -249,7 +250,7 @@ export function PricingTableSeven({
               className="text-primary w-full"
             />
             <div className="mt-2 text-center">
-              <span className="text-foreground text-sm font-medium">{sliderValue[0]} users</span>
+              <span className="text-foreground text-sm font-medium">{sliderValue[0] ?? 1} users</span>
             </div>
           </div>
         </div>

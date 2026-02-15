@@ -16,62 +16,62 @@ export interface PaymentFailureProps extends React.HTMLAttributes<HTMLDivElement
    * Optional heading at the top.
    * @default "Payment Failed"
    */
-  title?: string;
+  readonly title?: undefined |  string;
 
   /**
    * Short description under the title.
    * @default "We couldn't process your payment."
    */
-  subtitle?: string;
+  readonly subtitle?: undefined |  string;
 
   /**
    * Extra explanatory message under the reasons list.
    * @default "Please check your payment details and try again, or contact your bank for more information."
    */
-  message?: string;
+  readonly message?: undefined |  string;
 
   /**
    * Bullet points explaining common failure reasons.
    */
-  reasons?: string[];
+  readonly reasons?: undefined |  string[];
 
   /**
    * Whether the primary action is in loading / retrying state.
    */
-  isRetrying?: boolean;
+  readonly isRetrying?: undefined |  boolean;
 
   /**
    * Label for the primary CTA button.
    * @default "Try Again"
    */
-  retryButtonText?: string;
+  readonly retryButtonText?: undefined |  string;
 
   /**
    * Label for the secondary button (e.g. Home).
    * @default "Home"
    */
-  secondaryButtonText?: string;
+  readonly secondaryButtonText?: undefined |  string;
 
   /**
    * Label for the tertiary button (e.g. Support).
    * @default "Support"
    */
-  tertiaryButtonText?: string;
+  readonly tertiaryButtonText?: undefined |  string;
 
   /**
    * Called when user clicks the primary CTA (Try Again).
    */
-  onRetry?: () => void;
+  readonly onRetry?: undefined |  (() => void);
 
   /**
    * Called when user clicks the secondary button (Home).
    */
-  onSecondary?: () => void;
+  readonly onSecondary?: undefined |  (() => void);
 
   /**
    * Called when user clicks the tertiary button (Support).
    */
-  onTertiary?: () => void;
+  readonly onTertiary?: undefined |  (() => void);
 }
 
 export const PaymentFailure = React.forwardRef<HTMLDivElement, PaymentFailureProps>(

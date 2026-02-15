@@ -8,19 +8,19 @@ import type React from "react";
 import { useEffect } from "react";
 
 export interface Usage {
-  name: string;
-  usage: number;
-  limit: number;
+  readonly name: string;
+  readonly usage: number;
+  readonly limit: number;
 }
 
 export interface UsageMeterProps {
-  usage: Usage[];
-  className?: string;
-  variant?: "linear" | "circle";
-  size?: "sm" | "md" | "lg";
-  title?: string;
-  description?: string;
-  progressColor?: "default" | "usage";
+  readonly usage: Usage[];
+  readonly className?: undefined |  string;
+  readonly variant?: undefined |  "linear" | "circle";
+  readonly size?: undefined |  "sm" | "md" | "lg";
+  readonly title?: undefined |  string;
+  readonly description?: undefined |  string;
+  readonly progressColor?: undefined |  "default" | "usage";
 }
 
 function CircleUsageItem({
@@ -32,13 +32,13 @@ function CircleUsageItem({
   getUsageClasses,
   getStatus,
 }: {
-  item: Usage;
-  config: { circle: number; stroke: number; text: string; label: string };
-  radius: number;
-  circumference: number;
-  progressColor: "default" | "usage";
-  getUsageClasses: (percentage: number, variant: "circle" | "linear") => string[];
-  getStatus: (percentage: number) => React.ReactNode;
+  readonly item: Usage;
+  readonly config: { readonly circle: number; readonly stroke: number; readonly text: string; readonly label: string };
+  readonly radius: number;
+  readonly circumference: number;
+  readonly progressColor: "default" | "usage";
+  readonly getUsageClasses: (percentage: number, variant: "circle" | "linear") => string[];
+  readonly getStatus: (percentage: number) => React.ReactNode;
 }) {
   const percentage = Math.min((item.usage / item.limit) * 100, 100);
   const remaining = Math.max(item.limit - item.usage, 0);
@@ -56,6 +56,7 @@ function CircleUsageItem({
       <span className="w-full truncate text-sm font-medium">{item.name}</span>
       <div className="relative">
         <svg width={config.circle} height={config.circle} className="-rotate-90">
+          <title>{`${item.name} usage`}</title>
           <circle
             cx={config.circle / 2}
             cy={config.circle / 2}

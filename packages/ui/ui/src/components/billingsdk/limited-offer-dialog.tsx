@@ -9,27 +9,27 @@ import * as React from "react";
 
 // Plan interface for type safety
 export interface Offer {
-  id: string;
-  title: string;
-  description: string;
-  discount: string;
-  features: Array<{ name: string; icon?: string; iconColor?: string }>;
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly discount: string;
+  readonly features: Array<{ readonly name: string; readonly icon?: undefined |  string; readonly iconColor?: undefined |  string }>;
 }
 
 // Component props interface
 export interface LimitedOfferDialogProps {
-  title?: string;
-  description?: string;
-  offer?: Offer;
-  triggerButtonText?: string;
-  warningTitle?: string;
-  warningText?: string;
-  claimButtonText?: string;
-  declineButtonText?: string;
-  onClaimOffer?: (offerId: string) => Promise<void> | void;
-  onDeclineOffer?: (offerId: string) => Promise<void> | void;
-  onDialogClose?: () => void;
-  className?: string;
+  readonly title?: undefined |  string;
+  readonly description?: undefined |  string;
+  readonly offer?: undefined |  Offer;
+  readonly triggerButtonText?: undefined |  string;
+  readonly warningTitle?: undefined |  string;
+  readonly warningText?: undefined |  string;
+  readonly claimButtonText?: undefined |  string;
+  readonly declineButtonText?: undefined |  string;
+  readonly onClaimOffer?: undefined |  ((offerId: string) => Promise<void> | void);
+  readonly onDeclineOffer?: undefined |  ((offerId: string) => Promise<void> | void);
+  readonly onDialogClose?: undefined |  (() => void);
+  readonly className?: undefined |  string;
 }
 
 // Default offer object

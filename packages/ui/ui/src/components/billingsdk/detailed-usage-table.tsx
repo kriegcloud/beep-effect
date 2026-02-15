@@ -5,18 +5,18 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { cn } from "@beep/ui-core/utils";
 
 export interface UsageResource {
-  name: string;
-  used: number;
-  limit: number;
-  percentage?: number;
-  unit?: string;
+  readonly name: string;
+  readonly used: number;
+  readonly limit: number;
+  readonly percentage?: undefined |  number;
+  readonly unit?: undefined |  string;
 }
 
 export interface DetailedUsageTableProps {
-  className?: string;
-  title?: string;
-  description?: string;
-  resources: UsageResource[];
+  readonly className?: undefined |  string;
+  readonly title?: undefined |  string;
+  readonly description?: undefined |  string;
+  readonly resources: UsageResource[];
 }
 
 export function DetailedUsageTable({

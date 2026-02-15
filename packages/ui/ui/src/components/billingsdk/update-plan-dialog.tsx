@@ -12,12 +12,12 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
 
 export interface UpdatePlanDialogProps {
-  currentPlan: Plan;
-  plans: Plan[];
-  triggerText: string;
-  onPlanChange: (planId: string) => void;
-  className?: string;
-  title?: string;
+  readonly currentPlan: Plan;
+  readonly plans: Plan[];
+  readonly triggerText: string;
+  readonly onPlanChange: (planId: string) => void;
+  readonly className?: undefined |  string;
+  readonly title?: undefined |  string;
 }
 
 const easing = [0.4, 0, 0.2, 1] as const;

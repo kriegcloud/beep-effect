@@ -12,20 +12,20 @@ import {
 } from "@phosphor-icons/react";
 
 export interface InvoiceItem {
-  id: string;
-  date: string;
-  amount: string;
-  status: "paid" | "refunded" | "open" | "void";
-  invoiceUrl?: string;
-  description?: string;
+  readonly id: string;
+  readonly date: string;
+  readonly amount: string;
+  readonly status: "paid" | "refunded" | "open" | "void";
+  readonly invoiceUrl?: undefined |  string;
+  readonly description?: undefined |  string;
 }
 
 interface InvoiceHistoryProps {
-  className?: string;
-  title?: string;
-  description?: string;
-  invoices: InvoiceItem[];
-  onDownload?: (invoiceId: string) => void;
+  readonly className?: undefined |  string;
+  readonly title?: undefined |  string;
+  readonly description?: undefined |  string;
+  readonly invoices: InvoiceItem[];
+  readonly onDownload?: undefined |  ((invoiceId: string) => void);
 }
 
 export function InvoiceHistory({

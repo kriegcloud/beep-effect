@@ -36,7 +36,7 @@ export const validateLuhn = (cardNumber: string): true | string => {
   let shouldDouble = false;
 
   for (let i = number.length - 1; i >= 0; i--) {
-    let digit = Number.parseInt(number.charAt(i));
+    let digit = Number.parseInt(number.charAt(i), 10);
     if (shouldDouble) {
       digit *= 2;
       if (digit > 9) digit -= 9;
@@ -56,7 +56,7 @@ export const validateLuhn = (cardNumber: string): true | string => {
 export const formatCardNumber = (value: string): string => {
   const number = value.replace(/\s/g, "").replace(/[^0-9]/gi, "");
   const matches = number.match(/\d{4,16}/g);
-  const match = (matches && matches[0]) || "";
+  const match = matches?.[0] || "";
   const parts = [];
 
   for (let i = 0, len = match.length; i < len; i += 4) {
@@ -78,7 +78,7 @@ export const formatExpiryDate = (value?: string): string => {
   if (!value) return "";
   const number = value.replace(/\D/g, "");
   if (number.length >= 2) {
-    return number.substring(0, 2) + "/" + number.substring(2, 4);
+    return `${number.substring(0, 2)}/${number.substring(2, 4)}`;
   }
   return number;
 };

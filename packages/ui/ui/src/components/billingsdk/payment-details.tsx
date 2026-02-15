@@ -58,7 +58,7 @@ const detectCardType = (
 const formatCardNumber = (value: string): string => {
   const number = value.replace(/\s/g, "").replace(/[^0-9]/gi, "");
   const matches = number.match(/\d{4,16}/g);
-  const match = (matches && matches[0]) || "";
+  const match = matches?.[0] || "";
   const parts = [];
 
   for (let i = 0, len = match.length; i < len; i += 4) {
@@ -79,7 +79,7 @@ const formatCardNumber = (value: string): string => {
 const formatExpiryDate = (value: string): string => {
   const number = value.replace(/\D/g, "");
   if (number.length >= 2) {
-    return number.substring(0, 2) + "/" + number.substring(2, 4);
+    return `${number.substring(0, 2)}/${number.substring(2, 4)}`;
   }
   return number;
 };
@@ -98,7 +98,7 @@ const validateLuhn = (cardNumber: string): boolean => {
 
   // Loop through values starting from the rightmost digit
   for (let i = number.length - 1; i >= 0; i--) {
-    let digit = Number.parseInt(number.charAt(i));
+    let digit = Number.parseInt(number.charAt(i), 10);
 
     if (shouldDouble) {
       digit *= 2;
@@ -118,7 +118,7 @@ const validateLuhn = (cardNumber: string): boolean => {
  * @param validators - Optional validation configuration
  * @returns Object containing validation errors
  */
-const validateForm = (data: PaymentFormData, validators?: ValidationConfig): Partial<PaymentFormData> => {
+const validateForm = (data: PaymentFormData, validators?: undefined |  ValidationConfig): Partial<PaymentFormData> => {
   const errors: Partial<PaymentFormData> = {};
   const cardType = detectCardType(data.cardNumber || "");
 
@@ -134,9 +134,9 @@ const validateForm = (data: PaymentFormData, validators?: ValidationConfig): Par
   if (!data.validTill || !/^\d{2}\/\d{2}$/.test(data.validTill)) {
     errors.validTill = "Valid expiry date is required (MM/YY)";
   } else {
-    const [month, year] = data.validTill.split("/");
-    const expiryMonth = Number.parseInt(month);
-    const expiryYear = 2000 + Number.parseInt(year);
+    const [month = "0", year = "0"] = data.validTill.split("/");
+    const expiryMonth = Number.parseInt(month, 10);
+    const expiryYear = 2000 + Number.parseInt(year, 10);
 
     const currentDate = new Date();
 
@@ -220,31 +220,31 @@ const CardLogo = ({ type }: { type: string }) => {
  */
 export interface PaymentFormData {
   /** Name as it appears on the card */
-  nameOnCard?: string;
+  nameOnCard?: undefined |  string;
   /** Card number (will be formatted automatically) */
-  cardNumber?: string;
+  cardNumber?: undefined |  string;
   /** Expiry date in MM/YY format */
-  validTill?: string;
+  validTill?: undefined |  string;
   /** Card verification value (CVV) */
-  cvv?: string;
+  cvv?: undefined |  string;
   /** Customer's first name */
-  firstName?: string;
+  firstName?: undefined |  string;
   /** Customer's middle and last name */
-  middleLastName?: string;
+  middleLastName?: undefined |  string;
   /** Customer's country */
-  country?: string;
+  country?: undefined |  string;
   /** Customer's state */
-  state?: string;
+  state?: undefined |  string;
   /** Customer's city */
-  city?: string;
+  city?: undefined |  string;
   /** Customer's billing address */
-  billingAddress?: string;
+  billingAddress?: undefined |  string;
   /** Customer's PIN code */
-  pinCode?: string;
+  pinCode?: undefined |  string;
   /** Customer's phone number */
-  contactNumber?: string;
+  contactNumber?: undefined |  string;
   /** General form error message */
-  general?: string;
+  general?: undefined |  string;
 }
 
 /**
@@ -252,15 +252,15 @@ export interface PaymentFormData {
  */
 export interface ValidationConfig {
   /** Custom PIN code validation regex */
-  pinCode?: RegExp;
+  pinCode?: undefined |  RegExp;
   /** Custom PIN code error message */
-  pinCodeErrorMessage?: string;
+  pinCodeErrorMessage?: undefined |  string;
   /** Custom contact number validation regex */
-  contactNumber?: RegExp;
+  contactNumber?: undefined |  RegExp;
   /** Custom contact number error message */
-  contactNumberErrorMessage?: string;
+  contactNumberErrorMessage?: undefined |  string;
   /** Country code for phone validation */
-  countryCode?: string;
+  countryCode?: undefined |  string;
 }
 
 /**
@@ -268,33 +268,33 @@ export interface ValidationConfig {
  */
 export interface PaymentFormProps {
   /** Additional CSS classes for styling */
-  className?: string;
+  className?: undefined |  string;
   /** Main title for the payment form */
-  title?: string;
+  title?: undefined |  string;
   /** Description text below the title */
-  description?: string;
+  description?: undefined |  string;
   /** Initial form data */
-  initialData?: Partial<PaymentFormData>;
+  initialData?: undefined |  Partial<PaymentFormData>;
   /** Validation configuration */
-  validators?: ValidationConfig;
+  validators?: undefined |  ValidationConfig;
   /** Callback when form is submitted */
-  onSubmit?: (data: PaymentFormData) => void | Promise<void>;
+  onSubmit?: undefined |  ((data: PaymentFormData) => void | Promise<void>);
   /** Callback when discard button is clicked */
-  onDiscard?: () => void;
+  onDiscard?: undefined |  (() => void);
   /** Text for submit button */
-  submitButtonText?: string;
+  submitButtonText?: undefined |  string;
   /** Text for discard button */
-  discardButtonText?: string;
+  discardButtonText?: undefined |  string;
   /** External loading state */
-  isLoading?: boolean;
+  isLoading?: undefined |  boolean;
   /** Show success confirmation modal */
-  showConfirmation?: boolean;
+  showConfirmation?: undefined |  boolean;
   /** Title for confirmation modal */
-  confirmationTitle?: string;
+  confirmationTitle?: undefined |  string;
   /** Message for confirmation modal */
-  confirmationMessage?: string;
+  confirmationMessage?: undefined |  string;
   /** Callback when confirmation is closed */
-  onConfirmationClose?: () => void;
+  onConfirmationClose?: undefined |  (() => void);
 }
 
 /**
@@ -453,10 +453,11 @@ export function PaymentDetails({
             {/* Name on Card and Valid Till */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="md:col-span-2">
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">
+                <label htmlFor="nameOnCard" className="text-muted-foreground mb-2 block text-sm font-medium">
                   Name On Card <span className="text-destructive">*</span>
                 </label>
                 <input
+                  id="nameOnCard"
                   type="text"
                   value={formData.nameOnCard || ""}
                   onChange={(e) => handleInputChange("nameOnCard", e.target.value)}
@@ -467,12 +468,13 @@ export function PaymentDetails({
                 {errors.nameOnCard && <p className="text-destructive mt-1 text-sm">{errors.nameOnCard}</p>}
               </div>
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">
+                <label htmlFor="validTill" className="text-muted-foreground mb-2 block text-sm font-medium">
                   Valid Till <span className="text-destructive">*</span>
                 </label>
                 <div className="relative">
                   <Calendar className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 transform" />
                   <input
+                    id="validTill"
                     type="text"
                     placeholder="MM/YY"
                     value={formData.validTill || ""}
@@ -489,7 +491,7 @@ export function PaymentDetails({
             {/* Card Number and CVV */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="md:col-span-2">
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">
+                <label htmlFor="cardNumber" className="text-muted-foreground mb-2 block text-sm font-medium">
                   Card Number <span className="text-destructive">*</span>
                 </label>
                 <div className="relative">
@@ -497,6 +499,7 @@ export function PaymentDetails({
                     <CardLogo type={cardType} />
                   </div>
                   <input
+                    id="cardNumber"
                     type="text"
                     placeholder="1234 5678 9012 3456"
                     value={formData.cardNumber || ""}
@@ -509,12 +512,13 @@ export function PaymentDetails({
                 {errors.cardNumber && <p className="text-destructive mt-1 text-sm">{errors.cardNumber}</p>}
               </div>
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">
+                <label htmlFor="cvv" className="text-muted-foreground mb-2 block text-sm font-medium">
                   CVV <span className="text-destructive">*</span>
                 </label>
                 <div className="relative">
                   <Shield className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 transform" />
                   <input
+                    id="cvv"
                     type="password"
                     placeholder="123"
                     value={formData.cvv || ""}
@@ -541,10 +545,11 @@ export function PaymentDetails({
             {/* First Name and Middle & Last Name */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">
+                <label htmlFor="firstName" className="text-muted-foreground mb-2 block text-sm font-medium">
                   First Name <span className="text-destructive">*</span>
                 </label>
                 <input
+                  id="firstName"
                   type="text"
                   value={formData.firstName || ""}
                   onChange={(e) => handleInputChange("firstName", e.target.value)}
@@ -555,10 +560,11 @@ export function PaymentDetails({
                 {errors.firstName && <p className="text-destructive mt-1 text-sm">{errors.firstName}</p>}
               </div>
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">
+                <label htmlFor="middleLastName" className="text-muted-foreground mb-2 block text-sm font-medium">
                   Middle & Last Name <span className="text-destructive">*</span>
                 </label>
                 <input
+                  id="middleLastName"
                   type="text"
                   value={formData.middleLastName || ""}
                   onChange={(e) => handleInputChange("middleLastName", e.target.value)}
@@ -573,8 +579,11 @@ export function PaymentDetails({
             {/* Country, State and City */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">Country</label>
+                <label htmlFor="country" className="text-muted-foreground mb-2 block text-sm font-medium">
+                  Country
+                </label>
                 <select
+                  id="country"
                   value={formData.country || ""}
                   onChange={(e) => handleInputChange("country", e.target.value)}
                   className="border-border bg-background text-foreground focus:ring-ring focus:border-ring hover:border-border custom-select w-full appearance-none rounded-xl border px-4 py-3 font-sans font-medium transition-all duration-200 focus:ring-2"
@@ -588,8 +597,11 @@ export function PaymentDetails({
                 </select>
               </div>
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">State</label>
+                <label htmlFor="state" className="text-muted-foreground mb-2 block text-sm font-medium">
+                  State
+                </label>
                 <select
+                  id="state"
                   value={formData.state || ""}
                   onChange={(e) => handleInputChange("state", e.target.value)}
                   disabled={!selectedCountryCode || availableStates.length === 0}
@@ -604,8 +616,11 @@ export function PaymentDetails({
                 </select>
               </div>
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">City</label>
+                <label htmlFor="city" className="text-muted-foreground mb-2 block text-sm font-medium">
+                  City
+                </label>
                 <select
+                  id="city"
                   value={formData.city || ""}
                   onChange={(e) => handleInputChange("city", e.target.value)}
                   disabled={!selectedStateCode || availableCities.length === 0}
@@ -623,10 +638,11 @@ export function PaymentDetails({
 
             {/* Billing Address */}
             <div>
-              <label className="text-muted-foreground mb-2 block text-sm font-medium">
+              <label htmlFor="billingAddress" className="text-muted-foreground mb-2 block text-sm font-medium">
                 Billing Address <span className="text-destructive">*</span>
               </label>
               <textarea
+                id="billingAddress"
                 value={formData.billingAddress || ""}
                 onChange={(e) => handleInputChange("billingAddress", e.target.value)}
                 rows={3}
@@ -640,10 +656,11 @@ export function PaymentDetails({
             {/* Pin Code and Contact Number */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">
+                <label htmlFor="pinCode" className="text-muted-foreground mb-2 block text-sm font-medium">
                   Pin Code <span className="text-destructive">*</span>
                 </label>
                 <input
+                  id="pinCode"
                   type="text"
                   placeholder="123456"
                   value={formData.pinCode || ""}
@@ -655,10 +672,11 @@ export function PaymentDetails({
                 {errors.pinCode && <p className="text-destructive mt-1 text-sm">{errors.pinCode}</p>}
               </div>
               <div>
-                <label className="text-muted-foreground mb-2 block text-sm font-medium">
+                <label htmlFor="contactNumber" className="text-muted-foreground mb-2 block text-sm font-medium">
                   Phone Number <span className="text-destructive">*</span>
                 </label>
                 <input
+                  id="contactNumber"
                   type="text"
                   placeholder="9876543210"
                   value={formData.contactNumber || ""}
@@ -683,6 +701,7 @@ export function PaymentDetails({
         {/* Action Buttons */}
         <div className="flex justify-end gap-4">
           <button
+            type="button"
             className="text-muted-foreground border-border bg-background hover:bg-muted hover:border-border/80 rounded-xl border px-6 py-3 font-sans font-medium transition-all duration-200"
             onClick={onDiscard}
             disabled={isSubmitting || isLoading}
@@ -690,6 +709,7 @@ export function PaymentDetails({
             {discardButtonText}
           </button>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || isLoading}
             className={`flex transform items-center gap-2 rounded-xl px-6 py-3 font-sans font-medium shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 ${
@@ -720,6 +740,7 @@ export function PaymentDetails({
               <h3 className="text-foreground mb-2 font-sans text-xl font-semibold">{confirmationTitle}</h3>
               <p className="text-muted-foreground font-sans">{confirmationMessage}</p>
               <button
+                type="button"
                 onClick={onConfirmationClose}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 mt-4 transform rounded-xl px-6 py-2 font-medium transition-all duration-200 hover:scale-105 active:scale-95"
               >

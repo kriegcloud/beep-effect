@@ -4,25 +4,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@beep/ui/components/table";
 import { cn } from "@beep/ui-core/utils";
 import { DownloadIcon as Download } from "@phosphor-icons/react";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 
 export interface UsageItem {
-  model: string;
-  inputWithCache: number;
-  inputWithoutCache: number;
-  cacheRead: number;
-  output: number;
-  totalTokens: number;
-  apiCost?: number;
-  costToYou?: number;
+  readonly model: string;
+  readonly inputWithCache: number;
+  readonly inputWithoutCache: number;
+  readonly cacheRead: number;
+  readonly output: number;
+  readonly totalTokens: number;
+  readonly apiCost?: undefined |  number;
+  readonly costToYou?: undefined |  number;
 }
 
 interface UsageTableProps {
-  className?: string;
-  title?: string;
-  description?: string;
-  usageHistory: UsageItem[];
-  showTotal?: boolean;
+  readonly className?: undefined |  string;
+  readonly title?: undefined |  string;
+  readonly description?: undefined |  string;
+  readonly usageHistory: UsageItem[];
+  readonly showTotal?: undefined |  boolean;
 }
 
 export function UsageTable({
