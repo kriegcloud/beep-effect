@@ -320,6 +320,43 @@ Also execute deterministic smoke validation and capture output in:
 
 ---
 
+## Artifact Ownership Matrix
+
+| Artifact | Primary Phase | Owner | Reviewer | Acceptance Gate |
+|---|---|---|---|---|
+| `outputs/codebase-context.md` | P1 | codebase-researcher | orchestrator | file-level mock-to-real map complete |
+| `outputs/current-vs-target-matrix.md` | P1 | codebase-researcher | orchestrator | all demo features mapped to target path |
+| `outputs/scenario-catalog.md` | P1 | codebase-researcher | orchestrator | deterministic ordering + rationale documented |
+| `outputs/ingestion-flow.md` | P1 | codebase-researcher | orchestrator | status + retry/idempotency specified |
+| `outputs/rpc-client-migration.md` | P2 | effect-code-writer | code-reviewer | default mock path removed |
+| `outputs/ingest-status-contract.md` | P2 | effect-code-writer | code-reviewer | lifecycle states and transitions explicit |
+| `outputs/meeting-prep-rewrite-notes.md` | P3 | effect-code-writer | code-reviewer | synthesis + persistence compatibility documented |
+| `outputs/evidence-chain-regression-check.md` | P3 | code-reviewer | orchestrator | mismatch mode accounting complete |
+| `outputs/demo-validation.md` | P4 | codebase-researcher | orchestrator | end-to-end scenario evidence captured |
+| `outputs/demo-risks.md` | P4 | reflector | orchestrator | remediation priorities ordered |
+| `outputs/spec-review.md` | P5 | spec-reviewer | orchestrator | latest score is 5.0/5 |
+
+Ownership rules:
+
+1. Artifacts can be edited by orchestrator only after owner output exists.
+2. Reviewer cannot be same role as owner for quality-critical artifacts.
+3. Any artifact missing acceptance evidence blocks phase transition.
+
+---
+
+## Verification Evidence Standard
+
+Each phase must retain a compact command evidence summary in its outputs:
+
+1. exact command run
+2. pass/fail status
+3. first actionable failure (if any)
+4. remediation action or explicit defer rationale
+
+Verification evidence should be deterministic and reproducible; avoid transient logs without summarized outcomes.
+
+---
+
 ## Recovery Procedures
 
 ## Recovery A: Failed Check/Test
