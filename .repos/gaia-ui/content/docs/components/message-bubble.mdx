@@ -1,0 +1,296 @@
+---
+title: iOS Message Bubbles
+description: Beautiful iOS-style message bubbles with authentic iMessage appearance, message grouping, and tail effects.
+---
+
+<ComponentPreview name="message-bubble/default" />
+
+## Usage in Gaia
+
+The core chat unit. iOS-style aesthetics with smart grouping.
+
+### Simple Bubbles
+
+<ComponentPreview name="message-bubble/simple" />
+
+### Grouped Messages
+
+<ComponentPreview name="message-bubble/grouped" />
+
+### Grouped with All Rounded Corners
+
+<ComponentPreview name="message-bubble/grouped-rounded" />
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+<TabsContent value="automatic">
+  <InstallCommand component="message-bubble" />
+</TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/message-bubble.tsx" />
+
+**Important:** The component imports its own CSS file. Make sure both files are in the same directory.
+
+Alternatively, add the CSS to your global CSS file:
+
+```css
+/* iOS-style message bubbles */
+.imessage-bubble {
+  word-wrap: break-word;
+  line-height: 24px;
+  position: relative;
+  padding: 8px 20px;
+  max-width: 60vw;
+  border-radius: 20px;
+}
+
+.imessage-bubble::before,
+.imessage-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 18px;
+}
+
+.imessage-grouped-first {
+  border-radius: 20px 20px 20px 20px !important;
+}
+
+.imessage-grouped-last {
+  border-radius: 20px 20px 20px 20px !important;
+}
+
+.imessage-grouped-middle {
+  border-radius: 20px 20px 20px 20px !important;
+}
+
+/* Bot messages (from-them style) */
+.imessage-from-them {
+  background: #27272a;
+  align-self: flex-start;
+}
+
+.imessage-from-them::before {
+  left: -7px;
+  width: 20px;
+  background-color: #27272a;
+  border-bottom-right-radius: 16px;
+}
+
+.imessage-from-them::after {
+  left: -26px;
+  width: 26px;
+  background-color: hsl(var(--background));
+  border-bottom-right-radius: 10px;
+}
+
+/* User messages (from-me style) */
+.imessage-from-me {
+  color: black;
+  background: #00bbff;
+  align-self: flex-end;
+}
+
+.imessage-from-me::before {
+  right: -7px;
+  width: 20px;
+  background-color: #00bbff;
+  border-bottom-left-radius: 16px 14px;
+}
+
+.imessage-from-me::after {
+  right: -26px;
+  width: 26px;
+  background-color: hsl(var(--background));
+  border-bottom-left-radius: 10px;
+}
+
+/* Grouped iMessage bubbles */
+/* Hide tails for grouped messages except the last one */
+.imessage-grouped-first::before,
+.imessage-grouped-first::after,
+.imessage-grouped-middle::before,
+.imessage-grouped-middle::after {
+  display: none;
+}
+```
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+### Single Message Bubble
+
+```tsx
+import { MessageBubble } from "@/components/ui/message-bubble";
+
+export default function Example() {
+  return (
+    <>
+      <MessageBubble message="Hey there!" variant="received" />
+      <MessageBubble message="Hi! How are you?" variant="sent" />
+    </>
+  );
+}
+```
+
+### Chat Message
+
+```tsx
+import { ChatMessage } from "@/components/ui/message-bubble";
+
+export default function Example() {
+  return (
+    <ChatMessage
+      variant="received"
+      messages={["Hey!", "How are you doing?", "Long time no see!"]}
+      timestamp="10:30 AM"
+    />
+  );
+}
+```
+
+## Components
+
+### MessageBubble
+
+The core message bubble component with iOS-style tails.
+
+**Props**
+
+| Prop      | Type                                    | Default    | Description                        |
+| --------- | --------------------------------------- | ---------- | ---------------------------------- |
+| message   | string                                  | -          | The message text to display        |
+| variant   | "sent" \| "received"                    | "received" | Message alignment and styling      |
+| grouped   | "first" \| "middle" \| "last" \| "none" | "none"     | Position in grouped messages       |
+| className | string                                  | undefined  | Additional CSS classes             |
+| children  | ReactNode                               | undefined  | Custom content (overrides message) |
+
+### ChatMessage
+
+A complete message with optional timestamp. Automatically groups multiple messages.
+
+**Props**
+
+| Prop          | Type                 | Default    | Description                   |
+| ------------- | -------------------- | ---------- | ----------------------------- |
+| messages      | string[]             | -          | Array of message texts        |
+| variant       | "sent" \| "received" | "received" | Message alignment and styling |
+| timestamp     | string               | undefined  | Message timestamp             |
+| showTimestamp | boolean              | true       | Whether to show timestamp     |
+| className     | string               | undefined  | Additional CSS classes        |
+
+## Features
+
+- **iOS-Style Design**: Authentic iMessage-like appearance with tails
+- **Message Grouping**: Automatically groups consecutive messages
+- **Sent Message Color**: Uses #00bbff (iOS blue) for sent messages
+- **Timestamps**: Optional timestamps for messages
+- **Theme Support**: Works with light and dark modes
+- **Responsive**: Adapts to different screen sizes
+- **Customizable**: Extensive prop options for customization
+- **Accessible**: Proper semantic HTML structure
+
+## Examples
+
+### Custom Content in Bubble
+
+```tsx
+<MessageBubble variant="received">
+  <div className="flex items-center gap-2">
+    <img src="/emoji.png" className="size-6" />
+    <span>Custom content with emoji!</span>
+  </div>
+</MessageBubble>
+```
+
+### Manual Grouping
+
+```tsx
+<MessageBubble message="First message" variant="sent" grouped="first" />
+<MessageBubble message="Middle message" variant="sent" grouped="middle" />
+<MessageBubble message="Last message" variant="sent" grouped="last" />
+```
+
+### Long Messages
+
+```tsx
+<MessageBubble
+  message="This is a really long message that will automatically wrap to multiple lines while maintaining the iOS-style bubble appearance with proper padding and borders."
+  variant="received"
+/>
+```
+
+## Styling
+
+The component uses specific colors for authentic iOS appearance:
+
+- **Sent messages**: `#00bbff` (iOS blue) with black text
+- **Received messages**: `#27272a` (dark gray) with white text
+- **Tails**: Pseudo-elements create the iconic message tail effect
+
+### Customizing Grouped Message Corners
+
+The default CSS uses variant-specific corner radii. You can customize the grouping style:
+
+**Tight Corners (Single Side):**
+
+```css
+.imessage-grouped-first {
+  border-radius: 20px 20px 20px 5px !important;
+}
+
+.imessage-grouped-last {
+  border-radius: 5px 20px 20px 20px !important;
+}
+
+.imessage-grouped-middle {
+  border-radius: 5px 20px 20px 5px !important;
+}
+```
+
+**All Rounded Corners:**
+
+```css
+.imessage-grouped-first {
+  border-radius: 20px 20px 20px 20px !important;
+}
+
+.imessage-grouped-last {
+  border-radius: 20px 20px 20px 20px !important;
+}
+
+.imessage-grouped-middle {
+  border-radius: 20px 20px 20px 20px !important;
+}
+```
+
+You can wrap groups in a div with a custom class to apply specific corner styles per group.
+
+## Use Cases
+
+- **Chat Applications**: Build messaging interfaces like WhatsApp, iMessage, or Telegram
+- **Customer Support**: Create support chat widgets
+- **AI Chatbots**: Display conversational AI responses
+- **Comments Sections**: Show threaded discussions
+- **Notifications**: Display message-style notifications
+- **Onboarding**: Create conversation-style tutorials
+
+## Notes
+
+- Message bubbles automatically add tails only on the last message of a group
+- The `grouped` prop allows manual control over tail visibility
+- Avatars are only shown for received messages by default
+- Timestamps can be customized with any string format
+- The component is fully responsive and works on mobile devices

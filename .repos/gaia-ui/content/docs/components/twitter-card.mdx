@@ -1,0 +1,74 @@
+---
+title: Twitter Card
+description: A Twitter/X-style post card with author info, engagement metrics, and media support.
+---
+
+<ComponentPreview name="twitter-card/default" />
+ 
+## Usage in Gaia
+ 
+Native tweet embedding. Consuming social content without leaving the dashboard.
+ 
+## Features
+
+- **Author Info** - Avatar, name, handle, verified badge
+- **Media Support** - Embedded images
+- **Quoted Tweets** - Nested quote support
+- **Engagement** - Likes, retweets, replies with actions
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="automatic">
+    <InstallCommand component="twitter-card" />
+  </TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/twitter-card.tsx" />
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+```tsx
+import { TwitterCard } from "@/components/ui/twitter-card";
+
+export default function Example() {
+  return (
+    <TwitterCard
+      author={{
+        name: "GAIA",
+        handle: "heygaia_io",
+        avatar: "/avatar.png",
+        verified: true,
+      }}
+      content="Just shipped a new feature! 🚀"
+      timestamp={new Date()}
+      likes={142}
+      retweets={38}
+    />
+  );
+}
+```
+
+## Props
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| author | Author | Author information |
+| content | string | Tweet content |
+| timestamp | Date \| string | Post time |
+| likes | number | Like count |
+| retweets | number | Retweet count |
+| replies | number | Reply count |
+| media | string | Media image URL |
+| quoted | QuotedTweet | Quoted tweet |

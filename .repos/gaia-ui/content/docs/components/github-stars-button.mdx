@@ -1,0 +1,115 @@
+---
+title: GitHub Stars Button
+description: A beautiful button that displays your GitHub repository's star count with real-time data fetching.
+---
+
+<ComponentPreview name="github-stars-button/default" />
+
+### Sizes
+
+<ComponentPreview name="github-stars-button/sizes" />
+
+### Variants
+
+<ComponentPreview name="github-stars-button/variants" />
+
+## Usage in Gaia
+
+Social proof on the landing page. Live stats from our repo.
+
+## Installation
+
+<Tabs defaultValue="automatic" className="mt-4">
+  <TabsList>
+    <TabsTrigger value="automatic">Automatic</TabsTrigger>
+    <TabsTrigger value="manual">Manual</TabsTrigger>
+  </TabsList>
+
+{" "}
+
+<TabsContent value="automatic">
+  <InstallCommand component="github-stars-button" />
+</TabsContent>
+
+  <TabsContent value="manual">
+
+Copy and paste the following code into your project.
+
+<SourceCode filePath="registry/new-york/ui/github-stars-button.tsx" />
+
+Install required dependencies:
+
+```bash
+pnpm add @radix-ui/react-icons
+```
+
+  </TabsContent>
+</Tabs>
+
+## Usage
+
+```tsx
+import { GitHubStarsButton } from "@/components/ui/github-stars-button";
+
+export default function Example() {
+  return <GitHubStarsButton repo="theexperiencecompany/gaia" />;
+}
+```
+
+## Examples
+
+### Different Repositories
+
+```tsx
+<GitHubStarsButton repo="vercel/next.js" />
+<GitHubStarsButton repo="facebook/react" />
+<GitHubStarsButton repo="microsoft/vscode" />
+```
+
+### Without Label
+
+```tsx
+<GitHubStarsButton repo="theexperiencecompany/gaia" showLabel={false} />
+```
+
+### Different Sizes
+
+```tsx
+<GitHubStarsButton repo="theexperiencecompany/gaia" size="sm" />
+<GitHubStarsButton repo="theexperiencecompany/gaia" size="default" />
+<GitHubStarsButton repo="theexperiencecompany/gaia" size="lg" />
+```
+
+### Custom Styling
+
+```tsx
+<GitHubStarsButton
+  repo="theexperiencecompany/gaia"
+  className="hover:scale-105 transition-transform"
+/>
+```
+
+## Features
+
+- **Real-time Data**: Fetches star count from GitHub API on mount
+- **Loading State**: Shows "..." while loading star count
+- **Error Handling**: Gracefully handles fetch errors
+- **Click to Repository**: Opens the GitHub repository in a new tab
+- **Hover Effects**: Star icon turns yellow on hover
+- **Responsive**: Works on all screen sizes
+- **Lightweight**: No external dependencies except React and Radix Icons
+
+## Props
+
+| Prop      | Type                      | Default   | Description                    |
+| --------- | ------------------------- | --------- | ------------------------------ |
+| repo      | string                    | -         | GitHub repository (owner/repo) |
+| showLabel | boolean                   | true      | Whether to show "GitHub" label |
+| size      | "sm" \| "default" \| "lg" | "sm"      | Size of the button             |
+| className | string                    | undefined | Additional CSS classes         |
+
+## Notes
+
+- The component uses GitHub's public API which has rate limiting (60 requests/hour for unauthenticated requests)
+- Star count is fetched once on component mount
+- The component automatically cleans up on unmount to prevent memory leaks
