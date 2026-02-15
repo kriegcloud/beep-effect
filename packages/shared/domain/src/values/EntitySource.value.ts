@@ -1,4 +1,7 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+
+const $I = $SharedDomainId.create("values/EntitySource.value");
 
 export class EntitySource extends BS.StringLiteralKit(
   "auto_created",
@@ -9,10 +12,10 @@ export class EntitySource extends BS.StringLiteralKit(
   "api",
   "script"
 ).annotations({
-  schemaId: Symbol.for("@beep/shared-domain/values/EntitySource"),
-  identifier: "EntitySource",
-  title: "Entity Source",
-  description: "Source of an entity",
+  ...$I.annotations("EntitySource", {
+    title: "Entity Source",
+    description: "Source of an entity",
+  }),
 }) {}
 
 export declare namespace EntitySource {

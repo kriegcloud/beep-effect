@@ -8,6 +8,7 @@
  * @module shared/values/LocalDate
  */
 
+import { $SharedDomainId } from "@beep/identity/packages";
 import { Duration, pipe } from "effect";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -18,13 +19,15 @@ import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
+const $I = $SharedDomainId.create("values/LocalDate.value");
+
 /**
  * LocalDate - A S.Class representing a calendar date without time
  *
  * Stores year, month (1-12), and day (1-31) as numbers.
  * Encoded as ISO 8601 date string (YYYY-MM-DD).
  */
-export class LocalDate extends S.Class<LocalDate>("LocalDate")({
+export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)({
   year: S.Int.pipe(S.greaterThanOrEqualTo(1), S.lessThanOrEqualTo(9999)),
   month: S.Int.pipe(S.greaterThanOrEqualTo(1), S.lessThanOrEqualTo(12)),
   day: S.Int.pipe(S.greaterThanOrEqualTo(1), S.lessThanOrEqualTo(31)),

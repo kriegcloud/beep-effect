@@ -11,5 +11,5 @@
  * @since 0.1.0
  */
 export * as Entities from "./entities";
-export * as LoggingValues from "./values/logging.value";
-export * as MailValues from "./values/mail.value";
+export * as LoggingValues from "./values/Logging.value";
+export * as MailValues from "./values/Mail.value";
