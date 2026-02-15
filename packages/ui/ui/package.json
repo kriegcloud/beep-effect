@@ -366,7 +366,7 @@
     "rehype-highlight": "catalog:",
     "rehype-raw": "catalog:",
     "remark-gfm": "catalog:",
-    "sonner": "catalog:",
+    "sonner": "^2.0.7",
     "stylis": "catalog:",
     "stylis-plugin-rtl": "catalog:",
     "tailwind-merge": "^3.4.0",
@@ -380,7 +380,10 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "country-state-city": "^3.2.1",
+    "currency-codes": "^2.2.0",
     "lucide-react": "^0.564.0",
-    "motion": "^12.34.0"
+    "motion": "^12.34.0",
+    "react-hook-form": "^7.71.1"
   }
 }
