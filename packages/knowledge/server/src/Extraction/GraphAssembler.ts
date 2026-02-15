@@ -678,15 +678,17 @@ const serviceEffect: Effect.Effect<GraphAssemblerShape> = Effect.succeed({
 
       const types = entity.additionalTypes ? [entity.typeIri, ...entity.additionalTypes] : [entity.typeIri];
 
-      acc.push({
-        id,
-        mention: entity.mention,
-        primaryType: entity.typeIri,
-        types,
-        attributes: entity.attributes ?? {},
-        confidence: entity.confidence,
-        ...(entity.canonicalName !== undefined && { canonicalName: entity.canonicalName }),
-      });
+      acc.push(
+        new AssembledEntity({
+          id,
+          mention: entity.mention,
+          primaryType: entity.typeIri,
+          types,
+          attributes: entity.attributes ?? {},
+          confidence: entity.confidence,
+          ...(entity.canonicalName !== undefined && { canonicalName: entity.canonicalName }),
+        })
+      );
       return acc;
     });
 
@@ -715,28 +717,32 @@ const serviceEffect: Effect.Effect<GraphAssemblerShape> = Effect.succeed({
             return { ...acc, unresolvedObjects: acc.unresolvedObjects + 1 };
           }
 
-          acc.assembled.push({
-            id: relationId,
-            subjectId,
-            predicate: triple.predicateIri,
-            objectId: objectIdOpt.value,
-            confidence: triple.confidence,
-            ...(triple.evidence !== undefined && { evidence: triple.evidence }),
-            ...(triple.evidenceStartChar !== undefined && { evidenceStartChar: triple.evidenceStartChar }),
-            ...(triple.evidenceEndChar !== undefined && { evidenceEndChar: triple.evidenceEndChar }),
-          });
+          acc.assembled.push(
+            new AssembledRelation({
+              id: relationId,
+              subjectId,
+              predicate: triple.predicateIri,
+              objectId: objectIdOpt.value,
+              confidence: triple.confidence,
+              ...(triple.evidence !== undefined && { evidence: triple.evidence }),
+              ...(triple.evidenceStartChar !== undefined && { evidenceStartChar: triple.evidenceStartChar }),
+              ...(triple.evidenceEndChar !== undefined && { evidenceEndChar: triple.evidenceEndChar }),
+            })
+          );
         } else if (triple.literalValue !== undefined) {
-          acc.assembled.push({
-            id: relationId,
-            subjectId,
-            predicate: triple.predicateIri,
-            literalValue: triple.literalValue,
-            confidence: triple.confidence,
-            ...(triple.literalType !== undefined && { literalType: triple.literalType }),
-            ...(triple.evidence !== undefined && { evidence: triple.evidence }),
-            ...(triple.evidenceStartChar !== undefined && { evidenceStartChar: triple.evidenceStartChar }),
-            ...(triple.evidenceEndChar !== undefined && { evidenceEndChar: triple.evidenceEndChar }),
-          });
+          acc.assembled.push(
+            new AssembledRelation({
+              id: relationId,
+              subjectId,
+              predicate: triple.predicateIri,
+              literalValue: triple.literalValue,
+              confidence: triple.confidence,
+              ...(triple.literalType !== undefined && { literalType: triple.literalType }),
+              ...(triple.evidence !== undefined && { evidence: triple.evidence }),
+              ...(triple.evidenceStartChar !== undefined && { evidenceStartChar: triple.evidenceStartChar }),
+              ...(triple.evidenceEndChar !== undefined && { evidenceEndChar: triple.evidenceEndChar }),
+            })
+          );
         }
 
         return acc;
@@ -745,17 +751,17 @@ const serviceEffect: Effect.Effect<GraphAssemblerShape> = Effect.succeed({
 
     const entityIndexRecord = mutableHashMapToRecord(entityIndex);
 
-    const graph: KnowledgeGraph = {
+    const graph = new KnowledgeGraph({
       entities: assembledEntities,
       relations: assembledRelations,
       entityIndex: entityIndexRecord,
-      stats: {
+      stats: new KnowledgeGraphStats({
         entityCount: A.length(assembledEntities),
         relationCount: A.length(assembledRelations),
         unresolvedSubjects,
         unresolvedObjects,
-      },
-    };
+      }),
+    });
 
     yield* Effect.logInfo("Knowledge graph assembled", graph.stats);
 
@@ -765,12 +771,17 @@ const serviceEffect: Effect.Effect<GraphAssemblerShape> = Effect.succeed({
   merge: (graphs: readonly KnowledgeGraph[], _config: GraphAssemblyConfig): Effect.Effect<KnowledgeGraph, never> =>
     Effect.sync(() => {
       if (A.isEmptyReadonlyArray(graphs)) {
-        return {
+        return new KnowledgeGraph({
           entities: A.empty<AssembledEntity>(),
           relations: A.empty<AssembledRelation>(),
           entityIndex: {},
-          stats: { entityCount: 0, relationCount: 0, unresolvedSubjects: 0, unresolvedObjects: 0 },
-        };
+          stats: new KnowledgeGraphStats({
+            entityCount: 0,
+            relationCount: 0,
+            unresolvedSubjects: 0,
+            unresolvedObjects: 0,
+          }),
+        });
       }
 
       if (A.isNonEmptyReadonlyArray(graphs) && A.length(graphs) === 1) {
@@ -821,11 +832,22 @@ const serviceEffect: Effect.Effect<GraphAssemblerShape> = Effect.succeed({
           }
 
           MutableHashSet.add(relationSet, key);
-          return O.some({
-            ...relation,
-            subjectId: mappedSubjectId,
-            ...(mappedObjectId !== undefined && { objectId: mappedObjectId }),
-          } as AssembledRelation);
+          return O.some(
+            new AssembledRelation({
+              id: relation.id,
+              subjectId: mappedSubjectId,
+              predicate: relation.predicate,
+              confidence: relation.confidence,
+              ...(mappedObjectId !== undefined && { objectId: mappedObjectId }),
+              ...(relation.objectId === undefined && relation.literalValue !== undefined
+                ? { literalValue: relation.literalValue }
+                : {}),
+              ...(relation.literalType !== undefined ? { literalType: relation.literalType } : {}),
+              ...(relation.evidence !== undefined ? { evidence: relation.evidence } : {}),
+              ...(relation.evidenceStartChar !== undefined ? { evidenceStartChar: relation.evidenceStartChar } : {}),
+              ...(relation.evidenceEndChar !== undefined ? { evidenceEndChar: relation.evidenceEndChar } : {}),
+            })
+          );
         })
       );
 
@@ -839,17 +861,17 @@ const serviceEffect: Effect.Effect<GraphAssemblerShape> = Effect.succeed({
         entityIndexRecord[key] = entity.id;
       });
 
-      return {
+      return new KnowledgeGraph({
         entities,
         relations,
         entityIndex: entityIndexRecord,
-        stats: {
+        stats: new KnowledgeGraphStats({
           entityCount: A.length(entities),
           relationCount: A.length(relations),
           unresolvedSubjects: 0,
           unresolvedObjects: 0,
-        },
-      };
+        }),
+      });
     }),
 });
 

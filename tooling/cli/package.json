@@ -62,6 +62,7 @@
     "handlebars": "catalog:",
     "jsonc-parser": "catalog:",
     "picocolors": "catalog:",
+    "postal-mime": "catalog:",
     "ts-morph": "catalog:",
     "typescript": "catalog:"
   },
