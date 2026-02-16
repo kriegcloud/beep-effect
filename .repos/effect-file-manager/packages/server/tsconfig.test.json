@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src/**/*.test.ts", "src"],
+  "exclude": ["build"],
+  "references": [{ "path": "../domain" }],
+  "compilerOptions": {
+    "types": ["node"],
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "noEmit": true,
+
+    "paths": {
+      "@/*": ["./src/*"],
+      "@example/domain": ["../domain/src/index.js"],
+      "@example/domain/*": ["../domain/src/*.js"]
+    }
+  }
+}
