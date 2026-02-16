@@ -5,7 +5,11 @@ import * as Crypto from "node:crypto";
 import { readFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { ENRON_DEMO_ONTOLOGY_ID, MAX_DOCUMENTS_PER_SCENARIO } from "./constants";
+import {
+  ENRON_DEMO_ONTOLOGY_CONTENT,
+  ENRON_DEMO_ONTOLOGY_ID,
+  MAX_DOCUMENTS_PER_SCENARIO,
+} from "./constants";
 import { CURATED_SCENARIOS } from "./data/scenarios";
 import type { PreparedScenarioIngestPayload, ScenarioId } from "./types";
 
@@ -45,7 +49,6 @@ const CURATED_DATA_ROOT =
 
 const CURATED_THREADS_PATH = path.join(CURATED_DATA_ROOT, "threads.json");
 const CURATED_DOCUMENTS_PATH = path.join(CURATED_DATA_ROOT, "documents.json");
-const ONTOLOGY_PATH = path.resolve(process.cwd(), "tooling/cli/src/commands/enron/test-ontology.ttl");
 
 let datasetPromise: undefined | Promise<CuratedDataset> = undefined;
 
@@ -89,10 +92,9 @@ const loadCuratedDataset = async (): Promise<CuratedDataset> => {
   }
 
   datasetPromise = (async () => {
-    const [threads, documents, ontologyContent] = await Promise.all([
+    const [threads, documents] = await Promise.all([
       readJsonFile<readonly CuratedThread[]>(CURATED_THREADS_PATH),
       readJsonFile<readonly CuratedDocument[]>(CURATED_DOCUMENTS_PATH),
-      readFile(ONTOLOGY_PATH, "utf8"),
     ]);
 
     const threadsById = new Map(threads.map((thread) => [thread.threadId, thread] as const));
@@ -119,7 +121,7 @@ const loadCuratedDataset = async (): Promise<CuratedDataset> => {
     }
 
     return {
-      ontologyContent,
+      ontologyContent: ENRON_DEMO_ONTOLOGY_CONTENT,
       threadsById,
       documentsById,
       documentsByThreadId,

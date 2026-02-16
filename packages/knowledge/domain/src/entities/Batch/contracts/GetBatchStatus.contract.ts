@@ -23,6 +23,7 @@ export const Success = BatchState.annotations(
     description: "Current batch state",
   })
 );
+export type Success = typeof Success.Type;
 
 export const Failure = BatchNotFoundError;
 export type Failure = typeof Failure.Type;

@@ -31,6 +31,7 @@ export class Success extends GraphRagQueryResult.extend<Success>($I`Success`)(
   })
 ) {}
 
+
 export const Failure = GraphRAGError;
 export type Failure = typeof Failure.Type;
 

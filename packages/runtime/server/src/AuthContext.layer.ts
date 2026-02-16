@@ -65,7 +65,7 @@ type AuthContextHttpMiddlewareService = {
  */
 const getAuthContext = Effect.fnUntraced(function* ({
   headers,
-  iamDb: { execute },
+  iamDb,
   auth,
 }: {
   readonly auth: Auth.Auth;
@@ -108,7 +108,7 @@ const getAuthContext = Effect.fnUntraced(function* ({
   );
 
   // Fetch organization
-  const currentOrg = yield* execute((client) =>
+  const currentOrg = yield* iamDb.execute((client) =>
     client.select().from(IamDbSchema.organization).where(eq(IamDbSchema.organization.id, session.activeOrganizationId))
   ).pipe(
     Effect.flatMap(A.head),
@@ -122,7 +122,7 @@ const getAuthContext = Effect.fnUntraced(function* ({
   );
 
   const listProviderAccounts = ({ providerId, userId }: { readonly providerId: string; readonly userId: string }) =>
-    execute((client) =>
+    iamDb.execute((client) =>
       client
         .select()
         .from(IamDbSchema.account)
@@ -223,7 +223,7 @@ const getAuthContext = Effect.fnUntraced(function* ({
           const row =
             providerAccountId === undefined || !IamEntityIds.AccountId.is(providerAccountId)
               ? O.none()
-              : yield* execute((client) =>
+              : yield* iamDb.execute((client) =>
                   client
                     .select()
                     .from(IamDbSchema.account)
