@@ -46,7 +46,7 @@ export class Model extends M.Class<Model>($I`RelationModel`)(
     extractionId: BS.FieldOptionOmittable(KnowledgeEntityIds.ExtractionId),
 
     evidence: BS.FieldOptionOmittable(
-      EvidenceSpan.annotations({
+      S.parseJson(EvidenceSpan).annotations({
         description: "Text span where this relation was expressed in source",
       })
     ),

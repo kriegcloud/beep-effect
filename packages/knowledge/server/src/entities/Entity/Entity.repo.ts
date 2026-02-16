@@ -124,8 +124,8 @@ const makeEntityExtensions = Effect.gen(function* () {
     F.pipe(
       A.isNonEmptyReadonlyArray(ids),
       Effect.if({
-        onTrue: thunkSucceedEffect(A.empty<Entities.Entity.Model>()),
-        onFalse: () => findByIdsSchema({ ids: [...ids], organizationId }),
+        onTrue: () => findByIdsSchema({ ids: [...ids], organizationId }),
+        onFalse: thunkSucceedEffect(A.empty<Entities.Entity.Model>()),
       }),
       Effect.catchTag("ParseError", (e) => Effect.die(e)),
       Effect.mapError(DatabaseError.$match),

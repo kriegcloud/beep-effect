@@ -37,6 +37,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { KnowledgeDb } from "@beep/knowledge-server/db";
 import * as KnowledgeTables from "@beep/knowledge-tables/schema";
+import { sql } from "drizzle-orm";
 import { EmbeddingService } from "../Embedding";
 import { RepoLive as EntityRepoLive } from "../entities/Entity";
 import { RepoLive as RelationRepoLive } from "../entities/Relation";
@@ -513,8 +514,8 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
             id: entity.id,
             organizationId: orgId,
             mention: entity.mention,
-            types: JSON.parse(JSON.stringify(entity.types)),
-            attributes: JSON.parse(JSON.stringify(entity.attributes)),
+            types: sql`${JSON.stringify([...entity.types])}::jsonb`,
+            attributes: sql`${JSON.stringify({ ...entity.attributes })}::jsonb`,
             ontologyId: ontologyId ?? null,
             documentId: null,
             sourceUri: null,
@@ -527,8 +528,16 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
 
         if (!A.isEmptyReadonlyArray(entityRows)) {
           yield* Effect.tryPromise({
-            try: () => client.insert(KnowledgeTables.entity).values(entityRows as any),
-            catch: (err) => new BatchInfrastructureError({ batchId, operation: "entity-persist", reason: String(err) }),
+            try: () =>
+              client
+                .insert(KnowledgeTables.entity)
+                .values(entityRows as any)
+                .onConflictDoNothing(),
+            catch: (err) => {
+              const e = err as Record<string, unknown>;
+              const detail = String(e?.["cause"] ?? e?.["detail"] ?? err);
+              return new BatchInfrastructureError({ batchId, operation: "entity-persist", reason: detail });
+            },
           });
           yield* Effect.logInfo("BatchOrchestrator(engine): entities persisted via drizzle").pipe(
             Effect.annotateLogs({ count: A.length(entityRows) })
@@ -547,14 +556,24 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
           literalType: relation.literalType ?? null,
           ontologyId: ontologyId ?? "default",
           extractionId: null,
-          evidence: null,
+          evidence: relation.evidence != null
+            ? sql`${JSON.stringify({ text: relation.evidence, startChar: relation.evidenceStartChar ?? 0, endChar: relation.evidenceEndChar ?? 0 })}::jsonb`
+            : null,
           groundingConfidence: relation.confidence,
           source: "batch-orchestrator",
         }));
 
         yield* Effect.tryPromise({
-          try: () => client.insert(KnowledgeTables.relation).values(relationRows as any),
-          catch: (err) => new BatchInfrastructureError({ batchId, operation: "relation-persist", reason: String(err) }),
+          try: () =>
+            client
+              .insert(KnowledgeTables.relation)
+              .values(relationRows as any)
+              .onConflictDoNothing(),
+          catch: (err) => {
+            const e = err as Record<string, unknown>;
+            const detail = String(e?.["cause"] ?? e?.["detail"] ?? err);
+            return new BatchInfrastructureError({ batchId, operation: "relation-persist", reason: detail });
+          },
         });
         yield* Effect.logInfo("BatchOrchestrator(engine): relations persisted via drizzle").pipe(
           Effect.annotateLogs({ count: A.length(relationRows) })

@@ -16,10 +16,10 @@ export class Model extends M.Class<Model>($I`EntityModel`)(
     mention: S.String.annotations({
       description: "Exact text span extracted from source",
     }),
-    types: S.NonEmptyArray(S.String).annotations({
+    types: S.parseJson(S.NonEmptyArray(S.String)).annotations({
       description: "Ontology class URIs (at least one required)",
     }),
-    attributes: Attributes.annotations({
+    attributes: S.parseJson(Attributes).annotations({
       description: "Property-value pairs from extraction",
     }),
     ontologyId: BS.FieldOptionOmittable(
@@ -44,7 +44,7 @@ export class Model extends M.Class<Model>($I`EntityModel`)(
       })
     ),
     mentions: BS.FieldOptionOmittable(
-      S.Array(EvidenceSpan).annotations({
+      S.parseJson(S.Array(EvidenceSpan)).annotations({
         description: "Text spans where this entity was mentioned in source",
       })
     ),

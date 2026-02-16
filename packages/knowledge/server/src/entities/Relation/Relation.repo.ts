@@ -111,8 +111,8 @@ const makeRelationExtensions = Effect.gen(function* () {
     F.pipe(
       A.isEmptyReadonlyArray(sourceIds),
       Effect.if({
-        onFalse: thunkSucceedEffect([]),
-        onTrue: () => findBySourceIdsSchema({ sourceIds: [...sourceIds], organizationId }),
+        onTrue: thunkSucceedEffect([]),
+        onFalse: () => findBySourceIdsSchema({ sourceIds: [...sourceIds], organizationId }),
       }),
       Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
@@ -129,8 +129,8 @@ const makeRelationExtensions = Effect.gen(function* () {
     F.pipe(
       A.isEmptyReadonlyArray(targetIds),
       Effect.if({
-        onFalse: thunkSucceedEffect([]),
-        onTrue: () => findByTargetIdsSchema({ targetIds: [...targetIds], organizationId }),
+        onTrue: thunkSucceedEffect([]),
+        onFalse: () => findByTargetIdsSchema({ targetIds: [...targetIds], organizationId }),
       }),
       Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
@@ -147,8 +147,8 @@ const makeRelationExtensions = Effect.gen(function* () {
     F.pipe(
       A.isEmptyReadonlyArray(entityIds),
       Effect.if({
-        onFalse: thunkSucceedEffect([]),
-        onTrue: () => findByEntityIdsSchema({ entityIds: [...entityIds], organizationId }),
+        onTrue: thunkSucceedEffect([]),
+        onFalse: () => findByEntityIdsSchema({ entityIds: [...entityIds], organizationId }),
       }),
       Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),

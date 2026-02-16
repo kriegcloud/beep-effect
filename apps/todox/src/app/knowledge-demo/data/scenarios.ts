@@ -11,7 +11,7 @@ const SCENARIOS: readonly CuratedScenario[] = [
     sourceThreadId: "thread:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
     sourceDocumentId: "email:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
     sourceTitle: "Re: Senator Joe Dunn's Conference Call",
-    querySeed: "Conference Call",
+    querySeed: "Joe Dunn",
     categories: ["actionItems", "multiParty", "deepThread"],
     participants: 4,
     messageCount: 1,
