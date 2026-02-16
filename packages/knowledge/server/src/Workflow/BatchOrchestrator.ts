@@ -6,7 +6,7 @@ import type {
   InvalidStateTransitionError,
 } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
-import type { BatchEvent } from "@beep/knowledge-domain/value-objects";
+import type { BatchEvent } from "@beep/knowledge-domain/values";
 import {
   BatchCompleted,
   BatchConfig,
@@ -17,7 +17,7 @@ import {
   DocumentStarted,
   ResolutionCompleted,
   ResolutionStarted,
-} from "@beep/knowledge-domain/value-objects";
+} from "@beep/knowledge-domain/values";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";

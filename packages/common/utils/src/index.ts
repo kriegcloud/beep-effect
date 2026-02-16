@@ -392,6 +392,7 @@ export * from "./dedent";
  * @since 0.1.0
  */
 export * from "./deep-remove-null";
+export * from "./effect";
 export * from "./nullable";
 /**
  * Re-exports random hex string generator.

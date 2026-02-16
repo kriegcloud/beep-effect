@@ -1,4 +1,4 @@
-import { IRI, Quad } from "@beep/knowledge-domain/value-objects";
+import { IRI, Quad } from "@beep/knowledge-domain/values";
 import { quadId, type RuleInference, rdfs2, rdfs3, rdfs9, rdfs11 } from "@beep/knowledge-server/Reasoning/RdfsRules";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";

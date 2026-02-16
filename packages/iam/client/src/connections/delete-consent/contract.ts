@@ -14,7 +14,7 @@ import { IamEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
-const $I = $IamClientId.create("connections/delete-consent");
+const $I = $IamClientId.create("connections/delete-consent/contract");
 
 /**
  * Payload for deleting a consent record.

@@ -5,7 +5,7 @@ import {
   InferenceStats,
   IRI,
   Quad,
-} from "@beep/knowledge-domain/value-objects";
+} from "@beep/knowledge-domain/values";
 import { Citation } from "@beep/knowledge-server/GraphRAG/AnswerSchemas";
 import {
   type CitationValidationResult,

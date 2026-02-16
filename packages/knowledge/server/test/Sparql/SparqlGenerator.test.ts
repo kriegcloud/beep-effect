@@ -1,4 +1,4 @@
-import { IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, Quad } from "@beep/knowledge-domain/values";
 import { RdfStore } from "@beep/knowledge-server/Rdf";
 import { executeSelect } from "@beep/knowledge-server/Sparql/QueryExecutor";
 import { SparqlGenerationError, SparqlGenerator } from "@beep/knowledge-server/Sparql/SparqlGenerator";

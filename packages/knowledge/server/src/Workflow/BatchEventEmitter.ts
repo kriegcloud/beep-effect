@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import type { BatchEvent } from "@beep/knowledge-domain/value-objects";
+import type { BatchEvent } from "@beep/knowledge-domain/values";
 import type { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

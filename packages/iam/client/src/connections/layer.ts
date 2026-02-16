@@ -10,24 +10,24 @@
  * @since 0.1.0
  */
 
-import {Wrap} from "@beep/wrap";
-import {Layer} from "effect";
-import {Consent} from "./consent";
-import {Continue} from "./continue";
-import {DeleteClient} from "./delete-client";
-import {DeleteConsent} from "./delete-consent";
-import {GetClient} from "./get-client";
-import {GetClients} from "./get-clients";
-import {GetConsent} from "./get-consent";
-import {GetConsents} from "./get-consents";
-import {Link} from "./link";
-import {PublicClient} from "./public-client";
-import {Register} from "./register";
-import {RotateSecret} from "./rotate-secret";
-import {Service} from "./service";
-import {UpdateClient} from "./update-client";
-import {UpdateConsent} from "./update-consent";
-
+import * as Common from "@beep/iam-client/_internal";
+import { Wrap } from "@beep/wrap";
+import { Layer } from "effect";
+import { Consent } from "./consent";
+import { Continue } from "./continue";
+import { DeleteClient } from "./delete-client";
+import { DeleteConsent } from "./delete-consent";
+import { GetClient } from "./get-client";
+import { GetClients } from "./get-clients";
+import { GetConsent } from "./get-consent";
+import { GetConsents } from "./get-consents";
+import { Link } from "./link";
+import { PublicClient } from "./public-client";
+import { Register } from "./register";
+import { RotateSecret } from "./rotate-secret";
+import { Service } from "./service";
+import { UpdateClient } from "./update-client";
+import { UpdateConsent } from "./update-consent";
 
 /**
  * Wrapper group combining all OAuth2 handlers.
@@ -93,6 +93,7 @@ export const layer = Layer.succeed(
     GrantOAuth2Consent: Consent.Handler,
     ContinueOAuth2Flow: Continue.Handler,
     LinkOAuth2Account: Link.Handler,
-  }),
+  })
 );
 
+export const runtime = Common.makeAtomRuntime(() => layer);

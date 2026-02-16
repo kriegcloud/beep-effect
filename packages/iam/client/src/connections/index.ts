@@ -1,24 +1,24 @@
 /**
- * @fileoverview OAuth2 namespace export.
+ * @fileoverview Connections namespace export.
  *
- * @module @beep/iam-client/oauth2
- * @category OAuth2
+ * @module @beep/iam-client/Connections
+ * @category Connections
  * @since 0.1.0
  */
 
 /**
- * OAuth2 namespace providing OAuth2 provider operations.
+ * Connections namespace providing Connections provider operations.
  *
- * Exposes handlers for managing OAuth2 clients, consents, and authorization flows.
+ * Exposes handlers for managing Connections clients, consents, and authorization flows.
  *
  * @example
  * ```typescript
- * import { OAuth2 } from "@beep/iam-client"
+ * import { Connections } from "@beep/iam-client"
  * import * as Effect from "effect/Effect"
  *
  * const program = Effect.gen(function* () {
- *   // Register a new OAuth2 client
- *   const client = yield* OAuth2.Register.Handler({
+ *   // Register a new Connections client
+ *   const client = yield* Connections.Register.Handler({
  *     name: "My Application",
  *     redirectURLs: ["https://myapp.com/callback"]
  *   })
@@ -26,7 +26,7 @@
  * })
  * ```
  *
- * @category OAuth2
+ * @category Connections
  * @since 0.1.0
  */
-export * as OAuth2 from "./mod.ts";
+export * as Connections from "./mod.ts";

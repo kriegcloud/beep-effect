@@ -1,6 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { ShaclValidationError, type ValidationPolicyError } from "@beep/knowledge-domain/errors";
-import { ShaclPolicy, ValidationFinding, type ValidationReport } from "@beep/knowledge-domain/value-objects";
+import { ShaclPolicy, ValidationFinding, type ValidationReport } from "@beep/knowledge-domain/values";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

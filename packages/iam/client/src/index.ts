@@ -3,7 +3,7 @@ export { Admin } from "./admin";
 export { Anonymous } from "./anonymous";
 export { ApiKey } from "./api-key";
 export * as AuthCallback from "./auth-callback";
-export { OAuth2 } from "./connections";
+export { Connections } from "./connections";
 export { Core } from "./core";
 export { Device } from "./device";
 export * as EmailVerification from "./email-verification";

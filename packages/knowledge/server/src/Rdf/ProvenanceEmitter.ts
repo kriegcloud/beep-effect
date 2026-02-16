@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, Quad } from "@beep/knowledge-domain/values";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";

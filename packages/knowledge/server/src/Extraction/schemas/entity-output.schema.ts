@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { Confidence } from "@beep/knowledge-domain/value-objects";
+import { Confidence } from "@beep/knowledge-domain/values";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 

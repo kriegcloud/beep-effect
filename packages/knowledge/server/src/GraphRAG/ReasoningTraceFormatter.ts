@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import type { InferenceProvenance, InferenceResult } from "@beep/knowledge-domain/value-objects";
+import type { InferenceProvenance, InferenceResult } from "@beep/knowledge-domain/values";
 import { thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";

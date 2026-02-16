@@ -3,7 +3,7 @@ import {
   SerializedEditorStateEnvelope,
   SerializedElementNodeEnvelope,
   SerializedTextNodeEnvelope,
-} from "@beep/workspaces-domain/value-objects/SerializedEditorState";
+} from "@beep/workspaces-domain/values/SerializedEditorState.value";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";

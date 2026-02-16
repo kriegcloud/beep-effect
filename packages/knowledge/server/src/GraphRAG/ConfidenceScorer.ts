@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { Confidence } from "@beep/knowledge-domain/value-objects";
+import { Confidence } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";

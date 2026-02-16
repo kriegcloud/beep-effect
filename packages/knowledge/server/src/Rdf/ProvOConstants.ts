@@ -1,4 +1,4 @@
-import { IRI } from "@beep/knowledge-domain/value-objects";
+import { IRI } from "@beep/knowledge-domain/values";
 import { PROV, RDF } from "../Ontology/constants";
 
 export const XSD = {

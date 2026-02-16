@@ -1,5 +1,5 @@
 import { $WorkspacesServerId } from "@beep/identity/packages";
-import type { SerializedEditorStateEnvelope } from "@beep/workspaces-domain/value-objects";
+import type { SerializedEditorStateEnvelope } from "@beep/workspaces-domain/values";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 

@@ -3,7 +3,7 @@ import type {
   SerializedEditorStateEnvelope,
   SerializedElementNodeEnvelope,
   SerializedTextNodeEnvelope,
-} from "@beep/workspaces-domain/value-objects";
+} from "@beep/workspaces-domain/values";
 import { LexicalValidation, LexicalValidationError } from "@beep/workspaces-server/services";
 import * as Cause from "effect/Cause";
 import * as Chunk from "effect/Chunk";

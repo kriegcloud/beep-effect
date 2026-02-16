@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { type BlankNode, IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
+import { type BlankNode, IRI, Literal, Quad } from "@beep/knowledge-domain/values";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";

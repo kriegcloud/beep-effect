@@ -301,7 +301,7 @@ const INDEX_TS_TEMPLATES: Record<LayerType, string> = {
 // export * from "./entities";
 
 // Export value objects when created
-// export * from "./value-objects";
+// export * from "./values";
 `,
 
   tables: `/**

@@ -1,4 +1,4 @@
-import { IRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
+import { IRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/values";
 import { forwardChain } from "@beep/knowledge-server/Reasoning/ForwardChainer";
 import type { Rule } from "@beep/knowledge-server/Reasoning/RdfsRules";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";

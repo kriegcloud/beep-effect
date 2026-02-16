@@ -59,7 +59,7 @@ const program = Effect.gen(function* () {
 
 ```typescript
 import * as Effect from "effect/Effect";
-import { Sender, OutgoingMessage } from "@beep/comms-domain/value-objects/mail.values";
+import { Sender, OutgoingMessage } from "@beep/comms-domain/values/mail.values";
 
 const program = Effect.gen(function* () {
   const sender = Sender.make({

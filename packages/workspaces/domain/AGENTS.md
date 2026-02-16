@@ -14,7 +14,7 @@
   - `DocumentFile` — File attachments associated with documents.
   - `Discussion` — Discussion threads on documents. Includes RPC schema for remote operations.
   - `Comment` — Individual comments in discussions. Includes RPC schema for remote operations.
-- **Value Objects (`src/value-objects/`)**
+- **Value Objects (`src/values/`)**
   - `LinkType` — Types of links: `explicit`, `inline-reference`, `block_embed`.
   - `TextStyle` — Text formatting styles: `default`, `serif`, `mono`.
 - **RPC Schemas** — Effect RPC schemas for entities that support remote procedure calls (`Comment.rpc`, `Discussion.rpc`, `Document.rpc`).
@@ -41,7 +41,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import { Document, Discussion, Comment } from "@beep/workspaces-domain/entities";
-import { LinkType, TextStyle } from "@beep/workspaces-domain/value-objects";
+import { LinkType, TextStyle } from "@beep/workspaces-domain/values";
 
 // Working with domain entities - Document creation
 export const createDocument = (data: {

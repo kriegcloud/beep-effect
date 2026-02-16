@@ -24,7 +24,7 @@ Centralizes Communications domain models via `M.Class` definitions that provide 
 
 ### Value Objects (Mail)
 
-Available at `@beep/comms-domain/value-objects/mail.values`:
+Available at `@beep/comms-domain/values/mail.values`:
 
 | Export | Description |
 |--------|-------------|
@@ -45,7 +45,7 @@ Available at `@beep/comms-domain/value-objects/mail.values`:
 
 ### Value Objects (Logging)
 
-Available at `@beep/comms-domain/value-objects/logging.values`:
+Available at `@beep/comms-domain/values/logging.values`:
 
 | Export | Description |
 |--------|-------------|
@@ -86,17 +86,17 @@ import {
   OutgoingMessage,
   ParsedMessage,
   EmailProvider
-} from "@beep/comms-domain/value-objects/mail.values";
+} from "@beep/comms-domain/values/mail.values";
 
 // Logging value objects
 import {
   TraceSpan,
   CallLog,
   LoggingState
-} from "@beep/comms-domain/value-objects/logging.values";
+} from "@beep/comms-domain/values/logging.values";
 ```
 
-> **Note**: The `src/value-objects/index.ts` file currently does not re-export value objects. This is intentional to keep the main package export focused on entities. Use subpath imports for value objects.
+> **Note**: The `src/values/index.ts` file currently does not re-export value objects. This is intentional to keep the main package export focused on entities. Use subpath imports for value objects.
 
 ## Usage
 
@@ -150,7 +150,7 @@ import {
   Sender,
   OutgoingMessage,
   SendMailInput
-} from "@beep/comms-domain/value-objects/mail.values";
+} from "@beep/comms-domain/values/mail.values";
 
 // Create a sender
 const createSender = Effect.gen(function* () {
@@ -190,7 +190,7 @@ import {
   TraceSpanCompleted,
   CallLog,
   LoggingState
-} from "@beep/comms-domain/value-objects/logging.values";
+} from "@beep/comms-domain/values/logging.values";
 
 // Start a trace span
 const startSpan = Effect.gen(function* () {

@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import type { ExtractionProgressEvent } from "@beep/knowledge-domain/value-objects";
+import type { ExtractionProgressEvent } from "@beep/knowledge-domain/values";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

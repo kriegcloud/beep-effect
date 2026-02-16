@@ -141,7 +141,7 @@
     "playwright-core": "catalog:",
     "prettier": "catalog:",
     "syncpack": "catalog:",
-    "turbo": "^2.8.9",
+    "turbo": "catalog:",
     "typescript": "catalog:"
   },
   "lint-staged": {
@@ -228,6 +228,7 @@
     "@lexical/yjs": "^0.40.0",
     "@lexical/offset": "^0.40.0",
     "@lexical/extension": "^0.40.0",
+    "msgpackr": "^1.11.8",
     "@effect/docgen": "^0.5.2",
     "@jsquash/webp": "^1.5.0",
     "@jsquash/avif": "^2.1.1",
@@ -246,6 +247,7 @@
     "@effect/platform": "^0.94.5",
     "@effect/platform-browser": "^0.74.0",
     "@effect/platform-bun": "^0.87.1",
+    "@daveyplate/better-auth-ui": "^3.3.15",
     "@effect/platform-node": "^0.104.1",
     "@react-grab/codex": "^0.1.14",
     "@react-grab/claude-code": "^0.1.14",

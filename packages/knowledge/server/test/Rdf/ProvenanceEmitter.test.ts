@@ -1,4 +1,4 @@
-import { Literal, QuadPattern } from "@beep/knowledge-domain/value-objects";
+import { Literal, QuadPattern } from "@beep/knowledge-domain/values";
 import type { KnowledgeGraph } from "@beep/knowledge-server/Extraction/GraphAssembler";
 import {
   PROVENANCE_GRAPH_IRI,

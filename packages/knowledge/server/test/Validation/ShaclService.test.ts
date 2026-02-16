@@ -1,4 +1,4 @@
-import { ShaclPolicy } from "@beep/knowledge-domain/value-objects";
+import { ShaclPolicy } from "@beep/knowledge-domain/values";
 import { ShaclService, ShaclServiceLive } from "@beep/knowledge-server/Validation";
 import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";

@@ -15,7 +15,7 @@ import { IamEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
-const $I = $IamClientId.create("connections/delete-client");
+const $I = $IamClientId.create("connections/delete-client/contract");
 
 /**
  * Payload for deleting an OAuth2 client.

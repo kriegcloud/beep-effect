@@ -1,5 +1,5 @@
 import { SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
-import { IRI, Literal, Quad, type SparqlBinding, SparqlBindings } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, Quad, type SparqlBinding, SparqlBindings } from "@beep/knowledge-domain/values";
 import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf";
 import {
   executeAsk,

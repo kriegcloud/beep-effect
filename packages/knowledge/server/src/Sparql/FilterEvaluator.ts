@@ -1,5 +1,5 @@
 import { SparqlExecutionError } from "@beep/knowledge-domain/errors";
-import { BlankNode, IRI, Literal, Term } from "@beep/knowledge-domain/value-objects";
+import { BlankNode, IRI, Literal, Term } from "@beep/knowledge-domain/values";
 import { thunkEmptyStr, thunkFalse, thunkSucceedEffect, thunkTrue, thunkUndefined } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

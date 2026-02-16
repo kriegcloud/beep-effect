@@ -143,4 +143,3 @@ export { UpdateClient } from "./update-client";
  * @since 0.1.0
  */
 export { UpdateConsent } from "./update-consent";
-

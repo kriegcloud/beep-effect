@@ -1,6 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
-import { Confidence, type Quad } from "@beep/knowledge-domain/value-objects";
+import { Confidence, type Quad } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";

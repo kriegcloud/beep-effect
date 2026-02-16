@@ -1,5 +1,5 @@
 import { Batch } from "@beep/knowledge-domain/rpc/Batch";
-import { BatchConfig } from "@beep/knowledge-domain/value-objects";
+import { BatchConfig } from "@beep/knowledge-domain/values";
 import { BatchOrchestrator } from "@beep/knowledge-server/Workflow";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";

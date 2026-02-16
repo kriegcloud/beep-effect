@@ -18,8 +18,8 @@
 
 | Value Object | Location | Purpose |
 |--------------|----------|---------|
-| Mail Values | `src/value-objects/mail.values.ts` | Email-related value objects (Label, Attachment, MailUser, Sender, ParsedMessage, Tools, etc.) |
-| Logging Values | `src/value-objects/logging.values.ts` | Trace span, call log, and logging state value objects |
+| Mail Values | `src/values/mail.values.ts` | Email-related value objects (Label, Attachment, MailUser, Sender, ParsedMessage, Tools, etc.) |
+| Logging Values | `src/values/logging.values.ts` | Trace span, call log, and logging state value objects |
 
 ### Repository Types
 
@@ -116,7 +116,7 @@ export class Model extends M.Class<Model>($I`NotificationModel`)(
 
 ### Working with Mail Value Objects
 
-The package includes comprehensive mail-related value objects in `src/value-objects/mail.values.ts`:
+The package includes comprehensive mail-related value objects in `src/values/mail.values.ts`:
 
 ```typescript
 import * as S from "effect/Schema";
@@ -131,7 +131,7 @@ import {
   SendMailInput,
   EmailProvider,
   Tools
-} from "@beep/comms-domain/value-objects/mail.values";
+} from "@beep/comms-domain/values/mail.values";
 
 // Creating a sender
 const sender = Sender.make({
@@ -151,7 +151,7 @@ const message = OutgoingMessage.make({
 
 ### Working with Logging Value Objects
 
-Logging value objects in `src/value-objects/logging.values.ts` support trace spans and call logs:
+Logging value objects in `src/values/logging.values.ts` support trace spans and call logs:
 
 ```typescript
 import * as Effect from "effect/Effect";
@@ -159,7 +159,7 @@ import {
   TraceSpanStarted,
   CallLog,
   LoggingState
-} from "@beep/comms-domain/value-objects/logging.values";
+} from "@beep/comms-domain/values/logging.values";
 import { BS } from "@beep/schema";
 
 // Creating a trace span

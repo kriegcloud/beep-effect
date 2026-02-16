@@ -15,7 +15,7 @@ import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
-const $I = $IamClientId.create("connections/consent");
+const $I = $IamClientId.create("connections/consent/contract");
 
 /**
  * Payload for granting consent to an OAuth2 client.

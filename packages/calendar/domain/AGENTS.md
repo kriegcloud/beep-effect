@@ -9,7 +9,7 @@
 ## Surface Map
 - **Entities (`src/entities/`)**
   - `CalendarEvent` — Core event entity with start/end times, recurrence, and attendees.
-- **Value Objects (`src/value-objects/`)** — Immutable primitives for recurrence patterns, event status, etc.
+- **Value Objects (`src/values/`)** — Immutable primitives for recurrence patterns, event status, etc.
 - **API (`src/api/`)** — RPC schema definitions for calendar operations.
 
 ## Usage Snapshots

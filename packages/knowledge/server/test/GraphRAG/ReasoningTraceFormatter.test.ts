@@ -1,4 +1,4 @@
-import { InferenceProvenance, InferenceResult, InferenceStats } from "@beep/knowledge-domain/value-objects";
+import { InferenceProvenance, InferenceResult, InferenceStats } from "@beep/knowledge-domain/values";
 import { InferenceStep, ReasoningTrace } from "@beep/knowledge-server/GraphRAG/AnswerSchemas";
 import {
   ReasoningTraceFormatter,

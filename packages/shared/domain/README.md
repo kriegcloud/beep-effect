@@ -634,7 +634,7 @@ For detailed API documentation, see [AGENTS.md](./AGENTS.md).
 - **Policy** (`src/Policy.ts`) - Authorization policies, RPC middleware, auth context
 - **ManualCache** (`src/ManualCache.ts`) - TTL+LRU cache
 - **Retry** (`src/Retry.ts`) - Exponential backoff policies
-- **Paths** (`src/value-objects/paths.ts`) - Type-safe route building
+- **Paths** (`src/values/paths.ts`) - Type-safe route building
 - **EncryptionService** (`src/services/EncryptionService/`) - Crypto operations
 - **DatabaseError** (`src/errors/db-error/`) - Structured PostgreSQL error handling with formatting
 - **Factories** (`src/factories/`) - DbRepo, error codes, model kits, path builders

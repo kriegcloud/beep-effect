@@ -1,7 +1,7 @@
 "use client";
 
 import { GmailScopes } from "@beep/google-workspace-domain";
-import { Core, OAuth2 } from "@beep/iam-client";
+import { Connections, Core } from "@beep/iam-client";
 import { Organization } from "@beep/iam-client/organization";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { toast } from "@beep/ui/molecules";
@@ -46,18 +46,16 @@ const DEFAULT_GOOGLE_SCOPES: ReadonlyArray<string> = [
 
 export function ConnectionsSettingsPage() {
   const runtime = useRuntime();
-  const run = React.useMemo(() => makeRunClientPromise(runtime, "todox.settings.connections"), [runtime]);
+  const run = makeRunClientPromise(runtime, "todox.settings.connections");
 
   const { sessionResult } = Core.Atoms.use();
 
-  const sessionData = React.useMemo(() => {
-    return Result.builder(sessionResult)
-      .onInitial(() => O.none<Core.GetSession.SessionData>())
-      .onFailure(() => O.none<Core.GetSession.SessionData>())
-      .onDefect(() => O.none<Core.GetSession.SessionData>())
-      .onSuccess(({ data }) => data)
-      .render();
-  }, [sessionResult]);
+  const sessionData = Result.builder(sessionResult)
+    .onInitial(() => O.none<Core.GetSession.SessionData>())
+    .onFailure(() => O.none<Core.GetSession.SessionData>())
+    .onDefect(() => O.none<Core.GetSession.SessionData>())
+    .onSuccess(({ data }) => data)
+    .render();
 
   const activeOrganizationIdOpt = React.useMemo(
     () => sessionData.pipe(O.flatMap((s) => O.fromNullable(s.session.activeOrganizationId ?? null))),
@@ -114,7 +112,7 @@ export function ConnectionsSettingsPage() {
     async (scopes: ReadonlyArray<string> | undefined) => {
       try {
         const res = await run(
-          OAuth2.Link.Handler({
+          Connections.Link.Handler({
             providerId: "google",
             callbackURL: "/settings?settingsTab=connections",
             errorCallbackURL: "/settings?settingsTab=connections&relink=failed",

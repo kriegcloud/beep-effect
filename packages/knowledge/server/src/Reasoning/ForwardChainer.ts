@@ -6,7 +6,7 @@ import {
   InferenceStats,
   Quad,
   type ReasoningConfig,
-} from "@beep/knowledge-domain/value-objects";
+} from "@beep/knowledge-domain/values";
 import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";

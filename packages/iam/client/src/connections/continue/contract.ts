@@ -13,7 +13,7 @@ import { $IamClientId } from "@beep/identity/packages";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
-const $I = $IamClientId.create("connections/continue");
+const $I = $IamClientId.create("connections/continue/contract");
 
 /**
  * Payload for continuing an OAuth2 authorization flow.

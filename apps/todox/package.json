@@ -57,6 +57,7 @@
     "@base-ui/react": "catalog:",
     "@better-auth/stripe": "catalog:",
     "@better-auth/utils": "catalog:",
+    "@daveyplate/better-auth-ui": "catalog:",
     "@dub/better-auth": "catalog:",
     "@effect-atom/atom-react": "catalog:",
     "@effect/cluster": "catalog:",

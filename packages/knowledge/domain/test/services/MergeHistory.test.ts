@@ -1,5 +1,5 @@
 import { MergeHistory } from "@beep/knowledge-domain/services";
-import { MergeParams } from "@beep/knowledge-domain/value-objects";
+import { MergeParams } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";

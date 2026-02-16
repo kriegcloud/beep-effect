@@ -94,7 +94,7 @@ This ensures:
 Enums are generated from domain value objects, not hardcoded:
 
 ```typescript
-import { TextStyle } from "@beep/workspaces-domain/value-objects";
+import { TextStyle } from "@beep/workspaces-domain/values";
 import { BS } from "@beep/schema";
 
 export const textStylePgEnum = BS.toPgEnum(TextStyle)("text_style_enum");

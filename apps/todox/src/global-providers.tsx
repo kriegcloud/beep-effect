@@ -1,6 +1,7 @@
 "use client";
 
 import { CSPProvider } from "@base-ui/react/csp-provider";
+import { client } from "@beep/iam-client/adapters/better-auth";
 import { BeepProvider } from "@beep/runtime-client";
 import RecaptchaV3Atom from "@beep/shared-client/services/react-recaptcha-v3/recaptcha-v3-atom";
 import type { AppConfig } from "@beep/todox/app-config";
@@ -16,8 +17,11 @@ import { SettingsDrawer, SettingsProvider } from "@beep/ui/settings";
 import { ThemeProvider } from "@beep/ui/theme/theme-provider";
 import { defaultSettings } from "@beep/ui-core/settings";
 import { themeConfig } from "@beep/ui-core/theme";
+import { AuthUIProvider } from "@daveyplate/better-auth-ui";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type React from "react";
 
 type GlobalProviders = {
@@ -26,6 +30,7 @@ type GlobalProviders = {
 };
 
 export function GlobalProviders({ children, appConfig }: GlobalProviders) {
+  const router = useRouter();
   return (
     <BeepProvider>
       <CSPProvider>
@@ -47,12 +52,22 @@ export function GlobalProviders({ children, appConfig }: GlobalProviders) {
                   <RecaptchaV3Atom>
                     <BreakpointsProvider>
                       <ConfirmProvider>
-                        <MotionLazy>
-                          <Snackbar />
-                          <ProgressBar />
-                          <SettingsDrawer defaultSettings={defaultSettings} />
-                          {children}
-                        </MotionLazy>
+                        <AuthUIProvider
+                          authClient={client}
+                          navigate={router.push}
+                          replace={router.replace}
+                          onSessionChange={() => {
+                            router.refresh();
+                          }}
+                          Link={Link}
+                        >
+                          <MotionLazy>
+                            <Snackbar />
+                            <ProgressBar />
+                            <SettingsDrawer defaultSettings={defaultSettings} />
+                            {children}
+                          </MotionLazy>
+                        </AuthUIProvider>
                       </ConfirmProvider>
                     </BreakpointsProvider>
                   </RecaptchaV3Atom>

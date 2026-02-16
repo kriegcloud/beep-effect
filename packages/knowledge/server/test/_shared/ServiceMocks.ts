@@ -5,7 +5,7 @@ import {
   GoogleOAuthToken,
   GoogleScopeExpansionRequiredError,
 } from "@beep/google-workspace-domain";
-import { emptyInferenceResult, type InferenceResult, SparqlBindings } from "@beep/knowledge-domain/value-objects";
+import { emptyInferenceResult, type InferenceResult, SparqlBindings } from "@beep/knowledge-domain/values";
 import { ReasonerService } from "@beep/knowledge-server/Reasoning/ReasonerService";
 import { SparqlService } from "@beep/knowledge-server/Sparql/SparqlService";
 import type { WorkflowPersistenceShape } from "@beep/knowledge-server/Workflow";
