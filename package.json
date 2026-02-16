@@ -247,7 +247,6 @@
     "@effect/platform": "^0.94.5",
     "@effect/platform-browser": "^0.74.0",
     "@effect/platform-bun": "^0.87.1",
-    "@daveyplate/better-auth-ui": "^3.3.15",
     "@effect/platform-node": "^0.104.1",
     "@react-grab/codex": "^0.1.14",
     "@react-grab/claude-code": "^0.1.14",
