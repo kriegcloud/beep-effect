@@ -64,7 +64,8 @@ const Page = () => {
                 data-discover="true"
               >
                 <svg
-                  role={"img"}
+                  aria-hidden="true"
+                  focusable="false"
                   className="h-4 w-4 shrink-0"
                   fill="currentColor"
                   height="20"
@@ -228,7 +229,8 @@ const Page = () => {
                         data-state="closed"
                       >
                         <svg
-                          role={"img"}
+                          aria-hidden="true"
+                          focusable="false"
                           className="size-5"
                           fill="currentColor"
                           height="20"
@@ -303,7 +305,8 @@ const Page = () => {
                           }}
                         >
                           <svg
-                            role={"img"}
+                            aria-hidden="true"
+                            focusable="false"
                             fill="currentColor"
                             height="20"
                             strokeWidth="0"
@@ -419,7 +422,8 @@ const Page = () => {
                       }}
                     >
                       <svg
-                        role={"img"}
+                        aria-hidden="true"
+                        focusable="false"
                         fill="currentColor"
                         height="20"
                         strokeWidth="0"
@@ -482,7 +486,8 @@ const Page = () => {
                       data-state="closed"
                     >
                       <svg
-                        role={"img"}
+                        aria-hidden="true"
+                        focusable="false"
                         className="size-5"
                         fill="currentColor"
                         height="20"
@@ -506,7 +511,8 @@ const Page = () => {
                       data-state="closed"
                     >
                       <svg
-                        role={"img"}
+                        aria-hidden="true"
+                        focusable="false"
                         className="size-5"
                         fill="currentColor"
                         height="20"
@@ -527,7 +533,8 @@ const Page = () => {
                       data-state="closed"
                     >
                       <svg
-                        role={"img"}
+                        aria-hidden="true"
+                        focusable="false"
                         className="size-5"
                         fill="currentColor"
                         height="20"

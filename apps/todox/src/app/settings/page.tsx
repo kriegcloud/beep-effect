@@ -10,7 +10,7 @@ const getStringParam = (searchParams: Props["searchParams"], key: string): strin
   return typeof raw === "string" ? raw : raw[0];
 };
 
-export default function Page({searchParams}: Props) {
+export default function Page({ searchParams }: Props) {
   // Deep-link target for OAuth callbacks (contract-locked): /settings?settingsTab=connections
   // For MVP we render the Connections surface directly.
   const tab = getStringParam(searchParams, "settingsTab");
