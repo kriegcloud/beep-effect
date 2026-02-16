@@ -1,7 +1,7 @@
-import { ConnectionsSettingsPage } from "./ConnectionsSettingsPage";
+// import { ConnectionsSettingsPage } from "./ConnectionsSettingsPage";
 
 type Props = {
-  readonly searchParams?: Record<string, string | string[] | undefined> | undefined;
+  readonly searchParams?: undefined | Record<string, string | string[] | undefined>;
 };
 
 const getStringParam = (searchParams: Props["searchParams"], key: string): string | undefined => {
@@ -10,7 +10,7 @@ const getStringParam = (searchParams: Props["searchParams"], key: string): strin
   return typeof raw === "string" ? raw : raw[0];
 };
 
-export default function Page({ searchParams }: Props) {
+export default function Page({searchParams}: Props) {
   // Deep-link target for OAuth callbacks (contract-locked): /settings?settingsTab=connections
   // For MVP we render the Connections surface directly.
   const tab = getStringParam(searchParams, "settingsTab");
@@ -19,5 +19,8 @@ export default function Page({ searchParams }: Props) {
     // (We only implement connections for the MVP demo path.)
   }
 
-  return <ConnectionsSettingsPage />;
+  return (
+    // <ConnectionsSettingsPage />
+    <div>Settings</div>
+  );
 }
