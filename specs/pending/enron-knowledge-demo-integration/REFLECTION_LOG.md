@@ -33,24 +33,26 @@
 
 ### What Worked
 
-- Enumerating exact RPC contracts up front clarified that extraction should use `Batch` RPC pathways rather than ad hoc extraction hooks.
-- Building a current-vs-target matrix made the mock-removal scope concrete and reviewable.
-- Locking deterministic scenario selection early reduced later UI ambiguity.
+- Re-validating the route implementation file-by-file (`page.tsx`, `actions.ts`, input/query components) exposed every mock seam and removed ambiguity about migration scope.
+- Anchoring scenario definitions to `meeting-prep-quality.json` produced a deterministic catalog with stable IDs, thread/document references, and query seeds.
+- Mapping ingest lifecycle directly to `BatchState` tags gave a concrete UI state machine rather than ad hoc loading flags.
 
 ### What Didn't Work
 
-- Assuming a full, reusable knowledge client SDK exists was incorrect; app-local Atom RPC wiring is likely required for this spec.
-- Discovery artifacts initially under-specified retry/idempotency details for ingestion lifecycle behavior.
+- The original assumption that merged RPC groups implied full method readiness was incorrect; several methods are currently `not implemented` server-side (`relation_*`, some `entity_*`, `graphrag_queryFromSeeds`).
+- Shared client RPC constructor parity was weaker than expected: existing default points to `/v1/shared/rpc`, while knowledge runtime is `/v1/knowledge/rpc`.
 
 ### Patterns Discovered
 
-- Runtime RPC composition is already stable server-side; highest risk is client protocol alignment and state handling.
-- Meeting prep quality and evidence-link integrity are separate axes and must be validated independently.
+- The highest P2 risk is protocol mismatch and runtime wiring, not UI rendering complexity.
+- Contract-declared failures and runtime behavior can diverge (for example, duplicate batch-start constraints are defined in contract types but not fully enforced in current start handler path), so client-side gating is required for deterministic UX.
+- Meeting prep remains a separate axis: handler/persistence path exists, but synthesis quality is intentionally deferred to Phase 3.
 
 ### Prompt Refinements
 
-- Discovery prompts should explicitly ask whether domain RPC groups are fully implemented server-side.
-- Include a mandatory protocol parity section (endpoint + serialization + org context propagation).
+- Discovery prompts must include a method-level implementation matrix, not only contract listing.
+- Require explicit “client constructor parity” checks (`/v1/shared/rpc` vs `/v1/knowledge/rpc`, serialization, auth context propagation).
+- Require feature-gate implementation status checks in discovery outputs, not only as later-phase TODOs.
 
 ---
 
