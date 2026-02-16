@@ -1270,7 +1270,8 @@ function ColorPickerEyeDropper(props: ColorPickerEyeDropperProps): React.JSX.Ele
 function PipetteIcon(): React.JSX.Element {
   return (
     <svg
-      role="image"
+      aria-hidden="true"
+      focusable="false"
       xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"

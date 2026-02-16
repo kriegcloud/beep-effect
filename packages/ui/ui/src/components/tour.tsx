@@ -233,7 +233,7 @@ function TourOverlay({
 
   return createPortal(
     <div className="fixed inset-0 z-50">
-      <svg role={"img"} className="absolute inset-0 size-full">
+      <svg aria-hidden="true" focusable="false" className="absolute inset-0 size-full">
         <defs>
           <mask id="tour-mask">
             <rect x="0" y="0" width="100%" height="100%" fill="white" />

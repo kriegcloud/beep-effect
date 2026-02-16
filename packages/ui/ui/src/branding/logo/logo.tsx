@@ -29,6 +29,7 @@ export const Logo = ({ viewBox = "0 0 1200 1200" }: LogoProps) => {
     >
       <svg
         role={"img"}
+        aria-label="Beep logo"
         xmlns="http://www.w3.org/2000/svg"
         className="looka-1j8o68f"
         viewBox={viewBox}
@@ -39,6 +40,7 @@ export const Logo = ({ viewBox = "0 0 1200 1200" }: LogoProps) => {
         data-color-mode="dark"
         style={{ display: "block" }}
       >
+        <title>Beep logo</title>
         <defs />
         <g transform="translate(961.3955 -1194.1925)">
           <g transform="matrix(1, 0, 0, 1, -961.3955, 1194.1925)" opacity="1">

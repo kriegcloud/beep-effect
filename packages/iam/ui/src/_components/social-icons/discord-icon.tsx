@@ -1,5 +1,12 @@
 export const DiscordIcon = () => (
-  <svg role={"img"} id="Discord-Logo" fill={"#5865f2"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 126.644 96">
+  <svg
+    aria-hidden="true"
+    focusable="false"
+    id="Discord-Logo"
+    fill={"#5865f2"}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 126.644 96"
+  >
     <path
       id="Discord-Symbol-Blurple"
       className="cls-1"
