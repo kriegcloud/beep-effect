@@ -172,14 +172,14 @@ const serviceEffect: Effect.Effect<
           relations: A.empty<Entities.Relation.Model>(),
           scores: {},
           context: "",
-          stats: {
+          stats: new GraphRagResultStats({
             seedEntityCount: 0,
             totalEntityCount: 0,
             totalRelationCount: 0,
             hopsTraversed: 0,
             estimatedTokens: 0,
             truncated: false,
-          },
+          }),
         });
       }
 
@@ -242,14 +242,14 @@ const serviceEffect: Effect.Effect<
         relations,
         scores,
         context: input.includeScores ? formatContextWithScores(sortedEntities, relations, scoreMap) : context,
-        stats: {
+        stats: new GraphRagResultStats({
           seedEntityCount: A.length(seedEntityIds),
           totalEntityCount: A.length(entities),
           totalRelationCount: A.length(relations),
           hopsTraversed: input.hops ?? 1,
           estimatedTokens: Math.ceil(Str.length(context) / 4),
           truncated,
-        },
+        }),
       });
 
       yield* Effect.logInfo("GraphRAGService.query: complete").pipe(Effect.annotateLogs({ stats: result.stats }));

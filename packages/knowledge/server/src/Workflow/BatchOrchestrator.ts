@@ -24,6 +24,7 @@ import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { Workflow, WorkflowEngine } from "@effect/workflow";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -34,7 +35,9 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { EmbeddingService } from "../Embedding";
 import { ExtractionPipelineLive, ExtractionResult } from "../Extraction/ExtractionPipeline";
+import type { AssembledEntity } from "../Extraction/GraphAssembler";
 import { BatchEventEmitter, BatchEventEmitterLive } from "./BatchEventEmitter";
 import { ExtractionWorkflow, ExtractionWorkflowLive, type ExtractionWorkflowParams } from "./ExtractionWorkflow";
 import { WorkflowPersistence, WorkflowPersistenceLive } from "./WorkflowPersistence";
@@ -238,13 +241,44 @@ const makeExtractionParams = (
   },
 });
 
+const getErrorTag = (error: unknown): string =>
+  typeof error === "object" &&
+  error !== null &&
+  "_tag" in error &&
+  typeof (error as { readonly _tag: unknown })._tag === "string"
+    ? ((error as { readonly _tag: string })._tag ?? "UnknownError")
+    : "UnknownError";
+
+const getErrorMessage = (error: unknown): string => {
+  const raw =
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { readonly message: unknown }).message === "string"
+      ? (error as { readonly message: string }).message
+      : String(error);
+  const collapsed = raw.replace(/\s+/g, " ").trim();
+  const statusMatch = collapsed.match(/\b([45]\d{2})\b/);
+  return statusMatch !== null ? `http_status=${statusMatch[1]} len=${collapsed.length}` : `len=${collapsed.length}`;
+};
+
 export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBatchPayload, executionId: string) {
   const workflow = yield* ExtractionWorkflow;
   const emitter = yield* BatchEventEmitter;
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
   const maybeMentionRecordRepo = yield* Effect.serviceOption(Entities.MentionRecord.Repo);
+  const maybeEmbeddingService = yield* Effect.serviceOption(EmbeddingService);
   const persistence = yield* WorkflowPersistence;
   const batchId = KnowledgeEntityIds.BatchExecutionId.make(payload.batchId);
+
+  yield* Effect.annotateCurrentSpan("knowledge.batch.id", payload.batchId);
+  yield* Effect.annotateCurrentSpan("knowledge.organization.id", payload.organizationId);
+  yield* Effect.annotateCurrentSpan("knowledge.ontology.id", payload.ontologyId);
+  yield* Effect.annotateCurrentSpan("knowledge.batch.execution_id", executionId);
+  yield* Effect.annotateCurrentSpan("knowledge.batch.failure_policy", payload.config.failurePolicy);
+  yield* Effect.annotateCurrentSpan("knowledge.batch.total_documents", A.length(payload.documents));
+  yield* Effect.annotateCurrentSpan("knowledge.batch.max_retries", payload.config.maxRetries);
+  yield* Effect.annotateCurrentSpan("knowledge.batch.enable_entity_resolution", payload.config.enableEntityResolution);
 
   const emitEvent = Effect.fn("BatchOrchestrator.executeBatchEngineWorkflow.emitEvent")(
     function* (makeEvent: (timestamp: DateTime.Utc) => BatchEvent.Type) {
@@ -264,48 +298,62 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
     retryAttempt?: number
   ) => Effect.Effect<EngineDocumentResult> = Effect.fn("BatchOrchestrator.executeBatchEngineWorkflow.processDocument")(
     function* (doc, index, retryAttempt = 0) {
-    const runtimeParams = new BatchOrchestratorParams({
-      batchId,
-      organizationId: SharedEntityIds.OrganizationId.make(payload.organizationId),
-      ontologyId: KnowledgeEntityIds.OntologyId.make(payload.ontologyId),
-      documents: [],
-      config: new BatchConfig(payload.config),
-    });
+      yield* Effect.annotateCurrentSpan("knowledge.batch.id", payload.batchId);
+      yield* Effect.annotateCurrentSpan("knowledge.document.id", doc.documentId);
+      yield* Effect.annotateCurrentSpan("knowledge.document.index", index);
+      yield* Effect.annotateCurrentSpan("knowledge.document.retry_attempt", retryAttempt);
 
-    yield* emitEvent((timestamp) =>
-      DocumentStarted.make({ batchId, documentId: doc.documentId, documentIndex: index, timestamp })
-    );
+      const runtimeParams = new BatchOrchestratorParams({
+        batchId,
+        organizationId: SharedEntityIds.OrganizationId.make(payload.organizationId),
+        ontologyId: KnowledgeEntityIds.OntologyId.make(payload.ontologyId),
+        documents: [],
+        config: new BatchConfig(payload.config),
+      });
 
-    const either = yield* Effect.either(workflow.run(makeExtractionParams(doc, runtimeParams, retryAttempt)));
-    if (Either.isRight(either)) {
       yield* emitEvent((timestamp) =>
-        DocumentCompleted.make({
-          batchId,
-          documentId: doc.documentId,
-          entityCount: either.right.stats.entityCount,
-          relationCount: either.right.stats.relationCount,
-          timestamp,
-        })
+        DocumentStarted.make({ batchId, documentId: doc.documentId, documentIndex: index, timestamp })
       );
 
+      const either = yield* Effect.either(workflow.run(makeExtractionParams(doc, runtimeParams, retryAttempt)));
+      if (Either.isRight(either)) {
+        yield* Effect.annotateCurrentSpan("outcome.success", true);
+        yield* Effect.annotateCurrentSpan("knowledge.entity.count", either.right.stats.entityCount);
+        yield* Effect.annotateCurrentSpan("knowledge.relation.count", either.right.stats.relationCount);
+
+        yield* emitEvent((timestamp) =>
+          DocumentCompleted.make({
+            batchId,
+            documentId: doc.documentId,
+            entityCount: either.right.stats.entityCount,
+            relationCount: either.right.stats.relationCount,
+            timestamp,
+          })
+        );
+
+        return new EngineDocumentResult({
+          documentId: doc.documentId,
+          success: true,
+          extraction: either.right,
+          error: null,
+        });
+      }
+
+      yield* Effect.annotateCurrentSpan("outcome.success", false);
+      yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(either.left));
+      yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(either.left));
+
+      yield* emitEvent((timestamp) =>
+        DocumentFailed.make({ batchId, documentId: doc.documentId, error: String(either.left), timestamp })
+      );
       return new EngineDocumentResult({
         documentId: doc.documentId,
-        success: true,
-        extraction: either.right,
-        error: null,
+        success: false,
+        extraction: null,
+        error: String(either.left),
       });
-    }
-
-    yield* emitEvent((timestamp) =>
-      DocumentFailed.make({ batchId, documentId: doc.documentId, error: String(either.left), timestamp })
-    );
-    return new EngineDocumentResult({
-      documentId: doc.documentId,
-      success: false,
-      extraction: null,
-      error: String(either.left),
-    });
-    }
+    },
+    Effect.withSpan("knowledge.batch.document")
   );
 
   const processContinue = Effect.forEach(payload.documents, processDocument, {
@@ -384,6 +432,10 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
   );
 
   const batchResult = aggregateEngineResults(batchId, documentResults);
+  yield* Effect.annotateCurrentSpan("knowledge.batch.success_count", batchResult.successCount);
+  yield* Effect.annotateCurrentSpan("knowledge.batch.failure_count", batchResult.failureCount);
+  yield* Effect.annotateCurrentSpan("knowledge.entity.count", batchResult.entityCount);
+  yield* Effect.annotateCurrentSpan("knowledge.relation.count", batchResult.relationCount);
 
   if (payload.config.enableEntityResolution && O.isSome(maybeClusterer)) {
     yield* emitEvent((timestamp) => ResolutionStarted.make({ batchId, timestamp }));
@@ -403,17 +455,65 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
       return A.length(unresolvedMentions);
     }).pipe(
       Effect.catchAllCause((cause) =>
-        Effect.logWarning("BatchOrchestrator(engine): entity resolution failed, continuing").pipe(
-          Effect.annotateLogs({ cause: String(cause), batchId }),
-          Effect.as(0)
-        )
+        Effect.gen(function* () {
+          const failure = Cause.squash(cause);
+          yield* Effect.annotateCurrentSpan("outcome.success", false);
+          yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+          yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+          yield* Effect.logWarning("BatchOrchestrator(engine): entity resolution failed, continuing").pipe(
+            Effect.annotateLogs({ cause: String(cause), batchId })
+          );
+          return 0;
+        })
       )
     );
 
     yield* emitEvent((timestamp) => ResolutionCompleted.make({ batchId, mergeCount, timestamp }));
   }
 
+  if (O.isSome(maybeEmbeddingService)) {
+    const allEntities: ReadonlyArray<AssembledEntity> = F.pipe(
+      documentResults,
+      A.filter((result) => result.success && result.extraction !== null),
+      A.flatMap((result) => result.extraction?.graph.entities ?? [])
+    );
+
+    if (!A.isEmptyReadonlyArray(allEntities)) {
+      yield* Effect.gen(function* () {
+        yield* Effect.logInfo("BatchOrchestrator(engine): generating entity embeddings").pipe(
+          Effect.annotateLogs({ entityCount: A.length(allEntities), batchId })
+        );
+
+        yield* maybeEmbeddingService.value.embedEntities(
+          allEntities,
+          SharedEntityIds.OrganizationId.make(payload.organizationId),
+          KnowledgeEntityIds.OntologyId.make(payload.ontologyId)
+        );
+
+        yield* Effect.logInfo("BatchOrchestrator(engine): entity embeddings complete").pipe(
+          Effect.annotateLogs({ entityCount: A.length(allEntities), batchId })
+        );
+      }).pipe(
+        Effect.catchAllCause((cause) =>
+          Effect.gen(function* () {
+            const failure = Cause.squash(cause);
+            yield* Effect.annotateCurrentSpan("embedding.success", false);
+            yield* Effect.annotateCurrentSpan("embedding.error.tag", getErrorTag(failure));
+            yield* Effect.annotateCurrentSpan("embedding.error.message", getErrorMessage(failure));
+            yield* Effect.logWarning("BatchOrchestrator(engine): entity embedding generation failed, continuing").pipe(
+              Effect.annotateLogs({ cause: String(cause), batchId })
+            );
+          })
+        )
+      );
+    }
+  }
+
   if (batchResult.failureCount > 0 && batchResult.successCount === 0) {
+    yield* Effect.annotateCurrentSpan("outcome.success", false);
+    yield* Effect.annotateCurrentSpan("error.tag", "AllDocumentsFailed");
+    yield* Effect.annotateCurrentSpan("error.message", "All documents failed");
+
     yield* emitEvent((timestamp) =>
       BatchFailed.make({
         batchId,
@@ -457,8 +557,20 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
     },
   });
 
+  yield* Effect.annotateCurrentSpan("outcome.success", batchResult.failureCount === 0);
   return batchResult;
-}, Effect.mapError(String));
+},
+Effect.catchAllCause((cause) =>
+  Effect.gen(function* () {
+    const failure = Cause.squash(cause);
+    yield* Effect.annotateCurrentSpan("outcome.success", false);
+    yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+    yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+    return yield* Effect.failCause(cause);
+  })
+),
+Effect.withSpan("knowledge.batch.orchestrate"),
+Effect.mapError(String));
 
 const toEngineConfig = (config: BatchConfig) => {
   const fields = {

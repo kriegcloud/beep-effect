@@ -1161,3 +1161,13 @@
 {"eventType":"stop","timestamp":"2026-02-16T10:48:36.376Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"general-purpose","durationMs":482200,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-16T10:53:58.508Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-16T15:33:08.549Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-16T18:05:50.309Z","sessionId":"56cfb84b-134e-4473-9e72-280ec2236c7b","agentType":"Explore","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-16T18:06:35.163Z","sessionId":"56cfb84b-134e-4473-9e72-280ec2236c7b","agentType":"Explore","durationMs":44854,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-16T18:40:48.678Z","sessionId":"29f66990-6d5b-4b6b-8fd9-5c03dec682c9","agentType":"Explore","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-16T18:41:54.679Z","sessionId":"29f66990-6d5b-4b6b-8fd9-5c03dec682c9","agentType":"Explore","durationMs":66001,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-16T18:53:18.098Z","sessionId":"29f66990-6d5b-4b6b-8fd9-5c03dec682c9","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-16T19:00:26.451Z","sessionId":"29f66990-6d5b-4b6b-8fd9-5c03dec682c9","agentType":"effect-code-writer","durationMs":428353,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T19:06:55.511Z","sessionId":"29f66990-6d5b-4b6b-8fd9-5c03dec682c9","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-16T19:19:37.179Z","sessionId":"29f66990-6d5b-4b6b-8fd9-5c03dec682c9","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-16T19:22:20.159Z","sessionId":"29f66990-6d5b-4b6b-8fd9-5c03dec682c9","agentType":"effect-code-writer","durationMs":162980,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T19:24:01.322Z","sessionId":"29f66990-6d5b-4b6b-8fd9-5c03dec682c9","agentType":"unknown","durationMs":0,"outcome":"success"}

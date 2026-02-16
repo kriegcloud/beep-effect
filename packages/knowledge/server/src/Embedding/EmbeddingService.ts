@@ -170,6 +170,7 @@ const serviceEffect: Effect.Effect<
     const cacheResults = yield* Effect.forEach(indexed, (item) =>
       repo.findByCacheKey(computeCacheKey(item.text, DEFAULT_EMBEDDING_MODEL), organizationId).pipe(
         Effect.option,
+        Effect.map(O.flatten),
         Effect.map((cached) => ({ ...item, cached }))
       )
     );

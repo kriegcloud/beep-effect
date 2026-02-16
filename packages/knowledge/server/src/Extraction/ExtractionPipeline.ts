@@ -93,6 +93,34 @@ export class ExtractionPipeline extends Context.Tag($I`ExtractionPipeline`)<
   ExtractionPipelineShape
 >() {}
 
+const getErrorTag = (error: unknown): string =>
+  typeof error === "object" &&
+  error !== null &&
+  "_tag" in error &&
+  typeof (error as { readonly _tag: unknown })._tag === "string"
+    ? ((error as { readonly _tag: string })._tag ?? "UnknownError")
+    : "UnknownError";
+
+const getErrorMessage = (error: unknown): string => {
+  const raw =
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { readonly message: unknown }).message === "string"
+      ? (error as { readonly message: string }).message
+      : String(error);
+  const collapsed = raw.replace(/\s+/g, " ").trim();
+  const statusMatch = collapsed.match(/\b([45]\d{2})\b/);
+  return statusMatch !== null ? `http_status=${statusMatch[1]} len=${collapsed.length}` : `len=${collapsed.length}`;
+};
+
+const annotateFailureOnCurrentSpan = (error: unknown): Effect.Effect<void> =>
+  Effect.gen(function* () {
+    yield* Effect.annotateCurrentSpan("outcome.success", false);
+    yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(error));
+    yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(error));
+  });
+
 const serviceEffect: Effect.Effect<
   ExtractionPipelineShape,
   never,
@@ -132,13 +160,22 @@ const serviceEffect: Effect.Effect<
       const extractionId = KnowledgeEntityIds.ExtractionId.create();
       let totalTokens = 0;
 
+      yield* Effect.annotateCurrentSpan("knowledge.organization.id", config.organizationId);
+      yield* Effect.annotateCurrentSpan("knowledge.ontology.id", config.ontologyId);
+      yield* Effect.annotateCurrentSpan("knowledge.document.id", config.documentId);
+      yield* Effect.annotateCurrentSpan("knowledge.document.text_length", Str.length(text));
+
       yield* Effect.logInfo("Starting extraction pipeline", {
         documentId: config.documentId,
         textLength: Str.length(text),
       });
 
       yield* O.match(maybeClassifier, {
-        onNone: () => Effect.void,
+        onNone: () =>
+          Effect.gen(function* () {
+            yield* Effect.annotateCurrentSpan("knowledge.classification.skipped", true);
+            yield* Effect.annotateCurrentSpan("outcome.success", true);
+          }),
         onSome: (classifier) =>
           classifier
             .classify(
@@ -148,59 +185,147 @@ const serviceEffect: Effect.Effect<
             )
             .pipe(
               Effect.tap((classification) =>
-                Effect.logInfo("Document classified").pipe(
-                  Effect.annotateLogs({
-                    documentType: classification.documentType,
-                    domainTags: classification.domainTags,
-                    complexityScore: classification.complexityScore,
-                    entityDensity: classification.entityDensity,
-                  })
-                )
+                Effect.gen(function* () {
+                  yield* Effect.annotateCurrentSpan("outcome.success", true);
+                  yield* Effect.annotateCurrentSpan("knowledge.classification.document_type", classification.documentType);
+                  yield* Effect.annotateCurrentSpan(
+                    "knowledge.classification.domain_tag_count",
+                    A.length(classification.domainTags)
+                  );
+                  yield* Effect.annotateCurrentSpan(
+                    "knowledge.classification.complexity_score",
+                    classification.complexityScore
+                  );
+                  yield* Effect.annotateCurrentSpan(
+                    "knowledge.classification.entity_density",
+                    classification.entityDensity
+                  );
+                  yield* Effect.logInfo("Document classified").pipe(
+                    Effect.annotateLogs({
+                      documentType: classification.documentType,
+                      domainTags: classification.domainTags,
+                      complexityScore: classification.complexityScore,
+                      entityDensity: classification.entityDensity,
+                    })
+                  );
+                })
               ),
               Effect.catchAllCause((cause) =>
-                Effect.logWarning("Document classification failed, continuing without classification").pipe(
-                  Effect.annotateLogs({ cause: String(Cause.squash(cause)) })
-                )
+                Effect.gen(function* () {
+                  const failure = Cause.squash(cause);
+                  yield* annotateFailureOnCurrentSpan(failure);
+                  yield* Effect.logWarning("Document classification failed, continuing without classification").pipe(
+                    Effect.annotateLogs({ cause: String(failure) })
+                  );
+                })
               )
             ),
-      });
+      }).pipe(
+        Effect.withSpan("knowledge.extraction.classify", {
+          attributes: {
+            "knowledge.document.id": config.documentId,
+            "knowledge.document.text_length": Str.length(text),
+          },
+        })
+      );
 
       yield* Effect.logDebug("Loading ontology");
-      const ontologyContext = yield* ontologyService.load(config.ontologyId, ontologyContent);
+      const ontologyContext = yield* ontologyService.load(config.ontologyId, ontologyContent).pipe(
+        Effect.tap((context) =>
+          Effect.gen(function* () {
+            yield* Effect.annotateCurrentSpan("outcome.success", true);
+            yield* Effect.annotateCurrentSpan("knowledge.ontology.class_count", A.length(context.classes));
+            yield* Effect.annotateCurrentSpan("knowledge.ontology.property_count", A.length(context.properties));
+          })
+        ),
+        Effect.tapError(annotateFailureOnCurrentSpan),
+        Effect.withSpan("knowledge.extraction.load_ontology", {
+          attributes: {
+            "knowledge.document.id": config.documentId,
+            "knowledge.ontology.id": config.ontologyId,
+          },
+        })
+      );
 
       yield* Effect.logDebug("Chunking text");
       const chunks = yield* nlp.chunkTextAll(
         text,
         config.chunkingConfig.pipe(O.getOrElse(() => defaultChunkingConfig))
+      ).pipe(
+        Effect.tap((chunkValues) =>
+          Effect.gen(function* () {
+            yield* Effect.annotateCurrentSpan("outcome.success", true);
+            yield* Effect.annotateCurrentSpan("knowledge.chunk.count", A.length(chunkValues));
+          })
+        ),
+        Effect.tapError(annotateFailureOnCurrentSpan),
+        Effect.withSpan("knowledge.extraction.chunk", {
+          attributes: {
+            "knowledge.document.id": config.documentId,
+            "knowledge.document.text_length": Str.length(text),
+          },
+        })
       );
 
       yield* Effect.logInfo("Text chunked", { chunkCount: A.length(chunks) });
 
       yield* Effect.logDebug("Extracting mentions");
 
-      const mentionResults = yield* mentionExtractor.extractFromChunks(
-        [...chunks],
-        filterUndefined({
-          minConfidence: encodedConfig.mentionMinConfidence,
+      const { allMentions, mentionResults, tokensUsed: mentionTokensUsed } = yield* Effect.gen(function* () {
+        const mentionResults = yield* mentionExtractor.extractFromChunks(
+          [...chunks],
+          filterUndefined({
+            minConfidence: encodedConfig.mentionMinConfidence,
+          })
+        );
+        const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
+        const tokensUsed = A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
+        yield* Effect.annotateCurrentSpan("outcome.success", true);
+        yield* Effect.annotateCurrentSpan("knowledge.mention.count", A.length(allMentions));
+        yield* Effect.annotateCurrentSpan("llm.tokens_total", tokensUsed);
+        return { mentionResults, allMentions, tokensUsed };
+      }).pipe(
+        Effect.tapError(annotateFailureOnCurrentSpan),
+        Effect.withSpan("knowledge.extraction.mentions", {
+          attributes: {
+            "knowledge.document.id": config.documentId,
+            "knowledge.chunk.count": A.length(chunks),
+          },
         })
       );
-
-      const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
-      totalTokens += A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
+      totalTokens += mentionTokensUsed;
 
       yield* Effect.logInfo("Mentions extracted", {
         totalMentions: A.length(allMentions),
       });
 
       yield* Effect.logDebug("Classifying entities");
-      const entityResult = yield* entityExtractor.classify(
-        allMentions,
-        ontologyContext,
-        filterUndefined({
-          minConfidence: encodedConfig.entityMinConfidence,
-          batchSize: encodedConfig.entityBatchSize,
-        })
-      );
+      const entityResult = yield* entityExtractor
+        .classify(
+          allMentions,
+          ontologyContext,
+          filterUndefined({
+            minConfidence: encodedConfig.entityMinConfidence,
+            batchSize: encodedConfig.entityBatchSize,
+          })
+        )
+        .pipe(
+          Effect.tap((result) =>
+            Effect.gen(function* () {
+              yield* Effect.annotateCurrentSpan("outcome.success", true);
+              yield* Effect.annotateCurrentSpan("knowledge.entity.count", A.length(result.entities));
+              yield* Effect.annotateCurrentSpan("knowledge.entity.invalid_count", A.length(result.invalidTypes));
+              yield* Effect.annotateCurrentSpan("llm.tokens_total", result.tokensUsed);
+            })
+          ),
+          Effect.tapError(annotateFailureOnCurrentSpan),
+          Effect.withSpan("knowledge.extraction.entities", {
+            attributes: {
+              "knowledge.document.id": config.documentId,
+              "knowledge.mention.count": A.length(allMentions),
+            },
+          })
+        );
 
       totalTokens += entityResult.tokensUsed;
 
@@ -213,30 +338,63 @@ const serviceEffect: Effect.Effect<
 
       const entitiesByChunk = mapEntitiesToChunks([...entityResult.entities], [...allMentions], [...chunks]);
 
-      const relationResult = yield* relationExtractor.extractFromChunks(
-        entitiesByChunk,
-        [...chunks],
-        ontologyContext,
-        filterUndefined({
-          minConfidence: encodedConfig.relationMinConfidence,
-          validatePredicates: true,
+      const { dedupedRelations, relationResult } = yield* Effect.gen(function* () {
+        const relationResult = yield* relationExtractor.extractFromChunks(
+          entitiesByChunk,
+          [...chunks],
+          ontologyContext,
+          filterUndefined({
+            minConfidence: encodedConfig.relationMinConfidence,
+            validatePredicates: true,
+          })
+        );
+        const dedupedRelations = yield* relationExtractor.deduplicateRelations(relationResult.triples);
+        yield* Effect.annotateCurrentSpan("outcome.success", true);
+        yield* Effect.annotateCurrentSpan("knowledge.relation.raw_count", A.length(relationResult.triples));
+        yield* Effect.annotateCurrentSpan("knowledge.relation.count", A.length(dedupedRelations));
+        yield* Effect.annotateCurrentSpan("knowledge.relation.invalid_count", A.length(relationResult.invalidTriples));
+        yield* Effect.annotateCurrentSpan("llm.tokens_total", relationResult.tokensUsed);
+        return { relationResult, dedupedRelations };
+      }).pipe(
+        Effect.tapError(annotateFailureOnCurrentSpan),
+        Effect.withSpan("knowledge.extraction.relations", {
+          attributes: {
+            "knowledge.document.id": config.documentId,
+            "knowledge.entity.count": A.length(entityResult.entities),
+            "knowledge.chunk.count": A.length(chunks),
+          },
         })
       );
-
       totalTokens += relationResult.tokensUsed;
-
-      const dedupedRelations = yield* relationExtractor.deduplicateRelations(relationResult.triples);
 
       yield* Effect.logInfo("Relations extracted", {
         totalRelations: A.length(dedupedRelations),
       });
 
       yield* Effect.logDebug("Assembling knowledge graph");
-      const graph = yield* graphAssembler.assemble([...entityResult.entities], [...dedupedRelations], {
-        organizationId: config.organizationId,
-        ontologyId: config.ontologyId,
-        mergeEntities: config.mergeEntities.pipe(O.getOrElse(thunkTrue)),
-      });
+      const graph = yield* graphAssembler
+        .assemble([...entityResult.entities], [...dedupedRelations], {
+          organizationId: config.organizationId,
+          ontologyId: config.ontologyId,
+          mergeEntities: config.mergeEntities.pipe(O.getOrElse(thunkTrue)),
+        })
+        .pipe(
+          Effect.tap((graphResult) =>
+            Effect.gen(function* () {
+              yield* Effect.annotateCurrentSpan("outcome.success", true);
+              yield* Effect.annotateCurrentSpan("knowledge.entity.count", graphResult.stats.entityCount);
+              yield* Effect.annotateCurrentSpan("knowledge.relation.count", graphResult.stats.relationCount);
+            })
+          ),
+          Effect.tapError(annotateFailureOnCurrentSpan),
+          Effect.withSpan("knowledge.extraction.graph_assemble", {
+            attributes: {
+              "knowledge.document.id": config.documentId,
+              "knowledge.entity.count": A.length(entityResult.entities),
+              "knowledge.relation.count": A.length(dedupedRelations),
+            },
+          })
+        );
 
       const clusteringEnabled = config.enableIncrementalClustering.pipe(
         O.match({
@@ -247,22 +405,31 @@ const serviceEffect: Effect.Effect<
 
       if (clusteringEnabled) {
         yield* O.match(maybeClusterer, {
-          onNone: () => Effect.logDebug("IncrementalClustering requested but IncrementalClusterer not provided"),
+          onNone: () =>
+            Effect.gen(function* () {
+              yield* Effect.annotateCurrentSpan("outcome.success", true);
+              yield* Effect.logDebug("IncrementalClustering requested but IncrementalClusterer not provided");
+            }),
           onSome: Effect.fn(
             function* (clusterer) {
               const records = yield* buildMentionRecords(mentionResults, actorUserId, config, extractionId);
               yield* clusterer.cluster(records);
+              yield* Effect.annotateCurrentSpan("outcome.success", true);
+              yield* Effect.annotateCurrentSpan("knowledge.mention.count", A.length(records));
               yield* Effect.logInfo("Incremental clustering completed").pipe(
                 Effect.annotateLogs({ mentionCount: A.length(records) })
               );
             },
             Effect.catchTag("ClusterError", (err) =>
-              Effect.logWarning("Incremental clustering failed, continuing without clustering").pipe(
-                Effect.annotateLogs({ error: err.message })
-              )
+              Effect.gen(function* () {
+                yield* annotateFailureOnCurrentSpan(err);
+                yield* Effect.logWarning("Incremental clustering failed, continuing without clustering").pipe(
+                  Effect.annotateLogs({ error: err.message })
+                );
+              })
             ),
-            Effect.withSpan("ExtractionPipeline.incrementalClustering", {
-              attributes: { documentId: config.documentId },
+            Effect.withSpan("knowledge.extraction.incremental_clustering", {
+              attributes: { "knowledge.document.id": config.documentId },
             })
           ),
         });
@@ -294,6 +461,14 @@ const serviceEffect: Effect.Effect<
         durationMs,
         clusteringEnabled,
       });
+      yield* Effect.annotateCurrentSpan("outcome.success", true);
+      yield* Effect.annotateCurrentSpan("knowledge.chunk.count", A.length(chunks));
+      yield* Effect.annotateCurrentSpan("knowledge.mention.count", A.length(allMentions));
+      yield* Effect.annotateCurrentSpan("knowledge.entity.count", graph.stats.entityCount);
+      yield* Effect.annotateCurrentSpan("knowledge.relation.count", graph.stats.relationCount);
+      yield* Effect.annotateCurrentSpan("llm.tokens_total", totalTokens);
+      yield* Effect.annotateCurrentSpan("performance.duration_ms", Duration.toMillis(durationMs));
+      yield* Effect.annotateCurrentSpan("knowledge.incremental_clustering.enabled", clusteringEnabled);
 
       return new ExtractionResult({
         graph,
@@ -309,7 +484,15 @@ const serviceEffect: Effect.Effect<
         config,
       });
     },
-    Effect.catchTag("ParseError", Effect.die)
+    Effect.catchTag("ParseError", Effect.die),
+    Effect.catchAllCause((cause) =>
+      Effect.gen(function* () {
+        const failure = Cause.squash(cause);
+        yield* annotateFailureOnCurrentSpan(failure);
+        return yield* Effect.failCause(cause);
+      })
+    ),
+    Effect.withSpan("knowledge.extraction.pipeline")
   );
 
   return ExtractionPipeline.of({ run });
