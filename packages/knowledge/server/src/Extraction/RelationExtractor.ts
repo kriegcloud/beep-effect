@@ -159,10 +159,10 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
         }),
       ]);
 
-      const result = yield* withLlmResilience(
+      const rawResult = yield* withLlmResilience(
         model.generateObject({
           prompt,
-          schema: RelationOutput,
+          schema: S.encodedSchema(RelationOutput),
           objectName: "RelationOutput",
         }),
         {
@@ -172,10 +172,20 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
         }
       ).pipe(Effect.mapError((error) => mapResilienceError("extract", error)));
 
-      const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
+      const relationOutput = yield* S.decodeUnknown(RelationOutput)(rawResult.value).pipe(
+        Effect.mapError((error) =>
+          AiError.MalformedOutput.fromParseError({
+            module: "RelationExtractor",
+            method: "extract",
+            error,
+          })
+        )
+      );
+
+      const tokensUsed = (rawResult.usage.inputTokens ?? 0) + (rawResult.usage.outputTokens ?? 0);
 
       const offsetAdjusted = F.pipe(
-        result.value.triples,
+        relationOutput.triples,
         A.filter((t) => t.confidence >= minConfidence),
         A.map((t) => adjustOffsets(t, chunk.startOffset))
       );
@@ -225,10 +235,10 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
           }),
         ]);
 
-        const aiResult = yield* withLlmResilience(
+        const aiRawResult = yield* withLlmResilience(
           model.generateObject({
             prompt,
-            schema: RelationOutput,
+            schema: S.encodedSchema(RelationOutput),
             objectName: "RelationOutput",
           }),
           {
@@ -238,8 +248,18 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
           }
         ).pipe(Effect.mapError((error) => mapResilienceError("extractFromChunks", error)));
 
+        const aiRelationOutput = yield* S.decodeUnknown(RelationOutput)(aiRawResult.value).pipe(
+          Effect.mapError((error) =>
+            AiError.MalformedOutput.fromParseError({
+              module: "RelationExtractor",
+              method: "extractFromChunks",
+              error,
+            })
+          )
+        );
+
         const offsetAdjusted = F.pipe(
-          aiResult.value.triples,
+          aiRelationOutput.triples,
           A.filter((t) => t.confidence >= minConfidence),
           A.map((t) => adjustOffsets(t, chunk.startOffset))
         );
@@ -252,7 +272,7 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
           allTriples.push(...offsetAdjusted);
         }
 
-        totalTokens += (aiResult.usage.inputTokens ?? 0) + (aiResult.usage.outputTokens ?? 0);
+        totalTokens += (aiRawResult.usage.inputTokens ?? 0) + (aiRawResult.usage.outputTokens ?? 0);
       }
 
       yield* Effect.logInfo("Relation extraction from chunks complete", {

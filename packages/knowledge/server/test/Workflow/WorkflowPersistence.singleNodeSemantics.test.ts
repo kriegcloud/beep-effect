@@ -19,6 +19,7 @@ import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
@@ -121,7 +122,7 @@ describe("Workflow persistence single-node semantics", () => {
     })
   );
 
-  effect("Batch engine workflow returns results even when persistence writes fail (best-effort persistence)", (_ctx) =>
+  effect("Batch engine workflow fails when initial running status write fails", (_ctx) =>
     Effect.gen(function* () {
       const sink = { createCalls: [] as Array<unknown>, statusCalls: [] as Array<{ id: string; status: string }> };
       const persistenceLayer = Layer.succeed(WorkflowPersistence, WorkflowPersistence.of(makeFailingPersistence(sink)));
@@ -155,22 +156,37 @@ describe("Workflow persistence single-node semantics", () => {
         },
       };
 
-      // This worker function is invoked by the workflow engine in production.
-      // In tests we call it directly and prove it does not depend on persistence for correctness.
-      const result = yield* executeBatchEngineWorkflow(payload, "exec-test").pipe(
-        Effect.provide(Layer.mergeAll(persistenceLayer, eventEmitterLayer, workflowLayer))
+      const exit = yield* executeBatchEngineWorkflow(payload, "exec-test").pipe(
+        Effect.provide(Layer.mergeAll(persistenceLayer, eventEmitterLayer, workflowLayer)),
+        Effect.exit
       );
 
-      strictEqual(result.totalDocuments, 1);
-      assertTrue(sink.createCalls.length >= 1);
+      assertTrue(Exit.isFailure(exit));
+      strictEqual(sink.createCalls.length, 0);
       assertTrue(sink.statusCalls.some((c) => c.status === "running"));
     })
   );
 
-  effect("Batch engine workflow returns failure results even if persistence update fails", (_ctx) =>
+  effect("Batch engine workflow fails when terminal status persistence fails", (_ctx) =>
     Effect.gen(function* () {
       const sink = { createCalls: [] as Array<unknown>, statusCalls: [] as Array<{ id: string; status: string }> };
-      const persistenceLayer = Layer.succeed(WorkflowPersistence, WorkflowPersistence.of(makeFailingPersistence(sink)));
+      const persistenceLayer = Layer.succeed(
+        WorkflowPersistence,
+        WorkflowPersistence.of({
+          createExecution: () => Effect.void,
+          updateExecutionStatus: (id, status) =>
+            Effect.sync(() => {
+              sink.statusCalls.push({ id, status });
+              if (status === "failed") {
+                throw new Error("db down (updateExecutionStatus:failed)");
+              }
+            }),
+          getExecution: () => Effect.die("not used"),
+          findLatestBatchExecutionByBatchId: () => Effect.succeed(O.none()),
+          cancelExecution: () => Effect.void,
+          requireBatchExecutionByBatchId: () => Effect.die("not used"),
+        } satisfies WorkflowPersistenceShape)
+      );
 
       const eventEmitterLayer = Layer.succeed(
         BatchEventEmitter,
@@ -201,16 +217,14 @@ describe("Workflow persistence single-node semantics", () => {
         },
       };
 
-      // executeBatchEngineWorkflow converts per-document failures into failure results,
-      // and persistence failures must not crash the run.
-      const result = yield* executeBatchEngineWorkflow(payload, "exec-test").pipe(
-        Effect.provide(Layer.mergeAll(persistenceLayer, eventEmitterLayer, workflowLayer))
+      const exit = yield* executeBatchEngineWorkflow(payload, "exec-test").pipe(
+        Effect.provide(Layer.mergeAll(persistenceLayer, eventEmitterLayer, workflowLayer)),
+        Effect.exit
       );
 
-      strictEqual(result.totalDocuments, 1);
-      strictEqual(result.failureCount, 1);
-      // The important assertion is: persistence failures cannot convert a normal failure into a crash.
+      assertTrue(Exit.isFailure(exit));
       assertTrue(sink.statusCalls.some((c) => c.status === "running"));
+      assertTrue(sink.statusCalls.some((c) => c.status === "failed"));
     })
   );
 });

@@ -49,3 +49,19 @@ export class BatchAlreadyRunningError extends S.TaggedError<BatchAlreadyRunningE
     return `Batch ${this.batchId} is already running`;
   }
 }
+
+export class BatchInfrastructureError extends S.TaggedError<BatchInfrastructureError>($I`BatchInfrastructureError`)(
+  "BatchInfrastructureError",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    operation: S.String,
+    reason: S.String,
+  },
+  $I.annotations("BatchInfrastructureError", {
+    description: "Infrastructure failure while handling batch execution",
+  })
+) {
+  override get message(): string {
+    return `Batch infrastructure failure during '${this.operation}' for ${this.batchId}: ${this.reason}`;
+  }
+}

@@ -9,6 +9,7 @@ import { thunkTrue } from "@beep/utils";
 import type * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -156,9 +157,9 @@ const serviceEffect: Effect.Effect<
                   })
                 )
               ),
-              Effect.catchAll((error) =>
+              Effect.catchAllCause((cause) =>
                 Effect.logWarning("Document classification failed, continuing without classification").pipe(
-                  Effect.annotateLogs({ error: error.message })
+                  Effect.annotateLogs({ cause: String(Cause.squash(cause)) })
                 )
               )
             ),

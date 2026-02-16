@@ -5,7 +5,7 @@ import type * as tables from "./tables";
 export const _checkSelectOrganization: typeof Organization.Model.select.Encoded = {} as InferSelectModel<
   typeof tables.organization
 >;
-export const _checkInsertOrganization: InferInsertModel<typeof tables.user> = {} as typeof User.Model.insert.Encoded;
+export const _checkInsertOrganization: InferInsertModel<typeof tables.organization> = {} as typeof Organization.Model.insert.Encoded;
 
 export const _checkSelectUser: typeof User.Model.select.Encoded = {} as InferSelectModel<typeof tables.user>;
 export const _checkInsertUser: InferInsertModel<typeof tables.user> = {} as typeof User.Model.insert.Encoded;

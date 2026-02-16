@@ -1,5 +1,5 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
-import { BatchNotFoundError } from "@beep/knowledge-domain/errors";
+import { BatchInfrastructureError, BatchNotFoundError } from "@beep/knowledge-domain/errors";
 import { BatchEvent } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
@@ -23,7 +23,7 @@ export const SuccessElement = BatchEvent.annotations(
   })
 );
 
-export const FailureElement = BatchNotFoundError;
+export const FailureElement = S.Union(BatchNotFoundError, BatchInfrastructureError);
 
 export const Success = RpcSchema.Stream({ success: SuccessElement, failure: FailureElement });
 export type Success = S.Schema.Type<typeof Success>;

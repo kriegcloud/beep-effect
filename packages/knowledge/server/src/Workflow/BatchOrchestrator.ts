@@ -1,5 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
+import { BatchInfrastructureError } from "@beep/knowledge-domain/errors";
 import type {
   BatchAlreadyRunningError,
   BatchNotFoundError,
@@ -75,7 +76,19 @@ export class BatchResult extends S.Class<BatchResult>($I`BatchResult`)({
 export interface BatchOrchestratorShape {
   readonly run: (
     params: BatchOrchestratorParams
-  ) => Effect.Effect<BatchResult, BatchAlreadyRunningError | InvalidStateTransitionError | BatchNotFoundError>;
+  ) => Effect.Effect<
+    BatchResult,
+    BatchAlreadyRunningError | InvalidStateTransitionError | BatchNotFoundError | BatchInfrastructureError
+  >;
+  readonly start: (
+    params: BatchOrchestratorParams
+  ) => Effect.Effect<
+    {
+      readonly batchId: KnowledgeEntityIds.BatchExecutionId.Type;
+      readonly totalDocuments: number;
+    },
+    BatchInfrastructureError
+  >;
 }
 
 export class BatchOrchestrator extends Context.Tag($I`BatchOrchestrator`)<
@@ -164,7 +177,7 @@ const BatchEngineWorkflow = Workflow.make({
   name: "knowledge-batch-extraction",
   payload: EngineBatchPayload,
   success: EngineBatchResult,
-  error: S.Never,
+  error: S.String,
   idempotencyKey: (payload) => payload.batchId,
 });
 
@@ -209,7 +222,8 @@ const aggregateEngineResults = (
 
 const makeExtractionParams = (
   doc: BatchOrchestratorParams["documents"][number],
-  params: BatchOrchestratorParams
+  params: BatchOrchestratorParams,
+  retryAttempt: number
 ): ExtractionWorkflowParams => ({
   documentId: doc.documentId,
   organizationId: params.organizationId,
@@ -220,6 +234,7 @@ const makeExtractionParams = (
     mergeEntities: true,
     enableIncrementalClustering: params.config.enableEntityResolution,
     retryOwner: params.config.failurePolicy === "retry-failed" ? "orchestrator" : "activity",
+    retryAttempt,
   },
 });
 
@@ -243,9 +258,12 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
     )
   );
 
-  const processDocument: (doc: EngineDocument, index: number) => Effect.Effect<EngineDocumentResult> = Effect.fn(
-    "BatchOrchestrator.executeBatchEngineWorkflow.processDocument"
-  )(function* (doc, index) {
+  const processDocument: (
+    doc: EngineDocument,
+    index: number,
+    retryAttempt?: number
+  ) => Effect.Effect<EngineDocumentResult> = Effect.fn("BatchOrchestrator.executeBatchEngineWorkflow.processDocument")(
+    function* (doc, index, retryAttempt = 0) {
     const runtimeParams = new BatchOrchestratorParams({
       batchId,
       organizationId: SharedEntityIds.OrganizationId.make(payload.organizationId),
@@ -258,7 +276,7 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
       DocumentStarted.make({ batchId, documentId: doc.documentId, documentIndex: index, timestamp })
     );
 
-    const either = yield* Effect.either(workflow.run(makeExtractionParams(doc, runtimeParams)));
+    const either = yield* Effect.either(workflow.run(makeExtractionParams(doc, runtimeParams, retryAttempt)));
     if (Either.isRight(either)) {
       yield* emitEvent((timestamp) =>
         DocumentCompleted.make({
@@ -287,7 +305,8 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
       extraction: null,
       error: String(either.left),
     });
-  });
+    }
+  );
 
   const processContinue = Effect.forEach(payload.documents, processDocument, {
     concurrency: payload.config.concurrency,
@@ -316,6 +335,7 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
     const initialState = {
       results: initialResults,
       retriesRemaining: payload.config.maxRetries,
+      retryAttempt: 1,
     };
     const finalState = yield* Effect.iterate(initialState, {
       while: (state) => A.some(state.results, (result) => !result.success) && state.retriesRemaining > 0,
@@ -323,10 +343,14 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
         Effect.gen(function* () {
           const failedResults = A.filter(state.results, (result) => !result.success);
           const failedIds = A.map(failedResults, (result) => result.documentId);
-          const retryDocs = A.filter(payload.documents, (doc) => F.pipe(failedIds, A.contains(doc.documentId)));
-          const retryResults = yield* Effect.forEach(retryDocs, processDocument, {
-            concurrency: payload.config.concurrency,
-          });
+          const retryDocs = A.filterMap(payload.documents, (doc, index) =>
+            F.pipe(failedIds, A.contains(doc.documentId)) ? O.some({ doc, index }) : O.none()
+          );
+          const retryResults = yield* Effect.forEach(
+            retryDocs,
+            ({ doc, index }) => processDocument(doc, index, state.retryAttempt),
+            { concurrency: payload.config.concurrency }
+          );
           const retryMap = HashMap.fromIterable(
             A.map(retryResults, (result): readonly [string, EngineDocumentResult] => [result.documentId, result])
           );
@@ -336,29 +360,17 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
               O.getOrElse(() => result)
             )
           );
-          return { results: mergedResults, retriesRemaining: state.retriesRemaining - 1 };
+          return {
+            results: mergedResults,
+            retriesRemaining: state.retriesRemaining - 1,
+            retryAttempt: state.retryAttempt + 1,
+          };
         }),
     });
     return finalState.results;
   });
 
-  yield* persistence
-    .createExecution({
-      id: executionId,
-      organizationId: payload.organizationId,
-      workflowType: "batch_extraction",
-      input: {
-        batchId,
-        totalDocuments: A.length(payload.documents),
-        concurrency: payload.config.concurrency,
-        failurePolicy: payload.config.failurePolicy,
-        executionMode: "engine",
-      },
-    })
-    // Persistence is best-effort: failures and defects should not block orchestration.
-    .pipe(Effect.catchAllCause(() => Effect.void));
-  // Persistence is best-effort: failures and defects should not block orchestration.
-  yield* persistence.updateExecutionStatus(executionId, "running").pipe(Effect.catchAllCause(() => Effect.void));
+  yield* persistence.updateExecutionStatus(executionId, "running");
 
   yield* emitEvent((timestamp) =>
     BatchCreated.make({ batchId, totalDocuments: A.length(payload.documents), timestamp })
@@ -410,20 +422,17 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
         timestamp,
       })
     );
-    yield* persistence
-      .updateExecutionStatus(executionId, "failed", {
-        output: {
-          batchId,
-          totalDocuments: batchResult.totalDocuments,
-          successCount: batchResult.successCount,
-          failureCount: batchResult.failureCount,
-          entityCount: batchResult.entityCount,
-          relationCount: batchResult.relationCount,
-        },
-        error: "All documents failed",
-      })
-      // Persistence is best-effort: failures and defects should not block completion.
-      .pipe(Effect.catchAllCause(() => Effect.void));
+    yield* persistence.updateExecutionStatus(executionId, "failed", {
+      output: {
+        batchId,
+        totalDocuments: batchResult.totalDocuments,
+        successCount: batchResult.successCount,
+        failureCount: batchResult.failureCount,
+        entityCount: batchResult.entityCount,
+        relationCount: batchResult.relationCount,
+      },
+      error: "All documents failed",
+    });
     return batchResult;
   }
 
@@ -437,54 +446,147 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
     })
   );
 
-  yield* persistence
-    .updateExecutionStatus(executionId, "completed", {
-      output: {
-        batchId,
-        totalDocuments: batchResult.totalDocuments,
-        successCount: batchResult.successCount,
-        failureCount: batchResult.failureCount,
-        entityCount: batchResult.entityCount,
-        relationCount: batchResult.relationCount,
-      },
-    })
-    // Persistence is best-effort: failures and defects should not block completion.
-    .pipe(Effect.catchAllCause(() => Effect.void));
+  yield* persistence.updateExecutionStatus(executionId, "completed", {
+    output: {
+      batchId,
+      totalDocuments: batchResult.totalDocuments,
+      successCount: batchResult.successCount,
+      failureCount: batchResult.failureCount,
+      entityCount: batchResult.entityCount,
+      relationCount: batchResult.relationCount,
+    },
+  });
 
   return batchResult;
+}, Effect.mapError(String));
+
+const toEngineConfig = (config: BatchConfig) => {
+  const fields = {
+    concurrency: config.concurrency,
+    maxRetries: config.maxRetries,
+    enableEntityResolution: config.enableEntityResolution,
+  };
+  return Match.value(config.failurePolicy).pipe(
+    Match.when("continue-on-failure", () => new ContinueOnFailureEngineBatchPayloadConfig(fields)),
+    Match.when("abort-all", () => new AbortAllEngineBatchPayloadConfig(fields)),
+    Match.when("retry-failed", () => new RetryFailedEngineBatchPayloadConfig(fields)),
+    Match.exhaustive
+  );
+};
+
+const toEnginePayload = (
+  params: BatchOrchestratorParams,
+  batchId: KnowledgeEntityIds.BatchExecutionId.Type
+): EngineBatchPayload =>
+  new EngineBatchPayload({
+    batchId,
+    organizationId: params.organizationId,
+    ontologyId: params.ontologyId,
+    documents: A.map(params.documents, (doc) =>
+      new EngineDocument({
+        documentId: doc.documentId,
+        text: doc.text,
+        ontologyContent: doc.ontologyContent,
+      })
+    ),
+    config: toEngineConfig(params.config),
+  });
+
+const executionInput = (payload: EngineBatchPayload) => ({
+  batchId: payload.batchId,
+  totalDocuments: A.length(payload.documents),
+  concurrency: payload.config.concurrency,
+  failurePolicy: payload.config.failurePolicy,
+  executionMode: "engine",
 });
 
+const toInfrastructureError = (
+  batchId: KnowledgeEntityIds.BatchExecutionId.Type,
+  operation: string,
+  reason: string
+): BatchInfrastructureError =>
+  new BatchInfrastructureError({
+    batchId,
+    operation,
+    reason,
+  });
+
 const serviceEffect = Effect.gen(function* () {
-  const maybeWorkflowEngine = yield* Effect.serviceOption(WorkflowEngine.WorkflowEngine);
+  const workflowEngine = yield* WorkflowEngine.WorkflowEngine;
+  const persistence = yield* WorkflowPersistence;
+
+  const persistInitialExecution = (
+    payload: EngineBatchPayload,
+    executionId: string
+  ): Effect.Effect<void, BatchInfrastructureError> => {
+    const batchId = KnowledgeEntityIds.BatchExecutionId.make(payload.batchId);
+    return persistence
+      .createExecution({
+        id: executionId,
+        organizationId: payload.organizationId,
+        workflowType: "batch_extraction",
+        input: executionInput(payload),
+      })
+      .pipe(
+        Effect.mapError(() =>
+          toInfrastructureError(batchId, "batch_create_execution", "failed to persist initial execution row")
+        )
+      );
+  };
+
+  const dispatchAndMapFailure = <A, E>(
+    batchId: KnowledgeEntityIds.BatchExecutionId.Type,
+    operation: string,
+    effect: Effect.Effect<A, E>
+  ): Effect.Effect<A, BatchInfrastructureError> => {
+    return effect.pipe(
+      Effect.mapError(() => toInfrastructureError(batchId, operation, "workflow execution failed")),
+      Effect.catchAllCause(() =>
+        Effect.fail(toInfrastructureError(batchId, operation, "workflow dispatch failed"))
+      )
+    );
+  };
 
   const run: BatchOrchestratorShape["run"] = Effect.fn("BatchOrchestrator.run")(function* (
     params: BatchOrchestratorParams
   ) {
     const batchId = params.batchId ?? KnowledgeEntityIds.BatchExecutionId.create();
-    const payload = new EngineBatchPayload({
+    const payload = toEnginePayload(params, batchId);
+    const executionId = yield* BatchEngineWorkflow.executionId(payload);
+    yield* persistInitialExecution(payload, executionId);
+
+    const engineResult = yield* dispatchAndMapFailure(
       batchId,
-      organizationId: params.organizationId,
-      ontologyId: params.ontologyId,
-      documents: params.documents,
-      config: {
-        concurrency: params.config.concurrency,
-        failurePolicy: params.config.failurePolicy,
-        maxRetries: params.config.maxRetries,
-        enableEntityResolution: params.config.enableEntityResolution,
-      },
-    });
-
-    if (O.isNone(maybeWorkflowEngine)) {
-      return yield* Effect.dieMessage("WorkflowEngine unavailable for engine mode");
-    }
-
-    const engineResult = yield* BatchEngineWorkflow.execute(payload).pipe(
-      Effect.provideService(WorkflowEngine.WorkflowEngine, maybeWorkflowEngine.value)
+      "batch_run_dispatch",
+      BatchEngineWorkflow.execute(payload).pipe(Effect.provideService(WorkflowEngine.WorkflowEngine, workflowEngine))
     );
     return toBatchResult(engineResult);
   });
 
-  return BatchOrchestrator.of({ run });
+  const start: BatchOrchestratorShape["start"] = Effect.fn("BatchOrchestrator.start")(function* (
+    params: BatchOrchestratorParams
+  ) {
+    const batchId = params.batchId ?? KnowledgeEntityIds.BatchExecutionId.create();
+    const payload = toEnginePayload(params, batchId);
+    const executionId = yield* BatchEngineWorkflow.executionId(payload);
+
+    yield* persistInitialExecution(payload, executionId);
+    yield* dispatchAndMapFailure(
+      batchId,
+      "batch_start_dispatch",
+      BatchEngineWorkflow.execute(payload, { discard: true }).pipe(
+        Effect.provideService(WorkflowEngine.WorkflowEngine, workflowEngine),
+        Effect.asVoid
+      )
+    );
+
+    return {
+      batchId,
+      totalDocuments: A.length(payload.documents),
+    };
+  });
+
+  return BatchOrchestrator.of({ run, start });
 });
 
 const BatchEngineWorkflowLayer = BatchEngineWorkflow.toLayer(executeBatchEngineWorkflow).pipe(
@@ -495,7 +597,6 @@ const BatchEngineWorkflowLayer = BatchEngineWorkflow.toLayer(executeBatchEngineW
   Layer.provideMerge(WorkflowRuntimeLive)
 );
 
-export const BatchOrchestratorLive = Layer.mergeAll(
-  Layer.effect(BatchOrchestrator, serviceEffect),
-  BatchEngineWorkflowLayer
+export const BatchOrchestratorLive = Layer.effect(BatchOrchestrator, serviceEffect).pipe(
+  Layer.provideMerge(BatchEngineWorkflowLayer)
 );

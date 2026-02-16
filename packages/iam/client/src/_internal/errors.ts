@@ -1,5 +1,4 @@
 import { $IamClientId } from "@beep/identity/packages";
-import { hasProperties } from "@beep/utils";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
@@ -44,7 +43,7 @@ export class IamError extends S.Union(IamBetterAuthError, UnknownIamError) {
   static readonly fromUnknown = (error: unknown): IamError.Type => {
     if (
       P.isObject(error) &&
-      hasProperties("code", "message", "status", "statusText")(error) &&
+      P.and(P.and(P.hasProperty("statusText"), P.hasProperty("status")), P.and(P.hasProperty("code"), P.hasProperty("message")))(error) &&
       P.struct({
         code: P.isString,
         message: P.isString,

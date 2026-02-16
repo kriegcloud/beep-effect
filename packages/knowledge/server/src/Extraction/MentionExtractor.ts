@@ -116,10 +116,10 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
         Prompt.userMessage({ content: A.make(Prompt.textPart({ text: buildMentionPrompt(chunk.text, chunk.index) })) }),
       ]);
 
-      const result = yield* withLlmResilience(
+      const rawResult = yield* withLlmResilience(
         model.generateObject({
           prompt,
-          schema: MentionOutput,
+          schema: S.encodedSchema(MentionOutput),
           objectName: "MentionOutput",
         }),
         {
@@ -129,8 +129,17 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
         }
       ).pipe(Effect.mapError((error) => mapResilienceError("extractFromChunk", error)));
 
-      const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
-      const mentions = extractMentionsFromOutput(result.value, chunk, minConfidence);
+      const mentionOutput = yield* S.decodeUnknown(MentionOutput)(rawResult.value).pipe(
+        Effect.mapError((error) =>
+          AiError.MalformedOutput.fromParseError({
+            module: "MentionExtractor",
+            method: "extractFromChunk",
+            error,
+          })
+        )
+      );
+      const tokensUsed = (rawResult.usage.inputTokens ?? 0) + (rawResult.usage.outputTokens ?? 0);
+      const mentions = extractMentionsFromOutput(mentionOutput, chunk, minConfidence);
 
       yield* Effect.logDebug("Mention extraction complete", {
         chunkIndex: chunk.index,
@@ -167,7 +176,7 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
         const genResult = yield* withLlmResilience(
           model.generateObject({
             prompt,
-            schema: MentionOutput,
+            schema: S.encodedSchema(MentionOutput),
             objectName: "MentionOutput",
           }),
           {
@@ -177,8 +186,17 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
           }
         ).pipe(Effect.mapError((error) => mapResilienceError("extractFromChunks", error)));
 
+        const mentionOutput = yield* S.decodeUnknown(MentionOutput)(genResult.value).pipe(
+          Effect.mapError((error) =>
+            AiError.MalformedOutput.fromParseError({
+              module: "MentionExtractor",
+              method: "extractFromChunks",
+              error,
+            })
+          )
+        );
         const tokensUsed = (genResult.usage.inputTokens ?? 0) + (genResult.usage.outputTokens ?? 0);
-        const mentions = extractMentionsFromOutput(genResult.value, chunk, minConfidence);
+        const mentions = extractMentionsFromOutput(mentionOutput, chunk, minConfidence);
 
         results.push({ chunk, mentions, tokensUsed });
       }

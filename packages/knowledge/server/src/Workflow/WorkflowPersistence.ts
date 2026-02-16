@@ -22,12 +22,12 @@ const executionTable = KnowledgeEntityIds.WorkflowExecutionId.tableName;
 
 export class WorkflowExecutionRecord extends S.Class<WorkflowExecutionRecord>($I`WorkflowExecutionRecord`)(
   {
-    id: KnowledgeEntityIds.WorkflowExecutionId,
+    id: S.String,
     organizationId: S.String,
     workflowType: WorkflowType,
     status: WorkflowExecutionStatus,
-    input: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
-    output: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
+    input: S.optionalWith(S.NullOr(S.parseJson(JsonRecord)), { default: () => null }),
+    output: S.optionalWith(S.NullOr(S.parseJson(JsonRecord)), { default: () => null }),
     error: S.optionalWith(S.NullOr(S.String), { default: () => null }),
     startedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
     completedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
@@ -51,7 +51,7 @@ export const decodeWorkflowExecutionRecord = (u: unknown): Effect.Effect<Workflo
   );
 export class CreateExcecutionParams extends S.Class<CreateExcecutionParams>($I`CreateExcecutionParams`)(
   {
-    id: KnowledgeEntityIds.WorkflowExecutionId,
+    id: S.String,
     organizationId: S.String,
     workflowType: WorkflowType,
     input: S.optional(JsonRecord),
@@ -77,13 +77,13 @@ export interface WorkflowPersistenceShape {
   readonly createExecution: (params: CreateExcecutionParams) => Effect.Effect<void, SqlError.SqlError>;
 
   readonly updateExecutionStatus: (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    id: string,
     status: WorkflowExecutionStatus.Type,
     updates?: undefined | UpdateExecutionStatusUpdates
   ) => Effect.Effect<void, SqlError.SqlError>;
 
   readonly getExecution: (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type
+    id: string
   ) => Effect.Effect<WorkflowExecutionRecord, WorkflowNotFoundError | SqlError.SqlError>;
 
   readonly findLatestBatchExecutionByBatchId: (
@@ -91,7 +91,7 @@ export interface WorkflowPersistenceShape {
   ) => Effect.Effect<O.Option<WorkflowExecutionRecord>, SqlError.SqlError>;
 
   readonly cancelExecution: (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    id: string,
     error: string
   ) => Effect.Effect<void, WorkflowNotFoundError | SqlError.SqlError>;
 
@@ -117,7 +117,7 @@ const serviceEffect = Effect.gen(function* () {
     `.pipe(Effect.asVoid);
 
   const updateExecutionRunning = (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    id: string,
     nowStr: string,
     lastActivityName?: string
   ) =>
@@ -137,7 +137,7 @@ const serviceEffect = Effect.gen(function* () {
       `.pipe(Effect.asVoid);
 
   const updateExecutionCompleted = (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    id: string,
     nowStr: string,
     output?: Record<string, unknown>,
     lastActivityName?: string
@@ -177,7 +177,7 @@ const serviceEffect = Effect.gen(function* () {
     `.pipe(Effect.asVoid);
   };
 
-  const updateExecutionFailed = (id: KnowledgeEntityIds.WorkflowExecutionId.Type, nowStr: string, error?: string) =>
+  const updateExecutionFailed = (id: string, nowStr: string, error?: string) =>
     error
       ? sql`
                 UPDATE ${sql(executionTable)}
@@ -194,7 +194,7 @@ const serviceEffect = Effect.gen(function* () {
       `.pipe(Effect.asVoid);
 
   const updateExecutionGeneric = (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    id: string,
     status: WorkflowExecutionStatus.Type
   ) =>
     sql`

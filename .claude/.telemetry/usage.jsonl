@@ -1147,3 +1147,17 @@
 {"eventType":"stop","timestamp":"2026-02-15T02:16:29.782Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","durationMs":92699,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-16T07:43:56.333Z","sessionId":"c5940634-3225-494a-b1b9-0acf59405c1f","agentType":"web-researcher","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-16T07:44:23.532Z","sessionId":"c5940634-3225-494a-b1b9-0acf59405c1f","agentType":"web-researcher","durationMs":27199,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T09:35:08.461Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T09:43:50.256Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-16T09:44:50.325Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"test-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-16T09:46:58.729Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"test-writer","durationMs":128404,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T09:56:16.810Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T10:04:38.538Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T10:15:49.137Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-16T10:17:34.592Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"general-purpose","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-16T10:21:07.778Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"general-purpose","durationMs":213186,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T10:33:15.794Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-16T10:40:34.176Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"general-purpose","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-16T10:48:36.376Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"general-purpose","durationMs":482200,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T10:53:58.508Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-16T15:33:08.549Z","sessionId":"bbae11a6-2e1f-43ab-b6fd-e281d25f63c5","agentType":"unknown","durationMs":0,"outcome":"success"}

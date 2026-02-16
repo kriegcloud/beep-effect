@@ -148,18 +148,28 @@ const serviceEffect: Effect.Effect<EntityExtractorShape, never, LanguageModel.La
           ),
         }),
       ]);
-      const result = yield* model
+      const rawResult = yield* model
         .generateObject({
           prompt,
-          schema: EntityOutput,
+          schema: S.encodedSchema(EntityOutput),
           objectName: "EntityOutput",
         })
         .pipe(Effect.mapError((error) => mapResilienceError("classify", error)));
 
-      const confidenceFiltered = A.filter(result.value.entities, (e) => e.confidence >= minConfidence);
+      const entityOutput = yield* S.decodeUnknown(EntityOutput)(rawResult.value).pipe(
+        Effect.mapError((error) =>
+          AiError.MalformedOutput.fromParseError({
+            module: "EntityExtractor",
+            method: "classify",
+            error,
+          })
+        )
+      );
+
+      const confidenceFiltered = A.filter(entityOutput.entities, (e) => e.confidence >= minConfidence);
 
       allEntities.push(...confidenceFiltered);
-      totalTokens += (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
+      totalTokens += (rawResult.usage.inputTokens ?? 0) + (rawResult.usage.outputTokens ?? 0);
     }
 
     const { valid, invalid } = validateEntityTypes(allEntities, ontologyContext);

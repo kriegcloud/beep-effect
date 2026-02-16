@@ -214,11 +214,12 @@ const serviceEffect: Effect.Effect<DocumentClassifierShape, never, LanguageModel
       model
         .generateObject({
           prompt: Prompt.make(buildBatchPrompt(docs)),
-          schema: BatchClassificationResponse,
+          schema: S.encodedSchema(BatchClassificationResponse),
           objectName: "BatchClassificationResponse",
         })
         .pipe(
-          Effect.map((r) => r.value.classifications),
+          Effect.flatMap((r) => S.decodeUnknown(BatchClassificationResponse)(r.value)),
+          Effect.map((decoded) => decoded.classifications),
           Effect.mapError(
             (e) =>
               new ClassificationError({
@@ -233,11 +234,11 @@ const serviceEffect: Effect.Effect<DocumentClassifierShape, never, LanguageModel
         model
           .generateObject({
             prompt: Prompt.make(buildSinglePrompt(input.preview, input.contentType)),
-            schema: DocumentClassification,
+            schema: S.encodedSchema(DocumentClassification),
             objectName: "DocumentClassification",
           })
           .pipe(
-            Effect.map((r) => r.value),
+            Effect.flatMap((r) => S.decodeUnknown(DocumentClassification)(r.value)),
             Effect.mapError(
               (e) =>
                 new ClassificationError({

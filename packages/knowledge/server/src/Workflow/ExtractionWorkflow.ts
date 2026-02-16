@@ -54,9 +54,10 @@ export declare namespace RetryOwner {
 // NOTE:
 // We intentionally keep this config schema simple (no Schema transformations) because Effect's `S.partial`
 // does not support partializing transformed/discriminated schemas reliably. Callers treat all fields as
-// optional anyway, and we default `retryOwner` in `toEnginePayload`.
+// optional anyway, and we default `retryOwner` / `retryAttempt` in `toEnginePayload`.
 export class ExtractionWorkflowConfig extends S.Class<ExtractionWorkflowConfig>($I`ExtractionWorkflowConfig`)({
   retryOwner: S.optional(RetryOwner),
+  retryAttempt: S.optional(S.NonNegativeInt),
   mergeEntities: S.optional(S.Boolean),
   enableIncrementalClustering: S.optional(S.Boolean),
 }) {}
@@ -121,7 +122,7 @@ const makePipelineConfig = (params: ExtractionWorkflowParams, ontologyId: Knowle
 const emitProgressForStream = Effect.fn("ExtractionWorkflow.emitProgressForStream")(
   function* (
     stream: { readonly emit: (event: ExtractionProgressEvent.Type) => Effect.Effect<void> },
-    executionId: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    executionId: string,
     activityName: string,
     status: "started" | "completed" | "failed",
     message: string,
@@ -147,7 +148,7 @@ const emitProgressForStream = Effect.fn("ExtractionWorkflow.emitProgressForStrea
 const emitProgress = Effect.fn("ExtractionWorkflow.emitProgress")(
   function* (
     progressStream: O.Option<{ readonly emit: (event: ExtractionProgressEvent.Type) => Effect.Effect<void> }>,
-    executionId: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    executionId: string,
     activityName: string,
     status: "started" | "completed" | "failed",
     message: string,
@@ -181,6 +182,7 @@ const makeExtractionEnginePayloadRetryOwner = ExtractionEnginePayloadRetryOwner.
   ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
   text: S.String,
   ontologyContent: S.String,
+  retryAttempt: S.NonNegativeInt,
   mergeEntities: S.NullOr(S.Boolean),
   enableIncrementalClustering: S.NullOr(S.Boolean),
 });
@@ -195,6 +197,7 @@ class ExtractionEnginePayload extends S.Class<ExtractionEnginePayload>($I`Extrac
   ontologyId: S.optional(S.String),
   text: S.String,
   ontologyContent: S.String,
+  retryAttempt: S.NonNegativeInt,
   mergeEntities: S.NullOr(S.Boolean),
   enableIncrementalClustering: S.NullOr(S.Boolean),
   retryOwner: ExtractionEnginePayloadRetryOwner,
@@ -206,7 +209,7 @@ const ExtractionEngineWorkflow = Workflow.make({
   success: ExtractionResult,
   error: S.String,
   idempotencyKey: (payload) =>
-    `${payload.documentId}:${sha256(payload.text).slice(0, 12)}:${sha256(payload.ontologyContent).slice(0, 12)}`,
+    `${payload.documentId}:${sha256(payload.text).slice(0, 12)}:${sha256(payload.ontologyContent).slice(0, 12)}:${payload.retryOwner}:${payload.retryAttempt}`,
 });
 
 const toEnginePayload = (params: ExtractionWorkflowParams) => ({
@@ -215,6 +218,7 @@ const toEnginePayload = (params: ExtractionWorkflowParams) => ({
   ontologyId: params.ontologyId,
   text: params.text,
   ontologyContent: params.ontologyContent,
+  retryAttempt: params.config?.retryAttempt ?? 0,
   mergeEntities: params.config?.mergeEntities ?? null,
   enableIncrementalClustering: params.config?.enableIncrementalClustering ?? null,
   retryOwner: params.config?.retryOwner ?? "activity",
@@ -228,7 +232,7 @@ const serviceEffect = Effect.gen(function* () {
   ) {
     if (O.isNone(maybeWorkflowEngine)) {
       return yield* new ActivityFailedError({
-        executionId: KnowledgeEntityIds.WorkflowExecutionId.create(),
+        executionId: "unavailable",
         activityName: ACTIVITY_NAMES.runPipeline,
         attempt: 1,
         cause: "WorkflowEngine unavailable",
@@ -240,7 +244,7 @@ const serviceEffect = Effect.gen(function* () {
       Effect.catchAllCause(
         (cause) =>
           new ActivityFailedError({
-            executionId: KnowledgeEntityIds.WorkflowExecutionId.create(),
+            executionId: "unavailable",
             activityName: ACTIVITY_NAMES.runPipeline,
             attempt: 1,
             cause: String(Cause.squash(cause)),
@@ -260,6 +264,7 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
     const ontologyId = resolveOntologyId(payload.ontologyId);
     const config = new ExtractionWorkflowConfig({
       retryOwner: payload.retryOwner,
+      retryAttempt: payload.retryAttempt,
       ...(payload.mergeEntities === null ? {} : { mergeEntities: payload.mergeEntities }),
       ...(payload.enableIncrementalClustering === null
         ? {}
@@ -286,6 +291,8 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
           organizationId: payload.organizationId,
           ontologyId,
           textLength: Str.length(payload.text),
+          retryOwner: payload.retryOwner,
+          retryAttempt: payload.retryAttempt,
         },
       })
       // Persistence is best-effort: failures and defects should not block workflow execution.
