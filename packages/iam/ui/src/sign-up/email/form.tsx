@@ -1,3 +1,5 @@
+"use client";
+
 import { SignUp } from "@beep/iam-client";
 import { RecaptchaBadge, useCaptcha } from "@beep/iam-ui/_common";
 import { Form } from "@beep/ui/form";
@@ -6,6 +8,10 @@ import { useIsHydrated } from "@beep/ui/hooks";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Suspense } from "react";
+
+// React Compiler can incorrectly memoize `SignUp.Form.use()` property calls.
+// Calling through a `use*` alias preserves hook semantics across re-renders.
+const useSignUpForm = SignUp.Form.use;
 
 /**
  * Loading fallback component for consistent styling.
@@ -22,7 +28,7 @@ const FormLoadingFallback = () => (
  */
 const SignUpEmailFormContent = () => {
   const { isReady } = useCaptcha();
-  const { emailForm } = SignUp.Form.use();
+  const { emailForm } = useSignUpForm();
 
   return (
     <Form onSubmit={emailForm.handleSubmit}>

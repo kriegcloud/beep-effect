@@ -1,4 +1,4 @@
-import type { KnowledgeEntityIds } from "@beep/shared-domain";
+import type { KnowledgeEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 
 export interface EvidenceSpan {
   text: string;
@@ -103,4 +103,53 @@ export interface ExtractionSession {
   readonly entities: readonly AssembledEntity[];
   readonly relations: readonly Relation[];
   readonly stats: ExtractionResult["stats"];
+}
+
+export type ScenarioId = "scenario-1" | "scenario-2" | "scenario-3" | "scenario-4";
+
+export interface CuratedScenario {
+  readonly id: ScenarioId;
+  readonly useCase: string;
+  readonly sourceThreadId: string;
+  readonly sourceDocumentId: string;
+  readonly sourceTitle: string;
+  readonly querySeed: string;
+  readonly categories: readonly string[];
+  readonly participants: number;
+  readonly messageCount: number;
+  readonly depth: number;
+  readonly rationale: string;
+}
+
+export type IngestLifecycleStatus =
+  | "not-started"
+  | "pending"
+  | "extracting"
+  | "resolving"
+  | "completed"
+  | "failed"
+  | "cancelled";
+
+export interface ScenarioIngestState {
+  readonly status: IngestLifecycleStatus;
+  readonly batchId?: undefined | KnowledgeEntityIds.BatchExecutionId.Type;
+  readonly progress?: undefined | number;
+  readonly completedDocuments?: undefined | number;
+  readonly totalDocuments?: undefined | number;
+  readonly error?: undefined | string;
+  readonly lastIngestAt?: undefined | number;
+}
+
+export interface PreparedScenarioDocument {
+  readonly sourceDocumentId: string;
+  readonly documentId: WorkspacesEntityIds.DocumentId.Type;
+  readonly text: string;
+}
+
+export interface PreparedScenarioIngestPayload {
+  readonly scenarioId: ScenarioId;
+  readonly ontologyId: KnowledgeEntityIds.OntologyId.Type;
+  readonly ontologyContent: string;
+  readonly documents: readonly PreparedScenarioDocument[];
+  readonly sourceText: string;
 }

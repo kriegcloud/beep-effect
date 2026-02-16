@@ -1,8 +1,8 @@
 {
-  "lastCallMs": 1771121096367,
+  "lastCallMs": 1771226929270,
   "skillIndex": {
-    "loadedAt": 1771120126314,
-    "directoryMtime": 1771114827904,
+    "loadedAt": 1771226929323,
+    "directoryMtime": 1771136811932,
     "skills": [
       {
         "name": "effect-ai-prompt",
@@ -528,6 +528,33 @@
           "avoiding",
           "monolithic",
           "designs"
+        ]
+      },
+      {
+        "name": "ai-elements",
+        "keywords": [
+          "elements",
+          "new",
+          "chat",
+          "interface",
+          "components",
+          "library",
+          "following",
+          "established",
+          "composable",
+          "patterns",
+          "shadcn/ui",
+          "integration",
+          "vercel",
+          "sdk",
+          "conventions",
+          "when",
+          "creating",
+          "packages/elements/src",
+          "user",
+          "asks",
+          "add",
+          "component"
         ]
       },
       {
@@ -1571,8 +1598,5 @@
         "filePath": "/home/elpresidank/YeeBois/projects/beep-effect2/.claude/patterns/code-smells/use-console-service.md"
       }
     ]
-  },
-  "telemetry": {
-    "activeAgents": {}
   }
 }

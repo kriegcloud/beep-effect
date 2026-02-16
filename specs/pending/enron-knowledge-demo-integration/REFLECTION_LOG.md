@@ -60,23 +60,27 @@
 
 ### What Worked
 
-- Planning around `AtomRpc.Tag` and typed query/mutation boundaries keeps UI migration incremental while preserving component reuse.
-- Treating ingest status transitions as a formal state machine reduces hidden race conditions in async rendering.
+- Creating a dedicated `knowledge-demo` RPC client module avoided accidental reuse of `/v1/shared/rpc` wiring and made `/v1/knowledge/rpc` + NDJSON explicit.
+- Restricting the default flow to implemented methods (`batch_start`, `batch_getStatus`, `graphrag_query`) avoided runtime `not implemented` traps from partial contract coverage.
+- Replacing the sample-email mock entry point with curated scenario ingest controls made ingest lifecycle state visible and deterministic.
+- Adding route-level gating in `page.tsx` gave a clean internal on/off switch via `ENABLE_ENRON_KNOWLEDGE_DEMO`.
 
 ### What Didn't Work
 
-- Early planning drafts did not fully define scenario-switch semantics against persisted org data.
-- Initial migration notes did not force explicit rejection of default mock fallback behavior, which can create mixed-source demos.
+- The first compile pass surfaced Option/optional mismatches in graph relation mapping and RPC client generic typing; these required explicit normalization and error-channel typing.
+- Initial `QueryInput` props did not include disabled-state support, causing a UI contract mismatch with the new query panel behavior.
 
 ### Patterns Discovered
 
-- Transport mismatches are most likely at protocol-construction boundaries, not in individual query atoms.
-- A deterministic ingest lifecycle requires both backend idempotency and frontend transition gating.
+- The highest-risk failures were type-boundary issues between Effect RPC return shapes and UI projection models, not React state logic itself.
+- Deterministic ingest UX requires three controls together: explicit user action, in-flight duplicate-start blocking, and per-scenario lifecycle polling.
+- Scenario ingest determinism is stronger when document IDs are generated from stable source IDs rather than per-run random IDs.
 
 ### Prompt Refinements
 
-- Phase 2 prompts must require a "no-default-mock-path" assertion in output artifacts.
-- Add an explicit checklist item for scenario switching behavior under partially completed ingest operations.
+- Phase 2 prompts should require explicit method allowlists so unimplemented RPC endpoints are intentionally excluded from the default flow.
+- Prompt template should require a compile-check pass after migration before writing phase artifacts; this catches Option/union drift early.
+- Keep a mandatory statement that meeting prep rewrite remains deferred; this prevents phase-scope bleed.
 
 ---
 

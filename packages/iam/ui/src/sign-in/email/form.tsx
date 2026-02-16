@@ -12,6 +12,10 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Link from "@mui/material/Link";
 import { EyeClosedIcon, EyeIcon } from "@phosphor-icons/react";
 
+// React Compiler can incorrectly memoize `SignIn.Form.use()` property calls.
+// Calling through a `use*` alias preserves hook semantics across re-renders.
+const useSignInForm = SignIn.Form.use;
+
 /**
  * Loading fallback component for consistent styling.
  */
@@ -28,7 +32,7 @@ const FormLoadingFallback = () => (
 const SignInEmailFormContent = () => {
   const showPassword = useBoolean();
   const { isReady } = useCaptcha();
-  const { emailForm } = SignIn.Form.use();
+  const { emailForm } = useSignInForm();
 
   return (
     <UIForm.Form

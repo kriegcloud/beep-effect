@@ -9,6 +9,7 @@ interface QueryInputProps {
   readonly onChange: (value: string) => void;
   readonly onSubmit: () => void;
   readonly isLoading: boolean;
+  readonly disabled?: undefined | boolean;
   readonly placeholder?: undefined | string;
 }
 
@@ -17,9 +18,10 @@ export default function QueryInput({
   onChange,
   onSubmit,
   isLoading,
+  disabled = false,
   placeholder = "Ask a question about extracted entities...",
 }: QueryInputProps) {
-  const isSubmitDisabled = isLoading || !value.trim();
+  const isSubmitDisabled = disabled || isLoading || !value.trim();
 
   return (
     <div className="flex gap-2">
@@ -29,11 +31,13 @@ export default function QueryInput({
         onKeyDown={(event) => {
           if (event.key === "Enter" && !isLoading && value.trim()) {
             event.preventDefault();
-            onSubmit();
+            if (!disabled) {
+              onSubmit();
+            }
           }
         }}
         placeholder={placeholder}
-        disabled={isLoading}
+        disabled={disabled || isLoading}
         className="flex-1"
       />
       <Button onClick={onSubmit} disabled={isSubmitDisabled}>
