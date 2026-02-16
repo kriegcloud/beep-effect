@@ -10,7 +10,7 @@ import {
   SparqlBinding,
   SparqlBindings,
   VariableName,
-} from "@beep/knowledge-domain/value-objects";
+} from "@beep/knowledge-domain/values";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";

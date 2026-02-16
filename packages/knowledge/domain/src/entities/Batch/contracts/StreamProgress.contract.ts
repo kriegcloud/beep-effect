@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BatchNotFoundError } from "@beep/knowledge-domain/errors";
-import { BatchEvent } from "@beep/knowledge-domain/value-objects";
+import { BatchEvent } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcSchema from "@effect/rpc/RpcSchema";

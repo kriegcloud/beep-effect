@@ -1,6 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { SparqlExecutionError, SparqlSyntaxError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
-import { Quad, SparqlBindings } from "@beep/knowledge-domain/value-objects";
+import { Quad, SparqlBindings } from "@beep/knowledge-domain/values";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";

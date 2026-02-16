@@ -15,7 +15,7 @@
 
 import { $WorkspacesDomainId } from "@beep/identity/packages";
 import { WorkspacesEntityIds } from "@beep/shared-domain";
-import { PageType } from "@beep/workspaces-domain/value-objects";
+import { PageType } from "@beep/workspaces-domain/values";
 import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";

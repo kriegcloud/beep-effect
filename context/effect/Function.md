@@ -97,7 +97,7 @@ const buildOrgPath = F.flow(
 **When to use**:
 - Creating reusable transformation pipelines
 - Defining utilities that compose other utilities
-- Building path helpers (see `packages/shared/domain/src/value-objects/paths.value.ts`)
+- Building path helpers (see `packages/shared/domain/src/values/paths.value.ts`)
 
 **When NOT to use**:
 - One-off data transformations → use `F.pipe` instead

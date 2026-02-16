@@ -506,7 +506,7 @@ const generateEntitiesBarrel = (): string => `export * from "./entities/index";
 `;
 
 /**
- * Generates domain/src/value-objects/index.ts.
+ * Generates domain/src/values/index.ts.
  */
 const generateValueObjectsIndex = (context: SliceContext): string =>
   `/**
@@ -1169,7 +1169,7 @@ export class FileGeneratorService extends Effect.Service<FileGeneratorService>()
             });
             // value-objects/index.ts
             files.push({
-              path: path.join(layerDir, "src/value-objects/index.ts"),
+              path: path.join(layerDir, "src/values/index.ts"),
               content: generateValueObjectsIndex(context),
               isNew: true,
             });

@@ -4,7 +4,7 @@ import {
   type ValidationFinding,
   ValidationReport,
   ValidationSummary,
-} from "@beep/knowledge-domain/value-objects";
+} from "@beep/knowledge-domain/values";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";

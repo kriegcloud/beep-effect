@@ -2,7 +2,7 @@ import { describe } from "bun:test";
 import { Entities as IamEntities } from "@beep/iam-domain";
 import { Entities as WorkspaceEntities } from "@beep/workspaces-domain";
 import { Page } from "@beep/workspaces-domain/entities";
-import type { SerializedEditorStateEnvelope } from "@beep/workspaces-domain/value-objects";
+import type { SerializedEditorStateEnvelope } from "@beep/workspaces-domain/values";
 
 const PageRepo = WorkspaceEntities.Page.Repo;
 const OrganizationRepo = IamEntities.Organization.Repo;

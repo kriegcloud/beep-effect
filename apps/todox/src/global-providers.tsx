@@ -16,6 +16,7 @@ import { SettingsDrawer, SettingsProvider } from "@beep/ui/settings";
 import { ThemeProvider } from "@beep/ui/theme/theme-provider";
 import { defaultSettings } from "@beep/ui-core/settings";
 import { themeConfig } from "@beep/ui-core/theme";
+
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import type React from "react";

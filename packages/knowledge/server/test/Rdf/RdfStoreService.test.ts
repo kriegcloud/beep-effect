@@ -1,4 +1,4 @@
-import { IRI, Literal, makeBlankNode, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, makeBlankNode, Quad, QuadPattern } from "@beep/knowledge-domain/values";
 import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";

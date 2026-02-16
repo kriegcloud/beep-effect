@@ -14,7 +14,7 @@
   - `any-entity-id.ts` aggregates every id. **Known Issue**: `SubscriptionId` is duplicated (included from both `SharedEntityIds` and `IamEntityIds`); exhaustive pattern matching will have redundant cases until deduplicated.
   - `entity-ids.ts` re-exports kits as namespaces (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`, `CustomizationEntityIds`, `CommsEntityIds`).
 - **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Folder`, `Organization`, `Session`, `Team`, `UploadSession`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`, `SubscriptionTier`, `UserRole`). `File/schemas/UploadKey.ts` encodes S3 path transforms.
-- **`src/value-objects/`**
+- **`src/values/`**
   - `paths.ts` — Safe `PathBuilder.collection` of all public routes, combining static strings and dynamic helpers (auth flows, dashboard, API endpoints).
   - `EntitySource.ts` — Source metadata for entity tracking.
 - **`src/Policy.ts`** — Current user context tags (`AuthContext`, `CurrentUser`), `AuthContextHttpMiddleware`, `PolicyRecord` schema, permission literals, combinators `policy`, `withPolicy`, `all`, `any`, `permission`.

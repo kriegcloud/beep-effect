@@ -5,7 +5,7 @@ import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import { SerializedEditorStateEnvelope } from "../../../value-objects";
+import { SerializedEditorStateEnvelope } from "../../../values";
 import * as Document from "../Document.model";
 
 const $I = $WorkspacesDomainId.create("entities/Document/contracts/Create.contract");

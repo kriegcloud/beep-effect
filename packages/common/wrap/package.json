@@ -40,6 +40,7 @@
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@effect-atom/atom": "catalog:",
     "@effect/platform": "catalog:",
     "effect": "catalog:"
   },
@@ -48,10 +49,12 @@
     "@beep/invariant": "workspace:^",
     "@beep/types": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@effect-atom/atom": "catalog:",
     "@effect/build-utils": "catalog:",
     "@effect/docgen": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "msgpackr": "catalog:"
   },
   "effect": {
     "generateExports": {

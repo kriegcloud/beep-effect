@@ -1,4 +1,4 @@
-import { IRI, Quad, QuadPattern, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
+import { IRI, Quad, QuadPattern, ReasoningConfig } from "@beep/knowledge-domain/values";
 import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { ReasonerService, ReasonerServiceLive } from "@beep/knowledge-server/Reasoning/ReasonerService";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";

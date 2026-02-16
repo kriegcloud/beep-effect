@@ -127,7 +127,7 @@ export interface PackageJsonSyncResult {
  * @since 0.1.0
  * @category constants
  */
-export const NEXT_JS_APPS = ["web", "todox", "marketing"] as const;
+export const NEXT_JS_APPS = ["todox"] as const;
 
 /**
  * Type for Next.js app names.

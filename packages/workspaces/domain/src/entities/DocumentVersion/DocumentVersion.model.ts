@@ -5,7 +5,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { SerializedEditorStateEnvelope } from "../../value-objects";
+import { SerializedEditorStateEnvelope } from "../../values";
 
 const $I = $WorkspacesDomainId.create("entities/DocumentVersion/DocumentVersion.model");
 

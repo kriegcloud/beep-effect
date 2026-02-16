@@ -656,7 +656,7 @@ Before proceeding to Phase 3:
 **Agent**: `effect-code-writer`
 
 **Files to Create**:
-1. `packages/knowledge/domain/src/value-objects/workflow/ProgressEvent.ts`
+1. `packages/knowledge/domain/src/values/workflow/ProgressEvent.ts`
 
 **Schema**:
 ```typescript
@@ -819,7 +819,7 @@ Phase 3 is complete when:
 **Agent**: `effect-code-writer`
 
 **Files to Create**:
-1. `packages/knowledge/domain/src/value-objects/workflow/BatchState.ts`
+1. `packages/knowledge/domain/src/values/workflow/BatchState.ts`
 
 **Schema**:
 ```typescript
@@ -1116,10 +1116,10 @@ After each phase:
 | P2 | `packages/knowledge/server/src/Workflow/activities/ClassifyEntitiesActivity.ts` | Entity classification activity |
 | P2 | `packages/knowledge/server/src/Workflow/activities/ExtractRelationsActivity.ts` | Relation extraction activity |
 | P2 | `packages/knowledge/server/src/Workflow/activities/AssembleGraphActivity.ts` | Graph assembly activity |
-| P3 | `packages/knowledge/domain/src/value-objects/workflow/ProgressEvent.ts` | Progress event schema |
+| P3 | `packages/knowledge/domain/src/values/workflow/ProgressEvent.ts` | Progress event schema |
 | P3 | `packages/knowledge/server/src/services/SSEService.ts` | SSE streaming service |
 | P3 | `packages/knowledge/client/src/hooks/useWorkflowProgress.ts` | Client progress hook |
-| P4 | `packages/knowledge/domain/src/value-objects/workflow/BatchState.ts` | Batch state enum |
+| P4 | `packages/knowledge/domain/src/values/workflow/BatchState.ts` | Batch state enum |
 | P4 | `packages/knowledge/server/src/Workflow/BatchStateMachine.ts` | State machine logic |
 | P4 | `packages/knowledge/server/src/Workflow/BatchOrchestrator.ts` | Batch orchestration |
 

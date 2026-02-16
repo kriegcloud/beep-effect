@@ -11,4 +11,4 @@
  * @since 0.1.0
  */
 export * as Entities from "./entities";
-export * as VO from "./value-objects";
+export * as VO from "./values";

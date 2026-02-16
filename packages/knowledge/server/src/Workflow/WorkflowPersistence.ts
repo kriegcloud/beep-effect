@@ -1,6 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { BatchNotFoundError, WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
-import { WorkflowExecutionStatus, WorkflowType } from "@beep/knowledge-domain/value-objects";
+import { WorkflowExecutionStatus, WorkflowType } from "@beep/knowledge-domain/values";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as SqlClient from "@effect/sql/SqlClient";

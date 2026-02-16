@@ -1,6 +1,14 @@
 export const notificationIcons = {
   order: (
-    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <g id="icons/notification/ic_package">
         <g id="stack">
           <path
@@ -143,7 +151,15 @@ export const notificationIcons = {
     </svg>
   ),
   chat: (
-    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <g id="icons/notification/ic_chat">
         <g id="stack">
           <path
@@ -223,7 +239,15 @@ export const notificationIcons = {
     </svg>
   ),
   mail: (
-    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <g id="icons/notification/ic_mail">
         <path
           id="Vector"
@@ -260,7 +284,15 @@ export const notificationIcons = {
     </svg>
   ),
   delivery: (
-    <svg role={"img"} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <g id="icons/notification/ic_shipping">
         <g id="stack">
           <path

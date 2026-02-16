@@ -35,7 +35,7 @@ const EmailAtom = runtime.fn(
       onSuccess: "Signed in successfully",
       onWaiting: "Signing in...",
     }),
-    Effect.asVoid
+    Effect.ignore
   )
 );
 
@@ -53,7 +53,7 @@ const UsernameAtom = runtime.fn(
       onSuccess: "Signed in successfully",
       onWaiting: "Signing in...",
     }),
-    Effect.asVoid
+    Effect.ignore
   )
 );
 

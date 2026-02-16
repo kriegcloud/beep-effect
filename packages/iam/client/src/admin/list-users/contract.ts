@@ -9,7 +9,6 @@
  * @since 0.1.0
  */
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
@@ -49,10 +48,8 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     filterValue: S.optional(S.Union(S.String, S.Number, S.Boolean)),
     filterOperator: S.optional(S.Literal("eq", "ne", "lt", "lte", "gt", "gte")),
   },
-  formValuesAnnotation({
-    searchValue: "",
-    limit: 100,
-    offset: 0,
+  $I.annotations("Payload", {
+    description: "Payload schema for this operation.",
   })
 ) {}
 

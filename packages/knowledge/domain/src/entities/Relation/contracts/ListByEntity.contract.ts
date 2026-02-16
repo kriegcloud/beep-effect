@@ -1,5 +1,5 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
-import { RelationDirection } from "@beep/knowledge-domain/value-objects";
+import { RelationDirection } from "@beep/knowledge-domain/values";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";

@@ -2,7 +2,7 @@ import { $KnowledgeServerId } from "@beep/identity/packages";
 import { MentionRecord } from "@beep/knowledge-domain/entities";
 import type { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
-import { Confidence } from "@beep/knowledge-domain/value-objects";
+import { Confidence } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import { thunkTrue } from "@beep/utils";

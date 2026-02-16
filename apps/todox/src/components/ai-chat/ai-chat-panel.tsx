@@ -129,7 +129,8 @@ function AIChatPanel({ className }: AIChatPanelProps) {
               </Button>
               <Button variant="ghost" size="icon" className="size-7">
                 <svg
-                  role={"img"}
+                  aria-hidden="true"
+                  focusable="false"
                   className="size-4"
                   viewBox="0 0 24 24"
                   fill="none"
@@ -143,7 +144,8 @@ function AIChatPanel({ className }: AIChatPanelProps) {
               </Button>
               <Button variant="ghost" size="icon" className="size-7">
                 <svg
-                  role="image"
+                  aria-hidden="true"
+                  focusable="false"
                   className="size-4"
                   viewBox="0 0 24 24"
                   fill="none"

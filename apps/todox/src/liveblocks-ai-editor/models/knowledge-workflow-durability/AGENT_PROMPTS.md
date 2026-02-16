@@ -1084,7 +1084,7 @@ Create batch orchestration for processing multiple documents with coordinated st
 
 ### Files to Create
 
-1. **packages/knowledge/domain/src/value-objects/workflow/BatchState.ts**
+1. **packages/knowledge/domain/src/values/workflow/BatchState.ts**
 
 ```typescript
 import * as S from "effect/Schema";

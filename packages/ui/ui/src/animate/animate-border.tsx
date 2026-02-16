@@ -187,7 +187,8 @@ function MovingBorder({ sx, size, isHidden, rx = "30%", ry = "30%", duration = 8
   return (
     <Box component="span" sx={[{ textAlign: "initial" }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
       <svg
-        role={"img"}
+        aria-hidden="true"
+        focusable="false"
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="none"
         width="100%"

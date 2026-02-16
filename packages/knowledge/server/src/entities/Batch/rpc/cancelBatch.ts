@@ -1,6 +1,6 @@
 import { BatchNotFoundError, InvalidStateTransitionError } from "@beep/knowledge-domain/errors";
 import { Batch } from "@beep/knowledge-domain/rpc/Batch";
-import { BatchFailed } from "@beep/knowledge-domain/value-objects";
+import { BatchFailed } from "@beep/knowledge-domain/values";
 import { BatchEventEmitter, WorkflowPersistence } from "@beep/knowledge-server/Workflow";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";

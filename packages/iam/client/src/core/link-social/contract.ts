@@ -12,7 +12,6 @@
 
 import { AuthProviderNameValue } from "@beep/constants";
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as W from "@beep/wrap";
@@ -41,9 +40,8 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     provider: AuthProviderNameValue,
     callbackURL: S.optional(BS.URLString),
   },
-  formValuesAnnotation({
-    provider: "",
-    callbackURL: "",
+  $I.annotations("Payload", {
+    description: "Payload schema for this operation.",
   })
 ) {}
 

@@ -8,7 +8,6 @@
  */
 
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
@@ -27,8 +26,8 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     organizationId: SharedEntityIds.OrganizationId,
   },
-  formValuesAnnotation({
-    organizationId: "",
+  $I.annotations("Payload", {
+    description: "Payload schema for this operation.",
   })
 ) {}
 

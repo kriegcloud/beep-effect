@@ -9,7 +9,7 @@
 ## Surface Map
 - **Entities (`src/entities/`)**
   - `Embedding` — Vector embedding entity for semantic search, with `pgvector`-compatible schema and dimension constraints.
-- **Value Objects (`src/value-objects/`)** — Immutable domain primitives for knowledge graph structures.
+- **Value Objects (`src/values/`)** — Immutable domain primitives for knowledge graph structures.
 - **Schemas** — `Entity`, `Relation`, `KnowledgeGraph`, `EvidenceSpan` for extraction output typing.
 - **Branded IDs** — `EntityId`, `RelationId`, `ExtractionId` for type-safe ID handling.
 

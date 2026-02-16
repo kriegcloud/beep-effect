@@ -9,7 +9,6 @@
  * @since 0.1.0
  */
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
@@ -39,7 +38,9 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     autoFill: S.optional(S.Boolean),
   },
-  formValuesAnnotation({})
+  $I.annotations("Payload", {
+    description: "Payload schema for this operation.",
+  })
 ) {}
 
 /**

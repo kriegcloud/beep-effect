@@ -1,4 +1,4 @@
-import { IRI, Literal, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, Quad, QuadPattern } from "@beep/knowledge-domain/values";
 import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";

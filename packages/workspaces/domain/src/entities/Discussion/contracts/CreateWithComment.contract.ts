@@ -5,7 +5,7 @@ import * as Tool from "@effect/ai/Tool";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as S from "effect/Schema";
-import { SerializedEditorStateEnvelope } from "../../../value-objects";
+import { SerializedEditorStateEnvelope } from "../../../values";
 
 const $I = $WorkspacesDomainId.create("entities/Discussion/contracts/CreateWithComment.contract");
 

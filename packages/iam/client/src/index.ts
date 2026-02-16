@@ -3,15 +3,12 @@ export { Admin } from "./admin";
 export { Anonymous } from "./anonymous";
 export { ApiKey } from "./api-key";
 export * as AuthCallback from "./auth-callback";
+export { Connections } from "./connections";
 export { Core } from "./core";
 export { Device } from "./device";
-// =====================================================================================================================
-// LEGACY MUST REFACTOR
-// =====================================================================================================================
 export * as EmailVerification from "./email-verification";
 export { JWT } from "./jwt";
 export * as MultiSession from "./multi-session";
-export { OAuth2 } from "./oauth2";
 export { OneTimeToken } from "./one-time-token";
 export * as Organization from "./organization";
 export { Passkey } from "./passkey";

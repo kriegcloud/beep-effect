@@ -5,7 +5,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { Confidence, EvidenceSpan } from "../../value-objects";
+import { Confidence, EvidenceSpan } from "../../values";
 
 const $I = $KnowledgeDomainId.create("entities/Relation");
 

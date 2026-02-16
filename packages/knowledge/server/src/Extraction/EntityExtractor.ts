@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { Confidence } from "@beep/knowledge-domain/value-objects";
+import { Confidence } from "@beep/knowledge-domain/values";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";

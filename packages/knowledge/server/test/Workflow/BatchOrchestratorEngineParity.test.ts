@@ -1,5 +1,5 @@
 import { ActivityFailedError } from "@beep/knowledge-domain/errors";
-import type { BatchEvent } from "@beep/knowledge-domain/value-objects";
+import type { BatchEvent } from "@beep/knowledge-domain/values";
 import {
   ExtractionPipelineConfig,
   ExtractionResult,

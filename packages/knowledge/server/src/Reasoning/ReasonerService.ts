@@ -5,7 +5,7 @@ import {
   type InferenceResult,
   QuadPattern,
   type ReasoningConfig,
-} from "@beep/knowledge-domain/value-objects";
+} from "@beep/knowledge-domain/values";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

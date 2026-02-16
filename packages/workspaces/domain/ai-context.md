@@ -39,8 +39,8 @@ Domain layer providing pure business models for the documents vertical slice. De
 | `src/entities/DocumentFile.ts` | File attachment metadata |
 | `src/entities/Discussion.ts` | Discussion threads on documents |
 | `src/entities/Comment.ts` | Individual comments in discussions |
-| `src/value-objects/LinkType.ts` | Link types: explicit, inline-reference, block_embed |
-| `src/value-objects/TextStyle.ts` | Text styles: default, serif, mono |
+| `src/values/LinkType.ts` | Link types: explicit, inline-reference, block_embed |
+| `src/values/TextStyle.ts` | Text styles: default, serif, mono |
 | `src/errors.ts` | Tagged domain errors |
 
 ## Usage Patterns
@@ -69,7 +69,7 @@ export const createDocument = (data: {
 ```typescript
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { LinkType, TextStyle } from "@beep/workspaces-domain/value-objects";
+import { LinkType, TextStyle } from "@beep/workspaces-domain/values";
 
 export const validateFormatting = (
   linkType: LinkType.Type,

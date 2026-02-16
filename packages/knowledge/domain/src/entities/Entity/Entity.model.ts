@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
-import { Attributes, Confidence } from "@beep/knowledge-domain/value-objects/Attributes.value";
-import { EvidenceSpan } from "@beep/knowledge-domain/value-objects/EvidenceSpan.value";
+import { Attributes, Confidence } from "@beep/knowledge-domain/values/Attributes.value";
+import { EvidenceSpan } from "@beep/knowledge-domain/values/EvidenceSpan.value";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
