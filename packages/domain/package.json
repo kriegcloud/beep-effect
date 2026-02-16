@@ -1,0 +1,25 @@
+{
+  "name": "@example/domain",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Shared domain schemas and RPC definitions",
+  "main": "./esm/index.js",
+  "module": "./esm/index.js",
+  "types": "./dts/index.d.ts",
+  "exports": {
+    ".": "./esm/index.js",
+    "./package.json": "./package.json",
+    "./*": "./esm/*.js"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest --run"
+  },
+  "dependencies": {
+    "@effect/platform": "*",
+    "@effect/rpc": "*",
+    "effect": "*"
+  }
+}

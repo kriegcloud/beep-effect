@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "exclude": ["vitest.config.ts", "src/**/*.test.ts"],
+  "references": [{ "path": "../domain" }],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "build/src",
+    "tsBuildInfoFile": ".tsbuildinfo/src.tsbuildinfo",
+    "rootDir": "src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@example/domain": ["../domain/src/index.js"],
+      "@example/domain/*": ["../domain/src/*.js"]
+    },
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "quickinfoEffectParameters": "always",
+        "namespaceImportPackages": ["effect", "@effect/*"],
+        "topLevelNamedReexports": "follow",
+        "diagnosticSeverity": {
+          "importFromBarrel": "error"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "@example/server",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Effect + UploadThing file upload server example",
+  "main": "build/esm/server.js",
+  "module": "build/esm/server.js",
+  "types": "build/dts/server.d.ts",
+  "files": ["build"],
+  "scripts": {
+    "check": "tsc -b tsconfig.json",
+    "clean": "rm -rf dist && rm -rf .tsbuildinfo",
+    "prebuild": "npm run clean",
+    "build": "tsc -b tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "test": "vitest",
+    "dev": "dotenv -e ../../.env -- tsx --watch src/server.ts",
+    "start": "dotenv -e ../../.env -- node build/esm/server.js",
+    "db:migrate": "dotenv -e ../../.env -- tsx ./src/db/scripts/migrator.ts",
+    "db:reset": "dotenv -e ../../.env -- tsx ./src/db/scripts/reset-database.ts"
+  },
+  "dependencies": {
+    "@effect/opentelemetry": "*",
+    "@effect/platform": "*",
+    "@effect/platform-node": "*",
+    "@effect/rpc": "*",
+    "@effect/sql": "*",
+    "@effect/sql-pg": "*",
+    "@example/domain": "workspace:^",
+    "@opentelemetry/exporter-trace-otlp-http": "0.200.0",
+    "@opentelemetry/resources": "2.0.0",
+    "@opentelemetry/sdk-trace-base": "2.0.0",
+    "@opentelemetry/sdk-trace-node": "2.0.0",
+    "effect": "*",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^10.21.0",
+    "@types/pg": "^8.11.11",
+    "dotenv-cli": "8.0.0",
+    "tsc-alias": "^1.8.10",
+    "tsx": "^4.19.2"
+  }
+}
