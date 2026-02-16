@@ -1026,7 +1026,7 @@
     ]
   },
   "patternCache": {
-    "loadedAt": 1771120152730,
+    "loadedAt": 1771227938144,
     "directoryMtime": 1770162603628,
     "patterns": [
       {
@@ -1598,5 +1598,8 @@
         "filePath": "/home/elpresidank/YeeBois/projects/beep-effect2/.claude/patterns/code-smells/use-console-service.md"
       }
     ]
+  },
+  "telemetry": {
+    "activeAgents": {}
   }
 }

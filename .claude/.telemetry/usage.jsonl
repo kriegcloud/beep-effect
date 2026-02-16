@@ -1145,3 +1145,5 @@
 {"eventType":"stop","timestamp":"2026-02-15T02:13:41.082Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","durationMs":129369,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-15T02:14:57.083Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-15T02:16:29.782Z","sessionId":"d11c44bb-a08b-425d-b16b-5e3bfd46fed1","agentType":"spec-reviewer","durationMs":92699,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-16T07:43:56.333Z","sessionId":"c5940634-3225-494a-b1b9-0acf59405c1f","agentType":"web-researcher","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-16T07:44:23.532Z","sessionId":"c5940634-3225-494a-b1b9-0acf59405c1f","agentType":"web-researcher","durationMs":27199,"outcome":"success"}
