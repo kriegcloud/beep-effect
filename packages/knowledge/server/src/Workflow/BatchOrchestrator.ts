@@ -35,9 +35,13 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { KnowledgeDb } from "@beep/knowledge-server/db";
+import * as KnowledgeTables from "@beep/knowledge-tables/schema";
 import { EmbeddingService } from "../Embedding";
+import { RepoLive as EntityRepoLive } from "../entities/Entity";
+import { RepoLive as RelationRepoLive } from "../entities/Relation";
 import { ExtractionPipelineLive, ExtractionResult } from "../Extraction/ExtractionPipeline";
-import type { AssembledEntity } from "../Extraction/GraphAssembler";
+import type { AssembledEntity, AssembledRelation } from "../Extraction/GraphAssembler";
 import { BatchEventEmitter, BatchEventEmitterLive } from "./BatchEventEmitter";
 import { ExtractionWorkflow, ExtractionWorkflowLive, type ExtractionWorkflowParams } from "./ExtractionWorkflow";
 import { WorkflowPersistence, WorkflowPersistenceLive } from "./WorkflowPersistence";
@@ -268,6 +272,7 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
   const maybeMentionRecordRepo = yield* Effect.serviceOption(Entities.MentionRecord.Repo);
   const maybeEmbeddingService = yield* Effect.serviceOption(EmbeddingService);
+  // Entity/Relation repos kept in Layer for other consumers; persistence uses Drizzle directly
   const persistence = yield* WorkflowPersistence;
   const batchId = KnowledgeEntityIds.BatchExecutionId.make(payload.batchId);
 
@@ -471,12 +476,115 @@ export const executeBatchEngineWorkflow = Effect.fn(function* (payload: EngineBa
     yield* emitEvent((timestamp) => ResolutionCompleted.make({ batchId, mergeCount, timestamp }));
   }
 
-  if (O.isSome(maybeEmbeddingService)) {
-    const allEntities: ReadonlyArray<AssembledEntity> = F.pipe(
-      documentResults,
-      A.filter((result) => result.success && result.extraction !== null),
-      A.flatMap((result) => result.extraction?.graph.entities ?? [])
+  const successfulExtractions = F.pipe(
+    documentResults,
+    A.filter((result) => result.success && result.extraction !== null)
+  );
+
+  const allExtractedEntities: ReadonlyArray<AssembledEntity> = F.pipe(
+    successfulExtractions,
+    A.flatMap((result) => result.extraction?.graph.entities ?? [])
+  );
+
+  const allExtractedRelations: ReadonlyArray<AssembledRelation> = F.pipe(
+    successfulExtractions,
+    A.flatMap((result) => result.extraction?.graph.relations ?? [])
+  );
+
+  if (!A.isEmptyReadonlyArray(allExtractedEntities) || !A.isEmptyReadonlyArray(allExtractedRelations)) {
+    yield* Effect.gen(function* () {
+      const orgId = SharedEntityIds.OrganizationId.make(payload.organizationId);
+      const ontologyId = payload.ontologyId;
+
+      yield* Effect.logInfo("BatchOrchestrator(engine): persisting extracted entities and relations").pipe(
+        Effect.annotateLogs({
+          entityCount: A.length(allExtractedEntities),
+          relationCount: A.length(allExtractedRelations),
+          batchId,
+        })
+      );
+
+      const { client } = yield* KnowledgeDb.Db;
+
+      if (!A.isEmptyReadonlyArray(allExtractedEntities)) {
+        const entityRows = A.filterMap(allExtractedEntities, (entity) => {
+          if (!A.isNonEmptyReadonlyArray(entity.types)) return O.none();
+          return O.some({
+            id: entity.id,
+            organizationId: orgId,
+            mention: entity.mention,
+            types: JSON.parse(JSON.stringify(entity.types)),
+            attributes: JSON.parse(JSON.stringify(entity.attributes)),
+            ontologyId: ontologyId ?? null,
+            documentId: null,
+            sourceUri: null,
+            source: "batch-orchestrator",
+            extractionId: null,
+            groundingConfidence: entity.confidence,
+            mentions: null,
+          });
+        });
+
+        if (!A.isEmptyReadonlyArray(entityRows)) {
+          yield* Effect.tryPromise({
+            try: () => client.insert(KnowledgeTables.entity).values(entityRows as any),
+            catch: (err) => new BatchInfrastructureError({ batchId, operation: "entity-persist", reason: String(err) }),
+          });
+          yield* Effect.logInfo("BatchOrchestrator(engine): entities persisted via drizzle").pipe(
+            Effect.annotateLogs({ count: A.length(entityRows) })
+          );
+        }
+      }
+
+      if (!A.isEmptyReadonlyArray(allExtractedRelations)) {
+        const relationRows = A.map(allExtractedRelations, (relation) => ({
+          id: relation.id,
+          organizationId: orgId,
+          subjectId: relation.subjectId,
+          predicate: relation.predicate,
+          objectId: relation.objectId ?? null,
+          literalValue: relation.literalValue ?? null,
+          literalType: relation.literalType ?? null,
+          ontologyId: ontologyId ?? "default",
+          extractionId: null,
+          evidence: null,
+          groundingConfidence: relation.confidence,
+          source: "batch-orchestrator",
+        }));
+
+        yield* Effect.tryPromise({
+          try: () => client.insert(KnowledgeTables.relation).values(relationRows as any),
+          catch: (err) => new BatchInfrastructureError({ batchId, operation: "relation-persist", reason: String(err) }),
+        });
+        yield* Effect.logInfo("BatchOrchestrator(engine): relations persisted via drizzle").pipe(
+          Effect.annotateLogs({ count: A.length(relationRows) })
+        );
+      }
+
+      yield* Effect.logInfo("BatchOrchestrator(engine): entity and relation persistence complete").pipe(
+        Effect.annotateLogs({
+          entityCount: A.length(allExtractedEntities),
+          relationCount: A.length(allExtractedRelations),
+          batchId,
+        })
+      );
+    }).pipe(
+      Effect.catchAllCause((cause) =>
+        Effect.gen(function* () {
+          const failure = Cause.squash(cause);
+          yield* Effect.annotateCurrentSpan("persistence.success", false);
+          yield* Effect.annotateCurrentSpan("persistence.error.tag", getErrorTag(failure));
+          yield* Effect.annotateCurrentSpan("persistence.error.message", getErrorMessage(failure));
+          yield* Effect.logWarning("BatchOrchestrator(engine): entity/relation persistence failed, continuing").pipe(
+            Effect.annotateLogs({ cause: String(cause), batchId })
+          );
+        })
+      )
     );
+  }
+
+  if (O.isSome(maybeEmbeddingService)) {
+    const allEntities: ReadonlyArray<AssembledEntity> = allExtractedEntities;
 
     if (!A.isEmptyReadonlyArray(allEntities)) {
       yield* Effect.gen(function* () {
@@ -706,6 +814,9 @@ const BatchEngineWorkflowLayer = BatchEngineWorkflow.toLayer(executeBatchEngineW
   Layer.provideMerge(WorkflowPersistenceLive),
   Layer.provideMerge(BatchEventEmitterLive),
   Layer.provideMerge(ExtractionPipelineLive),
+  Layer.provideMerge(EntityRepoLive),
+  Layer.provideMerge(RelationRepoLive),
+  Layer.provideMerge(KnowledgeDb.layer),
   Layer.provideMerge(WorkflowRuntimeLive)
 );
 

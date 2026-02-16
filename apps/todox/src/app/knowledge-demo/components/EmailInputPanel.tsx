@@ -106,7 +106,7 @@ export function EmailInputPanel({
           () => A.head(scenarios)
         ),
         () => {
-          throw new Error("No curated scenarios are available");
+          throw new Error("No scenarios are available");
         }
       ),
     [scenarios, selectedScenarioId]
@@ -120,7 +120,7 @@ export function EmailInputPanel({
     <Card className="w-full">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <CardTitle>Curated Scenario</CardTitle>
+          <CardTitle>Enron Scenario</CardTitle>
           <DemoHintIcon
             hint="Choose one of the fixed Enron scenarios, then explicitly trigger ingest. The demo does not auto-ingest."
             side="right"

@@ -137,12 +137,12 @@ const resolveScenarioDocuments = (
 ): readonly { readonly sourceDocumentId: string; readonly documentId: WorkspacesEntityIds.DocumentId.Type; readonly text: string }[] => {
   const scenario = SCENARIO_BY_ID.get(scenarioId);
   if (scenario === undefined) {
-    throw new Error(`Unknown curated scenario "${scenarioId}"`);
+    throw new Error(`Unknown scenario "${scenarioId}"`);
   }
 
   const thread = dataset.threadsById.get(scenario.sourceThreadId);
   if (thread === undefined) {
-    throw new Error(`Scenario "${scenario.id}" thread "${scenario.sourceThreadId}" was not found in curated threads`);
+    throw new Error(`Scenario "${scenario.id}" thread "${scenario.sourceThreadId}" was not found in threads`);
   }
 
   const messageDocuments = thread.messages
@@ -157,7 +157,7 @@ const resolveScenarioDocuments = (
     .slice(0, MAX_DOCUMENTS_PER_SCENARIO);
 
   if (fullThreadDocuments.length === 0) {
-    throw new Error(`Scenario "${scenario.id}" resolved no curated documents for ingest`);
+    throw new Error(`Scenario "${scenario.id}" resolved no documents for ingest`);
   }
 
   return fullThreadDocuments.map((document) => ({

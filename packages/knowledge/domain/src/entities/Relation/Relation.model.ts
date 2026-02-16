@@ -39,7 +39,7 @@ export class Model extends M.Class<Model>($I`RelationModel`)(
       })
     ),
 
-    ontologyId: BS.toOptionalWithDefault(KnowledgeEntityIds.OntologyId)("default").annotations({
+    ontologyId: BS.toOptionalWithDefault(S.String)("default").annotations({
       description: "Ontology scope for this relation",
     }),
 

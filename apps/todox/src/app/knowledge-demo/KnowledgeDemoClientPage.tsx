@@ -495,7 +495,7 @@ const KnowledgeDemoClientContent = () => {
 
       <DemoCallout
         title="Phase 2 Flow"
-        message="1. Select a curated scenario  2. Click Ingest Scenario (explicit action)  3. Wait for visible batch lifecycle state  4. Query persisted graph context. Meeting prep live synthesis stays deferred to Phase 3."
+        message="1. Select a scenario  2. Click Ingest Scenario (explicit action)  3. Wait for visible batch lifecycle state  4. Query persisted graph context. Meeting prep live synthesis stays deferred to Phase 3."
       />
 
       {error && (

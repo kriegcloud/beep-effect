@@ -19,11 +19,14 @@ export const embeddingRelations = d.relations(embedding, (_) => ({}));
 
 export const entityRelations = d.relations(entity, ({ many }) => ({
   mentions: many(mention),
-  outgoingRelations: many(relation),
+  outgoingRelations: many(relation, {
+    relationName: "outgoingRelations"
+  }),
 }));
 
 export const relationRelations = d.relations(relation, ({ one }) => ({
   subject: one(entity, {
+    relationName: "outgoingRelation",
     fields: [relation.subjectId],
     references: [entity.id],
   }),
