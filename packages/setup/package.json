@@ -1,0 +1,30 @@
+{
+	"name": "@hazel/setup",
+	"version": "0.0.1",
+	"private": true,
+	"bin": {
+		"hazel-setup": "./src/index.ts"
+	},
+	"type": "module",
+	"scripts": {
+		"start": "bun run src/index.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@effect/cli": "catalog:effect",
+		"@effect/platform": "catalog:effect",
+		"@effect/platform-bun": "catalog:effect",
+		"@effect/printer": "catalog:effect",
+		"@effect/printer-ansi": "catalog:effect",
+		"@hazel/db": "workspace:*",
+		"@hazel/schema": "workspace:*",
+		"@workos-inc/node": "^7.77.0",
+		"effect": "catalog:effect",
+		"picocolors": "^1.1.1"
+	},
+	"devDependencies": {
+		"@effect/language-service": "catalog:effect",
+		"@types/bun": "1.3.8",
+		"typescript": "^5.9.3"
+	}
+}
