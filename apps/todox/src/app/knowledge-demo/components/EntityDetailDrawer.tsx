@@ -101,8 +101,8 @@ export function EntityDetailDrawer({
           )}
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-120px)] pr-4">
-          <div className="space-y-6 pb-6">
+        <ScrollArea className="h-[calc(100vh-120px)]">
+          <div className="space-y-6 px-4 pb-6">
             {/* Types Section */}
             <section className="space-y-2">
               <h4 className="text-sm font-medium">Types</h4>

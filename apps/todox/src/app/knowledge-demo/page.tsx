@@ -1,5 +1,6 @@
 "use client";
 
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { Badge } from "@beep/todox/components/ui/badge";
 import { Button } from "@beep/todox/components/ui/button";
 import { TrashIcon } from "@phosphor-icons/react";
@@ -49,7 +50,7 @@ export default function KnowledgeDemoPage() {
       const result = await extractFromText(text);
 
       const session: ExtractionSession = {
-        id: crypto.randomUUID(),
+        id: KnowledgeEntityIds.ExtractionId.create(),
         timestamp: Date.now(),
         sourceText: result.sourceText,
         entities: result.entities,
