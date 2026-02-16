@@ -2,7 +2,6 @@
   "private": true,
   "type": "module",
   "name": "@beep/root",
-  "packageManager": "bun@1.3.2",
   "workspaces": [
     "packages/common/*",
     "packages/workspaces/*",
@@ -16,7 +15,6 @@
     "tooling/*",
     "packages/comms/*",
     "packages/calendar/*",
-    "scratchpad/*",
     "packages/knowledge/*",
     "packages/integrations/google-workspace/*"
   ],
