@@ -26,5 +26,5 @@ export class ShaclPolicy extends S.Class<ShaclPolicy>($I`ShaclPolicy`)(
     description: "Policy for applying SHACL validation findings",
   })
 ) {
-  static readonly new = (policy?: undefined | ShaclPolicy) => new ShaclPolicy(policy ?? {})
+  static readonly new = (policy?: undefined | ShaclPolicy) => new ShaclPolicy(policy ?? {});
 }

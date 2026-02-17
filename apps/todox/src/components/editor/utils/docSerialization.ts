@@ -112,7 +112,8 @@ export const docToHash = (doc: SerializedDocument): Effect.Effect<string, Compre
  *
  * @since 0.1.0
  */
-export const docFromHash = Effect.fn(function* (hash: string) {
+export const docFromHash = Effect.fn(
+  function* (hash: string) {
     const encodedData = F.pipe(
       hash,
       Str.match(/^#doc=(.*)$/),

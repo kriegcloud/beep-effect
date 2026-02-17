@@ -89,7 +89,8 @@ const makeEntityExtensions = Effect.gen(function* () {
   const findByIdsSchema = SqlSchema.findAll({
     Request: FindByIdsRequest,
     Result: Entities.Entity.Model,
-    execute: (req) => sql`
+    execute: (req) =>
+      sql`
         SELECT *
         FROM ${sql(tableName)}
         WHERE organization_id = ${req.organizationId}
@@ -100,7 +101,8 @@ const makeEntityExtensions = Effect.gen(function* () {
   const findByOntologySchema = SqlSchema.findAll({
     Request: FindByOntologyRequest,
     Result: Entities.Entity.Model,
-    execute: (req) => sql`
+    execute: (req) =>
+      sql`
         SELECT *
         FROM ${sql(tableName)}
         WHERE organization_id = ${req.organizationId}
@@ -141,7 +143,8 @@ const makeEntityExtensions = Effect.gen(function* () {
   const findByNormalizedTextSchema = SqlSchema.findAll({
     Request: FindByNormalizedTextRequest,
     Result: Entities.Entity.Model,
-    execute: (req) => sql`
+    execute: (req) =>
+      sql`
         SELECT *
         FROM ${sql(tableName)}
         WHERE organization_id = ${req.organizationId}
@@ -217,7 +220,6 @@ const makeEntityExtensions = Effect.gen(function* () {
         attributes: { typeIri, organizationId, limit },
       })
     );
-
 
   const countByOrganization = (
     organizationId: SharedEntityIds.OrganizationId.Type
