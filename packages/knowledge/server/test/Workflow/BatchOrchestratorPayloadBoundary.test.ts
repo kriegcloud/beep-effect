@@ -2,7 +2,6 @@ import {
   AbortAllEngineBatchPayloadConfig,
   ContinueOnFailureEngineBatchPayloadConfig,
   EngineBatchPayload,
-  EngineBatchPayloadConfig,
   EngineDocument,
   RetryFailedEngineBatchPayloadConfig,
 } from "@beep/knowledge-server/Workflow";
@@ -34,12 +33,13 @@ describe("EngineBatchPayload constructor boundary", () => {
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           documents: [makeValidDocument(), makeValidDocument()],
           config: makeValidConfig(),
         });
 
         strictEqual(payload.documents.length, 2);
-        strictEqual(payload.config.failurePolicy, "continue-on-failure");
+        strictEqual(payload.config.failurePolicy, "continue_on_failure");
       })
     );
 
@@ -51,6 +51,7 @@ describe("EngineBatchPayload constructor boundary", () => {
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           documents: [doc],
           config: makeValidConfig(),
         });
@@ -65,20 +66,22 @@ describe("EngineBatchPayload constructor boundary", () => {
     effect(
       "rejects plain object where EngineDocument instance is required",
       Effect.fn(function* () {
-        const result = Effect.try(() =>
-          new EngineBatchPayload({
-            batchId: KnowledgeEntityIds.BatchExecutionId.create(),
-            organizationId: SharedEntityIds.OrganizationId.create(),
-            ontologyId: KnowledgeEntityIds.OntologyId.create(),
-            documents: [
-              {
-                documentId: WorkspacesEntityIds.DocumentId.create(),
-                text: "hello",
-                ontologyContent: "onto",
-              },
-            ] as any,
-            config: makeValidConfig(),
-          })
+        const result = Effect.try(
+          () =>
+            new EngineBatchPayload({
+              batchId: KnowledgeEntityIds.BatchExecutionId.create(),
+              organizationId: SharedEntityIds.OrganizationId.create(),
+              ontologyId: KnowledgeEntityIds.OntologyId.create(),
+              currentUserId: SharedEntityIds.UserId.create(),
+              documents: [
+                {
+                  documentId: WorkspacesEntityIds.DocumentId.create(),
+                  text: "hello",
+                  ontologyContent: "onto",
+                },
+              ] as any,
+              config: makeValidConfig(),
+            })
         );
 
         const either = yield* Effect.either(result);
@@ -89,21 +92,23 @@ describe("EngineBatchPayload constructor boundary", () => {
     effect(
       "rejects mixed array of plain objects and instances",
       Effect.fn(function* () {
-        const result = Effect.try(() =>
-          new EngineBatchPayload({
-            batchId: KnowledgeEntityIds.BatchExecutionId.create(),
-            organizationId: SharedEntityIds.OrganizationId.create(),
-            ontologyId: KnowledgeEntityIds.OntologyId.create(),
-            documents: [
-              makeValidDocument(),
-              {
-                documentId: WorkspacesEntityIds.DocumentId.create(),
-                text: "plain object",
-                ontologyContent: "onto",
-              },
-            ] as any,
-            config: makeValidConfig(),
-          })
+        const result = Effect.try(
+          () =>
+            new EngineBatchPayload({
+              batchId: KnowledgeEntityIds.BatchExecutionId.create(),
+              organizationId: SharedEntityIds.OrganizationId.create(),
+              ontologyId: KnowledgeEntityIds.OntologyId.create(),
+              currentUserId: SharedEntityIds.UserId.create(),
+              documents: [
+                makeValidDocument(),
+                {
+                  documentId: WorkspacesEntityIds.DocumentId.create(),
+                  text: "plain object",
+                  ontologyContent: "onto",
+                },
+              ] as any,
+              config: makeValidConfig(),
+            })
         );
 
         const either = yield* Effect.either(result);
@@ -124,12 +129,13 @@ describe("EngineBatchPayload constructor boundary", () => {
         const payload = new EngineBatchPayload({
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
           documents: [makeValidDocument()],
           config,
         });
 
-        strictEqual(payload.config.failurePolicy, "continue-on-failure");
+        strictEqual(payload.config.failurePolicy, "continue_on_failure");
         strictEqual(payload.config.concurrency, 3);
       })
     );
@@ -146,11 +152,12 @@ describe("EngineBatchPayload constructor boundary", () => {
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           documents: [makeValidDocument()],
           config,
         });
 
-        strictEqual(payload.config.failurePolicy, "abort-all");
+        strictEqual(payload.config.failurePolicy, "abort_all");
         strictEqual(payload.config.concurrency, 1);
       })
     );
@@ -167,11 +174,12 @@ describe("EngineBatchPayload constructor boundary", () => {
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           documents: [makeValidDocument()],
           config,
         });
 
-        strictEqual(payload.config.failurePolicy, "retry-failed");
+        strictEqual(payload.config.failurePolicy, "retry_failed");
         strictEqual(payload.config.maxRetries, 3);
       })
     );
@@ -181,19 +189,21 @@ describe("EngineBatchPayload constructor boundary", () => {
     effect(
       "rejects plain object where EngineBatchPayloadConfig instance is required",
       Effect.fn(function* () {
-        const result = Effect.try(() =>
-          new EngineBatchPayload({
-            batchId: KnowledgeEntityIds.BatchExecutionId.create(),
-            organizationId: SharedEntityIds.OrganizationId.create(),
-            ontologyId: KnowledgeEntityIds.OntologyId.create(),
-            documents: [makeValidDocument()],
-            config: {
-              failurePolicy: "continue-on-failure",
-              concurrency: 2,
-              maxRetries: 0,
-              enableEntityResolution: false,
-            } as any,
-          })
+        const result = Effect.try(
+          () =>
+            new EngineBatchPayload({
+              batchId: KnowledgeEntityIds.BatchExecutionId.create(),
+              organizationId: SharedEntityIds.OrganizationId.create(),
+              ontologyId: KnowledgeEntityIds.OntologyId.create(),
+              currentUserId: SharedEntityIds.UserId.create(),
+              documents: [makeValidDocument()],
+              config: {
+                failurePolicy: "continue_on_failure",
+                concurrency: 2,
+                maxRetries: 0,
+                enableEntityResolution: false,
+              } as any,
+            })
         );
 
         const either = yield* Effect.either(result);
@@ -202,21 +212,23 @@ describe("EngineBatchPayload constructor boundary", () => {
     );
 
     effect(
-      "rejects plain object mimicking abort-all config",
+      "rejects plain object mimicking abort_all config",
       Effect.fn(function* () {
-        const result = Effect.try(() =>
-          new EngineBatchPayload({
-            batchId: KnowledgeEntityIds.BatchExecutionId.create(),
-            organizationId: SharedEntityIds.OrganizationId.create(),
-            ontologyId: KnowledgeEntityIds.OntologyId.create(),
-            documents: [makeValidDocument()],
-            config: {
-              failurePolicy: "abort-all",
-              concurrency: 1,
-              maxRetries: 0,
-              enableEntityResolution: false,
-            } as any,
-          })
+        const result = Effect.try(
+          () =>
+            new EngineBatchPayload({
+              batchId: KnowledgeEntityIds.BatchExecutionId.create(),
+              organizationId: SharedEntityIds.OrganizationId.create(),
+              ontologyId: KnowledgeEntityIds.OntologyId.create(),
+              currentUserId: SharedEntityIds.UserId.create(),
+              documents: [makeValidDocument()],
+              config: {
+                failurePolicy: "abort_all",
+                concurrency: 1,
+                maxRetries: 0,
+                enableEntityResolution: false,
+              } as any,
+            })
         );
 
         const either = yield* Effect.either(result);

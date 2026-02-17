@@ -109,9 +109,7 @@
         "calendar_calendar_event_id_unique": {
           "name": "calendar_calendar_event_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -273,12 +271,8 @@
           "name": "comms_email_template_user_id_shared_user__row_id_fk",
           "tableFrom": "comms_email_template",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "_row_id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["_row_id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -286,12 +280,8 @@
           "name": "comms_email_template_org_fk",
           "tableFrom": "comms_email_template",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -301,18 +291,12 @@
         "comms_email_template_id_unique": {
           "name": "comms_email_template_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "uidx_email_template_org_id_user_id_name_unique": {
           "name": "uidx_email_template_org_id_user_id_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "organization_id",
-            "user_id",
-            "name"
-          ]
+          "columns": ["organization_id", "user_id", "name"]
         }
       },
       "policies": {
@@ -320,9 +304,7 @@
           "name": "tenant_isolation_comms_email_template",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -583,12 +565,8 @@
           "name": "shared_organization_owner_user_id_shared_user_id_fk",
           "tableFrom": "shared_organization",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "owner_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -598,16 +576,12 @@
         "shared_organization_id_unique": {
           "name": "shared_organization_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "shared_organization_slug_unique": {
           "name": "shared_organization_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -778,12 +752,8 @@
           "name": "shared_team_org_fk",
           "tableFrom": "shared_team",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -793,16 +763,12 @@
         "shared_team_id_unique": {
           "name": "shared_team_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "shared_team_slug_unique": {
           "name": "shared_team_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {
@@ -810,9 +776,7 @@
           "name": "tenant_isolation_shared_team",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -1093,30 +1057,22 @@
         "shared_user_id_unique": {
           "name": "shared_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "shared_user_email_unique": {
           "name": "shared_user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "shared_user_phone_number_unique": {
           "name": "shared_user_phone_number_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "phone_number"
-          ]
+          "columns": ["phone_number"]
         },
         "shared_user_username_unique": {
           "name": "shared_user_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         }
       },
       "policies": {},
@@ -1227,12 +1183,8 @@
           "name": "customization_user_hotkey_user_id_shared_user_id_fk",
           "tableFrom": "customization_user_hotkey",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1242,9 +1194,7 @@
         "customization_user_hotkey_id_unique": {
           "name": "customization_user_hotkey_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -1403,12 +1353,8 @@
           "name": "shared_file_user_id_shared_user_id_fk",
           "tableFrom": "shared_file",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1416,12 +1362,8 @@
           "name": "shared_file_folder_id_shared_folder_id_fk",
           "tableFrom": "shared_file",
           "tableTo": "shared_folder",
-          "columnsFrom": [
-            "folder_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["folder_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1429,12 +1371,8 @@
           "name": "shared_file_uploaded_by_user_id_shared_user_id_fk",
           "tableFrom": "shared_file",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "uploaded_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["uploaded_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1442,12 +1380,8 @@
           "name": "shared_file_org_fk",
           "tableFrom": "shared_file",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1457,9 +1391,7 @@
         "shared_file_id_unique": {
           "name": "shared_file_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -1467,9 +1399,7 @@
           "name": "tenant_isolation_shared_file",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -1740,12 +1670,8 @@
           "name": "shared_session_user_id_shared_user_id_fk",
           "tableFrom": "shared_session",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -1753,12 +1679,8 @@
           "name": "shared_session_impersonated_by_shared_user_id_fk",
           "tableFrom": "shared_session",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "impersonated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["impersonated_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1766,12 +1688,8 @@
           "name": "shared_session_active_organization_id_shared_organization_id_fk",
           "tableFrom": "shared_session",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "active_organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["active_organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -1779,12 +1697,8 @@
           "name": "shared_session_active_team_id_shared_team_id_fk",
           "tableFrom": "shared_session",
           "tableTo": "shared_team",
-          "columnsFrom": [
-            "active_team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["active_team_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         }
@@ -1794,16 +1708,12 @@
         "shared_session_id_unique": {
           "name": "shared_session_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "shared_session_token_unique": {
           "name": "shared_session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -2056,12 +1966,8 @@
           "name": "iam_account_user_id_shared_user_id_fk",
           "tableFrom": "iam_account",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -2071,9 +1977,7 @@
         "iam_account_id_unique": {
           "name": "iam_account_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -2290,12 +2194,8 @@
           "name": "iam_apikey_user_id_shared_user_id_fk",
           "tableFrom": "iam_apikey",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2303,12 +2203,8 @@
           "name": "iam_apikey_org_fk",
           "tableFrom": "iam_apikey",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -2318,9 +2214,7 @@
         "iam_apikey_id_unique": {
           "name": "iam_apikey_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -2328,9 +2222,7 @@
           "name": "tenant_isolation_iam_apikey",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -2491,12 +2383,8 @@
           "name": "iam_device_code_user_id_shared_user_id_fk",
           "tableFrom": "iam_device_code",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -2506,9 +2394,7 @@
         "iam_device_code_id_unique": {
           "name": "iam_device_code_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -2777,12 +2663,8 @@
           "name": "iam_invitation_team_id_shared_team_id_fk",
           "tableFrom": "iam_invitation",
           "tableTo": "shared_team",
-          "columnsFrom": [
-            "team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["team_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -2790,12 +2672,8 @@
           "name": "iam_invitation_inviter_id_shared_user_id_fk",
           "tableFrom": "iam_invitation",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "inviter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["inviter_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -2803,12 +2681,8 @@
           "name": "iam_invitation_org_fk",
           "tableFrom": "iam_invitation",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -2818,9 +2692,7 @@
         "iam_invitation_id_unique": {
           "name": "iam_invitation_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -2828,9 +2700,7 @@
           "name": "tenant_isolation_iam_invitation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -2933,9 +2803,7 @@
         "iam_jwks_id_unique": {
           "name": "iam_jwks_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -3230,12 +3098,8 @@
           "name": "iam_member_invited_by_shared_user_id_fk",
           "tableFrom": "iam_member",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "invited_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invited_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
@@ -3243,12 +3107,8 @@
           "name": "iam_member_org_fk",
           "tableFrom": "iam_member",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -3258,9 +3118,7 @@
         "iam_member_id_unique": {
           "name": "iam_member_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -3268,9 +3126,7 @@
           "name": "tenant_isolation_iam_member",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -3448,12 +3304,8 @@
           "name": "iam_oauth_access_token_client_id_iam_oauth_client_client_id_fk",
           "tableFrom": "iam_oauth_access_token",
           "tableTo": "iam_oauth_client",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "client_id"
-          ],
+          "columnsFrom": ["client_id"],
+          "columnsTo": ["client_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3461,12 +3313,8 @@
           "name": "iam_oauth_access_token_session_id_shared_session_id_fk",
           "tableFrom": "iam_oauth_access_token",
           "tableTo": "shared_session",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -3474,12 +3322,8 @@
           "name": "iam_oauth_access_token_user_id_shared_user_id_fk",
           "tableFrom": "iam_oauth_access_token",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3487,12 +3331,8 @@
           "name": "iam_oauth_access_token_refresh_id_iam_oauth_refresh_token_id_fk",
           "tableFrom": "iam_oauth_access_token",
           "tableTo": "iam_oauth_refresh_token",
-          "columnsFrom": [
-            "refresh_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["refresh_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3502,16 +3342,12 @@
         "iam_oauth_access_token_id_unique": {
           "name": "iam_oauth_access_token_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "iam_oauth_access_token_token_unique": {
           "name": "iam_oauth_access_token_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -3776,12 +3612,8 @@
           "name": "iam_oauth_client_user_id_shared_user_id_fk",
           "tableFrom": "iam_oauth_client",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3791,16 +3623,12 @@
         "iam_oauth_client_id_unique": {
           "name": "iam_oauth_client_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "iam_oauth_client_client_id_unique": {
           "name": "iam_oauth_client_client_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "client_id"
-          ]
+          "columns": ["client_id"]
         }
       },
       "policies": {},
@@ -3959,12 +3787,8 @@
           "name": "iam_oauth_consent_client_id_iam_oauth_client_client_id_fk",
           "tableFrom": "iam_oauth_consent",
           "tableTo": "iam_oauth_client",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "client_id"
-          ],
+          "columnsFrom": ["client_id"],
+          "columnsTo": ["client_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3972,12 +3796,8 @@
           "name": "iam_oauth_consent_user_id_shared_user_id_fk",
           "tableFrom": "iam_oauth_consent",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3987,9 +3807,7 @@
         "iam_oauth_consent_id_unique": {
           "name": "iam_oauth_consent_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -4166,12 +3984,8 @@
           "name": "iam_oauth_refresh_token_client_id_iam_oauth_client_client_id_fk",
           "tableFrom": "iam_oauth_refresh_token",
           "tableTo": "iam_oauth_client",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "client_id"
-          ],
+          "columnsFrom": ["client_id"],
+          "columnsTo": ["client_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4179,12 +3993,8 @@
           "name": "iam_oauth_refresh_token_session_id_shared_session_id_fk",
           "tableFrom": "iam_oauth_refresh_token",
           "tableTo": "shared_session",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -4192,12 +4002,8 @@
           "name": "iam_oauth_refresh_token_user_id_shared_user_id_fk",
           "tableFrom": "iam_oauth_refresh_token",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4207,9 +4013,7 @@
         "iam_oauth_refresh_token_id_unique": {
           "name": "iam_oauth_refresh_token_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -4326,12 +4130,8 @@
           "name": "iam_organization_role_org_fk",
           "tableFrom": "iam_organization_role",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -4341,9 +4141,7 @@
         "iam_organization_role_id_unique": {
           "name": "iam_organization_role_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -4351,9 +4149,7 @@
           "name": "tenant_isolation_iam_organization_role",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -4492,12 +4288,8 @@
           "name": "iam_passkey_user_id_shared_user_id_fk",
           "tableFrom": "iam_passkey",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4507,9 +4299,7 @@
         "iam_passkey_id_unique": {
           "name": "iam_passkey_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -4616,9 +4406,7 @@
         "iam_rate_limit_id_unique": {
           "name": "iam_rate_limit_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -4735,12 +4523,8 @@
           "name": "iam_scim_provider_org_fk",
           "tableFrom": "iam_scim_provider",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -4750,23 +4534,17 @@
         "iam_scim_provider_id_unique": {
           "name": "iam_scim_provider_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "iam_scim_provider_provider_id_unique": {
           "name": "iam_scim_provider_provider_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "provider_id"
-          ]
+          "columns": ["provider_id"]
         },
         "iam_scim_provider_scim_token_unique": {
           "name": "iam_scim_provider_scim_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "scim_token"
-          ]
+          "columns": ["scim_token"]
         }
       },
       "policies": {
@@ -4774,9 +4552,7 @@
           "name": "tenant_isolation_iam_scim_provider",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -4918,12 +4694,8 @@
           "name": "iam_sso_provider_user_id_shared_user_id_fk",
           "tableFrom": "iam_sso_provider",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4931,12 +4703,8 @@
           "name": "iam_sso_provider_org_fk",
           "tableFrom": "iam_sso_provider",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -4946,16 +4714,12 @@
         "iam_sso_provider_id_unique": {
           "name": "iam_sso_provider_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "iam_sso_provider_provider_id_unique": {
           "name": "iam_sso_provider_provider_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "provider_id"
-          ]
+          "columns": ["provider_id"]
         }
       },
       "policies": {
@@ -4963,9 +4727,7 @@
           "name": "tenant_isolation_iam_sso_provider",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -5127,12 +4889,8 @@
           "name": "iam_subscription_org_fk",
           "tableFrom": "iam_subscription",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -5142,9 +4900,7 @@
         "iam_subscription_id_unique": {
           "name": "iam_subscription_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -5152,9 +4908,7 @@
           "name": "tenant_isolation_iam_subscription",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -5344,12 +5098,8 @@
           "name": "iam_team_member_team_id_shared_team_id_fk",
           "tableFrom": "iam_team_member",
           "tableTo": "shared_team",
-          "columnsFrom": [
-            "team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["team_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -5357,12 +5107,8 @@
           "name": "iam_team_member_user_id_shared_user_id_fk",
           "tableFrom": "iam_team_member",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -5370,12 +5116,8 @@
           "name": "iam_team_member_org_fk",
           "tableFrom": "iam_team_member",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -5385,9 +5127,7 @@
         "iam_team_member_id_unique": {
           "name": "iam_team_member_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -5395,9 +5135,7 @@
           "name": "tenant_isolation_iam_team_member",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -5521,12 +5259,8 @@
           "name": "iam_two_factor_user_id_shared_user_id_fk",
           "tableFrom": "iam_two_factor",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5534,12 +5268,8 @@
           "name": "iam_two_factor_org_fk",
           "tableFrom": "iam_two_factor",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -5549,9 +5279,7 @@
         "iam_two_factor_id_unique": {
           "name": "iam_two_factor_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -5559,9 +5287,7 @@
           "name": "tenant_isolation_iam_two_factor",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -5737,9 +5463,7 @@
         "iam_verification_id_unique": {
           "name": "iam_verification_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -5875,12 +5599,8 @@
           "name": "iam_wallet_address_user_id_shared_user_id_fk",
           "tableFrom": "iam_wallet_address",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5890,9 +5610,7 @@
         "iam_wallet_address_id_unique": {
           "name": "iam_wallet_address_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},
@@ -6037,7 +5755,7 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'continue-on-failure'"
+          "default": "'continue_on_failure'"
         },
         "max_retries": {
           "name": "max_retries",
@@ -6136,12 +5854,8 @@
           "name": "knowledge_batch_execution_org_fk",
           "tableFrom": "knowledge_batch_execution",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -6151,9 +5865,7 @@
         "knowledge_batch_execution_id_unique": {
           "name": "knowledge_batch_execution_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -6161,9 +5873,7 @@
           "name": "tenant_isolation_knowledge_batch_execution",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -6443,12 +6153,8 @@
           "name": "class_def_ontology_fk",
           "tableFrom": "knowledge_class_definition",
           "tableTo": "knowledge_ontology",
-          "columnsFrom": [
-            "ontology_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["ontology_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -6456,12 +6162,8 @@
           "name": "knowledge_class_definition_org_fk",
           "tableFrom": "knowledge_class_definition",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -6471,9 +6173,7 @@
         "knowledge_class_definition_id_unique": {
           "name": "knowledge_class_definition_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -6481,9 +6181,7 @@
           "name": "tenant_isolation_knowledge_class_definition",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -6695,12 +6393,8 @@
           "name": "knowledge_email_thread_org_fk",
           "tableFrom": "knowledge_email_thread",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -6710,9 +6404,7 @@
         "knowledge_email_thread_id_unique": {
           "name": "knowledge_email_thread_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -6720,9 +6412,7 @@
           "name": "tenant_isolation_knowledge_email_thread",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -6990,12 +6680,8 @@
           "name": "knowledge_email_thread_message_thread_id_knowledge_email_thread_id_fk",
           "tableFrom": "knowledge_email_thread_message",
           "tableTo": "knowledge_email_thread",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -7003,12 +6689,8 @@
           "name": "knowledge_email_thread_message_org_fk",
           "tableFrom": "knowledge_email_thread_message",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -7018,9 +6700,7 @@
         "knowledge_email_thread_message_id_unique": {
           "name": "knowledge_email_thread_message_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -7028,9 +6708,7 @@
           "name": "tenant_isolation_knowledge_email_thread_message",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -7173,12 +6851,8 @@
           "name": "knowledge_embedding_org_fk",
           "tableFrom": "knowledge_embedding",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -7188,9 +6862,7 @@
         "knowledge_embedding_id_unique": {
           "name": "knowledge_embedding_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -7198,9 +6870,7 @@
           "name": "tenant_isolation_knowledge_embedding",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -7405,12 +7075,8 @@
           "name": "knowledge_entity_org_fk",
           "tableFrom": "knowledge_entity",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -7420,9 +7086,7 @@
         "knowledge_entity_id_unique": {
           "name": "knowledge_entity_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -7430,9 +7094,7 @@
           "name": "tenant_isolation_knowledge_entity",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -7598,12 +7260,8 @@
           "name": "entity_cluster_canonical_fk",
           "tableFrom": "knowledge_entity_cluster",
           "tableTo": "knowledge_entity",
-          "columnsFrom": [
-            "canonical_entity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["canonical_entity_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7611,12 +7269,8 @@
           "name": "knowledge_entity_cluster_org_fk",
           "tableFrom": "knowledge_entity_cluster",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -7626,9 +7280,7 @@
         "knowledge_entity_cluster_id_unique": {
           "name": "knowledge_entity_cluster_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -7636,9 +7288,7 @@
           "name": "tenant_isolation_knowledge_entity_cluster",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -7904,12 +7554,8 @@
           "name": "knowledge_extraction_org_fk",
           "tableFrom": "knowledge_extraction",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -7919,9 +7565,7 @@
         "knowledge_extraction_id_unique": {
           "name": "knowledge_extraction_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -7929,9 +7573,7 @@
           "name": "tenant_isolation_knowledge_extraction",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -8091,12 +7733,8 @@
           "name": "knowledge_meeting_prep_bullet_org_fk",
           "tableFrom": "knowledge_meeting_prep_bullet",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -8106,9 +7744,7 @@
         "knowledge_meeting_prep_bullet_id_unique": {
           "name": "knowledge_meeting_prep_bullet_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -8116,9 +7752,7 @@
           "name": "tenant_isolation_knowledge_meeting_prep_bullet",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -8380,12 +8014,8 @@
           "name": "knowledge_meeting_prep_evidence_bullet_id_knowledge_meeting_prep_bullet_id_fk",
           "tableFrom": "knowledge_meeting_prep_evidence",
           "tableTo": "knowledge_meeting_prep_bullet",
-          "columnsFrom": [
-            "bullet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bullet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8393,12 +8023,8 @@
           "name": "knowledge_meeting_prep_evidence_mention_id_knowledge_mention_id_fk",
           "tableFrom": "knowledge_meeting_prep_evidence",
           "tableTo": "knowledge_mention",
-          "columnsFrom": [
-            "mention_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["mention_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8406,12 +8032,8 @@
           "name": "knowledge_meeting_prep_evidence_relation_evidence_id_knowledge_relation_evidence_id_fk",
           "tableFrom": "knowledge_meeting_prep_evidence",
           "tableTo": "knowledge_relation_evidence",
-          "columnsFrom": [
-            "relation_evidence_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["relation_evidence_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8419,12 +8041,8 @@
           "name": "knowledge_meeting_prep_evidence_org_fk",
           "tableFrom": "knowledge_meeting_prep_evidence",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -8434,9 +8052,7 @@
         "knowledge_meeting_prep_evidence_id_unique": {
           "name": "knowledge_meeting_prep_evidence_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -8444,9 +8060,7 @@
           "name": "tenant_isolation_knowledge_meeting_prep_evidence",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -8727,12 +8341,8 @@
           "name": "knowledge_mention_org_fk",
           "tableFrom": "knowledge_mention",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -8742,9 +8352,7 @@
         "knowledge_mention_id_unique": {
           "name": "knowledge_mention_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -8752,9 +8360,7 @@
           "name": "tenant_isolation_knowledge_mention",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -9016,12 +8622,8 @@
           "name": "knowledge_mention_record_org_fk",
           "tableFrom": "knowledge_mention_record",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -9031,9 +8633,7 @@
         "knowledge_mention_record_id_unique": {
           "name": "knowledge_mention_record_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -9041,9 +8641,7 @@
           "name": "tenant_isolation_knowledge_mention_record",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -9236,12 +8834,8 @@
           "name": "knowledge_merge_history_org_fk",
           "tableFrom": "knowledge_merge_history",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -9251,9 +8845,7 @@
         "knowledge_merge_history_id_unique": {
           "name": "knowledge_merge_history_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -9261,9 +8853,7 @@
           "name": "tenant_isolation_knowledge_merge_history",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -9516,12 +9106,8 @@
           "name": "knowledge_ontology_org_fk",
           "tableFrom": "knowledge_ontology",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -9531,9 +9117,7 @@
         "knowledge_ontology_id_unique": {
           "name": "knowledge_ontology_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -9541,9 +9125,7 @@
           "name": "tenant_isolation_knowledge_ontology",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -9858,12 +9440,8 @@
           "name": "prop_def_ontology_fk",
           "tableFrom": "knowledge_property_definition",
           "tableTo": "knowledge_ontology",
-          "columnsFrom": [
-            "ontology_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["ontology_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -9871,12 +9449,8 @@
           "name": "knowledge_property_definition_org_fk",
           "tableFrom": "knowledge_property_definition",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -9886,9 +9460,7 @@
         "knowledge_property_definition_id_unique": {
           "name": "knowledge_property_definition_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -9896,9 +9468,7 @@
           "name": "tenant_isolation_knowledge_property_definition",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -10161,12 +9731,8 @@
           "name": "knowledge_relation_org_fk",
           "tableFrom": "knowledge_relation",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -10176,9 +9742,7 @@
         "knowledge_relation_id_unique": {
           "name": "knowledge_relation_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -10186,9 +9750,7 @@
           "name": "tenant_isolation_knowledge_relation",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -10429,12 +9991,8 @@
           "name": "knowledge_relation_evidence_relation_id_knowledge_relation_id_fk",
           "tableFrom": "knowledge_relation_evidence",
           "tableTo": "knowledge_relation",
-          "columnsFrom": [
-            "relation_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["relation_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -10442,12 +10000,8 @@
           "name": "knowledge_relation_evidence_org_fk",
           "tableFrom": "knowledge_relation_evidence",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -10457,9 +10011,7 @@
         "knowledge_relation_evidence_id_unique": {
           "name": "knowledge_relation_evidence_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -10467,9 +10019,7 @@
           "name": "tenant_isolation_knowledge_relation_evidence",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -10629,12 +10179,8 @@
           "name": "knowledge_same_as_link_canonical_id_knowledge_entity_id_fk",
           "tableFrom": "knowledge_same_as_link",
           "tableTo": "knowledge_entity",
-          "columnsFrom": [
-            "canonical_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["canonical_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10642,12 +10188,8 @@
           "name": "knowledge_same_as_link_member_id_knowledge_entity_id_fk",
           "tableFrom": "knowledge_same_as_link",
           "tableTo": "knowledge_entity",
-          "columnsFrom": [
-            "member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["member_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10655,12 +10197,8 @@
           "name": "knowledge_same_as_link_org_fk",
           "tableFrom": "knowledge_same_as_link",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -10670,17 +10208,12 @@
         "knowledge_same_as_link_id_unique": {
           "name": "knowledge_same_as_link_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "same_as_unique": {
           "name": "same_as_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "canonical_id",
-            "member_id"
-          ]
+          "columns": ["canonical_id", "member_id"]
         }
       },
       "policies": {
@@ -10688,9 +10221,7 @@
           "name": "tenant_isolation_knowledge_same_as_link",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -10909,12 +10440,8 @@
           "name": "knowledge_workflow_activity_org_fk",
           "tableFrom": "knowledge_workflow_activity",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -10924,9 +10451,7 @@
         "knowledge_workflow_activity_id_unique": {
           "name": "knowledge_workflow_activity_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -10934,9 +10459,7 @@
           "name": "tenant_isolation_knowledge_workflow_activity",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -11134,12 +10657,8 @@
           "name": "knowledge_workflow_execution_org_fk",
           "tableFrom": "knowledge_workflow_execution",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -11149,9 +10668,7 @@
         "knowledge_workflow_execution_id_unique": {
           "name": "knowledge_workflow_execution_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -11159,9 +10676,7 @@
           "name": "tenant_isolation_knowledge_workflow_execution",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -11355,12 +10870,8 @@
           "name": "knowledge_workflow_signal_org_fk",
           "tableFrom": "knowledge_workflow_signal",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -11370,9 +10881,7 @@
         "knowledge_workflow_signal_id_unique": {
           "name": "knowledge_workflow_signal_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -11380,9 +10889,7 @@
           "name": "tenant_isolation_knowledge_workflow_signal",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -11515,12 +11022,8 @@
           "name": "shared_folder_user_id_shared_user_id_fk",
           "tableFrom": "shared_folder",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -11528,12 +11031,8 @@
           "name": "shared_folder_org_fk",
           "tableFrom": "shared_folder",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -11543,9 +11042,7 @@
         "shared_folder_id_unique": {
           "name": "shared_folder_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -11553,9 +11050,7 @@
           "name": "tenant_isolation_shared_folder",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -11715,12 +11210,8 @@
           "name": "shared_upload_session_org_fk",
           "tableFrom": "shared_upload_session",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -11730,16 +11221,12 @@
         "shared_upload_session_id_unique": {
           "name": "shared_upload_session_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         },
         "shared_upload_session_file_key_unique": {
           "name": "shared_upload_session_file_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "file_key"
-          ]
+          "columns": ["file_key"]
         }
       },
       "policies": {
@@ -11747,9 +11234,7 @@
           "name": "tenant_isolation_shared_upload_session",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -12125,12 +11610,8 @@
           "name": "workspaces_page_created_by_id_shared_user_id_fk",
           "tableFrom": "workspaces_page",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "created_by_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -12138,12 +11619,8 @@
           "name": "workspaces_page_org_fk",
           "tableFrom": "workspaces_page",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -12153,9 +11630,7 @@
         "workspaces_page_id_unique": {
           "name": "workspaces_page_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -12163,9 +11638,7 @@
           "name": "tenant_isolation_workspaces_page",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -12332,12 +11805,8 @@
           "name": "workspaces_comment_discussion_id_workspaces_discussion_id_fk",
           "tableFrom": "workspaces_comment",
           "tableTo": "workspaces_discussion",
-          "columnsFrom": [
-            "discussion_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["discussion_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -12345,12 +11814,8 @@
           "name": "workspaces_comment_user_id_shared_user_id_fk",
           "tableFrom": "workspaces_comment",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -12358,12 +11823,8 @@
           "name": "workspaces_comment_org_fk",
           "tableFrom": "workspaces_comment",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -12373,9 +11834,7 @@
         "workspaces_comment_id_unique": {
           "name": "workspaces_comment_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -12383,9 +11842,7 @@
           "name": "tenant_isolation_workspaces_comment",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -12567,12 +12024,8 @@
           "name": "workspaces_discussion_document_id_workspaces_document_id_fk",
           "tableFrom": "workspaces_discussion",
           "tableTo": "workspaces_document",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -12580,12 +12033,8 @@
           "name": "workspaces_discussion_user_id_shared_user_id_fk",
           "tableFrom": "workspaces_discussion",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -12593,12 +12042,8 @@
           "name": "workspaces_discussion_org_fk",
           "tableFrom": "workspaces_discussion",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -12608,9 +12053,7 @@
         "workspaces_discussion_id_unique": {
           "name": "workspaces_discussion_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -12618,9 +12061,7 @@
           "name": "tenant_isolation_workspaces_discussion",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -12807,12 +12248,8 @@
           "name": "workspaces_document_file_user_id_shared_user_id_fk",
           "tableFrom": "workspaces_document_file",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -12820,12 +12257,8 @@
           "name": "workspaces_document_file_document_id_workspaces_document_id_fk",
           "tableFrom": "workspaces_document_file",
           "tableTo": "workspaces_document",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -12833,12 +12266,8 @@
           "name": "workspaces_document_file_org_fk",
           "tableFrom": "workspaces_document_file",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -12848,9 +12277,7 @@
         "workspaces_document_file_id_unique": {
           "name": "workspaces_document_file_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -12858,9 +12285,7 @@
           "name": "tenant_isolation_workspaces_document_file",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -13166,12 +12591,8 @@
           "name": "workspaces_document_user_id_shared_user_id_fk",
           "tableFrom": "workspaces_document",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -13179,12 +12600,8 @@
           "name": "workspaces_document_org_fk",
           "tableFrom": "workspaces_document",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -13194,9 +12611,7 @@
         "workspaces_document_id_unique": {
           "name": "workspaces_document_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -13204,9 +12619,7 @@
           "name": "tenant_isolation_workspaces_document",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -13373,12 +12786,8 @@
           "name": "workspaces_document_version_document_id_workspaces_document_id_fk",
           "tableFrom": "workspaces_document_version",
           "tableTo": "workspaces_document",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -13386,12 +12795,8 @@
           "name": "workspaces_document_version_user_id_shared_user_id_fk",
           "tableFrom": "workspaces_document_version",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -13399,12 +12804,8 @@
           "name": "workspaces_document_version_org_fk",
           "tableFrom": "workspaces_document_version",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -13414,9 +12815,7 @@
         "workspaces_document_version_id_unique": {
           "name": "workspaces_document_version_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -13424,9 +12823,7 @@
           "name": "tenant_isolation_workspaces_document_version",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -13685,12 +13082,8 @@
           "name": "workspaces_document_source_document_id_workspaces_document_id_fk",
           "tableFrom": "workspaces_document_source",
           "tableTo": "workspaces_document",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -13698,12 +13091,8 @@
           "name": "workspaces_document_source_user_id_shared_user_id_fk",
           "tableFrom": "workspaces_document_source",
           "tableTo": "shared_user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -13711,12 +13100,8 @@
           "name": "workspaces_document_source_org_fk",
           "tableFrom": "workspaces_document_source",
           "tableTo": "shared_organization",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -13726,9 +13111,7 @@
         "workspaces_document_source_id_unique": {
           "name": "workspaces_document_source_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {
@@ -13736,9 +13119,7 @@
           "name": "tenant_isolation_workspaces_document_source",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text",
           "withCheck": "organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text"
         }
@@ -13751,65 +13132,37 @@
     "public.organization_type_enum": {
       "name": "organization_type_enum",
       "schema": "public",
-      "values": [
-        "individual",
-        "team",
-        "enterprise"
-      ]
+      "values": ["individual", "team", "enterprise"]
     },
     "public.subscription_status_enum": {
       "name": "subscription_status_enum",
       "schema": "public",
-      "values": [
-        "active",
-        "canceled"
-      ]
+      "values": ["active", "canceled"]
     },
     "public.subscription_tier_enum": {
       "name": "subscription_tier_enum",
       "schema": "public",
-      "values": [
-        "free",
-        "plus",
-        "pro",
-        "enterprise"
-      ]
+      "values": ["free", "plus", "pro", "enterprise"]
     },
     "public.user_role_enum": {
       "name": "user_role_enum",
       "schema": "public",
-      "values": [
-        "admin",
-        "user"
-      ]
+      "values": ["admin", "user"]
     },
     "public.device_code_status_enum": {
       "name": "device_code_status_enum",
       "schema": "public",
-      "values": [
-        "pending",
-        "approved",
-        "denied"
-      ]
+      "values": ["pending", "approved", "denied"]
     },
     "public.invitation_status_enum": {
       "name": "invitation_status_enum",
       "schema": "public",
-      "values": [
-        "pending",
-        "rejected",
-        "cancelled",
-        "accepted"
-      ]
+      "values": ["pending", "rejected", "cancelled", "accepted"]
     },
     "public.member_role_enum": {
       "name": "member_role_enum",
       "schema": "public",
-      "values": [
-        "admin",
-        "member",
-        "owner"
-      ]
+      "values": ["admin", "member", "owner"]
     },
     "public.member_status_enum": {
       "name": "member_status_enum",
@@ -13826,20 +13179,12 @@
     "public.text_style_enum": {
       "name": "text_style_enum",
       "schema": "public",
-      "values": [
-        "default",
-        "serif",
-        "mono"
-      ]
+      "values": ["default", "serif", "mono"]
     },
     "public.default_access_enum": {
       "name": "default_access_enum",
       "schema": "public",
-      "values": [
-        "private",
-        "restricted",
-        "organization"
-      ]
+      "values": ["private", "restricted", "organization"]
     },
     "public.page_type_enum": {
       "name": "page_type_enum",

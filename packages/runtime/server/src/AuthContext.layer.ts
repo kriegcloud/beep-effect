@@ -108,45 +108,52 @@ const getAuthContext = Effect.fnUntraced(function* ({
   );
 
   // Fetch organization
-  const currentOrg = yield* iamDb.execute((client) =>
-    client.select().from(IamDbSchema.organization).where(eq(IamDbSchema.organization.id, session.activeOrganizationId))
-  ).pipe(
-    Effect.flatMap(A.head),
-    Effect.flatMap(S.decodeUnknown(Organization.Model)),
-    Effect.mapError(
-      () =>
-        new BeepError.Unauthorized({
-          message: "Organization not found",
-        })
-    )
-  );
-
-  const listProviderAccounts = ({ providerId, userId }: { readonly providerId: string; readonly userId: string }) =>
-    iamDb.execute((client) =>
+  const currentOrg = yield* iamDb
+    .execute((client) =>
       client
         .select()
-        .from(IamDbSchema.account)
-        .where(
-          and(
-            eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
-            eq(IamDbSchema.account.providerId, providerId)
-          )
-        )
-    ).pipe(
-      Effect.map((rows) =>
-        rows.map((acc) => ({
-          providerAccountId: acc.id,
-          accountId: acc.accountId ?? undefined,
-          scope: acc.scope ?? undefined,
-        }))
-      ),
+        .from(IamDbSchema.organization)
+        .where(eq(IamDbSchema.organization.id, session.activeOrganizationId))
+    )
+    .pipe(
+      Effect.flatMap(A.head),
+      Effect.flatMap(S.decodeUnknown(Organization.Model)),
       Effect.mapError(
-        (error) =>
-          new OAuthAccountsError({
-            message: `Failed to list provider accounts: ${String(error)}`,
+        () =>
+          new BeepError.Unauthorized({
+            message: "Organization not found",
           })
       )
     );
+
+  const listProviderAccounts = ({ providerId, userId }: { readonly providerId: string; readonly userId: string }) =>
+    iamDb
+      .execute((client) =>
+        client
+          .select()
+          .from(IamDbSchema.account)
+          .where(
+            and(
+              eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
+              eq(IamDbSchema.account.providerId, providerId)
+            )
+          )
+      )
+      .pipe(
+        Effect.map((rows) =>
+          rows.map((acc) => ({
+            providerAccountId: acc.id,
+            accountId: acc.accountId ?? undefined,
+            scope: acc.scope ?? undefined,
+          }))
+        ),
+        Effect.mapError(
+          (error) =>
+            new OAuthAccountsError({
+              message: `Failed to list provider accounts: ${String(error)}`,
+            })
+        )
+      );
 
   return AuthContext.of({
     user,
@@ -223,18 +230,20 @@ const getAuthContext = Effect.fnUntraced(function* ({
           const row =
             providerAccountId === undefined || !IamEntityIds.AccountId.is(providerAccountId)
               ? O.none()
-              : yield* iamDb.execute((client) =>
-                  client
-                    .select()
-                    .from(IamDbSchema.account)
-                    .where(
-                      and(
-                        eq(IamDbSchema.account.id, providerAccountId),
-                        eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
-                        eq(IamDbSchema.account.providerId, providerId)
+              : yield* iamDb
+                  .execute((client) =>
+                    client
+                      .select()
+                      .from(IamDbSchema.account)
+                      .where(
+                        and(
+                          eq(IamDbSchema.account.id, providerAccountId),
+                          eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
+                          eq(IamDbSchema.account.providerId, providerId)
+                        )
                       )
-                    )
-                ).pipe(Effect.map(A.head));
+                  )
+                  .pipe(Effect.map(A.head));
 
           return row.pipe(
             O.map((acc) => ({

@@ -7,7 +7,6 @@ export const ENRON_DEMO_ONTOLOGY_ID = KnowledgeEntityIds.OntologyId.make(
   "knowledge_ontology__00000000-0000-7000-8000-000000000001"
 );
 
-
 // Keep this inlined to avoid server-action cwd/path resolution drift in app runtime.
 export const ENRON_DEMO_ONTOLOGY_CONTENT = `@prefix enron: <https://todox.ai/test/enron/> .
 @prefix wm: <https://todox.ai/ontology/wm/> .

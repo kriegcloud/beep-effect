@@ -3,6 +3,7 @@ import { MentionRecord } from "@beep/knowledge-domain/entities";
 import type { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
 import { Confidence } from "@beep/knowledge-domain/values";
+import { getErrorMessage, getErrorTag } from "@beep/knowledge-server/utils";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import { thunkTrue } from "@beep/utils";
@@ -93,27 +94,6 @@ export class ExtractionPipeline extends Context.Tag($I`ExtractionPipeline`)<
   ExtractionPipelineShape
 >() {}
 
-const getErrorTag = (error: unknown): string =>
-  typeof error === "object" &&
-  error !== null &&
-  "_tag" in error &&
-  typeof (error as { readonly _tag: unknown })._tag === "string"
-    ? ((error as { readonly _tag: string })._tag ?? "UnknownError")
-    : "UnknownError";
-
-const getErrorMessage = (error: unknown): string => {
-  const raw =
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { readonly message: unknown }).message === "string"
-      ? (error as { readonly message: string }).message
-      : String(error);
-  const collapsed = raw.replace(/\s+/g, " ").trim();
-  const statusMatch = collapsed.match(/\b([45]\d{2})\b/);
-  return statusMatch !== null ? `http_status=${statusMatch[1]} len=${collapsed.length}` : `len=${collapsed.length}`;
-};
-
 const annotateFailureOnCurrentSpan = (error: unknown): Effect.Effect<void> =>
   Effect.gen(function* () {
     yield* Effect.annotateCurrentSpan("outcome.success", false);
@@ -187,7 +167,10 @@ const serviceEffect: Effect.Effect<
               Effect.tap((classification) =>
                 Effect.gen(function* () {
                   yield* Effect.annotateCurrentSpan("outcome.success", true);
-                  yield* Effect.annotateCurrentSpan("knowledge.classification.document_type", classification.documentType);
+                  yield* Effect.annotateCurrentSpan(
+                    "knowledge.classification.document_type",
+                    classification.documentType
+                  );
                   yield* Effect.annotateCurrentSpan(
                     "knowledge.classification.domain_tag_count",
                     A.length(classification.domainTags)
@@ -248,30 +231,33 @@ const serviceEffect: Effect.Effect<
       );
 
       yield* Effect.logDebug("Chunking text");
-      const chunks = yield* nlp.chunkTextAll(
-        text,
-        config.chunkingConfig.pipe(O.getOrElse(() => defaultChunkingConfig))
-      ).pipe(
-        Effect.tap((chunkValues) =>
-          Effect.gen(function* () {
-            yield* Effect.annotateCurrentSpan("outcome.success", true);
-            yield* Effect.annotateCurrentSpan("knowledge.chunk.count", A.length(chunkValues));
+      const chunks = yield* nlp
+        .chunkTextAll(text, config.chunkingConfig.pipe(O.getOrElse(() => defaultChunkingConfig)))
+        .pipe(
+          Effect.tap((chunkValues) =>
+            Effect.gen(function* () {
+              yield* Effect.annotateCurrentSpan("outcome.success", true);
+              yield* Effect.annotateCurrentSpan("knowledge.chunk.count", A.length(chunkValues));
+            })
+          ),
+          Effect.tapError(annotateFailureOnCurrentSpan),
+          Effect.withSpan("knowledge.extraction.chunk", {
+            attributes: {
+              "knowledge.document.id": config.documentId,
+              "knowledge.document.text_length": Str.length(text),
+            },
           })
-        ),
-        Effect.tapError(annotateFailureOnCurrentSpan),
-        Effect.withSpan("knowledge.extraction.chunk", {
-          attributes: {
-            "knowledge.document.id": config.documentId,
-            "knowledge.document.text_length": Str.length(text),
-          },
-        })
-      );
+        );
 
       yield* Effect.logInfo("Text chunked", { chunkCount: A.length(chunks) });
 
       yield* Effect.logDebug("Extracting mentions");
 
-      const { allMentions, mentionResults, tokensUsed: mentionTokensUsed } = yield* Effect.gen(function* () {
+      const {
+        allMentions,
+        mentionResults,
+        tokensUsed: mentionTokensUsed,
+      } = yield* Effect.gen(function* () {
         const mentionResults = yield* mentionExtractor.extractFromChunks(
           [...chunks],
           filterUndefined({

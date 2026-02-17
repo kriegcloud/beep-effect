@@ -8,6 +8,7 @@ import { thunkSucceedEffect, thunkZero } from "@beep/utils";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
+import * as Either from "effect/Either";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
@@ -18,6 +19,29 @@ import * as S from "effect/Schema";
 const tableName = KnowledgeEntityIds.KnowledgeEntityId.tableName;
 
 const encodeStringArrayJsonb = S.encode(S.parseJson(S.Array(S.String)));
+const decodeEntity = S.decodeUnknownEither(Entities.Entity.Model);
+
+const normalizeEntityTypesField = (row: unknown): unknown => {
+  if (typeof row !== "object" || row === null) {
+    return row;
+  }
+  const rawTypes = Reflect.get(row, "types");
+  if (typeof rawTypes !== "string") {
+    return row;
+  }
+  try {
+    const parsed = JSON.parse(rawTypes);
+    return Object.assign({}, row, { types: parsed });
+  } catch {
+    return row;
+  }
+};
+
+const decodeEntityRow = (row: unknown): O.Option<Entities.Entity.Model> =>
+  Either.match(decodeEntity(normalizeEntityTypesField(row)), {
+    onLeft: () => O.none(),
+    onRight: O.some,
+  });
 
 class FindByIdsRequest extends S.Class<FindByIdsRequest>("FindByIdsRequest")({
   ids: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
@@ -124,10 +148,31 @@ const makeEntityExtensions = Effect.gen(function* () {
     F.pipe(
       A.isNonEmptyReadonlyArray(ids),
       Effect.if({
-        onTrue: () => findByIdsSchema({ ids: [...ids], organizationId }),
+        onTrue: () =>
+          findByIdsSchema({ ids: [...ids], organizationId }).pipe(
+            Effect.catchTag("ParseError", () =>
+              Effect.gen(function* () {
+                const rawRows: ReadonlyArray<unknown> = yield* sql`
+                  SELECT *
+                  FROM ${sql(tableName)}
+                  WHERE organization_id = ${organizationId}
+                    AND id IN ${sql.in([...ids])}
+                `;
+                const decodedRows = A.filterMap(rawRows, decodeEntityRow);
+                const droppedRows = A.length(rawRows) - A.length(decodedRows);
+
+                if (droppedRows > 0) {
+                  yield* Effect.logWarning("EntityRepo.findByIds: dropped invalid entity rows during recovery").pipe(
+                    Effect.annotateLogs({ droppedRows, totalRows: A.length(rawRows), organizationId })
+                  );
+                }
+
+                return decodedRows;
+              })
+            )
+          ),
         onFalse: thunkSucceedEffect(A.empty<Entities.Entity.Model>()),
       }),
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityRepo.findByIds", {
         captureStackTrace: false,

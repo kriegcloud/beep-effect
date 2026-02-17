@@ -75,12 +75,12 @@ import {
 import type { JSX } from "react";
 import { useCallback, useEffect, useState } from "react";
 import useFlashMessage from "../../hooks/useFlashMessage";
+import { SerializedDocument, SerializedEditorState } from "../../schema";
 import { INITIAL_SETTINGS } from "../../settings";
 import { docFromHash, docToHash } from "../../utils";
 import { PLAYGROUND_TRANSFORMERS } from "../MarkdownTransformers";
 import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from "../SpeechToTextPlugin";
 import { SHOW_VERSIONS_COMMAND } from "../VersionsPlugin";
-import {SerializedEditorState, SerializedDocument} from "../../schema";
 
 const $I = $TodoxId.create("app/lexical/index");
 

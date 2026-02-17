@@ -33,10 +33,7 @@ export const stripNullProperties = (value: unknown): unknown => {
   if (A.isArray(value)) return A.map(value as Array<unknown>, stripNullProperties);
   if (P.isRecord(value)) {
     const record = value as Record<string, unknown>;
-    return R.filter(
-      R.map(record, stripNullProperties),
-      P.isNotUndefined
-    );
+    return R.filter(R.map(record, stripNullProperties), P.isNotUndefined);
   }
   return value;
 };
@@ -99,9 +96,7 @@ export const ClassifiedEntityWire = S.Struct({
   evidence: S.NullOr(S.String).annotations({
     description: "Text evidence supporting type classification",
   }),
-  attributes: S.NullOr(
-    S.Record({ key: S.String, value: S.Union(S.String, S.Number, S.Boolean) })
-  ).annotations({
+  attributes: S.NullOr(S.Record({ key: S.String, value: S.Union(S.String, S.Number, S.Boolean) })).annotations({
     description: "Extracted entity attributes as property-value pairs",
   }),
   canonicalName: S.NullOr(S.String).annotations({

@@ -20,7 +20,7 @@ export const embeddingRelations = d.relations(embedding, (_) => ({}));
 export const entityRelations = d.relations(entity, ({ many }) => ({
   mentions: many(mention),
   outgoingRelations: many(relation, {
-    relationName: "outgoingRelations"
+    relationName: "outgoingRelations",
   }),
 }));
 

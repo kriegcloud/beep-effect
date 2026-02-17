@@ -1,15 +1,19 @@
+import type { Relation } from "@beep/knowledge-domain/entities";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import type { Relation } from "@beep/knowledge-domain/entities";
 export const relation = OrgTable.make(KnowledgeEntityIds.RelationId)(
   {
-    subjectId: pg.text("subject_id").notNull().$type<KnowledgeEntityIds.KnowledgeEntityId.Encoded>(),
+    subjectId: pg.text("subject_id").notNull().$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
     predicate: pg.text("predicate").notNull(),
-    objectId: pg.text("object_id").$type<KnowledgeEntityIds.KnowledgeEntityId.Encoded>(),
+    objectId: pg.text("object_id"),
     literalValue: pg.text("literal_value"),
     literalType: pg.text("literal_type"),
-    ontologyId: pg.text("ontology_id").notNull().default("default").$type<KnowledgeEntityIds.OntologyId.Encoded>(),
+    ontologyId: pg
+      .text("ontology_id")
+      .notNull()
+      .default("default" as const)
+      .$type<KnowledgeEntityIds.OntologyId.Type | "default">(),
     extractionId: pg.text("extraction_id"),
     evidence: pg.jsonb("evidence").$type<typeof Relation.Model.fields.evidence.Encoded>(),
     groundingConfidence: pg.real("grounding_confidence"),

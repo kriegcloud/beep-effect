@@ -14,7 +14,7 @@ export const batchExecution = OrgTable.make(KnowledgeEntityIds.BatchExecutionId)
     entityCount: pg.integer("entity_count"),
     relationCount: pg.integer("relation_count"),
     concurrency: pg.integer("concurrency").notNull().default(3),
-    failurePolicy: pg.text("failure_policy").notNull().default("continue-on-failure"),
+    failurePolicy: pg.text("failure_policy").notNull().default("continue_on_failure"),
     maxRetries: pg.integer("max_retries").notNull().default(2),
     enableEntityResolution: pg.boolean("enable_entity_resolution").notNull().default(true),
     startedAt: datetime("started_at"),

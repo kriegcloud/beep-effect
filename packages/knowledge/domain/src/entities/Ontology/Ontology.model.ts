@@ -5,26 +5,9 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import { OntologyFormat, OntologyStatus } from "./Ontology.values";
 
 const $I = $KnowledgeDomainId.create("entities/Ontology");
-
-export class OntologyStatus extends BS.StringLiteralKit("draft", "active", "deprecated").annotations({
-  identifier: "OntologyStatus",
-  description: "Status of the ontology definition",
-}) {}
-
-export declare namespace OntologyStatus {
-  export type Type = typeof OntologyStatus.Type;
-}
-
-export class OntologyFormat extends BS.StringLiteralKit("turtle", "rdfxml", "jsonld", "ntriples").annotations({
-  identifier: "OntologyFormat",
-  description: "Serialization format of the ontology",
-}) {}
-
-export declare namespace OntologyFormat {
-  export type Type = typeof OntologyFormat.Type;
-}
 
 export class Model extends M.Class<Model>($I`OntologyModel`)(
   makeFields(KnowledgeEntityIds.OntologyId, {
@@ -38,7 +21,9 @@ export class Model extends M.Class<Model>($I`OntologyModel`)(
       description: "Ontology namespace URI",
     }),
 
-    ontologyVersion: BS.toOptionalWithDefault(BS.SemanticVersion)(BS.SemanticVersion.make("1.0.0")).annotations({
+    ontologyVersion: S.optionalWith(BS.SemanticVersion, {
+      default: () => BS.SemanticVersion.make("1.0.0"),
+    }).annotations({
       description: "Semantic version of the ontology",
     }),
 

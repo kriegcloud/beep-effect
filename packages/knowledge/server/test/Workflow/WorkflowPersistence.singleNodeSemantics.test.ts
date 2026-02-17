@@ -16,7 +16,7 @@ import {
   WorkflowPersistence,
 } from "@beep/knowledge-server/Workflow";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
-import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import { assertTrue, layer, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -24,6 +24,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import { makeExtractionWorkflowTestLayer } from "../_shared/LayerBuilders";
+import { PgTest } from "./container.ts";
 
 const organizationId = SharedEntityIds.OrganizationId.create();
 const documentId = WorkspacesEntityIds.DocumentId.create();
@@ -85,10 +86,13 @@ const makeFailingPersistence = (sink: {
   requireBatchExecutionByBatchId: () => Effect.die("not used"),
 });
 
-describe("Workflow persistence single-node semantics", () => {
-  effect("ExtractionWorkflow succeeds even when persistence writes fail (best-effort persistence)", (_ctx) =>
+layer(PgTest, { timeout: Duration.seconds(120) })("Workflow persistence single-node semantics", (it) => {
+  it.effect("ExtractionWorkflow succeeds even when persistence writes fail (best-effort persistence)", (_ctx) =>
     Effect.gen(function* () {
-      const sink = { createCalls: [] as Array<unknown>, statusCalls: [] as Array<{ id: string; status: string }> };
+      const sink = {
+        createCalls: [] as Array<unknown>,
+        statusCalls: [] as Array<{ readonly id: string; readonly status: string }>,
+      };
 
       const pipelineLayer = Layer.succeed(
         ExtractionPipeline,
@@ -122,9 +126,12 @@ describe("Workflow persistence single-node semantics", () => {
     })
   );
 
-  effect("Batch engine workflow fails when initial running status write fails", (_ctx) =>
+  it.effect("Batch engine workflow fails when initial running status write fails", (_ctx) =>
     Effect.gen(function* () {
-      const sink = { createCalls: [] as Array<unknown>, statusCalls: [] as Array<{ id: string; status: string }> };
+      const sink = {
+        createCalls: [] as Array<unknown>,
+        statusCalls: [] as Array<{ id: string; status: string }>,
+      };
       const persistenceLayer = Layer.succeed(WorkflowPersistence, WorkflowPersistence.of(makeFailingPersistence(sink)));
 
       const eventEmitterLayer = Layer.succeed(
@@ -146,11 +153,12 @@ describe("Workflow persistence single-node semantics", () => {
       const payload = {
         batchId: KnowledgeEntityIds.BatchExecutionId.create(),
         organizationId: SharedEntityIds.OrganizationId.create(),
+        currentUserId: SharedEntityIds.UserId.create(),
         ontologyId: KnowledgeEntityIds.OntologyId.create(),
         documents: [{ documentId, text: "alpha", ontologyContent: "o" }],
         config: {
           concurrency: 1,
-          failurePolicy: "continue-on-failure" as const,
+          failurePolicy: "continue_on_failure" as const,
           maxRetries: 0,
           enableEntityResolution: false,
         },
@@ -167,9 +175,12 @@ describe("Workflow persistence single-node semantics", () => {
     })
   );
 
-  effect("Batch engine workflow fails when terminal status persistence fails", (_ctx) =>
+  it.effect("Batch engine workflow fails when terminal status persistence fails", (_ctx) =>
     Effect.gen(function* () {
-      const sink = { createCalls: [] as Array<unknown>, statusCalls: [] as Array<{ id: string; status: string }> };
+      const sink = {
+        createCalls: [] as Array<unknown>,
+        statusCalls: [] as Array<{ readonly id: string; readonly status: string }>,
+      };
       const persistenceLayer = Layer.succeed(
         WorkflowPersistence,
         WorkflowPersistence.of({
@@ -208,10 +219,11 @@ describe("Workflow persistence single-node semantics", () => {
         batchId: KnowledgeEntityIds.BatchExecutionId.create(),
         organizationId: SharedEntityIds.OrganizationId.create(),
         ontologyId: KnowledgeEntityIds.OntologyId.create(),
+        currentUserId: SharedEntityIds.UserId.create(),
         documents: [{ documentId, text: "alpha", ontologyContent: "o" }],
         config: {
           concurrency: 1,
-          failurePolicy: "continue-on-failure" as const,
+          failurePolicy: "continue_on_failure" as const,
           maxRetries: 0,
           enableEntityResolution: false,
         },

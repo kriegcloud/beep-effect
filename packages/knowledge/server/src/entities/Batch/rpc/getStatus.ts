@@ -44,19 +44,17 @@ const toBatchState = (
 
 export const Handler = Effect.fn("batch_getStatus")(function* (payload: Batch.GetBatchStatus.Payload) {
   const persistence = yield* WorkflowPersistence;
-  const execution = yield* persistence
-    .requireBatchExecutionByBatchId(payload.batchId)
-    .pipe(
-      Effect.catchTag(
-        "SqlError",
-        () =>
-          new BatchInfrastructureError({
-            batchId: payload.batchId,
-            operation: "batch_get_status",
-            reason: "failed to read batch execution status",
-          })
-      )
-    );
+  const execution = yield* persistence.requireBatchExecutionByBatchId(payload.batchId).pipe(
+    Effect.catchTag(
+      "SqlError",
+      () =>
+        new BatchInfrastructureError({
+          batchId: payload.batchId,
+          operation: "batch_get_status",
+          reason: "failed to read batch execution status",
+        })
+    )
+  );
 
   return toBatchState(payload.batchId, execution.status, execution.input, execution.output, execution.error);
 }, Effect.withSpan("batch_getStatus"));

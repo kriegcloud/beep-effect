@@ -1,15 +1,11 @@
 "use server";
 
-import { WorkspacesEntityIds } from "@beep/shared-domain";
 import * as Crypto from "node:crypto";
 import { readFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import {
-  ENRON_DEMO_ONTOLOGY_CONTENT,
-  ENRON_DEMO_ONTOLOGY_ID,
-  MAX_DOCUMENTS_PER_SCENARIO,
-} from "./constants";
+import { WorkspacesEntityIds } from "@beep/shared-domain";
+import { ENRON_DEMO_ONTOLOGY_CONTENT, ENRON_DEMO_ONTOLOGY_ID, MAX_DOCUMENTS_PER_SCENARIO } from "./constants";
 import { CURATED_SCENARIOS } from "./data/scenarios";
 import type { PreparedScenarioIngestPayload, ScenarioId } from "./types";
 
@@ -134,7 +130,11 @@ const loadCuratedDataset = async (): Promise<CuratedDataset> => {
 const resolveScenarioDocuments = (
   scenarioId: ScenarioId,
   dataset: CuratedDataset
-): readonly { readonly sourceDocumentId: string; readonly documentId: WorkspacesEntityIds.DocumentId.Type; readonly text: string }[] => {
+): readonly {
+  readonly sourceDocumentId: string;
+  readonly documentId: WorkspacesEntityIds.DocumentId.Type;
+  readonly text: string;
+}[] => {
   const scenario = SCENARIO_BY_ID.get(scenarioId);
   if (scenario === undefined) {
     throw new Error(`Unknown scenario "${scenarioId}"`);

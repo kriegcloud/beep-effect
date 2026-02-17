@@ -116,11 +116,7 @@ const serviceEffect = Effect.gen(function* () {
                 ${toJsonb(params.input ?? {})}::jsonb)
     `.pipe(Effect.asVoid);
 
-  const updateExecutionRunning = (
-    id: string,
-    nowStr: string,
-    lastActivityName?: string
-  ) =>
+  const updateExecutionRunning = (id: string, nowStr: string, lastActivityName?: string) =>
     lastActivityName
       ? sql`
                 UPDATE ${sql(executionTable)}
@@ -193,10 +189,7 @@ const serviceEffect = Effect.gen(function* () {
                 WHERE id = ${id}
       `.pipe(Effect.asVoid);
 
-  const updateExecutionGeneric = (
-    id: string,
-    status: WorkflowExecutionStatus.Type
-  ) =>
+  const updateExecutionGeneric = (id: string, status: WorkflowExecutionStatus.Type) =>
     sql`
         UPDATE ${sql(executionTable)}
         SET status = ${status}

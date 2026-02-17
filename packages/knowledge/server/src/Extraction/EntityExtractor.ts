@@ -12,11 +12,12 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { buildEntityPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
-
 import type { OntologyContext } from "../Ontology";
+import { getErrorMessage, getErrorTag, getModelMetadata, mapResilienceError } from "../utils";
 import { ClassifiedEntity, EntityOutput } from "./schemas/entity-output.schema";
 import { ExtractedMention } from "./schemas/mention-output.schema";
 import { EntityOutputWire, stripNullProperties } from "./schemas/openai-wire";
@@ -65,82 +66,12 @@ export interface EntityExtractorShape {
 
 export class EntityExtractor extends Context.Tag($I`EntityExtractor`)<EntityExtractor, EntityExtractorShape>() {}
 
-const isTagged = (error: unknown, tag: string): boolean =>
-  typeof error === "object" && error !== null && "_tag" in error && (error as { readonly _tag: unknown })._tag === tag;
-
-const readStringProp = (input: unknown, key: string): O.Option<string> =>
-  typeof input === "object" &&
-  input !== null &&
-  key in input &&
-  typeof (input as Record<string, unknown>)[key] === "string"
-    ? O.some((input as Record<string, unknown>)[key] as string)
-    : O.none();
-
-const getModelMetadata = (model: unknown): { readonly provider: string; readonly model: string } => ({
-  provider: F.pipe(
-    readStringProp(model, "provider"),
-    O.orElse(() => readStringProp(model, "_tag")),
-    O.getOrElse(() => "unknown")
-  ),
-  model: F.pipe(
-    readStringProp(model, "model"),
-    O.orElse(() => readStringProp(model, "modelId")),
-    O.orElse(() => readStringProp(model, "id")),
-    O.getOrElse(() => "unknown")
-  ),
-});
-
-const getErrorTag = (error: unknown): string =>
-  typeof error === "object" &&
-  error !== null &&
-  "_tag" in error &&
-  typeof (error as { readonly _tag: unknown })._tag === "string"
-    ? ((error as { readonly _tag: string })._tag ?? "UnknownError")
-    : "UnknownError";
-
-const getErrorMessage = (error: unknown): string => {
-  const raw =
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { readonly message: unknown }).message === "string"
-      ? (error as { readonly message: string }).message
-      : String(error);
-  const collapsed = raw.replace(/\s+/g, " ").trim();
-  const statusMatch = collapsed.match(/\b([45]\d{2})\b/);
-  return statusMatch !== null ? `http_status=${statusMatch[1]} len=${collapsed.length}` : `len=${collapsed.length}`;
-};
-
 const annotateFailureOnCurrentSpan = (error: unknown): Effect.Effect<void> =>
   Effect.gen(function* () {
     yield* Effect.annotateCurrentSpan("outcome.success", false);
     yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(error));
     yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(error));
   });
-
-const mapResilienceError = (
-  method: string,
-  error: AiError.AiError | HttpServerError.RequestError
-): AiError.AiError | HttpServerError.RequestError => {
-  if (isTagged(error, "RequestError")) {
-    return error as HttpServerError.RequestError;
-  }
-  if (
-    isTagged(error, "HttpRequestError") ||
-    isTagged(error, "HttpResponseError") ||
-    isTagged(error, "MalformedInput") ||
-    isTagged(error, "MalformedOutput") ||
-    isTagged(error, "UnknownError")
-  ) {
-    return error as AiError.AiError;
-  }
-  return new AiError.UnknownError({
-    module: "EntityExtractor",
-    method,
-    description: error.message,
-    cause: error,
-  });
-};
 
 const serviceEffect: Effect.Effect<EntityExtractorShape, never, LanguageModel.LanguageModel> = Effect.gen(function* () {
   const model = yield* LanguageModel.LanguageModel;
@@ -164,145 +95,149 @@ const serviceEffect: Effect.Effect<EntityExtractorShape, never, LanguageModel.La
     return { valid: validWithFilteredAdditionalTypes, invalid };
   };
 
-  const classify = Effect.fnUntraced(function* (
-    mentions: readonly ExtractedMention[],
-    ontologyContext: OntologyContext,
-    config: EntityExtractionConfig = {}
-  ) {
-    yield* Effect.annotateCurrentSpan("llm.provider", llm.provider);
-    yield* Effect.annotateCurrentSpan("llm.model", llm.model);
-    yield* Effect.annotateCurrentSpan("knowledge.mention.count", A.length(mentions));
-    const minConfidence = config.minConfidence ?? 0.5;
-    const batchSize = config.batchSize ?? 20;
-    yield* Effect.annotateCurrentSpan("knowledge.entity.batch_size", batchSize);
+  const classify = Effect.fnUntraced(
+    function* (
+      mentions: readonly ExtractedMention[],
+      ontologyContext: OntologyContext,
+      config: EntityExtractionConfig = {}
+    ) {
+      yield* Effect.annotateCurrentSpan("llm.provider", llm.provider);
+      yield* Effect.annotateCurrentSpan("llm.model", llm.model);
+      yield* Effect.annotateCurrentSpan("knowledge.mention.count", A.length(mentions));
+      const minConfidence = config.minConfidence ?? 0.5;
+      const batchSize = config.batchSize ?? 20;
+      yield* Effect.annotateCurrentSpan("knowledge.entity.batch_size", batchSize);
 
-    if (A.isEmptyReadonlyArray(mentions)) {
-      yield* Effect.annotateCurrentSpan("outcome.success", true);
-      yield* Effect.annotateCurrentSpan("knowledge.entity.count", 0);
-      yield* Effect.annotateCurrentSpan("knowledge.entity.invalid_count", 0);
-      yield* Effect.annotateCurrentSpan("knowledge.entity.unclassified_count", 0);
-      yield* Effect.annotateCurrentSpan("llm.status", "skipped");
-      return {
-        entities: A.empty<ClassifiedEntity>(),
-        unclassified: A.empty<ExtractedMention>(),
-        invalidTypes: A.empty<ClassifiedEntity>(),
-        tokensUsed: 0,
-      };
-    }
+      if (A.isEmptyReadonlyArray(mentions)) {
+        yield* Effect.annotateCurrentSpan("outcome.success", true);
+        yield* Effect.annotateCurrentSpan("knowledge.entity.count", 0);
+        yield* Effect.annotateCurrentSpan("knowledge.entity.invalid_count", 0);
+        yield* Effect.annotateCurrentSpan("knowledge.entity.unclassified_count", 0);
+        yield* Effect.annotateCurrentSpan("llm.status", "skipped");
+        return {
+          entities: A.empty<ClassifiedEntity>(),
+          unclassified: A.empty<ExtractedMention>(),
+          invalidTypes: A.empty<ClassifiedEntity>(),
+          tokensUsed: 0,
+        };
+      }
 
-    yield* Effect.logDebug("Classifying entity mentions", {
-      mentionCount: A.length(mentions),
-      classCount: A.length(ontologyContext.classes),
-    });
+      yield* Effect.logDebug("Classifying entity mentions", {
+        mentionCount: A.length(mentions),
+        classCount: A.length(ontologyContext.classes),
+      });
 
-    const batches = A.chunksOf([...mentions], batchSize);
-    const allEntities = A.empty<ClassifiedEntity>();
-    let totalTokens = 0;
+      const batches = A.chunksOf([...mentions], batchSize);
+      const allEntities = A.empty<ClassifiedEntity>();
+      let totalTokens = 0;
 
-    for (const [batchIndex, batch] of batches.entries()) {
-      const prompt = Prompt.make([
-        Prompt.systemMessage({ content: buildSystemPrompt() }),
-        Prompt.userMessage({
-          content: A.make(
-            Prompt.textPart({
-              text: buildEntityPrompt(batch, ontologyContext),
-            })
-          ),
-        }),
-      ]);
-      const rawResult = yield* model
-        .generateObject({
-          prompt,
-          schema: EntityOutputWire,
-          objectName: "EntityOutput",
-        })
-        .pipe(
-          Effect.mapError((error) => mapResilienceError("classify", error)),
-          Effect.tap((result) =>
-            Effect.gen(function* () {
-              const inputTokens = result.usage.inputTokens ?? 0;
-              const outputTokens = result.usage.outputTokens ?? 0;
-              yield* Effect.annotateCurrentSpan("llm.status", "success");
-              yield* Effect.annotateCurrentSpan("llm.input_tokens", inputTokens);
-              yield* Effect.annotateCurrentSpan("llm.output_tokens", outputTokens);
-              yield* Effect.annotateCurrentSpan("llm.tokens_total", inputTokens + outputTokens);
-            })
-          ),
-          Effect.tapError((error) =>
-            Effect.gen(function* () {
-              yield* annotateFailureOnCurrentSpan(error);
-              yield* Effect.annotateCurrentSpan("llm.status", "error");
-            })
-          ),
-          Effect.withSpan("knowledge.entity_extractor.llm_call", {
-            attributes: {
-              "llm.provider": llm.provider,
-              "llm.model": llm.model,
-              "llm.operation": "entity_classification",
-              "knowledge.entity.batch_index": batchIndex,
-              "knowledge.entity.batch_size": A.length(batch),
-            },
+      for (const [batchIndex, batch] of batches.entries()) {
+        const prompt = Prompt.make([
+          Prompt.systemMessage({ content: buildSystemPrompt() }),
+          Prompt.userMessage({
+            content: A.make(
+              Prompt.textPart({
+                text: buildEntityPrompt(batch, ontologyContext),
+              })
+            ),
+          }),
+        ]);
+        const rawResult = yield* model
+          .generateObject({
+            prompt,
+            schema: EntityOutputWire,
+            objectName: "EntityOutput",
           })
+          .pipe(
+            Effect.mapError((error) => mapResilienceError("classify", error)),
+            Effect.tap((result) =>
+              Effect.gen(function* () {
+                const inputTokens = result.usage.inputTokens ?? 0;
+                const outputTokens = result.usage.outputTokens ?? 0;
+                yield* Effect.annotateCurrentSpan("llm.status", "success");
+                yield* Effect.annotateCurrentSpan("llm.input_tokens", inputTokens);
+                yield* Effect.annotateCurrentSpan("llm.output_tokens", outputTokens);
+                yield* Effect.annotateCurrentSpan("llm.tokens_total", inputTokens + outputTokens);
+              })
+            ),
+            Effect.tapError((error) =>
+              Effect.gen(function* () {
+                yield* annotateFailureOnCurrentSpan(error);
+                yield* Effect.annotateCurrentSpan("llm.status", "error");
+              })
+            ),
+            Effect.withSpan("knowledge.entity_extractor.llm_call", {
+              attributes: {
+                "llm.provider": llm.provider,
+                "llm.model": llm.model,
+                "llm.operation": "entity_classification",
+                "knowledge.entity.batch_index": batchIndex,
+                "knowledge.entity.batch_size": A.length(batch),
+              },
+            })
+          );
+
+        const entityOutput = yield* S.decodeUnknown(EntityOutput)(stripNullProperties(rawResult.value)).pipe(
+          Effect.mapError((error) =>
+            AiError.MalformedOutput.fromParseError({
+              module: "EntityExtractor",
+              method: "classify",
+              error,
+            })
+          ),
+          Effect.tapError(annotateFailureOnCurrentSpan)
         );
 
-      const entityOutput = yield* S.decodeUnknown(EntityOutput)(stripNullProperties(rawResult.value)).pipe(
-        Effect.mapError((error) =>
-          AiError.MalformedOutput.fromParseError({
-            module: "EntityExtractor",
-            method: "classify",
-            error,
-          })
-        ),
-        Effect.tapError(annotateFailureOnCurrentSpan)
+        const confidenceFiltered = A.filter(entityOutput.entities, (e) => e.confidence >= minConfidence);
+
+        allEntities.push(...confidenceFiltered);
+        totalTokens += (rawResult.usage.inputTokens ?? 0) + (rawResult.usage.outputTokens ?? 0);
+      }
+
+      const { valid, invalid } = validateEntityTypes(allEntities, ontologyContext);
+
+      const classifiedMentions = F.pipe(
+        allEntities,
+        A.reduce(MutableHashSet.empty<string>(), (set, e) => {
+          MutableHashSet.add(set, Str.toLowerCase(e.mention));
+          return set;
+        })
       );
 
-      const confidenceFiltered = A.filter(entityOutput.entities, (e) => e.confidence >= minConfidence);
+      const unclassified = A.filter(
+        [...mentions],
+        (m) => !MutableHashSet.has(classifiedMentions, Str.toLowerCase(m.text))
+      );
 
-      allEntities.push(...confidenceFiltered);
-      totalTokens += (rawResult.usage.inputTokens ?? 0) + (rawResult.usage.outputTokens ?? 0);
-    }
+      yield* Effect.logDebug("Entity classification complete", {
+        validEntities: A.length(valid),
+        invalidTypes: A.length(invalid),
+        unclassified: A.length(unclassified),
+        tokensUsed: totalTokens,
+      });
+      yield* Effect.annotateCurrentSpan("outcome.success", true);
+      yield* Effect.annotateCurrentSpan("knowledge.entity.count", A.length(valid));
+      yield* Effect.annotateCurrentSpan("knowledge.entity.invalid_count", A.length(invalid));
+      yield* Effect.annotateCurrentSpan("knowledge.entity.unclassified_count", A.length(unclassified));
+      yield* Effect.annotateCurrentSpan("llm.tokens_total", totalTokens);
 
-    const { valid, invalid } = validateEntityTypes(allEntities, ontologyContext);
-
-    const classifiedMentions = F.pipe(
-      allEntities,
-      A.reduce(MutableHashSet.empty<string>(), (set, e) => {
-        MutableHashSet.add(set, Str.toLowerCase(e.mention));
-        return set;
+      return {
+        entities: valid,
+        unclassified,
+        invalidTypes: invalid,
+        tokensUsed: totalTokens,
+      };
+    },
+    Effect.catchAllCause((cause) =>
+      Effect.gen(function* () {
+        const failure = Cause.squash(cause);
+        yield* annotateFailureOnCurrentSpan(failure);
+        yield* Effect.annotateCurrentSpan("llm.status", "error");
+        return yield* Effect.failCause(cause);
       })
-    );
-
-    const unclassified = A.filter(
-      [...mentions],
-      (m) => !MutableHashSet.has(classifiedMentions, Str.toLowerCase(m.text))
-    );
-
-    yield* Effect.logDebug("Entity classification complete", {
-      validEntities: A.length(valid),
-      invalidTypes: A.length(invalid),
-      unclassified: A.length(unclassified),
-      tokensUsed: totalTokens,
-    });
-    yield* Effect.annotateCurrentSpan("outcome.success", true);
-    yield* Effect.annotateCurrentSpan("knowledge.entity.count", A.length(valid));
-    yield* Effect.annotateCurrentSpan("knowledge.entity.invalid_count", A.length(invalid));
-    yield* Effect.annotateCurrentSpan("knowledge.entity.unclassified_count", A.length(unclassified));
-    yield* Effect.annotateCurrentSpan("llm.tokens_total", totalTokens);
-
-    return {
-      entities: valid,
-      unclassified,
-      invalidTypes: invalid,
-      tokensUsed: totalTokens,
-    };
-  }, Effect.catchAllCause((cause) =>
-    Effect.gen(function* () {
-      const failure = Cause.squash(cause);
-      yield* annotateFailureOnCurrentSpan(failure);
-      yield* Effect.annotateCurrentSpan("llm.status", "error");
-      return yield* Effect.failCause(cause);
-    })
-  ), Effect.withSpan("knowledge.entity_extractor.classify"));
+    ),
+    Effect.withSpan("knowledge.entity_extractor.classify")
+  );
 
   const enrichEntities = (
     entities: readonly ClassifiedEntity[],

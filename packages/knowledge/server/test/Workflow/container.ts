@@ -1,10 +1,8 @@
 import { fileURLToPath } from "node:url";
-import { IamRepos } from "@beep/iam-server";
-import { IamDb } from "@beep/iam-server/db";
 import { KnowledgeDb, KnowledgeRepos } from "@beep/knowledge-server/db";
 import { DbClient, SharedDb, SharedRepos, TenantContext } from "@beep/shared-server";
 import { TenantContextTag } from "@beep/testkit/rls";
-import { WorkspacesDb, WorkspacesRepos } from "@beep/workspaces-server/db";
+import type { UnsafeTypes } from "@beep/types";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunContext from "@effect/platform-bun/BunContext";
@@ -35,14 +33,14 @@ export class DevContainerError extends Data.TaggedError("DevContainerError")<{
 }> {}
 
 type PgTestSingletonState = {
-  containerPromise: Promise<any> | undefined;
-  container: any | undefined;
+  containerPromise: Promise<UnsafeTypes.UnsafeAny> | undefined;
+  container: UnsafeTypes.UnsafeAny | undefined;
   refCount: number;
   schemaReadyByUri: Map<string, Promise<void>>;
 };
 
 const getPgTestSingletonState = (): PgTestSingletonState => {
-  const g = globalThis as any;
+  const g = globalThis as UnsafeTypes.UnsafeAny;
   if (g.__beep_pg_test_singleton == null) {
     g.__beep_pg_test_singleton = {
       containerPromise: undefined,
@@ -54,27 +52,17 @@ const getPgTestSingletonState = (): PgTestSingletonState => {
   return g.__beep_pg_test_singleton as PgTestSingletonState;
 };
 
-export type SliceDatabaseClients = WorkspacesDb.Db | IamDb.Db | KnowledgeDb.Db | SharedDb.Db;
+export type SliceDatabaseClients = KnowledgeDb.Db | SharedDb.Db;
 export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, DbClient.PgClientServices>;
-export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
-  IamDb.layer,
-  WorkspacesDb.layer,
-  KnowledgeDb.layer,
-  SharedDb.layer
-);
+export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(KnowledgeDb.layer, SharedDb.layer);
 
-type SliceRepositories = WorkspacesRepos.Repos | IamRepos.Repos | KnowledgeRepos.Repos | SharedRepos.Repos;
+type SliceRepositories = KnowledgeRepos.Repos | SharedRepos.Repos;
 //
 // type L = Layer.Layer.Context<typeof IamRepos.layer>
 type SliceReposLive = Layer.Layer<SliceRepositories, never, DbClient.PgClientServices | SliceDatabaseClients>;
-export const SliceReposLive: SliceReposLive = Layer.mergeAll(
-  IamRepos.layer,
-  WorkspacesRepos.layer,
-  KnowledgeRepos.layer,
-  SharedRepos.layer
-).pipe(Layer.orDie);
+export const SliceReposLive: SliceReposLive = Layer.mergeAll(KnowledgeRepos.layer, SharedRepos.layer).pipe(Layer.orDie);
 
-/**
+/*
  * Layer that maps TenantContext.TenantContext to TenantContextTag for test helpers.
  */
 const TenantContextTagLayer = Layer.effect(TenantContextTag, TenantContext.TenantContext);
@@ -184,7 +172,7 @@ const setupDocker = Effect.gen(function* () {
 
         singleton.containerPromise = (reuseEnabled ? containerBuilder.withReuse() : containerBuilder)
           .start()
-          .then((c: any) => {
+          .then((c: UnsafeTypes.UnsafeAny) => {
             singleton.container = c;
             return c;
           })
@@ -343,41 +331,6 @@ export const PgTest = Layer.scopedContext(
                 try: async () => {
                   await migrate(db, { migrationsFolder });
                   dbg("migrations complete");
-
-                  // Mirror post-generation DB hardening used in repo scripts.
-                  // Tests assert the admin bypass role and session RLS policy exist.
-                  await db.execute(
-                    sql.raw(`
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'rls_bypass_admin') THEN
-    CREATE ROLE rls_bypass_admin WITH BYPASSRLS NOLOGIN;
-    COMMENT ON ROLE rls_bypass_admin IS 'Role that bypasses RLS for administrative operations';
-  END IF;
-END
-$$;
-                  `)
-                  );
-                  await db.execute(sql.raw(`ALTER TABLE shared_session ENABLE ROW LEVEL SECURITY;`));
-                  await db.execute(
-                    sql.raw(`
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1
-    FROM pg_policy
-    WHERE polname = 'tenant_isolation_shared_session'
-      AND polrelid = 'shared_session'::regclass
-  ) THEN
-    CREATE POLICY tenant_isolation_shared_session ON shared_session
-      FOR ALL
-      USING (active_organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text)
-      WITH CHECK (active_organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);
-  END IF;
-END
-$$;
-                  `)
-                  );
 
                   dbg("creating/granting app_user");
                   await db.execute(

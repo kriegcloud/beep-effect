@@ -37,7 +37,7 @@ export class Model extends M.Class<Model>($I`BatchExecutionModel`)(
     entityCount: BS.FieldOptionOmittable(S.NonNegativeInt),
     relationCount: BS.FieldOptionOmittable(S.NonNegativeInt),
     concurrency: S.optionalWith(S.NonNegativeInt, { default: () => 3 }),
-    failurePolicy: S.optionalWith(FailurePolicy, { default: () => "continue-on-failure" as const }),
+    failurePolicy: S.optionalWith(FailurePolicy, { default: () => "continue_on_failure" as const }),
     maxRetries: S.optionalWith(S.NonNegativeInt, { default: () => 2 }),
     enableEntityResolution: S.optionalWith(S.Boolean, { default: () => true }),
     startedAt: BS.FieldOptionOmittable(BS.DateTimeUtcFromAllAcceptable),

@@ -1,5 +1,5 @@
 import { $TodoxId } from "@beep/identity/packages";
-import { SerializedLexicalNode } from "@beep/todox/app/lexical/schema/schemas";
+import { SerializedLexicalNode } from "./schemas";
 import * as S from "effect/Schema";
 import { Editor, SerializedEditor } from "./editor.schema";
 

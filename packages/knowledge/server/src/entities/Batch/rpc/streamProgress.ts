@@ -8,19 +8,17 @@ export const Handler = Effect.fnUntraced(function* (payload: Batch.StreamProgres
   const emitter = yield* BatchEventEmitter;
   const persistence = yield* WorkflowPersistence;
 
-  yield* persistence
-    .requireBatchExecutionByBatchId(payload.batchId)
-    .pipe(
-      Effect.catchTag(
-        "SqlError",
-        () =>
-          new BatchInfrastructureError({
-            batchId: payload.batchId,
-            operation: "batch_stream_progress",
-            reason: "failed to read batch execution for stream subscription",
-          })
-      )
-    );
+  yield* persistence.requireBatchExecutionByBatchId(payload.batchId).pipe(
+    Effect.catchTag(
+      "SqlError",
+      () =>
+        new BatchInfrastructureError({
+          batchId: payload.batchId,
+          operation: "batch_stream_progress",
+          reason: "failed to read batch execution for stream subscription",
+        })
+    )
+  );
 
   return emitter.subscribe(payload.batchId);
 }, Stream.unwrap);

@@ -13,7 +13,7 @@ describe("WorkflowPersistence schema boundary", () => {
     Effect.fn(function* () {
       const raw = {
         id: KnowledgeEntityIds.WorkflowExecutionId.create(),
-        organizationId: "org-1",
+        organizationId: "organization__00000000-0000-0000-0000-000000000000",
         workflowType: "extraction",
         status: "pending",
         input: null,

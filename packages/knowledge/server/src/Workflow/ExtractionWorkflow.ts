@@ -3,6 +3,7 @@ import { $KnowledgeServerId } from "@beep/identity/packages";
 import { ActivityFailedError, OntologyParseError, type WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
 import { ExtractionProgressEvent } from "@beep/knowledge-domain/values";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
+import { getErrorMessage, getErrorTag } from "@beep/knowledge-server/utils";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as AiError from "@effect/ai/AiError";
@@ -234,27 +235,6 @@ const toEnginePayload = (params: ExtractionWorkflowParams) => ({
   retryOwner: params.config?.retryOwner ?? "activity",
 });
 
-const getErrorTag = (error: unknown): string =>
-  typeof error === "object" &&
-  error !== null &&
-  "_tag" in error &&
-  typeof (error as { readonly _tag: unknown })._tag === "string"
-    ? ((error as { readonly _tag: string })._tag ?? "UnknownError")
-    : "UnknownError";
-
-const getErrorMessage = (error: unknown): string => {
-  const raw =
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { readonly message: unknown }).message === "string"
-      ? (error as { readonly message: string }).message
-      : String(error);
-  const collapsed = raw.replace(/\s+/g, " ").trim();
-  const statusMatch = collapsed.match(/\b([45]\d{2})\b/);
-  return statusMatch !== null ? `http_status=${statusMatch[1]} len=${collapsed.length}` : `len=${collapsed.length}`;
-};
-
 const serviceEffect = Effect.gen(function* () {
   const maybeWorkflowEngine = yield* Effect.serviceOption(WorkflowEngine.WorkflowEngine);
 
@@ -433,24 +413,24 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
           yield* Effect.annotateCurrentSpan("knowledge.entity.count", result.stats.entityCount);
           yield* Effect.annotateCurrentSpan("knowledge.relation.count", result.stats.relationCount);
           yield* persistence
-          .updateExecutionStatus(executionId, "completed", {
-            output: {
-              entityCount: result.stats.entityCount,
-              relationCount: result.stats.relationCount,
-              mentionCount: result.stats.mentionCount,
-              chunkCount: result.stats.chunkCount,
-            },
-          })
-          // Persistence is best-effort: failures and defects should not block workflow execution.
-          .pipe(
-            Effect.catchAllCause((cause) =>
-              Effect.gen(function* () {
-                const failure = Cause.squash(cause);
-                yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
-                yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
-              })
-            )
-          );
+            .updateExecutionStatus(executionId, "completed", {
+              output: {
+                entityCount: result.stats.entityCount,
+                relationCount: result.stats.relationCount,
+                mentionCount: result.stats.mentionCount,
+                chunkCount: result.stats.chunkCount,
+              },
+            })
+            // Persistence is best-effort: failures and defects should not block workflow execution.
+            .pipe(
+              Effect.catchAllCause((cause) =>
+                Effect.gen(function* () {
+                  const failure = Cause.squash(cause);
+                  yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+                  yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+                })
+              )
+            );
         })
       ),
       Effect.catchAllCause((cause) =>

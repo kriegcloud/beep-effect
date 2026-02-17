@@ -1,10 +1,10 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { annotateFailureOnCurrentSpan, getModelMetadata } from "@beep/knowledge-server/utils";
 import { BS } from "@beep/schema";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
-
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -196,9 +196,13 @@ export interface DocumentClassifierShape {
    * controlled concurrency.
    */
   readonly classifyWithAutoBatching: (
-    documents: ReadonlyArray<{ readonly index: number; readonly preview: string; readonly contentType?: string }>,
-    batchSize?: number,
-    concurrency?: number
+    documents: ReadonlyArray<{
+      readonly index: number;
+      readonly preview: string;
+      readonly contentType?: undefined | string;
+    }>,
+    batchSize?: undefined | number,
+    concurrency?: undefined | number
   ) => Effect.Effect<
     ReadonlyArray<{ readonly index: number; readonly classification: DocumentClassification }>,
     ClassificationError
@@ -210,65 +214,17 @@ export class DocumentClassifier extends Context.Tag($I`DocumentClassifier`)<
   DocumentClassifierShape
 >() {}
 
-const readStringProp = (input: unknown, key: string): O.Option<string> =>
-  typeof input === "object" &&
-  input !== null &&
-  key in input &&
-  typeof (input as Record<string, unknown>)[key] === "string"
-    ? O.some((input as Record<string, unknown>)[key] as string)
-    : O.none();
-
-const resolveStringOrUnknown = (option: O.Option<string>): string =>
-  O.match(option, {
-    onNone: () => "unknown",
-    onSome: (value) => value,
-  });
-
-const getModelMetadata = (model: unknown): { readonly provider: string; readonly model: string } => ({
-  provider: resolveStringOrUnknown(O.orElse(readStringProp(model, "provider"), () => readStringProp(model, "_tag"))),
-  model: resolveStringOrUnknown(
-    O.orElse(
-      O.orElse(readStringProp(model, "model"), () => readStringProp(model, "modelId")),
-      () => readStringProp(model, "id")
-    )
-  ),
-});
-
-const getErrorTag = (error: unknown): string =>
-  typeof error === "object" &&
-  error !== null &&
-  "_tag" in error &&
-  typeof (error as { readonly _tag: unknown })._tag === "string"
-    ? ((error as { readonly _tag: string })._tag ?? "UnknownError")
-    : "UnknownError";
-
-const getErrorMessage = (error: unknown): string => {
-  const raw =
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { readonly message: unknown }).message === "string"
-      ? (error as { readonly message: string }).message
-      : String(error);
-  const collapsed = raw.replace(/\s+/g, " ").trim();
-  const statusMatch = collapsed.match(/\b([45]\d{2})\b/);
-  return statusMatch !== null ? `http_status=${statusMatch[1]} len=${collapsed.length}` : `len=${collapsed.length}`;
-};
-
-const annotateFailureOnCurrentSpan = (error: unknown): Effect.Effect<void> =>
-  Effect.gen(function* () {
-    yield* Effect.annotateCurrentSpan("outcome.success", false);
-    yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(error));
-    yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(error));
-  });
-
 const serviceEffect: Effect.Effect<DocumentClassifierShape, never, LanguageModel.LanguageModel> = Effect.gen(
   function* () {
     const model = yield* LanguageModel.LanguageModel;
     const llm = getModelMetadata(model);
 
     const classifyBatchOnce = (
-      docs: ReadonlyArray<{ readonly index: number; readonly preview: string; readonly contentType: O.Option<string> }>
+      docs: ReadonlyArray<{
+        readonly index: number;
+        readonly preview: string;
+        readonly contentType: O.Option<string>;
+      }>
     ) =>
       model
         .generateObject({
@@ -348,7 +304,10 @@ const serviceEffect: Effect.Effect<DocumentClassifierShape, never, LanguageModel
             Effect.tap((classification) =>
               Effect.gen(function* () {
                 yield* Effect.annotateCurrentSpan("outcome.success", true);
-                yield* Effect.annotateCurrentSpan("knowledge.classification.document_type", classification.documentType);
+                yield* Effect.annotateCurrentSpan(
+                  "knowledge.classification.document_type",
+                  classification.documentType
+                );
                 yield* Effect.annotateCurrentSpan(
                   "knowledge.classification.domain_tag_count",
                   A.length(classification.domainTags)

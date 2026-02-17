@@ -4,16 +4,16 @@ import { Rpc as KnowledgeRpc } from "@beep/knowledge-domain";
 import { makeAtomRuntime } from "@beep/runtime-client";
 import { clientEnv } from "@beep/shared-env/ClientEnv";
 import * as BrowserSocket from "@effect/platform-browser/BrowserSocket";
-import { useAtomSet } from "@effect-atom/atom-react";
 import * as RpcClient from "@effect/rpc/RpcClient";
 import type { RpcClientError } from "@effect/rpc/RpcClientError";
 import * as RpcSerialization from "@effect/rpc/RpcSerialization";
+import { useAtomSet } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as React from "react";
 import * as Schedule from "effect/Schedule";
 import * as Str from "effect/String";
+import * as React from "react";
 
 const KnowledgeRpcs = KnowledgeRpc.Batch.Rpcs.merge(KnowledgeRpc.Entity.Rpcs)
   .merge(KnowledgeRpc.Relation.Rpcs)
@@ -45,9 +45,7 @@ const knowledgeRpcEndpoint = `${F.pipe(
 const KnowledgeRpcProtocolLive = RpcClient.layerProtocolSocket({
   retryTransientErrors: true,
   retrySchedule: Schedule.spaced("2 seconds"),
-}).pipe(
-  Layer.provide([BrowserSocket.layerWebSocket(knowledgeRpcEndpoint), RpcSerialization.layerNdjson])
-);
+}).pipe(Layer.provide([BrowserSocket.layerWebSocket(knowledgeRpcEndpoint), RpcSerialization.layerNdjson]));
 
 const atomRuntime = makeAtomRuntime(() => KnowledgeRpcProtocolLive);
 
@@ -75,21 +73,20 @@ const withKnowledgeRpcClient = <A, E, R>(
     }).pipe(Effect.provide(KnowledgeRpcProtocolLive))
   );
 
-const startKnowledgeBatchAtom = atomRuntime.fn(
-  ({ payload, sessionToken }: RpcInput<StartKnowledgeBatchPayload>) =>
-    withKnowledgeRpcClient(
-      (client) =>
-        client.batch_start({
-          ...payload,
-          documents: payload.documents.map((document) =>
-            KnowledgeRpc.Batch.StartBatch.BatchDocument.make({
-              documentId: document.documentId,
-              text: document.text,
-            })
-          ),
-        }),
-      sessionToken
-    )
+const startKnowledgeBatchAtom = atomRuntime.fn(({ payload, sessionToken }: RpcInput<StartKnowledgeBatchPayload>) =>
+  withKnowledgeRpcClient(
+    (client) =>
+      client.batch_start({
+        ...payload,
+        documents: payload.documents.map((document) =>
+          KnowledgeRpc.Batch.StartBatch.BatchDocument.make({
+            documentId: document.documentId,
+            text: document.text,
+          })
+        ),
+      }),
+    sessionToken
+  )
 );
 
 const getKnowledgeBatchStatusAtom = atomRuntime.fn(
@@ -97,9 +94,8 @@ const getKnowledgeBatchStatusAtom = atomRuntime.fn(
     withKnowledgeRpcClient((client) => client.batch_getStatus(payload), sessionToken)
 );
 
-const queryKnowledgeGraphAtom = atomRuntime.fn(
-  ({ payload, sessionToken }: RpcInput<QueryKnowledgeGraphPayload>) =>
-    withKnowledgeRpcClient((client) => client.graphrag_query(payload), sessionToken)
+const queryKnowledgeGraphAtom = atomRuntime.fn(({ payload, sessionToken }: RpcInput<QueryKnowledgeGraphPayload>) =>
+  withKnowledgeRpcClient((client) => client.graphrag_query(payload), sessionToken)
 );
 
 export const useKnowledgeRpcClient = (sessionToken: null | string) => {

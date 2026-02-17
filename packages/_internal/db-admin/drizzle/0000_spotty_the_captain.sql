@@ -671,7 +671,7 @@ CREATE TABLE "knowledge_batch_execution" (
 	"entity_count" integer,
 	"relation_count" integer,
 	"concurrency" integer DEFAULT 3 NOT NULL,
-	"failure_policy" text DEFAULT 'continue-on-failure' NOT NULL,
+	"failure_policy" text DEFAULT 'continue_on_failure' NOT NULL,
 	"max_retries" integer DEFAULT 2 NOT NULL,
 	"enable_entity_resolution" boolean DEFAULT true NOT NULL,
 	"started_at" timestamp with time zone,

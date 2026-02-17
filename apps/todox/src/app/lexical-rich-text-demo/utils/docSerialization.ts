@@ -1,4 +1,3 @@
-
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -7,8 +6,8 @@ import type * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { SerializedDocument } from "../../../components/editor/schema";
 import { CompressionError, InvalidDocumentHashError } from "../schema/errors";
-import {SerializedDocument} from "../../../components/editor/schema";
 
 /**
  * Reads chunks from a ReadableStreamDefaultReader.

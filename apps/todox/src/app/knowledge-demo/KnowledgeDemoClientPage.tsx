@@ -1,26 +1,22 @@
 "use client";
 
-import {Core} from "@beep/iam-client";
-import {useIsClient} from "@beep/ui/hooks";
-import {SplashScreen} from "@beep/ui/progress/loading-screen/splash-screen";
-import {Result} from "@effect-atom/atom-react";
+import { Core } from "@beep/iam-client";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { useIsClient } from "@beep/ui/hooks";
+import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
+import { Result } from "@effect-atom/atom-react";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as React from "react";
-import {prepareScenarioIngestPayload} from "./actions";
+import { prepareScenarioIngestPayload } from "./actions";
+import { DemoCallout, EmailInputPanel, GraphRAGQueryPanel, ResultsTabs } from "./components";
+import { EntityDetailDrawer } from "./components/EntityDetailDrawer";
+import { ErrorAlert } from "./components/ErrorAlert";
+import { CURATED_SCENARIOS } from "./data/scenarios";
 import {
-  DemoCallout,
-  EmailInputPanel,
-  GraphRAGQueryPanel,
-  ResultsTabs,
-} from "./components";
-import {EntityDetailDrawer} from "./components/EntityDetailDrawer";
-import {ErrorAlert} from "./components/ErrorAlert";
-import {CURATED_SCENARIOS} from "./data/scenarios";
-import {
-  useKnowledgeRpcClient,
   type GetKnowledgeBatchStatusSuccess,
   type QueryKnowledgeGraphSuccess,
+  useKnowledgeRpcClient,
 } from "./rpc-client";
 import type {
   AssembledEntity,
@@ -67,26 +63,23 @@ const unwrapSessionToken = (token: unknown): null | string => {
 };
 
 const makeInitialScenarioStates = (): Record<ScenarioId, ScenarioIngestState> => ({
-  "scenario-1": {status: "not-started"},
-  "scenario-2": {status: "not-started"},
-  "scenario-3": {status: "not-started"},
-  "scenario-4": {status: "not-started"},
+  "scenario-1": { status: "not-started" },
+  "scenario-2": { status: "not-started" },
+  "scenario-3": { status: "not-started" },
+  "scenario-4": { status: "not-started" },
 });
 
 const makeInitialScenarioData = (): Record<ScenarioId, ScenarioViewData> => ({
-  "scenario-1": {sourceText: "", entities: [], relations: []},
-  "scenario-2": {sourceText: "", entities: [], relations: []},
-  "scenario-3": {sourceText: "", entities: [], relations: []},
-  "scenario-4": {sourceText: "", entities: [], relations: []},
+  "scenario-1": { sourceText: "", entities: [], relations: [] },
+  "scenario-2": { sourceText: "", entities: [], relations: [] },
+  "scenario-3": { sourceText: "", entities: [], relations: [] },
+  "scenario-4": { sourceText: "", entities: [], relations: [] },
 });
 
 const getScenarioById = (scenarioId: ScenarioId) =>
-  O.getOrElse(
-    O.fromNullable(CURATED_SCENARIOS.find((scenario) => scenario.id === scenarioId)),
-    () => {
-      throw new Error(`Unknown scenario "${scenarioId}"`);
-    }
-  );
+  O.getOrElse(O.fromNullable(CURATED_SCENARIOS.find((scenario) => scenario.id === scenarioId)), () => {
+    throw new Error(`Unknown scenario "${scenarioId}"`);
+  });
 
 const mapGraphResult = (result: RpcGraphQuerySuccess, config: GraphRAGConfig): GraphRAGResult => {
   const entities: readonly AssembledEntity[] = result.entities.map((entity) => {
@@ -108,7 +101,10 @@ const mapGraphResult = (result: RpcGraphQuerySuccess, config: GraphRAGConfig): G
     id: relation.id,
     subjectId: relation.subjectId,
     predicate: relation.predicate,
-    objectId: O.getOrUndefined(relation.objectId),
+    objectId: O.match(relation.objectId, {
+      onNone: () => undefined,
+      onSome: (objectId) => KnowledgeEntityIds.KnowledgeEntityId.make(objectId),
+    }),
     literalValue: O.getOrUndefined(relation.literalValue),
     evidence: O.getOrUndefined(relation.evidence),
     groundingConfidence: O.getOrUndefined(relation.groundingConfidence),
@@ -139,7 +135,7 @@ const mapGraphResult = (result: RpcGraphQuerySuccess, config: GraphRAGConfig): G
 const mapBatchState = (batchState: RpcBatchStatus): Omit<ScenarioIngestState, "batchId" | "lastIngestAt"> => {
   switch (batchState._tag) {
     case "BatchState.Pending":
-      return {status: "pending"};
+      return { status: "pending" };
     case "BatchState.Extracting":
       return {
         status: "extracting",
@@ -174,12 +170,11 @@ const mapBatchState = (batchState: RpcBatchStatus): Omit<ScenarioIngestState, "b
 };
 
 const KnowledgeDemoClientContent = () => {
-  const {sessionResult} = Core.Atoms.use();
+  const { sessionResult } = Core.Atoms.use();
 
   const [error, setError] = React.useState<AppError | null>(null);
-  const [scenarioStates, setScenarioStates] = React.useState<Record<ScenarioId, ScenarioIngestState>>(
-    makeInitialScenarioStates
-  );
+  const [scenarioStates, setScenarioStates] =
+    React.useState<Record<ScenarioId, ScenarioIngestState>>(makeInitialScenarioStates);
   const [scenarioData, setScenarioData] = React.useState<Record<ScenarioId, ScenarioViewData>>(makeInitialScenarioData);
   const [selectedScenarioId, setSelectedScenarioId] = React.useState<ScenarioId>("scenario-1");
   const [ingestingScenarioId, setIngestingScenarioId] = React.useState<ScenarioId | null>(null);
@@ -189,44 +184,39 @@ const KnowledgeDemoClientContent = () => {
   const [activeSpanIndex, setActiveSpanIndex] = React.useState<number | undefined>(undefined);
 
   const activeOrganizationId = Result.builder(sessionResult)
-                                     .onInitial(() => null)
-                                     .onDefect(() => null)
-                                     .onFailure(() => null)
-                                     .onSuccess(({data}: Core.GetSession.Success) =>
-                                       O.match(data, {
-                                         onNone: () => null,
-                                         onSome: (sessionData) => sessionData.session.activeOrganizationId,
-                                       })
-                                     )
-                                     .render();
+    .onInitial(() => null)
+    .onDefect(() => null)
+    .onFailure(() => null)
+    .onSuccess(({ data }: Core.GetSession.Success) =>
+      O.match(data, {
+        onNone: () => null,
+        onSome: (sessionData) => sessionData.session.activeOrganizationId,
+      })
+    )
+    .render();
   const sessionToken = Result.builder(sessionResult)
-                             .onInitial(() => null)
-                             .onDefect(() => null)
-                             .onFailure(() => null)
-                             .onSuccess(({data}: Core.GetSession.Success) =>
-                               O.match(data, {
-                                 onNone: () => null,
-                                 onSome: (sessionData) => unwrapSessionToken(sessionData.session.token),
-                               })
-                             )
-                             .render();
-  const {startKnowledgeBatch, getKnowledgeBatchStatus, queryKnowledgeGraph} = useKnowledgeRpcClient(sessionToken);
+    .onInitial(() => null)
+    .onDefect(() => null)
+    .onFailure(() => null)
+    .onSuccess(({ data }: Core.GetSession.Success) =>
+      O.match(data, {
+        onNone: () => null,
+        onSome: (sessionData) => unwrapSessionToken(sessionData.session.token),
+      })
+    )
+    .render();
+  const { startKnowledgeBatch, getKnowledgeBatchStatus, queryKnowledgeGraph } = useKnowledgeRpcClient(sessionToken);
   const selectedScenario = React.useMemo(() => getScenarioById(selectedScenarioId), [selectedScenarioId]);
   const selectedScenarioState = scenarioStates[selectedScenarioId];
   const selectedScenarioData = scenarioData[selectedScenarioId];
 
-  const selectedEntity = React.useMemo(
-    () => {
-      if (selectedEntityId === null) {
-        return null;
-      }
+  const selectedEntity = React.useMemo(() => {
+    if (selectedEntityId === null) {
+      return null;
+    }
 
-      return O.getOrNull(
-        O.fromNullable(selectedScenarioData.entities.find((entity) => entity.id === selectedEntityId))
-      );
-    },
-    [selectedEntityId, selectedScenarioData.entities]
-  );
+    return O.getOrNull(O.fromNullable(selectedScenarioData.entities.find((entity) => entity.id === selectedEntityId)));
+  }, [selectedEntityId, selectedScenarioData.entities]);
 
   const clearEntitySelection = React.useCallback(() => {
     setSelectedEntityId(null);
@@ -238,7 +228,7 @@ const KnowledgeDemoClientContent = () => {
     async (scenarioId: ScenarioId, query: string, config: GraphRAGConfig): Promise<GraphRAGResult> => {
       if (activeOrganizationId === null) {
         const message = "No active organization in session.";
-        setError({source: "session", message});
+        setError({ source: "session", message });
         throw new Error(message);
       }
 
@@ -267,7 +257,7 @@ const KnowledgeDemoClientContent = () => {
         return mapped;
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : "Graph query failed";
-        setError({source: "query", message});
+        setError({ source: "query", message });
         throw new Error(message);
       }
     },
@@ -277,7 +267,7 @@ const KnowledgeDemoClientContent = () => {
   const loadCompletedScenarioData = React.useCallback(
     async (scenarioId: ScenarioId, batchId: string) => {
       const scenario = getScenarioById(scenarioId);
-      const queryResult = await runScenarioGraphQuery(scenarioId, scenario.querySeed, {topK: 10, maxHops: 1});
+      const queryResult = await runScenarioGraphQuery(scenarioId, scenario.querySeed, { topK: 10, maxHops: 1 });
 
       setScenarioData((current) => ({
         ...current,
@@ -316,7 +306,7 @@ const KnowledgeDemoClientContent = () => {
       clearEntitySelection();
 
       try {
-        const prepared = await prepareScenarioIngestPayload({scenarioId});
+        const prepared = await prepareScenarioIngestPayload({ scenarioId });
         const startResult = await startKnowledgeBatch({
           organizationId: activeOrganizationId,
           ontologyId: prepared.ontologyId,
@@ -351,7 +341,7 @@ const KnowledgeDemoClientContent = () => {
         }));
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : "Scenario ingest failed";
-        setError({source: "ingest", message});
+        setError({ source: "ingest", message });
         setScenarioStates((current) => ({
           ...current,
           [scenarioId]: {
@@ -386,7 +376,7 @@ const KnowledgeDemoClientContent = () => {
         }
 
         try {
-          const batchState = await getKnowledgeBatchStatus({batchId: state.batchId});
+          const batchState = await getKnowledgeBatchStatus({ batchId: state.batchId });
           const mappedState = mapBatchState(batchState);
 
           setScenarioStates((current) => ({
@@ -446,19 +436,21 @@ const KnowledgeDemoClientContent = () => {
         continue;
       }
 
-      void loadCompletedScenarioData(scenario.id, state.batchId)
-        .catch((cause) => {
-          const message = cause instanceof Error ? cause.message : "Failed to load scenario data";
-          setError({source: "query", message});
-        });
+      void loadCompletedScenarioData(scenario.id, state.batchId).catch((cause) => {
+        const message = cause instanceof Error ? cause.message : "Failed to load scenario data";
+        setError({ source: "query", message });
+      });
     }
   }, [loadCompletedScenarioData, scenarioData, scenarioStates]);
 
-  const handleScenarioSelect = React.useCallback((scenarioId: ScenarioId) => {
-    setSelectedScenarioId(scenarioId);
-    setError(null);
-    clearEntitySelection();
-  }, [clearEntitySelection]);
+  const handleScenarioSelect = React.useCallback(
+    (scenarioId: ScenarioId) => {
+      setSelectedScenarioId(scenarioId);
+      setError(null);
+      clearEntitySelection();
+    },
+    [clearEntitySelection]
+  );
 
   const handleGraphQuery = React.useCallback(
     (query: string, config: GraphRAGConfig) => runScenarioGraphQuery(selectedScenarioId, query, config),
@@ -501,17 +493,19 @@ const KnowledgeDemoClientContent = () => {
       {error && (
         <div className="mb-6">
           <ErrorAlert
-            title={error.source === "ingest" ? "Ingest Failed" : error.source === "query" ? "Query Failed" : "Session Error"}
+            title={
+              error.source === "ingest" ? "Ingest Failed" : error.source === "query" ? "Query Failed" : "Session Error"
+            }
             message={error.message}
             onRetry={
               error.source === "ingest"
                 ? () => {
-                  void handleIngestScenario(selectedScenarioId);
-                }
+                    void handleIngestScenario(selectedScenarioId);
+                  }
                 : error.source === "query"
                   ? () => {
-                    void handleGraphQuery(selectedScenario.querySeed, {topK: 10, maxHops: 1});
-                  }
+                      void handleGraphQuery(selectedScenario.querySeed, { topK: 10, maxHops: 1 });
+                    }
                   : undefined
             }
             onDismiss={() => setError(null)}
@@ -580,8 +574,8 @@ export default function KnowledgeDemoClientPage() {
   const isClient = useIsClient();
 
   if (!isClient) {
-    return <SplashScreen/>;
+    return <SplashScreen />;
   }
 
-  return <KnowledgeDemoClientContent/>;
+  return <KnowledgeDemoClientContent />;
 }

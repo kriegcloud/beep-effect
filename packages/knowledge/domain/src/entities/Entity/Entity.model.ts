@@ -19,7 +19,7 @@ export class Model extends M.Class<Model>($I`EntityModel`)(
     types: S.NonEmptyArray(S.String).annotations({
       description: "Ontology class URIs (at least one required)",
     }),
-    attributes: (Attributes).annotations({
+    attributes: Attributes.annotations({
       description: "Property-value pairs from extraction",
     }),
     ontologyId: BS.FieldOptionOmittable(

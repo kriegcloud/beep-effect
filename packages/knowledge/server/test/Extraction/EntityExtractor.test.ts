@@ -43,9 +43,14 @@ describe("EntityExtractor", () => {
                   {
                     mention: "John Smith",
                     typeIri: "http://schema.org/Person",
+                    additionalTypes: null,
                     confidence: 0.95,
+                    evidence: null,
+                    attributes: null,
+                    canonicalName: null,
                   },
                 ],
+                reasoning: null,
               }
             : {},
       })
@@ -81,9 +86,26 @@ describe("EntityExtractor", () => {
           objectName === "EntityOutput"
             ? {
                 entities: [
-                  { mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 },
-                  { mention: "maybe-entity", typeIri: "http://schema.org/Thing", confidence: 0.3 },
+                  {
+                    mention: "John",
+                    typeIri: "http://schema.org/Person",
+                    additionalTypes: null,
+                    confidence: 0.9,
+                    evidence: null,
+                    attributes: null,
+                    canonicalName: null,
+                  },
+                  {
+                    mention: "maybe-entity",
+                    typeIri: "http://schema.org/Thing",
+                    additionalTypes: null,
+                    confidence: 0.3,
+                    evidence: null,
+                    attributes: null,
+                    canonicalName: null,
+                  },
                 ],
+                reasoning: null,
               }
             : {},
       })
@@ -112,7 +134,20 @@ describe("EntityExtractor", () => {
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "EntityOutput"
-            ? { entities: [{ mention: "Widget", typeIri: "http://invalid.org/UnknownType", confidence: 0.9 }] }
+            ? {
+                entities: [
+                  {
+                    mention: "Widget",
+                    typeIri: "http://invalid.org/UnknownType",
+                    additionalTypes: null,
+                    confidence: 0.9,
+                    evidence: null,
+                    attributes: null,
+                    canonicalName: null,
+                  },
+                ],
+                reasoning: null,
+              }
             : {},
       })
     ),
@@ -162,7 +197,20 @@ describe("EntityExtractor", () => {
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "EntityOutput"
-            ? { entities: [{ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }] }
+            ? {
+                entities: [
+                  {
+                    mention: "John",
+                    typeIri: "http://schema.org/Person",
+                    additionalTypes: null,
+                    confidence: 0.9,
+                    evidence: null,
+                    attributes: null,
+                    canonicalName: null,
+                  },
+                ],
+                reasoning: null,
+              }
             : {},
       })
     ),

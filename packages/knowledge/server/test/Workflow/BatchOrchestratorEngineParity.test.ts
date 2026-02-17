@@ -20,28 +20,31 @@ import {
   WorkflowPersistence,
 } from "@beep/knowledge-server/Workflow";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
-import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import { assertTrue, layer, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+
 import * as Stream from "effect/Stream";
 import { makeWorkflowPersistenceShape, type WorkflowStatusUpdate } from "../_shared/ServiceMocks";
+import { PgTest } from "./container";
 
 type Scenario = {
   readonly workflowRun: ExtractionWorkflowShape["run"];
   readonly payload: {
-    readonly batchId: string;
-    readonly organizationId: string;
-    readonly ontologyId: string;
+    readonly batchId: KnowledgeEntityIds.BatchExecutionId.Type;
+    readonly organizationId: SharedEntityIds.OrganizationId.Type;
+    readonly currentUserId: SharedEntityIds.UserId.Type;
+    readonly ontologyId: KnowledgeEntityIds.OntologyId.Type;
     readonly documents: ReadonlyArray<{
-      readonly documentId: string;
+      readonly documentId: WorkspacesEntityIds.DocumentId.Type;
       readonly text: string;
       readonly ontologyContent: string;
     }>;
     readonly config: {
       readonly concurrency: number;
-      readonly failurePolicy: "continue-on-failure" | "abort-all" | "retry-failed";
+      readonly failurePolicy: "continue_on_failure" | "abort_all" | "retry_failed";
       readonly maxRetries: number;
       readonly enableEntityResolution: boolean;
     };
@@ -142,9 +145,9 @@ const failExtraction = (cause: string) =>
     })
   );
 
-describe("BatchOrchestrator engine parity", () => {
-  effect(
-    "preserves continue-on-failure semantics and event ordering",
+layer(PgTest, { timeout: Duration.seconds(120) })("BatchOrchestrator engine parity", (it) => {
+  it.effect(
+    "preserves continue_on_failure semantics and event ordering",
     Effect.fn(function* () {
       const doc1 = WorkspacesEntityIds.DocumentId.create();
       const doc2 = WorkspacesEntityIds.DocumentId.create();
@@ -155,6 +158,7 @@ describe("BatchOrchestrator engine parity", () => {
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           documents: [
             { documentId: doc1, text: "a", ontologyContent: "o" },
             { documentId: doc2, text: "b", ontologyContent: "o" },
@@ -162,7 +166,7 @@ describe("BatchOrchestrator engine parity", () => {
           ],
           config: {
             concurrency: 2,
-            failurePolicy: "continue-on-failure",
+            failurePolicy: "continue_on_failure",
             maxRetries: 0,
             enableEntityResolution: false,
           },
@@ -187,8 +191,8 @@ describe("BatchOrchestrator engine parity", () => {
     })
   );
 
-  effect(
-    "preserves abort-all semantics and stops after first failure",
+  it.effect(
+    "preserves abort_all semantics and stops after first failure",
     Effect.fn(function* () {
       const doc1 = WorkspacesEntityIds.DocumentId.create();
       const doc2 = WorkspacesEntityIds.DocumentId.create();
@@ -199,6 +203,7 @@ describe("BatchOrchestrator engine parity", () => {
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           documents: [
             { documentId: doc1, text: "a", ontologyContent: "o" },
             { documentId: doc2, text: "b", ontologyContent: "o" },
@@ -206,7 +211,7 @@ describe("BatchOrchestrator engine parity", () => {
           ],
           config: {
             concurrency: 1,
-            failurePolicy: "abort-all",
+            failurePolicy: "abort_all",
             maxRetries: 0,
             enableEntityResolution: false,
           },
@@ -227,8 +232,8 @@ describe("BatchOrchestrator engine parity", () => {
     })
   );
 
-  effect(
-    "uses orchestrator-owned retry in retry-failed policy",
+  it.effect(
+    "uses orchestrator-owned retry in retry_failed policy",
     Effect.fn(function* () {
       const doc1 = WorkspacesEntityIds.DocumentId.create();
       const doc2 = WorkspacesEntityIds.DocumentId.create();
@@ -239,13 +244,14 @@ describe("BatchOrchestrator engine parity", () => {
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           documents: [
             { documentId: doc1, text: "a", ontologyContent: "o" },
             { documentId: doc2, text: "b", ontologyContent: "o" },
           ],
           config: {
             concurrency: 2,
-            failurePolicy: "retry-failed",
+            failurePolicy: "retry_failed",
             maxRetries: 1,
             enableEntityResolution: false,
           },
@@ -273,7 +279,7 @@ describe("BatchOrchestrator engine parity", () => {
     })
   );
 
-  effect(
+  it.effect(
     "emits BatchFailed and failed execution status when all documents fail",
     Effect.fn(function* () {
       const doc1 = WorkspacesEntityIds.DocumentId.create();
@@ -284,13 +290,14 @@ describe("BatchOrchestrator engine parity", () => {
           batchId: KnowledgeEntityIds.BatchExecutionId.create(),
           organizationId: SharedEntityIds.OrganizationId.create(),
           ontologyId: KnowledgeEntityIds.OntologyId.create(),
+          currentUserId: SharedEntityIds.UserId.create(),
           documents: [
             { documentId: doc1, text: "a", ontologyContent: "o" },
             { documentId: doc2, text: "b", ontologyContent: "o" },
           ],
           config: {
             concurrency: 2,
-            failurePolicy: "continue-on-failure",
+            failurePolicy: "continue_on_failure",
             maxRetries: 0,
             enableEntityResolution: false,
           },

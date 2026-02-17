@@ -52,10 +52,17 @@ describe("RelationExtractor", () => {
                   {
                     subjectMention: "John Smith",
                     predicateIri: "http://schema.org/worksFor",
+                    predicateLabel: null,
                     objectMention: "Acme Corp",
+                    literalValue: null,
+                    literalType: null,
                     confidence: 0.9,
+                    evidence: null,
+                    evidenceStartChar: null,
+                    evidenceEndChar: null,
                   },
                 ],
+                reasoning: null,
               }
             : {},
       })
@@ -101,16 +108,29 @@ describe("RelationExtractor", () => {
                   {
                     subjectMention: "John",
                     predicateIri: "http://schema.org/knows",
+                    predicateLabel: null,
                     objectMention: "Jane",
+                    literalValue: null,
+                    literalType: null,
                     confidence: 0.9,
+                    evidence: null,
+                    evidenceStartChar: null,
+                    evidenceEndChar: null,
                   },
                   {
                     subjectMention: "John",
                     predicateIri: "http://schema.org/likes",
+                    predicateLabel: null,
                     objectMention: "Pizza",
+                    literalValue: null,
+                    literalType: null,
                     confidence: 0.3,
+                    evidence: null,
+                    evidenceStartChar: null,
+                    evidenceEndChar: null,
                   },
                 ],
+                reasoning: null,
               }
             : {},
       })
@@ -148,10 +168,17 @@ describe("RelationExtractor", () => {
                   {
                     subjectMention: "John",
                     predicateIri: "http://invalid.org/unknownPredicate",
+                    predicateLabel: null,
                     objectMention: "Jane",
+                    literalValue: null,
+                    literalType: null,
                     confidence: 0.9,
+                    evidence: null,
+                    evidenceStartChar: null,
+                    evidenceEndChar: null,
                   },
                 ],
+                reasoning: null,
               }
             : {},
       })
@@ -242,11 +269,17 @@ describe("RelationExtractor", () => {
                   {
                     subjectMention: "John",
                     predicateIri: "http://schema.org/age",
+                    predicateLabel: null,
+                    objectMention: null,
                     literalValue: "30",
                     literalType: "xsd:integer",
                     confidence: 0.9,
+                    evidence: null,
+                    evidenceStartChar: null,
+                    evidenceEndChar: null,
                   },
                 ],
+                reasoning: null,
               }
             : {},
       })
@@ -285,13 +318,17 @@ describe("RelationExtractor", () => {
                   {
                     subjectMention: "John",
                     predicateIri: "http://schema.org/knows",
+                    predicateLabel: null,
                     objectMention: "Jane",
+                    literalValue: null,
+                    literalType: null,
                     confidence: 0.9,
                     evidence: "John knows Jane",
                     evidenceStartChar: 0,
                     evidenceEndChar: 15,
                   },
                 ],
+                reasoning: null,
               }
             : {},
       })

@@ -34,9 +34,24 @@ describe("MentionExtractor", () => {
           objectName === "MentionOutput"
             ? {
                 mentions: [
-                  { text: "John Smith", startChar: 0, endChar: 10, confidence: 0.95, suggestedType: "Person" },
-                  { text: "Acme Corp", startChar: 20, endChar: 29, confidence: 0.9, suggestedType: "Organization" },
+                  {
+                    text: "John Smith",
+                    startChar: 0,
+                    endChar: 10,
+                    confidence: 0.95,
+                    suggestedType: "Person",
+                    context: null,
+                  },
+                  {
+                    text: "Acme Corp",
+                    startChar: 20,
+                    endChar: 29,
+                    confidence: 0.9,
+                    suggestedType: "Organization",
+                    context: null,
+                  },
                 ],
+                reasoning: null,
               }
             : {},
       })
@@ -67,9 +82,24 @@ describe("MentionExtractor", () => {
           objectName === "MentionOutput"
             ? {
                 mentions: [
-                  { text: "John", startChar: 0, endChar: 4, confidence: 0.9 },
-                  { text: "maybe", startChar: 10, endChar: 15, confidence: 0.3 },
+                  {
+                    text: "John",
+                    startChar: 0,
+                    endChar: 4,
+                    confidence: 0.9,
+                    suggestedType: null,
+                    context: null,
+                  },
+                  {
+                    text: "maybe",
+                    startChar: 10,
+                    endChar: 15,
+                    confidence: 0.3,
+                    suggestedType: null,
+                    context: null,
+                  },
                 ],
+                reasoning: null,
               }
             : {},
       })
@@ -99,7 +129,19 @@ describe("MentionExtractor", () => {
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "MentionOutput"
-            ? { mentions: [{ text: "Alice", startChar: 0, endChar: 5, confidence: 0.95 }] }
+            ? {
+                mentions: [
+                  {
+                    text: "Alice",
+                    startChar: 0,
+                    endChar: 5,
+                    confidence: 0.95,
+                    suggestedType: null,
+                    context: null,
+                  },
+                ],
+                reasoning: null,
+              }
             : {},
       })
     ),
@@ -126,7 +168,19 @@ describe("MentionExtractor", () => {
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "MentionOutput"
-            ? { mentions: [{ text: "Entity", startChar: 0, endChar: 6, confidence: 0.9 }] }
+            ? {
+                mentions: [
+                  {
+                    text: "Entity",
+                    startChar: 0,
+                    endChar: 6,
+                    confidence: 0.9,
+                    suggestedType: null,
+                    context: null,
+                  },
+                ],
+                reasoning: null,
+              }
             : {},
       })
     ),
@@ -195,7 +249,8 @@ describe("MentionExtractor", () => {
       },
       Effect.provide(MentionExtractorLive),
       withLanguageModel({
-        generateObject: (objectName: string | undefined) => (objectName === "MentionOutput" ? { mentions: [] } : {}),
+        generateObject: (objectName: string | undefined) =>
+          objectName === "MentionOutput" ? { mentions: [], reasoning: null } : {},
       })
     ),
     TEST_TIMEOUT
