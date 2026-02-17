@@ -29,7 +29,7 @@ type TermType = IRI.Type | BlankNode.Type | Literal;
 type GraphNameType = sparqljs.IriTerm | sparqljs.VariableTerm;
 type VariableNameType = S.Schema.Type<typeof VariableName>;
 
-import { thunkFalse, thunkSucceedEffect } from "@beep/utils";
+import { thunkEffectVoid, thunkFalse, thunkSucceedEffect, thunkUndefined } from "@beep/utils";
 import { isDiscriminatedWith } from "@beep/utils/guards";
 import { evaluateFilters, type SolutionBindings } from "./FilterEvaluator";
 import { SparqlTermType } from "./SparqlModels";
@@ -123,7 +123,7 @@ const graphNameToPatternComponent = (
   bindings: SolutionBindings
 ): Quad["graph"] | undefined =>
   O.match(graphName, {
-    onNone: () => undefined,
+    onNone: thunkUndefined,
     onSome: (term) =>
       term.termType === "NamedNode"
         ? O.getOrUndefined(decodeIRI(term.value))
@@ -290,13 +290,13 @@ const toExecutionError = (query: string, message: string, cause: unknown): Sparq
 const validateIri = (value: string, query: string, context: string): Effect.Effect<void, SparqlExecutionError> =>
   Either.match(decodeIRIEither(value), {
     onLeft: (cause) => Effect.fail(toExecutionError(query, `Invalid IRI in ${context}: ${value}`, cause)),
-    onRight: () => Effect.void,
+    onRight: thunkEffectVoid,
   });
 
 const validateVariableName = (value: string, query: string): Effect.Effect<void, SparqlExecutionError> =>
   Either.match(decodeVariableNameEither(value), {
     onLeft: (cause) => Effect.fail(toExecutionError(query, `Invalid variable name: ${value}`, cause)),
-    onRight: () => Effect.void,
+    onRight: thunkEffectVoid,
   });
 
 const validateTerm = (term: sparqljs.Term, query: string, context: string): Effect.Effect<void, SparqlExecutionError> =>
@@ -304,10 +304,10 @@ const validateTerm = (term: sparqljs.Term, query: string, context: string): Effe
     Match.discriminatorsExhaustive("termType")({
       Variable: (t) => validateVariableName(t.value, query),
       NamedNode: (t) => validateIri(t.value, query, context),
-      BlankNode: () => Effect.void,
+      BlankNode: thunkEffectVoid,
       Literal: (t) =>
         t.datatype?.value === undefined ? Effect.void : validateIri(t.datatype.value, query, `${context} datatype`),
-      Quad: () => Effect.void,
+      Quad: thunkEffectVoid,
     })
   );
 
@@ -318,7 +318,7 @@ const validateTriple = (triple: sparqljs.Triple, query: string): Effect.Effect<v
       triple.predicate,
       O.liftPredicate(isPredicateTerm),
       O.match({
-        onNone: () => Effect.void,
+        onNone: thunkEffectVoid,
         onSome: (predicate) => validateTerm(predicate, query, "triple predicate"),
       })
     ),
@@ -342,7 +342,7 @@ const validatePattern = (pattern: sparqljs.Pattern, query: string): Effect.Effec
         Effect.forEach(graphPattern.patterns, (inner) => validatePattern(inner, query)).pipe(Effect.asVoid),
       ]).pipe(Effect.asVoid)
     ),
-    Match.orElse(() => Effect.void)
+    Match.orElse(thunkEffectVoid)
   );
 
 const validateWhere = (
@@ -598,22 +598,23 @@ const extractProjectedVariables = (
 ): ReadonlyArray<string> =>
   A.filterMap(
     variables,
-    (v): O.Option<string> =>
-      Match.value(v).pipe(
-        Match.when(isVariableExpression, (ve) => O.some(ve.variable.value)),
-        Match.when(isVariableTermInProjection, (vt) => O.some(vt.value)),
-        Match.orElse(O.none<string>)
-      )
+    Match.type<sparqljs.Variable | sparqljs.Wildcard>().pipe(
+      Match.when(isVariableExpression, (ve) => O.some(ve.variable.value)),
+      Match.when(isVariableTermInProjection, (vt) => O.some(vt.value)),
+      Match.orElse(O.none<string>)
+    )
   );
 
 const collectAllVariables = (solutions: ReadonlyArray<SolutionBindings>): ReadonlyArray<string> =>
   A.dedupe(A.flatMap(solutions, R.keys));
 
-export const executeSelect = (
+export const executeSelect: (
   ast: sparqljs.SelectQuery,
   store: RdfStoreShape
-): Effect.Effect<SparqlBindings, SparqlExecutionError | SparqlUnsupportedFeatureError> =>
-  Effect.gen(function* () {
+) => Effect.Effect<SparqlBindings, SparqlExecutionError | SparqlUnsupportedFeatureError> = Effect.fn(
+  "QueryExecutor.executeSelect"
+)(
+  function* (ast: sparqljs.SelectQuery, store: RdfStoreShape) {
     const where = ast.where ?? A.empty<sparqljs.Pattern>();
     yield* validateWhere(where, "SELECT");
     const solutions = yield* executeWhereClause(where, store);
@@ -628,11 +629,14 @@ export const executeSelect = (
     const finalSolutions = A.take(A.drop(afterDistinct, offset), limit);
 
     return projectSolutions(finalSolutions, variables);
-  }).pipe(
-    Effect.withSpan("QueryExecutor.executeSelect", {
-      attributes: { distinct: ast.distinct ?? false },
-    })
-  );
+  },
+  (effect, ast) =>
+    effect.pipe(
+      Effect.withSpan("QueryExecutor.executeSelect", {
+        attributes: { distinct: ast.distinct ?? false },
+      })
+    )
+);
 
 const resolveTemplateSubject = (
   subject: sparqljs.Triple["subject"],
@@ -658,8 +662,8 @@ const resolveTemplatePredicate = (
   F.pipe(
     predicate,
     O.liftPredicate(isPredicateTerm),
-    O.flatMap((t) =>
-      Match.value(t).pipe(
+    O.flatMap(
+      Match.type<sparqljs.IriTerm | sparqljs.VariableTerm>().pipe(
         Match.discriminatorsExhaustive("termType")({
           Variable: (term) => F.pipe(R.get(bindings, term.value), O.flatMap(O.liftPredicate(isIRI))),
           NamedNode: (node) => decodeIRI(node.value),
@@ -751,37 +755,39 @@ const collectDescribeTargets = (
   return A.dedupeWith(targets, termsCompatible);
 };
 
-export const executeConstruct = (
+export const executeConstruct: (
   ast: sparqljs.ConstructQuery,
   store: RdfStoreShape
-): Effect.Effect<ReadonlyArray<Quad>, SparqlExecutionError | SparqlUnsupportedFeatureError> =>
-  Effect.gen(function* () {
-    const where = ast.where ?? A.empty<sparqljs.Pattern>();
-    yield* validateWhere(where, "CONSTRUCT");
-    const solutions = yield* executeWhereClause(where, store);
+) => Effect.Effect<ReadonlyArray<Quad>, SparqlExecutionError | SparqlUnsupportedFeatureError> = Effect.fn(
+  "QueryExecutor.executeConstruct"
+)(function* (ast: sparqljs.ConstructQuery, store: RdfStoreShape) {
+  const where = ast.where ?? A.empty<sparqljs.Pattern>();
+  yield* validateWhere(where, "CONSTRUCT");
+  const solutions = yield* executeWhereClause(where, store);
 
-    const template = ast.template ?? A.empty<sparqljs.Triple>();
-    yield* Effect.forEach(template, (triple) => validateTriple(triple, "CONSTRUCT template"));
+  const template = ast.template ?? A.empty<sparqljs.Triple>();
+  yield* Effect.forEach(template, (triple) => validateTriple(triple, "CONSTRUCT template"));
 
-    const quads = A.filterMap(
-      A.flatMap(solutions, (solution) => A.map(template, (tripleTemplate) => ({ solution, tripleTemplate }))),
-      ({ solution, tripleTemplate }) => instantiateTemplate(tripleTemplate, solution)
-    );
+  const quads = A.filterMap(
+    A.flatMap(solutions, (solution) => A.map(template, (tripleTemplate) => ({ solution, tripleTemplate }))),
+    ({ solution, tripleTemplate }) => instantiateTemplate(tripleTemplate, solution)
+  );
 
-    return deduplicateQuads(quads);
-  }).pipe(Effect.withSpan("QueryExecutor.executeConstruct"));
+  return deduplicateQuads(quads);
+});
 
-export const executeAsk = (
+export const executeAsk: (
   ast: sparqljs.AskQuery,
   store: RdfStoreShape
-): Effect.Effect<boolean, SparqlExecutionError | SparqlUnsupportedFeatureError> =>
-  Effect.gen(function* () {
-    const where = ast.where ?? A.empty<sparqljs.Pattern>();
-    yield* validateWhere(where, "ASK");
-    const solutions = yield* executeWhereClause(where, store);
+) => Effect.Effect<boolean, SparqlExecutionError | SparqlUnsupportedFeatureError> = Effect.fn(
+  "QueryExecutor.executeAsk"
+)(function* (ast: sparqljs.AskQuery, store: RdfStoreShape) {
+  const where = ast.where ?? A.empty<sparqljs.Pattern>();
+  yield* validateWhere(where, "ASK");
+  const solutions = yield* executeWhereClause(where, store);
 
-    return !A.isEmptyReadonlyArray(solutions);
-  }).pipe(Effect.withSpan("QueryExecutor.executeAsk"));
+  return !A.isEmptyReadonlyArray(solutions);
+});
 
 export const executeDescribe = (
   ast: sparqljs.DescribeQuery,

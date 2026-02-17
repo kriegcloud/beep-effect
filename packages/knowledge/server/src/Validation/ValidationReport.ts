@@ -29,26 +29,28 @@ export const makeValidationReport = (findings: ReadonlyArray<ValidationFinding>)
   });
 };
 
-export const enforceValidationPolicy = (
+export const enforceValidationPolicy: (
   report: ValidationReport,
   policy: ShaclPolicy
-): Effect.Effect<void, ValidationPolicyError> =>
-  Effect.gen(function* () {
-    if (policy.violation === "reject" && report.summary.violationCount > 0) {
-      return yield* new ValidationPolicyError({
-        message: `Validation rejected: ${report.summary.violationCount} violations`,
-        violationCount: report.summary.violationCount,
-        warningCount: report.summary.warningCount,
-        severity: "Violation",
-      });
-    }
+) => Effect.Effect<void, ValidationPolicyError> = Effect.fn("ValidationReport.enforceValidationPolicy")(function* (
+  report: ValidationReport,
+  policy: ShaclPolicy
+) {
+  if (policy.violation === "reject" && report.summary.violationCount > 0) {
+    return yield* new ValidationPolicyError({
+      message: `Validation rejected: ${report.summary.violationCount} violations`,
+      violationCount: report.summary.violationCount,
+      warningCount: report.summary.warningCount,
+      severity: "Violation",
+    });
+  }
 
-    if (policy.warning === "reject" && report.summary.warningCount > 0) {
-      return yield* new ValidationPolicyError({
-        message: `Validation rejected: ${report.summary.warningCount} warnings`,
-        violationCount: report.summary.violationCount,
-        warningCount: report.summary.warningCount,
-        severity: "Warning",
-      });
-    }
-  });
+  if (policy.warning === "reject" && report.summary.warningCount > 0) {
+    return yield* new ValidationPolicyError({
+      message: `Validation rejected: ${report.summary.warningCount} warnings`,
+      violationCount: report.summary.violationCount,
+      warningCount: report.summary.warningCount,
+      severity: "Warning",
+    });
+  }
+});

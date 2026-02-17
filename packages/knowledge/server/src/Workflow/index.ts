@@ -3,7 +3,17 @@ export { BatchAggregator, BatchAggregatorLive } from "./BatchAggregator";
 export type { BatchEventEmitterShape } from "./BatchEventEmitter";
 export { BatchEventEmitter, BatchEventEmitterLive } from "./BatchEventEmitter";
 export type { BatchOrchestratorParams, BatchOrchestratorShape, BatchResult, DocumentResult } from "./BatchOrchestrator";
-export { BatchOrchestrator, BatchOrchestratorLive, executeBatchEngineWorkflow } from "./BatchOrchestrator";
+export {
+  AbortAllEngineBatchPayloadConfig,
+  BatchOrchestrator,
+  BatchOrchestratorLive,
+  ContinueOnFailureEngineBatchPayloadConfig,
+  EngineBatchPayload,
+  EngineBatchPayloadConfig,
+  EngineDocument,
+  executeBatchEngineWorkflow,
+  RetryFailedEngineBatchPayloadConfig,
+} from "./BatchOrchestrator";
 export type { ExtractionWorkflowParams, ExtractionWorkflowShape } from "./ExtractionWorkflow";
 export { ExtractionWorkflow, ExtractionWorkflowLive } from "./ExtractionWorkflow";
 export type { ProgressStreamShape } from "./ProgressStream";

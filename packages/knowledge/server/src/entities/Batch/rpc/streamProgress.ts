@@ -1,4 +1,4 @@
-import { BatchNotFoundError } from "@beep/knowledge-domain/errors";
+import { BatchInfrastructureError } from "@beep/knowledge-domain/errors";
 import type { Batch } from "@beep/knowledge-domain/rpc/Batch";
 import { BatchEventEmitter, WorkflowPersistence } from "@beep/knowledge-server/Workflow";
 import * as Effect from "effect/Effect";
@@ -8,9 +8,17 @@ export const Handler = Effect.fnUntraced(function* (payload: Batch.StreamProgres
   const emitter = yield* BatchEventEmitter;
   const persistence = yield* WorkflowPersistence;
 
-  yield* persistence
-    .requireBatchExecutionByBatchId(payload.batchId)
-    .pipe(Effect.catchTag("SqlError", () => new BatchNotFoundError({ batchId: payload.batchId })));
+  yield* persistence.requireBatchExecutionByBatchId(payload.batchId).pipe(
+    Effect.catchTag(
+      "SqlError",
+      () =>
+        new BatchInfrastructureError({
+          batchId: payload.batchId,
+          operation: "batch_stream_progress",
+          reason: "failed to read batch execution for stream subscription",
+        })
+    )
+  );
 
   return emitter.subscribe(payload.batchId);
 }, Stream.unwrap);

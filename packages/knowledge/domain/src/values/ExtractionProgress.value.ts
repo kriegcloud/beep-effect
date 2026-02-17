@@ -1,6 +1,5 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("values/ExtractionProgress.value");
@@ -13,7 +12,7 @@ export class ExtractionProgressStatus extends BS.StringLiteralKit("started", "co
 
 export class ExtractionProgressEvent extends S.Class<ExtractionProgressEvent>($I`ExtractionProgressEvent`)(
   {
-    executionId: KnowledgeEntityIds.WorkflowExecutionId,
+    executionId: S.String,
     activityName: S.String,
     status: ExtractionProgressStatus,
     progress: S.optionalWith(S.Number.pipe(S.between(0, 1)), {

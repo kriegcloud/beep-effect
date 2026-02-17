@@ -95,8 +95,8 @@ export const colors: CssVarsThemeOptions["colorSchemes"] = {
         text: "rgb(92, 184, 255)", // blue for dark
       },
       background: {
-        default: "oklch(0.19 0.006 285.885)", // aligned with Tailwind --background
-        paper: "oklch(0.21 0.006 285.885)", // aligned with Tailwind --card
+        default: "#131316", // oklch(0.19 0.006 285.885) — aligned with Tailwind --background
+        paper: "#18181b", // oklch(0.21 0.006 285.885) — aligned with Tailwind --card
       },
     },
   },

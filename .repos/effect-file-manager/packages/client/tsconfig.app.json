@@ -1,0 +1,46 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2021",
+    "useDefineForClassFields": true,
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "declaration": false,
+    "declarationMap": false,
+    "composite": false,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@example/domain": ["../domain/src/index.js"],
+      "@example/domain/*": ["../domain/src/*.js"]
+    },
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "quickinfoEffectParameters": "always",
+        "namespaceImportPackages": ["effect", "@effect/*"],
+        "topLevelNamedReexports": "follow",
+        "diagnosticSeverity": {
+          "importFromBarrel": "error"
+        },
+        "importAliases": {
+          "Array": "Arr",
+          "Function": "Func",
+          "Boolean": "Bool",
+          "Number": "Num",
+          "String": "Str"
+        }
+      }
+    ]
+  },
+  "include": ["src"],
+  "references": [{ "path": "../domain" }]
+}

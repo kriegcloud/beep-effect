@@ -8,6 +8,7 @@ import {
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import type { DatabaseError } from "@beep/shared-domain/errors";
+import { thunkFalse, thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
@@ -42,7 +43,7 @@ export class EntityFilters extends S.Class<EntityFilters>($I`EntityFilters`)(
   {
     typeIris: S.optional(S.Array(S.String)),
     minConfidence: S.optional(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1))),
-    ontologyId: S.optional(S.String),
+    ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
   },
   $I.annotations("EntityFilters", {
     description: "Optional filters applied to graph retrieval (type IRIs, confidence threshold, ontology ID).",
@@ -68,12 +69,12 @@ export class GraphRAGQuery extends S.Class<GraphRAGQuery>($I`GraphRAGQuery`)(
 
 export class GraphRagResultStats extends S.Class<GraphRagResultStats>($I`GraphRagResultStats`)(
   {
-    seedEntityCount: S.Number,
-    totalEntityCount: S.Number,
-    totalRelationCount: S.Number,
-    hopsTraversed: S.Number,
-    estimatedTokens: S.Number,
-    truncated: S.Boolean,
+    seedEntityCount: S.optionalWith(S.NonNegativeInt, { default: thunkZero }),
+    totalEntityCount: S.optionalWith(S.NonNegativeInt, { default: thunkZero }),
+    totalRelationCount: S.optionalWith(S.NonNegativeInt, { default: thunkZero }),
+    hopsTraversed: S.optionalWith(S.NonNegativeInt, { default: thunkZero }),
+    estimatedTokens: S.optionalWith(S.NonNegativeInt, { default: thunkZero }),
+    truncated: S.optionalWith(S.Boolean, { default: thunkFalse }),
   },
   $I.annotations("GraphRagResultStats", {
     description: "Query execution stats returned with GraphRAG results (counts, hops, token estimates).",
@@ -114,12 +115,12 @@ export interface GraphRAGServiceShape {
     seedEntityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     hops: number,
     organizationId: SharedEntityIds.OrganizationId.Type,
-    options?: { readonly maxTokens?: undefined | number; readonly includeScores?: undefined | boolean }
+    options?: undefined | { readonly maxTokens?: undefined | number; readonly includeScores?: undefined | boolean }
   ) => Effect.Effect<GraphRAGResult, GraphRAGError | DatabaseError>;
   readonly questionToSparql: (
     question: string,
     schemaContext: string,
-    timeoutMs?: number
+    timeoutMs?: undefined | number
   ) => Effect.Effect<
     QueryResult.Type,
     GraphRAGError | SparqlGenerationError | SparqlSyntaxError | SparqlUnsupportedFeatureError | SparqlTimeoutError
@@ -172,14 +173,7 @@ const serviceEffect: Effect.Effect<
           relations: A.empty<Entities.Relation.Model>(),
           scores: {},
           context: "",
-          stats: {
-            seedEntityCount: 0,
-            totalEntityCount: 0,
-            totalRelationCount: 0,
-            hopsTraversed: 0,
-            estimatedTokens: 0,
-            truncated: false,
-          },
+          stats: new GraphRagResultStats(),
         });
       }
 
@@ -234,22 +228,23 @@ const serviceEffect: Effect.Effect<
         relations,
         input.maxTokens ?? 4000
       );
+      const relationsLength = A.length(relations);
 
-      const truncated = entityCount < A.length(sortedEntities) || relationCount < A.length(relations);
+      const truncated = entityCount < A.length(sortedEntities) || relationCount < relationsLength;
 
       const result = new GraphRAGResult({
         entities: sortedEntities,
         relations,
         scores,
         context: input.includeScores ? formatContextWithScores(sortedEntities, relations, scoreMap) : context,
-        stats: {
+        stats: new GraphRagResultStats({
           seedEntityCount: A.length(seedEntityIds),
           totalEntityCount: A.length(entities),
-          totalRelationCount: A.length(relations),
+          totalRelationCount: relationsLength,
           hopsTraversed: input.hops ?? 1,
           estimatedTokens: Math.ceil(Str.length(context) / 4),
           truncated,
-        },
+        }),
       });
 
       yield* Effect.logInfo("GraphRAGService.query: complete").pipe(Effect.annotateLogs({ stats: result.stats }));
@@ -261,7 +256,12 @@ const serviceEffect: Effect.Effect<
         attributes: { topK: input.topK, hops: input.hops, organizationId, ontologyId },
       }),
       Effect.catchTag("RateLimitError", (e) =>
-        Effect.fail(new GraphRAGError({ message: `Rate limit exceeded: ${e.reason}`, cause: String(e.retryAfterMs) }))
+        Effect.fail(
+          new GraphRAGError({
+            message: `Rate limit exceeded: ${e.reason}`,
+            cause: String(e.retryAfterMs),
+          })
+        )
       ),
       Effect.catchTag("CircuitOpenError", (e) =>
         Effect.fail(new GraphRAGError({ message: "Circuit breaker open", cause: String(e.resetTimeoutMs) }))
@@ -284,14 +284,7 @@ const serviceEffect: Effect.Effect<
           relations: A.empty<Entities.Relation.Model>(),
           scores: {},
           context: "",
-          stats: new GraphRagResultStats({
-            seedEntityCount: 0,
-            totalEntityCount: 0,
-            totalRelationCount: 0,
-            hopsTraversed: 0,
-            estimatedTokens: 0,
-            truncated: false,
-          }),
+          stats: new GraphRagResultStats(),
         });
       }
 
@@ -384,8 +377,8 @@ const traverseGraph = (
   relationRepo: Context.Tag.Service<Entities.Relation.Repo>
 ): Effect.Effect<
   {
-    allEntityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>;
-    entityHops: MutableHashMap.MutableHashMap<KnowledgeEntityIds.KnowledgeEntityId.Type, number>;
+    readonly allEntityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>;
+    readonly entityHops: MutableHashMap.MutableHashMap<KnowledgeEntityIds.KnowledgeEntityId.Type, number>;
   },
   DatabaseError
 > =>
@@ -408,7 +401,7 @@ const traverseGraph = (
       for (const rel of relations) {
         const objectIdOpt = rel.objectId;
         if (O.isSome(objectIdOpt)) {
-          const objectId = objectIdOpt.value;
+          const objectId = KnowledgeEntityIds.KnowledgeEntityId.make(objectIdOpt.value);
           if (!MutableHashSet.has(visited, objectId)) {
             MutableHashSet.add(visited, objectId);
             MutableHashMap.set(entityHops, objectId, hop);

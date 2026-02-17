@@ -1,5 +1,4 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/workflow");
@@ -7,7 +6,7 @@ const $I = $KnowledgeDomainId.create("errors/workflow");
 export class WorkflowNotFoundError extends S.TaggedError<WorkflowNotFoundError>($I`WorkflowNotFoundError`)(
   "WorkflowNotFoundError",
   {
-    executionId: KnowledgeEntityIds.WorkflowExecutionId,
+    executionId: S.String,
   },
   $I.annotations("WorkflowNotFoundError", {
     description: "Workflow execution not found",
@@ -21,7 +20,7 @@ export class WorkflowNotFoundError extends S.TaggedError<WorkflowNotFoundError>(
 export class ActivityFailedError extends S.TaggedError<ActivityFailedError>($I`ActivityFailedError`)(
   "ActivityFailedError",
   {
-    executionId: KnowledgeEntityIds.WorkflowExecutionId,
+    executionId: S.String,
     activityName: S.String,
     attempt: S.NonNegativeInt,
     cause: S.optionalWith(S.String, { default: () => "" }),
@@ -38,7 +37,7 @@ export class ActivityFailedError extends S.TaggedError<ActivityFailedError>($I`A
 export class WorkflowStateError extends S.TaggedError<WorkflowStateError>($I`WorkflowStateError`)(
   "WorkflowStateError",
   {
-    executionId: KnowledgeEntityIds.WorkflowExecutionId,
+    executionId: S.String,
     currentStatus: S.String,
     expectedStatus: S.String,
   },

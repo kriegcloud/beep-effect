@@ -4,6 +4,7 @@ import {
   type SparqlUnsupportedFeatureError,
   SparqlUnsupportedFeatureError as Unsupported,
 } from "@beep/knowledge-domain/errors";
+import { thunkEffectVoid } from "@beep/utils";
 import { LanguageModel } from "@effect/ai";
 import * as Prompt from "@effect/ai/Prompt";
 import * as A from "effect/Array";
@@ -73,14 +74,14 @@ const serviceEffect: Effect.Effect<SparqlGeneratorShape, never, LanguageModel.La
     const parser = yield* SparqlParser;
     const model = yield* LanguageModel.LanguageModel;
 
-    const generateReadOnlyQuery = (
+    const generateReadOnlyQuery: (
       question: string,
       schemaContext: string
-    ): Effect.Effect<
+    ) => Effect.Effect<
       SparqlGenerationResult,
       SparqlGenerationError | SparqlSyntaxError | SparqlUnsupportedFeatureError
-    > =>
-      Effect.gen(function* () {
+    > = Effect.fn(
+      function* (question: string, schemaContext: string) {
         const errors = A.empty<string>();
 
         for (let attempt = 1; attempt <= MAX_PARSE_RETRIES; attempt++) {
@@ -138,11 +139,11 @@ const serviceEffect: Effect.Effect<SparqlGeneratorShape, never, LanguageModel.La
           }
 
           yield* Match.value(parsed.value.query.queryType).pipe(
-            Match.when("SELECT", () => Effect.void),
-            Match.when("ASK", () => Effect.void),
-            Match.when("CONSTRUCT", () => Effect.void),
-            Match.when("DESCRIBE", () => Effect.void),
-            Match.orElse(() => Effect.fail(failWriteOperation(parsed.value.query.queryString)))
+            Match.when("SELECT", thunkEffectVoid),
+            Match.when("ASK", thunkEffectVoid),
+            Match.when("CONSTRUCT", thunkEffectVoid),
+            Match.when("DESCRIBE", thunkEffectVoid),
+            Match.orElse(() => failWriteOperation(parsed.value.query.queryString))
           );
 
           return {
@@ -156,11 +157,14 @@ const serviceEffect: Effect.Effect<SparqlGeneratorShape, never, LanguageModel.La
           message: `Failed to generate parsable read-only SPARQL after ${MAX_PARSE_RETRIES} attempts`,
           attempts: MAX_PARSE_RETRIES,
         });
-      }).pipe(
-        Effect.withSpan("SparqlGenerator.generateReadOnlyQuery", {
-          attributes: { questionLength: Str.length(question) },
-        })
-      );
+      },
+      (effect, question) =>
+        effect.pipe(
+          Effect.withSpan("SparqlGenerator.generateReadOnlyQuery", {
+            attributes: { questionLength: Str.length(question) },
+          })
+        )
+    );
 
     return SparqlGenerator.of({ generateReadOnlyQuery });
   });

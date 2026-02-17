@@ -33,24 +33,26 @@
 
 ### What Worked
 
-- Enumerating exact RPC contracts up front clarified that extraction should use `Batch` RPC pathways rather than ad hoc extraction hooks.
-- Building a current-vs-target matrix made the mock-removal scope concrete and reviewable.
-- Locking deterministic scenario selection early reduced later UI ambiguity.
+- Re-validating the route implementation file-by-file (`page.tsx`, `actions.ts`, input/query components) exposed every mock seam and removed ambiguity about migration scope.
+- Anchoring scenario definitions to `meeting-prep-quality.json` produced a deterministic catalog with stable IDs, thread/document references, and query seeds.
+- Mapping ingest lifecycle directly to `BatchState` tags gave a concrete UI state machine rather than ad hoc loading flags.
 
 ### What Didn't Work
 
-- Assuming a full, reusable knowledge client SDK exists was incorrect; app-local Atom RPC wiring is likely required for this spec.
-- Discovery artifacts initially under-specified retry/idempotency details for ingestion lifecycle behavior.
+- The original assumption that merged RPC groups implied full method readiness was incorrect; several methods are currently `not implemented` server-side (`relation_*`, some `entity_*`, `graphrag_queryFromSeeds`).
+- Shared client RPC constructor parity was weaker than expected: existing default points to `/v1/shared/rpc`, while knowledge runtime is `/v1/knowledge/rpc`.
 
 ### Patterns Discovered
 
-- Runtime RPC composition is already stable server-side; highest risk is client protocol alignment and state handling.
-- Meeting prep quality and evidence-link integrity are separate axes and must be validated independently.
+- The highest P2 risk is protocol mismatch and runtime wiring, not UI rendering complexity.
+- Contract-declared failures and runtime behavior can diverge (for example, duplicate batch-start constraints are defined in contract types but not fully enforced in current start handler path), so client-side gating is required for deterministic UX.
+- Meeting prep remains a separate axis: handler/persistence path exists, but synthesis quality is intentionally deferred to Phase 3.
 
 ### Prompt Refinements
 
-- Discovery prompts should explicitly ask whether domain RPC groups are fully implemented server-side.
-- Include a mandatory protocol parity section (endpoint + serialization + org context propagation).
+- Discovery prompts must include a method-level implementation matrix, not only contract listing.
+- Require explicit “client constructor parity” checks (`/v1/shared/rpc` vs `/v1/knowledge/rpc`, serialization, auth context propagation).
+- Require feature-gate implementation status checks in discovery outputs, not only as later-phase TODOs.
 
 ---
 
@@ -58,23 +60,27 @@
 
 ### What Worked
 
-- Planning around `AtomRpc.Tag` and typed query/mutation boundaries keeps UI migration incremental while preserving component reuse.
-- Treating ingest status transitions as a formal state machine reduces hidden race conditions in async rendering.
+- Creating a dedicated `knowledge-demo` RPC client module avoided accidental reuse of `/v1/shared/rpc` wiring and made `/v1/knowledge/rpc` + NDJSON explicit.
+- Restricting the default flow to implemented methods (`batch_start`, `batch_getStatus`, `graphrag_query`) avoided runtime `not implemented` traps from partial contract coverage.
+- Replacing the sample-email mock entry point with curated scenario ingest controls made ingest lifecycle state visible and deterministic.
+- Adding route-level gating in `page.tsx` gave a clean internal on/off switch via `ENABLE_ENRON_KNOWLEDGE_DEMO`.
 
 ### What Didn't Work
 
-- Early planning drafts did not fully define scenario-switch semantics against persisted org data.
-- Initial migration notes did not force explicit rejection of default mock fallback behavior, which can create mixed-source demos.
+- The first compile pass surfaced Option/optional mismatches in graph relation mapping and RPC client generic typing; these required explicit normalization and error-channel typing.
+- Initial `QueryInput` props did not include disabled-state support, causing a UI contract mismatch with the new query panel behavior.
 
 ### Patterns Discovered
 
-- Transport mismatches are most likely at protocol-construction boundaries, not in individual query atoms.
-- A deterministic ingest lifecycle requires both backend idempotency and frontend transition gating.
+- The highest-risk failures were type-boundary issues between Effect RPC return shapes and UI projection models, not React state logic itself.
+- Deterministic ingest UX requires three controls together: explicit user action, in-flight duplicate-start blocking, and per-scenario lifecycle polling.
+- Scenario ingest determinism is stronger when document IDs are generated from stable source IDs rather than per-run random IDs.
 
 ### Prompt Refinements
 
-- Phase 2 prompts must require a "no-default-mock-path" assertion in output artifacts.
-- Add an explicit checklist item for scenario switching behavior under partially completed ingest operations.
+- Phase 2 prompts should require explicit method allowlists so unimplemented RPC endpoints are intentionally excluded from the default flow.
+- Prompt template should require a compile-check pass after migration before writing phase artifacts; this catches Option/union drift early.
+- Keep a mandatory statement that meeting prep rewrite remains deferred; this prevents phase-scope bleed.
 
 ---
 

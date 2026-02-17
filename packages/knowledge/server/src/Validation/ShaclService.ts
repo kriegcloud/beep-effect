@@ -1,6 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { ShaclValidationError, type ValidationPolicyError } from "@beep/knowledge-domain/errors";
 import { ShaclPolicy, ValidationFinding, type ValidationReport } from "@beep/knowledge-domain/values";
+import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -103,6 +104,7 @@ const validateShapeForNode = (
 
   return findings;
 };
+
 export class ValidateOptions extends S.Class<ValidateOptions>($I`ValidateOptions`)({
   policy: S.optional(ShaclPolicy),
   maxInferenceDepth: S.optional(S.Number),
@@ -113,13 +115,13 @@ export interface ShaclServiceShape {
   readonly validate: (
     graph: N3.Store,
     ontology: OntologyContext,
-    options?: ValidateOptions
+    options?: undefined | ValidateOptions
   ) => Effect.Effect<ValidationReport, ShaclValidationError | ValidationPolicyError>;
   readonly validateOntologyGraph: (
     graph: N3.Store,
     ontologyKey: string,
     ontologyContent: string,
-    options?: ValidateOptions
+    options?: undefined | ValidateOptions
   ) => Effect.Effect<ValidationReport, ShaclValidationError | ValidationPolicyError>;
 }
 
@@ -128,58 +130,66 @@ export class ShaclService extends Context.Tag($I`ShaclService`)<ShaclService, Sh
 const serviceEffect: Effect.Effect<ShaclServiceShape, never, OntologyService> = Effect.gen(function* () {
   const ontologyService = yield* OntologyService;
 
-  const validate = (
+  const validate: (
     graph: N3.Store,
     ontology: OntologyContext,
-    options?: ValidateOptions
-  ): Effect.Effect<ValidationReport, ShaclValidationError | ValidationPolicyError> =>
-    Effect.try({
-      try: () => {
-        const policy = options?.policy ?? new ShaclPolicy({});
-        materializeSubclassInference(graph, options?.maxInferenceDepth ?? 8);
+    options?: undefined | ValidateOptions
+  ) => Effect.Effect<ValidationReport, ShaclValidationError | ValidationPolicyError> = Effect.fn(
+    "ShaclService.validate"
+  )(function* (graph: N3.Store, ontology: OntologyContext, options?: undefined | ValidateOptions) {
+    return yield* pipe(
+      Effect.try({
+        try: () => {
+          const policy = options?.policy ?? ShaclPolicy.new();
+          materializeSubclassInference(graph, options?.maxInferenceDepth ?? 8);
 
-        const shapes = generateShapesFromOntology(ontology);
-        const findings = A.flatMap(shapes, (shape) =>
-          A.flatMap(nodesOfType(graph, shape.targetClass), (nodeIri) =>
-            validateShapeForNode(graph, nodeIri, shape, policy)
-          )
-        );
+          const shapes = generateShapesFromOntology(ontology);
+          const findings = A.flatMap(shapes, (shape) =>
+            A.flatMap(nodesOfType(graph, shape.targetClass), (nodeIri) =>
+              validateShapeForNode(graph, nodeIri, shape, policy)
+            )
+          );
 
-        return makeValidationReport(findings);
-      },
-      catch: (cause) =>
-        new ShaclValidationError({
-          message: "SHACL validation failed",
-          cause,
-        }),
-    }).pipe(
-      Effect.tap((report) => enforceValidationPolicy(report, options?.policy ?? new ShaclPolicy({}))),
-      Effect.withSpan("ShaclService.validate")
+          return makeValidationReport(findings);
+        },
+        catch: (cause) =>
+          new ShaclValidationError({
+            message: "SHACL validation failed",
+            cause,
+          }),
+      }),
+      Effect.tap((report) => enforceValidationPolicy(report, options?.policy ?? ShaclPolicy.new()))
     );
+  });
+
+  const validateOntologyGraph: (
+    graph: N3.Store,
+    ontologyKey: string,
+    ontologyContent: string,
+    options?: undefined | ValidateOptions
+  ) => Effect.Effect<ValidationReport, ShaclValidationError | ValidationPolicyError> = Effect.fn(
+    "ShaclService.validateOntologyGraph"
+  )(function* (graph: N3.Store, ontologyKey: string, ontologyContent: string, options?: undefined | ValidateOptions) {
+    const ontology = yield* ontologyService.load(ontologyKey, ontologyContent).pipe(
+      Effect.mapError(
+        (cause) =>
+          new ShaclValidationError({
+            message: "Failed to load ontology for SHACL validation",
+            cause,
+          })
+      )
+    );
+    return yield* validate(graph, ontology, options);
+  });
+
+  const generateShapes = Effect.fn("ShaclService.validateOntologyGraph")(function* (ontology: OntologyContext) {
+    return yield* Effect.sync(() => generateShapesFromOntology(ontology));
+  });
 
   return ShaclService.of({
-    generateShapes: (ontology: OntologyContext) => Effect.sync(() => generateShapesFromOntology(ontology)),
-
+    generateShapes,
     validate,
-
-    validateOntologyGraph: (
-      graph: N3.Store,
-      ontologyKey: string,
-      ontologyContent: string,
-      options?: ValidateOptions
-    ): Effect.Effect<ValidationReport, ShaclValidationError | ValidationPolicyError> =>
-      Effect.gen(function* () {
-        const ontology = yield* ontologyService.load(ontologyKey, ontologyContent).pipe(
-          Effect.mapError(
-            (cause) =>
-              new ShaclValidationError({
-                message: "Failed to load ontology for SHACL validation",
-                cause,
-              })
-          )
-        );
-        return yield* validate(graph, ontology, options);
-      }),
+    validateOntologyGraph,
   });
 });
 

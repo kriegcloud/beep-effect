@@ -1,6 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { SparqlExecutionError, SparqlSyntaxError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
 import { Quad, SparqlBindings } from "@beep/knowledge-domain/values";
+import { pipe } from "effect";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -101,58 +102,56 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
   const parser = yield* SparqlParser;
   const store = yield* RdfStore;
 
-  const parseAsSelect = (
-    queryString: string
-  ): Effect.Effect<ParseResult & { ast: sparqljs.SelectQuery }, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
-    Effect.gen(function* () {
-      const result = yield* parser.parse(queryString);
+  const parseAsSelect: (queryString: string) => Effect.Effect<
+    ParseResult & {
+      ast: sparqljs.SelectQuery;
+    },
+    SparqlSyntaxError | SparqlUnsupportedFeatureError
+  > = Effect.fn("SparqlService.parseAsSelect")(function* (queryString: string) {
+    const result = yield* parser.parse(queryString);
 
-      const maybeSelect = F.pipe(
-        asSelectQuery(result.ast),
-        O.map((ast) => ({ ...result, ast }))
-      );
+    const maybeSelect = F.pipe(
+      asSelectQuery(result.ast),
+      O.map((ast) => ({ ...result, ast }))
+    );
 
-      return yield* O.match(maybeSelect, {
-        onNone: () =>
-          Effect.fail(
-            new SparqlUnsupportedFeatureError({
-              feature: `non-SELECT query`,
-              queryString,
-              message: `Expected SELECT query but got ${getQueryTypeString(result.ast)}`,
-            })
-          ),
-        onSome: Effect.succeed,
-      });
+    return yield* O.match(maybeSelect, {
+      onNone: SparqlUnsupportedFeatureError.newThunk({
+        feature: `non-SELECT query`,
+        queryString,
+        message: `Expected SELECT query but got ${getQueryTypeString(result.ast)}`,
+      }),
+      onSome: Effect.succeed,
     });
+  });
 
-  const parseAsConstruct = (
-    queryString: string
-  ): Effect.Effect<ParseResult & { ast: sparqljs.ConstructQuery }, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
-    Effect.gen(function* () {
-      const result = yield* parser.parse(queryString);
+  const parseAsConstruct: (queryString: string) => Effect.Effect<
+    ParseResult & {
+      ast: sparqljs.ConstructQuery;
+    },
+    SparqlSyntaxError | SparqlUnsupportedFeatureError
+  > = Effect.fn("SparqlService.parseAsConstruct")(function* (queryString: string) {
+    const result = yield* parser.parse(queryString);
 
-      const maybeConstruct = F.pipe(
-        asConstructQuery(result.ast),
-        O.map((ast) => ({ ...result, ast }))
-      );
+    const maybeConstruct = F.pipe(
+      asConstructQuery(result.ast),
+      O.map((ast) => ({ ...result, ast }))
+    );
 
-      return yield* O.match(maybeConstruct, {
-        onNone: () =>
-          Effect.fail(
-            new SparqlUnsupportedFeatureError({
-              feature: `non-CONSTRUCT query`,
-              queryString,
-              message: `Expected CONSTRUCT query but got ${getQueryTypeString(result.ast)}`,
-            })
-          ),
-        onSome: Effect.succeed,
-      });
+    return yield* O.match(maybeConstruct, {
+      onNone: SparqlUnsupportedFeatureError.newThunk({
+        feature: `non-CONSTRUCT query`,
+        queryString,
+        message: `Expected CONSTRUCT query but got ${getQueryTypeString(result.ast)}`,
+      }),
+      onSome: Effect.succeed,
     });
+  });
 
-  const parseAsAsk = (
+  const parseAsAsk: (
     queryString: string
-  ): Effect.Effect<ParseResult & { ast: sparqljs.AskQuery }, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
-    Effect.gen(function* () {
+  ) => Effect.Effect<ParseResult & { ast: sparqljs.AskQuery }, SparqlSyntaxError | SparqlUnsupportedFeatureError> =
+    Effect.fn("SparqlService.parseAsAsk")(function* (queryString) {
       const result = yield* parser.parse(queryString);
 
       const maybeAsk = F.pipe(
@@ -161,110 +160,111 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
       );
 
       return yield* O.match(maybeAsk, {
-        onNone: () =>
-          Effect.fail(
-            new SparqlUnsupportedFeatureError({
-              feature: `non-ASK query`,
-              queryString,
-              message: `Expected ASK query but got ${getQueryTypeString(result.ast)}`,
-            })
-          ),
+        onNone: SparqlUnsupportedFeatureError.newThunk({
+          feature: `non-ASK query`,
+          queryString,
+          message: `Expected ASK query but got ${getQueryTypeString(result.ast)}`,
+        }),
         onSome: Effect.succeed,
       });
     });
 
-  const parseAsDescribe = (
+  const parseAsDescribe: (
     queryString: string
-  ): Effect.Effect<ParseResult & { ast: sparqljs.DescribeQuery }, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
-    Effect.gen(function* () {
+  ) => Effect.Effect<ParseResult & { ast: sparqljs.DescribeQuery }, SparqlSyntaxError | SparqlUnsupportedFeatureError> =
+    Effect.fn("SparqlService.parseAsDescribe")(function* (queryString: string) {
       const result = yield* parser.parse(queryString);
 
-      const maybeDescribe = F.pipe(
+      return yield* F.pipe(
         asDescribeQuery(result.ast),
-        O.map((ast) => ({ ...result, ast }))
+        O.map((ast) => ({ ...result, ast })),
+        O.match({
+          onNone: SparqlUnsupportedFeatureError.newThunk({
+            feature: `non-DESCRIBE query`,
+            queryString,
+            message: `Expected DESCRIBE query but got ${getQueryTypeString(result.ast)}`,
+          }),
+          onSome: Effect.succeed,
+        })
       );
-
-      return yield* O.match(maybeDescribe, {
-        onNone: () =>
-          Effect.fail(
-            new SparqlUnsupportedFeatureError({
-              feature: `non-DESCRIBE query`,
-              queryString,
-              message: `Expected DESCRIBE query but got ${getQueryTypeString(result.ast)}`,
-            })
-          ),
-        onSome: Effect.succeed,
-      });
     });
 
-  return SparqlService.of({
-    select: (queryString: string): Effect.Effect<SelectResult, SparqlServiceError.Type> =>
-      Effect.gen(function* () {
-        const { ast } = yield* parseAsSelect(queryString);
-        return yield* executeSelect(ast, store);
-      }).pipe(
-        Effect.withSpan("SparqlService.select", {
-          attributes: { queryLength: Str.length(queryString) },
-        })
-      ),
-
-    construct: (queryString: string): Effect.Effect<ConstructResult.Type, SparqlServiceError.Type> =>
-      Effect.gen(function* () {
-        const { ast } = yield* parseAsConstruct(queryString);
-        return yield* executeConstruct(ast, store);
-      }).pipe(
+  const select: (queryString: string) => Effect.Effect<SelectResult, SparqlServiceError.Type> = Effect.fn(
+    "SparqlService.select"
+  )(function* (queryString) {
+    return yield* pipe(
+      parseAsSelect(queryString),
+      Effect.andThen(({ ast }) => executeSelect(ast, store)),
+      Effect.withSpan("SparqlService.select", {
+        attributes: { queryLength: Str.length(queryString) },
+      })
+    );
+  });
+  const construct: (queryString: string) => Effect.Effect<ConstructResult.Type, SparqlServiceError.Type> = Effect.fn(
+    function* (queryString: string) {
+      return yield* pipe(
+        parseAsConstruct(queryString),
+        Effect.andThen(({ ast }) => executeConstruct(ast, store)),
         Effect.withSpan("SparqlService.construct", {
           attributes: { queryLength: Str.length(queryString) },
         })
+      );
+    }
+  );
+
+  const ask: (queryString: string) => Effect.Effect<AskResult.Type, SparqlServiceError.Type> = Effect.fn(
+    "SparqlService.ask"
+  )(function* (queryString: string) {
+    return yield* pipe(
+      parseAsAsk(queryString),
+      Effect.andThen(({ ast }) => executeAsk(ast, store)),
+      Effect.withSpan("SparqlService.ask", {
+        attributes: { queryLength: Str.length(queryString) },
+      })
+    );
+  });
+
+  const describe: (queryString: string) => Effect.Effect<DescribeResult.Type, SparqlServiceError.Type> = Effect.fn(
+    "SparqlService.describe"
+  )(function* (queryString: string) {
+    return yield* pipe(
+      parseAsDescribe(queryString),
+      Effect.andThen(({ ast }) => executeDescribe(ast, store)),
+      Effect.withSpan("SparqlService.describe", {
+        attributes: { queryLength: Str.length(queryString) },
+      })
+    );
+  });
+  const query = Effect.fn("SparqlService.query")(function* (queryString: string) {
+    const { ast } = yield* parser.parse(queryString);
+    return yield* F.pipe(
+      ast,
+      Match.type<sparqljs.SparqlQuery>().pipe(
+        Match.when({ type: "query", queryType: "SELECT" }, (q) => executeSelect(q, store)),
+        Match.when({ type: "query", queryType: "CONSTRUCT" }, (q) => executeConstruct(q, store)),
+        Match.when({ type: "query", queryType: "ASK" }, (q) => executeAsk(q, store)),
+        Match.when({ type: "query", queryType: "DESCRIBE" }, (q) => executeDescribe(q, store)),
+        Match.orElse(
+          (unsupported) =>
+            new SparqlUnsupportedFeatureError({
+              feature: `${getQueryTypeString(unsupported)} queries`,
+              queryString,
+              message: `${getQueryTypeString(unsupported)} queries are not supported`,
+            })
+        )
       ),
+      Effect.withSpan("SparqlService.query", {
+        attributes: { queryLength: Str.length(queryString) },
+      })
+    );
+  });
 
-    ask: (queryString: string): Effect.Effect<AskResult.Type, SparqlServiceError.Type> =>
-      Effect.gen(function* () {
-        const { ast } = yield* parseAsAsk(queryString);
-        return yield* executeAsk(ast, store);
-      }).pipe(
-        Effect.withSpan("SparqlService.ask", {
-          attributes: { queryLength: Str.length(queryString) },
-        })
-      ),
-
-    describe: (queryString: string): Effect.Effect<DescribeResult.Type, SparqlServiceError.Type> =>
-      Effect.gen(function* () {
-        const { ast } = yield* parseAsDescribe(queryString);
-        return yield* executeDescribe(ast, store);
-      }).pipe(
-        Effect.withSpan("SparqlService.describe", {
-          attributes: { queryLength: Str.length(queryString) },
-        })
-      ),
-
-    query: (queryString: string): Effect.Effect<QueryResult.Type, SparqlServiceError.Type> =>
-      Effect.gen(function* () {
-        const { ast } = yield* parser.parse(queryString);
-
-        const dispatchQuery = F.pipe(
-          Match.type<sparqljs.SparqlQuery>(),
-          Match.when({ type: "query", queryType: "SELECT" }, (q) => executeSelect(q, store)),
-          Match.when({ type: "query", queryType: "CONSTRUCT" }, (q) => executeConstruct(q, store)),
-          Match.when({ type: "query", queryType: "ASK" }, (q) => executeAsk(q, store)),
-          Match.when({ type: "query", queryType: "DESCRIBE" }, (q) => executeDescribe(q, store)),
-          Match.orElse((unsupported) =>
-            Effect.fail(
-              new SparqlUnsupportedFeatureError({
-                feature: `${getQueryTypeString(unsupported)} queries`,
-                queryString,
-                message: `${getQueryTypeString(unsupported)} queries are not supported`,
-              })
-            )
-          )
-        );
-
-        return yield* dispatchQuery(ast);
-      }).pipe(
-        Effect.withSpan("SparqlService.query", {
-          attributes: { queryLength: Str.length(queryString) },
-        })
-      ),
+  return SparqlService.of({
+    select,
+    construct,
+    ask,
+    describe,
+    query,
   });
 });
 

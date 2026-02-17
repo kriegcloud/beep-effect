@@ -1,45 +1,35 @@
-# Current vs Target Matrix
+# Current vs Target Matrix (Phase 1 Baseline -> Phase 2+ Target)
 
 ## Summary
 
-Replace mock-only knowledge-demo data paths with persisted, org-scoped, RPC-driven Enron scenario workflows.
+The current `/knowledge-demo` route is fully mock-driven. Target state is curated-scenario, explicit-ingest, org-scoped RPC behavior over `/v1/knowledge/rpc` (NDJSON), with meeting-prep synthesis rewrite deferred to later phase.
 
 ## Matrix
 
-| Area | Current | Target | Notes |
-|---|---|---|---|
-| Scenario source | free text + sample mock emails | curated deterministic Enron scenarios | multiple scenarios with rationale |
-| Extraction trigger | local mock function | explicit `Ingest Scenario` RPC mutation | use Batch start contract |
-| Extraction state | local loading spinner only | persisted batch status (pending/running/completed/failed) | poll/stream via batch status RPC |
-| Entity data | mock entity array | real entity records from org data | list/query via entity RPC |
-| Relation data | mock relation array | real relation records from org data | list by predicate/entity |
-| Graph query | local pseudo GraphRAG | server GraphRAG RPC query | keep existing panel UX with real data |
-| Meeting prep | relation-id template bullets | live LLM-synthesized bullets | rewrite `meetingprep_generate` |
-| Evidence links | mock evidence spans | real evidence via `Evidence.List` | must resolve to source spans |
-| Persistence | none | org-scoped persisted data | RLS default behavior |
-| Demo gate | always available | `ENABLE_ENRON_KNOWLEDGE_DEMO` | internal-only route |
+| Area | Current (verified) | Target | Replacement point(s) | Constraint / Risk |
+|---|---|---|---|---|
+| Scenario source | `SAMPLE_EMAILS` in `apps/todox/src/app/knowledge-demo/data/sample-emails.ts` | Deterministic curated Enron scenario catalog | `EmailInputPanel.tsx`, new scenario-catalog module | Curated-only, deterministic ordering |
+| Ingest trigger | `extractFromText(text)` mock server action | Explicit `Ingest Scenario` action -> `batch_start` | `page.tsx` `handleExtract`, `actions.ts` removal | No silent ingestion |
+| Ingest lifecycle | Local `isLoading` only; no persisted status | State machine from `BatchState` (`Pending/Extracting/Resolving/Completed/Failed/Cancelled`) | New ingest state coordinator in route atoms/hooks | Must be visible and retryable |
+| Document scope | Arbitrary pasted text | Full-thread docs per scenario, capped to 25 docs | Ingestion payload builder | Hard cap: 25 docs/scenario |
+| Transport/protocol | No runtime RPC usage | WebSocket `/v1/knowledge/rpc` + NDJSON | New knowledge RPC client layer | Existing shared client defaults to `/v1/shared/rpc` |
+| Atom wiring | BeepProvider + atom runtime available globally | Add knowledge RPC runtime wiring usable from route atoms | Route/client service module(s) in todox | No existing AtomRpc.Tag usage for knowledge path |
+| Entity reads | Local mock entities | `entity_list` / `entity_get` / `entity_count` where needed | Replace mock entity state updates | `entity_search/create/update/delete` not implemented |
+| Relation reads | Local mock relations | Prefer GraphRAG relations initially; optionally implement relation RPC server methods | Replace `MOCK_RELATIONS` path | All `relation_*` RPC methods currently not implemented |
+| GraphRAG query | Local mock `queryGraphRAG` | `graphrag_query` RPC | `GraphRAGQueryPanel.tsx` + route query action | `graphrag_queryFromSeeds` not implemented |
+| Evidence lookup | Local evidence spans embedded in mock relations | `evidence_list` for relation/bullet evidence | Evidence panel/drawer integration | Must keep source-span inspectability |
+| Meeting prep | No meeting-prep UI in route; server handler emits template relation-ID copy | Later phase: live LLM synthesis preserving persisted bullets + evidence model | Future route UI + `meetingprep_generate` rewrite | Keep requirement explicit, do not drop |
+| Org scope | Pure local state (no org persistence) | `organizationId` passed on all RPC payloads; server auth-context checks | All route RPC calls | Org-scoped persistence is mandatory |
+| Feature gate | Route always reachable (no `ENABLE_ENRON_KNOWLEDGE_DEMO`) | Internal gate enforced at route level | `apps/todox/src/app/knowledge-demo/page.tsx` entry behavior | Must hide or deny route when disabled |
 
-## Mock Removal Targets
+## Mock Removal Map
 
-Primary removal path:
+- Primary removal: `apps/todox/src/app/knowledge-demo/actions.ts`
+- Primary orchestrator update: `apps/todox/src/app/knowledge-demo/page.tsx`
+- Scenario UI update: `apps/todox/src/app/knowledge-demo/components/EmailInputPanel.tsx`
+- Query path update: `apps/todox/src/app/knowledge-demo/components/GraphRAGQueryPanel.tsx`
+- Any component relying on `extractionSessions` as a local-only truth source
 
-- `apps/todox/src/app/knowledge-demo/actions.ts`
+## Explicit Phase Boundary
 
-Secondary updates:
-
-- `apps/todox/src/app/knowledge-demo/page.tsx`
-- `apps/todox/src/app/knowledge-demo/components/GraphRAGQueryPanel.tsx`
-- any component that assumes local mock-only extraction sessions
-
-## New Integration Layers Expected
-
-1. Todox-side Atom RPC client tag for knowledge RPC group (`Batch`, `GraphRag`, `Entity`, `Relation`, `MeetingPrep`, `Evidence`)
-2. Scenario catalog module (deterministic, curated)
-3. Ingestion coordinator state (scenario -> batchId -> status -> available data)
-4. Meeting prep action + evidence display backed by real RPC responses
-
-## Explicit Non-Goals For Migration
-
-- perfect graph visualization redesign
-- public-facing route exposure
-- full historical extraction management UI
+- Meeting prep rewrite to live LLM synthesis is **not** Phase 1/2 implementation scope, but remains a locked requirement for later phase completion.

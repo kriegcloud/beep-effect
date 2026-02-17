@@ -1,13 +1,19 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { annotateFailureOnCurrentSpan, getModelMetadata } from "@beep/knowledge-server/utils";
 import { BS } from "@beep/schema";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
-
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import {
+  BatchClassificationResponseWire,
+  DocumentClassificationWire,
+  stripNullProperties,
+} from "../Extraction/schemas/openai-wire";
 
 const $I = $KnowledgeServerId.create("Service/DocumentClassifier");
 
@@ -190,9 +196,13 @@ export interface DocumentClassifierShape {
    * controlled concurrency.
    */
   readonly classifyWithAutoBatching: (
-    documents: ReadonlyArray<{ readonly index: number; readonly preview: string; readonly contentType?: string }>,
-    batchSize?: number,
-    concurrency?: number
+    documents: ReadonlyArray<{
+      readonly index: number;
+      readonly preview: string;
+      readonly contentType?: undefined | string;
+    }>,
+    batchSize?: undefined | number,
+    concurrency?: undefined | number
   ) => Effect.Effect<
     ReadonlyArray<{ readonly index: number; readonly classification: DocumentClassification }>,
     ClassificationError
@@ -207,25 +217,62 @@ export class DocumentClassifier extends Context.Tag($I`DocumentClassifier`)<
 const serviceEffect: Effect.Effect<DocumentClassifierShape, never, LanguageModel.LanguageModel> = Effect.gen(
   function* () {
     const model = yield* LanguageModel.LanguageModel;
+    const llm = getModelMetadata(model);
 
     const classifyBatchOnce = (
-      docs: ReadonlyArray<{ readonly index: number; readonly preview: string; readonly contentType: O.Option<string> }>
+      docs: ReadonlyArray<{
+        readonly index: number;
+        readonly preview: string;
+        readonly contentType: O.Option<string>;
+      }>
     ) =>
       model
         .generateObject({
           prompt: Prompt.make(buildBatchPrompt(docs)),
-          schema: BatchClassificationResponse,
+          schema: BatchClassificationResponseWire,
           objectName: "BatchClassificationResponse",
         })
         .pipe(
-          Effect.map((r) => r.value.classifications),
+          Effect.tap((result) =>
+            Effect.gen(function* () {
+              const inputTokens = result.usage.inputTokens ?? 0;
+              const outputTokens = result.usage.outputTokens ?? 0;
+              yield* Effect.annotateCurrentSpan("llm.status", "success");
+              yield* Effect.annotateCurrentSpan("llm.input_tokens", inputTokens);
+              yield* Effect.annotateCurrentSpan("llm.output_tokens", outputTokens);
+              yield* Effect.annotateCurrentSpan("llm.tokens_total", inputTokens + outputTokens);
+            })
+          ),
+          Effect.tapError((error) =>
+            Effect.gen(function* () {
+              yield* annotateFailureOnCurrentSpan(error);
+              yield* Effect.annotateCurrentSpan("llm.status", "error");
+            })
+          ),
+          Effect.flatMap((r) => S.decodeUnknown(BatchClassificationResponse)(stripNullProperties(r.value))),
+          Effect.map((decoded) => decoded.classifications),
+          Effect.tap((classifications) =>
+            Effect.gen(function* () {
+              yield* Effect.annotateCurrentSpan("outcome.success", true);
+              yield* Effect.annotateCurrentSpan("knowledge.classification.count", A.length(classifications));
+            })
+          ),
           Effect.mapError(
             (e) =>
               new ClassificationError({
                 message: `Batch classification failed: ${String(e)}`,
                 cause: e,
               })
-          )
+          ),
+          Effect.tapError(annotateFailureOnCurrentSpan),
+          Effect.withSpan("knowledge.document_classifier.batch_call", {
+            attributes: {
+              "llm.provider": llm.provider,
+              "llm.model": llm.model,
+              "llm.operation": "classify_batch",
+              "knowledge.document.count": A.length(docs),
+            },
+          })
         );
 
     return DocumentClassifier.of({
@@ -233,30 +280,105 @@ const serviceEffect: Effect.Effect<DocumentClassifierShape, never, LanguageModel
         model
           .generateObject({
             prompt: Prompt.make(buildSinglePrompt(input.preview, input.contentType)),
-            schema: DocumentClassification,
+            schema: DocumentClassificationWire,
             objectName: "DocumentClassification",
           })
           .pipe(
-            Effect.map((r) => r.value),
+            Effect.tap((result) =>
+              Effect.gen(function* () {
+                const inputTokens = result.usage.inputTokens ?? 0;
+                const outputTokens = result.usage.outputTokens ?? 0;
+                yield* Effect.annotateCurrentSpan("llm.status", "success");
+                yield* Effect.annotateCurrentSpan("llm.input_tokens", inputTokens);
+                yield* Effect.annotateCurrentSpan("llm.output_tokens", outputTokens);
+                yield* Effect.annotateCurrentSpan("llm.tokens_total", inputTokens + outputTokens);
+              })
+            ),
+            Effect.tapError((error) =>
+              Effect.gen(function* () {
+                yield* annotateFailureOnCurrentSpan(error);
+                yield* Effect.annotateCurrentSpan("llm.status", "error");
+              })
+            ),
+            Effect.flatMap((r) => S.decodeUnknown(DocumentClassification)(stripNullProperties(r.value))),
+            Effect.tap((classification) =>
+              Effect.gen(function* () {
+                yield* Effect.annotateCurrentSpan("outcome.success", true);
+                yield* Effect.annotateCurrentSpan(
+                  "knowledge.classification.document_type",
+                  classification.documentType
+                );
+                yield* Effect.annotateCurrentSpan(
+                  "knowledge.classification.domain_tag_count",
+                  A.length(classification.domainTags)
+                );
+              })
+            ),
             Effect.mapError(
               (e) =>
                 new ClassificationError({
                   message: `Document classification failed: ${String(e)}`,
                   cause: e,
                 })
-            )
+            ),
+            Effect.tapError(annotateFailureOnCurrentSpan),
+            Effect.catchAllCause((cause) =>
+              Effect.gen(function* () {
+                const failure = Cause.squash(cause);
+                yield* annotateFailureOnCurrentSpan(failure);
+                yield* Effect.annotateCurrentSpan("llm.status", "error");
+                return yield* Effect.failCause(cause);
+              })
+            ),
+            Effect.withSpan("knowledge.document_classifier.classify", {
+              attributes: {
+                "llm.provider": llm.provider,
+                "llm.model": llm.model,
+                "llm.operation": "classify_single",
+                "knowledge.document.preview_length": input.preview.length,
+              },
+            })
           ),
 
       classifyBatch: (input) =>
         A.isEmptyReadonlyArray(input.documents)
-          ? Effect.succeed(A.empty<ClassificationItem>())
+          ? Effect.succeed(A.empty<ClassificationItem>()).pipe(
+              Effect.tap(() => Effect.annotateCurrentSpan("outcome.success", true)),
+              Effect.tap(() => Effect.annotateCurrentSpan("llm.status", "skipped")),
+              Effect.withSpan("knowledge.document_classifier.classify_batch", {
+                attributes: {
+                  "llm.provider": llm.provider,
+                  "llm.model": llm.model,
+                  "llm.operation": "classify_batch",
+                  "knowledge.document.count": 0,
+                },
+              })
+            )
           : classifyBatchOnce(
               A.map(input.documents, (d) => ({
                 index: d.index,
                 preview: d.preview,
                 contentType: d.contentType,
               }))
-            ).pipe(Effect.map((results) => normalizeBatchResults(input.documents, results))),
+            ).pipe(
+              Effect.map((results) => normalizeBatchResults(input.documents, results)),
+              Effect.tap((results) =>
+                Effect.gen(function* () {
+                  yield* Effect.annotateCurrentSpan("outcome.success", true);
+                  yield* Effect.annotateCurrentSpan("knowledge.document.count", A.length(input.documents));
+                  yield* Effect.annotateCurrentSpan("knowledge.classification.count", A.length(results));
+                })
+              ),
+              Effect.tapError(annotateFailureOnCurrentSpan),
+              Effect.withSpan("knowledge.document_classifier.classify_batch", {
+                attributes: {
+                  "llm.provider": llm.provider,
+                  "llm.model": llm.model,
+                  "llm.operation": "classify_batch",
+                  "knowledge.document.count": A.length(input.documents),
+                },
+              })
+            ),
 
       classifyWithAutoBatching: (
         documents,
@@ -264,7 +386,14 @@ const serviceEffect: Effect.Effect<DocumentClassifierShape, never, LanguageModel
         concurrency = DEFAULT_AUTO_BATCH_CONCURRENCY
       ) =>
         Effect.gen(function* () {
-          if (A.isEmptyReadonlyArray(documents)) return A.empty<ClassificationItem>();
+          yield* Effect.annotateCurrentSpan("knowledge.document.count", A.length(documents));
+          yield* Effect.annotateCurrentSpan("knowledge.batch.size", batchSize);
+          yield* Effect.annotateCurrentSpan("knowledge.batch.concurrency", concurrency);
+          if (A.isEmptyReadonlyArray(documents)) {
+            yield* Effect.annotateCurrentSpan("outcome.success", true);
+            yield* Effect.annotateCurrentSpan("llm.status", "skipped");
+            return A.empty<ClassificationItem>();
+          }
 
           const docs = A.map(documents, (d) => ({
             index: d.index,
@@ -279,8 +408,20 @@ const serviceEffect: Effect.Effect<DocumentClassifierShape, never, LanguageModel
             { concurrency }
           );
 
-          return A.flatten(resultsByBatch);
-        }),
+          const flattened = A.flatten(resultsByBatch);
+          yield* Effect.annotateCurrentSpan("outcome.success", true);
+          yield* Effect.annotateCurrentSpan("knowledge.classification.count", A.length(flattened));
+          return flattened;
+        }).pipe(
+          Effect.tapError(annotateFailureOnCurrentSpan),
+          Effect.withSpan("knowledge.document_classifier.classify_auto_batch", {
+            attributes: {
+              "llm.provider": llm.provider,
+              "llm.model": llm.model,
+              "llm.operation": "classify_auto_batch",
+            },
+          })
+        ),
     });
   }
 );

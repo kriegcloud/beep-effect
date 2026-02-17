@@ -344,6 +344,41 @@ export const PgTest = Layer.scopedContext(
                   await migrate(db, { migrationsFolder });
                   dbg("migrations complete");
 
+                  // Mirror post-generation DB hardening used in repo scripts.
+                  // Tests assert the admin bypass role and session RLS policy exist.
+                  await db.execute(
+                    sql.raw(`
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'rls_bypass_admin') THEN
+    CREATE ROLE rls_bypass_admin WITH BYPASSRLS NOLOGIN;
+    COMMENT ON ROLE rls_bypass_admin IS 'Role that bypasses RLS for administrative operations';
+  END IF;
+END
+$$;
+                  `)
+                  );
+                  await db.execute(sql.raw(`ALTER TABLE shared_session ENABLE ROW LEVEL SECURITY;`));
+                  await db.execute(
+                    sql.raw(`
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'tenant_isolation_shared_session'
+      AND polrelid = 'shared_session'::regclass
+  ) THEN
+    CREATE POLICY tenant_isolation_shared_session ON shared_session
+      FOR ALL
+      USING (active_organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text)
+      WITH CHECK (active_organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);
+  END IF;
+END
+$$;
+                  `)
+                  );
+
                   dbg("creating/granting app_user");
                   await db.execute(
                     sql.raw(`

@@ -1,5 +1,4 @@
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeDb } from "@beep/knowledge-server/db";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import type { DbClient } from "@beep/shared-server";
@@ -13,6 +12,7 @@ import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { KnowledgeDb } from "../../db/Db";
 
 const tableName = KnowledgeEntityIds.RelationId.tableName;
 
@@ -111,8 +111,8 @@ const makeRelationExtensions = Effect.gen(function* () {
     F.pipe(
       A.isEmptyReadonlyArray(sourceIds),
       Effect.if({
-        onFalse: thunkSucceedEffect([]),
-        onTrue: () => findBySourceIdsSchema({ sourceIds: [...sourceIds], organizationId }),
+        onTrue: thunkSucceedEffect([]),
+        onFalse: () => findBySourceIdsSchema({ sourceIds: [...sourceIds], organizationId }),
       }),
       Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
@@ -129,8 +129,8 @@ const makeRelationExtensions = Effect.gen(function* () {
     F.pipe(
       A.isEmptyReadonlyArray(targetIds),
       Effect.if({
-        onFalse: thunkSucceedEffect([]),
-        onTrue: () => findByTargetIdsSchema({ targetIds: [...targetIds], organizationId }),
+        onTrue: thunkSucceedEffect([]),
+        onFalse: () => findByTargetIdsSchema({ targetIds: [...targetIds], organizationId }),
       }),
       Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
@@ -147,8 +147,8 @@ const makeRelationExtensions = Effect.gen(function* () {
     F.pipe(
       A.isEmptyReadonlyArray(entityIds),
       Effect.if({
-        onFalse: thunkSucceedEffect([]),
-        onTrue: () => findByEntityIdsSchema({ entityIds: [...entityIds], organizationId }),
+        onTrue: thunkSucceedEffect([]),
+        onFalse: () => findByEntityIdsSchema({ entityIds: [...entityIds], organizationId }),
       }),
       Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),

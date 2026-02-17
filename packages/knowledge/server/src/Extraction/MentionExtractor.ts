@@ -1,8 +1,10 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { getErrorMessage, getErrorTag, getModelMetadata, mapResilienceError } from "@beep/knowledge-server/utils";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -11,9 +13,10 @@ import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
-import { type LlmResilienceError, withLlmResilience } from "../LlmControl/LlmResilience";
+import { withLlmResilience } from "../LlmControl/LlmResilience";
 import { TextChunk } from "../Nlp/TextChunk";
 import { ExtractedMention, MentionOutput } from "./schemas/mention-output.schema";
+import { MentionOutputWire, stripNullProperties } from "./schemas/openai-wire";
 
 const $I = $KnowledgeServerId.create("Extraction/MentionExtractor");
 
@@ -53,36 +56,17 @@ export interface MentionExtractorShape {
 
 export class MentionExtractor extends Context.Tag($I`MentionExtractor`)<MentionExtractor, MentionExtractorShape>() {}
 
-const isTagged = (error: unknown, tag: string): boolean =>
-  typeof error === "object" && error !== null && "_tag" in error && (error as { readonly _tag: unknown })._tag === tag;
-
-const mapResilienceError = (
-  method: string,
-  error: LlmResilienceError<AiError.AiError | HttpServerError.RequestError>
-): AiError.AiError | HttpServerError.RequestError => {
-  if (isTagged(error, "RequestError")) {
-    return error as HttpServerError.RequestError;
-  }
-  if (
-    isTagged(error, "HttpRequestError") ||
-    isTagged(error, "HttpResponseError") ||
-    isTagged(error, "MalformedInput") ||
-    isTagged(error, "MalformedOutput") ||
-    isTagged(error, "UnknownError")
-  ) {
-    return error as AiError.AiError;
-  }
-  return new AiError.UnknownError({
-    module: "MentionExtractor",
-    method,
-    description: error.message,
-    cause: error,
+const annotateFailureOnCurrentSpan = (error: unknown): Effect.Effect<void> =>
+  Effect.gen(function* () {
+    yield* Effect.annotateCurrentSpan("outcome.success", false);
+    yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(error));
+    yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(error));
   });
-};
 
 const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.LanguageModel> = Effect.gen(
   function* () {
     const model = yield* LanguageModel.LanguageModel;
+    const llm = getModelMetadata(model);
 
     const extractMentionsFromOutput = (
       result: MentionOutput,
@@ -103,71 +87,30 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
         );
       });
 
-    const extractFromChunk = Effect.fnUntraced(function* (chunk: TextChunk, config: MentionExtractionConfig = {}) {
-      const minConfidence = config.minConfidence ?? 0.5;
+    const extractFromChunk = Effect.fnUntraced(
+      function* (chunk: TextChunk, config: MentionExtractionConfig = {}) {
+        const minConfidence = config.minConfidence ?? 0.5;
+        yield* Effect.annotateCurrentSpan("llm.provider", llm.provider);
+        yield* Effect.annotateCurrentSpan("llm.model", llm.model);
+        yield* Effect.annotateCurrentSpan("knowledge.chunk.index", chunk.index);
+        yield* Effect.annotateCurrentSpan("knowledge.chunk.text_length", Str.length(chunk.text));
 
-      yield* Effect.logDebug("Extracting mentions from chunk", {
-        chunkIndex: chunk.index,
-        textLength: Str.length(chunk.text),
-      });
+        yield* Effect.logDebug("Extracting mentions from chunk", {
+          chunkIndex: chunk.index,
+          textLength: Str.length(chunk.text),
+        });
 
-      const prompt = Prompt.make([
-        Prompt.systemMessage({ content: buildSystemPrompt() }),
-        Prompt.userMessage({ content: A.make(Prompt.textPart({ text: buildMentionPrompt(chunk.text, chunk.index) })) }),
-      ]);
-
-      const result = yield* withLlmResilience(
-        model.generateObject({
-          prompt,
-          schema: MentionOutput,
-          objectName: "MentionOutput",
-        }),
-        {
-          stage: "entity_extraction",
-          estimatedTokens: Str.length(chunk.text),
-          maxRetries: 1,
-        }
-      ).pipe(Effect.mapError((error) => mapResilienceError("extractFromChunk", error)));
-
-      const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
-      const mentions = extractMentionsFromOutput(result.value, chunk, minConfidence);
-
-      yield* Effect.logDebug("Mention extraction complete", {
-        chunkIndex: chunk.index,
-        mentionsFound: A.length(mentions),
-        tokensUsed,
-      });
-
-      return { chunk, mentions, tokensUsed };
-    });
-
-    const extractFromChunks = Effect.fnUntraced(function* (
-      chunks: readonly TextChunk[],
-      config: MentionExtractionConfig = {}
-    ) {
-      yield* Effect.logInfo("Extracting mentions from chunks", {
-        chunkCount: A.length(chunks),
-      });
-
-      const minConfidence = config.minConfidence ?? 0.5;
-      const results = A.empty<MentionExtractionResult>();
-
-      for (const chunk of chunks) {
         const prompt = Prompt.make([
           Prompt.systemMessage({ content: buildSystemPrompt() }),
           Prompt.userMessage({
-            content: A.make(
-              Prompt.textPart({
-                text: buildMentionPrompt(chunk.text, chunk.index),
-              })
-            ),
+            content: A.make(Prompt.textPart({ text: buildMentionPrompt(chunk.text, chunk.index) })),
           }),
         ]);
 
-        const genResult = yield* withLlmResilience(
+        const rawResult = yield* withLlmResilience(
           model.generateObject({
             prompt,
-            schema: MentionOutput,
+            schema: MentionOutputWire,
             objectName: "MentionOutput",
           }),
           {
@@ -175,25 +118,174 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
             estimatedTokens: Str.length(chunk.text),
             maxRetries: 1,
           }
-        ).pipe(Effect.mapError((error) => mapResilienceError("extractFromChunks", error)));
+        ).pipe(
+          Effect.mapError((error) => mapResilienceError("extractFromChunk", error)),
+          Effect.tap((result) =>
+            Effect.gen(function* () {
+              const inputTokens = result.usage.inputTokens ?? 0;
+              const outputTokens = result.usage.outputTokens ?? 0;
+              yield* Effect.annotateCurrentSpan("llm.status", "success");
+              yield* Effect.annotateCurrentSpan("llm.input_tokens", inputTokens);
+              yield* Effect.annotateCurrentSpan("llm.output_tokens", outputTokens);
+              yield* Effect.annotateCurrentSpan("llm.tokens_total", inputTokens + outputTokens);
+            })
+          ),
+          Effect.tapError((error) =>
+            Effect.gen(function* () {
+              yield* annotateFailureOnCurrentSpan(error);
+              yield* Effect.annotateCurrentSpan("llm.status", "error");
+            })
+          ),
+          Effect.withSpan("knowledge.mention_extractor.llm_call", {
+            attributes: {
+              "llm.provider": llm.provider,
+              "llm.model": llm.model,
+              "llm.operation": "mention_extract_chunk",
+              "knowledge.chunk.index": chunk.index,
+              "knowledge.chunk.text_length": Str.length(chunk.text),
+            },
+          })
+        );
 
-        const tokensUsed = (genResult.usage.inputTokens ?? 0) + (genResult.usage.outputTokens ?? 0);
-        const mentions = extractMentionsFromOutput(genResult.value, chunk, minConfidence);
+        const mentionOutput = yield* S.decodeUnknown(MentionOutput)(stripNullProperties(rawResult.value)).pipe(
+          Effect.mapError((error) =>
+            AiError.MalformedOutput.fromParseError({
+              module: "MentionExtractor",
+              method: "extractFromChunk",
+              error,
+            })
+          ),
+          Effect.tapError(annotateFailureOnCurrentSpan)
+        );
+        const tokensUsed = (rawResult.usage.inputTokens ?? 0) + (rawResult.usage.outputTokens ?? 0);
+        const mentions = extractMentionsFromOutput(mentionOutput, chunk, minConfidence);
 
-        results.push({ chunk, mentions, tokensUsed });
-      }
+        yield* Effect.logDebug("Mention extraction complete", {
+          chunkIndex: chunk.index,
+          mentionsFound: A.length(mentions),
+          tokensUsed,
+        });
+        yield* Effect.annotateCurrentSpan("outcome.success", true);
+        yield* Effect.annotateCurrentSpan("knowledge.mention.count", A.length(mentions));
+        yield* Effect.annotateCurrentSpan("llm.tokens_total", tokensUsed);
 
-      const totalMentions = A.reduce(results, 0, (acc, r) => acc + A.length(r.mentions));
-      const totalTokens = A.reduce(results, 0, (acc, r) => acc + r.tokensUsed);
+        return { chunk, mentions, tokensUsed };
+      },
+      Effect.catchAllCause((cause) =>
+        Effect.gen(function* () {
+          const failure = Cause.squash(cause);
+          yield* annotateFailureOnCurrentSpan(failure);
+          yield* Effect.annotateCurrentSpan("llm.status", "error");
+          return yield* Effect.failCause(cause);
+        })
+      ),
+      Effect.withSpan("knowledge.mention_extractor.extract_from_chunk")
+    );
 
-      yield* Effect.logInfo("Mention extraction complete", {
-        chunkCount: A.length(chunks),
-        totalMentions,
-        totalTokens,
-      });
+    const extractFromChunks = Effect.fnUntraced(
+      function* (chunks: readonly TextChunk[], config: MentionExtractionConfig = {}) {
+        yield* Effect.annotateCurrentSpan("llm.provider", llm.provider);
+        yield* Effect.annotateCurrentSpan("llm.model", llm.model);
+        yield* Effect.annotateCurrentSpan("knowledge.chunk.count", A.length(chunks));
+        yield* Effect.logInfo("Extracting mentions from chunks", {
+          chunkCount: A.length(chunks),
+        });
 
-      return results;
-    });
+        const minConfidence = config.minConfidence ?? 0.5;
+        const results = A.empty<MentionExtractionResult>();
+
+        for (const chunk of chunks) {
+          const prompt = Prompt.make([
+            Prompt.systemMessage({ content: buildSystemPrompt() }),
+            Prompt.userMessage({
+              content: A.make(
+                Prompt.textPart({
+                  text: buildMentionPrompt(chunk.text, chunk.index),
+                })
+              ),
+            }),
+          ]);
+
+          const genResult = yield* withLlmResilience(
+            model.generateObject({
+              prompt,
+              schema: MentionOutputWire,
+              objectName: "MentionOutput",
+            }),
+            {
+              stage: "entity_extraction",
+              estimatedTokens: Str.length(chunk.text),
+              maxRetries: 1,
+            }
+          ).pipe(
+            Effect.mapError((error) => mapResilienceError("extractFromChunks", error)),
+            Effect.tap((result) =>
+              Effect.gen(function* () {
+                const inputTokens = result.usage.inputTokens ?? 0;
+                const outputTokens = result.usage.outputTokens ?? 0;
+                yield* Effect.annotateCurrentSpan("llm.status", "success");
+                yield* Effect.annotateCurrentSpan("llm.input_tokens", inputTokens);
+                yield* Effect.annotateCurrentSpan("llm.output_tokens", outputTokens);
+                yield* Effect.annotateCurrentSpan("llm.tokens_total", inputTokens + outputTokens);
+              })
+            ),
+            Effect.tapError((error) =>
+              Effect.gen(function* () {
+                yield* annotateFailureOnCurrentSpan(error);
+                yield* Effect.annotateCurrentSpan("llm.status", "error");
+              })
+            ),
+            Effect.withSpan("knowledge.mention_extractor.llm_call", {
+              attributes: {
+                "llm.provider": llm.provider,
+                "llm.model": llm.model,
+                "llm.operation": "mention_extract_chunks",
+                "knowledge.chunk.index": chunk.index,
+                "knowledge.chunk.text_length": Str.length(chunk.text),
+              },
+            })
+          );
+
+          const mentionOutput = yield* S.decodeUnknown(MentionOutput)(stripNullProperties(genResult.value)).pipe(
+            Effect.mapError((error) =>
+              AiError.MalformedOutput.fromParseError({
+                module: "MentionExtractor",
+                method: "extractFromChunks",
+                error,
+              })
+            ),
+            Effect.tapError(annotateFailureOnCurrentSpan)
+          );
+          const tokensUsed = (genResult.usage.inputTokens ?? 0) + (genResult.usage.outputTokens ?? 0);
+          const mentions = extractMentionsFromOutput(mentionOutput, chunk, minConfidence);
+
+          results.push({ chunk, mentions, tokensUsed });
+        }
+
+        const totalMentions = A.reduce(results, 0, (acc, r) => acc + A.length(r.mentions));
+        const totalTokens = A.reduce(results, 0, (acc, r) => acc + r.tokensUsed);
+
+        yield* Effect.logInfo("Mention extraction complete", {
+          chunkCount: A.length(chunks),
+          totalMentions,
+          totalTokens,
+        });
+        yield* Effect.annotateCurrentSpan("outcome.success", true);
+        yield* Effect.annotateCurrentSpan("knowledge.mention.count", totalMentions);
+        yield* Effect.annotateCurrentSpan("llm.tokens_total", totalTokens);
+
+        return results;
+      },
+      Effect.catchAllCause((cause) =>
+        Effect.gen(function* () {
+          const failure = Cause.squash(cause);
+          yield* annotateFailureOnCurrentSpan(failure);
+          yield* Effect.annotateCurrentSpan("llm.status", "error");
+          return yield* Effect.failCause(cause);
+        })
+      ),
+      Effect.withSpan("knowledge.mention_extractor.extract_from_chunks")
+    );
 
     const mergeMentions = (
       results: readonly MentionExtractionResult[]

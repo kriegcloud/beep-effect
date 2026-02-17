@@ -86,6 +86,7 @@ export const LOCAL_RATE_LIMITS: EmbeddingRateLimiterConfig = {
   requestsPerMinute: 10000,
   maxConcurrent: 50,
 };
+
 export class EmbeddingRateLimiterMetrics extends S.Class<EmbeddingRateLimiterMetrics>($I`EmbeddingRateLimiterMetrics`)(
   {
     requestsThisMinute: S.Number,
@@ -95,6 +96,7 @@ export class EmbeddingRateLimiterMetrics extends S.Class<EmbeddingRateLimiterMet
     description: "Metrics for embedding rate limiter",
   })
 ) {}
+
 /**
  * EmbeddingRateLimiter service interface
  *
@@ -152,46 +154,44 @@ export const makeEmbeddingRateLimiter = (config: EmbeddingRateLimiterConfig): La
       });
 
       return {
-        acquire: () =>
-          Effect.gen(function* () {
-            const currentTime = yield* Clock.currentTimeMillis;
+        acquire: Effect.fn("EmbeddingRateLimiter.acquire")(function* () {
+          const currentTime = yield* Clock.currentTimeMillis;
 
-            yield* semaphore.take(1);
+          yield* semaphore.take(1);
 
-            // Atomic RPM enforcement: previous logic could let multiple concurrent fibers pass the check
-            // and exceed RPM in the same window.
-            const maybeResetAt = yield* Ref.modify(stateRef, (state) => {
-              const nextState = currentTime >= state.resetAt ? { count: 0, resetAt: currentTime + 60_000 } : state;
+          // Atomic RPM enforcement: previous logic could let multiple concurrent fibers pass the check
+          // and exceed RPM in the same window.
+          const maybeResetAt = yield* Ref.modify(stateRef, (state) => {
+            const nextState = currentTime >= state.resetAt ? { count: 0, resetAt: currentTime + 60_000 } : state;
 
-              if (nextState.count >= config.requestsPerMinute) {
-                return [O.some(nextState.resetAt), nextState] as const;
-              }
-
-              return [O.none(), { ...nextState, count: nextState.count + 1 }] as const;
-            });
-
-            if (O.isSome(maybeResetAt)) {
-              // We already took a concurrency permit; release it before failing.
-              yield* semaphore.release(1);
-              return yield* new EmbeddingRateLimitError({
-                message: `Rate limit exceeded: ${config.requestsPerMinute} RPM`,
-                provider: config.provider,
-                retryAfterMs: maybeResetAt.value - currentTime,
-              });
+            if (nextState.count >= config.requestsPerMinute) {
+              return [O.some(nextState.resetAt), nextState] as const;
             }
-          }),
+
+            return [O.none(), { ...nextState, count: nextState.count + 1 }] as const;
+          });
+
+          if (O.isSome(maybeResetAt)) {
+            // We already took a concurrency permit; release it before failing.
+            yield* semaphore.release(1);
+            return yield* new EmbeddingRateLimitError({
+              message: `Rate limit exceeded: ${config.requestsPerMinute} RPM`,
+              provider: config.provider,
+              retryAfterMs: maybeResetAt.value - currentTime,
+            });
+          }
+        }),
 
         release: () => semaphore.release(1),
 
-        getMetrics: () =>
-          Effect.gen(function* () {
-            const currentTime = yield* Clock.currentTimeMillis;
-            const state = yield* Ref.get(stateRef);
-            return EmbeddingRateLimiterMetrics.make({
-              requestsThisMinute: state.count,
-              msUntilReset: Math.max(0, state.resetAt - currentTime),
-            });
-          }),
+        getMetrics: Effect.fn("EmbeddingRateLimiter.getMetrics")(function* () {
+          const currentTime = yield* Clock.currentTimeMillis;
+          const state = yield* Ref.get(stateRef);
+          return EmbeddingRateLimiterMetrics.make({
+            requestsThisMinute: state.count,
+            msUntilReset: Math.max(0, state.resetAt - currentTime),
+          });
+        }),
       };
     })
   );

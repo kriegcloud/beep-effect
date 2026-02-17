@@ -4,7 +4,8 @@ import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcSchema from "@effect/rpc/RpcSchema";
 import * as S from "effect/Schema";
-import { Model, OntologyStatus } from "../Ontology.model";
+import { Model } from "../Ontology.model";
+import { OntologyStatus } from "../Ontology.values";
 
 const $I = $KnowledgeDomainId.create("entities/Ontology/contracts/List.contract");
 

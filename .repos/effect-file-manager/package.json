@@ -1,0 +1,68 @@
+{
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.3.0",
+  "engines": {
+    "node": "22.14.0",
+    "pnpm": "10.3.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm --filter @example/domain build && pnpm --filter @example/client build && pnpm --filter @example/server build",
+    "typecheck": "tsc -b",
+    "check": "tsc -b",
+    "check:fast": "pnpm lint && pnpm check",
+    "lint": "pnpm lint:oxlint && pnpm lint:eslint",
+    "lint:oxlint": "oxlint --tsconfig tsconfig.json --type-aware --quiet",
+    "lint:eslint": "eslint . --quiet",
+    "lint:fix": "oxlint --fix --tsconfig tsconfig.json && eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write \"**/*.{js,ts,mjs,jsx,tsx,json,md,css,html,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,mjs,jsx,tsx,json,md,css,html,yaml,yml}\"",
+    "dev:server": "pnpm --filter @example/server dev",
+    "dev:client": "pnpm --filter @example/client dev",
+    "db:migrate": "pnpm --filter @example/server db:migrate",
+    "db:reset": "pnpm --filter @example/server db:reset"
+  },
+  "devDependencies": {
+    "@effect/language-service": "0.58.4",
+    "@effect/vitest": "0.27.0",
+    "@eslint/js": "^9.19.0",
+    "@types/node": "^22.8.5",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.19.0",
+    "oxlint": "^1.31.0",
+    "oxlint-tsgolint": "^0.8.3",
+    "prettier": "3.4.2",
+    "prettier-plugin-organize-imports": "4.1.0",
+    "prettier-plugin-sql": "^0.19.0",
+    "prettier-plugin-tailwindcss": "0.6.11",
+    "read-package-up": "11.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "5.8.3",
+    "vitest": "3.1.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "vitest": "^2.0.5",
+      "effect": "3.19.8",
+      "@effect/platform": "0.93.6",
+      "@effect/platform-browser": "0.73.0",
+      "@effect/platform-node": "0.103.0",
+      "@effect/sql": "0.48.6",
+      "@effect/sql-pg": "0.49.7",
+      "@effect/language-service": "0.58.4",
+      "@effect/vitest": "0.27.0",
+      "@effect/rpc": "0.72.2",
+      "@effect-atom/atom": "0.4.7",
+      "@effect-atom/atom-react": "0.4.2",
+      "@effect/opentelemetry": "0.59.1"
+    }
+  },
+  "dependencies": {
+    "tailwindcss": "4.0.4"
+  }
+}

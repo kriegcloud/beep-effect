@@ -1,5 +1,5 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
-import { BatchNotFoundError } from "@beep/knowledge-domain/errors";
+import { BatchInfrastructureError, BatchNotFoundError } from "@beep/knowledge-domain/errors";
 import { BatchState } from "@beep/knowledge-domain/values";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as Tool from "@effect/ai/Tool";
@@ -23,8 +23,9 @@ export const Success = BatchState.annotations(
     description: "Current batch state",
   })
 );
+export type Success = typeof Success.Type;
 
-export const Failure = BatchNotFoundError;
+export const Failure = S.Union(BatchNotFoundError, BatchInfrastructureError);
 export type Failure = typeof Failure.Type;
 
 export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
@@ -43,5 +44,6 @@ export class Contract extends S.TaggedRequest<Contract>($I`Contract`)(
   static readonly Http = HttpApiEndpoint.get("GetBatchStatus", "/status")
     .setPayload(Payload)
     .addError(BatchNotFoundError)
+    .addError(BatchInfrastructureError)
     .addSuccess(Success);
 }

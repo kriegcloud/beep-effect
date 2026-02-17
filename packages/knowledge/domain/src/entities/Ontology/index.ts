@@ -6,3 +6,4 @@ export * from "./Ontology.model";
 export * from "./Ontology.repo";
 export * as Rpcs from "./Ontology.rpc";
 export * from "./Ontology.tool";
+export * from "./Ontology.values";

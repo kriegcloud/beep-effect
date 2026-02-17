@@ -5,7 +5,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { Confidence, EvidenceSpan } from "../../values";
+import { Confidence, EvidenceSpanFromStorage } from "../../values";
 
 const $I = $KnowledgeDomainId.create("entities/Relation");
 
@@ -22,7 +22,7 @@ export class Model extends M.Class<Model>($I`RelationModel`)(
     }),
 
     objectId: BS.FieldOptionOmittable(
-      KnowledgeEntityIds.KnowledgeEntityId.annotations({
+      S.String.annotations({
         description: "Entity ID reference for object properties",
       })
     ),
@@ -39,14 +39,16 @@ export class Model extends M.Class<Model>($I`RelationModel`)(
       })
     ),
 
-    ontologyId: BS.toOptionalWithDefault(KnowledgeEntityIds.OntologyId)("default").annotations({
+    ontologyId: S.optionalWith(S.Union(KnowledgeEntityIds.OntologyId, S.Literal("default")), {
+      default: () => "default" as const,
+    }).annotations({
       description: "Ontology scope for this relation",
     }),
 
     extractionId: BS.FieldOptionOmittable(KnowledgeEntityIds.ExtractionId),
 
     evidence: BS.FieldOptionOmittable(
-      EvidenceSpan.annotations({
+      EvidenceSpanFromStorage.annotations({
         description: "Text span where this relation was expressed in source",
       })
     ),

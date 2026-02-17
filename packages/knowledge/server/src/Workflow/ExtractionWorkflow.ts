@@ -3,6 +3,7 @@ import { $KnowledgeServerId } from "@beep/identity/packages";
 import { ActivityFailedError, OntologyParseError, type WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
 import { ExtractionProgressEvent } from "@beep/knowledge-domain/values";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
+import { getErrorMessage, getErrorTag } from "@beep/knowledge-server/utils";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds, WorkspacesEntityIds } from "@beep/shared-domain";
 import * as AiError from "@effect/ai/AiError";
@@ -54,9 +55,10 @@ export declare namespace RetryOwner {
 // NOTE:
 // We intentionally keep this config schema simple (no Schema transformations) because Effect's `S.partial`
 // does not support partializing transformed/discriminated schemas reliably. Callers treat all fields as
-// optional anyway, and we default `retryOwner` in `toEnginePayload`.
+// optional anyway, and we default `retryOwner` / `retryAttempt` in `toEnginePayload`.
 export class ExtractionWorkflowConfig extends S.Class<ExtractionWorkflowConfig>($I`ExtractionWorkflowConfig`)({
   retryOwner: S.optional(RetryOwner),
+  retryAttempt: S.optional(S.NonNegativeInt),
   mergeEntities: S.optional(S.Boolean),
   enableIncrementalClustering: S.optional(S.Boolean),
 }) {}
@@ -100,7 +102,7 @@ const sha256 = (value: string): string => createHash("sha256").update(value).dig
 const resolveOntologyId = (ontologyId: string | undefined) =>
   O.fromNullable(ontologyId).pipe(
     O.map(KnowledgeEntityIds.OntologyId.make),
-    O.getOrElse(() => KnowledgeEntityIds.OntologyId.create())
+    O.getOrElse(KnowledgeEntityIds.OntologyId.create)
   );
 
 const makePipelineConfig = (params: ExtractionWorkflowParams, ontologyId: KnowledgeEntityIds.OntologyId.Type) =>
@@ -121,7 +123,7 @@ const makePipelineConfig = (params: ExtractionWorkflowParams, ontologyId: Knowle
 const emitProgressForStream = Effect.fn("ExtractionWorkflow.emitProgressForStream")(
   function* (
     stream: { readonly emit: (event: ExtractionProgressEvent.Type) => Effect.Effect<void> },
-    executionId: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    executionId: string,
     activityName: string,
     status: "started" | "completed" | "failed",
     message: string,
@@ -139,15 +141,20 @@ const emitProgressForStream = Effect.fn("ExtractionWorkflow.emitProgressForStrea
       })
     );
   },
-  Effect.catchAllCause((cause) =>
-    Effect.logDebug("Failed to emit progress event").pipe(Effect.annotateLogs({ cause: String(cause) }))
+  Effect.catchAllCause(
+    Effect.fn(function* (cause) {
+      const failure = Cause.squash(cause);
+      yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+      yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+      yield* Effect.logDebug("Failed to emit progress event").pipe(Effect.annotateLogs({ cause: String(cause) }));
+    })
   )
 );
 
 const emitProgress = Effect.fn("ExtractionWorkflow.emitProgress")(
   function* (
     progressStream: O.Option<{ readonly emit: (event: ExtractionProgressEvent.Type) => Effect.Effect<void> }>,
-    executionId: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    executionId: string,
     activityName: string,
     status: "started" | "completed" | "failed",
     message: string,
@@ -158,12 +165,18 @@ const emitProgress = Effect.fn("ExtractionWorkflow.emitProgress")(
       onSome: (stream) => emitProgressForStream(stream, executionId, activityName, status, message, progress),
     });
   },
-  Effect.catchAllCause((cause) =>
-    Effect.logDebug("Failed to emit progress event").pipe(
-      Effect.annotateLogs({ cause: String(cause), executionId: "unknown", activityName: "unknown" })
-    )
+  Effect.catchAllCause(
+    Effect.fn(function* (cause) {
+      const failure = Cause.squash(cause);
+      yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+      yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+      yield* Effect.logDebug("Failed to emit progress event").pipe(
+        Effect.annotateLogs({ cause: String(cause), executionId: "unknown", activityName: "unknown" })
+      );
+    })
   )
 );
+
 export class ExtractionEnginePayloadRetryOwner extends BS.StringLiteralKit("activity", "orchestrator").annotations(
   $I.annotations("ExtractionEnginePayloadRetryOwner", {
     description: "Retry owner tag embedded in the workflow engine payload (activity vs orchestrator).",
@@ -181,6 +194,7 @@ const makeExtractionEnginePayloadRetryOwner = ExtractionEnginePayloadRetryOwner.
   ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
   text: S.String,
   ontologyContent: S.String,
+  retryAttempt: S.NonNegativeInt,
   mergeEntities: S.NullOr(S.Boolean),
   enableIncrementalClustering: S.NullOr(S.Boolean),
 });
@@ -195,6 +209,7 @@ class ExtractionEnginePayload extends S.Class<ExtractionEnginePayload>($I`Extrac
   ontologyId: S.optional(S.String),
   text: S.String,
   ontologyContent: S.String,
+  retryAttempt: S.NonNegativeInt,
   mergeEntities: S.NullOr(S.Boolean),
   enableIncrementalClustering: S.NullOr(S.Boolean),
   retryOwner: ExtractionEnginePayloadRetryOwner,
@@ -206,7 +221,7 @@ const ExtractionEngineWorkflow = Workflow.make({
   success: ExtractionResult,
   error: S.String,
   idempotencyKey: (payload) =>
-    `${payload.documentId}:${sha256(payload.text).slice(0, 12)}:${sha256(payload.ontologyContent).slice(0, 12)}`,
+    `${payload.documentId}:${Str.slice(0, 12)(sha256(payload.text))}:${sha256(payload.ontologyContent).slice(0, 12)}:${payload.retryOwner}:${payload.retryAttempt}`,
 });
 
 const toEnginePayload = (params: ExtractionWorkflowParams) => ({
@@ -215,6 +230,7 @@ const toEnginePayload = (params: ExtractionWorkflowParams) => ({
   ontologyId: params.ontologyId,
   text: params.text,
   ontologyContent: params.ontologyContent,
+  retryAttempt: params.config?.retryAttempt ?? 0,
   mergeEntities: params.config?.mergeEntities ?? null,
   enableIncrementalClustering: params.config?.enableIncrementalClustering ?? null,
   retryOwner: params.config?.retryOwner ?? "activity",
@@ -226,28 +242,51 @@ const serviceEffect = Effect.gen(function* () {
   const run: ExtractionWorkflowShape["run"] = Effect.fn("ExtractionWorkflow.run")(function* (
     params: ExtractionWorkflowParams
   ) {
+    yield* Effect.annotateCurrentSpan("knowledge.document.id", params.documentId);
+    yield* Effect.annotateCurrentSpan("knowledge.organization.id", params.organizationId ?? "unknown");
+    yield* Effect.annotateCurrentSpan("knowledge.ontology.id", params.ontologyId ?? "generated");
+    yield* Effect.annotateCurrentSpan("knowledge.document.retry_owner", params.config?.retryOwner ?? "activity");
+    yield* Effect.annotateCurrentSpan("knowledge.document.retry_attempt", params.config?.retryAttempt ?? 0);
+
     if (O.isNone(maybeWorkflowEngine)) {
+      yield* Effect.annotateCurrentSpan("outcome.success", false);
+      yield* Effect.annotateCurrentSpan("error.tag", "ActivityFailedError");
+      yield* Effect.annotateCurrentSpan("error.message", "WorkflowEngine unavailable");
+
       return yield* new ActivityFailedError({
-        executionId: KnowledgeEntityIds.WorkflowExecutionId.create(),
+        executionId: "unavailable",
         activityName: ACTIVITY_NAMES.runPipeline,
         attempt: 1,
         cause: "WorkflowEngine unavailable",
       });
     }
 
-    return yield* ExtractionEngineWorkflow.execute(toEnginePayload(params)).pipe(
+    const result = yield* ExtractionEngineWorkflow.execute(toEnginePayload(params)).pipe(
       Effect.provideService(WorkflowEngine.WorkflowEngine, maybeWorkflowEngine.value),
       Effect.catchAllCause(
-        (cause) =>
-          new ActivityFailedError({
-            executionId: KnowledgeEntityIds.WorkflowExecutionId.create(),
+        Effect.fn(function* (cause) {
+          const failure = Cause.squash(cause);
+          yield* Effect.annotateCurrentSpan("outcome.success", false);
+          yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+          yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+
+          return yield* new ActivityFailedError({
+            executionId: "unavailable",
             activityName: ACTIVITY_NAMES.runPipeline,
             attempt: 1,
-            cause: String(Cause.squash(cause)),
-          })
+            cause: String(failure),
+          });
+        })
       )
     );
-  });
+
+    yield* Effect.annotateCurrentSpan("outcome.success", true);
+    yield* Effect.annotateCurrentSpan("knowledge.chunk.count", result.stats.chunkCount);
+    yield* Effect.annotateCurrentSpan("knowledge.mention.count", result.stats.mentionCount);
+    yield* Effect.annotateCurrentSpan("knowledge.entity.count", result.stats.entityCount);
+    yield* Effect.annotateCurrentSpan("knowledge.relation.count", result.stats.relationCount);
+    return result;
+  }, Effect.withSpan("knowledge.extraction.workflow"));
 
   return ExtractionWorkflow.of({ run });
 });
@@ -260,6 +299,7 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
     const ontologyId = resolveOntologyId(payload.ontologyId);
     const config = new ExtractionWorkflowConfig({
       retryOwner: payload.retryOwner,
+      retryAttempt: payload.retryAttempt,
       ...(payload.mergeEntities === null ? {} : { mergeEntities: payload.mergeEntities }),
       ...(payload.enableIncrementalClustering === null
         ? {}
@@ -276,6 +316,14 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
       config,
     });
 
+    yield* Effect.annotateCurrentSpan("knowledge.document.id", payload.documentId);
+    yield* Effect.annotateCurrentSpan("knowledge.organization.id", payload.organizationId);
+    yield* Effect.annotateCurrentSpan("knowledge.ontology.id", ontologyId);
+    yield* Effect.annotateCurrentSpan("knowledge.batch.execution_id", executionId);
+    yield* Effect.annotateCurrentSpan("knowledge.document.retry_owner", payload.retryOwner);
+    yield* Effect.annotateCurrentSpan("knowledge.document.retry_attempt", payload.retryAttempt);
+    yield* Effect.annotateCurrentSpan("knowledge.document.text_length", Str.length(payload.text));
+
     yield* persistence
       .createExecution({
         id: executionId,
@@ -286,13 +334,31 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
           organizationId: payload.organizationId,
           ontologyId,
           textLength: Str.length(payload.text),
+          retryOwner: payload.retryOwner,
+          retryAttempt: payload.retryAttempt,
         },
       })
       // Persistence is best-effort: failures and defects should not block workflow execution.
-      .pipe(Effect.catchAllCause(() => Effect.void));
+      .pipe(
+        Effect.catchAllCause(
+          Effect.fn(function* (cause) {
+            const failure = Cause.squash(cause);
+            yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+            yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+          })
+        )
+      );
 
     // Persistence is best-effort: failures and defects should not block workflow execution.
-    yield* persistence.updateExecutionStatus(executionId, "running").pipe(Effect.catchAllCause(() => Effect.void));
+    yield* persistence.updateExecutionStatus(executionId, "running").pipe(
+      Effect.catchAllCause(
+        Effect.fn(function* (cause) {
+          const failure = Cause.squash(cause);
+          yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+          yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+        })
+      )
+    );
     yield* emitProgress(
       maybeProgressStream,
       executionId,
@@ -325,42 +391,76 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
           1
         )
       ),
-      Effect.tapError(() =>
-        emitProgress(
-          maybeProgressStream,
-          executionId,
-          ACTIVITY_NAMES.runPipeline,
-          "failed",
-          "Extraction pipeline failed",
-          0
-        )
+      Effect.tapError(
+        Effect.fn(function* (error) {
+          yield* Effect.annotateCurrentSpan("outcome.success", false);
+          yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(error));
+          yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(error));
+          yield* emitProgress(
+            maybeProgressStream,
+            executionId,
+            ACTIVITY_NAMES.runPipeline,
+            "failed",
+            "Extraction pipeline failed",
+            0
+          );
+        })
       ),
-      Effect.tap((result) =>
-        persistence
-          .updateExecutionStatus(executionId, "completed", {
-            output: {
-              entityCount: result.stats.entityCount,
-              relationCount: result.stats.relationCount,
-              mentionCount: result.stats.mentionCount,
-              chunkCount: result.stats.chunkCount,
-            },
-          })
-          // Persistence is best-effort: failures and defects should not block workflow execution.
-          .pipe(Effect.catchAllCause(() => Effect.void))
+      Effect.tap(
+        Effect.fn(function* (result) {
+          yield* Effect.annotateCurrentSpan("outcome.success", true);
+          yield* Effect.annotateCurrentSpan("knowledge.chunk.count", result.stats.chunkCount);
+          yield* Effect.annotateCurrentSpan("knowledge.mention.count", result.stats.mentionCount);
+          yield* Effect.annotateCurrentSpan("knowledge.entity.count", result.stats.entityCount);
+          yield* Effect.annotateCurrentSpan("knowledge.relation.count", result.stats.relationCount);
+          yield* persistence
+            .updateExecutionStatus(executionId, "completed", {
+              output: {
+                entityCount: result.stats.entityCount,
+                relationCount: result.stats.relationCount,
+                mentionCount: result.stats.mentionCount,
+                chunkCount: result.stats.chunkCount,
+              },
+            })
+            // Persistence is best-effort: failures and defects should not block workflow execution.
+            .pipe(
+              Effect.catchAllCause(
+                Effect.fn(function* (cause) {
+                  const failure = Cause.squash(cause);
+                  yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+                  yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+                })
+              )
+            );
+        })
       ),
-      Effect.catchAllCause((cause) =>
-        persistence
-          .updateExecutionStatus(executionId, "failed", {
-            error: String(Cause.squash(cause)),
-          })
-          .pipe(
-            // Persistence is best-effort: failures and defects should not block workflow failure propagation.
-            Effect.catchAllCause(() => Effect.void),
-            Effect.andThen(Effect.fail(String(Cause.squash(cause))))
-          )
+      Effect.catchAllCause(
+        Effect.fn(function* (cause) {
+          const failure = Cause.squash(cause);
+          yield* Effect.annotateCurrentSpan("outcome.success", false);
+          yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(failure));
+          yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(failure));
+
+          yield* persistence
+            .updateExecutionStatus(executionId, "failed", {
+              error: String(failure),
+            })
+            .pipe(
+              // Persistence is best-effort: failures and defects should not block workflow failure propagation.
+              Effect.catchAllCause(
+                Effect.fn(function* (updateCause) {
+                  const updateFailure = Cause.squash(updateCause);
+                  yield* Effect.annotateCurrentSpan("error.tag", getErrorTag(updateFailure));
+                  yield* Effect.annotateCurrentSpan("error.message", getErrorMessage(updateFailure));
+                })
+              )
+            );
+
+          return yield* Effect.fail(String(failure));
+        })
       )
     );
-  })
+  }, Effect.withSpan("knowledge.extraction.workflow"))
 ).pipe(
   Layer.provideMerge(WorkflowRuntimeLive),
   Layer.provideMerge(WorkflowPersistenceLive),

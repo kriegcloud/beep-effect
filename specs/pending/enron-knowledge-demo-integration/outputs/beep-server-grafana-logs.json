@@ -1,0 +1,2229 @@
+[
+  {
+    "line": "[]",
+    "timestamp": "1771261381868000000",
+    "date": "2026-02-16T17:03:01.868Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#2073",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_65": "51ms",
+      "observed_timestamp": "1771261381868000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "BatchEventEmitter: event emitted",
+    "timestamp": "1771261381785000000",
+    "date": "2026-02-16T17:03:01.785Z",
+    "fields": {
+      "batchId": "knowledge_batch_execution__1e5c4d1e-e180-416e-aaaa-8f8088a69ca8",
+      "detected_level": "DEBUG",
+      "eventTag": "BatchEvent.BatchFailed",
+      "fiberId": "#2069",
+      "logSpan_http_span_10": "103213ms",
+      "observed_timestamp": "1771261381785000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "bde161081d193257",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "2d7b5211caeb1242e54f0661cd1c0646"
+    }
+  },
+  {
+    "line": "BatchEventEmitter: event emitted",
+    "timestamp": "1771261381784000000",
+    "date": "2026-02-16T17:03:01.784Z",
+    "fields": {
+      "batchId": "knowledge_batch_execution__1e5c4d1e-e180-416e-aaaa-8f8088a69ca8",
+      "detected_level": "DEBUG",
+      "eventTag": "BatchEvent.DocumentFailed",
+      "fiberId": "#2071",
+      "logSpan_http_span_10": "103212ms",
+      "observed_timestamp": "1771261381784000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "52f0bc250dd4ebac",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "2d7b5211caeb1242e54f0661cd1c0646"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261381781000000",
+    "date": "2026-02-16T17:03:01.781Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#2061",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_64": "66ms",
+      "observed_timestamp": "1771261381781000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "BatchEventEmitter: event emitted",
+    "timestamp": "1771261381780000000",
+    "date": "2026-02-16T17:03:01.780Z",
+    "fields": {
+      "batchId": "knowledge_batch_execution__1e5c4d1e-e180-416e-aaaa-8f8088a69ca8",
+      "detected_level": "DEBUG",
+      "eventTag": "BatchEvent.DocumentStarted",
+      "fiberId": "#2071",
+      "logSpan_http_span_64": "65ms",
+      "observed_timestamp": "1771261381780000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "27ce277aa2a2885a",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "2d7b5211caeb1242e54f0661cd1c0646"
+    }
+  },
+  {
+    "line": "BatchEventEmitter: event emitted",
+    "timestamp": "1771261381779000000",
+    "date": "2026-02-16T17:03:01.779Z",
+    "fields": {
+      "batchId": "knowledge_batch_execution__1e5c4d1e-e180-416e-aaaa-8f8088a69ca8",
+      "detected_level": "DEBUG",
+      "eventTag": "BatchEvent.BatchCreated",
+      "fiberId": "#2069",
+      "logSpan_http_span_64": "64ms",
+      "observed_timestamp": "1771261381779000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "85097f780663b63b",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "2d7b5211caeb1242e54f0661cd1c0646"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261320528000000",
+    "date": "2026-02-16T17:02:00.528Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#905",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_9": "50407ms",
+      "observed_timestamp": "1771261320528000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261320527000000",
+    "date": "2026-02-16T17:02:00.527Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#905",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_9": "50406ms",
+      "observed_timestamp": "1771261320527000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261281000000000",
+    "date": "2026-02-16T17:01:21.000Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1332",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_61": "55ms",
+      "observed_timestamp": "1771261281000000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "BatchEventEmitter: event emitted",
+    "timestamp": "1771261280980000000",
+    "date": "2026-02-16T17:01:20.980Z",
+    "fields": {
+      "batchId": "knowledge_batch_execution__077e48ff-3bfc-441a-ab75-3518d98eaa28",
+      "detected_level": "DEBUG",
+      "eventTag": "BatchEvent.BatchFailed",
+      "fiberId": "#983",
+      "logSpan_http_span_10": "2408ms",
+      "observed_timestamp": "1771261280980000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "f9289bbecd17b561",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "BatchEventEmitter: event emitted",
+    "timestamp": "1771261280979000000",
+    "date": "2026-02-16T17:01:20.979Z",
+    "fields": {
+      "batchId": "knowledge_batch_execution__077e48ff-3bfc-441a-ab75-3518d98eaa28",
+      "detected_level": "DEBUG",
+      "eventTag": "BatchEvent.DocumentFailed",
+      "fiberId": "#986",
+      "logSpan_http_span_10": "2407ms",
+      "observed_timestamp": "1771261280979000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "ad69712689159f71",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "Loading ontology",
+    "timestamp": "1771261280964000000",
+    "date": "2026-02-16T17:01:20.964Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "2392ms",
+      "observed_timestamp": "1771261280964000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Chunking text",
+    "timestamp": "1771261280964000000",
+    "date": "2026-02-16T17:01:20.964Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "2392ms",
+      "observed_timestamp": "1771261280964000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Extracting mentions",
+    "timestamp": "1771261280964000000",
+    "date": "2026-02-16T17:01:20.964Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "2392ms",
+      "observed_timestamp": "1771261280964000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Using cached ontology",
+    "timestamp": "1771261280964000000",
+    "date": "2026-02-16T17:01:20.964Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "key": "knowledge_ontology__00000000-0000-7000-8000-000000000001",
+      "logSpan_http_span_10": "2392ms",
+      "observed_timestamp": "1771261280964000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "85a5d1b6a2032ec4",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "[\"Text chunked\",\"{\\n  \\\"chunkCount\\\": 1\\n}\"]",
+    "timestamp": "1771261280964000000",
+    "date": "2026-02-16T17:01:20.964Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "2392ms",
+      "observed_timestamp": "1771261280964000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[\"Extracting mentions from chunks\",\"{\\n  \\\"chunkCount\\\": 1\\n}\"]",
+    "timestamp": "1771261280964000000",
+    "date": "2026-02-16T17:01:20.964Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "2392ms",
+      "observed_timestamp": "1771261280964000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Document classification failed, continuing without classification",
+    "timestamp": "1771261280963000000",
+    "date": "2026-02-16T17:01:20.963Z",
+    "fields": {
+      "cause": "ClassificationError: Document classification failed: HttpResponseError: StatusCode: {\"error\":{\"message\":\"The project you are requesting has been archived and is no longer accessible\",\"type\":\"invalid_request_error\",\"code\":\"not_authorized_invalid_project\",\"param\":null},\"status\":401} (401 POST https://api.openai.com/v1/responses)\n\nUnauthorized - Verify API key, authentication credentials, or token expiration.\n\nResponse Body: \"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"The project you are requesting has been archived and is no longer accessible\\\",\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"code\\\": \\\"not_authorized_invalid_project\\\",\\n    \\\"param\\\": null\\n  },\\n  \\\"status\\\": 401\\n}\"",
+      "detected_level": "WARN",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "2391ms",
+      "observed_timestamp": "1771261280964000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "30000",
+      "severity_text": "WARN",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280944000000",
+    "date": "2026-02-16T17:01:20.944Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1326",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_60": "32ms",
+      "observed_timestamp": "1771261280944000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280943000000",
+    "date": "2026-02-16T17:01:20.943Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1326",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_60": "31ms",
+      "observed_timestamp": "1771261280943000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280911000000",
+    "date": "2026-02-16T17:01:20.911Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1317",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_59": "36ms",
+      "observed_timestamp": "1771261280911000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280910000000",
+    "date": "2026-02-16T17:01:20.910Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1317",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_59": "35ms",
+      "observed_timestamp": "1771261280911000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[\"Starting extraction pipeline\",\"{\\n  \\\"documentId\\\": \\\"workspaces_document__c64da1bb-14d0-58e2-bde6-73a55e9e1eca\\\",\\n  \\\"textLength\\\": 1116\\n}\"]",
+    "timestamp": "1771261280886000000",
+    "date": "2026-02-16T17:01:20.886Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "2314ms",
+      "observed_timestamp": "1771261280886000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280865000000",
+    "date": "2026-02-16T17:01:20.865Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1311",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_58": "31ms",
+      "observed_timestamp": "1771261280865000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280864000000",
+    "date": "2026-02-16T17:01:20.864Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1311",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_58": "30ms",
+      "observed_timestamp": "1771261280864000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280827000000",
+    "date": "2026-02-16T17:01:20.827Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1305",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_57": "31ms",
+      "observed_timestamp": "1771261280827000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280826000000",
+    "date": "2026-02-16T17:01:20.826Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1305",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_57": "30ms",
+      "observed_timestamp": "1771261280826000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280781000000",
+    "date": "2026-02-16T17:01:20.781Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1299",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_56": "24ms",
+      "observed_timestamp": "1771261280781000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280743000000",
+    "date": "2026-02-16T17:01:20.743Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1293",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_55": "38ms",
+      "observed_timestamp": "1771261280743000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280691000000",
+    "date": "2026-02-16T17:01:20.691Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1287",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_54": "34ms",
+      "observed_timestamp": "1771261280691000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280646000000",
+    "date": "2026-02-16T17:01:20.646Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1273",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_53": "50ms",
+      "observed_timestamp": "1771261280646000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280595000000",
+    "date": "2026-02-16T17:01:20.595Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1267",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_52": "32ms",
+      "observed_timestamp": "1771261280595000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280594000000",
+    "date": "2026-02-16T17:01:20.594Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1267",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_52": "31ms",
+      "observed_timestamp": "1771261280595000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280562000000",
+    "date": "2026-02-16T17:01:20.562Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1261",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_51": "32ms",
+      "observed_timestamp": "1771261280562000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280521000000",
+    "date": "2026-02-16T17:01:20.521Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1255",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_50": "34ms",
+      "observed_timestamp": "1771261280521000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280480000000",
+    "date": "2026-02-16T17:01:20.480Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1245",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_49": "36ms",
+      "observed_timestamp": "1771261280480000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[\"Extracting mentions from chunks\",\"{\\n  \\\"chunkCount\\\": 1\\n}\"]",
+    "timestamp": "1771261280454000000",
+    "date": "2026-02-16T17:01:20.454Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1882ms",
+      "observed_timestamp": "1771261280454000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Extracting mentions",
+    "timestamp": "1771261280454000000",
+    "date": "2026-02-16T17:01:20.454Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1882ms",
+      "observed_timestamp": "1771261280454000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[\"Text chunked\",\"{\\n  \\\"chunkCount\\\": 1\\n}\"]",
+    "timestamp": "1771261280454000000",
+    "date": "2026-02-16T17:01:20.454Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1882ms",
+      "observed_timestamp": "1771261280454000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Using cached ontology",
+    "timestamp": "1771261280454000000",
+    "date": "2026-02-16T17:01:20.454Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "key": "knowledge_ontology__00000000-0000-7000-8000-000000000001",
+      "logSpan_http_span_10": "1882ms",
+      "observed_timestamp": "1771261280454000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "d6f812103798a255",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "Chunking text",
+    "timestamp": "1771261280454000000",
+    "date": "2026-02-16T17:01:20.454Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1882ms",
+      "observed_timestamp": "1771261280454000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Document classification failed, continuing without classification",
+    "timestamp": "1771261280453000000",
+    "date": "2026-02-16T17:01:20.453Z",
+    "fields": {
+      "cause": "ClassificationError: Document classification failed: HttpResponseError: StatusCode: {\"error\":{\"message\":\"The project you are requesting has been archived and is no longer accessible\",\"type\":\"invalid_request_error\",\"code\":\"not_authorized_invalid_project\",\"param\":null},\"status\":401} (401 POST https://api.openai.com/v1/responses)\n\nUnauthorized - Verify API key, authentication credentials, or token expiration.\n\nResponse Body: \"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"The project you are requesting has been archived and is no longer accessible\\\",\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"code\\\": \\\"not_authorized_invalid_project\\\",\\n    \\\"param\\\": null\\n  },\\n  \\\"status\\\": 401\\n}\"",
+      "detected_level": "WARN",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1881ms",
+      "observed_timestamp": "1771261280453000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "30000",
+      "severity_text": "WARN",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Loading ontology",
+    "timestamp": "1771261280453000000",
+    "date": "2026-02-16T17:01:20.453Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1881ms",
+      "observed_timestamp": "1771261280453000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280443000000",
+    "date": "2026-02-16T17:01:20.443Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1239",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_48": "33ms",
+      "observed_timestamp": "1771261280443000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280401000000",
+    "date": "2026-02-16T17:01:20.401Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1233",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_47": "26ms",
+      "observed_timestamp": "1771261280401000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280360000000",
+    "date": "2026-02-16T17:01:20.360Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1227",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_46": "35ms",
+      "observed_timestamp": "1771261280360000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280324000000",
+    "date": "2026-02-16T17:01:20.324Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1221",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_45": "31ms",
+      "observed_timestamp": "1771261280324000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280279000000",
+    "date": "2026-02-16T17:01:20.279Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1214",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_44": "34ms",
+      "observed_timestamp": "1771261280279000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280278000000",
+    "date": "2026-02-16T17:01:20.278Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1214",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_44": "33ms",
+      "observed_timestamp": "1771261280278000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[\"Starting extraction pipeline\",\"{\\n  \\\"documentId\\\": \\\"workspaces_document__c64da1bb-14d0-58e2-bde6-73a55e9e1eca\\\",\\n  \\\"textLength\\\": 1116\\n}\"]",
+    "timestamp": "1771261280275000000",
+    "date": "2026-02-16T17:01:20.275Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1703ms",
+      "observed_timestamp": "1771261280275000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280239000000",
+    "date": "2026-02-16T17:01:20.239Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1205",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_43": "52ms",
+      "observed_timestamp": "1771261280239000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280186000000",
+    "date": "2026-02-16T17:01:20.186Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1199",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_42": "33ms",
+      "observed_timestamp": "1771261280186000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280141000000",
+    "date": "2026-02-16T17:01:20.141Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1192",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_41": "34ms",
+      "observed_timestamp": "1771261280141000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280094000000",
+    "date": "2026-02-16T17:01:20.094Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1186",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_40": "38ms",
+      "observed_timestamp": "1771261280094000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280042000000",
+    "date": "2026-02-16T17:01:20.042Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1180",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_39": "32ms",
+      "observed_timestamp": "1771261280042000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261280041000000",
+    "date": "2026-02-16T17:01:20.041Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1180",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_39": "31ms",
+      "observed_timestamp": "1771261280042000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279992000000",
+    "date": "2026-02-16T17:01:19.992Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1173",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_38": "39ms",
+      "observed_timestamp": "1771261279992000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279952000000",
+    "date": "2026-02-16T17:01:19.952Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1167",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_37": "34ms",
+      "observed_timestamp": "1771261279952000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279906000000",
+    "date": "2026-02-16T17:01:19.906Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1161",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_36": "35ms",
+      "observed_timestamp": "1771261279906000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279869000000",
+    "date": "2026-02-16T17:01:19.869Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1155",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_35": "31ms",
+      "observed_timestamp": "1771261279869000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279837000000",
+    "date": "2026-02-16T17:01:19.837Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1149",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_34": "36ms",
+      "observed_timestamp": "1771261279837000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279789000000",
+    "date": "2026-02-16T17:01:19.789Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1139",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_33": "43ms",
+      "observed_timestamp": "1771261279789000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "Extracting mentions",
+    "timestamp": "1771261279772000000",
+    "date": "2026-02-16T17:01:19.772Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1200ms",
+      "observed_timestamp": "1771261279772000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[\"Extracting mentions from chunks\",\"{\\n  \\\"chunkCount\\\": 1\\n}\"]",
+    "timestamp": "1771261279772000000",
+    "date": "2026-02-16T17:01:19.772Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1200ms",
+      "observed_timestamp": "1771261279772000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[\"Text chunked\",\"{\\n  \\\"chunkCount\\\": 1\\n}\"]",
+    "timestamp": "1771261279771000000",
+    "date": "2026-02-16T17:01:19.771Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1199ms",
+      "observed_timestamp": "1771261279772000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Using cached ontology",
+    "timestamp": "1771261279771000000",
+    "date": "2026-02-16T17:01:19.771Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "key": "knowledge_ontology__00000000-0000-7000-8000-000000000001",
+      "logSpan_http_span_10": "1199ms",
+      "observed_timestamp": "1771261279771000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "4b6633d475b44760",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "Chunking text",
+    "timestamp": "1771261279771000000",
+    "date": "2026-02-16T17:01:19.771Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1199ms",
+      "observed_timestamp": "1771261279771000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Loading ontology",
+    "timestamp": "1771261279770000000",
+    "date": "2026-02-16T17:01:19.770Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1198ms",
+      "observed_timestamp": "1771261279770000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Document classification failed, continuing without classification",
+    "timestamp": "1771261279770000000",
+    "date": "2026-02-16T17:01:19.770Z",
+    "fields": {
+      "cause": "ClassificationError: Document classification failed: HttpResponseError: StatusCode: {\"error\":{\"message\":\"The project you are requesting has been archived and is no longer accessible\",\"type\":\"invalid_request_error\",\"code\":\"not_authorized_invalid_project\",\"param\":null},\"status\":401} (401 POST https://api.openai.com/v1/responses)\n\nUnauthorized - Verify API key, authentication credentials, or token expiration.\n\nResponse Body: \"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"The project you are requesting has been archived and is no longer accessible\\\",\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"code\\\": \\\"not_authorized_invalid_project\\\",\\n    \\\"param\\\": null\\n  },\\n  \\\"status\\\": 401\\n}\"",
+      "detected_level": "WARN",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1198ms",
+      "observed_timestamp": "1771261279770000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "30000",
+      "severity_text": "WARN",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279739000000",
+    "date": "2026-02-16T17:01:19.739Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1133",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_32": "31ms",
+      "observed_timestamp": "1771261279739000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279694000000",
+    "date": "2026-02-16T17:01:19.694Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1127",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_31": "32ms",
+      "observed_timestamp": "1771261279694000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279656000000",
+    "date": "2026-02-16T17:01:19.656Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1121",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_30": "33ms",
+      "observed_timestamp": "1771261279656000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279655000000",
+    "date": "2026-02-16T17:01:19.655Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1121",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_30": "32ms",
+      "observed_timestamp": "1771261279656000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[\"Starting extraction pipeline\",\"{\\n  \\\"documentId\\\": \\\"workspaces_document__c64da1bb-14d0-58e2-bde6-73a55e9e1eca\\\",\\n  \\\"textLength\\\": 1116\\n}\"]",
+    "timestamp": "1771261279622000000",
+    "date": "2026-02-16T17:01:19.622Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "1050ms",
+      "observed_timestamp": "1771261279622000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279618000000",
+    "date": "2026-02-16T17:01:19.618Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1107",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_29": "75ms",
+      "observed_timestamp": "1771261279618000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279542000000",
+    "date": "2026-02-16T17:01:19.542Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1101",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_28": "32ms",
+      "observed_timestamp": "1771261279542000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279501000000",
+    "date": "2026-02-16T17:01:19.501Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1095",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_27": "32ms",
+      "observed_timestamp": "1771261279501000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279463000000",
+    "date": "2026-02-16T17:01:19.463Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1089",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_26": "35ms",
+      "observed_timestamp": "1771261279463000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279462000000",
+    "date": "2026-02-16T17:01:19.462Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1089",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_26": "34ms",
+      "observed_timestamp": "1771261279463000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279414000000",
+    "date": "2026-02-16T17:01:19.414Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1080",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_25": "33ms",
+      "observed_timestamp": "1771261279414000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279368000000",
+    "date": "2026-02-16T17:01:19.368Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1074",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_24": "32ms",
+      "observed_timestamp": "1771261279368000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279329000000",
+    "date": "2026-02-16T17:01:19.329Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1068",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_23": "32ms",
+      "observed_timestamp": "1771261279329000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279296000000",
+    "date": "2026-02-16T17:01:19.296Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1062",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_22": "33ms",
+      "observed_timestamp": "1771261279296000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279295000000",
+    "date": "2026-02-16T17:01:19.295Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1062",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_22": "32ms",
+      "observed_timestamp": "1771261279295000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279250000000",
+    "date": "2026-02-16T17:01:19.250Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1056",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_21": "33ms",
+      "observed_timestamp": "1771261279250000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279249000000",
+    "date": "2026-02-16T17:01:19.249Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1056",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_21": "32ms",
+      "observed_timestamp": "1771261279250000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279203000000",
+    "date": "2026-02-16T17:01:19.203Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1050",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_20": "32ms",
+      "observed_timestamp": "1771261279203000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279202000000",
+    "date": "2026-02-16T17:01:19.202Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1050",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_20": "31ms",
+      "observed_timestamp": "1771261279203000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279164000000",
+    "date": "2026-02-16T17:01:19.164Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1043",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_19": "34ms",
+      "observed_timestamp": "1771261279164000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279117000000",
+    "date": "2026-02-16T17:01:19.117Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1037",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_18": "35ms",
+      "observed_timestamp": "1771261279117000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279070000000",
+    "date": "2026-02-16T17:01:19.070Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1031",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_17": "39ms",
+      "observed_timestamp": "1771261279070000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279018000000",
+    "date": "2026-02-16T17:01:19.018Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1025",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_16": "36ms",
+      "observed_timestamp": "1771261279018000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261279017000000",
+    "date": "2026-02-16T17:01:19.017Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1025",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_16": "35ms",
+      "observed_timestamp": "1771261279018000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261278969000000",
+    "date": "2026-02-16T17:01:18.969Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1019",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_15": "36ms",
+      "observed_timestamp": "1771261278969000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261278931000000",
+    "date": "2026-02-16T17:01:18.931Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1013",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_14": "34ms",
+      "observed_timestamp": "1771261278931000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261278887000000",
+    "date": "2026-02-16T17:01:18.887Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#1003",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_13": "54ms",
+      "observed_timestamp": "1771261278887000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[\"Extracting mentions from chunks\",\"{\\n  \\\"chunkCount\\\": 1\\n}\"]",
+    "timestamp": "1771261278867000000",
+    "date": "2026-02-16T17:01:18.867Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "295ms",
+      "observed_timestamp": "1771261278867000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[\"Text chunked\",\"{\\n  \\\"chunkCount\\\": 1\\n}\"]",
+    "timestamp": "1771261278866000000",
+    "date": "2026-02-16T17:01:18.866Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "294ms",
+      "observed_timestamp": "1771261278866000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Chunking text",
+    "timestamp": "1771261278866000000",
+    "date": "2026-02-16T17:01:18.866Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "294ms",
+      "observed_timestamp": "1771261278866000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Extracting mentions",
+    "timestamp": "1771261278866000000",
+    "date": "2026-02-16T17:01:18.866Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "294ms",
+      "observed_timestamp": "1771261278866000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Ontology loaded",
+    "timestamp": "1771261278865000000",
+    "date": "2026-02-16T17:01:18.865Z",
+    "fields": {
+      "classCount": "6",
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "key": "knowledge_ontology__00000000-0000-7000-8000-000000000001",
+      "logSpan_http_span_10": "293ms",
+      "observed_timestamp": "1771261278865000000",
+      "propertyCount": "6",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "52b097dcd323151c",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "Parsing ontology",
+    "timestamp": "1771261278857000000",
+    "date": "2026-02-16T17:01:18.857Z",
+    "fields": {
+      "contentLength": "3400",
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "key": "knowledge_ontology__00000000-0000-7000-8000-000000000001",
+      "logSpan_http_span_10": "285ms",
+      "observed_timestamp": "1771261278857000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "52b097dcd323151c",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "Document classification failed, continuing without classification",
+    "timestamp": "1771261278856000000",
+    "date": "2026-02-16T17:01:18.856Z",
+    "fields": {
+      "cause": "ClassificationError: Document classification failed: HttpResponseError: StatusCode: {\"error\":{\"message\":\"The project you are requesting has been archived and is no longer accessible\",\"type\":\"invalid_request_error\",\"code\":\"not_authorized_invalid_project\",\"param\":null},\"status\":401} (401 POST https://api.openai.com/v1/responses)\n\nUnauthorized - Verify API key, authentication credentials, or token expiration.\n\nResponse Body: \"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"The project you are requesting has been archived and is no longer accessible\\\",\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"code\\\": \\\"not_authorized_invalid_project\\\",\\n    \\\"param\\\": null\\n  },\\n  \\\"status\\\": 401\\n}\"",
+      "detected_level": "WARN",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "284ms",
+      "observed_timestamp": "1771261278856000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "30000",
+      "severity_text": "WARN",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "Loading ontology",
+    "timestamp": "1771261278856000000",
+    "date": "2026-02-16T17:01:18.856Z",
+    "fields": {
+      "detected_level": "DEBUG",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "284ms",
+      "observed_timestamp": "1771261278856000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261278824000000",
+    "date": "2026-02-16T17:01:18.824Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#997",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_12": "34ms",
+      "observed_timestamp": "1771261278824000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261278775000000",
+    "date": "2026-02-16T17:01:18.775Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#991",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_11": "87ms",
+      "observed_timestamp": "1771261278775000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261278774000000",
+    "date": "2026-02-16T17:01:18.774Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#991",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_11": "86ms",
+      "observed_timestamp": "1771261278774000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[\"Starting extraction pipeline\",\"{\\n  \\\"documentId\\\": \\\"workspaces_document__c64da1bb-14d0-58e2-bde6-73a55e9e1eca\\\",\\n  \\\"textLength\\\": 1116\\n}\"]",
+    "timestamp": "1771261278693000000",
+    "date": "2026-02-16T17:01:18.693Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#990",
+      "logSpan_http_span_10": "121ms",
+      "observed_timestamp": "1771261278694000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "spanId": "noop",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "noop"
+    }
+  },
+  {
+    "line": "BatchEventEmitter: event emitted",
+    "timestamp": "1771261278676000000",
+    "date": "2026-02-16T17:01:18.676Z",
+    "fields": {
+      "batchId": "knowledge_batch_execution__077e48ff-3bfc-441a-ab75-3518d98eaa28",
+      "detected_level": "DEBUG",
+      "eventTag": "BatchEvent.DocumentStarted",
+      "fiberId": "#986",
+      "logSpan_http_span_10": "104ms",
+      "observed_timestamp": "1771261278676000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "73d69e8f7b72ddf4",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "BatchEventEmitter: event emitted",
+    "timestamp": "1771261278675000000",
+    "date": "2026-02-16T17:01:18.675Z",
+    "fields": {
+      "batchId": "knowledge_batch_execution__077e48ff-3bfc-441a-ab75-3518d98eaa28",
+      "detected_level": "DEBUG",
+      "eventTag": "BatchEvent.BatchCreated",
+      "fiberId": "#983",
+      "logSpan_http_span_10": "103ms",
+      "observed_timestamp": "1771261278675000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "10000",
+      "severity_text": "DEBUG",
+      "spanId": "5d4871624cf5bec8",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry",
+      "traceId": "595925b168dd5ae438e813d199287cb0"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261278662000000",
+    "date": "2026-02-16T17:01:18.662Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#975",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_10": "90ms",
+      "observed_timestamp": "1771261278662000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  },
+  {
+    "line": "[]",
+    "timestamp": "1771261278661000000",
+    "date": "2026-02-16T17:01:18.661Z",
+    "fields": {
+      "detected_level": "INFO",
+      "fiberId": "#975",
+      "http_method": "GET",
+      "http_status": "499",
+      "http_url": "/v1/knowledge/rpc",
+      "logSpan_http_span_10": "89ms",
+      "observed_timestamp": "1771261278661000000",
+      "scope_name": "@effect/opentelemetry",
+      "service_name": "beep-server",
+      "severity_number": "20000",
+      "severity_text": "INFO",
+      "telemetry_sdk_language": "nodejs",
+      "telemetry_sdk_name": "@effect/opentelemetry"
+    }
+  }
+]

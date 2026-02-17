@@ -1,4 +1,8 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { Entities } from "@beep/knowledge-domain";
+import { Confidence } from "@beep/knowledge-domain/values";
+import type { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
+import type { ExtractedTriple } from "@beep/knowledge-server/Extraction/schemas/relation-output.schema";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
@@ -12,8 +16,6 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { ClassifiedEntity } from "./schemas/entity-output.schema";
-import type { ExtractedTriple } from "./schemas/relation-output.schema";
 
 const $I = $KnowledgeServerId.create("Extraction/GraphAssembler");
 
@@ -87,11 +89,11 @@ export declare namespace AssembledEntityAttributes {
 export class AssembledEntity extends S.Class<AssembledEntity>($I`AssembledEntity`)(
   {
     id: KnowledgeEntityIds.KnowledgeEntityId,
-    mention: S.String,
+    mention: S.parseJson(Entities.Entity.Model.fields.mention),
     primaryType: S.String,
     types: S.Array(S.String),
     attributes: AssembledEntityAttributes,
-    confidence: S.Number,
+    confidence: Confidence,
     canonicalName: S.optional(S.String),
   },
   $I.annotations("AssembledEntity", {
@@ -107,7 +109,7 @@ export class AssembledRelation extends S.Class<AssembledRelation>($I`AssembledRe
     objectId: S.optional(KnowledgeEntityIds.KnowledgeEntityId),
     literalValue: S.optional(S.String),
     literalType: S.optional(S.String),
-    confidence: S.Number,
+    confidence: Confidence,
     evidence: S.optional(S.String),
     evidenceStartChar: S.optional(S.Number),
     evidenceEndChar: S.optional(S.Number),
@@ -119,10 +121,10 @@ export class AssembledRelation extends S.Class<AssembledRelation>($I`AssembledRe
 
 export class KnowledgeGraphStats extends S.Class<KnowledgeGraphStats>($I`KnowledgeGraphStats`)(
   {
-    entityCount: S.Number,
-    relationCount: S.Number,
-    unresolvedSubjects: S.Number,
-    unresolvedObjects: S.Number,
+    entityCount: S.NonNegativeInt,
+    relationCount: S.NonNegativeInt,
+    unresolvedSubjects: S.NonNegativeInt,
+    unresolvedObjects: S.NonNegativeInt,
   },
   $I.annotations("KnowledgeGraphStats", {
     description: "Statistics for a knowledge graph",
@@ -184,15 +186,15 @@ export class KnowledgeGraph extends S.Class<KnowledgeGraph>($I`KnowledgeGraph`)(
             const mkEntity = (input: {
               primaryType: string;
               mention: string;
-              canonicalName?: string;
-              additionalTypes?: ReadonlyArray<string>;
-              attributes?: Record<string, string | number | boolean>;
+              canonicalName?: undefined | string;
+              additionalTypes?: undefined | ReadonlyArray<string>;
+              attributes?: undefined | Record<string, string | number | boolean>;
             }): AssembledEntity => {
-              const seen = new Set<string>();
-              const types: Array<string> = [];
+              const seen = MutableHashSet.empty<string>();
+              const types = A.empty<string>();
               for (const t of [input.primaryType, ...(input.additionalTypes ?? [])]) {
-                if (!seen.has(t)) {
-                  seen.add(t);
+                if (!MutableHashSet.has(t)(seen)) {
+                  MutableHashSet.add(t)(seen);
                   types.push(t);
                 }
               }
@@ -208,10 +210,10 @@ export class KnowledgeGraph extends S.Class<KnowledgeGraph>($I`KnowledgeGraph`)(
               });
             };
 
-            const people: Array<AssembledEntity> = [];
+            const people = A.empty<AssembledEntity>();
             for (let i = 0; i < personCount; i++) {
               const name = faker.person.fullName();
-              const firstName = name.split(" ")[0] ?? name;
+              const firstName = A.head(Str.split(" ")(name)).pipe(O.getOrElse(() => name));
               people.push(
                 mkEntity({
                   primaryType: personType,
@@ -246,7 +248,7 @@ export class KnowledgeGraph extends S.Class<KnowledgeGraph>($I`KnowledgeGraph`)(
               );
             }
 
-            const orgs: Array<AssembledEntity> = [];
+            const orgs = A.empty<AssembledEntity>();
             for (let i = 0; i < orgCount; i++) {
               const mention = faker.company.name();
               orgs.push(
@@ -263,7 +265,7 @@ export class KnowledgeGraph extends S.Class<KnowledgeGraph>($I`KnowledgeGraph`)(
               );
             }
 
-            const businesses: Array<AssembledEntity> = [];
+            const businesses = A.empty<AssembledEntity>();
             for (let i = 0; i < businessCount; i++) {
               const mention = `${faker.company.name()} ${faker.helpers.arrayElement(["Cafe", "Market", "Studio", "Works"])}`;
               businesses.push(
@@ -373,13 +375,13 @@ export class KnowledgeGraph extends S.Class<KnowledgeGraph>($I`KnowledgeGraph`)(
             const mkRelation = (input: {
               subjectId: string;
               predicate: string;
-              objectId?: string;
-              literalValue?: string;
-              literalType?: string;
-              confidence?: number;
-              evidence?: string;
-              evidenceStartChar?: number;
-              evidenceEndChar?: number;
+              objectId?: undefined | string;
+              literalValue?: undefined | string;
+              literalType?: undefined | string;
+              confidence?: undefined | number;
+              evidence?: undefined | string;
+              evidenceStartChar?: undefined | number;
+              evidenceEndChar?: undefined | number;
             }): void => {
               const confidence = input.confidence ?? mkConfidence(0.65, 0.97);
               relations.push(

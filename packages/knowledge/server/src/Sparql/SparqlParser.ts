@@ -1,6 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { SparqlSyntaxError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
 import { SparqlQuery, SparqlQueryType } from "@beep/knowledge-domain/values";
+import { thunkEffectVoid } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -116,33 +117,35 @@ const checkUnsupportedFeatures = (
       )
     ),
     O.match({
-      onNone: () => Effect.void,
+      onNone: thunkEffectVoid,
       onSome: Effect.fail,
     })
   );
 
-const astToSparqlQuery = (
+const astToSparqlQuery: (
   ast: sparqljs.SparqlQuery,
   queryString: string
-): Effect.Effect<SparqlQuery, SparqlUnsupportedFeatureError> =>
-  Effect.gen(function* () {
-    yield* checkUnsupportedFeatures(ast, queryString);
+) => Effect.Effect<SparqlQuery, SparqlUnsupportedFeatureError> = Effect.fn("SparqlParser.astToSparqlQuery")(function* (
+  ast: sparqljs.SparqlQuery,
+  queryString: string
+) {
+  yield* checkUnsupportedFeatures(ast, queryString);
 
-    const queryType = yield* F.pipe(
-      extractQueryType(ast),
-      O.match({
-        onNone: () => Effect.fail(makeNonQueryError(queryString)),
-        onSome: Effect.succeed,
-      })
-    );
+  const queryType = yield* F.pipe(
+    extractQueryType(ast),
+    O.match({
+      onNone: () => Effect.fail(makeNonQueryError(queryString)),
+      onSome: Effect.succeed,
+    })
+  );
 
-    return new SparqlQuery({
-      queryString,
-      queryType,
-      prefixes: extractPrefixes(ast),
-      variables: [...extractVariables(ast)],
-    });
+  return new SparqlQuery({
+    queryString,
+    queryType,
+    prefixes: extractPrefixes(ast),
+    variables: [...extractVariables(ast)],
   });
+});
 
 export interface SparqlParserShape {
   readonly parse: (
@@ -155,13 +158,13 @@ export class SparqlParser extends Context.Tag($I`SparqlParser`)<SparqlParser, Sp
 const serviceEffect: Effect.Effect<SparqlParserShape> = Effect.gen(function* () {
   const parser = new Sparqljs.Parser();
 
-  return SparqlParser.of({
-    parse: (queryString: string): Effect.Effect<ParseResult, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
-      Effect.gen(function* () {
+  const parse: (queryString: string) => Effect.Effect<ParseResult, SparqlSyntaxError | SparqlUnsupportedFeatureError> =
+    Effect.fn("SparqlParser.parse")(
+      function* (queryString: string) {
         const ast = yield* Effect.try({
           try: () => parser.parse(queryString),
           catch: (error) => {
-            const errorMsg = String(P.hasProperty(error, "message") ? (error as { message: unknown }).message : error);
+            const errorMsg = String(P.hasProperty(error, "message") ? error.message : error);
 
             const lineMatch = errorMsg.match(/line\s+(\d+)/i);
             const columnMatch = errorMsg.match(/column\s+(\d+)/i);
@@ -178,11 +181,17 @@ const serviceEffect: Effect.Effect<SparqlParserShape> = Effect.gen(function* () 
         const query = yield* astToSparqlQuery(ast, queryString);
 
         return { query, ast };
-      }).pipe(
-        Effect.withSpan("SparqlParser.parse", {
-          attributes: { queryLength: Str.length(queryString) },
-        })
-      ),
+      },
+      (effect, queryString) =>
+        effect.pipe(
+          Effect.withSpan("SparqlParser.parse", {
+            attributes: { queryLength: Str.length(queryString) },
+          })
+        )
+    );
+
+  return SparqlParser.of({
+    parse,
   });
 });
 

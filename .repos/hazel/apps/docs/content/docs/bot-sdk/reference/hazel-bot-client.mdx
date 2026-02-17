@@ -1,0 +1,362 @@
+---
+title: HazelBotClient
+description: The main bot service for event handling and message operations
+icon: Bot
+---
+
+`HazelBotClient` is the main service for building Hazel bots. It provides event handlers, message operations, and slash command support.
+
+## Getting the Client
+
+```typescript
+import { Effect } from "effect"
+import { HazelBotClient } from "@hazel/bot-sdk"
+
+const program = Effect.gen(function* () {
+	const bot = yield* HazelBotClient
+	// Use bot here
+})
+```
+
+## Event Handlers
+
+### `onMessage`
+
+Register a handler for new messages.
+
+```typescript
+yield *
+	bot.onMessage((message) =>
+		Effect.gen(function* () {
+			yield* Effect.log(`New message: ${message.content}`)
+		}),
+	)
+```
+
+**Message properties:**
+
+| Property           | Type                | Description                 |
+| ------------------ | ------------------- | --------------------------- |
+| `id`               | `MessageId`         | Unique message ID           |
+| `content`          | `string`            | Message text content        |
+| `channelId`        | `ChannelId`         | Channel where sent          |
+| `authorId`         | `UserId`            | User who sent it            |
+| `createdAt`        | `string`            | ISO timestamp               |
+| `updatedAt`        | `string \| null`    | Last edit time              |
+| `replyToMessageId` | `MessageId \| null` | Parent message if reply     |
+| `threadChannelId`  | `ChannelId \| null` | Thread channel if in thread |
+
+### `onMessageUpdate`
+
+Register a handler for message edits.
+
+```typescript
+yield *
+	bot.onMessageUpdate((message) =>
+		Effect.gen(function* () {
+			yield* Effect.log(`Message edited: ${message.content}`)
+		}),
+	)
+```
+
+### `onMessageDelete`
+
+Register a handler for message deletions.
+
+```typescript
+yield *
+	bot.onMessageDelete((message) =>
+		Effect.gen(function* () {
+			yield* Effect.log(`Message deleted: ${message.id}`)
+		}),
+	)
+```
+
+### `onChannelCreated`
+
+Register a handler for new channels.
+
+```typescript
+yield *
+	bot.onChannelCreated((channel) =>
+		Effect.gen(function* () {
+			yield* Effect.log(`New channel: ${channel.name}`)
+		}),
+	)
+```
+
+### `onChannelUpdated`
+
+Register a handler for channel updates.
+
+```typescript
+yield *
+	bot.onChannelUpdated((channel) =>
+		Effect.gen(function* () {
+			yield* Effect.log(`Channel updated: ${channel.name}`)
+		}),
+	)
+```
+
+### `onChannelDeleted`
+
+Register a handler for channel deletions.
+
+```typescript
+yield *
+	bot.onChannelDeleted((channel) =>
+		Effect.gen(function* () {
+			yield* Effect.log(`Channel deleted: ${channel.id}`)
+		}),
+	)
+```
+
+### `onChannelMemberAdded`
+
+Register a handler for members joining a channel.
+
+```typescript
+yield *
+	bot.onChannelMemberAdded((member) =>
+		Effect.gen(function* () {
+			yield* Effect.log(`Member joined: ${member.userId}`)
+		}),
+	)
+```
+
+### `onChannelMemberRemoved`
+
+Register a handler for members leaving a channel.
+
+```typescript
+yield *
+	bot.onChannelMemberRemoved((member) =>
+		Effect.gen(function* () {
+			yield* Effect.log(`Member left: ${member.userId}`)
+		}),
+	)
+```
+
+### `onCommand`
+
+Register a handler for a slash command. See [Commands](/bot-sdk/reference/commands) for details.
+
+```typescript
+yield *
+	bot.onCommand(MyCommand, (ctx) =>
+		Effect.gen(function* () {
+			yield* bot.message.send(ctx.channelId, `Hello, ${ctx.args.name}!`)
+		}),
+	)
+```
+
+## Message Operations
+
+### `bot.message.send`
+
+Send a message to a channel.
+
+```typescript
+const message = yield * bot.message.send(channelId, "Hello!")
+```
+
+**With options:**
+
+```typescript
+const message =
+	yield *
+	bot.message.send(channelId, "Reply!", {
+		replyToMessageId: parentMessageId, // Optional: reply to message
+		threadChannelId: threadId, // Optional: send in thread
+		attachmentIds: [attachmentId], // Optional: attachments
+	})
+```
+
+### `bot.message.reply`
+
+Reply to a message.
+
+```typescript
+yield * bot.message.reply(message, "Got it!")
+```
+
+### `bot.message.update`
+
+Edit a message.
+
+```typescript
+yield * bot.message.update(message, "Updated content")
+```
+
+### `bot.message.delete`
+
+Delete a message by ID.
+
+```typescript
+yield * bot.message.delete(messageId)
+```
+
+### `bot.message.react`
+
+React to a message with an emoji.
+
+```typescript
+yield * bot.message.react(message, "👍")
+```
+
+## Typing Indicators
+
+### `bot.typing.start`
+
+Show a typing indicator.
+
+```typescript
+const indicator = yield * bot.typing.start(channelId, channelMemberId)
+```
+
+### `bot.typing.stop`
+
+Hide a typing indicator.
+
+```typescript
+yield * bot.typing.stop(typingIndicatorId)
+```
+
+## Channel Operations
+
+### `bot.channel.update`
+
+Update a channel's name or description.
+
+```typescript
+yield *
+	bot.channel.update(channel, {
+		name: "new-name",
+		description: "New description",
+	})
+```
+
+## Utilities
+
+### `bot.withErrorHandler`
+
+Wrap a command handler with error handling. Catches errors, logs them, and sends a user-friendly message.
+
+```typescript
+yield *
+	bot.onCommand(MyCommand, (ctx) =>
+		Effect.gen(function* () {
+			// Handler logic
+		}).pipe(bot.withErrorHandler(ctx)),
+	)
+```
+
+### `bot.start`
+
+Start the bot. Must be called after registering all handlers.
+
+```typescript
+yield * bot.start
+```
+
+### `bot.getAuthContext`
+
+Get the bot's authentication context.
+
+```typescript
+const auth = yield * bot.getAuthContext
+yield * Effect.log(`Bot ID: ${auth.botId}`)
+yield * Effect.log(`Bot User ID: ${auth.userId}`)
+```
+
+## Rate Limiting
+
+All message operations are automatically rate-limited to 10 per second. This prevents hitting API limits and ensures reliable delivery.
+
+## Streaming Operations
+
+The SDK provides two streaming APIs: a low-level `bot.stream` for full control and a high-level `bot.ai` for AI model integration.
+
+### `bot.stream.create`
+
+Create a low-level stream session for real-time message updates.
+
+```typescript
+const session =
+	yield *
+	bot.stream.create(channelId, {
+		loading: {
+			title: "Processing...",
+			description: "Please wait",
+		},
+	})
+```
+
+**StreamSession methods:**
+
+| Method                               | Description                                  |
+| ------------------------------------ | -------------------------------------------- |
+| `appendText(text)`                   | Append text to the current message           |
+| `setText(text)`                      | Replace the entire message text              |
+| `setProgress(progress)`              | Update the loading progress indicator        |
+| `setData(data)`                      | Set structured data on the message           |
+| `startThinking(label?)`              | Add a thinking/reasoning step                |
+| `startToolCall(name, input?)`        | Add a tool call step with name and input     |
+| `updateStepContent(stepId, content)` | Update a step's content                      |
+| `completeStep(stepId, output?)`      | Mark a step as complete with optional output |
+| `complete()`                         | Finalize the stream and persist the message  |
+| `fail(error)`                        | Mark the stream as failed with an error      |
+
+### `bot.ai.stream`
+
+Create an AI-aware stream session with automatic chunk processing.
+
+```typescript
+const session =
+	yield *
+	bot.ai.stream(channelId, {
+		model: "claude-3.5-sonnet",
+		showThinking: true,
+		showToolCalls: true,
+		loading: {
+			title: "Thinking...",
+		},
+	})
+```
+
+**AIStreamOptions:**
+
+| Option          | Type      | Description                                   |
+| --------------- | --------- | --------------------------------------------- |
+| `model`         | `string`  | AI model identifier for display               |
+| `showThinking`  | `boolean` | Show extended thinking steps (default: false) |
+| `showToolCalls` | `boolean` | Show tool call steps (default: false)         |
+| `loading`       | `object`  | Loading state with `title` and `description`  |
+
+**AIStreamSession methods:**
+
+All `StreamSession` methods plus:
+
+| Method                  | Description                        |
+| ----------------------- | ---------------------------------- |
+| `processChunk(chunk)`   | Process a single AI content chunk  |
+| `processStream(stream)` | Process an entire stream of chunks |
+
+**AIContentChunk types:**
+
+| Type          | Properties                              | Description               |
+| ------------- | --------------------------------------- | ------------------------- |
+| `text`        | `text: string`                          | Text content to append    |
+| `thinking`    | `thinking: string`                      | Extended thinking content |
+| `tool_call`   | `name: string`, `input?: unknown`       | Tool invocation           |
+| `tool_result` | `toolCallId: string`, `result: unknown` | Tool execution result     |
+
+### `bot.ai.withErrorHandler`
+
+Wrap an AI streaming operation with error handling that properly fails the stream on error.
+
+```typescript
+yield * myOperation.pipe(bot.ai.withErrorHandler(ctx, session))
+```
+
+See [AI Streaming](/bot-sdk/reference/ai-streaming) for complete documentation and examples.

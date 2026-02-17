@@ -9,7 +9,9 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -22,12 +24,12 @@ const executionTable = KnowledgeEntityIds.WorkflowExecutionId.tableName;
 
 export class WorkflowExecutionRecord extends S.Class<WorkflowExecutionRecord>($I`WorkflowExecutionRecord`)(
   {
-    id: KnowledgeEntityIds.WorkflowExecutionId,
+    id: S.String,
     organizationId: S.String,
     workflowType: WorkflowType,
     status: WorkflowExecutionStatus,
-    input: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
-    output: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
+    input: S.optionalWith(S.NullOr(S.parseJson(JsonRecord)), { default: () => null }),
+    output: S.optionalWith(S.NullOr(S.parseJson(JsonRecord)), { default: () => null }),
     error: S.optionalWith(S.NullOr(S.String), { default: () => null }),
     startedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
     completedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
@@ -49,9 +51,10 @@ export const decodeWorkflowExecutionRecord = (u: unknown): Effect.Effect<Workflo
         })
     )
   );
+
 export class CreateExcecutionParams extends S.Class<CreateExcecutionParams>($I`CreateExcecutionParams`)(
   {
-    id: KnowledgeEntityIds.WorkflowExecutionId,
+    id: S.String,
     organizationId: S.String,
     workflowType: WorkflowType,
     input: S.optional(JsonRecord),
@@ -73,17 +76,18 @@ export class UpdateExecutionStatusUpdates extends S.Class<UpdateExecutionStatusU
     description: "Optional update payload for workflow execution status updates.",
   })
 ) {}
+
 export interface WorkflowPersistenceShape {
   readonly createExecution: (params: CreateExcecutionParams) => Effect.Effect<void, SqlError.SqlError>;
 
   readonly updateExecutionStatus: (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    id: string,
     status: WorkflowExecutionStatus.Type,
     updates?: undefined | UpdateExecutionStatusUpdates
   ) => Effect.Effect<void, SqlError.SqlError>;
 
   readonly getExecution: (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type
+    id: string
   ) => Effect.Effect<WorkflowExecutionRecord, WorkflowNotFoundError | SqlError.SqlError>;
 
   readonly findLatestBatchExecutionByBatchId: (
@@ -91,7 +95,7 @@ export interface WorkflowPersistenceShape {
   ) => Effect.Effect<O.Option<WorkflowExecutionRecord>, SqlError.SqlError>;
 
   readonly cancelExecution: (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    id: string,
     error: string
   ) => Effect.Effect<void, WorkflowNotFoundError | SqlError.SqlError>;
 
@@ -114,33 +118,29 @@ const serviceEffect = Effect.gen(function* () {
             (id, organization_id, workflow_type, status, input)
         VALUES (${params.id}, ${params.organizationId}, ${params.workflowType}, 'pending',
                 ${toJsonb(params.input ?? {})}::jsonb)
-    `.pipe(Effect.asVoid);
+		`.pipe(Effect.asVoid);
 
-  const updateExecutionRunning = (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
-    nowStr: string,
-    lastActivityName?: string
-  ) =>
+  const updateExecutionRunning = (id: string, nowStr: string, lastActivityName?: undefined | string) =>
     lastActivityName
       ? sql`
                 UPDATE ${sql(executionTable)}
-                SET status = 'running',
-                    started_at = COALESCE(started_at, ${nowStr}),
+                SET status             = 'running',
+                    started_at         = COALESCE(started_at, ${nowStr}),
                     last_activity_name = ${lastActivityName}
                 WHERE id = ${id}
-      `.pipe(Effect.asVoid)
+			`.pipe(Effect.asVoid)
       : sql`
                 UPDATE ${sql(executionTable)}
-                SET status = 'running',
+                SET status     = 'running',
                     started_at = COALESCE(started_at, ${nowStr})
                 WHERE id = ${id}
-      `.pipe(Effect.asVoid);
+			`.pipe(Effect.asVoid);
 
   const updateExecutionCompleted = (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
+    id: string,
     nowStr: string,
-    output?: Record<string, unknown>,
-    lastActivityName?: string
+    output?: undefined | Record<string, unknown>,
+    lastActivityName?: undefined | string
   ) => {
     if (output && lastActivityName) {
       return sql`
@@ -149,7 +149,7 @@ const serviceEffect = Effect.gen(function* () {
               completed_at = ${nowStr},
               output       = ${toJsonb(output)}::jsonb, last_activity_name = ${lastActivityName}
           WHERE id = ${id}
-      `.pipe(Effect.asVoid);
+			`.pipe(Effect.asVoid);
     }
     if (output) {
       return sql`
@@ -158,7 +158,7 @@ const serviceEffect = Effect.gen(function* () {
               completed_at = ${nowStr},
               output       = ${toJsonb(output)}::jsonb
           WHERE id = ${id}
-      `.pipe(Effect.asVoid);
+			`.pipe(Effect.asVoid);
     }
     if (lastActivityName) {
       return sql`
@@ -167,92 +167,89 @@ const serviceEffect = Effect.gen(function* () {
               completed_at       = ${nowStr},
               last_activity_name = ${lastActivityName}
           WHERE id = ${id}
-      `.pipe(Effect.asVoid);
+			`.pipe(Effect.asVoid);
     }
     return sql`
         UPDATE ${sql(executionTable)}
         SET status       = 'completed',
             completed_at = ${nowStr}
         WHERE id = ${id}
-    `.pipe(Effect.asVoid);
+		`.pipe(Effect.asVoid);
   };
 
-  const updateExecutionFailed = (id: KnowledgeEntityIds.WorkflowExecutionId.Type, nowStr: string, error?: string) =>
+  const updateExecutionFailed = (id: string, nowStr: string, error?: undefined | string) =>
     error
       ? sql`
                 UPDATE ${sql(executionTable)}
-                SET status = 'failed',
+                SET status       = 'failed',
                     completed_at = ${nowStr},
-                    error = ${error}
+                    error        = ${error}
                 WHERE id = ${id}
-      `.pipe(Effect.asVoid)
+			`.pipe(Effect.asVoid)
       : sql`
                 UPDATE ${sql(executionTable)}
-                SET status = 'failed',
+                SET status       = 'failed',
                     completed_at = ${nowStr}
                 WHERE id = ${id}
-      `.pipe(Effect.asVoid);
+			`.pipe(Effect.asVoid);
 
-  const updateExecutionGeneric = (
-    id: KnowledgeEntityIds.WorkflowExecutionId.Type,
-    status: WorkflowExecutionStatus.Type
-  ) =>
+  const updateExecutionGeneric = (id: string, status: WorkflowExecutionStatus.Type) =>
     sql`
         UPDATE ${sql(executionTable)}
         SET status = ${status}
         WHERE id = ${id}
-    `.pipe(Effect.asVoid);
+		`.pipe(Effect.asVoid);
 
-  const updateExecutionStatus: WorkflowPersistenceShape["updateExecutionStatus"] = (id, status, updates) =>
-    Effect.gen(function* () {
-      const now = yield* DateTime.now;
-      const nowStr = DateTime.formatIso(now);
+  const updateExecutionStatus: WorkflowPersistenceShape["updateExecutionStatus"] = Effect.fn(
+    "WorkflowPersistence.updateExecutionStatus"
+  )(function* (id, status, updates) {
+    const now = yield* DateTime.now;
+    const nowStr = DateTime.formatIso(now);
 
-      if (status === "running") {
-        yield* updateExecutionRunning(id, nowStr, updates?.lastActivityName);
-      } else if (status === "completed") {
-        yield* updateExecutionCompleted(id, nowStr, updates?.output, updates?.lastActivityName);
-      } else if (status === "failed") {
-        yield* updateExecutionFailed(id, nowStr, updates?.error);
-      } else {
-        yield* updateExecutionGeneric(id, status);
-      }
-    });
+    yield* Match.value(status).pipe(
+      Match.when("running", () => updateExecutionRunning(id, nowStr, updates?.lastActivityName)),
+      Match.when("completed", () => updateExecutionCompleted(id, nowStr, updates?.output, updates?.lastActivityName)),
+      Match.when("failed", () => updateExecutionFailed(id, nowStr, updates?.error)),
+      Match.orElse(() => updateExecutionGeneric(id, status))
+    );
+  });
 
-  const getExecution: WorkflowPersistenceShape["getExecution"] = (id) =>
-    Effect.gen(function* () {
+  const getExecution: WorkflowPersistenceShape["getExecution"] = Effect.fn("WorkflowPersistence.getExecution")(
+    function* (id) {
       const rows = yield* sql<WorkflowExecutionRecord>`
           SELECT *
           FROM ${sql(executionTable)}
           WHERE id = ${id}
-      `;
+			`;
       const row = A.head(rows);
       if (O.isNone(row)) {
         return yield* new WorkflowNotFoundError({ executionId: id });
       }
       return yield* decodeWorkflowExecutionRecord(row.value);
-    });
+    }
+  );
 
-  const findLatestBatchExecutionByBatchId: WorkflowPersistenceShape["findLatestBatchExecutionByBatchId"] = (batchId) =>
-    Effect.gen(function* () {
-      const rows = yield* sql<WorkflowExecutionRecord>`
+  const findLatestBatchExecutionByBatchId: WorkflowPersistenceShape["findLatestBatchExecutionByBatchId"] = Effect.fn(
+    "WorkflowPersistence.findLatestBatchExecutionByBatchId"
+  )(function* (batchId) {
+    const rows = yield* sql<WorkflowExecutionRecord>`
           SELECT *
           FROM ${sql(executionTable)}
           WHERE workflow_type = 'batch_extraction'
             AND input ->> 'batchId' = ${batchId}
           ORDER BY created_at DESC
-          LIMIT 1
-      `;
-      const row = A.head(rows);
-      if (O.isNone(row)) {
-        return O.none();
-      }
-      const decoded = yield* decodeWorkflowExecutionRecord(row.value);
-      return O.some(decoded);
-    });
+              LIMIT 1
+			`;
+    const row = A.head(rows);
+    if (O.isNone(row)) {
+      return O.none();
+    }
+    const decoded = yield* decodeWorkflowExecutionRecord(row.value);
+    return O.some(decoded);
+  });
 
-  const cancelExecution: WorkflowPersistenceShape["cancelExecution"] = (id, error) =>
-    Effect.gen(function* () {
+  const cancelExecution: WorkflowPersistenceShape["cancelExecution"] = Effect.fn("WorkflowPersistence.cancelExecution")(
+    function* (id, error) {
       const existing = yield* getExecution(id);
       const disallowTerminal =
         existing.status === "completed" || existing.status === "failed" || existing.status === "cancelled";
@@ -263,22 +260,26 @@ const serviceEffect = Effect.gen(function* () {
       const nowStr = DateTime.formatIso(now);
       yield* sql`
           UPDATE ${sql(executionTable)}
-          SET status = 'cancelled',
+          SET status       = 'cancelled',
               completed_at = ${nowStr},
-              error = ${error}
+              error        = ${error}
           WHERE id = ${id}
-      `.pipe(Effect.asVoid);
-    });
+			`.pipe(Effect.asVoid);
+    }
+  );
 
-  const requireBatchExecutionByBatchId: WorkflowPersistenceShape["requireBatchExecutionByBatchId"] = (batchId) =>
-    findLatestBatchExecutionByBatchId(batchId).pipe(
+  const requireBatchExecutionByBatchId: WorkflowPersistenceShape["requireBatchExecutionByBatchId"] = F.flow((batchId) =>
+    F.pipe(
+      batchId,
+      findLatestBatchExecutionByBatchId,
       Effect.flatMap(
         O.match({
-          onNone: () => Effect.fail(new BatchNotFoundError({ batchId })),
-          onSome: (execution) => Effect.succeed(execution),
+          onNone: BatchNotFoundError.newThunk(batchId),
+          onSome: Effect.succeed,
         })
       )
-    );
+    )
+  );
 
   return WorkflowPersistence.of({
     createExecution,

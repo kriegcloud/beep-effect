@@ -125,12 +125,15 @@ ${chunkText}
 """
 
 ## Instructions
-1. Find relationships between the recognized entities
-2. Each relation must use a predicate from the available ontology properties
-3. Relations can be:
+1. Systematically consider EVERY available ontology property against the source text
+2. For each property, ask: "Does the text express this relationship for any recognized entity?"
+3. Extract ALL applicable relations, not just the most obvious ones
+4. Each relation must use a predicate from the available ontology properties
+5. Relations can be:
    - Object properties: linking two entities (subjectMention → predicateIri → objectMention)
    - Datatype properties: linking an entity to a literal value (subjectMention → predicateIri → literalValue)
-4. Provide confidence scores and evidence for each relation
+6. Provide confidence scores and evidence for each relation
+7. Use lower confidence (0.5-0.7) for implied relations rather than omitting them
 
 ## Output Format
 Return a JSON object with:

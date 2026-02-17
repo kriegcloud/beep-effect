@@ -10,7 +10,7 @@ describe.skipIf(!isPlaywrightAvailable)("Smoke Tests", () => {
   layer(PlaywrightEnvironment.layer(chromium))((it) => {
     it.scoped(
       "homepage loads",
-      Effect.fn(function* () {
+      Effect.fnUntraced(function* () {
         const browser = yield* PlaywrightBrowser;
         const page = yield* browser.newPage();
 
