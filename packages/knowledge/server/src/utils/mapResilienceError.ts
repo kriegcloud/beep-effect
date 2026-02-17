@@ -1,7 +1,7 @@
-import * as AiError from "@effect/ai/AiError";
-import type * as HttpServerError from "@effect/platform/HttpServerError";
 import type { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
 import type { TimeoutError } from "@beep/knowledge-server/LlmControl/StageTimeout";
+import * as AiError from "@effect/ai/AiError";
+import type * as HttpServerError from "@effect/platform/HttpServerError";
 
 import * as P from "effect/Predicate";
 import { getErrorMessage } from "./getErrorMessage";

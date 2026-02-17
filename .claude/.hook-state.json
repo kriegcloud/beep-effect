@@ -1,5 +1,5 @@
 {
-  "lastCallMs": 1771305887443,
+  "lastCallMs": 1771306969509,
   "skillIndex": {
     "loadedAt": 1771305887503,
     "directoryMtime": 1771136811932,
@@ -1026,7 +1026,7 @@
     ]
   },
   "patternCache": {
-    "loadedAt": 1771286447695,
+    "loadedAt": 1771306393693,
     "directoryMtime": 1770162603628,
     "patterns": [
       {
@@ -1598,5 +1598,8 @@
         "filePath": "/home/elpresidank/YeeBois/projects/beep-effect2/.claude/patterns/code-smells/use-console-service.md"
       }
     ]
+  },
+  "telemetry": {
+    "activeAgents": {}
   }
 }

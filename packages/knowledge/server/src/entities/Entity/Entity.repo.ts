@@ -1,5 +1,4 @@
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeDb } from "@beep/knowledge-server/db";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import type { DbClient } from "@beep/shared-server";
@@ -8,13 +7,14 @@ import { thunkSucceedEffect, thunkZero } from "@beep/utils";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
-import * as Either from "effect/Either";
 import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { KnowledgeDb } from "../../db/Db";
 
 const tableName = KnowledgeEntityIds.KnowledgeEntityId.tableName;
 
@@ -39,7 +39,13 @@ const normalizeEntityTypesField = (row: unknown): unknown => {
 
 const decodeEntityRow = (row: unknown): O.Option<Entities.Entity.Model> =>
   Either.match(decodeEntity(normalizeEntityTypesField(row)), {
-    onLeft: () => O.none(),
+    onLeft: (e) => {
+      // eslint-disable-next-line no-console -- temporary debug logging for entity decode failures
+      console.log("[ENTITY-DECODE-DEBUG] row keys:", typeof row === "object" && row !== null ? Object.keys(row) : "N/A");
+      // eslint-disable-next-line no-console -- temporary debug logging for entity decode failures
+      console.log("[ENTITY-DECODE-DEBUG] error:", String(e).slice(0, 500));
+      return O.none();
+    },
     onRight: O.some,
   });
 

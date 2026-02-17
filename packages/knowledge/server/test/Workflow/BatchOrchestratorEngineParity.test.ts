@@ -28,7 +28,6 @@ import * as O from "effect/Option";
 
 import * as Stream from "effect/Stream";
 import { makeWorkflowPersistenceShape, type WorkflowStatusUpdate } from "../_shared/ServiceMocks";
-import { PgTest } from "./container";
 
 type Scenario = {
   readonly workflowRun: ExtractionWorkflowShape["run"];
@@ -145,7 +144,7 @@ const failExtraction = (cause: string) =>
     })
   );
 
-layer(PgTest, { timeout: Duration.seconds(120) })("BatchOrchestrator engine parity", (it) => {
+layer(Layer.empty, { timeout: Duration.seconds(120) })("BatchOrchestrator engine parity", (it) => {
   it.effect(
     "preserves continue_on_failure semantics and event ordering",
     Effect.fn(function* () {

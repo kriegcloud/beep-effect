@@ -24,7 +24,6 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import { makeExtractionWorkflowTestLayer } from "../_shared/LayerBuilders";
-import { PgTest } from "./container.ts";
 
 const organizationId = SharedEntityIds.OrganizationId.create();
 const documentId = WorkspacesEntityIds.DocumentId.create();
@@ -86,7 +85,7 @@ const makeFailingPersistence = (sink: {
   requireBatchExecutionByBatchId: () => Effect.die("not used"),
 });
 
-layer(PgTest, { timeout: Duration.seconds(120) })("Workflow persistence single-node semantics", (it) => {
+layer(Layer.empty, { timeout: Duration.seconds(120) })("Workflow persistence single-node semantics", (it) => {
   it.effect("ExtractionWorkflow succeeds even when persistence writes fail (best-effort persistence)", (_ctx) =>
     Effect.gen(function* () {
       const sink = {

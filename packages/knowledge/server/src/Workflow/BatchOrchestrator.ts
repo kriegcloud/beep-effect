@@ -20,7 +20,6 @@ import {
   ResolutionCompleted,
   ResolutionStarted,
 } from "@beep/knowledge-domain/values";
-import { KnowledgeDb } from "@beep/knowledge-server/db";
 import { WorkflowRuntimeLive } from "@beep/knowledge-server/Runtime";
 import * as KnowledgeTables from "@beep/knowledge-tables/schema";
 import { BS } from "@beep/schema";
@@ -40,6 +39,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+import { KnowledgeDb } from "../db/Db";
 import { EmbeddingService } from "../Embedding";
 import { ExtractionPipelineLive, ExtractionResult } from "../Extraction/ExtractionPipeline";
 import type { AssembledEntity } from "../Extraction/GraphAssembler";
@@ -203,10 +203,13 @@ const toDocumentResult = (result: EngineDocumentResult): DocumentResult =>
     : {
         documentId: result.documentId,
         result: Either.left(
-          result.error ??
-            new UnknownError({
-              cause: result,
-            })
+          O.match(result.error, {
+            onNone: () =>
+              new UnknownError({
+                cause: result,
+              }),
+            onSome: (error) => error,
+          })
         ),
       };
 
@@ -376,7 +379,7 @@ export const executeBatchEngineWorkflow = Effect.fn(
         documentId: doc.documentId,
         success: false,
         extraction: O.none(),
-        error: either.left,
+        error: O.some(new Error(getErrorMessage(either.left), { cause: either.left })),
       });
     }, Effect.withSpan("knowledge.batch.document"));
 

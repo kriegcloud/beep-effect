@@ -1,5 +1,4 @@
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeDb } from "@beep/knowledge-server/db";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import type { DbClient } from "@beep/shared-server";
@@ -13,6 +12,7 @@ import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { KnowledgeDb } from "../../db/Db";
 
 const tableName = KnowledgeEntityIds.RelationId.tableName;
 
