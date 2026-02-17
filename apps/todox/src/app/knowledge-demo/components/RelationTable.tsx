@@ -65,11 +65,11 @@ export function RelationTable({
     [entities]
   );
 
-  const uniquePredicates = React.useMemo(
+  const uniquePredicateNames = React.useMemo(
     () =>
       F.pipe(
         relations,
-        A.map((r) => r.predicate),
+        A.map((r) => getPredicateName(r.predicate)),
         A.dedupe
       ),
     [relations]
@@ -77,7 +77,9 @@ export function RelationTable({
 
   const filteredRelations = React.useMemo(
     () =>
-      predicateFilter === ALL_PREDICATES ? relations : A.filter(relations, (r) => r.predicate === predicateFilter),
+      predicateFilter === ALL_PREDICATES
+        ? relations
+        : A.filter(relations, (r) => getPredicateName(r.predicate) === predicateFilter),
     [relations, predicateFilter]
   );
 
@@ -108,9 +110,9 @@ export function RelationTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL_PREDICATES}>All predicates</SelectItem>
-              {A.map(uniquePredicates, (predicate) => (
-                <SelectItem key={predicate} value={predicate}>
-                  {getPredicateName(predicate)}
+              {A.map(uniquePredicateNames, (name) => (
+                <SelectItem key={name} value={name}>
+                  {name}
                 </SelectItem>
               ))}
             </SelectContent>

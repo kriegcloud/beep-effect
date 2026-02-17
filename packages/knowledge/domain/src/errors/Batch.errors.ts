@@ -31,6 +31,11 @@ export class BatchNotFoundError extends S.TaggedError<BatchNotFoundError>($I`Bat
     description: "Batch execution not found",
   })
 ) {
+  static readonly new = (batchId: KnowledgeEntityIds.BatchExecutionId.Type) =>
+    new BatchNotFoundError({batchId});
+
+  static readonly newThunk = (batchId: KnowledgeEntityIds.BatchExecutionId.Type) => () => BatchNotFoundError.new(batchId)
+
   override get message(): string {
     return `Batch execution not found: ${this.batchId}`;
   }

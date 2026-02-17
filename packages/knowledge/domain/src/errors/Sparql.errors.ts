@@ -52,7 +52,11 @@ export class SparqlUnsupportedFeatureError extends S.TaggedError<SparqlUnsupport
   $I.annotations("SparqlUnsupportedFeatureError", {
     description: "SPARQL query uses unsupported feature",
   })
-) {}
+) {
+  static readonly new = (params: {feature: string, queryString: string, message: string}) => new SparqlUnsupportedFeatureError(params);
+
+  static readonly newThunk = (params: {feature: string, queryString: string, message: string}) => () => new SparqlUnsupportedFeatureError(params);
+}
 
 export class SparqlError extends S.Union(
   SparqlSyntaxError,

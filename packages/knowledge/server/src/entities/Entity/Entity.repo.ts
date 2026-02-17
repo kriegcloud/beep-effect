@@ -21,31 +21,34 @@ const tableName = KnowledgeEntityIds.KnowledgeEntityId.tableName;
 const encodeStringArrayJsonb = S.encode(S.parseJson(S.Array(S.String)));
 const decodeEntity = S.decodeUnknownEither(Entities.Entity.Model);
 
-const normalizeEntityTypesField = (row: unknown): unknown => {
-  if (typeof row !== "object" || row === null) {
-    return row;
+const normalizeEntityRow = (row: unknown): unknown => {
+  if (typeof row !== "object" || row === null) return row;
+  const obj = row as Record<string, unknown>;
+  const result = { ...obj };
+  for (const key of Object.keys(result)) {
+    if (result[key] === "") {
+      result[key] = null;
+    }
   }
-  const rawTypes = Reflect.get(row, "types");
-  if (typeof rawTypes !== "string") {
-    return row;
+  for (const key of ["types", "attributes", "mentions"]) {
+    const val = result[key];
+    if (typeof val === "string") {
+      try {
+        result[key] = JSON.parse(val);
+      } catch {
+        // leave as-is if unparseable
+      }
+    }
   }
-  try {
-    const parsed = JSON.parse(rawTypes);
-    return Object.assign({}, row, { types: parsed });
-  } catch {
-    return row;
-  }
+  return result;
 };
 
+const normalizeEntityRows = <T>(rows: ReadonlyArray<T>): ReadonlyArray<unknown> =>
+  A.map(rows as ReadonlyArray<unknown>, normalizeEntityRow);
+
 const decodeEntityRow = (row: unknown): O.Option<Entities.Entity.Model> =>
-  Either.match(decodeEntity(normalizeEntityTypesField(row)), {
-    onLeft: (e) => {
-      // eslint-disable-next-line no-console -- temporary debug logging for entity decode failures
-      console.log("[ENTITY-DECODE-DEBUG] row keys:", typeof row === "object" && row !== null ? Object.keys(row) : "N/A");
-      // eslint-disable-next-line no-console -- temporary debug logging for entity decode failures
-      console.log("[ENTITY-DECODE-DEBUG] error:", String(e).slice(0, 500));
-      return O.none();
-    },
+  Either.match(decodeEntity(normalizeEntityRow(row)), {
+    onLeft: () => O.none(),
     onRight: O.some,
   });
 
@@ -91,7 +94,7 @@ const makeEntityExtensions = Effect.gen(function* () {
         FROM ${sql(tableName)}
         WHERE organization_id = ${req.organizationId}
           AND id IN ${sql.in(req.ids)}
-    `,
+    `.pipe(Effect.map(normalizeEntityRows)),
   });
 
   const findByOntologySchema = SqlSchema.findAll({
@@ -104,7 +107,7 @@ const makeEntityExtensions = Effect.gen(function* () {
           AND ontology_id = ${req.ontologyId}
         ORDER BY created_at DESC
             LIMIT ${req.limit}
-    `,
+    `.pipe(Effect.map(normalizeEntityRows)),
   });
 
   const findByTypeSchema = SqlSchema.findAll({
@@ -113,7 +116,7 @@ const makeEntityExtensions = Effect.gen(function* () {
     execute: (req) =>
       Effect.gen(function* () {
         const typeIrisJson = yield* encodeStringArrayJsonb([req.typeIri]).pipe(Effect.orDie);
-        return yield* sql`
+        const rows = yield* sql`
           SELECT *
           FROM ${sql(tableName)}
           WHERE organization_id = ${req.organizationId}
@@ -121,6 +124,7 @@ const makeEntityExtensions = Effect.gen(function* () {
           ORDER BY created_at DESC
           LIMIT ${req.limit}
         `;
+        return normalizeEntityRows(rows);
       }),
   });
 
@@ -144,7 +148,7 @@ const makeEntityExtensions = Effect.gen(function* () {
           AND similarity(mention, ${req.normalizedText}) > 0.3
         ORDER BY similarity(mention, ${req.normalizedText}) DESC
         LIMIT ${req.limit}
-    `,
+    `.pipe(Effect.map(normalizeEntityRows)),
   });
 
   const findByIds = (
@@ -213,6 +217,7 @@ const makeEntityExtensions = Effect.gen(function* () {
         attributes: { typeIri, organizationId, limit },
       })
     );
+
 
   const countByOrganization = (
     organizationId: SharedEntityIds.OrganizationId.Type

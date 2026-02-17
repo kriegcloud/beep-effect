@@ -84,7 +84,7 @@ const getScenarioById = (scenarioId: ScenarioId) =>
 const mapGraphResult = (result: RpcGraphQuerySuccess, config: GraphRAGConfig): GraphRAGResult => {
   const entities: readonly AssembledEntity[] = result.entities.map((entity) => {
     const [primaryType] = entity.types;
-    const confidence = typeof entity.groundingConfidence === "number" ? entity.groundingConfidence : 0.5;
+    const confidence = O.getOrElse(entity.groundingConfidence, () => 0.5);
 
     return {
       id: entity.id,
@@ -443,6 +443,19 @@ const KnowledgeDemoClientContent = () => {
     }
   }, [loadCompletedScenarioData, scenarioData, scenarioStates]);
 
+  const autoLoadedScenariosRef = React.useRef(new Set<ScenarioId>());
+
+  React.useEffect(() => {
+    if (activeOrganizationId === null) return;
+    if (autoLoadedScenariosRef.current.has(selectedScenarioId)) return;
+    if (scenarioData[selectedScenarioId].entities.length > 0) return;
+
+    autoLoadedScenariosRef.current.add(selectedScenarioId);
+
+    const scenario = getScenarioById(selectedScenarioId);
+    void runScenarioGraphQuery(selectedScenarioId, scenario.querySeed, { topK: 10, maxHops: 1 }).catch(() => {});
+  }, [activeOrganizationId, selectedScenarioId, scenarioData, runScenarioGraphQuery]);
+
   const handleScenarioSelect = React.useCallback(
     (scenarioId: ScenarioId) => {
       setSelectedScenarioId(scenarioId);
@@ -474,7 +487,7 @@ const KnowledgeDemoClientContent = () => {
     [highlightedSpans]
   );
 
-  const canQueryGraph = selectedScenarioState.status === "completed";
+  const canQueryGraph = selectedScenarioState.status === "completed" || activeOrganizationId !== null;
 
   return (
     <div className="container mx-auto py-4 px-3">

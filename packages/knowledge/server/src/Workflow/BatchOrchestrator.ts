@@ -283,7 +283,7 @@ const makeExtractionParams = (
   }),
 });
 
-export const executeBatchEngineWorkflow = Effect.fn(
+export const executeBatchEngineWorkflow = Effect.fn("executeBatchEngineWorkflow")(
   function* (payload: EngineBatchPayload, executionId: string) {
     const workflow = yield* ExtractionWorkflow;
     const emitter = yield* BatchEventEmitter;
