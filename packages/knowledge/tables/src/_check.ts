@@ -32,7 +32,7 @@ export const _checkInsertEmbedding: typeof Embedding.Model.insert.Encoded = {} a
   typeof tables.embedding
 >;
 
-export const _checkSelectEntity: typeof Entity.Model.select.Encoded = {} as InferSelectModel<typeof tables.entity>;
+export const _checkSelectEntity: typeof Entity.Model.Encoded = {} as InferSelectModel<typeof tables.entity>;
 
 export const _checkInsertEntity: typeof Entity.Model.insert.Encoded = {} as InferInsertModel<typeof tables.entity>;
 
