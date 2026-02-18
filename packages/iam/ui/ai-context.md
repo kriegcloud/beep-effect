@@ -10,24 +10,17 @@ Client-side IAM entry points for authentication flows (sign-in, sign-up) consume
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|   apps/todox      | --> |  @beep/iam-ui     | --> | @beep/iam-client  |
-|   (routes)        |     |  (views, forms)   |     | (RPC contracts)   |
-|-------------------|     |-------------------|     |-------------------|
-                                  |
-                                  v
-                          |-------------------|
-                          | @beep/runtime-    |
-                          | client            |
-                          | (Effect runners)  |
-                          |-------------------|
-                                  |
-                                  v
-                          |-------------------|
-                          | @beep/ui          |
-                          | (form primitives) |
-                          |-------------------|
+```mermaid
+flowchart LR
+  N1["apps/todox<br/>(routes)"]
+  N2["@beep/iam-ui<br/>(views, forms)"]
+  N3["@beep/iam-client<br/>(RPC contracts)"]
+  N4["@beep/runtime-<br/>client<br/>(Effect runners)"]
+  N5["@beep/ui<br/>(form primitives)"]
+  N1 --> N2
+  N2 --> N3
+  N2 --> N4
+  N4 --> N5
 ```
 
 ## Core Modules

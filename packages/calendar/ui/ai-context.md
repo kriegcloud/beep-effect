@@ -10,26 +10,22 @@ React component library for calendar display and event management. Provides Cale
 
 ## Architecture
 
-```
-|-------------------|     |------------------|
-|   UI Components   | --> | @beep/ui-core    |
-|-------------------|     | @beep/ui         |
-         |                |------------------|
-         v
-|-------------------|     |----------------------|
-|   Effect-Atom     | --> | State Management     |
-|   State           |     |----------------------|
-         |
-         v
-|-------------------|     |----------------------|
-| @beep/calendar-   | --> | Data Fetching        |
-| client            |     |----------------------|
-         |
-         v
-|-------------------|
-|    Web Apps       |
-| (apps/todox, etc) |
-|-------------------|
+```mermaid
+flowchart LR
+  N1["UI Components"]
+  N2["@beep/ui-core<br/>@beep/ui"]
+  N3["Node"]
+  N4["Effect-Atom<br/>State"]
+  N5["State Management"]
+  N6["@beep/calendar-<br/>client"]
+  N7["Data Fetching"]
+  N8["Web Apps<br/>(apps/todox, etc)"]
+  N1 --> N2
+  N1 --> N4
+  N4 --> N5
+  N3 --> N6
+  N6 --> N7
+  N4 --> N8
 ```
 
 ## Core Modules

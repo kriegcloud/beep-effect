@@ -10,30 +10,17 @@ Effect-first filesystem and repository helpers used by automation scripts and bu
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|     FsUtils       | --> |  Bun FileSystem   |
-|-------------------|     |-------------------|
-        |
-        v
-|-------------------|     |-------------------|
-|    RepoUtils      | --> |   FsUtils Layer   |
-|-------------------|     |-------------------|
-        |
-        v
-|-------------------|
-| Repo Namespace    |
-| - Workspaces      |
-| - Dependencies    |
-| - TsConfigIndex   |
-|-------------------|
-
-|-------------------|
-|     Schemas       |
-| - PackageJson     |
-| - TsConfigJson    |
-| - DotEnv          |
-|-------------------|
+```mermaid
+flowchart LR
+  N1["FsUtils"]
+  N2["Bun FileSystem"]
+  N3["RepoUtils"]
+  N4["FsUtils Layer"]
+  N5["Repo Namespace<br/>- Workspaces<br/>- Dependencies<br/>- TsConfigIndex"]
+  N1 --> N2
+  N1 --> N3
+  N3 --> N4
+  N3 --> N5
 ```
 
 ## Core Modules

@@ -10,17 +10,16 @@ Server-side infrastructure layer for the communications slice. Provides database
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|      CommsDb      |---->|  EmailTemplateRepo|
-|   (Db.layer)      |     |   (DbRepo.make)   |
-|-------------------|     |-------------------|
-        |                         |
-        v                         v
-|-------------------|     |-------------------|
-|  CommsRepos.layer |---->|   Server Runtime  |
-|   (merged repos)  |     |   (RPC handlers)  |
-|-------------------|     |-------------------|
+```mermaid
+flowchart LR
+  N1["CommsDb<br/>(Db.layer)"]
+  N2["EmailTemplateRepo<br/>(DbRepo.make)"]
+  N3["CommsRepos.layer<br/>(merged repos)"]
+  N4["Server Runtime<br/>(RPC handlers)"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N4
+  N3 --> N4
 ```
 
 ## Core Modules

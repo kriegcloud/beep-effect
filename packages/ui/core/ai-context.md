@@ -10,20 +10,23 @@ Foundation package providing design tokens, palette math, typography scales, and
 
 ## Architecture
 
-```
-|------------------|     |-------------------|     |-----------------|
-|   theme-config   | --> |   create-theme    | --> |   ThemeProvider |
-|------------------|     |-------------------|     |-----------------|
-        |                         |                        |
-        v                         v                        v
-|------------------|     |-------------------|     |-----------------|
-|  palette/typo    |     |  with-settings    |     |   @beep/ui      |
-|------------------|     |-------------------|     |-----------------|
-        |                         |
-        v                         v
-|------------------|     |-------------------|
-|  components/*    |     |  color-presets    |
-|------------------|     |-------------------|
+```mermaid
+flowchart TD
+  N1["theme-config"]
+  N2["create-theme"]
+  N3["ThemeProvider"]
+  N4["palette/typo"]
+  N5["with-settings"]
+  N6["@beep/ui"]
+  N7["components/*"]
+  N8["color-presets"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
+  N3 --> N6
+  N4 --> N7
+  N5 --> N8
 ```
 
 ## Core Modules

@@ -10,23 +10,11 @@ Compile-time-only type utilities that keep shared type idioms aligned across sli
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|   Direct Exports  |     | Namespaced Types  |     |    Consumers      |
-|-------------------|     |-------------------|     |-------------------|
-| Builtin           |     | SchemaTypes       |---->| @beep/schema      |
-| Primitive         |     | StringTypes       |     | @beep/utils       |
-| DeepNonNullable   |     | StructTypes       |---->| Domain packages   |
-| UpperLetter       |     | RecordTypes       |     | Server factories  |
-|-------------------|     | ModelTypes        |     |-------------------|
-                          | UnsafeTypes       |
-                          | TagTypes          |
-                          | LiteralTypes      |
-                          | MutTypes          |
-                          | Or                |
-                          | PromiseTypes      |
-                          | UtilTypes         |
-                          |-------------------|
+```mermaid
+flowchart LR
+  N1["SchemaTypes<br/>StringTypes<br/>StructTypes<br/>RecordTypes<br/>ModelTypes<br/>UnsafeTypes<br/>TagTypes<br/>LiteralTypes<br/>MutTypes<br/>Or<br/>PromiseTypes<br/>UtilTypes"]
+  N2["@beep/schema<br/>@beep/utils<br/>Domain packages<br/>Server factories"]
+  N1 --> N2
 ```
 
 ## Core Modules

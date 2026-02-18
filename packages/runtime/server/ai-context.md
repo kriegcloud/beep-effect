@@ -10,47 +10,15 @@ Production-grade Effect runtime providing ManagedRuntime for server-side Effect 
 
 ## Architecture
 
-```
-|------------------|     |---------------------|
-|  serverRuntime   | --> |  runServerPromise   |
-|  (ManagedRuntime)|     |  runServerPromiseExit|
-|------------------|     |---------------------|
-        |
-        v
-|---------------------|
-| serverRuntimeLayer  |
-|---------------------|
-        |
-        +--> Authentication.layer
-        |         |
-        |         +--> Auth.layer (@beep/iam-server)
-        |         +--> Email.layer
-        |         +--> DataAccess.layer --> SliceRepos
-        |
-        +--> Persistence.layer
-        |         |
-        |         +--> DbClient.layer (PostgreSQL)
-        |         +--> S3Service.defaultLayer
-        |
-        +--> Tooling.layer
-        |         |
-        |         +--> Tracer.layer (OTLP)
-        |         +--> DevTools
-        |
-        +--> FetchHttpClient.layer
-
-|------------------|
-|   Server.layer   | --> Standalone HTTP server
-|------------------|
-        |
-        +--> HttpRouter.layer
-        |         |
-        |         +--> ProtectedRoutes (AuthContext)
-        |         +--> PublicRoutes (BetterAuth, health)
-        |
-        +--> BunHttpServer.layer
-        +--> Persistence.layer
-        +--> Tooling.layer
+```mermaid
+flowchart TD
+  N1["serverRuntime<br/>(ManagedRuntime)"]
+  N2["runServerPromise"]
+  N3["serverRuntimeLayer"]
+  N4["Server.layer"]
+  N1 --> N2
+  N1 --> N3
+  N1 --> N4
 ```
 
 ## Core Modules

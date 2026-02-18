@@ -10,23 +10,17 @@ Centralized Effect-first constants providing validated literal schemas for envir
 
 ## Architecture
 
-```
-|-------------------------|     |----------------------|
-|   BS.StringLiteralKit   | --> |  EnvValue, LogLevel  |
-|   (@beep/schema)        |     |  AuthProviders, etc  |
-|-------------------------|     |----------------------|
-                                          |
-                                          v
-|-------------------------|     |----------------------|
-|   _generated/           | --> |   paths/asset-paths  |
-|   (repo scripts)        |     |   (type-safe URLs)   |
-|-------------------------|     |----------------------|
-                                          |
-                                          v
-                               |----------------------|
-                               |   @beep/shared-*    |
-                               |   apps/* (Next.js)  |
-                               |----------------------|
+```mermaid
+flowchart LR
+  N1["BS.StringLiteralKit<br/>(@beep/schema)"]
+  N2["EnvValue, LogLevel<br/>AuthProviders, etc"]
+  N3["_generated/<br/>(repo scripts)"]
+  N4["paths/asset-paths<br/>(type-safe URLs)"]
+  N5["Node"]
+  N1 --> N2
+  N2 --> N4
+  N3 --> N4
+  N4 --> N5
 ```
 
 ## Core Modules

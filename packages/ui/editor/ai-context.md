@@ -10,20 +10,19 @@ Rich text editor UI components built on Lexical. Provides document editing inter
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-----------------|
-|  LexicalComposer  | --> |  RichTextPlugin   | --> |  ContentEditable|
-|-------------------|     |-------------------|     |-----------------|
-        |                         |
-        v                         v
-|-------------------|     |-------------------|
-|  Editor Plugins   |     |  BeepEditorTheme  |
-|-------------------|     |-------------------|
-        |
-        v
-|-------------------|
-|  Liveblocks/Yjs   |
-|-------------------|
+```mermaid
+flowchart TD
+  N1["LexicalComposer"]
+  N2["RichTextPlugin"]
+  N3["ContentEditable"]
+  N4["Editor Plugins"]
+  N5["BeepEditorTheme"]
+  N6["Liveblocks/Yjs"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
+  N4 --> N6
 ```
 
 ## Core Modules

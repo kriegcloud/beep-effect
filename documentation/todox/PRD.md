@@ -149,14 +149,15 @@ TodoX is an AI-native wealth management platform designed for Registered Investm
 
 Wealth management advisors operate across 10+ systems that don't communicate:
 
-```
-┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐
-│Salesforce│  │ Schwab  │  │  Gmail  │  │ Notion  │  │ Calendar│
-│ Clients │  │Accounts │  │ Threads │  │  Notes  │  │Meetings │
-└────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘
-     │            │            │            │            │
-     ▼            ▼            ▼            ▼            ▼
-   [Manual mental integration by advisor]
+```mermaid
+flowchart TD
+  N1["Clients"]
+  N2["Accounts"]
+  N3["Threads"]
+  N4["Manual mental integration by advisor"]
+  N1 --> N4
+  N2 --> N4
+  N3 --> N4
 ```
 
 **Consequence:** When an advisor asks "What's happening with the Thompson family?", they must:
@@ -201,31 +202,13 @@ FINRA Rule 4512 and SEC Rule 17a-4 require comprehensive documentation:
 
 ### 5.1 Unified Knowledge Graph
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│              TODOEX KNOWLEDGE GRAPH ARCHITECTURE             │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  Data Sources          Extraction         Knowledge Graph    │
-│  ┌─────────┐                              ┌──────────────┐  │
-│  │  Email  │───┐                          │              │  │
-│  └─────────┘   │    ┌──────────────┐      │  Entities    │  │
-│  ┌─────────┐   ├───►│  Ontology-   │      │  ┌────────┐  │  │
-│  │Calendar │───┤    │  Guided      │─────►│  │Thompson│  │  │
-│  └─────────┘   │    │  Extraction  │      │  │  HH    │  │  │
-│  ┌─────────┐   │    │              │      │  └───┬────┘  │  │
-│  │   CRM   │───┤    │ • Mention    │      │      │       │  │
-│  └─────────┘   │    │   Detection  │      │  Relations   │  │
-│  ┌─────────┐   │    │ • Entity     │      │  ┌────────┐  │  │
-│  │Documents│───┤    │   Typing     │      │  │hasAcct │  │  │
-│  └─────────┘   │    │ • Relation   │      │  └────────┘  │  │
-│  ┌─────────┐   │    │   Extraction │      │      │       │  │
-│  │Custodian│───┘    │ • Resolution │      │  ┌────────┐  │  │
-│  └─────────┘        └──────────────┘      │  │IRA-4521│  │  │
-│                                           │  └────────┘  │  │
-│                                           └──────────────┘  │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+  N1["Entities<br/>┌────────┐<br/>│Thompson│<br/>│  HH    │<br/>└───┬────┘<br/>Relations<br/>┌────────┐<br/>│hasAcct │<br/>└────────┘<br/>┌────────┐<br/>│IRA-4521│<br/>└────────┘"]
+  N2["Ontology-<br/>Guided<br/>Extraction<br/>• Mention<br/>Detection<br/>• Entity<br/>Typing<br/>• Relation<br/>Extraction<br/>• Resolution"]
+  N3["Calendar"]
+  N3 --> N2
+  N2 --> N1
 ```
 
 **Key Components:**
@@ -373,35 +356,15 @@ Page
 
 **Architecture:** FlexLayout + Liveblocks for real-time collaborative dashboards where multiple users can simultaneously view, rearrange, and interact with widgets.
 
-```
-┌────────────────────────────────────────────────────────────┐
-│            COLLABORATIVE DASHBOARD ARCHITECTURE            │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │                   Liveblocks Room                    │  │
-│  │  • Real-time presence (who's viewing)               │  │
-│  │  • Cursor positions (collaborative awareness)        │  │
-│  │  • Layout state sync (CRDT-based)                   │  │
-│  │  • Widget data sync (live updates)                  │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                          │                                 │
-│                          ▼                                 │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │                 FlexLayout Model                     │  │
-│  │  • Drag-and-drop panel arrangement                  │  │
-│  │  • Tabbed interfaces with docking                   │  │
-│  │  • Floating windows                                 │  │
-│  │  • Save/restore configurations                      │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                          │                                 │
-│                          ▼                                 │
-│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐           │
-│  │Chart │ │Email │ │Tasks │ │Graph │ │ Chat │           │
-│  │Widget│ │Widget│ │Widget│ │Widget│ │Widget│           │
-│  └──────┘ └──────┘ └──────┘ └──────┘ └──────┘           │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  N1["• Real-time presence (who's viewing)<br/>• Layout state sync (CRDT-based)<br/>• Widget data sync (live updates)"]
+  N2["• Drag-and-drop panel arrangement<br/>• Tabbed interfaces with docking<br/>• Floating windows<br/>• Save/restore configurations"]
+  N3["Chart<br/>Widget"]
+  N4["Tasks<br/>Widget"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N4
 ```
 
 **Collaborative Features:**
@@ -696,30 +659,12 @@ k = 60 (standard RRF constant)
 
 **Architecture:**
 
-```
-┌──────────────────────────────────────────────────────┐
-│                  EMAIL SYNC ARCHITECTURE             │
-├──────────────────────────────────────────────────────┤
-│                                                      │
-│  Gmail API ───► Webhook ───► Worker ───► PostgreSQL  │
-│                                │                     │
-│                                ▼                     │
-│                          Extraction                  │
-│                          Pipeline                    │
-│                                │                     │
-│                                ▼                     │
-│                        Knowledge Graph               │
-│                                                      │
-│  Browser:                                            │
-│  ┌────────────┐      ┌────────────┐                 │
-│  │   React    │ ◄──► │   PGlite   │ (offline)       │
-│  │    UI      │      │   (local)  │                 │
-│  └────────────┘      └────────────┘                 │
-│         │                   │                        │
-│         └───────────────────┘                        │
-│              WebSocket Sync                          │
-│                                                      │
-└──────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+  N1["React<br/>UI"]
+  N2["PGlite<br/>(local)"]
+  N1 --> N2
+  N2 --> N1
 ```
 
 #### 6.2.2 Calendar Integration
@@ -1302,48 +1247,34 @@ packages/
 
 ### 7.3 Data Model (Core Entities)
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    CORE DATA MODEL                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────┐         ┌──────────┐         ┌──────────┐   │
-│  │   User   │◄───────►│  Member  │◄───────►│   Org    │   │
-│  └──────────┘  1:N    └──────────┘   N:1   └──────────┘   │
-│       │                    │                     │          │
-│       │                    │                     │          │
-│       │               ┌────┴────┐                │          │
-│       │               │         │                │          │
-│       │               ▼         ▼                ▼          │
-│       │          ┌───────┐  ┌───────┐      ┌─────────┐     │
-│       │          │ Team  │  │ Role  │      │Workspace│     │
-│       │          └───────┘  └───────┘      └────┬────┘     │
-│       │                                         │          │
-│       │                                         │          │
-│       │                    ┌────────────────────┤          │
-│       │                    │                    │          │
-│       │                    ▼                    ▼          │
-│       │            ┌────────────┐      ┌────────────┐     │
-│       └───────────►│  Document  │      │  Client DB │     │
-│                    └─────┬──────┘      └─────┬──────┘     │
-│                          │                   │             │
-│                          │                   │             │
-│                          ▼                   ▼             │
-│                    ┌──────────────────────────────┐       │
-│                    │      Knowledge Graph          │       │
-│                    │                               │       │
-│                    │  ┌────────┐    ┌──────────┐  │       │
-│                    │  │ Entity │◄──►│ Relation │  │       │
-│                    │  └────────┘    └──────────┘  │       │
-│                    │       │                      │       │
-│                    │       ▼                      │       │
-│                    │  ┌──────────┐               │       │
-│                    │  │ Mention  │ (provenance)  │       │
-│                    │  └──────────┘               │       │
-│                    │                               │       │
-│                    └──────────────────────────────┘       │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  N1["User"]
+  N2["Member"]
+  N3["Org"]
+  N4["Team"]
+  N5["Role"]
+  N6["Workspace"]
+  N7["Document"]
+  N8["Client DB"]
+  N9["┌────────┐    ┌──────────┐<br/>│ Entity │◄──►│ Relation │<br/>└────────┘    └──────────┘<br/>▼"]
+  N10["Entity"]
+  N11["Relation"]
+  N12["Mention"]
+  N1 --> N2
+  N2 --> N3
+  N2 --> N1
+  N3 --> N2
+  N2 --> N4
+  N2 --> N5
+  N3 --> N6
+  N2 --> N7
+  N6 --> N8
+  N7 --> N9
+  N8 --> N9
+  N10 --> N11
+  N11 --> N10
+  N10 --> N12
 ```
 
 ### 7.4 Effect Architecture Patterns
@@ -1416,43 +1347,20 @@ pipe(
 
 **Design Philosophy:** TodoX operates offline-first with background sync. All reads and writes happen against local storage, providing instant responsiveness regardless of network conditions.
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                LOCAL-FIRST DATA FLOW                       │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  Browser                                                   │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │  React Components                                    │  │
-│  │       │                                              │  │
-│  │       ▼                                              │  │
-│  │  ┌─────────────┐    ┌─────────────┐                 │  │
-│  │  │    Zero     │◄──►│  Liveblocks │                 │  │
-│  │  │   Client    │    │    Room     │                 │  │
-│  │  └──────┬──────┘    └──────┬──────┘                 │  │
-│  │         │                  │                         │  │
-│  │         ▼                  │                         │  │
-│  │  ┌─────────────┐           │                         │  │
-│  │  │   SQLite    │           │ (presence, cursors,     │  │
-│  │  │   (WASM)    │           │  collaborative state)   │  │
-│  │  └──────┬──────┘           │                         │  │
-│  │         │                  │                         │  │
-│  └─────────┼──────────────────┼─────────────────────────┘  │
-│            │                  │                            │
-│            ▼                  ▼                            │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │              Background Sync Layer                   │  │
-│  │  • Incremental sync (changes only)                  │  │
-│  │  • Conflict resolution (last-write-wins + CRDTs)    │  │
-│  │  • Offline queue (writes stored until online)       │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                          │                                 │
-│                          ▼                                 │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │              PostgreSQL (Source of Truth)            │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  N1["┌─────────────┐    ┌─────────────┐<br/>│    Zero     │◄──►│  Liveblocks │<br/>│   Client    │    │    Room     │<br/>└──────┬──────┘    └──────┬──────┘<br/>• Incremental sync (changes only)<br/>• Conflict resolution (last-write-wins + CRDTs)<br/>• Offline queue (writes stored until online)"]
+  N2["Zero<br/>Client"]
+  N3["Liveblocks<br/>Room"]
+  N4["SQLite<br/>(WASM)"]
+  N5["• Incremental sync (changes only)<br/>• Conflict resolution (last-write-wins + CRDTs)<br/>• Offline queue (writes stored until online)"]
+  N6["Node"]
+  N2 --> N3
+  N3 --> N2
+  N2 --> N4
+  N4 --> N5
+  N3 --> N5
+  N1 --> N6
 ```
 
 **Technology Stack (Bleeding Edge):**
@@ -1534,42 +1442,15 @@ await zero.mutate.clients.insert({
 
 ### 8.2 Integration Architecture
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                 INTEGRATION LAYER                          │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │              Integration Registry                    │  │
-│  │                                                      │  │
-│  │  • OAuth credential management                       │  │
-│  │  • Webhook endpoint registration                     │  │
-│  │  • Rate limit tracking                               │  │
-│  │  • Health monitoring                                 │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                          │                                 │
-│          ┌───────────────┼───────────────┐                │
-│          │               │               │                │
-│          ▼               ▼               ▼                │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐      │
-│  │    Gmail     │ │   Outlook    │ │  Salesforce  │      │
-│  │   Adapter    │ │   Adapter    │ │   Adapter    │      │
-│  │              │ │              │ │              │      │
-│  │ • Push sync  │ │ • Graph API  │ │ • REST API   │      │
-│  │ • Labels     │ │ • Webhooks   │ │ • Bulk sync  │      │
-│  │ • Threads    │ │ • Calendar   │ │ • CDC        │      │
-│  └──────────────┘ └──────────────┘ └──────────────┘      │
-│          │               │               │                │
-│          └───────────────┼───────────────┘                │
-│                          │                                 │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │              Extraction Pipeline                     │  │
-│  │                                                      │  │
-│  │  Raw Data → Normalization → Entity Extraction →     │  │
-│  │  Relation Extraction → Resolution → Knowledge Graph │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  N1["Node"]
+  N2["Gmail<br/>Adapter<br/>• Push sync<br/>• Labels<br/>• Threads"]
+  N3["Outlook<br/>Adapter<br/>• Graph API<br/>• Webhooks<br/>• Calendar"]
+  N4["Salesforce<br/>Adapter<br/>• REST API<br/>• Bulk sync<br/>• CDC"]
+  N1 --> N2
+  N1 --> N3
+  N1 --> N4
 ```
 
 ### 8.3 OAuth Flow

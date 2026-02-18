@@ -9,23 +9,19 @@ tags: [rpc, wrapper, middleware, schema, effect, api-endpoints]
 Type-safe RPC wrapper system for defining, grouping, and implementing Effect-based API endpoints. Provides a fluent builder pattern for endpoint definitions with payload/success/error schemas, middleware composition, and handler implementation via Effect Layers.
 
 ## Architecture
-```
-|------------------|     |------------------|     |------------------|
-|     Wrapper      | --> |   WrapperGroup   | --> |     Handlers     |
-| (single endpoint)|     | (endpoint group) |     |   (Layer-based)  |
-|------------------|     |------------------|     |------------------|
-        |                        |
-        v                        v
-|------------------|     |------------------|
-|  WrapperSchema   |     |WrapperMiddleware |
-| (payload/success)|     | (cross-cutting)  |
-|------------------|     |------------------|
-        |
-        v
-|------------------|
-|  WrapperMessage  |
-| (wire protocol)  |
-|------------------|
+```mermaid
+flowchart TD
+  N1["Wrapper<br/>(single endpoint)"]
+  N2["WrapperGroup<br/>(endpoint group)"]
+  N3["Handlers<br/>(Layer-based)"]
+  N4["WrapperSchema<br/>(payload/success)"]
+  N5["WrapperMiddleware<br/>(cross-cutting)"]
+  N6["WrapperMessage<br/>(wire protocol)"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
+  N4 --> N6
 ```
 
 ## Core Modules

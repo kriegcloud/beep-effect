@@ -10,20 +10,19 @@ Effect-based Next.js configuration utilities that compose security headers, PWA 
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|  beepNextConfig   | --> |  Security Headers | --> |    NextConfig     |
-|-------------------|     |-------------------|     |-------------------|
-        |                         |
-        v                         v
-|-------------------|     |-------------------|
-|    PWA/Workbox    |     | Bundle Analyzer   |
-|-------------------|     |-------------------|
-        |
-        v
-|-------------------|
-|   MDX Support     |
-|-------------------|
+```mermaid
+flowchart TD
+  N1["beepNextConfig"]
+  N2["Security Headers"]
+  N3["NextConfig"]
+  N4["PWA/Workbox"]
+  N5["Bundle Analyzer"]
+  N6["MDX Support"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
+  N4 --> N6
 ```
 
 ## Core Modules

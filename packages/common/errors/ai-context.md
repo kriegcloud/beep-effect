@@ -10,18 +10,14 @@ Provides the canonical error namespace (`BeepError.*`) and observability toolkit
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|   errors.ts       |     |   shared.ts       |     |   server.ts       |
-| BeepError.*       | --> | withLogContext    | <-- | makePrettyLogger  |
-| Tagged + HTTP     |     | withSpanAndMetrics|     | withEnvLogging    |
-|-------------------|     |-------------------|     |-------------------|
-        |                         |
-        v                         v
-|-------------------------------------------|
-|              client.ts                    |
-| Re-exports shared + no-op withEnvLogging  |
-|-------------------------------------------|
+```mermaid
+flowchart TD
+  N1["errors.ts<br/>BeepError.*<br/>Tagged + HTTP"]
+  N2["shared.ts<br/>withLogContext<br/>withSpanAndMetrics"]
+  N3["client.ts<br/>Re-exports shared + no-op withEnvLogging"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N3
 ```
 
 ## Core Modules

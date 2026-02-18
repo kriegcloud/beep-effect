@@ -10,24 +10,23 @@ Infrastructure layer wiring `@beep/workspaces-domain` models to database service
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|   DocumentsDb     | --> |   Repositories    | --> |   RPC Handlers    |
-|-------------------|     |-------------------|     |-------------------|
-| Db.layer          |     | DocumentRepo      |     | DocumentHandlers  |
-| makeQuery helper  |     | DocumentVersionRepo|    | DiscussionHandlers|
-|-------------------|     | DocumentFileRepo  |     | CommentHandlers   |
-                          | DiscussionRepo    |     |-------------------|
-                          | CommentRepo       |
-                          |-------------------|
-                                   |
-                                   v
-|-------------------|     |-------------------|
-| SignedUrlService  |     |  File Services    |
-|-------------------|     |-------------------|
-| S3 upload/download|     | ExifToolService   |
-| presigned URLs    |     | PdfMetadataService|
-|-------------------|     |-------------------|
+```mermaid
+flowchart TD
+  N1["DocumentsDb"]
+  N2["Repositories"]
+  N3["RPC Handlers"]
+  N4["DocumentRepo<br/>DocumentFileRepo<br/>DiscussionRepo<br/>CommentRepo"]
+  N5["Node"]
+  N6["Node"]
+  N7["File Services"]
+  N8["S3 upload/download<br/>presigned URLs"]
+  N9["ExifToolService<br/>PdfMetadataService"]
+  N1 --> N2
+  N2 --> N3
+  N2 --> N6
+  N4 --> N7
+  N5 --> N8
+  N6 --> N9
 ```
 
 ## Core Modules

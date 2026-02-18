@@ -10,23 +10,21 @@ Domain layer providing Effect SQL model definitions for user customization entit
 
 ## Architecture
 
-```
-|----------------------|     |---------------------|
-|   @beep/shared-domain| --> | makeFields factory  |
-|----------------------|     |---------------------|
-                                      |
-                                      v
-|----------------------|     |---------------------|
-| CustomizationEntityIds| --> |  Entities.UserHotkey|
-|----------------------|     |---------------------|
-                                      |
-              +---------------+-------+-------+
-              |               |               |
-              v               v               v
-        |---------| |---------------| |--------------|
-        | Tables  | | Repositories  | | Integration  |
-        |---------| |---------------| | Tests        |
-                                      |--------------|
+```mermaid
+flowchart TD
+  N1["@beep/shared-domain"]
+  N2["makeFields factory"]
+  N3["Node"]
+  N4["Node"]
+  N5["Tables"]
+  N6["Repositories"]
+  N7["Integration<br/>Tests"]
+  N1 --> N2
+  N2 --> N4
+  N3 --> N4
+  N3 --> N5
+  N4 --> N6
+  N4 --> N7
 ```
 
 ## Core Modules

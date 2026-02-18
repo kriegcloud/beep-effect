@@ -1,5 +1,0 @@
-auth.ts
-schema-mysql.prisma
-schema-sqlite.prisma
-schema-postgresql.prisma
-.tmp

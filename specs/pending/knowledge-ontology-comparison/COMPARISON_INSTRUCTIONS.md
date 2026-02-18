@@ -56,30 +56,11 @@ Prioritize analysis of these directories:
 
 Create a structured catalog:
 
-```markdown
-## Service: [ServiceName]
-
-**File**: `Service/[FileName].ts`
-**Tag**: `[ContextTagName]`
-**Type**: Service | Repository | Adapter
-
-### API
-
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| methodName | `(param: Type) => Effect<Return, Error, Deps>` | What it does |
-
-### Dependencies
-
-- Internal: ServiceA, ServiceB
-- External: @effect/ai, n3
-
-### Effect Patterns
-
-- [ ] Layer composition
-- [ ] TaggedError
-- [ ] Resource management
-- [ ] Streaming (Stream/Sink)
+```mermaid
+flowchart TD
+  N1["ServiceName"]
+  N2["ContextTagName"]
+  N1 --> N2
 ```
 
 ---

@@ -267,50 +267,16 @@ Wrapped in `<subagent-context>` tags:
 
 ## Hook Flow Diagram
 
-```
-Session Start
-    │
-    ▼
-┌─────────────────────────────────┐
-│  SessionStart (agent-init)      │  ~10,000 tokens
-│  - Tree structure               │
-│  - Git context                  │
-│  - GitHub issues/PRs            │
-│  - Module summary               │
-│  - Scripts/tasks                │
-└─────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────┐
-│  User Prompt                    │
-│         │                       │
-│         ▼                       │
-│  UserPromptSubmit               │  ~5,500 tokens/prompt
-│  (skill-suggester)              │
-│  - Load skills                  │
-│  - Match suggestions            │
-│  - Module search                │
-└─────────────────────────────────┘
-    │
-    ├──────────────────────────────┐
-    │                              │
-    ▼                              ▼
-┌────────────────────┐    ┌────────────────────┐
-│  Task Tool         │    │  Bash Tool         │
-│       │            │    │       │            │
-│       ▼            │    │       ▼            │
-│  PreToolUse:Task   │    │  PreToolUse:Bash   │
-│  (subagent-init)   │    │  (pattern-detector)│
-│  ~5,500 tokens     │    │  ~1,750 tokens     │
-└────────────────────┘    └────────────────────┘
-                                   │
-                                   ▼
-                          ┌────────────────────┐
-                          │  Edit/Write Tool   │
-                          │       │            │
-                          │       ▼            │
-                          │  PostToolUse       │
-                          │  (pattern-detector)│
-                          │  ~2,000 tokens     │
-                          └────────────────────┘
+```mermaid
+flowchart TD
+  N1["SessionStart (agent-init)<br/>- Tree structure<br/>- Git context<br/>- GitHub issues/PRs<br/>- Module summary<br/>- Scripts/tasks"]
+  N2["User Prompt<br/>▼<br/>UserPromptSubmit<br/>(skill-suggester)<br/>- Load skills<br/>- Match suggestions<br/>- Module search"]
+  N3["Task Tool<br/>▼<br/>PreToolUse:Task<br/>(subagent-init)<br/>~5,500 tokens"]
+  N4["Bash Tool<br/>▼<br/>PreToolUse:Bash<br/>(pattern-detector)<br/>~1,750 tokens"]
+  N5["Edit/Write Tool<br/>▼<br/>PostToolUse<br/>(pattern-detector)<br/>~2,000 tokens"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N3
+  N2 --> N5
+  N4 --> N5
 ```

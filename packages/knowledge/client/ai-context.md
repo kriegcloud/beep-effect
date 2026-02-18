@@ -10,17 +10,13 @@ Client-side SDK for the knowledge graph vertical providing RPC type definitions 
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|    Contracts      | --> |     Handlers      |
-| (RPC schemas)     |     | (Effect-based)    |
-|-------------------|     |-------------------|
-         |
-         v
-|-------------------|
-|   Type Exports    |
-| (Domain types)    |
-|-------------------|
+```mermaid
+flowchart LR
+  N1["Contracts<br/>(RPC schemas)"]
+  N2["Handlers<br/>(Effect-based)"]
+  N3["Type Exports<br/>(Domain types)"]
+  N1 --> N2
+  N1 --> N3
 ```
 
 ## Core Modules

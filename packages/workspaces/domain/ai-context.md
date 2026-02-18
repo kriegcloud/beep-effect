@@ -10,24 +10,14 @@ Domain layer providing pure business models for the documents vertical slice. De
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|      Entities     |     |   Value Objects   |     |    RPC Schemas    |
-|-------------------|     |-------------------|     |-------------------|
-| Document          |     | LinkType          |     | Document.rpc      |
-| DocumentVersion   |     | TextStyle         |     | Discussion.rpc    |
-| DocumentFile      |     |-------------------|     | Comment.rpc       |
-| Discussion        |                               |-------------------|
-| Comment           |
-|-------------------|
-        |
-        v
-|-------------------|
-|      Errors       |
-|-------------------|
-| MetadataParseError|
-| FileReadError     |
-|-------------------|
+```mermaid
+flowchart TD
+  N1["Entities"]
+  N2["Document<br/>DocumentVersion<br/>DocumentFile<br/>Discussion<br/>Comment"]
+  N3["Node"]
+  N4["Errors"]
+  N1 --> N3
+  N2 --> N4
 ```
 
 ## Core Modules

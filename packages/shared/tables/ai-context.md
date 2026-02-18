@@ -10,17 +10,17 @@ Cross-slice Drizzle table factories providing standardized audit columns, Entity
 
 ## Architecture
 
-```
-|------------------|     |-------------------|     |-----------------|
-|   Table.make     | --> |   OrgTable.make   | --> | SharedDbSchema  |
-| (base factory)   |     | (+orgId + RLS)    |     | (concrete tbls) |
-|------------------|     |-------------------|     |-----------------|
-        |                         |
-        v                         v
-|------------------|     |-------------------|
-|  globalColumns   |     |   Auto-RLS        |
-| audit/tracking   |     |   Policies        |
-|------------------|     |-------------------|
+```mermaid
+flowchart LR
+  N1["Table.make<br/>(base factory)"]
+  N2["OrgTable.make<br/>(+orgId + RLS)"]
+  N3["SharedDbSchema<br/>(concrete tbls)"]
+  N4["globalColumns<br/>audit/tracking"]
+  N5["Auto-RLS<br/>Policies"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
 ```
 
 ## Core Modules

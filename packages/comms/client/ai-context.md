@@ -10,18 +10,13 @@ Client-side layer for the communications slice. Defines RPC contracts for notifi
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-| NotificationContr.|---->|   @effect/rpc     |
-| MessagingContr.   |     |   (contracts)     |
-| EmailTemplateC.   |     |                   |
-|-------------------|     |-------------------|
-        |
-        v
-|-------------------|     |-------------------|
-|  @beep/comms-ui   |<----|  TanStack Query   |
-|  (React hooks)    |     |  (data fetching)  |
-|-------------------|     |-------------------|
+```mermaid
+flowchart LR
+  N1["NotificationContr.<br/>MessagingContr.<br/>EmailTemplateC."]
+  N2["@effect/rpc<br/>(contracts)"]
+  N3["@beep/comms-ui<br/>(React hooks)"]
+  N1 --> N2
+  N1 --> N3
 ```
 
 ## Core Modules

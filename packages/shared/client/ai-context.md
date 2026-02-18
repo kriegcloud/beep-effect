@@ -10,23 +10,22 @@ Cross-slice client-side infrastructure bridging server contracts with browser st
 
 ## Architecture
 
-```
-|------------------------|     |------------------------|
-|   apps/* (React)       | --> |  @beep/shared-client   |
-|------------------------|     |------------------------|
-                                       |
-         |---------------|-------------|---------------|
-         v               v             v               v
-|---------------|  |-----------|  |----------|  |--------------|
-| RPC Client    |  | File Atoms|  | ReCaptcha|  | Browser Utils|
-| (WebSocket)   |  | (Jotai)   |  | (Effect) |  | (Location)   |
-|---------------|  |-----------|  |----------|  |--------------|
-         |               |
-         v               v
-|------------------------|     |------------------------|
-| @beep/shared-domain    |     | @beep/runtime-client   |
-| (RPC contracts)        |     | (ManagedRuntime)       |
-|------------------------|     |------------------------|
+```mermaid
+flowchart TD
+  N1["apps/* (React)"]
+  N2["@beep/shared-client"]
+  N3["RPC Client<br/>(WebSocket)"]
+  N4["File Atoms<br/>(Jotai)"]
+  N5["ReCaptcha<br/>(Effect)"]
+  N6["Browser Utils<br/>(Location)"]
+  N7["@beep/shared-domain<br/>(RPC contracts)"]
+  N1 --> N2
+  N1 --> N3
+  N1 --> N4
+  N2 --> N5
+  N2 --> N6
+  N3 --> N7
+  N4 --> N7
 ```
 
 ## Core Modules

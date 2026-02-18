@@ -10,20 +10,25 @@ Provides the browser-side Effect runtime for all client surfaces. Assembles tele
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|   BeepProvider    | --> |  RuntimeProvider  | --> | ManagedRuntime    |
-|-------------------|     |-------------------|     |-------------------|
-                                    |
-                                    v
-|-------------------|     |-------------------|     |-------------------|
-| clientRuntimeLayer| --> |  ObservabilityLive| --> |   TelemetryLive   |
-|-------------------|     |-------------------|     |-------------------|
-        |                         |
-        v                         v
-|-----------|  |-----------|  |-----------|  |-----------|
-| HttpClient|  |NetworkMon |  |WorkerClient| | KeyValue  |
-|-----------|  |-----------|  |-----------|  |-----------|
+```mermaid
+flowchart LR
+  N1["BeepProvider"]
+  N2["RuntimeProvider"]
+  N3["ManagedRuntime"]
+  N4["Node"]
+  N5["clientRuntimeLayer"]
+  N6["ObservabilityLive"]
+  N7["TelemetryLive"]
+  N8["HttpClient"]
+  N9["Node"]
+  N1 --> N2
+  N2 --> N3
+  N2 --> N6
+  N5 --> N6
+  N6 --> N7
+  N4 --> N9
+  N5 --> N8
+  N6 --> N9
 ```
 
 ## Core Modules

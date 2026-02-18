@@ -10,18 +10,14 @@ Type-safe environment configuration loaders for client and server contexts. Uses
 
 ## Architecture
 
-```
-|------------------|     |------------------|
-|   ClientEnv.ts   |     |   ServerEnv.ts   |
-| NEXT_PUBLIC_* -> |     |  All env vars -> |
-| Schema decode    |     |  Effect Config   |
-|------------------|     |------------------|
-        |                        |
-        v                        v
-|------------------|     |------------------|
-|   clientEnv      |     |   serverEnv      |
-| (sync export)    |     | (sync export)    |
-|------------------|     |------------------|
+```mermaid
+flowchart TD
+  N1["ClientEnv.ts<br/>NEXT_PUBLIC_* -&gt;<br/>Schema decode"]
+  N2["ServerEnv.ts<br/>All env vars -&gt;<br/>Effect Config"]
+  N3["clientEnv<br/>(sync export)"]
+  N4["serverEnv<br/>(sync export)"]
+  N1 --> N3
+  N2 --> N4
 ```
 
 ## Core Modules

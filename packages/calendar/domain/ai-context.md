@@ -10,21 +10,20 @@ Domain layer for calendar functionality providing strongly-typed entities and va
 
 ## Architecture
 
-```
-|-------------------|     |----------------------|
-|     Entities      | --> |   @beep/shared-domain |
-|-------------------|     |----------------------|
-         |
-         v
-|-------------------|
-|   Value Objects   |
-|-------------------|
-         |
-         v
-|-------------------|     |-----------------|
-|   Downstream      | --> | tables, server, |
-|   Consumers       |     | client, ui      |
-|-------------------|     |-----------------|
+```mermaid
+flowchart TD
+  N1["Entities"]
+  N2["Node"]
+  N3["Node"]
+  N4["Value Objects"]
+  N5["Node"]
+  N6["Downstream<br/>Consumers"]
+  N7["tables, server,<br/>client, ui"]
+  N1 --> N2
+  N1 --> N4
+  N3 --> N5
+  N4 --> N6
+  N6 --> N7
 ```
 
 ## Core Modules

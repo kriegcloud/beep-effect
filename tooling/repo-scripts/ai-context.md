@@ -10,26 +10,32 @@ Orchestrates repo-wide maintenance CLIs including bootstrap flows, environment s
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|    bootstrap.ts   | --> |  Docker/Migrate   |
-|-------------------|     |-------------------|
-
-|-------------------|     |-------------------|     |-------------------|
-| generate-secrets  | --> |  Effect Random    | --> |     .env file     |
-|-------------------|     |-------------------|     |-------------------|
-
-|-------------------|     |-------------------|     |-------------------|
-| generate-locales  | --> |   CLDR fetch      | --> | ALL_LOCALES.gen   |
-|-------------------|     |-------------------|     |-------------------|
-
-|-------------------|     |-------------------|     |-------------------|
-| generate-assets   | --> |  AVIF/WebP conv   | --> | asset-paths.ts    |
-|-------------------|     |-------------------|     |-------------------|
-
-|-------------------|     |-------------------|
-|    codemod.ts     | --> |   jscodeshift     |
-|-------------------|     |-------------------|
+```mermaid
+flowchart LR
+  N1["bootstrap.ts"]
+  N2["Docker/Migrate"]
+  N3["generate-secrets"]
+  N4["Effect Random"]
+  N5[".env file"]
+  N6["generate-locales"]
+  N7["CLDR fetch"]
+  N8["ALL_LOCALES.gen"]
+  N9["Node"]
+  N10["generate-assets"]
+  N11["AVIF/WebP conv"]
+  N12["asset-paths.ts"]
+  N13["Node"]
+  N14["codemod.ts"]
+  N15["jscodeshift"]
+  N1 --> N2
+  N3 --> N4
+  N4 --> N5
+  N6 --> N7
+  N7 --> N8
+  N10 --> N11
+  N11 --> N12
+  N9 --> N13
+  N14 --> N15
 ```
 
 ## Core Modules

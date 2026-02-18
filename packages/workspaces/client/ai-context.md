@@ -10,22 +10,16 @@ Client SDK providing Effect-first wrappers for the documents slice. Currently a 
 
 ## Architecture (Planned)
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|  DocumentsClient  | --> |   RPC Contracts   | --> | @beep/workspaces-  |
-|-------------------|     |-------------------|     |     domain        |
-| getDocument       |     | Document.rpc      |     |-------------------|
-| createDocument    |     | Discussion.rpc    |
-| listDocuments     |     | Comment.rpc       |
-| updateDocument    |     |-------------------|
-| deleteDocument    |
-|-------------------|
-        |
-        v
-|-------------------|
-|   HttpClient      |
-|   (injected)      |
-|-------------------|
+```mermaid
+flowchart LR
+  N1["DocumentsClient"]
+  N2["RPC Contracts"]
+  N3["domain"]
+  N4["getDocument<br/>createDocument<br/>listDocuments<br/>updateDocument<br/>deleteDocument"]
+  N5["HttpClient<br/>(injected)"]
+  N1 --> N2
+  N2 --> N3
+  N4 --> N5
 ```
 
 ## Core Modules

@@ -10,18 +10,16 @@ React UI components for the communications slice. Provides notification displays
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-| NotificationBell  |---->|  TanStack Query   |
-| ToastProvider     |     |  (useQuery)       |
-| MessageList       |     |                   |
-|-------------------|     |-------------------|
-        |                         |
-        v                         v
-|-------------------|     |-------------------|
-|  @beep/comms-     |---->|  Effect.runPromise|
-|  client contracts |     |  (queryFn bridge) |
-|-------------------|     |-------------------|
+```mermaid
+flowchart LR
+  N1["NotificationBell<br/>ToastProvider<br/>MessageList"]
+  N2["TanStack Query<br/>(useQuery)"]
+  N3["@beep/comms-<br/>client contracts"]
+  N4["Effect.runPromise<br/>(queryFn bridge)"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N4
+  N3 --> N4
 ```
 
 ## Core Modules

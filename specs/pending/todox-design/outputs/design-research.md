@@ -93,24 +93,17 @@ bucket_definitions:
 | **@effect/ai** | **Native** | **Effect Schema** | **McpServer** |
 
 **Agent Architecture Pattern**:
-```
-┌─────────────────────────────────────────────────────────┐
-│                  DETERMINISTIC FLOW LAYER                │
-│  (Triggers, Routing, Permissions, Checkpoints)           │
-└─────────────────────────────────────────────────────────┘
-                           │
-           ┌───────────────┼───────────────┐
-           ▼               ▼               ▼
-   ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-   │ Email Agent  │ │ Research     │ │ Task Agent   │
-   └──────────────┘ │ Agent        │ └──────────────┘
-                    └──────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────┐
-│                    MCP TOOL LAYER                        │
-│    (@effect/ai/McpServer, Permission enforcement)        │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  N1["Node"]
+  N2["Email Agent"]
+  N3["Research<br/>Agent"]
+  N4["Task Agent"]
+  N5["Node"]
+  N1 --> N2
+  N1 --> N3
+  N1 --> N4
+  N3 --> N5
 ```
 
 **McpServer Pattern**:

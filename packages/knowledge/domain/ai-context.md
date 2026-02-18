@@ -10,17 +10,13 @@ Domain layer providing pure, effect-free foundation schemas for ontology-guided 
 
 ## Architecture
 
-```
-|-------------------|     |----------------------|
-|    Entities       | --> |   Value Objects      |
-| (Model schemas)   |     | (Immutable primitives)|
-|-------------------|     |----------------------|
-         |
-         v
-|-------------------|
-|      Errors       |
-| (Tagged errors)   |
-|-------------------|
+```mermaid
+flowchart LR
+  N1["Entities<br/>(Model schemas)"]
+  N2["Value Objects"]
+  N3["Errors<br/>(Tagged errors)"]
+  N1 --> N2
+  N1 --> N3
 ```
 
 ## Core Modules

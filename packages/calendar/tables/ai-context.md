@@ -10,25 +10,21 @@ Drizzle ORM table definitions for the calendar vertical slice. Provides database
 
 ## Architecture
 
-```
-|-------------------|     |----------------------|
-|  CalendarDbSchema | --> | @beep/shared-tables  |
-|-------------------|     |----------------------|
-         |
-         v
-|-------------------|     |----------------------|
-|      Tables       | --> | @beep/calendar-domain|
-|-------------------|     | (entity alignment)   |
-         |                |----------------------|
-         v
-|-------------------|
-|    Relations      |
-|-------------------|
-         |
-         v
-|-------------------|     |-----------------|
-|   db-admin        | --> | Migration gen   |
-|-------------------|     |-----------------|
+```mermaid
+flowchart LR
+  N1["CalendarDbSchema"]
+  N2["@beep/shared-tables"]
+  N3["Tables"]
+  N4["@beep/calendar-domain<br/>(entity alignment)"]
+  N5["Relations"]
+  N6["db-admin"]
+  N7["Migration gen"]
+  N1 --> N2
+  N1 --> N3
+  N3 --> N4
+  N3 --> N5
+  N5 --> N6
+  N6 --> N7
 ```
 
 ## Core Modules

@@ -10,17 +10,13 @@ Centralizes communications domain models via `M.Class` definitions that merge sh
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|   EmailTemplate   |---->|   makeFields()    |
-|   (M.Class)       |     |   (audit cols)    |
-|-------------------|     |-------------------|
-        |
-        v
-|-------------------|     |-------------------|
-|   Mail Values     |     |  Logging Values   |
-|  (Sender, etc.)   |     | (TraceSpan, etc.) |
-|-------------------|     |-------------------|
+```mermaid
+flowchart LR
+  N1["EmailTemplate<br/>(M.Class)"]
+  N2["makeFields()<br/>(audit cols)"]
+  N3["Mail Values<br/>(Sender, etc.)"]
+  N1 --> N2
+  N1 --> N3
 ```
 
 ## Core Modules

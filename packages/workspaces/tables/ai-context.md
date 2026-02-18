@@ -10,22 +10,20 @@ Drizzle ORM table definitions bridging `@beep/workspaces-domain` entities to Pos
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|   Table Schemas   | --> |    Relations      |
-|-------------------|     |-------------------|
-| document.table    |     | document-version  |
-| documentVersion   |     | document-file     |
-| documentFile      |     | document-discussion|
-| discussion.table  |     | discussion-comment|
-| comment.table     |     |-------------------|
-|-------------------|
-        |
-        v
-|-------------------|     |-------------------|
-| DocumentsDbSchema | --> |   _check.ts       |
-|-------------------|     | (type assertions) |
-                          |-------------------|
+```mermaid
+flowchart TD
+  N1["Table Schemas"]
+  N2["Relations"]
+  N3["document.table<br/>documentVersion<br/>documentFile<br/>discussion.table<br/>comment.table"]
+  N4["Node"]
+  N5["Node"]
+  N6["DocumentsDbSchema"]
+  N7["_check.ts<br/>(type assertions)"]
+  N1 --> N2
+  N2 --> N4
+  N1 --> N5
+  N3 --> N6
+  N6 --> N7
 ```
 
 ## Core Modules

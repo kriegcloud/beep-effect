@@ -40,19 +40,11 @@ Agent signatures define input/output contracts that enable:
 
 ### Pattern 1: Research → Document
 
-```
-┌─────────────────────┐     ┌──────────────────┐
-│ codebase-researcher │     │    doc-writer    │
-├─────────────────────┤     ├──────────────────┤
-│ Input:              │     │ Input:           │
-│   question          │     │   targetFiles    │
-│   scope             │     │   contentType    │
-├─────────────────────┤     │   context ◄──────┼── findings
-│ Output:             │     ├──────────────────┤
-│   findings ─────────┼────►│ Output:          │
-│   gaps              │     │   filesCreated   │
-│   recommendations   │     │   filesModified  │
-└─────────────────────┘     └──────────────────┘
+```mermaid
+flowchart LR
+  N1["codebase-researcher<br/>Input:<br/>question<br/>scope<br/>Output:<br/>gaps<br/>recommendations"]
+  N2["doc-writer<br/>Input:<br/>targetFiles<br/>contentType<br/>Output:<br/>filesCreated<br/>filesModified"]
+  N1 --> N2
 ```
 
 **Use Case**: Research codebase patterns, then generate documentation.
@@ -78,55 +70,35 @@ Agent signatures define input/output contracts that enable:
 
 ### Pattern 2: Review → Reflect → Improve
 
-```
-┌──────────────┐     ┌───────────┐     ┌────────────┐
-│ code-reviewer│     │ reflector │     │ doc-writer │
-├──────────────┤     ├───────────┤     ├────────────┤
-│ target       │     │ specName  │     │ targetFiles│
-│ categories   │     │ scope     │     │ contentType│
-├──────────────┤     │ focusArea │     │ context ◄──┼── patterns
-│ report ──────┼────►│           │     ├────────────┤
-│ violations   │     │ patterns ─┼────►│ summary    │
-│ statistics   │     │ updates   │     │ validation │
-└──────────────┘     └───────────┘     └────────────┘
+```mermaid
+flowchart LR
+  N1["code-reviewer<br/>target<br/>categories<br/>violations<br/>statistics"]
+  N2["reflector<br/>specName<br/>scope<br/>focusArea<br/>updates"]
+  N3["doc-writer<br/>targetFiles<br/>contentType<br/>summary<br/>validation"]
+  N1 --> N2
+  N2 --> N3
 ```
 
 **Use Case**: Review code, extract patterns, update documentation.
 
 ### Pattern 3: External Research → Implementation
 
-```
-┌────────────────┐     ┌───────────────┐     ┌─────────────┐
-│ web-researcher │     │ mcp-researcher│     │ test-writer │
-├────────────────┤     ├───────────────┤     ├─────────────┤
-│ questions      │     │ query ◄───────┼──┐  │ sourceFiles │
-│ yearFilter     │     │ adaptToCodebase│  │  │ testType    │
-├────────────────┤     ├───────────────┤  │  │ context ◄───┼──
-│ findings ──────┼────►│ documentation │  │  ├─────────────┤
-│ recommendations│  ┌──┤ adaptation ───┼──┼─►│ testCases   │
-└────────────────┘  │  └───────────────┘  │  │ layerSetup  │
-                    │                      │  └─────────────┘
-                    └──────────────────────┘
+```mermaid
+flowchart LR
+  N1["web-researcher<br/>questions<br/>yearFilter<br/>recommendations"]
+  N2["mcp-researcher<br/>documentation"]
+  N1 --> N2
 ```
 
 **Use Case**: Research external patterns, adapt to codebase, write tests.
 
 ### Pattern 4: Architecture Audit → Fix
 
-```
-┌─────────────────────────┐     ┌─────────────────────────┐
-│ architecture-pattern-   │     │ code-observability-     │
-│ enforcer                │     │ writer                  │
-├─────────────────────────┤     ├─────────────────────────┤
-│ Input:                  │     │ Input:                  │
-│   scope                 │     │   sourceFiles ◄─────────┼── violations.file
-│   target                │     │   instrumentationType   │
-├─────────────────────────┤     │   context               │
-│ Output:                 │     ├─────────────────────────┤
-│   layerViolations ──────┼────►│ Output:                 │
-│   crossSliceViolations  │     │   filesModified         │
-│   structureIssues       │     │   errorsCreated         │
-└─────────────────────────┘     └─────────────────────────┘
+```mermaid
+flowchart LR
+  N1["architecture-pattern-<br/>enforcer<br/>Input:<br/>scope<br/>target<br/>Output:<br/>crossSliceViolations<br/>structureIssues"]
+  N2["code-observability-<br/>writer<br/>Input:<br/>instrumentationType<br/>context<br/>Output:<br/>filesModified<br/>errorsCreated"]
+  N1 --> N2
 ```
 
 ## Composition Rules

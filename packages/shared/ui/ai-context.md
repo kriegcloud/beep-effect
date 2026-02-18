@@ -10,29 +10,22 @@ Reusable React components for file and folder management that bridge domain enti
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|  @beep/shared-ui  | --> | @beep/shared-client | --> | @beep/shared-domain |
-|  (Components)     |     |  (Atoms/State)    |     |  (File/Folder)    |
-|-------------------|     |-------------------|     |-------------------|
-        |
-        v
-|-------------------|
-|     @beep/ui      |
-| (Base Components) |
-|-------------------|
-
-File Management Flow:
-|--------------|     |--------------|     |--------------|
-| FilesLayout  | --> |  FilesPage   | --> | FolderSection|
-| (Toolbar)    |     | (Root View)  |     | (Nested)     |
-|--------------|     |--------------|     |--------------|
-                            |
-                            v
-                     |--------------|
-                     |   FileItem   |
-                     | PendingFileItem|
-                     |--------------|
+```mermaid
+flowchart LR
+  N1["@beep/shared-ui<br/>(Components)"]
+  N2["(Atoms/State)"]
+  N3["@beep/ui<br/>(Base Components)"]
+  N4["FilesLayout<br/>(Toolbar)"]
+  N5["FilesPage<br/>(Root View)"]
+  N6["FolderSection<br/>(Nested)"]
+  N7["Node"]
+  N8["FileItem"]
+  N1 --> N2
+  N1 --> N3
+  N4 --> N5
+  N5 --> N6
+  N2 --> N7
+  N5 --> N8
 ```
 
 ## Core Modules

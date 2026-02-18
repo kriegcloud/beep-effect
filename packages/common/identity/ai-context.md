@@ -10,17 +10,17 @@ Provides the canonical identity builder for all `@beep/*` namespaces, producing 
 
 ## Architecture
 
-```
-|------------------|     |------------------|     |------------------|
-|   Identifier.ts  | --> |   packages.ts    | --> |   Consumer Code  |
-| (core builder)   |     | (pre-baked $I)   |     |                  |
-|------------------|     |------------------|     |------------------|
-        |                        |
-        v                        v
-|------------------|     |------------------|
-|    schema.ts     |     |    types.ts      |
-| (validation)     |     | (branded types)  |
-|------------------|     |------------------|
+```mermaid
+flowchart LR
+  N1["Identifier.ts<br/>(core builder)"]
+  N2["packages.ts<br/>(pre-baked $I)"]
+  N3["Consumer Code"]
+  N4["schema.ts<br/>(validation)"]
+  N5["types.ts<br/>(branded types)"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
 ```
 
 ## Core Modules

@@ -1,9 +1,0 @@
-{
-	"rules": {
-		"no-alert": "error",
-		"oxc/approx-constant": "warn",
-		"no-plusplus": "off",
-		"require-yield": "off"
-	},
-	"ignorePatterns": [".context"]
-}

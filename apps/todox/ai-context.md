@@ -10,26 +10,18 @@ Next.js 16 showcase application demonstrating MUI theming with shadcn/ui compone
 
 ## Architecture
 
-```
-|----------------------|
-|     GlobalProviders  |
-| BeepProvider > I18n  |
-| > Settings > Theme   |
-| > IAM                |
-|----------------------|
-          |
-          v
-|----------------------|     |----------------------|
-|    Multi-Panel UI    | --> |      Features        |
-| MiniSidebar|Sidebar  |     | Mail | Editor | Chat |
-| Navbar | SidePanel   |     |----------------------|
-|----------------------|
-          |
-          v
-|----------------------|
-|   shadcn/ui + MUI    |
-|   49 components      |
-|----------------------|
+```mermaid
+flowchart TD
+  N1["GlobalProviders<br/>BeepProvider &gt; I18n<br/>&gt; Settings &gt; Theme<br/>&gt; IAM"]
+  N2["Node"]
+  N3["Multi-Panel UI<br/>MiniSidebar|Sidebar<br/>Navbar | SidePanel"]
+  N4["Features<br/>Mail | Editor | Chat"]
+  N5["Node"]
+  N6["shadcn/ui + MUI<br/>49 components"]
+  N1 --> N3
+  N3 --> N4
+  N2 --> N5
+  N3 --> N6
 ```
 
 ## Core Modules

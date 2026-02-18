@@ -10,17 +10,15 @@ React components for knowledge graph visualization and interaction. Provides Gra
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|    Components     | --> |      Hooks        |
-| (React UI)        |     | (Effect-atom)     |
-|-------------------|     |-------------------|
-         |                         |
-         v                         v
-|-------------------|     |-------------------|
-|  @beep/ui-core    |     |@beep/knowledge-   |
-| (Base components) |     |     client        |
-|-------------------|     |-------------------|
+```mermaid
+flowchart TD
+  N1["Components<br/>(React UI)"]
+  N2["Hooks<br/>(Effect-atom)"]
+  N3["@beep/ui-core<br/>(Base components)"]
+  N4["@beep/knowledge-<br/>client"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N4
 ```
 
 ## Core Modules

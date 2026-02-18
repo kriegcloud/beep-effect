@@ -12,24 +12,22 @@ React UI components for the customization slice. Provides user-facing interfaces
 
 ## Architecture
 
-```
-|---------------------|     |---------------------|
-| @beep/customization | --> |   TanStack Query    |
-|       -client       |     |       hooks         |
-|---------------------|     |---------------------|
-                                     |
-                                     v
-|---------------------|     |---------------------|
-|   @beep/ui-core     | --> |  HotkeySettings     |
-| (MUI, ThemeProvider)|     |  ThemeSelector      |
-|---------------------|     |  PreferencePanel    |
-                            |---------------------|
-                                     |
-                                     v
-|---------------------|     |---------------------|
-|   @beep/runtime     | --> |    "use client"     |
-|      -client        |     |    Components       |
-|---------------------|     |---------------------|
+```mermaid
+flowchart LR
+  N1["@beep/customization<br/>-client"]
+  N2["TanStack Query<br/>hooks"]
+  N3["Node"]
+  N4["@beep/ui-core<br/>(MUI, ThemeProvider)"]
+  N5["HotkeySettings<br/>ThemeSelector<br/>PreferencePanel"]
+  N6["Node"]
+  N7["@beep/runtime<br/>-client"]
+  N8["&quot;use client&quot;<br/>Components"]
+  N1 --> N2
+  N2 --> N5
+  N4 --> N5
+  N3 --> N6
+  N5 --> N8
+  N7 --> N8
 ```
 
 ## Core Modules (Planned)

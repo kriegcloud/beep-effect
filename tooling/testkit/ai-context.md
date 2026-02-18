@@ -10,21 +10,19 @@ Bun-first Effect testing harness that wraps `bun:test` with Effect-aware runners
 
 ## Architecture
 
-```
-|------------------|     |-------------------|
-|    bun:test      | --> |  internal/runner  |
-|------------------|     |-------------------|
-                                 |
-         |-----------------------|-----------------------|
-         v                       v                       v
-|------------------|   |------------------|   |------------------|
-|  effect/scoped   |   |      layer       |   |    assertions    |
-|------------------|   |------------------|   |------------------|
-         |                       |
-         v                       v
-|------------------|   |------------------|
-|  TestServices    |   |  MemoMap/Runtime |
-|------------------|   |------------------|
+```mermaid
+flowchart TD
+  N1["bun:test"]
+  N2["internal/runner"]
+  N3["effect/scoped"]
+  N4["layer"]
+  N5["TestServices"]
+  N6["MemoMap/Runtime"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N4
+  N3 --> N5
+  N4 --> N6
 ```
 
 ## Core Modules

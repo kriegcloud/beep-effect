@@ -10,15 +10,15 @@ Spreadsheet formula interpreter and utility library for building spreadsheet-lik
 
 ## Architecture
 
-```
-|------------------|     |------------------|     |-----------------|
-|  Formula String  | --> |    Tokenizer     | --> |     Tokens      |
-|------------------|     |------------------|     |-----------------|
-                                                          |
-                                                          v
-|------------------|     |------------------|     |-----------------|
-| ExpressionResult | <-- |   Interpreter    | <-- |    AST (Parser) |
-|------------------|     |------------------|     |-----------------|
+```mermaid
+flowchart LR
+  N1["Formula String"]
+  N2["Tokenizer"]
+  N3["Tokens"]
+  N4["AST (Parser)"]
+  N1 --> N2
+  N2 --> N3
+  N3 --> N4
 ```
 
 ## Core Modules

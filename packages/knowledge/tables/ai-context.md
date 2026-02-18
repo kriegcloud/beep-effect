@@ -10,23 +10,15 @@ Drizzle ORM table definitions for the knowledge graph vertical slice. Provides p
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|   Domain Models   | --> |   Table Schemas   |
-| (@beep/knowledge- |     | (Drizzle pgTable) |
-|     domain)       |     |-------------------|
-|-------------------|            |
-                                 v
-                    |-------------------|
-                    |    Relations      |
-                    | (Drizzle relations)|
-                    |-------------------|
-                                 |
-                                 v
-                    |-------------------|
-                    |  _check.ts        |
-                    | (Type alignment)  |
-                    |-------------------|
+```mermaid
+flowchart TD
+  N1["Domain Models<br/>(@beep/knowledge-<br/>domain)"]
+  N2["Table Schemas<br/>(Drizzle pgTable)"]
+  N3["Relations"]
+  N4["_check.ts<br/>(Type alignment)"]
+  N1 --> N2
+  N2 --> N3
+  N3 --> N4
 ```
 
 ## Core Modules

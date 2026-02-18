@@ -10,20 +10,23 @@ Opinionated React component library composing `@beep/ui-core` theme primitives w
 
 ## Architecture
 
-```
-|------------------|     |-------------------|     |-----------------|
-|  @beep/ui-core   | --> |   ThemeProvider   | --> |   MUI + Shadcn  |
-|------------------|     |-------------------|     |-----------------|
-        |                         |                        |
-        v                         v                        v
-|------------------|     |-------------------|     |-----------------|
-|  SettingsContext |     |   AuthAdapter     |     |   Tailwind CSS  |
-|------------------|     |-------------------|     |-----------------|
-        |
-        v
-|------------------|     |-------------------|
-|  atoms/molecules | --> | organisms/sections|
-|------------------|     |-------------------|
+```mermaid
+flowchart TD
+  N1["@beep/ui-core"]
+  N2["ThemeProvider"]
+  N3["MUI + Shadcn"]
+  N4["SettingsContext"]
+  N5["AuthAdapter"]
+  N6["Tailwind CSS"]
+  N7["atoms/molecules"]
+  N8["organisms/sections"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
+  N3 --> N6
+  N4 --> N7
+  N7 --> N8
 ```
 
 ## Core Modules

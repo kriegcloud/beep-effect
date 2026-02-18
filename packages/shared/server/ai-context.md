@@ -10,23 +10,31 @@ Foundational Effect-first infrastructure layer providing database clients, email
 
 ## Architecture
 
-```
-|------------------|     |------------------|     |------------------|
-|    DbClient      | --> |     DbRepo       | --> |  Slice Repos     |
-|------------------|     |------------------|     |------------------|
-        |
-        v
-|------------------|     |------------------|
-|  TenantContext   | --> |   RLS Policies   |
-|------------------|     |------------------|
-
-|------------------|     |------------------|     |------------------|
-|  UploadService   | --> |    S3Service     | --> |   AWS S3         |
-|------------------|     |------------------|     |------------------|
-
-|------------------|     |------------------|
-|  ResendService   | --> |   Resend API     |
-|------------------|     |------------------|
+```mermaid
+flowchart LR
+  N1["DbClient"]
+  N2["DbRepo"]
+  N3["Slice Repos"]
+  N4["TenantContext"]
+  N5["RLS Policies"]
+  N6["Node"]
+  N7["Node"]
+  N8["UploadService"]
+  N9["S3Service"]
+  N10["AWS S3"]
+  N11["Node"]
+  N12["Node"]
+  N13["ResendService"]
+  N14["Resend API"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N4 --> N5
+  N8 --> N9
+  N9 --> N10
+  N6 --> N11
+  N7 --> N12
+  N13 --> N14
 ```
 
 ## Core Modules

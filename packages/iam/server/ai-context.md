@@ -10,22 +10,20 @@ Server-side IAM infrastructure binding domain models to real services. Provides 
 
 ## Architecture
 
-```
-|------------------|     |------------------|     |------------------|
-|   Auth.Service   | --> |   Auth.Options   | --> |   Auth.Emails    |
-|------------------|     |------------------|     |------------------|
-        |                        |
-        v                        v
-|------------------|     |------------------|
-|   IamRepos.layer | --> |    IamDb.Db      |
-|------------------|     |------------------|
-        |
-        v
-|------------------|
-|  Individual Repos|
-| (Account, User,  |
-|  Session, etc.)  |
-|------------------|
+```mermaid
+flowchart LR
+  N1["Auth.Service"]
+  N2["Auth.Options"]
+  N3["Auth.Emails"]
+  N4["IamRepos.layer"]
+  N5["IamDb.Db"]
+  N6["Individual Repos<br/>(Account, User,<br/>Session, etc.)"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
+  N4 --> N5
+  N4 --> N6
 ```
 
 ## Core Modules

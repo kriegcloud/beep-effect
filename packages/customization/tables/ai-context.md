@@ -10,21 +10,19 @@ Drizzle ORM table definitions for the customization slice. Provides database sch
 
 ## Architecture
 
-```
-|----------------------|     |---------------------|
-| @beep/shared-tables  | --> |    Table.make       |
-|----------------------|     |---------------------|
-           |                          |
-           v                          v
-|----------------------|     |---------------------|
-|  user (shared table) | <-- |    userHotkey       |
-|----------------------|     |---------------------|
-           ^                          |
-           |                          v
-|----------------------|     |---------------------|
-| SharedEntityIds      |     |   CustomizationDb   |
-|----------------------|     |   Schema namespace  |
-                             |---------------------|
+```mermaid
+flowchart TD
+  N1["@beep/shared-tables"]
+  N2["Table.make"]
+  N3["user (shared table)"]
+  N4["userHotkey"]
+  N5["SharedEntityIds"]
+  N6["CustomizationDb<br/>Schema namespace"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N4
+  N5 --> N3
+  N4 --> N6
 ```
 
 ## Core Modules

@@ -10,16 +10,17 @@ Centralizes IAM domain models using Effect's `M.Class` definitions with shared a
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|  @beep/iam-domain | --> | @beep/iam-tables  | --> | @beep/iam-server  |
-|-------------------|     |-------------------|     |-------------------|
-        |                         |
-        v                         v
-|-------------------|     |-------------------|
-| @beep/shared-     |     | @beep/iam-client  |
-| domain (EntityIds)|     | (contracts)       |
-|-------------------|     |-------------------|
+```mermaid
+flowchart LR
+  N1["@beep/iam-domain"]
+  N2["@beep/iam-tables"]
+  N3["@beep/iam-server"]
+  N4["@beep/shared-<br/>domain (EntityIds)"]
+  N5["@beep/iam-client<br/>(contracts)"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
 ```
 
 ## Core Modules

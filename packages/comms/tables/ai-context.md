@@ -10,17 +10,13 @@ Defines Drizzle ORM table schemas for the communications slice. Uses `OrgTable.m
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|
-|  OrgTable.make()  |---->|   emailTemplate   |
-|  (shared-tables)  |     |   (table def)     |
-|-------------------|     |-------------------|
-        |
-        v
-|-------------------|     |-------------------|
-|   SharedDbSchema  |<----|  emailTemplate    |
-|   (user, org FK)  |     |  Relations        |
-|-------------------|     |-------------------|
+```mermaid
+flowchart LR
+  N1["OrgTable.make()<br/>(shared-tables)"]
+  N2["emailTemplate<br/>(table def)"]
+  N3["SharedDbSchema<br/>(user, org FK)"]
+  N1 --> N2
+  N1 --> N3
 ```
 
 ## Core Modules

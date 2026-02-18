@@ -10,31 +10,16 @@ Reusable React components for the documents slice. Currently a stub awaiting dom
 
 ## Architecture (Planned)
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|   Editor Comps    |     |  Display Comps    |     |   Form Comps      |
-|-------------------|     |-------------------|     |-------------------|
-| BlockEditor       |     | DocumentViewer    |     | DocumentForm      |
-| RichTextEditor    |     | KnowledgePage     |     | CommentForm       |
-|-------------------|     | CommentThread     |     |-------------------|
-                          |-------------------|
-        |                         |                         |
-        +-------------------------+-------------------------+
-                                  |
-                                  v
-                    |---------------------------|
-                    |         Hooks             |
-                    |---------------------------|
-                    | useDocument               |
-                    | useDiscussion             |
-                    | useKnowledgePage          |
-                    |---------------------------|
-                                  |
-                                  v
-                    |---------------------------|
-                    | @beep/workspaces-client    |
-                    | + TanStack Query          |
-                    |---------------------------|
+```mermaid
+flowchart TD
+  N1["Display Comps"]
+  N2["DocumentViewer<br/>KnowledgePage<br/>CommentThread"]
+  N3["Hooks"]
+  N4["useDocument<br/>useDiscussion<br/>useKnowledgePage"]
+  N5["+ TanStack Query"]
+  N1 --> N3
+  N2 --> N3
+  N4 --> N5
 ```
 
 ## Core Modules

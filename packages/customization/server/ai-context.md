@@ -10,21 +10,19 @@ Server-side infrastructure layer for the customization slice. Provides database 
 
 ## Architecture
 
-```
-|---------------------|     |---------------------|
-| SliceDbRequirements | --> |   CustomizationDb   |
-|---------------------|     |---------------------|
-                                     |
-                                     v
-|---------------------|     |---------------------|
-| Entities.UserHotkey | --> |   UserHotkeyRepo    |
-|---------------------|     |---------------------|
-                                     |
-                                     v
-|---------------------|     |---------------------|
-| CustomizationRepos  | --> |   Server Runtime    |
-|      .layer         |     |   (RPC handlers)    |
-|---------------------|     |---------------------|
+```mermaid
+flowchart LR
+  N1["SliceDbRequirements"]
+  N2["CustomizationDb"]
+  N3["Entities.UserHotkey"]
+  N4["UserHotkeyRepo"]
+  N5["CustomizationRepos<br/>.layer"]
+  N6["Server Runtime<br/>(RPC handlers)"]
+  N1 --> N2
+  N2 --> N4
+  N3 --> N4
+  N4 --> N6
+  N5 --> N6
 ```
 
 ## Core Modules

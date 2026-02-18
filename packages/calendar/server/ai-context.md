@@ -10,25 +10,21 @@ Server-side infrastructure for the calendar vertical slice. Provides the databas
 
 ## Architecture
 
-```
-|-------------------|     |----------------------|
-|    CalendarDb     | --> | @beep/shared-server  |
-|-------------------|     | (DbClient.make)      |
-         |                |----------------------|
-         v
-|-------------------|     |----------------------|
-|   Repositories    | --> | @beep/calendar-tables|
-|-------------------|     | (DbSchema)           |
-         |                |----------------------|
-         v
-|-------------------|     |----------------------|
-|   Domain Models   | --> | @beep/calendar-domain|
-|-------------------|     | (Entities)           |
-         |                |----------------------|
-         v
-|-------------------|
-|  Runtime Layer    |
-|-------------------|
+```mermaid
+flowchart LR
+  N1["CalendarDb"]
+  N2["@beep/shared-server<br/>(DbClient.make)"]
+  N3["Repositories"]
+  N4["@beep/calendar-tables<br/>(DbSchema)"]
+  N5["Domain Models"]
+  N6["@beep/calendar-domain<br/>(Entities)"]
+  N7["Runtime Layer"]
+  N1 --> N2
+  N1 --> N3
+  N3 --> N4
+  N3 --> N5
+  N5 --> N6
+  N5 --> N7
 ```
 
 ## Core Modules

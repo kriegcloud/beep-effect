@@ -16,34 +16,17 @@ This document provides the full orchestration workflow from Phase 0 through comp
 
 ## Phase State Machine
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         PHASE FLOW                                   │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐       │
-│  │ P0       │───▶│ P1       │───▶│ P2       │───▶│ P3       │       │
-│  │Scaffold  │    │ Core     │    │ Hoisting │    │ Test     │       │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘       │
-│       │               │               │               │              │
-│       ▼               ▼               ▼               ▼              │
-│  README.md       index.ts        dep-graph.ts   *.test.ts           │
-│  REFLECTION     handler.ts       dep-sorter.ts  coverage            │
-│  templates/     schemas.ts       pkg-updater.ts                      │
-│  handoffs/      errors.ts                                            │
-│                 ws-parser.ts                                         │
-│                 ref-path.ts                                          │
-│                                                                      │
-│                              ┌──────────┐                            │
-│                              │ P4       │                            │
-│                         ───▶│ Integrate│                            │
-│                              └──────────┘                            │
-│                                   │                                  │
-│                                   ▼                                  │
-│                             CLI register                             │
-│                             CLAUDE.md                                │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+  N1["P0<br/>Scaffold"]
+  N2["P1<br/>Core"]
+  N3["P2<br/>Hoisting"]
+  N4["P3<br/>Test"]
+  N5["P4"]
+  N1 --> N2
+  N2 --> N3
+  N3 --> N4
+  N3 --> N5
 ```
 
 ---

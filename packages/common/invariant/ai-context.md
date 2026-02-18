@@ -10,25 +10,18 @@ Canonical runtime assertion library providing `invariant`, `invariant.nonNull`, 
 
 ## Architecture
 
-```
-|-------------------|
-|   invariant()     |  <-- Main assertion function with helper attachments
-|-------------------|
-        |
-        | throws on failure
-        v
-|-------------------|     |-------------------|
-| InvariantViolation|---->|   CallMetadata    |
-|-------------------|     |-------------------|
-  (tagged error)           (schema-validated)
-        |
-        | pattern-matchable by
-        v
-|-------------------|
-| Effect.catchTag   |
-| HTTP handlers     |
-| Domain layers     |
-|-------------------|
+```mermaid
+flowchart TD
+  N1["invariant()"]
+  N2["Node"]
+  N3["InvariantViolation"]
+  N4["CallMetadata"]
+  N5["Node"]
+  N6["Effect.catchTag<br/>HTTP handlers<br/>Domain layers"]
+  N1 --> N3
+  N3 --> N4
+  N2 --> N5
+  N3 --> N6
 ```
 
 ## Core Modules

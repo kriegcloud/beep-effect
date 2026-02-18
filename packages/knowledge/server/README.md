@@ -18,22 +18,15 @@ bun add @beep/knowledge-server
 
 ## Architecture
 
-```
-┌─────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│ Raw Text    │────▶│ Extraction      │────▶│ Knowledge       │
-│             │     │ Pipeline        │     │ Graph           │
-└─────────────┘     └─────────────────┘     └─────────────────┘
-                           │
-                           ▼
-               ┌───────────────────────┐
-               │ Stages:               │
-               │ 1. Text Chunking      │
-               │ 2. Mention Extraction │
-               │ 3. Entity Typing      │
-               │ 4. Relation Extraction│
-               │ 5. Graph Assembly     │
-               │ 6. Grounding          │
-               └───────────────────────┘
+```mermaid
+flowchart LR
+  N1["Raw Text"]
+  N2["Extraction<br/>Pipeline"]
+  N3["Knowledge<br/>Graph"]
+  N4["Stages:<br/>1. Text Chunking<br/>2. Mention Extraction<br/>3. Entity Typing<br/>4. Relation Extraction<br/>5. Graph Assembly<br/>6. Grounding"]
+  N1 --> N2
+  N2 --> N3
+  N2 --> N4
 ```
 
 ## Module Reference
@@ -72,12 +65,12 @@ const extractKnowledge = Effect.gen(function* () {
 });
 ```
 
-| Component | Purpose |
-|-----------|---------|
-| `MentionExtractor` | Extracts entity mentions from text |
-| `EntityExtractor` | Types mentions using ontology classes |
-| `RelationExtractor` | Extracts subject-predicate-object triples |
-| `GraphAssembler` | Assembles entities and relations into graph |
+| Component           | Purpose                                     |
+|---------------------|---------------------------------------------|
+| `MentionExtractor`  | Extracts entity mentions from text          |
+| `EntityExtractor`   | Types mentions using ontology classes       |
+| `RelationExtractor` | Extracts subject-predicate-object triples   |
+| `GraphAssembler`    | Assembles entities and relations into graph |
 
 ### GraphRAG Service
 
@@ -107,11 +100,11 @@ const retrieveContext = Effect.gen(function* () {
 });
 ```
 
-| Component | Purpose |
-|-----------|---------|
-| `GraphRAGService` | Main service combining k-NN + traversal + RRF |
-| `RrfScorer` | Reciprocal Rank Fusion scoring |
-| `ContextFormatter` | LLM context formatting with token budgeting |
+| Component          | Purpose                                       |
+|--------------------|-----------------------------------------------|
+| `GraphRAGService`  | Main service combining k-NN + traversal + RRF |
+| `RrfScorer`        | Reciprocal Rank Fusion scoring                |
+| `ContextFormatter` | LLM context formatting with token budgeting   |
 
 ### Embedding Service
 
@@ -162,16 +155,16 @@ const program = Effect.gen(function* () {
 
 ## Database Repositories
 
-| Repository | Purpose |
-|------------|---------|
-| `EntityRepo` | Knowledge entities with graph queries |
-| `RelationRepo` | Relations with traversal queries |
-| `EmbeddingRepo` | Vector embeddings with similarity search |
-| `OntologyRepo` | Ontology metadata |
-| `ClassDefinitionRepo` | OWL class definitions |
-| `PropertyDefinitionRepo` | OWL property definitions |
-| `EntityClusterRepo` | Entity resolution clusters |
-| `SameAsLinkRepo` | Entity equivalence links |
+| Repository               | Purpose                                  |
+|--------------------------|------------------------------------------|
+| `EntityRepo`             | Knowledge entities with graph queries    |
+| `RelationRepo`           | Relations with traversal queries         |
+| `EmbeddingRepo`          | Vector embeddings with similarity search |
+| `OntologyRepo`           | Ontology metadata                        |
+| `ClassDefinitionRepo`    | OWL class definitions                    |
+| `PropertyDefinitionRepo` | OWL property definitions                 |
+| `EntityClusterRepo`      | Entity resolution clusters               |
+| `SameAsLinkRepo`         | Entity equivalence links                 |
 
 ## Testing
 
@@ -196,21 +189,21 @@ effect("extracts entities", () =>
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
+| Package                  | Purpose                     |
+|--------------------------|-----------------------------|
 | `@beep/knowledge-domain` | Domain entities and schemas |
-| `@beep/knowledge-tables` | Drizzle table definitions |
-| `@beep/shared-server` | Base repository patterns |
-| `@effect/ai` | LLM integration |
-| `@effect/ai-anthropic` | Anthropic provider |
-| `@effect/ai-openai` | OpenAI provider |
-| `effect` | Core Effect runtime |
+| `@beep/knowledge-tables` | Drizzle table definitions   |
+| `@beep/shared-server`    | Base repository patterns    |
+| `@effect/ai`             | LLM integration             |
+| `@effect/ai-anthropic`   | Anthropic provider          |
+| `@effect/ai-openai`      | OpenAI provider             |
+| `effect`                 | Core Effect runtime         |
 
 ## Related Packages
 
-| Package | Purpose |
-|---------|---------|
-| `@beep/knowledge-domain` | Domain models and schemas |
+| Package                  | Purpose                    |
+|--------------------------|----------------------------|
+| `@beep/knowledge-domain` | Domain models and schemas  |
 | `@beep/knowledge-tables` | Database table definitions |
-| `@beep/knowledge-client` | Client-side RPC contracts |
-| `@beep/knowledge-ui` | React components |
+| `@beep/knowledge-client` | Client-side RPC contracts  |
+| `@beep/knowledge-ui`     | React components           |

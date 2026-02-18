@@ -10,25 +10,19 @@ Foundation layer providing branded entity IDs, authorization policies, typed rou
 
 ## Architecture
 
-```
-|------------------|     |-------------------|     |------------------|
-|   Entity IDs     |     |    Entities       |     |  Value Objects   |
-| SharedEntityIds  |     | User, Org, File   |     | paths, Source    |
-| IamEntityIds     |     | Session, Team     |     |                  |
-| DocumentsEntityIds|    | AuditLog, Folder  |     |                  |
-|------------------|     |-------------------|     |------------------|
-        |                        |                         |
-        v                        v                         v
-|----------------------------------------------------------------------|
-|                         Core Services                                 |
-|  Policy (auth)  |  ManualCache (TTL/LRU)  |  Retry  |  Encryption    |
-|----------------------------------------------------------------------|
-        |
-        v
-|----------------------------------------------------------------------|
-|                    Downstream Slices (consumers)                      |
-|    IAM    |   Documents   |   Calendar   |   Knowledge   |   Comms   |
-|----------------------------------------------------------------------|
+```mermaid
+flowchart TD
+  N1["Entity IDs<br/>SharedEntityIds<br/>IamEntityIds"]
+  N2["Entities<br/>User, Org, File<br/>Session, Team<br/>AuditLog, Folder"]
+  N3["Value Objects<br/>paths, Source"]
+  N4["Policy (auth)  |  ManualCache (TTL/LRU)  |  Retry  |  Encryption"]
+  N5["Node"]
+  N6["IAM    |   Documents   |   Calendar   |   Knowledge   |   Comms"]
+  N1 --> N4
+  N2 --> N4
+  N3 --> N4
+  N2 --> N5
+  N4 --> N6
 ```
 
 ## Core Modules

@@ -39,59 +39,24 @@ The `packages/knowledge/*` vertical slice has been **bootstrapped** with:
 
 ## Target Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                        BEEP-EFFECT + KNOWLEDGE LAYER                         │
-├──────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌──────────────────┐                       ┌──────────────────────────┐     │
-│  │ Todox App        │                       │ Future Apps              │     │
-│  │ (Email/Clients)  │                       │ (CRM, Integrations)      │     │
-│  └────────┬─────────┘                       └────────┬─────────────────┘     │
-│           │                                          │                       │
-│           ▼                                          ▼                       │
-│  ┌─────────────────────────────────────────────────────────────────────────┐ │
-│  │                    @beep/knowledge-client                               │ │
-│  │  RPC contracts: extract, query, resolve, getAgentContext                │ │
-│  └────────────────────────────────────────────────────┬────────────────────┘ │
-│                                                       │                      │
-│           ┌───────────────────────────────────────────┤                      │
-│           │                                           │                      │
-│           ▼                                           ▼                      │
-│  ┌─────────────────────────┐              ┌─────────────────────────────────┐│
-│  │ @beep/knowledge-server  │              │ @beep/knowledge-ui              ││
-│  │                         │              │                                 ││
-│  │ Services:               │              │ Components:                     ││
-│  │ - ExtractionPipeline    │              │ - KnowledgeGraphViewer          ││
-│  │ - EntityResolution      │              │ - EntityInspector               ││
-│  │ - GraphRAGService       │              │ - RelationExplorer              ││
-│  │ - OntologyService       │              │ - ExtractionProgress            ││
-│  │ - GroundingService      │              │                                 ││
-│  └─────────┬───────────────┘              └─────────────────────────────────┘│
-│            │                                                                 │
-│            ▼                                                                 │
-│  ┌─────────────────────────────────────────────────────────────────────────┐ │
-│  │                    @beep/knowledge-tables                               │ │
-│  │                                                                         │ │
-│  │  Tables:                                                                │ │
-│  │  - ontologies (id, org_id, name, turtle_content, version)               │ │
-│  │  - entities (id, org_id, types[], attributes, mentions[], confidence)   │ │
-│  │  - relations (id, subject_id, predicate, object, evidence[], confidence)│ │
-│  │  - extractions (id, org_id, source_uri, status, knowledge_graph_id)     │ │
-│  │  - embeddings (id, entity_id, vector, provider, model)                  │ │
-│  │                                                                         │ │
-│  │  + pgvector extension for similarity search                             │ │
-│  └─────────────────────────────────────────────────────────────────────────┘ │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────────┐ │
-│  │                    @beep/knowledge-domain                               │ │
-│  │                                                                         │ │
-│  │  Schemas: Entity, Relation, Mention, KnowledgeGraph, OntologyContext    │ │
-│  │  Algebra: knowledgeIndexMonoid, mergeGraphs (associative, identity)     │ │
-│  │  Errors: ExtractionError, OntologyError, GroundingError                 │ │
-│  └─────────────────────────────────────────────────────────────────────────┘ │
-│                                                                              │
-└──────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  N1["Todox App<br/>(Email/Clients)"]
+  N2["Future Apps<br/>(CRM, Integrations)"]
+  N3["@beep/knowledge-client<br/>RPC contracts: extract, query, resolve, getAgentContext"]
+  N4["@beep/knowledge-server<br/>Services:<br/>- ExtractionPipeline<br/>- EntityResolution<br/>- GraphRAGService<br/>- OntologyService<br/>- GroundingService"]
+  N5["@beep/knowledge-ui<br/>Components:<br/>- KnowledgeGraphViewer<br/>- EntityInspector<br/>- RelationExplorer<br/>- ExtractionProgress"]
+  N6["@beep/knowledge-tables<br/>Tables:<br/>- ontologies (id, org_id, name, turtle_content, version)<br/>- entities (id, org_id, types[], attributes, mentions[], confidence)<br/>- relations (id, subject_id, predicate, object, evidence[], confidence)<br/>- extractions (id, org_id, source_uri, status, knowledge_graph_id)<br/>- embeddings (id, entity_id, vector, provider, model)<br/>+ pgvector extension for similarity search"]
+  N7["@beep/knowledge-domain<br/>Schemas: Entity, Relation, Mention, KnowledgeGraph, OntologyContext<br/>Algebra: knowledgeIndexMonoid, mergeGraphs (associative, identity)<br/>Errors: ExtractionError, OntologyError, GroundingError"]
+  N1 --> N3
+  N2 --> N3
+  N3 --> N4
+  N3 --> N5
+  N3 --> N6
+  N4 --> N6
+  N5 --> N7
+  N3 --> N7
+  N4 --> N7
 ```
 
 ---

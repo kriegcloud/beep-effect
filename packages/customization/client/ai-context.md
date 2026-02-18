@@ -12,25 +12,16 @@ Client-side API surface for customization operations. Defines RPC contracts for 
 
 ## Architecture
 
-```
-|---------------------|     |---------------------|
-| @beep/customization | --> |  RPC Contracts      |
-|       -domain       |     | (Payload/Response)  |
-|---------------------|     |---------------------|
-                                     |
-                          (RPC boundary - HTTP)
-                                     |
-                                     v
-|---------------------|     |---------------------|
-|   TanStack Query    | <-- | CustomizationClient |
-|       hooks         |     |     Handlers        |
-|---------------------|     |---------------------|
-          |
-          v
-|---------------------|
-| @beep/customization |
-|        -ui          |
-|---------------------|
+```mermaid
+flowchart TD
+  N1["@beep/customization<br/>-domain"]
+  N2["RPC Contracts<br/>(Payload/Response)"]
+  N3["TanStack Query<br/>hooks"]
+  N4["CustomizationClient<br/>Handlers"]
+  N5["@beep/customization<br/>-ui"]
+  N1 --> N2
+  N2 --> N4
+  N3 --> N5
 ```
 
 ## Core Modules (Planned)

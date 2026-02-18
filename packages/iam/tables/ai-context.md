@@ -10,22 +10,17 @@ Supplies IAM-specific Drizzle tables, enums, and relations layered on shared tab
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-| @beep/iam-domain  | --> | @beep/iam-tables  | --> | @beep/iam-server  |
-| (entity schemas)  |     | (Drizzle tables)  |     | (Db.make Layer)   |
-|-------------------|     |-------------------|     |-------------------|
-        |                         |
-        |                         v
-        |                 |-------------------|
-        |                 | Better Auth       |
-        |                 | (drizzleAdapter)  |
-        |                 |-------------------|
-        v
-|-------------------|
-| @beep/shared-     |
-| tables (OrgTable) |
-|-------------------|
+```mermaid
+flowchart LR
+  N1["@beep/iam-domain<br/>(entity schemas)"]
+  N2["@beep/iam-tables<br/>(Drizzle tables)"]
+  N3["@beep/iam-server<br/>(Db.make Layer)"]
+  N4["Better Auth<br/>(drizzleAdapter)"]
+  N5["@beep/shared-<br/>tables (OrgTable)"]
+  N1 --> N2
+  N2 --> N3
+  N2 --> N4
+  N1 --> N5
 ```
 
 ## Core Modules

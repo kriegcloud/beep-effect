@@ -10,18 +10,15 @@ Minimal Bun entry point that launches the complete Effect backend from `@beep/ru
 
 ## Architecture
 
-```
-|----------------|     |----------------------|
-|  apps/server   | --> | @beep/runtime-server |
-|  (6 lines)     |     |   Server.layer       |
-|----------------|     |----------------------|
-                               |
-        |--------------------- | --------------------|
-        v                      v                     v
-|----------------|     |----------------|     |----------------|
-| HttpRouter     |     | Persistence    |     | Tooling        |
-| (routes,CORS)  |     | (DB,S3,repos)  |     | (email,trace)  |
-|----------------|     |----------------|     |----------------|
+```mermaid
+flowchart TD
+  N1["apps/server<br/>(6 lines)"]
+  N2["@beep/runtime-server<br/>Server.layer"]
+  N3["HttpRouter<br/>(routes,CORS)"]
+  N4["Persistence<br/>(DB,S3,repos)"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N4
 ```
 
 ## Core Modules

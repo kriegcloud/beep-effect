@@ -10,24 +10,23 @@ Internal package that aggregates all slice Drizzle schemas into a single source 
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|   IAM Tables      | --> |                   | --> |    AdminDb        |
-|-------------------|     |                   |     |    (Layer)        |
-                          |   schema.ts       |     |-------------------|
-|-------------------|     |   (unified)       |            |
-|  Documents Tables | --> |                   |            v
-|-------------------|     |-------------------|     |-------------------|
-                                 |                  |  drizzle-kit      |
-|-------------------|            |                  |  (generate/       |
-|  Knowledge Tables | ---------->|                  |   migrate/push)   |
-|-------------------|            |                  |-------------------|
-                                 |
-|-------------------|            v
-|  Calendar/Comms/  |     |-------------------|
-|  Customization    | --> |   relations.ts    |
-|-------------------|     |   (merged)        |
-                          |-------------------|
+```mermaid
+flowchart LR
+  N1["IAM Tables"]
+  N2["schema.ts<br/>(unified)"]
+  N3["AdminDb<br/>(Layer)"]
+  N4["Documents Tables"]
+  N5["drizzle-kit<br/>(generate/<br/>migrate/push)"]
+  N6["Knowledge Tables"]
+  N7["Calendar/Comms/<br/>Customization"]
+  N8["relations.ts<br/>(merged)"]
+  N1 --> N2
+  N2 --> N3
+  N4 --> N2
+  N3 --> N5
+  N6 --> N5
+  N2 --> N8
+  N7 --> N8
 ```
 
 ## Core Modules

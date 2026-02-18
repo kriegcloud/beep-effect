@@ -166,13 +166,11 @@ signature:
 
 Signatures enable agent chaining by matching output → input:
 
-```
-┌─────────────────────┐     ┌──────────────────┐
-│ codebase-researcher │     │    doc-writer    │
-├─────────────────────┤     ├──────────────────┤
-│ output.findings ────┼────►│ input.context    │
-│ output.gaps         │     │ input.targetFiles│
-└─────────────────────┘     └──────────────────┘
+```mermaid
+flowchart LR
+  N1["codebase-researcher<br/>output.gaps"]
+  N2["doc-writer<br/>input.context<br/>input.targetFiles"]
+  N1 --> N2
 ```
 
 ### Composition Examples

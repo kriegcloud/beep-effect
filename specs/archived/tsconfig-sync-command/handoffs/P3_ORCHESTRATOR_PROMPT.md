@@ -16,25 +16,15 @@ This verification uses the `ralph-wiggum` plugin for iterative execution. Start 
 
 ### Loop State Machine
 
-```
-┌─────────────────┐
-│  VERIFY_PACKAGE │◄──────────────────────┐
-└────────┬────────┘                       │
-         │                                │
-         ▼                                │
-    ┌─────────┐    PASS                   │
-    │  CHECK  │─────────► NEXT_PACKAGE ───┤
-    └────┬────┘                           │
-         │ FAIL                           │
-         ▼                                │
-    ┌─────────┐                           │
-    │   FIX   │                           │
-    └────┬────┘                           │
-         │                                │
-         ▼                                │
-    ┌─────────┐                           │
-    │ RE-TEST │───────────────────────────┘
-    └─────────┘
+```mermaid
+flowchart TD
+  N1["VERIFY_PACKAGE"]
+  N2["CHECK"]
+  N3["FIX"]
+  N4["RE-TEST"]
+  N1 --> N2
+  N2 --> N3
+  N3 --> N4
 ```
 
 ### Loop Iteration Protocol

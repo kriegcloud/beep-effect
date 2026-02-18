@@ -82,38 +82,19 @@ export const AgentUsageEvent = S.Union(AgentStartEvent, AgentStopEvent)
 
 ## Data Flow
 
-```
-┌─────────────────────┐
-│   Task Tool Call    │
-│  (spawn subagent)   │
-└──────────┬──────────┘
-           │ PreToolUse hook
-           ▼
-┌─────────────────────┐
-│  telemetry/start.ts │
-│  - Extract agent    │
-│  - Write start event│
-│  - Store in state   │
-└──────────┬──────────┘
-           │
-           ▼ (subagent runs)
-┌─────────────────────┐
-│   SubagentStop      │
-└──────────┬──────────┘
-           │ SubagentStop hook
-           ▼
-┌─────────────────────┐
-│  telemetry/stop.ts  │
-│  - Calc duration    │
-│  - Write stop event │
-│  - Clear state      │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│  .telemetry/        │
-│  usage.jsonl        │
-└─────────────────────┘
+```mermaid
+flowchart TD
+  N1["Task Tool Call<br/>(spawn subagent)"]
+  N2["telemetry/start.ts<br/>- Extract agent<br/>- Write start event<br/>- Store in state"]
+  N3["SubagentStop"]
+  N4["telemetry/stop.ts<br/>- Calc duration<br/>- Write stop event<br/>- Clear state"]
+  N5[".telemetry/<br/>usage.jsonl"]
+  N1 --> N2
+  N1 --> N3
+  N2 --> N3
+  N3 --> N4
+  N3 --> N5
+  N4 --> N5
 ```
 
 ---

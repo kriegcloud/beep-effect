@@ -10,21 +10,17 @@ Client-side SDK for the calendar vertical slice. Provides RPC contract definitio
 
 ## Architecture
 
-```
-|-------------------|     |-----------------|
-|   API Contracts   | --> | effect/Schema   |
-|-------------------|     |-----------------|
-         |
-         v
-|-------------------|     |----------------------|
-|  Client Handlers  | --> | @beep/calendar-domain|
-|-------------------|     | (types only)         |
-         |                |----------------------|
-         v
-|-------------------|
-|    Web Apps       |
-| (apps/todox, etc) |
-|-------------------|
+```mermaid
+flowchart LR
+  N1["API Contracts"]
+  N2["effect/Schema"]
+  N3["Client Handlers"]
+  N4["@beep/calendar-domain<br/>(types only)"]
+  N5["Web Apps<br/>(apps/todox, etc)"]
+  N1 --> N2
+  N1 --> N3
+  N3 --> N4
+  N3 --> N5
 ```
 
 ## Core Modules

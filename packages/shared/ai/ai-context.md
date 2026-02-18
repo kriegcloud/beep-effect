@@ -10,26 +10,17 @@ Effect Schema definitions and provider integrations for AI/LLM services. Provide
 
 ## Architecture
 
-```
-|----------------------|
-|   Provider Clients   |  Anthropic, OpenAI via @effect/ai-*
-|----------------------|
-          |
-          v
-|----------------------|     |----------------------|
-|   Agent Schemas      | --> |   Tool Definitions   |
-|   - AgentConfig      |     |   - ToolCall         |
-|   - AgentResponse    |     |   - ToolDefinition   |
-|   - AgentRunMetrics  |     |   - ToolCallResult   |
-|----------------------|     |----------------------|
-          |                            |
-          v                            v
-|----------------------|     |----------------------|
-|   Message Schemas    |     |   Agents SDK Schemas |
-|   - ChatMessage      |     |   - common, mcp      |
-|   - SystemMessage    |     |   - permissions      |
-|   - ToolMessage      |     |   - hooks, session   |
-|----------------------|     |----------------------|
+```mermaid
+flowchart TD
+  N1["Provider Clients"]
+  N2["Agent Schemas<br/>- AgentConfig<br/>- AgentResponse<br/>- AgentRunMetrics"]
+  N3["Tool Definitions<br/>- ToolCall<br/>- ToolDefinition<br/>- ToolCallResult"]
+  N4["Message Schemas<br/>- ChatMessage<br/>- SystemMessage<br/>- ToolMessage"]
+  N5["Agents SDK Schemas<br/>- common, mcp<br/>- permissions<br/>- hooks, session"]
+  N1 --> N2
+  N2 --> N3
+  N2 --> N4
+  N3 --> N5
 ```
 
 ## Core Modules

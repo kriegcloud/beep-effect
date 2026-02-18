@@ -10,25 +10,19 @@ Server infrastructure for the knowledge graph vertical slice providing ontology-
 
 ## Architecture
 
-```
-|-------------------|     |-------------------|     |-------------------|
-|    Extraction/    | --> |    GraphRAG/      | --> |    Embedding/     |
-| (LLM pipelines)   |     | (Subgraph query)  |     | (Vector search)   |
-|-------------------|     |-------------------|     |-------------------|
-         |                         |                         |
-         v                         v                         v
-|-------------------|     |-------------------|     |-------------------|
-|    Ontology/      |     |  EntityResolution/|     |    Grounding/     |
-| (OWL parsing)     |     | (Clustering/dedup)|     | (Confidence filter)|
-|-------------------|     |-------------------|     |-------------------|
-         |                         |                         |
-         +-----------+-------------+-----------+-------------+
-                     |
-                     v
-            |-------------------|
-            |       db/         |
-            | (Repositories)    |
-            |-------------------|
+```mermaid
+flowchart TD
+  N1["Extraction/<br/>(LLM pipelines)"]
+  N2["GraphRAG/<br/>(Subgraph query)"]
+  N3["Embedding/<br/>(Vector search)"]
+  N4["Ontology/<br/>(OWL parsing)"]
+  N5["EntityResolution/<br/>(Clustering/dedup)"]
+  N6["Grounding/"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
+  N3 --> N6
 ```
 
 ## Core Modules

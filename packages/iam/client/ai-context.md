@@ -10,17 +10,17 @@ Typed contract layer bridging Better Auth's React client with Effect-first flows
 
 ## Architecture
 
-```
-|------------------|     |------------------|     |------------------|
-|    Contracts     | --> |     Handlers     | --> |   UI Consumers   |
-| (Schema + Wrap)  |     | (wrapIamMethod)  |     | (Atoms + Hooks)  |
-|------------------|     |------------------|     |------------------|
-         |                        |
-         v                        v
-|------------------|     |------------------|
-|    _internal     |     |     Adapters     |
-| (schemas, utils) |     | (Better Auth)    |
-|------------------|     |------------------|
+```mermaid
+flowchart LR
+  N1["Contracts<br/>(Schema + Wrap)"]
+  N2["Handlers<br/>(wrapIamMethod)"]
+  N3["UI Consumers<br/>(Atoms + Hooks)"]
+  N4["_internal<br/>(schemas, utils)"]
+  N5["Adapters<br/>(Better Auth)"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
 ```
 
 ## Core Modules

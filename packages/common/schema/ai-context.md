@@ -10,26 +10,20 @@ Pure runtime schema toolkit built on `effect/Schema`. Provides the `BS` namespac
 
 ## Architecture
 
-```
-|------------------|     |------------------|     |------------------|
-|    primitives/   | --> |     derived/     | --> |    builders/     |
-| string,temporal, |     | kits,tagged-     |     | json-schema,     |
-| network,locale   |     | unions,nullable  |     | form-metadata    |
-|------------------|     |------------------|     |------------------|
-        |                        |
-        v                        v
-|------------------|     |------------------|
-|    identity/     |     |  integrations/   |
-| EntityId.make,   |     | sql,http,csp     |
-| uuid,brands      |     | helpers          |
-|------------------|     |------------------|
-                \           /
-                 \         /
-                  v       v
-              |---------------|
-              |  BS namespace |
-              | (schema.ts)   |
-              |---------------|
+```mermaid
+flowchart TD
+  N1["primitives/<br/>string,temporal,<br/>network,locale"]
+  N2["derived/<br/>kits,tagged-<br/>unions,nullable"]
+  N3["builders/<br/>json-schema,<br/>form-metadata"]
+  N4["identity/<br/>EntityId.make,<br/>uuid,brands"]
+  N5["integrations/<br/>sql,http,csp<br/>helpers"]
+  N6["BS namespace<br/>(schema.ts)"]
+  N1 --> N2
+  N2 --> N3
+  N1 --> N4
+  N2 --> N5
+  N4 --> N6
+  N5 --> N6
 ```
 
 ## Core Modules

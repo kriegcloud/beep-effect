@@ -23,25 +23,19 @@ Design and implement Todox, an AI-native multi-tenant SaaS application for small
 
 ## Target Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                              TODOX CLIENT                                │
-├─────────────────────────────────────────────────────────────────────────┤
-│  PowerSync SQLite      │  Liveblocks          │  @effect/ai/McpServer   │
-│  (structured data)     │  (presence/cursors)  │  (agent tooling)        │
-└──────────┬─────────────┴───────┬──────────────┴────────────┬────────────┘
-           │                     │                           │
-           ▼                     ▼                           ▼
-┌──────────────────────┐  ┌──────────────────┐  ┌──────────────────────────┐
-│  PowerSync Service   │  │  Liveblocks      │  │  Effect Backend API      │
-│  (self-hosted)       │  │  Cloud           │  │  (@effect/rpc handlers)  │
-└────────┬─────────────┘  └──────────────────┘  └──────────────┬───────────┘
-         │                                                     │
-         ▼                                                     ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    PostgreSQL + Row-Level Security                       │
-│  (source of truth, tenant isolation via org_id)                          │
-└─────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  N1["PowerSync SQLite      │  Liveblocks          │  @effect/ai/McpServer<br/>(structured data)     │  (presence/cursors)  │  (agent tooling)"]
+  N2["PowerSync Service<br/>(self-hosted)"]
+  N3["Liveblocks<br/>Cloud"]
+  N4["Effect Backend API<br/>(@effect/rpc handlers)"]
+  N5["Node"]
+  N1 --> N2
+  N1 --> N3
+  N1 --> N4
+  N1 --> N5
+  N2 --> N5
+  N4 --> N5
 ```
 
 ---
