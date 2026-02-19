@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -37,19 +33,43 @@ const exportKind = "const";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "Unique brand for {@link ExceededCapacityError}.";
 const sourceExample = "";
-const moduleRecord = CauseModule as Record<string, unknown>;
+
+const readBrandValue = (value: unknown, brandKey: PropertyKey): unknown => {
+  if (typeof value !== "object" || value === null) {
+    return undefined;
+  }
+
+  return (value as Record<PropertyKey, unknown>)[brandKey];
+};
+
+const hasOwnBrand = (value: unknown, brandKey: PropertyKey): boolean =>
+  typeof value === "object" && value !== null && Object.prototype.hasOwnProperty.call(value, brandKey);
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleBrandedErrorShape = Effect.gen(function* () {
+  const brandKey = CauseModule.ExceededCapacityErrorTypeId;
+  const error = new CauseModule.ExceededCapacityError("Queue full");
+  const brandValue = readBrandValue(error, brandKey);
+
+  yield* Console.log(`Brand key: ${brandKey}`);
+  yield* Console.log(`Error tag/message: ${error._tag} / ${error.message}`);
+  yield* Console.log(`error[brandKey]: ${formatUnknown(brandValue)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleBrandDiscrimination = Effect.gen(function* () {
+  const brandKey = CauseModule.ExceededCapacityErrorTypeId;
+  const exceeded = new CauseModule.ExceededCapacityError("Queue full");
+  const timeout = new CauseModule.TimeoutError("Timed out");
+  const generic = new Error("boom");
+
+  yield* Console.log(
+    `Has brand (Exceeded/Timeout/Error): ${hasOwnBrand(exceeded, brandKey)} / ${hasOwnBrand(timeout, brandKey)} / ${hasOwnBrand(generic, brandKey)}`
+  );
+  yield* Console.log(
+    `Type guard (Exceeded/Timeout/Error): ${CauseModule.isExceededCapacityError(exceeded)} / ${CauseModule.isExceededCapacityError(timeout)} / ${CauseModule.isExceededCapacityError(generic)}`
+  );
 });
 
 /* ========================================================================== *
@@ -64,14 +84,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Branded Error Shape",
+      description: "Create an ExceededCapacityError and read its brand property via this type id.",
+      run: exampleBrandedErrorShape,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Brand Discrimination",
+      description: "Compare brand-key and type-guard checks across ExceededCapacityError and other errors.",
+      run: exampleBrandDiscrimination,
     },
   ],
 });

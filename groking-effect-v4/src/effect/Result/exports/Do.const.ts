@@ -30,11 +30,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -55,13 +51,39 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Result.Do as the seed value for do-notation chains.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${JSON.stringify(failure)})`,
+    onSuccess: (value) => `Success(${JSON.stringify(value)})`,
+  })(result);
+
+const exampleDoNotationSuccess = Effect.gen(function* () {
+  yield* Console.log("Compose a record from Result.Do using bind and let.");
+  const result = ResultModule.Do.pipe(
+    ResultModule.bind("x", () => ResultModule.succeed(2)),
+    ResultModule.bind("y", () => ResultModule.succeed(3)),
+    ResultModule.let("sum", ({ x, y }) => x + y)
+  );
+
+  yield* Console.log(`result: ${summarizeResult(result)}`);
+  yield* Console.log(`isSuccess: ${ResultModule.isSuccess(result)}`);
+});
+
+const exampleDoNotationFailure = Effect.gen(function* () {
+  yield* Console.log("Show short-circuiting when one binding fails.");
+  const result = ResultModule.Do.pipe(
+    ResultModule.bind("x", () => ResultModule.succeed(2)),
+    ResultModule.bind("y", () => ResultModule.fail("missing-y")),
+    ResultModule.let("sum", ({ x, y }) => x + y)
+  );
+
+  yield* Console.log(`result: ${summarizeResult(result)}`);
+  const fallback = ResultModule.getOrElse(() => ({ x: -1, y: -1, sum: -1 }))(result);
+  yield* Console.log(`fallback: ${JSON.stringify(fallback)}`);
 });
 
 /* ========================================================================== *
@@ -81,9 +103,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Do Notation Happy Path",
+      description: "Start from Result.Do, bind fields, and derive a computed value with let.",
+      run: exampleDoNotationSuccess,
+    },
+    {
+      title: "Do Notation Failure Path",
+      description: "Demonstrate that a failing bind stops the chain and uses fallback recovery.",
+      run: exampleDoNotationFailure,
     },
   ],
 });

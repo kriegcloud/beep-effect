@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -37,19 +33,34 @@ const exportKind = "const";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "Unique brand for {@link Done} values.";
 const sourceExample = "";
-const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleDoneBrandRoundTrip = Effect.gen(function* () {
+  const marker = CauseModule.DoneTypeId;
+  const doneSignal = CauseModule.Done("queue drained");
+  const doneRecord = doneSignal as Record<string, unknown>;
+  const brandField = doneRecord[marker];
+
+  yield* Console.log(`DoneTypeId runtime value: ${marker}`);
+  yield* Console.log(`Done signal tag: ${doneSignal._tag}`);
+  yield* Console.log(`Done brand field equals DoneTypeId: ${brandField === marker}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleDoneDiscrimination = Effect.gen(function* () {
+  const doneSignal = CauseModule.Done("stream complete");
+  const failReason = CauseModule.makeFailReason("boom");
+  const doneRecord = doneSignal as Record<string, unknown>;
+  const failRecord = failReason as Record<string, unknown>;
+
+  yield* Console.log(
+    `Done reason -> has marker: ${CauseModule.DoneTypeId in doneRecord}, isDone: ${CauseModule.isDone(doneSignal)}`
+  );
+  yield* Console.log(
+    `Fail reason -> has marker: ${CauseModule.DoneTypeId in failRecord}, isDone: ${CauseModule.isDone(failReason)}`
+  );
+  yield* Console.log(`Fail reason preview: ${formatUnknown(failReason)}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +75,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Done Brand Round-Trip",
+      description: "Create a Done signal and verify the DoneTypeId field matches the exported marker.",
+      run: exampleDoneBrandRoundTrip,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Done vs Fail Discrimination",
+      description: "Compare Done and Fail reasons to show how the marker and Cause.isDone identify completion.",
+      run: exampleDoneDiscrimination,
     },
   ],
 });

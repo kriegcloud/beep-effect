@@ -44,13 +44,38 @@ const moduleRecord = OptionModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("`OptionUnify` is a compile-time interface and is erased at runtime.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
 const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+  yield* Console.log("Inspect a runtime companion API used to combine `Option` values.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "orElse" });
+});
+
+const exampleCompanionUnificationFlow = Effect.gen(function* () {
+  yield* Console.log("Bridge: `OptionUnify` is type-level, while runtime `Option` APIs unify value paths.");
+
+  const parsePort = (raw: string) => {
+    const parsed = Number(raw);
+    return Number.isInteger(parsed) && parsed > 0 ? OptionModule.some(parsed) : OptionModule.none<number>();
+  };
+
+  const invalidPrimary = parsePort("oops");
+  const envFallback = parsePort("8080");
+  const defaultPort = parsePort("3000");
+
+  const fromPrimaryOrEnv = OptionModule.orElse(invalidPrimary, () => envFallback);
+  const resolved = OptionModule.orElse(fromPrimaryOrEnv, () => defaultPort);
+  const rendered = OptionModule.match(resolved, {
+    onNone: () => "no port available",
+    onSome: (value) => `resolved port ${value}`,
+  });
+
+  yield* Console.log(
+    `primary=${OptionModule.isSome(invalidPrimary)} env=${OptionModule.isSome(envFallback)} default=${OptionModule.isSome(defaultPort)}`
+  );
+  yield* Console.log(`Result after fallback unification: ${rendered}`);
 });
 
 /* ========================================================================== *
@@ -70,9 +95,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
+      title: "Companion Export Inspection",
+      description: "Inspect a runtime export that participates in Option fallback composition.",
       run: exampleModuleContextInspection,
+    },
+    {
+      title: "Companion Unification Flow",
+      description: "Compose optional inputs with `orElse` to produce one resolved `Option` value.",
+      run: exampleCompanionUnificationFlow,
     },
   ],
 });

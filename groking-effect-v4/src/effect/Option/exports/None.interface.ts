@@ -43,13 +43,31 @@ const moduleRecord = OptionModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("`None` is an interface, so the symbol is erased at runtime.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionExportInspection = Effect.gen(function* () {
+  yield* Console.log("Bridge to runtime: inspect the `none` companion constructor export.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "none" });
+});
+
+const exampleNoneCompanionFlow = Effect.gen(function* () {
+  const absentUser = OptionModule.none<string>();
+  const presentUser = OptionModule.some("Ava");
+
+  const absentMessage = OptionModule.match(absentUser, {
+    onNone: () => "No user available.",
+    onSome: (user) => `User: ${user}`,
+  });
+  const presentMessage = OptionModule.match(presentUser, {
+    onNone: () => "No user available.",
+    onSome: (user) => `User: ${user}`,
+  });
+
+  yield* Console.log(`isNone(absentUser): ${OptionModule.isNone(absentUser)}`);
+  yield* Console.log(`match(None): ${absentMessage}`);
+  yield* Console.log(`match(Some): ${presentMessage}`);
 });
 
 /* ========================================================================== *
@@ -69,9 +87,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion Export Inspection",
+      description: "Inspect the runtime `none` constructor that corresponds to `None` values.",
+      run: exampleCompanionExportInspection,
+    },
+    {
+      title: "None Companion API Flow",
+      description: "Create absent/present options and handle both branches with `match`.",
+      run: exampleNoneCompanionFlow,
     },
   ],
 });

@@ -43,13 +43,38 @@ const moduleRecord = ArrayModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log(
+    "Bridge note: ReadonlyArrayTypeLambda is erased at runtime; companion Array APIs carry runtime behavior."
+  );
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionReadonlyPipeline = Effect.gen(function* () {
+  const base: ReadonlyArray<number> = [1, 2, 3];
+  const doubled = ArrayModule.map(base, (n) => n * 2);
+  const appended = ArrayModule.append(doubled, 8);
+
+  yield* Console.log(`base readonly values: ${JSON.stringify(base)}`);
+  yield* Console.log(`Array.map(base, n => n * 2): ${JSON.stringify(doubled)}`);
+  yield* Console.log(`Array.append(doubled, 8): ${JSON.stringify(appended)}`);
+  yield* Console.log(`base remains unchanged: ${JSON.stringify(base)}`);
+});
+
+const exampleCompanionGuardFlow = Effect.gen(function* () {
+  yield* Console.log("Runtime companion context: inspect Array.isReadonlyArrayNonEmpty.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "isReadonlyArrayNonEmpty" });
+
+  const candidates: ReadonlyArray<ReadonlyArray<number>> = [[], [5, 10, 15]];
+  for (const candidate of candidates) {
+    const nonEmpty = ArrayModule.isReadonlyArrayNonEmpty(candidate);
+    if (!nonEmpty) {
+      yield* Console.log(`${JSON.stringify(candidate)} -> nonEmpty=false; skipping reduce.`);
+      continue;
+    }
+
+    const total = ArrayModule.reduce(candidate, 0, (sum, value) => sum + value);
+    yield* Console.log(`${JSON.stringify(candidate)} -> nonEmpty=true; reduce sum=${total}.`);
+  }
 });
 
 /* ========================================================================== *
@@ -69,9 +94,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion Readonly Pipeline",
+      description: "Use Array.map and Array.append to model readonly-oriented transformation flow.",
+      run: exampleCompanionReadonlyPipeline,
+    },
+    {
+      title: "Companion Guard Flow",
+      description: "Use Array.isReadonlyArrayNonEmpty before reducing values.",
+      run: exampleCompanionGuardFlow,
     },
   ],
 });

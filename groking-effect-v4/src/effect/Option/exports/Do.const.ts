@@ -31,11 +31,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -56,13 +52,36 @@ const moduleRecord = OptionModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Option.Do as a runtime value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleDoNotationSuccess = Effect.gen(function* () {
+  yield* Console.log("Build a record from Option.Do using bind/let/filter.");
+  const result = OptionModule.Do.pipe(
+    OptionModule.bind("x", () => OptionModule.some(2)),
+    OptionModule.bind("y", () => OptionModule.some(3)),
+    OptionModule.let("sum", ({ x, y }) => x + y),
+    OptionModule.filter(({ x, y }) => x * y > 5)
+  );
+
+  const summary = OptionModule.match({
+    onNone: () => "None",
+    onSome: (record) => `Some(${JSON.stringify(record)})`,
+  })(result);
+  yield* Console.log(`result: ${summary}`);
+});
+
+const exampleDoNotationShortCircuit = Effect.gen(function* () {
+  yield* Console.log("Show short-circuiting when one bind returns None.");
+  const result = OptionModule.Do.pipe(
+    OptionModule.bind("x", () => OptionModule.some(2)),
+    OptionModule.bind("y", () => OptionModule.none())
+  );
+
+  yield* Console.log(`isNone: ${OptionModule.isNone(result)}`);
+  const fallback = OptionModule.getOrElse(() => ({ reason: "y missing" }))(result);
+  yield* Console.log(`fallback: ${JSON.stringify(fallback)}`);
 });
 
 /* ========================================================================== *
@@ -82,9 +101,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Do Notation Happy Path",
+      description: "Start from Option.Do and compose bind/let/filter to produce a record.",
+      run: exampleDoNotationSuccess,
+    },
+    {
+      title: "Do Notation Short-Circuit",
+      description: "Demonstrate that a None during bind collapses the whole chain.",
+      run: exampleDoNotationShortCircuit,
     },
   ],
 });

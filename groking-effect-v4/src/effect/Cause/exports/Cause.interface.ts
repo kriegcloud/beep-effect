@@ -50,13 +50,26 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("`Cause` is an interface, so the symbol is erased at runtime.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionExportInspection = Effect.gen(function* () {
+  yield* Console.log("Bridge to runtime: inspect the `fail` companion constructor export.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "fail" });
+});
+
+const exampleSourceAlignedCompanionFlow = Effect.gen(function* () {
+  yield* Console.log("Use companion APIs to construct and inspect a runtime `Cause` value.");
+
+  const cause = CauseModule.fail("Something went wrong");
+  const firstReason = cause.reasons[0];
+  const firstReasonIsFail = firstReason !== undefined && CauseModule.isFailReason(firstReason);
+  const failErrors = cause.reasons.filter(CauseModule.isFailReason).map((reason) => String(reason.error));
+
+  yield* Console.log(`cause.reasons.length: ${cause.reasons.length}`);
+  yield* Console.log(`Cause.isFailReason(cause.reasons[0]): ${firstReasonIsFail}`);
+  yield* Console.log(`Fail errors: ${failErrors.join(", ")}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +89,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion Export Inspection",
+      description: "Inspect the runtime `fail` constructor that creates `Cause` values.",
+      run: exampleCompanionExportInspection,
+    },
+    {
+      title: "Source-Aligned Companion Flow",
+      description: "Run `fail` and `isFailReason` to mirror the source JSDoc behavior.",
+      run: exampleSourceAlignedCompanionFlow,
     },
   ],
 });

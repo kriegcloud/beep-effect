@@ -28,7 +28,7 @@ My old solution was to have specialized AI agents which would handle updating su
 my monthly AI credits. I'm wondering if we can programmatically update such things I'm not sure what the best approach is. But I have some ideas.
 - Use predefined templates for the agent configs, documentation, surface maps & references. These templates should be structured such that they can be deterministically parsed and updated when things change.
 - Have a robust set of hooks such that when ever a push/commit is made to the remote repository. The affected files are parsed and the agent configs, documentation, surface maps & references are updated accordingly.
-- 
+
 
 
 ## beep-effect folder structure & naming conventions

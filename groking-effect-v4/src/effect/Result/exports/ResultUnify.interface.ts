@@ -43,13 +43,34 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("ResultUnify is a compile-time interface; confirm runtime erasure.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionRuntimeFlow = Effect.gen(function* () {
+  yield* Console.log("Bridge: runtime composition uses Result APIs such as Result.all.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "all" });
+
+  const tupleResult = ResultModule.all([ResultModule.succeed(1), ResultModule.succeed("two")]);
+  const structResult = ResultModule.all({
+    id: ResultModule.succeed(1),
+    enabled: ResultModule.succeed(true),
+  });
+  const shortCircuitResult = ResultModule.all({
+    first: ResultModule.succeed("ready"),
+    second: ResultModule.fail("boom"),
+    third: ResultModule.succeed("skipped"),
+  });
+
+  const describe = <A, E>(result: ResultModule.Result<A, E>): string =>
+    ResultModule.match(result, {
+      onSuccess: (value) => `Success: ${JSON.stringify(value)}`,
+      onFailure: (error) => `Failure: ${String(error)}`,
+    });
+
+  yield* Console.log(`tuple -> ${describe(tupleResult)}`);
+  yield* Console.log(`struct -> ${describe(structResult)}`);
+  yield* Console.log(`short-circuit -> ${describe(shortCircuitResult)}`);
 });
 
 /* ========================================================================== *
@@ -69,9 +90,9 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion API Flow",
+      description: "Compose multiple Result values and observe success/failure collection.",
+      run: exampleCompanionRuntimeFlow,
     },
   ],
 });

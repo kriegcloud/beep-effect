@@ -43,13 +43,37 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("`ResultUnifyIgnore` is compile-time only and erased at runtime.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionExportInspection = Effect.gen(function* () {
+  yield* Console.log("Bridge to runtime: inspect `andThen`, where Result values are unified by shape.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "andThen" });
+});
+
+const exampleUnificationCompanionFlow = Effect.gen(function* () {
+  const seed = ResultModule.succeed(1);
+  const chainedResult = ResultModule.andThen(seed, (value) => ResultModule.succeed(value + 1));
+  const mappedValue = ResultModule.andThen(seed, (value) => value + 1);
+  const replacedWithLiteral = ResultModule.andThen(seed, "done");
+  const shortCircuited = ResultModule.andThen(ResultModule.fail("boom"), (value: number) =>
+    ResultModule.succeed(value + 1)
+  );
+
+  const describe = (result: ResultModule.Result<number | string, string>): string =>
+    ResultModule.match(result, {
+      onSuccess: (value) => `Success(${value})`,
+      onFailure: (error) => `Failure(${error})`,
+    });
+
+  yield* Console.log(
+    "Bridge: this interface controls compile-time unification; runtime behavior is shown via Result combinators."
+  );
+  yield* Console.log(`andThen(Success(1), n => Success(n + 1)) -> ${describe(chainedResult)}`);
+  yield* Console.log(`andThen(Success(1), n => n + 1) -> ${describe(mappedValue)}`);
+  yield* Console.log(`andThen(Success(1), "done") -> ${describe(replacedWithLiteral)}`);
+  yield* Console.log(`andThen(Failure("boom"), n => Success(n + 1)) -> ${describe(shortCircuited)}`);
 });
 
 /* ========================================================================== *
@@ -69,9 +93,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion Export Inspection",
+      description: "Inspect the runtime `andThen` companion API related to Result unification behavior.",
+      run: exampleCompanionExportInspection,
+    },
+    {
+      title: "Companion API Flow",
+      description: "Run `andThen` with Result-returning, value, and Failure inputs to show runtime outcomes.",
+      run: exampleUnificationCompanionFlow,
     },
   ],
 });

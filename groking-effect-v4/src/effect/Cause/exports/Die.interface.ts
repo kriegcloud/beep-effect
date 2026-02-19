@@ -51,14 +51,28 @@ const moduleRecord = CauseModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+const exampleTypeErasureAndCompanionContext = Effect.gen(function* () {
+  yield* Console.log("Die is compile-time only; runtime behavior lives in companion APIs.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
+
+  yield* Console.log("Inspecting the runtime companion constructor: Cause.die.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "die" });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleDieRuntimeFlow = Effect.gen(function* () {
+  const cause = CauseModule.die(new Error("Unexpected"));
+  const firstReason = cause.reasons[0];
+
+  yield* Console.log(`Constructed cause with ${cause.reasons.length} reason(s).`);
+
+  if (firstReason !== undefined && CauseModule.isDieReason(firstReason)) {
+    const defect = firstReason.defect;
+    const defectMessage = defect instanceof Error ? defect.message : String(defect);
+    yield* Console.log(`First reason is Die; defect message: ${defectMessage}`);
+    return;
+  }
+
+  yield* Console.log("First reason did not match Cause.isDieReason.");
 });
 
 /* ========================================================================== *
@@ -73,14 +87,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Type Erasure + Companion Context",
+      description: "Show erasure at runtime, then inspect the `Cause.die` companion API.",
+      run: exampleTypeErasureAndCompanionContext,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Cause.die Runtime Flow",
+      description: "Create a die cause and verify its first reason with `Cause.isDieReason`.",
+      run: exampleDieRuntimeFlow,
     },
   ],
 });

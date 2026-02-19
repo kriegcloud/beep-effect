@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ArrayModule from "effect/Array";
 import * as Console from "effect/Console";
@@ -43,19 +39,25 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Reference to the global `Array` constructor.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst arr = new Array.Array(3)\nconsole.log(arr) // [undefined, undefined, undefined]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleConstructWithLength = Effect.gen(function* () {
+  yield* Console.log("Construct with a single number to create a sparse array.");
+  const sparse = new ArrayModule.Array<number>(3);
+  yield* Console.log(`length -> ${sparse.length}`);
+  yield* Console.log(`index 0 exists before fill -> ${0 in sparse}`);
+  sparse.fill(0);
+  yield* Console.log(`after fill(0) -> [${sparse.join(", ")}]`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleConstructWithValues = Effect.gen(function* () {
+  yield* Console.log("Construct with multiple arguments to create an array of values.");
+  const tones = new ArrayModule.Array("beep", "boop", "bop");
+  yield* Console.log(`initial -> [${tones.join(", ")}]`);
+  tones.push("buzz");
+  yield* Console.log(`after push('buzz') -> [${tones.join(", ")}]`);
 });
 
 /* ========================================================================== *
@@ -70,14 +72,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Single-Length Construction",
+      description: "Use `new Array.Array(length)` to create and then materialize sparse slots.",
+      run: exampleConstructWithLength,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Value List Construction",
+      description: "Use constructor arguments as concrete element values.",
+      run: exampleConstructWithValues,
     },
   ],
 });

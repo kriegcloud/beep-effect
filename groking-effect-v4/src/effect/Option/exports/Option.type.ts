@@ -58,13 +58,32 @@ const moduleRecord = OptionModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("`Option` is a compile-time type and is erased at runtime.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
 const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+  yield* Console.log("Companion runtime APIs are exported from the `Option` module.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "some" });
+});
+
+const exampleSourceAlignedCompanionFlow = Effect.gen(function* () {
+  yield* Console.log("Bridge: use runtime constructors/combinators to work with `Option` values.");
+
+  const someValue = OptionModule.some(42);
+  const noneValue = OptionModule.none<number>();
+
+  const someMessage = OptionModule.match(someValue, {
+    onNone: () => "No value",
+    onSome: (value) => `Value is ${value}`,
+  });
+  const noneMessage = OptionModule.match(noneValue, {
+    onNone: () => "No value",
+    onSome: (value) => `Value is ${value}`,
+  });
+
+  yield* Console.log(`Option.some(42) -> ${someMessage}`);
+  yield* Console.log(`Option.none() -> ${noneMessage}`);
 });
 
 /* ========================================================================== *
@@ -84,9 +103,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
+      title: "Companion Export Inspection",
+      description: "Inspect a runtime companion export that constructs `Option` values.",
       run: exampleModuleContextInspection,
+    },
+    {
+      title: "Source-Aligned Companion Flow",
+      description: "Run `some`, `none`, and `match` to mirror the source JSDoc behavior.",
+      run: exampleSourceAlignedCompanionFlow,
     },
   ],
 });

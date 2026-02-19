@@ -49,13 +49,33 @@ const moduleRecord = ArrayModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("Bridge note: NonEmptyArray is erased at runtime; companion Array APIs show the behavior.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionConstructionAndMutation = Effect.gen(function* () {
+  const nonEmpty = ArrayModule.make(1, 2, 3);
+  yield* Console.log(`Array.make(1, 2, 3) -> ${JSON.stringify(nonEmpty)}`);
+
+  nonEmpty.push(4);
+  yield* Console.log(`push(4) on mutable array -> ${JSON.stringify(nonEmpty)}`);
+
+  const withAppended = ArrayModule.append(nonEmpty, 5);
+  yield* Console.log(`Array.append(current, 5) -> ${JSON.stringify(withAppended)}`);
+});
+
+const exampleCompanionGuardFlow = Effect.gen(function* () {
+  yield* Console.log("Runtime companion context: inspect Array.isArrayNonEmpty.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "isArrayNonEmpty" });
+
+  const maybeNonEmpty: Array<number> = [10, 20];
+  if (ArrayModule.isArrayNonEmpty(maybeNonEmpty)) {
+    const head = maybeNonEmpty[0];
+    maybeNonEmpty.push(head + 100);
+    yield* Console.log(`Guard passed; head=${head}, after push -> ${JSON.stringify(maybeNonEmpty)}`);
+  } else {
+    yield* Console.log("Guard failed; no head access performed.");
+  }
 });
 
 /* ========================================================================== *
@@ -75,9 +95,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion Construction + Mutation",
+      description: "Use Array.make and mutable operations that align with NonEmptyArray semantics.",
+      run: exampleCompanionConstructionAndMutation,
+    },
+    {
+      title: "Companion Guard Flow",
+      description: "Use Array.isArrayNonEmpty to safely access head and mutate a mutable array.",
+      run: exampleCompanionGuardFlow,
     },
   ],
 });

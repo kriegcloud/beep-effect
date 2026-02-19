@@ -30,11 +30,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ArrayModule from "effect/Array";
 import * as Console from "effect/Console";
@@ -54,14 +50,29 @@ const moduleRecord = ArrayModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+const exampleSeedScope = Effect.gen(function* () {
+  yield* Console.log("Array.Do seeds a do-notation scope with one empty record.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+  yield* Console.log(`Seed scope count: ${ArrayModule.Do.length}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedComprehension = Effect.gen(function* () {
+  const withX = ArrayModule.bind(ArrayModule.Do, "x", () => [1, 3, 5]);
+  const withXAndY = ArrayModule.bind(withX, "y", () => [2, 4, 6]);
+  const filtered = ArrayModule.filter(withXAndY, ({ x, y }) => x < y);
+  const result = ArrayModule.map(filtered, ({ x, y }) => [x, y] as const);
+
+  yield* Console.log(`Pairs where x < y: ${JSON.stringify(result)}`);
+});
+
+const exampleDependentBindings = Effect.gen(function* () {
+  const withSku = ArrayModule.bind(ArrayModule.Do, "sku", () => ["beep", "boop"]);
+  const withQuantities = ArrayModule.bind(withSku, "qty", () => [1, 2, 3]);
+  const withUnitPrice = ArrayModule.bind(withQuantities, "unitPrice", ({ sku }) => (sku === "beep" ? [10] : [15]));
+  const withTotal = ArrayModule.let(withUnitPrice, "total", ({ qty, unitPrice }) => qty * unitPrice);
+  const highValueOrders = ArrayModule.filter(withTotal, ({ total }) => total >= 20);
+
+  yield* Console.log(`Orders with total >= 20: ${JSON.stringify(highValueOrders)}`);
 });
 
 /* ========================================================================== *
@@ -76,14 +87,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Seed Scope Value",
+      description: "Inspect the seed record used to start array do-notation chains.",
+      run: exampleSeedScope,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Pair Comprehension",
+      description: "Reproduce the documented bind/filter/map pipeline starting from Array.Do.",
+      run: exampleSourceAlignedComprehension,
+    },
+    {
+      title: "Dependent Binding With Derived Fields",
+      description: "Use prior bindings to derive prices and totals, then keep high-value combinations.",
+      run: exampleDependentBindings,
     },
   ],
 });

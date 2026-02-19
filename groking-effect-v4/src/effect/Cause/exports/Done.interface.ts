@@ -39,6 +39,7 @@ import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Queue from "effect/Queue";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,13 +56,24 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("Bridge note: `Cause.Done` is a compile-time type and does not exist as a runtime value.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleQueueDoneCompanionFlow = Effect.gen(function* () {
+  yield* Console.log("Use runtime companions (`Queue` + `Cause.isDone`) to observe a done signal.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "isDone" });
+
+  const queue = yield* Queue.bounded<number, CauseModule.Done>(2);
+  yield* Queue.offer(queue, 1);
+  yield* Queue.end(queue);
+
+  const first = yield* Queue.take(queue);
+  yield* Console.log(`First take (buffered value): ${first}`);
+
+  const completionSignal = yield* Effect.flip(Queue.take(queue));
+  const done = CauseModule.isDone(completionSignal);
+  yield* Console.log(`Second take is done signal: ${done}`);
 });
 
 /* ========================================================================== *
@@ -81,9 +93,9 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Queue Completion Companion Flow",
+      description: "End a queue, drain remaining value, then detect the runtime done signal with Cause.isDone.",
+      run: exampleQueueDoneCompanionFlow,
     },
   ],
 });

@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectTypeLikeExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ArrayModule from "effect/Array";
 import * as Console from "effect/Console";
@@ -43,14 +39,24 @@ const moduleRecord = ArrayModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleTypeErasure = Effect.gen(function* () {
+  yield* Console.log("`Array.ReadonlyArray` is a type-only namespace and is erased at runtime.");
+  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+  yield* Console.log("Use `Array.ReadonlyArray.*` only in type positions (`import type`).");
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleRuntimeAlignment = Effect.gen(function* () {
+  const nested: ReadonlyArray<ReadonlyArray<number>> = [[1, 2], [3]];
+  const flattened = ArrayModule.flatten(nested);
+
+  yield* Console.log(`flatten([[1, 2], [3]]) -> ${JSON.stringify(flattened)}`);
+
+  const nonEmpty = ArrayModule.isReadonlyArrayNonEmpty(flattened);
+  yield* Console.log(`isReadonlyArrayNonEmpty(flattened) -> ${nonEmpty}`);
+
+  if (nonEmpty) {
+    yield* Console.log(`headNonEmpty(flattened) -> ${ArrayModule.headNonEmpty(flattened)}`);
+  }
 });
 
 /* ========================================================================== *
@@ -65,14 +71,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Type-Only Namespace Erasure",
+      description: "Show that `ReadonlyArray` is a compile-time namespace with no runtime value.",
+      run: exampleTypeErasure,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Runtime APIs Aligned With ReadonlyArray Types",
+      description: "Use `flatten` and non-empty narrowing to mirror `Flatten` / non-empty type semantics.",
+      run: exampleRuntimeAlignment,
     },
   ],
 });

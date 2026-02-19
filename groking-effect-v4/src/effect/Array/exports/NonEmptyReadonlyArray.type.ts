@@ -49,13 +49,36 @@ const moduleRecord = ArrayModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log(
+    "Bridge note: NonEmptyReadonlyArray is erased at runtime; companion Array APIs demonstrate the non-empty flow."
+  );
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionGuardedHeadAccess = Effect.gen(function* () {
+  const input: ReadonlyArray<number> = [1, 2, 3];
+  yield* Console.log(`Readonly input -> ${JSON.stringify(input)}`);
+
+  if (ArrayModule.isReadonlyArrayNonEmpty(input)) {
+    const headByIndex = input[0];
+    const headByApi = ArrayModule.headNonEmpty(input);
+    yield* Console.log(`Guard passed; input[0]=${headByIndex}, headNonEmpty=${headByApi}`);
+  } else {
+    yield* Console.log("Guard failed; skipped head access.");
+  }
+});
+
+const exampleCompanionNonMutatingFlow = Effect.gen(function* () {
+  yield* Console.log("Runtime companion context: inspect Array.isReadonlyArrayNonEmpty.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "isReadonlyArrayNonEmpty" });
+
+  const base: ReadonlyArray<number> = [10, 20, 30];
+  const appended = ArrayModule.append(base, 40);
+
+  if (ArrayModule.isReadonlyArrayNonEmpty(appended)) {
+    const tail = ArrayModule.tailNonEmpty(appended);
+    yield* Console.log(`append(base, 40) -> ${JSON.stringify(appended)}; tailNonEmpty -> ${JSON.stringify(tail)}`);
+  }
 });
 
 /* ========================================================================== *
@@ -75,9 +98,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion Guard + Head Access",
+      description: "Use isReadonlyArrayNonEmpty to justify direct head access on readonly data.",
+      run: exampleCompanionGuardedHeadAccess,
+    },
+    {
+      title: "Companion Non-Mutating Flow",
+      description: "Use append and tailNonEmpty to keep non-empty guarantees without mutating input.",
+      run: exampleCompanionNonMutatingFlow,
     },
   ],
 });

@@ -56,13 +56,28 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("Result is a compile-time type alias; confirm runtime erasure.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionRuntimeFlow = Effect.gen(function* () {
+  yield* Console.log("Bridge: use runtime companion APIs because the Result type is erased.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "match" });
+
+  const success = ResultModule.succeed(42);
+  const failure = ResultModule.fail("something went wrong");
+
+  const successMessage = ResultModule.match(success, {
+    onSuccess: (value) => `Success: ${value}`,
+    onFailure: (error) => `Error: ${error}`,
+  });
+  const failureMessage = ResultModule.match(failure, {
+    onSuccess: (value) => `Success: ${value}`,
+    onFailure: (error) => `Error: ${error}`,
+  });
+
+  yield* Console.log(`success -> ${successMessage}`);
+  yield* Console.log(`failure -> ${failureMessage}`);
 });
 
 /* ========================================================================== *
@@ -82,9 +97,9 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion API Flow",
+      description: "Create and match Success/Failure values with runtime Result APIs.",
+      run: exampleCompanionRuntimeFlow,
     },
   ],
 });
