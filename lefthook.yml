@@ -1,0 +1,14 @@
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "*.{ts,tsx,js,jsx,json,jsonc,css,md}"
+      run: bunx biome check --write {staged_files} && git add {staged_files}
+
+pre-push:
+  parallel: true
+  commands:
+    typecheck:
+      run: tsc -p tsconfig.json --noEmit
+    test:
+      run: npx vitest run

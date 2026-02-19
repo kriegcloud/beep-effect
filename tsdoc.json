@@ -1,0 +1,15 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/tsdoc/v0/tsdoc.schema.json",
+  "tagDefinitions": [
+    { "tagName": "@domain", "syntaxKind": "block", "allowMultiple": false },
+    { "tagName": "@provides", "syntaxKind": "block", "allowMultiple": true },
+    { "tagName": "@depends", "syntaxKind": "block", "allowMultiple": true },
+    { "tagName": "@errors", "syntaxKind": "block", "allowMultiple": true }
+  ],
+  "supportForTags": {
+    "@domain": { "status": "active" },
+    "@provides": { "status": "active" },
+    "@depends": { "status": "active" },
+    "@errors": { "status": "active" }
+  }
+}

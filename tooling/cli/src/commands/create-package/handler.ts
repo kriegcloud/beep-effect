@@ -6,7 +6,7 @@
  * as a symbolic link to AGENTS.md.
  *
  * @since 0.0.0
- * @category commands
+ * @module
  */
 
 import { DomainError, encodePackageJsonPrettyEffect, findRepoRoot } from "@beep/repo-utils";
@@ -20,6 +20,8 @@ import { checkConfigNeedsUpdate, updateRootConfigs } from "./config-updater.js";
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 /**
+ * Absolute path to the Handlebars template directory, resolved relative to the compiled module.
+ *
  * @since 0.0.0
  * @category constants
  */

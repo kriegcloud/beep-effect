@@ -6,7 +6,7 @@
  * with `@since 0.0.0` JSDoc tags as required by `@effect/docgen`.
  *
  * @since 0.0.0
- * @category commands
+ * @module
  */
 
 import { FsUtils } from "@beep/repo-utils";
@@ -23,20 +23,52 @@ import { Command, Flag } from "effect/unstable/cli";
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** File extensions to consider as modules. */
+/**
+ * File extensions recognised as TypeScript source modules during barrel generation.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
 const TS_EXTENSIONS = [".ts", ".tsx"] as const;
 
-/** Check if a filename ends with a TypeScript extension. */
+/**
+ * Check whether a filename ends with a recognised TypeScript extension (`.ts` or `.tsx`).
+ *
+ * @param name - The filename or relative path to inspect.
+ * @returns `true` when the name ends with `.ts` or `.tsx`.
+ * @since 0.0.0
+ * @category functions
+ */
 const isTsFile = (name: string): boolean => A.some(TS_EXTENSIONS, (ext) => Str.endsWith(ext)(name));
 
-/** Check if a filename is a test file. */
+/**
+ * Determine whether a filename represents a test file (`.test.ts`, `.spec.ts`, etc.).
+ *
+ * Test files are excluded from barrel re-exports because they are not part of
+ * the public API surface.
+ *
+ * @param name - The filename or relative path to inspect.
+ * @returns `true` when the name matches a test file naming convention.
+ * @since 0.0.0
+ * @category functions
+ */
 const isTestFile = (name: string): boolean =>
   Str.endsWith(".test.ts")(name) ||
   Str.endsWith(".test.tsx")(name) ||
   Str.endsWith(".spec.ts")(name) ||
   Str.endsWith(".spec.tsx")(name);
 
-/** Strip the `.ts` / `.tsx` extension and append `.js` for the import path. */
+/**
+ * Convert a TypeScript filename to its corresponding `.js` import specifier.
+ *
+ * Strips the `.ts` or `.tsx` extension and prepends `./` so the result is a
+ * valid ESM relative import path (e.g. `"FsUtils.ts"` becomes `"./FsUtils.js"`).
+ *
+ * @param name - The TypeScript filename (may include a sub-path prefix).
+ * @returns A relative import specifier with a `.js` extension.
+ * @since 0.0.0
+ * @category functions
+ */
 const toImportPath = (name: string): string => {
   for (const ext of TS_EXTENSIONS) {
     if (Str.endsWith(ext)(name)) {
@@ -47,7 +79,11 @@ const toImportPath = (name: string): string => {
 };
 
 /**
- * Alphabetical order for strings used to sort module paths deterministically.
+ * Alphabetical `Order` instance used to sort discovered module paths deterministically
+ * before emitting barrel re-exports.
+ *
+ * @since 0.0.0
+ * @category constants
  */
 const alphabetical: Order.Order<string> = Order.String;
 
@@ -60,6 +96,12 @@ const alphabetical: Order.Order<string> = Order.String;
  *
  * Returns relative paths from `srcDir` (e.g. `"FsUtils.ts"`, `"errors/index.ts"`).
  * Skips `index.ts` at the root level, `internal/` directories, and test files.
+ *
+ * @param srcDir - Absolute path to the `src/` directory to scan.
+ * @returns An unsorted array of relative file paths suitable for barrel re-export.
+ * @depends FileSystem, Path
+ * @since 0.0.0
+ * @category functions
  */
 const discoverModules = Effect.fn(function* (srcDir: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -107,8 +149,14 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
 /**
  * Build the barrel file content from a sorted list of module relative paths.
  *
+ * Produces a string containing a JSDoc header and one `export * from ...` statement
+ * per module, each annotated with `@since 0.0.0` as required by `@effect/docgen`.
+ *
  * @param packageName - Used in the module description header comment.
  * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).
+ * @returns The full content of the generated `index.ts` barrel file.
+ * @since 0.0.0
+ * @category functions
  */
 const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>): string => {
   const header = pipe(
@@ -129,6 +177,9 @@ const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>)
 // ---------------------------------------------------------------------------
 
 /**
+ * CLI command that scans a package's `src/` directory and generates (or previews)
+ * an `index.ts` barrel file with `export *` re-exports for every discovered module.
+ *
  * @since 0.0.0
  * @category commands
  */

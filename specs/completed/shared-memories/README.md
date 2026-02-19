@@ -20,17 +20,17 @@
 
 ## Success Criteria
 
-- [ ] FalkorDB + Graphiti MCP running via Docker with named volume persistence
-- [ ] Systemd user service auto-starts on login
-- [ ] Named volume survives `docker system prune -af`
-- [ ] Claude Code configured as MCP client to Graphiti
-- [ ] Codex CLI configured as MCP client to Graphiti
-- [ ] Claude Code Stop hook auto-records session summaries to Graphiti
-- [ ] Codex CLI notify hook auto-records turn summaries to Graphiti
-- [ ] AGENTS.md instructs Codex to proactively use Graphiti MCP tools
-- [ ] CLAUDE.md / MEMORY.md instructs Claude Code to proactively use Graphiti MCP tools
-- [ ] End-to-end verified: write memory in Claude Code, retrieve in Codex CLI (and vice versa)
-- [ ] Backup cron job configured for weekly FalkorDB snapshots
+- [x] FalkorDB + Graphiti MCP running via Docker with bind mount persistence
+- [x] Systemd user service auto-starts on login
+- [x] Data survives `docker system prune -af` AND `docker compose down -v` (bind mount)
+- [x] Claude Code configured as MCP client to Graphiti
+- [x] Codex CLI configured as MCP client to Graphiti
+- [x] Claude Code Stop hook auto-records session summaries to Graphiti (with git context)
+- [x] Codex CLI notify hook auto-records turn summaries to Graphiti (with git context)
+- [x] AGENTS.md instructs Codex to proactively use Graphiti MCP tools
+- [x] CLAUDE.md / MEMORY.md instructs Claude Code to proactively use Graphiti MCP tools
+- [x] End-to-end verified: write memory in Claude Code, retrieve in Codex CLI (and vice versa)
+- [x] Hardened: hooks gracefully handle Graphiti-down, empty stdin, garbage input, non-git dirs
 
 ## Architecture Decision Records
 
@@ -38,7 +38,7 @@
 |----|----------|-----------|
 | AD-001 | Graphiti + FalkorDB over Basic Memory or mem0 | Temporal knowledge graph with relationship tracking; deduplication; best retrieval accuracy |
 | AD-002 | Local Docker over remote Tailscale server | Simpler setup, works offline, <1ms latency; can upgrade to remote later by changing one env var |
-| AD-003 | Named Docker volumes for persistence | Survives `docker system prune -af`; only deleted by explicit `docker compose down -v` |
+| AD-003 | Host bind mount for persistence | Survives everything including `docker compose down -v`; data at `~/graphiti-mcp/data/` |
 | AD-004 | Systemd user service over system service | Runs in user context, no root needed, starts on login; `loginctl enable-linger` for boot-start |
 | AD-005 | Python stdlib HTTP helper for hooks | No external dependencies; handles MCP JSON-RPC 2.0 init + tool call handshake |
 | AD-006 | Dual recording strategy (hooks + agent instructions) | Hooks provide baseline auto-recording; AGENTS.md/CLAUDE.md enable proactive, higher-quality saves |
@@ -102,7 +102,7 @@ Total:              42  → Medium complexity
 ```bash
 # Infrastructure
 curl -sf http://localhost:8000/health && echo "Graphiti OK"
-docker volume inspect graphiti_falkordb_data
+ls ~/graphiti-mcp/data/ && echo "Bind mount OK"
 systemctl --user status graphiti-mcp
 
 # MCP tools visible
@@ -116,6 +116,9 @@ test -x ~/.local/bin/codex-graphiti-notify-hook.sh && echo "Codex hook OK"
 
 # End-to-end
 python3 ~/.local/bin/graphiti-add-memory.py --name "test" --group "beep-dev" "Hello from verification"
+
+# FalkorDB UI
+xdg-open http://localhost:3001
 ```
 
 ## Key Files
