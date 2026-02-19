@@ -8,7 +8,7 @@
  * @since 0.0.0
  * @category errors
  */
-import * as Data from "effect/Data"
+import * as Data from "effect/Data";
 
 /**
  * Raised when topological sorting or cycle detection finds circular
@@ -18,6 +18,6 @@ import * as Data from "effect/Data"
  * @category errors
  */
 export class CyclicDependencyError extends Data.TaggedError("CyclicDependencyError")<{
-  readonly message: string
-  readonly cycles: ReadonlyArray<ReadonlyArray<string>>
+  readonly message: string;
+  readonly cycles: ReadonlyArray<ReadonlyArray<string>>;
 }> {}

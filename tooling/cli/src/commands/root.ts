@@ -6,9 +6,9 @@
  */
 
 import { Command } from "effect/unstable/cli";
-import { topoSortCommand } from "./topo-sort.js";
-import { createPackageCommand } from "./create-package.js";
 import { codegenCommand } from "./codegen.js";
+import { createPackageCommand } from "./create-package.js";
+import { topoSortCommand } from "./topo-sort.js";
 
 /**
  * @since 0.0.0
@@ -16,5 +16,5 @@ import { codegenCommand } from "./codegen.js";
  */
 export const rootCommand = Command.make("beep-cli").pipe(
   Command.withDescription("CLI tool for managing beep-effect monorepo packages"),
-  Command.withSubcommands([topoSortCommand, createPackageCommand, codegenCommand]),
+  Command.withSubcommands([topoSortCommand, createPackageCommand, codegenCommand])
 );

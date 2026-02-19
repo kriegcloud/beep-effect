@@ -7,7 +7,7 @@
  * @since 0.0.0
  * @category errors
  */
-import * as Data from "effect/Data"
+import * as Data from "effect/Data";
 
 /**
  * A generic domain-level error with an optional underlying cause.
@@ -16,6 +16,6 @@ import * as Data from "effect/Data"
  * @category errors
  */
 export class DomainError extends Data.TaggedError("DomainError")<{
-  readonly message: string
-  readonly cause?: unknown
+  readonly message: string;
+  readonly cause?: unknown;
 }> {}

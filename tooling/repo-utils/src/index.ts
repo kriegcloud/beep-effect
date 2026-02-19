@@ -17,7 +17,25 @@ export {
   /**
    * @since 0.0.0
    */
-  NoSuchFileError,
+  extractWorkspaceDependencies,
+} from "./Dependencies.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
+  buildRepoDependencyIndex,
+} from "./DependencyIndex.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
+  CyclicDependencyError,
   /**
    * @since 0.0.0
    */
@@ -25,9 +43,8 @@ export {
   /**
    * @since 0.0.0
    */
-  CyclicDependencyError,
-} from "./errors/index.js"
-
+  NoSuchFileError,
+} from "./errors/index.js";
 /**
  * @since 0.0.0
  */
@@ -48,8 +65,24 @@ export {
    * @since 0.0.0
    */
   type GlobOptions,
-} from "./FsUtils.js"
-
+} from "./FsUtils.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
+  computeTransitiveClosure,
+  /**
+   * @since 0.0.0
+   */
+  detectCycles,
+  /**
+   * @since 0.0.0
+   */
+  topologicalSort,
+} from "./Graph.js";
 /**
  * @since 0.0.0
  */
@@ -58,8 +91,7 @@ export {
    * @since 0.0.0
    */
   findRepoRoot,
-} from "./Root.js"
-
+} from "./Root.js";
 /**
  * @since 0.0.0
  */
@@ -67,13 +99,37 @@ export {
   /**
    * @since 0.0.0
    */
-  resolveWorkspaceDirs,
+  decodePackageJson,
   /**
    * @since 0.0.0
    */
-  getWorkspaceDir,
-} from "./Workspaces.js"
-
+  decodePackageJsonEffect,
+  /**
+   * @since 0.0.0
+   */
+  decodePackageJsonExit,
+  /**
+   * @since 0.0.0
+   */
+  PackageJson,
+} from "./schemas/PackageJson.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
+  type DependencyRecord,
+  /**
+   * @since 0.0.0
+   */
+  emptyWorkspaceDeps,
+  /**
+   * @since 0.0.0
+   */
+  type WorkspaceDeps,
+} from "./schemas/WorkspaceDeps.js";
 /**
  * @since 0.0.0
  */
@@ -82,28 +138,7 @@ export {
    * @since 0.0.0
    */
   collectTsConfigPaths,
-} from "./TsConfig.js"
-
-/**
- * @since 0.0.0
- */
-export {
-  /**
-   * @since 0.0.0
-   */
-  extractWorkspaceDependencies,
-} from "./Dependencies.js"
-
-/**
- * @since 0.0.0
- */
-export {
-  /**
-   * @since 0.0.0
-   */
-  buildRepoDependencyIndex,
-} from "./DependencyIndex.js"
-
+} from "./TsConfig.js";
 /**
  * @since 0.0.0
  */
@@ -116,8 +151,7 @@ export {
    * @since 0.0.0
    */
   type UniqueNpmDeps,
-} from "./UniqueDeps.js"
-
+} from "./UniqueDeps.js";
 /**
  * @since 0.0.0
  */
@@ -125,53 +159,9 @@ export {
   /**
    * @since 0.0.0
    */
-  PackageJson,
+  getWorkspaceDir,
   /**
    * @since 0.0.0
    */
-  decodePackageJson,
-  /**
-   * @since 0.0.0
-   */
-  decodePackageJsonExit,
-  /**
-   * @since 0.0.0
-   */
-  decodePackageJsonEffect,
-} from "./schemas/PackageJson.js"
-
-/**
- * @since 0.0.0
- */
-export {
-  /**
-   * @since 0.0.0
-   */
-  type WorkspaceDeps,
-  /**
-   * @since 0.0.0
-   */
-  type DependencyRecord,
-  /**
-   * @since 0.0.0
-   */
-  emptyWorkspaceDeps,
-} from "./schemas/WorkspaceDeps.js"
-
-/**
- * @since 0.0.0
- */
-export {
-  /**
-   * @since 0.0.0
-   */
-  topologicalSort,
-  /**
-   * @since 0.0.0
-   */
-  detectCycles,
-  /**
-   * @since 0.0.0
-   */
-  computeTransitiveClosure,
-} from "./Graph.js"
+  resolveWorkspaceDirs,
+} from "./Workspaces.js";

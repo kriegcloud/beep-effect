@@ -15,9 +15,9 @@
     "./tooling/*/dtslint/**/*.ts",
     "./apps/*/test/**/*.ts",
     "./apps/*/test/**/*.json",
-    "./groking-effect-v4/src/**/*.ts",
-    "./groking-effect-v4/test/**/*.ts"
+    "./groking-effect-v4/src/**/*.ts"
   ],
+  "exclude": ["./tooling/*/test/fixtures/**/*.ts"],
   "compilerOptions": {
     "rootDir": ".",
     "noEmit": true,

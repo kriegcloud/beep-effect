@@ -8,7 +8,6 @@ export default defineConfig({
       "packages/*/vitest.config.ts",
       "tooling/*/vitest.config.ts",
       "apps/*/vitest.config.ts",
-      "groking-effect-v4/vitest.config.ts",
       ...(isBun
         ? [
             // Exclude Node-specific packages when running with Bun

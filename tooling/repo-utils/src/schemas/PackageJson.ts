@@ -7,7 +7,7 @@
  * @since 0.0.0
  * @module
  */
-import { Schema } from "effect"
+import { Schema } from "effect";
 
 /**
  * Schema for `author` field which can be a string or an object with
@@ -23,7 +23,7 @@ export const Author = Schema.Union([
     email: Schema.optionalKey(Schema.String),
     url: Schema.optionalKey(Schema.String),
   }),
-])
+]);
 
 /**
  * Schema for `repository` field which can be a string or an object with
@@ -44,7 +44,7 @@ export const Repository = Schema.Union([
    * keys or other malformed shapes found in the wild).
    */
   Schema.Record(Schema.String, Schema.Unknown),
-])
+]);
 
 /**
  * Schema for `bugs` field which can be a string or an object with
@@ -59,7 +59,7 @@ export const Bugs = Schema.Union([
     url: Schema.optionalKey(Schema.String),
     email: Schema.optionalKey(Schema.String),
   }),
-])
+]);
 
 /**
  * A `Record<string, string>` schema used for dependency maps, scripts, engines, etc.
@@ -67,7 +67,7 @@ export const Bugs = Schema.Union([
  * @since 0.0.0
  * @category schemas
  */
-const StringRecord = Schema.Record(Schema.String, Schema.String)
+const StringRecord = Schema.Record(Schema.String, Schema.String);
 
 /**
  * Schema for `bin` field which can be a string (single executable) or
@@ -76,10 +76,7 @@ const StringRecord = Schema.Record(Schema.String, Schema.String)
  * @since 0.0.0
  * @category schemas
  */
-export const Bin = Schema.Union([
-  Schema.String,
-  StringRecord,
-])
+export const Bin = Schema.Union([Schema.String, StringRecord]);
 
 /**
  * Type-safe schema for package.json files.
@@ -119,7 +116,7 @@ export const PackageJson = Schema.Struct({
   homepage: Schema.optionalKey(Schema.String),
   sideEffects: Schema.optionalKey(Schema.Unknown),
   publishConfig: Schema.optionalKey(Schema.Unknown),
-})
+});
 
 /**
  * The decoded TypeScript type for a package.json file.
@@ -127,7 +124,7 @@ export const PackageJson = Schema.Struct({
  * @since 0.0.0
  * @category types
  */
-export type PackageJson = (typeof PackageJson)["Type"]
+export type PackageJson = (typeof PackageJson)["Type"];
 
 /**
  * Synchronously decode an unknown value into a `PackageJson`.
@@ -136,7 +133,7 @@ export type PackageJson = (typeof PackageJson)["Type"]
  * @since 0.0.0
  * @category decoding
  */
-export const decodePackageJson = Schema.decodeUnknownSync(PackageJson)
+export const decodePackageJson = Schema.decodeUnknownSync(PackageJson);
 
 /**
  * Synchronously decode an unknown value into a `PackageJson`,
@@ -145,7 +142,7 @@ export const decodePackageJson = Schema.decodeUnknownSync(PackageJson)
  * @since 0.0.0
  * @category decoding
  */
-export const decodePackageJsonExit = Schema.decodeUnknownExit(PackageJson)
+export const decodePackageJsonExit = Schema.decodeUnknownExit(PackageJson);
 
 /**
  * Decode an unknown value into a `PackageJson` as an Effect.
@@ -154,4 +151,4 @@ export const decodePackageJsonExit = Schema.decodeUnknownExit(PackageJson)
  * @since 0.0.0
  * @category decoding
  */
-export const decodePackageJsonEffect = Schema.decodeUnknownEffect(PackageJson)
+export const decodePackageJsonEffect = Schema.decodeUnknownEffect(PackageJson);

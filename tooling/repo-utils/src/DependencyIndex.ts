@@ -7,13 +7,13 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, HashMap, HashSet } from "effect"
-import { FsUtils } from "./FsUtils.js"
-import { resolveWorkspaceDirs } from "./Workspaces.js"
-import { extractWorkspaceDependencies } from "./Dependencies.js"
-import { decodePackageJson } from "./schemas/PackageJson.js"
-import type { WorkspaceDeps } from "./schemas/WorkspaceDeps.js"
-import { DomainError, NoSuchFileError } from "./errors/index.js"
+import { Effect, HashMap, HashSet } from "effect";
+import { extractWorkspaceDependencies } from "./Dependencies.js";
+import { DomainError, type NoSuchFileError } from "./errors/index.js";
+import { FsUtils } from "./FsUtils.js";
+import { decodePackageJson } from "./schemas/PackageJson.js";
+import type { WorkspaceDeps } from "./schemas/WorkspaceDeps.js";
+import { resolveWorkspaceDirs } from "./Workspaces.js";
 
 /**
  * The root package identifier used in the returned HashMap.
@@ -21,7 +21,7 @@ import { DomainError, NoSuchFileError } from "./errors/index.js"
  * @since 0.0.0
  * @category constants
  */
-const ROOT_KEY = "@beep/root"
+const ROOT_KEY = "@beep/root";
 
 /**
  * Build a complete dependency index for the entire monorepo.
@@ -51,26 +51,22 @@ const ROOT_KEY = "@beep/root"
  */
 export const buildRepoDependencyIndex = (
   rootDir: string
-): Effect.Effect<
-  HashMap.HashMap<string, WorkspaceDeps>,
-  NoSuchFileError | DomainError,
-  FsUtils
-> =>
+): Effect.Effect<HashMap.HashMap<string, WorkspaceDeps>, NoSuchFileError | DomainError, FsUtils> =>
   Effect.gen(function* () {
-    const fsUtils = yield* FsUtils
-    const workspaces = yield* resolveWorkspaceDirs(rootDir)
+    const fsUtils = yield* FsUtils;
+    const workspaces = yield* resolveWorkspaceDirs(rootDir);
 
     // Build a HashSet of all workspace package names
-    let workspaceNames = HashSet.empty<string>()
+    let workspaceNames = HashSet.empty<string>();
     for (const [name] of workspaces) {
-      workspaceNames = HashSet.add(workspaceNames, name)
+      workspaceNames = HashSet.add(workspaceNames, name);
     }
 
-    let result = HashMap.empty<string, WorkspaceDeps>()
+    let result = HashMap.empty<string, WorkspaceDeps>();
 
     // Process root package.json
-    const rootPkgPath = `${rootDir}/package.json`
-    const rawRootPkg = yield* fsUtils.readJson(rootPkgPath)
+    const rootPkgPath = `${rootDir}/package.json`;
+    const rawRootPkg = yield* fsUtils.readJson(rootPkgPath);
     const rootPkg = yield* Effect.try({
       try: () => decodePackageJson(rawRootPkg),
       catch: (error) =>
@@ -78,14 +74,14 @@ export const buildRepoDependencyIndex = (
           message: `Failed to decode root package.json at "${rootPkgPath}"`,
           cause: error,
         }),
-    })
-    const rootDeps = extractWorkspaceDependencies(rootPkg, workspaceNames)
-    result = HashMap.set(result, ROOT_KEY, { ...rootDeps, packageName: ROOT_KEY })
+    });
+    const rootDeps = extractWorkspaceDependencies(rootPkg, workspaceNames);
+    result = HashMap.set(result, ROOT_KEY, { ...rootDeps, packageName: ROOT_KEY });
 
     // Process each workspace package.json
     for (const [name, dir] of workspaces) {
-      const pkgPath = `${dir}/package.json`
-      const rawPkg = yield* fsUtils.readJson(pkgPath)
+      const pkgPath = `${dir}/package.json`;
+      const rawPkg = yield* fsUtils.readJson(pkgPath);
       const pkg = yield* Effect.try({
         try: () => decodePackageJson(rawPkg),
         catch: (error) =>
@@ -93,10 +89,10 @@ export const buildRepoDependencyIndex = (
             message: `Failed to decode package.json at "${pkgPath}"`,
             cause: error,
           }),
-      })
-      const deps = extractWorkspaceDependencies(pkg, workspaceNames)
-      result = HashMap.set(result, name, deps)
+      });
+      const deps = extractWorkspaceDependencies(pkg, workspaceNames);
+      result = HashMap.set(result, name, deps);
     }
 
-    return result
-  })
+    return result;
+  });

@@ -14,7 +14,7 @@
  * @since 0.0.0
  * @category types
  */
-export type DependencyRecord = Readonly<Record<string, string>>
+export type DependencyRecord = Readonly<Record<string, string>>;
 
 /**
  * Classified dependencies for a single workspace package.
@@ -28,23 +28,23 @@ export type DependencyRecord = Readonly<Record<string, string>>
  */
 export interface WorkspaceDeps {
   /** The package name this dependency set belongs to. */
-  readonly packageName: string
+  readonly packageName: string;
 
   /** Dependencies that reference other packages within the monorepo. */
   readonly workspace: {
-    readonly dependencies: DependencyRecord
-    readonly devDependencies: DependencyRecord
-    readonly peerDependencies: DependencyRecord
-    readonly optionalDependencies: DependencyRecord
-  }
+    readonly dependencies: DependencyRecord;
+    readonly devDependencies: DependencyRecord;
+    readonly peerDependencies: DependencyRecord;
+    readonly optionalDependencies: DependencyRecord;
+  };
 
   /** Dependencies that reference external NPM packages. */
   readonly npm: {
-    readonly dependencies: DependencyRecord
-    readonly devDependencies: DependencyRecord
-    readonly peerDependencies: DependencyRecord
-    readonly optionalDependencies: DependencyRecord
-  }
+    readonly dependencies: DependencyRecord;
+    readonly devDependencies: DependencyRecord;
+    readonly peerDependencies: DependencyRecord;
+    readonly optionalDependencies: DependencyRecord;
+  };
 }
 
 /**
@@ -67,4 +67,4 @@ export const emptyWorkspaceDeps = (packageName: string): WorkspaceDeps => ({
     peerDependencies: {},
     optionalDependencies: {},
   },
-})
+});

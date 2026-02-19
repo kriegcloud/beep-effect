@@ -1,4 +1,3 @@
-/* biome-ignore lint: no-undef needed for Node globals */
 import * as Fs from "node:fs";
 import * as Path from "node:path";
 import madge from "madge";

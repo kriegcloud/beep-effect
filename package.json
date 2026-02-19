@@ -21,7 +21,7 @@
     "clean": "node scripts/clean.mjs",
     "build": "bunx turbo run build",
     "build:tsgo": "tsgo -b tsconfig.packages.json",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
     "check:tsgo": "tsgo -b tsconfig.json",
     "test": "vitest",
     "test-types": "tstyche",

@@ -9,13 +9,13 @@
  * @category commands
  */
 
+import { FsUtils } from "@beep/repo-utils";
+import { FileSystem, Path } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Order from "effect/Order";
 import * as Str from "effect/String";
-import { FileSystem, Path } from "effect";
-import { FsUtils } from "@beep/repo-utils";
 import { Command, Flag } from "effect/unstable/cli";
 
 // ---------------------------------------------------------------------------
@@ -26,8 +26,7 @@ import { Command, Flag } from "effect/unstable/cli";
 const TS_EXTENSIONS = [".ts", ".tsx"] as const;
 
 /** Check if a filename ends with a TypeScript extension. */
-const isTsFile = (name: string): boolean =>
-  A.some(TS_EXTENSIONS, (ext) => Str.endsWith(ext)(name));
+const isTsFile = (name: string): boolean => A.some(TS_EXTENSIONS, (ext) => Str.endsWith(ext)(name));
 
 /** Check if a filename is a test file. */
 const isTestFile = (name: string): boolean =>
@@ -61,25 +60,17 @@ const alphabetical: Order.Order<string> = Order.String;
  * Returns relative paths from `srcDir` (e.g. `"FsUtils.ts"`, `"errors/index.ts"`).
  * Skips `index.ts` at the root level, `internal/` directories, and test files.
  */
-const discoverModules = (
-  srcDir: string,
-) =>
+const discoverModules = (srcDir: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
     const walk = (
       dir: string,
-      prefix: string,
-    ): Effect.Effect<
-      Array<string>,
-      never,
-      FileSystem.FileSystem | Path.Path
-    > =>
+      prefix: string
+    ): Effect.Effect<Array<string>, never, FileSystem.FileSystem | Path.Path> =>
       Effect.gen(function* () {
-        const entries = yield* fs.readDirectory(dir).pipe(
-          Effect.orElseSucceed(() => [] as ReadonlyArray<string>),
-        );
+        const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => [] as ReadonlyArray<string>));
 
         const results: Array<string> = [];
 
@@ -87,9 +78,7 @@ const discoverModules = (
           const fullPath = path.join(dir, entry);
 
           // Check if this entry is a directory
-          const info = yield* fs.stat(fullPath).pipe(
-            Effect.orElseSucceed(() => undefined),
-          );
+          const info = yield* fs.stat(fullPath).pipe(Effect.orElseSucceed(() => undefined));
           if (info === undefined) continue;
 
           if (info.type === "Directory") {
@@ -124,30 +113,15 @@ const discoverModules = (
  * @param packageName - Used in the module description header comment.
  * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).
  */
-const buildBarrelContent = (
-  packageName: string,
-  modules: ReadonlyArray<string>,
-): string => {
-  const header = [
-    "/**",
-    ` * Re-exports for ${packageName}.`,
-    " *",
-    " * @since 0.0.0",
-    " */",
-    "",
-  ].join("\n");
+const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>): string => {
+  const header = ["/**", ` * Re-exports for ${packageName}.`, " *", " * @since 0.0.0", " */", ""].join("\n");
 
   const exportLines = A.map(modules, (mod) => {
     const importPath = toImportPath(mod);
-    return [
-      "/**",
-      " * @since 0.0.0",
-      " */",
-      `export * from "${importPath}";`,
-    ].join("\n");
+    return ["/**", " * @since 0.0.0", " */", `export * from "${importPath}";`].join("\n");
   });
 
-  return header + A.join(exportLines, "\n\n") + "\n";
+  return `${header + A.join(exportLines, "\n\n")}\n`;
 };
 
 // ---------------------------------------------------------------------------
@@ -164,11 +138,9 @@ export const codegenCommand = Command.make(
     packageDir: Flag.string("package").pipe(
       Flag.withAlias("p"),
       Flag.withDescription("Package directory to generate barrel exports for"),
-      Flag.withDefault("."),
+      Flag.withDefault(".")
     ),
-    dryRun: Flag.boolean("dry-run").pipe(
-      Flag.withDescription("Preview changes without writing files"),
-    ),
+    dryRun: Flag.boolean("dry-run").pipe(Flag.withDescription("Preview changes without writing files")),
   },
   (config) =>
     Effect.gen(function* () {
@@ -177,16 +149,12 @@ export const codegenCommand = Command.make(
       const fsUtils = yield* FsUtils;
 
       // Resolve absolute path to the package
-      const packageDir = pathSvc.isAbsolute(config.packageDir)
-        ? config.packageDir
-        : pathSvc.resolve(config.packageDir);
+      const packageDir = pathSvc.isAbsolute(config.packageDir) ? config.packageDir : pathSvc.resolve(config.packageDir);
 
       const srcDir = pathSvc.join(packageDir, "src");
 
       // Verify src/ exists
-      const srcExists = yield* fs.exists(srcDir).pipe(
-        Effect.orElseSucceed(() => false),
-      );
+      const srcExists = yield* fs.exists(srcDir).pipe(Effect.orElseSucceed(() => false));
       if (!srcExists) {
         yield* Console.error(`Error: No src/ directory found at ${srcDir}`);
         return;
@@ -195,9 +163,7 @@ export const codegenCommand = Command.make(
       // Read package.json to extract the package name for the header
       const packageJsonPath = pathSvc.join(packageDir, "package.json");
       const packageName = yield* Effect.gen(function* () {
-        const json = yield* fsUtils.readJson(packageJsonPath).pipe(
-          Effect.orElseSucceed(() => undefined as unknown),
-        );
+        const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(() => undefined as unknown));
         if (
           json !== undefined &&
           typeof json === "object" &&
@@ -210,9 +176,7 @@ export const codegenCommand = Command.make(
         return pathSvc.basename(packageDir);
       });
 
-      yield* Console.log(
-        `Scanning ${srcDir} for modules...`,
-      );
+      yield* Console.log(`Scanning ${srcDir} for modules...`);
 
       // Discover modules
       const rawModules = yield* discoverModules(srcDir);
@@ -225,9 +189,7 @@ export const codegenCommand = Command.make(
         return;
       }
 
-      yield* Console.log(
-        `Found ${String(A.length(modules))} module(s):`,
-      );
+      yield* Console.log(`Found ${String(A.length(modules))} module(s):`);
       for (const mod of modules) {
         yield* Console.log(`  - ${mod}`);
       }
@@ -249,5 +211,5 @@ export const codegenCommand = Command.make(
         yield* Console.log("");
         yield* Console.log(`Wrote ${indexPath}`);
       }
-    }),
+    })
 ).pipe(Command.withDescription("Generate barrel file exports for a package"));

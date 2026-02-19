@@ -8,9 +8,9 @@
  * @since 0.0.0
  * @module
  */
-import { HashSet } from "effect"
-import type { PackageJson } from "./schemas/PackageJson.js"
-import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js"
+import { HashSet } from "effect";
+import type { PackageJson } from "./schemas/PackageJson.js";
+import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js";
 
 /**
  * Classify a single dependency record into workspace and npm buckets.
@@ -19,21 +19,21 @@ const classifyRecord = (
   record: Readonly<Record<string, string>> | undefined,
   workspaceNames: HashSet.HashSet<string>
 ): { workspace: DependencyRecord; npm: DependencyRecord } => {
-  const workspace: Record<string, string> = {}
-  const npm: Record<string, string> = {}
+  const workspace: Record<string, string> = {};
+  const npm: Record<string, string> = {};
 
   if (record) {
     for (const [name, version] of Object.entries(record)) {
       if (HashSet.has(workspaceNames, name)) {
-        workspace[name] = version
+        workspace[name] = version;
       } else {
-        npm[name] = version
+        npm[name] = version;
       }
     }
   }
 
-  return { workspace, npm }
-}
+  return { workspace, npm };
+};
 
 /**
  * Extract and classify dependencies from a decoded `PackageJson`.
@@ -66,10 +66,10 @@ export const extractWorkspaceDependencies = (
   packageJson: PackageJson,
   workspaceNames: HashSet.HashSet<string>
 ): WorkspaceDeps => {
-  const deps = classifyRecord(packageJson.dependencies, workspaceNames)
-  const devDeps = classifyRecord(packageJson.devDependencies, workspaceNames)
-  const peerDeps = classifyRecord(packageJson.peerDependencies, workspaceNames)
-  const optDeps = classifyRecord(packageJson.optionalDependencies, workspaceNames)
+  const deps = classifyRecord(packageJson.dependencies, workspaceNames);
+  const devDeps = classifyRecord(packageJson.devDependencies, workspaceNames);
+  const peerDeps = classifyRecord(packageJson.peerDependencies, workspaceNames);
+  const optDeps = classifyRecord(packageJson.optionalDependencies, workspaceNames);
 
   return {
     packageName: packageJson.name,
@@ -85,5 +85,5 @@ export const extractWorkspaceDependencies = (
       peerDependencies: peerDeps.npm,
       optionalDependencies: optDeps.npm,
     },
-  }
-}
+  };
+};

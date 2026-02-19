@@ -11,8 +11,8 @@ export {
   /**
    * @since 0.0.0
    */
-  NoSuchFileError,
-} from "./NoSuchFileError.js"
+  CyclicDependencyError,
+} from "./CyclicDependencyError.js";
 
 /**
  * @since 0.0.0
@@ -22,8 +22,7 @@ export {
    * @since 0.0.0
    */
   DomainError,
-} from "./DomainError.js"
-
+} from "./DomainError.js";
 /**
  * @since 0.0.0
  */
@@ -31,5 +30,5 @@ export {
   /**
    * @since 0.0.0
    */
-  CyclicDependencyError,
-} from "./CyclicDependencyError.js"
+  NoSuchFileError,
+} from "./NoSuchFileError.js";

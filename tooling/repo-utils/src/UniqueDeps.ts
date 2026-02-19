@@ -8,10 +8,10 @@
  * @since 0.0.0
  * @module
  */
-import { Effect } from "effect"
-import { FsUtils } from "./FsUtils.js"
-import { buildRepoDependencyIndex } from "./DependencyIndex.js"
-import { DomainError, NoSuchFileError } from "./errors/index.js"
+import { Effect } from "effect";
+import { buildRepoDependencyIndex } from "./DependencyIndex.js";
+import type { DomainError, NoSuchFileError } from "./errors/index.js";
+import type { FsUtils } from "./FsUtils.js";
 
 /**
  * Result of collecting unique NPM dependencies across the monorepo.
@@ -21,9 +21,9 @@ import { DomainError, NoSuchFileError } from "./errors/index.js"
  */
 export interface UniqueNpmDeps {
   /** Sorted array of unique runtime dependency names. */
-  readonly dependencies: ReadonlyArray<string>
+  readonly dependencies: ReadonlyArray<string>;
   /** Sorted array of unique dev dependency names. */
-  readonly devDependencies: ReadonlyArray<string>
+  readonly devDependencies: ReadonlyArray<string>;
 }
 
 /**
@@ -61,32 +61,32 @@ export const collectUniqueNpmDependencies = (
   rootDir: string
 ): Effect.Effect<UniqueNpmDeps, NoSuchFileError | DomainError, FsUtils> =>
   Effect.gen(function* () {
-    const index = yield* buildRepoDependencyIndex(rootDir)
+    const index = yield* buildRepoDependencyIndex(rootDir);
 
-    const depsSet = new Set<string>()
-    const devDepsSet = new Set<string>()
+    const depsSet = new Set<string>();
+    const devDepsSet = new Set<string>();
 
     for (const [_name, workspaceDeps] of index) {
       // Runtime dependencies
       for (const depName of Object.keys(workspaceDeps.npm.dependencies)) {
-        depsSet.add(depName)
+        depsSet.add(depName);
       }
       // Peer dependencies count as runtime
       for (const depName of Object.keys(workspaceDeps.npm.peerDependencies)) {
-        depsSet.add(depName)
+        depsSet.add(depName);
       }
       // Optional dependencies count as runtime
       for (const depName of Object.keys(workspaceDeps.npm.optionalDependencies)) {
-        depsSet.add(depName)
+        depsSet.add(depName);
       }
       // Dev dependencies
       for (const depName of Object.keys(workspaceDeps.npm.devDependencies)) {
-        devDepsSet.add(depName)
+        devDepsSet.add(depName);
       }
     }
 
     return {
       dependencies: Array.from(depsSet).sort(),
       devDependencies: Array.from(devDepsSet).sort(),
-    }
-  })
+    };
+  });

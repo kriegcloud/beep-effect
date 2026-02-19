@@ -17,19 +17,8 @@ export {
   /**
    * @since 0.0.0
    */
-  rootCommand,
-} from "./commands/root.js";
-
-/**
- * @since 0.0.0
- */
-export {
-  /**
-   * @since 0.0.0
-   */
-  topoSortCommand,
-} from "./commands/topo-sort.js";
-
+  codegenCommand,
+} from "./commands/codegen.js";
 /**
  * @since 0.0.0
  */
@@ -39,7 +28,6 @@ export {
    */
   createPackageCommand,
 } from "./commands/create-package.js";
-
 /**
  * @since 0.0.0
  */
@@ -47,5 +35,14 @@ export {
   /**
    * @since 0.0.0
    */
-  codegenCommand,
-} from "./commands/codegen.js";
+  rootCommand,
+} from "./commands/root.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
+  topoSortCommand,
+} from "./commands/topo-sort.js";

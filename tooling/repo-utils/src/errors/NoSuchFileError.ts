@@ -8,7 +8,7 @@
  * @since 0.0.0
  * @category errors
  */
-import * as Data from "effect/Data"
+import * as Data from "effect/Data";
 
 /**
  * Raised when a required file or directory cannot be located.
@@ -17,6 +17,6 @@ import * as Data from "effect/Data"
  * @category errors
  */
 export class NoSuchFileError extends Data.TaggedError("NoSuchFileError")<{
-  readonly path: string
-  readonly message: string
+  readonly path: string;
+  readonly message: string;
 }> {}

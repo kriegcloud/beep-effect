@@ -7,10 +7,10 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, HashMap, Option } from "effect"
-import { FsUtils } from "./FsUtils.js"
-import { decodePackageJson } from "./schemas/PackageJson.js"
-import { DomainError, NoSuchFileError } from "./errors/index.js"
+import { Effect, HashMap, type Option } from "effect";
+import { DomainError, type NoSuchFileError } from "./errors/index.js";
+import { FsUtils } from "./FsUtils.js";
+import { decodePackageJson } from "./schemas/PackageJson.js";
 
 /**
  * Directories to exclude when scanning workspace globs.
@@ -18,7 +18,7 @@ import { DomainError, NoSuchFileError } from "./errors/index.js"
  * @since 0.0.0
  * @category constants
  */
-const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"]
+const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
 
 /**
  * Resolve all workspace directories declared in the root `package.json`.
@@ -48,11 +48,11 @@ export const resolveWorkspaceDirs = (
   rootDir: string
 ): Effect.Effect<HashMap.HashMap<string, string>, NoSuchFileError | DomainError, FsUtils> =>
   Effect.gen(function* () {
-    const fsUtils = yield* FsUtils
+    const fsUtils = yield* FsUtils;
 
     // Read and decode root package.json
-    const rootPkgPath = `${rootDir}/package.json`
-    const rawPkg = yield* fsUtils.readJson(rootPkgPath)
+    const rootPkgPath = `${rootDir}/package.json`;
+    const rawPkg = yield* fsUtils.readJson(rootPkgPath);
     const rootPkg = yield* Effect.try({
       try: () => decodePackageJson(rawPkg),
       catch: (error) =>
@@ -60,11 +60,11 @@ export const resolveWorkspaceDirs = (
           message: `Failed to decode root package.json at "${rootPkgPath}"`,
           cause: error,
         }),
-    })
+    });
 
-    const workspaceGlobs = rootPkg.workspaces ?? []
+    const workspaceGlobs = rootPkg.workspaces ?? [];
     if (workspaceGlobs.length === 0) {
-      return HashMap.empty<string, string>()
+      return HashMap.empty<string, string>();
     }
 
     // Expand all workspace globs
@@ -72,20 +72,18 @@ export const resolveWorkspaceDirs = (
       cwd: rootDir,
       absolute: true,
       ignore: IGNORED_DIRS,
-    })
+    });
 
     // For each directory, read package.json and extract name
-    let result = HashMap.empty<string, string>()
+    let result = HashMap.empty<string, string>();
 
     for (const dir of dirs) {
-      const pkgJsonPath = `${dir}/package.json`
-      const rawChildPkg = yield* fsUtils.readJson(pkgJsonPath).pipe(
-        Effect.catchTag("NoSuchFileError", () =>
-          Effect.succeed(null)
-        )
-      )
+      const pkgJsonPath = `${dir}/package.json`;
+      const rawChildPkg = yield* fsUtils
+        .readJson(pkgJsonPath)
+        .pipe(Effect.catchTag("NoSuchFileError", () => Effect.succeed(null)));
       if (rawChildPkg === null) {
-        continue
+        continue;
       }
 
       const childPkg = yield* Effect.try({
@@ -95,13 +93,13 @@ export const resolveWorkspaceDirs = (
             message: `Failed to decode package.json at "${pkgJsonPath}"`,
             cause: error,
           }),
-      })
+      });
 
-      result = HashMap.set(result, childPkg.name, dir)
+      result = HashMap.set(result, childPkg.name, dir);
     }
 
-    return result
-  })
+    return result;
+  });
 
 /**
  * Look up the absolute directory for a single workspace by package name.
@@ -134,6 +132,6 @@ export const getWorkspaceDir = (
   name: string
 ): Effect.Effect<Option.Option<string>, NoSuchFileError | DomainError, FsUtils> =>
   Effect.gen(function* () {
-    const workspaces = yield* resolveWorkspaceDirs(rootDir)
-    return HashMap.get(workspaces, name)
-  })
+    const workspaces = yield* resolveWorkspaceDirs(rootDir);
+    return HashMap.get(workspaces, name);
+  });
