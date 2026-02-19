@@ -22,6 +22,14 @@ Generate all modules in a package:
 bun run generate:effect
 ```
 
+Bootstrap the full `effect-smol` surface:
+
+```bash
+bun run bootstrap
+```
+
+This writes `/home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/MANIFEST.json` with package/module/export counts and parser parity diagnostics.
+
 ## Template Groups
 
 Export file content is generated from Handlebars templates in:
@@ -32,3 +40,11 @@ Export file content is generated from Handlebars templates in:
 - `function-like.hbs`: `function`
 - `class-like.hbs`: `class`
 - `type-like.hbs`: `type`, `interface`
+
+## Shared Runtime Utilities
+
+Generated export files keep runtime/logging behavior in a shared module:
+
+`src/runtime/Playground.ts`
+
+This avoids duplicating error reporting and formatting logic in every export file while keeping each generated file executable and readable.
