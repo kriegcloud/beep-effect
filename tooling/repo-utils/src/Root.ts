@@ -63,12 +63,11 @@ export const findRepoRoot = (startFrom?: string): Effect.Effect<string, NoSuchFi
       const parent = parentDir(current);
       if (parent === current) {
         // Reached filesystem root without finding a marker
-        return yield* Effect.fail(
-          new NoSuchFileError({
+        return yield* new NoSuchFileError({
             path: start,
             message: `Could not find repository root (looked for ${ROOT_MARKERS.join(", ")}) starting from "${start}"`,
           })
-        );
+
       }
       current = parent;
     }

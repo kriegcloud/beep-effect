@@ -229,12 +229,11 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
           )
         );
         if (!exists) {
-          return yield* Effect.fail(
+          return yield*
             new NoSuchFileError({
               path: filePath,
               message: `Path does not exist: "${filePath}"`,
             })
-          );
         }
       });
 

@@ -110,12 +110,12 @@ export const topologicalSort = (
     // Check for cycles first (isAcyclic is cheap and cached)
     if (!EffectGraph.isAcyclic(graph)) {
       const cycles = yield* detectCycles(adjacencyList);
-      return yield* Effect.fail(
+      return yield*
         new CyclicDependencyError({
           message: `Cyclic dependencies detected: ${cycles.map((c) => c.join(" -> ")).join("; ")}`,
           cycles,
         })
-      );
+
     }
 
     // Use the built-in topological sort.
