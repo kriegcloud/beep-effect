@@ -4,5 +4,9 @@
   "compilerOptions": {
     "stripInternal": false
   },
-  "references": []
+  "references": [
+    {
+      "path": "groking-effect-v4/tsconfig.build.json"
+    }
+  ]
 }

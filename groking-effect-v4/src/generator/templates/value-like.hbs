@@ -1,0 +1,64 @@
+/**
+ * Export Playground
+ *
+ * Package: {{PackageName}}
+ * Module: {{ModuleImportPath}}
+ * Export: {{ExportName}}
+ * Kind: {{ExportKind}}
+ * Source: {{SourcePath}}
+ * Generated: {{GeneratedAt}}
+ *
+ * Overview:
+ * {{Summary}}
+ *
+ * Source JSDoc Example:
+{{{JSDocExampleCommentBlock}}}
+ *
+ * Focus:
+ * - Runtime inspection for value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ */
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as {{ModuleName}} from "{{PackageName}}/{{ModulePath}}";
+import {
+  formatUnknown,
+  logBunContextLayer,
+  logCompletion,
+  logHeader,
+  logSourceExample,
+  logSummary,
+  reportProgramError
+} from "@beep/groking-effect-v4/runtime/Playground";
+
+const exportName = "{{ExportName}}";
+const exportKind = "{{ExportKind}}";
+const moduleImportPath = "{{ModuleImportPath}}";
+const sourceSummary = {{{OverviewLiteral}}};
+const sourceExample = {{{ExampleLiteral}}};
+
+const program = Effect.gen(function* () {
+  yield* logHeader({ icon: "🔎", moduleImportPath, exportName, exportKind });
+  yield* logSummary(sourceSummary);
+  yield* logSourceExample(sourceExample);
+  yield* Console.log(`\n📦 Inspecting runtime value-like export...`);
+
+  const moduleKeys = Object.keys({{ModuleName}});
+  yield* Console.log(`\n📦 Module export count: ${moduleKeys.length}`);
+
+  const target = {{ModuleName}}[exportName as keyof typeof {{ModuleName}}];
+  yield* Console.log(`🔬 Runtime typeof: ${typeof target}`);
+
+  if (typeof target === "function") {
+    const signaturePreview = String(target).replace(/\s+/g, " ").slice(0, 240);
+    yield* Console.log(`⚙️ Function-like value preview: ${signaturePreview}${String(target).length > 240 ? "..." : ""}`);
+  } else {
+    yield* Console.log(`📄 Value preview:\n${formatUnknown(target)}`);
+  }
+
+  yield* logBunContextLayer(BunContext);
+  yield* logCompletion(moduleImportPath, exportName);
+}).pipe(reportProgramError);
+
+BunRuntime.runMain(program);

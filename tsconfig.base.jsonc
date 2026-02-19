@@ -70,6 +70,18 @@
     "paths": {
       "*": [
         "./*"
+      ],
+      "@beep/groking-effect-v4": [
+        "./groking-effect-v4/src/index"
+      ],
+      "@beep/groking-effect-v4/*": [
+        "./groking-effect-v4/src/*"
+      ],
+      "@beep/groking-effect-v4/test/*": [
+        "./groking-effect-v4/test/*"
+      ],
+      "@effect/platform-bun/BunContext": [
+        "./groking-effect-v4/src/runtime/BunContext.ts"
       ]
     }
   }

@@ -20,6 +20,9 @@
   },
   "references": [
     {
+      "path": "tsconfig.slices/groking-effect-v4.json"
+    },
+    {
       "path": "tsconfig.slices/tooling.json"
     }
   ]
