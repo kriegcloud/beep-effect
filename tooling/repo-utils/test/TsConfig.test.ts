@@ -13,7 +13,9 @@ const MOCK_ROOT = path.resolve(__dirname, "fixtures/mock-monorepo");
 
 layer(TestLayer)("TsConfig", (it) => {
   describe("collectTsConfigPaths", () => {
-    it.effect("should collect tsconfig files for root and workspaces", Effect.fn(function* () {
+    it.effect(
+      "should collect tsconfig files for root and workspaces",
+      Effect.fn(function* () {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         // Root should have tsconfig.json and tsconfig.build.json
         const rootConfigs = HashMap.get(configs, "@beep/root");
@@ -26,7 +28,9 @@ layer(TestLayer)("TsConfig", (it) => {
       })
     );
 
-    it.effect("should find tsconfig files in workspace packages", Effect.fn(function* () {
+    it.effect(
+      "should find tsconfig files in workspace packages",
+      Effect.fn(function* () {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         // pkg-a has tsconfig.json and tsconfig.test.json
         const pkgAConfigs = HashMap.get(configs, "@mock/pkg-a");
@@ -39,7 +43,9 @@ layer(TestLayer)("TsConfig", (it) => {
       })
     );
 
-    it.effect("should find single tsconfig in packages with one config", Effect.fn(function* () {
+    it.effect(
+      "should find single tsconfig in packages with one config",
+      Effect.fn(function* () {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         // pkg-b and pkg-c each have only tsconfig.json
         const pkgBConfigs = HashMap.get(configs, "@mock/pkg-b");
@@ -50,7 +56,9 @@ layer(TestLayer)("TsConfig", (it) => {
       })
     );
 
-    it.effect("should return absolute paths", Effect.fn(function* () {
+    it.effect(
+      "should return absolute paths",
+      Effect.fn(function* () {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         for (const [_name, paths] of configs) {
           for (const p of paths) {
@@ -60,7 +68,9 @@ layer(TestLayer)("TsConfig", (it) => {
       })
     );
 
-    it.effect("should include all workspace packages", Effect.fn(function* () {
+    it.effect(
+      "should include all workspace packages",
+      Effect.fn(function* () {
         const configs = yield* collectTsConfigPaths(MOCK_ROOT);
         // Root + 3 packages = 4 entries
         expect(HashMap.size(configs)).toBe(4);

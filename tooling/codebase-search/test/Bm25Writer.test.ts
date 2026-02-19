@@ -108,7 +108,9 @@ const addMinDocuments = (svc: Bm25WriterShape) =>
 
 layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   describe("createIndex", () => {
-    it.effect("succeeds without errors", Effect.fn(function* () {
+    it.effect(
+      "succeeds without errors",
+      Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
       })
@@ -116,7 +118,9 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   });
 
   describe("addDocuments + search", () => {
-    it.effect("returns matching results for keyword query", Effect.fn(function* () {
+    it.effect(
+      "returns matching results for keyword query",
+      Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);
@@ -129,7 +133,9 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
       })
     );
 
-    it.effect("matches camelCase-split tokens", Effect.fn(function* () {
+    it.effect(
+      "matches camelCase-split tokens",
+      Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);
@@ -142,7 +148,9 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
       })
     );
 
-    it.effect("scores are positive numbers", Effect.fn(function* () {
+    it.effect(
+      "scores are positive numbers",
+      Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);
@@ -157,7 +165,9 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   });
 
   describe("removeBySymbolIds", () => {
-    it.effect("removes documents so they no longer appear in search", Effect.fn(function* () {
+    it.effect(
+      "removes documents so they no longer appear in search",
+      Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
 
@@ -180,7 +190,9 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   });
 
   describe("empty search", () => {
-    it.effect("returns empty array for query with no matches", Effect.fn(function* () {
+    it.effect(
+      "returns empty array for query with no matches",
+      Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);
@@ -192,7 +204,9 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   });
 
   describe("save and load", () => {
-    it.effect("mock save and load are no-ops", Effect.fn(function* () {
+    it.effect(
+      "mock save and load are no-ops",
+      Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);

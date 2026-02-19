@@ -119,26 +119,26 @@ const TestLayer = Layer.mergeAll(
 // ---------------------------------------------------------------------------
 
 const seedIndex = Effect.fn(function* (symbols: ReadonlyArray<IndexedSymbol>) {
-    const lanceSvc = yield* LanceDbWriter;
-    const bm25Svc = yield* Bm25Writer;
-    const embeddingSvc = yield* EmbeddingService;
+  const lanceSvc = yield* LanceDbWriter;
+  const bm25Svc = yield* Bm25Writer;
+  const embeddingSvc = yield* EmbeddingService;
 
-    yield* lanceSvc.createTable();
-    yield* bm25Svc.createIndex();
+  yield* lanceSvc.createTable();
+  yield* bm25Svc.createIndex();
 
-    const vectors = yield* Effect.forEach(symbols, (s) => embeddingSvc.embed(s.embeddingText));
+  const vectors = yield* Effect.forEach(symbols, (s) => embeddingSvc.embed(s.embeddingText));
 
-    const symbolsWithVectors: ReadonlyArray<SymbolWithVector> = A.map(
-      symbols,
-      (s, i): SymbolWithVector => ({
-        symbol: s,
-        vector: pipe(A.get(vectors, i), (opt) => (opt._tag === "Some" ? opt.value : new Float32Array(768))),
-      })
-    );
+  const symbolsWithVectors: ReadonlyArray<SymbolWithVector> = A.map(
+    symbols,
+    (s, i): SymbolWithVector => ({
+      symbol: s,
+      vector: pipe(A.get(vectors, i), (opt) => (opt._tag === "Some" ? opt.value : new Float32Array(768))),
+    })
+  );
 
-    yield* lanceSvc.upsert([], symbolsWithVectors);
-    yield* bm25Svc.addDocuments(symbols);
-  });
+  yield* lanceSvc.upsert([], symbolsWithVectors);
+  yield* bm25Svc.addDocuments(symbols);
+});
 
 // ---------------------------------------------------------------------------
 // Tests: search_codebase
@@ -146,7 +146,9 @@ const seedIndex = Effect.fn(function* (symbols: ReadonlyArray<IndexedSymbol>) {
 
 layer(TestLayer)("McpServer - search_codebase", (it) => {
   describe("returns results for a valid query", () => {
-    it.effect("returns matching symbols", Effect.fn(function* () {
+    it.effect(
+      "returns matching symbols",
+      Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -181,7 +183,9 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
   });
 
   describe("returns empty array for no matches", () => {
-    it.effect("returns empty results for unmatched query", Effect.fn(function* () {
+    it.effect(
+      "returns empty results for unmatched query",
+      Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Foo",
@@ -213,7 +217,9 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
   });
 
   describe("respects limit parameter", () => {
-    it.effect("returns at most limit results", Effect.fn(function* () {
+    it.effect(
+      "returns at most limit results",
+      Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/A",
@@ -245,7 +251,9 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
   });
 
   describe("respects kind filter", () => {
-    it.effect("filters by kind when specified", Effect.fn(function* () {
+    it.effect(
+      "filters by kind when specified",
+      Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -286,7 +294,9 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
 
 layer(TestLayer)("McpServer - find_related", (it) => {
   describe("returns similar symbols", () => {
-    it.effect("finds related symbols for a valid symbolId", Effect.fn(function* () {
+    it.effect(
+      "finds related symbols for a valid symbolId",
+      Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -319,7 +329,9 @@ layer(TestLayer)("McpServer - find_related", (it) => {
   });
 
   describe("returns empty for unknown symbolId", () => {
-    it.effect("handles nonexistent symbol gracefully", Effect.fn(function* () {
+    it.effect(
+      "handles nonexistent symbol gracefully",
+      Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -351,7 +363,9 @@ layer(TestLayer)("McpServer - find_related", (it) => {
 
 layer(TestLayer)("McpServer - browse_symbols", (it) => {
   describe("returns packages when no args", () => {
-    it.effect("returns index summary", Effect.fn(function* () {
+    it.effect(
+      "returns index summary",
+      Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -382,22 +396,14 @@ layer(TestLayer)("McpServer - browse_symbols", (it) => {
 
 layer(TestLayer)("McpServer - reindex", (it) => {
   describe("returns stats", () => {
-    it.effect("returns pipeline stats on reindex", Effect.fn(function* () {
-        const result = (yield* handleReindex({
+    it.effect(
+      "returns pipeline stats on reindex",
+      Effect.fn(function* () {
+        const result = yield* handleReindex({
           rootDir: "/root",
           indexPath: "/root/.code-index",
           mode: "incremental",
-        })) as {
-          status: string;
-          mode: string;
-          stats: {
-            filesScanned: number;
-            filesChanged: number;
-            symbolsIndexed: number;
-            symbolsRemoved: number;
-            durationMs: number;
-          };
-        };
+        });
 
         expect(result.status).toBe("ok");
         expect(result.mode).toBe("incremental");

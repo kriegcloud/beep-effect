@@ -165,7 +165,9 @@ describe("reciprocalRankFusion", () => {
 
 layer(TestLayer)("HybridSearch", (it) => {
   describe("search", () => {
-    it.effect("returns fused results from vector and keyword searches", Effect.fn(function* () {
+    it.effect(
+      "returns fused results from vector and keyword searches",
+      Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;
@@ -226,7 +228,9 @@ layer(TestLayer)("HybridSearch", (it) => {
       })
     );
 
-    it.effect("returns empty array for query matching nothing", Effect.fn(function* () {
+    it.effect(
+      "returns empty array for query matching nothing",
+      Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;
@@ -256,7 +260,9 @@ layer(TestLayer)("HybridSearch", (it) => {
       })
     );
 
-    it.effect("respects minScore filter", Effect.fn(function* () {
+    it.effect(
+      "respects minScore filter",
+      Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;
@@ -316,7 +322,9 @@ layer(TestLayer)("HybridSearch", (it) => {
       })
     );
 
-    it.effect("respects limit parameter", Effect.fn(function* () {
+    it.effect(
+      "respects limit parameter",
+      Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;
@@ -365,7 +373,9 @@ layer(TestLayer)("HybridSearch", (it) => {
       })
     );
 
-    it.effect("results are sorted by score descending", Effect.fn(function* () {
+    it.effect(
+      "results are sorted by score descending",
+      Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;

@@ -13,7 +13,9 @@ const MOCK_ROOT = path.resolve(__dirname, "fixtures/mock-monorepo");
 
 layer(TestLayer)("DependencyIndex", (it) => {
   describe("buildRepoDependencyIndex", () => {
-    it.effect("should include root and all workspace packages", Effect.fn(function* () {
+    it.effect(
+      "should include root and all workspace packages",
+      Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         // Root + 3 packages = 4 entries
         expect(HashMap.size(index)).toBe(4);
@@ -24,7 +26,9 @@ layer(TestLayer)("DependencyIndex", (it) => {
       })
     );
 
-    it.effect("should classify workspace deps for pkg-a", Effect.fn(function* () {
+    it.effect(
+      "should classify workspace deps for pkg-a",
+      Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         const pkgADeps = HashMap.get(index, "@mock/pkg-a");
         expect(Option.isSome(pkgADeps)).toBe(true);
@@ -38,7 +42,9 @@ layer(TestLayer)("DependencyIndex", (it) => {
       })
     );
 
-    it.effect("should classify workspace devDeps for pkg-b", Effect.fn(function* () {
+    it.effect(
+      "should classify workspace devDeps for pkg-b",
+      Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         const pkgBDeps = HashMap.get(index, "@mock/pkg-b");
         expect(Option.isSome(pkgBDeps)).toBe(true);
@@ -52,7 +58,9 @@ layer(TestLayer)("DependencyIndex", (it) => {
       })
     );
 
-    it.effect("should handle pkg-c with only npm deps", Effect.fn(function* () {
+    it.effect(
+      "should handle pkg-c with only npm deps",
+      Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         const pkgCDeps = HashMap.get(index, "@mock/pkg-c");
         expect(Option.isSome(pkgCDeps)).toBe(true);
@@ -69,7 +77,9 @@ layer(TestLayer)("DependencyIndex", (it) => {
       })
     );
 
-    it.effect("should classify root package deps as npm", Effect.fn(function* () {
+    it.effect(
+      "should classify root package deps as npm",
+      Effect.fn(function* () {
         const index = yield* buildRepoDependencyIndex(MOCK_ROOT);
         const rootDeps = HashMap.get(index, "@beep/root");
         expect(Option.isSome(rootDeps)).toBe(true);

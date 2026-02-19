@@ -83,7 +83,7 @@ export interface PipelineShape {
    */
   readonly run: (
     config: PipelineConfig
-  ) => Effect.Effect<PipelineStats, IndexingError, FileSystem.FileSystem | Path.Path>;
+  ) => Effect.Effect<PipelineStats, IndexingError>;
 }
 
 /**
@@ -233,183 +233,204 @@ const extractSymbolsFromFiles: (
  * @since 0.0.0
  * @category layers
  */
-export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | LanceDbWriter | Bm25Writer> = Layer.effect(
+export const PipelineLive: Layer.Layer<
+  Pipeline,
+  never,
+  EmbeddingService | LanceDbWriter | Bm25Writer | FileSystem.FileSystem | Path.Path
+> = Layer.effect(
   Pipeline,
   Effect.gen(function* () {
     const embeddingService = yield* EmbeddingService;
     const lanceDbWriter = yield* LanceDbWriter;
     const bm25Writer = yield* Bm25Writer;
+    const defaultFs = yield* FileSystem.FileSystem;
+    const defaultPath = yield* Path.Path;
 
     const run: PipelineShape["run"] = Effect.fn(function* (config) {
-        const startTime = Date.now();
+      const startTime = Date.now();
 
-        // ---------------------------------------------------------------
-        // 1. Scan files
-        // ---------------------------------------------------------------
-        const scanResult: ScanResult = yield* scanFiles(config.rootDir, config.mode);
+      const fsSvc: FileSystem.FileSystem = yield* pipe(
+        Effect.serviceOption(FileSystem.FileSystem),
+        Effect.map(O.getOrElse(() => defaultFs))
+      );
+      const pathSvc: Path.Path = yield* pipe(
+        Effect.serviceOption(Path.Path),
+        Effect.map(O.getOrElse(() => defaultPath))
+      );
+      const fsPathLayer = Layer.mergeAll(
+        Layer.succeed(FileSystem.FileSystem, fsSvc),
+        Layer.succeed(Path.Path, pathSvc)
+      );
+      const provideFsPath = Effect.provide(fsPathLayer);
 
-        const totalFilesScanned =
-          A.length(scanResult.added) +
-          A.length(scanResult.modified) +
-          A.length(scanResult.deleted) +
-          A.length(scanResult.unchanged);
+      // ---------------------------------------------------------------
+      // 1. Scan files
+      // ---------------------------------------------------------------
+      const scanResult: ScanResult = yield* scanFiles(config.rootDir, config.mode).pipe(provideFsPath);
 
-        const filesToProcess = pipe(scanResult.added, A.appendAll(scanResult.modified));
+      const totalFilesScanned =
+        A.length(scanResult.added) +
+        A.length(scanResult.modified) +
+        A.length(scanResult.deleted) +
+        A.length(scanResult.unchanged);
 
-        const filesToDelete = pipe(scanResult.modified, A.appendAll(scanResult.deleted));
+      const filesToProcess = pipe(scanResult.added, A.appendAll(scanResult.modified));
 
-        // ---------------------------------------------------------------
-        // 2. Extract symbols from added+modified files
-        // ---------------------------------------------------------------
-        const extractedSymbols = yield* extractSymbolsFromFiles(config.rootDir, filesToProcess, config.packageFilter);
+      const filesToDelete = pipe(scanResult.modified, A.appendAll(scanResult.deleted));
 
-        // ---------------------------------------------------------------
-        // 3. Generate embeddings for extracted symbols
-        // ---------------------------------------------------------------
-        const embeddingTexts = A.map(extractedSymbols, (sym) => sym.embeddingText);
-        const vectors = yield* pipe(
-          embeddingService.embedBatch(embeddingTexts),
-          Effect.mapError(
-            (error) =>
-              new IndexingError({
-                message: `Embedding generation failed: ${String(error)}`,
-                phase: "embedding",
-              })
-          )
-        );
+      // ---------------------------------------------------------------
+      // 2. Extract symbols from added+modified files
+      // ---------------------------------------------------------------
+      const extractedSymbols = yield* extractSymbolsFromFiles(
+        config.rootDir,
+        filesToProcess,
+        config.packageFilter
+      ).pipe(provideFsPath);
 
-        // ---------------------------------------------------------------
-        // 4. Pair symbols with vectors
-        // ---------------------------------------------------------------
-        const symbolsWithVectors: ReadonlyArray<SymbolWithVector> = pipe(
-          extractedSymbols,
-          A.map(
-            (sym, idx): SymbolWithVector => ({
-              symbol: sym,
-              vector: pipe(
-                A.get(vectors, idx),
-                O.getOrElse(() => new Float32Array(768))
-              ),
+      // ---------------------------------------------------------------
+      // 3. Generate embeddings for extracted symbols
+      // ---------------------------------------------------------------
+      const embeddingTexts = A.map(extractedSymbols, (sym) => sym.embeddingText);
+      const vectors = yield* pipe(
+        embeddingService.embedBatch(embeddingTexts),
+        Effect.mapError(
+          (error) =>
+            new IndexingError({
+              message: `Embedding generation failed: ${String(error)}`,
+              phase: "embedding",
             })
-          )
-        );
+        )
+      );
 
-        // ---------------------------------------------------------------
-        // 5. Upsert into LanceDB (delete modified/deleted, insert new)
-        // ---------------------------------------------------------------
-        yield* lanceDbWriter.upsert(filesToDelete, symbolsWithVectors);
+      // ---------------------------------------------------------------
+      // 4. Pair symbols with vectors
+      // ---------------------------------------------------------------
+      const symbolsWithVectors: ReadonlyArray<SymbolWithVector> = pipe(
+        extractedSymbols,
+        A.map(
+          (sym, idx): SymbolWithVector => ({
+            symbol: sym,
+            vector: pipe(
+              A.get(vectors, idx),
+              O.getOrElse(() => new Float32Array(768))
+            ),
+          })
+        )
+      );
 
-        // ---------------------------------------------------------------
-        // 6. Update BM25 index
-        // ---------------------------------------------------------------
-        // In full mode, the BM25 index is rebuilt from scratch so we
-        // create a fresh index first and add all extracted symbols.
-        // In incremental mode, remove symbols for modified files
-        // (using newly-extracted IDs which share the same naming scheme)
-        // then add the new extractions. Deleted file symbols cannot be
-        // removed from BM25 by ID because the files no longer exist on
-        // disk, but LanceDB handles deletion via file path in step 5.
-        let symbolsRemoved = 0;
+      // ---------------------------------------------------------------
+      // 5. Upsert into LanceDB (delete modified/deleted, insert new)
+      // ---------------------------------------------------------------
+      yield* lanceDbWriter.upsert(filesToDelete, symbolsWithVectors);
 
-        if (config.mode === "full") {
-          yield* bm25Writer.createIndex();
-        } else {
-          // For modified files, remove old BM25 entries by symbol ID.
-          // We use the extracted symbols from the modified files since
-          // the IDs are deterministic (pkg/module/name).
-          const modifiedFilePaths = scanResult.modified;
-          if (A.isReadonlyArrayNonEmpty(modifiedFilePaths)) {
-            const modifiedSymbols = A.filter(extractedSymbols, (sym) =>
-              A.some(modifiedFilePaths, (fp) => sym.filePath.endsWith(fp) || fp === sym.filePath)
-            );
-            const modifiedSymbolIds = A.map(modifiedSymbols, (sym) => sym.id);
-            yield* bm25Writer.removeBySymbolIds(modifiedSymbolIds);
-          }
+      // ---------------------------------------------------------------
+      // 6. Update BM25 index
+      // ---------------------------------------------------------------
+      // In full mode, the BM25 index is rebuilt from scratch so we
+      // create a fresh index first and add all extracted symbols.
+      // In incremental mode, remove symbols for modified files
+      // (using newly-extracted IDs which share the same naming scheme)
+      // then add the new extractions. Deleted file symbols cannot be
+      // removed from BM25 by ID because the files no longer exist on
+      // disk, but LanceDB handles deletion via file path in step 5.
+      let symbolsRemoved = 0;
 
-          // Count deleted files as symbolsRemoved (approximate)
-          symbolsRemoved = A.length(scanResult.deleted);
+      if (config.mode === "full") {
+        yield* bm25Writer.createIndex();
+      } else {
+        // For modified files, remove old BM25 entries by symbol ID.
+        // We use the extracted symbols from the modified files since
+        // the IDs are deterministic (pkg/module/name).
+        const modifiedFilePaths = scanResult.modified;
+        if (A.isReadonlyArrayNonEmpty(modifiedFilePaths)) {
+          const modifiedSymbols = A.filter(extractedSymbols, (sym) =>
+            A.some(modifiedFilePaths, (fp) => sym.filePath.endsWith(fp) || fp === sym.filePath)
+          );
+          const modifiedSymbolIds = A.map(modifiedSymbols, (sym) => sym.id);
+          yield* bm25Writer.removeBySymbolIds(modifiedSymbolIds);
         }
 
-        // Add all newly extracted symbols to BM25
-        yield* bm25Writer.addDocuments(extractedSymbols);
+        // Count deleted files as symbolsRemoved (approximate)
+        symbolsRemoved = A.length(scanResult.deleted);
+      }
 
-        // ---------------------------------------------------------------
-        // 7. Save file hashes for future incremental scans
-        // ---------------------------------------------------------------
-        const allCurrentFiles = pipe(
-          scanResult.added,
-          A.appendAll(scanResult.modified),
-          A.appendAll(scanResult.unchanged)
-        );
+      // Add all newly extracted symbols to BM25
+      yield* bm25Writer.addDocuments(extractedSymbols);
 
-        const hashes = yield* computeFileHashes(config.rootDir, allCurrentFiles);
-        yield* saveFileHashes(config.rootDir, hashes);
+      // ---------------------------------------------------------------
+      // 7. Save file hashes for future incremental scans
+      // ---------------------------------------------------------------
+      const allCurrentFiles = pipe(
+        scanResult.added,
+        A.appendAll(scanResult.modified),
+        A.appendAll(scanResult.unchanged)
+      );
 
-        // ---------------------------------------------------------------
-        // 8. Write IndexMeta JSON
-        // ---------------------------------------------------------------
-        const fs = yield* FileSystem.FileSystem;
-        const pathSvc = yield* Path.Path;
+      const hashes = yield* computeFileHashes(config.rootDir, allCurrentFiles).pipe(provideFsPath);
+      yield* saveFileHashes(config.rootDir, hashes).pipe(provideFsPath);
 
-        const now = new Date().toISOString();
-        const meta: typeof IndexMeta.Type = {
-          version: 1,
-          lastFullIndex: config.mode === "full" ? now : "",
-          lastIncrementalIndex: config.mode === "incremental" ? now : "",
-          totalSymbols: A.length(extractedSymbols),
-          totalFiles: totalFilesScanned,
-          embeddingModel: "nomic-ai/CodeRankEmbed",
-          embeddingDimensions: 768,
-        };
+      // ---------------------------------------------------------------
+      // 8. Write IndexMeta JSON
+      // ---------------------------------------------------------------
+      const now = new Date().toISOString();
+      const meta: typeof IndexMeta.Type = {
+        version: 1,
+        lastFullIndex: config.mode === "full" ? now : "",
+        lastIncrementalIndex: config.mode === "incremental" ? now : "",
+        totalSymbols: A.length(extractedSymbols),
+        totalFiles: totalFilesScanned,
+        embeddingModel: "nomic-ai/CodeRankEmbed",
+        embeddingDimensions: 768,
+      };
 
-        const metaJson = yield* pipe(
-          S.encodeUnknownEffect(IndexMetaFromJson)(meta),
-          Effect.mapError(
-            (error) =>
-              new IndexingError({
-                message: `Failed to encode IndexMeta: ${String(error)}`,
-                phase: "meta-write",
-              })
-          )
-        );
+      const metaJson = yield* pipe(
+        S.encodeUnknownEffect(IndexMetaFromJson)(meta),
+        Effect.mapError(
+          (error) =>
+            new IndexingError({
+              message: `Failed to encode IndexMeta: ${String(error)}`,
+              phase: "meta-write",
+            })
+        )
+      );
 
-        // Ensure index directory exists
-        yield* pipe(
-          fs.makeDirectory(config.indexPath, { recursive: true }),
-          Effect.mapError(
-            (error) =>
-              new IndexingError({
-                message: `Failed to create index directory: ${String(error)}`,
-                phase: "meta-write",
-              })
-          )
-        );
+      // Ensure index directory exists
+      yield* pipe(
+        fsSvc.makeDirectory(config.indexPath, { recursive: true }),
+        Effect.mapError(
+          (error) =>
+            new IndexingError({
+              message: `Failed to create index directory: ${String(error)}`,
+              phase: "meta-write",
+            })
+        )
+      );
 
-        const metaFilePath = pathSvc.join(config.indexPath, INDEX_META_FILE);
-        yield* pipe(
-          fs.writeFileString(metaFilePath, metaJson),
-          Effect.mapError(
-            (error) =>
-              new IndexingError({
-                message: `Failed to write IndexMeta file: ${String(error)}`,
-                phase: "meta-write",
-              })
-          )
-        );
+      const metaFilePath = pathSvc.join(config.indexPath, INDEX_META_FILE);
+      yield* pipe(
+        fsSvc.writeFileString(metaFilePath, metaJson),
+        Effect.mapError(
+          (error) =>
+            new IndexingError({
+              message: `Failed to write IndexMeta file: ${String(error)}`,
+              phase: "meta-write",
+            })
+        )
+      );
 
-        // ---------------------------------------------------------------
-        // 9. Return stats
-        // ---------------------------------------------------------------
-        const durationMs = Date.now() - startTime;
+      // ---------------------------------------------------------------
+      // 9. Return stats
+      // ---------------------------------------------------------------
+      const durationMs = Date.now() - startTime;
 
-        return {
-          filesScanned: totalFilesScanned,
-          filesChanged: A.length(filesToProcess),
-          symbolsIndexed: A.length(extractedSymbols),
-          symbolsRemoved,
-          durationMs,
-        } satisfies PipelineStats;
-      });
+      return {
+        filesScanned: totalFilesScanned,
+        filesChanged: A.length(filesToProcess),
+        symbolsIndexed: A.length(extractedSymbols),
+        symbolsRemoved,
+        durationMs,
+      } satisfies PipelineStats;
+    });
 
     return Pipeline.of({ run });
   })

@@ -13,7 +13,9 @@ const MOCK_ROOT = path.resolve(__dirname, "fixtures/mock-monorepo");
 
 layer(TestLayer)("UniqueDeps", (it) => {
   describe("collectUniqueNpmDependencies", () => {
-    it.effect("should collect all unique runtime npm dependencies", Effect.fn(function* () {
+    it.effect(
+      "should collect all unique runtime npm dependencies",
+      Effect.fn(function* () {
         const result = yield* collectUniqueNpmDependencies(MOCK_ROOT);
         // From our mock monorepo:
         // Root: dependencies = { typescript }
@@ -27,7 +29,9 @@ layer(TestLayer)("UniqueDeps", (it) => {
       })
     );
 
-    it.effect("should collect all unique dev npm dependencies", Effect.fn(function* () {
+    it.effect(
+      "should collect all unique dev npm dependencies",
+      Effect.fn(function* () {
         const result = yield* collectUniqueNpmDependencies(MOCK_ROOT);
         // Root: devDependencies = { vitest }
         // pkg-a: devDependencies = { @types/node }
@@ -39,7 +43,9 @@ layer(TestLayer)("UniqueDeps", (it) => {
       })
     );
 
-    it.effect("should deduplicate dependencies that appear in multiple packages", Effect.fn(function* () {
+    it.effect(
+      "should deduplicate dependencies that appear in multiple packages",
+      Effect.fn(function* () {
         const result = yield* collectUniqueNpmDependencies(MOCK_ROOT);
         // "effect" appears in pkg-a deps, pkg-b deps, and pkg-c peerDeps
         // but should only appear once
@@ -52,7 +58,9 @@ layer(TestLayer)("UniqueDeps", (it) => {
       })
     );
 
-    it.effect("should return sorted arrays", Effect.fn(function* () {
+    it.effect(
+      "should return sorted arrays",
+      Effect.fn(function* () {
         const result = yield* collectUniqueNpmDependencies(MOCK_ROOT);
         const sortedDeps = [...result.dependencies].sort();
         const sortedDevDeps = [...result.devDependencies].sort();
@@ -61,7 +69,9 @@ layer(TestLayer)("UniqueDeps", (it) => {
       })
     );
 
-    it.effect("should not include workspace package names in results", Effect.fn(function* () {
+    it.effect(
+      "should not include workspace package names in results",
+      Effect.fn(function* () {
         const result = yield* collectUniqueNpmDependencies(MOCK_ROOT);
         expect(result.dependencies).not.toContain("@mock/pkg-a");
         expect(result.dependencies).not.toContain("@mock/pkg-b");
@@ -72,7 +82,9 @@ layer(TestLayer)("UniqueDeps", (it) => {
       })
     );
 
-    it.effect("should include peer dependencies as runtime dependencies", Effect.fn(function* () {
+    it.effect(
+      "should include peer dependencies as runtime dependencies",
+      Effect.fn(function* () {
         const result = yield* collectUniqueNpmDependencies(MOCK_ROOT);
         // pkg-c has effect as peerDependency, should appear in runtime deps
         expect(result.dependencies).toContain("effect");

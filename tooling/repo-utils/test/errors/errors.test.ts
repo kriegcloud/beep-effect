@@ -4,7 +4,9 @@ import { CyclicDependencyError, DomainError, NoSuchFileError } from "../../src/e
 
 describe("Error types", () => {
   describe("NoSuchFileError", () => {
-    it.effect("should create with path and message", Effect.fn(function* () {
+    it.effect(
+      "should create with path and message",
+      Effect.fn(function* () {
         const error = new NoSuchFileError({
           path: "/some/missing/file.ts",
           message: "File not found",
@@ -15,7 +17,9 @@ describe("Error types", () => {
       })
     );
 
-    it.effect("should be catchable by tag in Effect", Effect.fn(function* () {
+    it.effect(
+      "should be catchable by tag in Effect",
+      Effect.fn(function* () {
         const result = yield* Effect.fail(new NoSuchFileError({ path: "/missing", message: "not found" })).pipe(
           Effect.catchTag("NoSuchFileError", (e) => Effect.succeed(`caught: ${e.path}`))
         );
@@ -25,7 +29,9 @@ describe("Error types", () => {
   });
 
   describe("DomainError", () => {
-    it.effect("should create with message only", Effect.fn(function* () {
+    it.effect(
+      "should create with message only",
+      Effect.fn(function* () {
         const error = new DomainError({ message: "Something failed" });
         expect(error._tag).toBe("DomainError");
         expect(error.message).toBe("Something failed");
@@ -33,7 +39,9 @@ describe("Error types", () => {
       })
     );
 
-    it.effect("should create with message and cause", Effect.fn(function* () {
+    it.effect(
+      "should create with message and cause",
+      Effect.fn(function* () {
         const underlying = new Error("root cause");
         const error = new DomainError({
           message: "Wrapper error",
@@ -45,7 +53,9 @@ describe("Error types", () => {
       })
     );
 
-    it.effect("should be catchable by tag in Effect", Effect.fn(function* () {
+    it.effect(
+      "should be catchable by tag in Effect",
+      Effect.fn(function* () {
         const result = yield* Effect.fail(new DomainError({ message: "domain fail" })).pipe(
           Effect.catchTag("DomainError", (e) => Effect.succeed(`caught: ${e.message}`))
         );
@@ -55,7 +65,9 @@ describe("Error types", () => {
   });
 
   describe("CyclicDependencyError", () => {
-    it.effect("should create with message and cycles", Effect.fn(function* () {
+    it.effect(
+      "should create with message and cycles",
+      Effect.fn(function* () {
         const error = new CyclicDependencyError({
           message: "Cyclic dependencies detected",
           cycles: [["@beep/a", "@beep/b", "@beep/a"]],
@@ -66,7 +78,9 @@ describe("Error types", () => {
       })
     );
 
-    it.effect("should support multiple cycles", Effect.fn(function* () {
+    it.effect(
+      "should support multiple cycles",
+      Effect.fn(function* () {
         const error = new CyclicDependencyError({
           message: "Multiple cycles",
           cycles: [
@@ -78,7 +92,9 @@ describe("Error types", () => {
       })
     );
 
-    it.effect("should be catchable by tag in Effect", Effect.fn(function* () {
+    it.effect(
+      "should be catchable by tag in Effect",
+      Effect.fn(function* () {
         const result = yield* Effect.fail(
           new CyclicDependencyError({
             message: "cycle",

@@ -13,7 +13,9 @@ const MOCK_ROOT = path.resolve(__dirname, "fixtures/mock-monorepo");
 
 layer(TestLayer)("Workspaces", (it) => {
   describe("resolveWorkspaceDirs", () => {
-    it.effect("should resolve all workspace packages", Effect.fn(function* () {
+    it.effect(
+      "should resolve all workspace packages",
+      Effect.fn(function* () {
         const workspaces = yield* resolveWorkspaceDirs(MOCK_ROOT);
         expect(HashMap.size(workspaces)).toBe(3);
         expect(HashMap.has(workspaces, "@mock/pkg-a")).toBe(true);
@@ -22,7 +24,9 @@ layer(TestLayer)("Workspaces", (it) => {
       })
     );
 
-    it.effect("should map names to absolute directory paths", Effect.fn(function* () {
+    it.effect(
+      "should map names to absolute directory paths",
+      Effect.fn(function* () {
         const workspaces = yield* resolveWorkspaceDirs(MOCK_ROOT);
         const dirA = HashMap.get(workspaces, "@mock/pkg-a");
         expect(Option.isSome(dirA)).toBe(true);
@@ -33,14 +37,18 @@ layer(TestLayer)("Workspaces", (it) => {
       })
     );
 
-    it.effect("should return empty HashMap when no workspaces defined", Effect.fn(function* () {
+    it.effect(
+      "should return empty HashMap when no workspaces defined",
+      Effect.fn(function* () {
         // pkg-a has no workspaces field
         const workspaces = yield* resolveWorkspaceDirs(path.resolve(MOCK_ROOT, "packages/pkg-a"));
         expect(HashMap.size(workspaces)).toBe(0);
       })
     );
 
-    it.effect("should fail with NoSuchFileError for missing root", Effect.fn(function* () {
+    it.effect(
+      "should fail with NoSuchFileError for missing root",
+      Effect.fn(function* () {
         const result = yield* resolveWorkspaceDirs("/nonexistent/root").pipe(
           Effect.catchTag("NoSuchFileError", (e) => Effect.succeed(`caught: ${e._tag}`))
         );
@@ -50,7 +58,9 @@ layer(TestLayer)("Workspaces", (it) => {
   });
 
   describe("getWorkspaceDir", () => {
-    it.effect("should find an existing workspace by name", Effect.fn(function* () {
+    it.effect(
+      "should find an existing workspace by name",
+      Effect.fn(function* () {
         const dir = yield* getWorkspaceDir(MOCK_ROOT, "@mock/pkg-b");
         expect(Option.isSome(dir)).toBe(true);
         if (Option.isSome(dir)) {
@@ -59,7 +69,9 @@ layer(TestLayer)("Workspaces", (it) => {
       })
     );
 
-    it.effect("should return None for a non-existent workspace", Effect.fn(function* () {
+    it.effect(
+      "should return None for a non-existent workspace",
+      Effect.fn(function* () {
         const dir = yield* getWorkspaceDir(MOCK_ROOT, "@mock/nonexistent");
         expect(Option.isNone(dir)).toBe(true);
       })

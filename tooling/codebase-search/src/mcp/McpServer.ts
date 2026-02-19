@@ -20,7 +20,7 @@ import type { RelationResolverConfig, RelationType } from "@beep/codebase-search
 import { RelationResolver } from "@beep/codebase-search/search/RelationResolver";
 import { Effect, FileSystem, Layer, Logger, Path } from "effect";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { identity, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { Stdio } from "effect/Stdio";
@@ -154,6 +154,38 @@ const VALID_RELATION_TYPES: ReadonlyArray<RelationType> = [
   "depends-on",
 ];
 
+/** Reindex run statistics. */
+export interface ReindexStats {
+  readonly filesScanned: number;
+  readonly filesChanged: number;
+  readonly symbolsIndexed: number;
+  readonly symbolsRemoved: number;
+  readonly durationMs: number;
+}
+
+/** Successful response returned by the reindex tool handler. */
+export interface ReindexSuccess {
+  readonly status: "ok";
+  readonly mode: "full" | "incremental";
+  readonly stats: ReindexStats;
+}
+
+/** Schema for reindex run statistics. */
+export const ReindexStatsSchema = S.Struct({
+  filesScanned: S.Number,
+  filesChanged: S.Number,
+  symbolsIndexed: S.Number,
+  symbolsRemoved: S.Number,
+  durationMs: S.Number,
+}) satisfies S.Decoder<ReindexStats>;
+
+/** Schema for the reindex tool success response. */
+export const ReindexSuccessSchema = S.Struct({
+  status: S.Literal("ok"),
+  mode: S.Literals(["full", "incremental"]),
+  stats: ReindexStatsSchema,
+}) satisfies S.Decoder<ReindexSuccess>;
+
 /**
  * Handle the search_codebase tool invocation.
  * @since 0.0.0
@@ -272,11 +304,7 @@ export const handleReindex: (params: {
   readonly indexPath: string;
   readonly mode?: string | undefined;
   readonly package?: string | undefined;
-}) => Effect.Effect<
-  unknown,
-  IndexingError,
-  Pipeline | import("effect/FileSystem").FileSystem | import("effect/Path").Path
-> = Effect.fn(function* (params: {
+}) => Effect.Effect<ReindexSuccess, IndexingError, Pipeline> = Effect.fn(function* (params: {
   readonly rootDir: string;
   readonly indexPath: string;
   readonly mode?: string | undefined;
@@ -295,7 +323,7 @@ export const handleReindex: (params: {
 
   const stats = yield* pipeline.run(config);
 
-  return formatReindexResult(mode, stats);
+  return S.decodeUnknownSync(ReindexSuccessSchema)(formatReindexResult(mode, stats));
 });
 
 // ---------------------------------------------------------------------------
@@ -451,17 +479,10 @@ export const makeToolkitHandlerLayer: (
 ) => Layer.Layer<
   Tool.HandlersFor<Toolkit.Tools<typeof CodebaseSearchToolkit>>,
   never,
-  | HybridSearch
-  | RelationResolver
-  | Pipeline
-  | LanceDbWriter
-  | Bm25Writer
-  | EmbeddingService
-  | FileSystem.FileSystem
-  | Path.Path
+  HybridSearch | RelationResolver | Pipeline | LanceDbWriter | Bm25Writer | EmbeddingService
 > = (config) =>
   CodebaseSearchToolkit.toLayer(
-    Effect.gen(function* () {
+  Effect.gen(function* () {
       // Capture service instances for use inside tool handlers
       const hybridSearch = yield* HybridSearch;
       const relationResolver = yield* RelationResolver;
@@ -469,8 +490,6 @@ export const makeToolkitHandlerLayer: (
       const lanceDb = yield* LanceDbWriter;
       const bm25 = yield* Bm25Writer;
       const embeddingSvc = yield* EmbeddingService;
-      const fsSvc = yield* FileSystem.FileSystem;
-      const pathSvc = yield* Path.Path;
 
       // Build layers to provide when running handler Effects
       const allServiceLayers = Layer.mergeAll(
@@ -479,60 +498,57 @@ export const makeToolkitHandlerLayer: (
         Layer.succeed(Pipeline, pipelineSvc),
         Layer.succeed(LanceDbWriter, lanceDb),
         Layer.succeed(Bm25Writer, bm25),
-        Layer.succeed(EmbeddingService, embeddingSvc),
-        Layer.succeed(FileSystem.FileSystem, fsSvc),
-        Layer.succeed(Path.Path, pathSvc)
+        Layer.succeed(EmbeddingService, embeddingSvc)
       );
+
+      const runHandler = <A>(
+        effect: Effect.Effect<
+          A,
+          IndexingError | IndexNotFoundError | SymbolNotFoundError | EmbeddingModelError | SearchTimeoutError,
+          HybridSearch | RelationResolver | Pipeline | LanceDbWriter | Bm25Writer | EmbeddingService
+        >
+      ): Effect.Effect<A | McpErrorResponse> =>
+        effect.pipe(
+          Effect.provide(allServiceLayers),
+          Effect.match({
+            onSuccess: identity,
+            onFailure: formatError,
+          })
+        );
 
       return {
         search_codebase: (params) =>
-          handleSearchCodebase({
-            query: params.query,
-            kind: params.kind,
-            package: params.package,
-            limit: params.limit,
-          }).pipe(
-            Effect.provide(allServiceLayers),
-            Effect.match({
-              onSuccess: (result) => result,
-              onFailure: (err) => formatError(err),
+          runHandler(
+            handleSearchCodebase({
+              query: params.query,
+              kind: params.kind,
+              package: params.package,
+              limit: params.limit,
             })
           ),
         find_related: (params) =>
-          handleFindRelated({
-            symbolId: params.symbolId,
-            relation: params.relation,
-            limit: params.limit,
-          }).pipe(
-            Effect.provide(allServiceLayers),
-            Effect.match({
-              onSuccess: (result) => result,
-              onFailure: (err) => formatError(err),
+          runHandler(
+            handleFindRelated({
+              symbolId: params.symbolId,
+              relation: params.relation,
+              limit: params.limit,
             })
           ),
         browse_symbols: (params) =>
-          handleBrowseSymbols({
-            package: params.package,
-            module: params.module,
-            kind: params.kind,
-          }).pipe(
-            Effect.provide(allServiceLayers),
-            Effect.match({
-              onSuccess: (result) => result,
-              onFailure: (err) => formatError(err),
+          runHandler(
+            handleBrowseSymbols({
+              package: params.package,
+              module: params.module,
+              kind: params.kind,
             })
           ),
         reindex: (params) =>
-          handleReindex({
-            rootDir: config.rootDir,
-            indexPath: config.indexPath,
-            mode: params.mode,
-            package: params.package,
-          }).pipe(
-            Effect.provide(allServiceLayers),
-            Effect.match({
-              onSuccess: (result) => result,
-              onFailure: (err) => formatError(err),
+          runHandler(
+            handleReindex({
+              rootDir: config.rootDir,
+              indexPath: config.indexPath,
+              mode: params.mode,
+              package: params.package,
             })
           ),
       };

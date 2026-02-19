@@ -21,6 +21,10 @@ const BaseLayers = Layer.mergeAll(
 );
 
 const TestLayers = FsUtilsLive.pipe(Layer.provideMerge(BaseLayers));
+const withTestLayers =
+  <A, E, R, Args extends ReadonlyArray<unknown>>(fn: (...args: Args) => Effect.Effect<A, E, R>) =>
+  (...args: Args) =>
+    fn(...args).pipe(Effect.provide(TestLayers));
 
 const run = Command.runWith(topoSortCommand, { version: "0.0.0" });
 
@@ -29,31 +33,39 @@ const run = Command.runWith(topoSortCommand, { version: "0.0.0" });
 // ---------------------------------------------------------------------------
 
 describe("topo-sort command", () => {
-  it.effect("should output packages in dependency order", Effect.fn(function* () {
-      yield* run([]);
+  it.effect(
+    "should output packages in dependency order",
+    withTestLayers(
+      Effect.fn(function* () {
+        yield* run([]);
 
-      const logs = yield* TestConsole.logLines;
-      const output = logs.map(String);
+        const logs = yield* TestConsole.logLines;
+        const output = logs.map(String);
 
-      // Should contain known workspace packages
-      expect(output).toContain("@beep/repo-utils");
-      expect(output).toContain("@beep/repo-cli");
+        // Should contain known workspace packages
+        expect(output).toContain("@beep/repo-utils");
+        expect(output).toContain("@beep/repo-cli");
 
-      // repo-utils should appear before repo-cli (since cli depends on utils)
-      const utilsIdx = output.indexOf("@beep/repo-utils");
-      const cliIdx = output.indexOf("@beep/repo-cli");
-      expect(utilsIdx).toBeLessThan(cliIdx);
-    }).pipe(Effect.provide(TestLayers))
+        // repo-utils should appear before repo-cli (since cli depends on utils)
+        const utilsIdx = output.indexOf("@beep/repo-utils");
+        const cliIdx = output.indexOf("@beep/repo-cli");
+        expect(utilsIdx).toBeLessThan(cliIdx);
+      })
+    )
   );
 
-  it.effect("should output all workspace packages", Effect.fn(function* () {
-      yield* run([]);
+  it.effect(
+    "should output all workspace packages",
+    withTestLayers(
+      Effect.fn(function* () {
+        yield* run([]);
 
-      const logs = yield* TestConsole.logLines;
-      const output = logs.map(String);
+        const logs = yield* TestConsole.logLines;
+        const output = logs.map(String);
 
-      // Should have at least the packages we know about
-      expect(output.length).toBeGreaterThanOrEqual(2);
-    }).pipe(Effect.provide(TestLayers))
+        // Should have at least the packages we know about
+        expect(output.length).toBeGreaterThanOrEqual(2);
+      })
+    )
   );
 });

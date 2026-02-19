@@ -390,7 +390,8 @@ describe("FileScanner", () => {
 
       return pipe(
         saveFileHashes("/root", hashes),
-        Effect.flatMap(Effect.fn(function* () {
+        Effect.flatMap(
+          Effect.fn(function* () {
             const fs = yield* FileSystem.FileSystem;
             const content = yield* fs.readFileString("/root/.code-index/file-hashes.json");
             const parsed = yield* S.decodeUnknownEffect(

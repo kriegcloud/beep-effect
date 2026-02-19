@@ -24,7 +24,9 @@ const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
 layer(TestLayer)("integration (real monorepo)", (it) => {
   // ── findRepoRoot ─────────────────────────────────────────────────────
   describe("findRepoRoot", () => {
-    it.effect("should find the beep-effect2 root directory", Effect.fn(function* () {
+    it.effect(
+      "should find the beep-effect2 root directory",
+      Effect.fn(function* () {
         const root = yield* findRepoRoot();
         expect(root).toMatch(/beep-effect2$/);
         // The root must contain the monorepo's root package.json
@@ -35,7 +37,9 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
 
   // ── resolveWorkspaceDirs ─────────────────────────────────────────────
   describe("resolveWorkspaceDirs", () => {
-    it.effect("should discover @beep/repo-cli and @beep/repo-utils", Effect.fn(function* () {
+    it.effect(
+      "should discover @beep/repo-cli and @beep/repo-utils",
+      Effect.fn(function* () {
         const root = yield* findRepoRoot();
         const workspaces = yield* resolveWorkspaceDirs(root);
 
@@ -50,7 +54,9 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
 
   // ── collectTsConfigPaths ─────────────────────────────────────────────
   describe("collectTsConfigPaths", () => {
-    it.effect("should find tsconfig files in workspaces", Effect.fn(function* () {
+    it.effect(
+      "should find tsconfig files in workspaces",
+      Effect.fn(function* () {
         const root = yield* findRepoRoot();
         const configs = yield* collectTsConfigPaths(root);
 
@@ -74,7 +80,9 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
 
   // ── buildRepoDependencyIndex ─────────────────────────────────────────
   describe("buildRepoDependencyIndex", () => {
-    it.effect("should build the dependency map for the monorepo", Effect.fn(function* () {
+    it.effect(
+      "should build the dependency map for the monorepo",
+      Effect.fn(function* () {
         const root = yield* findRepoRoot();
         const index = yield* buildRepoDependencyIndex(root);
 
@@ -96,7 +104,9 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
 
   // ── collectUniqueNpmDependencies ─────────────────────────────────────
   describe("collectUniqueNpmDependencies", () => {
-    it.effect("should list all NPM deps across the monorepo", Effect.fn(function* () {
+    it.effect(
+      "should list all NPM deps across the monorepo",
+      Effect.fn(function* () {
         const root = yield* findRepoRoot();
         const unique = yield* collectUniqueNpmDependencies(root);
 
