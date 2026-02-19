@@ -1,0 +1,38 @@
+import { entityKind } from "../../entity";
+import type { PgTable } from "../../pg-core/table";
+import { PgColumn, PgColumnBuilder } from "./common";
+
+export class PgSmallIntBuilder extends PgColumnBuilder<{
+  dataType: "number int16";
+  data: number;
+  driverParam: number | string;
+}> {
+  static override readonly [entityKind]: string = "PgSmallIntBuilder";
+
+  constructor(name: string) {
+    super(name, "number int16", "PgSmallInt");
+  }
+
+  /** @internal */
+  override build(table: PgTable<any>) {
+    return new PgSmallInt(table, this.config as any);
+  }
+}
+
+export class PgSmallInt extends PgColumn<"number int16"> {
+  static override readonly [entityKind]: string = "PgSmallInt";
+
+  getSQLType(): string {
+    return "smallint";
+  }
+
+  override mapFromDriverValue(value: number | string): number {
+    if (typeof value === "string") {
+      return Number(value);
+    }
+    return value;
+  }
+}
+export function smallint(name?: undefined | string): PgSmallIntBuilder {
+  return new PgSmallIntBuilder(name ?? "");
+}
