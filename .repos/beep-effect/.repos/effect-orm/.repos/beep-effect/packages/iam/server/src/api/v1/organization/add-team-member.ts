@@ -1,0 +1,43 @@
+/**
+ * @module organization/add-team-member
+ *
+ * Handler implementation for the add-team-member endpoint.
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+
+import { IamAuthError, V1 } from "@beep/iam-domain/api";
+import { TeamMember } from "@beep/iam-domain/entities";
+import { Auth } from "@beep/iam-server/adapters";
+import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
+import * as Effect from "effect/Effect";
+import type { Common } from "../../common";
+import { runAdminEndpoint } from "../../common/schema-helpers";
+
+type HandlerEffect = Common.HandlerEffect<V1.Organization.AddTeamMember.Payload>;
+
+/**
+ * Handler for the add-team-member endpoint.
+ *
+ * @since 0.1.0
+ * @category constructors
+ */
+export const Handler: HandlerEffect = Effect.fn("AddTeamMember")(function* ({ payload }) {
+  const auth = yield* Auth.Service;
+  const request = yield* HttpServerRequest.HttpServerRequest;
+
+  return yield* runAdminEndpoint({
+    payloadSchema: V1.Organization.AddTeamMember.Payload,
+    successSchema: TeamMember.Model,
+    payload,
+    headers: request.headers,
+    authHandler: ({ body, headers }) =>
+      Effect.tryPromise(() =>
+        auth.api.addTeamMember({
+          body,
+          headers,
+        })
+      ),
+  });
+}, IamAuthError.flowMap("add-team-member"));

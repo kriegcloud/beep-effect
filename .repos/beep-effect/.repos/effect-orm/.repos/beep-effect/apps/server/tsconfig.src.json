@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "exclude": [],
+  "references": [
+    {
+      "path": "../../packages/runtime/server"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "build/src",
+    "rootDir": "src"
+  }
+}

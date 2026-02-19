@@ -1,0 +1,133 @@
+{
+  "name": "@beep/ui-core",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "description": "The shared ui library for beep-effect which combines @mui/material, shadcn & tailwindcss",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/ui/core"
+  },
+  "scripts": {
+    "codegen": "build-utils prepare-v2",
+    "dotenvx": "dotenvx run -f ../../.env --",
+    "dev": "bun run dotenvx -- bunx tsc -b tsconfig.build.json --watch",
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps ",
+    "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint:circular": "bunx madge -c .",
+    "execute": "bunx tsx --tsconfig ./tsconfig.src.json ./src/execute.ts"
+  },
+  "exports": {
+    "./globals.css": "./src/styles/globals.css",
+    "./postcss.config": "./postcss.config.mjs",
+    "./i18n/*": {
+      "import": "./src/i18n/*.ts",
+      "types": "./build/dts/i18n/*",
+      "require": "./build/cjs/i18n/*",
+      "default": "./src/i18n/*.ts"
+    },
+    "./constants/*": {
+      "import": "./src/constants/*.ts",
+      "types": "./build/dts/constants/*",
+      "require": "./build/cjs/constants/*",
+      "default": "./src/constants/*.ts"
+    },
+    "./settings/*": {
+      "import": "./src/settings/*.ts",
+      "types": "./build/dts/settings/*",
+      "require": "./build/cjs/settings/*",
+      "default": "./src/settings/*.ts"
+    },
+    "./theme/*": {
+      "import": "./build/esm/theme/*",
+      "types": "./build/dts/theme/*",
+      "require": "./build/cjs/theme/*",
+      "default": "./build/src/theme/*"
+    },
+    "./utils/*": {
+      "import": "./build/esm/utils/*",
+      "types": "./build/dts/utils/*",
+      "require": "./build/cjs/utils/*",
+      "default": "./build/src/utils/*"
+    },
+    "./adapters": {
+      "import": "./build/esm/adapters/index.js",
+      "types": "./build/dts/adapters/index.d.ts",
+      "require": "./build/cjs/adapters/index.js",
+      "default": "./build/esm/adapters/index.js"
+    },
+    "./adapters/*": {
+      "import": "./build/esm/adapters/*",
+      "types": "./build/dts/adapters/*",
+      "require": "./build/cjs/adapters/*",
+      "default": "./build/esm/adapters/*"
+    }
+  },
+  "peerDependencies": {
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@emotion/cache": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "effect": "catalog:",
+    "@effect/platform-browser": "catalog:",
+    "@mui/lab": "catalog:",
+    "@mui/material": "catalog:",
+    "react": "catalog:",
+    "@mui/stylis-plugin-rtl": "catalog:",
+    "@mui/x-data-grid": "catalog:",
+    "@mui/x-date-pickers": "catalog:",
+    "@mui/x-tree-view": "catalog:",
+    "accept-language": "catalog:",
+    "@iconify/react": "catalog:",
+    "i18next": "catalog:",
+    "i18next-browser-languagedetector": "catalog:",
+    "i18next-resources-to-backend": "catalog:",
+    "next": "catalog:",
+    "react-dom": "catalog:",
+    "stylis": "catalog:",
+    "stylis-plugin-rtl": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/docgen": "catalog:",
+    "@beep/types": "workspace:^",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "babel-plugin-transform-next-use-client": "catalog:",
+    "@babel/preset-react": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@iconify/react": "catalog:",
+    "@emotion/cache": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "effect": "catalog:",
+    "@effect/platform-browser": "catalog:",
+    "@mui/lab": "catalog:",
+    "@mui/material": "catalog:",
+    "react": "catalog:",
+    "@mui/stylis-plugin-rtl": "catalog:",
+    "@mui/x-data-grid": "catalog:",
+    "@mui/x-date-pickers": "catalog:",
+    "@mui/x-tree-view": "catalog:",
+    "accept-language": "catalog:",
+    "i18next": "catalog:",
+    "i18next-browser-languagedetector": "catalog:",
+    "i18next-resources-to-backend": "catalog:",
+    "next": "catalog:",
+    "react-dom": "catalog:",
+    "stylis": "catalog:",
+    "stylis-plugin-rtl": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
+  }
+}

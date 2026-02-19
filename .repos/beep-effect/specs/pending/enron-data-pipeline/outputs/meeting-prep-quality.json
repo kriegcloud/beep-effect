@@ -1,0 +1,418 @@
+{
+  "generatedAt": "2026-02-15T05:23:26.021Z",
+  "deterministicSource": {
+    "extractionResultsPath": "/home/elpresidank/YeeBois/projects/beep-effect2/specs/pending/enron-data-pipeline/outputs/extraction-results.json",
+    "curatedDocumentsPath": "/home/elpresidank/.cache/todox-test-data/enron/curated/documents.json",
+    "curatedThreadsPath": "/home/elpresidank/.cache/todox-test-data/enron/curated/threads.json"
+  },
+  "scenarioSelection": [
+    {
+      "id": "scenario-1",
+      "scenarioType": "pre-meeting agenda/follow-up",
+      "sourceDocumentId": "email:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+      "sourceDocumentTitle": "Re: Senator Joe Dunn's Conference Call",
+      "sourceThreadId": "thread:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+      "sourceThreadCategories": [
+        "actionItems",
+        "multiParty",
+        "deepThread"
+      ],
+      "participantCount": 4,
+      "messageCount": 1,
+      "depth": 1,
+      "query": "Conference Call",
+      "rationale": "Contains explicit scheduling and availability coordination for an upcoming call, including follow-up asks."
+    },
+    {
+      "id": "scenario-2",
+      "scenarioType": "deal/financial discussion",
+      "sourceDocumentId": "email:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+      "sourceDocumentTitle": "Re: Duke Exchange Deal",
+      "sourceThreadId": "thread:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+      "sourceThreadCategories": [
+        "financial",
+        "actionItems",
+        "deepThread"
+      ],
+      "participantCount": 2,
+      "messageCount": 1,
+      "depth": 1,
+      "query": "Duke Exchange Deal",
+      "rationale": "Includes deal/ticket references and monetary amounts tied to settlement and cashout workflow decisions."
+    },
+    {
+      "id": "scenario-3",
+      "scenarioType": "org-role/ownership change",
+      "sourceDocumentId": "email:0114fd6d05c0cc72f07005dc26380296a2c2ae5aee69a6d2ac65423369568d42",
+      "sourceDocumentTitle": "Re: Re2: SCE Legislative Language",
+      "sourceThreadId": "thread:0114fd6d05c0cc72f07005dc26380296a2c2ae5aee69a6d2ac65423369568d42",
+      "sourceThreadCategories": [
+        "financial",
+        "actionItems",
+        "multiParty",
+        "deepThread"
+      ],
+      "participantCount": 19,
+      "messageCount": 1,
+      "depth": 1,
+      "query": "Rod Wright",
+      "rationale": "Thread discusses shifting political/regulatory power centers (committee leadership and appointees) and ownership of outcomes."
+    },
+    {
+      "id": "scenario-4",
+      "scenarioType": "multi-party negotiation/action tracking",
+      "sourceDocumentId": "email:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+      "sourceDocumentTitle": "Re: Fuel Supply Agreement",
+      "sourceThreadId": "thread:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+      "sourceThreadCategories": [
+        "actionItems",
+        "multiParty",
+        "deepThread"
+      ],
+      "participantCount": 4,
+      "messageCount": 1,
+      "depth": 1,
+      "query": "Fuel Supply Agreement",
+      "rationale": "Shows cross-party contract negotiation with explicit action requests, execution sequencing, and dependency tracking."
+    }
+  ],
+  "summary": {
+    "scenarioCount": 4,
+    "bulletCount": 12,
+    "evidenceItemCount": 12,
+    "fullyValidBulletCount": 12,
+    "mismatchCounts": {
+      "missingEvidence": 0,
+      "wrongSpan": 0,
+      "weakClaimSupport": 0,
+      "crossThreadLeakage": 0
+    }
+  },
+  "scenarios": [
+    {
+      "id": "scenario-1",
+      "scenarioType": "pre-meeting agenda/follow-up",
+      "sourceDocumentId": "email:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+      "sourceDocumentTitle": "Re: Senator Joe Dunn's Conference Call",
+      "sourceThreadId": "thread:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+      "sourceThreadCategories": [
+        "actionItems",
+        "multiParty",
+        "deepThread"
+      ],
+      "query": "Conference Call",
+      "rationale": "Contains explicit scheduling and availability coordination for an upcoming call, including follow-up asks.",
+      "meetingPrepId": "meeting_prep__84db8c74-a641-494d-9533-10afe126aca6",
+      "generatedBulletCount": 3,
+      "bulletValidations": [
+        {
+          "bulletIndex": 0,
+          "bulletId": "knowledge_meeting_prep_bullet__31d81de2-c831-4267-bf16-dfeeb1d4a0c0",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000527 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000527",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000527",
+              "sourceDocumentId": "email:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+              "sourceThreadId": "thread:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+              "startChar": 857,
+              "endChar": 877,
+              "citedText": "Conference Call\n\nJim",
+              "resolvedSpan": "Conference Call\n\nJim",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        },
+        {
+          "bulletIndex": 1,
+          "bulletId": "knowledge_meeting_prep_bullet__81deac0c-74fc-4bd1-b3e6-4931360a6929",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000523 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000523",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000523",
+              "sourceDocumentId": "email:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+              "sourceThreadId": "thread:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+              "startChar": 633,
+              "endChar": 654,
+              "citedText": "Conference Call  \n\nDo",
+              "resolvedSpan": "Conference Call  \n\nDo",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        },
+        {
+          "bulletIndex": 2,
+          "bulletId": "knowledge_meeting_prep_bullet__08c2c1b3-035e-45e9-b7ea-8957c0095d53",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000520 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000520",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000520",
+              "sourceDocumentId": "email:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+              "sourceThreadId": "thread:0165d42d23bd3160dc51506605284d346b77b78d7125a07bbf64702a1031007a",
+              "startChar": 407,
+              "endChar": 429,
+              "citedText": "Conference Call  \n\nYes",
+              "resolvedSpan": "Conference Call  \n\nYes",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        }
+      ]
+    },
+    {
+      "id": "scenario-2",
+      "scenarioType": "deal/financial discussion",
+      "sourceDocumentId": "email:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+      "sourceDocumentTitle": "Re: Duke Exchange Deal",
+      "sourceThreadId": "thread:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+      "sourceThreadCategories": [
+        "financial",
+        "actionItems",
+        "deepThread"
+      ],
+      "query": "Duke Exchange Deal",
+      "rationale": "Includes deal/ticket references and monetary amounts tied to settlement and cashout workflow decisions.",
+      "meetingPrepId": "meeting_prep__3e68199c-2765-4d60-940c-f70c177a77b4",
+      "generatedBulletCount": 4,
+      "bulletValidations": [
+        {
+          "bulletIndex": 0,
+          "bulletId": "knowledge_meeting_prep_bullet__cb3a1158-3a6d-4eb7-ae09-6228824f3908",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000346 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000346",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000346",
+              "sourceDocumentId": "email:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+              "sourceThreadId": "thread:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+              "startChar": 2591,
+              "endChar": 2609,
+              "citedText": "Duke Exchange Deal",
+              "resolvedSpan": "Duke Exchange Deal",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        },
+        {
+          "bulletIndex": 1,
+          "bulletId": "knowledge_meeting_prep_bullet__0253be61-33bd-4bbc-8dbe-8eb3fd79d290",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000342 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000342",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000342",
+              "sourceDocumentId": "email:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+              "sourceThreadId": "thread:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+              "startChar": 2130,
+              "endChar": 2148,
+              "citedText": "Duke Exchange Deal",
+              "resolvedSpan": "Duke Exchange Deal",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        },
+        {
+          "bulletIndex": 2,
+          "bulletId": "knowledge_meeting_prep_bullet__3d9428d4-a29f-4c66-bf0b-7df7a7255b4d",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000337 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000337",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000337",
+              "sourceDocumentId": "email:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+              "sourceThreadId": "thread:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+              "startChar": 1456,
+              "endChar": 1474,
+              "citedText": "Duke Exchange Deal",
+              "resolvedSpan": "Duke Exchange Deal",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        },
+        {
+          "bulletIndex": 3,
+          "bulletId": "knowledge_meeting_prep_bullet__0f22a4d5-de6d-4b85-a58d-5237be0ca4a5",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000334 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000334",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000334",
+              "sourceDocumentId": "email:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+              "sourceThreadId": "thread:01057690d799a3216f93b55a87c94f97789dadd068cd75419633e3bb6b67bf88",
+              "startChar": 1289,
+              "endChar": 1307,
+              "citedText": "Duke Exchange Deal",
+              "resolvedSpan": "Duke Exchange Deal",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        }
+      ]
+    },
+    {
+      "id": "scenario-3",
+      "scenarioType": "org-role/ownership change",
+      "sourceDocumentId": "email:0114fd6d05c0cc72f07005dc26380296a2c2ae5aee69a6d2ac65423369568d42",
+      "sourceDocumentTitle": "Re: Re2: SCE Legislative Language",
+      "sourceThreadId": "thread:0114fd6d05c0cc72f07005dc26380296a2c2ae5aee69a6d2ac65423369568d42",
+      "sourceThreadCategories": [
+        "financial",
+        "actionItems",
+        "multiParty",
+        "deepThread"
+      ],
+      "query": "Rod Wright",
+      "rationale": "Thread discusses shifting political/regulatory power centers (committee leadership and appointees) and ownership of outcomes.",
+      "meetingPrepId": "meeting_prep__23108687-5eec-4751-ba2b-05177b94d34a",
+      "generatedBulletCount": 1,
+      "bulletValidations": [
+        {
+          "bulletIndex": 0,
+          "bulletId": "knowledge_meeting_prep_bullet__f1d948d7-58e9-4017-821a-fd5eacf18596",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000421 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000421",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000421",
+              "sourceDocumentId": "email:0114fd6d05c0cc72f07005dc26380296a2c2ae5aee69a6d2ac65423369568d42",
+              "sourceThreadId": "thread:0114fd6d05c0cc72f07005dc26380296a2c2ae5aee69a6d2ac65423369568d42",
+              "startChar": 681,
+              "endChar": 691,
+              "citedText": "Rod Wright",
+              "resolvedSpan": "Rod Wright",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        }
+      ]
+    },
+    {
+      "id": "scenario-4",
+      "scenarioType": "multi-party negotiation/action tracking",
+      "sourceDocumentId": "email:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+      "sourceDocumentTitle": "Re: Fuel Supply Agreement",
+      "sourceThreadId": "thread:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+      "sourceThreadCategories": [
+        "actionItems",
+        "multiParty",
+        "deepThread"
+      ],
+      "query": "Fuel Supply Agreement",
+      "rationale": "Shows cross-party contract negotiation with explicit action requests, execution sequencing, and dependency tracking.",
+      "meetingPrepId": "meeting_prep__9d512345-25e5-4ec5-9177-6f8893c58879",
+      "generatedBulletCount": 4,
+      "bulletValidations": [
+        {
+          "bulletIndex": 0,
+          "bulletId": "knowledge_meeting_prep_bullet__183022db-212b-4ff1-a130-91eb828c3d28",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000512 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000512",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000512",
+              "sourceDocumentId": "email:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+              "sourceThreadId": "thread:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+              "startChar": 1653,
+              "endChar": 1674,
+              "citedText": "Fuel Supply Agreement",
+              "resolvedSpan": "Fuel Supply Agreement",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        },
+        {
+          "bulletIndex": 1,
+          "bulletId": "knowledge_meeting_prep_bullet__322052b8-3de7-4c63-a61d-ce9bc7c875bd",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000510 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000510",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000510",
+              "sourceDocumentId": "email:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+              "sourceThreadId": "thread:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+              "startChar": 1595,
+              "endChar": 1616,
+              "citedText": "Fuel Supply Agreement",
+              "resolvedSpan": "Fuel Supply Agreement",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        },
+        {
+          "bulletIndex": 2,
+          "bulletId": "knowledge_meeting_prep_bullet__6e79958a-7d0e-4ad7-b098-af67bfc8bec2",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000495 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000495",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000495",
+              "sourceDocumentId": "email:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+              "sourceThreadId": "thread:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+              "startChar": 474,
+              "endChar": 495,
+              "citedText": "Fuel Supply Agreement",
+              "resolvedSpan": "Fuel Supply Agreement",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        },
+        {
+          "bulletIndex": 3,
+          "bulletId": "knowledge_meeting_prep_bullet__1cc0e69f-4961-4d48-8a30-719ec7ce84fc",
+          "bulletText": "Evidence-backed relationship: relation knowledge_relation__00000000-0000-7000-8000-000000000494 is supported by the cited source span.",
+          "relationIdFromBullet": "knowledge_relation__00000000-0000-7000-8000-000000000494",
+          "evidence": [
+            {
+              "relationEvidenceId": "knowledge_relation_evidence__00000000-0000-7000-8000-000000000494",
+              "sourceDocumentId": "email:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+              "sourceThreadId": "thread:013a1df05285eaae779cb0b02d84300256134420d044190d10ad365e8d9b6607",
+              "startChar": 419,
+              "endChar": 440,
+              "citedText": "Fuel Supply Agreement",
+              "resolvedSpan": "Fuel Supply Agreement",
+              "spanMatches": true,
+              "relationMatchesBullet": true,
+              "sameThreadAsScenario": true
+            }
+          ],
+          "mismatchModes": []
+        }
+      ]
+    }
+  ]
+}

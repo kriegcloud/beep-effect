@@ -1,0 +1,676 @@
+@prefix wm: <https://beep.dev/ontology/wealth-management#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# =============================================================================
+# ONTOLOGY DECLARATION
+# =============================================================================
+
+<https://beep.dev/ontology/wealth-management> a owl:Ontology ;
+    rdfs:label "Wealth Management Ontology" ;
+    rdfs:comment "Domain ontology for Ultra-High-Net-Worth Individual (UHNWI) wealth management" ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:seeAlso <https://beep.dev/docs/ontology/wealth-management> .
+
+# =============================================================================
+# PRIORITY 0: CORE CLASSES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Client Class
+# -----------------------------------------------------------------------------
+
+wm:Client a owl:Class ;
+    rdfs:label "Client" ;
+    skos:prefLabel "Client"@en ;
+    skos:altLabel "Customer"@en , "Investor"@en ;
+    rdfs:comment "Natural person or entity receiving wealth management services. UHNWI threshold: $30M+ net worth." ;
+    rdfs:subClassOf owl:Thing .
+
+# Cardinality constraint: Client must own at least one account
+wm:Client rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wm:ownsAccount ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+wm:ClientProfile a owl:Class ;
+    rdfs:label "Client Profile" ;
+    rdfs:comment "Extended client information including risk assessment, investment policy, and suitability data." ;
+    rdfs:subClassOf wm:Client .
+
+# -----------------------------------------------------------------------------
+# Account Class Hierarchy
+# -----------------------------------------------------------------------------
+
+wm:Account a owl:Class ;
+    rdfs:label "Account" ;
+    skos:prefLabel "Account"@en ;
+    skos:altLabel "Custodial Account"@en , "Brokerage Account"@en ;
+    rdfs:comment "Custodial account holding investments at a financial institution." ;
+    rdfs:subClassOf owl:Thing .
+
+# Cardinality constraint: Account must be held by exactly one custodian
+wm:Account rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wm:heldByCustodian ;
+    owl:cardinality "1"^^xsd:nonNegativeInteger
+] .
+
+wm:IndividualAccount a owl:Class ;
+    rdfs:label "Individual Account" ;
+    rdfs:comment "Account owned by a single individual." ;
+    rdfs:subClassOf wm:Account .
+
+wm:JointAccount a owl:Class ;
+    rdfs:label "Joint Account" ;
+    rdfs:comment "Account owned jointly by two or more individuals with survivorship rights." ;
+    rdfs:subClassOf wm:Account .
+
+wm:TrustAccount a owl:Class ;
+    rdfs:label "Trust Account" ;
+    rdfs:comment "Account held in the name of a trust." ;
+    rdfs:subClassOf wm:Account .
+
+wm:EntityAccount a owl:Class ;
+    rdfs:label "Entity Account" ;
+    rdfs:comment "Account owned by a legal entity (LLC, LP, Corporation)." ;
+    rdfs:subClassOf wm:Account .
+
+wm:RetirementAccount a owl:Class ;
+    rdfs:label "Retirement Account" ;
+    rdfs:comment "Tax-advantaged retirement account (IRA, 401k, Roth IRA)." ;
+    rdfs:subClassOf wm:Account .
+
+# -----------------------------------------------------------------------------
+# Investment Class Hierarchy
+# -----------------------------------------------------------------------------
+
+wm:Investment a owl:Class ;
+    rdfs:label "Investment" ;
+    skos:prefLabel "Investment"@en ;
+    skos:altLabel "Asset"@en , "Holding"@en ;
+    rdfs:comment "Asset holding within an account." ;
+    rdfs:subClassOf owl:Thing .
+
+wm:Security a owl:Class ;
+    rdfs:label "Security" ;
+    rdfs:comment "Publicly traded market securities (stocks, bonds, ETFs)." ;
+    rdfs:subClassOf wm:Investment .
+
+wm:PrivateFund a owl:Class ;
+    rdfs:label "Private Fund" ;
+    skos:altLabel "Alternative Investment"@en ;
+    rdfs:comment "Private investment vehicle (hedge fund, private equity, venture capital)." ;
+    rdfs:subClassOf wm:Investment .
+
+wm:RealEstate a owl:Class ;
+    rdfs:label "Real Estate" ;
+    rdfs:comment "Real property investment (direct ownership or REIT)." ;
+    rdfs:subClassOf wm:Investment .
+
+wm:Alternative a owl:Class ;
+    rdfs:label "Alternative Investment" ;
+    rdfs:comment "Non-traditional assets (art, collectibles, commodities, crypto)." ;
+    rdfs:subClassOf wm:Investment .
+
+# -----------------------------------------------------------------------------
+# Document Class Hierarchy
+# -----------------------------------------------------------------------------
+
+wm:Document a owl:Class ;
+    rdfs:label "Document" ;
+    skos:prefLabel "Document"@en ;
+    rdfs:comment "Compliance evidence and client documentation." ;
+    rdfs:subClassOf owl:Thing .
+
+wm:Agreement a owl:Class ;
+    rdfs:label "Agreement" ;
+    rdfs:comment "Client agreements (Investment Policy Statement, engagement letters, advisory agreements)." ;
+    rdfs:subClassOf wm:Document .
+
+wm:Statement a owl:Class ;
+    rdfs:label "Statement" ;
+    rdfs:comment "Custodian account statements and performance reports." ;
+    rdfs:subClassOf wm:Document .
+
+wm:LegalDocument a owl:Class ;
+    rdfs:label "Legal Document" ;
+    rdfs:comment "Legal instruments (trust deeds, wills, power of attorney)." ;
+    rdfs:subClassOf wm:Document .
+
+wm:ComplianceRecord a owl:Class ;
+    rdfs:label "Compliance Record" ;
+    rdfs:comment "Regulatory documents (ADV Part 2, disclosures, KYC forms)." ;
+    rdfs:subClassOf wm:Document .
+
+# =============================================================================
+# PRIORITY 1: COMPLEX STRUCTURES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Household Class
+# -----------------------------------------------------------------------------
+
+wm:Household a owl:Class ;
+    rdfs:label "Household" ;
+    skos:prefLabel "Household"@en ;
+    skos:altLabel "Family Unit"@en ;
+    rdfs:comment "Family unit grouping for consolidated reporting and fee calculation." ;
+    rdfs:subClassOf owl:Thing .
+
+# -----------------------------------------------------------------------------
+# Trust Class Hierarchy
+# -----------------------------------------------------------------------------
+
+wm:Trust a owl:Class ;
+    rdfs:label "Trust" ;
+    skos:prefLabel "Trust"@en ;
+    rdfs:comment "Legal trust structure for estate planning and asset protection." ;
+    rdfs:subClassOf owl:Thing .
+
+# Cardinality constraint: Trust must be established by at least one person
+wm:Trust rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty wm:establishedBy ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+wm:RevocableTrust a owl:Class ;
+    rdfs:label "Revocable Trust" ;
+    skos:altLabel "Living Trust"@en ;
+    rdfs:comment "Trust that can be modified or revoked by the grantor during their lifetime." ;
+    rdfs:subClassOf wm:Trust .
+
+wm:IrrevocableTrust a owl:Class ;
+    rdfs:label "Irrevocable Trust" ;
+    rdfs:comment "Trust that cannot be modified or revoked after creation." ;
+    rdfs:subClassOf wm:Trust .
+
+wm:CharitableTrust a owl:Class ;
+    rdfs:label "Charitable Trust" ;
+    skos:altLabel "CRT"@en , "CLT"@en ;
+    rdfs:comment "Trust providing benefits to charitable organizations." ;
+    rdfs:subClassOf wm:Trust .
+
+# -----------------------------------------------------------------------------
+# Entity Class Hierarchy
+# -----------------------------------------------------------------------------
+
+wm:LegalEntity a owl:Class ;
+    rdfs:label "Legal Entity" ;
+    skos:prefLabel "Legal Entity"@en ;
+    rdfs:comment "Business or legal entity used for asset holding or operations." ;
+    rdfs:subClassOf owl:Thing .
+
+wm:LLC a owl:Class ;
+    rdfs:label "Limited Liability Company" ;
+    skos:altLabel "LLC"@en ;
+    rdfs:comment "Limited liability company structure." ;
+    rdfs:subClassOf wm:LegalEntity .
+
+wm:Partnership a owl:Class ;
+    rdfs:label "Partnership" ;
+    skos:altLabel "LP"@en , "LLP"@en ;
+    rdfs:comment "Limited or general partnership structure." ;
+    rdfs:subClassOf wm:LegalEntity .
+
+wm:Foundation a owl:Class ;
+    rdfs:label "Foundation" ;
+    skos:altLabel "Private Foundation"@en ;
+    rdfs:comment "Private charitable foundation." ;
+    rdfs:subClassOf wm:LegalEntity .
+
+# -----------------------------------------------------------------------------
+# Beneficiary Class
+# -----------------------------------------------------------------------------
+
+wm:Beneficiary a owl:Class ;
+    rdfs:label "Beneficiary" ;
+    skos:prefLabel "Beneficiary"@en ;
+    rdfs:comment "Individual or entity designated to receive benefits from an account or trust." ;
+    rdfs:subClassOf owl:Thing .
+
+# -----------------------------------------------------------------------------
+# Custodian Class
+# -----------------------------------------------------------------------------
+
+wm:Custodian a owl:Class ;
+    rdfs:label "Custodian" ;
+    skos:prefLabel "Custodian"@en ;
+    skos:altLabel "Broker-Dealer"@en ;
+    rdfs:comment "Financial institution holding client assets in custody." ;
+    rdfs:subClassOf owl:Thing .
+
+# =============================================================================
+# OBJECT PROPERTIES (Relationships)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Account Ownership
+# -----------------------------------------------------------------------------
+
+wm:ownsAccount a owl:ObjectProperty ;
+    rdfs:label "owns account" ;
+    rdfs:comment "Client ownership of a custodial account. COMPLIANCE: Requires evidence from account opening agreement." ;
+    rdfs:domain wm:Client ;
+    rdfs:range wm:Account ;
+    owl:inverseOf wm:ownedBy .
+
+wm:ownedBy a owl:ObjectProperty ;
+    rdfs:label "owned by" ;
+    rdfs:comment "Inverse of ownsAccount." ;
+    rdfs:domain wm:Account ;
+    rdfs:range wm:Client ;
+    owl:inverseOf wm:ownsAccount .
+
+# -----------------------------------------------------------------------------
+# Account Holdings
+# -----------------------------------------------------------------------------
+
+wm:containsInvestment a owl:ObjectProperty ;
+    rdfs:label "contains investment" ;
+    rdfs:comment "Account contains an investment holding. Source: custodian feed data." ;
+    rdfs:domain wm:Account ;
+    rdfs:range wm:Investment ;
+    owl:inverseOf wm:heldIn .
+
+wm:heldIn a owl:ObjectProperty ;
+    rdfs:label "held in" ;
+    rdfs:comment "Investment is held in an account." ;
+    rdfs:domain wm:Investment ;
+    rdfs:range wm:Account ;
+    owl:inverseOf wm:containsInvestment .
+
+# -----------------------------------------------------------------------------
+# Custody
+# -----------------------------------------------------------------------------
+
+wm:heldByCustodian a owl:ObjectProperty ;
+    rdfs:label "held by custodian" ;
+    rdfs:comment "Account is held by a custodian institution. REQUIRED for all accounts." ;
+    rdfs:domain wm:Account ;
+    rdfs:range wm:Custodian .
+
+# -----------------------------------------------------------------------------
+# Beneficiary Relationships
+# -----------------------------------------------------------------------------
+
+wm:hasBeneficiary a owl:ObjectProperty ;
+    rdfs:label "has beneficiary" ;
+    rdfs:comment "Account or trust has designated beneficiary. COMPLIANCE: Requires evidence from beneficiary form." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf ( wm:Account wm:Trust )
+    ] ;
+    rdfs:range wm:Beneficiary .
+
+wm:beneficiaryOf a owl:ObjectProperty ;
+    rdfs:label "beneficiary of" ;
+    rdfs:comment "Person or entity is beneficiary of account or trust." ;
+    rdfs:domain wm:Beneficiary ;
+    rdfs:range [
+        a owl:Class ;
+        owl:unionOf ( wm:Account wm:Trust )
+    ] ;
+    owl:inverseOf wm:hasBeneficiary .
+
+# -----------------------------------------------------------------------------
+# Trust Relationships
+# -----------------------------------------------------------------------------
+
+wm:establishedBy a owl:ObjectProperty ;
+    rdfs:label "established by" ;
+    rdfs:comment "Trust was established by grantor. COMPLIANCE: Requires evidence from trust document." ;
+    rdfs:domain wm:Trust ;
+    rdfs:range wm:Client .
+
+wm:managedBy a owl:ObjectProperty ;
+    rdfs:label "managed by" ;
+    rdfs:comment "Trust is managed by trustee(s). COMPLIANCE: Requires evidence from trust document." ;
+    rdfs:domain wm:Trust ;
+    rdfs:range [
+        a owl:Class ;
+        owl:unionOf ( wm:Client wm:LegalEntity )
+    ] .
+
+wm:holdsAccount a owl:ObjectProperty ;
+    rdfs:label "holds account" ;
+    rdfs:comment "Trust holds ownership of an account." ;
+    rdfs:domain wm:Trust ;
+    rdfs:range wm:TrustAccount .
+
+# -----------------------------------------------------------------------------
+# Household Relationships
+# -----------------------------------------------------------------------------
+
+wm:memberOf a owl:ObjectProperty ;
+    rdfs:label "member of" ;
+    rdfs:comment "Client is member of a household for consolidated reporting." ;
+    rdfs:domain wm:Client ;
+    rdfs:range wm:Household .
+
+wm:hasMember a owl:ObjectProperty ;
+    rdfs:label "has member" ;
+    rdfs:comment "Household contains client member." ;
+    rdfs:domain wm:Household ;
+    rdfs:range wm:Client ;
+    owl:inverseOf wm:memberOf .
+
+# -----------------------------------------------------------------------------
+# Document Relationships
+# -----------------------------------------------------------------------------
+
+wm:evidenceFor a owl:ObjectProperty ;
+    rdfs:label "evidence for" ;
+    rdfs:comment "Document provides evidence for a fact about an entity." ;
+    rdfs:domain wm:Document ;
+    rdfs:range owl:Thing .
+
+wm:supersedes a owl:ObjectProperty ;
+    rdfs:label "supersedes" ;
+    rdfs:comment "Document supersedes a previous version." ;
+    rdfs:domain wm:Document ;
+    rdfs:range wm:Document .
+
+wm:hasEvidence a owl:ObjectProperty ;
+    rdfs:label "has evidence" ;
+    rdfs:comment "Entity or relation has supporting documentation." ;
+    rdfs:domain owl:Thing ;
+    rdfs:range wm:Document ;
+    owl:inverseOf wm:evidenceFor .
+
+# -----------------------------------------------------------------------------
+# Entity Ownership
+# -----------------------------------------------------------------------------
+
+wm:ownsEntity a owl:ObjectProperty ;
+    rdfs:label "owns entity" ;
+    rdfs:comment "Client has ownership interest in a legal entity." ;
+    rdfs:domain wm:Client ;
+    rdfs:range wm:LegalEntity .
+
+wm:managedByEntity a owl:ObjectProperty ;
+    rdfs:label "managed by entity" ;
+    rdfs:comment "Entity is managed by another entity (e.g., GP manages LP)." ;
+    rdfs:domain wm:LegalEntity ;
+    rdfs:range wm:LegalEntity .
+
+# =============================================================================
+# DATATYPE PROPERTIES (Attributes)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Client Attributes
+# -----------------------------------------------------------------------------
+
+wm:legalName a owl:DatatypeProperty ;
+    rdfs:label "legal name" ;
+    rdfs:comment "Full legal name as appearing on official documents." ;
+    rdfs:domain wm:Client ;
+    rdfs:range xsd:string .
+
+wm:taxId a owl:DatatypeProperty ;
+    rdfs:label "tax ID" ;
+    rdfs:comment "Tax identification number (SSN, EIN, ITIN). SENSITIVE: Must be hashed for storage and matching." ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf ( wm:Client wm:LegalEntity wm:Trust )
+    ] ;
+    rdfs:range xsd:string .
+
+wm:dateOfBirth a owl:DatatypeProperty ;
+    rdfs:label "date of birth" ;
+    rdfs:comment "Client date of birth. SENSITIVE for privacy." ;
+    rdfs:domain wm:Client ;
+    rdfs:range xsd:date .
+
+wm:netWorth a owl:DatatypeProperty ;
+    rdfs:label "net worth" ;
+    rdfs:comment "Estimated total net worth in USD. SENSITIVE financial data." ;
+    rdfs:domain wm:Client ;
+    rdfs:range xsd:decimal .
+
+wm:riskTolerance a owl:DatatypeProperty ;
+    rdfs:label "risk tolerance" ;
+    rdfs:comment "Client risk tolerance level from assessment." ;
+    rdfs:domain wm:Client ;
+    rdfs:range xsd:string .
+    # Enumerated values: "Conservative", "Moderate", "Aggressive"
+
+wm:kycStatus a owl:DatatypeProperty ;
+    rdfs:label "KYC status" ;
+    rdfs:comment "Know Your Customer verification status." ;
+    rdfs:domain wm:Client ;
+    rdfs:range xsd:string .
+    # Enumerated values: "Pending", "Verified", "Expired"
+
+# -----------------------------------------------------------------------------
+# Account Attributes
+# -----------------------------------------------------------------------------
+
+wm:accountNumber a owl:DatatypeProperty ;
+    rdfs:label "account number" ;
+    rdfs:comment "Unique account number assigned by custodian." ;
+    rdfs:domain wm:Account ;
+    rdfs:range xsd:string .
+
+wm:accountType a owl:DatatypeProperty ;
+    rdfs:label "account type" ;
+    rdfs:comment "Account type classification." ;
+    rdfs:domain wm:Account ;
+    rdfs:range xsd:string .
+
+wm:taxStatus a owl:DatatypeProperty ;
+    rdfs:label "tax status" ;
+    rdfs:comment "Tax treatment of the account." ;
+    rdfs:domain wm:Account ;
+    rdfs:range xsd:string .
+    # Enumerated values: "Taxable", "Tax-Deferred", "Tax-Exempt"
+
+wm:openDate a owl:DatatypeProperty ;
+    rdfs:label "open date" ;
+    rdfs:comment "Date account was opened." ;
+    rdfs:domain wm:Account ;
+    rdfs:range xsd:date .
+
+# -----------------------------------------------------------------------------
+# Investment Attributes
+# -----------------------------------------------------------------------------
+
+wm:costBasis a owl:DatatypeProperty ;
+    rdfs:label "cost basis" ;
+    rdfs:comment "Original acquisition cost for tax purposes." ;
+    rdfs:domain wm:Investment ;
+    rdfs:range xsd:decimal .
+
+wm:marketValue a owl:DatatypeProperty ;
+    rdfs:label "market value" ;
+    rdfs:comment "Current market value of the investment." ;
+    rdfs:domain wm:Investment ;
+    rdfs:range xsd:decimal .
+
+wm:securityId a owl:DatatypeProperty ;
+    rdfs:label "security ID" ;
+    rdfs:comment "Unique security identifier (CUSIP, ISIN, SEDOL)." ;
+    rdfs:domain wm:Investment ;
+    rdfs:range xsd:string .
+
+wm:ticker a owl:DatatypeProperty ;
+    rdfs:label "ticker symbol" ;
+    rdfs:comment "Trading symbol for publicly traded securities." ;
+    rdfs:domain wm:Security ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Trust Attributes
+# -----------------------------------------------------------------------------
+
+wm:trustName a owl:DatatypeProperty ;
+    rdfs:label "trust name" ;
+    rdfs:comment "Legal name of the trust." ;
+    rdfs:domain wm:Trust ;
+    rdfs:range xsd:string .
+
+wm:establishedDate a owl:DatatypeProperty ;
+    rdfs:label "established date" ;
+    rdfs:comment "Date trust was established." ;
+    rdfs:domain wm:Trust ;
+    rdfs:range xsd:date .
+
+wm:jurisdiction a owl:DatatypeProperty ;
+    rdfs:label "jurisdiction" ;
+    rdfs:comment "Legal jurisdiction governing the trust." ;
+    rdfs:domain wm:Trust ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Document Attributes
+# -----------------------------------------------------------------------------
+
+wm:documentDate a owl:DatatypeProperty ;
+    rdfs:label "document date" ;
+    rdfs:comment "Date of the document." ;
+    rdfs:domain wm:Document ;
+    rdfs:range xsd:date .
+
+wm:effectiveDate a owl:DatatypeProperty ;
+    rdfs:label "effective date" ;
+    rdfs:comment "Date document becomes effective." ;
+    rdfs:domain wm:Document ;
+    rdfs:range xsd:date .
+
+wm:expirationDate a owl:DatatypeProperty ;
+    rdfs:label "expiration date" ;
+    rdfs:comment "Date document expires (if applicable)." ;
+    rdfs:domain wm:Document ;
+    rdfs:range xsd:date .
+
+# -----------------------------------------------------------------------------
+# Beneficiary Attributes
+# -----------------------------------------------------------------------------
+
+wm:beneficiaryType a owl:DatatypeProperty ;
+    rdfs:label "beneficiary type" ;
+    rdfs:comment "Type of beneficiary designation." ;
+    rdfs:domain wm:Beneficiary ;
+    rdfs:range xsd:string .
+    # Enumerated values: "Primary", "Contingent", "Per Stirpes"
+
+wm:beneficiaryPercentage a owl:DatatypeProperty ;
+    rdfs:label "beneficiary percentage" ;
+    rdfs:comment "Percentage share of beneficiary designation." ;
+    rdfs:domain wm:Beneficiary ;
+    rdfs:range xsd:decimal .
+
+# -----------------------------------------------------------------------------
+# Household Attributes
+# -----------------------------------------------------------------------------
+
+wm:householdName a owl:DatatypeProperty ;
+    rdfs:label "household name" ;
+    rdfs:comment "Name identifying the household group." ;
+    rdfs:domain wm:Household ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Legal Entity Attributes
+# -----------------------------------------------------------------------------
+
+wm:entityName a owl:DatatypeProperty ;
+    rdfs:label "entity name" ;
+    rdfs:comment "Legal name of the entity." ;
+    rdfs:domain wm:LegalEntity ;
+    rdfs:range xsd:string .
+
+wm:stateOfFormation a owl:DatatypeProperty ;
+    rdfs:label "state of formation" ;
+    rdfs:comment "US state or jurisdiction where entity was formed." ;
+    rdfs:domain wm:LegalEntity ;
+    rdfs:range xsd:string .
+
+wm:formationDate a owl:DatatypeProperty ;
+    rdfs:label "formation date" ;
+    rdfs:comment "Date entity was legally formed." ;
+    rdfs:domain wm:LegalEntity ;
+    rdfs:range xsd:date .
+
+# =============================================================================
+# ENTITY RESOLUTION ANNOTATIONS
+# =============================================================================
+
+# Resolution keys are documented as annotations for extraction guidance
+
+wm:Client rdfs:comment """
+ENTITY RESOLUTION:
+  Primary key: taxId (hashed)
+  Fuzzy keys: normalizedName + dateOfBirth
+  Source priority: Custodian > Legal docs > CRM > Meeting notes
+""" .
+
+wm:Account rdfs:comment """
+ENTITY RESOLUTION:
+  Primary key: accountNumber + custodian
+  Fuzzy keys: normalizedName + accountType
+  Source priority: Custodian feed (authoritative)
+""" .
+
+wm:Trust rdfs:comment """
+ENTITY RESOLUTION:
+  Primary key: taxId (hashed)
+  Fuzzy keys: normalizedName + establishedDate
+  Source priority: Trust document (authoritative)
+""" .
+
+wm:Investment rdfs:comment """
+ENTITY RESOLUTION:
+  Primary key: securityId (CUSIP/ISIN)
+  Fuzzy keys: ticker + accountId
+  Source priority: Custodian feed (authoritative)
+""" .
+
+# =============================================================================
+# EVIDENCE REQUIREMENTS
+# =============================================================================
+
+# Compliance-critical facts that require evidence linking
+
+wm:ownsAccount rdfs:comment """
+COMPLIANCE REQUIREMENT:
+  Evidence: Account opening agreement
+  Minimum fields: text, startChar, endChar, documentId
+  Grounding threshold: 0.8
+""" .
+
+wm:hasBeneficiary rdfs:comment """
+COMPLIANCE REQUIREMENT:
+  Evidence: Beneficiary designation form
+  Minimum fields: text, startChar, endChar, documentId, effectiveDate
+  Grounding threshold: 0.8
+""" .
+
+wm:establishedBy rdfs:comment """
+COMPLIANCE REQUIREMENT:
+  Evidence: Trust document
+  Minimum fields: text, startChar, endChar, documentId
+  Grounding threshold: 0.8
+""" .
+
+wm:managedBy rdfs:comment """
+COMPLIANCE REQUIREMENT:
+  Evidence: Trust document
+  Minimum fields: text, startChar, endChar, documentId
+  Grounding threshold: 0.8
+""" .
+
+wm:riskTolerance rdfs:comment """
+COMPLIANCE REQUIREMENT:
+  Evidence: Risk questionnaire or IPS
+  Minimum fields: text, startChar, endChar, documentId, assessmentDate
+  Grounding threshold: 0.8
+""" .
+
+# END OF ONTOLOGY

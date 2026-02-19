@@ -1,0 +1,230 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`dedent works without interpolation 1`] = `
+"first
+second
+third"
+`;
+
+exports[`dedent works with interpolation 1`] = `
+"first line
+second
+third"
+`;
+
+exports[`dedent works with suppressed newlines 1`] = `
+"first second
+third"
+`;
+
+exports[`dedent works with blank first line 1`] = `
+"Some text that I might want to indent:
+	* reasons
+	* fun
+That's all."
+`;
+
+exports[`dedent works with multiple blank first lines 1`] = `
+"first
+second
+third"
+`;
+
+exports[`dedent works with removing same number of spaces 1`] = `
+"first
+	second
+		 third"
+`;
+
+exports[`dedent single line input works with single line input 1`] = `"A single line of input."`;
+
+exports[`dedent single line input works with single line and closing backtick on newline 1`] = `"A single line of input."`;
+
+exports[`dedent single line input works with single line and inline closing backtick 1`] = `"A single line of input."`;
+
+exports[`dedent can be used as a function 1`] = `"A test argument."`;
+
+exports[`dedent function character escapes default behavior does not escape backticks 1`] = `"\`"`;
+
+exports[`dedent function character escapes default behavior does not escape dollar signs 1`] = `"$"`;
+
+exports[`dedent function character escapes default behavior does not escape opening braces 1`] = `"{"`;
+
+exports[`dedent function character escapes default behavior escapes double-escaped backticks 1`] = `"\\\`"`;
+
+exports[`dedent function character escapes default behavior escapes double-escaped dollar signs 1`] = `"\\$"`;
+
+exports[`dedent function character escapes default behavior escapes double-escaped opening braces 1`] = `"\\{"`;
+
+exports[`dedent function character escapes default behavior ignores closing braces 1`] = `"}"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s backticks 1`] = `"\`"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s dollar signs 1`] = `"$"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s opening braces 1`] = `"{"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped backticks 1`] = `"\\\`"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped dollar signs 1`] = `"\\$"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped opening braces 1`] = `"\\{"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s backticks 2`] = `"\`"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s dollar signs 2`] = `"$"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s opening braces 2`] = `"{"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped backticks 2`] = `"\\\`"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped dollar signs 2`] = `"\\$"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped opening braces 2`] = `"\\{"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s backticks 3`] = `"\`"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s dollar signs 3`] = `"$"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s opening braces 3`] = `"{"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped backticks 3`] = `"\`"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped dollar signs 3`] = `"$"`;
+
+exports[`dedent function character escapes with escapeSpecialCharacters %s double-escaped opening braces 3`] = `"{"`;
+
+exports[`dedent with trimWhitespace %s with trailing whitespace 1`] = `
+"foo   
+bar"
+`;
+
+exports[`dedent with trimWhitespace %s without trailing whitespace 1`] = `
+"foo
+bar"
+`;
+
+exports[`dedent with trimWhitespace %s with leading whitespace 1`] = `"foo"`;
+
+exports[`dedent with trimWhitespace %s with trailing whitespace 2`] = `
+"
+foo   
+bar   
+"
+`;
+
+exports[`dedent with trimWhitespace %s without trailing whitespace 2`] = `
+"
+foo
+bar
+"
+`;
+
+exports[`dedent with trimWhitespace %s with leading whitespace 2`] = `
+"
+
+
+foo
+"
+`;
+
+exports[`dedent with trimWhitespace %s with trailing whitespace 3`] = `
+"foo   
+bar"
+`;
+
+exports[`dedent with trimWhitespace %s without trailing whitespace 3`] = `
+"foo
+bar"
+`;
+
+exports[`dedent with trimWhitespace %s with leading whitespace 3`] = `"foo"`;
+
+exports[`dedent string tag character escapes default behavior escapes backticks 1`] = `"\`"`;
+
+exports[`dedent string tag character escapes default behavior escapes dollar signs 1`] = `"$"`;
+
+exports[`dedent string tag character escapes default behavior escapes opening braces 1`] = `"{"`;
+
+exports[`dedent string tag character escapes default behavior ignores closing braces 1`] = `"\\}"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s backticks 1`] = `"\`"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s dollar signs 1`] = `"$"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s opening braces 1`] = `"{"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s backticks 2`] = `"\\\`"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s dollar signs 2`] = `"\\$"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s opening braces 2`] = `"\\{"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s backticks 3`] = `"\`"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s dollar signs 3`] = `"$"`;
+
+exports[`dedent string tag character escapes with escapeSpecialCharacters %s opening braces 3`] = `"{"`;
+
+exports[`dedent doesn't strip explicit newlines 1`] = `
+"<p>Hello world!</p>
+"
+`;
+
+exports[`dedent doesn't strip explicit newlines with mindent 1`] = `
+"<p>
+	Hello world!
+</p>
+"
+`;
+
+exports[`dedent works with spaces for indentation 1`] = `
+"first
+  second
+    third"
+`;
+
+exports[`dedent works with tabs for indentation 1`] = `
+"first
+	second
+		third"
+`;
+
+exports[`dedent works with escaped tabs for indentation 1`] = `
+"first
+	second
+		third"
+`;
+
+exports[`dedent with alignValues %s with nested text 1`] = `
+"Some nested items I want to dedent:
+	* first
+	* second
+* third
+	* fourth
+	* fifth
+* sixth
+That's all!"
+`;
+
+exports[`dedent with alignValues %s with nested text 2`] = `
+"Some nested items I want to dedent:
+	* first
+	* second
+* third
+	* fourth
+	* fifth
+* sixth
+That's all!"
+`;
+
+exports[`dedent with alignValues %s with nested text 3`] = `
+"Some nested items I want to dedent:
+	* first
+	* second
+	* third
+	* fourth
+	* fifth
+	* sixth
+That's all!"
+`;

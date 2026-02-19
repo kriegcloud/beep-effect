@@ -1,0 +1,20 @@
+{
+  "files": [],
+  "compilerOptions": {
+    "tsBuildInfoFile": "../.turbo/tsbuildinfo/apps.tsbuildinfo"
+  },
+  "references": [
+    {
+      "path": "../apps/server/tsconfig.build.json"
+    },
+    {
+      "path": "../apps/web/tsconfig.build.json"
+    },
+    {
+      "path": "../apps/notes/tsconfig.build.json"
+    },
+    {
+      "path": "../apps/interfere/tsconfig.build.json"
+    }
+  ]
+}

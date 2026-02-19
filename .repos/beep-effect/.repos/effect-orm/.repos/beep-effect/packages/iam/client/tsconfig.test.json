@@ -1,0 +1,52 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../../packages/common/types"
+    },
+    {
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/identity"
+    },
+    {
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/common/contract"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/iam/domain"
+    },
+    {
+      "path": "../../../packages/iam/server"
+    },
+    {
+      "path": "../../../packages/ui/ui"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "rootDir": "test",
+    "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
+    "noEmit": true,
+    "outDir": "build/test"
+  }
+}

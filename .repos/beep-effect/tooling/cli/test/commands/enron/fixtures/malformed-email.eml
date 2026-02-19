@@ -1,0 +1,8 @@
+Date: Mon, 04 Dec 2000 12:00:00 -0600
+From: broken.sender@enron.com
+To: recipient@enron.com
+Subject: Missing Message-ID
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+This message intentionally omits Message-ID.

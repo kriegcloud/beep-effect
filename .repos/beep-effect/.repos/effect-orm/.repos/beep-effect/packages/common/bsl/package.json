@@ -1,0 +1,77 @@
+{
+  "name": "@beep/bsl",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "custom bsl implementation",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/bsl",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./nodes": "./src/nodes/index.ts",
+    "./state": "./src/state.ts",
+    "./errors": "./src/errors.ts",
+    "./*": "./src/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/bsl"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "peerDependencies": {
+    "effect": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/identity": "workspace:^"
+  },
+  "devDependencies": {
+    "effect": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "@beep/schema": "workspace:^",
+    "drizzle-kit": "^0.31.8",
+    "@beep/identity": "workspace:^",
+    "@types/pg-cursor": "catalog:",
+    "pg-connection-string": "catalog:",
+    "pg-pool": "catalog:",
+    "pg-types": "catalog:",
+    "pg-cursor": "catalog:",
+    "sql-formatter": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "testcontainers": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/platform": "catalog:",
+    "postgres": "catalog:",
+    "@effect/sql": "catalog:",
+    "drizzle-orm": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

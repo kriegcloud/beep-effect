@@ -1,0 +1,93 @@
+/**
+ * @fileoverview
+ * Update OAuth2 consent contract schemas for the IAM client.
+ *
+ * Defines the payload and success response schemas for updating a consent record.
+ *
+ * @module @beep/iam-client/connections/update-consent/contract
+ * @category Connections/UpdateConsent
+ * @since 0.1.0
+ */
+import * as Common from "@beep/iam-client/_internal";
+import { formValuesAnnotation } from "@beep/iam-client/_internal";
+import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import * as W from "@beep/wrap";
+import * as S from "effect/Schema";
+
+const $I = $IamClientId.create("connections/update-consent");
+
+/**
+ * Update fields for OAuth2 consent.
+ *
+ * @category Connections/UpdateConsent/Schemas
+ * @since 0.1.0
+ */
+export class UpdateFields extends S.Class<UpdateFields>($I`UpdateFields`)(
+  {
+    scopes: S.mutable(S.Array(S.String)),
+  },
+  $I.annotations("UpdateFields", {
+    description: "Fields that can be updated for an OAuth2 consent.",
+  })
+) {}
+
+/**
+ * Payload for updating a consent record.
+ *
+ * @example
+ * ```typescript
+ * import { UpdateConsent } from "@beep/iam-client/oauth2"
+ *
+ * const payload = UpdateConsent.Payload.make({
+ *   id: "consent_123",
+ *   update: { scopes: ["read", "write"] }
+ * })
+ * ```
+ *
+ * @category Connections/UpdateConsent/Schemas
+ * @since 0.1.0
+ */
+export class Payload extends S.Class<Payload>($I`Payload`)(
+  {
+    id: IamEntityIds.OAuthConsentId,
+    update: UpdateFields,
+  },
+  formValuesAnnotation({
+    id: "",
+    update: { scopes: [] },
+  })
+) {}
+
+/**
+ * Success response with updated consent record.
+ *
+ * @category Connections/UpdateConsent/Schemas
+ * @since 0.1.0
+ */
+export class Success extends S.Class<Success>($I`Success`)(
+  {
+    id: IamEntityIds.OAuthConsentId,
+    userId: SharedEntityIds.UserId,
+    clientId: IamEntityIds.OAuthClientId,
+    scopes: S.Array(S.String),
+    createdAt: BS.DateFromAllAcceptable,
+    consentGiven: S.Boolean,
+  },
+  $I.annotations("Success", {
+    description: "Updated OAuth2 consent record.",
+  })
+) {}
+
+/**
+ * Contract wrapper for update OAuth2 consent operations.
+ *
+ * @category Connections/UpdateConsent/Contracts
+ * @since 0.1.0
+ */
+export const Wrapper = W.Wrapper.make("UpdateOAuth2Consent", {
+  payload: Payload,
+  success: Success,
+  error: Common.IamError,
+});
