@@ -4,6 +4,10 @@ pre-commit:
     biome:
       glob: "*.{ts,tsx,js,jsx,json,jsonc,css,md}"
       run: bunx biome check --write {staged_files} && git add {staged_files}
+    jsdoc:
+      glob: "tooling/*/src/**/*.ts"
+      exclude: "tooling/*/src/internal/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
+      run: npx eslint --config eslint.config.mjs {staged_files}
 
 pre-push:
   parallel: true

@@ -1,0 +1,529 @@
+/**
+ * Merges JSDoc extraction, Effect pattern detection, and Schema annotation
+ * extraction into complete IndexedSymbol records. Operates on in-memory
+ * ts-morph data structures as a pure function pipeline.
+ *
+ * @since 0.0.0
+ * @packageDocumentation
+ */
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+import { SyntaxKind } from "ts-morph";
+import type * as tsMorph from "ts-morph";
+
+import type { IndexedSymbol } from "../IndexedSymbol.js";
+import {
+  buildEmbeddingText,
+  buildKeywordText,
+  classifySymbol,
+  computeContentHash,
+  generateId,
+  validateIndexedSymbol,
+} from "../IndexedSymbol.js";
+import { extractJsDoc, extractModuleDoc } from "./JsDocExtractor.js";
+import {
+  detectEffectPattern,
+  extractFieldAnnotations,
+  extractSchemaAnnotations,
+} from "./EffectPatternDetector.js";
+
+// ---------------------------------------------------------------------------
+// extractSignature
+// ---------------------------------------------------------------------------
+
+/**
+ * Extracts a concise type signature from a ts-morph AST node. Returns the
+ * first meaningful line of the declaration text, trimmed and truncated
+ * to 500 characters maximum.
+ * @since 0.0.0
+ * @category helpers
+ */
+export const extractSignature = (node: tsMorph.Node): string => {
+  const text = node.getText();
+  const lines = Str.split("\n")(text);
+  const firstLine = pipe(
+    A.head(lines),
+    O.map(Str.trim),
+    O.getOrElse(() => ""),
+  );
+
+  // For short declarations, return the whole thing trimmed
+  if (Str.length(text) <= 500) {
+    return Str.trim(text);
+  }
+
+  // For longer declarations, return just the first line
+  return Str.length(firstLine) > 500 ? firstLine.slice(0, 500) : firstLine;
+};
+
+// ---------------------------------------------------------------------------
+// getExportName
+// ---------------------------------------------------------------------------
+
+/** @internal */
+const getExportName = (node: tsMorph.Node): O.Option<string> => {
+  const kind = node.getKind();
+
+  // Variable statement: export const Foo = ...
+  if (kind === SyntaxKind.VariableStatement) {
+    const varStmt = node as tsMorph.VariableStatement;
+    const declarations = varStmt.getDeclarations();
+    if (A.isArrayNonEmpty(declarations)) {
+      return O.some(declarations[0].getName());
+    }
+    return O.none();
+  }
+
+  // Function declaration: export function foo() {}
+  if (kind === SyntaxKind.FunctionDeclaration) {
+    const funcDecl = node as tsMorph.FunctionDeclaration;
+    return O.fromNullishOr(funcDecl.getName());
+  }
+
+  // Class declaration: export class Foo {}
+  if (kind === SyntaxKind.ClassDeclaration) {
+    const classDecl = node as tsMorph.ClassDeclaration;
+    return O.fromNullishOr(classDecl.getName());
+  }
+
+  // Type alias: export type Foo = ...
+  if (kind === SyntaxKind.TypeAliasDeclaration) {
+    const typeDecl = node as tsMorph.TypeAliasDeclaration;
+    return O.some(typeDecl.getName());
+  }
+
+  // Interface: export interface Foo {}
+  if (kind === SyntaxKind.InterfaceDeclaration) {
+    const ifaceDecl = node as tsMorph.InterfaceDeclaration;
+    return O.some(ifaceDecl.getName());
+  }
+
+  // Enum: export enum Foo {}
+  if (kind === SyntaxKind.EnumDeclaration) {
+    const enumDecl = node as tsMorph.EnumDeclaration;
+    return O.some(enumDecl.getName());
+  }
+
+  return O.none();
+};
+
+// ---------------------------------------------------------------------------
+// isNodeExported
+// ---------------------------------------------------------------------------
+
+/** @internal */
+const isNodeExported = (node: tsMorph.Node): boolean => {
+  const modifiers = pipe(
+    O.fromNullishOr(
+      "getModifiers" in node
+        ? (node as tsMorph.VariableStatement).getModifiers()
+        : undefined,
+    ),
+    O.getOrElse(() => [] as ReadonlyArray<tsMorph.Node>),
+  );
+
+  return A.some(modifiers, (mod) => mod.getKind() === SyntaxKind.ExportKeyword);
+};
+
+// ---------------------------------------------------------------------------
+// isSchemaPattern
+// ---------------------------------------------------------------------------
+
+/** @internal */
+const isSchemaPattern = (pattern: string | null): boolean =>
+  pattern === "Schema.Struct" ||
+  pattern === "Schema.Class" ||
+  pattern === "Schema.Union" ||
+  pattern === "Schema.TaggedStruct" ||
+  pattern === "Schema.TaggedErrorClass" ||
+  pattern === "Schema.brand";
+
+// ---------------------------------------------------------------------------
+// assembleOneSymbol
+// ---------------------------------------------------------------------------
+
+/** @internal */
+const assembleOneSymbol = (
+  node: tsMorph.Node,
+  name: string,
+  pkg: string,
+  moduleName: string,
+  filePath: string,
+  moduleDescription: string | null,
+): IndexedSymbol => {
+  // 1. Extract JSDoc metadata
+  const jsDoc = extractJsDoc(node);
+
+  // 2. Detect Effect pattern
+  const effectPattern = detectEffectPattern(node);
+
+  // 3. Extract Schema annotations
+  const schemaAnnotations = extractSchemaAnnotations(node);
+
+  // 4. Extract field annotations for Schema patterns
+  const fieldDescriptions = isSchemaPattern(effectPattern)
+    ? extractFieldAnnotations(node)
+    : null;
+
+  // 5. Determine classification inputs
+  const kind = node.getKind();
+  const isTypeAlias = kind === SyntaxKind.TypeAliasDeclaration;
+  const isInterface = kind === SyntaxKind.InterfaceDeclaration;
+
+  // 6. Classify the symbol
+  const symbolKind = classifySymbol({
+    effectPattern,
+    category: jsDoc.category,
+    isTypeAlias,
+    isInterface,
+    isPackageDocumentation: false,
+  });
+
+  // 7. Generate ID
+  const id = generateId(pkg, moduleName, name);
+
+  // 8. Extract signature
+  const signature = extractSignature(node);
+
+  // 9. Compute content hash
+  const contentHash = computeContentHash(node.getText());
+
+  // 10. Get line numbers
+  const startLine = node.getStartLineNumber();
+  const endLine = node.getEndLineNumber();
+
+  // 11. Build the partial IndexedSymbol (without derived fields)
+  const partial: IndexedSymbol = {
+    id,
+    name,
+    qualifiedName: `${pkg}/${moduleName}/${name}`,
+    filePath,
+    startLine,
+    endLine,
+    kind: symbolKind,
+    effectPattern,
+    package: pkg,
+    module: moduleName,
+    category: jsDoc.category,
+    domain: jsDoc.domain,
+    description: jsDoc.description,
+    title: pipe(
+      O.fromNullishOr(schemaAnnotations),
+      O.flatMap((a) => O.fromNullishOr(a.title)),
+      O.getOrElse(() => null as string | null),
+    ),
+    schemaIdentifier: pipe(
+      O.fromNullishOr(schemaAnnotations),
+      O.flatMap((a) => O.fromNullishOr(a.identifier)),
+      O.getOrElse(() => null as string | null),
+    ),
+    schemaDescription: pipe(
+      O.fromNullishOr(schemaAnnotations),
+      O.flatMap((a) => O.fromNullishOr(a.description)),
+      O.getOrElse(() => null as string | null),
+    ),
+    remarks: jsDoc.remarks,
+    moduleDescription,
+    examples: jsDoc.examples,
+    params: jsDoc.params,
+    returns: jsDoc.returns,
+    errors: jsDoc.errors,
+    fieldDescriptions,
+    seeRefs: jsDoc.seeRefs,
+    provides: jsDoc.provides,
+    dependsOn: jsDoc.dependsOn,
+    imports: [], // Populated in second pass
+    signature,
+    since: jsDoc.since,
+    deprecated: jsDoc.deprecated,
+    exported: isNodeExported(node),
+    // Placeholders for derived fields
+    embeddingText: "",
+    contentHash,
+    indexedAt: new Date().toISOString(),
+  };
+
+  // 12. Build derived fields
+  const embeddingText = buildEmbeddingText(partial);
+
+  const result: IndexedSymbol = {
+    ...partial,
+    embeddingText,
+  };
+
+  // 13. Validate (warn but still include)
+  const validationErrors = validateIndexedSymbol(result);
+  if (A.isReadonlyArrayNonEmpty(validationErrors)) {
+    // Log warnings but still include the symbol
+    pipe(
+      validationErrors,
+      A.forEach((err) => {
+        // eslint-disable-next-line no-console
+        console.warn(`[SymbolAssembler] Validation warning for ${id}: ${err}`);
+      }),
+    );
+  }
+
+  return result;
+};
+
+// ---------------------------------------------------------------------------
+// assembleModuleSymbol
+// ---------------------------------------------------------------------------
+
+/** @internal */
+const assembleModuleSymbol = (
+  sourceFile: tsMorph.SourceFile,
+  pkg: string,
+  moduleName: string,
+  filePath: string,
+  moduleDoc: { readonly description: string; readonly since: string; readonly category: string; readonly moduleDescription: string | null },
+): IndexedSymbol => {
+  const id = generateId(pkg, moduleName, "_module");
+  const now = new Date().toISOString();
+
+  const partial: IndexedSymbol = {
+    id,
+    name: "_module",
+    qualifiedName: `${pkg}/${moduleName}/_module`,
+    filePath,
+    startLine: 1,
+    endLine: sourceFile.getEndLineNumber(),
+    kind: "module",
+    effectPattern: null,
+    package: pkg,
+    module: moduleName,
+    category: moduleDoc.category,
+    domain: null,
+    description: moduleDoc.description,
+    title: null,
+    schemaIdentifier: null,
+    schemaDescription: null,
+    remarks: null,
+    moduleDescription: moduleDoc.moduleDescription,
+    examples: [],
+    params: [],
+    returns: null,
+    errors: [],
+    fieldDescriptions: null,
+    seeRefs: [],
+    provides: [],
+    dependsOn: [],
+    imports: [],
+    signature: `module ${moduleName}`,
+    since: moduleDoc.since,
+    deprecated: false,
+    exported: true,
+    embeddingText: "",
+    contentHash: computeContentHash(sourceFile.getFullText()),
+    indexedAt: now,
+  };
+
+  const embeddingText = buildEmbeddingText(partial);
+
+  return {
+    ...partial,
+    embeddingText,
+  };
+};
+
+// ---------------------------------------------------------------------------
+// assembleSymbols
+// ---------------------------------------------------------------------------
+
+/**
+ * Extracts and assembles IndexedSymbol records from a ts-morph SourceFile.
+ * Iterates over all exported declarations, merges JSDoc + Effect pattern
+ * detection + Schema annotations, and produces fully populated IndexedSymbol
+ * records. Also creates a module-level symbol if @packageDocumentation JSDoc
+ * is present.
+ *
+ * This is a pure function operating on in-memory ts-morph data structures.
+ * It does not require FileSystem or any Effect services.
+ *
+ * @since 0.0.0
+ * @category assemblers
+ */
+export const assembleSymbols = (
+  sourceFile: tsMorph.SourceFile,
+  pkg: string,
+  moduleName: string,
+): ReadonlyArray<IndexedSymbol> => {
+  const filePath = sourceFile.getFilePath();
+  const symbols: Array<IndexedSymbol> = [];
+
+  // Extract module-level documentation
+  const moduleDoc = extractModuleDoc(sourceFile);
+  const moduleDescription = pipe(
+    O.fromNullishOr(moduleDoc),
+    O.flatMap((doc) => O.fromNullishOr(doc.moduleDescription)),
+    O.getOrElse(() => null as string | null),
+  );
+
+  // If module-level doc exists, create a module symbol
+  if (moduleDoc !== null) {
+    const moduleSym = assembleModuleSymbol(
+      sourceFile,
+      pkg,
+      moduleName,
+      filePath,
+      {
+        description: moduleDoc.description,
+        since: moduleDoc.since,
+        category: moduleDoc.category,
+        moduleDescription: moduleDoc.moduleDescription,
+      },
+    );
+    symbols.push(moduleSym);
+  }
+
+  // Iterate over all statements in the source file
+  const statements = sourceFile.getStatements();
+  pipe(
+    statements,
+    A.forEach((node) => {
+      // Only process exported declarations
+      if (!isNodeExported(node)) return;
+
+      // Get the export name
+      const nameOpt = getExportName(node);
+      if (O.isNone(nameOpt)) return;
+      const name = nameOpt.value;
+
+      const sym = assembleOneSymbol(
+        node,
+        name,
+        pkg,
+        moduleName,
+        filePath,
+        moduleDescription,
+      );
+      symbols.push(sym);
+    }),
+  );
+
+  return symbols;
+};
+
+// ---------------------------------------------------------------------------
+// resolveImports (second pass)
+// ---------------------------------------------------------------------------
+
+/**
+ * Performs the second-pass import resolution on a collection of IndexedSymbols.
+ * For each source file's import declarations, matches import specifiers against
+ * known symbol IDs and populates the `imports` field on each symbol.
+ *
+ * @since 0.0.0
+ * @category assemblers
+ */
+export const resolveImports = (
+  symbols: ReadonlyArray<IndexedSymbol>,
+  sourceFiles: ReadonlyArray<tsMorph.SourceFile>,
+  fileToSymbolIds: ReadonlyMap<string, ReadonlyArray<string>>,
+): ReadonlyArray<IndexedSymbol> => {
+  // Build a map from symbol name to symbol IDs for quick lookup
+  const nameToIds = new Map<string, Array<string>>();
+  pipe(
+    symbols,
+    A.forEach((sym) => {
+      const existing = nameToIds.get(sym.name);
+      if (existing !== undefined) {
+        existing.push(sym.id);
+      } else {
+        nameToIds.set(sym.name, [sym.id]);
+      }
+    }),
+  );
+
+  return pipe(
+    symbols,
+    A.map((sym): IndexedSymbol => {
+      // Find the source file for this symbol
+      const sourceFile = pipe(
+        sourceFiles,
+        A.findFirst((sf) => sf.getFilePath() === sym.filePath),
+      );
+
+      if (O.isNone(sourceFile)) return sym;
+
+      // Get import declarations from this source file
+      const importDecls = sourceFile.value.getImportDeclarations();
+      const importedIds: Array<string> = [];
+
+      pipe(
+        A.fromIterable(importDecls),
+        A.forEach((importDecl) => {
+          // Get named imports
+          const namedImports = importDecl.getNamedImports();
+          pipe(
+            A.fromIterable(namedImports),
+            A.forEach((named) => {
+              const importedName = named.getName();
+              const matchingIds = nameToIds.get(importedName);
+              if (matchingIds !== undefined) {
+                pipe(
+                  A.fromIterable(matchingIds),
+                  A.forEach((id) => {
+                    importedIds.push(id);
+                  }),
+                );
+              }
+            }),
+          );
+
+          // Get default import
+          const defaultImport = importDecl.getDefaultImport();
+          if (defaultImport !== undefined) {
+            const defaultName = defaultImport.getText();
+            const matchingIds = nameToIds.get(defaultName);
+            if (matchingIds !== undefined) {
+              pipe(
+                A.fromIterable(matchingIds),
+                A.forEach((id) => {
+                  importedIds.push(id);
+                }),
+              );
+            }
+          }
+        }),
+      );
+
+      if (A.isArrayNonEmpty(importedIds)) {
+        return { ...sym, imports: importedIds };
+      }
+
+      return sym;
+    }),
+  );
+};
+
+// ---------------------------------------------------------------------------
+// resolveModuleName
+// ---------------------------------------------------------------------------
+
+/**
+ * Extracts the module name from a file path relative to the package src
+ * directory. Strips the `src/` prefix and `.ts` extension to produce a
+ * clean module path (e.g. `tooling/cli/src/commands/codegen.ts` yields
+ * `commands/codegen`).
+ *
+ * @since 0.0.0
+ * @category helpers
+ */
+export const resolveModuleName = (filePath: string): string => {
+  // Find the src/ segment and extract everything after it
+  const srcIndex = filePath.indexOf("/src/");
+  if (srcIndex === -1) {
+    // Fall back to just stripping the extension
+    const lastSlash = filePath.lastIndexOf("/");
+    const basename = lastSlash >= 0 ? filePath.slice(lastSlash + 1) : filePath;
+    return basename.replace(/\.ts$/, "");
+  }
+
+  const afterSrc = filePath.slice(srcIndex + 5); // skip "/src/"
+  // Remove .ts extension
+  return afterSrc.replace(/\.ts$/, "");
+};

@@ -48,3 +48,7 @@ test-results/
 
 # Claude plugin state files (ralph-wiggum loop state)
 .claude/ralph-loop.local.md
+
+# Local MCP + Codex config (project-scoped, not committed)
+.mcp.json
+.codex/

@@ -55,3 +55,48 @@ export type {
   /** @since 0.0.0 */
   SchemaAnnotations,
 } from "./EffectPatternDetector.js";
+
+/**
+ * Re-export all Symbol Assembler utilities for merging extraction results
+ * into complete IndexedSymbol records.
+ * @since 0.0.0
+ */
+export {
+  /** @since 0.0.0 */
+  assembleSymbols,
+  /** @since 0.0.0 */
+  resolveImports,
+  /** @since 0.0.0 */
+  resolveModuleName,
+  /** @since 0.0.0 */
+  extractSignature,
+} from "./SymbolAssembler.js";
+
+/**
+ * Re-export all File Scanner utilities for filesystem scanning and
+ * content hash change detection.
+ * @since 0.0.0
+ */
+export {
+  /** @since 0.0.0 */
+  scanFiles,
+  /** @since 0.0.0 */
+  saveFileHashes,
+  /** @since 0.0.0 */
+  computeFileHashes,
+  /** @since 0.0.0 */
+  FILE_HASHES_PATH,
+} from "./FileScanner.js";
+
+/**
+ * Re-export File Scanner types for downstream consumers.
+ * @since 0.0.0
+ */
+export type {
+  /** @since 0.0.0 */
+  FileHash,
+  /** @since 0.0.0 */
+  ScanResult,
+  /** @since 0.0.0 */
+  ScanMode,
+} from "./FileScanner.js";

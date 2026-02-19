@@ -36,10 +36,7 @@
       {
         "name": "@effect/language-service",
         "transform": "@effect/language-service/transform",
-        "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"],
-        "diagnosticSeverity": {
-          "globalErrorInEffectFailure": "off"
-        }
+        "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"]
       }
     ]
   }
