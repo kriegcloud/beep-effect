@@ -68,7 +68,7 @@ const collectBindingNamesFromPattern = (node: unknown): Array<string> => {
         continue
       }
 
-      if (n.RestElement.check(property)) {
+      if (isRecord(property) && "argument" in property) {
         output.push(...collectBindingNamesFromPattern(property.argument))
         continue
       }
@@ -144,7 +144,7 @@ const inferExportKindFromDeclarationType = (declaration: unknown): ExportKind =>
 const collectExportsWithAst = (sourceText: string): Map<string, ExportKind> => {
   const j = jscodeshift.withParser("ts")
   const root = j(sourceText)
-  const ast = root.getAST()
+  const ast = root.get().node
   const output = new Map<string, ExportKind>()
 
   visit(ast, {
@@ -156,6 +156,9 @@ const collectExportsWithAst = (sourceText: string): Map<string, ExportKind> => {
         if (n.VariableDeclaration.check(declaration)) {
           const kind = kindFromVariableDeclarationKind(declaration.kind)
           for (const variableDeclaration of declaration.declarations) {
+            if (!n.VariableDeclarator.check(variableDeclaration)) {
+              continue
+            }
             for (const name of collectBindingNamesFromPattern(variableDeclaration.id)) {
               output.set(name, kind)
             }
@@ -347,16 +350,25 @@ export const parseModuleExports = (options: {
     .filter((name) => !astNames.has(name))
     .sort((a, b) => a.localeCompare(b))
 
+  const diagnosticsBase: Omit<ModuleParseDiagnostics, "parseError"> = {
+    jscodeshiftParseOk: astParseError === undefined,
+    astExportCount: astNames.size,
+    tsMorphExportCount: tsMorphNames.size,
+    mergedExportCount: mergedNames.size,
+    missingInTsMorph,
+    missingInAst
+  }
+
+  const diagnostics: ModuleParseDiagnostics =
+    astParseError === undefined
+      ? diagnosticsBase
+      : {
+          ...diagnosticsBase,
+          parseError: astParseError
+        }
+
   return {
     exports: mergedExports,
-    diagnostics: {
-      jscodeshiftParseOk: astParseError === undefined,
-      astExportCount: astNames.size,
-      tsMorphExportCount: tsMorphNames.size,
-      mergedExportCount: mergedNames.size,
-      missingInTsMorph,
-      missingInAst,
-      parseError: astParseError
-    }
+    diagnostics
   }
 }

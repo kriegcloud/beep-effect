@@ -1,10 +1,11 @@
 # effect/Array Surface
 
-Total exports: 135
+Total exports: 140
 
 | Export | Kind | Overview |
 |---|---|---|
 | `allocate` | `const` | Creates a new `Array` of the specified length with all slots uninitialized. |
+| `AndNonEmpty` | `type` | No summary found in JSDoc. |
 | `append` | `const` | Adds a single element to the end of an iterable, returning a `NonEmptyArray`. |
 | `appendAll` | `const` | Concatenates two iterables into a single array. |
 | `Array` | `const` | Reference to the global `Array` constructor. |
@@ -41,6 +42,7 @@ Total exports: 135
 | `flatMap` | `const` | Maps each element to an array and flattens the results into a single array. |
 | `flatMapNullishOr` | `const` | Maps each element with a nullable-returning function, keeping only non-null / non-undefined results. |
 | `flatten` | `const` | Flattens a nested array of arrays into a single array. |
+| `Flatten` | `type` | No summary found in JSDoc. |
 | `forEach` | `const` | Runs a side-effect for each element. The callback receives `(element, index)`. |
 | `fromIterable` | `const` | Converts an `Iterable` to an `Array`. |
 | `fromNullishOr` | `const` | Converts a nullable value to an array: `null`/`undefined` becomes `[]`, anything else becomes `[value]`. |
@@ -57,6 +59,7 @@ Total exports: 135
 | `groupWith` | `const` | Groups consecutive equal elements using a custom equivalence function. |
 | `head` | `const` | Returns the first element of an array wrapped in `Option.some`, or `Option.none` if the array is empty. |
 | `headNonEmpty` | `const` | Returns the first element of a `NonEmptyReadonlyArray` directly (no `Option` wrapper). |
+| `Infer` | `type` | No summary found in JSDoc. |
 | `init` | `function` | Returns all elements except the last, or `undefined` if the array is empty. |
 | `initNonEmpty` | `const` | Returns all elements except the last of a `NonEmptyReadonlyArray`. |
 | `insertAt` | `const` | Inserts an element at the specified index, returning a new `NonEmptyArray`, or `undefined` if the index is out of bounds. |
@@ -73,7 +76,7 @@ Total exports: 135
 | `last` | `const` | Returns the last element of an array wrapped in `Option.some`, or `Option.none` if the array is empty. |
 | `lastNonEmpty` | `const` | Returns the last element of a `NonEmptyReadonlyArray` directly (no `Option` wrapper). |
 | `length` | `const` | Returns the number of elements in a `ReadonlyArray`. |
-| `let` | `reexport` | No summary found in JSDoc. |
+| `let` | `const` | No summary found in JSDoc. |
 | `liftNullishOr` | `const` | Lifts a nullable-returning function into one that returns an array: `null`/`undefined` becomes `[]`, anything else becomes `[value]`. |
 | `liftOption` | `const` | Lifts an `Option`-returning function into one that returns an array: `Some(a)` becomes `[a]`, `None` becomes `[]`. |
 | `liftPredicate` | `const` | Lifts a predicate into an array: returns `[value]` if the predicate holds, `[]` otherwise. |
@@ -96,6 +99,7 @@ Total exports: 135
 | `NonEmptyArray` | `type` | A mutable array guaranteed to have at least one element. |
 | `NonEmptyReadonlyArray` | `type` | A readonly array guaranteed to have at least one element. |
 | `of` | `const` | Wraps a single value in a `NonEmptyArray`. |
+| `OrNonEmpty` | `type` | No summary found in JSDoc. |
 | `pad` | `const` | Pads or truncates an array to exactly `n` elements, filling with `fill` if the array is shorter, or slicing if longer. |
 | `partition` | `const` | Splits an iterable into two arrays: elements that fail the predicate and elements that satisfy it. |
 | `partitionMap` | `const` | Maps each element to a `Result`, then separates failures and successes into two arrays. |
@@ -137,5 +141,6 @@ Total exports: 135
 | `unprepend` | `const` | Splits a non-empty array into its first element and the remaining elements. |
 | `unzip` | `const` | Splits an array of pairs into two arrays. Inverse of {@link zip}. |
 | `window` | `const` | Creates overlapping sliding windows of size `n`. |
+| `With` | `type` | No summary found in JSDoc. |
 | `zip` | `const` | Pairs elements from two iterables by position. If the iterables differ in length, the extra elements from the longer one are discarded. |
 | `zipWith` | `const` | Combines elements from two iterables pairwise using a function. If the iterables differ in length, extra elements are discarded. |

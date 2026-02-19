@@ -6,7 +6,7 @@
  * Export: intersectionWith
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Array.ts
- * Generated: 2026-02-19T03:49:05.488Z
+ * Generated: 2026-02-19T04:02:05.394Z
  *
  * Overview:
  * Computes the intersection of two arrays using a custom equivalence. Order is determined by the first array.
@@ -28,8 +28,16 @@ import * as Effect from "effect/Effect";
 import * as Console from "effect/Console";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as Cause from "effect/Cause";
 import * as Array from "effect/Array";
+import {
+  formatUnknown,
+  logBunContextLayer,
+  logCompletion,
+  logHeader,
+  logSourceExample,
+  logSummary,
+  reportProgramError
+} from "@beep/groking-effect-v4/runtime/Playground";
 
 const exportName = "intersectionWith";
 const exportKind = "const";
@@ -37,26 +45,11 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Computes the intersection of two arrays using a custom equivalence. Order is determined by the first array.";
 const sourceExample = "import { Array } from \"effect\"\n\nconst array1 = [{ id: 1 }, { id: 2 }, { id: 3 }]\nconst array2 = [{ id: 3 }, { id: 4 }, { id: 1 }]\nconst isEquivalent = (a: { id: number }, b: { id: number }) => a.id === b.id\nconsole.log(Array.intersectionWith(isEquivalent)(array2)(array1)) // [{ id: 1 }, { id: 3 }]";
 
-const formatUnknown = (value: unknown): string => {
-  try {
-    if (typeof value === "string") {
-      return value;
-    }
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
-  }
-};
-
 const program = Effect.gen(function* () {
-  yield* Console.log(`\n┌────────────────────────────────────────────────────────────┐`);
-  yield* Console.log(`│ 🔎 ${moduleImportPath}.${exportName} (${exportKind})`);
-  yield* Console.log(`└────────────────────────────────────────────────────────────┘`);
-  yield* Console.log(`\n📝 ${sourceSummary}`);
-
-  if (sourceExample.length > 0) {
-    yield* Console.log(`\n📚 Source example:\n${sourceExample}`);
-  }
+  yield* logHeader({ icon: "🔎", moduleImportPath, exportName, exportKind });
+  yield* logSummary(sourceSummary);
+  yield* logSourceExample(sourceExample);
+  yield* Console.log(`\n📦 Inspecting runtime value-like export...`);
 
   const moduleKeys = Object.keys(Array);
   yield* Console.log(`\n📦 Module export count: ${moduleKeys.length}`);
@@ -71,16 +64,8 @@ const program = Effect.gen(function* () {
     yield* Console.log(`📄 Value preview:\n${formatUnknown(target)}`);
   }
 
-  yield* Console.log(`🧱 BunContext layer detected: ${String("layer" in BunContext)}`);
-  yield* Console.log(`\n✅ Demo complete for ${moduleImportPath}.${exportName}`);
-}).pipe(
-  Effect.catch((error) => Effect.gen(function* () {
-    const msg = String(error);
-    yield* Console.log(`\n💥 Program failed: ${msg}`);
-    const cause = Cause.fail(error);
-    yield* Console.log(`\n🔍 Error details: ${Cause.pretty(cause)}`);
-    return yield* Effect.fail(error);
-  }))
-);
+  yield* logBunContextLayer(BunContext);
+  yield* logCompletion(moduleImportPath, exportName);
+}).pipe(reportProgramError);
 
 BunRuntime.runMain(program);

@@ -6,7 +6,7 @@
  * Export: flatMapNullishOr
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Array.ts
- * Generated: 2026-02-19T03:49:05.483Z
+ * Generated: 2026-02-19T04:02:05.388Z
  *
  * Overview:
  * Maps each element with a nullable-returning function, keeping only non-null / non-undefined results.
@@ -26,8 +26,16 @@ import * as Effect from "effect/Effect";
 import * as Console from "effect/Console";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as Cause from "effect/Cause";
 import * as Array from "effect/Array";
+import {
+  formatUnknown,
+  logBunContextLayer,
+  logCompletion,
+  logHeader,
+  logSourceExample,
+  logSummary,
+  reportProgramError
+} from "@beep/groking-effect-v4/runtime/Playground";
 
 const exportName = "flatMapNullishOr";
 const exportKind = "const";
@@ -35,26 +43,11 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Maps each element with a nullable-returning function, keeping only non-null / non-undefined results.";
 const sourceExample = "import { Array } from \"effect\"\n\nconsole.log(Array.flatMapNullishOr([1, 2, 3], (n) => (n % 2 === 0 ? null : n)))\n// [1, 3]";
 
-const formatUnknown = (value: unknown): string => {
-  try {
-    if (typeof value === "string") {
-      return value;
-    }
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
-  }
-};
-
 const program = Effect.gen(function* () {
-  yield* Console.log(`\n┌────────────────────────────────────────────────────────────┐`);
-  yield* Console.log(`│ 🔎 ${moduleImportPath}.${exportName} (${exportKind})`);
-  yield* Console.log(`└────────────────────────────────────────────────────────────┘`);
-  yield* Console.log(`\n📝 ${sourceSummary}`);
-
-  if (sourceExample.length > 0) {
-    yield* Console.log(`\n📚 Source example:\n${sourceExample}`);
-  }
+  yield* logHeader({ icon: "🔎", moduleImportPath, exportName, exportKind });
+  yield* logSummary(sourceSummary);
+  yield* logSourceExample(sourceExample);
+  yield* Console.log(`\n📦 Inspecting runtime value-like export...`);
 
   const moduleKeys = Object.keys(Array);
   yield* Console.log(`\n📦 Module export count: ${moduleKeys.length}`);
@@ -69,16 +62,8 @@ const program = Effect.gen(function* () {
     yield* Console.log(`📄 Value preview:\n${formatUnknown(target)}`);
   }
 
-  yield* Console.log(`🧱 BunContext layer detected: ${String("layer" in BunContext)}`);
-  yield* Console.log(`\n✅ Demo complete for ${moduleImportPath}.${exportName}`);
-}).pipe(
-  Effect.catch((error) => Effect.gen(function* () {
-    const msg = String(error);
-    yield* Console.log(`\n💥 Program failed: ${msg}`);
-    const cause = Cause.fail(error);
-    yield* Console.log(`\n🔍 Error details: ${Cause.pretty(cause)}`);
-    return yield* Effect.fail(error);
-  }))
-);
+  yield* logBunContextLayer(BunContext);
+  yield* logCompletion(moduleImportPath, exportName);
+}).pipe(reportProgramError);
 
 BunRuntime.runMain(program);

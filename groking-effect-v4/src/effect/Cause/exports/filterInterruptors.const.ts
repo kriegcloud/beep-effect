@@ -6,7 +6,7 @@
  * Export: filterInterruptors
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Cause.ts
- * Generated: 2026-02-19T03:49:05.755Z
+ * Generated: 2026-02-19T04:02:04.684Z
  *
  * Overview:
  * Extracts the set of interrupting fiber IDs from a cause. Returns `Filter.fail` with the original cause when no {@link Interrupt} reason is found.
@@ -28,8 +28,16 @@ import * as Effect from "effect/Effect";
 import * as Console from "effect/Console";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as Cause from "effect/Cause";
 import * as CauseModule from "effect/Cause";
+import {
+  formatUnknown,
+  logBunContextLayer,
+  logCompletion,
+  logHeader,
+  logSourceExample,
+  logSummary,
+  reportProgramError
+} from "@beep/groking-effect-v4/runtime/Playground";
 
 const exportName = "filterInterruptors";
 const exportKind = "const";
@@ -37,26 +45,11 @@ const moduleImportPath = "effect/Cause";
 const sourceSummary = "Extracts the set of interrupting fiber IDs from a cause. Returns `Filter.fail` with the original cause when no {@link Interrupt} reason is found.";
 const sourceExample = "import { Cause, Result } from \"effect\"\n\nconst result = Cause.filterInterruptors(Cause.interrupt(1))\nif (!Result.isFailure(result)) {\n  console.log(result.success) // Set { 1 }\n}";
 
-const formatUnknown = (value: unknown): string => {
-  try {
-    if (typeof value === "string") {
-      return value;
-    }
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
-  }
-};
-
 const program = Effect.gen(function* () {
-  yield* Console.log(`\n┌────────────────────────────────────────────────────────────┐`);
-  yield* Console.log(`│ 🔎 ${moduleImportPath}.${exportName} (${exportKind})`);
-  yield* Console.log(`└────────────────────────────────────────────────────────────┘`);
-  yield* Console.log(`\n📝 ${sourceSummary}`);
-
-  if (sourceExample.length > 0) {
-    yield* Console.log(`\n📚 Source example:\n${sourceExample}`);
-  }
+  yield* logHeader({ icon: "🔎", moduleImportPath, exportName, exportKind });
+  yield* logSummary(sourceSummary);
+  yield* logSourceExample(sourceExample);
+  yield* Console.log(`\n📦 Inspecting runtime value-like export...`);
 
   const moduleKeys = Object.keys(CauseModule);
   yield* Console.log(`\n📦 Module export count: ${moduleKeys.length}`);
@@ -71,16 +64,8 @@ const program = Effect.gen(function* () {
     yield* Console.log(`📄 Value preview:\n${formatUnknown(target)}`);
   }
 
-  yield* Console.log(`🧱 BunContext layer detected: ${String("layer" in BunContext)}`);
-  yield* Console.log(`\n✅ Demo complete for ${moduleImportPath}.${exportName}`);
-}).pipe(
-  Effect.catch((error) => Effect.gen(function* () {
-    const msg = String(error);
-    yield* Console.log(`\n💥 Program failed: ${msg}`);
-    const cause = Cause.fail(error);
-    yield* Console.log(`\n🔍 Error details: ${Cause.pretty(cause)}`);
-    return yield* Effect.fail(error);
-  }))
-);
+  yield* logBunContextLayer(BunContext);
+  yield* logCompletion(moduleImportPath, exportName);
+}).pipe(reportProgramError);
 
 BunRuntime.runMain(program);

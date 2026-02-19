@@ -69,6 +69,7 @@
     "typescript": "catalog:"
   },
   "devDependencies": {
+    "@types/jscodeshift": "catalog:",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   },

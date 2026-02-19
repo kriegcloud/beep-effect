@@ -232,11 +232,13 @@ const runBootstrapCommand = (flags: CliFlags): void => {
   const resolved = resolveRoots(flags)
 
   const repositoryResult = generateRepositorySurface({
-    packageName: flags.packageName,
     effectSmolRoot: resolved.effectSmolRoot,
     outputRoot: resolved.outputRoot,
     repoRoot: resolved.repoRoot,
-    manifestPath: resolved.manifestPath,
+    ...(flags.packageName === undefined ? {} : { packageName: flags.packageName }),
+    ...(resolved.manifestPath === undefined
+      ? {}
+      : { manifestPath: resolved.manifestPath }),
     dryRun: flags.dryRun
   })
 
