@@ -1,4 +1,5 @@
 import * as fs from "node:fs";
+import { createRequire } from "node:module";
 import * as path from "node:path";
 import { Project } from "ts-morph";
 import { extractModuleJsDoc } from "./doc.ts";
@@ -112,8 +113,40 @@ const resetExportDirectories = (
 
 const packageToFolderSegments = (packageName: string): Array<string> => packageName.split("/");
 
+const packageOutputDirectory = (outputRoot: string, packageName: string): string =>
+  path.join(outputRoot, ...packageToFolderSegments(packageName));
+
 const moduleOutputDirectory = (outputRoot: string, packageName: string, moduleName: string): string => {
   return path.join(outputRoot, ...packageToFolderSegments(packageName), ...moduleName.split("/"));
+};
+
+const createImportResolver = (repoRoot: string): ((importPath: string) => boolean) => {
+  const require = createRequire(path.join(repoRoot, "package.json"));
+  return (importPath: string): boolean => {
+    try {
+      require.resolve(importPath);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+};
+
+const cleanGeneratedPackageDirectories = (
+  outputRoot: string,
+  packageNames: ReadonlyArray<string>,
+  dryRun: boolean | undefined
+): void => {
+  if (dryRun === true) {
+    return;
+  }
+
+  const packageRoots = [...new Set(packageNames.map((packageName) => packageOutputDirectory(outputRoot, packageName)))];
+  packageRoots.sort((a, b) => b.length - a.length);
+
+  for (const packageRoot of packageRoots) {
+    fs.rmSync(packageRoot, { recursive: true, force: true });
+  }
 };
 
 const resolveModuleSourcePath = (packageDirectory: string, moduleName: string): string => {
@@ -364,13 +397,21 @@ const generateModuleSurfaceWithProject = (options: GenerateModuleOptions, projec
 
 const generatePackageSurfaceWithProject = (
   options: GeneratePackageOptions,
-  project: Project
+  project: Project,
+  isImportResolvable: ((importPath: string) => boolean) | undefined
 ): GeneratedPackageResult => {
   const packageDirectory = findPackageDirectory(options.effectSmolRoot, options.packageName);
   const modules = listModulesForPackage(packageDirectory);
   const moduleResults: Array<GeneratedModuleResult> = [];
 
   for (const moduleName of modules) {
+    if (options.resolvableImportsOnly === true) {
+      const moduleImportPath = `${options.packageName}/${moduleName}`;
+      if (isImportResolvable === undefined || isImportResolvable(moduleImportPath) === false) {
+        continue;
+      }
+    }
+
     const result = generateModuleSurfaceWithProject(
       {
         ...options,
@@ -428,7 +469,9 @@ export const generateModuleSurface = (options: GenerateModuleOptions): Generated
 
 export const generatePackageSurface = (options: GeneratePackageOptions): GeneratedPackageResult => {
   const project = createProject();
-  return generatePackageSurfaceWithProject(options, project);
+  const isImportResolvable =
+    options.resolvableImportsOnly === true ? createImportResolver(options.repoRoot) : undefined;
+  return generatePackageSurfaceWithProject(options, project, isImportResolvable);
 };
 
 export const generateRepositorySurface = (options: GenerateRepositoryOptions): GeneratedRepositoryResult => {
@@ -437,12 +480,20 @@ export const generateRepositorySurface = (options: GenerateRepositoryOptions): G
     .map((entry) => entry.name)
     .sort((a, b) => a.localeCompare(b));
 
-  const packageNames =
-    options.packageName === undefined
-      ? discoveredPackages
-      : discoveredPackages.filter((name) => name === options.packageName);
+  let packageNames: Array<string>;
+  if (options.packageNames !== undefined && options.packageNames.length > 0) {
+    const selected = new Set(options.packageNames);
+    packageNames = discoveredPackages.filter((name) => selected.has(name));
+  } else if (options.packageName !== undefined) {
+    packageNames = discoveredPackages.filter((name) => name === options.packageName);
+  } else {
+    packageNames = discoveredPackages;
+  }
 
   if (packageNames.length === 0) {
+    if (options.packageNames !== undefined && options.packageNames.length > 0) {
+      throw new Error(`None of the requested packages were discovered: ${options.packageNames.join(", ")}`);
+    }
     throw new Error(
       options.packageName === undefined
         ? "No packages were discovered in effect-smol."
@@ -450,16 +501,32 @@ export const generateRepositorySurface = (options: GenerateRepositoryOptions): G
     );
   }
 
+  if (options.cleanPackageRoots === true) {
+    cleanGeneratedPackageDirectories(options.outputRoot, discoveredPackages, options.dryRun);
+  }
+
   const packageResults: Array<GeneratedPackageResult> = [];
+  const isImportResolvable =
+    options.resolvableImportsOnly === true ? createImportResolver(options.repoRoot) : undefined;
   for (const packageName of packageNames) {
-    packageResults.push(
-      generatePackageSurfaceWithProject(
-        {
-          ...options,
-          packageName,
-        },
-        project
-      )
+    const packageResult = generatePackageSurfaceWithProject(
+      {
+        ...options,
+        packageName,
+      },
+      project,
+      isImportResolvable
+    );
+
+    if (packageResult.moduleResults.length === 0) {
+      continue;
+    }
+    packageResults.push(packageResult);
+  }
+
+  if (packageResults.length === 0) {
+    throw new Error(
+      "No modules were generated. Try disabling the resolvable import filter or selecting installed packages."
     );
   }
 
