@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import * as SpecFetcher from "@effect/ai-codegen/SpecFetcher"
- * 
+ *
  * const error = new SpecFetcher.SpecFetchError({
  *   provider: "openai",
  *   source: "https://example.com/openapi.json",
@@ -25,16 +25,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SpecFetcherModule from "@effect/ai-codegen/SpecFetcher";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as SpecFetcherModule from "@effect/ai-codegen/SpecFetcher";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "SpecFetchError";
 const exportKind = "class";
 const moduleImportPath = "@effect/ai-codegen/SpecFetcher";
 const sourceSummary = "Error when fetching a spec fails.";
-const sourceExample = "import * as SpecFetcher from \"@effect/ai-codegen/SpecFetcher\"\n\nconst error = new SpecFetcher.SpecFetchError({\n  provider: \"openai\",\n  source: \"https://example.com/openapi.json\",\n  cause: new Error(\"Network error\")\n})";
+const sourceExample =
+  'import * as SpecFetcher from "@effect/ai-codegen/SpecFetcher"\n\nconst error = new SpecFetcher.SpecFetchError({\n  provider: "openai",\n  source: "https://example.com/openapi.json",\n  cause: new Error("Network error")\n})';
 const moduleRecord = SpecFetcherModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,25 +14,25 @@
  * Source JSDoc Example:
  * ```ts
  * import { Data, Effect, Layer, Metric } from "effect"
- * 
+ *
  * class MetricsError extends Data.TaggedError("MetricsError")<{
  *   readonly operation: string
  * }> {}
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // The key is used internally by the Effect runtime to manage fiber metrics
  *   const key = Metric.FiberRuntimeMetricsKey
  *   console.log("Fiber metrics key:", key)
- * 
+ *
  *   // Enable runtime metrics using the key
  *   const layer = Layer.succeed(Metric.FiberRuntimeMetrics)(
  *     Metric.FiberRuntimeMetricsImpl
  *   )
- * 
+ *
  *   return yield* Effect.gen(function*() {
  *     // This Effect will have fiber metrics automatically collected
  *     yield* Effect.sleep("100 millis")
- * 
+ *
  *     // Create a test counter to demonstrate the key usage
  *     const testCounter = Metric.counter("test_counter")
  *     yield* Metric.update(testCounter, 1)
@@ -45,16 +45,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MetricModule from "effect/Metric";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MetricModule from "effect/Metric";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -63,7 +64,8 @@ const exportName = "FiberRuntimeMetricsKey";
 const exportKind = "const";
 const moduleImportPath = "effect/Metric";
 const sourceSummary = "Service key for the fiber runtime metrics service.";
-const sourceExample = "import { Data, Effect, Layer, Metric } from \"effect\"\n\nclass MetricsError extends Data.TaggedError(\"MetricsError\")<{\n  readonly operation: string\n}> {}\n\nconst program = Effect.gen(function*() {\n  // The key is used internally by the Effect runtime to manage fiber metrics\n  const key = Metric.FiberRuntimeMetricsKey\n  console.log(\"Fiber metrics key:\", key)\n\n  // Enable runtime metrics using the key\n  const layer = Layer.succeed(Metric.FiberRuntimeMetrics)(\n    Metric.FiberRuntimeMetricsImpl\n  )\n\n  return yield* Effect.gen(function*() {\n    // This Effect will have fiber metrics automatically collected\n    yield* Effect.sleep(\"100 millis\")\n\n    // Create a test counter to demonstrate the key usage\n    const testCounter = Metric.counter(\"test_counter\")\n    yield* Metric.update(testCounter, 1)\n    return yield* Metric.value(testCounter)\n  }).pipe(Effect.provide(layer))\n})";
+const sourceExample =
+  'import { Data, Effect, Layer, Metric } from "effect"\n\nclass MetricsError extends Data.TaggedError("MetricsError")<{\n  readonly operation: string\n}> {}\n\nconst program = Effect.gen(function*() {\n  // The key is used internally by the Effect runtime to manage fiber metrics\n  const key = Metric.FiberRuntimeMetricsKey\n  console.log("Fiber metrics key:", key)\n\n  // Enable runtime metrics using the key\n  const layer = Layer.succeed(Metric.FiberRuntimeMetrics)(\n    Metric.FiberRuntimeMetricsImpl\n  )\n\n  return yield* Effect.gen(function*() {\n    // This Effect will have fiber metrics automatically collected\n    yield* Effect.sleep("100 millis")\n\n    // Create a test counter to demonstrate the key usage\n    const testCounter = Metric.counter("test_counter")\n    yield* Metric.update(testCounter, 1)\n    return yield* Metric.value(testCounter)\n  }).pipe(Effect.provide(layer))\n})';
 const moduleRecord = MetricModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -94,14 +96,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

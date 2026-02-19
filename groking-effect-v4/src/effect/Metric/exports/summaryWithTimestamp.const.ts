@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Metric } from "effect"
- * 
+ *
  * const responseTimesSummary = Metric.summaryWithTimestamp(
  *   "response_times_summary",
  *   {
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MetricModule from "effect/Metric";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MetricModule from "effect/Metric";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,8 +48,10 @@ import {
 const exportName = "summaryWithTimestamp";
 const exportKind = "const";
 const moduleImportPath = "effect/Metric";
-const sourceSummary = "Creates a `Summary` metric that records observations and calculates quantiles which takes a value and the current timestamp as input.";
-const sourceExample = "import { Metric } from \"effect\"\n\nconst responseTimesSummary = Metric.summaryWithTimestamp(\n  \"response_times_summary\",\n  {\n    description: \"Measures the distribution of response times\",\n    maxAge: \"60 seconds\", // Retain observations for 60 seconds.\n    maxSize: 1000, // Keep a maximum of 1000 observations.\n    quantiles: [0.5, 0.9, 0.99] // Calculate 50th, 90th, and 99th quantiles.\n  }\n)";
+const sourceSummary =
+  "Creates a `Summary` metric that records observations and calculates quantiles which takes a value and the current timestamp as input.";
+const sourceExample =
+  'import { Metric } from "effect"\n\nconst responseTimesSummary = Metric.summaryWithTimestamp(\n  "response_times_summary",\n  {\n    description: "Measures the distribution of response times",\n    maxAge: "60 seconds", // Retain observations for 60 seconds.\n    maxSize: 1000, // Keep a maximum of 1000 observations.\n    quantiles: [0.5, 0.9, 0.99] // Calculate 50th, 90th, and 99th quantiles.\n  }\n)';
 const moduleRecord = MetricModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

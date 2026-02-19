@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Exit, Request, RequestResolver } from "effect"
- * 
+ *
  * interface GetDataRequest extends Request.Request<string> {
  *   readonly _tag: "GetDataRequest"
  * }
  * const GetDataRequest = Request.tagged<GetDataRequest>("GetDataRequest")
- * 
+ *
  * const resolver = RequestResolver.make<GetDataRequest>((entries) =>
  *   Effect.sync(() => {
  *     for (const entry of entries) {
@@ -27,10 +27,10 @@
  *     }
  *   })
  * )
- * 
+ *
  * // Add a 100ms delay to batch requests together
  * const delayedResolver = RequestResolver.setDelay(resolver, "100 millis")
- * 
+ *
  * // Can also use number for milliseconds
  * const delayedResolver2 = RequestResolver.setDelay(resolver, 100)
  * ```
@@ -39,16 +39,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RequestResolverModule from "effect/RequestResolver";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RequestResolverModule from "effect/RequestResolver";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -57,7 +58,8 @@ const exportName = "setDelay";
 const exportKind = "const";
 const moduleImportPath = "effect/RequestResolver";
 const sourceSummary = "Sets the batch delay window for this request resolver to the specified duration.";
-const sourceExample = "import { Effect, Exit, Request, RequestResolver } from \"effect\"\n\ninterface GetDataRequest extends Request.Request<string> {\n  readonly _tag: \"GetDataRequest\"\n}\nconst GetDataRequest = Request.tagged<GetDataRequest>(\"GetDataRequest\")\n\nconst resolver = RequestResolver.make<GetDataRequest>((entries) =>\n  Effect.sync(() => {\n    for (const entry of entries) {\n      entry.completeUnsafe(Exit.succeed(\"data\"))\n    }\n  })\n)\n\n// Add a 100ms delay to batch requests together\nconst delayedResolver = RequestResolver.setDelay(resolver, \"100 millis\")\n\n// Can also use number for milliseconds\nconst delayedResolver2 = RequestResolver.setDelay(resolver, 100)";
+const sourceExample =
+  'import { Effect, Exit, Request, RequestResolver } from "effect"\n\ninterface GetDataRequest extends Request.Request<string> {\n  readonly _tag: "GetDataRequest"\n}\nconst GetDataRequest = Request.tagged<GetDataRequest>("GetDataRequest")\n\nconst resolver = RequestResolver.make<GetDataRequest>((entries) =>\n  Effect.sync(() => {\n    for (const entry of entries) {\n      entry.completeUnsafe(Exit.succeed("data"))\n    }\n  })\n)\n\n// Add a 100ms delay to batch requests together\nconst delayedResolver = RequestResolver.setDelay(resolver, "100 millis")\n\n// Can also use number for milliseconds\nconst delayedResolver2 = RequestResolver.setDelay(resolver, 100)';
 const moduleRecord = RequestResolverModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -88,14 +90,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

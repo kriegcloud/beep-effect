@@ -15,9 +15,9 @@
  * ```ts
  * import * as BigInt from "effect/BigInt"
  * import * as assert from "node:assert"
- * 
+ *
  * const between = BigInt.between({ minimum: 0n, maximum: 5n })
- * 
+ *
  * assert.deepStrictEqual(between(3n), true)
  * assert.deepStrictEqual(between(-1n), false)
  * assert.deepStrictEqual(between(6n), false)
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BigIntModule from "effect/BigInt";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BigIntModule from "effect/BigInt";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "between";
 const exportKind = "const";
 const moduleImportPath = "effect/BigInt";
 const sourceSummary = "Checks if a `bigint` is between a `minimum` and `maximum` value (inclusive).";
-const sourceExample = "import * as BigInt from \"effect/BigInt\"\nimport * as assert from \"node:assert\"\n\nconst between = BigInt.between({ minimum: 0n, maximum: 5n })\n\nassert.deepStrictEqual(between(3n), true)\nassert.deepStrictEqual(between(-1n), false)\nassert.deepStrictEqual(between(6n), false)";
+const sourceExample =
+  'import * as BigInt from "effect/BigInt"\nimport * as assert from "node:assert"\n\nconst between = BigInt.between({ minimum: 0n, maximum: 5n })\n\nassert.deepStrictEqual(between(3n), true)\nassert.deepStrictEqual(between(-1n), false)\nassert.deepStrictEqual(between(6n), false)';
 const moduleRecord = BigIntModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

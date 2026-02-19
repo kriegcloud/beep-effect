@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Exit, Request, RequestResolver } from "effect"
- * 
+ *
  * interface GetUserRequest extends Request.Request<string> {
  *   readonly _tag: "GetUserRequest"
  *   readonly userId: number
  *   readonly department: string
  * }
  * const GetUserRequest = Request.tagged<GetUserRequest>("GetUserRequest")
- * 
+ *
  * const resolver = RequestResolver.make<GetUserRequest>((entries) =>
  *   Effect.sync(() => {
  *     console.log(`Processing ${entries.length} users`)
@@ -30,13 +30,13 @@
  *     }
  *   })
  * )
- * 
+ *
  * // Group requests by department for more efficient processing
  * const groupedResolver = RequestResolver.grouped(
  *   resolver,
  *   ({ request }) => request.department
  * )
- * 
+ *
  * // Requests for the same department will be batched together
  * const requests = [
  *   Effect.request(
@@ -58,16 +58,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RequestResolverModule from "effect/RequestResolver";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RequestResolverModule from "effect/RequestResolver";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -76,7 +77,8 @@ const exportName = "grouped";
 const exportKind = "const";
 const moduleImportPath = "effect/RequestResolver";
 const sourceSummary = "Transform a request resolver by grouping requests using the specified key function.";
-const sourceExample = "import { Effect, Exit, Request, RequestResolver } from \"effect\"\n\ninterface GetUserRequest extends Request.Request<string> {\n  readonly _tag: \"GetUserRequest\"\n  readonly userId: number\n  readonly department: string\n}\nconst GetUserRequest = Request.tagged<GetUserRequest>(\"GetUserRequest\")\n\nconst resolver = RequestResolver.make<GetUserRequest>((entries) =>\n  Effect.sync(() => {\n    console.log(`Processing ${entries.length} users`)\n    for (const entry of entries) {\n      entry.completeUnsafe(Exit.succeed(`User ${entry.request.userId}`))\n    }\n  })\n)\n\n// Group requests by department for more efficient processing\nconst groupedResolver = RequestResolver.grouped(\n  resolver,\n  ({ request }) => request.department\n)\n\n// Requests for the same department will be batched together\nconst requests = [\n  Effect.request(\n    GetUserRequest({ userId: 1, department: \"Engineering\" }),\n    Effect.succeed(groupedResolver)\n  ),\n  Effect.request(\n    GetUserRequest({ userId: 2, department: \"Engineering\" }),\n    Effect.succeed(groupedResolver)\n  ),\n  Effect.request(\n    GetUserRequest({ userId: 3, department: \"Marketing\" }),\n    Effect.succeed(groupedResolver)\n  )\n]";
+const sourceExample =
+  'import { Effect, Exit, Request, RequestResolver } from "effect"\n\ninterface GetUserRequest extends Request.Request<string> {\n  readonly _tag: "GetUserRequest"\n  readonly userId: number\n  readonly department: string\n}\nconst GetUserRequest = Request.tagged<GetUserRequest>("GetUserRequest")\n\nconst resolver = RequestResolver.make<GetUserRequest>((entries) =>\n  Effect.sync(() => {\n    console.log(`Processing ${entries.length} users`)\n    for (const entry of entries) {\n      entry.completeUnsafe(Exit.succeed(`User ${entry.request.userId}`))\n    }\n  })\n)\n\n// Group requests by department for more efficient processing\nconst groupedResolver = RequestResolver.grouped(\n  resolver,\n  ({ request }) => request.department\n)\n\n// Requests for the same department will be batched together\nconst requests = [\n  Effect.request(\n    GetUserRequest({ userId: 1, department: "Engineering" }),\n    Effect.succeed(groupedResolver)\n  ),\n  Effect.request(\n    GetUserRequest({ userId: 2, department: "Engineering" }),\n    Effect.succeed(groupedResolver)\n  ),\n  Effect.request(\n    GetUserRequest({ userId: 3, department: "Marketing" }),\n    Effect.succeed(groupedResolver)\n  )\n]';
 const moduleRecord = RequestResolverModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -107,14 +109,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

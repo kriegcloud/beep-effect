@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, FiberSet } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const set = yield* FiberSet.make()
  *   const fiber = yield* Effect.forkChild(Effect.succeed("hello"))
- * 
+ *
  *   // Unsafe add - doesn't return an Effect
  *   FiberSet.addUnsafe(set, fiber)
- * 
+ *
  *   // The fiber is now managed by the set
  *   console.log(yield* FiberSet.size(set)) // 1
  * })
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FiberSetModule from "effect/FiberSet";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FiberSetModule from "effect/FiberSet";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,8 +49,10 @@ import {
 const exportName = "addUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/FiberSet";
-const sourceSummary = "Add a fiber to the FiberSet. When the fiber completes, it will be removed. This is the unsafe version that doesn't return an Effect.";
-const sourceExample = "import { Effect, FiberSet } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const set = yield* FiberSet.make()\n  const fiber = yield* Effect.forkChild(Effect.succeed(\"hello\"))\n\n  // Unsafe add - doesn't return an Effect\n  FiberSet.addUnsafe(set, fiber)\n\n  // The fiber is now managed by the set\n  console.log(yield* FiberSet.size(set)) // 1\n})";
+const sourceSummary =
+  "Add a fiber to the FiberSet. When the fiber completes, it will be removed. This is the unsafe version that doesn't return an Effect.";
+const sourceExample =
+  'import { Effect, FiberSet } from "effect"\n\nconst program = Effect.gen(function*() {\n  const set = yield* FiberSet.make()\n  const fiber = yield* Effect.forkChild(Effect.succeed("hello"))\n\n  // Unsafe add - doesn\'t return an Effect\n  FiberSet.addUnsafe(set, fiber)\n\n  // The fiber is now managed by the set\n  console.log(yield* FiberSet.size(set)) // 1\n})';
 const moduleRecord = FiberSetModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

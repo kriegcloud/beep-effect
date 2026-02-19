@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { SchemaGetter, SchemaIssue, Effect, Option } from "effect"
- * 
+ *
  * const safeParseInt = SchemaGetter.transformOrFail<number, string>(
  *   (s) => {
  *     const n = parseInt(s, 10)
@@ -28,16 +28,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaGetterModule from "effect/SchemaGetter";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaGetterModule from "effect/SchemaGetter";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "transformOrFail";
 const exportKind = "function";
 const moduleImportPath = "effect/SchemaGetter";
 const sourceSummary = "Creates a getter that applies a fallible, effectful transformation to present values.";
-const sourceExample = "import { SchemaGetter, SchemaIssue, Effect, Option } from \"effect\"\n\nconst safeParseInt = SchemaGetter.transformOrFail<number, string>(\n  (s) => {\n    const n = parseInt(s, 10)\n    return isNaN(n)\n      ? Effect.fail(new SchemaIssue.InvalidValue(Option.some(s), { message: \"not an integer\" }))\n      : Effect.succeed(n)\n  }\n)";
+const sourceExample =
+  'import { SchemaGetter, SchemaIssue, Effect, Option } from "effect"\n\nconst safeParseInt = SchemaGetter.transformOrFail<number, string>(\n  (s) => {\n    const n = parseInt(s, 10)\n    return isNaN(n)\n      ? Effect.fail(new SchemaIssue.InvalidValue(Option.some(s), { message: "not an integer" }))\n      : Effect.succeed(n)\n  }\n)';
 const moduleRecord = SchemaGetterModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,20 +14,20 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, PubSub, Stream } from "effect"
- * 
+ *
  * const program = Effect.scoped(Effect.gen(function* () {
  *   const pubsub = yield* PubSub.unbounded<number>()
  *   const subscription = yield* PubSub.subscribe(pubsub)
- * 
+ *
  *   yield* Stream.runIntoPubSub(Stream.fromIterable([1, 2]), pubsub)
- * 
+ *
  *   const first = yield* PubSub.take(subscription)
  *   const second = yield* PubSub.take(subscription)
- * 
+ *
  *   yield* Console.log(first)
  *   yield* Console.log(second)
  * }))
- * 
+ *
  * Effect.runPromise(program)
  * //=> 1
  * //=> 2
@@ -37,16 +37,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,7 +56,8 @@ const exportName = "runIntoPubSub";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
 const sourceSummary = "Runs the stream, publishing elements into the provided PubSub.";
-const sourceExample = "import { Console, Effect, PubSub, Stream } from \"effect\"\n\nconst program = Effect.scoped(Effect.gen(function* () {\n  const pubsub = yield* PubSub.unbounded<number>()\n  const subscription = yield* PubSub.subscribe(pubsub)\n\n  yield* Stream.runIntoPubSub(Stream.fromIterable([1, 2]), pubsub)\n\n  const first = yield* PubSub.take(subscription)\n  const second = yield* PubSub.take(subscription)\n\n  yield* Console.log(first)\n  yield* Console.log(second)\n}))\n\nEffect.runPromise(program)\n//=> 1\n//=> 2";
+const sourceExample =
+  'import { Console, Effect, PubSub, Stream } from "effect"\n\nconst program = Effect.scoped(Effect.gen(function* () {\n  const pubsub = yield* PubSub.unbounded<number>()\n  const subscription = yield* PubSub.subscribe(pubsub)\n\n  yield* Stream.runIntoPubSub(Stream.fromIterable([1, 2]), pubsub)\n\n  const first = yield* PubSub.take(subscription)\n  const second = yield* PubSub.take(subscription)\n\n  yield* Console.log(first)\n  yield* Console.log(second)\n}))\n\nEffect.runPromise(program)\n//=> 1\n//=> 2';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -86,14 +88,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

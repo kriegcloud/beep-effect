@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Request } from "effect"
- * 
+ *
  * interface GetUser extends Request.Request<string, Error> {
  *   readonly _tag: "GetUser"
  *   readonly id: number
  * }
- * 
+ *
  * // Constructor type is used internally by Request.of() and Request.tagged()
  * const GetUser = Request.tagged<GetUser>("GetUser")
  * const userRequest = GetUser({ id: 123 })
@@ -29,16 +29,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RequestModule from "effect/Request";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RequestModule from "effect/Request";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "Constructor";
 const exportKind = "interface";
 const moduleImportPath = "effect/Request";
 const sourceSummary = "No summary found in JSDoc.";
-const sourceExample = "import { Request } from \"effect\"\n\ninterface GetUser extends Request.Request<string, Error> {\n  readonly _tag: \"GetUser\"\n  readonly id: number\n}\n\n// Constructor type is used internally by Request.of() and Request.tagged()\nconst GetUser = Request.tagged<GetUser>(\"GetUser\")\nconst userRequest = GetUser({ id: 123 })";
+const sourceExample =
+  'import { Request } from "effect"\n\ninterface GetUser extends Request.Request<string, Error> {\n  readonly _tag: "GetUser"\n  readonly id: number\n}\n\n// Constructor type is used internally by Request.of() and Request.tagged()\nconst GetUser = Request.tagged<GetUser>("GetUser")\nconst userRequest = GetUser({ id: 123 })';
 const moduleRecord = RequestModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -18,16 +18,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RunnerServerModule from "effect/unstable/cluster/RunnerServer";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RunnerServerModule from "effect/unstable/cluster/RunnerServer";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -35,7 +36,8 @@ import {
 const exportName = "layer";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cluster/RunnerServer";
-const sourceSummary = "The `RunnerServer` recieves messages from other Runners and forwards them to the `Sharding` layer.";
+const sourceSummary =
+  "The `RunnerServer` recieves messages from other Runners and forwards them to the `Sharding` layer.";
 const sourceExample = "";
 const moduleRecord = RunnerServerModule as Record<string, unknown>;
 
@@ -67,14 +69,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

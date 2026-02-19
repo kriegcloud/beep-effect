@@ -14,19 +14,19 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cache, Effect } from "effect"
- * 
+ *
  * // Basic cache with string keys and number values
  * const program = Effect.gen(function*() {
  *   const cache = yield* Cache.make<string, number>({
  *     capacity: 100,
  *     lookup: (key: string) => Effect.succeed(key.length)
  *   })
- * 
+ *
  *   // Cache operations
  *   const value1 = yield* Cache.get(cache, "hello") // 5
  *   const value2 = yield* Cache.get(cache, "world") // 5
  *   const value3 = yield* Cache.get(cache, "hello") // 5 (cached)
- * 
+ *
  *   return [value1, value2, value3]
  * })
  * ```
@@ -35,16 +35,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CacheModule from "effect/Cache";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as CacheModule from "effect/Cache";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,8 +53,10 @@ import {
 const exportName = "Cache";
 const exportKind = "interface";
 const moduleImportPath = "effect/Cache";
-const sourceSummary = "A cache interface that provides a mutable key-value store with automatic TTL management, capacity limits, and lookup functions for cache misses.";
-const sourceExample = "import { Cache, Effect } from \"effect\"\n\n// Basic cache with string keys and number values\nconst program = Effect.gen(function*() {\n  const cache = yield* Cache.make<string, number>({\n    capacity: 100,\n    lookup: (key: string) => Effect.succeed(key.length)\n  })\n\n  // Cache operations\n  const value1 = yield* Cache.get(cache, \"hello\") // 5\n  const value2 = yield* Cache.get(cache, \"world\") // 5\n  const value3 = yield* Cache.get(cache, \"hello\") // 5 (cached)\n\n  return [value1, value2, value3]\n})";
+const sourceSummary =
+  "A cache interface that provides a mutable key-value store with automatic TTL management, capacity limits, and lookup functions for cache misses.";
+const sourceExample =
+  'import { Cache, Effect } from "effect"\n\n// Basic cache with string keys and number values\nconst program = Effect.gen(function*() {\n  const cache = yield* Cache.make<string, number>({\n    capacity: 100,\n    lookup: (key: string) => Effect.succeed(key.length)\n  })\n\n  // Cache operations\n  const value1 = yield* Cache.get(cache, "hello") // 5\n  const value2 = yield* Cache.get(cache, "world") // 5\n  const value3 = yield* Cache.get(cache, "hello") // 5 (cached)\n\n  return [value1, value2, value3]\n})';
 const moduleRecord = CacheModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

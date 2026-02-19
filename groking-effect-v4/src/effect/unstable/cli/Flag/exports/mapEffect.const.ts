@@ -15,7 +15,7 @@
  * ```ts
  * import { Effect, FileSystem } from "effect"
  * import { Flag } from "effect/unstable/cli"
- * 
+ *
  * // Read file size from path flag
  * const fileSizeFlag = Flag.file("input").pipe(
  *   Flag.mapEffect(Effect.fnUntraced(function*(path) {
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FlagModule from "effect/unstable/cli/Flag";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FlagModule from "effect/unstable/cli/Flag";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +49,8 @@ const exportName = "mapEffect";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Flag";
 const sourceSummary = "Transforms the parsed value using an Effect that can perform IO operations.";
-const sourceExample = "import { Effect, FileSystem } from \"effect\"\nimport { Flag } from \"effect/unstable/cli\"\n\n// Read file size from path flag\nconst fileSizeFlag = Flag.file(\"input\").pipe(\n  Flag.mapEffect(Effect.fnUntraced(function*(path) {\n    const fs = yield* FileSystem.FileSystem\n    const stats = yield* Effect.orDie(fs.stat(path))\n    return stats.size\n  }))\n)";
+const sourceExample =
+  'import { Effect, FileSystem } from "effect"\nimport { Flag } from "effect/unstable/cli"\n\n// Read file size from path flag\nconst fileSizeFlag = Flag.file("input").pipe(\n  Flag.mapEffect(Effect.fnUntraced(function*(path) {\n    const fs = yield* FileSystem.FileSystem\n    const stats = yield* Effect.orDie(fs.stat(path))\n    return stats.size\n  }))\n)';
 const moduleRecord = FlagModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

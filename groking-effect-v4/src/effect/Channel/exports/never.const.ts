@@ -14,16 +14,16 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel } from "effect"
- * 
+ *
  * // Create a channel that never completes
  * const neverChannel = Channel.never
- * 
+ *
  * // Use in conditional logic
  * const withFallback = Channel.concatWith(
  *   neverChannel,
  *   () => Channel.succeed("fallback")
  * )
- * 
+ *
  * // Never channel is useful for testing or as a placeholder
  * const conditionalChannel = (shouldComplete: boolean) =>
  *   shouldComplete ? Channel.succeed("done") : Channel.never
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,7 +52,8 @@ const exportName = "never";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
 const sourceSummary = "Represents an Channel that never completes";
-const sourceExample = "import { Channel } from \"effect\"\n\n// Create a channel that never completes\nconst neverChannel = Channel.never\n\n// Use in conditional logic\nconst withFallback = Channel.concatWith(\n  neverChannel,\n  () => Channel.succeed(\"fallback\")\n)\n\n// Never channel is useful for testing or as a placeholder\nconst conditionalChannel = (shouldComplete: boolean) =>\n  shouldComplete ? Channel.succeed(\"done\") : Channel.never";
+const sourceExample =
+  'import { Channel } from "effect"\n\n// Create a channel that never completes\nconst neverChannel = Channel.never\n\n// Use in conditional logic\nconst withFallback = Channel.concatWith(\n  neverChannel,\n  () => Channel.succeed("fallback")\n)\n\n// Never channel is useful for testing or as a placeholder\nconst conditionalChannel = (shouldComplete: boolean) =>\n  shouldComplete ? Channel.succeed("done") : Channel.never';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

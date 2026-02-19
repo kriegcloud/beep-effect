@@ -14,16 +14,16 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause, Console, Effect } from "effect"
- * 
+ *
  * const task = Effect.fail("Network timeout")
- * 
+ *
  * // Only log causes that contain failures (not interrupts or defects)
  * const program = Effect.tapCauseIf(
  *   task,
  *   Cause.hasFails,
  *   (cause) => Console.log(`Logging failure cause: ${Cause.squash(cause)}`)
  * )
- * 
+ *
  * Effect.runPromiseExit(program).then(console.log)
  * // Output: "Logging failure cause: Network timeout"
  * // Then: { _id: 'Exit', _tag: 'Failure', cause: ... }
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,7 +52,8 @@ const exportName = "tapCauseIf";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Conditionally executes a side effect based on the cause of a failed effect.";
-const sourceExample = "import { Cause, Console, Effect } from \"effect\"\n\nconst task = Effect.fail(\"Network timeout\")\n\n// Only log causes that contain failures (not interrupts or defects)\nconst program = Effect.tapCauseIf(\n  task,\n  Cause.hasFails,\n  (cause) => Console.log(`Logging failure cause: ${Cause.squash(cause)}`)\n)\n\nEffect.runPromiseExit(program).then(console.log)\n// Output: \"Logging failure cause: Network timeout\"\n// Then: { _id: 'Exit', _tag: 'Failure', cause: ... }";
+const sourceExample =
+  'import { Cause, Console, Effect } from "effect"\n\nconst task = Effect.fail("Network timeout")\n\n// Only log causes that contain failures (not interrupts or defects)\nconst program = Effect.tapCauseIf(\n  task,\n  Cause.hasFails,\n  (cause) => Console.log(`Logging failure cause: ${Cause.squash(cause)}`)\n)\n\nEffect.runPromiseExit(program).then(console.log)\n// Output: "Logging failure cause: Network timeout"\n// Then: { _id: \'Exit\', _tag: \'Failure\', cause: ... }';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

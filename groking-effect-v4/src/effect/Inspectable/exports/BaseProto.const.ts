@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Inspectable } from "effect"
- * 
+ *
  * // Use as prototype
  * const myObject = Object.create(Inspectable.BaseProto)
  * myObject.name = "example"
  * myObject.value = 42
- * 
+ *
  * console.log(myObject.toString()) // Pretty printed representation
- * 
+ *
  * // Or extend in a constructor
  * function MyClass(this: any, name: string) {
  *   this.name = name
@@ -34,16 +34,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as InspectableModule from "effect/Inspectable";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as InspectableModule from "effect/Inspectable";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "BaseProto";
 const exportKind = "const";
 const moduleImportPath = "effect/Inspectable";
 const sourceSummary = "A base prototype object that implements the {@link Inspectable} interface.";
-const sourceExample = "import { Inspectable } from \"effect\"\n\n// Use as prototype\nconst myObject = Object.create(Inspectable.BaseProto)\nmyObject.name = \"example\"\nmyObject.value = 42\n\nconsole.log(myObject.toString()) // Pretty printed representation\n\n// Or extend in a constructor\nfunction MyClass(this: any, name: string) {\n  this.name = name\n}\nMyClass.prototype = Object.create(Inspectable.BaseProto)\nMyClass.prototype.constructor = MyClass";
+const sourceExample =
+  'import { Inspectable } from "effect"\n\n// Use as prototype\nconst myObject = Object.create(Inspectable.BaseProto)\nmyObject.name = "example"\nmyObject.value = 42\n\nconsole.log(myObject.toString()) // Pretty printed representation\n\n// Or extend in a constructor\nfunction MyClass(this: any, name: string) {\n  this.name = name\n}\nMyClass.prototype = Object.create(Inspectable.BaseProto)\nMyClass.prototype.constructor = MyClass';
 const moduleRecord = InspectableModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

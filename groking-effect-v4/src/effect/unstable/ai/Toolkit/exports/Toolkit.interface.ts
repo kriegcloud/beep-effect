@@ -15,13 +15,13 @@
  * ```ts
  * import { Effect, Schema } from "effect"
  * import { Tool, Toolkit } from "effect/unstable/ai"
- * 
+ *
  * // Create individual tools
  * const GetCurrentTime = Tool.make("GetCurrentTime", {
  *   description: "Get the current timestamp",
  *   success: Schema.Number
  * })
- * 
+ *
  * const GetWeather = Tool.make("GetWeather", {
  *   description: "Get weather for a location",
  *   parameters: Schema.Struct({ location: Schema.String }),
@@ -30,10 +30,10 @@
  *     condition: Schema.String
  *   })
  * })
- * 
+ *
  * // Create a toolkit with multiple tools
  * const MyToolkit = Toolkit.make(GetCurrentTime, GetWeather)
- * 
+ *
  * const MyToolkitLayer = MyToolkit.toLayer({
  *   GetCurrentTime: () => Effect.succeed(Date.now()),
  *   GetWeather: ({ location }) =>
@@ -48,16 +48,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ToolkitModule from "effect/unstable/ai/Toolkit";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ToolkitModule from "effect/unstable/ai/Toolkit";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -65,8 +66,10 @@ import {
 const exportName = "Toolkit";
 const exportKind = "interface";
 const moduleImportPath = "effect/unstable/ai/Toolkit";
-const sourceSummary = "Represents a collection of tools which can be used to enhance the capabilities of a large language model.";
-const sourceExample = "import { Effect, Schema } from \"effect\"\nimport { Tool, Toolkit } from \"effect/unstable/ai\"\n\n// Create individual tools\nconst GetCurrentTime = Tool.make(\"GetCurrentTime\", {\n  description: \"Get the current timestamp\",\n  success: Schema.Number\n})\n\nconst GetWeather = Tool.make(\"GetWeather\", {\n  description: \"Get weather for a location\",\n  parameters: Schema.Struct({ location: Schema.String }),\n  success: Schema.Struct({\n    temperature: Schema.Number,\n    condition: Schema.String\n  })\n})\n\n// Create a toolkit with multiple tools\nconst MyToolkit = Toolkit.make(GetCurrentTime, GetWeather)\n\nconst MyToolkitLayer = MyToolkit.toLayer({\n  GetCurrentTime: () => Effect.succeed(Date.now()),\n  GetWeather: ({ location }) =>\n    Effect.succeed({\n      temperature: 72,\n      condition: \"sunny\"\n    })\n})";
+const sourceSummary =
+  "Represents a collection of tools which can be used to enhance the capabilities of a large language model.";
+const sourceExample =
+  'import { Effect, Schema } from "effect"\nimport { Tool, Toolkit } from "effect/unstable/ai"\n\n// Create individual tools\nconst GetCurrentTime = Tool.make("GetCurrentTime", {\n  description: "Get the current timestamp",\n  success: Schema.Number\n})\n\nconst GetWeather = Tool.make("GetWeather", {\n  description: "Get weather for a location",\n  parameters: Schema.Struct({ location: Schema.String }),\n  success: Schema.Struct({\n    temperature: Schema.Number,\n    condition: Schema.String\n  })\n})\n\n// Create a toolkit with multiple tools\nconst MyToolkit = Toolkit.make(GetCurrentTime, GetWeather)\n\nconst MyToolkitLayer = MyToolkit.toLayer({\n  GetCurrentTime: () => Effect.succeed(Date.now()),\n  GetWeather: ({ location }) =>\n    Effect.succeed({\n      temperature: 72,\n      condition: "sunny"\n    })\n})';
 const moduleRecord = ToolkitModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -97,14 +100,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

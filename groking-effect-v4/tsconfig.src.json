@@ -1,13 +1,8 @@
 {
   "extends": "../tsconfig.base.jsonc",
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "compilerOptions": {
-    "types": [
-      "node",
-      "bun"
-    ],
+    "types": ["node", "bun"],
     "outDir": "build/src",
     "rootDir": "src"
   }

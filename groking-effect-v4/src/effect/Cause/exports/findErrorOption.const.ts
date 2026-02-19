@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause, Option } from "effect"
- * 
+ *
  * const some = Cause.findErrorOption(Cause.fail("error"))
  * console.log(Option.isSome(some)) // true
- * 
+ *
  * const none = Cause.findErrorOption(Cause.die("defect"))
  * console.log(Option.isNone(none)) // true
  * ```
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CauseModule from "effect/Cause";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as CauseModule from "effect/Cause";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,8 +44,10 @@ import {
 const exportName = "findErrorOption";
 const exportKind = "const";
 const moduleImportPath = "effect/Cause";
-const sourceSummary = "Returns the first typed error value `E` from a cause wrapped in `Option.some`, or `Option.none` if no {@link Fail} reason exists.";
-const sourceExample = "import { Cause, Option } from \"effect\"\n\nconst some = Cause.findErrorOption(Cause.fail(\"error\"))\nconsole.log(Option.isSome(some)) // true\n\nconst none = Cause.findErrorOption(Cause.die(\"defect\"))\nconsole.log(Option.isNone(none)) // true";
+const sourceSummary =
+  "Returns the first typed error value `E` from a cause wrapped in `Option.some`, or `Option.none` if no {@link Fail} reason exists.";
+const sourceExample =
+  'import { Cause, Option } from "effect"\n\nconst some = Cause.findErrorOption(Cause.fail("error"))\nconsole.log(Option.isSome(some)) // true\n\nconst none = Cause.findErrorOption(Cause.die("defect"))\nconsole.log(Option.isNone(none)) // true';
 const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

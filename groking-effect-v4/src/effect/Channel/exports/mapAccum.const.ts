@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel, Effect } from "effect"
- * 
+ *
  * // Create a channel with numbers
  * const numbersChannel = Channel.fromIterable([1, 2, 3, 4])
- * 
+ *
  * // Use mapAccum to create running sums and emit both current and sum
  * const runningSum = Channel.mapAccum(
  *   numbersChannel,
@@ -29,7 +29,7 @@
  *   }
  * )
  * // Outputs: 1, 1, 2, 3, 3, 6, 4, 10
- * 
+ *
  * // Using with Effect for async processing
  * const asyncMapAccum = Channel.mapAccum(
  *   numbersChannel,
@@ -46,16 +46,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -63,8 +64,10 @@ import {
 const exportName = "mapAccum";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
-const sourceSummary = "Statefully maps over a channel with an accumulator, where each element can produce multiple output values.";
-const sourceExample = "import { Channel, Effect } from \"effect\"\n\n// Create a channel with numbers\nconst numbersChannel = Channel.fromIterable([1, 2, 3, 4])\n\n// Use mapAccum to create running sums and emit both current and sum\nconst runningSum = Channel.mapAccum(\n  numbersChannel,\n  () => 0, // initial accumulator state\n  (sum, current) => {\n    const newSum = sum + current\n    // Return [newState, outputValues]\n    return [newSum, [current, newSum]] as const\n  }\n)\n// Outputs: 1, 1, 2, 3, 3, 6, 4, 10\n\n// Using with Effect for async processing\nconst asyncMapAccum = Channel.mapAccum(\n  numbersChannel,\n  () => \"\",\n  (acc, value) =>\n    Effect.gen(function*() {\n      const newAcc = acc + value.toString()\n      return [newAcc, [`${value}-processed`, newAcc]] as const\n    })\n)";
+const sourceSummary =
+  "Statefully maps over a channel with an accumulator, where each element can produce multiple output values.";
+const sourceExample =
+  'import { Channel, Effect } from "effect"\n\n// Create a channel with numbers\nconst numbersChannel = Channel.fromIterable([1, 2, 3, 4])\n\n// Use mapAccum to create running sums and emit both current and sum\nconst runningSum = Channel.mapAccum(\n  numbersChannel,\n  () => 0, // initial accumulator state\n  (sum, current) => {\n    const newSum = sum + current\n    // Return [newState, outputValues]\n    return [newSum, [current, newSum]] as const\n  }\n)\n// Outputs: 1, 1, 2, 3, 3, 6, 4, 10\n\n// Using with Effect for async processing\nconst asyncMapAccum = Channel.mapAccum(\n  numbersChannel,\n  () => "",\n  (acc, value) =>\n    Effect.gen(function*() {\n      const newAcc = acc + value.toString()\n      return [newAcc, [`${value}-processed`, newAcc]] as const\n    })\n)';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -95,14 +98,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

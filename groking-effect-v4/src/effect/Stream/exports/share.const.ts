@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Stream } from "effect"
- * 
+ *
  * Effect.runPromise(
  *   Effect.scoped(
  *     Effect.gen(function*() {
  *       const shared = yield* Stream.make(1, 2, 3).pipe(
  *         Stream.share({ capacity: 16 })
  *       )
- * 
+ *
  *       const first = yield* shared.pipe(Stream.take(1), Stream.runCollect)
  *       const second = yield* shared.pipe(Stream.take(1), Stream.runCollect)
- * 
+ *
  *       yield* Console.log([first, second])
  *     })
  *   )
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,8 +54,10 @@ import {
 const exportName = "share";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
-const sourceSummary = "Returns a new Stream that multicasts the original stream, subscribing when the first consumer starts.";
-const sourceExample = "import { Console, Effect, Stream } from \"effect\"\n\nEffect.runPromise(\n  Effect.scoped(\n    Effect.gen(function*() {\n      const shared = yield* Stream.make(1, 2, 3).pipe(\n        Stream.share({ capacity: 16 })\n      )\n\n      const first = yield* shared.pipe(Stream.take(1), Stream.runCollect)\n      const second = yield* shared.pipe(Stream.take(1), Stream.runCollect)\n\n      yield* Console.log([first, second])\n    })\n  )\n)\n// output: [[1], [1]]";
+const sourceSummary =
+  "Returns a new Stream that multicasts the original stream, subscribing when the first consumer starts.";
+const sourceExample =
+  'import { Console, Effect, Stream } from "effect"\n\nEffect.runPromise(\n  Effect.scoped(\n    Effect.gen(function*() {\n      const shared = yield* Stream.make(1, 2, 3).pipe(\n        Stream.share({ capacity: 16 })\n      )\n\n      const first = yield* shared.pipe(Stream.take(1), Stream.runCollect)\n      const second = yield* shared.pipe(Stream.take(1), Stream.runCollect)\n\n      yield* Console.log([first, second])\n    })\n  )\n)\n// output: [[1], [1]]';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +88,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

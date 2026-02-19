@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import * as PostProcess from "@effect/ai-codegen/PostProcess"
- * 
+ *
  * const error = new PostProcess.PostProcessError({
  *   step: "lint",
  *   command: "pnpm exec oxlint --fix /path/to/file.ts",
@@ -29,16 +29,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PostProcessModule from "@effect/ai-codegen/PostProcess";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as PostProcessModule from "@effect/ai-codegen/PostProcess";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "PostProcessError";
 const exportKind = "class";
 const moduleImportPath = "@effect/ai-codegen/PostProcess";
 const sourceSummary = "Error during post-processing (lint or format).";
-const sourceExample = "import * as PostProcess from \"@effect/ai-codegen/PostProcess\"\n\nconst error = new PostProcess.PostProcessError({\n  step: \"lint\",\n  command: \"pnpm exec oxlint --fix /path/to/file.ts\",\n  filePath: \"/path/to/file.ts\",\n  exitCode: 1,\n  stdout: \"\",\n  stderr: \"error: some lint error\",\n  cause: new Error(\"Lint failed\")\n})";
+const sourceExample =
+  'import * as PostProcess from "@effect/ai-codegen/PostProcess"\n\nconst error = new PostProcess.PostProcessError({\n  step: "lint",\n  command: "pnpm exec oxlint --fix /path/to/file.ts",\n  filePath: "/path/to/file.ts",\n  exitCode: 1,\n  stdout: "",\n  stderr: "error: some lint error",\n  cause: new Error("Lint failed")\n})';
 const moduleRecord = PostProcessModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

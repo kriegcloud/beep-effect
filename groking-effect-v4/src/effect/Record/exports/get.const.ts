@@ -15,9 +15,9 @@
  * ```ts
  * import { Option, Record as R } from "effect"
  * import * as assert from "node:assert"
- * 
+ *
  * const person: Record<string, unknown> = { name: "John Doe", age: 35 }
- * 
+ *
  * assert.deepStrictEqual(R.get(person, "name"), Option.some("John Doe"))
  * assert.deepStrictEqual(R.get(person, "email"), Option.none())
  * ```
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RecordModule from "effect/Record";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RecordModule from "effect/Record";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "get";
 const exportKind = "const";
 const moduleImportPath = "effect/Record";
 const sourceSummary = "Retrieve a value at a particular key from a record, returning it wrapped in an `Option`.";
-const sourceExample = "import { Option, Record as R } from \"effect\"\nimport * as assert from \"node:assert\"\n\nconst person: Record<string, unknown> = { name: \"John Doe\", age: 35 }\n\nassert.deepStrictEqual(R.get(person, \"name\"), Option.some(\"John Doe\"))\nassert.deepStrictEqual(R.get(person, \"email\"), Option.none())";
+const sourceExample =
+  'import { Option, Record as R } from "effect"\nimport * as assert from "node:assert"\n\nconst person: Record<string, unknown> = { name: "John Doe", age: 35 }\n\nassert.deepStrictEqual(R.get(person, "name"), Option.some("John Doe"))\nassert.deepStrictEqual(R.get(person, "email"), Option.none())';
 const moduleRecord = RecordModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

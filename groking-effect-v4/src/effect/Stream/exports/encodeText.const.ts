@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Stream } from "effect"
- * 
+ *
  * const stream = Stream.make("Hello", " ", "World")
  * const program = Effect.gen(function*() {
  *   const encoded = Stream.encodeText(stream)
@@ -22,7 +22,7 @@
  *   const bytes = chunks.map((chunk) => [...chunk])
  *   yield* Console.log(bytes)
  * })
- * 
+ *
  * Effect.runPromise(program)
  * // [[72, 101, 108, 108, 111], [32], [87, 111, 114, 108, 100]]
  * ```
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "encodeText";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
 const sourceSummary = "Encodes a stream of strings into UTF-8 `Uint8Array` chunks.";
-const sourceExample = "import { Console, Effect, Stream } from \"effect\"\n\nconst stream = Stream.make(\"Hello\", \" \", \"World\")\nconst program = Effect.gen(function*() {\n  const encoded = Stream.encodeText(stream)\n  const chunks = yield* Stream.runCollect(encoded)\n  const bytes = chunks.map((chunk) => [...chunk])\n  yield* Console.log(bytes)\n})\n\nEffect.runPromise(program)\n// [[72, 101, 108, 108, 111], [32], [87, 111, 114, 108, 100]]";
+const sourceExample =
+  'import { Console, Effect, Stream } from "effect"\n\nconst stream = Stream.make("Hello", " ", "World")\nconst program = Effect.gen(function*() {\n  const encoded = Stream.encodeText(stream)\n  const chunks = yield* Stream.runCollect(encoded)\n  const bytes = chunks.map((chunk) => [...chunk])\n  yield* Console.log(bytes)\n})\n\nEffect.runPromise(program)\n// [[72, 101, 108, 108, 111], [32], [87, 111, 114, 108, 100]]';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

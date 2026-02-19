@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import type * as Discovery from "@effect/ai-codegen/Discovery"
- * 
+ *
  * declare const provider: Discovery.DiscoveredProvider
- * 
+ *
  * console.log(provider.name) // "openai"
  * console.log(provider.specSource._tag) // "Url" | "File"
  * ```
@@ -25,16 +25,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DiscoveryModule from "@effect/ai-codegen/Discovery";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as DiscoveryModule from "@effect/ai-codegen/Discovery";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "DiscoveredProvider";
 const exportKind = "interface";
 const moduleImportPath = "@effect/ai-codegen/Discovery";
 const sourceSummary = "A discovered AI provider with resolved paths.";
-const sourceExample = "import type * as Discovery from \"@effect/ai-codegen/Discovery\"\n\ndeclare const provider: Discovery.DiscoveredProvider\n\nconsole.log(provider.name) // \"openai\"\nconsole.log(provider.specSource._tag) // \"Url\" | \"File\"";
+const sourceExample =
+  'import type * as Discovery from "@effect/ai-codegen/Discovery"\n\ndeclare const provider: Discovery.DiscoveredProvider\n\nconsole.log(provider.name) // "openai"\nconsole.log(provider.specSource._tag) // "Url" | "File"';
 const moduleRecord = DiscoveryModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -18,16 +18,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ScopedRefModule from "effect/ScopedRef";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ScopedRefModule from "effect/ScopedRef";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -35,7 +36,8 @@ import {
 const exportName = "ScopedRef";
 const exportKind = "interface";
 const moduleImportPath = "effect/ScopedRef";
-const sourceSummary = "A `ScopedRef` is a reference whose value is associated with resources, which must be released properly. You can both get the current value of any `ScopedRef`, as well as set it ...";
+const sourceSummary =
+  "A `ScopedRef` is a reference whose value is associated with resources, which must be released properly. You can both get the current value of any `ScopedRef`, as well as set it ...";
 const sourceExample = "";
 const moduleRecord = ScopedRefModule as Record<string, unknown>;
 
@@ -67,14 +69,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

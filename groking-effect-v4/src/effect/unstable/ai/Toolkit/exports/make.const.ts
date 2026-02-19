@@ -15,12 +15,12 @@
  * ```ts
  * import { Schema } from "effect"
  * import { Tool, Toolkit } from "effect/unstable/ai"
- * 
+ *
  * const GetCurrentTime = Tool.make("GetCurrentTime", {
  *   description: "Get the current timestamp",
  *   success: Schema.Number
  * })
- * 
+ *
  * const GetWeather = Tool.make("get_weather", {
  *   description: "Get weather information",
  *   parameters: Schema.Struct({ location: Schema.String }),
@@ -29,7 +29,7 @@
  *     condition: Schema.String
  *   })
  * })
- * 
+ *
  * const toolkit = Toolkit.make(GetCurrentTime, GetWeather)
  * ```
  *
@@ -37,16 +37,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ToolkitModule from "effect/unstable/ai/Toolkit";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ToolkitModule from "effect/unstable/ai/Toolkit";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,7 +56,8 @@ const exportName = "make";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/ai/Toolkit";
 const sourceSummary = "Creates a new toolkit from the specified tools.";
-const sourceExample = "import { Schema } from \"effect\"\nimport { Tool, Toolkit } from \"effect/unstable/ai\"\n\nconst GetCurrentTime = Tool.make(\"GetCurrentTime\", {\n  description: \"Get the current timestamp\",\n  success: Schema.Number\n})\n\nconst GetWeather = Tool.make(\"get_weather\", {\n  description: \"Get weather information\",\n  parameters: Schema.Struct({ location: Schema.String }),\n  success: Schema.Struct({\n    temperature: Schema.Number,\n    condition: Schema.String\n  })\n})\n\nconst toolkit = Toolkit.make(GetCurrentTime, GetWeather)";
+const sourceExample =
+  'import { Schema } from "effect"\nimport { Tool, Toolkit } from "effect/unstable/ai"\n\nconst GetCurrentTime = Tool.make("GetCurrentTime", {\n  description: "Get the current timestamp",\n  success: Schema.Number\n})\n\nconst GetWeather = Tool.make("get_weather", {\n  description: "Get weather information",\n  parameters: Schema.Struct({ location: Schema.String }),\n  success: Schema.Struct({\n    temperature: Schema.Number,\n    condition: Schema.String\n  })\n})\n\nconst toolkit = Toolkit.make(GetCurrentTime, GetWeather)';
 const moduleRecord = ToolkitModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -86,14 +88,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

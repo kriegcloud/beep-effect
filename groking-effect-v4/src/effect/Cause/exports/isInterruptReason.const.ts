@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause } from "effect"
- * 
+ *
  * const cause = Cause.interrupt(123)
  * const interrupts = cause.reasons.filter(Cause.isInterruptReason)
  * console.log(interrupts[0].fiberId) // 123
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CauseModule from "effect/Cause";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as CauseModule from "effect/Cause";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "isInterruptReason";
 const exportKind = "const";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "Narrows a {@link Reason} to {@link Interrupt}.";
-const sourceExample = "import { Cause } from \"effect\"\n\nconst cause = Cause.interrupt(123)\nconst interrupts = cause.reasons.filter(Cause.isInterruptReason)\nconsole.log(interrupts[0].fiberId) // 123";
+const sourceExample =
+  'import { Cause } from "effect"\n\nconst cause = Cause.interrupt(123)\nconst interrupts = cause.reasons.filter(Cause.isInterruptReason)\nconsole.log(interrupts[0].fiberId) // 123';
 const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

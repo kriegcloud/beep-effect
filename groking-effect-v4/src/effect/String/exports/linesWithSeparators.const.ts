@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { String } from "effect"
- * 
+ *
  * const lines = String.linesWithSeparators("hello\nworld\n")
  * console.log(Array.from(lines)) // ["hello\n", "world\n"]
  * ```
@@ -23,16 +23,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StringModule from "effect/String";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StringModule from "effect/String";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -40,8 +41,10 @@ import {
 const exportName = "linesWithSeparators";
 const exportKind = "const";
 const moduleImportPath = "effect/String";
-const sourceSummary = "Returns an `IterableIterator` which yields each line contained within the string as well as the trailing newline character.";
-const sourceExample = "import { String } from \"effect\"\n\nconst lines = String.linesWithSeparators(\"hello\\nworld\\n\")\nconsole.log(Array.from(lines)) // [\"hello\\n\", \"world\\n\"]";
+const sourceSummary =
+  "Returns an `IterableIterator` which yields each line contained within the string as well as the trailing newline character.";
+const sourceExample =
+  'import { String } from "effect"\n\nconst lines = String.linesWithSeparators("hello\\nworld\\n")\nconsole.log(Array.from(lines)) // ["hello\\n", "world\\n"]';
 const moduleRecord = StringModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -72,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

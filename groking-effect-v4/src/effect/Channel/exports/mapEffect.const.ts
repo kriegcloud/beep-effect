@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel, Data, Effect } from "effect"
- * 
+ *
  * class NetworkError extends Data.TaggedError("NetworkError")<{
  *   readonly url: string
  * }> {}
- * 
+ *
  * // Transform values using effectful operations
  * const urlsChannel = Channel.fromIterable([
  *   "/api/users/1",
  *   "/api/users/2",
  *   "/api/users/3"
  * ])
- * 
+ *
  * const fetchDataChannel = Channel.mapEffect(
  *   urlsChannel,
  *   (url) =>
@@ -34,7 +34,7 @@
  *       catch: () => new NetworkError({ url })
  *     })
  * )
- * 
+ *
  * // Concurrent processing with options
  * const numbersChannel = Channel.fromIterable([1, 2, 3, 4, 5])
  * const processedChannel = Channel.mapEffect(
@@ -52,16 +52,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -69,8 +70,10 @@ import {
 const exportName = "mapEffect";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
-const sourceSummary = "Returns a new channel, which sequentially combines this channel, together with the provided factory function, which creates a second channel based on the output values of this c...";
-const sourceExample = "import { Channel, Data, Effect } from \"effect\"\n\nclass NetworkError extends Data.TaggedError(\"NetworkError\")<{\n  readonly url: string\n}> {}\n\n// Transform values using effectful operations\nconst urlsChannel = Channel.fromIterable([\n  \"/api/users/1\",\n  \"/api/users/2\",\n  \"/api/users/3\"\n])\n\nconst fetchDataChannel = Channel.mapEffect(\n  urlsChannel,\n  (url) =>\n    Effect.tryPromise({\n      try: () => fetch(url).then((res) => res.json()),\n      catch: () => new NetworkError({ url })\n    })\n)\n\n// Concurrent processing with options\nconst numbersChannel = Channel.fromIterable([1, 2, 3, 4, 5])\nconst processedChannel = Channel.mapEffect(\n  numbersChannel,\n  (n) =>\n    Effect.gen(function*() {\n      yield* Effect.sleep(\"100 millis\") // Simulate async work\n      return n * n\n    }),\n  { concurrency: 3, unordered: true }\n)";
+const sourceSummary =
+  "Returns a new channel, which sequentially combines this channel, together with the provided factory function, which creates a second channel based on the output values of this c...";
+const sourceExample =
+  'import { Channel, Data, Effect } from "effect"\n\nclass NetworkError extends Data.TaggedError("NetworkError")<{\n  readonly url: string\n}> {}\n\n// Transform values using effectful operations\nconst urlsChannel = Channel.fromIterable([\n  "/api/users/1",\n  "/api/users/2",\n  "/api/users/3"\n])\n\nconst fetchDataChannel = Channel.mapEffect(\n  urlsChannel,\n  (url) =>\n    Effect.tryPromise({\n      try: () => fetch(url).then((res) => res.json()),\n      catch: () => new NetworkError({ url })\n    })\n)\n\n// Concurrent processing with options\nconst numbersChannel = Channel.fromIterable([1, 2, 3, 4, 5])\nconst processedChannel = Channel.mapEffect(\n  numbersChannel,\n  (n) =>\n    Effect.gen(function*() {\n      yield* Effect.sleep("100 millis") // Simulate async work\n      return n * n\n    }),\n  { concurrency: 3, unordered: true }\n)';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -101,14 +104,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

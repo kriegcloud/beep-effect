@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const chunk1 = Chunk.make({ id: 1, name: "Alice" }, { id: 2, name: "Bob" })
  * const chunk2 = Chunk.make({ id: 1, name: "Alice" }, { id: 3, name: "Charlie" })
- * 
+ *
  * // Custom equivalence by id
  * const byId = Chunk.differenceWith<{ id: number; name: string }>((a, b) =>
  *   a.id === b.id
  * )
  * const result = byId(chunk1, chunk2)
  * console.log(Chunk.toArray(result)) // [{ id: 2, name: "Bob" }]
- * 
+ *
  * // String comparison case-insensitive
  * const words1 = Chunk.make("Apple", "Banana", "Cherry")
  * const words2 = Chunk.make("apple", "grape")
@@ -39,16 +39,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -56,8 +57,10 @@ import {
 const exportName = "differenceWith";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
-const sourceSummary = "Creates a `Chunk` of values not included in the other given `Chunk` using the provided `isEquivalent` function. The order and references of result values are determined by the f...";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst chunk1 = Chunk.make({ id: 1, name: \"Alice\" }, { id: 2, name: \"Bob\" })\nconst chunk2 = Chunk.make({ id: 1, name: \"Alice\" }, { id: 3, name: \"Charlie\" })\n\n// Custom equivalence by id\nconst byId = Chunk.differenceWith<{ id: number; name: string }>((a, b) =>\n  a.id === b.id\n)\nconst result = byId(chunk1, chunk2)\nconsole.log(Chunk.toArray(result)) // [{ id: 2, name: \"Bob\" }]\n\n// String comparison case-insensitive\nconst words1 = Chunk.make(\"Apple\", \"Banana\", \"Cherry\")\nconst words2 = Chunk.make(\"apple\", \"grape\")\nconst caseInsensitive = Chunk.differenceWith<string>((a, b) =>\n  a.toLowerCase() === b.toLowerCase()\n)\nconst wordDiff = caseInsensitive(words1, words2)\nconsole.log(Chunk.toArray(wordDiff)) // [\"Banana\", \"Cherry\"]";
+const sourceSummary =
+  "Creates a `Chunk` of values not included in the other given `Chunk` using the provided `isEquivalent` function. The order and references of result values are determined by the f...";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst chunk1 = Chunk.make({ id: 1, name: "Alice" }, { id: 2, name: "Bob" })\nconst chunk2 = Chunk.make({ id: 1, name: "Alice" }, { id: 3, name: "Charlie" })\n\n// Custom equivalence by id\nconst byId = Chunk.differenceWith<{ id: number; name: string }>((a, b) =>\n  a.id === b.id\n)\nconst result = byId(chunk1, chunk2)\nconsole.log(Chunk.toArray(result)) // [{ id: 2, name: "Bob" }]\n\n// String comparison case-insensitive\nconst words1 = Chunk.make("Apple", "Banana", "Cherry")\nconst words2 = Chunk.make("apple", "grape")\nconst caseInsensitive = Chunk.differenceWith<string>((a, b) =>\n  a.toLowerCase() === b.toLowerCase()\n)\nconst wordDiff = caseInsensitive(words1, words2)\nconsole.log(Chunk.toArray(wordDiff)) // ["Banana", "Cherry"]';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -88,14 +91,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

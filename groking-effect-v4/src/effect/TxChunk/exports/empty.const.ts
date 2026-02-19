@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, TxChunk } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create an empty TxChunk
  *   const txChunk = yield* TxChunk.empty<number>()
- * 
+ *
  *   // Check if it's empty - automatically transactional
  *   const isEmpty = yield* TxChunk.isEmpty(txChunk)
  *   console.log(isEmpty) // true
- * 
+ *
  *   // Add elements - automatically transactional
  *   yield* TxChunk.append(txChunk, 42)
- * 
+ *
  *   const isStillEmpty = yield* TxChunk.isEmpty(txChunk)
  *   console.log(isStillEmpty) // false
  * })
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxChunkModule from "effect/TxChunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxChunkModule from "effect/TxChunk";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "empty";
 const exportKind = "const";
 const moduleImportPath = "effect/TxChunk";
 const sourceSummary = "Creates a new empty `TxChunk`.";
-const sourceExample = "import { Effect, TxChunk } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  // Create an empty TxChunk\n  const txChunk = yield* TxChunk.empty<number>()\n\n  // Check if it's empty - automatically transactional\n  const isEmpty = yield* TxChunk.isEmpty(txChunk)\n  console.log(isEmpty) // true\n\n  // Add elements - automatically transactional\n  yield* TxChunk.append(txChunk, 42)\n\n  const isStillEmpty = yield* TxChunk.isEmpty(txChunk)\n  console.log(isStillEmpty) // false\n})";
+const sourceExample =
+  'import { Effect, TxChunk } from "effect"\n\nconst program = Effect.gen(function*() {\n  // Create an empty TxChunk\n  const txChunk = yield* TxChunk.empty<number>()\n\n  // Check if it\'s empty - automatically transactional\n  const isEmpty = yield* TxChunk.isEmpty(txChunk)\n  console.log(isEmpty) // true\n\n  // Add elements - automatically transactional\n  yield* TxChunk.append(txChunk, 42)\n\n  const isStillEmpty = yield* TxChunk.isEmpty(txChunk)\n  console.log(isStillEmpty) // false\n})';
 const moduleRecord = TxChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

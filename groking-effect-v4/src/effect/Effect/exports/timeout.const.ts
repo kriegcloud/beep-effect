@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect } from "effect"
- * 
+ *
  * const task = Effect.gen(function*() {
  *   console.log("Start processing...")
  *   yield* Effect.sleep("2 seconds") // Simulates a delay in processing
  *   console.log("Processing complete.")
  *   return "Result"
  * })
- * 
+ *
  * // Output will show a TimeoutException as the task takes longer
  * // than the specified timeout duration
  * const timedEffect = task.pipe(Effect.timeout("1 second"))
- * 
+ *
  * Effect.runPromiseExit(timedEffect).then(console.log)
  * // Output:
  * // Start processing...
@@ -44,16 +44,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -62,7 +63,8 @@ const exportName = "timeout";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Adds a time limit to an effect, triggering a timeout if the effect exceeds the duration.";
-const sourceExample = "import { Effect } from \"effect\"\n\nconst task = Effect.gen(function*() {\n  console.log(\"Start processing...\")\n  yield* Effect.sleep(\"2 seconds\") // Simulates a delay in processing\n  console.log(\"Processing complete.\")\n  return \"Result\"\n})\n\n// Output will show a TimeoutException as the task takes longer\n// than the specified timeout duration\nconst timedEffect = task.pipe(Effect.timeout(\"1 second\"))\n\nEffect.runPromiseExit(timedEffect).then(console.log)\n// Output:\n// Start processing...\n// {\n//   _id: 'Exit',\n//   _tag: 'Failure',\n//   cause: {\n//     _id: 'Cause',\n//     _tag: 'Fail',\n//     failure: { _tag: 'TimeoutException' }\n//   }\n// }";
+const sourceExample =
+  'import { Effect } from "effect"\n\nconst task = Effect.gen(function*() {\n  console.log("Start processing...")\n  yield* Effect.sleep("2 seconds") // Simulates a delay in processing\n  console.log("Processing complete.")\n  return "Result"\n})\n\n// Output will show a TimeoutException as the task takes longer\n// than the specified timeout duration\nconst timedEffect = task.pipe(Effect.timeout("1 second"))\n\nEffect.runPromiseExit(timedEffect).then(console.log)\n// Output:\n// Start processing...\n// {\n//   _id: \'Exit\',\n//   _tag: \'Failure\',\n//   cause: {\n//     _id: \'Cause\',\n//     _tag: \'Fail\',\n//     failure: { _tag: \'TimeoutException\' }\n//   }\n// }';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -93,14 +95,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

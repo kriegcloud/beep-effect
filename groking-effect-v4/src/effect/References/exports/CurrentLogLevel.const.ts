@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, References } from "effect"
- * 
+ *
  * const dynamicLogging = Effect.gen(function*() {
  *   // Get current log level (default is "Info")
  *   const current = yield* References.CurrentLogLevel
  *   console.log(current) // "Info"
- * 
+ *
  *   // Set log level to Debug for detailed logging
  *   yield* Effect.provideService(
  *     Effect.gen(function*() {
@@ -30,7 +30,7 @@
  *     References.CurrentLogLevel,
  *     "Debug"
  *   )
- * 
+ *
  *   // Change to Error level to reduce noise
  *   yield* Effect.provideService(
  *     Effect.gen(function*() {
@@ -49,16 +49,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ReferencesModule from "effect/References";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ReferencesModule from "effect/References";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -67,7 +68,8 @@ const exportName = "CurrentLogLevel";
 const exportKind = "const";
 const moduleImportPath = "effect/References";
 const sourceSummary = "Reference for controlling the current log level for dynamic filtering.";
-const sourceExample = "import { Console, Effect, References } from \"effect\"\n\nconst dynamicLogging = Effect.gen(function*() {\n  // Get current log level (default is \"Info\")\n  const current = yield* References.CurrentLogLevel\n  console.log(current) // \"Info\"\n\n  // Set log level to Debug for detailed logging\n  yield* Effect.provideService(\n    Effect.gen(function*() {\n      const level = yield* References.CurrentLogLevel\n      console.log(level) // \"Debug\"\n      yield* Console.debug(\"This debug message will be shown\")\n    }),\n    References.CurrentLogLevel,\n    \"Debug\"\n  )\n\n  // Change to Error level to reduce noise\n  yield* Effect.provideService(\n    Effect.gen(function*() {\n      const level = yield* References.CurrentLogLevel\n      console.log(level) // \"Error\"\n      yield* Console.info(\"This info message will be filtered out\")\n      yield* Console.error(\"This error message will be shown\")\n    }),\n    References.CurrentLogLevel,\n    \"Error\"\n  )\n})";
+const sourceExample =
+  'import { Console, Effect, References } from "effect"\n\nconst dynamicLogging = Effect.gen(function*() {\n  // Get current log level (default is "Info")\n  const current = yield* References.CurrentLogLevel\n  console.log(current) // "Info"\n\n  // Set log level to Debug for detailed logging\n  yield* Effect.provideService(\n    Effect.gen(function*() {\n      const level = yield* References.CurrentLogLevel\n      console.log(level) // "Debug"\n      yield* Console.debug("This debug message will be shown")\n    }),\n    References.CurrentLogLevel,\n    "Debug"\n  )\n\n  // Change to Error level to reduce noise\n  yield* Effect.provideService(\n    Effect.gen(function*() {\n      const level = yield* References.CurrentLogLevel\n      console.log(level) // "Error"\n      yield* Console.info("This info message will be filtered out")\n      yield* Console.error("This error message will be shown")\n    }),\n    References.CurrentLogLevel,\n    "Error"\n  )\n})';
 const moduleRecord = ReferencesModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -98,14 +100,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

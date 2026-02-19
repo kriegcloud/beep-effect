@@ -15,7 +15,7 @@
  * ```ts
  * import { Effect } from "effect"
  * import { IdGenerator } from "effect/unstable/ai"
- * 
+ *
  * // Create a layer for generating AI tool call IDs
  * const toolCallIdLayer = IdGenerator.layer({
  *   alphabet: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -23,7 +23,7 @@
  *   separator: "_",
  *   size: 12
  * })
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const idGen = yield* IdGenerator.IdGenerator
  *   const toolCallId = yield* idGen.generateId()
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as IdGeneratorModule from "effect/unstable/ai/IdGenerator";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as IdGeneratorModule from "effect/unstable/ai/IdGenerator";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "layer";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/ai/IdGenerator";
 const sourceSummary = "Creates a Layer that provides the IdGenerator service with custom configuration.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { IdGenerator } from \"effect/unstable/ai\"\n\n// Create a layer for generating AI tool call IDs\nconst toolCallIdLayer = IdGenerator.layer({\n  alphabet: \"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\",\n  prefix: \"tool_call\",\n  separator: \"_\",\n  size: 12\n})\n\nconst program = Effect.gen(function*() {\n  const idGen = yield* IdGenerator.IdGenerator\n  const toolCallId = yield* idGen.generateId()\n  console.log(toolCallId) // \"tool_call_A7XK9MP2QR5T\"\n  return toolCallId\n}).pipe(Effect.provide(toolCallIdLayer))";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { IdGenerator } from "effect/unstable/ai"\n\n// Create a layer for generating AI tool call IDs\nconst toolCallIdLayer = IdGenerator.layer({\n  alphabet: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",\n  prefix: "tool_call",\n  separator: "_",\n  size: 12\n})\n\nconst program = Effect.gen(function*() {\n  const idGen = yield* IdGenerator.IdGenerator\n  const toolCallId = yield* idGen.generateId()\n  console.log(toolCallId) // "tool_call_A7XK9MP2QR5T"\n  return toolCallId\n}).pipe(Effect.provide(toolCallIdLayer))';
 const moduleRecord = IdGeneratorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

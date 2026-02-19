@@ -14,16 +14,16 @@
  * Source JSDoc Example:
  * ```ts
  * import { Graph } from "effect"
- * 
+ *
  * const graph = Graph.mutate(Graph.directed<string, number>(), (mutable) => {
  *   Graph.addNode(mutable, "Node A")
  *   Graph.addNode(mutable, "Node B")
  *   Graph.addNode(mutable, "Node C")
  * })
- * 
+ *
  * const result = Graph.findNode(graph, (data) => data.startsWith("Node B"))
  * console.log(result) // 1
- * 
+ *
  * const notFound = Graph.findNode(graph, (data) => data === "Node D")
  * console.log(notFound) // undefined
  * ```
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as GraphModule from "effect/Graph";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as GraphModule from "effect/Graph";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "findNode";
 const exportKind = "const";
 const moduleImportPath = "effect/Graph";
 const sourceSummary = "Finds the first node that matches the given predicate.";
-const sourceExample = "import { Graph } from \"effect\"\n\nconst graph = Graph.mutate(Graph.directed<string, number>(), (mutable) => {\n  Graph.addNode(mutable, \"Node A\")\n  Graph.addNode(mutable, \"Node B\")\n  Graph.addNode(mutable, \"Node C\")\n})\n\nconst result = Graph.findNode(graph, (data) => data.startsWith(\"Node B\"))\nconsole.log(result) // 1\n\nconst notFound = Graph.findNode(graph, (data) => data === \"Node D\")\nconsole.log(notFound) // undefined";
+const sourceExample =
+  'import { Graph } from "effect"\n\nconst graph = Graph.mutate(Graph.directed<string, number>(), (mutable) => {\n  Graph.addNode(mutable, "Node A")\n  Graph.addNode(mutable, "Node B")\n  Graph.addNode(mutable, "Node C")\n})\n\nconst result = Graph.findNode(graph, (data) => data.startsWith("Node B"))\nconsole.log(result) // 1\n\nconst notFound = Graph.findNode(graph, (data) => data === "Node D")\nconsole.log(notFound) // undefined';
 const moduleRecord = GraphModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Schedule } from "effect"
- * 
+ *
  * // satisfiesOutputType is a type-level function for compile-time constraints
  * // It ensures that a schedule's output type matches the specified type
- * 
+ *
  * // Example with string output
  * const stringSchedule = Schedule.exponential("100 millis").pipe(
  *   Schedule.map(() => Effect.succeed("hello")),
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ScheduleModule from "effect/Schedule";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ScheduleModule from "effect/Schedule";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "satisfiesOutputType";
 const exportKind = "const";
 const moduleImportPath = "effect/Schedule";
 const sourceSummary = "Ensures that the provided schedule respects a specified output type.";
-const sourceExample = "import { Effect, Schedule } from \"effect\"\n\n// satisfiesOutputType is a type-level function for compile-time constraints\n// It ensures that a schedule's output type matches the specified type\n\n// Example with string output\nconst stringSchedule = Schedule.exponential(\"100 millis\").pipe(\n  Schedule.map(() => Effect.succeed(\"hello\")),\n  Schedule.satisfiesOutputType<string>()\n)";
+const sourceExample =
+  'import { Effect, Schedule } from "effect"\n\n// satisfiesOutputType is a type-level function for compile-time constraints\n// It ensures that a schedule\'s output type matches the specified type\n\n// Example with string output\nconst stringSchedule = Schedule.exponential("100 millis").pipe(\n  Schedule.map(() => Effect.succeed("hello")),\n  Schedule.satisfiesOutputType<string>()\n)';
 const moduleRecord = ScheduleModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

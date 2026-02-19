@@ -1,4 +1,4 @@
-import * as BunServices from "@effect/platform-bun/BunServices"
+import * as BunServices from "@effect/platform-bun/BunServices";
 
 /**
  * Compatibility shim for template-generated examples.
@@ -8,4 +8,4 @@ import * as BunServices from "@effect/platform-bun/BunServices"
  * `@effect/platform-bun/BunContext` for a stable teaching shape, and this file
  * maps that import to the available layer.
  */
-export const layer = BunServices.layer
+export const layer = BunServices.layer;

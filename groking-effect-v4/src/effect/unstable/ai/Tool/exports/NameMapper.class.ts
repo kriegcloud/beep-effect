@@ -17,16 +17,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ToolModule from "effect/unstable/ai/Tool";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ToolModule from "effect/unstable/ai/Tool";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -34,7 +35,8 @@ import {
 const exportName = "NameMapper";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/ai/Tool";
-const sourceSummary = "A utility which allows mapping between a provider-defined name for a tool and the name given to the tool by the Effect AI SDK.";
+const sourceSummary =
+  "A utility which allows mapping between a provider-defined name for a tool and the name given to the tool by the Effect AI SDK.";
 const sourceExample = "";
 const moduleRecord = ToolModule as Record<string, unknown>;
 
@@ -66,14 +68,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

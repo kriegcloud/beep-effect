@@ -18,16 +18,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SinkModule from "effect/Sink";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SinkModule from "effect/Sink";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -35,7 +36,8 @@ import {
 const exportName = "reduceEffect";
 const exportKind = "const";
 const moduleImportPath = "effect/Sink";
-const sourceSummary = "A sink that reduces its inputs using the provided effectful function `f` starting from the specified `initial` state.";
+const sourceSummary =
+  "A sink that reduces its inputs using the provided effectful function `f` starting from the specified `initial` state.";
 const sourceExample = "";
 const moduleRecord = SinkModule as Record<string, unknown>;
 
@@ -67,14 +69,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

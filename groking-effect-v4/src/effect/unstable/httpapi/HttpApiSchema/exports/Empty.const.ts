@@ -18,16 +18,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HttpApiSchemaModule from "effect/unstable/httpapi/HttpApiSchema";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HttpApiSchemaModule from "effect/unstable/httpapi/HttpApiSchema";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -35,7 +36,8 @@ import {
 const exportName = "Empty";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/httpapi/HttpApiSchema";
-const sourceSummary = "Creates a void schema with the given HTTP status code. This is used to represent empty responses with a specific status code.";
+const sourceSummary =
+  "Creates a void schema with the given HTTP status code. This is used to represent empty responses with a specific status code.";
 const sourceExample = "";
 const moduleRecord = HttpApiSchemaModule as Record<string, unknown>;
 
@@ -67,14 +69,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

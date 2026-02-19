@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const chunk = Chunk.make(1, 2, 3, 4, 5, 6, 7, 8, 9)
  * const chunks = Chunk.split(chunk, 3)
  * console.log(Chunk.toArray(chunks).map(Chunk.toArray))
  * // [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
- * 
+ *
  * // Uneven split
  * const chunk2 = Chunk.make(1, 2, 3, 4, 5, 6, 7, 8)
  * const chunks2 = Chunk.split(chunk2, 3)
  * console.log(Chunk.toArray(chunks2).map(Chunk.toArray))
  * // [[1, 2, 3], [4, 5, 6], [7, 8]]
- * 
+ *
  * // Split into 1 chunk
  * const chunks3 = Chunk.split(chunk, 1)
  * console.log(Chunk.toArray(chunks3).map(Chunk.toArray))
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "split";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Splits this chunk into `n` equally sized chunks.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst chunk = Chunk.make(1, 2, 3, 4, 5, 6, 7, 8, 9)\nconst chunks = Chunk.split(chunk, 3)\nconsole.log(Chunk.toArray(chunks).map(Chunk.toArray))\n// [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\n\n// Uneven split\nconst chunk2 = Chunk.make(1, 2, 3, 4, 5, 6, 7, 8)\nconst chunks2 = Chunk.split(chunk2, 3)\nconsole.log(Chunk.toArray(chunks2).map(Chunk.toArray))\n// [[1, 2, 3], [4, 5, 6], [7, 8]]\n\n// Split into 1 chunk\nconst chunks3 = Chunk.split(chunk, 1)\nconsole.log(Chunk.toArray(chunks3).map(Chunk.toArray))\n// [[1, 2, 3, 4, 5, 6, 7, 8, 9]]";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst chunk = Chunk.make(1, 2, 3, 4, 5, 6, 7, 8, 9)\nconst chunks = Chunk.split(chunk, 3)\nconsole.log(Chunk.toArray(chunks).map(Chunk.toArray))\n// [[1, 2, 3], [4, 5, 6], [7, 8, 9]]\n\n// Uneven split\nconst chunk2 = Chunk.make(1, 2, 3, 4, 5, 6, 7, 8)\nconst chunks2 = Chunk.split(chunk2, 3)\nconsole.log(Chunk.toArray(chunks2).map(Chunk.toArray))\n// [[1, 2, 3], [4, 5, 6], [7, 8]]\n\n// Split into 1 chunk\nconst chunks3 = Chunk.split(chunk, 1)\nconsole.log(Chunk.toArray(chunks3).map(Chunk.toArray))\n// [[1, 2, 3, 4, 5, 6, 7, 8, 9]]';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

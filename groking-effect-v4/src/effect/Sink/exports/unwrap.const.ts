@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Sink, Stream } from "effect"
- * 
+ *
  * // Create a sink from an effect that produces a sink
  * const sinkEffect = Effect.succeed(
  *   Sink.forEach((item: number) => Console.log(`Item: ${item}`))
  * )
  * const sink = Sink.unwrap(sinkEffect)
- * 
+ *
  * // Use it with a stream
  * const stream = Stream.make(1, 2, 3)
  * const program = Stream.run(stream, sink)
- * 
+ *
  * Effect.runPromise(program)
  * // Output:
  * // Item: 1
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SinkModule from "effect/Sink";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SinkModule from "effect/Sink";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "unwrap";
 const exportKind = "const";
 const moduleImportPath = "effect/Sink";
 const sourceSummary = "Creates a sink produced from a scoped effect.";
-const sourceExample = "import { Console, Effect, Sink, Stream } from \"effect\"\n\n// Create a sink from an effect that produces a sink\nconst sinkEffect = Effect.succeed(\n  Sink.forEach((item: number) => Console.log(`Item: ${item}`))\n)\nconst sink = Sink.unwrap(sinkEffect)\n\n// Use it with a stream\nconst stream = Stream.make(1, 2, 3)\nconst program = Stream.run(stream, sink)\n\nEffect.runPromise(program)\n// Output:\n// Item: 1\n// Item: 2\n// Item: 3";
+const sourceExample =
+  'import { Console, Effect, Sink, Stream } from "effect"\n\n// Create a sink from an effect that produces a sink\nconst sinkEffect = Effect.succeed(\n  Sink.forEach((item: number) => Console.log(`Item: ${item}`))\n)\nconst sink = Sink.unwrap(sinkEffect)\n\n// Use it with a stream\nconst stream = Stream.make(1, 2, 3)\nconst program = Stream.run(stream, sink)\n\nEffect.runPromise(program)\n// Output:\n// Item: 1\n// Item: 2\n// Item: 3';
 const moduleRecord = SinkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

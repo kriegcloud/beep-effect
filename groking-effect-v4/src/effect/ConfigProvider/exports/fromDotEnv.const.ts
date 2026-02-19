@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { ConfigProvider, Effect } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const provider = yield* ConfigProvider.fromDotEnv()
  *   return provider
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ConfigProviderModule from "effect/ConfigProvider";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ConfigProviderModule from "effect/ConfigProvider";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "fromDotEnv";
 const exportKind = "const";
 const moduleImportPath = "effect/ConfigProvider";
 const sourceSummary = "Creates a `ConfigProvider` by reading and parsing a `.env` file from the file system.";
-const sourceExample = "import { ConfigProvider, Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const provider = yield* ConfigProvider.fromDotEnv()\n  return provider\n})";
+const sourceExample =
+  'import { ConfigProvider, Effect } from "effect"\n\nconst program = Effect.gen(function*() {\n  const provider = yield* ConfigProvider.fromDotEnv()\n  return provider\n})';
 const moduleRecord = ConfigProviderModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

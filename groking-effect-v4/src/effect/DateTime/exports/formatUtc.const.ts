@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * const dt = DateTime.makeZonedUnsafe("2024-06-15T14:30:00Z", {
  *   timeZone: "Europe/London"
  * })
- * 
+ *
  * // Force UTC formatting regardless of time zone
  * const utcFormatted = DateTime.formatUtc(dt, {
  *   year: "numeric",
@@ -28,7 +28,7 @@
  *   minute: "2-digit",
  *   timeZoneName: "short"
  * })
- * 
+ *
  * console.log(utcFormatted) // "06/15/2024, 02:30 PM UTC"
  * ```
  *
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "formatUtc";
 const exportKind = "const";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "Format a `DateTime` as a string using the `DateTimeFormat` API.";
-const sourceExample = "import { DateTime } from \"effect\"\n\nconst dt = DateTime.makeZonedUnsafe(\"2024-06-15T14:30:00Z\", {\n  timeZone: \"Europe/London\"\n})\n\n// Force UTC formatting regardless of time zone\nconst utcFormatted = DateTime.formatUtc(dt, {\n  year: \"numeric\",\n  month: \"2-digit\",\n  day: \"2-digit\",\n  hour: \"2-digit\",\n  minute: \"2-digit\",\n  timeZoneName: \"short\"\n})\n\nconsole.log(utcFormatted) // \"06/15/2024, 02:30 PM UTC\"";
+const sourceExample =
+  'import { DateTime } from "effect"\n\nconst dt = DateTime.makeZonedUnsafe("2024-06-15T14:30:00Z", {\n  timeZone: "Europe/London"\n})\n\n// Force UTC formatting regardless of time zone\nconst utcFormatted = DateTime.formatUtc(dt, {\n  year: "numeric",\n  month: "2-digit",\n  day: "2-digit",\n  hour: "2-digit",\n  minute: "2-digit",\n  timeZoneName: "short"\n})\n\nconsole.log(utcFormatted) // "06/15/2024, 02:30 PM UTC"';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

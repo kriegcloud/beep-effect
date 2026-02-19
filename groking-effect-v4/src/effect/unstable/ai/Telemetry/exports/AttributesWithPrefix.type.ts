@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Telemetry } from "effect/unstable/ai"
- * 
+ *
  * type RequestAttrs = {
  *   modelName: string
  *   maxTokens: number
  * }
- * 
+ *
  * type PrefixedAttrs = Telemetry.AttributesWithPrefix<
  *   RequestAttrs,
  *   "gen_ai.request"
@@ -34,16 +34,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TelemetryModule from "effect/unstable/ai/Telemetry";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TelemetryModule from "effect/unstable/ai/Telemetry";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "AttributesWithPrefix";
 const exportKind = "type";
 const moduleImportPath = "effect/unstable/ai/Telemetry";
 const sourceSummary = "Utility type for prefixing attribute names with a namespace.";
-const sourceExample = "import type { Telemetry } from \"effect/unstable/ai\"\n\ntype RequestAttrs = {\n  modelName: string\n  maxTokens: number\n}\n\ntype PrefixedAttrs = Telemetry.AttributesWithPrefix<\n  RequestAttrs,\n  \"gen_ai.request\"\n>\n// Results in: {\n//   \"gen_ai.request.model_name\": string\n//   \"gen_ai.request.max_tokens\": number\n// }";
+const sourceExample =
+  'import type { Telemetry } from "effect/unstable/ai"\n\ntype RequestAttrs = {\n  modelName: string\n  maxTokens: number\n}\n\ntype PrefixedAttrs = Telemetry.AttributesWithPrefix<\n  RequestAttrs,\n  "gen_ai.request"\n>\n// Results in: {\n//   "gen_ai.request.model_name": string\n//   "gen_ai.request.max_tokens": number\n// }';
 const moduleRecord = TelemetryModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

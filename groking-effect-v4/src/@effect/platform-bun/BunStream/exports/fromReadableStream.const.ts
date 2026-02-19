@@ -18,16 +18,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BunStreamModule from "@effect/platform-bun/BunStream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BunStreamModule from "@effect/platform-bun/BunStream";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -35,7 +36,8 @@ import {
 const exportName = "fromReadableStream";
 const exportKind = "const";
 const moduleImportPath = "@effect/platform-bun/BunStream";
-const sourceSummary = "An optimized version of `Stream.fromReadableStream` that uses the Bun .readMany API to read multiple values at once from a `ReadableStream`.";
+const sourceSummary =
+  "An optimized version of `Stream.fromReadableStream` that uses the Bun .readMany API to read multiple values at once from a `ReadableStream`.";
 const sourceExample = "";
 const moduleRecord = BunStreamModule as Record<string, unknown>;
 
@@ -67,14 +69,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

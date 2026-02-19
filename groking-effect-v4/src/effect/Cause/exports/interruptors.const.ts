@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause } from "effect"
- * 
+ *
  * const cause = Cause.combine(
  *   Cause.interrupt(1),
  *   Cause.interrupt(2)
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CauseModule from "effect/Cause";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as CauseModule from "effect/Cause";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,8 +44,10 @@ import {
 const exportName = "interruptors";
 const exportKind = "const";
 const moduleImportPath = "effect/Cause";
-const sourceSummary = "Collects the fiber IDs of all {@link Interrupt} reasons in the cause into a `ReadonlySet`. Returns an empty set when the cause has no interrupts.";
-const sourceExample = "import { Cause } from \"effect\"\n\nconst cause = Cause.combine(\n  Cause.interrupt(1),\n  Cause.interrupt(2)\n)\nconsole.log(Cause.interruptors(cause)) // Set { 1, 2 }";
+const sourceSummary =
+  "Collects the fiber IDs of all {@link Interrupt} reasons in the cause into a `ReadonlySet`. Returns an empty set when the cause has no interrupts.";
+const sourceExample =
+  'import { Cause } from "effect"\n\nconst cause = Cause.combine(\n  Cause.interrupt(1),\n  Cause.interrupt(2)\n)\nconsole.log(Cause.interruptors(cause)) // Set { 1, 2 }';
 const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

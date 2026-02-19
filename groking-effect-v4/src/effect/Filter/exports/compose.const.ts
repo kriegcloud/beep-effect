@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Filter, Result } from "effect"
- * 
+ *
  * const stringFilter = Filter.string
  * const nonEmptyUpper = Filter.make((s: string) =>
  *   s.length > 0 ? Result.succeed(s.toUpperCase()) : Result.fail(s)
  * )
- * 
+ *
  * const stringToUpper = Filter.compose(stringFilter, nonEmptyUpper)
  * ```
  *
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FilterModule from "effect/Filter";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FilterModule from "effect/Filter";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "compose";
 const exportKind = "const";
 const moduleImportPath = "effect/Filter";
 const sourceSummary = "Composes two filters sequentially, feeding the output of the first into the second.";
-const sourceExample = "import { Filter, Result } from \"effect\"\n\nconst stringFilter = Filter.string\nconst nonEmptyUpper = Filter.make((s: string) =>\n  s.length > 0 ? Result.succeed(s.toUpperCase()) : Result.fail(s)\n)\n\nconst stringToUpper = Filter.compose(stringFilter, nonEmptyUpper)";
+const sourceExample =
+  'import { Filter, Result } from "effect"\n\nconst stringFilter = Filter.string\nconst nonEmptyUpper = Filter.make((s: string) =>\n  s.length > 0 ? Result.succeed(s.toUpperCase()) : Result.fail(s)\n)\n\nconst stringToUpper = Filter.compose(stringFilter, nonEmptyUpper)';
 const moduleRecord = FilterModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

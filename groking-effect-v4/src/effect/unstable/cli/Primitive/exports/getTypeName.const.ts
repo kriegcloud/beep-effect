@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { Primitive } from "effect/unstable/cli"
- * 
+ *
  * console.log(Primitive.getTypeName(Primitive.string)) // "string"
  * console.log(Primitive.getTypeName(Primitive.integer)) // "integer"
  * console.log(Primitive.getTypeName(Primitive.boolean)) // "boolean"
  * console.log(Primitive.getTypeName(Primitive.date)) // "date"
  * console.log(Primitive.getTypeName(Primitive.keyValuePair)) // "key=value"
- * 
+ *
  * const logLevelChoice = Primitive.choice([
  *   ["debug", "debug"],
  *   ["info", "info"]
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PrimitiveModule from "effect/unstable/cli/Primitive";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PrimitiveModule from "effect/unstable/cli/Primitive";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "getTypeName";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Primitive";
 const sourceSummary = "Gets a human-readable type name for a primitive.";
-const sourceExample = "import { Primitive } from \"effect/unstable/cli\"\n\nconsole.log(Primitive.getTypeName(Primitive.string)) // \"string\"\nconsole.log(Primitive.getTypeName(Primitive.integer)) // \"integer\"\nconsole.log(Primitive.getTypeName(Primitive.boolean)) // \"boolean\"\nconsole.log(Primitive.getTypeName(Primitive.date)) // \"date\"\nconsole.log(Primitive.getTypeName(Primitive.keyValuePair)) // \"key=value\"\n\nconst logLevelChoice = Primitive.choice([\n  [\"debug\", \"debug\"],\n  [\"info\", \"info\"]\n])\nconsole.log(Primitive.getTypeName(logLevelChoice)) // \"choice\"";
+const sourceExample =
+  'import { Primitive } from "effect/unstable/cli"\n\nconsole.log(Primitive.getTypeName(Primitive.string)) // "string"\nconsole.log(Primitive.getTypeName(Primitive.integer)) // "integer"\nconsole.log(Primitive.getTypeName(Primitive.boolean)) // "boolean"\nconsole.log(Primitive.getTypeName(Primitive.date)) // "date"\nconsole.log(Primitive.getTypeName(Primitive.keyValuePair)) // "key=value"\n\nconst logLevelChoice = Primitive.choice([\n  ["debug", "debug"],\n  ["info", "info"]\n])\nconsole.log(Primitive.getTypeName(logLevelChoice)) // "choice"';
 const moduleRecord = PrimitiveModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

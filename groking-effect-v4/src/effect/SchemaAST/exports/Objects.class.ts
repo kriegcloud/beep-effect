@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema, SchemaAST } from "effect"
- * 
+ *
  * const schema = Schema.Struct({ name: Schema.String })
  * const ast = schema.ast
- * 
+ *
  * if (SchemaAST.isObjects(ast)) {
  *   for (const ps of ast.propertySignatures) {
  *     console.log(ps.name, ps.type._tag)
@@ -29,16 +29,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaASTModule from "effect/SchemaAST";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaASTModule from "effect/SchemaAST";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "Objects";
 const exportKind = "class";
 const moduleImportPath = "effect/SchemaAST";
 const sourceSummary = "AST node for object-like types — both structs and records.";
-const sourceExample = "import { Schema, SchemaAST } from \"effect\"\n\nconst schema = Schema.Struct({ name: Schema.String })\nconst ast = schema.ast\n\nif (SchemaAST.isObjects(ast)) {\n  for (const ps of ast.propertySignatures) {\n    console.log(ps.name, ps.type._tag)\n  }\n  // \"name\" \"String\"\n}";
+const sourceExample =
+  'import { Schema, SchemaAST } from "effect"\n\nconst schema = Schema.Struct({ name: Schema.String })\nconst ast = schema.ast\n\nif (SchemaAST.isObjects(ast)) {\n  for (const ps of ast.propertySignatures) {\n    console.log(ps.name, ps.type._tag)\n  }\n  // "name" "String"\n}';
 const moduleRecord = SchemaASTModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Schedule } from "effect"
- * 
+ *
  * // Custom schedule that uses input metadata
  * const metadataAwareSchedule = Schedule.spaced("1 second").pipe(
  *   Schedule.collectWhile((metadata) =>
  *     Effect.succeed(metadata.attempt <= 5 && metadata.elapsed < 10000)
  *   )
  * )
- * 
+ *
  * const program = Effect.gen(function*() {
  *   yield* Effect.repeat(
  *     Console.log("Task execution"),
@@ -34,16 +34,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ScheduleModule from "effect/Schedule";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ScheduleModule from "effect/Schedule";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "InputMetadata";
 const exportKind = "interface";
 const moduleImportPath = "effect/Schedule";
 const sourceSummary = "Metadata provided to schedule functions containing timing and input information.";
-const sourceExample = "import { Console, Effect, Schedule } from \"effect\"\n\n// Custom schedule that uses input metadata\nconst metadataAwareSchedule = Schedule.spaced(\"1 second\").pipe(\n  Schedule.collectWhile((metadata) =>\n    Effect.succeed(metadata.attempt <= 5 && metadata.elapsed < 10000)\n  )\n)\n\nconst program = Effect.gen(function*() {\n  yield* Effect.repeat(\n    Console.log(\"Task execution\"),\n    metadataAwareSchedule\n  )\n})";
+const sourceExample =
+  'import { Console, Effect, Schedule } from "effect"\n\n// Custom schedule that uses input metadata\nconst metadataAwareSchedule = Schedule.spaced("1 second").pipe(\n  Schedule.collectWhile((metadata) =>\n    Effect.succeed(metadata.attempt <= 5 && metadata.elapsed < 10000)\n  )\n)\n\nconst program = Effect.gen(function*() {\n  yield* Effect.repeat(\n    Console.log("Task execution"),\n    metadataAwareSchedule\n  )\n})';
 const moduleRecord = ScheduleModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

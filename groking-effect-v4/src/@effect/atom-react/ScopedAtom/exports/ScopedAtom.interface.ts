@@ -17,15 +17,15 @@
  * import * as React from "react"
  * import * as ScopedAtom from "@effect/atom-react/ScopedAtom"
  * import { useAtomValue } from "@effect/atom-react"
- * 
+ *
  * const Counter = ScopedAtom.make(() => Atom.make(0))
- * 
+ *
  * function View() {
  *   const atom = Counter.use()
  *   const value = useAtomValue(atom)
  *   return React.createElement("div", null, value)
  * }
- * 
+ *
  * export function App() {
  *   return React.createElement(Counter.Provider, null, React.createElement(View))
  * }
@@ -35,16 +35,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ScopedAtomModule from "@effect/atom-react/ScopedAtom";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as ScopedAtomModule from "@effect/atom-react/ScopedAtom";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "ScopedAtom";
 const exportKind = "interface";
 const moduleImportPath = "@effect/atom-react/ScopedAtom";
 const sourceSummary = "Scoped Atom interface with a provider-backed instance.";
-const sourceExample = "import * as Atom from \"effect/unstable/reactivity/Atom\"\nimport * as React from \"react\"\nimport * as ScopedAtom from \"@effect/atom-react/ScopedAtom\"\nimport { useAtomValue } from \"@effect/atom-react\"\n\nconst Counter = ScopedAtom.make(() => Atom.make(0))\n\nfunction View() {\n  const atom = Counter.use()\n  const value = useAtomValue(atom)\n  return React.createElement(\"div\", null, value)\n}\n\nexport function App() {\n  return React.createElement(Counter.Provider, null, React.createElement(View))\n}";
+const sourceExample =
+  'import * as Atom from "effect/unstable/reactivity/Atom"\nimport * as React from "react"\nimport * as ScopedAtom from "@effect/atom-react/ScopedAtom"\nimport { useAtomValue } from "@effect/atom-react"\n\nconst Counter = ScopedAtom.make(() => Atom.make(0))\n\nfunction View() {\n  const atom = Counter.use()\n  const value = useAtomValue(atom)\n  return React.createElement("div", null, value)\n}\n\nexport function App() {\n  return React.createElement(Counter.Provider, null, React.createElement(View))\n}';
 const moduleRecord = ScopedAtomModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

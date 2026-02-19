@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Result } from "effect"
- * 
+ *
  * const success = Result.succeed(42)
- * 
+ *
  * if (Result.isSuccess(success)) {
  *   console.log(success.success)
  *   // Output: 42
@@ -27,16 +27,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ResultModule from "effect/Result";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "Success";
 const exportKind = "interface";
 const moduleImportPath = "effect/Result";
 const sourceSummary = "The success variant of {@link Result}. Wraps a value of type `A`.";
-const sourceExample = "import { Result } from \"effect\"\n\nconst success = Result.succeed(42)\n\nif (Result.isSuccess(success)) {\n  console.log(success.success)\n  // Output: 42\n}";
+const sourceExample =
+  'import { Result } from "effect"\n\nconst success = Result.succeed(42)\n\nif (Result.isSuccess(success)) {\n  console.log(success.success)\n  // Output: 42\n}';
 const moduleRecord = ResultModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

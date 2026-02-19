@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Schedule, Stream } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const stream = Stream.fromEffectSchedule(
  *     Effect.succeed("ping"),
@@ -23,7 +23,7 @@
  *   const result = yield* Stream.runCollect(stream)
  *   yield* Console.log(result)
  * })
- * 
+ *
  * Effect.runPromise(program)
  * // Output: [ "ping", "ping", "ping" ]
  * ```
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,8 +50,10 @@ import {
 const exportName = "fromEffectSchedule";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
-const sourceSummary = "Creates a stream from an effect producing a value of type `A`, which is repeated using the specified schedule.";
-const sourceExample = "import { Console, Effect, Schedule, Stream } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const stream = Stream.fromEffectSchedule(\n    Effect.succeed(\"ping\"),\n    Schedule.recurs(2)\n  )\n  const result = yield* Stream.runCollect(stream)\n  yield* Console.log(result)\n})\n\nEffect.runPromise(program)\n// Output: [ \"ping\", \"ping\", \"ping\" ]";
+const sourceSummary =
+  "Creates a stream from an effect producing a value of type `A`, which is repeated using the specified schedule.";
+const sourceExample =
+  'import { Console, Effect, Schedule, Stream } from "effect"\n\nconst program = Effect.gen(function*() {\n  const stream = Stream.fromEffectSchedule(\n    Effect.succeed("ping"),\n    Schedule.recurs(2)\n  )\n  const result = yield* Stream.runCollect(stream)\n  yield* Console.log(result)\n})\n\nEffect.runPromise(program)\n// Output: [ "ping", "ping", "ping" ]';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

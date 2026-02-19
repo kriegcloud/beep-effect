@@ -15,13 +15,13 @@
  * ```ts
  * import { Effect } from "effect"
  * import { IdGenerator } from "effect/unstable/ai"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const id = yield* IdGenerator.defaultIdGenerator.generateId()
  *   console.log(id) // "id_A7xK9mP2qR5tY8uV"
  *   return id
  * })
- * 
+ *
  * // Or provide it as a service
  * const withDefault = program.pipe(
  *   Effect.provideService(
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as IdGeneratorModule from "effect/unstable/ai/IdGenerator";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as IdGeneratorModule from "effect/unstable/ai/IdGenerator";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "defaultIdGenerator";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/ai/IdGenerator";
 const sourceSummary = "Default ID generator service implementation.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { IdGenerator } from \"effect/unstable/ai\"\n\nconst program = Effect.gen(function*() {\n  const id = yield* IdGenerator.defaultIdGenerator.generateId()\n  console.log(id) // \"id_A7xK9mP2qR5tY8uV\"\n  return id\n})\n\n// Or provide it as a service\nconst withDefault = program.pipe(\n  Effect.provideService(\n    IdGenerator.IdGenerator,\n    IdGenerator.defaultIdGenerator\n  )\n)";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { IdGenerator } from "effect/unstable/ai"\n\nconst program = Effect.gen(function*() {\n  const id = yield* IdGenerator.defaultIdGenerator.generateId()\n  console.log(id) // "id_A7xK9mP2qR5tY8uV"\n  return id\n})\n\n// Or provide it as a service\nconst withDefault = program.pipe(\n  Effect.provideService(\n    IdGenerator.IdGenerator,\n    IdGenerator.defaultIdGenerator\n  )\n)';
 const moduleRecord = IdGeneratorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

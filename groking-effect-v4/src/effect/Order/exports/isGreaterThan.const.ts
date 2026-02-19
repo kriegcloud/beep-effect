@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Order } from "effect"
- * 
+ *
  * const isGreaterThanNumber = Order.isGreaterThan(Order.Number)
- * 
+ *
  * console.log(isGreaterThanNumber(2, 1)) // true
  * console.log(isGreaterThanNumber(1, 2)) // false
  * console.log(isGreaterThanNumber(1, 1)) // false
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OrderModule from "effect/Order";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as OrderModule from "effect/Order";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "isGreaterThan";
 const exportKind = "const";
 const moduleImportPath = "effect/Order";
 const sourceSummary = "Tests whether one value is strictly greater than another according to the given order.";
-const sourceExample = "import { Order } from \"effect\"\n\nconst isGreaterThanNumber = Order.isGreaterThan(Order.Number)\n\nconsole.log(isGreaterThanNumber(2, 1)) // true\nconsole.log(isGreaterThanNumber(1, 2)) // false\nconsole.log(isGreaterThanNumber(1, 1)) // false";
+const sourceExample =
+  'import { Order } from "effect"\n\nconst isGreaterThanNumber = Order.isGreaterThan(Order.Number)\n\nconsole.log(isGreaterThanNumber(2, 1)) // true\nconsole.log(isGreaterThanNumber(1, 2)) // false\nconsole.log(isGreaterThanNumber(1, 1)) // false';
 const moduleRecord = OrderModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

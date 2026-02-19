@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { PubSub } from "effect"
- * 
+ *
  * // Unsafe synchronous size check
  * declare const pubsub: PubSub.PubSub<string>
- * 
+ *
  * const size = PubSub.sizeUnsafe(pubsub)
  * console.log("Current size:", size)
  * ```
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PubSubModule from "effect/PubSub";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PubSubModule from "effect/PubSub";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,8 +44,10 @@ import {
 const exportName = "sizeUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/PubSub";
-const sourceSummary = "Retrieves the size of the queue, which is equal to the number of elements in the queue. This may be negative if fibers are suspended waiting for elements to be added to the queue.";
-const sourceExample = "import { PubSub } from \"effect\"\n\n// Unsafe synchronous size check\ndeclare const pubsub: PubSub.PubSub<string>\n\nconst size = PubSub.sizeUnsafe(pubsub)\nconsole.log(\"Current size:\", size)";
+const sourceSummary =
+  "Retrieves the size of the queue, which is equal to the number of elements in the queue. This may be negative if fibers are suspended waiting for elements to be added to the queue.";
+const sourceExample =
+  'import { PubSub } from "effect"\n\n// Unsafe synchronous size check\ndeclare const pubsub: PubSub.PubSub<string>\n\nconst size = PubSub.sizeUnsafe(pubsub)\nconsole.log("Current size:", size)';
 const moduleRecord = PubSubModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Argument } from "effect/unstable/cli"
- * 
+ *
  * // Used as a placeholder or default in combinators
  * const noArg = Argument.none
  * ```
@@ -23,16 +23,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArgumentModule from "effect/unstable/cli/Argument";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ArgumentModule from "effect/unstable/cli/Argument";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -41,7 +42,8 @@ const exportName = "none";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Argument";
 const sourceSummary = "Creates an empty sentinel argument that always fails to parse.";
-const sourceExample = "import { Argument } from \"effect/unstable/cli\"\n\n// Used as a placeholder or default in combinators\nconst noArg = Argument.none";
+const sourceExample =
+  'import { Argument } from "effect/unstable/cli"\n\n// Used as a placeholder or default in combinators\nconst noArg = Argument.none';
 const moduleRecord = ArgumentModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -72,14 +74,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -15,14 +15,14 @@
  * ```ts
  * import { Effect } from "effect"
  * import { CliError } from "effect/unstable/cli"
- * 
+ *
  * const missingOptionError = new CliError.MissingOption({
  *   option: "api-key"
  * })
- * 
+ *
  * console.log(missingOptionError.message)
  * // "Missing required flag: --api-key"
- * 
+ *
  * // In validation context
  * const validateRequiredOptions = (options: Record<string, string | undefined>) =>
  *   Effect.gen(function*() {
@@ -37,16 +37,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CliErrorModule from "effect/unstable/cli/CliError";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as CliErrorModule from "effect/unstable/cli/CliError";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,7 +56,8 @@ const exportName = "MissingOption";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/cli/CliError";
 const sourceSummary = "Error thrown when a required option is missing.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { CliError } from \"effect/unstable/cli\"\n\nconst missingOptionError = new CliError.MissingOption({\n  option: \"api-key\"\n})\n\nconsole.log(missingOptionError.message)\n// \"Missing required flag: --api-key\"\n\n// In validation context\nconst validateRequiredOptions = (options: Record<string, string | undefined>) =>\n  Effect.gen(function*() {\n    const apiKey = options[\"api-key\"]\n    if (!apiKey) {\n      return yield* Effect.fail(missingOptionError)\n    }\n    return apiKey\n  })";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { CliError } from "effect/unstable/cli"\n\nconst missingOptionError = new CliError.MissingOption({\n  option: "api-key"\n})\n\nconsole.log(missingOptionError.message)\n// "Missing required flag: --api-key"\n\n// In validation context\nconst validateRequiredOptions = (options: Record<string, string | undefined>) =>\n  Effect.gen(function*() {\n    const apiKey = options["api-key"]\n    if (!apiKey) {\n      return yield* Effect.fail(missingOptionError)\n    }\n    return apiKey\n  })';
 const moduleRecord = CliErrorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -86,14 +88,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

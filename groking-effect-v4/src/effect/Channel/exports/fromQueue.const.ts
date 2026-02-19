@@ -14,27 +14,27 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel, Data, Effect, Queue } from "effect"
- * 
+ *
  * class QueueError extends Data.TaggedError("QueueError")<{
  *   readonly reason: string
  * }> {}
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create a bounded queue
  *   const queue = yield* Queue.bounded<string, QueueError>(10)
- * 
+ *
  *   // Add some items to the queue
  *   yield* Queue.offer(queue, "item1")
  *   yield* Queue.offer(queue, "item2")
  *   yield* Queue.offer(queue, "item3")
- * 
+ *
  *   // Create a channel from the queue
  *   const channel = Channel.fromQueue(queue)
- * 
+ *
  *   // The channel will read items from the queue one by one
  *   return channel
  * })
- * 
+ *
  * // Sliding queue example
  * const slidingProgram = Effect.gen(function*() {
  *   const slidingQueue = yield* Queue.sliding<number, QueueError>(5)
@@ -47,16 +47,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -65,7 +66,8 @@ const exportName = "fromQueue";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
 const sourceSummary = "Create a channel from a queue";
-const sourceExample = "import { Channel, Data, Effect, Queue } from \"effect\"\n\nclass QueueError extends Data.TaggedError(\"QueueError\")<{\n  readonly reason: string\n}> {}\n\nconst program = Effect.gen(function*() {\n  // Create a bounded queue\n  const queue = yield* Queue.bounded<string, QueueError>(10)\n\n  // Add some items to the queue\n  yield* Queue.offer(queue, \"item1\")\n  yield* Queue.offer(queue, \"item2\")\n  yield* Queue.offer(queue, \"item3\")\n\n  // Create a channel from the queue\n  const channel = Channel.fromQueue(queue)\n\n  // The channel will read items from the queue one by one\n  return channel\n})\n\n// Sliding queue example\nconst slidingProgram = Effect.gen(function*() {\n  const slidingQueue = yield* Queue.sliding<number, QueueError>(5)\n  yield* Queue.offerAll(slidingQueue, [1, 2, 3, 4, 5, 6])\n  return Channel.fromQueue(slidingQueue)\n})";
+const sourceExample =
+  'import { Channel, Data, Effect, Queue } from "effect"\n\nclass QueueError extends Data.TaggedError("QueueError")<{\n  readonly reason: string\n}> {}\n\nconst program = Effect.gen(function*() {\n  // Create a bounded queue\n  const queue = yield* Queue.bounded<string, QueueError>(10)\n\n  // Add some items to the queue\n  yield* Queue.offer(queue, "item1")\n  yield* Queue.offer(queue, "item2")\n  yield* Queue.offer(queue, "item3")\n\n  // Create a channel from the queue\n  const channel = Channel.fromQueue(queue)\n\n  // The channel will read items from the queue one by one\n  return channel\n})\n\n// Sliding queue example\nconst slidingProgram = Effect.gen(function*() {\n  const slidingQueue = yield* Queue.sliding<number, QueueError>(5)\n  yield* Queue.offerAll(slidingQueue, [1, 2, 3, 4, 5, 6])\n  return Channel.fromQueue(slidingQueue)\n})';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -96,14 +98,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

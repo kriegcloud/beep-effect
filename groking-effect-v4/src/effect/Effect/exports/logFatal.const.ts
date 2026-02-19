@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   try {
  *     // Simulate a critical system failure
@@ -25,7 +25,7 @@
  *     yield* Effect.logFatal("System shutting down")
  *   }
  * })
- * 
+ *
  * Effect.runPromise(program)
  * // Output:
  * // timestamp=2023-... level=FATAL message="Critical system failure: System memory exhausted"
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "logFatal";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Logs one or more messages at the FATAL level.";
-const sourceExample = "import { Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  try {\n    // Simulate a critical system failure\n    throw new Error(\"System memory exhausted\")\n  } catch (error) {\n    const errorMessage = error instanceof Error ? error.message : String(error)\n    yield* Effect.logFatal(\"Critical system failure:\", errorMessage)\n    yield* Effect.logFatal(\"System shutting down\")\n  }\n})\n\nEffect.runPromise(program)\n// Output:\n// timestamp=2023-... level=FATAL message=\"Critical system failure: System memory exhausted\"\n// timestamp=2023-... level=FATAL message=\"System shutting down\"";
+const sourceExample =
+  'import { Effect } from "effect"\n\nconst program = Effect.gen(function*() {\n  try {\n    // Simulate a critical system failure\n    throw new Error("System memory exhausted")\n  } catch (error) {\n    const errorMessage = error instanceof Error ? error.message : String(error)\n    yield* Effect.logFatal("Critical system failure:", errorMessage)\n    yield* Effect.logFatal("System shutting down")\n  }\n})\n\nEffect.runPromise(program)\n// Output:\n// timestamp=2023-... level=FATAL message="Critical system failure: System memory exhausted"\n// timestamp=2023-... level=FATAL message="System shutting down"';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

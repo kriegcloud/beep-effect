@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Iterable } from "effect"
- * 
+ *
  * const empty = Iterable.empty<string>()
  * console.log(Array.from(empty)) // []
  * console.log(Iterable.isEmpty(empty)) // true
- * 
+ *
  * // Useful as base case for reductions
  * const hasData = true
  * const result = hasData
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as IterableModule from "effect/Iterable";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as IterableModule from "effect/Iterable";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +49,8 @@ const exportName = "empty";
 const exportKind = "const";
 const moduleImportPath = "effect/Iterable";
 const sourceSummary = "Creates an empty iterable that yields no elements.";
-const sourceExample = "import { Iterable } from \"effect\"\n\nconst empty = Iterable.empty<string>()\nconsole.log(Array.from(empty)) // []\nconsole.log(Iterable.isEmpty(empty)) // true\n\n// Useful as base case for reductions\nconst hasData = true\nconst result = hasData\n  ? Iterable.range(1, 5)\n  : Iterable.empty<number>()";
+const sourceExample =
+  'import { Iterable } from "effect"\n\nconst empty = Iterable.empty<string>()\nconsole.log(Array.from(empty)) // []\nconsole.log(Iterable.isEmpty(empty)) // true\n\n// Useful as base case for reductions\nconst hasData = true\nconst result = hasData\n  ? Iterable.range(1, 5)\n  : Iterable.empty<number>()';
 const moduleRecord = IterableModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

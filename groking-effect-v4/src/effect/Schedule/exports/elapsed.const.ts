@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Duration, Effect, Schedule } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   yield* Effect.repeat(
  *     Console.log("Running task..."),
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ScheduleModule from "effect/Schedule";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ScheduleModule from "effect/Schedule";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "elapsed";
 const exportKind = "const";
 const moduleImportPath = "effect/Schedule";
-const sourceSummary = "A schedule that always recurs and returns the total elapsed duration since the first recurrence.";
-const sourceExample = "import { Console, Duration, Effect, Schedule } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  yield* Effect.repeat(\n    Console.log(\"Running task...\"),\n    Schedule.spaced(\"1 second\").pipe(\n      Schedule.both(Schedule.elapsed),\n      Schedule.tapOutput(([count, duration]) =>\n        Console.log(`Run ${count}, elapsed: ${Duration.toMillis(duration)}ms`)\n      ),\n      Schedule.take(5)\n    )\n  )\n})";
+const sourceSummary =
+  "A schedule that always recurs and returns the total elapsed duration since the first recurrence.";
+const sourceExample =
+  'import { Console, Duration, Effect, Schedule } from "effect"\n\nconst program = Effect.gen(function*() {\n  yield* Effect.repeat(\n    Console.log("Running task..."),\n    Schedule.spaced("1 second").pipe(\n      Schedule.both(Schedule.elapsed),\n      Schedule.tapOutput(([count, duration]) =>\n        Console.log(`Run ${count}, elapsed: ${Duration.toMillis(duration)}ms`)\n      ),\n      Schedule.take(5)\n    )\n  )\n})';
 const moduleRecord = ScheduleModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

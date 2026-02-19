@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * const dt = DateTime.makeUnsafe("2024-06-15T14:30:00Z")
- * 
+ *
  * // Uses system local time zone and locale
  * const local = DateTime.formatLocal(dt, {
  *   year: "numeric",
@@ -25,7 +25,7 @@
  *   hour: "2-digit",
  *   minute: "2-digit"
  * })
- * 
+ *
  * console.log(local) // Output depends on system locale/timezone
  * ```
  *
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,7 +52,8 @@ const exportName = "formatLocal";
 const exportKind = "const";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "Format a `DateTime` as a string using the `DateTimeFormat` API.";
-const sourceExample = "import { DateTime } from \"effect\"\n\nconst dt = DateTime.makeUnsafe(\"2024-06-15T14:30:00Z\")\n\n// Uses system local time zone and locale\nconst local = DateTime.formatLocal(dt, {\n  year: \"numeric\",\n  month: \"long\",\n  day: \"numeric\",\n  hour: \"2-digit\",\n  minute: \"2-digit\"\n})\n\nconsole.log(local) // Output depends on system locale/timezone";
+const sourceExample =
+  'import { DateTime } from "effect"\n\nconst dt = DateTime.makeUnsafe("2024-06-15T14:30:00Z")\n\n// Uses system local time zone and locale\nconst local = DateTime.formatLocal(dt, {\n  year: "numeric",\n  month: "long",\n  day: "numeric",\n  hour: "2-digit",\n  minute: "2-digit"\n})\n\nconsole.log(local) // Output depends on system locale/timezone';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

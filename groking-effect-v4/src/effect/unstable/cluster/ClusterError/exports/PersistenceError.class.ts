@@ -17,16 +17,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ClusterErrorModule from "effect/unstable/cluster/ClusterError";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ClusterErrorModule from "effect/unstable/cluster/ClusterError";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -34,7 +35,8 @@ import {
 const exportName = "PersistenceError";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/cluster/ClusterError";
-const sourceSummary = "Represents an error that occurs when a message fails to be persisted into cluster's mailbox storage.";
+const sourceSummary =
+  "Represents an error that occurs when a message fails to be persisted into cluster's mailbox storage.";
 const sourceExample = "";
 const moduleRecord = ClusterErrorModule as Record<string, unknown>;
 
@@ -66,14 +68,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

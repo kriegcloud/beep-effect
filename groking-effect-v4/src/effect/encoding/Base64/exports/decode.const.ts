@@ -15,7 +15,7 @@
  * ```ts
  * import { Result } from "effect"
  * import { Base64 } from "effect/encoding"
- * 
+ *
  * const result = Base64.decode("SGVsbG8=")
  * if (Result.isSuccess(result)) {
  *   console.log(Array.from(result.success)) // [72, 101, 108, 108, 111]
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as Base64Module from "effect/encoding/Base64";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as Base64Module from "effect/encoding/Base64";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "decode";
 const exportKind = "const";
 const moduleImportPath = "effect/encoding/Base64";
 const sourceSummary = "Decodes a base64 (RFC4648) encoded `string` into a `Uint8Array`.";
-const sourceExample = "import { Result } from \"effect\"\nimport { Base64 } from \"effect/encoding\"\n\nconst result = Base64.decode(\"SGVsbG8=\")\nif (Result.isSuccess(result)) {\n  console.log(Array.from(result.success)) // [72, 101, 108, 108, 111]\n}";
+const sourceExample =
+  'import { Result } from "effect"\nimport { Base64 } from "effect/encoding"\n\nconst result = Base64.decode("SGVsbG8=")\nif (Result.isSuccess(result)) {\n  console.log(Array.from(result.success)) // [72, 101, 108, 108, 111]\n}';
 const moduleRecord = Base64Module as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

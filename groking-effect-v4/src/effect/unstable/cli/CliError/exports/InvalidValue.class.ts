@@ -15,17 +15,17 @@
  * ```ts
  * import { Effect } from "effect"
  * import { CliError } from "effect/unstable/cli"
- * 
+ *
  * const invalidValueError = new CliError.InvalidValue({
  *   option: "port",
  *   value: "abc123",
  *   expected: "integer between 1 and 65535",
  *   kind: "flag"
  * })
- * 
+ *
  * console.log(invalidValueError.message)
  * // "Invalid value for flag --port: "abc123". Expected: integer between 1 and 65535"
- * 
+ *
  * // For positional arguments
  * const invalidArgError = new CliError.InvalidValue({
  *   option: "count",
@@ -33,7 +33,7 @@
  *   expected: "integer",
  *   kind: "argument"
  * })
- * 
+ *
  * console.log(invalidArgError.message)
  * // "Invalid value for argument <count>: "abc". Expected: integer"
  * ```
@@ -41,16 +41,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CliErrorModule from "effect/unstable/cli/CliError";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as CliErrorModule from "effect/unstable/cli/CliError";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -59,7 +60,8 @@ const exportName = "InvalidValue";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/cli/CliError";
 const sourceSummary = "Error thrown when an option or argument value is invalid.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { CliError } from \"effect/unstable/cli\"\n\nconst invalidValueError = new CliError.InvalidValue({\n  option: \"port\",\n  value: \"abc123\",\n  expected: \"integer between 1 and 65535\",\n  kind: \"flag\"\n})\n\nconsole.log(invalidValueError.message)\n// \"Invalid value for flag --port: \"abc123\". Expected: integer between 1 and 65535\"\n\n// For positional arguments\nconst invalidArgError = new CliError.InvalidValue({\n  option: \"count\",\n  value: \"abc\",\n  expected: \"integer\",\n  kind: \"argument\"\n})\n\nconsole.log(invalidArgError.message)\n// \"Invalid value for argument <count>: \"abc\". Expected: integer\"";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { CliError } from "effect/unstable/cli"\n\nconst invalidValueError = new CliError.InvalidValue({\n  option: "port",\n  value: "abc123",\n  expected: "integer between 1 and 65535",\n  kind: "flag"\n})\n\nconsole.log(invalidValueError.message)\n// "Invalid value for flag --port: "abc123". Expected: integer between 1 and 65535"\n\n// For positional arguments\nconst invalidArgError = new CliError.InvalidValue({\n  option: "count",\n  value: "abc",\n  expected: "integer",\n  kind: "argument"\n})\n\nconsole.log(invalidArgError.message)\n// "Invalid value for argument <count>: "abc". Expected: integer"';
 const moduleRecord = CliErrorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -90,14 +92,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

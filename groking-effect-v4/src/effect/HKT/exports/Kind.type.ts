@@ -14,20 +14,20 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Effect, HKT, Option } from "effect"
- * 
+ *
  * // Define TypeLambdas
  * interface OptionTypeLambda extends HKT.TypeLambda {
  *   readonly type: Option.Option<this["Target"]>
  * }
- * 
+ *
  * interface EffectTypeLambda extends HKT.TypeLambda {
  *   readonly type: Effect.Effect<this["Target"], this["Out2"], this["Out1"]>
  * }
- * 
+ *
  * // Apply type parameters to get concrete types
  * type OptionString = HKT.Kind<OptionTypeLambda, never, never, never, string>
  * // Result: Option.Option<string>
- * 
+ *
  * type EffectStringNumberBoolean = HKT.Kind<
  *   EffectTypeLambda,
  *   never,
@@ -36,7 +36,7 @@
  *   string
  * >
  * // Result: Effect.Effect<string, number, boolean>
- * 
+ *
  * // TypeLambdas enable generic programming over type constructors
  * type StringType<F extends HKT.TypeLambda> = HKT.Kind<
  *   F,
@@ -51,16 +51,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HKTModule from "effect/HKT";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HKTModule from "effect/HKT";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -69,7 +70,8 @@ const exportName = "Kind";
 const exportKind = "type";
 const moduleImportPath = "effect/HKT";
 const sourceSummary = "Applies type parameters to a TypeLambda to get the concrete type.";
-const sourceExample = "import type { Effect, HKT, Option } from \"effect\"\n\n// Define TypeLambdas\ninterface OptionTypeLambda extends HKT.TypeLambda {\n  readonly type: Option.Option<this[\"Target\"]>\n}\n\ninterface EffectTypeLambda extends HKT.TypeLambda {\n  readonly type: Effect.Effect<this[\"Target\"], this[\"Out2\"], this[\"Out1\"]>\n}\n\n// Apply type parameters to get concrete types\ntype OptionString = HKT.Kind<OptionTypeLambda, never, never, never, string>\n// Result: Option.Option<string>\n\ntype EffectStringNumberBoolean = HKT.Kind<\n  EffectTypeLambda,\n  never,\n  number,\n  boolean,\n  string\n>\n// Result: Effect.Effect<string, number, boolean>\n\n// TypeLambdas enable generic programming over type constructors\ntype StringType<F extends HKT.TypeLambda> = HKT.Kind<\n  F,\n  never,\n  never,\n  never,\n  string\n>";
+const sourceExample =
+  'import type { Effect, HKT, Option } from "effect"\n\n// Define TypeLambdas\ninterface OptionTypeLambda extends HKT.TypeLambda {\n  readonly type: Option.Option<this["Target"]>\n}\n\ninterface EffectTypeLambda extends HKT.TypeLambda {\n  readonly type: Effect.Effect<this["Target"], this["Out2"], this["Out1"]>\n}\n\n// Apply type parameters to get concrete types\ntype OptionString = HKT.Kind<OptionTypeLambda, never, never, never, string>\n// Result: Option.Option<string>\n\ntype EffectStringNumberBoolean = HKT.Kind<\n  EffectTypeLambda,\n  never,\n  number,\n  boolean,\n  string\n>\n// Result: Effect.Effect<string, number, boolean>\n\n// TypeLambdas enable generic programming over type constructors\ntype StringType<F extends HKT.TypeLambda> = HKT.Kind<\n  F,\n  never,\n  never,\n  never,\n  string\n>';
 const moduleRecord = HKTModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -100,14 +102,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

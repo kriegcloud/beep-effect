@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, FileSystem } from "effect"
- * 
+ *
  * // Create sizes using the Size constructor
  * const smallFile = FileSystem.Size(1024) // 1 KB
  * const largeFile = FileSystem.Size(BigInt("9007199254740992")) // Very large
- * 
+ *
  * // Use with file operations
  * const truncateToSize = (path: string, size: FileSystem.Size) =>
  *   Effect.gen(function*() {
@@ -31,16 +31,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FileSystemModule from "effect/FileSystem";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FileSystemModule from "effect/FileSystem";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "Size";
 const exportKind = "type";
 const moduleImportPath = "effect/FileSystem";
 const sourceSummary = "Represents a file size in bytes using a branded bigint.";
-const sourceExample = "import { Effect, FileSystem } from \"effect\"\n\n// Create sizes using the Size constructor\nconst smallFile = FileSystem.Size(1024) // 1 KB\nconst largeFile = FileSystem.Size(BigInt(\"9007199254740992\")) // Very large\n\n// Use with file operations\nconst truncateToSize = (path: string, size: FileSystem.Size) =>\n  Effect.gen(function*() {\n    const fs = yield* FileSystem.FileSystem\n    return fs.truncate(path, size)\n  })";
+const sourceExample =
+  'import { Effect, FileSystem } from "effect"\n\n// Create sizes using the Size constructor\nconst smallFile = FileSystem.Size(1024) // 1 KB\nconst largeFile = FileSystem.Size(BigInt("9007199254740992")) // Very large\n\n// Use with file operations\nconst truncateToSize = (path: string, size: FileSystem.Size) =>\n  Effect.gen(function*() {\n    const fs = yield* FileSystem.FileSystem\n    return fs.truncate(path, size)\n  })';
 const moduleRecord = FileSystemModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

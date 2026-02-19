@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Struct } from "effect"
- * 
+ *
  * type ReadOnly = { readonly a: string; readonly b: number }
  * type Writable = Struct.Mutable<ReadOnly>
  * // { a: string; b: number }
@@ -24,16 +24,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StructModule from "effect/Struct";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StructModule from "effect/Struct";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "Mutable";
 const exportKind = "type";
 const moduleImportPath = "effect/Struct";
 const sourceSummary = "Removes `readonly` modifiers from all properties of an object type.";
-const sourceExample = "import type { Struct } from \"effect\"\n\ntype ReadOnly = { readonly a: string; readonly b: number }\ntype Writable = Struct.Mutable<ReadOnly>\n// { a: string; b: number }";
+const sourceExample =
+  'import type { Struct } from "effect"\n\ntype ReadOnly = { readonly a: string; readonly b: number }\ntype Writable = Struct.Mutable<ReadOnly>\n// { a: string; b: number }';
 const moduleRecord = StructModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

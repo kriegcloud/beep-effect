@@ -15,7 +15,7 @@
  * ```ts
  * import { Equal, Hash } from "effect"
  * import * as assert from "node:assert"
- * 
+ *
  * class MyClass implements Equal.Equal {
  *   [Equal.symbol](that: Equal.Equal): boolean {
  *     return that instanceof MyClass
@@ -24,7 +24,7 @@
  *     return 0
  *   }
  * }
- * 
+ *
  * const instance = new MyClass()
  * assert(Equal.isEqual(instance) === true)
  * assert(Equal.isEqual({}) === false)
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EqualModule from "effect/Equal";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EqualModule from "effect/Equal";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "isEqual";
 const exportKind = "const";
 const moduleImportPath = "effect/Equal";
 const sourceSummary = "Determines if a value implements the `Equal` interface.";
-const sourceExample = "import { Equal, Hash } from \"effect\"\nimport * as assert from \"node:assert\"\n\nclass MyClass implements Equal.Equal {\n  [Equal.symbol](that: Equal.Equal): boolean {\n    return that instanceof MyClass\n  }\n  [Hash.symbol](): number {\n    return 0\n  }\n}\n\nconst instance = new MyClass()\nassert(Equal.isEqual(instance) === true)\nassert(Equal.isEqual({}) === false)\nassert(Equal.isEqual(42) === false)";
+const sourceExample =
+  'import { Equal, Hash } from "effect"\nimport * as assert from "node:assert"\n\nclass MyClass implements Equal.Equal {\n  [Equal.symbol](that: Equal.Equal): boolean {\n    return that instanceof MyClass\n  }\n  [Hash.symbol](): number {\n    return 0\n  }\n}\n\nconst instance = new MyClass()\nassert(Equal.isEqual(instance) === true)\nassert(Equal.isEqual({}) === false)\nassert(Equal.isEqual(42) === false)';
 const moduleRecord = EqualModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

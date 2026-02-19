@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Response } from "effect/unstable/ai"
- * 
+ *
  * const responseDetails: typeof Response.HttpResponseDetails.Type = {
  *   status: 200,
  *   headers: {
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ResponseModule from "effect/unstable/ai/Response";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ResponseModule from "effect/unstable/ai/Response";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "HttpResponseDetails";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/ai/Response";
 const sourceSummary = "Schema for HTTP response details associated with an AI response.";
-const sourceExample = "import type { Response } from \"effect/unstable/ai\"\n\nconst responseDetails: typeof Response.HttpResponseDetails.Type = {\n  status: 200,\n  headers: {\n    \"Content-Type\": \"application/json\",\n    \"X-Request-Id\": \"req_abc123\"\n  }\n}";
+const sourceExample =
+  'import type { Response } from "effect/unstable/ai"\n\nconst responseDetails: typeof Response.HttpResponseDetails.Type = {\n  status: 200,\n  headers: {\n    "Content-Type": "application/json",\n    "X-Request-Id": "req_abc123"\n  }\n}';
 const moduleRecord = ResponseModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

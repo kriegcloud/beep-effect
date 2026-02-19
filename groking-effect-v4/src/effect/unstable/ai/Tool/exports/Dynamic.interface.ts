@@ -15,7 +15,7 @@
  * ```ts
  * import { Schema } from "effect"
  * import { Tool } from "effect/unstable/ai"
- * 
+ *
  * // Dynamic tool with Effect Schema (typed)
  * const Calculator = Tool.dynamic("Calculator", {
  *   parameters: Schema.Struct({
@@ -25,7 +25,7 @@
  *   }),
  *   success: Schema.Number
  * })
- * 
+ *
  * // Dynamic tool with JSON Schema (untyped parameters)
  * const McpTool = Tool.dynamic("McpTool", {
  *   description: "Tool from MCP server",
@@ -41,16 +41,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ToolModule from "effect/unstable/ai/Tool";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ToolModule from "effect/unstable/ai/Tool";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -59,7 +60,8 @@ const exportName = "Dynamic";
 const exportKind = "interface";
 const moduleImportPath = "effect/unstable/ai/Tool";
 const sourceSummary = "A dynamic tool is a tool where the schema may not be known at compile time.";
-const sourceExample = "import { Schema } from \"effect\"\nimport { Tool } from \"effect/unstable/ai\"\n\n// Dynamic tool with Effect Schema (typed)\nconst Calculator = Tool.dynamic(\"Calculator\", {\n  parameters: Schema.Struct({\n    operation: Schema.Literals([\"add\", \"subtract\"]),\n    a: Schema.Number,\n    b: Schema.Number\n  }),\n  success: Schema.Number\n})\n\n// Dynamic tool with JSON Schema (untyped parameters)\nconst McpTool = Tool.dynamic(\"McpTool\", {\n  description: \"Tool from MCP server\",\n  parameters: {\n    type: \"object\",\n    properties: { query: { type: \"string\" } },\n    required: [\"query\"]\n  }\n})";
+const sourceExample =
+  'import { Schema } from "effect"\nimport { Tool } from "effect/unstable/ai"\n\n// Dynamic tool with Effect Schema (typed)\nconst Calculator = Tool.dynamic("Calculator", {\n  parameters: Schema.Struct({\n    operation: Schema.Literals(["add", "subtract"]),\n    a: Schema.Number,\n    b: Schema.Number\n  }),\n  success: Schema.Number\n})\n\n// Dynamic tool with JSON Schema (untyped parameters)\nconst McpTool = Tool.dynamic("McpTool", {\n  description: "Tool from MCP server",\n  parameters: {\n    type: "object",\n    properties: { query: { type: "string" } },\n    required: ["query"]\n  }\n})';
 const moduleRecord = ToolModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -90,14 +92,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

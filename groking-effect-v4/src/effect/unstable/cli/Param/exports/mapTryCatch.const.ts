@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import * as Param from "effect/unstable/cli/Param"
- * 
+ *
  * // @internal - this module is not exported publicly
- * 
+ *
  * const parsedJson = Param.string(Param.flagKind, "config").pipe(
  *   Param.mapTryCatch(
  *     (str) => JSON.parse(str),
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ParamModule from "effect/unstable/cli/Param";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ParamModule from "effect/unstable/cli/Param";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,8 +48,10 @@ import {
 const exportName = "mapTryCatch";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Param";
-const sourceSummary = "Transforms the parsed value of an option using a function that may throw, converting any thrown errors into failure messages.";
-const sourceExample = "import * as Param from \"effect/unstable/cli/Param\"\n\n// @internal - this module is not exported publicly\n\nconst parsedJson = Param.string(Param.flagKind, \"config\").pipe(\n  Param.mapTryCatch(\n    (str) => JSON.parse(str),\n    (error) =>\n      `Invalid JSON: ${error instanceof Error ? error.message : String(error)}`\n  )\n)";
+const sourceSummary =
+  "Transforms the parsed value of an option using a function that may throw, converting any thrown errors into failure messages.";
+const sourceExample =
+  'import * as Param from "effect/unstable/cli/Param"\n\n// @internal - this module is not exported publicly\n\nconst parsedJson = Param.string(Param.flagKind, "config").pipe(\n  Param.mapTryCatch(\n    (str) => JSON.parse(str),\n    (error) =>\n      `Invalid JSON: ${error instanceof Error ? error.message : String(error)}`\n  )\n)';
 const moduleRecord = ParamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

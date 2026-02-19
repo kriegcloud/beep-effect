@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema } from "effect"
- * 
+ *
  * const isString = Schema.is(Schema.String)
- * 
+ *
  * console.log(isString("hello")) // true
  * console.log(isString(42)) // false
- * 
+ *
  * // Type narrowing in action
  * const value: unknown = "hello"
  * if (isString(value)) {
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaModule from "effect/Schema";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaModule from "effect/Schema";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "is";
 const exportKind = "const";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "Creates a type guard function that checks if a value conforms to a given schema.";
-const sourceExample = "import { Schema } from \"effect\"\n\nconst isString = Schema.is(Schema.String)\n\nconsole.log(isString(\"hello\")) // true\nconsole.log(isString(42)) // false\n\n// Type narrowing in action\nconst value: unknown = \"hello\"\nif (isString(value)) {\n  // value is now typed as string\n  console.log(value.toUpperCase()) // \"HELLO\"\n}";
+const sourceExample =
+  'import { Schema } from "effect"\n\nconst isString = Schema.is(Schema.String)\n\nconsole.log(isString("hello")) // true\nconsole.log(isString(42)) // false\n\n// Type narrowing in action\nconst value: unknown = "hello"\nif (isString(value)) {\n  // value is now typed as string\n  console.log(value.toUpperCase()) // "HELLO"\n}';
 const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

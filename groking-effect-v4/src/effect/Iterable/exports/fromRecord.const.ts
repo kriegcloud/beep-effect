@@ -15,7 +15,7 @@
  * ```ts
  * import { fromRecord } from "effect/Iterable"
  * import * as assert from "node:assert"
- * 
+ *
  * const x = { a: 1, b: 2, c: 3 }
  * assert.deepStrictEqual(Array.from(fromRecord(x)), [["a", 1], ["b", 2], [
  *   "c",
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as IterableModule from "effect/Iterable";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as IterableModule from "effect/Iterable";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "fromRecord";
 const exportKind = "const";
 const moduleImportPath = "effect/Iterable";
 const sourceSummary = "Takes a record and returns an Iterable of tuples containing its keys and values.";
-const sourceExample = "import { fromRecord } from \"effect/Iterable\"\nimport * as assert from \"node:assert\"\n\nconst x = { a: 1, b: 2, c: 3 }\nassert.deepStrictEqual(Array.from(fromRecord(x)), [[\"a\", 1], [\"b\", 2], [\n  \"c\",\n  3\n]])";
+const sourceExample =
+  'import { fromRecord } from "effect/Iterable"\nimport * as assert from "node:assert"\n\nconst x = { a: 1, b: 2, c: 3 }\nassert.deepStrictEqual(Array.from(fromRecord(x)), [["a", 1], ["b", 2], [\n  "c",\n  3\n]])';
 const moduleRecord = IterableModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

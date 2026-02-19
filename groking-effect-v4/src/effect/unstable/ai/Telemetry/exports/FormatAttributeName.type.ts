@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Telemetry } from "effect/unstable/ai"
- * 
+ *
  * type Formatted1 = Telemetry.FormatAttributeName<"modelName"> // "model_name"
  * type Formatted2 = Telemetry.FormatAttributeName<"maxTokens"> // "max_tokens"
  * type Formatted3 = Telemetry.FormatAttributeName<"temperature"> // "temperature"
@@ -24,16 +24,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TelemetryModule from "effect/unstable/ai/Telemetry";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TelemetryModule from "effect/unstable/ai/Telemetry";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "FormatAttributeName";
 const exportKind = "type";
 const moduleImportPath = "effect/unstable/ai/Telemetry";
 const sourceSummary = "Utility type for converting camelCase names to snake_case format.";
-const sourceExample = "import type { Telemetry } from \"effect/unstable/ai\"\n\ntype Formatted1 = Telemetry.FormatAttributeName<\"modelName\"> // \"model_name\"\ntype Formatted2 = Telemetry.FormatAttributeName<\"maxTokens\"> // \"max_tokens\"\ntype Formatted3 = Telemetry.FormatAttributeName<\"temperature\"> // \"temperature\"";
+const sourceExample =
+  'import type { Telemetry } from "effect/unstable/ai"\n\ntype Formatted1 = Telemetry.FormatAttributeName<"modelName"> // "model_name"\ntype Formatted2 = Telemetry.FormatAttributeName<"maxTokens"> // "max_tokens"\ntype Formatted3 = Telemetry.FormatAttributeName<"temperature"> // "temperature"';
 const moduleRecord = TelemetryModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

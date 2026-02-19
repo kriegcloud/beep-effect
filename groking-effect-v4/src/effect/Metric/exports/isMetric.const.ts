@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Metric } from "effect"
- * 
+ *
  * const counter = Metric.counter("requests")
  * const gauge = Metric.gauge("temperature")
  * const notAMetric = { name: "fake-metric" }
- * 
+ *
  * console.log(Metric.isMetric(counter)) // true
  * console.log(Metric.isMetric(gauge)) // true
  * console.log(Metric.isMetric(notAMetric)) // false
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MetricModule from "effect/Metric";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MetricModule from "effect/Metric";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "isMetric";
 const exportKind = "const";
 const moduleImportPath = "effect/Metric";
 const sourceSummary = "Returns `true` if the specified value is a `Metric`, otherwise returns `false`.";
-const sourceExample = "import { Metric } from \"effect\"\n\nconst counter = Metric.counter(\"requests\")\nconst gauge = Metric.gauge(\"temperature\")\nconst notAMetric = { name: \"fake-metric\" }\n\nconsole.log(Metric.isMetric(counter)) // true\nconsole.log(Metric.isMetric(gauge)) // true\nconsole.log(Metric.isMetric(notAMetric)) // false\nconsole.log(Metric.isMetric(null)) // false";
+const sourceExample =
+  'import { Metric } from "effect"\n\nconst counter = Metric.counter("requests")\nconst gauge = Metric.gauge("temperature")\nconst notAMetric = { name: "fake-metric" }\n\nconsole.log(Metric.isMetric(counter)) // true\nconsole.log(Metric.isMetric(gauge)) // true\nconsole.log(Metric.isMetric(notAMetric)) // false\nconsole.log(Metric.isMetric(null)) // false';
 const moduleRecord = MetricModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

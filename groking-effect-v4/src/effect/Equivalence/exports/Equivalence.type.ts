@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Equivalence } from "effect"
- * 
+ *
  * const numberEq: Equivalence.Equivalence<number> = (a, b) => a === b
- * 
+ *
  * console.log(numberEq(1, 1)) // true
  * console.log(numberEq(1, 2)) // false
  * ```
@@ -25,16 +25,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EquivalenceModule from "effect/Equivalence";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EquivalenceModule from "effect/Equivalence";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "Equivalence";
 const exportKind = "type";
 const moduleImportPath = "effect/Equivalence";
 const sourceSummary = "Represents an equivalence relation over type `A`.";
-const sourceExample = "import type { Equivalence } from \"effect\"\n\nconst numberEq: Equivalence.Equivalence<number> = (a, b) => a === b\n\nconsole.log(numberEq(1, 1)) // true\nconsole.log(numberEq(1, 2)) // false";
+const sourceExample =
+  'import type { Equivalence } from "effect"\n\nconst numberEq: Equivalence.Equivalence<number> = (a, b) => a === b\n\nconsole.log(numberEq(1, 1)) // true\nconsole.log(numberEq(1, 2)) // false';
 const moduleRecord = EquivalenceModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

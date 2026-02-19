@@ -15,7 +15,7 @@
  * ```ts
  * import { UrlParams } from "effect/unstable/http"
  * import * as assert from "node:assert"
- * 
+ *
  * const urlParams = UrlParams.fromInput({
  *   a: 1,
  *   b: true,
@@ -23,7 +23,7 @@
  *   e: [1, 2, 3]
  * })
  * const result = UrlParams.toRecord(urlParams)
- * 
+ *
  * assert.deepStrictEqual(
  *   result,
  *   { "a": "1", "b": "true", "c": "string", "e": ["1", "2", "3"] }
@@ -34,16 +34,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as UrlParamsModule from "effect/unstable/http/UrlParams";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as UrlParamsModule from "effect/unstable/http/UrlParams";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,8 +52,10 @@ import {
 const exportName = "toRecord";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/http/UrlParams";
-const sourceSummary = "Builds a `Record` containing all the key-value pairs in the given `UrlParams` as `string` (if only one value for a key) or a `NonEmptyArray<string>` (when more than one value fo...";
-const sourceExample = "import { UrlParams } from \"effect/unstable/http\"\nimport * as assert from \"node:assert\"\n\nconst urlParams = UrlParams.fromInput({\n  a: 1,\n  b: true,\n  c: \"string\",\n  e: [1, 2, 3]\n})\nconst result = UrlParams.toRecord(urlParams)\n\nassert.deepStrictEqual(\n  result,\n  { \"a\": \"1\", \"b\": \"true\", \"c\": \"string\", \"e\": [\"1\", \"2\", \"3\"] }\n)";
+const sourceSummary =
+  "Builds a `Record` containing all the key-value pairs in the given `UrlParams` as `string` (if only one value for a key) or a `NonEmptyArray<string>` (when more than one value fo...";
+const sourceExample =
+  'import { UrlParams } from "effect/unstable/http"\nimport * as assert from "node:assert"\n\nconst urlParams = UrlParams.fromInput({\n  a: 1,\n  b: true,\n  c: "string",\n  e: [1, 2, 3]\n})\nconst result = UrlParams.toRecord(urlParams)\n\nassert.deepStrictEqual(\n  result,\n  { "a": "1", "b": "true", "c": "string", "e": ["1", "2", "3"] }\n)';
 const moduleRecord = UrlParamsModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

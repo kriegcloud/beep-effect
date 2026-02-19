@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect } from "effect"
- * 
+ *
  * let counter = 0
- * 
+ *
  * const program = Effect.whileLoop({
  *   while: () => counter < 5,
  *   body: () => Effect.sync(() => ++counter),
  *   step: (n) => console.log(`Current count: ${n}`)
  * })
- * 
+ *
  * Effect.runPromise(program)
  * // Output:
  * // Current count: 1
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "whileLoop";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Executes a body effect repeatedly while a condition holds true.";
-const sourceExample = "import { Effect } from \"effect\"\n\nlet counter = 0\n\nconst program = Effect.whileLoop({\n  while: () => counter < 5,\n  body: () => Effect.sync(() => ++counter),\n  step: (n) => console.log(`Current count: ${n}`)\n})\n\nEffect.runPromise(program)\n// Output:\n// Current count: 1\n// Current count: 2\n// Current count: 3\n// Current count: 4\n// Current count: 5";
+const sourceExample =
+  'import { Effect } from "effect"\n\nlet counter = 0\n\nconst program = Effect.whileLoop({\n  while: () => counter < 5,\n  body: () => Effect.sync(() => ++counter),\n  step: (n) => console.log(`Current count: ${n}`)\n})\n\nEffect.runPromise(program)\n// Output:\n// Current count: 1\n// Current count: 2\n// Current count: 3\n// Current count: 4\n// Current count: 5';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

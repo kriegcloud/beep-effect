@@ -15,9 +15,9 @@
  * ```ts
  * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as Option from "effect/Option"
- * 
+ *
  * const map = MutableHashMap.make(["count", 5])
- * 
+ *
  * // Update existing key
  * MutableHashMap.modifyAt(
  *   map,
@@ -25,7 +25,7 @@
  *   (option) => Option.map(option, (n) => n * 2)
  * )
  * console.log(MutableHashMap.get(map, "count")) // Some(10)
- * 
+ *
  * // Add new key
  * MutableHashMap.modifyAt(
  *   map,
@@ -33,11 +33,11 @@
  *   (option) => Option.isNone(option) ? Option.some(42) : option
  * )
  * console.log(MutableHashMap.get(map, "new")) // Some(42)
- * 
+ *
  * // Remove key by returning None
  * MutableHashMap.modifyAt(map, "count", () => Option.none())
  * console.log(MutableHashMap.has(map, "count")) // false
- * 
+ *
  * // Conditional update
  * MutableHashMap.modifyAt(
  *   map,
@@ -51,16 +51,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MutableHashMapModule from "effect/MutableHashMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MutableHashMapModule from "effect/MutableHashMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -68,8 +69,10 @@ import {
 const exportName = "modifyAt";
 const exportKind = "const";
 const moduleImportPath = "effect/MutableHashMap";
-const sourceSummary = "Sets or removes the specified key in the MutableHashMap using an update function. The function receives the current value as an Option and returns an Option. If the function ret...";
-const sourceExample = "import * as MutableHashMap from \"effect/MutableHashMap\"\nimport * as Option from \"effect/Option\"\n\nconst map = MutableHashMap.make([\"count\", 5])\n\n// Update existing key\nMutableHashMap.modifyAt(\n  map,\n  \"count\",\n  (option) => Option.map(option, (n) => n * 2)\n)\nconsole.log(MutableHashMap.get(map, \"count\")) // Some(10)\n\n// Add new key\nMutableHashMap.modifyAt(\n  map,\n  \"new\",\n  (option) => Option.isNone(option) ? Option.some(42) : option\n)\nconsole.log(MutableHashMap.get(map, \"new\")) // Some(42)\n\n// Remove key by returning None\nMutableHashMap.modifyAt(map, \"count\", () => Option.none())\nconsole.log(MutableHashMap.has(map, \"count\")) // false\n\n// Conditional update\nMutableHashMap.modifyAt(\n  map,\n  \"new\",\n  (option) => Option.filter(option, (n) => n > 50) // Remove if <= 50\n)\nconsole.log(MutableHashMap.has(map, \"new\")) // false (42 <= 50)";
+const sourceSummary =
+  "Sets or removes the specified key in the MutableHashMap using an update function. The function receives the current value as an Option and returns an Option. If the function ret...";
+const sourceExample =
+  'import * as MutableHashMap from "effect/MutableHashMap"\nimport * as Option from "effect/Option"\n\nconst map = MutableHashMap.make(["count", 5])\n\n// Update existing key\nMutableHashMap.modifyAt(\n  map,\n  "count",\n  (option) => Option.map(option, (n) => n * 2)\n)\nconsole.log(MutableHashMap.get(map, "count")) // Some(10)\n\n// Add new key\nMutableHashMap.modifyAt(\n  map,\n  "new",\n  (option) => Option.isNone(option) ? Option.some(42) : option\n)\nconsole.log(MutableHashMap.get(map, "new")) // Some(42)\n\n// Remove key by returning None\nMutableHashMap.modifyAt(map, "count", () => Option.none())\nconsole.log(MutableHashMap.has(map, "count")) // false\n\n// Conditional update\nMutableHashMap.modifyAt(\n  map,\n  "new",\n  (option) => Option.filter(option, (n) => n > 50) // Remove if <= 50\n)\nconsole.log(MutableHashMap.has(map, "new")) // false (42 <= 50)';
 const moduleRecord = MutableHashMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -100,14 +103,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

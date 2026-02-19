@@ -15,7 +15,7 @@
  * ```ts
  * // Title: Combining Two Effects Sequentially
  * import { Effect } from "effect"
- * 
+ *
  * const task1 = Effect.succeed(1).pipe(
  *   Effect.delay("200 millis"),
  *   Effect.tap(Effect.log("task1 done"))
@@ -24,13 +24,13 @@
  *   Effect.delay("100 millis"),
  *   Effect.tap(Effect.log("task2 done"))
  * )
- * 
+ *
  * // Combine the two effects together
  * //
  * //      ┌─── Effect<[number, string], never, never>
  * //      ▼
  * const program = Effect.zip(task1, task2)
- * 
+ *
  * Effect.runPromise(program).then(console.log)
  * // Output:
  * // timestamp=... level=INFO fiber=#0 message="task1 done"
@@ -42,16 +42,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -60,7 +61,8 @@ const exportName = "zip";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Combines two effects into a single effect, producing a tuple with the results of both effects.";
-const sourceExample = "// Title: Combining Two Effects Sequentially\nimport { Effect } from \"effect\"\n\nconst task1 = Effect.succeed(1).pipe(\n  Effect.delay(\"200 millis\"),\n  Effect.tap(Effect.log(\"task1 done\"))\n)\nconst task2 = Effect.succeed(\"hello\").pipe(\n  Effect.delay(\"100 millis\"),\n  Effect.tap(Effect.log(\"task2 done\"))\n)\n\n// Combine the two effects together\n//\n//      ┌─── Effect<[number, string], never, never>\n//      ▼\nconst program = Effect.zip(task1, task2)\n\nEffect.runPromise(program).then(console.log)\n// Output:\n// timestamp=... level=INFO fiber=#0 message=\"task1 done\"\n// timestamp=... level=INFO fiber=#0 message=\"task2 done\"\n// [ 1, 'hello' ]";
+const sourceExample =
+  '// Title: Combining Two Effects Sequentially\nimport { Effect } from "effect"\n\nconst task1 = Effect.succeed(1).pipe(\n  Effect.delay("200 millis"),\n  Effect.tap(Effect.log("task1 done"))\n)\nconst task2 = Effect.succeed("hello").pipe(\n  Effect.delay("100 millis"),\n  Effect.tap(Effect.log("task2 done"))\n)\n\n// Combine the two effects together\n//\n//      ┌─── Effect<[number, string], never, never>\n//      ▼\nconst program = Effect.zip(task1, task2)\n\nEffect.runPromise(program).then(console.log)\n// Output:\n// timestamp=... level=INFO fiber=#0 message="task1 done"\n// timestamp=... level=INFO fiber=#0 message="task2 done"\n// [ 1, \'hello\' ]';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -91,14 +93,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

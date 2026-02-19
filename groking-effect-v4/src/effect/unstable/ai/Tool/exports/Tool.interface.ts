@@ -15,7 +15,7 @@
  * ```ts
  * import { Schema } from "effect"
  * import { Tool } from "effect/unstable/ai"
- * 
+ *
  * // Create a weather lookup tool
  * const GetWeather = Tool.make("GetWeather", {
  *   description: "Get current weather for a location",
@@ -35,16 +35,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ToolModule from "effect/unstable/ai/Tool";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ToolModule from "effect/unstable/ai/Tool";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "Tool";
 const exportKind = "interface";
 const moduleImportPath = "effect/unstable/ai/Tool";
 const sourceSummary = "A user-defined tool that language models can call to perform actions.";
-const sourceExample = "import { Schema } from \"effect\"\nimport { Tool } from \"effect/unstable/ai\"\n\n// Create a weather lookup tool\nconst GetWeather = Tool.make(\"GetWeather\", {\n  description: \"Get current weather for a location\",\n  parameters: Schema.Struct({\n    location: Schema.String,\n    units: Schema.Literals([\"celsius\", \"fahrenheit\"])\n  }),\n  success: Schema.Struct({\n    temperature: Schema.Number,\n    condition: Schema.String,\n    humidity: Schema.Number\n  })\n})";
+const sourceExample =
+  'import { Schema } from "effect"\nimport { Tool } from "effect/unstable/ai"\n\n// Create a weather lookup tool\nconst GetWeather = Tool.make("GetWeather", {\n  description: "Get current weather for a location",\n  parameters: Schema.Struct({\n    location: Schema.String,\n    units: Schema.Literals(["celsius", "fahrenheit"])\n  }),\n  success: Schema.Struct({\n    temperature: Schema.Number,\n    condition: Schema.String,\n    humidity: Schema.Number\n  })\n})';
 const moduleRecord = ToolModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

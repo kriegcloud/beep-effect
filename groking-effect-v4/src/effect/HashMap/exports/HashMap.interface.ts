@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import * as HashMap from "effect/HashMap"
- * 
+ *
  * // Create a HashMap
  * const map = HashMap.make(["a", 1], ["b", 2], ["c", 3])
- * 
+ *
  * // Access values
  * const valueA = HashMap.get(map, "a") // Option.some(1)
  * const valueD = HashMap.get(map, "d") // Option.none()
- * 
+ *
  * // Check if key exists
  * console.log(HashMap.has(map, "b")) // true
- * 
+ *
  * // Add/update values (returns new HashMap)
  * const updated = HashMap.set(map, "d", 4)
  * console.log(HashMap.size(updated)) // 4
@@ -34,16 +34,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HashMapModule from "effect/HashMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HashMapModule from "effect/HashMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,8 +52,10 @@ import {
 const exportName = "HashMap";
 const exportKind = "interface";
 const moduleImportPath = "effect/HashMap";
-const sourceSummary = "A HashMap is an immutable key-value data structure that provides efficient lookup, insertion, and deletion operations. It uses a Hash Array Mapped Trie (HAMT) internally for str...";
-const sourceExample = "import * as HashMap from \"effect/HashMap\"\n\n// Create a HashMap\nconst map = HashMap.make([\"a\", 1], [\"b\", 2], [\"c\", 3])\n\n// Access values\nconst valueA = HashMap.get(map, \"a\") // Option.some(1)\nconst valueD = HashMap.get(map, \"d\") // Option.none()\n\n// Check if key exists\nconsole.log(HashMap.has(map, \"b\")) // true\n\n// Add/update values (returns new HashMap)\nconst updated = HashMap.set(map, \"d\", 4)\nconsole.log(HashMap.size(updated)) // 4";
+const sourceSummary =
+  "A HashMap is an immutable key-value data structure that provides efficient lookup, insertion, and deletion operations. It uses a Hash Array Mapped Trie (HAMT) internally for str...";
+const sourceExample =
+  'import * as HashMap from "effect/HashMap"\n\n// Create a HashMap\nconst map = HashMap.make(["a", 1], ["b", 2], ["c", 3])\n\n// Access values\nconst valueA = HashMap.get(map, "a") // Option.some(1)\nconst valueD = HashMap.get(map, "d") // Option.none()\n\n// Check if key exists\nconsole.log(HashMap.has(map, "b")) // true\n\n// Add/update values (returns new HashMap)\nconst updated = HashMap.set(map, "d", 4)\nconsole.log(HashMap.size(updated)) // 4';
 const moduleRecord = HashMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

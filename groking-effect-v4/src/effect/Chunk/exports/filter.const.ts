@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const chunk = Chunk.make(1, 2, 3, 4, 5, 6)
  * const evenNumbers = Chunk.filter(chunk, (n) => n % 2 === 0)
  * console.log(Chunk.toArray(evenNumbers)) // [2, 4, 6]
- * 
+ *
  * // With refinement
  * const mixed = Chunk.make("hello", 42, "world", 100)
  * const numbers = Chunk.filter(mixed, (x): x is number => typeof x === "number")
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "filter";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Returns a filtered subset of the elements.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst chunk = Chunk.make(1, 2, 3, 4, 5, 6)\nconst evenNumbers = Chunk.filter(chunk, (n) => n % 2 === 0)\nconsole.log(Chunk.toArray(evenNumbers)) // [2, 4, 6]\n\n// With refinement\nconst mixed = Chunk.make(\"hello\", 42, \"world\", 100)\nconst numbers = Chunk.filter(mixed, (x): x is number => typeof x === \"number\")\nconsole.log(Chunk.toArray(numbers)) // [42, 100]";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst chunk = Chunk.make(1, 2, 3, 4, 5, 6)\nconst evenNumbers = Chunk.filter(chunk, (n) => n % 2 === 0)\nconsole.log(Chunk.toArray(evenNumbers)) // [2, 4, 6]\n\n// With refinement\nconst mixed = Chunk.make("hello", 42, "world", 100)\nconst numbers = Chunk.filter(mixed, (x): x is number => typeof x === "number")\nconsole.log(Chunk.toArray(numbers)) // [42, 100]';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

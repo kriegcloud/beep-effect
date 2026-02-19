@@ -15,7 +15,7 @@
  * ```ts
  * import { Result } from "effect"
  * import { Hex } from "effect/encoding"
- * 
+ *
  * const result = Hex.decode("48656c6c6f")
  * if (Result.isSuccess(result)) {
  *   console.log(Array.from(result.success)) // [72, 101, 108, 108, 111]
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HexModule from "effect/encoding/Hex";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HexModule from "effect/encoding/Hex";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "decode";
 const exportKind = "const";
 const moduleImportPath = "effect/encoding/Hex";
 const sourceSummary = "Decodes a hex encoded `string` into a `Uint8Array`.";
-const sourceExample = "import { Result } from \"effect\"\nimport { Hex } from \"effect/encoding\"\n\nconst result = Hex.decode(\"48656c6c6f\")\nif (Result.isSuccess(result)) {\n  console.log(Array.from(result.success)) // [72, 101, 108, 108, 111]\n}";
+const sourceExample =
+  'import { Result } from "effect"\nimport { Hex } from "effect/encoding"\n\nconst result = Hex.decode("48656c6c6f")\nif (Result.isSuccess(result)) {\n  console.log(Array.from(result.success)) // [72, 101, 108, 108, 111]\n}';
 const moduleRecord = HexModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

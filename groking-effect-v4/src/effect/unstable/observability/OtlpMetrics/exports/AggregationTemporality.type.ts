@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import * as OtlpMetrics from "effect/unstable/observability/OtlpMetrics"
- * 
+ *
  * // Use delta temporality for backends that prefer it (e.g., Datadog, Dynatrace)
  * const metricsLayer = OtlpMetrics.layer({
  *   url: "http://localhost:4318/v1/metrics",
  *   temporality: "delta"
  * })
- * 
+ *
  * // Use cumulative temporality for backends like Prometheus
  * const cumulativeLayer = OtlpMetrics.layer({
  *   url: "http://localhost:4318/v1/metrics",
@@ -32,16 +32,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OtlpMetricsModule from "effect/unstable/observability/OtlpMetrics";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as OtlpMetricsModule from "effect/unstable/observability/OtlpMetrics";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "AggregationTemporality";
 const exportKind = "type";
 const moduleImportPath = "effect/unstable/observability/OtlpMetrics";
 const sourceSummary = "Determines how metric values relate to the time interval over which they are aggregated.";
-const sourceExample = "import * as OtlpMetrics from \"effect/unstable/observability/OtlpMetrics\"\n\n// Use delta temporality for backends that prefer it (e.g., Datadog, Dynatrace)\nconst metricsLayer = OtlpMetrics.layer({\n  url: \"http://localhost:4318/v1/metrics\",\n  temporality: \"delta\"\n})\n\n// Use cumulative temporality for backends like Prometheus\nconst cumulativeLayer = OtlpMetrics.layer({\n  url: \"http://localhost:4318/v1/metrics\",\n  temporality: \"cumulative\" // This is the default\n})";
+const sourceExample =
+  'import * as OtlpMetrics from "effect/unstable/observability/OtlpMetrics"\n\n// Use delta temporality for backends that prefer it (e.g., Datadog, Dynatrace)\nconst metricsLayer = OtlpMetrics.layer({\n  url: "http://localhost:4318/v1/metrics",\n  temporality: "delta"\n})\n\n// Use cumulative temporality for backends like Prometheus\nconst cumulativeLayer = OtlpMetrics.layer({\n  url: "http://localhost:4318/v1/metrics",\n  temporality: "cumulative" // This is the default\n})';
 const moduleRecord = OtlpMetricsModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

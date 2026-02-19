@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import * as OpenApiPatch from "@effect/openapi-generator/OpenApiPatch"
- * 
+ *
  * const error = new OpenApiPatch.JsonPatchAggregateError({
  *   errors: [
  *     new OpenApiPatch.JsonPatchApplicationError({
@@ -33,7 +33,7 @@
  *     })
  *   ]
  * })
- * 
+ *
  * console.log(error.message)
  * // "2 patch operations failed:\n  1. ..."
  * ```
@@ -41,16 +41,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OpenApiPatchModule from "@effect/openapi-generator/OpenApiPatch";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as OpenApiPatchModule from "@effect/openapi-generator/OpenApiPatch";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -59,7 +60,8 @@ const exportName = "JsonPatchAggregateError";
 const exportKind = "class";
 const moduleImportPath = "@effect/openapi-generator/OpenApiPatch";
 const sourceSummary = "Error thrown when multiple JSON Patch operations fail.";
-const sourceExample = "import * as OpenApiPatch from \"@effect/openapi-generator/OpenApiPatch\"\n\nconst error = new OpenApiPatch.JsonPatchAggregateError({\n  errors: [\n    new OpenApiPatch.JsonPatchApplicationError({\n      source: \"./fix.json\",\n      operationIndex: 0,\n      operation: \"replace\",\n      path: \"/info/x\",\n      reason: \"Property does not exist\"\n    }),\n    new OpenApiPatch.JsonPatchApplicationError({\n      source: \"./fix.json\",\n      operationIndex: 2,\n      operation: \"remove\",\n      path: \"/paths/~1users\",\n      reason: \"Property does not exist\"\n    })\n  ]\n})\n\nconsole.log(error.message)\n// \"2 patch operations failed:\\n  1. ...\"";
+const sourceExample =
+  'import * as OpenApiPatch from "@effect/openapi-generator/OpenApiPatch"\n\nconst error = new OpenApiPatch.JsonPatchAggregateError({\n  errors: [\n    new OpenApiPatch.JsonPatchApplicationError({\n      source: "./fix.json",\n      operationIndex: 0,\n      operation: "replace",\n      path: "/info/x",\n      reason: "Property does not exist"\n    }),\n    new OpenApiPatch.JsonPatchApplicationError({\n      source: "./fix.json",\n      operationIndex: 2,\n      operation: "remove",\n      path: "/paths/~1users",\n      reason: "Property does not exist"\n    })\n  ]\n})\n\nconsole.log(error.message)\n// "2 patch operations failed:\\n  1. ..."';
 const moduleRecord = OpenApiPatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -90,14 +92,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

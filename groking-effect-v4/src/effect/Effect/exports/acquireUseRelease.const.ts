@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Exit } from "effect"
- * 
+ *
  * interface Database {
  *   readonly connection: string
  *   readonly query: (sql: string) => Effect.Effect<string>
  * }
- * 
+ *
  * const program = Effect.acquireUseRelease(
  *   // Acquire - connect to database
  *   Effect.gen(function*() {
@@ -47,7 +47,7 @@
  *       }
  *     })
  * )
- * 
+ *
  * Effect.runPromise(program)
  * // Output:
  * // Connecting to database...
@@ -60,16 +60,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -77,8 +78,10 @@ import {
 const exportName = "acquireUseRelease";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
-const sourceSummary = "This function is used to ensure that an `Effect` value that represents the acquisition of a resource (for example, opening a file, launching a thread, etc.) will not be interrup...";
-const sourceExample = "import { Console, Effect, Exit } from \"effect\"\n\ninterface Database {\n  readonly connection: string\n  readonly query: (sql: string) => Effect.Effect<string>\n}\n\nconst program = Effect.acquireUseRelease(\n  // Acquire - connect to database\n  Effect.gen(function*() {\n    yield* Console.log(\"Connecting to database...\")\n    return {\n      connection: \"db://localhost:5432\",\n      query: (sql: string) => Effect.succeed(`Result for: ${sql}`)\n    }\n  }),\n  // Use - perform database operations\n  (db) =>\n    Effect.gen(function*() {\n      yield* Console.log(`Connected to ${db.connection}`)\n      const result = yield* db.query(\"SELECT * FROM users\")\n      yield* Console.log(`Query result: ${result}`)\n      return result\n    }),\n  // Release - close database connection\n  (db, exit) =>\n    Effect.gen(function*() {\n      if (Exit.isSuccess(exit)) {\n        yield* Console.log(`Closing connection to ${db.connection} (success)`)\n      } else {\n        yield* Console.log(`Closing connection to ${db.connection} (failure)`)\n      }\n    })\n)\n\nEffect.runPromise(program)\n// Output:\n// Connecting to database...\n// Connected to db://localhost:5432\n// Query result: Result for: SELECT * FROM users\n// Closing connection to db://localhost:5432 (success)";
+const sourceSummary =
+  "This function is used to ensure that an `Effect` value that represents the acquisition of a resource (for example, opening a file, launching a thread, etc.) will not be interrup...";
+const sourceExample =
+  'import { Console, Effect, Exit } from "effect"\n\ninterface Database {\n  readonly connection: string\n  readonly query: (sql: string) => Effect.Effect<string>\n}\n\nconst program = Effect.acquireUseRelease(\n  // Acquire - connect to database\n  Effect.gen(function*() {\n    yield* Console.log("Connecting to database...")\n    return {\n      connection: "db://localhost:5432",\n      query: (sql: string) => Effect.succeed(`Result for: ${sql}`)\n    }\n  }),\n  // Use - perform database operations\n  (db) =>\n    Effect.gen(function*() {\n      yield* Console.log(`Connected to ${db.connection}`)\n      const result = yield* db.query("SELECT * FROM users")\n      yield* Console.log(`Query result: ${result}`)\n      return result\n    }),\n  // Release - close database connection\n  (db, exit) =>\n    Effect.gen(function*() {\n      if (Exit.isSuccess(exit)) {\n        yield* Console.log(`Closing connection to ${db.connection} (success)`)\n      } else {\n        yield* Console.log(`Closing connection to ${db.connection} (failure)`)\n      }\n    })\n)\n\nEffect.runPromise(program)\n// Output:\n// Connecting to database...\n// Connected to db://localhost:5432\n// Query result: Result for: SELECT * FROM users\n// Closing connection to db://localhost:5432 (success)';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -109,14 +112,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

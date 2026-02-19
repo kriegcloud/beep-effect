@@ -15,7 +15,7 @@
  * ```ts
  * import type { Tracer } from "effect"
  * import { Effect } from "effect"
- * 
+ *
  * // Create an effect with span options
  * const options: Tracer.SpanOptions = {
  *   attributes: { "user.id": "123", "operation": "data-processing" },
@@ -23,7 +23,7 @@
  *   root: false,
  *   captureStackTrace: true
  * }
- * 
+ *
  * const program = Effect.succeed("Hello World").pipe(
  *   Effect.withSpan("my-operation", options)
  * )
@@ -33,16 +33,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TracerModule from "effect/Tracer";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TracerModule from "effect/Tracer";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,7 +52,8 @@ const exportName = "SpanOptions";
 const exportKind = "interface";
 const moduleImportPath = "effect/Tracer";
 const sourceSummary = "No summary found in JSDoc.";
-const sourceExample = "import type { Tracer } from \"effect\"\nimport { Effect } from \"effect\"\n\n// Create an effect with span options\nconst options: Tracer.SpanOptions = {\n  attributes: { \"user.id\": \"123\", \"operation\": \"data-processing\" },\n  kind: \"internal\",\n  root: false,\n  captureStackTrace: true\n}\n\nconst program = Effect.succeed(\"Hello World\").pipe(\n  Effect.withSpan(\"my-operation\", options)\n)";
+const sourceExample =
+  'import type { Tracer } from "effect"\nimport { Effect } from "effect"\n\n// Create an effect with span options\nconst options: Tracer.SpanOptions = {\n  attributes: { "user.id": "123", "operation": "data-processing" },\n  kind: "internal",\n  root: false,\n  captureStackTrace: true\n}\n\nconst program = Effect.succeed("Hello World").pipe(\n  Effect.withSpan("my-operation", options)\n)';
 const moduleRecord = TracerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Stream } from "effect"
- * 
+ *
  * const stream = Stream.range(1, 5)
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const inclusive = yield* stream.pipe(
  *     Stream.takeUntil((n) => n % 3 === 0),
@@ -24,7 +24,7 @@
  *   )
  *   yield* Console.log(inclusive)
  *   // Output: [ 1, 2, 3 ]
- * 
+ *
  *   const exclusive = yield* stream.pipe(
  *     Stream.takeUntil((n) => n % 3 === 0, { excludeLast: true }),
  *     Stream.runCollect
@@ -38,16 +38,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -56,7 +57,8 @@ const exportName = "takeUntil";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
 const sourceSummary = "Takes elements until the predicate matches.";
-const sourceExample = "import { Console, Effect, Stream } from \"effect\"\n\nconst stream = Stream.range(1, 5)\n\nconst program = Effect.gen(function*() {\n  const inclusive = yield* stream.pipe(\n    Stream.takeUntil((n) => n % 3 === 0),\n    Stream.runCollect\n  )\n  yield* Console.log(inclusive)\n  // Output: [ 1, 2, 3 ]\n\n  const exclusive = yield* stream.pipe(\n    Stream.takeUntil((n) => n % 3 === 0, { excludeLast: true }),\n    Stream.runCollect\n  )\n  yield* Console.log(exclusive)\n  // Output: [ 1, 2 ]\n})";
+const sourceExample =
+  'import { Console, Effect, Stream } from "effect"\n\nconst stream = Stream.range(1, 5)\n\nconst program = Effect.gen(function*() {\n  const inclusive = yield* stream.pipe(\n    Stream.takeUntil((n) => n % 3 === 0),\n    Stream.runCollect\n  )\n  yield* Console.log(inclusive)\n  // Output: [ 1, 2, 3 ]\n\n  const exclusive = yield* stream.pipe(\n    Stream.takeUntil((n) => n % 3 === 0, { excludeLast: true }),\n    Stream.runCollect\n  )\n  yield* Console.log(exclusive)\n  // Output: [ 1, 2 ]\n})';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -87,14 +89,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

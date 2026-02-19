@@ -15,12 +15,12 @@
  * ```ts
  * import { Console } from "effect"
  * import { Argument, Command, Flag } from "effect/unstable/cli"
- * 
+ *
  * // Simple command with no configuration
  * const version: Command.Command<"version", {}, never, never> = Command.make(
  *   "version"
  * )
- * 
+ *
  * // Command with flags and arguments
  * const deploy: Command.Command<
  *   "deploy",
@@ -36,7 +36,7 @@
  *   force: Flag.boolean("force"),
  *   files: Argument.string("files").pipe(Argument.variadic())
  * })
- * 
+ *
  * // Command with handler
  * const greet = Command.make("greet", {
  *   name: Flag.string("name")
@@ -47,16 +47,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CommandModule from "effect/unstable/cli/Command";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as CommandModule from "effect/unstable/cli/Command";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -65,7 +66,8 @@ const exportName = "Command";
 const exportKind = "interface";
 const moduleImportPath = "effect/unstable/cli/Command";
 const sourceSummary = "Represents a CLI command with its configuration, handler, and metadata.";
-const sourceExample = "import { Console } from \"effect\"\nimport { Argument, Command, Flag } from \"effect/unstable/cli\"\n\n// Simple command with no configuration\nconst version: Command.Command<\"version\", {}, never, never> = Command.make(\n  \"version\"\n)\n\n// Command with flags and arguments\nconst deploy: Command.Command<\n  \"deploy\",\n  {\n    readonly env: string\n    readonly force: boolean\n    readonly files: ReadonlyArray<string>\n  },\n  never,\n  never\n> = Command.make(\"deploy\", {\n  env: Flag.string(\"env\"),\n  force: Flag.boolean(\"force\"),\n  files: Argument.string(\"files\").pipe(Argument.variadic())\n})\n\n// Command with handler\nconst greet = Command.make(\"greet\", {\n  name: Flag.string(\"name\")\n}, (config) => Console.log(`Hello, ${config.name}!`))";
+const sourceExample =
+  'import { Console } from "effect"\nimport { Argument, Command, Flag } from "effect/unstable/cli"\n\n// Simple command with no configuration\nconst version: Command.Command<"version", {}, never, never> = Command.make(\n  "version"\n)\n\n// Command with flags and arguments\nconst deploy: Command.Command<\n  "deploy",\n  {\n    readonly env: string\n    readonly force: boolean\n    readonly files: ReadonlyArray<string>\n  },\n  never,\n  never\n> = Command.make("deploy", {\n  env: Flag.string("env"),\n  force: Flag.boolean("force"),\n  files: Argument.string("files").pipe(Argument.variadic())\n})\n\n// Command with handler\nconst greet = Command.make("greet", {\n  name: Flag.string("name")\n}, (config) => Console.log(`Hello, ${config.name}!`))';
 const moduleRecord = CommandModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -96,14 +98,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

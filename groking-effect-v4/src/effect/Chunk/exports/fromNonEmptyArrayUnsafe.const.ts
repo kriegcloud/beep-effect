@@ -15,11 +15,11 @@
  * ```ts
  * import { Chunk } from "effect"
  * import * as Array from "effect/Array"
- * 
+ *
  * const nonEmptyArray = Array.make(1, 2, 3, 4, 5)
  * const chunk = Chunk.fromNonEmptyArrayUnsafe(nonEmptyArray)
  * console.log(Chunk.toArray(chunk)) // [1, 2, 3, 4, 5]
- * 
+ *
  * // The result is guaranteed to be non-empty
  * console.log(Chunk.isNonEmpty(chunk)) // true
  * ```
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "fromNonEmptyArrayUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Wraps an array into a chunk without copying, unsafe on mutable arrays";
-const sourceExample = "import { Chunk } from \"effect\"\nimport * as Array from \"effect/Array\"\n\nconst nonEmptyArray = Array.make(1, 2, 3, 4, 5)\nconst chunk = Chunk.fromNonEmptyArrayUnsafe(nonEmptyArray)\nconsole.log(Chunk.toArray(chunk)) // [1, 2, 3, 4, 5]\n\n// The result is guaranteed to be non-empty\nconsole.log(Chunk.isNonEmpty(chunk)) // true";
+const sourceExample =
+  'import { Chunk } from "effect"\nimport * as Array from "effect/Array"\n\nconst nonEmptyArray = Array.make(1, 2, 3, 4, 5)\nconst chunk = Chunk.fromNonEmptyArrayUnsafe(nonEmptyArray)\nconsole.log(Chunk.toArray(chunk)) // [1, 2, 3, 4, 5]\n\n// The result is guaranteed to be non-empty\nconsole.log(Chunk.isNonEmpty(chunk)) // true';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

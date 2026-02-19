@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Order } from "effect"
- * 
+ *
  * const byAge = Order.mapInput(
  *   Order.Number,
  *   (person: { name: string; age: number }) => person.age
@@ -23,28 +23,29 @@
  *   Order.String,
  *   (person: { name: string; age: number }) => person.name
  * )
- * 
+ *
  * const combinedOrder = Order.combineAll([byAge, byName])
- * 
+ *
  * const person1 = { name: "Alice", age: 30 }
  * const person2 = { name: "Bob", age: 30 }
- * 
+ *
  * console.log(combinedOrder(person1, person2)) // -1 (Same age, Alice < Bob)
  * ```
  *
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OrderModule from "effect/Order";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as OrderModule from "effect/Order";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,8 +53,10 @@ import {
 const exportName = "combineAll";
 const exportKind = "function";
 const moduleImportPath = "effect/Order";
-const sourceSummary = "Combines all `Order` instances in the provided collection into a single `Order`. The resulting `Order` compares using each `Order` in sequence until a non-zero result is found.";
-const sourceExample = "import { Order } from \"effect\"\n\nconst byAge = Order.mapInput(\n  Order.Number,\n  (person: { name: string; age: number }) => person.age\n)\nconst byName = Order.mapInput(\n  Order.String,\n  (person: { name: string; age: number }) => person.name\n)\n\nconst combinedOrder = Order.combineAll([byAge, byName])\n\nconst person1 = { name: \"Alice\", age: 30 }\nconst person2 = { name: \"Bob\", age: 30 }\n\nconsole.log(combinedOrder(person1, person2)) // -1 (Same age, Alice < Bob)";
+const sourceSummary =
+  "Combines all `Order` instances in the provided collection into a single `Order`. The resulting `Order` compares using each `Order` in sequence until a non-zero result is found.";
+const sourceExample =
+  'import { Order } from "effect"\n\nconst byAge = Order.mapInput(\n  Order.Number,\n  (person: { name: string; age: number }) => person.age\n)\nconst byName = Order.mapInput(\n  Order.String,\n  (person: { name: string; age: number }) => person.name\n)\n\nconst combinedOrder = Order.combineAll([byAge, byName])\n\nconst person1 = { name: "Alice", age: 30 }\nconst person2 = { name: "Bob", age: 30 }\n\nconsole.log(combinedOrder(person1, person2)) // -1 (Same age, Alice < Bob)';
 const moduleRecord = OrderModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

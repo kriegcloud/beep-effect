@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Tracer } from "effect"
- * 
+ *
  * // Access the parent span from the context
  * const program = Effect.gen(function*() {
  *   const parentSpan = yield* Effect.service(Tracer.ParentSpan)
@@ -25,16 +25,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TracerModule from "effect/Tracer";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TracerModule from "effect/Tracer";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "ParentSpan";
 const exportKind = "class";
 const moduleImportPath = "effect/Tracer";
 const sourceSummary = "No summary found in JSDoc.";
-const sourceExample = "import { Effect, Tracer } from \"effect\"\n\n// Access the parent span from the context\nconst program = Effect.gen(function*() {\n  const parentSpan = yield* Effect.service(Tracer.ParentSpan)\n  console.log(`Parent span: ${parentSpan.spanId}`)\n})";
+const sourceExample =
+  'import { Effect, Tracer } from "effect"\n\n// Access the parent span from the context\nconst program = Effect.gen(function*() {\n  const parentSpan = yield* Effect.service(Tracer.ParentSpan)\n  console.log(`Parent span: ${parentSpan.spanId}`)\n})';
 const moduleRecord = TracerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

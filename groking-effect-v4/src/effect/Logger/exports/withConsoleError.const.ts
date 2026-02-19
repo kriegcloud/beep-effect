@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Logger } from "effect"
- * 
+ *
  * // Create an error-specific formatter
  * const errorFormatter = Logger.make((options) =>
  *   `ERROR [${options.date.toISOString()}]: ${options.message}`
  * )
- * 
+ *
  * // Route to console.error
  * const errorLogger = Logger.withConsoleError(errorFormatter)
- * 
+ *
  * const program = Effect.logError("Database connection failed").pipe(
  *   Effect.provide(Logger.layer([errorLogger]))
  * )
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LoggerModule from "effect/Logger";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LoggerModule from "effect/Logger";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,8 +50,10 @@ import {
 const exportName = "withConsoleError";
 const exportKind = "const";
 const moduleImportPath = "effect/Logger";
-const sourceSummary = "Returns a new `Logger` that writes all output of the specified `Logger` to the console using `console.error`.";
-const sourceExample = "import { Effect, Logger } from \"effect\"\n\n// Create an error-specific formatter\nconst errorFormatter = Logger.make((options) =>\n  `ERROR [${options.date.toISOString()}]: ${options.message}`\n)\n\n// Route to console.error\nconst errorLogger = Logger.withConsoleError(errorFormatter)\n\nconst program = Effect.logError(\"Database connection failed\").pipe(\n  Effect.provide(Logger.layer([errorLogger]))\n)";
+const sourceSummary =
+  "Returns a new `Logger` that writes all output of the specified `Logger` to the console using `console.error`.";
+const sourceExample =
+  'import { Effect, Logger } from "effect"\n\n// Create an error-specific formatter\nconst errorFormatter = Logger.make((options) =>\n  `ERROR [${options.date.toISOString()}]: ${options.message}`\n)\n\n// Route to console.error\nconst errorLogger = Logger.withConsoleError(errorFormatter)\n\nconst program = Effect.logError("Database connection failed").pipe(\n  Effect.provide(Logger.layer([errorLogger]))\n)';
 const moduleRecord = LoggerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

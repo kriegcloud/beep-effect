@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel } from "effect"
- * 
+ *
  * const channel = Channel.succeed(42)
  * console.log(Channel.isChannel(channel)) // true
  * console.log(Channel.isChannel("not a channel")) // false
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "isChannel";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
 const sourceSummary = "Tests if a value is a `Channel`.";
-const sourceExample = "import { Channel } from \"effect\"\n\nconst channel = Channel.succeed(42)\nconsole.log(Channel.isChannel(channel)) // true\nconsole.log(Channel.isChannel(\"not a channel\")) // false";
+const sourceExample =
+  'import { Channel } from "effect"\n\nconst channel = Channel.succeed(42)\nconsole.log(Channel.isChannel(channel)) // true\nconsole.log(Channel.isChannel("not a channel")) // false';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

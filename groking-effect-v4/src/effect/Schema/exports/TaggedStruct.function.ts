@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema } from "effect"
- * 
+ *
  * // Defines a struct with a fixed `_tag` field
  * const tagged = Schema.TaggedStruct("A", {
  *   a: Schema.String
  * })
- * 
+ *
  * // This is the same as writing:
  * const equivalent = Schema.Struct({
  *   _tag: Schema.tag("A"),
@@ -30,16 +30,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaModule from "effect/Schema";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaModule from "effect/Schema";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,8 +48,10 @@ import {
 const exportName = "TaggedStruct";
 const exportKind = "function";
 const moduleImportPath = "effect/Schema";
-const sourceSummary = "A tagged struct is a struct that includes a `_tag` field. This field is used to identify the specific variant of the object, which is especially useful when working with union t...";
-const sourceExample = "import { Schema } from \"effect\"\n\n// Defines a struct with a fixed `_tag` field\nconst tagged = Schema.TaggedStruct(\"A\", {\n  a: Schema.String\n})\n\n// This is the same as writing:\nconst equivalent = Schema.Struct({\n  _tag: Schema.tag(\"A\"),\n  a: Schema.String\n})";
+const sourceSummary =
+  "A tagged struct is a struct that includes a `_tag` field. This field is used to identify the specific variant of the object, which is especially useful when working with union t...";
+const sourceExample =
+  'import { Schema } from "effect"\n\n// Defines a struct with a fixed `_tag` field\nconst tagged = Schema.TaggedStruct("A", {\n  a: Schema.String\n})\n\n// This is the same as writing:\nconst equivalent = Schema.Struct({\n  _tag: Schema.tag("A"),\n  a: Schema.String\n})';
 const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

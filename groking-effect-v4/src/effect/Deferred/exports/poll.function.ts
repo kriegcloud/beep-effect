@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Deferred, Effect } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const deferred = yield* Deferred.make<number>()
  *   const beforeCompletion = yield* Deferred.poll(deferred)
  *   console.log(beforeCompletion === undefined) // true
- * 
+ *
  *   yield* Deferred.succeed(deferred, 42)
  *   const afterCompletion = yield* Deferred.poll(deferred)
  *   console.log(afterCompletion !== undefined) // true
@@ -29,16 +29,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DeferredModule from "effect/Deferred";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DeferredModule from "effect/Deferred";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,8 +47,10 @@ import {
 const exportName = "poll";
 const exportKind = "function";
 const moduleImportPath = "effect/Deferred";
-const sourceSummary = "Returns a `Effect<A, E, R>` from the `Deferred` if this `Deferred` has already been completed, `undefined` otherwise.";
-const sourceExample = "import { Deferred, Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const deferred = yield* Deferred.make<number>()\n  const beforeCompletion = yield* Deferred.poll(deferred)\n  console.log(beforeCompletion === undefined) // true\n\n  yield* Deferred.succeed(deferred, 42)\n  const afterCompletion = yield* Deferred.poll(deferred)\n  console.log(afterCompletion !== undefined) // true\n})";
+const sourceSummary =
+  "Returns a `Effect<A, E, R>` from the `Deferred` if this `Deferred` has already been completed, `undefined` otherwise.";
+const sourceExample =
+  'import { Deferred, Effect } from "effect"\n\nconst program = Effect.gen(function*() {\n  const deferred = yield* Deferred.make<number>()\n  const beforeCompletion = yield* Deferred.poll(deferred)\n  console.log(beforeCompletion === undefined) // true\n\n  yield* Deferred.succeed(deferred, 42)\n  const afterCompletion = yield* Deferred.poll(deferred)\n  console.log(afterCompletion !== undefined) // true\n})';
 const moduleRecord = DeferredModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

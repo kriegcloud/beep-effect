@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import * as JsonPatch from "effect/JsonPatch"
- * 
+ *
  * const patch: JsonPatch.JsonPatch = [
  *   { op: "add", path: "/items/-", value: "apple" },
  *   { op: "replace", path: "/count", value: 5 },
  *   { op: "remove", path: "/oldField" }
  * ]
- * 
+ *
  * const result = JsonPatch.apply(patch, { count: 3, oldField: "value" })
  * // { count: 5, items: ["apple"] }
  * ```
@@ -29,16 +29,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as JsonPatchModule from "effect/JsonPatch";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as JsonPatchModule from "effect/JsonPatch";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "JsonPatch";
 const exportKind = "type";
 const moduleImportPath = "effect/JsonPatch";
 const sourceSummary = "A JSON Patch document (an ordered list of operations).";
-const sourceExample = "import * as JsonPatch from \"effect/JsonPatch\"\n\nconst patch: JsonPatch.JsonPatch = [\n  { op: \"add\", path: \"/items/-\", value: \"apple\" },\n  { op: \"replace\", path: \"/count\", value: 5 },\n  { op: \"remove\", path: \"/oldField\" }\n]\n\nconst result = JsonPatch.apply(patch, { count: 3, oldField: \"value\" })\n// { count: 5, items: [\"apple\"] }";
+const sourceExample =
+  'import * as JsonPatch from "effect/JsonPatch"\n\nconst patch: JsonPatch.JsonPatch = [\n  { op: "add", path: "/items/-", value: "apple" },\n  { op: "replace", path: "/count", value: 5 },\n  { op: "remove", path: "/oldField" }\n]\n\nconst result = JsonPatch.apply(patch, { count: 3, oldField: "value" })\n// { count: 5, items: ["apple"] }';
 const moduleRecord = JsonPatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

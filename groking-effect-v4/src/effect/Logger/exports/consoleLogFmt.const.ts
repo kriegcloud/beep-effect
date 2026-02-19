@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Logger } from "effect"
- * 
+ *
  * // Use the console logfmt logger
  * const logfmtProgram = Effect.log("Hello LogFmt Console").pipe(
  *   Effect.provide(Logger.layer([Logger.consoleLogFmt]))
  * )
- * 
+ *
  * // Great for production environments
  * const productionProgram = Effect.gen(function*() {
  *   yield* Effect.log("Server started", { port: 8080, version: "1.0.0" })
@@ -33,7 +33,7 @@
  *   Effect.withLogSpan("request-handler"),
  *   Effect.provide(Logger.layer([Logger.consoleLogFmt]))
  * )
- * 
+ *
  * // Combine with other loggers
  * const multiLoggerLive = Logger.layer([
  *   Logger.consoleLogFmt,
@@ -45,16 +45,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LoggerModule from "effect/Logger";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LoggerModule from "effect/Logger";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -62,8 +63,10 @@ import {
 const exportName = "consoleLogFmt";
 const exportKind = "const";
 const moduleImportPath = "effect/Logger";
-const sourceSummary = "A `Logger` which outputs logs using the [logfmt](https://brandur.org/logfmt) style and writes them to the console.";
-const sourceExample = "import { Effect, Logger } from \"effect\"\n\n// Use the console logfmt logger\nconst logfmtProgram = Effect.log(\"Hello LogFmt Console\").pipe(\n  Effect.provide(Logger.layer([Logger.consoleLogFmt]))\n)\n\n// Great for production environments\nconst productionProgram = Effect.gen(function*() {\n  yield* Effect.log(\"Server started\", { port: 8080, version: \"1.0.0\" })\n  yield* Effect.logInfo(\"Request processed\", { userId: 123, duration: 45 })\n  yield* Effect.logError(\"Validation failed\", {\n    field: \"email\",\n    value: \"invalid\"\n  })\n}).pipe(\n  Effect.annotateLogs(\"service\", \"api\"),\n  Effect.withLogSpan(\"request-handler\"),\n  Effect.provide(Logger.layer([Logger.consoleLogFmt]))\n)\n\n// Combine with other loggers\nconst multiLoggerLive = Logger.layer([\n  Logger.consoleLogFmt,\n  Logger.consolePretty()\n])";
+const sourceSummary =
+  "A `Logger` which outputs logs using the [logfmt](https://brandur.org/logfmt) style and writes them to the console.";
+const sourceExample =
+  'import { Effect, Logger } from "effect"\n\n// Use the console logfmt logger\nconst logfmtProgram = Effect.log("Hello LogFmt Console").pipe(\n  Effect.provide(Logger.layer([Logger.consoleLogFmt]))\n)\n\n// Great for production environments\nconst productionProgram = Effect.gen(function*() {\n  yield* Effect.log("Server started", { port: 8080, version: "1.0.0" })\n  yield* Effect.logInfo("Request processed", { userId: 123, duration: 45 })\n  yield* Effect.logError("Validation failed", {\n    field: "email",\n    value: "invalid"\n  })\n}).pipe(\n  Effect.annotateLogs("service", "api"),\n  Effect.withLogSpan("request-handler"),\n  Effect.provide(Logger.layer([Logger.consoleLogFmt]))\n)\n\n// Combine with other loggers\nconst multiLoggerLive = Logger.layer([\n  Logger.consoleLogFmt,\n  Logger.consolePretty()\n])';
 const moduleRecord = LoggerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -94,14 +97,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

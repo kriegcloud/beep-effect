@@ -14,29 +14,29 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Logger } from "effect"
- * 
+ *
  * // Single logger layer
  * const JsonLoggerLive = Logger.layer([Logger.consoleJson])
- * 
+ *
  * // Multiple loggers layer
  * const MultiLoggerLive = Logger.layer([
  *   Logger.consoleJson,
  *   Logger.consolePretty(),
  *   Logger.formatStructured
  * ])
- * 
+ *
  * // Merge with existing loggers
  * const AdditionalLoggerLive = Logger.layer(
  *   [Logger.consoleJson],
  *   { mergeWithExisting: true }
  * )
- * 
+ *
  * // Using multiple logger formats
  * const jsonLogger = Logger.consoleJson
  * const prettyLogger = Logger.consolePretty()
- * 
+ *
  * const CustomLoggerLive = Logger.layer([jsonLogger, prettyLogger])
- * 
+ *
  * const program = Effect.log("Application started").pipe(
  *   Effect.provide(CustomLoggerLive)
  * )
@@ -46,16 +46,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LoggerModule from "effect/Logger";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LoggerModule from "effect/Logger";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -63,8 +64,10 @@ import {
 const exportName = "layer";
 const exportKind = "const";
 const moduleImportPath = "effect/Logger";
-const sourceSummary = "Creates a `Layer` which will overwrite the current set of loggers with the specified array of `loggers`.";
-const sourceExample = "import { Effect, Logger } from \"effect\"\n\n// Single logger layer\nconst JsonLoggerLive = Logger.layer([Logger.consoleJson])\n\n// Multiple loggers layer\nconst MultiLoggerLive = Logger.layer([\n  Logger.consoleJson,\n  Logger.consolePretty(),\n  Logger.formatStructured\n])\n\n// Merge with existing loggers\nconst AdditionalLoggerLive = Logger.layer(\n  [Logger.consoleJson],\n  { mergeWithExisting: true }\n)\n\n// Using multiple logger formats\nconst jsonLogger = Logger.consoleJson\nconst prettyLogger = Logger.consolePretty()\n\nconst CustomLoggerLive = Logger.layer([jsonLogger, prettyLogger])\n\nconst program = Effect.log(\"Application started\").pipe(\n  Effect.provide(CustomLoggerLive)\n)";
+const sourceSummary =
+  "Creates a `Layer` which will overwrite the current set of loggers with the specified array of `loggers`.";
+const sourceExample =
+  'import { Effect, Logger } from "effect"\n\n// Single logger layer\nconst JsonLoggerLive = Logger.layer([Logger.consoleJson])\n\n// Multiple loggers layer\nconst MultiLoggerLive = Logger.layer([\n  Logger.consoleJson,\n  Logger.consolePretty(),\n  Logger.formatStructured\n])\n\n// Merge with existing loggers\nconst AdditionalLoggerLive = Logger.layer(\n  [Logger.consoleJson],\n  { mergeWithExisting: true }\n)\n\n// Using multiple logger formats\nconst jsonLogger = Logger.consoleJson\nconst prettyLogger = Logger.consolePretty()\n\nconst CustomLoggerLive = Logger.layer([jsonLogger, prettyLogger])\n\nconst program = Effect.log("Application started").pipe(\n  Effect.provide(CustomLoggerLive)\n)';
 const moduleRecord = LoggerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -95,14 +98,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

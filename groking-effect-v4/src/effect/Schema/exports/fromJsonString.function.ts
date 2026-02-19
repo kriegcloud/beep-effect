@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema } from "effect"
- * 
+ *
  * const schema = Schema.Struct({ a: Schema.Number })
  * const schemaFromJsonString = Schema.fromJsonString(schema)
- * 
+ *
  * Schema.decodeUnknownSync(schemaFromJsonString)(`{"a":1,"b":2}`)
  * // => { a: 1 }
  * ```
@@ -25,16 +25,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaModule from "effect/Schema";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaModule from "effect/Schema";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,8 +43,10 @@ import {
 const exportName = "fromJsonString";
 const exportKind = "function";
 const moduleImportPath = "effect/Schema";
-const sourceSummary = "Returns a schema that decodes a JSON string and then decodes the parsed value using the given schema.";
-const sourceExample = "import { Schema } from \"effect\"\n\nconst schema = Schema.Struct({ a: Schema.Number })\nconst schemaFromJsonString = Schema.fromJsonString(schema)\n\nSchema.decodeUnknownSync(schemaFromJsonString)(`{\"a\":1,\"b\":2}`)\n// => { a: 1 }";
+const sourceSummary =
+  "Returns a schema that decodes a JSON string and then decodes the parsed value using the given schema.";
+const sourceExample =
+  'import { Schema } from "effect"\n\nconst schema = Schema.Struct({ a: Schema.Number })\nconst schemaFromJsonString = Schema.fromJsonString(schema)\n\nSchema.decodeUnknownSync(schemaFromJsonString)(`{"a":1,"b":2}`)\n// => { a: 1 }';
 const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import * as OpenApiPatch from "@effect/openapi-generator/OpenApiPatch"
- * 
+ *
  * const error = new OpenApiPatch.JsonPatchValidationError({
  *   source: "inline",
  *   reason: "Expected 'add' | 'remove' | 'replace' at [0].op, got 'copy'"
  * })
- * 
+ *
  * console.log(error.message)
  * // "Invalid JSON Patch from inline: Expected 'add' | 'remove' | 'replace' at [0].op, got 'copy'"
  * ```
@@ -27,16 +27,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OpenApiPatchModule from "@effect/openapi-generator/OpenApiPatch";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as OpenApiPatchModule from "@effect/openapi-generator/OpenApiPatch";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "JsonPatchValidationError";
 const exportKind = "class";
 const moduleImportPath = "@effect/openapi-generator/OpenApiPatch";
 const sourceSummary = "Error thrown when a parsed value does not conform to the JSON Patch schema.";
-const sourceExample = "import * as OpenApiPatch from \"@effect/openapi-generator/OpenApiPatch\"\n\nconst error = new OpenApiPatch.JsonPatchValidationError({\n  source: \"inline\",\n  reason: \"Expected 'add' | 'remove' | 'replace' at [0].op, got 'copy'\"\n})\n\nconsole.log(error.message)\n// \"Invalid JSON Patch from inline: Expected 'add' | 'remove' | 'replace' at [0].op, got 'copy'\"";
+const sourceExample =
+  "import * as OpenApiPatch from \"@effect/openapi-generator/OpenApiPatch\"\n\nconst error = new OpenApiPatch.JsonPatchValidationError({\n  source: \"inline\",\n  reason: \"Expected 'add' | 'remove' | 'replace' at [0].op, got 'copy'\"\n})\n\nconsole.log(error.message)\n// \"Invalid JSON Patch from inline: Expected 'add' | 'remove' | 'replace' at [0].op, got 'copy'\"";
 const moduleRecord = OpenApiPatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

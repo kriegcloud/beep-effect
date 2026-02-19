@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * // add 10 milliseconds
  * DateTime.makeUnsafe(0).pipe(
  *   DateTime.mapEpochMillis((millis) => millis + 10)
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,8 +43,10 @@ import {
 const exportName = "mapEpochMillis";
 const exportKind = "const";
 const moduleImportPath = "effect/DateTime";
-const sourceSummary = "Transform a `DateTime` by applying a function to the number of milliseconds since the Unix epoch.";
-const sourceExample = "import { DateTime } from \"effect\"\n\n// add 10 milliseconds\nDateTime.makeUnsafe(0).pipe(\n  DateTime.mapEpochMillis((millis) => millis + 10)\n)";
+const sourceSummary =
+  "Transform a `DateTime` by applying a function to the number of milliseconds since the Unix epoch.";
+const sourceExample =
+  'import { DateTime } from "effect"\n\n// add 10 milliseconds\nDateTime.makeUnsafe(0).pipe(\n  DateTime.mapEpochMillis((millis) => millis + 10)\n)';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

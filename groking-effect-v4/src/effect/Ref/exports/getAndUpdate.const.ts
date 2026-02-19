@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Ref } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const counter = yield* Ref.make(10)
- * 
+ *
  *   // Get current value and update it atomically
  *   const previous = yield* Ref.getAndUpdate(counter, (n) => n * 2)
  *   console.log(previous) // 10
- * 
+ *
  *   const current = yield* Ref.get(counter)
  *   console.log(current) // 20
  * })
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RefModule from "effect/Ref";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RefModule from "effect/Ref";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "getAndUpdate";
 const exportKind = "const";
 const moduleImportPath = "effect/Ref";
 const sourceSummary = "Atomically gets the current value of the Ref and updates it with the given function.";
-const sourceExample = "import { Effect, Ref } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const counter = yield* Ref.make(10)\n\n  // Get current value and update it atomically\n  const previous = yield* Ref.getAndUpdate(counter, (n) => n * 2)\n  console.log(previous) // 10\n\n  const current = yield* Ref.get(counter)\n  console.log(current) // 20\n})";
+const sourceExample =
+  'import { Effect, Ref } from "effect"\n\nconst program = Effect.gen(function*() {\n  const counter = yield* Ref.make(10)\n\n  // Get current value and update it atomically\n  const previous = yield* Ref.getAndUpdate(counter, (n) => n * 2)\n  console.log(previous) // 10\n\n  const current = yield* Ref.get(counter)\n  console.log(current) // 20\n})';
 const moduleRecord = RefModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

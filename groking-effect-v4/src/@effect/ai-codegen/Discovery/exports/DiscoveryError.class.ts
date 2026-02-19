@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import * as Discovery from "@effect/ai-codegen/Discovery"
- * 
+ *
  * const error = new Discovery.DiscoveryError({
  *   message: "Failed to parse config",
  *   cause: new Error("Invalid JSON")
@@ -24,16 +24,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DiscoveryModule from "@effect/ai-codegen/Discovery";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as DiscoveryModule from "@effect/ai-codegen/Discovery";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "DiscoveryError";
 const exportKind = "class";
 const moduleImportPath = "@effect/ai-codegen/Discovery";
 const sourceSummary = "Error during provider discovery.";
-const sourceExample = "import * as Discovery from \"@effect/ai-codegen/Discovery\"\n\nconst error = new Discovery.DiscoveryError({\n  message: \"Failed to parse config\",\n  cause: new Error(\"Invalid JSON\")\n})";
+const sourceExample =
+  'import * as Discovery from "@effect/ai-codegen/Discovery"\n\nconst error = new Discovery.DiscoveryError({\n  message: "Failed to parse config",\n  cause: new Error("Invalid JSON")\n})';
 const moduleRecord = DiscoveryModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

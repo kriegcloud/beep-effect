@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause, Effect, Queue } from "effect"
- * 
+ *
  * // Create a bounded queue and use unsafe API
  * const program = Effect.gen(function*() {
  *   const queue = yield* Queue.bounded<number>(3)
- * 
+ *
  *   // Try to add 5 messages to capacity-3 queue using unsafe API
  *   const remaining = Queue.offerAllUnsafe(queue, [1, 2, 3, 4, 5])
  *   console.log(remaining) // [4, 5] - couldn't fit the last 2
- * 
+ *
  *   // Check what's in the queue
  *   const size = Queue.sizeUnsafe(queue)
  *   console.log(size) // 3
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as QueueModule from "effect/Queue";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as QueueModule from "effect/Queue";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "offerAllUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/Queue";
-const sourceSummary = "Add multiple messages to the queue synchronously. Returns the remaining messages that were not added.";
-const sourceExample = "import { Cause, Effect, Queue } from \"effect\"\n\n// Create a bounded queue and use unsafe API\nconst program = Effect.gen(function*() {\n  const queue = yield* Queue.bounded<number>(3)\n\n  // Try to add 5 messages to capacity-3 queue using unsafe API\n  const remaining = Queue.offerAllUnsafe(queue, [1, 2, 3, 4, 5])\n  console.log(remaining) // [4, 5] - couldn't fit the last 2\n\n  // Check what's in the queue\n  const size = Queue.sizeUnsafe(queue)\n  console.log(size) // 3\n})";
+const sourceSummary =
+  "Add multiple messages to the queue synchronously. Returns the remaining messages that were not added.";
+const sourceExample =
+  "import { Cause, Effect, Queue } from \"effect\"\n\n// Create a bounded queue and use unsafe API\nconst program = Effect.gen(function*() {\n  const queue = yield* Queue.bounded<number>(3)\n\n  // Try to add 5 messages to capacity-3 queue using unsafe API\n  const remaining = Queue.offerAllUnsafe(queue, [1, 2, 3, 4, 5])\n  console.log(remaining) // [4, 5] - couldn't fit the last 2\n\n  // Check what's in the queue\n  const size = Queue.sizeUnsafe(queue)\n  console.log(size) // 3\n})";
 const moduleRecord = QueueModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

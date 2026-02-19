@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Types } from "effect"
- * 
+ *
  * type MyError =
  *   | { readonly _tag: "NotFound"; readonly id: string }
  *   | { readonly _tag: "Timeout"; readonly ms: number }
  *   | string
- * 
+ *
  * type WithoutTimeout = Types.ExcludeTag<MyError, "Timeout">
  * // { readonly _tag: "NotFound"; readonly id: string } | string
  * ```
@@ -28,16 +28,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TypesModule from "effect/Types";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TypesModule from "effect/Types";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "ExcludeTag";
 const exportKind = "type";
 const moduleImportPath = "effect/Types";
 const sourceSummary = "Excludes members of a tagged union by their `_tag` value.";
-const sourceExample = "import type { Types } from \"effect\"\n\ntype MyError =\n  | { readonly _tag: \"NotFound\"; readonly id: string }\n  | { readonly _tag: \"Timeout\"; readonly ms: number }\n  | string\n\ntype WithoutTimeout = Types.ExcludeTag<MyError, \"Timeout\">\n// { readonly _tag: \"NotFound\"; readonly id: string } | string";
+const sourceExample =
+  'import type { Types } from "effect"\n\ntype MyError =\n  | { readonly _tag: "NotFound"; readonly id: string }\n  | { readonly _tag: "Timeout"; readonly ms: number }\n  | string\n\ntype WithoutTimeout = Types.ExcludeTag<MyError, "Timeout">\n// { readonly _tag: "NotFound"; readonly id: string } | string';
 const moduleRecord = TypesModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

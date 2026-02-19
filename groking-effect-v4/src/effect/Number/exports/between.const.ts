@@ -15,9 +15,9 @@
  * ```ts
  * import * as Number from "effect/Number"
  * import * as assert from "node:assert"
- * 
+ *
  * const between = Number.between({ minimum: 0, maximum: 5 })
- * 
+ *
  * assert.deepStrictEqual(between(3), true)
  * assert.deepStrictEqual(between(-1), false)
  * assert.deepStrictEqual(between(6), false)
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as NumberModule from "effect/Number";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as NumberModule from "effect/Number";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "between";
 const exportKind = "const";
 const moduleImportPath = "effect/Number";
 const sourceSummary = "Checks if a `number` is between a `minimum` and `maximum` value (inclusive).";
-const sourceExample = "import * as Number from \"effect/Number\"\nimport * as assert from \"node:assert\"\n\nconst between = Number.between({ minimum: 0, maximum: 5 })\n\nassert.deepStrictEqual(between(3), true)\nassert.deepStrictEqual(between(-1), false)\nassert.deepStrictEqual(between(6), false)";
+const sourceExample =
+  'import * as Number from "effect/Number"\nimport * as assert from "node:assert"\n\nconst between = Number.between({ minimum: 0, maximum: 5 })\n\nassert.deepStrictEqual(between(3), true)\nassert.deepStrictEqual(between(-1), false)\nassert.deepStrictEqual(between(6), false)';
 const moduleRecord = NumberModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

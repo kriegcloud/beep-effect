@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   yield* Effect.log("Starting computation")
  *   const result = 2 + 2
@@ -22,7 +22,7 @@
  *   yield* Effect.log("Multiple", "values", "can", "be", "logged")
  *   return result
  * })
- * 
+ *
  * Effect.runPromise(program).then(console.log)
  * // Output:
  * // timestamp=2023-... level=INFO message="Starting computation"
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "log";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Logs one or more messages using the default log level.";
-const sourceExample = "import { Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  yield* Effect.log(\"Starting computation\")\n  const result = 2 + 2\n  yield* Effect.log(\"Result:\", result)\n  yield* Effect.log(\"Multiple\", \"values\", \"can\", \"be\", \"logged\")\n  return result\n})\n\nEffect.runPromise(program).then(console.log)\n// Output:\n// timestamp=2023-... level=INFO message=\"Starting computation\"\n// timestamp=2023-... level=INFO message=\"Result: 4\"\n// timestamp=2023-... level=INFO message=\"Multiple values can be logged\"\n// 4";
+const sourceExample =
+  'import { Effect } from "effect"\n\nconst program = Effect.gen(function*() {\n  yield* Effect.log("Starting computation")\n  const result = 2 + 2\n  yield* Effect.log("Result:", result)\n  yield* Effect.log("Multiple", "values", "can", "be", "logged")\n  return result\n})\n\nEffect.runPromise(program).then(console.log)\n// Output:\n// timestamp=2023-... level=INFO message="Starting computation"\n// timestamp=2023-... level=INFO message="Result: 4"\n// timestamp=2023-... level=INFO message="Multiple values can be logged"\n// 4';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

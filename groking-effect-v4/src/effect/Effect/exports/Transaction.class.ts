@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect } from "effect"
- * 
+ *
  * // Transaction class for software transactional memory operations
  * const txEffect = Effect.gen(function*() {
  *   const tx = yield* Effect.Transaction
@@ -26,16 +26,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "Transaction";
 const exportKind = "class";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Service that holds the current transaction state, it includes";
-const sourceExample = "import { Effect } from \"effect\"\n\n// Transaction class for software transactional memory operations\nconst txEffect = Effect.gen(function*() {\n  const tx = yield* Effect.Transaction\n  // Use transaction for coordinated state changes\n  return \"Transaction complete\"\n})";
+const sourceExample =
+  'import { Effect } from "effect"\n\n// Transaction class for software transactional memory operations\nconst txEffect = Effect.gen(function*() {\n  const tx = yield* Effect.Transaction\n  // Use transaction for coordinated state changes\n  return "Transaction complete"\n})';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

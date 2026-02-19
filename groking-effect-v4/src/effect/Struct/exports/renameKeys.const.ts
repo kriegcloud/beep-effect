@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { pipe, Struct } from "effect"
- * 
+ *
  * const result = pipe(
  *   { firstName: "Alice", lastName: "Smith", age: 30 },
  *   Struct.renameKeys({ firstName: "first", lastName: "last" })
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StructModule from "effect/Struct";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StructModule from "effect/Struct";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,8 +44,10 @@ import {
 const exportName = "renameKeys";
 const exportKind = "const";
 const moduleImportPath = "effect/Struct";
-const sourceSummary = "Renames keys in a struct using a static `{ oldKey: newKey }` mapping. Keys not mentioned in the mapping are copied unchanged.";
-const sourceExample = "import { pipe, Struct } from \"effect\"\n\nconst result = pipe(\n  { firstName: \"Alice\", lastName: \"Smith\", age: 30 },\n  Struct.renameKeys({ firstName: \"first\", lastName: \"last\" })\n)\nconsole.log(result) // { first: \"Alice\", last: \"Smith\", age: 30 }";
+const sourceSummary =
+  "Renames keys in a struct using a static `{ oldKey: newKey }` mapping. Keys not mentioned in the mapping are copied unchanged.";
+const sourceExample =
+  'import { pipe, Struct } from "effect"\n\nconst result = pipe(\n  { firstName: "Alice", lastName: "Smith", age: 30 },\n  Struct.renameKeys({ firstName: "first", lastName: "last" })\n)\nconsole.log(result) // { first: "Alice", last: "Smith", age: 30 }';
 const moduleRecord = StructModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

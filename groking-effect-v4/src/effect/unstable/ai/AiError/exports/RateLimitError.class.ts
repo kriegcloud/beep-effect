@@ -15,11 +15,11 @@
  * ```ts
  * import { Duration } from "effect"
  * import { AiError } from "effect/unstable/ai"
- * 
+ *
  * const rateLimitError = new AiError.RateLimitError({
  *   retryAfter: Duration.seconds(60)
  * })
- * 
+ *
  * console.log(rateLimitError.isRetryable) // true
  * console.log(rateLimitError.message) // "Rate limit exceeded. Retry after 1 minute"
  * ```
@@ -27,16 +27,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as AiErrorModule from "effect/unstable/ai/AiError";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as AiErrorModule from "effect/unstable/ai/AiError";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "RateLimitError";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/ai/AiError";
 const sourceSummary = "Error indicating the request was rate limited.";
-const sourceExample = "import { Duration } from \"effect\"\nimport { AiError } from \"effect/unstable/ai\"\n\nconst rateLimitError = new AiError.RateLimitError({\n  retryAfter: Duration.seconds(60)\n})\n\nconsole.log(rateLimitError.isRetryable) // true\nconsole.log(rateLimitError.message) // \"Rate limit exceeded. Retry after 1 minute\"";
+const sourceExample =
+  'import { Duration } from "effect"\nimport { AiError } from "effect/unstable/ai"\n\nconst rateLimitError = new AiError.RateLimitError({\n  retryAfter: Duration.seconds(60)\n})\n\nconsole.log(rateLimitError.isRetryable) // true\nconsole.log(rateLimitError.message) // "Rate limit exceeded. Retry after 1 minute"';
 const moduleRecord = AiErrorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

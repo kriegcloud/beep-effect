@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Match } from "effect"
- * 
+ *
  * const mySymbol = Symbol("my-symbol")
  * const globalSymbol = Symbol.for("global-symbol")
- * 
+ *
  * const handleSymbol = Match.type<unknown>().pipe(
  *   Match.when(Match.symbol, (sym) => {
  *     const description = sym.description
@@ -28,7 +28,7 @@
  *   }),
  *   Match.orElse(() => "Not a symbol")
  * )
- * 
+ *
  * console.log(handleSymbol(mySymbol)) // "Symbol with description: my-symbol"
  * console.log(handleSymbol(Symbol())) // "Symbol without description"
  * console.log(handleSymbol("string")) // "Not a symbol"
@@ -38,16 +38,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MatchModule from "effect/Match";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MatchModule from "effect/Match";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -56,7 +57,8 @@ const exportName = "symbol";
 const exportKind = "const";
 const moduleImportPath = "effect/Match";
 const sourceSummary = "Matches values of type `symbol`.";
-const sourceExample = "import { Match } from \"effect\"\n\nconst mySymbol = Symbol(\"my-symbol\")\nconst globalSymbol = Symbol.for(\"global-symbol\")\n\nconst handleSymbol = Match.type<unknown>().pipe(\n  Match.when(Match.symbol, (sym) => {\n    const description = sym.description\n    if (description) {\n      return `Symbol with description: ${description}`\n    }\n    return \"Symbol without description\"\n  }),\n  Match.orElse(() => \"Not a symbol\")\n)\n\nconsole.log(handleSymbol(mySymbol)) // \"Symbol with description: my-symbol\"\nconsole.log(handleSymbol(Symbol())) // \"Symbol without description\"\nconsole.log(handleSymbol(\"string\")) // \"Not a symbol\"";
+const sourceExample =
+  'import { Match } from "effect"\n\nconst mySymbol = Symbol("my-symbol")\nconst globalSymbol = Symbol.for("global-symbol")\n\nconst handleSymbol = Match.type<unknown>().pipe(\n  Match.when(Match.symbol, (sym) => {\n    const description = sym.description\n    if (description) {\n      return `Symbol with description: ${description}`\n    }\n    return "Symbol without description"\n  }),\n  Match.orElse(() => "Not a symbol")\n)\n\nconsole.log(handleSymbol(mySymbol)) // "Symbol with description: my-symbol"\nconsole.log(handleSymbol(Symbol())) // "Symbol without description"\nconsole.log(handleSymbol("string")) // "Not a symbol"';
 const moduleRecord = MatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -87,14 +89,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -15,7 +15,7 @@
  * ```ts
  * import * as Boolean from "effect/Boolean"
  * import * as assert from "node:assert"
- * 
+ *
  * assert.deepStrictEqual(
  *   Boolean.match(true, {
  *     onFalse: () => "It's false!",
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BooleanModule from "effect/Boolean";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BooleanModule from "effect/Boolean";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,8 +47,10 @@ import {
 const exportName = "match";
 const exportKind = "const";
 const moduleImportPath = "effect/Boolean";
-const sourceSummary = "This function returns the result of either of the given functions depending on the value of the boolean parameter. It is useful when you have to run one of two functions dependi...";
-const sourceExample = "import * as Boolean from \"effect/Boolean\"\nimport * as assert from \"node:assert\"\n\nassert.deepStrictEqual(\n  Boolean.match(true, {\n    onFalse: () => \"It's false!\",\n    onTrue: () => \"It's true!\"\n  }),\n  \"It's true!\"\n)";
+const sourceSummary =
+  "This function returns the result of either of the given functions depending on the value of the boolean parameter. It is useful when you have to run one of two functions dependi...";
+const sourceExample =
+  'import * as Boolean from "effect/Boolean"\nimport * as assert from "node:assert"\n\nassert.deepStrictEqual(\n  Boolean.match(true, {\n    onFalse: () => "It\'s false!",\n    onTrue: () => "It\'s true!"\n  }),\n  "It\'s true!"\n)';
 const moduleRecord = BooleanModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

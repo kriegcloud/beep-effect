@@ -21,7 +21,7 @@
  *   EntityProxyServer
  * } from "effect/unstable/cluster"
  * import { Rpc, RpcServer } from "effect/unstable/rpc"
- * 
+ *
  * export const Counter = Entity.make("Counter", [
  *   Rpc.make("Increment", {
  *     payload: { id: Schema.String, amount: Schema.Number },
@@ -29,10 +29,10 @@
  *     success: Schema.Number
  *   })
  * ]).annotateRpcs(ClusterSchema.Persisted, true)
- * 
+ *
  * // Use EntityProxy.toRpcGroup to create a `RpcGroup` from the Counter entity
  * export class MyRpcs extends EntityProxy.toRpcGroup(Counter) {}
- * 
+ *
  * // Use EntityProxyServer.layerRpcHandlers to create a layer that implements
  * // the rpc handlers
  * const RpcServerLayer = RpcServer.layer(MyRpcs).pipe(
@@ -44,16 +44,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EntityProxyModule from "effect/unstable/cluster/EntityProxy";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EntityProxyModule from "effect/unstable/cluster/EntityProxy";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -62,7 +63,8 @@ const exportName = "toRpcGroup";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cluster/EntityProxy";
 const sourceSummary = "Derives an `RpcGroup` from an `Entity`.";
-const sourceExample = "import { Layer, Schema } from \"effect\"\nimport {\n  ClusterSchema,\n  Entity,\n  EntityProxy,\n  EntityProxyServer\n} from \"effect/unstable/cluster\"\nimport { Rpc, RpcServer } from \"effect/unstable/rpc\"\n\nexport const Counter = Entity.make(\"Counter\", [\n  Rpc.make(\"Increment\", {\n    payload: { id: Schema.String, amount: Schema.Number },\n    primaryKey: ({ id }) => id,\n    success: Schema.Number\n  })\n]).annotateRpcs(ClusterSchema.Persisted, true)\n\n// Use EntityProxy.toRpcGroup to create a `RpcGroup` from the Counter entity\nexport class MyRpcs extends EntityProxy.toRpcGroup(Counter) {}\n\n// Use EntityProxyServer.layerRpcHandlers to create a layer that implements\n// the rpc handlers\nconst RpcServerLayer = RpcServer.layer(MyRpcs).pipe(\n  Layer.provide(EntityProxyServer.layerRpcHandlers(Counter))\n)";
+const sourceExample =
+  'import { Layer, Schema } from "effect"\nimport {\n  ClusterSchema,\n  Entity,\n  EntityProxy,\n  EntityProxyServer\n} from "effect/unstable/cluster"\nimport { Rpc, RpcServer } from "effect/unstable/rpc"\n\nexport const Counter = Entity.make("Counter", [\n  Rpc.make("Increment", {\n    payload: { id: Schema.String, amount: Schema.Number },\n    primaryKey: ({ id }) => id,\n    success: Schema.Number\n  })\n]).annotateRpcs(ClusterSchema.Persisted, true)\n\n// Use EntityProxy.toRpcGroup to create a `RpcGroup` from the Counter entity\nexport class MyRpcs extends EntityProxy.toRpcGroup(Counter) {}\n\n// Use EntityProxyServer.layerRpcHandlers to create a layer that implements\n// the rpc handlers\nconst RpcServerLayer = RpcServer.layer(MyRpcs).pipe(\n  Layer.provide(EntityProxyServer.layerRpcHandlers(Counter))\n)';
 const moduleRecord = EntityProxyModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -93,14 +95,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

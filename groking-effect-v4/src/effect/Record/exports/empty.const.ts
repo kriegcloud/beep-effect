@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Record } from "effect"
- * 
+ *
  * // Create an empty record
  * const emptyRecord = Record.empty<string, number>()
  * console.log(emptyRecord) // {}
- * 
+ *
  * // The type ensures type safety for future operations
  * const withValue = Record.set(emptyRecord, "count", 42)
  * console.log(withValue) // { count: 42 }
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RecordModule from "effect/Record";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RecordModule from "effect/Record";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "empty";
 const exportKind = "const";
 const moduleImportPath = "effect/Record";
 const sourceSummary = "Creates a new, empty record.";
-const sourceExample = "import { Record } from \"effect\"\n\n// Create an empty record\nconst emptyRecord = Record.empty<string, number>()\nconsole.log(emptyRecord) // {}\n\n// The type ensures type safety for future operations\nconst withValue = Record.set(emptyRecord, \"count\", 42)\nconsole.log(withValue) // { count: 42 }";
+const sourceExample =
+  'import { Record } from "effect"\n\n// Create an empty record\nconst emptyRecord = Record.empty<string, number>()\nconsole.log(emptyRecord) // {}\n\n// The type ensures type safety for future operations\nconst withValue = Record.set(emptyRecord, "count", 42)\nconsole.log(withValue) // { count: 42 }';
 const moduleRecord = RecordModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

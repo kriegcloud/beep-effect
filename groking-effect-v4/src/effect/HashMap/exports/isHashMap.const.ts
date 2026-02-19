@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import * as HashMap from "effect/HashMap"
- * 
+ *
  * const map = HashMap.make(["a", 1], ["b", 2])
  * const notMap = { a: 1 }
- * 
+ *
  * console.log(HashMap.isHashMap(map)) // true
  * console.log(HashMap.isHashMap(notMap)) // false
  * console.log(HashMap.isHashMap(null)) // false
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HashMapModule from "effect/HashMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HashMapModule from "effect/HashMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "isHashMap";
 const exportKind = "const";
 const moduleImportPath = "effect/HashMap";
 const sourceSummary = "Checks if a value is a HashMap.";
-const sourceExample = "import * as HashMap from \"effect/HashMap\"\n\nconst map = HashMap.make([\"a\", 1], [\"b\", 2])\nconst notMap = { a: 1 }\n\nconsole.log(HashMap.isHashMap(map)) // true\nconsole.log(HashMap.isHashMap(notMap)) // false\nconsole.log(HashMap.isHashMap(null)) // false";
+const sourceExample =
+  'import * as HashMap from "effect/HashMap"\n\nconst map = HashMap.make(["a", 1], ["b", 2])\nconst notMap = { a: 1 }\n\nconsole.log(HashMap.isHashMap(map)) // true\nconsole.log(HashMap.isHashMap(notMap)) // false\nconsole.log(HashMap.isHashMap(null)) // false';
 const moduleRecord = HashMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

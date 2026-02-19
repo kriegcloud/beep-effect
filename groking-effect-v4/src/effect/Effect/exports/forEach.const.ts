@@ -16,13 +16,13 @@
  * // Title: Applying Effects to Iterable Elements
  * import { Effect } from "effect"
  * import { Console } from "effect"
- * 
+ *
  * const result = Effect.forEach(
  *   [1, 2, 3, 4, 5],
  *   (n, index) =>
  *     Console.log(`Currently at index ${index}`).pipe(Effect.as(n * 2))
  * )
- * 
+ *
  * Effect.runPromise(result).then(console.log)
  * // Output:
  * // Currently at index 0
@@ -37,16 +37,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,7 +56,8 @@ const exportName = "forEach";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Executes an effectful operation for each element in an `Iterable`.";
-const sourceExample = "// Title: Applying Effects to Iterable Elements\nimport { Effect } from \"effect\"\nimport { Console } from \"effect\"\n\nconst result = Effect.forEach(\n  [1, 2, 3, 4, 5],\n  (n, index) =>\n    Console.log(`Currently at index ${index}`).pipe(Effect.as(n * 2))\n)\n\nEffect.runPromise(result).then(console.log)\n// Output:\n// Currently at index 0\n// Currently at index 1\n// Currently at index 2\n// Currently at index 3\n// Currently at index 4\n// [ 2, 4, 6, 8, 10 ]";
+const sourceExample =
+  '// Title: Applying Effects to Iterable Elements\nimport { Effect } from "effect"\nimport { Console } from "effect"\n\nconst result = Effect.forEach(\n  [1, 2, 3, 4, 5],\n  (n, index) =>\n    Console.log(`Currently at index ${index}`).pipe(Effect.as(n * 2))\n)\n\nEffect.runPromise(result).then(console.log)\n// Output:\n// Currently at index 0\n// Currently at index 1\n// Currently at index 2\n// Currently at index 3\n// Currently at index 4\n// [ 2, 4, 6, 8, 10 ]';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -86,14 +88,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

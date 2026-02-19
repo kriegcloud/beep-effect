@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause } from "effect"
- * 
+ *
  * const cause = Cause.fail("Something went wrong")
  * console.log(cause.reasons.length) // 1
  * console.log(Cause.isFailReason(cause.reasons[0])) // true
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CauseModule from "effect/Cause";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as CauseModule from "effect/Cause";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "fail";
 const exportKind = "const";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "Creates a {@link Cause} containing a single {@link Fail} reason with the given typed error.";
-const sourceExample = "import { Cause } from \"effect\"\n\nconst cause = Cause.fail(\"Something went wrong\")\nconsole.log(cause.reasons.length) // 1\nconsole.log(Cause.isFailReason(cause.reasons[0])) // true";
+const sourceExample =
+  'import { Cause } from "effect"\n\nconst cause = Cause.fail("Something went wrong")\nconsole.log(cause.reasons.length) // 1\nconsole.log(Cause.isFailReason(cause.reasons[0])) // true';
 const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

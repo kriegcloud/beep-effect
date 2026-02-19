@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { SchemaGetter } from "effect"
- * 
+ *
  * const join = SchemaGetter.joinKeyValue()
  * // { a: "1", b: "2" } -> "a=1,b=2"
  * ```
@@ -22,16 +22,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaGetterModule from "effect/SchemaGetter";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaGetterModule from "effect/SchemaGetter";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -40,7 +41,8 @@ const exportName = "joinKeyValue";
 const exportKind = "function";
 const moduleImportPath = "effect/SchemaGetter";
 const sourceSummary = "Joins a record of key-value pairs into a delimited string.";
-const sourceExample = "import { SchemaGetter } from \"effect\"\n\nconst join = SchemaGetter.joinKeyValue()\n// { a: \"1\", b: \"2\" } -> \"a=1,b=2\"";
+const sourceExample =
+  'import { SchemaGetter } from "effect"\n\nconst join = SchemaGetter.joinKeyValue()\n// { a: "1", b: "2" } -> "a=1,b=2"';
 const moduleRecord = SchemaGetterModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -71,14 +73,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

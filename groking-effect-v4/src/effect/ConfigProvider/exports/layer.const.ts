@@ -14,16 +14,16 @@
  * Source JSDoc Example:
  * ```ts
  * import { Config, ConfigProvider, Effect, Layer } from "effect"
- * 
+ *
  * const TestLayer = ConfigProvider.layer(
  *   ConfigProvider.fromUnknown({ port: 8080 })
  * )
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const port = yield* Config.number("port")
  *   return port
  * })
- * 
+ *
  * // Effect.runSync(Effect.provide(program, TestLayer)) // 8080
  * ```
  *
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ConfigProviderModule from "effect/ConfigProvider";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ConfigProviderModule from "effect/ConfigProvider";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,8 +49,10 @@ import {
 const exportName = "layer";
 const exportKind = "const";
 const moduleImportPath = "effect/ConfigProvider";
-const sourceSummary = "Installs a `ConfigProvider` as the active provider for all downstream effects, replacing any previously installed provider.";
-const sourceExample = "import { Config, ConfigProvider, Effect, Layer } from \"effect\"\n\nconst TestLayer = ConfigProvider.layer(\n  ConfigProvider.fromUnknown({ port: 8080 })\n)\n\nconst program = Effect.gen(function*() {\n  const port = yield* Config.number(\"port\")\n  return port\n})\n\n// Effect.runSync(Effect.provide(program, TestLayer)) // 8080";
+const sourceSummary =
+  "Installs a `ConfigProvider` as the active provider for all downstream effects, replacing any previously installed provider.";
+const sourceExample =
+  'import { Config, ConfigProvider, Effect, Layer } from "effect"\n\nconst TestLayer = ConfigProvider.layer(\n  ConfigProvider.fromUnknown({ port: 8080 })\n)\n\nconst program = Effect.gen(function*() {\n  const port = yield* Config.number("port")\n  return port\n})\n\n// Effect.runSync(Effect.provide(program, TestLayer)) // 8080';
 const moduleRecord = ConfigProviderModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { pipe, Result } from "effect"
- * 
+ *
  * const result = pipe(
  *   Result.Do,
  *   Result.bind("x", () => Result.succeed(2)),
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ResultModule from "effect/Result";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,8 +46,10 @@ import {
 const exportName = "bind";
 const exportKind = "const";
 const moduleImportPath = "effect/Result";
-const sourceSummary = "Adds a named field to the do-notation accumulator by running a `Result`-producing function that receives the current accumulated object.";
-const sourceExample = "import { pipe, Result } from \"effect\"\n\nconst result = pipe(\n  Result.Do,\n  Result.bind(\"x\", () => Result.succeed(2)),\n  Result.bind(\"y\", ({ x }) => Result.succeed(x + 3))\n)\nconsole.log(result)\n// Output: { _tag: \"Success\", success: { x: 2, y: 5 }, ... }";
+const sourceSummary =
+  "Adds a named field to the do-notation accumulator by running a `Result`-producing function that receives the current accumulated object.";
+const sourceExample =
+  'import { pipe, Result } from "effect"\n\nconst result = pipe(\n  Result.Do,\n  Result.bind("x", () => Result.succeed(2)),\n  Result.bind("y", ({ x }) => Result.succeed(x + 3))\n)\nconsole.log(result)\n// Output: { _tag: "Success", success: { x: 2, y: 5 }, ... }';
 const moduleRecord = ResultModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

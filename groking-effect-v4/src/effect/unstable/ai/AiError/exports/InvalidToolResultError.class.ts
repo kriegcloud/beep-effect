@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { AiError } from "effect/unstable/ai"
- * 
+ *
  * const error = new AiError.InvalidToolResultError({
  *   toolName: "GetWeather",
  *   description: "Tool handler returned invalid result: missing 'temperature' field"
  * })
- * 
+ *
  * console.log(error.isRetryable) // false
  * console.log(error.message)
  * // "Tool 'GetWeather' returned invalid result: missing 'temperature' field"
@@ -28,16 +28,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as AiErrorModule from "effect/unstable/ai/AiError";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as AiErrorModule from "effect/unstable/ai/AiError";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,8 +46,10 @@ import {
 const exportName = "InvalidToolResultError";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/ai/AiError";
-const sourceSummary = "Error indicating the tool handler returned an invalid result that does not match the tool's schema.";
-const sourceExample = "import { AiError } from \"effect/unstable/ai\"\n\nconst error = new AiError.InvalidToolResultError({\n  toolName: \"GetWeather\",\n  description: \"Tool handler returned invalid result: missing 'temperature' field\"\n})\n\nconsole.log(error.isRetryable) // false\nconsole.log(error.message)\n// \"Tool 'GetWeather' returned invalid result: missing 'temperature' field\"";
+const sourceSummary =
+  "Error indicating the tool handler returned an invalid result that does not match the tool's schema.";
+const sourceExample =
+  'import { AiError } from "effect/unstable/ai"\n\nconst error = new AiError.InvalidToolResultError({\n  toolName: "GetWeather",\n  description: "Tool handler returned invalid result: missing \'temperature\' field"\n})\n\nconsole.log(error.isRetryable) // false\nconsole.log(error.message)\n// "Tool \'GetWeather\' returned invalid result: missing \'temperature\' field"';
 const moduleRecord = AiErrorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

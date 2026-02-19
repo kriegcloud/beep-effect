@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import type { HKT } from "effect"
- * 
+ *
  * interface MyTypeClass<F extends HKT.TypeLambda> extends HKT.TypeClass<F> {
  *   // TypeClass methods here
  * }
- * 
+ *
  * // The URI symbol helps TypeScript understand the relationship
  * // between the type class and its type lambda
  * ```
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HKTModule from "effect/HKT";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HKTModule from "effect/HKT";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "URI";
 const exportKind = "const";
 const moduleImportPath = "effect/HKT";
 const sourceSummary = "A unique symbol used to identify TypeClass implementations.";
-const sourceExample = "import type { HKT } from \"effect\"\n\ninterface MyTypeClass<F extends HKT.TypeLambda> extends HKT.TypeClass<F> {\n  // TypeClass methods here\n}\n\n// The URI symbol helps TypeScript understand the relationship\n// between the type class and its type lambda";
+const sourceExample =
+  'import type { HKT } from "effect"\n\ninterface MyTypeClass<F extends HKT.TypeLambda> extends HKT.TypeClass<F> {\n  // TypeClass methods here\n}\n\n// The URI symbol helps TypeScript understand the relationship\n// between the type class and its type lambda';
 const moduleRecord = HKTModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const chunk1 = Chunk.make(1, 2, 3)
  * const chunk2 = Chunk.make(3, 4, 5)
  * const result = Chunk.union(chunk1, chunk2)
  * console.log(Chunk.toArray(result)) // [1, 2, 3, 4, 5]
- * 
+ *
  * // Handles duplicates within the same chunk
  * const withDupes1 = Chunk.make(1, 1, 2)
  * const withDupes2 = Chunk.make(2, 3, 3)
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "union";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Creates a Chunks of unique values, in order, from all given Chunks.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst chunk1 = Chunk.make(1, 2, 3)\nconst chunk2 = Chunk.make(3, 4, 5)\nconst result = Chunk.union(chunk1, chunk2)\nconsole.log(Chunk.toArray(result)) // [1, 2, 3, 4, 5]\n\n// Handles duplicates within the same chunk\nconst withDupes1 = Chunk.make(1, 1, 2)\nconst withDupes2 = Chunk.make(2, 3, 3)\nconst unified = Chunk.union(withDupes1, withDupes2)\nconsole.log(Chunk.toArray(unified)) // [1, 2, 3]";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst chunk1 = Chunk.make(1, 2, 3)\nconst chunk2 = Chunk.make(3, 4, 5)\nconst result = Chunk.union(chunk1, chunk2)\nconsole.log(Chunk.toArray(result)) // [1, 2, 3, 4, 5]\n\n// Handles duplicates within the same chunk\nconst withDupes1 = Chunk.make(1, 1, 2)\nconst withDupes2 = Chunk.make(2, 3, 3)\nconst unified = Chunk.union(withDupes1, withDupes2)\nconsole.log(Chunk.toArray(unified)) // [1, 2, 3]';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

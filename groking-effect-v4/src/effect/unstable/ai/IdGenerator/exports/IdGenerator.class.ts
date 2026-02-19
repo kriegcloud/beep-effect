@@ -15,7 +15,7 @@
  * ```ts
  * import { Effect } from "effect"
  * import { IdGenerator } from "effect/unstable/ai"
- * 
+ *
  * const useIdGenerator = Effect.gen(function*() {
  *   const idGenerator = yield* IdGenerator.IdGenerator
  *   const newId = yield* idGenerator.generateId()
@@ -26,16 +26,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as IdGeneratorModule from "effect/unstable/ai/IdGenerator";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as IdGeneratorModule from "effect/unstable/ai/IdGenerator";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "IdGenerator";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/ai/IdGenerator";
 const sourceSummary = "The `IdGenerator` service tag for dependency injection.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { IdGenerator } from \"effect/unstable/ai\"\n\nconst useIdGenerator = Effect.gen(function*() {\n  const idGenerator = yield* IdGenerator.IdGenerator\n  const newId = yield* idGenerator.generateId()\n  return newId\n})";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { IdGenerator } from "effect/unstable/ai"\n\nconst useIdGenerator = Effect.gen(function*() {\n  const idGenerator = yield* IdGenerator.IdGenerator\n  const newId = yield* idGenerator.generateId()\n  return newId\n})';
 const moduleRecord = IdGeneratorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

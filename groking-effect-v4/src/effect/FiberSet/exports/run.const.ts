@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Fiber, FiberSet } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const set = yield* FiberSet.make()
- * 
+ *
  *   // Fork and add to set
  *   const fiber1 = yield* FiberSet.run(set, Effect.succeed("hello"))
  *   const fiber2 = yield* FiberSet.run(set, Effect.succeed("world"))
- * 
+ *
  *   // Get results
  *   const result1 = yield* Fiber.await(fiber1)
  *   const result2 = yield* Fiber.await(fiber2)
- * 
+ *
  *   console.log(result1, result2) // "hello" "world"
  * })
  * ```
@@ -34,16 +34,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FiberSetModule from "effect/FiberSet";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FiberSetModule from "effect/FiberSet";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,8 +52,10 @@ import {
 const exportName = "run";
 const exportKind = "const";
 const moduleImportPath = "effect/FiberSet";
-const sourceSummary = "Fork an Effect and add the forked fiber to the FiberSet. When the fiber completes, it will be removed from the FiberSet.";
-const sourceExample = "import { Effect, Fiber, FiberSet } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const set = yield* FiberSet.make()\n\n  // Fork and add to set\n  const fiber1 = yield* FiberSet.run(set, Effect.succeed(\"hello\"))\n  const fiber2 = yield* FiberSet.run(set, Effect.succeed(\"world\"))\n\n  // Get results\n  const result1 = yield* Fiber.await(fiber1)\n  const result2 = yield* Fiber.await(fiber2)\n\n  console.log(result1, result2) // \"hello\" \"world\"\n})";
+const sourceSummary =
+  "Fork an Effect and add the forked fiber to the FiberSet. When the fiber completes, it will be removed from the FiberSet.";
+const sourceExample =
+  'import { Effect, Fiber, FiberSet } from "effect"\n\nconst program = Effect.gen(function*() {\n  const set = yield* FiberSet.make()\n\n  // Fork and add to set\n  const fiber1 = yield* FiberSet.run(set, Effect.succeed("hello"))\n  const fiber2 = yield* FiberSet.run(set, Effect.succeed("world"))\n\n  // Get results\n  const result1 = yield* Fiber.await(fiber1)\n  const result2 = yield* Fiber.await(fiber2)\n\n  console.log(result1, result2) // "hello" "world"\n})';
 const moduleRecord = FiberSetModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

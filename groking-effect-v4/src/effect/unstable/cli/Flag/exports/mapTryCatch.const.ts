@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Flag } from "effect/unstable/cli"
- * 
+ *
  * // Parse JSON string with error handling
  * const jsonFlag = Flag.string("config").pipe(
  *   Flag.mapTryCatch(
@@ -22,7 +22,7 @@
  *     (error) => `Invalid JSON: ${error}`
  *   )
  * )
- * 
+ *
  * // Parse URL with error handling
  * const urlFlag = Flag.string("url").pipe(
  *   Flag.mapTryCatch(
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FlagModule from "effect/unstable/cli/Flag";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FlagModule from "effect/unstable/cli/Flag";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "mapTryCatch";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Flag";
 const sourceSummary = "Transforms the parsed value using a function that might throw, with error handling.";
-const sourceExample = "import { Flag } from \"effect/unstable/cli\"\n\n// Parse JSON string with error handling\nconst jsonFlag = Flag.string(\"config\").pipe(\n  Flag.mapTryCatch(\n    (json) => JSON.parse(json),\n    (error) => `Invalid JSON: ${error}`\n  )\n)\n\n// Parse URL with error handling\nconst urlFlag = Flag.string(\"url\").pipe(\n  Flag.mapTryCatch(\n    (url) => new URL(url),\n    (error) => `Invalid URL: ${error}`\n  )\n)";
+const sourceExample =
+  'import { Flag } from "effect/unstable/cli"\n\n// Parse JSON string with error handling\nconst jsonFlag = Flag.string("config").pipe(\n  Flag.mapTryCatch(\n    (json) => JSON.parse(json),\n    (error) => `Invalid JSON: ${error}`\n  )\n)\n\n// Parse URL with error handling\nconst urlFlag = Flag.string("url").pipe(\n  Flag.mapTryCatch(\n    (url) => new URL(url),\n    (error) => `Invalid URL: ${error}`\n  )\n)';
 const moduleRecord = FlagModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

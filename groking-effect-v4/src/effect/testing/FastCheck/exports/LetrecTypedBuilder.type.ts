@@ -18,16 +18,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FastCheckModule from "effect/testing/FastCheck";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FastCheckModule from "effect/testing/FastCheck";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -35,7 +36,8 @@ import {
 const exportName = "LetrecTypedBuilder";
 const exportKind = "type";
 const moduleImportPath = "effect/testing/FastCheck";
-const sourceSummary = "Strongly typed type for the `builder` function passed to {@link letrec}. You may want also want to use its loosely typed version {@link LetrecLooselyTypedBuilder}.";
+const sourceSummary =
+  "Strongly typed type for the `builder` function passed to {@link letrec}. You may want also want to use its loosely typed version {@link LetrecLooselyTypedBuilder}.";
 const sourceExample = "";
 const moduleRecord = FastCheckModule as Record<string, unknown>;
 
@@ -67,14 +69,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

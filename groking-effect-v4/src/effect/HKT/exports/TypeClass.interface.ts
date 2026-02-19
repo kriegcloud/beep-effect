@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import type { HKT } from "effect"
- * 
+ *
  * // Define a Functor type class
  * interface Functor<F extends HKT.TypeLambda> extends HKT.TypeClass<F> {
  *   map<A, B>(
@@ -22,7 +22,7 @@
  *     f: (a: A) => B
  *   ): HKT.Kind<F, never, never, never, B>
  * }
- * 
+ *
  * // Define a Monad type class
  * interface Monad<F extends HKT.TypeLambda> extends Functor<F> {
  *   flatMap<A, B>(
@@ -36,16 +36,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HKTModule from "effect/HKT";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HKTModule from "effect/HKT";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "TypeClass";
 const exportKind = "interface";
 const moduleImportPath = "effect/HKT";
 const sourceSummary = "Base interface for type classes that work with Higher-Kinded Types.";
-const sourceExample = "import type { HKT } from \"effect\"\n\n// Define a Functor type class\ninterface Functor<F extends HKT.TypeLambda> extends HKT.TypeClass<F> {\n  map<A, B>(\n    fa: HKT.Kind<F, never, never, never, A>,\n    f: (a: A) => B\n  ): HKT.Kind<F, never, never, never, B>\n}\n\n// Define a Monad type class\ninterface Monad<F extends HKT.TypeLambda> extends Functor<F> {\n  flatMap<A, B>(\n    fa: HKT.Kind<F, never, never, never, A>,\n    f: (a: A) => HKT.Kind<F, never, never, never, B>\n  ): HKT.Kind<F, never, never, never, B>\n}";
+const sourceExample =
+  'import type { HKT } from "effect"\n\n// Define a Functor type class\ninterface Functor<F extends HKT.TypeLambda> extends HKT.TypeClass<F> {\n  map<A, B>(\n    fa: HKT.Kind<F, never, never, never, A>,\n    f: (a: A) => B\n  ): HKT.Kind<F, never, never, never, B>\n}\n\n// Define a Monad type class\ninterface Monad<F extends HKT.TypeLambda> extends Functor<F> {\n  flatMap<A, B>(\n    fa: HKT.Kind<F, never, never, never, A>,\n    f: (a: A) => HKT.Kind<F, never, never, never, B>\n  ): HKT.Kind<F, never, never, never, B>\n}';
 const moduleRecord = HKTModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

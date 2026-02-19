@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Predicate } from "effect"
- * 
+ *
  * const isLongerThan2 = Predicate.mapInput((s: string) => s.length)(
  *   (n: number) => n > 2
  * )
- * 
+ *
  * console.log(isLongerThan2("hello"))
  * ```
  *
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PredicateModule from "effect/Predicate";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PredicateModule from "effect/Predicate";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "mapInput";
 const exportKind = "const";
 const moduleImportPath = "effect/Predicate";
 const sourceSummary = "Transforms the input of a predicate using a mapping function.";
-const sourceExample = "import { Predicate } from \"effect\"\n\nconst isLongerThan2 = Predicate.mapInput((s: string) => s.length)(\n  (n: number) => n > 2\n)\n\nconsole.log(isLongerThan2(\"hello\"))";
+const sourceExample =
+  'import { Predicate } from "effect"\n\nconst isLongerThan2 = Predicate.mapInput((s: string) => s.length)(\n  (n: number) => n > 2\n)\n\nconsole.log(isLongerThan2("hello"))';
 const moduleRecord = PredicateModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

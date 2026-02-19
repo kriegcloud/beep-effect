@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import * as OpenApiPatch from "@effect/openapi-generator/OpenApiPatch"
- * 
+ *
  * const error = new OpenApiPatch.JsonPatchParseError({
  *   source: "./patches/fix.json",
  *   reason: "Unexpected token at position 42"
  * })
- * 
+ *
  * console.log(error.message)
  * // "Failed to parse patch from ./patches/fix.json: Unexpected token at position 42"
  * ```
@@ -27,16 +27,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OpenApiPatchModule from "@effect/openapi-generator/OpenApiPatch";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as OpenApiPatchModule from "@effect/openapi-generator/OpenApiPatch";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "JsonPatchParseError";
 const exportKind = "class";
 const moduleImportPath = "@effect/openapi-generator/OpenApiPatch";
 const sourceSummary = "Error thrown when parsing a JSON Patch input fails.";
-const sourceExample = "import * as OpenApiPatch from \"@effect/openapi-generator/OpenApiPatch\"\n\nconst error = new OpenApiPatch.JsonPatchParseError({\n  source: \"./patches/fix.json\",\n  reason: \"Unexpected token at position 42\"\n})\n\nconsole.log(error.message)\n// \"Failed to parse patch from ./patches/fix.json: Unexpected token at position 42\"";
+const sourceExample =
+  'import * as OpenApiPatch from "@effect/openapi-generator/OpenApiPatch"\n\nconst error = new OpenApiPatch.JsonPatchParseError({\n  source: "./patches/fix.json",\n  reason: "Unexpected token at position 42"\n})\n\nconsole.log(error.message)\n// "Failed to parse patch from ./patches/fix.json: Unexpected token at position 42"';
 const moduleRecord = OpenApiPatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

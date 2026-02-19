@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Base64 } from "effect/encoding"
- * 
+ *
  * // Encode a string
  * console.log(Base64.encode("hello")) // "aGVsbG8="
- * 
+ *
  * // Encode binary data
  * const bytes = new Uint8Array([72, 101, 108, 108, 111])
  * console.log(Base64.encode(bytes)) // "SGVsbG8="
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as Base64Module from "effect/encoding/Base64";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as Base64Module from "effect/encoding/Base64";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "encode";
 const exportKind = "const";
 const moduleImportPath = "effect/encoding/Base64";
 const sourceSummary = "Encodes the given value into a base64 (RFC4648) `string`.";
-const sourceExample = "import { Base64 } from \"effect/encoding\"\n\n// Encode a string\nconsole.log(Base64.encode(\"hello\")) // \"aGVsbG8=\"\n\n// Encode binary data\nconst bytes = new Uint8Array([72, 101, 108, 108, 111])\nconsole.log(Base64.encode(bytes)) // \"SGVsbG8=\"";
+const sourceExample =
+  'import { Base64 } from "effect/encoding"\n\n// Encode a string\nconsole.log(Base64.encode("hello")) // "aGVsbG8="\n\n// Encode binary data\nconst bytes = new Uint8Array([72, 101, 108, 108, 111])\nconsole.log(Base64.encode(bytes)) // "SGVsbG8="';
 const moduleRecord = Base64Module as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

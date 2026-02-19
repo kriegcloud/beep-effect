@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, FiberSet } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const set = yield* FiberSet.make<string, string>()
- * 
+ *
  *   // Add fibers to the set
  *   yield* FiberSet.run(set, Effect.succeed("hello"))
  *   yield* FiberSet.run(set, Effect.succeed("world"))
- * 
+ *
  *   // Wait for all fibers to complete
  *   yield* FiberSet.awaitEmpty(set)
  * })
@@ -31,16 +31,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FiberSetModule from "effect/FiberSet";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FiberSetModule from "effect/FiberSet";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,8 +49,10 @@ import {
 const exportName = "FiberSet";
 const exportKind = "interface";
 const moduleImportPath = "effect/FiberSet";
-const sourceSummary = "A FiberSet is a collection of fibers that can be managed together. When the associated Scope is closed, all fibers in the set will be interrupted.";
-const sourceExample = "import { Effect, FiberSet } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const set = yield* FiberSet.make<string, string>()\n\n  // Add fibers to the set\n  yield* FiberSet.run(set, Effect.succeed(\"hello\"))\n  yield* FiberSet.run(set, Effect.succeed(\"world\"))\n\n  // Wait for all fibers to complete\n  yield* FiberSet.awaitEmpty(set)\n})";
+const sourceSummary =
+  "A FiberSet is a collection of fibers that can be managed together. When the associated Scope is closed, all fibers in the set will be interrupted.";
+const sourceExample =
+  'import { Effect, FiberSet } from "effect"\n\nconst program = Effect.gen(function*() {\n  const set = yield* FiberSet.make<string, string>()\n\n  // Add fibers to the set\n  yield* FiberSet.run(set, Effect.succeed("hello"))\n  yield* FiberSet.run(set, Effect.succeed("world"))\n\n  // Wait for all fibers to complete\n  yield* FiberSet.awaitEmpty(set)\n})';
 const moduleRecord = FiberSetModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

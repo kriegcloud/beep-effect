@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { SchemaAST } from "effect"
- * 
+ *
  * const ast = new SchemaAST.Literal("active")
  * console.log(ast.literal) // "active"
  * ```
@@ -22,16 +22,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaASTModule from "effect/SchemaAST";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaASTModule from "effect/SchemaAST";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -40,7 +41,8 @@ const exportName = "Literal";
 const exportKind = "class";
 const moduleImportPath = "effect/SchemaAST";
 const sourceSummary = "AST node matching an exact primitive value (string, number, boolean, or bigint).";
-const sourceExample = "import { SchemaAST } from \"effect\"\n\nconst ast = new SchemaAST.Literal(\"active\")\nconsole.log(ast.literal) // \"active\"";
+const sourceExample =
+  'import { SchemaAST } from "effect"\n\nconst ast = new SchemaAST.Literal("active")\nconsole.log(ast.literal) // "active"';
 const moduleRecord = SchemaASTModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -71,14 +73,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

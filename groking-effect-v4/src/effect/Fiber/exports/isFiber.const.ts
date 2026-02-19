@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Fiber } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create a fiber
  *   const fiber = yield* Effect.forkChild(Effect.succeed(42))
- * 
+ *
  *   // Test if values are fibers
  *   console.log(Fiber.isFiber(fiber)) // true
  *   console.log(Fiber.isFiber("hello")) // false
  *   console.log(Fiber.isFiber(42)) // false
  *   console.log(Fiber.isFiber(null)) // false
- * 
+ *
  *   // Use as a type guard
  *   const maybeValue: unknown = fiber
  *   if (Fiber.isFiber(maybeValue)) {
@@ -38,16 +38,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FiberModule from "effect/Fiber";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FiberModule from "effect/Fiber";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,8 +56,10 @@ import {
 const exportName = "isFiber";
 const exportKind = "const";
 const moduleImportPath = "effect/Fiber";
-const sourceSummary = "Tests if a value is a Fiber. This is a type guard that can be used to determine if an unknown value is a Fiber instance.";
-const sourceExample = "import { Effect, Fiber } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  // Create a fiber\n  const fiber = yield* Effect.forkChild(Effect.succeed(42))\n\n  // Test if values are fibers\n  console.log(Fiber.isFiber(fiber)) // true\n  console.log(Fiber.isFiber(\"hello\")) // false\n  console.log(Fiber.isFiber(42)) // false\n  console.log(Fiber.isFiber(null)) // false\n\n  // Use as a type guard\n  const maybeValue: unknown = fiber\n  if (Fiber.isFiber(maybeValue)) {\n    // TypeScript knows maybeValue is a Fiber here\n    console.log(`Fiber ID: ${maybeValue.id}`)\n  }\n})";
+const sourceSummary =
+  "Tests if a value is a Fiber. This is a type guard that can be used to determine if an unknown value is a Fiber instance.";
+const sourceExample =
+  'import { Effect, Fiber } from "effect"\n\nconst program = Effect.gen(function*() {\n  // Create a fiber\n  const fiber = yield* Effect.forkChild(Effect.succeed(42))\n\n  // Test if values are fibers\n  console.log(Fiber.isFiber(fiber)) // true\n  console.log(Fiber.isFiber("hello")) // false\n  console.log(Fiber.isFiber(42)) // false\n  console.log(Fiber.isFiber(null)) // false\n\n  // Use as a type guard\n  const maybeValue: unknown = fiber\n  if (Fiber.isFiber(maybeValue)) {\n    // TypeScript knows maybeValue is a Fiber here\n    console.log(`Fiber ID: ${maybeValue.id}`)\n  }\n})';
 const moduleRecord = FiberModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -87,14 +90,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

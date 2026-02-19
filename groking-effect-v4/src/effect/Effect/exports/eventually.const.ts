@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect } from "effect"
- * 
+ *
  * let attempts = 0
- * 
+ *
  * const flaky = Effect.gen(function*() {
  *   attempts++
  *   yield* Console.log(`Attempt ${attempts}`)
@@ -25,9 +25,9 @@
  *   }
  *   return "Ready"
  * })
- * 
+ *
  * const program = Effect.eventually(flaky)
- * 
+ *
  * Effect.runPromise(program).then(console.log)
  * // Output:
  * // Attempt 1
@@ -40,16 +40,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -58,7 +59,8 @@ const exportName = "eventually";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Retries an effect until it succeeds, discarding failures.";
-const sourceExample = "import { Console, Effect } from \"effect\"\n\nlet attempts = 0\n\nconst flaky = Effect.gen(function*() {\n  attempts++\n  yield* Console.log(`Attempt ${attempts}`)\n  if (attempts < 3) {\n    yield* Effect.fail(\"Not ready\")\n  }\n  return \"Ready\"\n})\n\nconst program = Effect.eventually(flaky)\n\nEffect.runPromise(program).then(console.log)\n// Output:\n// Attempt 1\n// Attempt 2\n// Attempt 3\n// Ready";
+const sourceExample =
+  'import { Console, Effect } from "effect"\n\nlet attempts = 0\n\nconst flaky = Effect.gen(function*() {\n  attempts++\n  yield* Console.log(`Attempt ${attempts}`)\n  if (attempts < 3) {\n    yield* Effect.fail("Not ready")\n  }\n  return "Ready"\n})\n\nconst program = Effect.eventually(flaky)\n\nEffect.runPromise(program).then(console.log)\n// Output:\n// Attempt 1\n// Attempt 2\n// Attempt 3\n// Ready';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -89,14 +91,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

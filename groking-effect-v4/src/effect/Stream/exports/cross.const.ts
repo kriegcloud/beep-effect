@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Stream } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const left = Stream.make(1, 2)
  *   const right = Stream.make("a", "b")
  *   const values = yield* Stream.runCollect(Stream.cross(left, right))
  *   yield* Console.log(values)
  * })
- * 
+ *
  * Effect.runPromise(program)
  * // Output: [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ], [ 2, "b" ] ]
  * ```
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,8 +48,10 @@ import {
 const exportName = "cross";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
-const sourceSummary = "Creates the cartesian product of two streams, running the `right` stream for each element in the `left` stream.";
-const sourceExample = "import { Console, Effect, Stream } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const left = Stream.make(1, 2)\n  const right = Stream.make(\"a\", \"b\")\n  const values = yield* Stream.runCollect(Stream.cross(left, right))\n  yield* Console.log(values)\n})\n\nEffect.runPromise(program)\n// Output: [ [ 1, \"a\" ], [ 1, \"b\" ], [ 2, \"a\" ], [ 2, \"b\" ] ]";
+const sourceSummary =
+  "Creates the cartesian product of two streams, running the `right` stream for each element in the `left` stream.";
+const sourceExample =
+  'import { Console, Effect, Stream } from "effect"\n\nconst program = Effect.gen(function*() {\n  const left = Stream.make(1, 2)\n  const right = Stream.make("a", "b")\n  const values = yield* Stream.runCollect(Stream.cross(left, right))\n  yield* Console.log(values)\n})\n\nEffect.runPromise(program)\n// Output: [ [ 1, "a" ], [ 1, "b" ], [ 2, "a" ], [ 2, "b" ] ]';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

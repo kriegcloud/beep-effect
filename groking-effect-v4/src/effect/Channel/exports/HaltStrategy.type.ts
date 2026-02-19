@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Channel } from "effect"
- * 
+ *
  * // Different halt strategies for channel merging
  * const leftFirst: Channel.HaltStrategy = "left" // Stop when left channel halts
  * const rightFirst: Channel.HaltStrategy = "right" // Stop when right channel halts
@@ -26,16 +26,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "HaltStrategy";
 const exportKind = "type";
 const moduleImportPath = "effect/Channel";
 const sourceSummary = "Represents strategies for halting merged channels when one completes or fails.";
-const sourceExample = "import type { Channel } from \"effect\"\n\n// Different halt strategies for channel merging\nconst leftFirst: Channel.HaltStrategy = \"left\" // Stop when left channel halts\nconst rightFirst: Channel.HaltStrategy = \"right\" // Stop when right channel halts\nconst both: Channel.HaltStrategy = \"both\" // Stop when both channels halt\nconst either: Channel.HaltStrategy = \"either\" // Stop when either channel halts";
+const sourceExample =
+  'import type { Channel } from "effect"\n\n// Different halt strategies for channel merging\nconst leftFirst: Channel.HaltStrategy = "left" // Stop when left channel halts\nconst rightFirst: Channel.HaltStrategy = "right" // Stop when right channel halts\nconst both: Channel.HaltStrategy = "both" // Stop when both channels halt\nconst either: Channel.HaltStrategy = "either" // Stop when either channel halts';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

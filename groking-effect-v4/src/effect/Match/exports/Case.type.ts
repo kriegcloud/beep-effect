@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Match } from "effect"
- * 
+ *
  * // Case is a union type representing pattern matching cases
  * // It combines When (positive) and Not (negative) matching logic
- * 
+ *
  * // When you write this:
  * // Match.when(pattern, handler)  // Creates a When case
  * // Match.not(pattern, handler)   // Creates a Not case
- * 
+ *
  * // The Match module internally uses Case = When | Not
  * type MyCaseType = Match.Case // When | Not
  * ```
@@ -30,16 +30,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MatchModule from "effect/Match";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MatchModule from "effect/Match";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +49,8 @@ const exportName = "Case";
 const exportKind = "type";
 const moduleImportPath = "effect/Match";
 const sourceSummary = "Represents a single pattern matching case.";
-const sourceExample = "import type { Match } from \"effect\"\n\n// Case is a union type representing pattern matching cases\n// It combines When (positive) and Not (negative) matching logic\n\n// When you write this:\n// Match.when(pattern, handler)  // Creates a When case\n// Match.not(pattern, handler)   // Creates a Not case\n\n// The Match module internally uses Case = When | Not\ntype MyCaseType = Match.Case // When | Not";
+const sourceExample =
+  'import type { Match } from "effect"\n\n// Case is a union type representing pattern matching cases\n// It combines When (positive) and Not (negative) matching logic\n\n// When you write this:\n// Match.when(pattern, handler)  // Creates a When case\n// Match.not(pattern, handler)   // Creates a Not case\n\n// The Match module internally uses Case = When | Not\ntype MyCaseType = Match.Case // When | Not';
 const moduleRecord = MatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

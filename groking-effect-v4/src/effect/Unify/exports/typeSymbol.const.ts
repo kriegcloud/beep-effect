@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Unify } from "effect"
- * 
+ *
  * // The typeSymbol is used internally in Effect types
  * // to store type information for unification
  * declare const effect: {
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as UnifyModule from "effect/Unify";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as UnifyModule from "effect/Unify";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "typeSymbol";
 const exportKind = "const";
 const moduleImportPath = "effect/Unify";
 const sourceSummary = "A unique symbol used to identify the type information for unification.";
-const sourceExample = "import type { Unify } from \"effect\"\n\n// The typeSymbol is used internally in Effect types\n// to store type information for unification\ndeclare const effect: {\n  readonly [Unify.typeSymbol]?: any\n}";
+const sourceExample =
+  'import type { Unify } from "effect"\n\n// The typeSymbol is used internally in Effect types\n// to store type information for unification\ndeclare const effect: {\n  readonly [Unify.typeSymbol]?: any\n}';
 const moduleRecord = UnifyModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

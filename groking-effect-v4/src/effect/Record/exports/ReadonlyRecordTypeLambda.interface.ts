@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Record } from "effect"
- * 
+ *
  * // The type lambda allows records to be used as higher-kinded types
  * type RecordTypeLambda = Record.ReadonlyRecordTypeLambda<"key1" | "key2">
- * 
+ *
  * // This enables mapping over the type parameter
  * type StringRecord = RecordTypeLambda["type"] // ReadonlyRecord<"key1" | "key2", Target>
  * ```
@@ -26,16 +26,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RecordModule from "effect/Record";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RecordModule from "effect/Record";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,8 +44,10 @@ import {
 const exportName = "ReadonlyRecordTypeLambda";
 const exportKind = "interface";
 const moduleImportPath = "effect/Record";
-const sourceSummary = "Type lambda for readonly records, used in higher-kinded type operations. This enables records to work with generic type constructors and functors.";
-const sourceExample = "import type { Record } from \"effect\"\n\n// The type lambda allows records to be used as higher-kinded types\ntype RecordTypeLambda = Record.ReadonlyRecordTypeLambda<\"key1\" | \"key2\">\n\n// This enables mapping over the type parameter\ntype StringRecord = RecordTypeLambda[\"type\"] // ReadonlyRecord<\"key1\" | \"key2\", Target>";
+const sourceSummary =
+  "Type lambda for readonly records, used in higher-kinded type operations. This enables records to work with generic type constructors and functors.";
+const sourceExample =
+  'import type { Record } from "effect"\n\n// The type lambda allows records to be used as higher-kinded types\ntype RecordTypeLambda = Record.ReadonlyRecordTypeLambda<"key1" | "key2">\n\n// This enables mapping over the type parameter\ntype StringRecord = RecordTypeLambda["type"] // ReadonlyRecord<"key1" | "key2", Target>';
 const moduleRecord = RecordModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, FiberSet } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const runPromise = yield* FiberSet.makeRuntimePromise()
- * 
+ *
  *   // Run effects as promises
  *   const promise1 = runPromise(Effect.succeed("hello"))
  *   const promise2 = runPromise(Effect.succeed("world"))
- * 
+ *
  *   const result1 = yield* Effect.promise(() => promise1)
  *   const result2 = yield* Effect.promise(() => promise2)
- * 
+ *
  *   console.log(result1, result2) // "hello" "world"
  * })
  * ```
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FiberSetModule from "effect/FiberSet";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FiberSetModule from "effect/FiberSet";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "makeRuntimePromise";
 const exportKind = "const";
 const moduleImportPath = "effect/FiberSet";
-const sourceSummary = "Create an Effect run function that is backed by a FiberSet. The returned run function will return Promise's.";
-const sourceExample = "import { Effect, FiberSet } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const runPromise = yield* FiberSet.makeRuntimePromise()\n\n  // Run effects as promises\n  const promise1 = runPromise(Effect.succeed(\"hello\"))\n  const promise2 = runPromise(Effect.succeed(\"world\"))\n\n  const result1 = yield* Effect.promise(() => promise1)\n  const result2 = yield* Effect.promise(() => promise2)\n\n  console.log(result1, result2) // \"hello\" \"world\"\n})";
+const sourceSummary =
+  "Create an Effect run function that is backed by a FiberSet. The returned run function will return Promise's.";
+const sourceExample =
+  'import { Effect, FiberSet } from "effect"\n\nconst program = Effect.gen(function*() {\n  const runPromise = yield* FiberSet.makeRuntimePromise()\n\n  // Run effects as promises\n  const promise1 = runPromise(Effect.succeed("hello"))\n  const promise2 = runPromise(Effect.succeed("world"))\n\n  const result1 = yield* Effect.promise(() => promise1)\n  const result2 = yield* Effect.promise(() => promise2)\n\n  console.log(result1, result2) // "hello" "world"\n})';
 const moduleRecord = FiberSetModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

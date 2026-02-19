@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect } from "effect"
- * 
+ *
  * let i = 1
  * const expensiveTask = Effect.promise<string>(() => {
  *   console.log("expensive task...")
@@ -24,7 +24,7 @@
  *     }, 100)
  *   })
  * })
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const [cached, invalidate] = yield* Effect.cachedInvalidateWithTTL(
  *     expensiveTask,
@@ -35,7 +35,7 @@
  *   yield* invalidate
  *   yield* cached.pipe(Effect.andThen(Console.log))
  * })
- * 
+ *
  * Effect.runFork(program)
  * // Output:
  * // expensive task...
@@ -49,16 +49,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -66,8 +67,10 @@ import {
 const exportName = "cachedInvalidateWithTTL";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
-const sourceSummary = "Caches an effect's result for a specified duration and allows manual invalidation before expiration.";
-const sourceExample = "import { Console, Effect } from \"effect\"\n\nlet i = 1\nconst expensiveTask = Effect.promise<string>(() => {\n  console.log(\"expensive task...\")\n  return new Promise((resolve) => {\n    setTimeout(() => {\n      resolve(`result ${i++}`)\n    }, 100)\n  })\n})\n\nconst program = Effect.gen(function*() {\n  const [cached, invalidate] = yield* Effect.cachedInvalidateWithTTL(\n    expensiveTask,\n    \"1 hour\"\n  )\n  yield* cached.pipe(Effect.andThen(Console.log))\n  yield* cached.pipe(Effect.andThen(Console.log))\n  yield* invalidate\n  yield* cached.pipe(Effect.andThen(Console.log))\n})\n\nEffect.runFork(program)\n// Output:\n// expensive task...\n// result 1\n// result 1\n// expensive task...\n// result 2";
+const sourceSummary =
+  "Caches an effect's result for a specified duration and allows manual invalidation before expiration.";
+const sourceExample =
+  'import { Console, Effect } from "effect"\n\nlet i = 1\nconst expensiveTask = Effect.promise<string>(() => {\n  console.log("expensive task...")\n  return new Promise((resolve) => {\n    setTimeout(() => {\n      resolve(`result ${i++}`)\n    }, 100)\n  })\n})\n\nconst program = Effect.gen(function*() {\n  const [cached, invalidate] = yield* Effect.cachedInvalidateWithTTL(\n    expensiveTask,\n    "1 hour"\n  )\n  yield* cached.pipe(Effect.andThen(Console.log))\n  yield* cached.pipe(Effect.andThen(Console.log))\n  yield* invalidate\n  yield* cached.pipe(Effect.andThen(Console.log))\n})\n\nEffect.runFork(program)\n// Output:\n// expensive task...\n// result 1\n// result 1\n// expensive task...\n// result 2';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -98,14 +101,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

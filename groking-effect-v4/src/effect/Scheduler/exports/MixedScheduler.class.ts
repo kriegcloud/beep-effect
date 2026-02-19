@@ -14,26 +14,26 @@
  * Source JSDoc Example:
  * ```ts
  * import { MixedScheduler } from "effect/Scheduler"
- * 
+ *
  * // Create a mixed scheduler with async execution (default)
  * const asyncScheduler = new MixedScheduler("async")
- * 
+ *
  * // Create a mixed scheduler with sync execution
  * const syncScheduler = new MixedScheduler("sync")
- * 
+ *
  * // Schedule tasks with different priorities
  * asyncScheduler.scheduleTask(() => console.log("High priority task"), 10)
  * asyncScheduler.scheduleTask(() => console.log("Normal priority task"), 0)
  * asyncScheduler.scheduleTask(() => console.log("Low priority task"), -1)
- * 
+ *
  * // For sync scheduler, you can flush tasks immediately
  * syncScheduler.scheduleTask(() => console.log("Task 1"), 0)
  * syncScheduler.scheduleTask(() => console.log("Task 2"), 0)
- * 
+ *
  * // Force flush all pending tasks in sync mode
  * syncScheduler.flush()
  * // Output: "Task 1", "Task 2"
- * 
+ *
  * // Check execution mode
  * console.log(asyncScheduler.executionMode) // "async"
  * console.log(syncScheduler.executionMode) // "sync"
@@ -42,16 +42,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchedulerModule from "effect/Scheduler";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchedulerModule from "effect/Scheduler";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -59,8 +60,10 @@ import {
 const exportName = "MixedScheduler";
 const exportKind = "class";
 const moduleImportPath = "effect/Scheduler";
-const sourceSummary = "A scheduler implementation that provides efficient task scheduling with support for both synchronous and asynchronous execution modes.";
-const sourceExample = "import { MixedScheduler } from \"effect/Scheduler\"\n\n// Create a mixed scheduler with async execution (default)\nconst asyncScheduler = new MixedScheduler(\"async\")\n\n// Create a mixed scheduler with sync execution\nconst syncScheduler = new MixedScheduler(\"sync\")\n\n// Schedule tasks with different priorities\nasyncScheduler.scheduleTask(() => console.log(\"High priority task\"), 10)\nasyncScheduler.scheduleTask(() => console.log(\"Normal priority task\"), 0)\nasyncScheduler.scheduleTask(() => console.log(\"Low priority task\"), -1)\n\n// For sync scheduler, you can flush tasks immediately\nsyncScheduler.scheduleTask(() => console.log(\"Task 1\"), 0)\nsyncScheduler.scheduleTask(() => console.log(\"Task 2\"), 0)\n\n// Force flush all pending tasks in sync mode\nsyncScheduler.flush()\n// Output: \"Task 1\", \"Task 2\"\n\n// Check execution mode\nconsole.log(asyncScheduler.executionMode) // \"async\"\nconsole.log(syncScheduler.executionMode) // \"sync\"";
+const sourceSummary =
+  "A scheduler implementation that provides efficient task scheduling with support for both synchronous and asynchronous execution modes.";
+const sourceExample =
+  'import { MixedScheduler } from "effect/Scheduler"\n\n// Create a mixed scheduler with async execution (default)\nconst asyncScheduler = new MixedScheduler("async")\n\n// Create a mixed scheduler with sync execution\nconst syncScheduler = new MixedScheduler("sync")\n\n// Schedule tasks with different priorities\nasyncScheduler.scheduleTask(() => console.log("High priority task"), 10)\nasyncScheduler.scheduleTask(() => console.log("Normal priority task"), 0)\nasyncScheduler.scheduleTask(() => console.log("Low priority task"), -1)\n\n// For sync scheduler, you can flush tasks immediately\nsyncScheduler.scheduleTask(() => console.log("Task 1"), 0)\nsyncScheduler.scheduleTask(() => console.log("Task 2"), 0)\n\n// Force flush all pending tasks in sync mode\nsyncScheduler.flush()\n// Output: "Task 1", "Task 2"\n\n// Check execution mode\nconsole.log(asyncScheduler.executionMode) // "async"\nconsole.log(syncScheduler.executionMode) // "sync"';
 const moduleRecord = SchedulerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -91,14 +94,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

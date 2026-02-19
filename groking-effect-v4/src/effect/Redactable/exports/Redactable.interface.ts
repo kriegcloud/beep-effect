@@ -15,16 +15,16 @@
  * ```ts
  * import type { ServiceMap } from "effect"
  * import { Redactable } from "effect"
- * 
+ *
  * class SensitiveData implements Redactable.Redactable {
  *   constructor(private secret: string) {}
- * 
+ *
  *   [Redactable.symbolRedactable](context: ServiceMap.ServiceMap<never>) {
  *     // In production, hide the actual secret
  *     return { secret: "[REDACTED]" }
  *   }
  * }
- * 
+ *
  * const data = new SensitiveData("my-secret-key")
  * // The redacted version will be used when converting to JSON in certain contexts
  * ```
@@ -33,16 +33,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RedactableModule from "effect/Redactable";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RedactableModule from "effect/Redactable";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,7 +52,8 @@ const exportName = "Redactable";
 const exportKind = "interface";
 const moduleImportPath = "effect/Redactable";
 const sourceSummary = "Interface for objects that can provide redacted representations.";
-const sourceExample = "import type { ServiceMap } from \"effect\"\nimport { Redactable } from \"effect\"\n\nclass SensitiveData implements Redactable.Redactable {\n  constructor(private secret: string) {}\n\n  [Redactable.symbolRedactable](context: ServiceMap.ServiceMap<never>) {\n    // In production, hide the actual secret\n    return { secret: \"[REDACTED]\" }\n  }\n}\n\nconst data = new SensitiveData(\"my-secret-key\")\n// The redacted version will be used when converting to JSON in certain contexts";
+const sourceExample =
+  'import type { ServiceMap } from "effect"\nimport { Redactable } from "effect"\n\nclass SensitiveData implements Redactable.Redactable {\n  constructor(private secret: string) {}\n\n  [Redactable.symbolRedactable](context: ServiceMap.ServiceMap<never>) {\n    // In production, hide the actual secret\n    return { secret: "[REDACTED]" }\n  }\n}\n\nconst data = new SensitiveData("my-secret-key")\n// The redacted version will be used when converting to JSON in certain contexts';
 const moduleRecord = RedactableModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

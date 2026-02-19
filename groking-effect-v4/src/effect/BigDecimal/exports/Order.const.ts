@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { BigDecimal } from "effect"
- * 
+ *
  * const a = BigDecimal.fromNumberUnsafe(1.5)
  * const b = BigDecimal.fromNumberUnsafe(2.3)
  * const c = BigDecimal.fromNumberUnsafe(1.5)
- * 
+ *
  * console.log(BigDecimal.Order(a, b)) // -1 (a < b)
  * console.log(BigDecimal.Order(b, a)) // 1 (b > a)
  * console.log(BigDecimal.Order(a, c)) // 0 (a === c)
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BigDecimalModule from "effect/BigDecimal";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BigDecimalModule from "effect/BigDecimal";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,8 +46,10 @@ import {
 const exportName = "Order";
 const exportKind = "const";
 const moduleImportPath = "effect/BigDecimal";
-const sourceSummary = "Provides an `Order` instance for `BigDecimal` that allows comparing and sorting BigDecimal values.";
-const sourceExample = "import { BigDecimal } from \"effect\"\n\nconst a = BigDecimal.fromNumberUnsafe(1.5)\nconst b = BigDecimal.fromNumberUnsafe(2.3)\nconst c = BigDecimal.fromNumberUnsafe(1.5)\n\nconsole.log(BigDecimal.Order(a, b)) // -1 (a < b)\nconsole.log(BigDecimal.Order(b, a)) // 1 (b > a)\nconsole.log(BigDecimal.Order(a, c)) // 0 (a === c)";
+const sourceSummary =
+  "Provides an `Order` instance for `BigDecimal` that allows comparing and sorting BigDecimal values.";
+const sourceExample =
+  'import { BigDecimal } from "effect"\n\nconst a = BigDecimal.fromNumberUnsafe(1.5)\nconst b = BigDecimal.fromNumberUnsafe(2.3)\nconst c = BigDecimal.fromNumberUnsafe(1.5)\n\nconsole.log(BigDecimal.Order(a, b)) // -1 (a < b)\nconsole.log(BigDecimal.Order(b, a)) // 1 (b > a)\nconsole.log(BigDecimal.Order(a, c)) // 0 (a === c)';
 const moduleRecord = BigDecimalModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

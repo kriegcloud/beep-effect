@@ -17,16 +17,14 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
+
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportConstructor
-} from "@beep/groking-effect-v4/runtime/Playground";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ServiceMap from "effect/ServiceMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,9 +44,28 @@ const exampleClassDiscovery = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleConstructionProbe = Effect.gen(function* () {
-  yield* Console.log("Attempt a zero-arg construction probe.");
-  yield* probeNamedExportConstructor({ moduleRecord, exportName });
+const exampleAnnotationRoundTrip = Effect.gen(function* () {
+  yield* Console.log("Round-trip StackTrace through reason annotations with safe lookup.");
+
+  const deterministicFrame = {
+    name: "demo-failure-frame",
+    stack: () => "Error: boom\n    at demo-failure-frame (demo.ts:10:3)",
+    parent: undefined,
+  };
+
+  const annotatedCause = CauseModule.annotate(
+    CauseModule.fail("boom"),
+    ServiceMap.make(CauseModule.StackTrace, deterministicFrame)
+  );
+  const firstReason = annotatedCause.reasons[0];
+  const annotations = firstReason === undefined ? undefined : CauseModule.reasonAnnotations(firstReason);
+  const restoredFrame =
+    annotations === undefined ? undefined : ServiceMap.getOrUndefined(annotations, CauseModule.StackTrace);
+  const missingInterruptorFrame =
+    annotations === undefined ? undefined : ServiceMap.getOrUndefined(annotations, CauseModule.InterruptorStackTrace);
+
+  yield* Console.log(`StackTrace frame: ${restoredFrame?.name ?? "missing"}`);
+  yield* Console.log(`InterruptorStackTrace present: ${missingInterruptorFrame !== undefined}`);
 });
 
 /* ========================================================================== *
@@ -66,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
-      title: "Zero-Arg Construction Probe",
-      description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      title: "Annotation Key Round-Trip",
+      description: "Use StackTrace as a ServiceMap annotation key and retrieve it safely.",
+      run: exampleAnnotationRoundTrip,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

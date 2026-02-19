@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Logger } from "effect"
- * 
+ *
  * // Create a custom formatter
  * const customFormatter = Logger.make((options) =>
  *   `[${options.date.toISOString()}] ${options.logLevel}: ${options.message}`
  * )
- * 
+ *
  * // Route to console
  * const consoleLogger = Logger.withConsoleLog(customFormatter)
- * 
+ *
  * const program = Effect.log("Hello World").pipe(
  *   Effect.provide(Logger.layer([consoleLogger]))
  * )
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LoggerModule from "effect/Logger";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LoggerModule from "effect/Logger";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,8 +50,10 @@ import {
 const exportName = "withConsoleLog";
 const exportKind = "const";
 const moduleImportPath = "effect/Logger";
-const sourceSummary = "Returns a new `Logger` that writes all output of the specified `Logger` to the console using `console.log`.";
-const sourceExample = "import { Effect, Logger } from \"effect\"\n\n// Create a custom formatter\nconst customFormatter = Logger.make((options) =>\n  `[${options.date.toISOString()}] ${options.logLevel}: ${options.message}`\n)\n\n// Route to console\nconst consoleLogger = Logger.withConsoleLog(customFormatter)\n\nconst program = Effect.log(\"Hello World\").pipe(\n  Effect.provide(Logger.layer([consoleLogger]))\n)";
+const sourceSummary =
+  "Returns a new `Logger` that writes all output of the specified `Logger` to the console using `console.log`.";
+const sourceExample =
+  'import { Effect, Logger } from "effect"\n\n// Create a custom formatter\nconst customFormatter = Logger.make((options) =>\n  `[${options.date.toISOString()}] ${options.logLevel}: ${options.message}`\n)\n\n// Route to console\nconst consoleLogger = Logger.withConsoleLog(customFormatter)\n\nconst program = Effect.log("Hello World").pipe(\n  Effect.provide(Logger.layer([consoleLogger]))\n)';
 const moduleRecord = LoggerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

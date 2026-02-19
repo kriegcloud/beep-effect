@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { BigInt } from "effect"
- * 
+ *
  * BigInt.sqrt(4n) // 2n
  * BigInt.sqrt(9n) // 3n
  * BigInt.sqrt(16n) // 4n
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BigIntModule from "effect/BigInt";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BigIntModule from "effect/BigInt";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,8 +43,10 @@ import {
 const exportName = "sqrt";
 const exportKind = "const";
 const moduleImportPath = "effect/BigInt";
-const sourceSummary = "Determines the square root of a given `bigint` safely. Returns `undefined` if the given `bigint` is negative.";
-const sourceExample = "import { BigInt } from \"effect\"\n\nBigInt.sqrt(4n) // 2n\nBigInt.sqrt(9n) // 3n\nBigInt.sqrt(16n) // 4n\nBigInt.sqrt(-1n) // undefined";
+const sourceSummary =
+  "Determines the square root of a given `bigint` safely. Returns `undefined` if the given `bigint` is negative.";
+const sourceExample =
+  'import { BigInt } from "effect"\n\nBigInt.sqrt(4n) // 2n\nBigInt.sqrt(9n) // 3n\nBigInt.sqrt(16n) // 4n\nBigInt.sqrt(-1n) // undefined';
 const moduleRecord = BigIntModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

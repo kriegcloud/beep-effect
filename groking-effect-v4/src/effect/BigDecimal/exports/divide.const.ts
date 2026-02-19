@@ -15,7 +15,7 @@
  * ```ts
  * import { BigDecimal } from "effect"
  * import * as assert from "node:assert"
- * 
+ *
  * assert.deepStrictEqual(
  *   BigDecimal.divide(
  *     BigDecimal.fromStringUnsafe("6"),
@@ -43,16 +43,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BigDecimalModule from "effect/BigDecimal";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BigDecimalModule from "effect/BigDecimal";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -61,7 +62,8 @@ const exportName = "divide";
 const exportKind = "const";
 const moduleImportPath = "effect/BigDecimal";
 const sourceSummary = "Provides a division operation on `BigDecimal`s.";
-const sourceExample = "import { BigDecimal } from \"effect\"\nimport * as assert from \"node:assert\"\n\nassert.deepStrictEqual(\n  BigDecimal.divide(\n    BigDecimal.fromStringUnsafe(\"6\"),\n    BigDecimal.fromStringUnsafe(\"3\")\n  ),\n  BigDecimal.fromStringUnsafe(\"2\")\n)\nassert.deepStrictEqual(\n  BigDecimal.divide(\n    BigDecimal.fromStringUnsafe(\"6\"),\n    BigDecimal.fromStringUnsafe(\"4\")\n  ),\n  BigDecimal.fromStringUnsafe(\"1.5\")\n)\nassert.deepStrictEqual(\n  BigDecimal.divide(\n    BigDecimal.fromStringUnsafe(\"6\"),\n    BigDecimal.fromStringUnsafe(\"0\")\n  ),\n  undefined\n)";
+const sourceExample =
+  'import { BigDecimal } from "effect"\nimport * as assert from "node:assert"\n\nassert.deepStrictEqual(\n  BigDecimal.divide(\n    BigDecimal.fromStringUnsafe("6"),\n    BigDecimal.fromStringUnsafe("3")\n  ),\n  BigDecimal.fromStringUnsafe("2")\n)\nassert.deepStrictEqual(\n  BigDecimal.divide(\n    BigDecimal.fromStringUnsafe("6"),\n    BigDecimal.fromStringUnsafe("4")\n  ),\n  BigDecimal.fromStringUnsafe("1.5")\n)\nassert.deepStrictEqual(\n  BigDecimal.divide(\n    BigDecimal.fromStringUnsafe("6"),\n    BigDecimal.fromStringUnsafe("0")\n  ),\n  undefined\n)';
 const moduleRecord = BigDecimalModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -92,14 +94,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

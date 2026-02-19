@@ -15,23 +15,23 @@
  * ```ts
  * import { Effect } from "effect"
  * import * as PubSub from "effect/PubSub"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create PubSub with sliding strategy
  *   const pubsub = yield* PubSub.sliding<string>(2)
- * 
+ *
  *   // Or explicitly create with sliding strategy
  *   const customPubsub = yield* PubSub.make<string>({
  *     atomicPubSub: () => PubSub.makeAtomicBounded(2),
  *     strategy: () => new PubSub.SlidingStrategy()
  *   })
- * 
+ *
  *   // Publish messages that exceed capacity
  *   yield* PubSub.publish(pubsub, "msg1") // stored
  *   yield* PubSub.publish(pubsub, "msg2") // stored
  *   yield* PubSub.publish(pubsub, "msg3") // "msg1" evicted, "msg3" stored
  *   yield* PubSub.publish(pubsub, "msg4") // "msg2" evicted, "msg4" stored
- * 
+ *
  *   // Subscribers will see the most recent messages
  *   yield* Effect.scoped(Effect.gen(function*() {
  *     const subscription = yield* PubSub.subscribe(pubsub)
@@ -44,16 +44,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PubSubModule from "effect/PubSub";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PubSubModule from "effect/PubSub";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -61,8 +62,10 @@ import {
 const exportName = "SlidingStrategy";
 const exportKind = "class";
 const moduleImportPath = "effect/PubSub";
-const sourceSummary = "A strategy that adds new messages and drops old messages when the `PubSub` is at capacity. This guarantees that a slow subscriber will not slow down the rate at which messages a...";
-const sourceExample = "import { Effect } from \"effect\"\nimport * as PubSub from \"effect/PubSub\"\n\nconst program = Effect.gen(function*() {\n  // Create PubSub with sliding strategy\n  const pubsub = yield* PubSub.sliding<string>(2)\n\n  // Or explicitly create with sliding strategy\n  const customPubsub = yield* PubSub.make<string>({\n    atomicPubSub: () => PubSub.makeAtomicBounded(2),\n    strategy: () => new PubSub.SlidingStrategy()\n  })\n\n  // Publish messages that exceed capacity\n  yield* PubSub.publish(pubsub, \"msg1\") // stored\n  yield* PubSub.publish(pubsub, \"msg2\") // stored\n  yield* PubSub.publish(pubsub, \"msg3\") // \"msg1\" evicted, \"msg3\" stored\n  yield* PubSub.publish(pubsub, \"msg4\") // \"msg2\" evicted, \"msg4\" stored\n\n  // Subscribers will see the most recent messages\n  yield* Effect.scoped(Effect.gen(function*() {\n    const subscription = yield* PubSub.subscribe(pubsub)\n    const messages = yield* PubSub.takeAll(subscription)\n    console.log(\"Recent messages:\", messages) // [\"msg3\", \"msg4\"]\n  }))\n})";
+const sourceSummary =
+  "A strategy that adds new messages and drops old messages when the `PubSub` is at capacity. This guarantees that a slow subscriber will not slow down the rate at which messages a...";
+const sourceExample =
+  'import { Effect } from "effect"\nimport * as PubSub from "effect/PubSub"\n\nconst program = Effect.gen(function*() {\n  // Create PubSub with sliding strategy\n  const pubsub = yield* PubSub.sliding<string>(2)\n\n  // Or explicitly create with sliding strategy\n  const customPubsub = yield* PubSub.make<string>({\n    atomicPubSub: () => PubSub.makeAtomicBounded(2),\n    strategy: () => new PubSub.SlidingStrategy()\n  })\n\n  // Publish messages that exceed capacity\n  yield* PubSub.publish(pubsub, "msg1") // stored\n  yield* PubSub.publish(pubsub, "msg2") // stored\n  yield* PubSub.publish(pubsub, "msg3") // "msg1" evicted, "msg3" stored\n  yield* PubSub.publish(pubsub, "msg4") // "msg2" evicted, "msg4" stored\n\n  // Subscribers will see the most recent messages\n  yield* Effect.scoped(Effect.gen(function*() {\n    const subscription = yield* PubSub.subscribe(pubsub)\n    const messages = yield* PubSub.takeAll(subscription)\n    console.log("Recent messages:", messages) // ["msg3", "msg4"]\n  }))\n})';
 const moduleRecord = PubSubModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -93,14 +96,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

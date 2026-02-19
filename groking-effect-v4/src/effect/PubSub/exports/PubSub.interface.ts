@@ -15,15 +15,15 @@
  * ```ts
  * import { Effect } from "effect"
  * import * as PubSub from "effect/PubSub"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create a bounded PubSub with capacity 10
  *   const pubsub = yield* PubSub.bounded<string>(10)
- * 
+ *
  *   // Publish messages
  *   yield* PubSub.publish(pubsub, "Hello")
  *   yield* PubSub.publish(pubsub, "World")
- * 
+ *
  *   // Subscribe and consume messages
  *   yield* Effect.scoped(Effect.gen(function*() {
  *     const subscription = yield* PubSub.subscribe(pubsub)
@@ -38,16 +38,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PubSubModule from "effect/PubSub";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PubSubModule from "effect/PubSub";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,8 +56,10 @@ import {
 const exportName = "PubSub";
 const exportKind = "interface";
 const moduleImportPath = "effect/PubSub";
-const sourceSummary = "A `PubSub<A>` is an asynchronous message hub into which publishers can publish messages of type `A` and subscribers can subscribe to take messages of type `A`.";
-const sourceExample = "import { Effect } from \"effect\"\nimport * as PubSub from \"effect/PubSub\"\n\nconst program = Effect.gen(function*() {\n  // Create a bounded PubSub with capacity 10\n  const pubsub = yield* PubSub.bounded<string>(10)\n\n  // Publish messages\n  yield* PubSub.publish(pubsub, \"Hello\")\n  yield* PubSub.publish(pubsub, \"World\")\n\n  // Subscribe and consume messages\n  yield* Effect.scoped(Effect.gen(function*() {\n    const subscription = yield* PubSub.subscribe(pubsub)\n    const message1 = yield* PubSub.take(subscription)\n    const message2 = yield* PubSub.take(subscription)\n    console.log(message1, message2) // \"Hello\", \"World\"\n  }))\n})";
+const sourceSummary =
+  "A `PubSub<A>` is an asynchronous message hub into which publishers can publish messages of type `A` and subscribers can subscribe to take messages of type `A`.";
+const sourceExample =
+  'import { Effect } from "effect"\nimport * as PubSub from "effect/PubSub"\n\nconst program = Effect.gen(function*() {\n  // Create a bounded PubSub with capacity 10\n  const pubsub = yield* PubSub.bounded<string>(10)\n\n  // Publish messages\n  yield* PubSub.publish(pubsub, "Hello")\n  yield* PubSub.publish(pubsub, "World")\n\n  // Subscribe and consume messages\n  yield* Effect.scoped(Effect.gen(function*() {\n    const subscription = yield* PubSub.subscribe(pubsub)\n    const message1 = yield* PubSub.take(subscription)\n    const message2 = yield* PubSub.take(subscription)\n    console.log(message1, message2) // "Hello", "World"\n  }))\n})';
 const moduleRecord = PubSubModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -87,14 +90,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, RcRef } from "effect"
- * 
+ *
  * Effect.gen(function*() {
  *   const ref = yield* RcRef.make({
  *     acquire: Effect.acquireRelease(
@@ -22,7 +22,7 @@
  *       () => Effect.log("release foo")
  *     )
  *   })
- * 
+ *
  *   // will only acquire the resource once, and release it
  *   // when the scope is closed
  *   yield* RcRef.get(ref).pipe(
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RcRefModule from "effect/RcRef";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RcRefModule from "effect/RcRef";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "make";
 const exportKind = "const";
 const moduleImportPath = "effect/RcRef";
 const sourceSummary = "Create an `RcRef` from an acquire `Effect`.";
-const sourceExample = "import { Effect, RcRef } from \"effect\"\n\nEffect.gen(function*() {\n  const ref = yield* RcRef.make({\n    acquire: Effect.acquireRelease(\n      Effect.succeed(\"foo\"),\n      () => Effect.log(\"release foo\")\n    )\n  })\n\n  // will only acquire the resource once, and release it\n  // when the scope is closed\n  yield* RcRef.get(ref).pipe(\n    Effect.andThen(RcRef.get(ref)),\n    Effect.scoped\n  )\n})";
+const sourceExample =
+  'import { Effect, RcRef } from "effect"\n\nEffect.gen(function*() {\n  const ref = yield* RcRef.make({\n    acquire: Effect.acquireRelease(\n      Effect.succeed("foo"),\n      () => Effect.log("release foo")\n    )\n  })\n\n  // will only acquire the resource once, and release it\n  // when the scope is closed\n  yield* RcRef.get(ref).pipe(\n    Effect.andThen(RcRef.get(ref)),\n    Effect.scoped\n  )\n})';
 const moduleRecord = RcRefModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

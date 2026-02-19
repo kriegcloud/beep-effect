@@ -14,29 +14,30 @@
  * Source JSDoc Example:
  * ```ts
  * import { ConfigProvider } from "effect"
- * 
+ *
  * const contents = `
  * HOST=localhost
  * PORT=3000
  * # this is a comment
  * `
- * 
+ *
  * const provider = ConfigProvider.fromDotEnvContents(contents)
  * ```
  *
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ConfigProviderModule from "effect/ConfigProvider";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ConfigProviderModule from "effect/ConfigProvider";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "fromDotEnvContents";
 const exportKind = "function";
 const moduleImportPath = "effect/ConfigProvider";
 const sourceSummary = "Creates a `ConfigProvider` by parsing the string contents of a `.env` file.";
-const sourceExample = "import { ConfigProvider } from \"effect\"\n\nconst contents = `\nHOST=localhost\nPORT=3000\n# this is a comment\n`\n\nconst provider = ConfigProvider.fromDotEnvContents(contents)";
+const sourceExample =
+  'import { ConfigProvider } from "effect"\n\nconst contents = `\nHOST=localhost\nPORT=3000\n# this is a comment\n`\n\nconst provider = ConfigProvider.fromDotEnvContents(contents)';
 const moduleRecord = ConfigProviderModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

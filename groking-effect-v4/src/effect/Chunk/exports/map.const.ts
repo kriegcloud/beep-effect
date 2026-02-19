@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const result = Chunk.map(Chunk.make(1, 2), (n) => n + 1)
- * 
+ *
  * console.log(result)
  * // { _id: 'Chunk', values: [ 2, 3 ] }
  * ```
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,8 +43,10 @@ import {
 const exportName = "map";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
-const sourceSummary = "Transforms the elements of a chunk using the specified mapping function. If the input chunk is non-empty, the resulting chunk will also be non-empty.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst result = Chunk.map(Chunk.make(1, 2), (n) => n + 1)\n\nconsole.log(result)\n// { _id: 'Chunk', values: [ 2, 3 ] }";
+const sourceSummary =
+  "Transforms the elements of a chunk using the specified mapping function. If the input chunk is non-empty, the resulting chunk will also be non-empty.";
+const sourceExample =
+  "import { Chunk } from \"effect\"\n\nconst result = Chunk.map(Chunk.make(1, 2), (n) => n + 1)\n\nconsole.log(result)\n// { _id: 'Chunk', values: [ 2, 3 ] }";
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

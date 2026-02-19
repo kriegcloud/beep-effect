@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel, Console, Data } from "effect"
- * 
+ *
  * class EnsureError extends Data.TaggedError("EnsureError")<{
  *   readonly operation: string
  * }> {}
- * 
+ *
  * // Create a channel
  * const dataChannel = Channel.fromIterable([1, 2, 3])
- * 
+ *
  * // Ensure cleanup always runs
  * const channelWithCleanup = Channel.ensuring(
  *   dataChannel,
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "ensuring";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
-const sourceSummary = "Returns a new channel with an attached finalizer. The finalizer is guaranteed to be executed so long as the channel begins execution (and regardless of whether or not it complet...";
-const sourceExample = "import { Channel, Console, Data } from \"effect\"\n\nclass EnsureError extends Data.TaggedError(\"EnsureError\")<{\n  readonly operation: string\n}> {}\n\n// Create a channel\nconst dataChannel = Channel.fromIterable([1, 2, 3])\n\n// Ensure cleanup always runs\nconst channelWithCleanup = Channel.ensuring(\n  dataChannel,\n  Console.log(\"Cleanup executed regardless of success or failure\")\n)";
+const sourceSummary =
+  "Returns a new channel with an attached finalizer. The finalizer is guaranteed to be executed so long as the channel begins execution (and regardless of whether or not it complet...";
+const sourceExample =
+  'import { Channel, Console, Data } from "effect"\n\nclass EnsureError extends Data.TaggedError("EnsureError")<{\n  readonly operation: string\n}> {}\n\n// Create a channel\nconst dataChannel = Channel.fromIterable([1, 2, 3])\n\n// Ensure cleanup always runs\nconst channelWithCleanup = Channel.ensuring(\n  dataChannel,\n  Console.log("Cleanup executed regardless of success or failure")\n)';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

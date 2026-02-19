@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const nonEmptyChunk: Chunk.NonEmptyChunk<number> = Chunk.make(1, 2, 3)
  * console.log(Chunk.headNonEmpty(nonEmptyChunk)) // 1
  * console.log(Chunk.lastNonEmpty(nonEmptyChunk)) // 3
@@ -24,16 +24,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "NonEmptyChunk";
 const exportKind = "interface";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "A non-empty Chunk guaranteed to contain at least one element.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst nonEmptyChunk: Chunk.NonEmptyChunk<number> = Chunk.make(1, 2, 3)\nconsole.log(Chunk.headNonEmpty(nonEmptyChunk)) // 1\nconsole.log(Chunk.lastNonEmpty(nonEmptyChunk)) // 3";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst nonEmptyChunk: Chunk.NonEmptyChunk<number> = Chunk.make(1, 2, 3)\nconsole.log(Chunk.headNonEmpty(nonEmptyChunk)) // 1\nconsole.log(Chunk.lastNonEmpty(nonEmptyChunk)) // 3';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

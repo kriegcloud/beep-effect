@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Sink } from "effect"
- * 
+ *
  * // Create a sink and extract its channel
  * const sink = Sink.succeed(42)
  * const channel = Sink.toChannel(sink)
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SinkModule from "effect/Sink";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SinkModule from "effect/Sink";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "toChannel";
 const exportKind = "const";
 const moduleImportPath = "effect/Sink";
 const sourceSummary = "Creates a `Channel` from a Sink.";
-const sourceExample = "import { Sink } from \"effect\"\n\n// Create a sink and extract its channel\nconst sink = Sink.succeed(42)\nconst channel = Sink.toChannel(sink)";
+const sourceExample =
+  'import { Sink } from "effect"\n\n// Create a sink and extract its channel\nconst sink = Sink.succeed(42)\nconst channel = Sink.toChannel(sink)';
 const moduleRecord = SinkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

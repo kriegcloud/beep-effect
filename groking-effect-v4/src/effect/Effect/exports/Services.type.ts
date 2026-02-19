@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Effect } from "effect"
- * 
+ *
  * // Extract the context/services type from an Effect
  * declare const myEffect: Effect.Effect<string, Error, { database: string }>
  * // This type utility extracts the context type R from Effect<A, E, R>
@@ -24,16 +24,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "Services";
 const exportKind = "type";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "No summary found in JSDoc.";
-const sourceExample = "import type { Effect } from \"effect\"\n\n// Extract the context/services type from an Effect\ndeclare const myEffect: Effect.Effect<string, Error, { database: string }>\n// This type utility extracts the context type R from Effect<A, E, R>";
+const sourceExample =
+  'import type { Effect } from "effect"\n\n// Extract the context/services type from an Effect\ndeclare const myEffect: Effect.Effect<string, Error, { database: string }>\n// This type utility extracts the context type R from Effect<A, E, R>';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { pipe } from "effect"
- * 
+ *
  * // Define simple arithmetic operations
  * const increment = (x: number) => x + 1
  * const double = (x: number) => x * 2
  * const subtractTen = (x: number) => x - 10
- * 
+ *
  * // Sequentially apply these operations using `pipe`
  * const result = pipe(5, increment, double, subtractTen)
- * 
+ *
  * console.log(result)
  * // Output: 2
  * ```
@@ -30,16 +30,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FunctionModule from "effect/Function";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FunctionModule from "effect/Function";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +49,8 @@ const exportName = "pipe";
 const exportKind = "function";
 const moduleImportPath = "effect/Function";
 const sourceSummary = "Pipes the value of an expression into a pipeline of functions.";
-const sourceExample = "import { pipe } from \"effect\"\n\n// Define simple arithmetic operations\nconst increment = (x: number) => x + 1\nconst double = (x: number) => x * 2\nconst subtractTen = (x: number) => x - 10\n\n// Sequentially apply these operations using `pipe`\nconst result = pipe(5, increment, double, subtractTen)\n\nconsole.log(result)\n// Output: 2";
+const sourceExample =
+  'import { pipe } from "effect"\n\n// Define simple arithmetic operations\nconst increment = (x: number) => x + 1\nconst double = (x: number) => x * 2\nconst subtractTen = (x: number) => x - 10\n\n// Sequentially apply these operations using `pipe`\nconst result = pipe(5, increment, double, subtractTen)\n\nconsole.log(result)\n// Output: 2';
 const moduleRecord = FunctionModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

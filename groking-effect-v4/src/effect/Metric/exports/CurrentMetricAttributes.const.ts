@@ -14,16 +14,16 @@
  * Source JSDoc Example:
  * ```ts
  * import { Data, Effect, Metric } from "effect"
- * 
+ *
  * class AttributesError extends Data.TaggedError("AttributesError")<{
  *   readonly operation: string
  * }> {}
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Access current metric attributes
  *   const attributes = yield* Metric.CurrentMetricAttributes
  *   console.log("Current attributes:", attributes)
- * 
+ *
  *   // Set new attributes context
  *   const newAttributes = { service: "api", version: "1.0" }
  *   const result = yield* Effect.provideService(
@@ -34,7 +34,7 @@
  *     Metric.CurrentMetricAttributes,
  *     newAttributes
  *   )
- * 
+ *
  *   return result
  * })
  * ```
@@ -43,16 +43,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MetricModule from "effect/Metric";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MetricModule from "effect/Metric";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -61,7 +62,8 @@ const exportName = "CurrentMetricAttributes";
 const exportKind = "const";
 const moduleImportPath = "effect/Metric";
 const sourceSummary = "Service class for managing the current metric attributes context.";
-const sourceExample = "import { Data, Effect, Metric } from \"effect\"\n\nclass AttributesError extends Data.TaggedError(\"AttributesError\")<{\n  readonly operation: string\n}> {}\n\nconst program = Effect.gen(function*() {\n  // Access current metric attributes\n  const attributes = yield* Metric.CurrentMetricAttributes\n  console.log(\"Current attributes:\", attributes)\n\n  // Set new attributes context\n  const newAttributes = { service: \"api\", version: \"1.0\" }\n  const result = yield* Effect.provideService(\n    Effect.gen(function*() {\n      const updatedAttributes = yield* Metric.CurrentMetricAttributes\n      return updatedAttributes\n    }),\n    Metric.CurrentMetricAttributes,\n    newAttributes\n  )\n\n  return result\n})";
+const sourceExample =
+  'import { Data, Effect, Metric } from "effect"\n\nclass AttributesError extends Data.TaggedError("AttributesError")<{\n  readonly operation: string\n}> {}\n\nconst program = Effect.gen(function*() {\n  // Access current metric attributes\n  const attributes = yield* Metric.CurrentMetricAttributes\n  console.log("Current attributes:", attributes)\n\n  // Set new attributes context\n  const newAttributes = { service: "api", version: "1.0" }\n  const result = yield* Effect.provideService(\n    Effect.gen(function*() {\n      const updatedAttributes = yield* Metric.CurrentMetricAttributes\n      return updatedAttributes\n    }),\n    Metric.CurrentMetricAttributes,\n    newAttributes\n  )\n\n  return result\n})';
 const moduleRecord = MetricModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -92,14 +94,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

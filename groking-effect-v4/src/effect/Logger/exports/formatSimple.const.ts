@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Logger } from "effect"
- * 
+ *
  * // Use the simple format logger
  * const simpleLoggerProgram = Effect.log("Hello Simple Format").pipe(
  *   Effect.provide(Logger.layer([Logger.formatSimple]))
  * )
- * 
+ *
  * // Combine with console output
  * const consoleSimpleLogger = Logger.withConsoleLog(Logger.formatSimple)
- * 
+ *
  * const program = Effect.gen(function*() {
  *   yield* Effect.log("Application started")
  *   yield* Effect.logInfo("Processing data")
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LoggerModule from "effect/Logger";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LoggerModule from "effect/Logger";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "formatSimple";
 const exportKind = "const";
 const moduleImportPath = "effect/Logger";
 const sourceSummary = "A `Logger` which outputs logs as a string.";
-const sourceExample = "import { Effect, Logger } from \"effect\"\n\n// Use the simple format logger\nconst simpleLoggerProgram = Effect.log(\"Hello Simple Format\").pipe(\n  Effect.provide(Logger.layer([Logger.formatSimple]))\n)\n\n// Combine with console output\nconst consoleSimpleLogger = Logger.withConsoleLog(Logger.formatSimple)\n\nconst program = Effect.gen(function*() {\n  yield* Effect.log(\"Application started\")\n  yield* Effect.logInfo(\"Processing data\")\n  yield* Effect.logWarning(\"Memory usage high\")\n}).pipe(\n  Effect.provide(Logger.layer([consoleSimpleLogger]))\n)";
+const sourceExample =
+  'import { Effect, Logger } from "effect"\n\n// Use the simple format logger\nconst simpleLoggerProgram = Effect.log("Hello Simple Format").pipe(\n  Effect.provide(Logger.layer([Logger.formatSimple]))\n)\n\n// Combine with console output\nconst consoleSimpleLogger = Logger.withConsoleLog(Logger.formatSimple)\n\nconst program = Effect.gen(function*() {\n  yield* Effect.log("Application started")\n  yield* Effect.logInfo("Processing data")\n  yield* Effect.logWarning("Memory usage high")\n}).pipe(\n  Effect.provide(Logger.layer([consoleSimpleLogger]))\n)';
 const moduleRecord = LoggerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

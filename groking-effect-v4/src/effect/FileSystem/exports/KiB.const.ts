@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, FileSystem } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const fs = yield* FileSystem.FileSystem
- * 
+ *
  *   // Create a 64 KiB buffer size for streaming
  *   const bufferSize = FileSystem.KiB(64)
- * 
+ *
  *   const stream = fs.stream("large-file.txt", {
  *     chunkSize: bufferSize
  *   })
- * 
+ *
  *   // Truncate file to 100 KiB
  *   yield* fs.truncate("data.txt", FileSystem.KiB(100))
  * })
@@ -34,16 +34,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FileSystemModule from "effect/FileSystem";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FileSystemModule from "effect/FileSystem";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "KiB";
 const exportKind = "const";
 const moduleImportPath = "effect/FileSystem";
 const sourceSummary = "Creates a `Size` representing kilobytes (1024 bytes).";
-const sourceExample = "import { Effect, FileSystem } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const fs = yield* FileSystem.FileSystem\n\n  // Create a 64 KiB buffer size for streaming\n  const bufferSize = FileSystem.KiB(64)\n\n  const stream = fs.stream(\"large-file.txt\", {\n    chunkSize: bufferSize\n  })\n\n  // Truncate file to 100 KiB\n  yield* fs.truncate(\"data.txt\", FileSystem.KiB(100))\n})";
+const sourceExample =
+  'import { Effect, FileSystem } from "effect"\n\nconst program = Effect.gen(function*() {\n  const fs = yield* FileSystem.FileSystem\n\n  // Create a 64 KiB buffer size for streaming\n  const bufferSize = FileSystem.KiB(64)\n\n  const stream = fs.stream("large-file.txt", {\n    chunkSize: bufferSize\n  })\n\n  // Truncate file to 100 KiB\n  yield* fs.truncate("data.txt", FileSystem.KiB(100))\n})';
 const moduleRecord = FileSystemModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -15,14 +15,14 @@
  * ```ts
  * import { Effect } from "effect"
  * import { CliError } from "effect/unstable/cli"
- * 
+ *
  * const showHelpIndicator = new CliError.ShowHelp({
  *   commandPath: ["myapp", "deploy", "production"]
  * })
- * 
+ *
  * console.log(showHelpIndicator.message)
  * // "Help requested"
- * 
+ *
  * // In help flag handling
  * const handleHelpFlag = (hasHelpFlag: boolean) =>
  *   Effect.gen(function*() {
@@ -31,7 +31,7 @@
  *     }
  *     return "continuing with command"
  *   })
- * 
+ *
  * // In error handling
  * const handleCliErrors = (error: CliError.CliError): void => {
  *   if (error._tag === "ShowHelp") {
@@ -45,16 +45,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CliErrorModule from "effect/unstable/cli/CliError";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as CliErrorModule from "effect/unstable/cli/CliError";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -62,8 +63,10 @@ import {
 const exportName = "ShowHelp";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/cli/CliError";
-const sourceSummary = "Control flow indicator when help is requested via --help flag. This is not an error but uses the error channel for control flow.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { CliError } from \"effect/unstable/cli\"\n\nconst showHelpIndicator = new CliError.ShowHelp({\n  commandPath: [\"myapp\", \"deploy\", \"production\"]\n})\n\nconsole.log(showHelpIndicator.message)\n// \"Help requested\"\n\n// In help flag handling\nconst handleHelpFlag = (hasHelpFlag: boolean) =>\n  Effect.gen(function*() {\n    if (hasHelpFlag) {\n      return yield* Effect.fail(showHelpIndicator)\n    }\n    return \"continuing with command\"\n  })\n\n// In error handling\nconst handleCliErrors = (error: CliError.CliError): void => {\n  if (error._tag === \"ShowHelp\") {\n    // Display help for the command path\n    console.log(`Displaying help for: ${error.commandPath.join(\" \")}`)\n  }\n  // Handle other errors...\n}";
+const sourceSummary =
+  "Control flow indicator when help is requested via --help flag. This is not an error but uses the error channel for control flow.";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { CliError } from "effect/unstable/cli"\n\nconst showHelpIndicator = new CliError.ShowHelp({\n  commandPath: ["myapp", "deploy", "production"]\n})\n\nconsole.log(showHelpIndicator.message)\n// "Help requested"\n\n// In help flag handling\nconst handleHelpFlag = (hasHelpFlag: boolean) =>\n  Effect.gen(function*() {\n    if (hasHelpFlag) {\n      return yield* Effect.fail(showHelpIndicator)\n    }\n    return "continuing with command"\n  })\n\n// In error handling\nconst handleCliErrors = (error: CliError.CliError): void => {\n  if (error._tag === "ShowHelp") {\n    // Display help for the command path\n    console.log(`Displaying help for: ${error.commandPath.join(" ")}`)\n  }\n  // Handle other errors...\n}';
 const moduleRecord = CliErrorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -94,14 +97,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

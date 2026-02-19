@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { ChildProcess } from "effect/unstable/process"
- * 
+ *
  * // Pipe stderr instead of stdout
  * const pipeline = ChildProcess.make`my-program`.pipe(
  *   ChildProcess.pipeTo(ChildProcess.make`grep error`, { from: "stderr" })
@@ -25,16 +25,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChildProcessModule from "effect/unstable/process/ChildProcess";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ChildProcessModule from "effect/unstable/process/ChildProcess";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "PipeOptions";
 const exportKind = "interface";
 const moduleImportPath = "effect/unstable/process/ChildProcess";
 const sourceSummary = "Options for controlling how commands are piped together.";
-const sourceExample = "import { ChildProcess } from \"effect/unstable/process\"\n\n// Pipe stderr instead of stdout\nconst pipeline = ChildProcess.make`my-program`.pipe(\n  ChildProcess.pipeTo(ChildProcess.make`grep error`, { from: \"stderr\" })\n)";
+const sourceExample =
+  'import { ChildProcess } from "effect/unstable/process"\n\n// Pipe stderr instead of stdout\nconst pipeline = ChildProcess.make`my-program`.pipe(\n  ChildProcess.pipeTo(ChildProcess.make`grep error`, { from: "stderr" })\n)';
 const moduleRecord = ChildProcessModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

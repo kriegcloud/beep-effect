@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { BigInt as BI } from "effect"
- * 
+ *
  * BI.toNumber(42n) // 42
  * BI.toNumber(BigInt(Number.MAX_SAFE_INTEGER) + 1n) // undefined
  * BI.toNumber(BigInt(Number.MIN_SAFE_INTEGER) - 1n) // undefined
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BigIntModule from "effect/BigInt";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BigIntModule from "effect/BigInt";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "toNumber";
 const exportKind = "const";
 const moduleImportPath = "effect/BigInt";
 const sourceSummary = "Converts a `bigint` to a `number`.";
-const sourceExample = "import { BigInt as BI } from \"effect\"\n\nBI.toNumber(42n) // 42\nBI.toNumber(BigInt(Number.MAX_SAFE_INTEGER) + 1n) // undefined\nBI.toNumber(BigInt(Number.MIN_SAFE_INTEGER) - 1n) // undefined";
+const sourceExample =
+  'import { BigInt as BI } from "effect"\n\nBI.toNumber(42n) // 42\nBI.toNumber(BigInt(Number.MAX_SAFE_INTEGER) + 1n) // undefined\nBI.toNumber(BigInt(Number.MIN_SAFE_INTEGER) - 1n) // undefined';
 const moduleRecord = BigIntModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

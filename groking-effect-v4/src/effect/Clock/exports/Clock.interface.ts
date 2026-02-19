@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Clock, Effect } from "effect"
- * 
+ *
  * const clockOperations = Effect.gen(function*() {
  *   const currentTime = yield* Clock.currentTimeMillis
  *   const currentTimeNanos = yield* Clock.currentTimeNanos
- * 
+ *
  *   console.log(`Current time (ms): ${currentTime}`)
  *   console.log(`Current time (ns): ${currentTimeNanos}`)
  * })
@@ -28,16 +28,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ClockModule from "effect/Clock";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ClockModule from "effect/Clock";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "Clock";
 const exportKind = "interface";
 const moduleImportPath = "effect/Clock";
 const sourceSummary = "Represents a time-based clock which provides functionality related to time and scheduling.";
-const sourceExample = "import { Clock, Effect } from \"effect\"\n\nconst clockOperations = Effect.gen(function*() {\n  const currentTime = yield* Clock.currentTimeMillis\n  const currentTimeNanos = yield* Clock.currentTimeNanos\n\n  console.log(`Current time (ms): ${currentTime}`)\n  console.log(`Current time (ns): ${currentTimeNanos}`)\n})";
+const sourceExample =
+  'import { Clock, Effect } from "effect"\n\nconst clockOperations = Effect.gen(function*() {\n  const currentTime = yield* Clock.currentTimeMillis\n  const currentTimeNanos = yield* Clock.currentTimeNanos\n\n  console.log(`Current time (ms): ${currentTime}`)\n  console.log(`Current time (ns): ${currentTimeNanos}`)\n})';
 const moduleRecord = ClockModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Option, SchemaIssue } from "effect"
- * 
+ *
  * const issue = new SchemaIssue.InvalidValue(
  *   Option.some(""),
  *   { message: "must not be empty" }
@@ -26,16 +26,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaIssueModule from "effect/SchemaIssue";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaIssueModule from "effect/SchemaIssue";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,8 +44,10 @@ import {
 const exportName = "InvalidValue";
 const exportKind = "class";
 const moduleImportPath = "effect/SchemaIssue";
-const sourceSummary = "Issue produced when the input has the correct type but its value violates a constraint (e.g. a string that is too short, a number out of range).";
-const sourceExample = "import { Option, SchemaIssue } from \"effect\"\n\nconst issue = new SchemaIssue.InvalidValue(\n  Option.some(\"\"),\n  { message: \"must not be empty\" }\n)\nconsole.log(String(issue))\n// \"must not be empty\"";
+const sourceSummary =
+  "Issue produced when the input has the correct type but its value violates a constraint (e.g. a string that is too short, a number out of range).";
+const sourceExample =
+  'import { Option, SchemaIssue } from "effect"\n\nconst issue = new SchemaIssue.InvalidValue(\n  Option.some(""),\n  { message: "must not be empty" }\n)\nconsole.log(String(issue))\n// "must not be empty"';
 const moduleRecord = SchemaIssueModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

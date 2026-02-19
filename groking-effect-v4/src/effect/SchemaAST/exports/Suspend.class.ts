@@ -14,33 +14,34 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema, SchemaAST } from "effect"
- * 
+ *
  * interface Category {
  *   readonly name: string
  *   readonly children: ReadonlyArray<Category>
  * }
- * 
+ *
  * const Category: Schema.Schema<Category> = Schema.Struct({
  *   name: Schema.String,
  *   children: Schema.Array(Schema.suspend(() => Category))
  * })
- * 
+ *
  * // The recursive branch is a Suspend node
  * ```
  *
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaASTModule from "effect/SchemaAST";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaASTModule from "effect/SchemaAST";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "Suspend";
 const exportKind = "class";
 const moduleImportPath = "effect/SchemaAST";
 const sourceSummary = "AST node for lazy/recursive schemas.";
-const sourceExample = "import { Schema, SchemaAST } from \"effect\"\n\ninterface Category {\n  readonly name: string\n  readonly children: ReadonlyArray<Category>\n}\n\nconst Category: Schema.Schema<Category> = Schema.Struct({\n  name: Schema.String,\n  children: Schema.Array(Schema.suspend(() => Category))\n})\n\n// The recursive branch is a Suspend node";
+const sourceExample =
+  'import { Schema, SchemaAST } from "effect"\n\ninterface Category {\n  readonly name: string\n  readonly children: ReadonlyArray<Category>\n}\n\nconst Category: Schema.Schema<Category> = Schema.Struct({\n  name: Schema.String,\n  children: Schema.Array(Schema.suspend(() => Category))\n})\n\n// The recursive branch is a Suspend node';
 const moduleRecord = SchemaASTModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

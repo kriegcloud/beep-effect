@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema } from "effect"
- * 
+ *
  * try {
  *   Schema.decodeUnknownSync(Schema.String)(42)
  * } catch (e) {
@@ -28,16 +28,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaIssueModule from "effect/SchemaIssue";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaIssueModule from "effect/SchemaIssue";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,8 +46,10 @@ import {
 const exportName = "InvalidType";
 const exportKind = "class";
 const moduleImportPath = "effect/SchemaIssue";
-const sourceSummary = "Issue produced when the runtime type of the input does not match the type expected by the schema (e.g. got `null` when `string` was expected).";
-const sourceExample = "import { Schema } from \"effect\"\n\ntry {\n  Schema.decodeUnknownSync(Schema.String)(42)\n} catch (e) {\n  if (Schema.isSchemaError(e)) {\n    console.log(String(e.issue))\n    // \"Expected string, got 42\"\n  }\n}";
+const sourceSummary =
+  "Issue produced when the runtime type of the input does not match the type expected by the schema (e.g. got `null` when `string` was expected).";
+const sourceExample =
+  'import { Schema } from "effect"\n\ntry {\n  Schema.decodeUnknownSync(Schema.String)(42)\n} catch (e) {\n  if (Schema.isSchemaError(e)) {\n    console.log(String(e.issue))\n    // "Expected string, got 42"\n  }\n}';
 const moduleRecord = SchemaIssueModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

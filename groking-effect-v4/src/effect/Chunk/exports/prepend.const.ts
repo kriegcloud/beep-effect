@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const chunk = Chunk.make(2, 3, 4)
  * const newChunk = Chunk.prepend(chunk, 1)
  * console.log(Chunk.toArray(newChunk)) // [1, 2, 3, 4]
- * 
+ *
  * // Prepending to empty chunk
  * const emptyChunk = Chunk.empty<string>()
  * const singleElement = Chunk.prepend(emptyChunk, "first")
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "prepend";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Prepend an element to the front of a `Chunk`, creating a new `NonEmptyChunk`.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst chunk = Chunk.make(2, 3, 4)\nconst newChunk = Chunk.prepend(chunk, 1)\nconsole.log(Chunk.toArray(newChunk)) // [1, 2, 3, 4]\n\n// Prepending to empty chunk\nconst emptyChunk = Chunk.empty<string>()\nconst singleElement = Chunk.prepend(emptyChunk, \"first\")\nconsole.log(Chunk.toArray(singleElement)) // [\"first\"]";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst chunk = Chunk.make(2, 3, 4)\nconst newChunk = Chunk.prepend(chunk, 1)\nconsole.log(Chunk.toArray(newChunk)) // [1, 2, 3, 4]\n\n// Prepending to empty chunk\nconst emptyChunk = Chunk.empty<string>()\nconst singleElement = Chunk.prepend(emptyChunk, "first")\nconsole.log(Chunk.toArray(singleElement)) // ["first"]';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

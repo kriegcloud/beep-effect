@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { ConfigProvider, Effect } from "effect"
- * 
+ *
  * const provider = ConfigProvider.make((_path) =>
  *   Effect.fail(
  *     new ConfigProvider.SourceError({ message: "connection refused" })
@@ -25,16 +25,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ConfigProviderModule from "effect/ConfigProvider";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ConfigProviderModule from "effect/ConfigProvider";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "SourceError";
 const exportKind = "class";
 const moduleImportPath = "effect/ConfigProvider";
 const sourceSummary = "Typed error indicating that a configuration source could not be read.";
-const sourceExample = "import { ConfigProvider, Effect } from \"effect\"\n\nconst provider = ConfigProvider.make((_path) =>\n  Effect.fail(\n    new ConfigProvider.SourceError({ message: \"connection refused\" })\n  )\n)";
+const sourceExample =
+  'import { ConfigProvider, Effect } from "effect"\n\nconst provider = ConfigProvider.make((_path) =>\n  Effect.fail(\n    new ConfigProvider.SourceError({ message: "connection refused" })\n  )\n)';
 const moduleRecord = ConfigProviderModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Hash } from "effect"
- * 
+ *
  * const obj1 = { name: "John", age: 30 }
  * const obj2 = { name: "Jane", age: 25 }
  * const obj3 = { name: "John", age: 30 }
- * 
+ *
  * console.log(Hash.structure(obj1)) // hash of obj1
  * console.log(Hash.structure(obj2)) // different hash
  * console.log(Hash.structure(obj3)) // same as obj1
- * 
+ *
  * // Objects with same properties produce same hash
  * console.log(Hash.structure(obj1) === Hash.structure(obj3)) // true
  * ```
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HashModule from "effect/Hash";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HashModule from "effect/Hash";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "structure";
 const exportKind = "const";
 const moduleImportPath = "effect/Hash";
 const sourceSummary = "Computes a hash value for an object using all of its enumerable keys.";
-const sourceExample = "import { Hash } from \"effect\"\n\nconst obj1 = { name: \"John\", age: 30 }\nconst obj2 = { name: \"Jane\", age: 25 }\nconst obj3 = { name: \"John\", age: 30 }\n\nconsole.log(Hash.structure(obj1)) // hash of obj1\nconsole.log(Hash.structure(obj2)) // different hash\nconsole.log(Hash.structure(obj3)) // same as obj1\n\n// Objects with same properties produce same hash\nconsole.log(Hash.structure(obj1) === Hash.structure(obj3)) // true";
+const sourceExample =
+  'import { Hash } from "effect"\n\nconst obj1 = { name: "John", age: 30 }\nconst obj2 = { name: "Jane", age: 25 }\nconst obj3 = { name: "John", age: 30 }\n\nconsole.log(Hash.structure(obj1)) // hash of obj1\nconsole.log(Hash.structure(obj2)) // different hash\nconsole.log(Hash.structure(obj3)) // same as obj1\n\n// Objects with same properties produce same hash\nconsole.log(Hash.structure(obj1) === Hash.structure(obj3)) // true';
 const moduleRecord = HashModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

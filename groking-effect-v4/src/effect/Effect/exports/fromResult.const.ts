@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Result } from "effect"
- * 
+ *
  * const success = Result.succeed(42)
  * const failure = Result.fail("Something went wrong")
- * 
+ *
  * const effect1 = Effect.fromResult(success)
  * const effect2 = Effect.fromResult(failure)
- * 
+ *
  * Effect.runPromise(effect1).then(console.log) // 42
  * Effect.runPromiseExit(effect2).then(console.log)
  * // { _id: 'Exit', _tag: 'Failure', cause: { _id: 'Cause', _tag: 'Fail', failure: 'Something went wrong' } }
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +49,8 @@ const exportName = "fromResult";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Converts a `Result` to an `Effect`.";
-const sourceExample = "import { Effect, Result } from \"effect\"\n\nconst success = Result.succeed(42)\nconst failure = Result.fail(\"Something went wrong\")\n\nconst effect1 = Effect.fromResult(success)\nconst effect2 = Effect.fromResult(failure)\n\nEffect.runPromise(effect1).then(console.log) // 42\nEffect.runPromiseExit(effect2).then(console.log)\n// { _id: 'Exit', _tag: 'Failure', cause: { _id: 'Cause', _tag: 'Fail', failure: 'Something went wrong' } }";
+const sourceExample =
+  "import { Effect, Result } from \"effect\"\n\nconst success = Result.succeed(42)\nconst failure = Result.fail(\"Something went wrong\")\n\nconst effect1 = Effect.fromResult(success)\nconst effect2 = Effect.fromResult(failure)\n\nEffect.runPromise(effect1).then(console.log) // 42\nEffect.runPromiseExit(effect2).then(console.log)\n// { _id: 'Exit', _tag: 'Failure', cause: { _id: 'Cause', _tag: 'Fail', failure: 'Something went wrong' } }";
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Config, ConfigProvider, Effect } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const url = yield* Config.url("URL")
  *   console.log(url)
  * })
- * 
+ *
  * const provider = ConfigProvider.fromEnv({
  *   env: {
  *     URL: "https://example.com"
  *   }
  * })
- * 
+ *
  * Effect.runSync(
  *   program.pipe(Effect.provideService(ConfigProvider.ConfigProvider, provider))
  * )
@@ -49,16 +49,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ConfigModule from "effect/Config";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ConfigModule from "effect/Config";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -67,7 +68,8 @@ const exportName = "url";
 const exportKind = "function";
 const moduleImportPath = "effect/Config";
 const sourceSummary = "Creates a config for a `URL` value parsed from a string.";
-const sourceExample = "import { Config, ConfigProvider, Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const url = yield* Config.url(\"URL\")\n  console.log(url)\n})\n\nconst provider = ConfigProvider.fromEnv({\n  env: {\n    URL: \"https://example.com\"\n  }\n})\n\nEffect.runSync(\n  program.pipe(Effect.provideService(ConfigProvider.ConfigProvider, provider))\n)\n// Output:\n// URL {\n//   href: 'https://example.com/',\n//   origin: 'https://example.com',\n//   protocol: 'https:',\n//   username: '',\n//   password: '',\n//   host: 'example.com',\n//   hostname: 'example.com',\n//   port: '',\n//   pathname: '/',\n//   search: '',\n//   searchParams: URLSearchParams {},\n//   hash: ''\n// }";
+const sourceExample =
+  "import { Config, ConfigProvider, Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const url = yield* Config.url(\"URL\")\n  console.log(url)\n})\n\nconst provider = ConfigProvider.fromEnv({\n  env: {\n    URL: \"https://example.com\"\n  }\n})\n\nEffect.runSync(\n  program.pipe(Effect.provideService(ConfigProvider.ConfigProvider, provider))\n)\n// Output:\n// URL {\n//   href: 'https://example.com/',\n//   origin: 'https://example.com',\n//   protocol: 'https:',\n//   username: '',\n//   password: '',\n//   host: 'example.com',\n//   hostname: 'example.com',\n//   port: '',\n//   pathname: '/',\n//   search: '',\n//   searchParams: URLSearchParams {},\n//   hash: ''\n// }";
 const moduleRecord = ConfigModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -98,14 +100,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

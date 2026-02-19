@@ -16,13 +16,13 @@
  * import { Schema } from "effect"
  * import * as Param from "effect/unstable/cli/Param"
  * // @internal - this module is not exported publicly
- * 
+ *
  * const isEmail = Schema.isPattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
- * 
+ *
  * const Email = Schema.String.pipe(
  *   Schema.check(isEmail)
  * )
- * 
+ *
  * const email = Param.string(Param.flagKind, "email").pipe(
  *   Param.withSchema(Email)
  * )
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ParamModule from "effect/unstable/cli/Param";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ParamModule from "effect/unstable/cli/Param";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "withSchema";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Param";
 const sourceSummary = "Validates parsed values against a Schema, providing detailed error messages.";
-const sourceExample = "import { Schema } from \"effect\"\nimport * as Param from \"effect/unstable/cli/Param\"\n// @internal - this module is not exported publicly\n\nconst isEmail = Schema.isPattern(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/)\n\nconst Email = Schema.String.pipe(\n  Schema.check(isEmail)\n)\n\nconst email = Param.string(Param.flagKind, \"email\").pipe(\n  Param.withSchema(Email)\n)";
+const sourceExample =
+  'import { Schema } from "effect"\nimport * as Param from "effect/unstable/cli/Param"\n// @internal - this module is not exported publicly\n\nconst isEmail = Schema.isPattern(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/)\n\nconst Email = Schema.String.pipe(\n  Schema.check(isEmail)\n)\n\nconst email = Param.string(Param.flagKind, "email").pipe(\n  Param.withSchema(Email)\n)';
 const moduleRecord = ParamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

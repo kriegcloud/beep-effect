@@ -15,7 +15,7 @@
  * ```ts
  * import type { ChunkTypeLambda } from "effect/Chunk"
  * import type { Kind } from "effect/HKT"
- * 
+ *
  * // Create a Chunk type using the type lambda
  * type NumberChunk = Kind<ChunkTypeLambda, never, never, never, number>
  * // Equivalent to: Chunk<number>
@@ -25,16 +25,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "ChunkTypeLambda";
 const exportKind = "interface";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Type lambda for Chunk, used for higher-kinded type operations.";
-const sourceExample = "import type { ChunkTypeLambda } from \"effect/Chunk\"\nimport type { Kind } from \"effect/HKT\"\n\n// Create a Chunk type using the type lambda\ntype NumberChunk = Kind<ChunkTypeLambda, never, never, never, number>\n// Equivalent to: Chunk<number>";
+const sourceExample =
+  'import type { ChunkTypeLambda } from "effect/Chunk"\nimport type { Kind } from "effect/HKT"\n\n// Create a Chunk type using the type lambda\ntype NumberChunk = Kind<ChunkTypeLambda, never, never, never, number>\n// Equivalent to: Chunk<number>';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

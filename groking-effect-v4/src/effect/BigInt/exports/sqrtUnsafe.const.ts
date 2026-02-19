@@ -15,7 +15,7 @@
  * ```ts
  * import { sqrtUnsafe } from "effect/BigInt"
  * import * as assert from "node:assert"
- * 
+ *
  * assert.deepStrictEqual(sqrtUnsafe(4n), 2n)
  * assert.deepStrictEqual(sqrtUnsafe(9n), 3n)
  * assert.deepStrictEqual(sqrtUnsafe(16n), 4n)
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BigIntModule from "effect/BigInt";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BigIntModule from "effect/BigInt";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,8 +43,10 @@ import {
 const exportName = "sqrtUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/BigInt";
-const sourceSummary = "Determines the square root of a given `bigint` unsafely. Throws if the given `bigint` is negative.";
-const sourceExample = "import { sqrtUnsafe } from \"effect/BigInt\"\nimport * as assert from \"node:assert\"\n\nassert.deepStrictEqual(sqrtUnsafe(4n), 2n)\nassert.deepStrictEqual(sqrtUnsafe(9n), 3n)\nassert.deepStrictEqual(sqrtUnsafe(16n), 4n)";
+const sourceSummary =
+  "Determines the square root of a given `bigint` unsafely. Throws if the given `bigint` is negative.";
+const sourceExample =
+  'import { sqrtUnsafe } from "effect/BigInt"\nimport * as assert from "node:assert"\n\nassert.deepStrictEqual(sqrtUnsafe(4n), 2n)\nassert.deepStrictEqual(sqrtUnsafe(9n), 3n)\nassert.deepStrictEqual(sqrtUnsafe(16n), 4n)';
 const moduleRecord = BigIntModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

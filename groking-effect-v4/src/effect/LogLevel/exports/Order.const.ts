@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { LogLevel } from "effect"
- * 
+ *
  * // Compare log levels using Order
  * console.log(LogLevel.Order("Error", "Info")) // 1 (Error > Info)
  * console.log(LogLevel.Order("Debug", "Error")) // -1 (Debug < Error)
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LogLevelModule from "effect/LogLevel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LogLevelModule from "effect/LogLevel";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "Order";
 const exportKind = "const";
 const moduleImportPath = "effect/LogLevel";
 const sourceSummary = "An `Order` instance for `LogLevel` that defines the severity ordering.";
-const sourceExample = "import { LogLevel } from \"effect\"\n\n// Compare log levels using Order\nconsole.log(LogLevel.Order(\"Error\", \"Info\")) // 1 (Error > Info)\nconsole.log(LogLevel.Order(\"Debug\", \"Error\")) // -1 (Debug < Error)\nconsole.log(LogLevel.Order(\"Info\", \"Info\")) // 0 (Info == Info)";
+const sourceExample =
+  'import { LogLevel } from "effect"\n\n// Compare log levels using Order\nconsole.log(LogLevel.Order("Error", "Info")) // 1 (Error > Info)\nconsole.log(LogLevel.Order("Debug", "Error")) // -1 (Debug < Error)\nconsole.log(LogLevel.Order("Info", "Info")) // 0 (Info == Info)';
 const moduleRecord = LogLevelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

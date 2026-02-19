@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Request } from "effect"
- * 
+ *
  * interface GetUser extends Request.Request<string, Error> {
  *   readonly id: number
  * }
- * 
+ *
  * // Extract the error type from a Request using the utility
  * type UserError = Request.Error<GetUser> // Error
  * ```
@@ -27,16 +27,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RequestModule from "effect/Request";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RequestModule from "effect/Request";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "Error";
 const exportKind = "type";
 const moduleImportPath = "effect/Request";
 const sourceSummary = "A utility type to extract the error type from a `Request`.";
-const sourceExample = "import type { Request } from \"effect\"\n\ninterface GetUser extends Request.Request<string, Error> {\n  readonly id: number\n}\n\n// Extract the error type from a Request using the utility\ntype UserError = Request.Error<GetUser> // Error";
+const sourceExample =
+  'import type { Request } from "effect"\n\ninterface GetUser extends Request.Request<string, Error> {\n  readonly id: number\n}\n\n// Extract the error type from a Request using the utility\ntype UserError = Request.Error<GetUser> // Error';
 const moduleRecord = RequestModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

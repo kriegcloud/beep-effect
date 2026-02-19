@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { PubSub } from "effect"
- * 
+ *
  * declare const pubsub: PubSub.PubSub<string>
- * 
+ *
  * // Unsafe synchronous shutdown check
  * const isDown = PubSub.isShutdownUnsafe(pubsub)
  * if (isDown) {
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PubSubModule from "effect/PubSub";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PubSubModule from "effect/PubSub";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +49,8 @@ const exportName = "isShutdownUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/PubSub";
 const sourceSummary = "Returns `true` if `shutdown` has been called, otherwise returns `false`.";
-const sourceExample = "import { PubSub } from \"effect\"\n\ndeclare const pubsub: PubSub.PubSub<string>\n\n// Unsafe synchronous shutdown check\nconst isDown = PubSub.isShutdownUnsafe(pubsub)\nif (isDown) {\n  console.log(\"PubSub is shutdown, cannot publish\")\n} else {\n  console.log(\"PubSub is active\")\n}";
+const sourceExample =
+  'import { PubSub } from "effect"\n\ndeclare const pubsub: PubSub.PubSub<string>\n\n// Unsafe synchronous shutdown check\nconst isDown = PubSub.isShutdownUnsafe(pubsub)\nif (isDown) {\n  console.log("PubSub is shutdown, cannot publish")\n} else {\n  console.log("PubSub is active")\n}';
 const moduleRecord = PubSubModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

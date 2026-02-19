@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const pairs = Chunk.make(
  *   [1, "a"] as const,
  *   [2, "b"] as const,
@@ -23,7 +23,7 @@
  * const [numbers, letters] = Chunk.unzip(pairs)
  * console.log(Chunk.toArray(numbers)) // [1, 2, 3]
  * console.log(Chunk.toArray(letters)) // ["a", "b", "c"]
- * 
+ *
  * // Empty chunk
  * const empty = Chunk.empty<[number, string]>()
  * const [emptyNums, emptyStrs] = Chunk.unzip(empty)
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "unzip";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Takes a `Chunk` of pairs and return two corresponding `Chunk`s.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst pairs = Chunk.make(\n  [1, \"a\"] as const,\n  [2, \"b\"] as const,\n  [3, \"c\"] as const\n)\nconst [numbers, letters] = Chunk.unzip(pairs)\nconsole.log(Chunk.toArray(numbers)) // [1, 2, 3]\nconsole.log(Chunk.toArray(letters)) // [\"a\", \"b\", \"c\"]\n\n// Empty chunk\nconst empty = Chunk.empty<[number, string]>()\nconst [emptyNums, emptyStrs] = Chunk.unzip(empty)\nconsole.log(Chunk.toArray(emptyNums)) // []\nconsole.log(Chunk.toArray(emptyStrs)) // []";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst pairs = Chunk.make(\n  [1, "a"] as const,\n  [2, "b"] as const,\n  [3, "c"] as const\n)\nconst [numbers, letters] = Chunk.unzip(pairs)\nconsole.log(Chunk.toArray(numbers)) // [1, 2, 3]\nconsole.log(Chunk.toArray(letters)) // ["a", "b", "c"]\n\n// Empty chunk\nconst empty = Chunk.empty<[number, string]>()\nconst [emptyNums, emptyStrs] = Chunk.unzip(empty)\nconsole.log(Chunk.toArray(emptyNums)) // []\nconsole.log(Chunk.toArray(emptyStrs)) // []';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

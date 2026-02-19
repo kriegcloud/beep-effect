@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Scope } from "effect"
- * 
+ *
  * // An effect that requires a Scope
  * const program = Effect.gen(function*() {
  *   const scope = yield* Scope.Scope
  *   yield* Scope.addFinalizer(scope, Console.log("Cleanup"))
  *   yield* Console.log("Working...")
  * })
- * 
+ *
  * // Provide a scope to the program
  * const withScope = Effect.gen(function*() {
  *   const scope = yield* Scope.make()
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ScopeModule from "effect/Scope";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ScopeModule from "effect/Scope";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "provide";
 const exportKind = "const";
 const moduleImportPath = "effect/Scope";
-const sourceSummary = "Provides a `Scope` to an `Effect`, removing the `Scope` requirement from its context. This allows you to run effects that require a scope by explicitly providing one.";
-const sourceExample = "import { Console, Effect, Scope } from \"effect\"\n\n// An effect that requires a Scope\nconst program = Effect.gen(function*() {\n  const scope = yield* Scope.Scope\n  yield* Scope.addFinalizer(scope, Console.log(\"Cleanup\"))\n  yield* Console.log(\"Working...\")\n})\n\n// Provide a scope to the program\nconst withScope = Effect.gen(function*() {\n  const scope = yield* Scope.make()\n  yield* Scope.provide(scope)(program)\n})";
+const sourceSummary =
+  "Provides a `Scope` to an `Effect`, removing the `Scope` requirement from its context. This allows you to run effects that require a scope by explicitly providing one.";
+const sourceExample =
+  'import { Console, Effect, Scope } from "effect"\n\n// An effect that requires a Scope\nconst program = Effect.gen(function*() {\n  const scope = yield* Scope.Scope\n  yield* Scope.addFinalizer(scope, Console.log("Cleanup"))\n  yield* Console.log("Working...")\n})\n\n// Provide a scope to the program\nconst withScope = Effect.gen(function*() {\n  const scope = yield* Scope.make()\n  yield* Scope.provide(scope)(program)\n})';
 const moduleRecord = ScopeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -15,12 +15,12 @@
  * ```ts
  * import { Effect } from "effect"
  * import type { IdGenerator } from "effect/unstable/ai"
- * 
+ *
  * // Custom implementation
  * const customService: IdGenerator.Service = {
  *   generateId: () => Effect.succeed(`custom_${Date.now()}`)
  * }
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const id = yield* customService.generateId()
  *   console.log(id) // "custom_1234567890"
@@ -32,16 +32,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as IdGeneratorModule from "effect/unstable/ai/IdGenerator";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as IdGeneratorModule from "effect/unstable/ai/IdGenerator";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "Service";
 const exportKind = "interface";
 const moduleImportPath = "effect/unstable/ai/IdGenerator";
 const sourceSummary = "The service interface for ID generation.";
-const sourceExample = "import { Effect } from \"effect\"\nimport type { IdGenerator } from \"effect/unstable/ai\"\n\n// Custom implementation\nconst customService: IdGenerator.Service = {\n  generateId: () => Effect.succeed(`custom_${Date.now()}`)\n}\n\nconst program = Effect.gen(function*() {\n  const id = yield* customService.generateId()\n  console.log(id) // \"custom_1234567890\"\n  return id\n})";
+const sourceExample =
+  'import { Effect } from "effect"\nimport type { IdGenerator } from "effect/unstable/ai"\n\n// Custom implementation\nconst customService: IdGenerator.Service = {\n  generateId: () => Effect.succeed(`custom_${Date.now()}`)\n}\n\nconst program = Effect.gen(function*() {\n  const id = yield* customService.generateId()\n  console.log(id) // "custom_1234567890"\n  return id\n})';
 const moduleRecord = IdGeneratorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

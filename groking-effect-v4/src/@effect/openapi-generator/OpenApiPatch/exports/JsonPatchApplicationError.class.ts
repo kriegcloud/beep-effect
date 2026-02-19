@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import * as OpenApiPatch from "@effect/openapi-generator/OpenApiPatch"
- * 
+ *
  * const error = new OpenApiPatch.JsonPatchApplicationError({
  *   source: "./patches/fix.json",
  *   operationIndex: 2,
@@ -22,7 +22,7 @@
  *   path: "/paths/~1users",
  *   reason: "Property \"users\" does not exist"
  * })
- * 
+ *
  * console.log(error.message)
  * // "Failed to apply patch from ./patches/fix.json: operation 2 (remove at /paths/~1users): Property \"users\" does not exist"
  * ```
@@ -30,16 +30,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OpenApiPatchModule from "@effect/openapi-generator/OpenApiPatch";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as OpenApiPatchModule from "@effect/openapi-generator/OpenApiPatch";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +49,8 @@ const exportName = "JsonPatchApplicationError";
 const exportKind = "class";
 const moduleImportPath = "@effect/openapi-generator/OpenApiPatch";
 const sourceSummary = "Error thrown when applying a JSON Patch operation fails.";
-const sourceExample = "import * as OpenApiPatch from \"@effect/openapi-generator/OpenApiPatch\"\n\nconst error = new OpenApiPatch.JsonPatchApplicationError({\n  source: \"./patches/fix.json\",\n  operationIndex: 2,\n  operation: \"remove\",\n  path: \"/paths/~1users\",\n  reason: \"Property \\\"users\\\" does not exist\"\n})\n\nconsole.log(error.message)\n// \"Failed to apply patch from ./patches/fix.json: operation 2 (remove at /paths/~1users): Property \\\"users\\\" does not exist\"";
+const sourceExample =
+  'import * as OpenApiPatch from "@effect/openapi-generator/OpenApiPatch"\n\nconst error = new OpenApiPatch.JsonPatchApplicationError({\n  source: "./patches/fix.json",\n  operationIndex: 2,\n  operation: "remove",\n  path: "/paths/~1users",\n  reason: "Property \\"users\\" does not exist"\n})\n\nconsole.log(error.message)\n// "Failed to apply patch from ./patches/fix.json: operation 2 (remove at /paths/~1users): Property \\"users\\" does not exist"';
 const moduleRecord = OpenApiPatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

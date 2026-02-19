@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect } from "effect"
- * 
+ *
  * // A simple effect that succeeds with a value
  * const success = Effect.succeed(42)
- * 
+ *
  * // An effect that may fail
  * const risky = Effect.fail(new Error("Something went wrong"))
- * 
+ *
  * // Effects can be composed using generator functions
  * const program = Effect.gen(function*() {
  *   const value = yield* success
@@ -33,16 +33,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "Effect";
 const exportKind = "interface";
 const moduleImportPath = "effect/Effect";
-const sourceSummary = "The `Effect` interface defines a value that lazily describes a workflow or job. The workflow requires some context `R`, and may fail with an error of type `E`, or succeed with a...";
-const sourceExample = "import { Effect } from \"effect\"\n\n// A simple effect that succeeds with a value\nconst success = Effect.succeed(42)\n\n// An effect that may fail\nconst risky = Effect.fail(new Error(\"Something went wrong\"))\n\n// Effects can be composed using generator functions\nconst program = Effect.gen(function*() {\n  const value = yield* success\n  console.log(value) // 42\n  return value * 2\n})";
+const sourceSummary =
+  "The `Effect` interface defines a value that lazily describes a workflow or job. The workflow requires some context `R`, and may fail with an error of type `E`, or succeed with a...";
+const sourceExample =
+  'import { Effect } from "effect"\n\n// A simple effect that succeeds with a value\nconst success = Effect.succeed(42)\n\n// An effect that may fail\nconst risky = Effect.fail(new Error("Something went wrong"))\n\n// Effects can be composed using generator functions\nconst program = Effect.gen(function*() {\n  const value = yield* success\n  console.log(value) // 42\n  return value * 2\n})';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

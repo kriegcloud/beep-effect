@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema, SchemaAST } from "effect"
- * 
+ *
  * const schema = Schema.NumberFromString
  * const typeAst = SchemaAST.toType(schema.ast)
  * console.log(typeAst._tag) // "Number"
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaASTModule from "effect/SchemaAST";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaASTModule from "effect/SchemaAST";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -41,8 +42,10 @@ import {
 const exportName = "toType";
 const exportKind = "const";
 const moduleImportPath = "effect/SchemaAST";
-const sourceSummary = "Strips all encoding transformations from an AST, returning the decoded (type-level) representation.";
-const sourceExample = "import { Schema, SchemaAST } from \"effect\"\n\nconst schema = Schema.NumberFromString\nconst typeAst = SchemaAST.toType(schema.ast)\nconsole.log(typeAst._tag) // \"Number\"";
+const sourceSummary =
+  "Strips all encoding transformations from an AST, returning the decoded (type-level) representation.";
+const sourceExample =
+  'import { Schema, SchemaAST } from "effect"\n\nconst schema = Schema.NumberFromString\nconst typeAst = SchemaAST.toType(schema.ast)\nconsole.log(typeAst._tag) // "Number"';
 const moduleRecord = SchemaASTModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

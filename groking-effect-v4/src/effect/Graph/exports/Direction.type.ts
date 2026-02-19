@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Graph } from "effect"
- * 
+ *
  * const graph = Graph.directed<string, string>((mutable) => {
  *   const a = Graph.addNode(mutable, "A")
  *   const b = Graph.addNode(mutable, "B")
  *   Graph.addEdge(mutable, a, b, "A->B")
  * })
- * 
+ *
  * // Follow outgoing edges (normal direction)
  * const outgoingNodes = Array.from(
  *   Graph.indices(Graph.dfs(graph, { start: [0], direction: "outgoing" }))
  * )
- * 
+ *
  * // Follow incoming edges (reverse direction)
  * const incomingNodes = Array.from(
  *   Graph.indices(Graph.dfs(graph, { start: [1], direction: "incoming" }))
@@ -36,16 +36,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as GraphModule from "effect/Graph";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as GraphModule from "effect/Graph";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "Direction";
 const exportKind = "type";
 const moduleImportPath = "effect/Graph";
 const sourceSummary = "Direction for graph traversal, indicating which edges to follow.";
-const sourceExample = "import { Graph } from \"effect\"\n\nconst graph = Graph.directed<string, string>((mutable) => {\n  const a = Graph.addNode(mutable, \"A\")\n  const b = Graph.addNode(mutable, \"B\")\n  Graph.addEdge(mutable, a, b, \"A->B\")\n})\n\n// Follow outgoing edges (normal direction)\nconst outgoingNodes = Array.from(\n  Graph.indices(Graph.dfs(graph, { start: [0], direction: \"outgoing\" }))\n)\n\n// Follow incoming edges (reverse direction)\nconst incomingNodes = Array.from(\n  Graph.indices(Graph.dfs(graph, { start: [1], direction: \"incoming\" }))\n)";
+const sourceExample =
+  'import { Graph } from "effect"\n\nconst graph = Graph.directed<string, string>((mutable) => {\n  const a = Graph.addNode(mutable, "A")\n  const b = Graph.addNode(mutable, "B")\n  Graph.addEdge(mutable, a, b, "A->B")\n})\n\n// Follow outgoing edges (normal direction)\nconst outgoingNodes = Array.from(\n  Graph.indices(Graph.dfs(graph, { start: [0], direction: "outgoing" }))\n)\n\n// Follow incoming edges (reverse direction)\nconst incomingNodes = Array.from(\n  Graph.indices(Graph.dfs(graph, { start: [1], direction: "incoming" }))\n)';
 const moduleRecord = GraphModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

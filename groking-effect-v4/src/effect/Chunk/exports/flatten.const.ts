@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const nested = Chunk.make(
  *   Chunk.make(1, 2),
  *   Chunk.make(3, 4, 5),
@@ -22,7 +22,7 @@
  * )
  * const flattened = Chunk.flatten(nested)
  * console.log(Chunk.toArray(flattened)) // [1, 2, 3, 4, 5, 6]
- * 
+ *
  * // With empty chunks
  * const withEmpty = Chunk.make(
  *   Chunk.make(1, 2),
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "flatten";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Flattens a chunk of chunks into a single chunk by concatenating all chunks.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst nested = Chunk.make(\n  Chunk.make(1, 2),\n  Chunk.make(3, 4, 5),\n  Chunk.make(6)\n)\nconst flattened = Chunk.flatten(nested)\nconsole.log(Chunk.toArray(flattened)) // [1, 2, 3, 4, 5, 6]\n\n// With empty chunks\nconst withEmpty = Chunk.make(\n  Chunk.make(1, 2),\n  Chunk.empty<number>(),\n  Chunk.make(3, 4)\n)\nconsole.log(Chunk.toArray(Chunk.flatten(withEmpty))) // [1, 2, 3, 4]";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst nested = Chunk.make(\n  Chunk.make(1, 2),\n  Chunk.make(3, 4, 5),\n  Chunk.make(6)\n)\nconst flattened = Chunk.flatten(nested)\nconsole.log(Chunk.toArray(flattened)) // [1, 2, 3, 4, 5, 6]\n\n// With empty chunks\nconst withEmpty = Chunk.make(\n  Chunk.make(1, 2),\n  Chunk.empty<number>(),\n  Chunk.make(3, 4)\n)\nconsole.log(Chunk.toArray(Chunk.flatten(withEmpty))) // [1, 2, 3, 4]';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

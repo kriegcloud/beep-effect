@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import * as HashSet from "effect/HashSet"
- * 
+ *
  * // Create a HashSet
  * const set = HashSet.make("apple", "banana", "cherry")
- * 
+ *
  * // Check membership
  * console.log(HashSet.has(set, "apple")) // true
  * console.log(HashSet.has(set, "grape")) // false
- * 
+ *
  * // Add values (returns new HashSet)
  * const updated = HashSet.add(set, "grape")
  * console.log(HashSet.size(updated)) // 4
- * 
+ *
  * // Remove values (returns new HashSet)
  * const smaller = HashSet.remove(set, "banana")
  * console.log(HashSet.size(smaller)) // 2
@@ -35,16 +35,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HashSetModule from "effect/HashSet";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HashSetModule from "effect/HashSet";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,8 +53,10 @@ import {
 const exportName = "HashSet";
 const exportKind = "interface";
 const moduleImportPath = "effect/HashSet";
-const sourceSummary = "A HashSet is an immutable set data structure that provides efficient storage and retrieval of unique values. It uses a HashMap internally for optimal performance.";
-const sourceExample = "import * as HashSet from \"effect/HashSet\"\n\n// Create a HashSet\nconst set = HashSet.make(\"apple\", \"banana\", \"cherry\")\n\n// Check membership\nconsole.log(HashSet.has(set, \"apple\")) // true\nconsole.log(HashSet.has(set, \"grape\")) // false\n\n// Add values (returns new HashSet)\nconst updated = HashSet.add(set, \"grape\")\nconsole.log(HashSet.size(updated)) // 4\n\n// Remove values (returns new HashSet)\nconst smaller = HashSet.remove(set, \"banana\")\nconsole.log(HashSet.size(smaller)) // 2";
+const sourceSummary =
+  "A HashSet is an immutable set data structure that provides efficient storage and retrieval of unique values. It uses a HashMap internally for optimal performance.";
+const sourceExample =
+  'import * as HashSet from "effect/HashSet"\n\n// Create a HashSet\nconst set = HashSet.make("apple", "banana", "cherry")\n\n// Check membership\nconsole.log(HashSet.has(set, "apple")) // true\nconsole.log(HashSet.has(set, "grape")) // false\n\n// Add values (returns new HashSet)\nconst updated = HashSet.add(set, "grape")\nconsole.log(HashSet.size(updated)) // 4\n\n// Remove values (returns new HashSet)\nconst smaller = HashSet.remove(set, "banana")\nconsole.log(HashSet.size(smaller)) // 2';
 const moduleRecord = HashSetModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

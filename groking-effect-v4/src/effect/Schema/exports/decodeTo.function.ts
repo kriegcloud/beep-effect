@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema, SchemaGetter } from "effect"
- * 
+ *
  * const NumberFromString = Schema.String.pipe(
  *   Schema.decodeTo(
  *     Schema.Number,
@@ -24,7 +24,7 @@
  *     }
  *   )
  * )
- * 
+ *
  * const result = Schema.decodeUnknownSync(NumberFromString)("123")
  * // result: 123
  * ```
@@ -32,16 +32,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaModule from "effect/Schema";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaModule from "effect/Schema";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "decodeTo";
 const exportKind = "function";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "Creates a schema that transforms from a source schema to a target schema.";
-const sourceExample = "import { Schema, SchemaGetter } from \"effect\"\n\nconst NumberFromString = Schema.String.pipe(\n  Schema.decodeTo(\n    Schema.Number,\n    {\n      decode: SchemaGetter.transform((s) => Number(s)),\n      encode: SchemaGetter.transform((n) => String(n))\n    }\n  )\n)\n\nconst result = Schema.decodeUnknownSync(NumberFromString)(\"123\")\n// result: 123";
+const sourceExample =
+  'import { Schema, SchemaGetter } from "effect"\n\nconst NumberFromString = Schema.String.pipe(\n  Schema.decodeTo(\n    Schema.Number,\n    {\n      decode: SchemaGetter.transform((s) => Number(s)),\n      encode: SchemaGetter.transform((n) => String(n))\n    }\n  )\n)\n\nconst result = Schema.decodeUnknownSync(NumberFromString)("123")\n// result: 123';
 const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

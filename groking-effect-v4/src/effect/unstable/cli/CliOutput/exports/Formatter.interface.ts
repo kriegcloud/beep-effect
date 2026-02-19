@@ -15,7 +15,7 @@
  * ```ts
  * import { Effect } from "effect"
  * import { CliOutput } from "effect/unstable/cli"
- * 
+ *
  * // Create a custom formatter implementation
  * const customFormatter: CliOutput.Formatter = {
  *   formatHelpDoc: (doc) => `Custom Help: ${doc.usage}`,
@@ -24,7 +24,7 @@
  *   formatVersion: (name, version) => `${name} (${version})`,
  *   formatErrors: (errors) => errors.map((error) => error.message).join("\\n")
  * }
- * 
+ *
  * // Use the custom formatter in a program
  * const program = Effect.gen(function*() {
  *   const formatter = yield* CliOutput.Formatter
@@ -39,16 +39,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CliOutputModule from "effect/unstable/cli/CliOutput";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as CliOutputModule from "effect/unstable/cli/CliOutput";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -56,8 +57,10 @@ import {
 const exportName = "Formatter";
 const exportKind = "interface";
 const moduleImportPath = "effect/unstable/cli/CliOutput";
-const sourceSummary = "Service interface for formatting CLI output including help, errors, and version info. This allows customization of output formatting, including color support.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { CliOutput } from \"effect/unstable/cli\"\n\n// Create a custom formatter implementation\nconst customFormatter: CliOutput.Formatter = {\n  formatHelpDoc: (doc) => `Custom Help: ${doc.usage}`,\n  formatCliError: (error) => `Error: ${error.message}`,\n  formatError: (error) => `[ERROR] ${error.message}`,\n  formatVersion: (name, version) => `${name} (${version})`,\n  formatErrors: (errors) => errors.map((error) => error.message).join(\"\\\\n\")\n}\n\n// Use the custom formatter in a program\nconst program = Effect.gen(function*() {\n  const formatter = yield* CliOutput.Formatter\n  const helpText = formatter.formatVersion(\"myapp\", \"1.0.0\")\n  console.log(helpText)\n}).pipe(\n  Effect.provide(CliOutput.layer(customFormatter))\n)";
+const sourceSummary =
+  "Service interface for formatting CLI output including help, errors, and version info. This allows customization of output formatting, including color support.";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { CliOutput } from "effect/unstable/cli"\n\n// Create a custom formatter implementation\nconst customFormatter: CliOutput.Formatter = {\n  formatHelpDoc: (doc) => `Custom Help: ${doc.usage}`,\n  formatCliError: (error) => `Error: ${error.message}`,\n  formatError: (error) => `[ERROR] ${error.message}`,\n  formatVersion: (name, version) => `${name} (${version})`,\n  formatErrors: (errors) => errors.map((error) => error.message).join("\\\\n")\n}\n\n// Use the custom formatter in a program\nconst program = Effect.gen(function*() {\n  const formatter = yield* CliOutput.Formatter\n  const helpText = formatter.formatVersion("myapp", "1.0.0")\n  console.log(helpText)\n}).pipe(\n  Effect.provide(CliOutput.layer(customFormatter))\n)';
 const moduleRecord = CliOutputModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -88,14 +91,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

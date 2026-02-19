@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * const utc = DateTime.makeUnsafe("2024-01-01T12:00:00Z")
  * console.log(DateTime.formatIsoOffset(utc)) // "2024-01-01T12:00:00.000Z"
- * 
+ *
  * const zoned = DateTime.makeZonedUnsafe("2024-01-01T12:00:00Z", {
  *   timeZone: DateTime.zoneMakeOffset(3 * 60 * 60 * 1000)
  * })
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "formatIsoOffset";
 const exportKind = "const";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "Format a `DateTime.Zoned` as an ISO string with an offset.";
-const sourceExample = "import { DateTime } from \"effect\"\n\nconst utc = DateTime.makeUnsafe(\"2024-01-01T12:00:00Z\")\nconsole.log(DateTime.formatIsoOffset(utc)) // \"2024-01-01T12:00:00.000Z\"\n\nconst zoned = DateTime.makeZonedUnsafe(\"2024-01-01T12:00:00Z\", {\n  timeZone: DateTime.zoneMakeOffset(3 * 60 * 60 * 1000)\n})\nconsole.log(DateTime.formatIsoOffset(zoned)) // \"2024-01-01T15:00:00.000+03:00\"";
+const sourceExample =
+  'import { DateTime } from "effect"\n\nconst utc = DateTime.makeUnsafe("2024-01-01T12:00:00Z")\nconsole.log(DateTime.formatIsoOffset(utc)) // "2024-01-01T12:00:00.000Z"\n\nconst zoned = DateTime.makeZonedUnsafe("2024-01-01T12:00:00Z", {\n  timeZone: DateTime.zoneMakeOffset(3 * 60 * 60 * 1000)\n})\nconsole.log(DateTime.formatIsoOffset(zoned)) // "2024-01-01T15:00:00.000+03:00"';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

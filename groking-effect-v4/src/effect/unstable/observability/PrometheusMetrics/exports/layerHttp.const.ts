@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetrics"
- * 
+ *
  * // Create a layer that adds /metrics endpoint to the router
  * const PrometheusLayer = PrometheusMetrics.layerHttp()
- * 
+ *
  * // Or customize the path and add a prefix to all metric names
  * const CustomPrometheusLayer = PrometheusMetrics.layerHttp({
  *   path: "/prometheus/metrics",
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PrometheusMetricsModule from "effect/unstable/observability/PrometheusMetrics";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PrometheusMetricsModule from "effect/unstable/observability/PrometheusMetrics";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "layerHttp";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/observability/PrometheusMetrics";
 const sourceSummary = "Creates a Layer that registers a `/metrics` HTTP endpoint for Prometheus scraping.";
-const sourceExample = "import * as PrometheusMetrics from \"effect/unstable/observability/PrometheusMetrics\"\n\n// Create a layer that adds /metrics endpoint to the router\nconst PrometheusLayer = PrometheusMetrics.layerHttp()\n\n// Or customize the path and add a prefix to all metric names\nconst CustomPrometheusLayer = PrometheusMetrics.layerHttp({\n  path: \"/prometheus/metrics\",\n  prefix: \"myapp\"\n})";
+const sourceExample =
+  'import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetrics"\n\n// Create a layer that adds /metrics endpoint to the router\nconst PrometheusLayer = PrometheusMetrics.layerHttp()\n\n// Or customize the path and add a prefix to all metric names\nconst CustomPrometheusLayer = PrometheusMetrics.layerHttp({\n  path: "/prometheus/metrics",\n  prefix: "myapp"\n})';
 const moduleRecord = PrometheusMetricsModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

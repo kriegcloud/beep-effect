@@ -17,16 +17,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaModule from "effect/Schema";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaModule from "effect/Schema";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -34,7 +35,8 @@ import {
 const exportName = "annotateKey";
 const exportKind = "function";
 const moduleImportPath = "effect/Schema";
-const sourceSummary = "Adds key-specific annotations to a schema field. This is useful for providing custom error messages and documentation for individual fields within structures.";
+const sourceSummary =
+  "Adds key-specific annotations to a schema field. This is useful for providing custom error messages and documentation for individual fields within structures.";
 const sourceExample = "";
 const moduleRecord = SchemaModule as Record<string, unknown>;
 
@@ -66,14 +68,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

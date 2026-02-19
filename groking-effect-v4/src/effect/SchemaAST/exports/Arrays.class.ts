@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema, SchemaAST } from "effect"
- * 
+ *
  * const schema = Schema.Tuple([Schema.String, Schema.Number])
  * const ast = schema.ast
- * 
+ *
  * if (SchemaAST.isArrays(ast)) {
  *   console.log(ast.elements.length) // 2
  *   console.log(ast.rest.length)     // 0
@@ -27,16 +27,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaASTModule from "effect/SchemaAST";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaASTModule from "effect/SchemaAST";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "Arrays";
 const exportKind = "class";
 const moduleImportPath = "effect/SchemaAST";
 const sourceSummary = "AST node for array-like types — both tuples and arrays.";
-const sourceExample = "import { Schema, SchemaAST } from \"effect\"\n\nconst schema = Schema.Tuple([Schema.String, Schema.Number])\nconst ast = schema.ast\n\nif (SchemaAST.isArrays(ast)) {\n  console.log(ast.elements.length) // 2\n  console.log(ast.rest.length)     // 0\n}";
+const sourceExample =
+  'import { Schema, SchemaAST } from "effect"\n\nconst schema = Schema.Tuple([Schema.String, Schema.Number])\nconst ast = schema.ast\n\nif (SchemaAST.isArrays(ast)) {\n  console.log(ast.elements.length) // 2\n  console.log(ast.rest.length)     // 0\n}';
 const moduleRecord = SchemaASTModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

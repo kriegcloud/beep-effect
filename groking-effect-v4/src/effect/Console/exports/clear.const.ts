@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   yield* Console.log("This will be cleared")
  *   yield* Console.clear
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ConsoleModule from "effect/Console";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as ConsoleModule from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "clear";
 const exportKind = "const";
 const moduleImportPath = "effect/Console";
 const sourceSummary = "Clears the console.";
-const sourceExample = "import { Console, Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  yield* Console.log(\"This will be cleared\")\n  yield* Console.clear\n  yield* Console.log(\"This appears after clearing\")\n})";
+const sourceExample =
+  'import { Console, Effect } from "effect"\n\nconst program = Effect.gen(function*() {\n  yield* Console.log("This will be cleared")\n  yield* Console.clear\n  yield* Console.log("This appears after clearing")\n})';
 const moduleRecord = ConsoleModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

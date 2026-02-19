@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Graph } from "effect"
- * 
+ *
  * const graph = Graph.directed<string, number>((mutable) => {
  *   Graph.addNode(mutable, "active")
  *   Graph.addNode(mutable, "inactive")
  *   Graph.addNode(mutable, "pending")
  *   Graph.addNode(mutable, "active")
- * 
+ *
  *   // Keep only "active" nodes
  *   Graph.filterNodes(mutable, (data) => data === "active")
  * })
- * 
+ *
  * console.log(Graph.nodeCount(graph)) // 2 (only "active" nodes remain)
  * ```
  *
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as GraphModule from "effect/Graph";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as GraphModule from "effect/Graph";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,8 +50,10 @@ import {
 const exportName = "filterNodes";
 const exportKind = "const";
 const moduleImportPath = "effect/Graph";
-const sourceSummary = "Filters nodes by removing those that don't match the predicate. This function modifies the mutable graph in place.";
-const sourceExample = "import { Graph } from \"effect\"\n\nconst graph = Graph.directed<string, number>((mutable) => {\n  Graph.addNode(mutable, \"active\")\n  Graph.addNode(mutable, \"inactive\")\n  Graph.addNode(mutable, \"pending\")\n  Graph.addNode(mutable, \"active\")\n\n  // Keep only \"active\" nodes\n  Graph.filterNodes(mutable, (data) => data === \"active\")\n})\n\nconsole.log(Graph.nodeCount(graph)) // 2 (only \"active\" nodes remain)";
+const sourceSummary =
+  "Filters nodes by removing those that don't match the predicate. This function modifies the mutable graph in place.";
+const sourceExample =
+  'import { Graph } from "effect"\n\nconst graph = Graph.directed<string, number>((mutable) => {\n  Graph.addNode(mutable, "active")\n  Graph.addNode(mutable, "inactive")\n  Graph.addNode(mutable, "pending")\n  Graph.addNode(mutable, "active")\n\n  // Keep only "active" nodes\n  Graph.filterNodes(mutable, (data) => data === "active")\n})\n\nconsole.log(Graph.nodeCount(graph)) // 2 (only "active" nodes remain)';
 const moduleRecord = GraphModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

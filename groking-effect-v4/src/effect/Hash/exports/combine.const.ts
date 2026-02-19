@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { Hash } from "effect" // combined hash value
- * 
+ *
  * // Can also be used with pipe
  * import { pipe } from "effect"
- * 
+ *
  * const hash1 = Hash.hash("hello")
  * const hash2 = Hash.hash("world")
- * 
+ *
  * // Combine two hash values
  * const combined = Hash.combine(hash2)(hash1)
  * console.log(combined)
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HashModule from "effect/Hash";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HashModule from "effect/Hash";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "combine";
 const exportKind = "const";
 const moduleImportPath = "effect/Hash";
 const sourceSummary = "Combines two hash values into a single hash value.";
-const sourceExample = "import { Hash } from \"effect\" // combined hash value\n\n// Can also be used with pipe\nimport { pipe } from \"effect\"\n\nconst hash1 = Hash.hash(\"hello\")\nconst hash2 = Hash.hash(\"world\")\n\n// Combine two hash values\nconst combined = Hash.combine(hash2)(hash1)\nconsole.log(combined)\nconst result = pipe(hash1, Hash.combine(hash2))";
+const sourceExample =
+  'import { Hash } from "effect" // combined hash value\n\n// Can also be used with pipe\nimport { pipe } from "effect"\n\nconst hash1 = Hash.hash("hello")\nconst hash2 = Hash.hash("world")\n\n// Combine two hash values\nconst combined = Hash.combine(hash2)(hash1)\nconsole.log(combined)\nconst result = pipe(hash1, Hash.combine(hash2))';
 const moduleRecord = HashModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

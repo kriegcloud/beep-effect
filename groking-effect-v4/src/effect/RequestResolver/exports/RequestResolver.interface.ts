@@ -15,12 +15,12 @@
  * ```ts
  * import type { Request } from "effect"
  * import { Effect, Exit, RequestResolver } from "effect"
- * 
+ *
  * interface GetUserRequest extends Request.Request<string, Error> {
  *   readonly _tag: "GetUserRequest"
  *   readonly id: number
  * }
- * 
+ *
  * // In practice, you would typically use RequestResolver.make() instead
  * const resolver = RequestResolver.make<GetUserRequest>((entries) =>
  *   Effect.sync(() => {
@@ -35,16 +35,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RequestResolverModule from "effect/RequestResolver";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RequestResolverModule from "effect/RequestResolver";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,8 +53,10 @@ import {
 const exportName = "RequestResolver";
 const exportKind = "interface";
 const moduleImportPath = "effect/RequestResolver";
-const sourceSummary = "The `RequestResolver<A, R>` interface requires an environment `R` and handles the execution of requests of type `A`.";
-const sourceExample = "import type { Request } from \"effect\"\nimport { Effect, Exit, RequestResolver } from \"effect\"\n\ninterface GetUserRequest extends Request.Request<string, Error> {\n  readonly _tag: \"GetUserRequest\"\n  readonly id: number\n}\n\n// In practice, you would typically use RequestResolver.make() instead\nconst resolver = RequestResolver.make<GetUserRequest>((entries) =>\n  Effect.sync(() => {\n    for (const entry of entries) {\n      entry.completeUnsafe(Exit.succeed(`User ${entry.request.id}`))\n    }\n  })\n)";
+const sourceSummary =
+  "The `RequestResolver<A, R>` interface requires an environment `R` and handles the execution of requests of type `A`.";
+const sourceExample =
+  'import type { Request } from "effect"\nimport { Effect, Exit, RequestResolver } from "effect"\n\ninterface GetUserRequest extends Request.Request<string, Error> {\n  readonly _tag: "GetUserRequest"\n  readonly id: number\n}\n\n// In practice, you would typically use RequestResolver.make() instead\nconst resolver = RequestResolver.make<GetUserRequest>((entries) =>\n  Effect.sync(() => {\n    for (const entry of entries) {\n      entry.completeUnsafe(Exit.succeed(`User ${entry.request.id}`))\n    }\n  })\n)';
 const moduleRecord = RequestResolverModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

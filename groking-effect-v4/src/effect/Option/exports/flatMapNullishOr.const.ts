@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Option } from "effect"
- * 
+ *
  * interface Employee {
  *   company?: { address?: { street?: { name?: string } } }
  * }
- * 
+ *
  * const emp: Employee = {
  *   company: { address: { street: { name: "high street" } } }
  * }
- * 
+ *
  * console.log(
  *   Option.some(emp).pipe(
  *     Option.flatMapNullishOr((e) => e.company?.address?.street?.name)
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OptionModule from "effect/Option";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as OptionModule from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,8 +53,10 @@ import {
 const exportName = "flatMapNullishOr";
 const exportKind = "const";
 const moduleImportPath = "effect/Option";
-const sourceSummary = "Combines {@link flatMap} with {@link fromNullishOr}: applies a function that may return `null`/`undefined` to the value of a `Some`.";
-const sourceExample = "import { Option } from \"effect\"\n\ninterface Employee {\n  company?: { address?: { street?: { name?: string } } }\n}\n\nconst emp: Employee = {\n  company: { address: { street: { name: \"high street\" } } }\n}\n\nconsole.log(\n  Option.some(emp).pipe(\n    Option.flatMapNullishOr((e) => e.company?.address?.street?.name)\n  )\n)\n// Output: { _id: 'Option', _tag: 'Some', value: 'high street' }";
+const sourceSummary =
+  "Combines {@link flatMap} with {@link fromNullishOr}: applies a function that may return `null`/`undefined` to the value of a `Some`.";
+const sourceExample =
+  "import { Option } from \"effect\"\n\ninterface Employee {\n  company?: { address?: { street?: { name?: string } } }\n}\n\nconst emp: Employee = {\n  company: { address: { street: { name: \"high street\" } } }\n}\n\nconsole.log(\n  Option.some(emp).pipe(\n    Option.flatMapNullishOr((e) => e.company?.address?.street?.name)\n  )\n)\n// Output: { _id: 'Option', _tag: 'Some', value: 'high street' }";
 const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,23 +14,23 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Ref } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const ref = yield* Ref.make(10)
- * 
+ *
  *   // Set new value and get it back in one operation
  *   const newValue = yield* Ref.setAndGet(ref, 42)
  *   console.log(newValue) // 42
- * 
+ *
  *   // Verify the ref contains the new value
  *   const current = yield* Ref.get(ref)
  *   console.log(current) // 42
  * })
- * 
+ *
  * // Useful for sequential operations
  * const program2 = Effect.gen(function*() {
  *   const counter = yield* Ref.make(0)
- * 
+ *
  *   const newValue = yield* Ref.setAndGet(counter, 20)
  *   console.log(newValue) // 20
  * })
@@ -40,16 +40,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RefModule from "effect/Ref";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RefModule from "effect/Ref";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -58,7 +59,8 @@ const exportName = "setAndGet";
 const exportKind = "const";
 const moduleImportPath = "effect/Ref";
 const sourceSummary = "Atomically sets the value of the Ref to the specified value and returns the new value.";
-const sourceExample = "import { Effect, Ref } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const ref = yield* Ref.make(10)\n\n  // Set new value and get it back in one operation\n  const newValue = yield* Ref.setAndGet(ref, 42)\n  console.log(newValue) // 42\n\n  // Verify the ref contains the new value\n  const current = yield* Ref.get(ref)\n  console.log(current) // 42\n})\n\n// Useful for sequential operations\nconst program2 = Effect.gen(function*() {\n  const counter = yield* Ref.make(0)\n\n  const newValue = yield* Ref.setAndGet(counter, 20)\n  console.log(newValue) // 20\n})";
+const sourceExample =
+  'import { Effect, Ref } from "effect"\n\nconst program = Effect.gen(function*() {\n  const ref = yield* Ref.make(10)\n\n  // Set new value and get it back in one operation\n  const newValue = yield* Ref.setAndGet(ref, 42)\n  console.log(newValue) // 42\n\n  // Verify the ref contains the new value\n  const current = yield* Ref.get(ref)\n  console.log(current) // 42\n})\n\n// Useful for sequential operations\nconst program2 = Effect.gen(function*() {\n  const counter = yield* Ref.make(0)\n\n  const newValue = yield* Ref.setAndGet(counter, 20)\n  console.log(newValue) // 20\n})';
 const moduleRecord = RefModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -89,14 +91,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

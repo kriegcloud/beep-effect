@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * // Create a UTC DateTime
  * const utc: DateTime.DateTime = DateTime.nowUnsafe()
- * 
+ *
  * // Create a zoned DateTime
  * const zoned: DateTime.DateTime = DateTime.makeZonedUnsafe(new Date(), {
  *   timeZone: "Europe/London"
@@ -28,16 +28,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "DateTime";
 const exportKind = "type";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "A `DateTime` represents a point in time. It can optionally have a time zone associated with it.";
-const sourceExample = "import { DateTime } from \"effect\"\n\n// Create a UTC DateTime\nconst utc: DateTime.DateTime = DateTime.nowUnsafe()\n\n// Create a zoned DateTime\nconst zoned: DateTime.DateTime = DateTime.makeZonedUnsafe(new Date(), {\n  timeZone: \"Europe/London\"\n})";
+const sourceExample =
+  'import { DateTime } from "effect"\n\n// Create a UTC DateTime\nconst utc: DateTime.DateTime = DateTime.nowUnsafe()\n\n// Create a zoned DateTime\nconst zoned: DateTime.DateTime = DateTime.makeZonedUnsafe(new Date(), {\n  timeZone: "Europe/London"\n})';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

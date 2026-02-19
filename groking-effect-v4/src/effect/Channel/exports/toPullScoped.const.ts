@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel, Data, Effect, Scope } from "effect"
- * 
+ *
  * class ScopedPullError extends Data.TaggedError("ScopedPullError")<{
  *   readonly reason: string
  * }> {}
- * 
+ *
  * // Create a channel
  * const numbersChannel = Channel.fromIterable([1, 2, 3])
- * 
+ *
  * // Convert to Pull with explicit scope
  * const scopedPullEffect = Effect.gen(function*() {
  *   const scope = yield* Scope.make()
@@ -34,16 +34,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "toPullScoped";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
 const sourceSummary = "Converts a channel to a Pull within an existing scope.";
-const sourceExample = "import { Channel, Data, Effect, Scope } from \"effect\"\n\nclass ScopedPullError extends Data.TaggedError(\"ScopedPullError\")<{\n  readonly reason: string\n}> {}\n\n// Create a channel\nconst numbersChannel = Channel.fromIterable([1, 2, 3])\n\n// Convert to Pull with explicit scope\nconst scopedPullEffect = Effect.gen(function*() {\n  const scope = yield* Scope.make()\n  const pull = yield* Channel.toPullScoped(numbersChannel, scope)\n  return pull\n})";
+const sourceExample =
+  'import { Channel, Data, Effect, Scope } from "effect"\n\nclass ScopedPullError extends Data.TaggedError("ScopedPullError")<{\n  readonly reason: string\n}> {}\n\n// Create a channel\nconst numbersChannel = Channel.fromIterable([1, 2, 3])\n\n// Convert to Pull with explicit scope\nconst scopedPullEffect = Effect.gen(function*() {\n  const scope = yield* Scope.make()\n  const pull = yield* Channel.toPullScoped(numbersChannel, scope)\n  return pull\n})';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

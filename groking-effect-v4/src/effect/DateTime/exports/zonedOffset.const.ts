@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * const zoned = DateTime.makeZonedUnsafe("2024-01-01T12:00:00Z", {
  *   timeZone: "Europe/London"
  * })
- * 
+ *
  * const offset = DateTime.zonedOffset(zoned)
  * console.log(offset) // 0 (London is UTC+0 in winter)
  * ```
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "zonedOffset";
 const exportKind = "const";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "Calculate the time zone offset of a `DateTime.Zoned` in milliseconds.";
-const sourceExample = "import { DateTime } from \"effect\"\n\nconst zoned = DateTime.makeZonedUnsafe(\"2024-01-01T12:00:00Z\", {\n  timeZone: \"Europe/London\"\n})\n\nconst offset = DateTime.zonedOffset(zoned)\nconsole.log(offset) // 0 (London is UTC+0 in winter)";
+const sourceExample =
+  'import { DateTime } from "effect"\n\nconst zoned = DateTime.makeZonedUnsafe("2024-01-01T12:00:00Z", {\n  timeZone: "Europe/London"\n})\n\nconst offset = DateTime.zonedOffset(zoned)\nconsole.log(offset) // 0 (London is UTC+0 in winter)';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

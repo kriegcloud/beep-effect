@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Order } from "effect"
- * 
+ *
  * const alwaysEqualOrder = Order.alwaysEqual<number>()
- * 
+ *
  * console.log(alwaysEqualOrder(1, 2)) // 0
  * console.log(alwaysEqualOrder(2, 1)) // 0
  * console.log(alwaysEqualOrder(1, 1)) // 0
@@ -25,16 +25,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OrderModule from "effect/Order";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as OrderModule from "effect/Order";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "alwaysEqual";
 const exportKind = "function";
 const moduleImportPath = "effect/Order";
 const sourceSummary = "Creates an `Order` that considers all values as equal.";
-const sourceExample = "import { Order } from \"effect\"\n\nconst alwaysEqualOrder = Order.alwaysEqual<number>()\n\nconsole.log(alwaysEqualOrder(1, 2)) // 0\nconsole.log(alwaysEqualOrder(2, 1)) // 0\nconsole.log(alwaysEqualOrder(1, 1)) // 0";
+const sourceExample =
+  'import { Order } from "effect"\n\nconst alwaysEqualOrder = Order.alwaysEqual<number>()\n\nconsole.log(alwaysEqualOrder(1, 2)) // 0\nconsole.log(alwaysEqualOrder(2, 1)) // 0\nconsole.log(alwaysEqualOrder(1, 1)) // 0';
 const moduleRecord = OrderModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

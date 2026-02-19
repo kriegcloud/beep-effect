@@ -8,89 +8,92 @@ export type ExportKind =
   | "reexport"
   | "type"
   | "var"
-  | "let"
+  | "let";
 
 export interface GeneratedExportFile {
-  readonly exportName: string
-  readonly exportKind: ExportKind
-  readonly sourceRelativePath: string
-  readonly summary: string | undefined
-  readonly exampleCode: string | undefined
-  readonly filePath: string
+  readonly exportName: string;
+  readonly exportKind: ExportKind;
+  readonly sourceRelativePath: string;
+  readonly summary: string | undefined;
+  readonly exampleCode: string | undefined;
+  readonly filePath: string;
 }
 
 export interface ModuleParseDiagnostics {
-  readonly jscodeshiftParseOk: boolean
-  readonly astExportCount: number
-  readonly tsMorphExportCount: number
-  readonly mergedExportCount: number
-  readonly missingInTsMorph: ReadonlyArray<string>
-  readonly missingInAst: ReadonlyArray<string>
-  readonly parseError?: string
+  readonly jscodeshiftParseOk: boolean;
+  readonly astExportCount: number;
+  readonly tsMorphExportCount: number;
+  readonly mergedExportCount: number;
+  readonly missingInTsMorph: ReadonlyArray<string>;
+  readonly missingInAst: ReadonlyArray<string>;
+  readonly parseError?: string;
 }
 
 export interface GeneratedModuleResult {
-  readonly packageName: string
-  readonly moduleName: string
-  readonly moduleSourcePath: string
-  readonly moduleReadmePath: string
-  readonly moduleSurfacePath: string
-  readonly exportFiles: ReadonlyArray<GeneratedExportFile>
-  readonly parserDiagnostics: ModuleParseDiagnostics
+  readonly packageName: string;
+  readonly moduleName: string;
+  readonly moduleSourcePath: string;
+  readonly moduleReadmePath: string;
+  readonly moduleSurfacePath: string;
+  readonly exportFiles: ReadonlyArray<GeneratedExportFile>;
+  readonly parserDiagnostics: ModuleParseDiagnostics;
 }
 
 export interface CommonGenerateOptions {
-  readonly effectSmolRoot: string
-  readonly outputRoot: string
-  readonly repoRoot: string
-  readonly dryRun?: boolean
+  readonly effectSmolRoot: string;
+  readonly outputRoot: string;
+  readonly repoRoot: string;
+  readonly dryRun?: boolean;
+  readonly resolvableImportsOnly?: boolean;
 }
 
 export interface GenerateModuleOptions extends CommonGenerateOptions {
-  readonly packageName: string
-  readonly moduleName: string
+  readonly packageName: string;
+  readonly moduleName: string;
 }
 
 export interface GeneratePackageOptions extends CommonGenerateOptions {
-  readonly packageName: string
+  readonly packageName: string;
 }
 
 export interface GenerateRepositoryOptions extends CommonGenerateOptions {
-  readonly packageName?: string
-  readonly manifestPath?: string
+  readonly packageName?: string;
+  readonly packageNames?: ReadonlyArray<string>;
+  readonly manifestPath?: string;
+  readonly cleanPackageRoots?: boolean;
 }
 
 export interface GeneratedPackageResult {
-  readonly packageName: string
-  readonly moduleResults: ReadonlyArray<GeneratedModuleResult>
+  readonly packageName: string;
+  readonly moduleResults: ReadonlyArray<GeneratedModuleResult>;
 }
 
 export interface BootstrapManifestModuleEntry {
-  readonly moduleName: string
-  readonly sourcePath: string
-  readonly exportCount: number
-  readonly parserDiagnostics: ModuleParseDiagnostics
+  readonly moduleName: string;
+  readonly sourcePath: string;
+  readonly exportCount: number;
+  readonly parserDiagnostics: ModuleParseDiagnostics;
 }
 
 export interface BootstrapManifestPackageEntry {
-  readonly packageName: string
-  readonly moduleCount: number
-  readonly exportCount: number
-  readonly modules: ReadonlyArray<BootstrapManifestModuleEntry>
+  readonly packageName: string;
+  readonly moduleCount: number;
+  readonly exportCount: number;
+  readonly modules: ReadonlyArray<BootstrapManifestModuleEntry>;
 }
 
 export interface BootstrapManifest {
-  readonly generatedAt: string
-  readonly effectSmolRoot: string
-  readonly outputRoot: string
-  readonly packageCount: number
-  readonly moduleCount: number
-  readonly exportCount: number
-  readonly packages: ReadonlyArray<BootstrapManifestPackageEntry>
+  readonly generatedAt: string;
+  readonly effectSmolRoot: string;
+  readonly outputRoot: string;
+  readonly packageCount: number;
+  readonly moduleCount: number;
+  readonly exportCount: number;
+  readonly packages: ReadonlyArray<BootstrapManifestPackageEntry>;
 }
 
 export interface GeneratedRepositoryResult {
-  readonly packageResults: ReadonlyArray<GeneratedPackageResult>
-  readonly manifestPath: string
-  readonly manifest: BootstrapManifest
+  readonly packageResults: ReadonlyArray<GeneratedPackageResult>;
+  readonly manifestPath: string;
+  readonly manifest: BootstrapManifest;
 }

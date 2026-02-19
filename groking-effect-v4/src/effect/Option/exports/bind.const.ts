@@ -15,7 +15,7 @@
  * ```ts
  * import { Option, pipe } from "effect"
  * import * as assert from "node:assert"
- * 
+ *
  * const result = pipe(
  *   Option.Do,
  *   Option.bind("x", () => Option.some(2)),
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as OptionModule from "effect/Option";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as OptionModule from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,8 +48,10 @@ import {
 const exportName = "bind";
 const exportKind = "const";
 const moduleImportPath = "effect/Option";
-const sourceSummary = "Adds an `Option` value to the do notation record under a given name. If the `Option` is `None`, the whole pipeline short-circuits to `None`.";
-const sourceExample = "import { Option, pipe } from \"effect\"\nimport * as assert from \"node:assert\"\n\nconst result = pipe(\n  Option.Do,\n  Option.bind(\"x\", () => Option.some(2)),\n  Option.bind(\"y\", () => Option.some(3)),\n  Option.let(\"sum\", ({ x, y }) => x + y),\n  Option.filter(({ x, y }) => x * y > 5)\n)\nassert.deepStrictEqual(result, Option.some({ x: 2, y: 3, sum: 5 }))";
+const sourceSummary =
+  "Adds an `Option` value to the do notation record under a given name. If the `Option` is `None`, the whole pipeline short-circuits to `None`.";
+const sourceExample =
+  'import { Option, pipe } from "effect"\nimport * as assert from "node:assert"\n\nconst result = pipe(\n  Option.Do,\n  Option.bind("x", () => Option.some(2)),\n  Option.bind("y", () => Option.some(3)),\n  Option.let("sum", ({ x, y }) => x + y),\n  Option.filter(({ x, y }) => x * y > 5)\n)\nassert.deepStrictEqual(result, Option.some({ x: 2, y: 3, sum: 5 }))';
 const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

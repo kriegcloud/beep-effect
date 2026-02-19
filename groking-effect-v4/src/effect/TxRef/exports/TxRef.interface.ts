@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, TxRef } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create a transactional reference
  *   const ref: TxRef.TxRef<number> = yield* TxRef.make(0)
- * 
+ *
  *   // Use within a transaction
  *   yield* Effect.atomic(Effect.gen(function*() {
  *     const current = yield* TxRef.get(ref)
  *     yield* TxRef.set(ref, current + 1)
  *   }))
- * 
+ *
  *   const final = yield* TxRef.get(ref)
  *   console.log(final) // 1
  * })
@@ -34,16 +34,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxRefModule from "effect/TxRef";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxRefModule from "effect/TxRef";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "TxRef";
 const exportKind = "interface";
 const moduleImportPath = "effect/TxRef";
 const sourceSummary = "TxRef is a transactional value, it can be read and modified within the body of a transaction.";
-const sourceExample = "import { Effect, TxRef } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  // Create a transactional reference\n  const ref: TxRef.TxRef<number> = yield* TxRef.make(0)\n\n  // Use within a transaction\n  yield* Effect.atomic(Effect.gen(function*() {\n    const current = yield* TxRef.get(ref)\n    yield* TxRef.set(ref, current + 1)\n  }))\n\n  const final = yield* TxRef.get(ref)\n  console.log(final) // 1\n})";
+const sourceExample =
+  'import { Effect, TxRef } from "effect"\n\nconst program = Effect.gen(function*() {\n  // Create a transactional reference\n  const ref: TxRef.TxRef<number> = yield* TxRef.make(0)\n\n  // Use within a transaction\n  yield* Effect.atomic(Effect.gen(function*() {\n    const current = yield* TxRef.get(ref)\n    yield* TxRef.set(ref, current + 1)\n  }))\n\n  const final = yield* TxRef.get(ref)\n  console.log(final) // 1\n})';
 const moduleRecord = TxRefModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

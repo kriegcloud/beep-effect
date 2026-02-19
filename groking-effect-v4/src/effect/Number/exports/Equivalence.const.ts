@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Number } from "effect"
- * 
+ *
  * console.log(Number.Equivalence(1, 1)) // true
  * console.log(Number.Equivalence(1, 2)) // false
  * console.log(Number.Equivalence(NaN, NaN)) // true
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as NumberModule from "effect/Number";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as NumberModule from "effect/Number";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "Equivalence";
 const exportKind = "const";
 const moduleImportPath = "effect/Number";
 const sourceSummary = "An `Equivalence` instance for numbers.";
-const sourceExample = "import { Number } from \"effect\"\n\nconsole.log(Number.Equivalence(1, 1)) // true\nconsole.log(Number.Equivalence(1, 2)) // false\nconsole.log(Number.Equivalence(NaN, NaN)) // true";
+const sourceExample =
+  'import { Number } from "effect"\n\nconsole.log(Number.Equivalence(1, 1)) // true\nconsole.log(Number.Equivalence(1, 2)) // false\nconsole.log(Number.Equivalence(NaN, NaN)) // true';
 const moduleRecord = NumberModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

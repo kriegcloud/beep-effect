@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, ServiceMap, Stream } from "effect"
- * 
+ *
  * class UserRepo extends ServiceMap.Service<UserRepo, {
  *   readonly list: Effect.Effect<ReadonlyArray<string>>
  * }>()("UserRepo") {}
- * 
+ *
  * const listUsers = Effect.service(UserRepo).pipe(
  *   Effect.andThen((repo) => repo.list)
  * )
- * 
+ *
  * const stream = Stream.fromIterableEffect(listUsers)
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const users = yield* stream.pipe(
  *     Stream.provideService(UserRepo, {
@@ -34,7 +34,7 @@
  *   )
  *   yield* Console.log(users)
  * })
- * 
+ *
  * Effect.runPromise(program)
  * // Output: [ "user1", "user2" ]
  * ```
@@ -43,16 +43,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -61,7 +62,8 @@ const exportName = "fromIterableEffect";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
 const sourceSummary = "Creates a stream from an effect producing an iterable of values.";
-const sourceExample = "import { Console, Effect, ServiceMap, Stream } from \"effect\"\n\nclass UserRepo extends ServiceMap.Service<UserRepo, {\n  readonly list: Effect.Effect<ReadonlyArray<string>>\n}>()(\"UserRepo\") {}\n\nconst listUsers = Effect.service(UserRepo).pipe(\n  Effect.andThen((repo) => repo.list)\n)\n\nconst stream = Stream.fromIterableEffect(listUsers)\n\nconst program = Effect.gen(function*() {\n  const users = yield* stream.pipe(\n    Stream.provideService(UserRepo, {\n      list: Effect.succeed([\"user1\", \"user2\"])\n    }),\n    Stream.runCollect\n  )\n  yield* Console.log(users)\n})\n\nEffect.runPromise(program)\n// Output: [ \"user1\", \"user2\" ]";
+const sourceExample =
+  'import { Console, Effect, ServiceMap, Stream } from "effect"\n\nclass UserRepo extends ServiceMap.Service<UserRepo, {\n  readonly list: Effect.Effect<ReadonlyArray<string>>\n}>()("UserRepo") {}\n\nconst listUsers = Effect.service(UserRepo).pipe(\n  Effect.andThen((repo) => repo.list)\n)\n\nconst stream = Stream.fromIterableEffect(listUsers)\n\nconst program = Effect.gen(function*() {\n  const users = yield* stream.pipe(\n    Stream.provideService(UserRepo, {\n      list: Effect.succeed(["user1", "user2"])\n    }),\n    Stream.runCollect\n  )\n  yield* Console.log(users)\n})\n\nEffect.runPromise(program)\n// Output: [ "user1", "user2" ]';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -92,14 +94,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

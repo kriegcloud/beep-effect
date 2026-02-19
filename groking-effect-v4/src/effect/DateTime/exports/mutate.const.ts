@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * const dt = DateTime.makeUnsafe("2024-01-01T12:00:00Z")
- * 
+ *
  * const modified = DateTime.mutate(dt, (date) => {
  *   date.setHours(15) // Set to 3 PM
  *   date.setMinutes(30) // Set to 30 minutes
  * })
- * 
+ *
  * console.log(DateTime.formatIso(modified)) // "2024-01-01T15:30:00.000Z"
  * ```
  *
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "mutate";
 const exportKind = "const";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "Modify a `DateTime` by applying a function to a cloned `Date` instance.";
-const sourceExample = "import { DateTime } from \"effect\"\n\nconst dt = DateTime.makeUnsafe(\"2024-01-01T12:00:00Z\")\n\nconst modified = DateTime.mutate(dt, (date) => {\n  date.setHours(15) // Set to 3 PM\n  date.setMinutes(30) // Set to 30 minutes\n})\n\nconsole.log(DateTime.formatIso(modified)) // \"2024-01-01T15:30:00.000Z\"";
+const sourceExample =
+  'import { DateTime } from "effect"\n\nconst dt = DateTime.makeUnsafe("2024-01-01T12:00:00Z")\n\nconst modified = DateTime.mutate(dt, (date) => {\n  date.setHours(15) // Set to 3 PM\n  date.setMinutes(30) // Set to 30 minutes\n})\n\nconsole.log(DateTime.formatIso(modified)) // "2024-01-01T15:30:00.000Z"';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

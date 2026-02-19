@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * const namedZone = DateTime.zoneFromString("Europe/London")
  * const offsetZone = DateTime.zoneFromString("+03:00")
  * const invalid = DateTime.zoneFromString("invalid")
- * 
+ *
  * console.log(namedZone !== undefined) // true
  * console.log(offsetZone !== undefined) // true
  * console.log(invalid === undefined) // true
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "zoneFromString";
 const exportKind = "const";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "Try to parse a `TimeZone` from a string.";
-const sourceExample = "import { DateTime } from \"effect\"\n\nconst namedZone = DateTime.zoneFromString(\"Europe/London\")\nconst offsetZone = DateTime.zoneFromString(\"+03:00\")\nconst invalid = DateTime.zoneFromString(\"invalid\")\n\nconsole.log(namedZone !== undefined) // true\nconsole.log(offsetZone !== undefined) // true\nconsole.log(invalid === undefined) // true";
+const sourceExample =
+  'import { DateTime } from "effect"\n\nconst namedZone = DateTime.zoneFromString("Europe/London")\nconst offsetZone = DateTime.zoneFromString("+03:00")\nconst invalid = DateTime.zoneFromString("invalid")\n\nconsole.log(namedZone !== undefined) // true\nconsole.log(offsetZone !== undefined) // true\nconsole.log(invalid === undefined) // true';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

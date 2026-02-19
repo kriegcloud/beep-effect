@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import * as Generator from "@effect/ai-codegen/Generator"
- * 
+ *
  * const error = new Generator.GenerationError({
  *   provider: "openai",
  *   cause: new Error("Invalid spec")
@@ -24,16 +24,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as GeneratorModule from "@effect/ai-codegen/Generator";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as GeneratorModule from "@effect/ai-codegen/Generator";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "GenerationError";
 const exportKind = "class";
 const moduleImportPath = "@effect/ai-codegen/Generator";
 const sourceSummary = "Error during code generation.";
-const sourceExample = "import * as Generator from \"@effect/ai-codegen/Generator\"\n\nconst error = new Generator.GenerationError({\n  provider: \"openai\",\n  cause: new Error(\"Invalid spec\")\n})";
+const sourceExample =
+  'import * as Generator from "@effect/ai-codegen/Generator"\n\nconst error = new Generator.GenerationError({\n  provider: "openai",\n  cause: new Error("Invalid spec")\n})';
 const moduleRecord = GeneratorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

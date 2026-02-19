@@ -15,7 +15,7 @@
  * ```ts
  * import { Effect } from "effect"
  * import { Tokenizer } from "effect/unstable/ai"
- * 
+ *
  * const useTokenizer = Effect.gen(function*() {
  *   const tokenizer = yield* Tokenizer.Tokenizer
  *   const tokens = yield* tokenizer.tokenize("Hello, world!")
@@ -26,16 +26,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TokenizerModule from "effect/unstable/ai/Tokenizer";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TokenizerModule from "effect/unstable/ai/Tokenizer";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "Tokenizer";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/ai/Tokenizer";
 const sourceSummary = "The `Tokenizer` service tag for dependency injection.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { Tokenizer } from \"effect/unstable/ai\"\n\nconst useTokenizer = Effect.gen(function*() {\n  const tokenizer = yield* Tokenizer.Tokenizer\n  const tokens = yield* tokenizer.tokenize(\"Hello, world!\")\n  return tokens.length\n})";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { Tokenizer } from "effect/unstable/ai"\n\nconst useTokenizer = Effect.gen(function*() {\n  const tokenizer = yield* Tokenizer.Tokenizer\n  const tokens = yield* tokenizer.tokenize("Hello, world!")\n  return tokens.length\n})';
 const moduleRecord = TokenizerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

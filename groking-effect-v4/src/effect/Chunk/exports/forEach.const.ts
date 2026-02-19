@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk } from "effect"
- * 
+ *
  * const chunk = Chunk.make(1, 2, 3, 4)
- * 
+ *
  * // Log each element
  * Chunk.forEach(chunk, (n) => console.log(`Value: ${n}`))
  * // Output:
@@ -24,7 +24,7 @@
  * // Value: 2
  * // Value: 3
  * // Value: 4
- * 
+ *
  * // With index parameter
  * Chunk.forEach(chunk, (n, i) => console.log(`Index ${i}: ${n}`))
  * // Output:
@@ -38,16 +38,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChunkModule from "effect/Chunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChunkModule from "effect/Chunk";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -56,7 +57,8 @@ const exportName = "forEach";
 const exportKind = "const";
 const moduleImportPath = "effect/Chunk";
 const sourceSummary = "Iterates over each element of a `Chunk` and applies a function to it.";
-const sourceExample = "import { Chunk } from \"effect\"\n\nconst chunk = Chunk.make(1, 2, 3, 4)\n\n// Log each element\nChunk.forEach(chunk, (n) => console.log(`Value: ${n}`))\n// Output:\n// Value: 1\n// Value: 2\n// Value: 3\n// Value: 4\n\n// With index parameter\nChunk.forEach(chunk, (n, i) => console.log(`Index ${i}: ${n}`))\n// Output:\n// Index 0: 1\n// Index 1: 2\n// Index 2: 3\n// Index 3: 4";
+const sourceExample =
+  'import { Chunk } from "effect"\n\nconst chunk = Chunk.make(1, 2, 3, 4)\n\n// Log each element\nChunk.forEach(chunk, (n) => console.log(`Value: ${n}`))\n// Output:\n// Value: 1\n// Value: 2\n// Value: 3\n// Value: 4\n\n// With index parameter\nChunk.forEach(chunk, (n, i) => console.log(`Index ${i}: ${n}`))\n// Output:\n// Index 0: 1\n// Index 1: 2\n// Index 2: 3\n// Index 3: 4';
 const moduleRecord = ChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -87,14 +89,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

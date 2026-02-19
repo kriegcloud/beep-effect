@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Duration } from "effect"
- * 
+ *
  * const durations = [
  *   Duration.seconds(3),
  *   Duration.seconds(1),
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DurationModule from "effect/Duration";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DurationModule from "effect/Duration";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "Order";
 const exportKind = "const";
 const moduleImportPath = "effect/Duration";
 const sourceSummary = "Order instance for `Duration`, allowing comparison operations.";
-const sourceExample = "import { Duration } from \"effect\"\n\nconst durations = [\n  Duration.seconds(3),\n  Duration.seconds(1),\n  Duration.seconds(2)\n]\nconst sorted = durations.sort((a, b) => Duration.Order(a, b))\nconsole.log(sorted.map(Duration.toSeconds)) // [1, 2, 3]";
+const sourceExample =
+  'import { Duration } from "effect"\n\nconst durations = [\n  Duration.seconds(3),\n  Duration.seconds(1),\n  Duration.seconds(2)\n]\nconst sorted = durations.sort((a, b) => Duration.Order(a, b))\nconsole.log(sorted.map(Duration.toSeconds)) // [1, 2, 3]';
 const moduleRecord = DurationModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

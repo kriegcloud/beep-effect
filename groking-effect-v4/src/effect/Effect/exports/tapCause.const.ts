@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause, Console, Effect } from "effect"
- * 
+ *
  * const task = Effect.fail("Something went wrong")
- * 
+ *
  * const program = Effect.tapCause(
  *   task,
  *   (cause) => Console.log(`Logging cause: ${Cause.squash(cause)}`)
  * )
- * 
+ *
  * Effect.runPromiseExit(program).then(console.log)
  * // Output: "Logging cause: Error: Something went wrong"
  * // Then: { _id: 'Exit', _tag: 'Failure', cause: ... }
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,8 +49,10 @@ import {
 const exportName = "tapCause";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
-const sourceSummary = "The `tapCause` function allows you to inspect the complete cause of an error, including failures and defects.";
-const sourceExample = "import { Cause, Console, Effect } from \"effect\"\n\nconst task = Effect.fail(\"Something went wrong\")\n\nconst program = Effect.tapCause(\n  task,\n  (cause) => Console.log(`Logging cause: ${Cause.squash(cause)}`)\n)\n\nEffect.runPromiseExit(program).then(console.log)\n// Output: \"Logging cause: Error: Something went wrong\"\n// Then: { _id: 'Exit', _tag: 'Failure', cause: ... }";
+const sourceSummary =
+  "The `tapCause` function allows you to inspect the complete cause of an error, including failures and defects.";
+const sourceExample =
+  'import { Cause, Console, Effect } from "effect"\n\nconst task = Effect.fail("Something went wrong")\n\nconst program = Effect.tapCause(\n  task,\n  (cause) => Console.log(`Logging cause: ${Cause.squash(cause)}`)\n)\n\nEffect.runPromiseExit(program).then(console.log)\n// Output: "Logging cause: Error: Something went wrong"\n// Then: { _id: \'Exit\', _tag: \'Failure\', cause: ... }';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

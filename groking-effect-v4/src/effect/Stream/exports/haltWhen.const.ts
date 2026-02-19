@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Deferred, Effect, Stream } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const halt = yield* Deferred.make<void>()
  *   const values = yield* Stream.fromArray([1, 2, 3]).pipe(
@@ -24,7 +24,7 @@
  *   )
  *   yield* Console.log(values)
  * })
- * 
+ *
  * Effect.runPromise(program)
  * // Output:
  * // [1, 2]
@@ -34,16 +34,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,8 +52,10 @@ import {
 const exportName = "haltWhen";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
-const sourceSummary = "Halts evaluation after the current element once the provided effect completes; the effect is forked, its success is discarded, failures fail the stream, and it does not interrup...";
-const sourceExample = "import { Console, Deferred, Effect, Stream } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const halt = yield* Deferred.make<void>()\n  const values = yield* Stream.fromArray([1, 2, 3]).pipe(\n    Stream.tap((value) => value === 2 ? Deferred.succeed(halt, void 0) : Effect.void),\n    Stream.haltWhen(Deferred.await(halt)),\n    Stream.runCollect\n  )\n  yield* Console.log(values)\n})\n\nEffect.runPromise(program)\n// Output:\n// [1, 2]";
+const sourceSummary =
+  "Halts evaluation after the current element once the provided effect completes; the effect is forked, its success is discarded, failures fail the stream, and it does not interrup...";
+const sourceExample =
+  'import { Console, Deferred, Effect, Stream } from "effect"\n\nconst program = Effect.gen(function*() {\n  const halt = yield* Deferred.make<void>()\n  const values = yield* Stream.fromArray([1, 2, 3]).pipe(\n    Stream.tap((value) => value === 2 ? Deferred.succeed(halt, void 0) : Effect.void),\n    Stream.haltWhen(Deferred.await(halt)),\n    Stream.runCollect\n  )\n  yield* Console.log(values)\n})\n\nEffect.runPromise(program)\n// Output:\n// [1, 2]';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

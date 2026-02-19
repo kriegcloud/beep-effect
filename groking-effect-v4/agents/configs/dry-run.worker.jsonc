@@ -1,0 +1,42 @@
+{
+  // Default configuration for dry-run prompt tuning experiments.
+  "agent_type": "worker",
+  "mode": "dry-run",
+  "ownership": {
+    "scope": "single export file",
+    "allow_cross_file_edits": false
+  },
+  "constraints": {
+    "must_not_modify_target_file": true,
+    "must_produce_feedback_report": true,
+    "require_blocker_analysis": true,
+    "require_patch_sketch": true,
+    "require_summary_behavior_alignment": true,
+    "require_semantic_risk_analysis": true,
+    "require_documented_invocation_for_callable_value_like": true,
+    "disallow_zero_arg_probe_when_required_arity_detected": true,
+    "require_callable_probe_strategy_declaration": true,
+    "fail_on_summary_invocation_mismatch": true,
+    "require_contract_note_when_runtime_permissive": true,
+    "require_explicit_hard_blocker_status": true,
+    "require_alignment_contradiction_callout": true,
+    "require_domain_semantic_round_trip_for_key_markers": true,
+    "semantic_trigger_phrases": ["ServiceMap key", "annotation", "reference"],
+    "require_safe_lookup_for_optional_metadata": true,
+    "disallow_constructor_probe_as_primary_semantic_example": true,
+    "fail_if_all_examples_are_reflective": true
+  },
+  "outputs": {
+    "report_format": "markdown",
+    "report_sections": [
+      "What Worked",
+      "What Didn't",
+      "Hard Blockers",
+      "Probe Strategy Declaration",
+      "Semantic Risks",
+      "Proposed Changes",
+      "Proposed Patch Sketch",
+      "Estimated Real Run Effort"
+    ]
+  }
+}

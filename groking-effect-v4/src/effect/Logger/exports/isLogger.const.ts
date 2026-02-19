@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Logger } from "effect"
- * 
+ *
  * const myLogger = Logger.make((options) => {
  *   console.log(options.message)
  * })
- * 
+ *
  * console.log(Logger.isLogger(myLogger)) // true
  * console.log(Logger.isLogger("not a logger")) // false
  * console.log(Logger.isLogger({ log: () => {} })) // false
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LoggerModule from "effect/Logger";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LoggerModule from "effect/Logger";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "isLogger";
 const exportKind = "const";
 const moduleImportPath = "effect/Logger";
 const sourceSummary = "Returns `true` if the specified value is a `Logger`, otherwise returns `false`.";
-const sourceExample = "import { Logger } from \"effect\"\n\nconst myLogger = Logger.make((options) => {\n  console.log(options.message)\n})\n\nconsole.log(Logger.isLogger(myLogger)) // true\nconsole.log(Logger.isLogger(\"not a logger\")) // false\nconsole.log(Logger.isLogger({ log: () => {} })) // false";
+const sourceExample =
+  'import { Logger } from "effect"\n\nconst myLogger = Logger.make((options) => {\n  console.log(options.message)\n})\n\nconsole.log(Logger.isLogger(myLogger)) // true\nconsole.log(Logger.isLogger("not a logger")) // false\nconsole.log(Logger.isLogger({ log: () => {} })) // false';
 const moduleRecord = LoggerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

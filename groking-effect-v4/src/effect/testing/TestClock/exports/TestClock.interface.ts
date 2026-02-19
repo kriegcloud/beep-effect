@@ -16,7 +16,7 @@
  * import { Effect, Fiber, Option, pipe } from "effect"
  * import { TestClock } from "effect/testing"
  * import * as assert from "node:assert"
- * 
+ *
  * Effect.gen(function*() {
  *   const fiber = yield* pipe(
  *     Effect.sleep("5 minutes"),
@@ -33,16 +33,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TestClockModule from "effect/testing/TestClock";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TestClockModule from "effect/testing/TestClock";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "TestClock";
 const exportKind = "interface";
 const moduleImportPath = "effect/testing/TestClock";
-const sourceSummary = "A `TestClock` simplifies deterministically and efficiently testing effects which involve the passage of time.";
-const sourceExample = "import { Effect, Fiber, Option, pipe } from \"effect\"\nimport { TestClock } from \"effect/testing\"\nimport * as assert from \"node:assert\"\n\nEffect.gen(function*() {\n  const fiber = yield* pipe(\n    Effect.sleep(\"5 minutes\"),\n    Effect.timeout(\"1 minute\"),\n    Effect.forkChild\n  )\n  yield* TestClock.adjust(\"1 minute\")\n  const result = yield* Fiber.join(fiber)\n  assert.deepStrictEqual(result, Option.none())\n})";
+const sourceSummary =
+  "A `TestClock` simplifies deterministically and efficiently testing effects which involve the passage of time.";
+const sourceExample =
+  'import { Effect, Fiber, Option, pipe } from "effect"\nimport { TestClock } from "effect/testing"\nimport * as assert from "node:assert"\n\nEffect.gen(function*() {\n  const fiber = yield* pipe(\n    Effect.sleep("5 minutes"),\n    Effect.timeout("1 minute"),\n    Effect.forkChild\n  )\n  yield* TestClock.adjust("1 minute")\n  const result = yield* Fiber.join(fiber)\n  assert.deepStrictEqual(result, Option.none())\n})';
 const moduleRecord = TestClockModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Channel } from "effect"
- * 
+ *
  * // A channel that outputs numbers and requires no environment
  * type NumberChannel = Channel.Channel<number>
- * 
+ *
  * // A channel that outputs strings, can fail with Error, completes with boolean
  * type StringChannel = Channel.Channel<string, Error, boolean>
- * 
+ *
  * // A channel with all type parameters specified
  * type FullChannel = Channel.Channel<
  *   string, // OutElem - output elements
@@ -37,16 +37,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,8 +55,10 @@ import {
 const exportName = "Channel";
 const exportKind = "interface";
 const moduleImportPath = "effect/Channel";
-const sourceSummary = "A `Channel` is a nexus of I/O operations, which supports both reading and writing. A channel may read values of type `InElem` and write values of type `OutElem`. When the channe...";
-const sourceExample = "import type { Channel } from \"effect\"\n\n// A channel that outputs numbers and requires no environment\ntype NumberChannel = Channel.Channel<number>\n\n// A channel that outputs strings, can fail with Error, completes with boolean\ntype StringChannel = Channel.Channel<string, Error, boolean>\n\n// A channel with all type parameters specified\ntype FullChannel = Channel.Channel<\n  string, // OutElem - output elements\n  Error, // OutErr - output errors\n  number, // OutDone - completion value\n  number, // InElem - input elements\n  string, // InErr - input errors\n  boolean, // InDone - input completion\n  { db: string } // Env - required environment\n>";
+const sourceSummary =
+  "A `Channel` is a nexus of I/O operations, which supports both reading and writing. A channel may read values of type `InElem` and write values of type `OutElem`. When the channe...";
+const sourceExample =
+  'import type { Channel } from "effect"\n\n// A channel that outputs numbers and requires no environment\ntype NumberChannel = Channel.Channel<number>\n\n// A channel that outputs strings, can fail with Error, completes with boolean\ntype StringChannel = Channel.Channel<string, Error, boolean>\n\n// A channel with all type parameters specified\ntype FullChannel = Channel.Channel<\n  string, // OutElem - output elements\n  Error, // OutErr - output errors\n  number, // OutDone - completion value\n  number, // InElem - input elements\n  string, // InErr - input errors\n  boolean, // InDone - input completion\n  { db: string } // Env - required environment\n>';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -86,14 +89,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

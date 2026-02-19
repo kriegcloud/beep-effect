@@ -15,27 +15,27 @@
  * ```ts
  * import { Schema } from "effect"
  * import { Flag } from "effect/unstable/cli"
- * 
+ *
  * const isEmail = Schema.isIncludes("@", {
  *   message: "Must be a valid email address"
  * })
- * 
+ *
  * // Parse and validate email with custom schema
  * const EmailSchema = Schema.String.pipe(
  *   Schema.check(isEmail)
  * )
- * 
+ *
  * const emailFlag = Flag.string("email").pipe(
  *   Flag.withSchema(EmailSchema)
  * )
- * 
+ *
  * // Parse JSON configuration with schema validation
  * const ConfigSchema = Schema.Struct({
  *   port: Schema.Number,
  *   host: Schema.String,
  *   ssl: Schema.optional(Schema.Boolean)
  * }).pipe(Schema.fromJsonString)
- * 
+ *
  * const configFlag = Flag.string("config").pipe(
  *   Flag.withSchema(ConfigSchema)
  * )
@@ -45,16 +45,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FlagModule from "effect/unstable/cli/Flag";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FlagModule from "effect/unstable/cli/Flag";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -63,7 +64,8 @@ const exportName = "withSchema";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Flag";
 const sourceSummary = "Validates and transforms a flag value using a Schema codec.";
-const sourceExample = "import { Schema } from \"effect\"\nimport { Flag } from \"effect/unstable/cli\"\n\nconst isEmail = Schema.isIncludes(\"@\", {\n  message: \"Must be a valid email address\"\n})\n\n// Parse and validate email with custom schema\nconst EmailSchema = Schema.String.pipe(\n  Schema.check(isEmail)\n)\n\nconst emailFlag = Flag.string(\"email\").pipe(\n  Flag.withSchema(EmailSchema)\n)\n\n// Parse JSON configuration with schema validation\nconst ConfigSchema = Schema.Struct({\n  port: Schema.Number,\n  host: Schema.String,\n  ssl: Schema.optional(Schema.Boolean)\n}).pipe(Schema.fromJsonString)\n\nconst configFlag = Flag.string(\"config\").pipe(\n  Flag.withSchema(ConfigSchema)\n)";
+const sourceExample =
+  'import { Schema } from "effect"\nimport { Flag } from "effect/unstable/cli"\n\nconst isEmail = Schema.isIncludes("@", {\n  message: "Must be a valid email address"\n})\n\n// Parse and validate email with custom schema\nconst EmailSchema = Schema.String.pipe(\n  Schema.check(isEmail)\n)\n\nconst emailFlag = Flag.string("email").pipe(\n  Flag.withSchema(EmailSchema)\n)\n\n// Parse JSON configuration with schema validation\nconst ConfigSchema = Schema.Struct({\n  port: Schema.Number,\n  host: Schema.String,\n  ssl: Schema.optional(Schema.Boolean)\n}).pipe(Schema.fromJsonString)\n\nconst configFlag = Flag.string("config").pipe(\n  Flag.withSchema(ConfigSchema)\n)';
 const moduleRecord = FlagModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -94,14 +96,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

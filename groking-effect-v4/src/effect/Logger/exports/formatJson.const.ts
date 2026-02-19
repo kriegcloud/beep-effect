@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Logger } from "effect"
- * 
+ *
  * // Use the JSON format logger
  * const jsonLoggerProgram = Effect.log("Hello JSON Format").pipe(
  *   Effect.provide(Logger.layer([Logger.formatJson]))
  * )
- * 
+ *
  * // Perfect for log aggregation and processing systems
  * const productionProgram = Effect.gen(function*() {
  *   yield* Effect.log("Server started", { port: 3000, env: "production" })
@@ -33,7 +33,7 @@
  *   Effect.withLogSpan("request-processing"),
  *   Effect.provide(Logger.layer([Logger.formatJson]))
  * )
- * 
+ *
  * // Send to external logging service
  * const externalLogger = Logger.map(Logger.formatJson, (jsonString) => {
  *   // Send to Elasticsearch, CloudWatch, etc.
@@ -46,16 +46,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LoggerModule from "effect/Logger";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LoggerModule from "effect/Logger";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -64,7 +65,8 @@ const exportName = "formatJson";
 const exportKind = "const";
 const moduleImportPath = "effect/Logger";
 const sourceSummary = "A `Logger` which outputs logs using a structured format serialized as JSON on a single line.";
-const sourceExample = "import { Effect, Logger } from \"effect\"\n\n// Use the JSON format logger\nconst jsonLoggerProgram = Effect.log(\"Hello JSON Format\").pipe(\n  Effect.provide(Logger.layer([Logger.formatJson]))\n)\n\n// Perfect for log aggregation and processing systems\nconst productionProgram = Effect.gen(function*() {\n  yield* Effect.log(\"Server started\", { port: 3000, env: \"production\" })\n  yield* Effect.logInfo(\"Request received\", {\n    method: \"GET\",\n    path: \"/api/users\"\n  })\n  yield* Effect.logError(\"Database error\", { error: \"Connection timeout\" })\n}).pipe(\n  Effect.annotateLogs(\"service\", \"api-server\"),\n  Effect.withLogSpan(\"request-processing\"),\n  Effect.provide(Logger.layer([Logger.formatJson]))\n)\n\n// Send to external logging service\nconst externalLogger = Logger.map(Logger.formatJson, (jsonString) => {\n  // Send to Elasticsearch, CloudWatch, etc.\n  console.log(\"Sending to external service:\", jsonString)\n  return jsonString\n})";
+const sourceExample =
+  'import { Effect, Logger } from "effect"\n\n// Use the JSON format logger\nconst jsonLoggerProgram = Effect.log("Hello JSON Format").pipe(\n  Effect.provide(Logger.layer([Logger.formatJson]))\n)\n\n// Perfect for log aggregation and processing systems\nconst productionProgram = Effect.gen(function*() {\n  yield* Effect.log("Server started", { port: 3000, env: "production" })\n  yield* Effect.logInfo("Request received", {\n    method: "GET",\n    path: "/api/users"\n  })\n  yield* Effect.logError("Database error", { error: "Connection timeout" })\n}).pipe(\n  Effect.annotateLogs("service", "api-server"),\n  Effect.withLogSpan("request-processing"),\n  Effect.provide(Logger.layer([Logger.formatJson]))\n)\n\n// Send to external logging service\nconst externalLogger = Logger.map(Logger.formatJson, (jsonString) => {\n  // Send to Elasticsearch, CloudWatch, etc.\n  console.log("Sending to external service:", jsonString)\n  return jsonString\n})';
 const moduleRecord = LoggerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -95,14 +97,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

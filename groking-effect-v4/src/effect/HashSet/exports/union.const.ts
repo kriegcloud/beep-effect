@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import * as HashSet from "effect/HashSet"
- * 
+ *
  * const set1 = HashSet.make("a", "b")
  * const set2 = HashSet.make("b", "c")
  * const combined = HashSet.union(set1, set2)
- * 
+ *
  * console.log(Array.from(combined).sort()) // ["a", "b", "c"]
  * console.log(HashSet.size(combined)) // 3
  * ```
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HashSetModule from "effect/HashSet";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HashSetModule from "effect/HashSet";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "union";
 const exportKind = "const";
 const moduleImportPath = "effect/HashSet";
 const sourceSummary = "Creates the union of two HashSets.";
-const sourceExample = "import * as HashSet from \"effect/HashSet\"\n\nconst set1 = HashSet.make(\"a\", \"b\")\nconst set2 = HashSet.make(\"b\", \"c\")\nconst combined = HashSet.union(set1, set2)\n\nconsole.log(Array.from(combined).sort()) // [\"a\", \"b\", \"c\"]\nconsole.log(HashSet.size(combined)) // 3";
+const sourceExample =
+  'import * as HashSet from "effect/HashSet"\n\nconst set1 = HashSet.make("a", "b")\nconst set2 = HashSet.make("b", "c")\nconst combined = HashSet.union(set1, set2)\n\nconsole.log(Array.from(combined).sort()) // ["a", "b", "c"]\nconsole.log(HashSet.size(combined)) // 3';
 const moduleRecord = HashSetModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

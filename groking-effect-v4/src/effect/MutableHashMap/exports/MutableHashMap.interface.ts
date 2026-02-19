@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import * as MutableHashMap from "effect/MutableHashMap"
- * 
+ *
  * // Create a mutable hash map with string keys and number values
  * const map: MutableHashMap.MutableHashMap<string, number> = MutableHashMap
  *   .empty()
- * 
+ *
  * // Add some data
  * MutableHashMap.set(map, "count", 42)
  * MutableHashMap.set(map, "total", 100)
- * 
+ *
  * // Use as iterable
  * for (const [key, value] of map) {
  *   console.log(`${key}: ${value}`)
@@ -30,7 +30,7 @@
  * // Output:
  * // count: 42
  * // total: 100
- * 
+ *
  * // Convert to array
  * const entries = Array.from(map)
  * console.log(entries) // [["count", 42], ["total", 100]]
@@ -40,16 +40,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MutableHashMapModule from "effect/MutableHashMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MutableHashMapModule from "effect/MutableHashMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -58,7 +59,8 @@ const exportName = "MutableHashMap";
 const exportKind = "interface";
 const moduleImportPath = "effect/MutableHashMap";
 const sourceSummary = "No summary found in JSDoc.";
-const sourceExample = "import * as MutableHashMap from \"effect/MutableHashMap\"\n\n// Create a mutable hash map with string keys and number values\nconst map: MutableHashMap.MutableHashMap<string, number> = MutableHashMap\n  .empty()\n\n// Add some data\nMutableHashMap.set(map, \"count\", 42)\nMutableHashMap.set(map, \"total\", 100)\n\n// Use as iterable\nfor (const [key, value] of map) {\n  console.log(`${key}: ${value}`)\n}\n// Output:\n// count: 42\n// total: 100\n\n// Convert to array\nconst entries = Array.from(map)\nconsole.log(entries) // [[\"count\", 42], [\"total\", 100]]";
+const sourceExample =
+  'import * as MutableHashMap from "effect/MutableHashMap"\n\n// Create a mutable hash map with string keys and number values\nconst map: MutableHashMap.MutableHashMap<string, number> = MutableHashMap\n  .empty()\n\n// Add some data\nMutableHashMap.set(map, "count", 42)\nMutableHashMap.set(map, "total", 100)\n\n// Use as iterable\nfor (const [key, value] of map) {\n  console.log(`${key}: ${value}`)\n}\n// Output:\n// count: 42\n// total: 100\n\n// Convert to array\nconst entries = Array.from(map)\nconsole.log(entries) // [["count", 42], ["total", 100]]';
 const moduleRecord = MutableHashMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -89,14 +91,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

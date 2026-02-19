@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Stream } from "effect"
- * 
+ *
  * Effect.runPromise(Effect.gen(function* () {
  *   const lines = yield* Stream.runCollect(
  *     Stream.make("a\nb\r\n", "c\n").pipe(Stream.splitLines)
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,8 +46,10 @@ import {
 const exportName = "splitLines";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
-const sourceSummary = "Splits a stream of strings into lines, handling `\\n`, `\\r`, and `\\r\\n` delimiters across chunks.";
-const sourceExample = "import { Console, Effect, Stream } from \"effect\"\n\nEffect.runPromise(Effect.gen(function* () {\n  const lines = yield* Stream.runCollect(\n    Stream.make(\"a\\nb\\r\\n\", \"c\\n\").pipe(Stream.splitLines)\n  )\n  yield* Console.log(lines)\n}))\n// [\"a\", \"b\", \"c\"]";
+const sourceSummary =
+  "Splits a stream of strings into lines, handling `\\n`, `\\r`, and `\\r\\n` delimiters across chunks.";
+const sourceExample =
+  'import { Console, Effect, Stream } from "effect"\n\nEffect.runPromise(Effect.gen(function* () {\n  const lines = yield* Stream.runCollect(\n    Stream.make("a\\nb\\r\\n", "c\\n").pipe(Stream.splitLines)\n  )\n  yield* Console.log(lines)\n}))\n// ["a", "b", "c"]';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

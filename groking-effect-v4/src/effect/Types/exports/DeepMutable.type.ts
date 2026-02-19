@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Types } from "effect"
- * 
+ *
  * type Deep = Types.DeepMutable<{
  *   readonly a: string
  *   readonly b: ReadonlyArray<{ readonly c: number }>
@@ -26,16 +26,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TypesModule from "effect/Types";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TypesModule from "effect/Types";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,8 +44,10 @@ import {
 const exportName = "DeepMutable";
 const exportKind = "type";
 const moduleImportPath = "effect/Types";
-const sourceSummary = "Recursively removes `readonly` from all properties, including nested objects, arrays, `Map`, and `Set`.";
-const sourceExample = "import type { Types } from \"effect\"\n\ntype Deep = Types.DeepMutable<{\n  readonly a: string\n  readonly b: ReadonlyArray<{ readonly c: number }>\n}>\n// { a: string; b: Array<{ c: number }> }";
+const sourceSummary =
+  "Recursively removes `readonly` from all properties, including nested objects, arrays, `Map`, and `Set`.";
+const sourceExample =
+  'import type { Types } from "effect"\n\ntype Deep = Types.DeepMutable<{\n  readonly a: string\n  readonly b: ReadonlyArray<{ readonly c: number }>\n}>\n// { a: string; b: Array<{ c: number }> }';
 const moduleRecord = TypesModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -15,11 +15,11 @@
  * ```ts
  * import { ServiceMap } from "effect"
  * import * as assert from "node:assert"
- * 
+ *
  * const LoggerRef = ServiceMap.Reference("Logger", {
  *   defaultValue: () => ({ log: (msg: string) => console.log(msg) })
  * })
- * 
+ *
  * assert.strictEqual(ServiceMap.isReference(LoggerRef), true)
  * assert.strictEqual(ServiceMap.isReference(ServiceMap.Service("Key")), false)
  * ```
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ServiceMapModule from "effect/ServiceMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ServiceMapModule from "effect/ServiceMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "isReference";
 const exportKind = "const";
 const moduleImportPath = "effect/ServiceMap";
 const sourceSummary = "Checks if the provided argument is a `Reference`.";
-const sourceExample = "import { ServiceMap } from \"effect\"\nimport * as assert from \"node:assert\"\n\nconst LoggerRef = ServiceMap.Reference(\"Logger\", {\n  defaultValue: () => ({ log: (msg: string) => console.log(msg) })\n})\n\nassert.strictEqual(ServiceMap.isReference(LoggerRef), true)\nassert.strictEqual(ServiceMap.isReference(ServiceMap.Service(\"Key\")), false)";
+const sourceExample =
+  'import { ServiceMap } from "effect"\nimport * as assert from "node:assert"\n\nconst LoggerRef = ServiceMap.Reference("Logger", {\n  defaultValue: () => ({ log: (msg: string) => console.log(msg) })\n})\n\nassert.strictEqual(ServiceMap.isReference(LoggerRef), true)\nassert.strictEqual(ServiceMap.isReference(ServiceMap.Service("Key")), false)';
 const moduleRecord = ServiceMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

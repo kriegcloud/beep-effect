@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema, SchemaTransformation } from "effect"
- * 
+ *
  * const CentsFromDollars = Schema.Number.pipe(
  *   Schema.decodeTo(
  *     Schema.Number,
@@ -29,16 +29,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaTransformationModule from "effect/SchemaTransformation";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaTransformationModule from "effect/SchemaTransformation";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "transform";
 const exportKind = "function";
 const moduleImportPath = "effect/SchemaTransformation";
 const sourceSummary = "Creates a `Transformation` from pure (sync, infallible) decode and encode functions.";
-const sourceExample = "import { Schema, SchemaTransformation } from \"effect\"\n\nconst CentsFromDollars = Schema.Number.pipe(\n  Schema.decodeTo(\n    Schema.Number,\n    SchemaTransformation.transform({\n      decode: (dollars) => dollars * 100,\n      encode: (cents) => cents / 100\n    })\n  )\n)";
+const sourceExample =
+  'import { Schema, SchemaTransformation } from "effect"\n\nconst CentsFromDollars = Schema.Number.pipe(\n  Schema.decodeTo(\n    Schema.Number,\n    SchemaTransformation.transform({\n      decode: (dollars) => dollars * 100,\n      encode: (cents) => cents / 100\n    })\n  )\n)';
 const moduleRecord = SchemaTransformationModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

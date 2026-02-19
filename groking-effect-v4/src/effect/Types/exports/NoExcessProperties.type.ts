@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Types } from "effect"
- * 
+ *
  * type Expected = { a: number; b: string }
  * type Input = { a: number; b: string; c: boolean }
- * 
+ *
  * type Result = Types.NoExcessProperties<Expected, Input>
  * // { a: number; b: string; readonly c: never }
  * ```
@@ -26,16 +26,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TypesModule from "effect/Types";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TypesModule from "effect/Types";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "NoExcessProperties";
 const exportKind = "type";
 const moduleImportPath = "effect/Types";
 const sourceSummary = "Constrains a type to prevent excess properties not present in `T`.";
-const sourceExample = "import type { Types } from \"effect\"\n\ntype Expected = { a: number; b: string }\ntype Input = { a: number; b: string; c: boolean }\n\ntype Result = Types.NoExcessProperties<Expected, Input>\n// { a: number; b: string; readonly c: never }";
+const sourceExample =
+  'import type { Types } from "effect"\n\ntype Expected = { a: number; b: string }\ntype Input = { a: number; b: string; c: boolean }\n\ntype Result = Types.NoExcessProperties<Expected, Input>\n// { a: number; b: string; readonly c: never }';
 const moduleRecord = TypesModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

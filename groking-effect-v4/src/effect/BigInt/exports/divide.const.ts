@@ -15,7 +15,7 @@
  * ```ts
  * import { divide } from "effect/BigInt"
  * import * as assert from "node:assert"
- * 
+ *
  * assert.deepStrictEqual(divide(6n, 3n), 2n)
  * assert.deepStrictEqual(divide(6n, 0n), undefined)
  * ```
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BigIntModule from "effect/BigInt";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as BigIntModule from "effect/BigInt";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "divide";
 const exportKind = "const";
 const moduleImportPath = "effect/BigInt";
 const sourceSummary = "Provides a division operation on `bigint`s.";
-const sourceExample = "import { divide } from \"effect/BigInt\"\nimport * as assert from \"node:assert\"\n\nassert.deepStrictEqual(divide(6n, 3n), 2n)\nassert.deepStrictEqual(divide(6n, 0n), undefined)";
+const sourceExample =
+  'import { divide } from "effect/BigInt"\nimport * as assert from "node:assert"\n\nassert.deepStrictEqual(divide(6n, 3n), 2n)\nassert.deepStrictEqual(divide(6n, 0n), undefined)';
 const moduleRecord = BigIntModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

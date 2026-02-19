@@ -15,18 +15,18 @@
  * ```ts
  * import { Effect, Cause } from "effect"
  * import { Queue } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const queue = yield* Queue.bounded<number, string>(10)
- * 
+ *
  *   // Add some messages
  *   Queue.offerUnsafe(queue, 1)
- * 
+ *
  *   // Create a cause and fail the queue synchronously
  *   const cause = Cause.fail("Processing error")
  *   const failed = Queue.failCauseUnsafe(queue, cause)
  *   console.log(failed) // true
- * 
+ *
  *   // The queue is now in failed state
  *   console.log(queue.state._tag) // "Done"
  * })
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as QueueModule from "effect/Queue";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as QueueModule from "effect/Queue";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "failCauseUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/Queue";
 const sourceSummary = "Fail the queue with a cause synchronously. If the queue is already done, `false` is returned.";
-const sourceExample = "import { Effect, Cause } from \"effect\"\nimport { Queue } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const queue = yield* Queue.bounded<number, string>(10)\n\n  // Add some messages\n  Queue.offerUnsafe(queue, 1)\n\n  // Create a cause and fail the queue synchronously\n  const cause = Cause.fail(\"Processing error\")\n  const failed = Queue.failCauseUnsafe(queue, cause)\n  console.log(failed) // true\n\n  // The queue is now in failed state\n  console.log(queue.state._tag) // \"Done\"\n})";
+const sourceExample =
+  'import { Effect, Cause } from "effect"\nimport { Queue } from "effect"\n\nconst program = Effect.gen(function*() {\n  const queue = yield* Queue.bounded<number, string>(10)\n\n  // Add some messages\n  Queue.offerUnsafe(queue, 1)\n\n  // Create a cause and fail the queue synchronously\n  const cause = Cause.fail("Processing error")\n  const failed = Queue.failCauseUnsafe(queue, cause)\n  console.log(failed) // true\n\n  // The queue is now in failed state\n  console.log(queue.state._tag) // "Done"\n})';
 const moduleRecord = QueueModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

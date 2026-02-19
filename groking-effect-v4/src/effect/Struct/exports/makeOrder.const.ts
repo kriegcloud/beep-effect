@@ -14,12 +14,12 @@
  * Source JSDoc Example:
  * ```ts
  * import { Number, String, Struct } from "effect"
- * 
+ *
  * const PersonOrder = Struct.makeOrder({
  *   name: String.Order,
  *   age: Number.Order
  * })
- * 
+ *
  * console.log(PersonOrder({ name: "Alice", age: 30 }, { name: "Bob", age: 25 }))
  * // -1 (Alice comes before Bob)
  * ```
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StructModule from "effect/Struct";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StructModule from "effect/Struct";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,8 +46,10 @@ import {
 const exportName = "makeOrder";
 const exportKind = "const";
 const moduleImportPath = "effect/Struct";
-const sourceSummary = "Creates an `Order` for a struct by providing an `Order` for each property. Properties are compared in the order they appear in the fields object; the first non-zero comparison d...";
-const sourceExample = "import { Number, String, Struct } from \"effect\"\n\nconst PersonOrder = Struct.makeOrder({\n  name: String.Order,\n  age: Number.Order\n})\n\nconsole.log(PersonOrder({ name: \"Alice\", age: 30 }, { name: \"Bob\", age: 25 }))\n// -1 (Alice comes before Bob)";
+const sourceSummary =
+  "Creates an `Order` for a struct by providing an `Order` for each property. Properties are compared in the order they appear in the fields object; the first non-zero comparison d...";
+const sourceExample =
+  'import { Number, String, Struct } from "effect"\n\nconst PersonOrder = Struct.makeOrder({\n  name: String.Order,\n  age: Number.Order\n})\n\nconsole.log(PersonOrder({ name: "Alice", age: 30 }, { name: "Bob", age: 25 }))\n// -1 (Alice comes before Bob)';
 const moduleRecord = StructModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

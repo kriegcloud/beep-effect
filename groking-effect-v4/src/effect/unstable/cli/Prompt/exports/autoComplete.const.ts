@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Prompt } from "effect/unstable/cli"
- * 
+ *
  * const language = Prompt.autoComplete({
  *   message: "Choose a language",
  *   choices: [
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PromptModule from "effect/unstable/cli/Prompt";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PromptModule from "effect/unstable/cli/Prompt";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "autoComplete";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Prompt";
 const sourceSummary = "Creates a prompt that lets users filter select choices by typing.";
-const sourceExample = "import { Prompt } from \"effect/unstable/cli\"\n\nconst language = Prompt.autoComplete({\n  message: \"Choose a language\",\n  choices: [\n    { title: \"TypeScript\", value: \"ts\" },\n    { title: \"Rust\", value: \"rs\" },\n    { title: \"Kotlin\", value: \"kt\" }\n  ]\n})";
+const sourceExample =
+  'import { Prompt } from "effect/unstable/cli"\n\nconst language = Prompt.autoComplete({\n  message: "Choose a language",\n  choices: [\n    { title: "TypeScript", value: "ts" },\n    { title: "Rust", value: "rs" },\n    { title: "Kotlin", value: "kt" }\n  ]\n})';
 const moduleRecord = PromptModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

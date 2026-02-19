@@ -16,14 +16,14 @@
  * import { Effect } from "effect"
  * import * as Sink from "effect/Sink"
  * import * as Stream from "effect/Stream"
- * 
+ *
  * // Create a simple sink that always succeeds with a value
  * const sink: Sink.Sink<number> = Sink.succeed(42)
- * 
+ *
  * // Use the sink to consume a stream
  * const stream = Stream.make(1, 2, 3)
  * const program = Stream.run(stream, sink)
- * 
+ *
  * Effect.runPromise(program).then(console.log)
  * // Output: 42
  * ```
@@ -32,16 +32,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SinkModule from "effect/Sink";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SinkModule from "effect/Sink";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,8 +50,10 @@ import {
 const exportName = "Sink";
 const exportKind = "interface";
 const moduleImportPath = "effect/Sink";
-const sourceSummary = "A `Sink<A, In, L, E, R>` is used to consume elements produced by a `Stream`. You can think of a sink as a function that will consume a variable amount of `In` elements (could be...";
-const sourceExample = "import { Effect } from \"effect\"\nimport * as Sink from \"effect/Sink\"\nimport * as Stream from \"effect/Stream\"\n\n// Create a simple sink that always succeeds with a value\nconst sink: Sink.Sink<number> = Sink.succeed(42)\n\n// Use the sink to consume a stream\nconst stream = Stream.make(1, 2, 3)\nconst program = Stream.run(stream, sink)\n\nEffect.runPromise(program).then(console.log)\n// Output: 42";
+const sourceSummary =
+  "A `Sink<A, In, L, E, R>` is used to consume elements produced by a `Stream`. You can think of a sink as a function that will consume a variable amount of `In` elements (could be...";
+const sourceExample =
+  'import { Effect } from "effect"\nimport * as Sink from "effect/Sink"\nimport * as Stream from "effect/Stream"\n\n// Create a simple sink that always succeeds with a value\nconst sink: Sink.Sink<number> = Sink.succeed(42)\n\n// Use the sink to consume a stream\nconst stream = Stream.make(1, 2, 3)\nconst program = Stream.run(stream, sink)\n\nEffect.runPromise(program).then(console.log)\n// Output: 42';
 const moduleRecord = SinkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

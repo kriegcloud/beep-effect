@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Duration } from "effect"
- * 
+ *
  * const duration1 = Duration.fromDurationInputUnsafe(1000) // 1000 milliseconds
  * const duration2 = Duration.fromDurationInputUnsafe("5 seconds")
  * const duration3 = Duration.fromDurationInputUnsafe([2, 500_000_000]) // 2 seconds and 500ms
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DurationModule from "effect/Duration";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DurationModule from "effect/Duration";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "fromDurationInputUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/Duration";
 const sourceSummary = "Decodes a `DurationInput` into a `Duration`.";
-const sourceExample = "import { Duration } from \"effect\"\n\nconst duration1 = Duration.fromDurationInputUnsafe(1000) // 1000 milliseconds\nconst duration2 = Duration.fromDurationInputUnsafe(\"5 seconds\")\nconst duration3 = Duration.fromDurationInputUnsafe([2, 500_000_000]) // 2 seconds and 500ms";
+const sourceExample =
+  'import { Duration } from "effect"\n\nconst duration1 = Duration.fromDurationInputUnsafe(1000) // 1000 milliseconds\nconst duration2 = Duration.fromDurationInputUnsafe("5 seconds")\nconst duration3 = Duration.fromDurationInputUnsafe([2, 500_000_000]) // 2 seconds and 500ms';
 const moduleRecord = DurationModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

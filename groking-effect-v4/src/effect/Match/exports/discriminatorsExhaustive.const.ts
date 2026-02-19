@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Match, pipe } from "effect"
- * 
+ *
  * const match = pipe(
  *   Match.type<
  *     { type: "A"; a: string } | { type: "B"; b: number } | {
@@ -34,16 +34,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MatchModule from "effect/Match";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MatchModule from "effect/Match";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "discriminatorsExhaustive";
 const exportKind = "const";
 const moduleImportPath = "effect/Match";
 const sourceSummary = "Matches values based on a discriminator field and **ensures all cases are handled**.";
-const sourceExample = "import { Match, pipe } from \"effect\"\n\nconst match = pipe(\n  Match.type<\n    { type: \"A\"; a: string } | { type: \"B\"; b: number } | {\n      type: \"C\"\n      c: boolean\n    }\n  >(),\n  Match.discriminatorsExhaustive(\"type\")({\n    A: (a) => a.a,\n    B: (b) => b.b,\n    C: (c) => c.c\n  })\n)";
+const sourceExample =
+  'import { Match, pipe } from "effect"\n\nconst match = pipe(\n  Match.type<\n    { type: "A"; a: string } | { type: "B"; b: number } | {\n      type: "C"\n      c: boolean\n    }\n  >(),\n  Match.discriminatorsExhaustive("type")({\n    A: (a) => a.a,\n    B: (b) => b.b,\n    C: (c) => c.c\n  })\n)';
 const moduleRecord = MatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

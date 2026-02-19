@@ -14,21 +14,21 @@
  * Source JSDoc Example:
  * ```ts
  * import { Data, Effect } from "effect"
- * 
+ *
  * class RateLimitError extends Data.TaggedError("RateLimitError")<{
  *   retryAfter: number
  * }> {}
- * 
+ *
  * class QuotaExceededError extends Data.TaggedError("QuotaExceededError")<{
  *   limit: number
  * }> {}
- * 
+ *
  * class AiError extends Data.TaggedError("AiError")<{
  *   reason: RateLimitError | QuotaExceededError
  * }> {}
- * 
+ *
  * declare const program: Effect.Effect<string, AiError>
- * 
+ *
  * const handled = program.pipe(
  *   Effect.catchReasons("AiError", {
  *     RateLimitError: (reason) =>
@@ -43,16 +43,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -61,7 +62,8 @@ const exportName = "catchReasons";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
 const sourceSummary = "Catches multiple reasons within a tagged error using an object of handlers.";
-const sourceExample = "import { Data, Effect } from \"effect\"\n\nclass RateLimitError extends Data.TaggedError(\"RateLimitError\")<{\n  retryAfter: number\n}> {}\n\nclass QuotaExceededError extends Data.TaggedError(\"QuotaExceededError\")<{\n  limit: number\n}> {}\n\nclass AiError extends Data.TaggedError(\"AiError\")<{\n  reason: RateLimitError | QuotaExceededError\n}> {}\n\ndeclare const program: Effect.Effect<string, AiError>\n\nconst handled = program.pipe(\n  Effect.catchReasons(\"AiError\", {\n    RateLimitError: (reason) =>\n      Effect.succeed(`Retry after ${reason.retryAfter}s`),\n    QuotaExceededError: (reason) =>\n      Effect.succeed(`Quota exceeded: ${reason.limit}`)\n  })\n)";
+const sourceExample =
+  'import { Data, Effect } from "effect"\n\nclass RateLimitError extends Data.TaggedError("RateLimitError")<{\n  retryAfter: number\n}> {}\n\nclass QuotaExceededError extends Data.TaggedError("QuotaExceededError")<{\n  limit: number\n}> {}\n\nclass AiError extends Data.TaggedError("AiError")<{\n  reason: RateLimitError | QuotaExceededError\n}> {}\n\ndeclare const program: Effect.Effect<string, AiError>\n\nconst handled = program.pipe(\n  Effect.catchReasons("AiError", {\n    RateLimitError: (reason) =>\n      Effect.succeed(`Retry after ${reason.retryAfter}s`),\n    QuotaExceededError: (reason) =>\n      Effect.succeed(`Quota exceeded: ${reason.limit}`)\n  })\n)';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -92,14 +94,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

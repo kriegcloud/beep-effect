@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Exit } from "effect"
- * 
+ *
  * const failure = Exit.fail("something went wrong")
- * 
+ *
  * if (Exit.isFailure(failure)) {
  *   console.log(failure._tag) // "Failure"
  *   console.log(failure.cause) // Cause representing the error
@@ -27,16 +27,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ExitModule from "effect/Exit";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ExitModule from "effect/Exit";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "Failure";
 const exportKind = "interface";
 const moduleImportPath = "effect/Exit";
 const sourceSummary = "A failed Exit containing a Cause.";
-const sourceExample = "import { Exit } from \"effect\"\n\nconst failure = Exit.fail(\"something went wrong\")\n\nif (Exit.isFailure(failure)) {\n  console.log(failure._tag) // \"Failure\"\n  console.log(failure.cause) // Cause representing the error\n}";
+const sourceExample =
+  'import { Exit } from "effect"\n\nconst failure = Exit.fail("something went wrong")\n\nif (Exit.isFailure(failure)) {\n  console.log(failure._tag) // "Failure"\n  console.log(failure.cause) // Cause representing the error\n}';
 const moduleRecord = ExitModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

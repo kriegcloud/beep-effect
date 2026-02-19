@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cron } from "effect"
- * 
+ *
  * // At 04:00 on every day-of-month from 8 through 14
  * const cron = Cron.parseUnsafe("0 0 4 8-14 * *")
- * 
+ *
  * // With timezone
  * const cronWithTz = Cron.parseUnsafe("0 0 9 * * *", "America/New_York")
- * 
+ *
  * // This would throw an error
  * // const invalid = Cron.parseUnsafe("invalid expression")
  * ```
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CronModule from "effect/Cron";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as CronModule from "effect/Cron";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "parseUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/Cron";
 const sourceSummary = "Parses a cron expression into a Cron instance, throwing on failure.";
-const sourceExample = "import { Cron } from \"effect\"\n\n// At 04:00 on every day-of-month from 8 through 14\nconst cron = Cron.parseUnsafe(\"0 0 4 8-14 * *\")\n\n// With timezone\nconst cronWithTz = Cron.parseUnsafe(\"0 0 9 * * *\", \"America/New_York\")\n\n// This would throw an error\n// const invalid = Cron.parseUnsafe(\"invalid expression\")";
+const sourceExample =
+  'import { Cron } from "effect"\n\n// At 04:00 on every day-of-month from 8 through 14\nconst cron = Cron.parseUnsafe("0 0 4 8-14 * *")\n\n// With timezone\nconst cronWithTz = Cron.parseUnsafe("0 0 9 * * *", "America/New_York")\n\n// This would throw an error\n// const invalid = Cron.parseUnsafe("invalid expression")';
 const moduleRecord = CronModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

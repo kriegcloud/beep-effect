@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Duration } from "effect"
- * 
+ *
  * const d = Duration.divide(Duration.seconds(10), 2)
  * console.log(d?.pipe(Duration.toSeconds)) // 5
- * 
+ *
  * Duration.divide(Duration.seconds(10), 0) // undefined
  * ```
  *
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DurationModule from "effect/Duration";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DurationModule from "effect/Duration";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +44,8 @@ const exportName = "divide";
 const exportKind = "const";
 const moduleImportPath = "effect/Duration";
 const sourceSummary = "Divides a Duration by a number, returning `undefined` if division is invalid.";
-const sourceExample = "import { Duration } from \"effect\"\n\nconst d = Duration.divide(Duration.seconds(10), 2)\nconsole.log(d?.pipe(Duration.toSeconds)) // 5\n\nDuration.divide(Duration.seconds(10), 0) // undefined";
+const sourceExample =
+  'import { Duration } from "effect"\n\nconst d = Duration.divide(Duration.seconds(10), 2)\nconsole.log(d?.pipe(Duration.toSeconds)) // 5\n\nDuration.divide(Duration.seconds(10), 0) // undefined';
 const moduleRecord = DurationModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

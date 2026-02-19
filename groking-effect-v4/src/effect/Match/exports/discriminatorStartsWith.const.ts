@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Match, pipe } from "effect"
- * 
+ *
  * const match = pipe(
  *   Match.type<{ type: "A" } | { type: "B" } | { type: "A.A" } | {}>(),
  *   Match.discriminatorStartsWith("type")("A", (_) => 1 as const),
  *   Match.discriminatorStartsWith("type")("B", (_) => 2 as const),
  *   Match.orElse((_) => 3 as const)
  * )
- * 
+ *
  * console.log(match({ type: "A" })) // 1
  * console.log(match({ type: "B" })) // 2
  * console.log(match({ type: "A.A" })) // 1
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MatchModule from "effect/Match";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MatchModule from "effect/Match";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "discriminatorStartsWith";
 const exportKind = "const";
 const moduleImportPath = "effect/Match";
 const sourceSummary = "Matches values where a specified field starts with a given prefix.";
-const sourceExample = "import { Match, pipe } from \"effect\"\n\nconst match = pipe(\n  Match.type<{ type: \"A\" } | { type: \"B\" } | { type: \"A.A\" } | {}>(),\n  Match.discriminatorStartsWith(\"type\")(\"A\", (_) => 1 as const),\n  Match.discriminatorStartsWith(\"type\")(\"B\", (_) => 2 as const),\n  Match.orElse((_) => 3 as const)\n)\n\nconsole.log(match({ type: \"A\" })) // 1\nconsole.log(match({ type: \"B\" })) // 2\nconsole.log(match({ type: \"A.A\" })) // 1";
+const sourceExample =
+  'import { Match, pipe } from "effect"\n\nconst match = pipe(\n  Match.type<{ type: "A" } | { type: "B" } | { type: "A.A" } | {}>(),\n  Match.discriminatorStartsWith("type")("A", (_) => 1 as const),\n  Match.discriminatorStartsWith("type")("B", (_) => 2 as const),\n  Match.orElse((_) => 3 as const)\n)\n\nconsole.log(match({ type: "A" })) // 1\nconsole.log(match({ type: "B" })) // 2\nconsole.log(match({ type: "A.A" })) // 1';
 const moduleRecord = MatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

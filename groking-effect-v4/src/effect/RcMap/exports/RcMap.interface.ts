@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, RcMap } from "effect"
- * 
+ *
  * Effect.gen(function*() {
  *   // Create an RcMap that manages database connections
  *   const dbConnectionMap = yield* RcMap.make({
@@ -26,13 +26,13 @@
  *     capacity: 10,
  *     idleTimeToLive: "5 minutes"
  *   })
- * 
+ *
  *   // The RcMap interface provides access to:
  *   // - lookup: Function to acquire resources
  *   // - capacity: Maximum number of resources
  *   // - idleTimeToLive: Time before idle resources are released
  *   // - state: Current state of the map
- * 
+ *
  *   console.log(`Capacity: ${dbConnectionMap.capacity}`)
  * }).pipe(Effect.scoped)
  * ```
@@ -41,16 +41,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RcMapModule from "effect/RcMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RcMapModule from "effect/RcMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -58,8 +59,10 @@ import {
 const exportName = "RcMap";
 const exportKind = "interface";
 const moduleImportPath = "effect/RcMap";
-const sourceSummary = "An `RcMap` is a reference-counted map data structure that manages the lifecycle of resources indexed by keys. Resources are lazily acquired and automatically released when no lo...";
-const sourceExample = "import { Effect, RcMap } from \"effect\"\n\nEffect.gen(function*() {\n  // Create an RcMap that manages database connections\n  const dbConnectionMap = yield* RcMap.make({\n    lookup: (dbName: string) =>\n      Effect.acquireRelease(\n        Effect.succeed(`Connection to ${dbName}`),\n        (conn) => Effect.log(`Closing ${conn}`)\n      ),\n    capacity: 10,\n    idleTimeToLive: \"5 minutes\"\n  })\n\n  // The RcMap interface provides access to:\n  // - lookup: Function to acquire resources\n  // - capacity: Maximum number of resources\n  // - idleTimeToLive: Time before idle resources are released\n  // - state: Current state of the map\n\n  console.log(`Capacity: ${dbConnectionMap.capacity}`)\n}).pipe(Effect.scoped)";
+const sourceSummary =
+  "An `RcMap` is a reference-counted map data structure that manages the lifecycle of resources indexed by keys. Resources are lazily acquired and automatically released when no lo...";
+const sourceExample =
+  'import { Effect, RcMap } from "effect"\n\nEffect.gen(function*() {\n  // Create an RcMap that manages database connections\n  const dbConnectionMap = yield* RcMap.make({\n    lookup: (dbName: string) =>\n      Effect.acquireRelease(\n        Effect.succeed(`Connection to ${dbName}`),\n        (conn) => Effect.log(`Closing ${conn}`)\n      ),\n    capacity: 10,\n    idleTimeToLive: "5 minutes"\n  })\n\n  // The RcMap interface provides access to:\n  // - lookup: Function to acquire resources\n  // - capacity: Maximum number of resources\n  // - idleTimeToLive: Time before idle resources are released\n  // - state: Current state of the map\n\n  console.log(`Capacity: ${dbConnectionMap.capacity}`)\n}).pipe(Effect.scoped)';
 const moduleRecord = RcMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -90,14 +93,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

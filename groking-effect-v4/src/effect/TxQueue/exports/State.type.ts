@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import type { TxQueue } from "effect"
- * 
+ *
  * // State progression example
  * declare const state: TxQueue.State<string, Error>
- * 
+ *
  * if (state._tag === "Open") {
  *   console.log("Queue is accepting new items")
  * } else if (state._tag === "Closing") {
@@ -31,16 +31,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxQueueModule from "effect/TxQueue";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxQueueModule from "effect/TxQueue";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "State";
 const exportKind = "type";
 const moduleImportPath = "effect/TxQueue";
 const sourceSummary = "Represents the state of a transactional queue with sophisticated lifecycle management.";
-const sourceExample = "import type { TxQueue } from \"effect\"\n\n// State progression example\ndeclare const state: TxQueue.State<string, Error>\n\nif (state._tag === \"Open\") {\n  console.log(\"Queue is accepting new items\")\n} else if (state._tag === \"Closing\") {\n  console.log(\"Queue is draining, cause:\", state.cause)\n} else {\n  console.log(\"Queue is done, cause:\", state.cause)\n}";
+const sourceExample =
+  'import type { TxQueue } from "effect"\n\n// State progression example\ndeclare const state: TxQueue.State<string, Error>\n\nif (state._tag === "Open") {\n  console.log("Queue is accepting new items")\n} else if (state._tag === "Closing") {\n  console.log("Queue is draining, cause:", state.cause)\n} else {\n  console.log("Queue is done, cause:", state.cause)\n}';
 const moduleRecord = TxQueueModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

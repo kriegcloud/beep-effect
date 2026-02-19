@@ -15,7 +15,7 @@
  * ```ts
  * import { Effect } from "effect"
  * import { Chat } from "effect/unstable/ai"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const chat = yield* Chat.empty
  *   const response = yield* chat.generateText({
@@ -28,16 +28,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChatModule from "effect/unstable/ai/Chat";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ChatModule from "effect/unstable/ai/Chat";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "Chat";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/ai/Chat";
 const sourceSummary = "The `Chat` service tag for dependency injection.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { Chat } from \"effect/unstable/ai\"\n\nconst program = Effect.gen(function*() {\n  const chat = yield* Chat.empty\n  const response = yield* chat.generateText({\n    prompt: \"Explain quantum computing in simple terms\"\n  })\n  return response.content\n})";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { Chat } from "effect/unstable/ai"\n\nconst program = Effect.gen(function*() {\n  const chat = yield* Chat.empty\n  const response = yield* chat.generateText({\n    prompt: "Explain quantum computing in simple terms"\n  })\n  return response.content\n})';
 const moduleRecord = ChatModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -15,16 +15,16 @@
  * ```ts
  * import type { Tracer } from "effect"
  * import { Effect } from "effect"
- * 
+ *
  * // Different span kinds for different operations
  * const serverSpan = Effect.withSpan("handle-request", {
  *   kind: "server" as Tracer.SpanKind
  * })
- * 
+ *
  * const clientSpan = Effect.withSpan("api-call", {
  *   kind: "client" as Tracer.SpanKind
  * })
- * 
+ *
  * const internalSpan = Effect.withSpan("internal-process", {
  *   kind: "internal" as Tracer.SpanKind
  * })
@@ -34,16 +34,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TracerModule from "effect/Tracer";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TracerModule from "effect/Tracer";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "SpanKind";
 const exportKind = "type";
 const moduleImportPath = "effect/Tracer";
 const sourceSummary = "No summary found in JSDoc.";
-const sourceExample = "import type { Tracer } from \"effect\"\nimport { Effect } from \"effect\"\n\n// Different span kinds for different operations\nconst serverSpan = Effect.withSpan(\"handle-request\", {\n  kind: \"server\" as Tracer.SpanKind\n})\n\nconst clientSpan = Effect.withSpan(\"api-call\", {\n  kind: \"client\" as Tracer.SpanKind\n})\n\nconst internalSpan = Effect.withSpan(\"internal-process\", {\n  kind: \"internal\" as Tracer.SpanKind\n})";
+const sourceExample =
+  'import type { Tracer } from "effect"\nimport { Effect } from "effect"\n\n// Different span kinds for different operations\nconst serverSpan = Effect.withSpan("handle-request", {\n  kind: "server" as Tracer.SpanKind\n})\n\nconst clientSpan = Effect.withSpan("api-call", {\n  kind: "client" as Tracer.SpanKind\n})\n\nconst internalSpan = Effect.withSpan("internal-process", {\n  kind: "internal" as Tracer.SpanKind\n})';
 const moduleRecord = TracerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

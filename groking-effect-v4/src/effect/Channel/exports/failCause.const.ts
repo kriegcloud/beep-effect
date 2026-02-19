@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause, Channel } from "effect"
- * 
+ *
  * // Create a channel that fails with a simple cause
  * const simpleCause = Cause.fail("Simple error")
  * const failedChannel = Channel.failCause(simpleCause)
- * 
+ *
  * // Create a channel with a die cause
  * const dieCause = Cause.die(new Error("System error"))
  * const dieFailure = Channel.failCause(dieCause)
- * 
+ *
  * // Create a channel with a simple fail cause
  * const failCause = Cause.fail("Simple error")
  * const simpleFail = Channel.failCause(failCause)
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "failCause";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
 const sourceSummary = "Constructs a channel that fails immediately with the specified `Cause`.";
-const sourceExample = "import { Cause, Channel } from \"effect\"\n\n// Create a channel that fails with a simple cause\nconst simpleCause = Cause.fail(\"Simple error\")\nconst failedChannel = Channel.failCause(simpleCause)\n\n// Create a channel with a die cause\nconst dieCause = Cause.die(new Error(\"System error\"))\nconst dieFailure = Channel.failCause(dieCause)\n\n// Create a channel with a simple fail cause\nconst failCause = Cause.fail(\"Simple error\")\nconst simpleFail = Channel.failCause(failCause)";
+const sourceExample =
+  'import { Cause, Channel } from "effect"\n\n// Create a channel that fails with a simple cause\nconst simpleCause = Cause.fail("Simple error")\nconst failedChannel = Channel.failCause(simpleCause)\n\n// Create a channel with a die cause\nconst dieCause = Cause.die(new Error("System error"))\nconst dieFailure = Channel.failCause(dieCause)\n\n// Create a channel with a simple fail cause\nconst failCause = Cause.fail("Simple error")\nconst simpleFail = Channel.failCause(failCause)';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

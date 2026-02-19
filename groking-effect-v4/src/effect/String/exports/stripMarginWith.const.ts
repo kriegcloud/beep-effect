@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { String } from "effect"
- * 
+ *
  * const text = "  |hello\n  |world"
  * const result = String.stripMarginWith(text, "|")
  * console.log(result) // "hello\nworld"
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StringModule from "effect/String";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StringModule from "effect/String";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -41,8 +42,10 @@ import {
 const exportName = "stripMarginWith";
 const exportKind = "const";
 const moduleImportPath = "effect/String";
-const sourceSummary = "For every line in this string, strip a leading prefix consisting of blanks or control characters followed by the character specified by `marginChar` from the line.";
-const sourceExample = "import { String } from \"effect\"\n\nconst text = \"  |hello\\n  |world\"\nconst result = String.stripMarginWith(text, \"|\")\nconsole.log(result) // \"hello\\nworld\"";
+const sourceSummary =
+  "For every line in this string, strip a leading prefix consisting of blanks or control characters followed by the character specified by `marginChar` from the line.";
+const sourceExample =
+  'import { String } from "effect"\n\nconst text = "  |hello\\n  |world"\nconst result = String.stripMarginWith(text, "|")\nconsole.log(result) // "hello\\nworld"';
 const moduleRecord = StringModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

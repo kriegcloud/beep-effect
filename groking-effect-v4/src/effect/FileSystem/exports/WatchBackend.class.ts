@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, FileSystem, Stream } from "effect"
- * 
+ *
  * // Custom watch backend implementation
  * const customWatchBackend = {
  *   register: (path: string, stat: FileSystem.File.Info) => {
@@ -22,15 +22,15 @@
  *     return Stream.empty // Placeholder implementation
  *   }
  * }
- * 
+ *
  * // Provide custom watch backend
  * const program = Effect.gen(function*() {
  *   const fs = yield* FileSystem.FileSystem
- * 
+ *
  *   // File watching will use the custom backend
  *   const watcher = fs.watch("./directory")
  * })
- * 
+ *
  * const withCustomBackend = Effect.provideService(
  *   program,
  *   FileSystem.WatchBackend,
@@ -41,16 +41,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FileSystemModule from "effect/FileSystem";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FileSystemModule from "effect/FileSystem";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -59,7 +60,8 @@ const exportName = "WatchBackend";
 const exportKind = "class";
 const moduleImportPath = "effect/FileSystem";
 const sourceSummary = "Service key for file system watch backend implementations.";
-const sourceExample = "import { Effect, FileSystem, Stream } from \"effect\"\n\n// Custom watch backend implementation\nconst customWatchBackend = {\n  register: (path: string, stat: FileSystem.File.Info) => {\n    // Implementation would depend on platform\n    return Stream.empty // Placeholder implementation\n  }\n}\n\n// Provide custom watch backend\nconst program = Effect.gen(function*() {\n  const fs = yield* FileSystem.FileSystem\n\n  // File watching will use the custom backend\n  const watcher = fs.watch(\"./directory\")\n})\n\nconst withCustomBackend = Effect.provideService(\n  program,\n  FileSystem.WatchBackend,\n  customWatchBackend\n)";
+const sourceExample =
+  'import { Effect, FileSystem, Stream } from "effect"\n\n// Custom watch backend implementation\nconst customWatchBackend = {\n  register: (path: string, stat: FileSystem.File.Info) => {\n    // Implementation would depend on platform\n    return Stream.empty // Placeholder implementation\n  }\n}\n\n// Provide custom watch backend\nconst program = Effect.gen(function*() {\n  const fs = yield* FileSystem.FileSystem\n\n  // File watching will use the custom backend\n  const watcher = fs.watch("./directory")\n})\n\nconst withCustomBackend = Effect.provideService(\n  program,\n  FileSystem.WatchBackend,\n  customWatchBackend\n)';
 const moduleRecord = FileSystemModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -90,14 +92,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

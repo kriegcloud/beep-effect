@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, TxHashMap } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const config = yield* TxHashMap.make(
  *     ["host", "localhost"],
  *     ["port", "3000"],
  *     ["ssl", "false"]
  *   )
- * 
+ *
  *   const allEntries = yield* TxHashMap.entries(config)
  *   console.log(allEntries)
  *   // [["host", "localhost"], ["port", "3000"], ["ssl", "false"]]
- * 
+ *
  *   // Process configuration entries
  *   for (const [key, value] of allEntries) {
  *     console.log(`${key}=${value}`)
@@ -40,16 +40,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxHashMapModule from "effect/TxHashMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxHashMapModule from "effect/TxHashMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -58,7 +59,8 @@ const exportName = "entries";
 const exportKind = "const";
 const moduleImportPath = "effect/TxHashMap";
 const sourceSummary = "Returns an array of all key-value pairs in the TxHashMap.";
-const sourceExample = "import { Effect, TxHashMap } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const config = yield* TxHashMap.make(\n    [\"host\", \"localhost\"],\n    [\"port\", \"3000\"],\n    [\"ssl\", \"false\"]\n  )\n\n  const allEntries = yield* TxHashMap.entries(config)\n  console.log(allEntries)\n  // [[\"host\", \"localhost\"], [\"port\", \"3000\"], [\"ssl\", \"false\"]]\n\n  // Process configuration entries\n  for (const [key, value] of allEntries) {\n    console.log(`${key}=${value}`)\n  }\n  // host=localhost\n  // port=3000\n  // ssl=false\n})";
+const sourceExample =
+  'import { Effect, TxHashMap } from "effect"\n\nconst program = Effect.gen(function*() {\n  const config = yield* TxHashMap.make(\n    ["host", "localhost"],\n    ["port", "3000"],\n    ["ssl", "false"]\n  )\n\n  const allEntries = yield* TxHashMap.entries(config)\n  console.log(allEntries)\n  // [["host", "localhost"], ["port", "3000"], ["ssl", "false"]]\n\n  // Process configuration entries\n  for (const [key, value] of allEntries) {\n    console.log(`${key}=${value}`)\n  }\n  // host=localhost\n  // port=3000\n  // ssl=false\n})';
 const moduleRecord = TxHashMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -89,14 +91,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

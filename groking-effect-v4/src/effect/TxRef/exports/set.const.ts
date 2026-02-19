@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, TxRef } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const counter = yield* TxRef.make(0)
- * 
+ *
  *   // Set a new value within a transaction
  *   yield* Effect.atomic(
  *     TxRef.set(counter, 100)
  *   )
- * 
+ *
  *   console.log(yield* TxRef.get(counter)) // 100
  * })
  * ```
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxRefModule from "effect/TxRef";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxRefModule from "effect/TxRef";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "set";
 const exportKind = "const";
 const moduleImportPath = "effect/TxRef";
 const sourceSummary = "Sets the value of the `TxRef`.";
-const sourceExample = "import { Effect, TxRef } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const counter = yield* TxRef.make(0)\n\n  // Set a new value within a transaction\n  yield* Effect.atomic(\n    TxRef.set(counter, 100)\n  )\n\n  console.log(yield* TxRef.get(counter)) // 100\n})";
+const sourceExample =
+  'import { Effect, TxRef } from "effect"\n\nconst program = Effect.gen(function*() {\n  const counter = yield* TxRef.make(0)\n\n  // Set a new value within a transaction\n  yield* Effect.atomic(\n    TxRef.set(counter, 100)\n  )\n\n  console.log(yield* TxRef.get(counter)) // 100\n})';
 const moduleRecord = TxRefModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

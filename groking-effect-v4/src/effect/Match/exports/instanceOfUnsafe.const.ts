@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { Match } from "effect"
- * 
+ *
  * class CustomError extends Error {
  *   constructor(message: string, public code: number) {
  *     super(message)
  *   }
  * }
- * 
+ *
  * // When you need to match instances but handle type narrowing manually
  * const handleError = Match.type<unknown>().pipe(
  *   Match.when(Match.instanceOfUnsafe(CustomError), (err: any) => {
@@ -36,16 +36,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MatchModule from "effect/Match";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MatchModule from "effect/Match";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -54,7 +55,8 @@ const exportName = "instanceOfUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/Match";
 const sourceSummary = "Unsafe variant of `instanceOf` that allows matching without type narrowing.";
-const sourceExample = "import { Match } from \"effect\"\n\nclass CustomError extends Error {\n  constructor(message: string, public code: number) {\n    super(message)\n  }\n}\n\n// When you need to match instances but handle type narrowing manually\nconst handleError = Match.type<unknown>().pipe(\n  Match.when(Match.instanceOfUnsafe(CustomError), (err: any) => {\n    // Manual type assertion needed\n    const customErr = err as CustomError\n    return `Custom error ${customErr.code}: ${customErr.message}`\n  }),\n  Match.orElse(() => \"Not a CustomError\")\n)";
+const sourceExample =
+  'import { Match } from "effect"\n\nclass CustomError extends Error {\n  constructor(message: string, public code: number) {\n    super(message)\n  }\n}\n\n// When you need to match instances but handle type narrowing manually\nconst handleError = Match.type<unknown>().pipe(\n  Match.when(Match.instanceOfUnsafe(CustomError), (err: any) => {\n    // Manual type assertion needed\n    const customErr = err as CustomError\n    return `Custom error ${customErr.code}: ${customErr.message}`\n  }),\n  Match.orElse(() => "Not a CustomError")\n)';
 const moduleRecord = MatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -85,14 +87,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

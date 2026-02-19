@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Fiber, PubSub } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const pubsub = yield* PubSub.bounded<string>(1)
- * 
+ *
  *   // Start a fiber that will be suspended waiting to publish
  *   const publisherFiber = yield* Effect.forkChild(
  *     Effect.gen(function*() {
@@ -25,10 +25,10 @@
  *       yield* PubSub.publish(pubsub, "msg2") // will suspend here
  *     })
  *   )
- * 
+ *
  *   // Shutdown the PubSub
  *   yield* PubSub.shutdown(pubsub)
- * 
+ *
  *   // The suspended publisher will be interrupted
  *   const result = yield* Fiber.await(publisherFiber)
  *   console.log("Publisher interrupted:", result._tag === "Failure")
@@ -39,16 +39,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PubSubModule from "effect/PubSub";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PubSubModule from "effect/PubSub";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -56,8 +57,10 @@ import {
 const exportName = "shutdown";
 const exportKind = "const";
 const moduleImportPath = "effect/PubSub";
-const sourceSummary = "Interrupts any fibers that are suspended on `offer` or `take`. Future calls to `offer*` and `take*` will be interrupted immediately.";
-const sourceExample = "import { Effect, Fiber, PubSub } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const pubsub = yield* PubSub.bounded<string>(1)\n\n  // Start a fiber that will be suspended waiting to publish\n  const publisherFiber = yield* Effect.forkChild(\n    Effect.gen(function*() {\n      yield* PubSub.publish(pubsub, \"msg1\") // fills the buffer\n      yield* PubSub.publish(pubsub, \"msg2\") // will suspend here\n    })\n  )\n\n  // Shutdown the PubSub\n  yield* PubSub.shutdown(pubsub)\n\n  // The suspended publisher will be interrupted\n  const result = yield* Fiber.await(publisherFiber)\n  console.log(\"Publisher interrupted:\", result._tag === \"Failure\")\n})";
+const sourceSummary =
+  "Interrupts any fibers that are suspended on `offer` or `take`. Future calls to `offer*` and `take*` will be interrupted immediately.";
+const sourceExample =
+  'import { Effect, Fiber, PubSub } from "effect"\n\nconst program = Effect.gen(function*() {\n  const pubsub = yield* PubSub.bounded<string>(1)\n\n  // Start a fiber that will be suspended waiting to publish\n  const publisherFiber = yield* Effect.forkChild(\n    Effect.gen(function*() {\n      yield* PubSub.publish(pubsub, "msg1") // fills the buffer\n      yield* PubSub.publish(pubsub, "msg2") // will suspend here\n    })\n  )\n\n  // Shutdown the PubSub\n  yield* PubSub.shutdown(pubsub)\n\n  // The suspended publisher will be interrupted\n  const result = yield* Fiber.await(publisherFiber)\n  console.log("Publisher interrupted:", result._tag === "Failure")\n})';
 const moduleRecord = PubSubModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -88,14 +91,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

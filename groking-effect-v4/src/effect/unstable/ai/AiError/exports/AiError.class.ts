@@ -15,9 +15,9 @@
  * ```ts
  * import { Effect } from "effect"
  * import { AiError } from "effect/unstable/ai"
- * 
+ *
  * declare const aiOperation: Effect.Effect<string, AiError.AiError>
- * 
+ *
  * // Handle specific reason types
  * const handled = aiOperation.pipe(
  *   Effect.catchTag("AiError", (error) => {
@@ -32,16 +32,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as AiErrorModule from "effect/unstable/ai/AiError";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as AiErrorModule from "effect/unstable/ai/AiError";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "AiError";
 const exportKind = "class";
 const moduleImportPath = "effect/unstable/ai/AiError";
 const sourceSummary = "Top-level AI error wrapper using the `reason` pattern.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { AiError } from \"effect/unstable/ai\"\n\ndeclare const aiOperation: Effect.Effect<string, AiError.AiError>\n\n// Handle specific reason types\nconst handled = aiOperation.pipe(\n  Effect.catchTag(\"AiError\", (error) => {\n    if (error.reason._tag === \"RateLimitError\") {\n      return Effect.succeed(`Retry after ${error.retryAfter}`)\n    }\n    return Effect.fail(error)\n  })\n)";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { AiError } from "effect/unstable/ai"\n\ndeclare const aiOperation: Effect.Effect<string, AiError.AiError>\n\n// Handle specific reason types\nconst handled = aiOperation.pipe(\n  Effect.catchTag("AiError", (error) => {\n    if (error.reason._tag === "RateLimitError") {\n      return Effect.succeed(`Retry after ${error.retryAfter}`)\n    }\n    return Effect.fail(error)\n  })\n)';
 const moduleRecord = AiErrorModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

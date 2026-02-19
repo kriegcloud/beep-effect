@@ -15,11 +15,11 @@
  * ```ts
  * import { Effect } from "effect"
  * import { RateLimiter } from "effect/unstable/persistence"
- * 
+ *
  * Effect.gen(function*() {
  *   // Access the `withLimiter` function from the RateLimiter module
  *   const withLimiter = yield* RateLimiter.makeWithRateLimiter
- * 
+ *
  *   // Apply a rate limiter to an effect
  *   yield* Effect.log("Making a request with rate limiting").pipe(
  *     withLimiter({
@@ -37,16 +37,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as RateLimiterModule from "effect/unstable/persistence/RateLimiter";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as RateLimiterModule from "effect/unstable/persistence/RateLimiter";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,7 +56,8 @@ const exportName = "makeWithRateLimiter";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/persistence/RateLimiter";
 const sourceSummary = "Access a function that applies rate limiting to an effect.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { RateLimiter } from \"effect/unstable/persistence\"\n\nEffect.gen(function*() {\n  // Access the `withLimiter` function from the RateLimiter module\n  const withLimiter = yield* RateLimiter.makeWithRateLimiter\n\n  // Apply a rate limiter to an effect\n  yield* Effect.log(\"Making a request with rate limiting\").pipe(\n    withLimiter({\n      key: \"some-key\",\n      limit: 10,\n      onExceeded: \"delay\",\n      window: \"5 seconds\",\n      algorithm: \"fixed-window\"\n    })\n  )\n})";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { RateLimiter } from "effect/unstable/persistence"\n\nEffect.gen(function*() {\n  // Access the `withLimiter` function from the RateLimiter module\n  const withLimiter = yield* RateLimiter.makeWithRateLimiter\n\n  // Apply a rate limiter to an effect\n  yield* Effect.log("Making a request with rate limiting").pipe(\n    withLimiter({\n      key: "some-key",\n      limit: 10,\n      onExceeded: "delay",\n      window: "5 seconds",\n      algorithm: "fixed-window"\n    })\n  )\n})';
 const moduleRecord = RateLimiterModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -86,14 +88,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

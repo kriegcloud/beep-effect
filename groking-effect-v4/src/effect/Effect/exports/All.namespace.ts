@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect } from "effect"
- * 
+ *
  * // All namespace types are used when working with Effect.all
  * const effects = [
  *   Effect.succeed(1),
  *   Effect.succeed("hello"),
  *   Effect.succeed(true)
  * ] as const
- * 
+ *
  * const program = Effect.all(effects).pipe(
  *   Effect.map(([num, str, bool]) => ({ num, str, bool }))
  * )
- * 
+ *
  * Effect.runPromise(program).then(console.log) // { num: 1, str: "hello", bool: true }
  * ```
  *
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "All";
 const exportKind = "namespace";
 const moduleImportPath = "effect/Effect";
-const sourceSummary = "Namespace containing type utilities for the `Effect.all` function, which handles collecting multiple effects into various output structures.";
-const sourceExample = "import { Effect } from \"effect\"\n\n// All namespace types are used when working with Effect.all\nconst effects = [\n  Effect.succeed(1),\n  Effect.succeed(\"hello\"),\n  Effect.succeed(true)\n] as const\n\nconst program = Effect.all(effects).pipe(\n  Effect.map(([num, str, bool]) => ({ num, str, bool }))\n)\n\nEffect.runPromise(program).then(console.log) // { num: 1, str: \"hello\", bool: true }";
+const sourceSummary =
+  "Namespace containing type utilities for the `Effect.all` function, which handles collecting multiple effects into various output structures.";
+const sourceExample =
+  'import { Effect } from "effect"\n\n// All namespace types are used when working with Effect.all\nconst effects = [\n  Effect.succeed(1),\n  Effect.succeed("hello"),\n  Effect.succeed(true)\n] as const\n\nconst program = Effect.all(effects).pipe(\n  Effect.map(([num, str, bool]) => ({ num, str, bool }))\n)\n\nEffect.runPromise(program).then(console.log) // { num: 1, str: "hello", bool: true }';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

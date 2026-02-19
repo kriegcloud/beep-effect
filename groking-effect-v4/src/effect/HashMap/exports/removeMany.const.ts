@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import * as HashMap from "effect/HashMap"
- * 
+ *
  * const map1 = HashMap.make(["a", 1], ["b", 2], ["c", 3], ["d", 4])
  * const map2 = HashMap.removeMany(map1, ["b", "d"])
- * 
+ *
  * console.log(HashMap.size(map2)) // 2
  * console.log(HashMap.has(map2, "a")) // true
  * console.log(HashMap.has(map2, "c")) // true
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HashMapModule from "effect/HashMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HashMapModule from "effect/HashMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "removeMany";
 const exportKind = "const";
 const moduleImportPath = "effect/HashMap";
 const sourceSummary = "Removes all entries in the `HashMap` which have the specified keys.";
-const sourceExample = "import * as HashMap from \"effect/HashMap\"\n\nconst map1 = HashMap.make([\"a\", 1], [\"b\", 2], [\"c\", 3], [\"d\", 4])\nconst map2 = HashMap.removeMany(map1, [\"b\", \"d\"])\n\nconsole.log(HashMap.size(map2)) // 2\nconsole.log(HashMap.has(map2, \"a\")) // true\nconsole.log(HashMap.has(map2, \"c\")) // true";
+const sourceExample =
+  'import * as HashMap from "effect/HashMap"\n\nconst map1 = HashMap.make(["a", 1], ["b", 2], ["c", 3], ["d", 4])\nconst map2 = HashMap.removeMany(map1, ["b", "d"])\n\nconsole.log(HashMap.size(map2)) // 2\nconsole.log(HashMap.has(map2, "a")) // true\nconsole.log(HashMap.has(map2, "c")) // true';
 const moduleRecord = HashMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Duration, Effect, Stream } from "effect"
- * 
+ *
  * const stream = Stream.make(1, 2, 3).pipe(
  *   Stream.concat(Stream.fromEffect(Effect.sleep(Duration.millis(50)).pipe(Effect.as(4)))),
  *   Stream.concat(Stream.make(5)),
  *   Stream.debounce(Duration.millis(30))
  * )
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const values = yield* Stream.runCollect(stream)
  *   yield* Console.log(values)
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,8 +50,10 @@ import {
 const exportName = "debounce";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
-const sourceSummary = "Drops earlier elements within the debounce window and emits only the latest element after the pause.";
-const sourceExample = "import { Console, Duration, Effect, Stream } from \"effect\"\n\nconst stream = Stream.make(1, 2, 3).pipe(\n  Stream.concat(Stream.fromEffect(Effect.sleep(Duration.millis(50)).pipe(Effect.as(4)))),\n  Stream.concat(Stream.make(5)),\n  Stream.debounce(Duration.millis(30))\n)\n\nconst program = Effect.gen(function*() {\n  const values = yield* Stream.runCollect(stream)\n  yield* Console.log(values)\n  // Output: [ 3, 5 ]\n})";
+const sourceSummary =
+  "Drops earlier elements within the debounce window and emits only the latest element after the pause.";
+const sourceExample =
+  'import { Console, Duration, Effect, Stream } from "effect"\n\nconst stream = Stream.make(1, 2, 3).pipe(\n  Stream.concat(Stream.fromEffect(Effect.sleep(Duration.millis(50)).pipe(Effect.as(4)))),\n  Stream.concat(Stream.make(5)),\n  Stream.debounce(Duration.millis(30))\n)\n\nconst program = Effect.gen(function*() {\n  const values = yield* Stream.runCollect(stream)\n  yield* Console.log(values)\n  // Output: [ 3, 5 ]\n})';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime, Effect } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Access the current time zone service
  *   const zone = yield* DateTime.CurrentTimeZone.asEffect()
  *   console.log(DateTime.zoneToString(zone))
  * })
- * 
+ *
  * // Provide a time zone
  * const layer = DateTime.layerCurrentZoneNamed("Europe/London")
  * Effect.provide(program, layer)
@@ -29,16 +29,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "CurrentTimeZone";
 const exportKind = "class";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "No summary found in JSDoc.";
-const sourceExample = "import { DateTime, Effect } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  // Access the current time zone service\n  const zone = yield* DateTime.CurrentTimeZone.asEffect()\n  console.log(DateTime.zoneToString(zone))\n})\n\n// Provide a time zone\nconst layer = DateTime.layerCurrentZoneNamed(\"Europe/London\")\nEffect.provide(program, layer)";
+const sourceExample =
+  'import { DateTime, Effect } from "effect"\n\nconst program = Effect.gen(function*() {\n  // Access the current time zone service\n  const zone = yield* DateTime.CurrentTimeZone.asEffect()\n  console.log(DateTime.zoneToString(zone))\n})\n\n// Provide a time zone\nconst layer = DateTime.layerCurrentZoneNamed("Europe/London")\nEffect.provide(program, layer)';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

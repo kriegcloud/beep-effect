@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import type { Struct } from "effect"
- * 
+ *
  * type Original = { a: string } & { b: number }
- * 
+ *
  * // Without Simplify, the type displays as `{ a: string } & { b: number }`
  * type Simplified = Struct.Simplify<Original>
  * // { a: string; b: number }
@@ -26,16 +26,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StructModule from "effect/Struct";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StructModule from "effect/Struct";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "Simplify";
 const exportKind = "type";
 const moduleImportPath = "effect/Struct";
 const sourceSummary = "Flattens intersection types into a single object type for readability.";
-const sourceExample = "import type { Struct } from \"effect\"\n\ntype Original = { a: string } & { b: number }\n\n// Without Simplify, the type displays as `{ a: string } & { b: number }`\ntype Simplified = Struct.Simplify<Original>\n// { a: string; b: number }";
+const sourceExample =
+  'import type { Struct } from "effect"\n\ntype Original = { a: string } & { b: number }\n\n// Without Simplify, the type displays as `{ a: string } & { b: number }`\ntype Simplified = Struct.Simplify<Original>\n// { a: string; b: number }';
 const moduleRecord = StructModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Data } from "effect"
- * 
+ *
  * const { BadRequest, NotFound } = Data.taggedEnum<
  *   | {
  *     readonly _tag: "BadRequest"
@@ -27,7 +27,7 @@
  *     readonly message: string
  *   }
  * >()
- * 
+ *
  * const notFound = NotFound({ status: 404, message: "Not Found" })
  * ```
  *
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DataModule from "effect/Data";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DataModule from "effect/Data";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "taggedEnum";
 const exportKind = "const";
 const moduleImportPath = "effect/Data";
 const sourceSummary = "Create a constructor for a tagged union of `Data` structs.";
-const sourceExample = "import { Data } from \"effect\"\n\nconst { BadRequest, NotFound } = Data.taggedEnum<\n  | {\n    readonly _tag: \"BadRequest\"\n    readonly status: 400\n    readonly message: string\n  }\n  | {\n    readonly _tag: \"NotFound\"\n    readonly status: 404\n    readonly message: string\n  }\n>()\n\nconst notFound = NotFound({ status: 404, message: \"Not Found\" })";
+const sourceExample =
+  'import { Data } from "effect"\n\nconst { BadRequest, NotFound } = Data.taggedEnum<\n  | {\n    readonly _tag: "BadRequest"\n    readonly status: 400\n    readonly message: string\n  }\n  | {\n    readonly _tag: "NotFound"\n    readonly status: 404\n    readonly message: string\n  }\n>()\n\nconst notFound = NotFound({ status: 404, message: "Not Found" })';
 const moduleRecord = DataModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

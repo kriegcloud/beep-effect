@@ -14,23 +14,23 @@
  * Source JSDoc Example:
  * ```ts
  * import { Graph } from "effect"
- * 
+ *
  * const graph = Graph.directed<string, number>((mutable) => {
  *   const source = Graph.addNode(mutable, "source") // 0 - no incoming
  *   const middle = Graph.addNode(mutable, "middle") // 1 - has both
  *   const sink = Graph.addNode(mutable, "sink") // 2 - no outgoing
  *   const isolated = Graph.addNode(mutable, "isolated") // 3 - no edges
- * 
+ *
  *   Graph.addEdge(mutable, source, middle, 1)
  *   Graph.addEdge(mutable, middle, sink, 2)
  * })
- * 
+ *
  * // Nodes with no outgoing edges (sinks + isolated)
  * const sinks = Array.from(
  *   Graph.indices(Graph.externals(graph, { direction: "outgoing" }))
  * )
  * console.log(sinks) // [2, 3]
- * 
+ *
  * // Nodes with no incoming edges (sources + isolated)
  * const sources = Array.from(
  *   Graph.indices(Graph.externals(graph, { direction: "incoming" }))
@@ -42,16 +42,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as GraphModule from "effect/Graph";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as GraphModule from "effect/Graph";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -60,7 +61,8 @@ const exportName = "externals";
 const exportKind = "const";
 const moduleImportPath = "effect/Graph";
 const sourceSummary = "Creates an iterator over external nodes (nodes without edges in specified direction).";
-const sourceExample = "import { Graph } from \"effect\"\n\nconst graph = Graph.directed<string, number>((mutable) => {\n  const source = Graph.addNode(mutable, \"source\") // 0 - no incoming\n  const middle = Graph.addNode(mutable, \"middle\") // 1 - has both\n  const sink = Graph.addNode(mutable, \"sink\") // 2 - no outgoing\n  const isolated = Graph.addNode(mutable, \"isolated\") // 3 - no edges\n\n  Graph.addEdge(mutable, source, middle, 1)\n  Graph.addEdge(mutable, middle, sink, 2)\n})\n\n// Nodes with no outgoing edges (sinks + isolated)\nconst sinks = Array.from(\n  Graph.indices(Graph.externals(graph, { direction: \"outgoing\" }))\n)\nconsole.log(sinks) // [2, 3]\n\n// Nodes with no incoming edges (sources + isolated)\nconst sources = Array.from(\n  Graph.indices(Graph.externals(graph, { direction: \"incoming\" }))\n)\nconsole.log(sources) // [0, 3]";
+const sourceExample =
+  'import { Graph } from "effect"\n\nconst graph = Graph.directed<string, number>((mutable) => {\n  const source = Graph.addNode(mutable, "source") // 0 - no incoming\n  const middle = Graph.addNode(mutable, "middle") // 1 - has both\n  const sink = Graph.addNode(mutable, "sink") // 2 - no outgoing\n  const isolated = Graph.addNode(mutable, "isolated") // 3 - no edges\n\n  Graph.addEdge(mutable, source, middle, 1)\n  Graph.addEdge(mutable, middle, sink, 2)\n})\n\n// Nodes with no outgoing edges (sinks + isolated)\nconst sinks = Array.from(\n  Graph.indices(Graph.externals(graph, { direction: "outgoing" }))\n)\nconsole.log(sinks) // [2, 3]\n\n// Nodes with no incoming edges (sources + isolated)\nconst sources = Array.from(\n  Graph.indices(Graph.externals(graph, { direction: "incoming" }))\n)\nconsole.log(sources) // [0, 3]';
 const moduleRecord = GraphModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -91,14 +93,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

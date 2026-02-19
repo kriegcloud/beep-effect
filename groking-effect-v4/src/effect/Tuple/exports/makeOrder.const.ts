@@ -14,9 +14,9 @@
  * Source JSDoc Example:
  * ```ts
  * import { Number, String, Tuple } from "effect"
- * 
+ *
  * const ord = Tuple.makeOrder([String.Order, Number.Order])
- * 
+ *
  * console.log(ord(["Alice", 30], ["Bob", 25]))   // -1
  * console.log(ord(["Alice", 30], ["Alice", 30])) // 0
  * ```
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TupleModule from "effect/Tuple";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TupleModule from "effect/Tuple";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,8 +43,10 @@ import {
 const exportName = "makeOrder";
 const exportKind = "const";
 const moduleImportPath = "effect/Tuple";
-const sourceSummary = "Creates an `Order` for tuples by comparing corresponding elements using the provided per-position `Order`s. Elements are compared left-to-right; the first non-zero comparison de...";
-const sourceExample = "import { Number, String, Tuple } from \"effect\"\n\nconst ord = Tuple.makeOrder([String.Order, Number.Order])\n\nconsole.log(ord([\"Alice\", 30], [\"Bob\", 25]))   // -1\nconsole.log(ord([\"Alice\", 30], [\"Alice\", 30])) // 0";
+const sourceSummary =
+  "Creates an `Order` for tuples by comparing corresponding elements using the provided per-position `Order`s. Elements are compared left-to-right; the first non-zero comparison de...";
+const sourceExample =
+  'import { Number, String, Tuple } from "effect"\n\nconst ord = Tuple.makeOrder([String.Order, Number.Order])\n\nconsole.log(ord(["Alice", 30], ["Bob", 25]))   // -1\nconsole.log(ord(["Alice", 30], ["Alice", 30])) // 0';
 const moduleRecord = TupleModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

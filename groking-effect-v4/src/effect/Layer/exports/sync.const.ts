@@ -14,11 +14,11 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Layer, ServiceMap } from "effect"
- * 
+ *
  * class Database extends ServiceMap.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
  * }>()("Database") {}
- * 
+ *
  * const layer = Layer.sync(Database)(() => ({
  *   query: (sql: string) => Effect.succeed(`Query: ${sql}`)
  * }))
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LayerModule from "effect/Layer";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LayerModule from "effect/Layer";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "sync";
 const exportKind = "const";
 const moduleImportPath = "effect/Layer";
 const sourceSummary = "Lazily constructs a layer from the specified value.";
-const sourceExample = "import { Effect, Layer, ServiceMap } from \"effect\"\n\nclass Database extends ServiceMap.Service<Database, {\n  readonly query: (sql: string) => Effect.Effect<string>\n}>()(\"Database\") {}\n\nconst layer = Layer.sync(Database)(() => ({\n  query: (sql: string) => Effect.succeed(`Query: ${sql}`)\n}))";
+const sourceExample =
+  'import { Effect, Layer, ServiceMap } from "effect"\n\nclass Database extends ServiceMap.Service<Database, {\n  readonly query: (sql: string) => Effect.Effect<string>\n}>()("Database") {}\n\nconst layer = Layer.sync(Database)(() => ({\n  query: (sql: string) => Effect.succeed(`Query: ${sql}`)\n}))';
 const moduleRecord = LayerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

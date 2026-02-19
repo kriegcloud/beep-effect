@@ -14,16 +14,16 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, TxHashSet } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create a transactional hash set
  *   const txSet = yield* TxHashSet.make("apple", "banana", "cherry")
- * 
+ *
  *   // Single operations are automatically transactional
  *   yield* TxHashSet.add(txSet, "grape")
  *   const hasApple = yield* TxHashSet.has(txSet, "apple")
  *   console.log(hasApple) // true
- * 
+ *
  *   // Multi-step atomic operations
  *   yield* Effect.atomic(
  *     Effect.gen(function*() {
@@ -34,7 +34,7 @@
  *       }
  *     })
  *   )
- * 
+ *
  *   const size = yield* TxHashSet.size(txSet)
  *   console.log(size) // 4
  * })
@@ -44,16 +44,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxHashSetModule from "effect/TxHashSet";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxHashSetModule from "effect/TxHashSet";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -61,8 +62,10 @@ import {
 const exportName = "TxHashSet";
 const exportKind = "interface";
 const moduleImportPath = "effect/TxHashSet";
-const sourceSummary = "A TxHashSet is a transactional hash set data structure that provides atomic operations on unique values within Effect transactions. It uses an immutable HashSet internally with ...";
-const sourceExample = "import { Effect, TxHashSet } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  // Create a transactional hash set\n  const txSet = yield* TxHashSet.make(\"apple\", \"banana\", \"cherry\")\n\n  // Single operations are automatically transactional\n  yield* TxHashSet.add(txSet, \"grape\")\n  const hasApple = yield* TxHashSet.has(txSet, \"apple\")\n  console.log(hasApple) // true\n\n  // Multi-step atomic operations\n  yield* Effect.atomic(\n    Effect.gen(function*() {\n      const hasCherry = yield* TxHashSet.has(txSet, \"cherry\")\n      if (hasCherry) {\n        yield* TxHashSet.remove(txSet, \"cherry\")\n        yield* TxHashSet.add(txSet, \"orange\")\n      }\n    })\n  )\n\n  const size = yield* TxHashSet.size(txSet)\n  console.log(size) // 4\n})";
+const sourceSummary =
+  "A TxHashSet is a transactional hash set data structure that provides atomic operations on unique values within Effect transactions. It uses an immutable HashSet internally with ...";
+const sourceExample =
+  'import { Effect, TxHashSet } from "effect"\n\nconst program = Effect.gen(function*() {\n  // Create a transactional hash set\n  const txSet = yield* TxHashSet.make("apple", "banana", "cherry")\n\n  // Single operations are automatically transactional\n  yield* TxHashSet.add(txSet, "grape")\n  const hasApple = yield* TxHashSet.has(txSet, "apple")\n  console.log(hasApple) // true\n\n  // Multi-step atomic operations\n  yield* Effect.atomic(\n    Effect.gen(function*() {\n      const hasCherry = yield* TxHashSet.has(txSet, "cherry")\n      if (hasCherry) {\n        yield* TxHashSet.remove(txSet, "cherry")\n        yield* TxHashSet.add(txSet, "orange")\n      }\n    })\n  )\n\n  const size = yield* TxHashSet.size(txSet)\n  console.log(size) // 4\n})';
 const moduleRecord = TxHashSetModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -93,14 +96,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

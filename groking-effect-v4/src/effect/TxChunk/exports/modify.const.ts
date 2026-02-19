@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Chunk, Effect, TxChunk } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const txChunk = yield* TxChunk.fromIterable([1, 2, 3])
- * 
+ *
  *   // Modify and return both old size and new chunk
  *   const oldSize = yield* TxChunk.modify(txChunk, (chunk) => [
  *     Chunk.size(chunk), // return value (old size)
  *     Chunk.append(chunk, 4) // new value
  *   ])
- * 
+ *
  *   console.log(oldSize) // 3
- * 
+ *
  *   const newChunk = yield* TxChunk.get(txChunk)
  *   console.log(Chunk.toReadonlyArray(newChunk)) // [1, 2, 3, 4]
  * })
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxChunkModule from "effect/TxChunk";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxChunkModule from "effect/TxChunk";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "modify";
 const exportKind = "const";
 const moduleImportPath = "effect/TxChunk";
 const sourceSummary = "Modifies the value of the `TxChunk` using the provided function.";
-const sourceExample = "import { Chunk, Effect, TxChunk } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const txChunk = yield* TxChunk.fromIterable([1, 2, 3])\n\n  // Modify and return both old size and new chunk\n  const oldSize = yield* TxChunk.modify(txChunk, (chunk) => [\n    Chunk.size(chunk), // return value (old size)\n    Chunk.append(chunk, 4) // new value\n  ])\n\n  console.log(oldSize) // 3\n\n  const newChunk = yield* TxChunk.get(txChunk)\n  console.log(Chunk.toReadonlyArray(newChunk)) // [1, 2, 3, 4]\n})";
+const sourceExample =
+  'import { Chunk, Effect, TxChunk } from "effect"\n\nconst program = Effect.gen(function*() {\n  const txChunk = yield* TxChunk.fromIterable([1, 2, 3])\n\n  // Modify and return both old size and new chunk\n  const oldSize = yield* TxChunk.modify(txChunk, (chunk) => [\n    Chunk.size(chunk), // return value (old size)\n    Chunk.append(chunk, 4) // new value\n  ])\n\n  console.log(oldSize) // 3\n\n  const newChunk = yield* TxChunk.get(txChunk)\n  console.log(Chunk.toReadonlyArray(newChunk)) // [1, 2, 3, 4]\n})';
 const moduleRecord = TxChunkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

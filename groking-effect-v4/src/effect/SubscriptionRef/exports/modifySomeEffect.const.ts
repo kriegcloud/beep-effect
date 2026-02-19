@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Option, SubscriptionRef } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const ref = yield* SubscriptionRef.make(10)
- * 
+ *
  *   const result = yield* SubscriptionRef.modifySomeEffect(
  *     ref,
  *     (n) =>
@@ -28,7 +28,7 @@
  *       )
  *   )
  *   console.log(result)
- * 
+ *
  *   const newValue = yield* SubscriptionRef.get(ref)
  *   console.log("New value:", newValue)
  * })
@@ -38,16 +38,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SubscriptionRefModule from "effect/SubscriptionRef";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SubscriptionRefModule from "effect/SubscriptionRef";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,8 +56,10 @@ import {
 const exportName = "modifySomeEffect";
 const exportKind = "const";
 const moduleImportPath = "effect/SubscriptionRef";
-const sourceSummary = "Atomically modifies the `SubscriptionRef` with an effectful function that computes a return value and optionally a new value, notifying subscribers only if the value changes.";
-const sourceExample = "import { Effect, Option, SubscriptionRef } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const ref = yield* SubscriptionRef.make(10)\n\n  const result = yield* SubscriptionRef.modifySomeEffect(\n    ref,\n    (n) =>\n      Effect.succeed(\n        n > 5\n          ? ([\"Updated\", Option.some(n + 5)] as const)\n          : ([\"Not updated\", Option.none()] as const)\n      )\n  )\n  console.log(result)\n\n  const newValue = yield* SubscriptionRef.get(ref)\n  console.log(\"New value:\", newValue)\n})";
+const sourceSummary =
+  "Atomically modifies the `SubscriptionRef` with an effectful function that computes a return value and optionally a new value, notifying subscribers only if the value changes.";
+const sourceExample =
+  'import { Effect, Option, SubscriptionRef } from "effect"\n\nconst program = Effect.gen(function*() {\n  const ref = yield* SubscriptionRef.make(10)\n\n  const result = yield* SubscriptionRef.modifySomeEffect(\n    ref,\n    (n) =>\n      Effect.succeed(\n        n > 5\n          ? (["Updated", Option.some(n + 5)] as const)\n          : (["Not updated", Option.none()] as const)\n      )\n  )\n  console.log(result)\n\n  const newValue = yield* SubscriptionRef.get(ref)\n  console.log("New value:", newValue)\n})';
 const moduleRecord = SubscriptionRefModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -87,14 +90,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

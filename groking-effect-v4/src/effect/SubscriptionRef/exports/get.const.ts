@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, SubscriptionRef } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const ref = yield* SubscriptionRef.make(42)
- * 
+ *
  *   const value = yield* SubscriptionRef.get(ref)
  *   console.log(value)
  * })
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SubscriptionRefModule from "effect/SubscriptionRef";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SubscriptionRefModule from "effect/SubscriptionRef";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "get";
 const exportKind = "const";
 const moduleImportPath = "effect/SubscriptionRef";
 const sourceSummary = "Retrieves the current value of the `SubscriptionRef`.";
-const sourceExample = "import { Effect, SubscriptionRef } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const ref = yield* SubscriptionRef.make(42)\n\n  const value = yield* SubscriptionRef.get(ref)\n  console.log(value)\n})";
+const sourceExample =
+  'import { Effect, SubscriptionRef } from "effect"\n\nconst program = Effect.gen(function*() {\n  const ref = yield* SubscriptionRef.make(42)\n\n  const value = yield* SubscriptionRef.get(ref)\n  console.log(value)\n})';
 const moduleRecord = SubscriptionRefModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

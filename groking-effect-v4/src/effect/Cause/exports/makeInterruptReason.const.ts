@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause } from "effect"
- * 
+ *
  * const reason = Cause.makeInterruptReason(42)
  * console.log(reason._tag) // "Interrupt"
  * console.log(reason.fiberId) // 42
@@ -24,16 +24,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CauseModule from "effect/Cause";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as CauseModule from "effect/Cause";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -41,8 +42,10 @@ import {
 const exportName = "makeInterruptReason";
 const exportKind = "const";
 const moduleImportPath = "effect/Cause";
-const sourceSummary = "Creates a standalone {@link Interrupt} reason (not wrapped in a {@link Cause}), optionally carrying the interrupting fiber's ID.";
-const sourceExample = "import { Cause } from \"effect\"\n\nconst reason = Cause.makeInterruptReason(42)\nconsole.log(reason._tag) // \"Interrupt\"\nconsole.log(reason.fiberId) // 42";
+const sourceSummary =
+  "Creates a standalone {@link Interrupt} reason (not wrapped in a {@link Cause}), optionally carrying the interrupting fiber's ID.";
+const sourceExample =
+  'import { Cause } from "effect"\n\nconst reason = Cause.makeInterruptReason(42)\nconsole.log(reason._tag) // "Interrupt"\nconsole.log(reason.fiberId) // 42';
 const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +76,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

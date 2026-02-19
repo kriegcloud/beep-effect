@@ -14,19 +14,19 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel, Data, Effect } from "effect"
- * 
+ *
  * class PullError extends Data.TaggedError("PullError")<{
  *   readonly step: string
  * }> {}
- * 
+ *
  * // Create a channel
  * const numbersChannel = Channel.fromIterable([1, 2, 3])
- * 
+ *
  * // Convert to Pull within a scope
  * const pullEffect = Effect.scoped(
  *   Channel.toPull(numbersChannel)
  * )
- * 
+ *
  * // Use the Pull to manually consume elements
  * ```
  *
@@ -34,16 +34,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +53,8 @@ const exportName = "toPull";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
 const sourceSummary = "Converts a channel to a Pull data structure for low-level consumption.";
-const sourceExample = "import { Channel, Data, Effect } from \"effect\"\n\nclass PullError extends Data.TaggedError(\"PullError\")<{\n  readonly step: string\n}> {}\n\n// Create a channel\nconst numbersChannel = Channel.fromIterable([1, 2, 3])\n\n// Convert to Pull within a scope\nconst pullEffect = Effect.scoped(\n  Channel.toPull(numbersChannel)\n)\n\n// Use the Pull to manually consume elements";
+const sourceExample =
+  'import { Channel, Data, Effect } from "effect"\n\nclass PullError extends Data.TaggedError("PullError")<{\n  readonly step: string\n}> {}\n\n// Create a channel\nconst numbersChannel = Channel.fromIterable([1, 2, 3])\n\n// Convert to Pull within a scope\nconst pullEffect = Effect.scoped(\n  Channel.toPull(numbersChannel)\n)\n\n// Use the Pull to manually consume elements';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -83,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

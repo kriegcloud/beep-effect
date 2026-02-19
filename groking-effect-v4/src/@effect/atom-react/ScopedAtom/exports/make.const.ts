@@ -17,15 +17,15 @@
  * import * as React from "react"
  * import * as ScopedAtom from "@effect/atom-react/ScopedAtom"
  * import { useAtomValue } from "@effect/atom-react"
- * 
+ *
  * const User = ScopedAtom.make((name: string) => Atom.make(name))
- * 
+ *
  * function UserName() {
  *   const atom = User.use()
  *   const value = useAtomValue(atom)
  *   return React.createElement("span", null, value)
  * }
- * 
+ *
  * export function App() {
  *   return React.createElement(
  *     User.Provider,
@@ -39,16 +39,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ScopedAtomModule from "@effect/atom-react/ScopedAtom";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as ScopedAtomModule from "@effect/atom-react/ScopedAtom";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -57,7 +58,8 @@ const exportName = "make";
 const exportKind = "const";
 const moduleImportPath = "@effect/atom-react/ScopedAtom";
 const sourceSummary = "Creates a ScopedAtom from a factory function.";
-const sourceExample = "import * as Atom from \"effect/unstable/reactivity/Atom\"\nimport * as React from \"react\"\nimport * as ScopedAtom from \"@effect/atom-react/ScopedAtom\"\nimport { useAtomValue } from \"@effect/atom-react\"\n\nconst User = ScopedAtom.make((name: string) => Atom.make(name))\n\nfunction UserName() {\n  const atom = User.use()\n  const value = useAtomValue(atom)\n  return React.createElement(\"span\", null, value)\n}\n\nexport function App() {\n  return React.createElement(\n    User.Provider,\n    { value: \"Ada\" },\n    React.createElement(UserName)\n  )\n}";
+const sourceExample =
+  'import * as Atom from "effect/unstable/reactivity/Atom"\nimport * as React from "react"\nimport * as ScopedAtom from "@effect/atom-react/ScopedAtom"\nimport { useAtomValue } from "@effect/atom-react"\n\nconst User = ScopedAtom.make((name: string) => Atom.make(name))\n\nfunction UserName() {\n  const atom = User.use()\n  const value = useAtomValue(atom)\n  return React.createElement("span", null, value)\n}\n\nexport function App() {\n  return React.createElement(\n    User.Provider,\n    { value: "Ada" },\n    React.createElement(UserName)\n  )\n}';
 const moduleRecord = ScopedAtomModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -88,14 +90,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

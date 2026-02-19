@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Sink, Stream } from "effect"
- * 
+ *
  * // Create a sink that dies with a defect
  * const sink = Sink.die(new Error("Defect error"))
- * 
+ *
  * // Use it with a stream
  * const stream = Stream.make(1, 2, 3)
  * const program = Stream.run(stream, sink)
- * 
+ *
  * Effect.runPromise(program).catch(console.log)
  * // Output: Error: Defect error
  * ```
@@ -30,16 +30,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SinkModule from "effect/Sink";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SinkModule from "effect/Sink";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +49,8 @@ const exportName = "die";
 const exportKind = "const";
 const moduleImportPath = "effect/Sink";
 const sourceSummary = "Creates a sink halting with a specified defect.";
-const sourceExample = "import { Effect, Sink, Stream } from \"effect\"\n\n// Create a sink that dies with a defect\nconst sink = Sink.die(new Error(\"Defect error\"))\n\n// Use it with a stream\nconst stream = Stream.make(1, 2, 3)\nconst program = Stream.run(stream, sink)\n\nEffect.runPromise(program).catch(console.log)\n// Output: Error: Defect error";
+const sourceExample =
+  'import { Effect, Sink, Stream } from "effect"\n\n// Create a sink that dies with a defect\nconst sink = Sink.die(new Error("Defect error"))\n\n// Use it with a stream\nconst stream = Stream.make(1, 2, 3)\nconst program = Stream.run(stream, sink)\n\nEffect.runPromise(program).catch(console.log)\n// Output: Error: Defect error';
 const moduleRecord = SinkModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -79,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

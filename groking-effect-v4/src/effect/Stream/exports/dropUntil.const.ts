@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Console, Effect, Stream } from "effect"
- * 
+ *
  * const stream = Stream.make(1, 2, 3, 4, 5)
  * const result = Stream.dropUntil(stream, (n) => n >= 3)
- * 
+ *
  * Effect.gen(function*() {
  *   const output = yield* Stream.runCollect(result)
  *   yield* Console.log(output) // Output: [ 4, 5 ]
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as StreamModule from "effect/Stream";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as StreamModule from "effect/Stream";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,8 +46,10 @@ import {
 const exportName = "dropUntil";
 const exportKind = "const";
 const moduleImportPath = "effect/Stream";
-const sourceSummary = "Drops elements until the specified predicate evaluates to `true`, then drops that matching element.";
-const sourceExample = "import { Console, Effect, Stream } from \"effect\"\n\nconst stream = Stream.make(1, 2, 3, 4, 5)\nconst result = Stream.dropUntil(stream, (n) => n >= 3)\n\nEffect.gen(function*() {\n  const output = yield* Stream.runCollect(result)\n  yield* Console.log(output) // Output: [ 4, 5 ]\n})";
+const sourceSummary =
+  "Drops elements until the specified predicate evaluates to `true`, then drops that matching element.";
+const sourceExample =
+  'import { Console, Effect, Stream } from "effect"\n\nconst stream = Stream.make(1, 2, 3, 4, 5)\nconst result = Stream.dropUntil(stream, (n) => n >= 3)\n\nEffect.gen(function*() {\n  const output = yield* Stream.runCollect(result)\n  yield* Console.log(output) // Output: [ 4, 5 ]\n})';
 const moduleRecord = StreamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

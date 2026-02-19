@@ -14,26 +14,27 @@
  * Source JSDoc Example:
  * ```ts
  * import { Predicate } from "effect"
- * 
+ *
  * const values = [0, null, "", undefined]
  * const present = values.filter(Predicate.isNotNullish)
- * 
+ *
  * console.log(present)
  * ```
  *
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PredicateModule from "effect/Predicate";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PredicateModule from "effect/Predicate";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "isNotNullish";
 const exportKind = "function";
 const moduleImportPath = "effect/Predicate";
 const sourceSummary = "Checks whether a value is not `null` and not `undefined`.";
-const sourceExample = "import { Predicate } from \"effect\"\n\nconst values = [0, null, \"\", undefined]\nconst present = values.filter(Predicate.isNotNullish)\n\nconsole.log(present)";
+const sourceExample =
+  'import { Predicate } from "effect"\n\nconst values = [0, null, "", undefined]\nconst present = values.filter(Predicate.isNotNullish)\n\nconsole.log(present)';
 const moduleRecord = PredicateModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

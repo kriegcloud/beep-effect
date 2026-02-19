@@ -14,14 +14,14 @@
  * Source JSDoc Example:
  * ```ts
  * import { Schema, SchemaGetter } from "effect"
- * 
+ *
  * const Trimmed = Schema.String.pipe(
  *   Schema.decode({
  *     decode: SchemaGetter.transform((s) => s.trim()),
  *     encode: SchemaGetter.transform((s) => s.trim())
  *   })
  * )
- * 
+ *
  * const result = Schema.decodeUnknownSync(Trimmed)("  hello  ")
  * // result: "hello"
  * ```
@@ -29,16 +29,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaModule from "effect/Schema";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaModule from "effect/Schema";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,8 +47,10 @@ import {
 const exportName = "decode";
 const exportKind = "function";
 const moduleImportPath = "effect/Schema";
-const sourceSummary = "Applies a transformation to a schema, creating a new schema with the same type but transformed encoding/decoding.";
-const sourceExample = "import { Schema, SchemaGetter } from \"effect\"\n\nconst Trimmed = Schema.String.pipe(\n  Schema.decode({\n    decode: SchemaGetter.transform((s) => s.trim()),\n    encode: SchemaGetter.transform((s) => s.trim())\n  })\n)\n\nconst result = Schema.decodeUnknownSync(Trimmed)(\"  hello  \")\n// result: \"hello\"";
+const sourceSummary =
+  "Applies a transformation to a schema, creating a new schema with the same type but transformed encoding/decoding.";
+const sourceExample =
+  'import { Schema, SchemaGetter } from "effect"\n\nconst Trimmed = Schema.String.pipe(\n  Schema.decode({\n    decode: SchemaGetter.transform((s) => s.trim()),\n    encode: SchemaGetter.transform((s) => s.trim())\n  })\n)\n\nconst result = Schema.decodeUnknownSync(Trimmed)("  hello  ")\n// result: "hello"';
 const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +81,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Match } from "effect"
- * 
+ *
  * const describeValue = Match.type<unknown>()
  *   .pipe(
  *     Match.when(Match.string, (str) => `String: ${str}`),
@@ -23,16 +23,16 @@
  *     Match.when(Match.any, (value) => `Other: ${typeof value}`),
  *     Match.exhaustive
  *   )
- * 
+ *
  * console.log(describeValue("hello"))
  * // Output: "String: hello"
- * 
+ *
  * console.log(describeValue(42))
  * // Output: "Number: 42"
- * 
+ *
  * console.log(describeValue([1, 2, 3]))
  * // Output: "Other: object"
- * 
+ *
  * console.log(describeValue(null))
  * // Output: "Other: object"
  * ```
@@ -41,16 +41,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as MatchModule from "effect/Match";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as MatchModule from "effect/Match";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -59,7 +60,8 @@ const exportName = "any";
 const exportKind = "const";
 const moduleImportPath = "effect/Match";
 const sourceSummary = "Matches any value without restrictions.";
-const sourceExample = "import { Match } from \"effect\"\n\nconst describeValue = Match.type<unknown>()\n  .pipe(\n    Match.when(Match.string, (str) => `String: ${str}`),\n    Match.when(Match.number, (num) => `Number: ${num}`),\n    Match.when(Match.boolean, (bool) => `Boolean: ${bool}`),\n    Match.when(Match.any, (value) => `Other: ${typeof value}`),\n    Match.exhaustive\n  )\n\nconsole.log(describeValue(\"hello\"))\n// Output: \"String: hello\"\n\nconsole.log(describeValue(42))\n// Output: \"Number: 42\"\n\nconsole.log(describeValue([1, 2, 3]))\n// Output: \"Other: object\"\n\nconsole.log(describeValue(null))\n// Output: \"Other: object\"";
+const sourceExample =
+  'import { Match } from "effect"\n\nconst describeValue = Match.type<unknown>()\n  .pipe(\n    Match.when(Match.string, (str) => `String: ${str}`),\n    Match.when(Match.number, (num) => `Number: ${num}`),\n    Match.when(Match.boolean, (bool) => `Boolean: ${bool}`),\n    Match.when(Match.any, (value) => `Other: ${typeof value}`),\n    Match.exhaustive\n  )\n\nconsole.log(describeValue("hello"))\n// Output: "String: hello"\n\nconsole.log(describeValue(42))\n// Output: "Number: 42"\n\nconsole.log(describeValue([1, 2, 3]))\n// Output: "Other: object"\n\nconsole.log(describeValue(null))\n// Output: "Other: object"';
 const moduleRecord = MatchModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -90,14 +92,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { DateTime } from "effect"
- * 
+ *
  * const londonZone = DateTime.zoneMakeNamedUnsafe("Europe/London")
  * console.log(DateTime.zoneToString(londonZone)) // "Europe/London"
- * 
+ *
  * const tokyoZone = DateTime.zoneMakeNamedUnsafe("Asia/Tokyo")
  * console.log(DateTime.zoneToString(tokyoZone)) // "Asia/Tokyo"
- * 
+ *
  * // This would throw an IllegalArgumentError:
  * // DateTime.zoneMakeNamedUnsafe("Invalid/Zone")
  * ```
@@ -29,16 +29,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as DateTimeModule from "effect/DateTime";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as DateTimeModule from "effect/DateTime";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,7 +48,8 @@ const exportName = "zoneMakeNamedUnsafe";
 const exportKind = "const";
 const moduleImportPath = "effect/DateTime";
 const sourceSummary = "Attempt to create a named time zone from a IANA time zone identifier.";
-const sourceExample = "import { DateTime } from \"effect\"\n\nconst londonZone = DateTime.zoneMakeNamedUnsafe(\"Europe/London\")\nconsole.log(DateTime.zoneToString(londonZone)) // \"Europe/London\"\n\nconst tokyoZone = DateTime.zoneMakeNamedUnsafe(\"Asia/Tokyo\")\nconsole.log(DateTime.zoneToString(tokyoZone)) // \"Asia/Tokyo\"\n\n// This would throw an IllegalArgumentError:\n// DateTime.zoneMakeNamedUnsafe(\"Invalid/Zone\")";
+const sourceExample =
+  'import { DateTime } from "effect"\n\nconst londonZone = DateTime.zoneMakeNamedUnsafe("Europe/London")\nconsole.log(DateTime.zoneToString(londonZone)) // "Europe/London"\n\nconst tokyoZone = DateTime.zoneMakeNamedUnsafe("Asia/Tokyo")\nconsole.log(DateTime.zoneToString(tokyoZone)) // "Asia/Tokyo"\n\n// This would throw an IllegalArgumentError:\n// DateTime.zoneMakeNamedUnsafe("Invalid/Zone")';
 const moduleRecord = DateTimeModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -78,14 +80,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Cause } from "effect"
- * 
+ *
  * const cause1 = Cause.fail("error1")
  * const cause2 = Cause.fail("error2")
  * const combined = Cause.combine(cause1, cause2)
@@ -25,16 +25,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as CauseModule from "effect/Cause";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as CauseModule from "effect/Cause";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,8 +43,10 @@ import {
 const exportName = "combine";
 const exportKind = "const";
 const moduleImportPath = "effect/Cause";
-const sourceSummary = "Merges two causes into a single cause whose `reasons` array is the union of both inputs (de-duplicated by value equality).";
-const sourceExample = "import { Cause } from \"effect\"\n\nconst cause1 = Cause.fail(\"error1\")\nconst cause2 = Cause.fail(\"error2\")\nconst combined = Cause.combine(cause1, cause2)\nconsole.log(combined.reasons.length) // 2";
+const sourceSummary =
+  "Merges two causes into a single cause whose `reasons` array is the union of both inputs (de-duplicated by value equality).";
+const sourceExample =
+  'import { Cause } from "effect"\n\nconst cause1 = Cause.fail("error1")\nconst cause2 = Cause.fail("error2")\nconst combined = Cause.combine(cause1, cause2)\nconsole.log(combined.reasons.length) // 2';
 const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -74,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

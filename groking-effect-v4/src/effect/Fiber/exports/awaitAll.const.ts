@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Fiber } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const fiber1 = yield* Effect.forkChild(Effect.succeed(1))
  *   const fiber2 = yield* Effect.forkChild(Effect.succeed(2))
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FiberModule from "effect/Fiber";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FiberModule from "effect/Fiber";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,8 +45,10 @@ import {
 const exportName = "awaitAll";
 const exportKind = "const";
 const moduleImportPath = "effect/Fiber";
-const sourceSummary = "Waits for all fibers in the provided iterable to complete and returns an array of their exit values.";
-const sourceExample = "import { Effect, Fiber } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const fiber1 = yield* Effect.forkChild(Effect.succeed(1))\n  const fiber2 = yield* Effect.forkChild(Effect.succeed(2))\n  const exits = yield* Fiber.awaitAll([fiber1, fiber2])\n  console.log(exits) // [Exit.succeed(1), Exit.succeed(2)]\n})";
+const sourceSummary =
+  "Waits for all fibers in the provided iterable to complete and returns an array of their exit values.";
+const sourceExample =
+  'import { Effect, Fiber } from "effect"\n\nconst program = Effect.gen(function*() {\n  const fiber1 = yield* Effect.forkChild(Effect.succeed(1))\n  const fiber2 = yield* Effect.forkChild(Effect.succeed(2))\n  const exits = yield* Fiber.awaitAll([fiber1, fiber2])\n  console.log(exits) // [Exit.succeed(1), Exit.succeed(2)]\n})';
 const moduleRecord = FiberModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

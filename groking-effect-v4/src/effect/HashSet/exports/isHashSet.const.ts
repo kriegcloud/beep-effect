@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import * as HashSet from "effect/HashSet"
- * 
+ *
  * const set = HashSet.make(1, 2, 3)
  * const array = [1, 2, 3]
- * 
+ *
  * console.log(HashSet.isHashSet(set)) // true
  * console.log(HashSet.isHashSet(array)) // false
  * console.log(HashSet.isHashSet(null)) // false
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as HashSetModule from "effect/HashSet";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as HashSetModule from "effect/HashSet";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "isHashSet";
 const exportKind = "const";
 const moduleImportPath = "effect/HashSet";
 const sourceSummary = "Checks if a value is a HashSet.";
-const sourceExample = "import * as HashSet from \"effect/HashSet\"\n\nconst set = HashSet.make(1, 2, 3)\nconst array = [1, 2, 3]\n\nconsole.log(HashSet.isHashSet(set)) // true\nconsole.log(HashSet.isHashSet(array)) // false\nconsole.log(HashSet.isHashSet(null)) // false";
+const sourceExample =
+  'import * as HashSet from "effect/HashSet"\n\nconst set = HashSet.make(1, 2, 3)\nconst array = [1, 2, 3]\n\nconsole.log(HashSet.isHashSet(set)) // true\nconsole.log(HashSet.isHashSet(array)) // false\nconsole.log(HashSet.isHashSet(null)) // false';
 const moduleRecord = HashSetModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

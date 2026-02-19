@@ -14,15 +14,15 @@
  * Source JSDoc Example:
  * ```ts
  * import * as Param from "effect/unstable/cli/Param"
- * 
+ *
  * // @internal - this module is not exported publicly
- * 
+ *
  * // Require at least 2 input files
  * const inputs = Param.string(Param.flagKind, "input").pipe(
  *   Param.atLeast(2),
  *   Param.withAlias("-i")
  * )
- * 
+ *
  * // Parse: --input file1.txt --input file2.txt --input file3.txt
  * // Result: ["file1.txt", "file2.txt", "file3.txt"]
  * ```
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ParamModule from "effect/unstable/cli/Param";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ParamModule from "effect/unstable/cli/Param";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,7 +50,8 @@ const exportName = "atLeast";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Param";
 const sourceSummary = "Wraps an option to require it to be specified at least `min` times.";
-const sourceExample = "import * as Param from \"effect/unstable/cli/Param\"\n\n// @internal - this module is not exported publicly\n\n// Require at least 2 input files\nconst inputs = Param.string(Param.flagKind, \"input\").pipe(\n  Param.atLeast(2),\n  Param.withAlias(\"-i\")\n)\n\n// Parse: --input file1.txt --input file2.txt --input file3.txt\n// Result: [\"file1.txt\", \"file2.txt\", \"file3.txt\"]";
+const sourceExample =
+  'import * as Param from "effect/unstable/cli/Param"\n\n// @internal - this module is not exported publicly\n\n// Require at least 2 input files\nconst inputs = Param.string(Param.flagKind, "input").pipe(\n  Param.atLeast(2),\n  Param.withAlias("-i")\n)\n\n// Parse: --input file1.txt --input file2.txt --input file3.txt\n// Result: ["file1.txt", "file2.txt", "file3.txt"]';
 const moduleRecord = ParamModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +82,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

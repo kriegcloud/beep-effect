@@ -15,7 +15,7 @@
  * ```ts
  * // Title: Combining Effects with a Custom Function
  * import { Effect } from "effect"
- * 
+ *
  * const task1 = Effect.succeed(1).pipe(
  *   Effect.delay("200 millis"),
  *   Effect.tap(Effect.log("task1 done"))
@@ -24,14 +24,14 @@
  *   Effect.delay("100 millis"),
  *   Effect.tap(Effect.log("task2 done"))
  * )
- * 
+ *
  * const task3 = Effect.zipWith(
  *   task1,
  *   task2,
  *   // Combines results into a single value
  *   (number, string) => number + string.length
  * )
- * 
+ *
  * Effect.runPromise(task3).then(console.log)
  * // Output:
  * // timestamp=... level=INFO fiber=#3 message="task1 done"
@@ -43,16 +43,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as EffectModule from "effect/Effect";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as EffectModule from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -60,8 +61,10 @@ import {
 const exportName = "zipWith";
 const exportKind = "const";
 const moduleImportPath = "effect/Effect";
-const sourceSummary = "Combines two effects sequentially and applies a function to their results to produce a single value.";
-const sourceExample = "// Title: Combining Effects with a Custom Function\nimport { Effect } from \"effect\"\n\nconst task1 = Effect.succeed(1).pipe(\n  Effect.delay(\"200 millis\"),\n  Effect.tap(Effect.log(\"task1 done\"))\n)\nconst task2 = Effect.succeed(\"hello\").pipe(\n  Effect.delay(\"100 millis\"),\n  Effect.tap(Effect.log(\"task2 done\"))\n)\n\nconst task3 = Effect.zipWith(\n  task1,\n  task2,\n  // Combines results into a single value\n  (number, string) => number + string.length\n)\n\nEffect.runPromise(task3).then(console.log)\n// Output:\n// timestamp=... level=INFO fiber=#3 message=\"task1 done\"\n// timestamp=... level=INFO fiber=#2 message=\"task2 done\"\n// 6";
+const sourceSummary =
+  "Combines two effects sequentially and applies a function to their results to produce a single value.";
+const sourceExample =
+  '// Title: Combining Effects with a Custom Function\nimport { Effect } from "effect"\n\nconst task1 = Effect.succeed(1).pipe(\n  Effect.delay("200 millis"),\n  Effect.tap(Effect.log("task1 done"))\n)\nconst task2 = Effect.succeed("hello").pipe(\n  Effect.delay("100 millis"),\n  Effect.tap(Effect.log("task2 done"))\n)\n\nconst task3 = Effect.zipWith(\n  task1,\n  task2,\n  // Combines results into a single value\n  (number, string) => number + string.length\n)\n\nEffect.runPromise(task3).then(console.log)\n// Output:\n// timestamp=... level=INFO fiber=#3 message="task1 done"\n// timestamp=... level=INFO fiber=#2 message="task2 done"\n// 6';
 const moduleRecord = EffectModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -92,14 +95,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

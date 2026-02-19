@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Argument } from "effect/unstable/cli"
- * 
+ *
  * const positiveInt = Argument.integer("count").pipe(
  *   Argument.filter(
  *     (n) => n > 0,
@@ -27,16 +27,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArgumentModule from "effect/unstable/cli/Argument";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ArgumentModule from "effect/unstable/cli/Argument";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,7 +46,8 @@ const exportName = "filter";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Argument";
 const sourceSummary = "Filters parsed values, failing with a custom error message if the predicate returns false.";
-const sourceExample = "import { Argument } from \"effect/unstable/cli\"\n\nconst positiveInt = Argument.integer(\"count\").pipe(\n  Argument.filter(\n    (n) => n > 0,\n    (n) => `Expected positive integer, got ${n}`\n  )\n)";
+const sourceExample =
+  'import { Argument } from "effect/unstable/cli"\n\nconst positiveInt = Argument.integer("count").pipe(\n  Argument.filter(\n    (n) => n > 0,\n    (n) => `Expected positive integer, got ${n}`\n  )\n)';
 const moduleRecord = ArgumentModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -76,14 +78,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

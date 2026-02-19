@@ -15,12 +15,12 @@
  * ```ts
  * import { Schema } from "effect"
  * import { Flag } from "effect/unstable/cli"
- * 
+ *
  * const ConfigSchema = Schema.Struct({
  *   port: Schema.Number,
  *   host: Schema.String
  * }).pipe(Schema.fromJsonString)
- * 
+ *
  * const config = Flag.fileSchema("config", ConfigSchema, { format: "json" })
  * ```
  *
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FlagModule from "effect/unstable/cli/Flag";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FlagModule from "effect/unstable/cli/Flag";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "fileSchema";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Flag";
 const sourceSummary = "Creates a flag that reads and validates file content using the specified schema.";
-const sourceExample = "import { Schema } from \"effect\"\nimport { Flag } from \"effect/unstable/cli\"\n\nconst ConfigSchema = Schema.Struct({\n  port: Schema.Number,\n  host: Schema.String\n}).pipe(Schema.fromJsonString)\n\nconst config = Flag.fileSchema(\"config\", ConfigSchema, { format: \"json\" })";
+const sourceExample =
+  'import { Schema } from "effect"\nimport { Flag } from "effect/unstable/cli"\n\nconst ConfigSchema = Schema.Struct({\n  port: Schema.Number,\n  host: Schema.String\n}).pipe(Schema.fromJsonString)\n\nconst config = Flag.fileSchema("config", ConfigSchema, { format: "json" })';
 const moduleRecord = FlagModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

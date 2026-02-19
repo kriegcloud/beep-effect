@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, TxQueue } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create a sliding queue with capacity 2
  *   const queue = yield* TxQueue.sliding<number>(2)
- * 
+ *
  *   // Fill to capacity
  *   yield* TxQueue.offer(queue, 1)
  *   yield* TxQueue.offer(queue, 2)
- * 
+ *
  *   // This will evict item 1 and add 3
  *   yield* TxQueue.offer(queue, 3)
- * 
+ *
  *   const item = yield* TxQueue.take(queue)
  *   console.log(item) // 2 (item 1 was evicted)
  * })
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxQueueModule from "effect/TxQueue";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxQueueModule from "effect/TxQueue";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "sliding";
 const exportKind = "const";
 const moduleImportPath = "effect/TxQueue";
 const sourceSummary = "Creates a new sliding `TxQueue` with the specified capacity that evicts old items when full.";
-const sourceExample = "import { Effect, TxQueue } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  // Create a sliding queue with capacity 2\n  const queue = yield* TxQueue.sliding<number>(2)\n\n  // Fill to capacity\n  yield* TxQueue.offer(queue, 1)\n  yield* TxQueue.offer(queue, 2)\n\n  // This will evict item 1 and add 3\n  yield* TxQueue.offer(queue, 3)\n\n  const item = yield* TxQueue.take(queue)\n  console.log(item) // 2 (item 1 was evicted)\n})";
+const sourceExample =
+  'import { Effect, TxQueue } from "effect"\n\nconst program = Effect.gen(function*() {\n  // Create a sliding queue with capacity 2\n  const queue = yield* TxQueue.sliding<number>(2)\n\n  // Fill to capacity\n  yield* TxQueue.offer(queue, 1)\n  yield* TxQueue.offer(queue, 2)\n\n  // This will evict item 1 and add 3\n  yield* TxQueue.offer(queue, 3)\n\n  const item = yield* TxQueue.take(queue)\n  console.log(item) // 2 (item 1 was evicted)\n})';
 const moduleRecord = TxQueueModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

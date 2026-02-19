@@ -1,1 +1,1 @@
-export * from "./generator/index.ts"
+export * from "./generator/index.ts";

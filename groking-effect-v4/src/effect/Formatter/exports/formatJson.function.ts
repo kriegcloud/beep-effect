@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { formatJson } from "effect/Formatter"
- * 
+ *
  * // Normal object
  * const simple = { name: "Alice", age: 30 }
  * console.log(formatJson(simple))
  * // {"name":"Alice","age":30}
- * 
+ *
  * // Object with circular reference
  * const circular: any = { name: "test" }
  * circular.self = circular
  * console.log(formatJson(circular))
  * // {"name":"test"} (circular reference omitted)
- * 
+ *
  * // With formatting
  * console.log(formatJson(simple, { space: 2 }))
  * // {
@@ -37,16 +37,17 @@
  * Focus:
  * - Function export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as FormatterModule from "effect/Formatter";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as FormatterModule from "effect/Formatter";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,7 +56,8 @@ const exportName = "formatJson";
 const exportKind = "function";
 const moduleImportPath = "effect/Formatter";
 const sourceSummary = "Safely stringifies objects that may contain circular references.";
-const sourceExample = "import { formatJson } from \"effect/Formatter\"\n\n// Normal object\nconst simple = { name: \"Alice\", age: 30 }\nconsole.log(formatJson(simple))\n// {\"name\":\"Alice\",\"age\":30}\n\n// Object with circular reference\nconst circular: any = { name: \"test\" }\ncircular.self = circular\nconsole.log(formatJson(circular))\n// {\"name\":\"test\"} (circular reference omitted)\n\n// With formatting\nconsole.log(formatJson(simple, { space: 2 }))\n// {\n//   \"name\": \"Alice\",\n//   \"age\": 30\n// }";
+const sourceExample =
+  'import { formatJson } from "effect/Formatter"\n\n// Normal object\nconst simple = { name: "Alice", age: 30 }\nconsole.log(formatJson(simple))\n// {"name":"Alice","age":30}\n\n// Object with circular reference\nconst circular: any = { name: "test" }\ncircular.self = circular\nconsole.log(formatJson(circular))\n// {"name":"test"} (circular reference omitted)\n\n// With formatting\nconsole.log(formatJson(simple, { space: 2 }))\n// {\n//   "name": "Alice",\n//   "age": 30\n// }';
 const moduleRecord = FormatterModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -86,14 +88,14 @@ const program = createPlaygroundProgram({
     {
       title: "Function Discovery",
       description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery
+      run: exampleFunctionDiscovery,
     },
     {
       title: "Zero-Arg Invocation Probe",
       description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation
-    }
-  ]
+      run: exampleFunctionInvocation,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

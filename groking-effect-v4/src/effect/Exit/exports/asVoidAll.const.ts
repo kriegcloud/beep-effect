@@ -14,10 +14,10 @@
  * Source JSDoc Example:
  * ```ts
  * import { Exit } from "effect"
- * 
+ *
  * const exits = [Exit.succeed(1), Exit.succeed(2), Exit.succeed(3)]
  * console.log(Exit.isSuccess(Exit.asVoidAll(exits))) // true
- * 
+ *
  * const mixed = [Exit.succeed(1), Exit.fail("err"), Exit.succeed(3)]
  * console.log(Exit.isFailure(Exit.asVoidAll(mixed))) // true
  * ```
@@ -26,16 +26,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ExitModule from "effect/Exit";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ExitModule from "effect/Exit";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,7 +45,8 @@ const exportName = "asVoidAll";
 const exportKind = "const";
 const moduleImportPath = "effect/Exit";
 const sourceSummary = "Combines multiple Exit values into a single `Exit<void, E>`.";
-const sourceExample = "import { Exit } from \"effect\"\n\nconst exits = [Exit.succeed(1), Exit.succeed(2), Exit.succeed(3)]\nconsole.log(Exit.isSuccess(Exit.asVoidAll(exits))) // true\n\nconst mixed = [Exit.succeed(1), Exit.fail(\"err\"), Exit.succeed(3)]\nconsole.log(Exit.isFailure(Exit.asVoidAll(mixed))) // true";
+const sourceExample =
+  'import { Exit } from "effect"\n\nconst exits = [Exit.succeed(1), Exit.succeed(2), Exit.succeed(3)]\nconsole.log(Exit.isSuccess(Exit.asVoidAll(exits))) // true\n\nconst mixed = [Exit.succeed(1), Exit.fail("err"), Exit.succeed(3)]\nconsole.log(Exit.isFailure(Exit.asVoidAll(mixed))) // true';
 const moduleRecord = ExitModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -75,14 +77,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

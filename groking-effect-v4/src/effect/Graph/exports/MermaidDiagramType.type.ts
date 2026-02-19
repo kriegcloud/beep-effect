@@ -14,17 +14,17 @@
  * Source JSDoc Example:
  * ```ts
  * import type * as Graph from "effect/Graph"
- * 
+ *
  * // Force flowchart format (even for undirected graphs)
  * const flowchartOptions: Graph.MermaidOptions<string, string> = {
  *   diagramType: "flowchart"
  * }
- * 
+ *
  * // Force graph format (shows undirected connections)
  * const graphOptions: Graph.MermaidOptions<string, string> = {
  *   diagramType: "graph"
  * }
- * 
+ *
  * // Auto-detection (recommended, default behavior)
  * const autoOptions: Graph.MermaidOptions<string, string> = {}
  * ```
@@ -33,16 +33,17 @@
  * - Type-only exports (`type`, `interface`) are erased at runtime.
  * - Runtime examples still provide module-level context for learning.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as GraphModule from "effect/Graph";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  inspectTypeLikeExport
+  inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as GraphModule from "effect/Graph";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,7 +52,8 @@ const exportName = "MermaidDiagramType";
 const exportKind = "type";
 const moduleImportPath = "effect/Graph";
 const sourceSummary = "Mermaid diagram types for different visualization formats.";
-const sourceExample = "import type * as Graph from \"effect/Graph\"\n\n// Force flowchart format (even for undirected graphs)\nconst flowchartOptions: Graph.MermaidOptions<string, string> = {\n  diagramType: \"flowchart\"\n}\n\n// Force graph format (shows undirected connections)\nconst graphOptions: Graph.MermaidOptions<string, string> = {\n  diagramType: \"graph\"\n}\n\n// Auto-detection (recommended, default behavior)\nconst autoOptions: Graph.MermaidOptions<string, string> = {}";
+const sourceExample =
+  'import type * as Graph from "effect/Graph"\n\n// Force flowchart format (even for undirected graphs)\nconst flowchartOptions: Graph.MermaidOptions<string, string> = {\n  diagramType: "flowchart"\n}\n\n// Force graph format (shows undirected connections)\nconst graphOptions: Graph.MermaidOptions<string, string> = {\n  diagramType: "graph"\n}\n\n// Auto-detection (recommended, default behavior)\nconst autoOptions: Graph.MermaidOptions<string, string> = {}';
 const moduleRecord = GraphModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +84,14 @@ const program = createPlaygroundProgram({
     {
       title: "Type Erasure Check",
       description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck
+      run: exampleTypeRuntimeCheck,
     },
     {
       title: "Module Context Inspection",
       description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection
-    }
-  ]
+      run: exampleModuleContextInspection,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

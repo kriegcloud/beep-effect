@@ -15,21 +15,21 @@
  * ```ts
  * import { Effect } from "effect"
  * import * as PubSub from "effect/PubSub"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   // Create unbounded PubSub
  *   const pubsub = yield* PubSub.unbounded<string>()
- * 
+ *
  *   // With replay buffer for late subscribers
  *   const pubsubWithReplay = yield* PubSub.unbounded<string>({
  *     replay: 10
  *   })
- * 
+ *
  *   // Can publish unlimited messages
  *   for (let i = 0; i < 1000; i++) {
  *     yield* PubSub.publish(pubsub, `message-${i}`)
  *   }
- * 
+ *
  *   yield* Effect.scoped(Effect.gen(function*() {
  *     const subscription = yield* PubSub.subscribe(pubsub)
  *     const message = yield* PubSub.take(subscription)
@@ -42,16 +42,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PubSubModule from "effect/PubSub";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PubSubModule from "effect/PubSub";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -60,7 +61,8 @@ const exportName = "unbounded";
 const exportKind = "const";
 const moduleImportPath = "effect/PubSub";
 const sourceSummary = "Creates an unbounded `PubSub`.";
-const sourceExample = "import { Effect } from \"effect\"\nimport * as PubSub from \"effect/PubSub\"\n\nconst program = Effect.gen(function*() {\n  // Create unbounded PubSub\n  const pubsub = yield* PubSub.unbounded<string>()\n\n  // With replay buffer for late subscribers\n  const pubsubWithReplay = yield* PubSub.unbounded<string>({\n    replay: 10\n  })\n\n  // Can publish unlimited messages\n  for (let i = 0; i < 1000; i++) {\n    yield* PubSub.publish(pubsub, `message-${i}`)\n  }\n\n  yield* Effect.scoped(Effect.gen(function*() {\n    const subscription = yield* PubSub.subscribe(pubsub)\n    const message = yield* PubSub.take(subscription)\n    console.log(\"First message:\", message)\n  }))\n})";
+const sourceExample =
+  'import { Effect } from "effect"\nimport * as PubSub from "effect/PubSub"\n\nconst program = Effect.gen(function*() {\n  // Create unbounded PubSub\n  const pubsub = yield* PubSub.unbounded<string>()\n\n  // With replay buffer for late subscribers\n  const pubsubWithReplay = yield* PubSub.unbounded<string>({\n    replay: 10\n  })\n\n  // Can publish unlimited messages\n  for (let i = 0; i < 1000; i++) {\n    yield* PubSub.publish(pubsub, `message-${i}`)\n  }\n\n  yield* Effect.scoped(Effect.gen(function*() {\n    const subscription = yield* PubSub.subscribe(pubsub)\n    const message = yield* PubSub.take(subscription)\n    console.log("First message:", message)\n  }))\n})';
 const moduleRecord = PubSubModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -91,14 +93,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

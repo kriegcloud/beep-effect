@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { Argument } from "effect/unstable/cli"
- * 
+ *
  * const json = Argument.string("data").pipe(
  *   Argument.mapTryCatch(
  *     (str) => JSON.parse(str),
@@ -28,16 +28,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArgumentModule from "effect/unstable/cli/Argument";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as ArgumentModule from "effect/unstable/cli/Argument";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +47,8 @@ const exportName = "mapTryCatch";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Argument";
 const sourceSummary = "Transforms the parsed value of a positional argument using a function that may throw.";
-const sourceExample = "import { Argument } from \"effect/unstable/cli\"\n\nconst json = Argument.string(\"data\").pipe(\n  Argument.mapTryCatch(\n    (str) => JSON.parse(str),\n    (error) =>\n      `Invalid JSON: ${error instanceof Error ? error.message : String(error)}`\n  )\n)";
+const sourceExample =
+  'import { Argument } from "effect/unstable/cli"\n\nconst json = Argument.string("data").pipe(\n  Argument.mapTryCatch(\n    (str) => JSON.parse(str),\n    (error) =>\n      `Invalid JSON: ${error instanceof Error ? error.message : String(error)}`\n  )\n)';
 const moduleRecord = ArgumentModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -77,14 +79,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

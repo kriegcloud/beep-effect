@@ -14,29 +14,29 @@
  * Source JSDoc Example:
  * ```ts
  * import { Data, Effect, Layer, ServiceMap } from "effect"
- * 
+ *
  * class DatabaseError extends Data.TaggedError("DatabaseError")<{
  *   message: string
  * }> {}
- * 
+ *
  * class NetworkError extends Data.TaggedError("NetworkError")<{
  *   reason: string
  * }> {}
- * 
+ *
  * class Database extends ServiceMap.Service<Database, {
  *   readonly query: (sql: string) => Effect.Effect<string>
  * }>()("Database") {}
- * 
+ *
  * class Logger extends ServiceMap.Service<Logger, {
  *   readonly log: (msg: string) => Effect.Effect<void>
  * }>()("Logger") {}
- * 
+ *
  * // Primary database layer that might fail
  * const primaryDatabaseLayer = Layer.effect(Database)(Effect.gen(function*() {
  *   yield* Effect.fail(new DatabaseError({ message: "Primary DB unreachable" }))
  *   return { query: (sql: string) => Effect.succeed(`Primary: ${sql}`) }
  * }))
- * 
+ *
  * // Fallback layers for different error causes
  * const databaseWithFallback = primaryDatabaseLayer.pipe(
  *   Layer.catchCause(() => {
@@ -52,7 +52,7 @@
  *     )
  *   })
  * )
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const database = yield* Database
  *   return yield* database.query("SELECT * FROM users")
@@ -65,16 +65,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LayerModule from "effect/Layer";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LayerModule from "effect/Layer";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -83,7 +84,8 @@ const exportName = "catchCause";
 const exportKind = "const";
 const moduleImportPath = "effect/Layer";
 const sourceSummary = "Recovers from all errors.";
-const sourceExample = "import { Data, Effect, Layer, ServiceMap } from \"effect\"\n\nclass DatabaseError extends Data.TaggedError(\"DatabaseError\")<{\n  message: string\n}> {}\n\nclass NetworkError extends Data.TaggedError(\"NetworkError\")<{\n  reason: string\n}> {}\n\nclass Database extends ServiceMap.Service<Database, {\n  readonly query: (sql: string) => Effect.Effect<string>\n}>()(\"Database\") {}\n\nclass Logger extends ServiceMap.Service<Logger, {\n  readonly log: (msg: string) => Effect.Effect<void>\n}>()(\"Logger\") {}\n\n// Primary database layer that might fail\nconst primaryDatabaseLayer = Layer.effect(Database)(Effect.gen(function*() {\n  yield* Effect.fail(new DatabaseError({ message: \"Primary DB unreachable\" }))\n  return { query: (sql: string) => Effect.succeed(`Primary: ${sql}`) }\n}))\n\n// Fallback layers for different error causes\nconst databaseWithFallback = primaryDatabaseLayer.pipe(\n  Layer.catchCause(() => {\n    // For any cause/error, fallback to in-memory database\n    return Layer.mergeAll(\n      Layer.succeed(Database)({\n        query: (sql: string) => Effect.succeed(`Memory: ${sql}`)\n      }),\n      Layer.succeed(Logger)({\n        log: (msg: string) =>\n          Effect.sync(() => console.log(`[FALLBACK] ${msg}`))\n      })\n    )\n  })\n)\n\nconst program = Effect.gen(function*() {\n  const database = yield* Database\n  return yield* database.query(\"SELECT * FROM users\")\n}).pipe(\n  Effect.provide(databaseWithFallback)\n)";
+const sourceExample =
+  'import { Data, Effect, Layer, ServiceMap } from "effect"\n\nclass DatabaseError extends Data.TaggedError("DatabaseError")<{\n  message: string\n}> {}\n\nclass NetworkError extends Data.TaggedError("NetworkError")<{\n  reason: string\n}> {}\n\nclass Database extends ServiceMap.Service<Database, {\n  readonly query: (sql: string) => Effect.Effect<string>\n}>()("Database") {}\n\nclass Logger extends ServiceMap.Service<Logger, {\n  readonly log: (msg: string) => Effect.Effect<void>\n}>()("Logger") {}\n\n// Primary database layer that might fail\nconst primaryDatabaseLayer = Layer.effect(Database)(Effect.gen(function*() {\n  yield* Effect.fail(new DatabaseError({ message: "Primary DB unreachable" }))\n  return { query: (sql: string) => Effect.succeed(`Primary: ${sql}`) }\n}))\n\n// Fallback layers for different error causes\nconst databaseWithFallback = primaryDatabaseLayer.pipe(\n  Layer.catchCause(() => {\n    // For any cause/error, fallback to in-memory database\n    return Layer.mergeAll(\n      Layer.succeed(Database)({\n        query: (sql: string) => Effect.succeed(`Memory: ${sql}`)\n      }),\n      Layer.succeed(Logger)({\n        log: (msg: string) =>\n          Effect.sync(() => console.log(`[FALLBACK] ${msg}`))\n      })\n    )\n  })\n)\n\nconst program = Effect.gen(function*() {\n  const database = yield* Database\n  return yield* database.query("SELECT * FROM users")\n}).pipe(\n  Effect.provide(databaseWithFallback)\n)';
 const moduleRecord = LayerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -114,14 +116,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

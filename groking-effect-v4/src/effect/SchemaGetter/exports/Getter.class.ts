@@ -14,7 +14,7 @@
  * Source JSDoc Example:
  * ```ts
  * import { SchemaGetter } from "effect"
- * 
+ *
  * const parseNumber = SchemaGetter.transform<number, string>((s) => Number(s))
  * const double = SchemaGetter.transform<number, number>((n) => n * 2)
  * const composed = parseNumber.compose(double)
@@ -24,16 +24,17 @@
  * Focus:
  * - Class export exploration with focused runtime examples.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as SchemaGetterModule from "effect/SchemaGetter";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportConstructor
+  probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as SchemaGetterModule from "effect/SchemaGetter";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +43,8 @@ const exportName = "Getter";
 const exportKind = "class";
 const moduleImportPath = "effect/SchemaGetter";
 const sourceSummary = "A composable transformation from an encoded type `E` to a decoded type `T`.";
-const sourceExample = "import { SchemaGetter } from \"effect\"\n\nconst parseNumber = SchemaGetter.transform<number, string>((s) => Number(s))\nconst double = SchemaGetter.transform<number, number>((n) => n * 2)\nconst composed = parseNumber.compose(double)\n// composed: Getter<number, string> — parses then doubles";
+const sourceExample =
+  'import { SchemaGetter } from "effect"\n\nconst parseNumber = SchemaGetter.transform<number, string>((s) => Number(s))\nconst double = SchemaGetter.transform<number, number>((n) => n * 2)\nconst composed = parseNumber.compose(double)\n// composed: Getter<number, string> — parses then doubles';
 const moduleRecord = SchemaGetterModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
     {
       title: "Class Discovery",
       description: "Inspect runtime shape and discover class metadata.",
-      run: exampleClassDiscovery
+      run: exampleClassDiscovery,
     },
     {
       title: "Zero-Arg Construction Probe",
       description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe
-    }
-  ]
+      run: exampleConstructionProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

@@ -14,13 +14,13 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, Logger } from "effect"
- * 
+ *
  * const formatter = Logger.make((options) =>
  *   `[${options.logLevel}] ${options.message}`
  * )
- * 
+ *
  * const leveledLogger = Logger.withLeveledConsole(formatter)
- * 
+ *
  * const program = Effect.gen(function*() {
  *   yield* Effect.logInfo("Info message") // -> console.info
  *   yield* Effect.logWarning("Warning") // -> console.warn
@@ -35,16 +35,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as LoggerModule from "effect/Logger";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as LoggerModule from "effect/Logger";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,7 +54,8 @@ const exportName = "withLeveledConsole";
 const exportKind = "const";
 const moduleImportPath = "effect/Logger";
 const sourceSummary = "Returns a new `Logger` that writes all output of the specified `Logger` to the console.";
-const sourceExample = "import { Effect, Logger } from \"effect\"\n\nconst formatter = Logger.make((options) =>\n  `[${options.logLevel}] ${options.message}`\n)\n\nconst leveledLogger = Logger.withLeveledConsole(formatter)\n\nconst program = Effect.gen(function*() {\n  yield* Effect.logInfo(\"Info message\") // -> console.info\n  yield* Effect.logWarning(\"Warning\") // -> console.warn\n  yield* Effect.logError(\"Error occurred\") // -> console.error\n  yield* Effect.logDebug(\"Debug info\") // -> console.debug\n}).pipe(\n  Effect.provide(Logger.layer([leveledLogger]))\n)";
+const sourceExample =
+  'import { Effect, Logger } from "effect"\n\nconst formatter = Logger.make((options) =>\n  `[${options.logLevel}] ${options.message}`\n)\n\nconst leveledLogger = Logger.withLeveledConsole(formatter)\n\nconst program = Effect.gen(function*() {\n  yield* Effect.logInfo("Info message") // -> console.info\n  yield* Effect.logWarning("Warning") // -> console.warn\n  yield* Effect.logError("Error occurred") // -> console.error\n  yield* Effect.logDebug("Debug info") // -> console.debug\n}).pipe(\n  Effect.provide(Logger.layer([leveledLogger]))\n)';
 const moduleRecord = LoggerModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -84,14 +86,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

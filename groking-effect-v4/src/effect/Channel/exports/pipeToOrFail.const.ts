@@ -14,18 +14,18 @@
  * Source JSDoc Example:
  * ```ts
  * import { Channel, Data } from "effect"
- * 
+ *
  * class SourceError extends Data.TaggedError("SourceError")<{
  *   readonly code: number
  * }> {}
- * 
+ *
  * // Create a failing source channel
  * const failingSource = Channel.fail(new SourceError({ code: 404 }))
  * const safeTransform = Channel.succeed("transformed")
- * 
+ *
  * // Pipe while preserving source failures
  * const safePipedChannel = Channel.pipeToOrFail(failingSource, safeTransform)
- * 
+ *
  * // Source errors are preserved and not sent to transform channel
  * ```
  *
@@ -33,16 +33,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ChannelModule from "effect/Channel";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as ChannelModule from "effect/Channel";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,8 +51,10 @@ import {
 const exportName = "pipeToOrFail";
 const exportKind = "const";
 const moduleImportPath = "effect/Channel";
-const sourceSummary = "Returns a new channel that pipes the output of this channel into the specified channel and preserves this channel's failures without providing them to the other channel for obse...";
-const sourceExample = "import { Channel, Data } from \"effect\"\n\nclass SourceError extends Data.TaggedError(\"SourceError\")<{\n  readonly code: number\n}> {}\n\n// Create a failing source channel\nconst failingSource = Channel.fail(new SourceError({ code: 404 }))\nconst safeTransform = Channel.succeed(\"transformed\")\n\n// Pipe while preserving source failures\nconst safePipedChannel = Channel.pipeToOrFail(failingSource, safeTransform)\n\n// Source errors are preserved and not sent to transform channel";
+const sourceSummary =
+  "Returns a new channel that pipes the output of this channel into the specified channel and preserves this channel's failures without providing them to the other channel for obse...";
+const sourceExample =
+  'import { Channel, Data } from "effect"\n\nclass SourceError extends Data.TaggedError("SourceError")<{\n  readonly code: number\n}> {}\n\n// Create a failing source channel\nconst failingSource = Channel.fail(new SourceError({ code: 404 }))\nconst safeTransform = Channel.succeed("transformed")\n\n// Pipe while preserving source failures\nconst safePipedChannel = Channel.pipeToOrFail(failingSource, safeTransform)\n\n// Source errors are preserved and not sent to transform channel';
 const moduleRecord = ChannelModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -82,14 +85,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

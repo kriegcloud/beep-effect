@@ -14,22 +14,22 @@
  * Source JSDoc Example:
  * ```ts
  * import { Effect, TxHashMap } from "effect"
- * 
+ *
  * const program = Effect.gen(function*() {
  *   const scores = yield* TxHashMap.make(
  *     ["alice", 95],
  *     ["bob", 87],
  *     ["charlie", 92]
  *   )
- * 
+ *
  *   const allScores = yield* TxHashMap.values(scores)
  *   console.log(allScores.sort()) // [87, 92, 95]
- * 
+ *
  *   // Calculate average
  *   const average = allScores.reduce((sum, score) => sum + score, 0) /
  *     allScores.length
  *   console.log(average) // 91.33
- * 
+ *
  *   // Find maximum
  *   const maxScore = Math.max(...allScores)
  *   console.log(maxScore) // 95
@@ -40,16 +40,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TxHashMapModule from "effect/TxHashMap";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TxHashMapModule from "effect/TxHashMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -58,7 +59,8 @@ const exportName = "values";
 const exportKind = "const";
 const moduleImportPath = "effect/TxHashMap";
 const sourceSummary = "Returns an array of all values in the TxHashMap.";
-const sourceExample = "import { Effect, TxHashMap } from \"effect\"\n\nconst program = Effect.gen(function*() {\n  const scores = yield* TxHashMap.make(\n    [\"alice\", 95],\n    [\"bob\", 87],\n    [\"charlie\", 92]\n  )\n\n  const allScores = yield* TxHashMap.values(scores)\n  console.log(allScores.sort()) // [87, 92, 95]\n\n  // Calculate average\n  const average = allScores.reduce((sum, score) => sum + score, 0) /\n    allScores.length\n  console.log(average) // 91.33\n\n  // Find maximum\n  const maxScore = Math.max(...allScores)\n  console.log(maxScore) // 95\n})";
+const sourceExample =
+  'import { Effect, TxHashMap } from "effect"\n\nconst program = Effect.gen(function*() {\n  const scores = yield* TxHashMap.make(\n    ["alice", 95],\n    ["bob", 87],\n    ["charlie", 92]\n  )\n\n  const allScores = yield* TxHashMap.values(scores)\n  console.log(allScores.sort()) // [87, 92, 95]\n\n  // Calculate average\n  const average = allScores.reduce((sum, score) => sum + score, 0) /\n    allScores.length\n  console.log(average) // 91.33\n\n  // Find maximum\n  const maxScore = Math.max(...allScores)\n  console.log(maxScore) // 95\n})';
 const moduleRecord = TxHashMapModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -89,14 +91,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

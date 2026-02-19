@@ -20,7 +20,6 @@
  */
 import * as Effect from "effect/Effect";
 import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as {{ModuleName}} from "{{PackageName}}/{{ModulePath}}";
 import {
@@ -62,7 +61,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -15,14 +15,14 @@
  * ```ts
  * import * as Trie from "effect/Trie"
  * import * as assert from "node:assert"
- * 
+ *
  * const trie = Trie.empty<number>().pipe(
  *   Trie.insert("shells", 0),
  *   Trie.insert("sells", 1),
  *   Trie.insert("sea", 2),
  *   Trie.insert("she", 3)
  * )
- * 
+ *
  * const result = Trie.toEntriesWithPrefix(trie, "she")
  * assert.deepStrictEqual(result, [["she", 3], ["shells", 0]])
  * ```
@@ -31,16 +31,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as TrieModule from "effect/Trie";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as TrieModule from "effect/Trie";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,8 +49,10 @@ import {
 const exportName = "toEntriesWithPrefix";
 const exportKind = "const";
 const moduleImportPath = "effect/Trie";
-const sourceSummary = "Returns `Array<[K, V]>` of the entries within the `Trie` that have `prefix` as prefix (`prefix` included if it exists).";
-const sourceExample = "import * as Trie from \"effect/Trie\"\nimport * as assert from \"node:assert\"\n\nconst trie = Trie.empty<number>().pipe(\n  Trie.insert(\"shells\", 0),\n  Trie.insert(\"sells\", 1),\n  Trie.insert(\"sea\", 2),\n  Trie.insert(\"she\", 3)\n)\n\nconst result = Trie.toEntriesWithPrefix(trie, \"she\")\nassert.deepStrictEqual(result, [[\"she\", 3], [\"shells\", 0]])";
+const sourceSummary =
+  "Returns `Array<[K, V]>` of the entries within the `Trie` that have `prefix` as prefix (`prefix` included if it exists).";
+const sourceExample =
+  'import * as Trie from "effect/Trie"\nimport * as assert from "node:assert"\n\nconst trie = Trie.empty<number>().pipe(\n  Trie.insert("shells", 0),\n  Trie.insert("sells", 1),\n  Trie.insert("sea", 2),\n  Trie.insert("she", 3)\n)\n\nconst result = Trie.toEntriesWithPrefix(trie, "she")\nassert.deepStrictEqual(result, [["she", 3], ["shells", 0]])';
 const moduleRecord = TrieModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -80,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);

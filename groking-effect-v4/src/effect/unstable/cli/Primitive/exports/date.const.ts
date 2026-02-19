@@ -15,14 +15,14 @@
  * ```ts
  * import { Effect } from "effect"
  * import { Primitive } from "effect/unstable/cli"
- * 
+ *
  * const parseDate = Effect.gen(function*() {
  *   const result1 = yield* Primitive.date.parse("2023-12-25")
  *   console.log(result1) // Date object for December 25, 2023
- * 
+ *
  *   const result2 = yield* Primitive.date.parse("2023-12-25T10:30:00Z")
  *   console.log(result2) // Date object with time
- * 
+ *
  *   const result3 = yield* Primitive.date.parse("Dec 25, 2023")
  *   console.log(result3) // Date object parsed from natural format
  * })
@@ -32,16 +32,17 @@
  * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
  * - Clean executable examples with shared logging/error utilities.
  */
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as PrimitiveModule from "effect/unstable/cli/Primitive";
+
 import {
   createPlaygroundProgram,
   inspectNamedExport,
-  probeNamedExportFunction
+  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+import * as PrimitiveModule from "effect/unstable/cli/Primitive";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,7 +51,8 @@ const exportName = "date";
 const exportKind = "const";
 const moduleImportPath = "effect/unstable/cli/Primitive";
 const sourceSummary = "Creates a primitive that parses Date objects from string input.";
-const sourceExample = "import { Effect } from \"effect\"\nimport { Primitive } from \"effect/unstable/cli\"\n\nconst parseDate = Effect.gen(function*() {\n  const result1 = yield* Primitive.date.parse(\"2023-12-25\")\n  console.log(result1) // Date object for December 25, 2023\n\n  const result2 = yield* Primitive.date.parse(\"2023-12-25T10:30:00Z\")\n  console.log(result2) // Date object with time\n\n  const result3 = yield* Primitive.date.parse(\"Dec 25, 2023\")\n  console.log(result3) // Date object parsed from natural format\n})";
+const sourceExample =
+  'import { Effect } from "effect"\nimport { Primitive } from "effect/unstable/cli"\n\nconst parseDate = Effect.gen(function*() {\n  const result1 = yield* Primitive.date.parse("2023-12-25")\n  console.log(result1) // Date object for December 25, 2023\n\n  const result2 = yield* Primitive.date.parse("2023-12-25T10:30:00Z")\n  console.log(result2) // Date object with time\n\n  const result3 = yield* Primitive.date.parse("Dec 25, 2023")\n  console.log(result3) // Date object parsed from natural format\n})';
 const moduleRecord = PrimitiveModule as Record<string, unknown>;
 
 /* ========================================================================== *
@@ -81,14 +83,14 @@ const program = createPlaygroundProgram({
     {
       title: "Runtime Shape Inspection",
       description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection
+      run: exampleRuntimeInspection,
     },
     {
       title: "Callable Value Probe",
       description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe
-    }
-  ]
+      run: exampleCallableProbe,
+    },
+  ],
 });
 
 BunRuntime.runMain(program);
