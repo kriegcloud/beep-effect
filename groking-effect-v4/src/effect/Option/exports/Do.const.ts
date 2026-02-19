@@ -35,7 +35,7 @@ import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effec
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +46,7 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "An `Option` containing an empty record `{}`, used as the starting point for do notation chains.";
 const sourceExample =
   'import { Option, pipe } from "effect"\nimport * as assert from "node:assert"\n\nconst result = pipe(\n  Option.Do,\n  Option.bind("x", () => Option.some(2)),\n  Option.bind("y", () => Option.some(3)),\n  Option.let("sum", ({ x, y }) => x + y),\n  Option.filter(({ x, y }) => x * y > 5)\n)\nassert.deepStrictEqual(result, Option.some({ x: 2, y: 3, sum: 5 }))';
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -58,14 +58,14 @@ const exampleRuntimeInspection = Effect.gen(function* () {
 
 const exampleDoNotationSuccess = Effect.gen(function* () {
   yield* Console.log("Build a record from Option.Do using bind/let/filter.");
-  const result = OptionModule.Do.pipe(
-    OptionModule.bind("x", () => OptionModule.some(2)),
-    OptionModule.bind("y", () => OptionModule.some(3)),
-    OptionModule.let("sum", ({ x, y }) => x + y),
-    OptionModule.filter(({ x, y }) => x * y > 5)
+  const result = O.Do.pipe(
+    O.bind("x", () => O.some(2)),
+    O.bind("y", () => O.some(3)),
+    O.let("sum", ({ x, y }) => x + y),
+    O.filter(({ x, y }) => x * y > 5)
   );
 
-  const summary = OptionModule.match({
+  const summary = O.match({
     onNone: () => "None",
     onSome: (record) => `Some(${JSON.stringify(record)})`,
   })(result);
@@ -74,13 +74,13 @@ const exampleDoNotationSuccess = Effect.gen(function* () {
 
 const exampleDoNotationShortCircuit = Effect.gen(function* () {
   yield* Console.log("Show short-circuiting when one bind returns None.");
-  const result = OptionModule.Do.pipe(
-    OptionModule.bind("x", () => OptionModule.some(2)),
-    OptionModule.bind("y", () => OptionModule.none())
+  const result = O.Do.pipe(
+    O.bind("x", () => O.some(2)),
+    O.bind("y", () => O.none())
   );
 
-  yield* Console.log(`isNone: ${OptionModule.isNone(result)}`);
-  const fallback = OptionModule.getOrElse(() => ({ reason: "y missing" }))(result);
+  yield* Console.log(`isNone: ${O.isNone(result)}`);
+  const fallback = O.getOrElse(() => ({ reason: "y missing" }))(result);
   yield* Console.log(`fallback: ${JSON.stringify(fallback)}`);
 });
 

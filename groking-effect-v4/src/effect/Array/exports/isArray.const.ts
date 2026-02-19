@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,32 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Tests whether a value is an `Array`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.isArray(null)) // false\nconsole.log(Array.isArray([1, 2, 3])) // true';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime type and preview for isArray.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const nullInput = A.isArray(null);
+  const mutableArrayInput = A.isArray([1, 2, 3]);
+
+  yield* Console.log(`isArray(null) => ${nullInput}`);
+  yield* Console.log(`isArray([1, 2, 3]) => ${mutableArrayInput}`);
+});
+
+const exampleArrayLikeBoundaries = Effect.gen(function* () {
+  const arrayLikeObject: unknown = { 0: "a", length: 1 };
+  const typedArray = new Uint8Array([1, 2, 3]);
+  const copiedArray = Array.from(typedArray);
+
+  yield* Console.log(`isArray({ 0: "a", length: 1 }) => ${A.isArray(arrayLikeObject)}`);
+  yield* Console.log(`isArray(Uint8Array([1, 2, 3])) => ${A.isArray(typedArray)}`);
+  yield* Console.log(`isArray(Array.from(Uint8Array([1, 2, 3]))) => ${A.isArray(copiedArray)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +84,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented null and array checks to observe false/true output.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Array-Like Boundary Checks",
+      description: "Contrast plain arrays with array-like objects and typed arrays.",
+      run: exampleArrayLikeBoundaries,
     },
   ],
 });

@@ -27,11 +27,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -52,13 +48,31 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Result.getOrNull as a runtime value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedUnwrap = Effect.gen(function* () {
+  yield* Console.log("Unwrap success and failure values to nullable output.");
+  const fromSuccess = ResultModule.getOrNull(ResultModule.succeed(1));
+  const fromFailure = ResultModule.getOrNull(ResultModule.fail("err"));
+
+  yield* Console.log(`succeed(1) -> ${formatUnknown(fromSuccess)}`);
+  yield* Console.log(`fail("err") -> ${formatUnknown(fromFailure)}`);
+  yield* Console.log(`failure is null -> ${fromFailure === null}`);
+});
+
+const exampleNullableInterop = Effect.gen(function* () {
+  yield* Console.log("Use getOrNull outputs with null-aware filtering.");
+  const nullableValues = [
+    ResultModule.getOrNull(ResultModule.succeed("alpha")),
+    ResultModule.getOrNull(ResultModule.fail({ code: 404, reason: "missing" })),
+    ResultModule.getOrNull(ResultModule.succeed("beta")),
+  ];
+  const presentValues = nullableValues.filter((value): value is string => value !== null);
+
+  yield* Console.log(`nullable values -> ${formatUnknown(nullableValues)}`);
+  yield* Console.log(`present values -> ${formatUnknown(presentValues)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +92,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Nullable Unwrap",
+      description: "Run the documented succeed/fail invocations and observe `null` on failure.",
+      run: exampleSourceAlignedUnwrap,
+    },
+    {
+      title: "Nullable Interop Workflow",
+      description: "Map multiple Result values to nullable outputs and filter non-null successes.",
+      run: exampleNullableInterop,
     },
   ],
 });

@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Adds a single element to the end of an iterable, returning a `NonEmptyArray`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.append([1, 2, 3], 4)\nconsole.log(result) // [1, 2, 3, 4]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,17 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3];
+  const result = A.append(input, 4);
+  yield* Console.log(`append([1, 2, 3], 4) => ${JSON.stringify(result)}`);
+  yield* Console.log(`original input remains ${JSON.stringify(input)}`);
+});
+
+const exampleCurriedInvocation = Effect.gen(function* () {
+  const appendExclamation = A.append("!");
+  const result = appendExclamation(new Set(["a", "b"]));
+  yield* Console.log(`append("!")(Set("a", "b")) => ${JSON.stringify(result)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +79,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Append one element to an array using the documented two-argument form.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable Invocation",
+      description: "Use data-last style to append to any iterable input.",
+      run: exampleCurriedInvocation,
     },
   ],
 });

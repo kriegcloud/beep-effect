@@ -26,15 +26,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +43,33 @@ const sourceSummary =
   "Extracts the set of interrupting fiber IDs from a cause. Returns `Filter.fail` with the original cause when no {@link Interrupt} reason is found.";
 const sourceExample =
   'import { Cause, Result } from "effect"\n\nconst result = Cause.filterInterruptors(Cause.interrupt(1))\nif (!Result.isFailure(result)) {\n  console.log(result.success) // Set { 1 }\n}';
-const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedSuccess = Effect.gen(function* () {
+  const result = CauseModule.filterInterruptors(CauseModule.interrupt(1));
+
+  if (Result.isFailure(result)) {
+    yield* Console.log("Cause.interrupt(1) unexpectedly produced Filter.fail.");
+    return;
+  }
+
+  yield* Console.log(`Cause.interrupt(1) -> interruptor IDs [${Array.from(result.success).join(", ")}]`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleNoInterruptsReturnsFilterFail = Effect.gen(function* () {
+  const typedFailureCause = CauseModule.fail("boom");
+  const result = CauseModule.filterInterruptors(typedFailureCause);
+
+  if (Result.isFailure(result)) {
+    yield* Console.log(
+      `No interrupt reasons -> Filter.fail (returned cause hasInterrupts=${CauseModule.hasInterrupts(result.failure)})`
+    );
+    return;
+  }
+
+  yield* Console.log("Unexpected success for a cause without interrupts.");
 });
 
 /* ========================================================================== *
@@ -73,14 +84,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Extract IDs From Interrupt Cause",
+      description: "Source-aligned invocation: a cause with one interrupt succeeds with Set(1).",
+      run: exampleSourceAlignedSuccess,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "No Interrupts Triggers Filter.fail",
+      description: "A cause with no Interrupt reasons fails and carries the original cause.",
+      run: exampleNoInterruptsReturnsFilterFail,
     },
   ],
 });

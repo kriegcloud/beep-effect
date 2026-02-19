@@ -30,11 +30,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -55,13 +51,42 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect flatMap as a callable Result chaining helper.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedBranching = Effect.gen(function* () {
+  yield* Console.log("Chain with flatMap and branch to Success/Failure in mapper.");
+  const fromPositive = ResultModule.succeed(5).pipe(
+    ResultModule.flatMap((n) => (n > 0 ? ResultModule.succeed(n * 2) : ResultModule.fail("not positive")))
+  );
+  const fromNegative = ResultModule.succeed(-2).pipe(
+    ResultModule.flatMap((n) => (n > 0 ? ResultModule.succeed(n * 2) : ResultModule.fail("not positive")))
+  );
+
+  yield* Console.log(`input 5 -> ${summarizeResult(fromPositive)}`);
+  yield* Console.log(`input -2 -> ${summarizeResult(fromNegative)}`);
+});
+
+const exampleFailureShortCircuit = Effect.gen(function* () {
+  yield* Console.log("Failure input short-circuits and skips mapper execution.");
+  let mapperInvoked = false;
+
+  const output = ResultModule.fail("input-failure").pipe(
+    ResultModule.flatMap((_: never) => {
+      mapperInvoked = true;
+      return ResultModule.succeed("unreachable");
+    })
+  );
+
+  yield* Console.log(`output: ${summarizeResult(output)}`);
+  yield* Console.log(`mapperInvoked: ${mapperInvoked}`);
 });
 
 /* ========================================================================== *
@@ -81,9 +106,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Branching",
+      description: "Use flatMap to map positive input to success and non-positive input to failure.",
+      run: exampleSourceAlignedBranching,
+    },
+    {
+      title: "Failure Short-Circuit",
+      description: "Show that a failure input is preserved and mapper logic is not run.",
+      run: exampleFailureShortCircuit,
     },
   ],
 });

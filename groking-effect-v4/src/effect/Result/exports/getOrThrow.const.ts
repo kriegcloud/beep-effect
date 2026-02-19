@@ -28,9 +28,10 @@
  */
 
 import {
+  attemptThunk,
   createPlaygroundProgram,
+  formatUnknown,
   inspectNamedExport,
-  probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
@@ -52,13 +53,36 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Result.getOrThrow as a runtime value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedUnwrap = Effect.gen(function* () {
+  yield* Console.log("Unwrap a success and observe the thrown raw failure value.");
+  const successValue = ResultModule.getOrThrow(ResultModule.succeed(1));
+  yield* Console.log(`succeed(1) -> ${formatUnknown(successValue)}`);
+
+  const thrown = yield* attemptThunk(() => ResultModule.getOrThrow(ResultModule.fail("error")));
+  if (thrown._tag === "Left") {
+    yield* Console.log(`fail("error") threw -> ${formatUnknown(thrown.error)}`);
+    yield* Console.log(`thrown type -> ${typeof thrown.error}`);
+  } else {
+    yield* Console.log(`unexpected success -> ${formatUnknown(thrown.value)}`);
+  }
+});
+
+const exampleRawFailureIdentity = Effect.gen(function* () {
+  yield* Console.log("Failure payloads are thrown directly (no wrapping).");
+  const payload = { code: 503, retryable: true } as const;
+  const thrown = yield* attemptThunk(() => ResultModule.getOrThrow(ResultModule.fail(payload)));
+
+  if (thrown._tag === "Left") {
+    const sameReference = thrown.error === payload;
+    yield* Console.log(`threw same object reference -> ${sameReference}`);
+    yield* Console.log(`thrown payload -> ${formatUnknown(thrown.error)}`);
+  } else {
+    yield* Console.log(`unexpected success -> ${formatUnknown(thrown.value)}`);
+  }
 });
 
 /* ========================================================================== *
@@ -78,9 +102,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Unwrap",
+      description: 'Show succeed(1) unwrapping and fail("error") throwing the raw failure value.',
+      run: exampleSourceAlignedUnwrap,
+    },
+    {
+      title: "Raw Failure Identity",
+      description: "Demonstrate that object failures are thrown directly, preserving identity.",
+      run: exampleRawFailureIdentity,
     },
   ],
 });

@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,33 @@ const moduleImportPath = "effect/Array";
 const sourceSummary =
   "Pads or truncates an array to exactly `n` elements, filling with `fill` if the array is shorter, or slicing if longer.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.pad([1, 2, 3], 6, 0)) // [1, 2, 3, 0, 0, 0]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime shape and preview for Array.pad.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const padded = A.pad([1, 2, 3], 6, 0);
+  const truncated = A.pad([1, 2, 3, 4], 2, 0);
+
+  yield* Console.log(`Array.pad([1, 2, 3], 6, 0) => ${JSON.stringify(padded)}`);
+  yield* Console.log(`Array.pad([1, 2, 3, 4], 2, 0) => ${JSON.stringify(truncated)}`);
+});
+
+const exampleCurriedAndEdgeCases = Effect.gen(function* () {
+  const padTo5WithX = A.pad(5, "x");
+  const short = padTo5WithX(["a", "b"]);
+  const long = padTo5WithX(["a", "b", "c", "d", "e", "f"]);
+  const zeroTarget = A.pad([9, 8, 7], 0, 0);
+
+  yield* Console.log(`Array.pad(5, "x")(["a", "b"]) => ${JSON.stringify(short)}`);
+  yield* Console.log(`Array.pad(5, "x")(["a", "b", "c", "d", "e", "f"]) => ${JSON.stringify(long)}`);
+  yield* Console.log(`Array.pad([9, 8, 7], 0, 0) => ${JSON.stringify(zeroTarget)}`);
 });
 
 /* ========================================================================== *
@@ -74,9 +84,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Mirror the documented call shape and show both padding and truncation behavior.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Form and n<=0",
+      description: "Use the data-last form and confirm the empty-array result when target length is not positive.",
+      run: exampleCurriedAndEdgeCases,
     },
   ],
 });

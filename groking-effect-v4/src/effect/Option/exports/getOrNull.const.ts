@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +42,26 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Extracts the value from a `Some`, or returns `null` for `None`.";
 const sourceExample =
   'import { Option } from "effect"\n\nconsole.log(Option.getOrNull(Option.some(1)))\n// Output: 1\n\nconsole.log(Option.getOrNull(Option.none()))\n// Output: null';
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect `getOrNull` as a runtime value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSomeReturnsInnerValue = Effect.gen(function* () {
+  const result = O.getOrNull(O.some(1));
+  yield* Console.log("Some(1) unwraps to the inner value.");
+  yield* Console.log(`Result: ${String(result)}`);
+});
+
+const exampleNoneReturnsNull = Effect.gen(function* () {
+  const result = O.getOrNull(O.none<number>());
+  yield* Console.log("None becomes null.");
+  yield* Console.log(`Result: ${String(result)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +81,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Some Unwrap",
+      description: "Use `getOrNull` with `Some` and verify the wrapped value is returned.",
+      run: exampleSomeReturnsInnerValue,
+    },
+    {
+      title: "None Fallback",
+      description: "Use `getOrNull` with `None` and verify it returns `null`.",
+      run: exampleNoneReturnsNull,
     },
   ],
 });

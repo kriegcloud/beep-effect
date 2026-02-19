@@ -32,14 +32,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Equivalence from "effect/Equivalence";
 import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
@@ -57,13 +54,49 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect makeEquivalence as the Result equivalence constructor.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedEquivalence = Effect.gen(function* () {
+  const eq = ResultModule.makeEquivalence(Equivalence.strictEqual<number>(), Equivalence.strictEqual<string>());
+
+  yield* Console.log(`succeed(1) vs succeed(1) -> ${eq(ResultModule.succeed(1), ResultModule.succeed(1))}`);
+  yield* Console.log(`succeed(1) vs succeed(2) -> ${eq(ResultModule.succeed(1), ResultModule.succeed(2))}`);
+  yield* Console.log(`succeed(1) vs fail("x") -> ${eq(ResultModule.succeed(1), ResultModule.fail("x"))}`);
+  yield* Console.log(`fail("x") vs fail("x") -> ${eq(ResultModule.fail("x"), ResultModule.fail("x"))}`);
+});
+
+const exampleCustomEquivalence = Effect.gen(function* () {
+  const eqWithinOneOrNormalizedFailure = ResultModule.makeEquivalence<number, string>(
+    (left, right) => Math.abs(left - right) <= 1,
+    (left, right) => left.trim().toLowerCase() === right.trim().toLowerCase()
+  );
+
+  yield* Console.log(
+    `succeed(41) vs succeed(42) with +/-1 rule -> ${eqWithinOneOrNormalizedFailure(
+      ResultModule.succeed(41),
+      ResultModule.succeed(42)
+    )}`
+  );
+  yield* Console.log(
+    `fail(" Timeout ") vs fail("timeout") normalized -> ${eqWithinOneOrNormalizedFailure(
+      ResultModule.fail(" Timeout "),
+      ResultModule.fail("timeout")
+    )}`
+  );
+  yield* Console.log(
+    `fail("timeout") vs fail("network") normalized -> ${eqWithinOneOrNormalizedFailure(
+      ResultModule.fail("timeout"),
+      ResultModule.fail("network")
+    )}`
+  );
+  yield* Console.log(
+    `cross-variant succeed/fail always false -> ${eqWithinOneOrNormalizedFailure(
+      ResultModule.succeed(42),
+      ResultModule.fail("42")
+    )}`
+  );
 });
 
 /* ========================================================================== *
@@ -83,9 +116,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Strict Equivalence",
+      description: "Mirror the JSDoc behavior with strict success and failure comparators.",
+      run: exampleSourceAlignedEquivalence,
+    },
+    {
+      title: "Custom Success/Failure Rules",
+      description: "Use domain-specific rules for success values and failure values.",
+      run: exampleCustomEquivalence,
     },
   ],
 });

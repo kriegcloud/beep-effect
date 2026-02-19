@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,41 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Creates a `NonEmptyArray` containing a value repeated `n` times.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.replicate("a", 3)\nconsole.log(result) // ["a", "a", "a"]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime type and preview for Array.replicate.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const result = A.replicate("a", 3);
+
+  yield* Console.log(`Array.replicate("a", 3) => ${JSON.stringify(result)}`);
+  yield* Console.log(`Result length: ${result.length}`);
+});
+
+const exampleDualInvocationForms = Effect.gen(function* () {
+  const direct = A.replicate("beep", 3);
+  const curried = A.replicate(3)("beep");
+  const sameValues = JSON.stringify(direct) === JSON.stringify(curried);
+
+  yield* Console.log(`Direct call => ${JSON.stringify(direct)}`);
+  yield* Console.log(`Curried call => ${JSON.stringify(curried)}`);
+  yield* Console.log(`Direct and curried results match: ${sameValues}`);
+});
+
+const exampleNormalizedCountBehavior = Effect.gen(function* () {
+  const fractional = A.replicate("x", 2.7);
+  const zero = A.replicate("x", 0);
+  const negative = A.replicate("x", -4);
+
+  yield* Console.log(`n = 2.7 -> ${JSON.stringify(fractional)} (length ${fractional.length})`);
+  yield* Console.log(`n = 0 -> ${JSON.stringify(zero)} (length ${zero.length})`);
+  yield* Console.log(`n = -4 -> ${JSON.stringify(negative)} (length ${negative.length})`);
 });
 
 /* ========================================================================== *
@@ -75,9 +93,19 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented call and confirm the repeated non-empty result.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Dual Invocation Forms",
+      description: "Compare direct and curried calls to verify both invocation styles.",
+      run: exampleDualInvocationForms,
+    },
+    {
+      title: "Normalized Count Behavior",
+      description: "Show that n is floored and clamped to at least 1 before replication.",
+      run: exampleNormalizedCountBehavior,
     },
   ],
 });

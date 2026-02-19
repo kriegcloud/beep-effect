@@ -31,13 +31,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -51,19 +47,33 @@ const sourceSummary =
   "Groups elements into a record by a key-returning function. Each key maps to a `NonEmptyArray` of elements that produced that key.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst people = [\n  { name: "Alice", group: "A" },\n  { name: "Bob", group: "B" },\n  { name: "Charlie", group: "A" }\n]\n\nconst result = Array.groupBy(people, (person) => person.group)\nconsole.log(result)\n// { A: [{ name: "Alice", group: "A" }, { name: "Charlie", group: "A" }], B: [{ name: "Bob", group: "B" }] }';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect groupBy as a runtime value before invoking it.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const people = [
+    { name: "Alice", group: "A" },
+    { name: "Bob", group: "B" },
+    { name: "Charlie", group: "A" },
+  ];
+  const grouped = A.groupBy(people, (person) => person.group);
+  yield* Console.log(`groupBy(people, person => person.group): ${JSON.stringify(grouped)}`);
+});
+
+const exampleBucketSemantics = Effect.gen(function* () {
+  const numbers = [-2, -1, 0, 1, 2, 3];
+  const grouped = A.groupBy(numbers, (n) => (n < 0 ? "negative" : n === 0 ? "zero" : "positive"));
+  const emptyGrouped = A.groupBy([] as Array<number>, (n) => (n % 2 === 0 ? "even" : "odd"));
+
+  yield* Console.log(`groupBy(numbers, sign): ${JSON.stringify(grouped)}`);
+  yield* Console.log(`groupBy([], parity): ${JSON.stringify(emptyGrouped)}`);
 });
 
 /* ========================================================================== *
@@ -83,9 +93,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Grouping",
+      description: "Group people by their group field using the documented call shape.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Bucket Semantics",
+      description: "Show grouping by derived keys and the empty-array edge case.",
+      run: exampleBucketSemantics,
     },
   ],
 });

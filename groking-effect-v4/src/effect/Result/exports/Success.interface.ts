@@ -57,9 +57,19 @@ const exampleTypeRuntimeCheck = Effect.gen(function* () {
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSuccessCompanionFlow = Effect.gen(function* () {
+  yield* Console.log("Bridge to runtime APIs with Result.succeed + Result.isSuccess.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "succeed" });
+
+  const success = ResultModule.succeed(42);
+
+  if (ResultModule.isSuccess(success)) {
+    yield* Console.log("Result.isSuccess(success) => true");
+    yield* Console.log(`success.success => ${String(success.success)}`);
+    return;
+  }
+
+  yield* Console.log("Unexpected: Result.succeed(...) did not produce a Success.");
 });
 
 /* ========================================================================== *
@@ -79,9 +89,9 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Runtime Companion Flow",
+      description: "Create a success result and read its payload after narrowing.",
+      run: exampleSuccessCompanionFlow,
     },
   ],
 });

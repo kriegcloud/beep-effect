@@ -19,15 +19,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ServiceMap from "effect/ServiceMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -38,18 +35,52 @@ const moduleImportPath = "effect/Cause";
 const sourceSummary = "Reads the annotations from a single {@link Reason} as a `ServiceMap`.";
 const sourceExample = "";
 const moduleRecord = CauseModule as Record<string, unknown>;
+const DemoRequestId = ServiceMap.Service<string>("demo/cause/reason-annotations/request-id");
+const DemoAttempt = ServiceMap.Service<number>("demo/cause/reason-annotations/attempt");
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect reasonAnnotations as a callable export that reads per-reason metadata.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleReadAnnotatedReason = Effect.gen(function* () {
+  yield* Console.log("Read annotations from one fail reason using a ServiceMap key.");
+
+  const reason = CauseModule.makeFailReason("validation-error").annotate(ServiceMap.make(DemoRequestId, "req-42"));
+  const annotations = CauseModule.reasonAnnotations(reason);
+  const requestId = ServiceMap.getOrUndefined(annotations, DemoRequestId);
+  const attempt = ServiceMap.getOrUndefined(annotations, DemoAttempt);
+
+  yield* Console.log(`reason tag: ${reason._tag}`);
+  yield* Console.log(`request id: ${requestId ?? "missing"}`);
+  yield* Console.log(`missing key is undefined: ${attempt === undefined}`);
+});
+
+const exampleReasonLocalVsMergedAnnotations = Effect.gen(function* () {
+  yield* Console.log("Reason annotations stay local even when merged cause annotations collide by key.");
+
+  const left = CauseModule.makeFailReason("left").annotate(ServiceMap.make(DemoRequestId, "req-left"));
+  const right = CauseModule.makeDieReason("right").annotate(ServiceMap.make(DemoRequestId, "req-right"));
+  const cause = CauseModule.fromReasons([left, right]);
+  const firstReason = cause.reasons[0];
+  const secondReason = cause.reasons[1];
+
+  if (firstReason === undefined || secondReason === undefined) {
+    yield* Console.log("Expected two reasons but cause was unexpectedly empty.");
+    return;
+  }
+
+  const firstRequestId = ServiceMap.getOrUndefined(CauseModule.reasonAnnotations(firstReason), DemoRequestId);
+  const secondRequestId = ServiceMap.getOrUndefined(CauseModule.reasonAnnotations(secondReason), DemoRequestId);
+  const mergedRequestId = ServiceMap.getOrUndefined(CauseModule.annotations(cause), DemoRequestId);
+
+  yield* Console.log(`first reason request id: ${firstRequestId ?? "missing"}`);
+  yield* Console.log(`second reason request id: ${secondRequestId ?? "missing"}`);
+  yield* Console.log(`merged cause request id: ${mergedRequestId ?? "missing"}`);
+  yield* Console.log(`reason-local values preserved: ${firstRequestId !== secondRequestId}`);
 });
 
 /* ========================================================================== *
@@ -69,9 +100,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Read Annotations From One Reason",
+      description: "Create an annotated fail reason and read its ServiceMap entries via reasonAnnotations.",
+      run: exampleReadAnnotatedReason,
+    },
+    {
+      title: "Reason-Local Versus Merged Annotations",
+      description: "Compare per-reason values with merged cause annotations when the same key appears twice.",
+      run: exampleReasonLocalVsMergedAnnotations,
     },
   ],
 });

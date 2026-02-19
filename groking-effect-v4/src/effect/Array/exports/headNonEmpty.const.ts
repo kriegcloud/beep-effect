@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -41,7 +37,7 @@ const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Returns the first element of a `NonEmptyReadonlyArray` directly (no `Option` wrapper).";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.headNonEmpty([1, 2, 3, 4])) // 1';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -51,9 +47,28 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedNumbers = Effect.gen(function* () {
+  const numbers = [1, 2, 3, 4] as const;
+  const first = A.headNonEmpty(numbers);
+  yield* Console.log(`A.headNonEmpty([1, 2, 3, 4]) => ${formatUnknown(first)}`);
+});
+
+const exampleDomainRecords = Effect.gen(function* () {
+  type Job = {
+    readonly id: string;
+    readonly priority: "critical" | "high" | "normal";
+    readonly attempt: number;
+  };
+
+  const queue: readonly [Job, ...Job[]] = [
+    { id: "job-17", priority: "critical", attempt: 1 },
+    { id: "job-22", priority: "high", attempt: 2 },
+    { id: "job-35", priority: "normal", attempt: 1 },
+  ];
+  const head = A.headNonEmpty(queue);
+
+  yield* Console.log(`First queued job => ${formatUnknown(head)}`);
+  yield* Console.log("Contract note: headNonEmpty expects a genuinely non-empty array.");
 });
 
 /* ========================================================================== *
@@ -73,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned First Element",
+      description: "Mirror the JSDoc usage and return the first number directly.",
+      run: exampleSourceAlignedNumbers,
+    },
+    {
+      title: "Non-Empty Record Queue",
+      description: "Read the first record from a domain-like non-empty queue.",
+      run: exampleDomainRecords,
     },
   ],
 });

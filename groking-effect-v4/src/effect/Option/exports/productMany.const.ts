@@ -30,15 +30,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,19 +45,37 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Combines a primary `Option` with an iterable of `Option`s into a tuple if all are `Some`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconst first = Option.some(1)\nconst rest = [Option.some(2), Option.some(3)]\n\nconsole.log(Option.productMany(first, rest))\n// Output: { _id: 'Option', _tag: 'Some', value: [1, 2, 3] }\n\nconsole.log(Option.productMany(first, [Option.some(2), Option.none()]))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedCombination = Effect.gen(function* () {
+  const first = O.some(1);
+  const allSome = O.productMany(first, [O.some(2), O.some(3)]);
+  const withMissingTail = O.productMany(first, [O.some(2), O.none<number>()]);
+
+  yield* Console.log(`all Some -> ${formatUnknown(allSome)}`);
+  yield* Console.log(`tail includes None -> ${formatUnknown(withMissingTail)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleShortCircuitOnNone = Effect.gen(function* () {
+  const visited: Array<string> = [];
+
+  function* tracedRest() {
+    visited.push("2");
+    yield O.some(2);
+
+    visited.push("None");
+    yield O.none<number>();
+
+    visited.push("99");
+    yield O.some(99);
+  }
+
+  const result = O.productMany(O.some(1), tracedRest());
+
+  yield* Console.log(`result -> ${formatUnknown(result)}`);
+  yield* Console.log(`rest visited -> ${visited.join(" -> ")}`);
 });
 
 /* ========================================================================== *
@@ -76,14 +90,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Combination",
+      description: "Run the documented all-Some and mixed-tail inputs to compare outcomes.",
+      run: exampleSourceAlignedCombination,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Short-Circuit on None",
+      description: "Show iterable traversal stops after the first None in the tail.",
+      run: exampleShortCircuitOnNone,
     },
   ],
 });

@@ -23,7 +23,7 @@
       "!!**/build",
       "!!**/bun.lock",
       "!!**/dist",
-      "!.repos/**"
+      "!.repos"
     ]
   },
   "json": {
@@ -96,8 +96,7 @@
         "noUnusedImports": {
           "level": "error",
           "fix": "none",
-          "options": {
-          }
+          "options": {}
         },
         "noUnusedVariables": "off",
         "useUniqueElementIds": "off",
@@ -173,10 +172,7 @@
     },
     {
       // Tooling and test files have lower strictness requirements
-      "includes": [
-        "tooling/**/*.ts",
-        "**/test/**/*.ts"
-      ],
+      "includes": ["tooling/**/*.ts", "**/test/**/*.ts"],
       "linter": {
         "rules": {
           "suspicious": {

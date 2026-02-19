@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Adds a single element to the front of an iterable, returning a `NonEmptyArray`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.prepend([2, 3, 4], 1)\nconsole.log(result) // [1, 2, 3, 4]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,21 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [2, 3, 4];
+  const result = A.prepend(input, 1);
+
+  yield* Console.log(`prepend([2, 3, 4], 1) => ${JSON.stringify(result)}`);
+  yield* Console.log(`original input remains ${JSON.stringify(input)}`);
+});
+
+const exampleCurriedIterableInvocation = Effect.gen(function* () {
+  const prependTitle = A.prepend("intro");
+  const result = prependTitle(new Set(["verse", "chorus"]));
+  const prependedToEmpty = A.prepend(9)([]);
+
+  yield* Console.log(`prepend("intro")(Set("verse", "chorus")) => ${JSON.stringify(result)}`);
+  yield* Console.log(`prepend(9)([]) => ${JSON.stringify(prependedToEmpty)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +83,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Mirror the JSDoc call shape by prepending one value to an existing array.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable Invocation",
+      description: "Use data-last style with iterable input and show the non-empty result on empty arrays.",
+      run: exampleCurriedIterableInvocation,
     },
   ],
 });

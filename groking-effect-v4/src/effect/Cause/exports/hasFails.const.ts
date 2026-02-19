@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,28 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect hasFails as a callable predicate over Cause values.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedFailVsDie = Effect.gen(function* () {
+  yield* Console.log("Source-aligned behavior: fail causes are true, die causes are false.");
+
+  const failCause = CauseModule.fail("error");
+  const dieCause = CauseModule.die("defect");
+
+  yield* Console.log(`hasFails(Cause.fail("error")): ${CauseModule.hasFails(failCause)}`);
+  yield* Console.log(`hasFails(Cause.die("defect")): ${CauseModule.hasFails(dieCause)}`);
+});
+
+const exampleCombinedCauseScan = Effect.gen(function* () {
+  yield* Console.log("Combined causes flip to true once at least one Fail reason is present.");
+
+  const noTypedFails = CauseModule.combine(CauseModule.die("defect-1"), CauseModule.die("defect-2"));
+  const withTypedFail = CauseModule.combine(noTypedFails, CauseModule.fail({ code: "E_PARSE" }));
+
+  yield* Console.log(`hasFails(noTypedFails): ${CauseModule.hasFails(noTypedFails)}`);
+  yield* Console.log(`hasFails(withTypedFail): ${CauseModule.hasFails(withTypedFail)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +86,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Fail Vs Die",
+      description: "Run the documented fail and die inputs to verify boolean predicate outcomes.",
+      run: exampleSourceAlignedFailVsDie,
+    },
+    {
+      title: "Combined Cause Scan",
+      description: "Show that hasFails is false for die-only causes and true once a fail reason is added.",
+      run: exampleCombinedCauseScan,
     },
   ],
 });

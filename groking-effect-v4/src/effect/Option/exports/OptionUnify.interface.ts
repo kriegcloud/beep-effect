@@ -27,7 +27,7 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -38,7 +38,7 @@ const moduleImportPath = "effect/Option";
 const sourceSummary =
   "Internal unification interface for `Option` types. Used by the Effect library's type system for type-level operations.";
 const sourceExample = "";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -58,22 +58,22 @@ const exampleCompanionUnificationFlow = Effect.gen(function* () {
 
   const parsePort = (raw: string) => {
     const parsed = Number(raw);
-    return Number.isInteger(parsed) && parsed > 0 ? OptionModule.some(parsed) : OptionModule.none<number>();
+    return Number.isInteger(parsed) && parsed > 0 ? O.some(parsed) : O.none<number>();
   };
 
   const invalidPrimary = parsePort("oops");
   const envFallback = parsePort("8080");
   const defaultPort = parsePort("3000");
 
-  const fromPrimaryOrEnv = OptionModule.orElse(invalidPrimary, () => envFallback);
-  const resolved = OptionModule.orElse(fromPrimaryOrEnv, () => defaultPort);
-  const rendered = OptionModule.match(resolved, {
+  const fromPrimaryOrEnv = O.orElse(invalidPrimary, () => envFallback);
+  const resolved = O.orElse(fromPrimaryOrEnv, () => defaultPort);
+  const rendered = O.match(resolved, {
     onNone: () => "no port available",
     onSome: (value) => `resolved port ${value}`,
   });
 
   yield* Console.log(
-    `primary=${OptionModule.isSome(invalidPrimary)} env=${OptionModule.isSome(envFallback)} default=${OptionModule.isSome(defaultPort)}`
+    `primary=${O.isSome(invalidPrimary)} env=${O.isSome(envFallback)} default=${O.isSome(defaultPort)}`
   );
   yield* Console.log(`Result after fallback unification: ${rendered}`);
 });

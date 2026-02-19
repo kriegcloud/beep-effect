@@ -38,11 +38,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,13 +59,43 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect andThen as a callable sequencing helper.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSupportedInputShapes = Effect.gen(function* () {
+  yield* Console.log("Run andThen with the documented argument shapes.");
+  const base = ResultModule.succeed(1);
+  const fromResultFunction = base.pipe(ResultModule.andThen((n) => ResultModule.succeed(n + 1)));
+  const fromPlainFunction = base.pipe(ResultModule.andThen((n) => n + 1));
+  const fromResultValue = base.pipe(ResultModule.andThen(ResultModule.succeed("wrapped")));
+  const fromPlainValue = base.pipe(ResultModule.andThen("done"));
+
+  yield* Console.log(`fn -> Result: ${summarizeResult(fromResultFunction)}`);
+  yield* Console.log(`fn -> value: ${summarizeResult(fromPlainFunction)}`);
+  yield* Console.log(`Result value: ${summarizeResult(fromResultValue)}`);
+  yield* Console.log(`plain value: ${summarizeResult(fromPlainValue)}`);
+});
+
+const exampleFailureShortCircuit = Effect.gen(function* () {
+  yield* Console.log("Failure input short-circuits and skips mapper execution.");
+  let mapperInvoked = false;
+
+  const output = ResultModule.fail("input-failure").pipe(
+    ResultModule.andThen((_: never) => {
+      mapperInvoked = true;
+      return ResultModule.succeed("unreachable");
+    })
+  );
+
+  yield* Console.log(`output: ${summarizeResult(output)}`);
+  yield* Console.log(`mapperInvoked: ${mapperInvoked}`);
 });
 
 /* ========================================================================== *
@@ -89,9 +115,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Supported Input Shapes",
+      description: "Apply andThen with function/result/value inputs and compare outcomes.",
+      run: exampleSupportedInputShapes,
+    },
+    {
+      title: "Failure Short-Circuit",
+      description: "Show that failing input preserves failure and does not run mapper logic.",
+      run: exampleFailureShortCircuit,
     },
   ],
 });

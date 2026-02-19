@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -41,19 +37,32 @@ const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Computes elements in the first array that are not in the second, using `Equal.equivalence()`.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.difference([1, 2, 3], [2, 3, 4])) // [1]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the export to confirm runtime shape before calling it.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedDifference = Effect.gen(function* () {
+  const baseline = A.difference([1, 2, 3], [2, 3, 4]);
+  const noOverlap = A.difference([1, 2], [7, 8]);
+
+  yield* Console.log(`difference([1, 2, 3], [2, 3, 4]) -> [${baseline.join(", ")}]`);
+  yield* Console.log(`difference([1, 2], [7, 8]) -> [${noOverlap.join(", ")}]`);
+});
+
+const exampleCurriedDifference = Effect.gen(function* () {
+  const blockedTags = ["beta", "deprecated"];
+  const removeBlockedTags = A.difference(blockedTags);
+  const releaseTags = ["stable", "beta", "v1", "deprecated"];
+  const filtered = removeBlockedTags(releaseTags);
+
+  yield* Console.log(`difference(["beta","deprecated"])(releaseTags) -> [${filtered.join(", ")}]`);
+  yield* Console.log(`releaseTags unchanged -> [${releaseTags.join(", ")}]`);
 });
 
 /* ========================================================================== *
@@ -73,9 +82,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Difference",
+      description: "Use the two-argument form from the source example and contrast with a no-overlap case.",
+      run: exampleSourceAlignedDifference,
+    },
+    {
+      title: "Curried Difference",
+      description: "Use the curried form to remove blocked tags while leaving the original array unchanged.",
+      run: exampleCurriedDifference,
     },
   ],
 });

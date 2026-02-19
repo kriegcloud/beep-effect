@@ -28,13 +28,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -48,19 +44,49 @@ const sourceSummary =
   "Lifts a nullable-returning function into one that returns an array: `null`/`undefined` becomes `[]`, anything else becomes `[value]`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst parseNumber = Array.liftNullishOr((s: string) => {\n  const n = Number(s)\n  return isNaN(n) ? null : n\n})\nconsole.log(parseNumber("123")) // [123]\nconsole.log(parseNumber("abc")) // []';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect liftNullishOr before lifting domain functions.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const parseNumber = A.liftNullishOr((s: string) => {
+    const n = Number(s);
+    return Number.isNaN(n) ? null : n;
+  });
+
+  for (const input of ["123", "42.5", "abc"] as const) {
+    yield* Console.log(`parseNumber(${JSON.stringify(input)}) => ${JSON.stringify(parseNumber(input))}`);
+  }
+});
+
+const exampleNullishNormalizationWithMultipleArgs = Effect.gen(function* () {
+  const getBadge = A.liftNullishOr((id: number, includeInactive: boolean): string | null | undefined => {
+    if (id === 1) {
+      return "ALPHA";
+    }
+    if (id === 2) {
+      return null;
+    }
+    if (id === 3 && includeInactive) {
+      return "LEGACY";
+    }
+    return undefined;
+  });
+
+  for (const [id, includeInactive] of [
+    [1, false],
+    [2, false],
+    [3, false],
+    [3, true],
+  ] as const) {
+    yield* Console.log(`getBadge(${id}, ${includeInactive}) => ${JSON.stringify(getBadge(id, includeInactive))}`);
+  }
 });
 
 /* ========================================================================== *
@@ -80,9 +106,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Parsing Lift",
+      description: "Lift a nullable parse function so invalid numeric text becomes an empty array.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Nullish Normalization Across Arguments",
+      description: "Show that both null and undefined collapse to [] while non-null values become singletons.",
+      run: exampleNullishNormalizationWithMultipleArgs,
     },
   ],
 });

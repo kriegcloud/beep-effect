@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const sourceSummary =
   "Splits an iterable into two arrays: the longest prefix where the predicate holds, and the remaining elements.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.span([1, 3, 2, 4, 5], (x) => x % 2 === 1)) // [[1, 3], [2, 4, 5]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,24 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const [prefix, rest] = A.span([1, 3, 2, 4, 5], (x) => x % 2 === 1);
+
+  yield* Console.log(`A.span([1, 3, 2, 4, 5], isOdd) => prefix=${JSON.stringify(prefix)} rest=${JSON.stringify(rest)}`);
+});
+
+const exampleCurriedPredicateBoundary = Effect.gen(function* () {
+  const splitCriticalWindow = A.span((value, index) => {
+    const numeric = typeof value === "number" ? value : Number(value);
+    return numeric < 10 && index < 3;
+  });
+  const [safePrefix, criticalRest] = splitCriticalWindow(new Set([3, 6, 9, 12, 15]));
+  const [noPrefix, allRest] = A.span([2, 4, 6], (x) => x % 2 === 1);
+
+  yield* Console.log(
+    `A.span(value<10 && index<3)(Set[3,6,9,12,15]) => prefix=${JSON.stringify(safePrefix)} rest=${JSON.stringify(criticalRest)}`
+  );
+  yield* Console.log(`A.span([2, 4, 6], isOdd) => prefix=${JSON.stringify(noPrefix)} rest=${JSON.stringify(allRest)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +86,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Split at the first non-odd value using the documented call shape.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Predicate Boundary",
+      description: "Use data-last form with index-aware checks and show the no-prefix edge case.",
+      run: exampleCurriedPredicateBoundary,
     },
   ],
 });

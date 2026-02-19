@@ -23,15 +23,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,19 +39,41 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Tests whether an array contains a value, using `Equal.equivalence()` for comparison.";
 const sourceExample =
   'import { Array, pipe } from "effect"\n\nconsole.log(pipe(["a", "b", "c", "d"], Array.contains("c"))) // true';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedPipe = Effect.gen(function* () {
+  const letters = ["a", "b", "c", "d"];
+  const containsC = pipe(letters, A.contains("c"));
+  const containsZ = pipe(letters, A.contains("z"));
+
+  yield* Console.log(`pipe(["a", "b", "c", "d"], Array.contains("c")) => ${containsC}`);
+  yield* Console.log(`pipe(["a", "b", "c", "d"], Array.contains("z")) => ${containsZ}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleDataFirstInvocation = Effect.gen(function* () {
+  const scores = [10, 20, 30];
+  const has20 = A.contains(scores, 20);
+  const has99 = A.contains(scores, 99);
+
+  yield* Console.log(`Array.contains([10, 20, 30], 20) => ${has20}`);
+  yield* Console.log(`Array.contains([10, 20, 30], 99) => ${has99}`);
+});
+
+const exampleStructuralEquality = Effect.gen(function* () {
+  const users = [
+    { id: 1, name: "Ada" },
+    { id: 2, name: "Lin" },
+  ];
+  const lookup = { id: 2, name: "Lin" };
+
+  const nativeIncludes = users.includes(lookup);
+  const containsUser = A.contains(users, lookup);
+
+  yield* Console.log(`users.includes(lookup) => ${nativeIncludes}`);
+  yield* Console.log(`Array.contains(users, lookup) => ${containsUser}`);
+  yield* Console.log("Array.contains uses Equal.equivalence() for comparison.");
 });
 
 /* ========================================================================== *
@@ -69,14 +88,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Curried Usage",
+      description: "Use the documented pipe + partial-application style for membership checks.",
+      run: exampleSourceAlignedPipe,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Data-First Invocation",
+      description: "Call contains with (iterable, value) and observe true/false outcomes.",
+      run: exampleDataFirstInvocation,
+    },
+    {
+      title: "Equal.equivalence Semantics",
+      description: "Compare native includes (reference) with Array.contains (structural).",
+      run: exampleStructuralEquality,
     },
   ],
 });

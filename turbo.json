@@ -5,29 +5,17 @@
     "**/.env",
     "**/.env.*",
     "tsconfig.json",
-    "tsconfig.build.json",
-    "tsconfig.base.jsonc"
+    "tsconfig.base.json",
+    "tsconfig.packages.json"
   ],
-  "globalEnv": [
-    "TURBO_TOKEN",
-    "TURBO_TEAM"
-  ],
-  "globalPassThroughEnv": [
-    "NODE_TLS_REJECT_UNAUTHORIZED",
-    "AWS_*",
-    "SST_*"
-  ],
+  "globalEnv": ["TURBO_TOKEN", "TURBO_TEAM"],
+  "globalPassThroughEnv": ["NODE_TLS_REJECT_UNAUTHORIZED", "AWS_*", "SST_*"],
   "tasks": {
     "build": {
       "persistent": false,
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [
         "dist/**",
         "build/**",
@@ -44,30 +32,17 @@
     },
     "lint": {
       "cache": true,
-      "dependsOn": [
-        "^lint"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^lint"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "lint:fix": {
       "cache": true,
-      "dependsOn": [
-        "^lint:fix"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^lint:fix"],
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "check": {
-      "dependsOn": [
-        "^build",
-        "^check"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
+      "dependsOn": ["^build", "^check"],
+      "inputs": ["$TURBO_DEFAULT$"]
     }
   }
 }

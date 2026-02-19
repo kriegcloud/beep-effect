@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,28 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime shape to confirm this export is a callable type guard.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const illegal = new CauseModule.IllegalArgumentError("Expected positive number");
+  const notIllegal = "nope";
+
+  yield* Console.log(
+    `Cause.isIllegalArgumentError(new Cause.IllegalArgumentError(...)): ${CauseModule.isIllegalArgumentError(illegal)}`
+  );
+  yield* Console.log(`Cause.isIllegalArgumentError("nope"): ${CauseModule.isIllegalArgumentError(notIllegal)}`);
+});
+
+const exampleErrorDiscrimination = Effect.gen(function* () {
+  const illegal = new CauseModule.IllegalArgumentError("Expected non-empty input");
+  const timeout = new CauseModule.TimeoutError("Operation timed out");
+  const generic = new Error("boom");
+
+  yield* Console.log(
+    `Illegal/Timeout/Error: ${CauseModule.isIllegalArgumentError(illegal)} / ${CauseModule.isIllegalArgumentError(timeout)} / ${CauseModule.isIllegalArgumentError(generic)}`
+  );
 });
 
 /* ========================================================================== *
@@ -71,13 +82,18 @@ const program = createPlaygroundProgram({
   examples: [
     {
       title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      description: "Inspect module export count, runtime type, and formatted preview for this type guard.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented checks with IllegalArgumentError input and a non-error value.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Error Discrimination",
+      description: "Show that the guard accepts IllegalArgumentError and rejects other error kinds.",
+      run: exampleErrorDiscrimination,
     },
   ],
 });

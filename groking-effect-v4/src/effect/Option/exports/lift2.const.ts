@@ -29,15 +29,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +44,7 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Lifts a binary function to operate on two `Option` values.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconst addOptions = Option.lift2((a: number, b: number) => a + b)\n\nconsole.log(addOptions(Option.some(2), Option.some(3)))\n// Output: { _id: 'Option', _tag: 'Some', value: 5 }\n\nconsole.log(addOptions(Option.some(2), Option.none()))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -58,9 +54,28 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const addOptions = O.lift2((a: number, b: number) => a + b);
+  const bothSome = addOptions(O.some(2), O.some(3));
+  const rightNone = addOptions(O.some(2), O.none());
+
+  yield* Console.log(`some(2) + some(3) -> ${formatUnknown(bothSome)}`);
+  yield* Console.log(`some(2) + none() -> ${formatUnknown(rightNone)}`);
+});
+
+const exampleCombinerRunsOnlyForSomeValues = Effect.gen(function* () {
+  let combinerCalls = 0;
+  const mergeLabels = O.lift2((left: string, right: string) => {
+    combinerCalls += 1;
+    return `${left}:${right}`;
+  });
+
+  const missingLeft = mergeLabels(O.none(), O.some("beta"));
+  const bothPresent = mergeLabels(O.some("alpha"), O.some("beta"));
+
+  yield* Console.log(`none() + some("beta") -> ${formatUnknown(missingLeft)}`);
+  yield* Console.log(`some("alpha") + some("beta") -> ${formatUnknown(bothPresent)}`);
+  yield* Console.log(`combiner calls: ${combinerCalls}`);
 });
 
 /* ========================================================================== *
@@ -80,9 +95,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Lift addition and observe Some propagation vs None short-circuiting.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Combiner Call Guard",
+      description: "The binary combiner runs only when both Option inputs are Some.",
+      run: exampleCombinerRunsOnlyForSomeValues,
     },
   ],
 });

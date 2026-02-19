@@ -50,14 +50,22 @@ const moduleRecord = CauseModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+const exampleTypeErasureAndCompanionContext = Effect.gen(function* () {
+  yield* Console.log(
+    "Bridge note: `Cause.IllegalArgumentError` is a compile-time interface paired with runtime companions."
+  );
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
+  yield* Console.log("Inspecting runtime constructor companion: Cause.IllegalArgumentError.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "IllegalArgumentError" });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedCompanionFlow = Effect.gen(function* () {
+  const error = new CauseModule.IllegalArgumentError("Expected positive number");
+
+  yield* Console.log(`Created error tag: ${error._tag}`);
+  yield* Console.log(`Created error message: ${error.message}`);
+  yield* Console.log(`Cause.isIllegalArgumentError(error): ${CauseModule.isIllegalArgumentError(error)}`);
+  yield* Console.log(`Cause.isIllegalArgumentError("nope"): ${CauseModule.isIllegalArgumentError("nope")}`);
 });
 
 /* ========================================================================== *
@@ -72,14 +80,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Type Erasure + Constructor Context",
+      description: "Show interface erasure and inspect the runtime constructor companion export.",
+      run: exampleTypeErasureAndCompanionContext,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Source-Aligned Companion Flow",
+      description: "Construct `Cause.IllegalArgumentError` and validate it with `Cause.isIllegalArgumentError`.",
+      run: exampleSourceAlignedCompanionFlow,
     },
   ],
 });

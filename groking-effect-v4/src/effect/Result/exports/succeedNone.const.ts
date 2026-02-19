@@ -24,14 +24,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
@@ -49,13 +46,29 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect succeedNone as a pre-built Result value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedIsSuccess = Effect.gen(function* () {
+  const result = ResultModule.succeedNone;
+  const isSuccess = ResultModule.isSuccess(result);
+
+  yield* Console.log(`isSuccess(succeedNone): ${isSuccess}`);
+  if (isSuccess) {
+    yield* Console.log(`success payload is None: ${O.isNone(result.success)}`);
+  }
+});
+
+const exampleSuccessExtraction = Effect.gen(function* () {
+  const extractedSuccess = ResultModule.getSuccess(ResultModule.succeedNone);
+  const merged = ResultModule.merge(ResultModule.succeedNone);
+
+  yield* Console.log(`getSuccess(succeedNone) is Some: ${O.isSome(extractedSuccess)}`);
+  if (O.isSome(extractedSuccess)) {
+    yield* Console.log(`inner payload is None: ${O.isNone(extractedSuccess.value)}`);
+  }
+  yield* Console.log(`merge(succeedNone) is None: ${O.isNone(merged)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Success Check",
+      description: "Reproduce the JSDoc behavior and confirm succeedNone is a Success containing None.",
+      run: exampleSourceAlignedIsSuccess,
+    },
+    {
+      title: "Option Extraction From Success",
+      description: "Inspect nested Option behavior via getSuccess and merge on the pre-built value.",
+      run: exampleSuccessExtraction,
     },
   ],
 });

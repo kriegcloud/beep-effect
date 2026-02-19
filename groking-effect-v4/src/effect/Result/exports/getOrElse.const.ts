@@ -27,11 +27,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -52,13 +48,38 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Result.getOrElse as a runtime value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedFallback = Effect.gen(function* () {
+  yield* Console.log("Use getOrElse(result, onFailure) with success and failure.");
+  const fallbackToZero = () => 0;
+  const fromSuccess = ResultModule.getOrElse(ResultModule.succeed(1), fallbackToZero);
+  const fromFailure = ResultModule.getOrElse(ResultModule.fail("err"), fallbackToZero);
+
+  yield* Console.log(`succeed(1) -> ${formatUnknown(fromSuccess)}`);
+  yield* Console.log(`fail("err") -> ${formatUnknown(fromFailure)}`);
+});
+
+const exampleCurriedErrorAwareFallback = Effect.gen(function* () {
+  yield* Console.log("Use curried getOrElse(onFailure)(result) and read the failure cause.");
+  let onFailureCalls = 0;
+
+  const describeFailure = ResultModule.getOrElse((err: { code: number; message: string }) => {
+    onFailureCalls += 1;
+    return `fallback(${err.code}): ${err.message}`;
+  });
+
+  const successValue = describeFailure(ResultModule.succeed("ok"));
+  const successCalls = onFailureCalls;
+  const fallbackValue = describeFailure(ResultModule.fail({ code: 503, message: "unavailable" }));
+  const failureCalls = onFailureCalls;
+
+  yield* Console.log(`curried succeed("ok") -> ${formatUnknown(successValue)} (onFailure calls: ${successCalls})`);
+  yield* Console.log(
+    `curried fail({ code: 503, ... }) -> ${formatUnknown(fallbackValue)} (onFailure calls: ${failureCalls})`
+  );
 });
 
 /* ========================================================================== *
@@ -78,9 +99,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Fallback",
+      description: "Run the JSDoc-style success/failure examples with a constant fallback.",
+      run: exampleSourceAlignedFallback,
+    },
+    {
+      title: "Curried Error-Aware Fallback",
+      description: "Use the curried form to compute fallback values from the failure payload.",
+      run: exampleCurriedErrorAwareFallback,
     },
   ],
 });

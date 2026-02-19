@@ -50,13 +50,21 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log(
+    "Bridge note: `Cause.NoSuchElementError` is a compile-time interface paired with runtime companions."
+  );
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
+  yield* Console.log("Inspecting runtime constructor companion: Cause.NoSuchElementError.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "NoSuchElementError" });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedCompanionFlow = Effect.gen(function* () {
+  const error = new CauseModule.NoSuchElementError("Element not found");
+
+  yield* Console.log(`Created error tag: ${error._tag}`);
+  yield* Console.log(`Created error message: ${error.message}`);
+  yield* Console.log(`Cause.isNoSuchElementError(error): ${CauseModule.isNoSuchElementError(error)}`);
+  yield* Console.log(`Cause.isNoSuchElementError("nope"): ${CauseModule.isNoSuchElementError("nope")}`);
 });
 
 /* ========================================================================== *
@@ -71,14 +79,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
+      title: "Type Erasure + Constructor Context",
+      description: "Show interface erasure and inspect the runtime constructor companion export.",
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Source-Aligned Companion Flow",
+      description: "Construct `Cause.NoSuchElementError` and validate it with `Cause.isNoSuchElementError`.",
+      run: exampleSourceAlignedCompanionFlow,
     },
   ],
 });

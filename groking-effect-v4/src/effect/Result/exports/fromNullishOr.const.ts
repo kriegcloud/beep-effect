@@ -27,11 +27,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -52,13 +48,29 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the export shape before running behavior examples.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleNonNullishInput = Effect.gen(function* () {
+  const result = ResultModule.fromNullishOr(1, () => "fallback");
+  const summary = ResultModule.match(result, {
+    onSuccess: (value) => `Success(${value})`,
+    onFailure: (error) => `Failure(${String(error)})`,
+  });
+
+  yield* Console.log(`Non-nullish input keeps the value -> ${summary}`);
+});
+
+const exampleNullishInput = Effect.gen(function* () {
+  const input: string | undefined = undefined;
+  const result = ResultModule.fromNullishOr(input, (original) => `fallback from ${String(original)}`);
+  const summary = ResultModule.match(result, {
+    onSuccess: (value) => `Success(${value})`,
+    onFailure: (error) => `Failure(${error})`,
+  });
+
+  yield* Console.log(`Nullish input uses onNullish callback -> ${summary}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +90,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Data-First Success Case",
+      description: "A non-nullish input yields Success and ignores the fallback callback.",
+      run: exampleNonNullishInput,
+    },
+    {
+      title: "Nullish Failure Case",
+      description: "A nullish input yields Failure and uses the callback return as the error.",
+      run: exampleNullishInput,
     },
   ],
 });

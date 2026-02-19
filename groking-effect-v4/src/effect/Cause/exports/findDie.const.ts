@@ -26,15 +26,13 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ResultModule from "effect/Result";
+import * as ServiceMap from "effect/ServiceMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,13 +50,55 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect findDie as a callable export that searches a cause for die reasons.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedDieLookup = Effect.gen(function* () {
+  yield* Console.log("Use the source-aligned call shape: pass a die cause and read the Die reason.");
+
+  const defect = { code: "E_DEFECT", retryable: false };
+  const dieCause = CauseModule.die(defect);
+  const result = CauseModule.findDie(dieCause);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (!ResultModule.isFailure(result)) {
+    yield* Console.log(`reason tag: ${result.success._tag}`);
+    yield* Console.log(`defect payload: ${formatUnknown(result.success.defect)}`);
+    yield* Console.log(`returned reason identity preserved: ${result.success === dieCause.reasons[0]}`);
+  }
+});
+
+const exampleAnnotatedDiePreserved = Effect.gen(function* () {
+  yield* Console.log("Annotations on die reasons remain available through findDie.");
+
+  const ExamplePhase = ServiceMap.Service<string>("example/findDie/phase");
+  const annotatedCause = CauseModule.annotate(
+    CauseModule.die("annotated-defect"),
+    ServiceMap.make(ExamplePhase, "preflight")
+  );
+  const result = CauseModule.findDie(annotatedCause);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (!ResultModule.isFailure(result)) {
+    const annotation = result.success.annotations.get(ExamplePhase.key);
+    yield* Console.log(`annotation present: ${result.success.annotations.has(ExamplePhase.key)}`);
+    yield* Console.log(`annotation value: ${formatUnknown(annotation)}`);
+  }
+});
+
+const exampleNoDieContract = Effect.gen(function* () {
+  yield* Console.log("When no Die reason exists, findDie fails with the original cause.");
+
+  const causeWithoutDefect = CauseModule.combine(CauseModule.fail("typed-error"), CauseModule.interrupt(7));
+  const result = CauseModule.findDie(causeWithoutDefect);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (ResultModule.isFailure(result)) {
+    yield* Console.log(`failure carries original cause: ${result.failure === causeWithoutDefect}`);
+    yield* Console.log(`failure has fails: ${CauseModule.hasFails(result.failure)}`);
+    yield* Console.log(`failure has dies: ${CauseModule.hasDies(result.failure)}`);
+  }
 });
 
 /* ========================================================================== *
@@ -78,9 +118,19 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Die Lookup",
+      description: "Call findDie with a die cause and inspect the extracted Die reason.",
+      run: exampleSourceAlignedDieLookup,
+    },
+    {
+      title: "Annotated Die Reason",
+      description: "Verify that returned Die reasons retain attached annotations.",
+      run: exampleAnnotatedDiePreserved,
+    },
+    {
+      title: "No-Die Failure Contract",
+      description: "Show the failure path when the cause has no die reason.",
+      run: exampleNoDieContract,
     },
   ],
 });

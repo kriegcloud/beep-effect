@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,35 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Applies a function to the last element of a non-empty array, returning a new array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.modifyLastNonEmpty([1, 2, 3], (n) => n * 2)) // [1, 2, 6]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime shape for modifyLastNonEmpty.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+  yield* Console.log(`modifyLastNonEmpty.length at runtime: ${A.modifyLastNonEmpty.length}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3] as const;
+  const output = A.modifyLastNonEmpty(input, (n) => n * 2);
+
+  yield* Console.log(`Input: [${input.join(", ")}]`);
+  yield* Console.log(`modifyLastNonEmpty(..., n => n * 2) => [${output.join(", ")}]`);
+});
+
+const exampleCurriedAndSingleElement = Effect.gen(function* () {
+  const padLast = A.modifyLastNonEmpty((token: string) => `${token}!`);
+  const single = ["solo"] as const;
+  const sequence = ["a", "b", "c"] as const;
+
+  const singleUpdated = padLast(single);
+  const sequenceUpdated = padLast(sequence);
+
+  yield* Console.log(`Curried call on single value => [${singleUpdated.join(", ")}]`);
+  yield* Console.log(`Curried call on many values => [${sequenceUpdated.join(", ")}]`);
 });
 
 /* ========================================================================== *
@@ -70,13 +82,18 @@ const program = createPlaygroundProgram({
   examples: [
     {
       title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      description: "Inspect runtime metadata and callable arity for modifyLastNonEmpty.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented non-empty number array transformation.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried + Single-Element Inputs",
+      description: "Demonstrate dual invocation form on both one and many elements.",
+      run: exampleCurriedAndSingleElement,
     },
   ],
 });

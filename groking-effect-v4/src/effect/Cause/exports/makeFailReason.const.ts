@@ -25,11 +25,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -50,13 +46,31 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect makeFailReason as a callable constructor for Fail reasons.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceInvocation = Effect.gen(function* () {
+  const error = "error";
+  const reason = CauseModule.makeFailReason(error);
+
+  yield* Console.log(`reason._tag: ${reason._tag}`);
+  yield* Console.log(`isFailReason: ${CauseModule.isFailReason(reason)}`);
+  yield* Console.log(`error matches input: ${reason.error === error}`);
+});
+
+const exampleFromReasonsComposition = Effect.gen(function* () {
+  const reasons = [CauseModule.makeFailReason("err1"), CauseModule.makeFailReason("err2")];
+  const cause = CauseModule.fromReasons(reasons);
+  const failErrors = cause.reasons
+    .filter(CauseModule.isFailReason)
+    .map((reason) => String(reason.error))
+    .join(", ");
+
+  yield* Console.log(`input reasons: ${reasons.length}`);
+  yield* Console.log(`cause.reasons.length: ${cause.reasons.length}`);
+  yield* Console.log(`all reasons are Fail: ${cause.reasons.every(CauseModule.isFailReason)}`);
+  yield* Console.log(`errors in order: ${failErrors}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +90,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source Invocation",
+      description: "Create a Fail reason with a string error and verify tag/payload.",
+      run: exampleSourceInvocation,
+    },
+    {
+      title: "Compose Reasons with fromReasons",
+      description: "Build a Cause from standalone fail reasons and verify reason order.",
+      run: exampleFromReasonsComposition,
     },
   ],
 });

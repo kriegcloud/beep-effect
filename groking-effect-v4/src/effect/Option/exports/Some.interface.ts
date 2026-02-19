@@ -27,7 +27,7 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -37,19 +37,38 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Option";
 const sourceSummary = "Represents the presence of a value within an {@link Option}.";
 const sourceExample = "";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("`Some` is an interface, so the symbol is erased at runtime.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCompanionExportInspection = Effect.gen(function* () {
+  yield* Console.log("Bridge to runtime: inspect the `some` companion constructor export.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "some" });
+});
+
+const exampleSomeCompanionFlow = Effect.gen(function* () {
+  const presentCount = O.some(3);
+  const absentCount = O.none<number>();
+  const incremented = O.map(presentCount, (value) => value + 1);
+
+  const someMessage = O.match(incremented, {
+    onNone: () => "No count available.",
+    onSome: (value) => `Count: ${value}`,
+  });
+  const noneMessage = O.match(absentCount, {
+    onNone: () => "No count available.",
+    onSome: (value) => `Count: ${value}`,
+  });
+
+  yield* Console.log(`isSome(presentCount): ${O.isSome(presentCount)}`);
+  yield* Console.log(`match(Some): ${someMessage}`);
+  yield* Console.log(`match(None): ${noneMessage}`);
 });
 
 /* ========================================================================== *
@@ -69,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Companion Export Inspection",
+      description: "Inspect the runtime `some` constructor that corresponds to `Some` values.",
+      run: exampleCompanionExportInspection,
+    },
+    {
+      title: "Some Companion API Flow",
+      description: "Create present/absent options and handle both branches with `match`.",
+      run: exampleSomeCompanionFlow,
     },
   ],
 });

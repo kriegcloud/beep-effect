@@ -28,11 +28,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -54,13 +50,43 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Result.orElse as a callable runtime export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedRecovery = Effect.gen(function* () {
+  yield* Console.log("Recover a Failure and preserve Success with the documented orElse form.");
+  const fromFailure = ResultModule.fail("primary failed").pipe(ResultModule.orElse(() => ResultModule.succeed(99)));
+  const fromSuccess = ResultModule.succeed(42).pipe(ResultModule.orElse(() => ResultModule.succeed(99)));
+
+  yield* Console.log(`fail("primary failed") -> ${summarizeResult(fromFailure)}`);
+  yield* Console.log(`succeed(42) -> ${summarizeResult(fromSuccess)}`);
+});
+
+const exampleDataFirstFallbackBehavior = Effect.gen(function* () {
+  yield* Console.log("Use data-first orElse(self, that) and show fallback invocation count.");
+  let fallbackCalls = 0;
+
+  const fallback = (failure: { readonly step: string; readonly reason: string }) => {
+    fallbackCalls += 1;
+    return ResultModule.succeed(`recovered:${failure.step}:${failure.reason}`);
+  };
+
+  const recovered = ResultModule.orElse(ResultModule.fail({ step: "fetch", reason: "not-found" }), fallback);
+  const callsAfterFailure = fallbackCalls;
+  const untouched = ResultModule.orElse(ResultModule.succeed("cached"), fallback);
+  const callsAfterSuccess = fallbackCalls;
+
+  yield* Console.log(`orElse(fail({...}), fallback) -> ${summarizeResult(recovered)} (calls: ${callsAfterFailure})`);
+  yield* Console.log(
+    `orElse(succeed("cached"), fallback) -> ${summarizeResult(untouched)} (calls: ${callsAfterSuccess})`
+  );
 });
 
 /* ========================================================================== *
@@ -80,9 +106,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Recovery",
+      description: "Reproduce the JSDoc-style fallback on Failure while preserving Success values.",
+      run: exampleSourceAlignedRecovery,
+    },
+    {
+      title: "Data-First Fallback Behavior",
+      description: "Call data-first orElse and verify fallback executes only for Failure inputs.",
+      run: exampleDataFirstFallbackBehavior,
     },
   ],
 });

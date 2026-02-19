@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +42,24 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Replaces the value inside a `Some` with `void` (`undefined`), leaving `None` unchanged.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconsole.log(Option.asVoid(Option.some(42)))\n// Output: { _id: 'Option', _tag: 'Some', value: undefined }\n\nconsole.log(Option.asVoid(Option.none()))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSomeBecomesSomeUndefined = Effect.gen(function* () {
+  const input = O.some(42);
+  const output = O.asVoid(input);
+
+  yield* Console.log(`Option.asVoid(Option.some(42)) -> ${formatUnknown(output)}`);
+  yield* Console.log(`Some value replaced with undefined: ${output._tag === "Some" && output.value === undefined}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleNoneRemainsNone = Effect.gen(function* () {
+  const input = O.none<number>();
+  const output = O.asVoid(input);
+
+  yield* Console.log(`Option.asVoid(Option.none()) -> ${formatUnknown(output)}`);
+  yield* Console.log(`None stays None: ${output._tag === "None"}`);
 });
 
 /* ========================================================================== *
@@ -73,14 +74,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Some Converts to Some(undefined)",
+      description: "Apply asVoid to Some and verify the wrapped value is discarded.",
+      run: exampleSomeBecomesSomeUndefined,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "None Is Preserved",
+      description: "Apply asVoid to None and verify absence is unchanged.",
+      run: exampleNoneRemainsNone,
     },
   ],
 });

@@ -19,11 +19,7 @@
  * - Runtime examples still provide module-level context for learning.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -42,14 +38,39 @@ const moduleRecord = SchemaModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleRuntimeBridge = Effect.gen(function* () {
+  yield* Console.log("Type-level interface is erased; runtime behavior comes from Schema.BooleanFromBit.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleDecodeBits = Effect.gen(function* () {
+  const decodeBooleanFromBit = SchemaModule.decodeUnknownSync(SchemaModule.BooleanFromBit);
+  const samples: ReadonlyArray<unknown> = [0, 1, 2, "1"];
+
+  for (const sample of samples) {
+    try {
+      const decoded = decodeBooleanFromBit(sample);
+      yield* Console.log(`decode(${JSON.stringify(sample)}) => ${decoded}`);
+    } catch (error) {
+      const message = String(error).split("\n")[0] ?? String(error);
+      yield* Console.log(`decode(${JSON.stringify(sample)}) failed: ${message}`);
+    }
+  }
+});
+
+const exampleEncodeBooleans = Effect.gen(function* () {
+  const encodeBooleanToBit = SchemaModule.encodeUnknownSync(SchemaModule.BooleanFromBit);
+  const samples: ReadonlyArray<unknown> = [true, false, 1];
+
+  for (const sample of samples) {
+    try {
+      const encoded = encodeBooleanToBit(sample);
+      yield* Console.log(`encode(${JSON.stringify(sample)}) => ${encoded}`);
+    } catch (error) {
+      const message = String(error).split("\n")[0] ?? String(error);
+      yield* Console.log(`encode(${JSON.stringify(sample)}) failed: ${message}`);
+    }
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +85,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Runtime Companion Bridge",
+      description: "Show the runtime schema value that corresponds to this type-level export.",
+      run: exampleRuntimeBridge,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Decode Bits to Booleans",
+      description: "Use Schema.decodeUnknownSync(BooleanFromBit) for valid and invalid bit inputs.",
+      run: exampleDecodeBits,
+    },
+    {
+      title: "Encode Booleans to Bits",
+      description: "Use Schema.encodeUnknownSync(BooleanFromBit) and show failure for non-boolean input.",
+      run: exampleEncodeBooleans,
     },
   ],
 });

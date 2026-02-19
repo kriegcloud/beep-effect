@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -44,7 +40,7 @@ const sourceSummary =
   "Maps each element with a nullable-returning function, keeping only non-null / non-undefined results.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.flatMapNullishOr([1, 2, 3], (n) => (n % 2 === 0 ? null : n)))\n// [1, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -54,9 +50,26 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const result = A.flatMapNullishOr([1, 2, 3], (n) => (n % 2 === 0 ? null : n));
+
+  yield* Console.log(`A.flatMapNullishOr([1, 2, 3], n => n % 2 === 0 ? null : n) => ${JSON.stringify(result)}`);
+});
+
+const exampleMapLookupDataFirstAndDataLast = Effect.gen(function* () {
+  const inventory = new Map<string, number>([
+    ["A-100", 12],
+    ["B-200", 24],
+    ["C-300", 36],
+  ]);
+  const requested = ["A-100", "MISSING", "C-300", "UNKNOWN"];
+
+  const dataFirst = A.flatMapNullishOr(requested, (sku) => inventory.get(sku));
+  const collectFound = A.flatMapNullishOr((sku: string) => inventory.get(sku));
+  const dataLast = collectFound(requested);
+
+  yield* Console.log(`data-first map.get lookup => ${JSON.stringify(dataFirst)}`);
+  yield* Console.log(`data-last map.get lookup => ${JSON.stringify(dataLast)}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +89,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Keep odd values while dropping mapper results that are `null`.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Map Lookup With Both Call Styles",
+      description: "Use `Map.get` to drop missing keys (`undefined`) in data-first and data-last forms.",
+      run: exampleMapLookupDataFirstAndDataLast,
     },
   ],
 });

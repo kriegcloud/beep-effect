@@ -25,7 +25,7 @@ import {
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -37,7 +37,7 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Type lambda for `ReadonlyArray`, used for higher-kinded type operations.";
 const sourceExample = "";
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -51,8 +51,8 @@ const exampleTypeRuntimeCheck = Effect.gen(function* () {
 
 const exampleCompanionReadonlyPipeline = Effect.gen(function* () {
   const base: ReadonlyArray<number> = [1, 2, 3];
-  const doubled = ArrayModule.map(base, (n) => n * 2);
-  const appended = ArrayModule.append(doubled, 8);
+  const doubled = A.map(base, (n) => n * 2);
+  const appended = A.append(doubled, 8);
 
   yield* Console.log(`base readonly values: ${JSON.stringify(base)}`);
   yield* Console.log(`Array.map(base, n => n * 2): ${JSON.stringify(doubled)}`);
@@ -66,13 +66,13 @@ const exampleCompanionGuardFlow = Effect.gen(function* () {
 
   const candidates: ReadonlyArray<ReadonlyArray<number>> = [[], [5, 10, 15]];
   for (const candidate of candidates) {
-    const nonEmpty = ArrayModule.isReadonlyArrayNonEmpty(candidate);
+    const nonEmpty = A.isReadonlyArrayNonEmpty(candidate);
     if (!nonEmpty) {
       yield* Console.log(`${JSON.stringify(candidate)} -> nonEmpty=false; skipping reduce.`);
       continue;
     }
 
-    const total = ArrayModule.reduce(candidate, 0, (sum, value) => sum + value);
+    const total = A.reduce(candidate, 0, (sum, value) => sum + value);
     yield* Console.log(`${JSON.stringify(candidate)} -> nonEmpty=true; reduce sum=${total}.`);
   }
 });

@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -41,19 +37,34 @@ const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Computes the union of two arrays, removing duplicates using `Equal.equivalence()`.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.union([1, 2], [2, 3])) // [1, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedUnion = Effect.gen(function* () {
+  const left = [1, 2, 2];
+  const right = [2, 3, 4];
+  const merged = A.union(left, right);
+
+  yield* Console.log(`union([1, 2, 2], [2, 3, 4]) -> ${JSON.stringify(merged)}`);
+  yield* Console.log(`inputs unchanged -> left=${JSON.stringify(left)}, right=${JSON.stringify(right)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCurriedUnion = Effect.gen(function* () {
+  const unionWithDefaults = A.union(["cpu", "memory"]);
+  const merged = unionWithDefaults(["disk", "cpu"]);
+
+  yield* Console.log(`union(["cpu", "memory"])(["disk", "cpu"]) -> ${JSON.stringify(merged)}`);
+});
+
+const exampleReferenceEqualityUnion = Effect.gen(function* () {
+  const shared = { id: 1 };
+  const left = [shared, { id: 2 }];
+  const right = [shared, { id: 2 }];
+  const merged = A.union(left, right);
+
+  yield* Console.log(`shared reference deduped -> length=${merged.length}`);
+  yield* Console.log(`union(left, right) -> ${JSON.stringify(merged)}`);
 });
 
 /* ========================================================================== *
@@ -68,14 +79,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Union",
+      description: "Use the documented two-argument form and show duplicate removal across both inputs.",
+      run: exampleSourceAlignedUnion,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Curried Union",
+      description: "Use data-last style to merge a live list with default dimensions.",
+      run: exampleCurriedUnion,
+    },
+    {
+      title: "Reference Equality Behavior",
+      description: "Show that repeated references are deduplicated while distinct object literals remain.",
+      run: exampleReferenceEqualityUnion,
     },
   ],
 });

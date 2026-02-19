@@ -1,4 +1,4 @@
-import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -25,6 +25,11 @@ export interface PlaygroundProgramOptions extends PlaygroundHeader {
 export type AttemptResult<A> =
   | { readonly _tag: "Right"; readonly value: A }
   | { readonly _tag: "Left"; readonly error: unknown };
+
+type AttemptThunkError = {
+  readonly _tag: "AttemptThunkError";
+  readonly error: unknown;
+};
 
 const separator = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
 
@@ -74,8 +79,8 @@ export const logSourceExample = (sourceExample: string): Effect.Effect<void> =>
     ? Console.log("\n📚 Source JSDoc Example\n(no inline example found)")
     : Console.log(`\n📚 Source JSDoc Example\n${sourceExample}`);
 
-export const logBunContextLayer = (bunContext: { readonly layer?: unknown }): Effect.Effect<void> =>
-  Console.log(`\n🧱 BunContext layer detected: ${toDisplayString("layer" in bunContext)}`);
+export const logBunRuntimeModule = (bunRuntime: { readonly runMain?: unknown }): Effect.Effect<void> =>
+  Console.log(`\n🧱 BunRuntime.runMain detected: ${toDisplayString(typeof bunRuntime.runMain === "function")}`);
 
 export const logCompletion = (moduleImportPath: string, exportName: string): Effect.Effect<void> =>
   Console.log(`\n✅ Demo complete for ${moduleImportPath}.${exportName}`);
@@ -111,10 +116,10 @@ export const runExamples = (examples: ReadonlyArray<PlaygroundExample>): Effect.
 export const attemptThunk = <A>(thunk: () => A): Effect.Effect<AttemptResult<A>> =>
   Effect.try({
     try: thunk,
-    catch: (error) => error,
+    catch: (error): AttemptThunkError => ({ _tag: "AttemptThunkError", error }),
   }).pipe(
     Effect.map((value) => ({ _tag: "Right" as const, value })),
-    Effect.catch((error) => Effect.succeed({ _tag: "Left" as const, error }))
+    Effect.catchTag("AttemptThunkError", ({ error }) => Effect.succeed({ _tag: "Left" as const, error }))
   );
 
 export const inspectNamedExport = (params: {
@@ -190,7 +195,7 @@ export const createPlaygroundProgram = (options: PlaygroundProgramOptions): Effe
     yield* logSummary(options.summary);
     yield* logSourceExample(options.sourceExample);
     yield* runExamples(options.examples);
-    yield* logBunContextLayer(BunContext);
+    yield* logBunRuntimeModule(BunRuntime);
     yield* logCompletion(options.moduleImportPath, options.exportName);
   }).pipe(reportProgramError);
 

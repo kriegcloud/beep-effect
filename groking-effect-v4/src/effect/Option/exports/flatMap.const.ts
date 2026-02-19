@@ -38,15 +38,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -58,19 +54,53 @@ const sourceSummary =
   "Applies a function that returns an `Option` to the value of a `Some`, flattening the result. Returns `None` if the input is `None`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\ninterface User {\n  readonly name: string\n  readonly address: Option.Option<{ readonly street: Option.Option<string> }>\n}\n\nconst user: User = {\n  name: \"John\",\n  address: Option.some({ street: Option.some(\"123 Main St\") })\n}\n\nconst street = user.address.pipe(\n  Option.flatMap((addr) => addr.street)\n)\n\nconsole.log(street)\n// Output: { _id: 'Option', _tag: 'Some', value: '123 Main St' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedLookup = Effect.gen(function* () {
+  interface User {
+    readonly name: string;
+    readonly address: O.Option<{ readonly street: O.Option<string> }>;
+  }
+
+  const streetFromUser = (user: User) => user.address.pipe(O.flatMap((address) => address.street));
+
+  const userWithStreet: User = {
+    name: "John",
+    address: O.some({ street: O.some("123 Main St") }),
+  };
+
+  const userWithoutStreet: User = {
+    name: "Ava",
+    address: O.some({ street: O.none() }),
+  };
+
+  const userWithoutAddress: User = {
+    name: "Kai",
+    address: O.none(),
+  };
+
+  yield* Console.log(`John -> ${formatUnknown(streetFromUser(userWithStreet))}`);
+  yield* Console.log(`Ava -> ${formatUnknown(streetFromUser(userWithoutStreet))}`);
+  yield* Console.log(`Kai -> ${formatUnknown(streetFromUser(userWithoutAddress))}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleDataFirstVsDataLast = Effect.gen(function* () {
+  const parseInteger = (input: string): O.Option<number> =>
+    /^-?\d+$/.test(input) ? O.some(Number.parseInt(input, 10)) : O.none();
+
+  const toEvenLabel = (n: number): O.Option<string> => (n % 2 === 0 ? O.some(`even:${n}`) : O.none());
+
+  const evenFromDataFirst = O.flatMap(parseInteger("24"), toEvenLabel);
+  const oddFromDataFirst = O.flatMap(parseInteger("7"), toEvenLabel);
+
+  const keepEvenLabel = O.flatMap(toEvenLabel);
+  const invalidFromDataLast = parseInteger("7.5").pipe(keepEvenLabel);
+
+  yield* Console.log(`data-first "24" -> ${formatUnknown(evenFromDataFirst)}`);
+  yield* Console.log(`data-first "7" -> ${formatUnknown(oddFromDataFirst)}`);
+  yield* Console.log(`data-last "7.5" -> ${formatUnknown(invalidFromDataLast)}`);
 });
 
 /* ========================================================================== *
@@ -85,14 +115,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Nested Lookup",
+      description: "Use flatMap to access a nested optional street and propagate None automatically.",
+      run: exampleSourceAlignedLookup,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Data-First and Data-Last Calls",
+      description: "Compare both invocation forms while mapping parsed integers to an optional even label.",
+      run: exampleDataFirstVsDataLast,
     },
   ],
 });

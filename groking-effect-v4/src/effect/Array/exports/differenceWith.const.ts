@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,44 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Computes elements in the first array that are not in the second, using a custom equivalence.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst diff = Array.differenceWith<number>((a, b) => a === b)([1, 2, 3], [2, 3, 4])\nconsole.log(diff) // [1]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the export to confirm it is a higher-order function.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedDifference = Effect.gen(function* () {
+  const differenceNumber = A.differenceWith<number>((a, b) => a === b);
+  const baseline = differenceNumber([1, 2, 3], [2, 3, 4]);
+  const noOverlap = differenceNumber([1, 2], [7, 8]);
+
+  yield* Console.log(`differenceWith(===)([1,2,3],[2,3,4]) -> [${baseline.join(", ")}]`);
+  yield* Console.log(`differenceWith(===)([1,2],[7,8]) -> [${noOverlap.join(", ")}]`);
+});
+
+const exampleCustomEquivalenceDifference = Effect.gen(function* () {
+  type User = { readonly id: number; readonly name: string };
+  const currentUsers: ReadonlyArray<User> = [
+    { id: 1, name: "Ada" },
+    { id: 2, name: "Grace" },
+    { id: 3, name: "Edsger" },
+  ];
+  const syncedUsers: ReadonlyArray<User> = [
+    { id: 2, name: "Grace Hopper" },
+    { id: 4, name: "Barbara" },
+  ];
+  const differenceById = A.differenceWith<User>((left, right) => left.id === right.id);
+  const missingById = differenceById(syncedUsers)(currentUsers);
+  const twoArgumentResult = differenceById(currentUsers, syncedUsers);
+
+  yield* Console.log(`differenceById(syncedUsers)(currentUsers) -> [${missingById.map((user) => user.id).join(", ")}]`);
+  yield* Console.log(
+    `differenceById(currentUsers, syncedUsers) -> [${twoArgumentResult.map((user) => user.id).join(", ")}]`
+  );
 });
 
 /* ========================================================================== *
@@ -75,9 +96,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Difference",
+      description: "Use the source-style equality comparator and compare overlap vs no-overlap inputs.",
+      run: exampleSourceAlignedDifference,
+    },
+    {
+      title: "Custom Equivalence by ID",
+      description: "Compare objects by ID and show both curried and two-argument invocation forms.",
+      run: exampleCustomEquivalenceDifference,
     },
   ],
 });

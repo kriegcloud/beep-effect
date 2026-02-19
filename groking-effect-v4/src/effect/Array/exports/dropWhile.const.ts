@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,28 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Drops elements from the start while the predicate holds, returning the rest.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.dropWhile([1, 2, 3, 4, 5], (x) => x < 4)) // [4, 5]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime type and preview for the dropWhile export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedDrop = Effect.gen(function* () {
+  const input = [1, 2, 3, 4, 5];
+  const result = A.dropWhile(input, (n) => n < 4);
+  yield* Console.log(`A.dropWhile([1, 2, 3, 4, 5], n < 4) => ${JSON.stringify(result)}`);
+  yield* Console.log(`Expected prefix drop result: ${JSON.stringify([4, 5])}`);
+});
+
+const exampleLeadingOnlyBehavior = Effect.gen(function* () {
+  const input = [1, 2, 4, 1, 2];
+  const result = A.dropWhile(input, (n) => n < 3);
+  yield* Console.log(`A.dropWhile([1, 2, 4, 1, 2], n < 3) => ${JSON.stringify(result)}`);
+  yield* Console.log("After the first non-match (4), remaining values are kept as-is.");
 });
 
 /* ========================================================================== *
@@ -74,9 +79,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Prefix Drop",
+      description: "Replicate the documented threshold example with concrete output.",
+      run: exampleSourceAlignedDrop,
+    },
+    {
+      title: "Leading Segment Only",
+      description: "Show that dropping stops at the first predicate failure.",
+      run: exampleLeadingOnlyBehavior,
     },
   ],
 });

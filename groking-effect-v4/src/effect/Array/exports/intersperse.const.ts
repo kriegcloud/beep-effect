@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,7 +38,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Places a separator element between every pair of elements.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.intersperse([1, 2, 3], 0)) // [1, 0, 2, 0, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -52,9 +48,23 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3];
+  const result = A.intersperse(input, 0);
+
+  yield* Console.log(`Array.intersperse([1, 2, 3], 0) => ${JSON.stringify(result)}`);
+  yield* Console.log(`input unchanged => ${JSON.stringify(input)}`);
+});
+
+const exampleCurriedAndBoundaryInvocation = Effect.gen(function* () {
+  const withBar = A.intersperse("|");
+  const fromSet = withBar(new Set(["A", "B", "C"]));
+  const single = A.intersperse([42], 0);
+  const empty = A.intersperse([], 0);
+
+  yield* Console.log(`Array.intersperse("|")(Set("A","B","C")) => ${JSON.stringify(fromSet)}`);
+  yield* Console.log(`Array.intersperse([42], 0) => ${JSON.stringify(single)}`);
+  yield* Console.log(`Array.intersperse([], 0) => ${JSON.stringify(empty)}`);
 });
 
 /* ========================================================================== *
@@ -74,9 +84,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented two-argument call form and show the inserted separator.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable + Boundary Cases",
+      description: "Use data-last style on an iterable and show single/empty input behavior.",
+      run: exampleCurriedAndBoundaryInvocation,
     },
   ],
 });

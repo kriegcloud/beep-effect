@@ -32,15 +32,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as Equivalence from "effect/Equivalence";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,19 +48,32 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Creates an `Equivalence` for `Option<A>` from an `Equivalence` for `A`.";
 const sourceExample =
   'import { Equivalence, Option } from "effect"\n\nconst eq = Option.makeEquivalence(Equivalence.strictEqual<number>())\n\nconsole.log(eq(Option.some(1), Option.some(1)))\n// Output: true\n\nconsole.log(eq(Option.some(1), Option.some(2)))\n// Output: false\n\nconsole.log(eq(Option.none(), Option.none()))\n// Output: true';
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect makeEquivalence as the Option equivalence constructor.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedEquivalence = Effect.gen(function* () {
+  const eq = O.makeEquivalence(Equivalence.strictEqual<number>());
+
+  yield* Console.log(`some(1) vs some(1) -> ${eq(O.some(1), O.some(1))}`);
+  yield* Console.log(`some(1) vs some(2) -> ${eq(O.some(1), O.some(2))}`);
+  yield* Console.log(`none vs none -> ${eq(O.none(), O.none())}`);
+  yield* Console.log(`some(1) vs none -> ${eq(O.some(1), O.none())}`);
+});
+
+const exampleCustomNumberRule = Effect.gen(function* () {
+  const eqWithinOne = O.makeEquivalence<number>((left, right) => Math.abs(left - right) <= 1);
+
+  yield* Console.log(`some(10) vs some(11) (+/-1) -> ${eqWithinOne(O.some(10), O.some(11))}`);
+  yield* Console.log(`some(10) vs some(13) (+/-1) -> ${eqWithinOne(O.some(10), O.some(13))}`);
+  yield* Console.log(`none vs none (+/-1) -> ${eqWithinOne(O.none(), O.none())}`);
+  yield* Console.log(`none vs some(10) (+/-1) -> ${eqWithinOne(O.none(), O.some(10))}`);
 });
 
 /* ========================================================================== *
@@ -83,9 +93,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Strict Equivalence",
+      description: "Mirror the JSDoc comparisons for some/some and none/none values.",
+      run: exampleSourceAlignedEquivalence,
+    },
+    {
+      title: "Custom Numeric Equivalence",
+      description: "Treat some values within +/-1 as equivalent while preserving Option shape checks.",
+      run: exampleCustomNumberRule,
     },
   ],
 });

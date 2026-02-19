@@ -32,15 +32,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -51,19 +47,33 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Tests if the value in a `Some` satisfies a predicate or refinement.";
 const sourceExample =
   'import { Option } from "effect"\n\nconst isEven = (n: number) => n % 2 === 0\n\nconsole.log(Option.some(2).pipe(Option.exists(isEven)))\n// Output: true\n\nconsole.log(Option.some(1).pipe(Option.exists(isEven)))\n// Output: false\n\nconsole.log(Option.none().pipe(Option.exists(isEven)))\n// Output: false';
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedPredicate = Effect.gen(function* () {
+  const isEven = (n: number) => n % 2 === 0;
+  const someTwoIsEven = O.some(2).pipe(O.exists(isEven));
+  const someOneIsEven = O.some(1).pipe(O.exists(isEven));
+  const noneIsEven = O.none<number>().pipe(O.exists(isEven));
+
+  yield* Console.log(`some(2) is even -> ${someTwoIsEven}`);
+  yield* Console.log(`some(1) is even -> ${someOneIsEven}`);
+  yield* Console.log(`none is even -> ${noneIsEven}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleRefinementPredicate = Effect.gen(function* () {
+  type User = { id: number; state: "loading" } | { id: number; state: "loaded"; email: string };
+
+  const isLoaded = (user: User): user is Extract<User, { state: "loaded" }> => user.state === "loaded";
+
+  const loadedUser = O.some<User>({ id: 1, state: "loaded", email: "ada@example.com" }).pipe(O.exists(isLoaded));
+  const loadingUser = O.some<User>({ id: 2, state: "loading" }).pipe(O.exists(isLoaded));
+  const noUser = O.none<User>().pipe(O.exists(isLoaded));
+
+  yield* Console.log(`loaded user passes refinement -> ${loadedUser}`);
+  yield* Console.log(`loading user passes refinement -> ${loadingUser}`);
+  yield* Console.log(`none passes refinement -> ${noUser}`);
 });
 
 /* ========================================================================== *
@@ -78,14 +88,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Predicate Checks",
+      description: "Mirror the JSDoc flow for some-even, some-odd, and none inputs.",
+      run: exampleSourceAlignedPredicate,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Refinement Predicate Checks",
+      description: "Use a refinement predicate to validate loaded vs loading user states.",
+      run: exampleRefinementPredicate,
     },
   ],
 });

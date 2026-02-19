@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,26 +33,42 @@ const exportKind = "const";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleDecodeAndGuardNumbers = Effect.gen(function* () {
+  const NumberArray = SchemaModule.Array(SchemaModule.Number);
+  const decodeNumberArray = SchemaModule.decodeUnknownSync(NumberArray);
+  const isNumberArray = SchemaModule.is(NumberArray);
+
+  const decoded = decodeNumberArray([1, 2, 3]);
+  yield* Console.log(`Decoded [1, 2, 3] -> ${formatUnknown(decoded)}`);
+  yield* Console.log(`is([1, 2, 3]) -> ${isNumberArray([1, 2, 3])}`);
+  yield* Console.log(`is([1, "2", 3]) -> ${isNumberArray([1, "2", 3])}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleElementConstraintPropagation = Effect.gen(function* () {
+  const NonEmptyStringArray = SchemaModule.Array(SchemaModule.NonEmptyString);
+  const decodeNonEmptyStrings = SchemaModule.decodeUnknownSync(NonEmptyStringArray);
+
+  const accepted = decodeNonEmptyStrings(["effect", "schema"]);
+  yield* Console.log(`Accepted tags -> ${formatUnknown(accepted)}`);
+
+  const rejected = yield* attemptThunk(() => decodeNonEmptyStrings(["effect", ""]));
+  if (rejected._tag === "Left") {
+    yield* Console.log(`Rejected tags with an empty item -> ${String(rejected.error)}`);
+    return;
+  }
+
+  yield* Console.log(`Unexpected success -> ${formatUnknown(rejected.value)}`);
 });
 
 /* ========================================================================== *
  * Program
  * ========================================================================== */
 const program = createPlaygroundProgram({
-  icon: "🔎",
+  icon: "📚",
   moduleImportPath,
   exportName,
   exportKind,
@@ -64,14 +76,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Decode + Guard Number Arrays",
+      description: "Build an array schema and run decode / is checks against mixed inputs.",
+      run: exampleDecodeAndGuardNumbers,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Element Constraints Apply Per Item",
+      description: "Array(NonEmptyString) accepts valid values and rejects empty string elements.",
+      run: exampleElementConstraintPropagation,
     },
   ],
 });

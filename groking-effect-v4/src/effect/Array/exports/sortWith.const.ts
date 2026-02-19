@@ -24,15 +24,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Order from "effect/Order";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +40,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Sorts an array by a derived key using a mapping function and an `Order` for that key.";
 const sourceExample =
   'import { Array, Order } from "effect"\n\nconsole.log(Array.sortWith(["aaa", "b", "cc"], (s) => s.length, Order.Number))\n// ["b", "cc", "aaa"]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +50,35 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = ["aaa", "b", "cc"];
+  const sorted = A.sortWith(input, (s) => s.length, Order.Number);
+
+  yield* Console.log(`input: ${formatUnknown(input)}`);
+  yield* Console.log(`A.sortWith(input, (s) => s.length, Order.Number): ${formatUnknown(sorted)}`);
+});
+
+const exampleCurriedInvocation = Effect.gen(function* () {
+  const sortByLength = A.sortWith((word: string) => word.length, Order.Number);
+  const values = ["delta", "a", "echo", "bb"];
+  const sorted = sortByLength(values);
+
+  yield* Console.log(`values: ${formatUnknown(values)}`);
+  yield* Console.log(`A.sortWith((word) => word.length, Order.Number)(values): ${formatUnknown(sorted)}`);
+});
+
+const exampleNonMutatingBehavior = Effect.gen(function* () {
+  const original = [
+    { label: "wide", width: 4 },
+    { label: "thin", width: 1 },
+    { label: "medium", width: 2 },
+  ];
+  const sorted = A.sortWith(original, (item) => item.width, Order.Number);
+  sorted[0] = { label: "edited", width: 99 };
+
+  yield* Console.log(`original after sortWith: ${formatUnknown(original)}`);
+  yield* Console.log(`mutated sorted copy: ${formatUnknown(sorted)}`);
+  yield* Console.log("sortWith returns a new array and leaves the input unchanged.");
 });
 
 /* ========================================================================== *
@@ -75,9 +98,19 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Sort strings by length using the documented three-argument call shape.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Invocation",
+      description: "Provide mapping function and order first, then apply to an input array.",
+      run: exampleCurriedInvocation,
+    },
+    {
+      title: "Non-Mutating Behavior",
+      description: "Show that changing the sorted output does not mutate the original input.",
+      run: exampleNonMutatingBehavior,
     },
   ],
 });

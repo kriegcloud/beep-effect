@@ -23,15 +23,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -42,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Extracts all `Some` values from an iterable of `Option`s, discarding `None`s.";
 const sourceExample =
   'import { Array, Option } from "effect"\n\nconsole.log(Array.getSomes([Option.some(1), Option.none(), Option.some(2)])) // [1, 2]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -52,9 +49,19 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [O.some(1), O.none(), O.some(2)];
+  const somes = A.getSomes(input);
+
+  yield* Console.log(`A.getSomes([some(1), none, some(2)]) => ${JSON.stringify(somes)}`);
+});
+
+const exampleIterableAndEmptyCases = Effect.gen(function* () {
+  const fromSet = A.getSomes(new Set([O.none(), O.some("alpha"), O.some("beta"), O.none()]));
+  const noSomes = A.getSomes([O.none(), O.none()]);
+
+  yield* Console.log(`A.getSomes(Set([...])) => ${JSON.stringify(fromSet)}`);
+  yield* Console.log(`A.getSomes([none, none]) => ${JSON.stringify(noSomes)}`);
 });
 
 /* ========================================================================== *
@@ -74,9 +81,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Extract only present values from the documented mixed Option input.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Iterable Input And Empty Case",
+      description: "Show iterable support and the empty output when all values are `None`.",
+      run: exampleIterableAndEmptyCases,
     },
   ],
 });

@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,33 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Computes the cartesian product of two arrays, returning all pairs as tuples.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.cartesian([1, 2], ["a", "b"])\nconsole.log(result) // [[1, "a"], [1, "b"], [2, "a"], [2, "b"]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the cartesian export runtime shape before using it.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCartesianFromDocs = Effect.gen(function* () {
+  const numbers = [1, 2] as const;
+  const letters = ["a", "b"] as const;
+  const pairs = A.cartesian(numbers, letters);
+
+  yield* Console.log(`A.cartesian([1, 2], ["a", "b"]) => ${formatUnknown(pairs)}`);
+  yield* Console.log(`Pair count: ${pairs.length} (2 * 2 = ${numbers.length * letters.length})`);
+});
+
+const exampleCurriedAndEmptyInputs = Effect.gen(function* () {
+  const curriedPairs = A.cartesian(["x", "y"])([10, 20]);
+  const emptyLeft = A.cartesian([] as ReadonlyArray<number>, ["z"]);
+  const emptyRight = A.cartesian([1, 2], [] as ReadonlyArray<string>);
+
+  yield* Console.log(`Curried form A.cartesian(["x", "y"])([10, 20]) => ${formatUnknown(curriedPairs)}`);
+  yield* Console.log(`Empty left input => ${formatUnknown(emptyLeft)}`);
+  yield* Console.log(`Empty right input => ${formatUnknown(emptyRight)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +85,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Cartesian Pairs",
+      description: "Run the documented two-argument invocation and confirm pair count.",
+      run: exampleCartesianFromDocs,
+    },
+    {
+      title: "Curried Call + Empty Inputs",
+      description: "Demonstrate dual invocation style and empty-input behavior.",
+      run: exampleCurriedAndEmptyInputs,
     },
   ],
 });

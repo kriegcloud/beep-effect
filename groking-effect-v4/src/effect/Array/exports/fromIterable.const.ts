@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,35 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Converts an `Iterable` to an `Array`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.fromIterable(new Set([1, 2, 3]))\nconsole.log(result) // [1, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime type and preview for fromIterable.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = new Set([1, 2, 3]);
+  const result = A.fromIterable(input);
+  yield* Console.log(`fromIterable(Set([1, 2, 3])) => ${JSON.stringify(result)}`);
+});
+
+const exampleSingleUseIterator = Effect.gen(function* () {
+  function* numbers() {
+    yield 10;
+    yield 20;
+    yield 30;
+  }
+
+  const iterator = numbers();
+  const firstPass = A.fromIterable(iterator);
+  const secondPass = A.fromIterable(iterator);
+
+  yield* Console.log(`first pass from generator => ${JSON.stringify(firstPass)}`);
+  yield* Console.log(`second pass on same generator => ${JSON.stringify(secondPass)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +87,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Convert a Set to a standard array using the documented call form.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Single-Use Iterator Behavior",
+      description: "Show that reusing the same generator after consumption yields an empty array.",
+      run: exampleSingleUseIterator,
     },
   ],
 });

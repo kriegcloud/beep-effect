@@ -34,15 +34,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,19 +49,50 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Lifts a function that may return `null` or `undefined` into one that returns an `Option`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconst parse = (s: string): number | undefined => {\n  const n = parseFloat(s)\n  return isNaN(n) ? undefined : n\n}\n\nconst parseOption = Option.liftNullishOr(parse)\n\nconsole.log(parseOption(\"1\"))\n// Output: { _id: 'Option', _tag: 'Some', value: 1 }\n\nconsole.log(parseOption(\"not a number\"))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect liftNullishOr before applying it to domain functions.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const formatOption = (option: O.Option<unknown>): string =>
+  O.match(option, {
+    onNone: () => "None",
+    onSome: (value) => `Some(${formatUnknown(value)})`,
+  });
+
+const exampleSourceAlignedParsing = Effect.gen(function* () {
+  const parse = (s: string): number | undefined => {
+    const n = Number.parseFloat(s);
+    return Number.isNaN(n) ? undefined : n;
+  };
+  const parseOption = O.liftNullishOr(parse);
+  const inputs = ["1", "3.14", "not a number"] as const;
+
+  for (const input of inputs) {
+    yield* Console.log(`parseOption(${formatUnknown(input)}) -> ${formatOption(parseOption(input))}`);
+  }
+});
+
+const exampleNullishCollapse = Effect.gen(function* () {
+  const getDisplayName = O.liftNullishOr((id: number): string | null | undefined => {
+    if (id === 1) {
+      return "Ada";
+    }
+    if (id === 2) {
+      return null;
+    }
+    return undefined;
+  });
+
+  for (const id of [1, 2, 3] as const) {
+    yield* Console.log(`getDisplayName(${id}) -> ${formatOption(getDisplayName(id))}`);
+  }
+  yield* Console.log("null and undefined both become None.");
 });
 
 /* ========================================================================== *
@@ -85,9 +112,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Parsing Lift",
+      description: "Lift a parse function so invalid numeric input becomes None.",
+      run: exampleSourceAlignedParsing,
+    },
+    {
+      title: "Nullish Return Normalization",
+      description: "Show that both null and undefined results are normalized to None.",
+      run: exampleNullishCollapse,
     },
   ],
 });

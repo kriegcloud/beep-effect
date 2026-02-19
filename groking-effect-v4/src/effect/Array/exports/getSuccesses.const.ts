@@ -24,15 +24,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +40,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Extracts all success values from an iterable of `Result`s, discarding failures.";
 const sourceExample =
   'import { Array, Result } from "effect"\n\nconsole.log(Array.getSuccesses([Result.succeed(1), Result.fail("err"), Result.succeed(2)]))\n// [1, 2]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +50,19 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [Result.succeed(1), Result.fail("err"), Result.succeed(2)];
+  const successes = A.getSuccesses(input);
+
+  yield* Console.log(`A.getSuccesses([succeed(1), fail("err"), succeed(2)]) => ${JSON.stringify(successes)}`);
+});
+
+const exampleIterableAndEdgeCases = Effect.gen(function* () {
+  const fromSet = A.getSuccesses(new Set([Result.succeed("first"), Result.fail("err"), Result.succeed("second")]));
+  const noSuccesses = A.getSuccesses([Result.fail("bad"), Result.fail("worse")]);
+
+  yield* Console.log(`A.getSuccesses(Set([...])) preserves success order => ${JSON.stringify(fromSet)}`);
+  yield* Console.log(`A.getSuccesses(all failures) => ${JSON.stringify(noSuccesses)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +82,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Extract only success values from the documented mixed Result input.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Iterable Input And Empty Case",
+      description: "Show iterable support and the empty output when no successes are present.",
+      run: exampleIterableAndEdgeCases,
     },
   ],
 });

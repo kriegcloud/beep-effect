@@ -1,5 +1,6 @@
 {
-  "extends": "../tsconfig.base.jsonc",
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../tsconfig.base.json",
   "include": ["src"],
   "compilerOptions": {
     "types": ["node", "bun"],

@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +42,31 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Checks whether an `Option` contains a value (`Some`).";
 const sourceExample =
   'import { Option } from "effect"\n\nconsole.log(Option.isSome(Option.some(1)))\n// Output: true\n\nconsole.log(Option.isSome(Option.none()))\n// Output: false';
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime shape before behavior-focused checks.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedBehavior = Effect.gen(function* () {
+  const someValue = O.some(1);
+  const noneValue = O.none<number>();
+
+  yield* Console.log(`O.isSome(${formatUnknown(someValue)}) => ${O.isSome(someValue)}`);
+  yield* Console.log(`O.isSome(${formatUnknown(noneValue)}) => ${O.isSome(noneValue)}`);
+});
+
+const exampleExtractPresentValues = Effect.gen(function* () {
+  const candidates = [O.some("cache-hit"), O.none<string>(), O.some("db-hit"), O.none<string>()];
+  const presentValues = candidates.filter(O.isSome).map((option) => option.value);
+
+  yield* Console.log(`candidates: ${formatUnknown(candidates)}`);
+  yield* Console.log(`present values: ${formatUnknown(presentValues)}`);
+  yield* Console.log(`contains any value: ${candidates.some(O.isSome)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +86,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source JSDoc Behavior",
+      description: "Run the documented Some/None checks and log their boolean results.",
+      run: exampleSourceAlignedBehavior,
+    },
+    {
+      title: "Filter Present Values",
+      description: "Use isSome as a predicate to keep only present Option values.",
+      run: exampleExtractPresentValues,
     },
   ],
 });

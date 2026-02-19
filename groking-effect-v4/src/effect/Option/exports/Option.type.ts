@@ -40,7 +40,7 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,7 +52,7 @@ const sourceSummary =
   "The `Option` data type represents optional values. An `Option<A>` is either `Some<A>`, containing a value of type `A`, or `None`, representing absence.";
 const sourceExample =
   'import { Option } from "effect"\n\nconst someValue: Option.Option<number> = Option.some(42)\nconst noneValue: Option.Option<number> = Option.none()\n\nconst result = Option.match(someValue, {\n  onNone: () => "No value",\n  onSome: (value) => `Value is ${value}`\n})\n\nconsole.log(result)\n// Output: "Value is 42"';
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -70,14 +70,14 @@ const exampleModuleContextInspection = Effect.gen(function* () {
 const exampleSourceAlignedCompanionFlow = Effect.gen(function* () {
   yield* Console.log("Bridge: use runtime constructors/combinators to work with `Option` values.");
 
-  const someValue = OptionModule.some(42);
-  const noneValue = OptionModule.none<number>();
+  const someValue = O.some(42);
+  const noneValue = O.none<number>();
 
-  const someMessage = OptionModule.match(someValue, {
+  const someMessage = O.match(someValue, {
     onNone: () => "No value",
     onSome: (value) => `Value is ${value}`,
   });
-  const noneMessage = OptionModule.match(noneValue, {
+  const noneMessage = O.match(noneValue, {
     onNone: () => "No value",
     onSome: (value) => `Value is ${value}`,
   });

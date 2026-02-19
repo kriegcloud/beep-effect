@@ -52,14 +52,37 @@ const moduleRecord = CauseModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+const exampleTypeErasureAndCompanionContext = Effect.gen(function* () {
+  yield* Console.log("Interrupt is compile-time only; runtime behavior lives in companion APIs.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
+
+  yield* Console.log("Inspecting runtime companion constructor: Cause.interrupt.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "interrupt" });
+
+  yield* Console.log("Inspecting runtime companion guard: Cause.isInterruptReason.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "isInterruptReason" });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleInterruptRuntimeFlow = Effect.gen(function* () {
+  const withFiberId = CauseModule.interrupt(123);
+  const withFiberIdReason = withFiberId.reasons[0];
+  yield* Console.log(`Cause.interrupt(123) created ${withFiberId.reasons.length} reason.`);
+
+  if (withFiberIdReason !== undefined && CauseModule.isInterruptReason(withFiberIdReason)) {
+    yield* Console.log(`Narrowed interrupt reason fiberId: ${String(withFiberIdReason.fiberId)}`);
+  } else {
+    yield* Console.log("First reason did not match Cause.isInterruptReason.");
+  }
+
+  const withoutFiberId = CauseModule.interrupt();
+  const withoutFiberIdReason = withoutFiberId.reasons[0];
+  if (withoutFiberIdReason !== undefined && CauseModule.isInterruptReason(withoutFiberIdReason)) {
+    yield* Console.log(
+      `Cause.interrupt() stores fiberId: ${
+        withoutFiberIdReason.fiberId === undefined ? "undefined" : String(withoutFiberIdReason.fiberId)
+      }`
+    );
+  }
 });
 
 /* ========================================================================== *
@@ -74,14 +97,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Type Erasure + Companion Context",
+      description: "Show interface erasure and inspect `Cause.interrupt` and `Cause.isInterruptReason` companions.",
+      run: exampleTypeErasureAndCompanionContext,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Cause.interrupt Runtime Flow",
+      description: "Create interrupt causes and read `fiberId` after narrowing with `Cause.isInterruptReason`.",
+      run: exampleInterruptRuntimeFlow,
     },
   ],
 });

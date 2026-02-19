@@ -24,15 +24,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,19 +41,33 @@ const sourceSummary =
   "Returns the first element of an array wrapped in `Option.some`, or `Option.none` if the array is empty.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.head([1, 2, 3])) // Some(1)\nconsole.log(Array.head([])) // None';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
+const formatOption = <T>(option: O.Option<T>): string =>
+  O.isSome(option) ? `Option.some(${formatUnknown(option.value)})` : "Option.none()";
+
 const exampleRuntimeInspection = Effect.gen(function* () {
   yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const first = A.head([1, 2, 3]);
+  const empty = A.head([]);
+
+  yield* Console.log(`A.head([1, 2, 3]) => ${formatOption(first)}`);
+  yield* Console.log(`A.head([]) => ${formatOption(empty)}`);
+});
+
+const exampleOptionMapping = Effect.gen(function* () {
+  const firstUppercase = O.map(A.head(["kick", "snare", "hat"]), (sample) => sample.toUpperCase());
+  const emptyUppercase = O.map(A.head([] as ReadonlyArray<string>), (sample) => sample.toUpperCase());
+
+  yield* Console.log(`O.map(A.head(["kick", "snare", "hat"]), toUpperCase) => ${formatOption(firstUppercase)}`);
+  yield* Console.log(`O.map(A.head([]), toUpperCase) => ${formatOption(emptyUppercase)}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +87,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Head Reads",
+      description: "Mirror the JSDoc behavior for non-empty and empty arrays.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Option Mapping After Head",
+      description: "Transform the first element when present and preserve none when empty.",
+      run: exampleOptionMapping,
     },
   ],
 });

@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,32 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect hasDies as a callable predicate over Cause values.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedDetection = Effect.gen(function* () {
+  yield* Console.log("Run the documented die vs fail checks.");
+  const dieCause = CauseModule.die("defect");
+  const failCause = CauseModule.fail("error");
+
+  yield* Console.log(`hasDies(die): ${CauseModule.hasDies(dieCause)}`);
+  yield* Console.log(`hasDies(fail): ${CauseModule.hasDies(failCause)}`);
+  yield* Console.log(`hasFails(fail): ${CauseModule.hasFails(failCause)}`);
+});
+
+const exampleCompositeCauseDetection = Effect.gen(function* () {
+  yield* Console.log("Detect Die reasons inside combined causes.");
+  const failCause = CauseModule.fail("typed-error");
+  const interruptCause = CauseModule.interrupt(7);
+  const dieCause = CauseModule.die(new Error("panic"));
+  const withoutDie = CauseModule.combine(failCause, interruptCause);
+  const withDie = CauseModule.combine(withoutDie, dieCause);
+
+  yield* Console.log(`hasDies(empty): ${CauseModule.hasDies(CauseModule.empty)}`);
+  yield* Console.log(`hasDies(withoutDie): ${CauseModule.hasDies(withoutDie)}`);
+  yield* Console.log(`hasDies(withDie): ${CauseModule.hasDies(withDie)}`);
+  yield* Console.log(`hasInterrupts(withDie): ${CauseModule.hasInterrupts(withDie)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +90,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Die Detection",
+      description: "Reproduce the documented die vs fail inputs and compare predicate output.",
+      run: exampleSourceAlignedDetection,
+    },
+    {
+      title: "Composite Cause Detection",
+      description: "Show that hasDies stays false until a die reason is present in a combined cause.",
+      run: exampleCompositeCauseDetection,
     },
   ],
 });

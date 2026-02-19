@@ -26,15 +26,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,13 +49,35 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect findDefect as a callable export that searches causes for die reasons.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedDefectLookup = Effect.gen(function* () {
+  yield* Console.log("Use the source-aligned call shape: pass a die cause and extract its defect.");
+
+  const defect = { code: "E_UNEXPECTED", retriable: false };
+  const result = CauseModule.findDefect(CauseModule.die(defect));
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (!ResultModule.isFailure(result)) {
+    yield* Console.log(`extracted defect: ${formatUnknown(result.success)}`);
+    yield* Console.log(`defect identity preserved: ${result.success === defect}`);
+  }
+});
+
+const exampleNoDefectContract = Effect.gen(function* () {
+  yield* Console.log("When no Die reason exists, the result stays in the failure channel.");
+
+  const typedFailureCause = CauseModule.combine(CauseModule.fail("typed-error"), CauseModule.interrupt(42));
+  const result = CauseModule.findDefect(typedFailureCause);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (ResultModule.isFailure(result)) {
+    yield* Console.log(`failure carries original cause: ${result.failure === typedFailureCause}`);
+    yield* Console.log(`failure has typed errors: ${CauseModule.hasFails(result.failure)}`);
+    yield* Console.log(`failure has defects: ${CauseModule.hasDies(result.failure)}`);
+  }
 });
 
 /* ========================================================================== *
@@ -78,9 +97,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Defect Lookup",
+      description: "Call findDefect with a die cause and verify defect extraction semantics.",
+      run: exampleSourceAlignedDefectLookup,
+    },
+    {
+      title: "No-Defect Failure Contract",
+      description: "Show the failure path when a cause has no die reason.",
+      run: exampleNoDefectContract,
     },
   ],
 });

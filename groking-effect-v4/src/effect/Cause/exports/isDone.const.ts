@@ -24,15 +24,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -49,13 +46,43 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect isDone as a runtime value and confirm expected guard arity.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+
+  const isDoneExport = moduleRecord[exportName];
+  if (typeof isDoneExport === "function") {
+    yield* Console.log(`isDone.length (expected 1 unknown arg): ${isDoneExport.length}`);
+  }
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedGuardChecks = Effect.gen(function* () {
+  const doneSignal = CauseModule.Done();
+  const nonDoneValue = "not done";
+  const lookalikeDone = { _tag: "Done", value: "done" };
+
+  yield* Console.log(`isDone(Cause.Done()): ${CauseModule.isDone(doneSignal)}`);
+  yield* Console.log(`isDone("not done"): ${CauseModule.isDone(nonDoneValue)}`);
+  yield* Console.log(`isDone({_tag:"Done", value:"done"}): ${CauseModule.isDone(lookalikeDone)}`);
+});
+
+const exampleDoneFailureExtraction = Effect.gen(function* () {
+  const completion = { stream: "orders", drained: true };
+  const exit = yield* Effect.exit(CauseModule.done(completion));
+
+  if (Exit.isFailure(exit)) {
+    const firstReason = exit.cause.reasons[0];
+    if (firstReason !== undefined && CauseModule.isFailReason(firstReason)) {
+      const failError = firstReason.error;
+      yield* Console.log(`Fail reason error is Done: ${CauseModule.isDone(failError)}`);
+
+      if (CauseModule.isDone(failError)) {
+        yield* Console.log(`Done payload: ${JSON.stringify(failError.value)}`);
+      }
+      return;
+    }
+  }
+
+  yield* Console.log("Contract note: Cause.done(value) should fail with a Done error.");
 });
 
 /* ========================================================================== *
@@ -70,14 +97,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      title: "Runtime Shape",
+      description: "Inspect isDone and verify it is a unary runtime guard.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Guard Checks",
+      description: "Run the documented Done/non-Done checks plus a structural lookalike value.",
+      run: exampleSourceAlignedGuardChecks,
+    },
+    {
+      title: "Done from Effect Failure",
+      description: "Show Cause.done(value) fails with a Done error recognized by isDone.",
+      run: exampleDoneFailureExtraction,
     },
   ],
 });

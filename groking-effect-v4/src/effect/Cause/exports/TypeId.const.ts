@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -43,13 +39,28 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect TypeId as a runtime value and confirm its brand literal.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+  yield* Console.log(`TypeId literal: ${CauseModule.TypeId}`);
+  yield* Console.log(`TypeId runtime type: ${typeof CauseModule.TypeId}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCauseBranding = Effect.gen(function* () {
+  const cause = CauseModule.fail("boom");
+  const hasTypeIdBrand = cause[CauseModule.TypeId] === CauseModule.TypeId;
+
+  yield* Console.log(`Cause.fail(...) carries TypeId brand: ${hasTypeIdBrand}`);
+  yield* Console.log(`Cause.isCause(fail("boom")): ${CauseModule.isCause(cause)}`);
+});
+
+const exampleGuardContract = Effect.gen(function* () {
+  const structurallyBranded = {
+    [CauseModule.TypeId]: CauseModule.TypeId,
+    reasons: [],
+  };
+
+  yield* Console.log(`Cause.isCause({ [TypeId]: TypeId, reasons: [] }): ${CauseModule.isCause(structurallyBranded)}`);
+  yield* Console.log("Contract note: build causes with Cause constructors for valid reason payloads.");
 });
 
 /* ========================================================================== *
@@ -64,14 +75,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      title: "TypeId Runtime Identity",
+      description: "Inspect TypeId and confirm the runtime literal used for Cause branding.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Brand On Real Cause Values",
+      description: "Create a Cause and verify it carries the TypeId brand key used by isCause.",
+      run: exampleCauseBranding,
+    },
+    {
+      title: "Guard Behavior",
+      description: "Show that isCause checks the brand field shape at runtime.",
+      run: exampleGuardContract,
     },
   ],
 });

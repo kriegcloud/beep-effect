@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "include": [],
+  "references": [
+    { "path": "groking-effect-v4" },
+    { "path": "tooling/cli" },
+    { "path": "tooling/repo-utils" }
+  ]
+}

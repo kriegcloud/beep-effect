@@ -27,14 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
@@ -52,13 +49,36 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect getSuccess as a runtime function export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const fromSuccess = ResultModule.getSuccess(ResultModule.succeed("ok"));
+  const fromFailure = ResultModule.getSuccess(ResultModule.fail("err"));
+
+  yield* Console.log(`getSuccess(succeed("ok")) => ${formatUnknown(fromSuccess)}`);
+  yield* Console.log(`getSuccess(fail("err")) => ${formatUnknown(fromFailure)}`);
+});
+
+const describeSuccess = O.match({
+  onNone: () => "no success value",
+  onSome: (value: number) => `success captured: ${value}`,
+});
+
+const exampleSuccessOnlyBranching = Effect.gen(function* () {
+  const readPort = (raw: string): ResultModule.Result<number, string> => {
+    const parsed = Number(raw);
+    return Number.isInteger(parsed) && parsed > 0 && parsed <= 65_535
+      ? ResultModule.succeed(parsed)
+      : ResultModule.fail(`invalid port: ${raw}`);
+  };
+
+  const validSuccess = ResultModule.getSuccess(readPort("8080"));
+  const invalidSuccess = ResultModule.getSuccess(readPort("not-a-port"));
+
+  yield* Console.log(`readPort("8080") => ${describeSuccess(validSuccess)}`);
+  yield* Console.log(`readPort("not-a-port") => ${describeSuccess(invalidSuccess)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +98,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Success Extraction",
+      description: "Reproduce the documented Success/Failure conversions into Option.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Success-Only Branching",
+      description: "Use Option matching after getSuccess when only the success channel matters.",
+      run: exampleSuccessOnlyBranching,
     },
   ],
 });

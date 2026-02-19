@@ -27,11 +27,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -52,13 +48,33 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Result.getOrUndefined as a runtime value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedUnwrap = Effect.gen(function* () {
+  yield* Console.log("Unwrap success and failure values to undefined-aware output.");
+  const fromSuccess = ResultModule.getOrUndefined(ResultModule.succeed(1));
+  const fromFailure = ResultModule.getOrUndefined(ResultModule.fail("err"));
+
+  yield* Console.log(`succeed(1) -> ${formatUnknown(fromSuccess)}`);
+  yield* Console.log(`fail("err") -> ${formatUnknown(fromFailure)}`);
+  yield* Console.log(`failure is undefined -> ${fromFailure === undefined}`);
+});
+
+const exampleUndefinedInterop = Effect.gen(function* () {
+  yield* Console.log("Use getOrUndefined outputs with undefined-aware filtering.");
+  const optionalValues = [
+    ResultModule.getOrUndefined(ResultModule.succeed("alpha")),
+    ResultModule.getOrUndefined(ResultModule.fail({ code: 404, reason: "missing" })),
+    ResultModule.getOrUndefined(ResultModule.succeed("beta")),
+  ];
+  const presentValues = optionalValues.filter((value): value is string => value !== undefined);
+  const printableOptionalValues = optionalValues.map((value) => (value === undefined ? "undefined" : value));
+
+  yield* Console.log(`optional values -> ${formatUnknown(printableOptionalValues)}`);
+  yield* Console.log(`middle value is undefined -> ${optionalValues[1] === undefined}`);
+  yield* Console.log(`present values -> ${formatUnknown(presentValues)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +94,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Undefined Unwrap",
+      description: "Run the documented succeed/fail invocations and observe `undefined` on failure.",
+      run: exampleSourceAlignedUnwrap,
+    },
+    {
+      title: "Undefined Interop Workflow",
+      description: "Map multiple Result values to optional outputs and filter defined successes.",
+      run: exampleUndefinedInterop,
     },
   ],
 });

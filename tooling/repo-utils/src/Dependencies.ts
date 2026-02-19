@@ -1,0 +1,89 @@
+/**
+ * Dependency extraction and classification for workspace packages.
+ *
+ * Reads a decoded `PackageJson` and classifies each dependency as either
+ * a workspace-internal dependency (the package name exists in the monorepo)
+ * or an external NPM dependency.
+ *
+ * @since 0.0.0
+ * @module
+ */
+import { HashSet } from "effect"
+import type { PackageJson } from "./schemas/PackageJson.js"
+import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js"
+
+/**
+ * Classify a single dependency record into workspace and npm buckets.
+ */
+const classifyRecord = (
+  record: Readonly<Record<string, string>> | undefined,
+  workspaceNames: HashSet.HashSet<string>
+): { workspace: DependencyRecord; npm: DependencyRecord } => {
+  const workspace: Record<string, string> = {}
+  const npm: Record<string, string> = {}
+
+  if (record) {
+    for (const [name, version] of Object.entries(record)) {
+      if (HashSet.has(workspaceNames, name)) {
+        workspace[name] = version
+      } else {
+        npm[name] = version
+      }
+    }
+  }
+
+  return { workspace, npm }
+}
+
+/**
+ * Extract and classify dependencies from a decoded `PackageJson`.
+ *
+ * Each dependency field (`dependencies`, `devDependencies`,
+ * `peerDependencies`, `optionalDependencies`) is split into workspace
+ * deps (names found in `workspaceNames`) and NPM deps (everything else).
+ *
+ * @param packageJson - A decoded PackageJson object.
+ * @param workspaceNames - A HashSet of all workspace package names in the monorepo.
+ * @returns A `WorkspaceDeps` object with classified dependencies.
+ *
+ * @example
+ * ```ts
+ * import { HashSet } from "effect"
+ * import { extractWorkspaceDependencies } from "@beep/repo-utils/Dependencies"
+ *
+ * const deps = extractWorkspaceDependencies(
+ *   { name: "@my/pkg", dependencies: { "@my/other": "workspace:*", "lodash": "^4.0.0" } },
+ *   HashSet.make("@my/other", "@my/another")
+ * )
+ * // deps.workspace.dependencies -> { "@my/other": "workspace:*" }
+ * // deps.npm.dependencies -> { "lodash": "^4.0.0" }
+ * ```
+ *
+ * @since 0.0.0
+ * @category functions
+ */
+export const extractWorkspaceDependencies = (
+  packageJson: PackageJson,
+  workspaceNames: HashSet.HashSet<string>
+): WorkspaceDeps => {
+  const deps = classifyRecord(packageJson.dependencies, workspaceNames)
+  const devDeps = classifyRecord(packageJson.devDependencies, workspaceNames)
+  const peerDeps = classifyRecord(packageJson.peerDependencies, workspaceNames)
+  const optDeps = classifyRecord(packageJson.optionalDependencies, workspaceNames)
+
+  return {
+    packageName: packageJson.name,
+    workspace: {
+      dependencies: deps.workspace,
+      devDependencies: devDeps.workspace,
+      peerDependencies: peerDeps.workspace,
+      optionalDependencies: optDeps.workspace,
+    },
+    npm: {
+      dependencies: deps.npm,
+      devDependencies: devDeps.npm,
+      peerDependencies: peerDeps.npm,
+      optionalDependencies: optDeps.npm,
+    },
+  }
+}

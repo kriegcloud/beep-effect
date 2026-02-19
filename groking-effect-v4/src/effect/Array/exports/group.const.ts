@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,7 +38,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Groups consecutive equal elements using `Equal.equivalence()`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.group([1, 1, 2, 2, 2, 3, 1])) // [[1, 1], [2, 2, 2], [3], [1]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -52,9 +48,17 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 1, 2, 2, 2, 3, 1] as const;
+  const result = A.group(input);
+  yield* Console.log(`group([1, 1, 2, 2, 2, 3, 1]) => ${JSON.stringify(result)}`);
+});
+
+const exampleAdjacentOnlyBehavior = Effect.gen(function* () {
+  const input = ["a", "b", "a", "a", "b"] as const;
+  const result = A.group(input);
+  yield* Console.log(`group(["a", "b", "a", "a", "b"]) => ${JSON.stringify(result)}`);
+  yield* Console.log("Only adjacent equal values are grouped together.");
 });
 
 /* ========================================================================== *
@@ -74,9 +78,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Group adjacent equal numbers using the source JSDoc example.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Adjacent-Only Behavior",
+      description: "Show that equal values separated by different values are not merged.",
+      run: exampleAdjacentOnlyBehavior,
     },
   ],
 });

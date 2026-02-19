@@ -29,11 +29,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -55,13 +51,42 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect bind as the do-notation helper used to add computed fields.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedBind = Effect.gen(function* () {
+  yield* Console.log("Build a Result object by binding fields from prior accumulator values.");
+  const result = ResultModule.Do.pipe(
+    ResultModule.bind("x", () => ResultModule.succeed(2)),
+    ResultModule.bind("y", ({ x }) => ResultModule.succeed(x + 3))
+  );
+
+  yield* Console.log(`result: ${summarizeResult(result)}`);
+  yield* Console.log(`isSuccess: ${ResultModule.isSuccess(result)}`);
+});
+
+const exampleFailureShortCircuit = Effect.gen(function* () {
+  yield* Console.log("A failing bind stops later binds from running.");
+  let downstreamInvoked = false;
+
+  const result = ResultModule.Do.pipe(
+    ResultModule.bind("x", () => ResultModule.succeed(2)),
+    ResultModule.bind("y", () => ResultModule.fail("missing-y")),
+    ResultModule.bind("z", ({ x }) => {
+      downstreamInvoked = true;
+      return ResultModule.succeed(x * 10);
+    })
+  );
+
+  yield* Console.log(`result: ${summarizeResult(result)}`);
+  yield* Console.log(`downstreamInvoked: ${downstreamInvoked}`);
 });
 
 /* ========================================================================== *
@@ -81,9 +106,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned bind Composition",
+      description: "Follow the documented do-notation flow and compute y from bound x.",
+      run: exampleSourceAlignedBind,
+    },
+    {
+      title: "Failure Short-Circuit",
+      description: "Show that a failing bind preserves failure and skips downstream bind logic.",
+      run: exampleFailureShortCircuit,
     },
   ],
 });

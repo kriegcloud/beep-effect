@@ -28,11 +28,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -53,13 +49,40 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect map as a callable Result success-channel transformer.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedSuccessMapping = Effect.gen(function* () {
+  yield* Console.log("Map transforms Success values while preserving Failure.");
+  const fromSuccess = ResultModule.succeed(3).pipe(ResultModule.map((n) => n * 2));
+  const fromFailure = ResultModule.fail("not found").pipe(ResultModule.map((n: number) => n * 2));
+
+  yield* Console.log(`succeed(3) -> ${summarizeResult(fromSuccess)}`);
+  yield* Console.log(`fail("not found") -> ${summarizeResult(fromFailure)}`);
+});
+
+const exampleMapperExecution = Effect.gen(function* () {
+  yield* Console.log("Mapper executes only for Success inputs.");
+  let mapperCalls = 0;
+  const mapper = (n: number) => {
+    mapperCalls += 1;
+    return n + 10;
+  };
+
+  const dataFirstSuccess = ResultModule.map(ResultModule.succeed(1), mapper);
+  const callsAfterSuccess = mapperCalls;
+  const dataFirstFailure = ResultModule.map(ResultModule.fail("boom"), mapper);
+  const callsAfterFailure = mapperCalls;
+
+  yield* Console.log(`map(succeed(1), mapper) -> ${summarizeResult(dataFirstSuccess)} (calls: ${callsAfterSuccess})`);
+  yield* Console.log(`map(fail("boom"), mapper) -> ${summarizeResult(dataFirstFailure)} (calls: ${callsAfterFailure})`);
 });
 
 /* ========================================================================== *
@@ -79,9 +102,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Success Mapping",
+      description: "Reproduce the documented mapping behavior for Success and Failure inputs.",
+      run: exampleSourceAlignedSuccessMapping,
+    },
+    {
+      title: "Mapper Execution Behavior",
+      description: "Show data-first invocation and confirm the mapper is skipped for Failure.",
+      run: exampleMapperExecution,
     },
   ],
 });

@@ -19,11 +19,7 @@
  * - Runtime examples still provide module-level context for learning.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -42,14 +38,43 @@ const moduleRecord = SchemaModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const formatSample = (sample: unknown): string => {
+  if (typeof sample === "bigint") {
+    return `${sample}n`;
+  }
+  if (typeof sample === "string") {
+    return JSON.stringify(sample);
+  }
+  return String(sample);
+};
+
+const exampleRuntimeBridge = Effect.gen(function* () {
+  yield* Console.log("Type-level interface is erased; runtime behavior comes from Schema.BigInt.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleBigIntGuard = Effect.gen(function* () {
+  const isBigInt = SchemaModule.is(SchemaModule.BigInt);
+  const samples: ReadonlyArray<unknown> = [0n, 12n, 12, "12", null];
+
+  for (const sample of samples) {
+    yield* Console.log(`is(BigInt)(${formatSample(sample)}) => ${isBigInt(sample)}`);
+  }
+});
+
+const exampleBigIntConstraintDecode = Effect.gen(function* () {
+  const boundedBigInt = SchemaModule.BigInt.check(SchemaModule.isBetweenBigInt({ minimum: 10n, maximum: 20n }));
+  const decodeBoundedBigInt = SchemaModule.decodeUnknownSync(boundedBigInt);
+
+  yield* Console.log(`decode(15n) => ${formatSample(decodeBoundedBigInt(15n))}`);
+
+  try {
+    decodeBoundedBigInt(25n);
+    yield* Console.log("decode(25n) unexpectedly succeeded.");
+  } catch (error) {
+    const message = String(error).split("\n")[0] ?? String(error);
+    yield* Console.log(`decode(25n) failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +89,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Runtime Companion Bridge",
+      description: "Show the runtime schema value that corresponds to this type-level export.",
+      run: exampleRuntimeBridge,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "BigInt Type Guard",
+      description: "Use Schema.is with Schema.BigInt to validate unknown inputs.",
+      run: exampleBigIntGuard,
+    },
+    {
+      title: "Bounded BigInt Decode",
+      description: "Decode a bigint constrained by Schema.isBetweenBigInt.",
+      run: exampleBigIntConstraintDecode,
     },
   ],
 });

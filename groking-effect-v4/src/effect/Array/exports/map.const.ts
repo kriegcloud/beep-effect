@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -41,7 +37,7 @@ const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Transforms each element using a function, returning a new array.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.map([1, 2, 3], (x) => x * 2)) // [2, 4, 6]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -51,9 +47,21 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3];
+  const result = A.map(input, (x) => x * 2);
+
+  yield* Console.log(`A.map([1, 2, 3], x => x * 2) => ${JSON.stringify(result)}`);
+  yield* Console.log(`input remains ${JSON.stringify(input)}`);
+});
+
+const exampleCurriedIndexAwareInvocation = Effect.gen(function* () {
+  const labelWithIndex = A.map((word: string, index) => `${index}:${word.toUpperCase()}`);
+  const result = labelWithIndex(["beep", "boop", "bop"]);
+
+  yield* Console.log(
+    `A.map((word, index) => \`\${index}:\${word.toUpperCase()}\`)(["beep","boop","bop"]) => ${JSON.stringify(result)}`
+  );
 });
 
 /* ========================================================================== *
@@ -73,9 +81,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Map numbers with the documented call shape and show original input remains unchanged.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Index-Aware Invocation",
+      description: "Use the data-last form and include callback index in each mapped output.",
+      run: exampleCurriedIndexAwareInvocation,
     },
   ],
 });

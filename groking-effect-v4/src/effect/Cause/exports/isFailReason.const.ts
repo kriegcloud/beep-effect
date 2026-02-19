@@ -25,11 +25,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -54,9 +50,24 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedFiltering = Effect.gen(function* () {
+  const cause = CauseModule.fail("error");
+  const failReasons = cause.reasons.filter(CauseModule.isFailReason);
+  const firstFail = failReasons[0];
+
+  yield* Console.log(`cause.reasons.length => ${cause.reasons.length}`);
+  yield* Console.log(`cause.reasons.filter(isFailReason).length => ${failReasons.length}`);
+  yield* Console.log(`first fail error => ${firstFail?.error ?? "(none)"}`);
+});
+
+const exampleMixedReasonGuardChecks = Effect.gen(function* () {
+  const failReason = CauseModule.makeFailReason("bad request");
+  const dieReason = CauseModule.makeDieReason("defect");
+  const interruptReason = CauseModule.makeInterruptReason(42);
+
+  yield* Console.log(`isFailReason(Fail) => ${CauseModule.isFailReason(failReason)}`);
+  yield* Console.log(`isFailReason(Die) => ${CauseModule.isFailReason(dieReason)}`);
+  yield* Console.log(`isFailReason(Interrupt) => ${CauseModule.isFailReason(interruptReason)}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +87,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Reason Filtering",
+      description: "Mirror JSDoc filtering on `cause.reasons` and read the narrowed `.error` field.",
+      run: exampleSourceAlignedFiltering,
+    },
+    {
+      title: "Mixed Reason Guard Checks",
+      description: "Show `true` for `Fail` and `false` for `Die` / `Interrupt` reasons.",
+      run: exampleMixedReasonGuardChecks,
     },
   ],
 });

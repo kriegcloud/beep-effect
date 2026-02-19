@@ -26,11 +26,7 @@
  * - Runtime examples still provide module-level context for learning.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectTypeLikeExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -51,13 +47,24 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("`Reason` is a type alias, so the symbol is erased at runtime.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedCompanionFlow = Effect.gen(function* () {
+  const reason = CauseModule.fail("error").reasons[0];
+
+  if (reason === undefined) {
+    yield* Console.log("No reason was produced by Cause.fail.");
+    return;
+  }
+
+  if (CauseModule.isFailReason(reason)) {
+    yield* Console.log(`Cause.isFailReason(reason): true; error: ${String(reason.error)}`);
+    return;
+  }
+
+  yield* Console.log("Cause.isFailReason(reason): false");
 });
 
 /* ========================================================================== *
@@ -77,9 +84,9 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Source-Aligned Companion Flow",
+      description: "Create a fail cause, read its first reason, and validate it with `Cause.isFailReason`.",
+      run: exampleSourceAlignedCompanionFlow,
     },
   ],
 });

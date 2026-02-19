@@ -19,15 +19,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,13 +41,51 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect done as a runtime value and confirm call arity.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+
+  const doneExport = moduleRecord[exportName];
+  if (typeof doneExport === "function") {
+    yield* Console.log(`done.length (expected 1 value arg): ${doneExport.length}`);
+  }
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleDoneFailureShape = Effect.gen(function* () {
+  const completionValue = { stage: "persisted", id: 101 };
+  const exit = yield* Effect.exit(CauseModule.done(completionValue));
+
+  if (Exit.isFailure(exit)) {
+    const reason = exit.cause.reasons[0];
+    const isFailReason = reason !== undefined && CauseModule.isFailReason(reason);
+    const doneError = reason !== undefined && CauseModule.isFailReason(reason) ? reason.error : undefined;
+
+    yield* Console.log(`Exit tag: ${exit._tag}`);
+    yield* Console.log(`Failure reasons: ${exit.cause.reasons.length}`);
+    yield* Console.log(`First reason is Fail: ${isFailReason}`);
+    yield* Console.log(`Fail error is Done: ${doneError !== undefined && CauseModule.isDone(doneError)}`);
+    yield* Console.log(`Done value: ${JSON.stringify(doneError?.value)}`);
+    return;
+  }
+
+  yield* Console.log("Contract note: done(...) should fail with a Done error.");
+});
+
+const exampleShorthandEquivalence = Effect.gen(function* () {
+  const value = { job: "sync", attempt: 2 };
+  const doneExit = yield* Effect.exit(CauseModule.done(value));
+  const shorthandExit = yield* Effect.exit(Effect.fail(CauseModule.Done(value)));
+
+  if (Exit.isFailure(doneExit) && Exit.isFailure(shorthandExit)) {
+    const donePretty = CauseModule.pretty(doneExit.cause);
+    const shorthandPretty = CauseModule.pretty(shorthandExit.cause);
+
+    yield* Console.log(`done(...) cause: ${donePretty}`);
+    yield* Console.log(`Effect.fail(Cause.Done(...)) cause: ${shorthandPretty}`);
+    yield* Console.log(`Equivalent output: ${donePretty === shorthandPretty}`);
+    return;
+  }
+
+  yield* Console.log("Contract note: both constructions should produce failing exits.");
 });
 
 /* ========================================================================== *
@@ -65,14 +100,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      title: "Runtime Shape",
+      description: "Inspect the done export and verify it exposes one value parameter.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Done Failure Shape",
+      description: "Run done(value) and verify the resulting failure contains a Done error with that value.",
+      run: exampleDoneFailureShape,
+    },
+    {
+      title: "Shorthand Equivalence",
+      description: "Show done(value) matches Effect.fail(Cause.Done(value)) at runtime.",
+      run: exampleShorthandEquivalence,
     },
   ],
 });

@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,35 @@ const moduleImportPath = "effect/Array";
 const sourceSummary =
   "Replaces the element at the specified index with a new value, returning a new array, or `undefined` if the index is out of bounds.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.replace([1, 2, 3], 1, 4)) // [1, 4, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the replace export runtime shape before using it.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3];
+  const replaced = A.replace(input, 1, 4);
+  const outOfBounds = A.replace(input, 10, 99);
+  const negativeIndex = A.replace(input, -1, 99);
+
+  yield* Console.log(`A.replace([1, 2, 3], 1, 4) => ${formatUnknown(replaced)}`);
+  yield* Console.log(`A.replace([1, 2, 3], 10, 99) => ${formatUnknown(outOfBounds)}`);
+  yield* Console.log(`A.replace([1, 2, 3], -1, 99) => ${formatUnknown(negativeIndex)}`);
+  yield* Console.log(`Original input remains => ${formatUnknown(input)}`);
+});
+
+const exampleCurriedIterableInvocation = Effect.gen(function* () {
+  const replaceAt1WithX = A.replace(1, "X");
+  const fromSet = replaceAt1WithX(new Set(["a", "b", "c"]));
+  const tooShort = replaceAt1WithX(["solo"]);
+
+  yield* Console.log(`A.replace(1, "X")(Set("a", "b", "c")) => ${formatUnknown(fromSet)}`);
+  yield* Console.log(`A.replace(1, "X")(["solo"]) => ${formatUnknown(tooShort)}`);
 });
 
 /* ========================================================================== *
@@ -74,9 +86,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Replace a valid index and show the undefined contract for invalid indices.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable Invocation",
+      description: "Use data-last style with iterable input and verify short-input behavior.",
+      run: exampleCurriedIterableInvocation,
     },
   ],
 });

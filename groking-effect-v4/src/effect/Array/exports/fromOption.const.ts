@@ -24,15 +24,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,7 +40,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Converts an `Option` to an array: `Some(a)` becomes `[a]`, `None` becomes `[]`.";
 const sourceExample =
   'import { Array, Option } from "effect"\n\nconsole.log(Array.fromOption(Option.some(1))) // [1]\nconsole.log(Array.fromOption(Option.none())) // []';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +50,26 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const formatOption = <A>(option: O.Option<A>): string =>
+  O.isSome(option) ? `Option.some(${formatUnknown(option.value)})` : "Option.none()";
+
+const exampleSourceAlignedConversion = Effect.gen(function* () {
+  const someInput = O.some(1);
+  const noneInput = O.none<number>();
+
+  const fromSome = A.fromOption(someInput);
+  const fromNone = A.fromOption(noneInput);
+
+  yield* Console.log(`A.fromOption(${formatOption(someInput)}) => ${JSON.stringify(fromSome)}`);
+  yield* Console.log(`A.fromOption(${formatOption(noneInput)}) => ${JSON.stringify(fromNone)}`);
+});
+
+const exampleFlattenOptionStream = Effect.gen(function* () {
+  const readings: Array<O.Option<number>> = [O.some(440), O.none<number>(), O.some(880), O.none<number>(), O.some(660)];
+  const presentReadings = readings.flatMap(A.fromOption);
+
+  yield* Console.log(`Readings (Option): ${readings.map(formatOption).join(", ")}`);
+  yield* Console.log(`Flatten with A.fromOption => ${JSON.stringify(presentReadings)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +89,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Option Conversion",
+      description: "Run the documented Some/None inputs and show their array results.",
+      run: exampleSourceAlignedConversion,
+    },
+    {
+      title: "Flattening Optional Readings",
+      description: "Use fromOption with flatMap to keep only present values.",
+      run: exampleFlattenOptionStream,
     },
   ],
 });

@@ -28,11 +28,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -47,19 +43,31 @@ const moduleImportPath = "effect/Cause";
 const sourceSummary = "Creates a {@link Cause} from an array of {@link Reason} values.";
 const sourceExample =
   'import { Cause } from "effect"\n\nconst reasons = [\n  Cause.makeFailReason("err1"),\n  Cause.makeFailReason("err2")\n]\nconst cause = Cause.fromReasons(reasons)\nconsole.log(cause.reasons.length) // 2';
-const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedFromReasons = Effect.gen(function* () {
+  const reasons = [CauseModule.makeFailReason("err1"), CauseModule.makeFailReason("err2")];
+  const cause = CauseModule.fromReasons(reasons);
+  const failErrors = cause.reasons.filter(CauseModule.isFailReason).map((reason) => String(reason.error));
+
+  yield* Console.log(`input reasons: ${reasons.length}`);
+  yield* Console.log(`cause.reasons.length: ${cause.reasons.length}`);
+  yield* Console.log(`fail errors: ${failErrors.join(", ")}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleMixedReasonKinds = Effect.gen(function* () {
+  const failReason = CauseModule.makeFailReason("validation-error");
+  const dieReason = CauseModule.makeDieReason("panic");
+  const interruptReason = CauseModule.makeInterruptReason(7);
+  const cause = CauseModule.fromReasons([failReason, dieReason, interruptReason]);
+  const reasonTags = cause.reasons.map((reason) => reason._tag).join(" -> ");
+
+  yield* Console.log(`reason tags: ${reasonTags}`);
+  yield* Console.log(`hasFails: ${CauseModule.hasFails(cause)}`);
+  yield* Console.log(`hasDies: ${CauseModule.hasDies(cause)}`);
+  yield* Console.log(`hasInterrupts: ${CauseModule.hasInterrupts(cause)}`);
 });
 
 /* ========================================================================== *
@@ -74,14 +82,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Reason Construction",
+      description: "Build two fail reasons, pass them to fromReasons, and verify the resulting cause contents.",
+      run: exampleSourceAlignedFromReasons,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Mixed Reason Kinds",
+      description: "Construct a cause from fail, die, and interrupt reasons and validate reason-type predicates.",
+      run: exampleMixedReasonKinds,
     },
   ],
 });

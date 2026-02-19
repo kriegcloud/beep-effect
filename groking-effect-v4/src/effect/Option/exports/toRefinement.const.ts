@@ -36,15 +36,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -55,19 +51,39 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Converts an `Option`-returning function into a type guard (refinement).";
 const sourceExample =
   'import { Option } from "effect"\n\ntype MyData = string | number\n\nconst parseString = (data: MyData): Option.Option<string> =>\n  typeof data === "string" ? Option.some(data) : Option.none()\n\n//      ┌─── (a: MyData) => a is string\n//      ▼\nconst isString = Option.toRefinement(parseString)\n\nconsole.log(isString("a"))\n// Output: true\n\nconsole.log(isString(1))\n// Output: false';
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedRefinement = Effect.gen(function* () {
+  type MyData = string | number;
+
+  const parseString = (data: MyData): O.Option<string> => (typeof data === "string" ? O.some(data) : O.none());
+  const isString = O.toRefinement(parseString);
+
+  const valueA: MyData = "a";
+  const valueB: MyData = 1;
+
+  yield* Console.log(`isString("a") -> ${isString(valueA)}`);
+  yield* Console.log(`isString(1) -> ${isString(valueB)}`);
+
+  if (isString(valueA)) {
+    yield* Console.log(`valueA uppercased -> ${valueA.toUpperCase()}`);
+  }
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleFilterWorkflow = Effect.gen(function* () {
+  type Candidate = string | number | null;
+
+  const parseNonEmptyString = (candidate: Candidate): O.Option<string> =>
+    typeof candidate === "string" && candidate.trim().length > 0 ? O.some(candidate) : O.none();
+  const isNonEmptyString = O.toRefinement(parseNonEmptyString);
+
+  const candidates: ReadonlyArray<Candidate> = ["effect", "   ", 42, null, "option"];
+  const kept = candidates.filter(isNonEmptyString);
+
+  yield* Console.log(`candidates -> ${formatUnknown(candidates)}`);
+  yield* Console.log(`filter(isNonEmptyString) -> ${formatUnknown(kept)}`);
 });
 
 /* ========================================================================== *
@@ -82,14 +98,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned String Refinement",
+      description: "Build a refinement from an Option parser and validate string vs number inputs.",
+      run: exampleSourceAlignedRefinement,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Filtering With Derived Type Guard",
+      description: "Reuse the generated refinement in Array.filter to keep only valid non-empty strings.",
+      run: exampleFilterWorkflow,
     },
   ],
 });

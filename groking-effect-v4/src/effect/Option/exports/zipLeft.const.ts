@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +42,7 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Sequences two `Option`s, keeping the value from the first if both are `Some`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconsole.log(Option.zipLeft(Option.some(\"hello\"), Option.some(1)))\n// Output: { _id: 'Option', _tag: 'Some', value: 'hello' }\n\nconsole.log(Option.zipLeft(Option.some(\"hello\"), Option.none()))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -56,9 +52,22 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const bothSome = O.zipLeft(O.some("hello"), O.some(1));
+  const missingRight = O.zipLeft(O.some("hello"), O.none());
+
+  yield* Console.log(`some("hello") zipLeft some(1) -> ${formatUnknown(bothSome)}`);
+  yield* Console.log(`some("hello") zipLeft none() -> ${formatUnknown(missingRight)}`);
+});
+
+const exampleLeftValueIsPreserved = Effect.gen(function* () {
+  const leftObject = { id: 1, label: "left" };
+  const rightObject = { id: 2, label: "right" };
+  const keepsLeft = O.zipLeft(O.some(leftObject), O.some(rightObject));
+  const missingLeft = O.zipLeft(O.none<{ id: number; label: string }>(), O.some(rightObject));
+
+  yield* Console.log(`left object kept when both Some -> ${formatUnknown(keepsLeft)}`);
+  yield* Console.log(`none() on left short-circuits -> ${formatUnknown(missingLeft)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +87,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Use the documented arguments to show Some propagation vs None on the right.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Left-Bias Semantics",
+      description: "When both Options are Some, zipLeft keeps the left value and discards the right.",
+      run: exampleLeftValueIsPreserved,
     },
   ],
 });

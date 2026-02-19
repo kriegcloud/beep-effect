@@ -26,13 +26,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -45,7 +41,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Lifts a predicate into an array: returns `[value]` if the predicate holds, `[]` otherwise.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst isEven = (n: number) => n % 2 === 0\nconst to = Array.liftPredicate(isEven)\nconsole.log(to(1)) // []\nconsole.log(to(2)) // [2]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -55,9 +51,21 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedPredicate = Effect.gen(function* () {
+  const isEven = (n: number): boolean => n % 2 === 0;
+  const to = A.liftPredicate(isEven);
+
+  yield* Console.log(`to(1) => ${JSON.stringify(to(1))}`);
+  yield* Console.log(`to(2) => ${JSON.stringify(to(2))}`);
+});
+
+const exampleFilterWithFlatMap = Effect.gen(function* () {
+  const keepPositive = A.liftPredicate((n: number) => n > 0);
+  const readings = [-2, 5, 0, 7, -1, 3];
+  const accepted = A.flatMap(readings, keepPositive);
+
+  yield* Console.log(`readings => ${JSON.stringify(readings)}`);
+  yield* Console.log(`flatMap(readings, liftPredicate(n > 0)) => ${JSON.stringify(accepted)}`);
 });
 
 /* ========================================================================== *
@@ -77,9 +85,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Even Predicate",
+      description: "Lift an `isEven` predicate and evaluate odd/even inputs from the JSDoc contract.",
+      run: exampleSourceAlignedPredicate,
+    },
+    {
+      title: "Filter Stream With flatMap",
+      description: "Use `liftPredicate` as a one-or-zero mapper to keep only positive readings.",
+      run: exampleFilterWithFlatMap,
     },
   ],
 });

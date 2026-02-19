@@ -18,13 +18,9 @@
  * - Function export exploration with focused runtime examples.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -36,19 +32,31 @@ const exportKind = "function";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Returns a `Reducer` that combines `Array` values by concatenation.";
 const sourceExample = "";
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleFunctionDiscovery = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime metadata before attempting invocation.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleReducerCombineAll = Effect.gen(function* () {
+  const reducer = A.makeReducerConcat<number>();
+  const chunks: Array<Array<number>> = [[1, 2], [3], [4, 5]];
+  const combined = reducer.combineAll(chunks);
+
+  yield* Console.log(`initialValue starts empty: ${reducer.initialValue.length === 0}`);
+  yield* Console.log(`combineAll([[1,2],[3],[4,5]]) -> ${JSON.stringify(combined)}`);
 });
 
-const exampleFunctionInvocation = Effect.gen(function* () {
-  yield* Console.log("Execute a safe zero-arg invocation probe.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleReducerBoundary = Effect.gen(function* () {
+  const reducer = A.makeReducerConcat<string>();
+  const left = ["beep", "boop"];
+  const right = ["bop"];
+  const emptyChunks: Array<Array<string>> = [];
+
+  const pairCombined = reducer.combine(left, right);
+  const emptyCombined = reducer.combineAll(emptyChunks);
+
+  yield* Console.log(`combine(["beep","boop"],["bop"]) -> ${JSON.stringify(pairCombined)}`);
+  yield* Console.log(`combineAll([]) -> ${JSON.stringify(emptyCombined)}`);
+  yield* Console.log(`empty result reuses reducer.initialValue: ${Object.is(emptyCombined, reducer.initialValue)}`);
 });
 
 /* ========================================================================== *
@@ -63,14 +71,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Function Discovery",
-      description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery,
+      title: "Reducer combineAll",
+      description: "Create the reducer and concatenate array chunks in order.",
+      run: exampleReducerCombineAll,
     },
     {
-      title: "Zero-Arg Invocation Probe",
-      description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation,
+      title: "Boundary: Empty Input",
+      description: "Contrast a non-empty combine call with combineAll on an empty collection.",
+      run: exampleReducerBoundary,
     },
   ],
 });

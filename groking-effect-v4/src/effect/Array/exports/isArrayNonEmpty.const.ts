@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Tests whether a mutable `Array` is non-empty, narrowing the type to `NonEmptyArray`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.isArrayNonEmpty([])) // false\nconsole.log(Array.isArrayNonEmpty([1, 2, 3])) // true';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,26 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const empty: Array<number> = [];
+  const numbers = [1, 2, 3];
+  const emptyResult = A.isArrayNonEmpty(empty);
+  const numbersResult = A.isArrayNonEmpty(numbers);
+
+  yield* Console.log(`isArrayNonEmpty([]) => ${emptyResult}`);
+  yield* Console.log(`isArrayNonEmpty([1, 2, 3]) => ${numbersResult}`);
+});
+
+const exampleNarrowingForHeadAccess = Effect.gen(function* () {
+  const batches: Array<Array<string>> = [[], ["alpha", "beta"]];
+
+  for (const batch of batches) {
+    if (A.isArrayNonEmpty(batch)) {
+      yield* Console.log(`non-empty batch head => ${batch[0]}`);
+    } else {
+      yield* Console.log("empty batch has no head element");
+    }
+  }
 });
 
 /* ========================================================================== *
@@ -75,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented empty/non-empty checks and observe true/false outcomes.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Type-Narrowing Guard",
+      description: "Use isArrayNonEmpty as a guard before reading the first array element.",
+      run: exampleNarrowingForHeadAccess,
     },
   ],
 });

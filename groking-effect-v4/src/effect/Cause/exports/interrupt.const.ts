@@ -25,11 +25,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -51,13 +47,41 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect interrupt as a callable constructor for interrupt-only causes.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInterruptCause = Effect.gen(function* () {
+  const cause = CauseModule.interrupt(123);
+  const firstReason = cause.reasons[0];
+
+  yield* Console.log(`reasons.length: ${cause.reasons.length}`);
+  if (firstReason === undefined) {
+    yield* Console.log("first reason missing (unexpected for Cause.interrupt)");
+    return;
+  }
+
+  yield* Console.log(`reason _tag: ${firstReason._tag}`);
+  yield* Console.log(`isInterruptReason(reasons[0]): ${CauseModule.isInterruptReason(firstReason)}`);
+  if (CauseModule.isInterruptReason(firstReason)) {
+    yield* Console.log(`reason fiberId: ${String(firstReason.fiberId)}`);
+  }
+});
+
+const exampleOptionalFiberId = Effect.gen(function* () {
+  const withId = CauseModule.interrupt(7);
+  const withoutId = CauseModule.interrupt();
+  const withIdReason = withId.reasons[0];
+  const withoutIdReason = withoutId.reasons[0];
+
+  if (withIdReason !== undefined && CauseModule.isInterruptReason(withIdReason)) {
+    yield* Console.log(`with explicit id -> fiberId: ${String(withIdReason.fiberId)}`);
+  }
+  if (withoutIdReason !== undefined && CauseModule.isInterruptReason(withoutIdReason)) {
+    yield* Console.log(`without id -> fiberId: ${String(withoutIdReason.fiberId)}`);
+  }
+  yield* Console.log(`hasInterrupts(with explicit id): ${CauseModule.hasInterrupts(withId)}`);
+  yield* Console.log(`hasInterrupts(without id): ${CauseModule.hasInterrupts(withoutId)}`);
 });
 
 /* ========================================================================== *
@@ -77,9 +101,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Interrupt Cause",
+      description: "Create an interrupt cause and verify it contains one Interrupt reason with the provided fiber id.",
+      run: exampleSourceAlignedInterruptCause,
+    },
+    {
+      title: "Optional Fiber Id Behavior",
+      description: "Compare interrupt causes created with and without a fiber id argument.",
+      run: exampleOptionalFiberId,
     },
   ],
 });

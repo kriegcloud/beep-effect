@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,26 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect hasInterrupts as a callable predicate over Cause values.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedPredicate = Effect.gen(function* () {
+  const interruptCause = CauseModule.interrupt(123);
+  const failCause = CauseModule.fail("error");
+
+  yield* Console.log(`hasInterrupts(interrupt): ${CauseModule.hasInterrupts(interruptCause)}`);
+  yield* Console.log(`hasInterrupts(fail): ${CauseModule.hasInterrupts(failCause)}`);
+});
+
+const exampleCombinedCauseDetection = Effect.gen(function* () {
+  const causeWithInterrupt = CauseModule.combine(CauseModule.fail("typed-error"), CauseModule.interrupt(7));
+  const causeWithoutInterrupt = CauseModule.combine(CauseModule.fail("typed-error"), CauseModule.die("defect"));
+  const withInterruptTags = causeWithInterrupt.reasons.map((reason) => reason._tag).join(", ");
+
+  yield* Console.log(`causeWithInterrupt reason tags: ${withInterruptTags}`);
+  yield* Console.log(`hasInterrupts(fail + interrupt): ${CauseModule.hasInterrupts(causeWithInterrupt)}`);
+  yield* Console.log(`hasInterrupts(fail + die): ${CauseModule.hasInterrupts(causeWithoutInterrupt)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +84,15 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Interrupt Predicate",
+      description: "Reproduce the JSDoc behavior: interrupt causes return true and fail causes return false.",
+      run: exampleSourceAlignedPredicate,
+    },
+    {
+      title: "Interrupt Detection In Mixed Causes",
+      description:
+        "Show that hasInterrupts scans combined causes and only returns true when an Interrupt reason exists.",
+      run: exampleCombinedCauseDetection,
     },
   ],
 });

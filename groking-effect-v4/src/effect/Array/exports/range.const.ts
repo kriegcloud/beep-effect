@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Creates a `NonEmptyArray` containing a range of integers, inclusive on both ends.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.range(1, 3)\nconsole.log(result) // [1, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,21 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const sourceAligned = A.range(1, 3);
+  const includesNegatives = A.range(-2, 2);
+
+  yield* Console.log(`A.range(1, 3) => ${JSON.stringify(sourceAligned)}`);
+  yield* Console.log(`A.range(-2, 2) => ${JSON.stringify(includesNegatives)}`);
+});
+
+const exampleStartGreaterThanEndContract = Effect.gen(function* () {
+  const startGreaterThanEnd = A.range(5, 2);
+  const sameStartAndEnd = A.range(4, 4);
+
+  yield* Console.log("Contract note: when start > end, Array.range returns [start].");
+  yield* Console.log(`A.range(5, 2) => ${JSON.stringify(startGreaterThanEnd)}`);
+  yield* Console.log(`A.range(4, 4) => ${JSON.stringify(sameStartAndEnd)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +83,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Create an inclusive integer range with the documented call shape.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Start Greater Than End Contract",
+      description: "Show the edge behavior where start > end returns a single-element array.",
+      run: exampleStartGreaterThanEndContract,
     },
   ],
 });

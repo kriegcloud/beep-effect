@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +42,41 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Returns the fallback `Option` if `self` is `None`; otherwise returns `self`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconsole.log(Option.none().pipe(Option.orElse(() => Option.some(\"b\"))))\n// Output: { _id: 'Option', _tag: 'Some', value: 'b' }\n\nconsole.log(Option.some(\"a\").pipe(Option.orElse(() => Option.some(\"b\"))))\n// Output: { _id: 'Option', _tag: 'Some', value: 'a' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Option.orElse as a runtime value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedFallback = Effect.gen(function* () {
+  yield* Console.log("Run the documented fallback behavior for None and Some.");
+  const fromNone = O.none<string>().pipe(O.orElse(() => O.some("b")));
+  const fromSome = O.some("a").pipe(O.orElse(() => O.some("b")));
+
+  yield* Console.log(`none() -> ${formatUnknown(fromNone)}`);
+  yield* Console.log(`some("a") -> ${formatUnknown(fromSome)}`);
+});
+
+const exampleFallbackLaziness = Effect.gen(function* () {
+  yield* Console.log("Fallback thunk runs only when the input is None.");
+  let fallbackCalls = 0;
+
+  const fallback = () => {
+    fallbackCalls += 1;
+    return O.some(`guest-${fallbackCalls}`);
+  };
+
+  const fromSome = O.some("admin").pipe(O.orElse(fallback));
+  const callsAfterSome = fallbackCalls;
+  const fromNone = O.none<string>().pipe(O.orElse(fallback));
+  const callsAfterNone = fallbackCalls;
+
+  yield* Console.log(`some("admin") -> ${formatUnknown(fromSome)} (fallback calls: ${callsAfterSome})`);
+  yield* Console.log(`none() -> ${formatUnknown(fromNone)} (fallback calls: ${callsAfterNone})`);
 });
 
 /* ========================================================================== *
@@ -78,9 +96,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Fallback",
+      description: "Use the documented orElse(() => fallbackOption) behavior for None and Some.",
+      run: exampleSourceAlignedFallback,
+    },
+    {
+      title: "Lazy Fallback Thunk",
+      description: "Show that fallback is evaluated only when the input Option is None.",
+      run: exampleFallbackLaziness,
     },
   ],
 });

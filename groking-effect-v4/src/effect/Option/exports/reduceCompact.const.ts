@@ -26,15 +26,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -45,19 +41,44 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Reduces an iterable of `Option`s to a single value, skipping `None` entries.";
 const sourceExample =
   'import { Option, pipe } from "effect"\n\nconst items = [Option.some(1), Option.none(), Option.some(2), Option.none()]\n\nconsole.log(pipe(items, Option.reduceCompact(0, (b, a) => b + a)))\n// Output: 3';
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Option.reduceCompact as a runtime value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedSum = Effect.gen(function* () {
+  yield* Console.log("Run the documented sum behavior with Some and None values.");
+  const items = [O.some(1), O.none<number>(), O.some(2), O.none<number>()];
+  const total = O.reduceCompact(items, 0, (acc, value) => acc + value);
+
+  yield* Console.log(`items -> ${formatUnknown(items)}`);
+  yield* Console.log(`sum -> ${formatUnknown(total)}`);
+});
+
+const exampleCurriedSomeOnly = Effect.gen(function* () {
+  yield* Console.log("Curried reduceCompact processes only Some payloads.");
+  const readings = [O.some(4), O.none<number>(), O.some(10), O.none<number>(), O.some(1)];
+  let reducerCalls = 0;
+
+  const maxReading = O.reduceCompact(Number.NEGATIVE_INFINITY, (max, reading: number) => {
+    reducerCalls += 1;
+    return Math.max(max, reading);
+  })(readings);
+
+  const allMissing = O.reduceCompact(
+    readings.map(() => O.none<number>()),
+    99,
+    (acc, value) => acc + value
+  );
+
+  yield* Console.log(`max reading -> ${formatUnknown(maxReading)}`);
+  yield* Console.log(`reducer calls -> ${reducerCalls}`);
+  yield* Console.log(`all None with seed 99 -> ${formatUnknown(allMissing)}`);
 });
 
 /* ========================================================================== *
@@ -77,9 +98,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Sum",
+      description: "Replicate the documented reduction and show that None entries are skipped.",
+      run: exampleSourceAlignedSum,
+    },
+    {
+      title: "Curried Processing of Some Values",
+      description: "Use data-last reduceCompact and verify the reducer runs only for Some values.",
+      run: exampleCurriedSomeOnly,
     },
   ],
 });

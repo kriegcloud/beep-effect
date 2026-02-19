@@ -1,29 +1,42 @@
 {
-  "extends": "./tsconfig.base.jsonc",
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "references": [{ "path": "tsconfig.packages.json" }],
   "include": [
+    "**/vitest.*.ts", // All vitest config files across all packages
     "./syncpack.config.ts",
-    "./knip.config.ts"
-  ],
-  "exclude": [
-    "**/dist/**",
-    "**/build/**",
-    "**/.turbo/**",
-    "**/.next/**",
-    "**/.output/**",
-    "**/.expo/**",
-    "**/node_modules/**",
-    "**/.*/"
+    "./knip.config.ts",
+    "./packages/*/test/**/*.ts",
+    "./packages/*/test/**/*.json",
+    "./packages/*/dtslint/**/*.ts",
+    "./packages/*/benchmark/**/*.ts",
+    "./tooling/*/test/**/*.ts",
+    "./tooling/*/test/**/*.json",
+    "./tooling/*/dtslint/**/*.ts",
+    "./apps/*/test/**/*.ts",
+    "./apps/*/test/**/*.json",
+    "./groking-effect-v4/src/**/*.ts",
+    "./groking-effect-v4/test/**/*.ts"
   ],
   "compilerOptions": {
-    "disableReferencedProjectLoad": true,
-    "disableSolutionSearching": true
-  },
-  "references": [
-    {
-      "path": "tsconfig.slices/groking-effect-v4.json"
+    "rootDir": ".",
+    "noEmit": true,
+    "erasableSyntaxOnly": false,
+    "resolveJsonModule": true,
+    "types": ["node", "bun"],
+    "paths": {
+      // Path aliases allow loading internal modules in tests and using workspace packages
+      // These will be populated as packages are created
+      "@beep/repo-cli": ["./tooling/cli/src/index.ts"],
+      "@beep/repo-cli/*": ["./tooling/cli/src/*.ts"],
+      "@beep/utils": ["./tooling/utils/src/index.ts"],
+      "@beep/utils/*": ["./tooling/utils/src/*.ts"]
     },
-    {
-      "path": "tsconfig.slices/tooling.json"
-    }
-  ]
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "namespaceImportPackages": ["@beep/*"]
+      }
+    ]
+  }
 }

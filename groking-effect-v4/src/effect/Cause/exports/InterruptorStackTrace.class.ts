@@ -18,15 +18,12 @@
  * - Class export exploration with focused runtime examples.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportConstructor,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ServiceMap from "effect/ServiceMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,9 +43,29 @@ const exampleClassDiscovery = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleConstructionProbe = Effect.gen(function* () {
-  yield* Console.log("Attempt a zero-arg construction probe.");
-  yield* probeNamedExportConstructor({ moduleRecord, exportName });
+const exampleAnnotationRoundTrip = Effect.gen(function* () {
+  yield* Console.log("Round-trip InterruptorStackTrace through interrupt reason annotations.");
+
+  const deterministicFrame = {
+    name: "demo-interrupt-frame",
+    stack: () => "Error: interrupted\n    at demo-interrupt-frame (demo.ts:22:5)",
+    parent: undefined,
+  };
+
+  const annotatedCause = CauseModule.annotate(
+    CauseModule.interrupt(101),
+    ServiceMap.make(CauseModule.InterruptorStackTrace, deterministicFrame)
+  );
+  const firstReason = annotatedCause.reasons[0];
+  const annotations = firstReason === undefined ? undefined : CauseModule.reasonAnnotations(firstReason);
+  const restoredFrame =
+    annotations === undefined ? undefined : ServiceMap.getOrUndefined(annotations, CauseModule.InterruptorStackTrace);
+  const missingFailureFrame =
+    annotations === undefined ? undefined : ServiceMap.getOrUndefined(annotations, CauseModule.StackTrace);
+
+  yield* Console.log(`Interrupt reason tag: ${firstReason?._tag ?? "missing"}`);
+  yield* Console.log(`InterruptorStackTrace frame: ${restoredFrame?.name ?? "missing"}`);
+  yield* Console.log(`StackTrace present: ${missingFailureFrame !== undefined}`);
 });
 
 /* ========================================================================== *
@@ -68,9 +85,9 @@ const program = createPlaygroundProgram({
       run: exampleClassDiscovery,
     },
     {
-      title: "Zero-Arg Construction Probe",
-      description: "Attempt construction and report constructor behavior.",
-      run: exampleConstructionProbe,
+      title: "Annotation Key Round-Trip",
+      description: "Use InterruptorStackTrace as an annotation key and retrieve it safely.",
+      run: exampleAnnotationRoundTrip,
     },
   ],
 });

@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,28 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  const target = moduleRecord[exportName];
+
+  yield* Console.log("Inspect runtime shape, then run the source-documented predicate checks.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+  if (typeof target === "function") {
+    yield* Console.log(`Callable predicate arity hint: ${target.length}`);
+  }
+
+  yield* Console.log(
+    `isNoSuchElementError(new Cause.NoSuchElementError()): ${CauseModule.isNoSuchElementError(new CauseModule.NoSuchElementError())}`
+  );
+  yield* Console.log(`isNoSuchElementError("nope"): ${CauseModule.isNoSuchElementError("nope")}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleErrorDiscrimination = Effect.gen(function* () {
+  const noSuch = new CauseModule.NoSuchElementError("Missing user profile");
+  const timeout = new CauseModule.TimeoutError("Timed out loading profile");
+  const generic = new Error("Unknown failure");
+
+  yield* Console.log(
+    `NoSuch/Timeout/Error: ${CauseModule.isNoSuchElementError(noSuch)} / ${CauseModule.isNoSuchElementError(timeout)} / ${CauseModule.isNoSuchElementError(generic)}`
+  );
 });
 
 /* ========================================================================== *
@@ -70,14 +81,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      title: "Runtime Shape + Source Invocation",
+      description: "Inspect the predicate export and run the source JSDoc true/false checks.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Error-Type Discrimination",
+      description: "Show the guard accepts NoSuchElementError and rejects other error types.",
+      run: exampleErrorDiscrimination,
     },
   ],
 });

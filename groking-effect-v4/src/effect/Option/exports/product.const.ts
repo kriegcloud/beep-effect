@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +42,35 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Combines two `Option`s into a `Some` containing a tuple `[A, B]` if both are `Some`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconsole.log(Option.product(Option.some(\"hello\"), Option.some(42)))\n// Output: { _id: 'Option', _tag: 'Some', value: ['hello', 42] }\n\nconsole.log(Option.product(Option.none(), Option.some(42)))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedPairs = Effect.gen(function* () {
+  const bothPresent = O.product(O.some("hello"), O.some(42));
+  const leftMissing = O.product(O.none<string>(), O.some(42));
+  const rightMissing = O.product(O.some("hello"), O.none<number>());
+
+  yield* Console.log(`some("hello") x some(42) -> ${formatUnknown(bothPresent)}`);
+  yield* Console.log(`none() x some(42) -> ${formatUnknown(leftMissing)}`);
+  yield* Console.log(`some("hello") x none() -> ${formatUnknown(rightMissing)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleComposeAfterProduct = Effect.gen(function* () {
+  const activePlan = O.some("pro");
+  const monthlyCents = O.some(1900);
+  const missingPrice = O.none<number>();
+
+  const billingLine = O.product(activePlan, monthlyCents).pipe(
+    O.map(([plan, cents]) => `${plan}:$${(cents / 100).toFixed(2)}`)
+  );
+
+  const unavailableLine = O.product(activePlan, missingPrice).pipe(
+    O.map(([plan, cents]) => `${plan}:$${(cents / 100).toFixed(2)}`)
+  );
+
+  yield* Console.log(`both values present -> ${formatUnknown(billingLine)}`);
+  yield* Console.log(`price missing -> ${formatUnknown(unavailableLine)}`);
 });
 
 /* ========================================================================== *
@@ -73,14 +85,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Pairing",
+      description: "Combine Some/None pairs to show when product yields Some tuple vs None.",
+      run: exampleSourceAlignedPairs,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Compose After Product",
+      description: "Map the tuple result into a billing label only when both inputs are present.",
+      run: exampleComposeAfterProduct,
     },
   ],
 });

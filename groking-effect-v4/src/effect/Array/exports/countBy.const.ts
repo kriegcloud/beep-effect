@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,25 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Counts the elements in an iterable that satisfy a predicate.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.countBy([1, 2, 3, 4, 5], (n) => n % 2 === 0)\nconsole.log(result) // 2';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedDataFirst = Effect.gen(function* () {
+  const evenCount = A.countBy([1, 2, 3, 4, 5], (n) => n % 2 === 0);
+  const greaterThanThree = A.countBy([1, 2, 3, 4, 5], (n) => n > 3);
+
+  yield* Console.log(`Array.countBy([1, 2, 3, 4, 5], isEven) => ${evenCount}`);
+  yield* Console.log(`Array.countBy([1, 2, 3, 4, 5], (n) => n > 3) => ${greaterThanThree}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCurriedIndexAwarePredicate = Effect.gen(function* () {
+  const countAtOrAboveIndex = A.countBy((value, index) => typeof value === "number" && value >= index);
+  const counted = countAtOrAboveIndex([0, 2, 1, 5]);
+  const emptyCount = countAtOrAboveIndex([]);
+
+  yield* Console.log(`Array.countBy((n, i) => n >= i)([0, 2, 1, 5]) => ${counted}`);
+  yield* Console.log(`Array.countBy((n, i) => n >= i)([]) => ${emptyCount}`);
 });
 
 /* ========================================================================== *
@@ -70,14 +72,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Data-First Usage",
+      description: "Use countBy(iterable, predicate) to count matching values.",
+      run: exampleSourceAlignedDataFirst,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Curried Predicate with Index Access",
+      description: "Use countBy(predicate)(iterable) and include index-aware logic.",
+      run: exampleCurriedIndexAwarePredicate,
     },
   ],
 });

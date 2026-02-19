@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,32 @@ const sourceSummary =
   "Splits an iterable at the first element matching the predicate. The matching element is included in the second array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.splitWhere([1, 2, 3, 4, 5], (n) => n > 3)) // [[1, 2, 3], [4, 5]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedSplitWhere = Effect.gen(function* () {
+  const readings = [1, 2, 3, 4, 5];
+  const [beforeMatch, fromMatch] = A.splitWhere(readings, (n) => n > 3);
+
+  yield* Console.log(`splitWhere([1, 2, 3, 4, 5], n > 3) -> ${JSON.stringify([beforeMatch, fromMatch])}`);
+  yield* Console.log(`boundary value is included in second segment: ${JSON.stringify(fromMatch[0])}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCurriedPredicateAndNoMatch = Effect.gen(function* () {
+  const splitAtIndexTwo = A.splitWhere((_, index) => index === 2);
+  const [beforeIndexedMatch, fromIndexedMatch] = splitAtIndexTwo(["warmup", "check", "deploy", "verify"]);
+  const [beforeNoMatch, fromNoMatch] = A.splitWhere(["alpha", "beta", "gamma"], (label) => label === "missing");
+
+  yield* Console.log(
+    `splitWhere(index === 2)(["warmup","check","deploy","verify"]) -> ${JSON.stringify([
+      beforeIndexedMatch,
+      fromIndexedMatch,
+    ])}`
+  );
+  yield* Console.log(
+    `splitWhere(["alpha","beta","gamma"], label === "missing") -> ${JSON.stringify([beforeNoMatch, fromNoMatch])}`
+  );
 });
 
 /* ========================================================================== *
@@ -70,14 +79,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Predicate Split",
+      description: "Replicate the documented call and verify the matching element starts the second segment.",
+      run: exampleSourceAlignedSplitWhere,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Curried Predicate And No-Match Case",
+      description: "Use index-aware curried invocation and show that no match returns an empty second segment.",
+      run: exampleCurriedPredicateAndNoMatch,
     },
   ],
 });

@@ -27,15 +27,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
+import * as Result from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +43,26 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Converts a `Result` into an `Option`, keeping only the success value.";
 const sourceExample =
   "import { Option, Result } from \"effect\"\n\nconsole.log(Option.getSuccess(Result.succeed(\"ok\")))\n// Output: { _id: 'Option', _tag: 'Some', value: 'ok' }\n\nconsole.log(Option.getSuccess(Result.fail(\"err\")))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSuccessResultKeepsSuccessValue = Effect.gen(function* () {
+  const successResult = Result.succeed("ok");
+  const successOnly = O.getSuccess(successResult);
+  const rendered = O.match(successOnly, {
+    onNone: () => "None",
+    onSome: (success) => `Some(${String(success)})`,
+  });
+
+  yield* Console.log(`Result.succeed("ok") -> ${rendered}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleFailureResultDropsSuccessValue = Effect.gen(function* () {
+  const failedResult = Result.fail("err");
+  const successOnly = O.getSuccess(failedResult);
+
+  yield* Console.log(`Result.fail("err") -> ${O.isNone(successOnly) ? "None" : "Some"}`);
 });
 
 /* ========================================================================== *
@@ -73,14 +77,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Success Result Becomes Some",
+      description: "A successful Result keeps its value as Some(success).",
+      run: exampleSuccessResultKeepsSuccessValue,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Failure Result Becomes None",
+      description: "A failed Result has no success value, so getSuccess returns None.",
+      run: exampleFailureResultDropsSuccessValue,
     },
   ],
 });

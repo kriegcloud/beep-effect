@@ -52,14 +52,32 @@ const moduleRecord = CauseModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+const exampleTypeErasureAndCompanionContext = Effect.gen(function* () {
+  yield* Console.log(
+    "Bridge note: `Cause.YieldableError` is a compile-time interface paired with runtime error constructors."
+  );
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
+  yield* Console.log("Inspecting runtime companion constructor: Cause.NoSuchElementError.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "NoSuchElementError" });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedCompanionFlow = Effect.gen(function* () {
+  const error = new CauseModule.NoSuchElementError("not found");
+  const hasIterator = typeof (error as { [Symbol.iterator]?: unknown })[Symbol.iterator] === "function";
+
+  const yieldedFailure = yield* Effect.flip(
+    Effect.gen(function* () {
+      yield* error;
+    })
+  );
+
+  const asEffectFailure = yield* Effect.flip(error.asEffect());
+
+  yield* Console.log(`Error has Symbol.iterator: ${hasIterator}`);
+  yield* Console.log(`yield* error failed with: ${yieldedFailure._tag} (${yieldedFailure.message})`);
+  yield* Console.log(`error.asEffect() failed with: ${asEffectFailure._tag} (${asEffectFailure.message})`);
+  yield* Console.log(`Cause.isNoSuchElementError(yieldedFailure): ${CauseModule.isNoSuchElementError(yieldedFailure)}`);
+  yield* Console.log(`Both paths fail with same tag: ${yieldedFailure._tag === asEffectFailure._tag}`);
 });
 
 /* ========================================================================== *
@@ -74,14 +92,15 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Type Erasure + Constructor Context",
+      description: "Show interface erasure and inspect the runtime constructor companion export.",
+      run: exampleTypeErasureAndCompanionContext,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Source-Aligned Companion Flow",
+      description:
+        "Construct `Cause.NoSuchElementError` and compare `yield* error` with `error.asEffect()` failure behavior.",
+      run: exampleSourceAlignedCompanionFlow,
     },
   ],
 });

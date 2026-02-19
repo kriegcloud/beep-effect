@@ -24,15 +24,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ServiceMap from "effect/ServiceMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,6 +41,15 @@ const sourceSummary = "Attaches metadata to every reason in a {@link Cause}.";
 const sourceExample =
   'import { Cause, ServiceMap } from "effect"\n\nconst cause = Cause.fail("error")\nconst annotated = Cause.annotate(cause, ServiceMap.empty())';
 const moduleRecord = CauseModule as Record<string, unknown>;
+const DemoAnnotation = ServiceMap.Service<string>("demo/cause-annotation");
+
+const readFirstReasonAnnotation = (cause: CauseModule.Cause<unknown>): string | undefined => {
+  const firstReason = cause.reasons[0];
+  if (firstReason === undefined) {
+    return undefined;
+  }
+  return ServiceMap.getOrUndefined(CauseModule.reasonAnnotations(firstReason), DemoAnnotation);
+};
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +59,40 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceInvocation = Effect.gen(function* () {
+  const cause = CauseModule.fail("error");
+  const annotated = CauseModule.annotate(cause, ServiceMap.empty());
+  const mergedAnnotations = CauseModule.annotations(annotated);
+
+  yield* Console.log(`Source invocation yields Cause: ${CauseModule.isCause(annotated)}`);
+  yield* Console.log(`Merged annotation entries: ${mergedAnnotations.mapUnsafe.size}`);
+  yield* Console.log(`Empty ServiceMap is a no-op: ${annotated === cause}`);
+});
+
+const exampleAnnotatesEveryReason = Effect.gen(function* () {
+  const baseCause = CauseModule.combine(CauseModule.fail("left"), CauseModule.die("right"));
+  const annotated = CauseModule.annotate(baseCause, ServiceMap.make(DemoAnnotation, "batch-008"));
+  const allReasonsTagged = annotated.reasons.every(
+    (reason) => ServiceMap.getOrUndefined(CauseModule.reasonAnnotations(reason), DemoAnnotation) === "batch-008"
+  );
+
+  yield* Console.log(`Reason count after annotate: ${annotated.reasons.length}`);
+  yield* Console.log(`Every reason tagged: ${allReasonsTagged}`);
+});
+
+const exampleOverwriteBehavior = Effect.gen(function* () {
+  const base = CauseModule.annotate(CauseModule.fail("boom"), ServiceMap.make(DemoAnnotation, "original"));
+
+  const preserveExisting = CauseModule.annotate(base, ServiceMap.make(DemoAnnotation, "incoming"));
+  const overwriteExisting = CauseModule.annotate(base, ServiceMap.make(DemoAnnotation, "incoming"), {
+    overwrite: true,
+  });
+
+  const preservedValue = readFirstReasonAnnotation(preserveExisting);
+  const overwrittenValue = readFirstReasonAnnotation(overwriteExisting);
+
+  yield* Console.log(`Default merge keeps existing: ${preservedValue === "original"}`);
+  yield* Console.log(`overwrite=true replaces value: ${overwrittenValue === "incoming"}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +112,19 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source Invocation",
+      description: "Run the JSDoc-style invocation and observe no-op behavior for an empty ServiceMap.",
+      run: exampleSourceInvocation,
+    },
+    {
+      title: "Annotates Every Reason",
+      description: "Attach one annotation map to a multi-reason cause and verify every reason receives it.",
+      run: exampleAnnotatesEveryReason,
+    },
+    {
+      title: "Overwrite Option",
+      description: "Compare default merge behavior with overwrite=true for colliding annotation keys.",
+      run: exampleOverwriteBehavior,
     },
   ],
 });

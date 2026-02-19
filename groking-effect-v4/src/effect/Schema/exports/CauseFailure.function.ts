@@ -18,12 +18,9 @@
  * - Function export exploration with focused runtime examples.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as SchemaModule from "effect/Schema";
@@ -36,19 +33,40 @@ const exportKind = "function";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleFunctionDiscovery = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime metadata before attempting invocation.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSchemaConstruction = Effect.gen(function* () {
+  const causeFailureSchema = SchemaModule.CauseFailure(SchemaModule.String, SchemaModule.Number);
+
+  yield* Console.log("Create CauseFailure(String, Number).");
+  yield* Console.log(`error schema wired: ${causeFailureSchema.error === SchemaModule.String}`);
+  yield* Console.log(`defect schema wired: ${causeFailureSchema.defect === SchemaModule.Number}`);
 });
 
-const exampleFunctionInvocation = Effect.gen(function* () {
-  yield* Console.log("Execute a safe zero-arg invocation probe.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleDecodeReasonVariants = Effect.gen(function* () {
+  const causeFailureSchema = SchemaModule.CauseFailure(SchemaModule.String, SchemaModule.Number);
+  const decodeReason = SchemaModule.decodeUnknownSync(causeFailureSchema);
+
+  const decodedFail = decodeReason(Cause.makeFailReason("missing-profile"));
+  const decodedDie = decodeReason(Cause.makeDieReason(500));
+  const decodedInterrupt = decodeReason(Cause.makeInterruptReason(7));
+
+  yield* Console.log(`Fail reason: ${formatUnknown(decodedFail)}`);
+  yield* Console.log(`Die reason: ${formatUnknown(decodedDie)}`);
+  yield* Console.log(`Interrupt reason: ${formatUnknown(decodedInterrupt)}`);
+});
+
+const exampleRejectMismatchedPayloads = Effect.gen(function* () {
+  const causeFailureSchema = SchemaModule.CauseFailure(SchemaModule.String, SchemaModule.Number);
+  const decodeReason = SchemaModule.decodeUnknownOption(causeFailureSchema);
+
+  const invalidFail = decodeReason(Cause.makeFailReason(123));
+  const invalidDie = decodeReason(Cause.makeDieReason("not-a-number"));
+
+  yield* Console.log(`Invalid Fail decoded: ${invalidFail._tag}`);
+  yield* Console.log(`Invalid Die decoded: ${invalidDie._tag}`);
 });
 
 /* ========================================================================== *
@@ -63,14 +81,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Function Discovery",
-      description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery,
+      title: "Construct CauseFailure Schema",
+      description: "Build Schema.CauseFailure with error and defect members.",
+      run: exampleSchemaConstruction,
     },
     {
-      title: "Zero-Arg Invocation Probe",
-      description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation,
+      title: "Decode Fail, Die, Interrupt",
+      description: "Decode each reason variant with matching payload types.",
+      run: exampleDecodeReasonVariants,
+    },
+    {
+      title: "Reject Mismatched Reason Payloads",
+      description: "Show schema rejection when error/defect payload types drift.",
+      run: exampleRejectMismatchedPayloads,
     },
   ],
 });

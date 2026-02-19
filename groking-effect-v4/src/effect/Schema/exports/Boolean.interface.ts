@@ -19,11 +19,7 @@
  * - Runtime examples still provide module-level context for learning.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -42,14 +38,33 @@ const moduleRecord = SchemaModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleRuntimeBridge = Effect.gen(function* () {
+  yield* Console.log("Type-level interface is erased; runtime behavior comes from Schema.Boolean.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleBooleanGuard = Effect.gen(function* () {
+  const isBoolean = SchemaModule.is(SchemaModule.Boolean);
+  const samples: ReadonlyArray<unknown> = [true, false, "true", 0, null];
+
+  for (const sample of samples) {
+    yield* Console.log(`is(Boolean)(${JSON.stringify(sample)}) => ${isBoolean(sample)}`);
+  }
+});
+
+const exampleBooleanDecode = Effect.gen(function* () {
+  const decodeBoolean = SchemaModule.decodeUnknownSync(SchemaModule.Boolean);
+
+  yield* Console.log(`decode(true) => ${decodeBoolean(true)}`);
+  yield* Console.log(`decode(false) => ${decodeBoolean(false)}`);
+
+  try {
+    decodeBoolean("true");
+    yield* Console.log('decode("true") unexpectedly succeeded.');
+  } catch (error) {
+    const message = String(error).split("\n")[0] ?? String(error);
+    yield* Console.log(`decode("true") failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +79,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Runtime Companion Bridge",
+      description: "Show the runtime schema value that corresponds to this type-level export.",
+      run: exampleRuntimeBridge,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Boolean Type Guard",
+      description: "Use Schema.is with Schema.Boolean to validate unknown inputs.",
+      run: exampleBooleanGuard,
+    },
+    {
+      title: "Boolean Decode",
+      description: "Decode booleans and show a failing non-boolean input.",
+      run: exampleBooleanDecode,
     },
   ],
 });

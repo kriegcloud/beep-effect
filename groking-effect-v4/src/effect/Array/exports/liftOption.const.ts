@@ -28,15 +28,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,19 +45,35 @@ const sourceSummary =
   "Lifts an `Option`-returning function into one that returns an array: `Some(a)` becomes `[a]`, `None` becomes `[]`.";
 const sourceExample =
   'import { Array, Option } from "effect"\n\nconst parseNumber = Array.liftOption((s: string) => {\n  const n = Number(s)\n  return isNaN(n) ? Option.none() : Option.some(n)\n})\nconsole.log(parseNumber("123")) // [123]\nconsole.log(parseNumber("abc")) // []';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the runtime shape of Array.liftOption.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedParsing = Effect.gen(function* () {
+  const parseNumber = A.liftOption((s: string) => {
+    const n = Number(s);
+    return Number.isNaN(n) ? O.none() : O.some(n);
+  });
+
+  yield* Console.log(`parseNumber("123") => ${JSON.stringify(parseNumber("123"))}`);
+  yield* Console.log(`parseNumber("abc") => ${JSON.stringify(parseNumber("abc"))}`);
+});
+
+const exampleMultiArgForwarding = Effect.gen(function* () {
+  const parsePoint = A.liftOption((xText: string, yText: string) => {
+    const x = Number(xText);
+    const y = Number(yText);
+    return Number.isNaN(x) || Number.isNaN(y) ? O.none() : O.some({ x, y });
+  });
+
+  yield* Console.log(`parsePoint("10", "25") => ${JSON.stringify(parsePoint("10", "25"))}`);
+  yield* Console.log(`parsePoint("10", "north") => ${JSON.stringify(parsePoint("10", "north"))}`);
 });
 
 /* ========================================================================== *
@@ -80,9 +93,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Number Parsing",
+      description: "Lift an Option-returning parse function and observe Some -> [value], None -> [].",
+      run: exampleSourceAlignedParsing,
+    },
+    {
+      title: "Forwarding Multiple Arguments",
+      description: "Show that liftOption preserves argument lists while still collapsing Option to array.",
+      run: exampleMultiArgForwarding,
     },
   ],
 });

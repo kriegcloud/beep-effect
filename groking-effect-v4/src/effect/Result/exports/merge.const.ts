@@ -27,11 +27,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -53,13 +49,27 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Result.merge as a runtime function export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  yield* Console.log("Unwrap success and failure values using merge(result).");
+  const fromSuccess = ResultModule.merge(ResultModule.succeed(42));
+  const fromFailure = ResultModule.merge(ResultModule.fail("error"));
+
+  yield* Console.log(`merge(succeed(42)) -> ${formatUnknown(fromSuccess)}`);
+  yield* Console.log(`merge(fail("error")) -> ${formatUnknown(fromFailure)}`);
+});
+
+const exampleChannelInfoDiscarded = Effect.gen(function* () {
+  yield* Console.log("After merge, payload equality no longer reveals success vs failure origin.");
+  const fromSuccess = ResultModule.merge(ResultModule.succeed("cached"));
+  const fromFailure = ResultModule.merge(ResultModule.fail("cached"));
+
+  yield* Console.log(`from succeed("cached") -> ${formatUnknown(fromSuccess)}`);
+  yield* Console.log(`from fail("cached") -> ${formatUnknown(fromFailure)}`);
+  yield* Console.log(`merged values equal: ${fromSuccess === fromFailure}`);
 });
 
 /* ========================================================================== *
@@ -79,9 +89,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Merge Invocation",
+      description: "Reproduce the documented behavior for success and failure payloads.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Channel Info Is Discarded",
+      description: "Show that merge returns only payloads, not the original Result channel.",
+      run: exampleChannelInfoDiscarded,
     },
   ],
 });

@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const sourceSummary =
   "Inserts an element at the specified index, returning a new `NonEmptyArray`, or `undefined` if the index is out of bounds.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.insertAt(["a", "b", "c", "e"], 3, "d")) // ["a", "b", "c", "d", "e"]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,23 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = ["a", "b", "c", "e"];
+  const inserted = A.insertAt(input, 3, "d");
+
+  yield* Console.log(`insertAt(["a", "b", "c", "e"], 3, "d") => ${JSON.stringify(inserted)}`);
+  yield* Console.log(`original input remains ${JSON.stringify(input)}`);
+});
+
+const exampleCurriedAndBoundsInvocation = Effect.gen(function* () {
+  const insertMarkerAt2 = A.insertAt(2, "!");
+  const fromSet = insertMarkerAt2(new Set(["x", "y", "z"]));
+  const outOfBounds = A.insertAt(["x", "y"], 5, "!");
+  const negativeIndex = A.insertAt(["x", "y"], -1, "!");
+
+  yield* Console.log(`insertAt(2, "!")(Set("x", "y", "z")) => ${JSON.stringify(fromSet)}`);
+  yield* Console.log(`insertAt(["x", "y"], 5, "!") => ${JSON.stringify(outOfBounds)}`);
+  yield* Console.log(`insertAt(["x", "y"], -1, "!") => ${JSON.stringify(negativeIndex)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +85,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Insert into the middle of an array using the documented three-argument call form.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable + Bounds",
+      description: "Use data-last style with an iterable and show that invalid indices return undefined.",
+      run: exampleCurriedAndBoundsInvocation,
     },
   ],
 });

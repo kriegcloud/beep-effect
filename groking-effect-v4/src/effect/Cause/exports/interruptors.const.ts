@@ -27,11 +27,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -47,19 +43,31 @@ const sourceSummary =
   "Collects the fiber IDs of all {@link Interrupt} reasons in the cause into a `ReadonlySet`. Returns an empty set when the cause has no interrupts.";
 const sourceExample =
   'import { Cause } from "effect"\n\nconst cause = Cause.combine(\n  Cause.interrupt(1),\n  Cause.interrupt(2)\n)\nconsole.log(Cause.interruptors(cause)) // Set { 1, 2 }';
-const moduleRecord = CauseModule as Record<string, unknown>;
+
+const formatInterruptors = (interruptors: ReadonlySet<unknown>): string =>
+  `[${Array.from(interruptors, (fiberId) => String(fiberId)).join(", ")}]`;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleRuntimeShape = Effect.gen(function* () {
+  yield* Console.log(`typeof Cause.interruptors: ${typeof CauseModule.interruptors}`);
+  yield* Console.log(`Cause.interruptors arity: ${CauseModule.interruptors.length} (expects a Cause input)`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const cause = CauseModule.combine(CauseModule.interrupt(1), CauseModule.interrupt(2));
+  const ids = CauseModule.interruptors(cause);
+
+  yield* Console.log(`interruptors(interrupt(1) + interrupt(2)) -> ${formatInterruptors(ids)}`);
+});
+
+const exampleNoInterrupts = Effect.gen(function* () {
+  const noInterruptCause = CauseModule.combine(CauseModule.fail("boom"), CauseModule.die("defect"));
+  const ids = CauseModule.interruptors(noInterruptCause);
+
+  yield* Console.log(`interruptors(fail + die) size -> ${ids.size}`);
+  yield* Console.log(`interruptors(fail + die) values -> ${formatInterruptors(ids)}`);
 });
 
 /* ========================================================================== *
@@ -74,14 +82,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Runtime Shape",
+      description: "Confirm interruptors is a callable value that expects a Cause argument.",
+      run: exampleRuntimeShape,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Collect interrupting fiber IDs from a combined cause with two interrupts.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "No Interrupts Returns Empty Set",
+      description: "A cause with only fail/die reasons produces an empty ReadonlySet.",
+      run: exampleNoInterrupts,
     },
   ],
 });

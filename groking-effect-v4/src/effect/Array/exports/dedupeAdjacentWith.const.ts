@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Removes consecutive duplicate elements using a custom equivalence.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.dedupeAdjacentWith([1, 1, 2, 2, 3, 3], (a, b) => a === b))\n// [1, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,26 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 1, 2, 2, 3, 3];
+  const result = A.dedupeAdjacentWith(input, (a, b) => a === b);
+  yield* Console.log(`dedupeAdjacentWith([1,1,2,2,3,3], eq) => ${JSON.stringify(result)}`);
+  yield* Console.log(`original input remains ${JSON.stringify(input)}`);
+});
+
+const exampleCurriedCustomEquivalence = Effect.gen(function* () {
+  type User = { readonly id: number; readonly name: string };
+  const users: ReadonlyArray<User> = [
+    { id: 1, name: "Alice" },
+    { id: 1, name: "Alice v2" },
+    { id: 2, name: "Bob" },
+    { id: 1, name: "Alice reintroduced" },
+  ];
+  const dedupeById = A.dedupeAdjacentWith<User>((left, right) => left.id === right.id);
+  const result = dedupeById(users).map((user) => `${user.id}:${user.name}`);
+
+  yield* Console.log(`dedupeAdjacentWith(byId)(users) => ${JSON.stringify(result)}`);
+  yield* Console.log("Only adjacent equivalent entries are collapsed.");
 });
 
 /* ========================================================================== *
@@ -75,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Apply the documented equality-based deduplication to adjacent runs.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Custom Equivalence",
+      description: "Use the curried form to dedupe adjacent objects by id.",
+      run: exampleCurriedCustomEquivalence,
     },
   ],
 });

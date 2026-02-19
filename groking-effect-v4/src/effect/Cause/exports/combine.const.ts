@@ -26,11 +26,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -46,19 +42,33 @@ const sourceSummary =
   "Merges two causes into a single cause whose `reasons` array is the union of both inputs (de-duplicated by value equality).";
 const sourceExample =
   'import { Cause } from "effect"\n\nconst cause1 = Cause.fail("error1")\nconst cause2 = Cause.fail("error2")\nconst combined = Cause.combine(cause1, cause2)\nconsole.log(combined.reasons.length) // 2';
-const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedCombine = Effect.gen(function* () {
+  const cause1 = CauseModule.fail("error1");
+  const cause2 = CauseModule.fail("error2");
+  const combined = CauseModule.combine(cause1, cause2);
+  const failureValues = combined.reasons.filter(CauseModule.isFailReason).map((reason) => String(reason.error));
+
+  yield* Console.log(`cause1 reasons: ${cause1.reasons.length}`);
+  yield* Console.log(`cause2 reasons: ${cause2.reasons.length}`);
+  yield* Console.log(`combined reasons: ${combined.reasons.length}`);
+  yield* Console.log(`combined fail values: ${failureValues.join(", ")}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleIdentityAndDedupShortcuts = Effect.gen(function* () {
+  const self = CauseModule.fail("duplicate");
+  const duplicate = CauseModule.fail("duplicate");
+  const deduped = CauseModule.combine(self, duplicate);
+  const withEmptyLeft = CauseModule.combine(CauseModule.empty, self);
+  const withEmptyRight = CauseModule.combine(self, CauseModule.empty);
+
+  yield* Console.log(`deduped reasons: ${deduped.reasons.length}`);
+  yield* Console.log(`deduped returns self: ${deduped === self}`);
+  yield* Console.log(`combine(empty, self) returns self: ${withEmptyLeft === self}`);
+  yield* Console.log(`combine(self, empty) returns self: ${withEmptyRight === self}`);
 });
 
 /* ========================================================================== *
@@ -73,14 +83,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Cause Merge",
+      description: "Combine two fail causes and inspect the merged reason count and error values.",
+      run: exampleSourceAlignedCombine,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Identity And Dedup Shortcuts",
+      description: "Show de-duplication and the empty-cause identity/reference shortcuts documented for combine.",
+      run: exampleIdentityAndDedupShortcuts,
     },
   ],
 });

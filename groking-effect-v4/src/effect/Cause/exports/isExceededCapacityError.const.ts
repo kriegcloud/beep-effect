@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,31 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the guard export and verify that it is callable.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+  yield* Console.log(`Guard arity: ${CauseModule.isExceededCapacityError.length}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedGuardCheck = Effect.gen(function* () {
+  const exceeded = new CauseModule.ExceededCapacityError("Queue full");
+
+  yield* Console.log(
+    `isExceededCapacityError(new ExceededCapacityError("Queue full")) => ${CauseModule.isExceededCapacityError(exceeded)}`
+  );
+  yield* Console.log(`isExceededCapacityError("nope") => ${CauseModule.isExceededCapacityError("nope")}`);
+});
+
+const exampleStructuralBrandCheck = Effect.gen(function* () {
+  const brandKey = CauseModule.ExceededCapacityErrorTypeId;
+  const exceeded = new CauseModule.ExceededCapacityError("Queue full");
+  const timeout = new CauseModule.TimeoutError("Timed out");
+  const brandedPlainObject = { [brandKey]: brandKey, _tag: "ExceededCapacityError" };
+
+  yield* Console.log(
+    `Exceeded/Timeout => ${CauseModule.isExceededCapacityError(exceeded)} / ${CauseModule.isExceededCapacityError(timeout)}`
+  );
+  yield* Console.log(`Branded plain object => ${CauseModule.isExceededCapacityError(brandedPlainObject)}`);
+  yield* Console.log("Contract note: this guard is structural and checks for the brand property.");
 });
 
 /* ========================================================================== *
@@ -71,13 +85,18 @@ const program = createPlaygroundProgram({
   examples: [
     {
       title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      description: "Inspect module export count, runtime type, preview, and function arity.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Guard Check",
+      description: "Run the JSDoc scenario with an ExceededCapacityError and a non-matching value.",
+      run: exampleSourceAlignedGuardCheck,
+    },
+    {
+      title: "Structural Brand Check",
+      description: "Compare Exceeded/Timeout errors and show that a branded object also satisfies the guard.",
+      run: exampleStructuralBrandCheck,
     },
   ],
 });

@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -41,19 +37,28 @@ const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Wraps a single value in a `NonEmptyArray`.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.of(1)) // [1]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime shape and preview for Array.of.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const result = A.of(1);
+  yield* Console.log(`Array.of(1) => ${JSON.stringify(result)}`);
+  yield* Console.log(`Result length: ${result.length}`);
+});
+
+const exampleReferencePreservation = Effect.gen(function* () {
+  const payload = { id: 101, tags: ["draft"] };
+  const wrapped = A.of(payload);
+  payload.tags.push("queued");
+  yield* Console.log(`Wrapped payload id: ${wrapped[0].id}`);
+  yield* Console.log(`Wrapped payload tags: ${JSON.stringify(wrapped[0].tags)}`);
 });
 
 /* ========================================================================== *
@@ -73,9 +78,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented unary call and confirm a single-element non-empty array.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Reference Preservation",
+      description: "Show that wrapping an object keeps the same element reference in the resulting array.",
+      run: exampleReferencePreservation,
     },
   ],
 });

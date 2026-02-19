@@ -27,7 +27,7 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -37,7 +37,7 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Option";
 const sourceSummary = "Represents the absence of a value within an {@link Option}.";
 const sourceExample = "";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,19 +53,19 @@ const exampleCompanionExportInspection = Effect.gen(function* () {
 });
 
 const exampleNoneCompanionFlow = Effect.gen(function* () {
-  const absentUser = OptionModule.none<string>();
-  const presentUser = OptionModule.some("Ava");
+  const absentUser = O.none<string>();
+  const presentUser = O.some("Ava");
 
-  const absentMessage = OptionModule.match(absentUser, {
+  const absentMessage = O.match(absentUser, {
     onNone: () => "No user available.",
     onSome: (user) => `User: ${user}`,
   });
-  const presentMessage = OptionModule.match(presentUser, {
+  const presentMessage = O.match(presentUser, {
     onNone: () => "No user available.",
     onSome: (user) => `User: ${user}`,
   });
 
-  yield* Console.log(`isNone(absentUser): ${OptionModule.isNone(absentUser)}`);
+  yield* Console.log(`isNone(absentUser): ${O.isNone(absentUser)}`);
   yield* Console.log(`match(None): ${absentMessage}`);
   yield* Console.log(`match(Some): ${presentMessage}`);
 });

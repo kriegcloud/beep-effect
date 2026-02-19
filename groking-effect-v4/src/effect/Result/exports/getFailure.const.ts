@@ -27,14 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
@@ -52,13 +49,34 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect getFailure as a runtime function export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const fromSuccess = ResultModule.getFailure(ResultModule.succeed("ok"));
+  const fromFailure = ResultModule.getFailure(ResultModule.fail("err"));
+
+  yield* Console.log(`getFailure(succeed("ok")) => ${formatUnknown(fromSuccess)}`);
+  yield* Console.log(`getFailure(fail("err")) => ${formatUnknown(fromFailure)}`);
+});
+
+const describeFailure = O.match({
+  onNone: () => "no failure",
+  onSome: (failure: string) => `failure captured: ${failure}`,
+});
+
+const exampleFailureOnlyBranching = Effect.gen(function* () {
+  const readThreshold = (raw: string): ResultModule.Result<number, string> => {
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? ResultModule.succeed(parsed) : ResultModule.fail(`invalid number: ${raw}`);
+  };
+
+  const validFailure = ResultModule.getFailure(readThreshold("42"));
+  const invalidFailure = ResultModule.getFailure(readThreshold("forty-two"));
+
+  yield* Console.log(`readThreshold("42") => ${describeFailure(validFailure)}`);
+  yield* Console.log(`readThreshold("forty-two") => ${describeFailure(invalidFailure)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +96,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Failure Extraction",
+      description: "Reproduce the documented Success/Failure conversions into Option.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Failure-Only Branching",
+      description: "Use Option matching after getFailure when only the error channel matters.",
+      run: exampleFailureOnlyBranching,
     },
   ],
 });

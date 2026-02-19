@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -44,19 +40,35 @@ const sourceSummary =
   "Removes the element at the specified index, returning a new array. If the index is out of bounds, returns a copy of the original.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.remove([1, 2, 3, 4], 2)) // [1, 2, 4]\nconsole.log(Array.remove([1, 2, 3, 4], 5)) // [1, 2, 3, 4]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the remove export runtime shape before invocation.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3, 4];
+  const removed = A.remove(input, 2);
+  const outOfBounds = A.remove(input, 5);
+
+  yield* Console.log(`A.remove([1, 2, 3, 4], 2) => ${formatUnknown(removed)}`);
+  yield* Console.log(`A.remove([1, 2, 3, 4], 5) => ${formatUnknown(outOfBounds)}`);
+  yield* Console.log(`Out-of-bounds returns copy (same reference: ${outOfBounds === input})`);
+  yield* Console.log(`Original input remains => ${formatUnknown(input)}`);
+});
+
+const exampleCurriedInvocation = Effect.gen(function* () {
+  const removeAt1 = A.remove(1);
+  const fromSet = removeAt1(new Set(["alpha", "beta", "gamma"]));
+  const removeHead = A.remove(0);
+  const fromArray = removeHead(["first", "second", "third"]);
+
+  yield* Console.log(`A.remove(1)(Set("alpha", "beta", "gamma")) => ${formatUnknown(fromSet)}`);
+  yield* Console.log(`A.remove(0)(["first", "second", "third"]) => ${formatUnknown(fromArray)}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Remove an in-range index and show the out-of-bounds copy behavior.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable Invocation",
+      description: "Use data-last form with iterable input and remove the head with a partial application.",
+      run: exampleCurriedInvocation,
     },
   ],
 });

@@ -28,11 +28,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -53,13 +49,46 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect mapError as a callable Result failure-channel transformer.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedErrorMapping = Effect.gen(function* () {
+  yield* Console.log("mapError transforms Failure values while preserving Success.");
+  const fromFailure = ResultModule.fail("not found").pipe(ResultModule.mapError((e) => `Error: ${e}`));
+  const fromSuccess: ResultModule.Result<number, string> = ResultModule.succeed(3);
+  const unchangedSuccess = fromSuccess.pipe(ResultModule.mapError((e) => `Error: ${e}`));
+
+  yield* Console.log(`fail("not found") -> ${summarizeResult(fromFailure)}`);
+  yield* Console.log(`succeed(3) -> ${summarizeResult(unchangedSuccess)}`);
+});
+
+const exampleMapperExecution = Effect.gen(function* () {
+  yield* Console.log("Mapper executes only for Failure inputs.");
+  let mapperCalls = 0;
+  const mapper = (error: string) => {
+    mapperCalls += 1;
+    return { type: "MappedError", message: error.toUpperCase() };
+  };
+
+  const dataFirstFailure: ResultModule.Result<number, string> = ResultModule.fail("boom");
+  const mappedFailure = ResultModule.mapError(dataFirstFailure, mapper);
+  const callsAfterFailure = mapperCalls;
+
+  const dataFirstSuccess: ResultModule.Result<number, string> = ResultModule.succeed(1);
+  const mappedSuccess = ResultModule.mapError(dataFirstSuccess, mapper);
+  const callsAfterSuccess = mapperCalls;
+
+  yield* Console.log(
+    `mapError(fail("boom"), mapper) -> ${summarizeResult(mappedFailure)} (calls: ${callsAfterFailure})`
+  );
+  yield* Console.log(`mapError(succeed(1), mapper) -> ${summarizeResult(mappedSuccess)} (calls: ${callsAfterSuccess})`);
 });
 
 /* ========================================================================== *
@@ -79,9 +108,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Error Mapping",
+      description: "Reproduce the documented failure mapping behavior and confirm Success is unchanged.",
+      run: exampleSourceAlignedErrorMapping,
+    },
+    {
+      title: "Mapper Execution Behavior",
+      description: "Use data-first invocation and show the mapper is skipped for Success inputs.",
+      run: exampleMapperExecution,
     },
   ],
 });

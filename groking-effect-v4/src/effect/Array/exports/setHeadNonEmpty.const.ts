@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,34 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Replaces the first element of a non-empty array with a new value.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.setHeadNonEmpty([1, 2, 3], 10)) // [10, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleRuntimeContractSnapshot = Effect.gen(function* () {
+  yield* Console.log(`typeof setHeadNonEmpty -> ${typeof A.setHeadNonEmpty}`);
+  yield* Console.log(`setHeadNonEmpty.length -> ${A.setHeadNonEmpty.length}`);
+  yield* Console.log("Contract: non-empty input required; returns a new array with only index 0 replaced.");
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3] as const;
+  const result = A.setHeadNonEmpty(input, 10);
+
+  yield* Console.log(`setHeadNonEmpty([1, 2, 3], 10) -> ${JSON.stringify(result)}`);
+  yield* Console.log(`original input remains -> ${JSON.stringify(input)}`);
+});
+
+const exampleCurriedInvocation = Effect.gen(function* () {
+  const replaceHeadWithZero = A.setHeadNonEmpty(0);
+  const readings = [9, 8, 7] as const;
+  const singleton = [42] as const;
+
+  const readingsUpdated = replaceHeadWithZero(readings);
+  const singletonUpdated = replaceHeadWithZero(singleton);
+
+  yield* Console.log(`setHeadNonEmpty(0)([9, 8, 7]) -> ${JSON.stringify(readingsUpdated)}`);
+  yield* Console.log(`setHeadNonEmpty(0)([42]) -> ${JSON.stringify(singletonUpdated)}`);
 });
 
 /* ========================================================================== *
@@ -69,14 +80,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Runtime Contract Snapshot",
+      description: "Confirm callable runtime shape and the non-empty contract for this helper.",
+      run: exampleRuntimeContractSnapshot,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Head Replacement",
+      description: "Mirror the JSDoc call and show only the first element changes.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Form + Singleton Input",
+      description: "Use data-last invocation and show behavior for both multi-item and single-item arrays.",
+      run: exampleCurriedInvocation,
     },
   ],
 });

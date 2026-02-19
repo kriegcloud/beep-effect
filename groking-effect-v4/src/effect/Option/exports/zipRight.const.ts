@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +42,38 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Sequences two `Option`s, keeping the value from the second if both are `Some`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconsole.log(Option.zipRight(Option.some(1), Option.some(\"hello\")))\n// Output: { _id: 'Option', _tag: 'Some', value: 'hello' }\n\nconsole.log(Option.zipRight(Option.none(), Option.some(\"hello\")))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
+
+const formatOption = <A>(option: O.Option<A>): string =>
+  O.match({
+    onNone: () => "None",
+    onSome: (value) => `Some(${JSON.stringify(value)})`,
+  })(option);
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Option.zipRight as a callable runtime export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleKeepRightWhenBothSome = Effect.gen(function* () {
+  yield* Console.log("When both values are Some, zipRight keeps the right-side value.");
+  const left = O.some(1);
+  const right = O.some("hello");
+  const zipped = O.zipRight(left, right);
+
+  yield* Console.log(`zipRight(Some(1), Some("hello")) => ${formatOption(zipped)}`);
+});
+
+const exampleNoneShortCircuit = Effect.gen(function* () {
+  yield* Console.log("If either side is None, the result is None.");
+  const noneLeft = O.zipRight(O.none<number>(), O.some("hello"));
+  const noneRight = O.zipRight(O.some(1), O.none<string>());
+
+  yield* Console.log(`zipRight(None, Some("hello")) => ${formatOption(noneLeft)}`);
+  yield* Console.log(`zipRight(Some(1), None) => ${formatOption(noneRight)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +93,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Keep Right Value",
+      description: "Demonstrate that the right Option value is preserved when both sides are Some.",
+      run: exampleKeepRightWhenBothSome,
+    },
+    {
+      title: "None Short-Circuit",
+      description: "Show that None on either side produces None.",
+      run: exampleNoneShortCircuit,
     },
   ],
 });

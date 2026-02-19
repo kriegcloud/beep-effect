@@ -27,15 +27,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,7 +43,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Separates an iterable of `Result`s into two arrays: failures and successes.";
 const sourceExample =
   'import { Array, Result } from "effect"\n\nconst [failures, successes] = Array.separate([\n  Result.succeed(1), Result.fail("error"), Result.succeed(2)\n])\nconsole.log(failures) // ["error"]\nconsole.log(successes) // [1, 2]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -56,9 +53,27 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [Result.succeed(1), Result.fail("error"), Result.succeed(2)];
+  const [failures, successes] = A.separate(input);
+
+  yield* Console.log(
+    `A.separate([succeed(1), fail("error"), succeed(2)]) => failures=${JSON.stringify(failures)} successes=${JSON.stringify(successes)}`
+  );
+});
+
+const exampleIterableInputAndEdgeCase = Effect.gen(function* () {
+  const [setFailures, setSuccesses] = A.separate(
+    new Set([Result.fail("first"), Result.succeed(10), Result.fail("second"), Result.succeed(20)])
+  );
+  const [allFailures, noSuccesses] = A.separate([Result.fail("bad"), Result.fail("worse")]);
+
+  yield* Console.log(
+    `A.separate(Set([...])) => failures=${JSON.stringify(setFailures)} successes=${JSON.stringify(setSuccesses)}`
+  );
+  yield* Console.log(
+    `A.separate(all failures) => failures=${JSON.stringify(allFailures)} successes=${JSON.stringify(noSuccesses)}`
+  );
 });
 
 /* ========================================================================== *
@@ -78,9 +93,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Separate mixed Result values into failure and success arrays using the documented call shape.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Iterable Input And Empty Success Case",
+      description: "Show iterable support and behavior when the input contains only failures.",
+      run: exampleIterableInputAndEdgeCase,
     },
   ],
 });

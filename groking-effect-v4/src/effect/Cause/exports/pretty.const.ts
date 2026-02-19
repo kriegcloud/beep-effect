@@ -26,11 +26,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -50,14 +46,43 @@ const moduleRecord = CauseModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
+const firstRenderedLine = (rendered: string): string => rendered.split("\n")[0] ?? "<empty render>";
+
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect pretty as a callable rendering export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedFailRendering = Effect.gen(function* () {
+  yield* Console.log("Render a single typed failure, matching the source example.");
+
+  const cause = CauseModule.fail("something went wrong");
+  const rendered = CauseModule.pretty(cause);
+
+  yield* Console.log(`first line: ${firstRenderedLine(rendered)}`);
+  yield* Console.log(`includes message: ${rendered.includes("something went wrong")}`);
+});
+
+const exampleCombinedFailAndDefectRendering = Effect.gen(function* () {
+  yield* Console.log("Render a mixed cause and confirm both reasons are represented.");
+
+  const mixedCause = CauseModule.combine(CauseModule.fail("typed failure"), CauseModule.die(new Error("defect boom")));
+  const rendered = CauseModule.pretty(mixedCause);
+  const renderedErrors = CauseModule.prettyErrors(mixedCause);
+
+  yield* Console.log(`prettyErrors count: ${renderedErrors.length}`);
+  yield* Console.log(`includes typed failure: ${rendered.includes("typed failure")}`);
+  yield* Console.log(`includes defect message: ${rendered.includes("defect boom")}`);
+});
+
+const exampleInterruptOnlyRendering = Effect.gen(function* () {
+  yield* Console.log("Interrupt-only causes render as InterruptError text.");
+
+  const interruptCause = CauseModule.interrupt(123);
+  const rendered = CauseModule.pretty(interruptCause);
+
+  yield* Console.log(`first line: ${firstRenderedLine(rendered)}`);
+  yield* Console.log(`mentions interrupt id: ${rendered.includes("#123")}`);
 });
 
 /* ========================================================================== *
@@ -77,9 +102,19 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Fail Rendering",
+      description: "Render a single fail cause and inspect the leading error line.",
+      run: exampleSourceAlignedFailRendering,
+    },
+    {
+      title: "Mixed Fail And Defect Rendering",
+      description: "Render a combined cause and confirm both error messages appear.",
+      run: exampleCombinedFailAndDefectRendering,
+    },
+    {
+      title: "Interrupt-Only Rendering",
+      description: "Show the InterruptError output shape for interrupt-only causes.",
+      run: exampleInterruptOnlyRendering,
     },
   ],
 });

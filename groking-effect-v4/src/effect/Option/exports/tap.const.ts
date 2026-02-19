@@ -30,15 +30,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,19 +46,39 @@ const sourceSummary =
   "Runs a side-effecting `Option`-returning function on the value of a `Some`, returning the original `Option` if the function returns `Some`, or `None` if it returns `None`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconst getInteger = (n: number) =>\n  Number.isInteger(n) ? Option.some(n) : Option.none()\n\nconsole.log(Option.tap(Option.some(1), getInteger))\n// Output: { _id: 'Option', _tag: 'Some', value: 1 }\n\nconsole.log(Option.tap(Option.some(1.14), getInteger))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const getInteger = (n: number): O.Option<number> => (Number.isInteger(n) ? O.some(n) : O.none());
+
+const exampleSourceAlignedIntegerGate = Effect.gen(function* () {
+  yield* Console.log("Gate Some values by requiring integers.");
+  const integerInput = O.tap(O.some(1), getInteger);
+  const decimalInput = O.tap(O.some(1.14), getInteger);
+  const noneInput = O.tap(O.none<number>(), getInteger);
+
+  yield* Console.log(`tap(some(1), getInteger) -> ${formatUnknown(integerInput)}`);
+  yield* Console.log(`tap(some(1.14), getInteger) -> ${formatUnknown(decimalInput)}`);
+  yield* Console.log(`tap(none(), getInteger) -> ${formatUnknown(noneInput)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+interface Session {
+  readonly userId: number;
+  readonly active: boolean;
+}
+
+const requireActiveSession = O.tap((session: Session) =>
+  session.active ? O.some(`validated:${session.userId}`) : O.none<string>()
+);
+
+const exampleOriginalValuePreserved = Effect.gen(function* () {
+  yield* Console.log("Tap preserves the original Some value on success.");
+  const activeSession = requireActiveSession(O.some({ userId: 42, active: true }));
+  const inactiveSession = requireActiveSession(O.some({ userId: 42, active: false }));
+
+  yield* Console.log(`active session -> ${formatUnknown(activeSession)}`);
+  yield* Console.log(`inactive session -> ${formatUnknown(inactiveSession)}`);
 });
 
 /* ========================================================================== *
@@ -77,14 +93,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Integer Gate",
+      description: "Mirror the JSDoc behavior with integer, decimal, and none inputs.",
+      run: exampleSourceAlignedIntegerGate,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Preserve Original Value",
+      description: "Show that successful tap checks keep the original payload untouched.",
+      run: exampleOriginalValuePreserved,
     },
   ],
 });

@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Reads an element at the given index, throwing if the index is out of bounds.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.getUnsafe([1, 2, 3], 1)) // 2\n// Array.getUnsafe([1, 2, 3], 10) // throws Error';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,32 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const formatThrown = (error: unknown): string =>
+  error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const hit = A.getUnsafe([1, 2, 3], 1);
+  const miss = yield* attemptThunk(() => A.getUnsafe([1, 2, 3], 10));
+
+  yield* Console.log(`A.getUnsafe([1, 2, 3], 1) => ${hit}`);
+  if (miss._tag === "Left") {
+    yield* Console.log(`A.getUnsafe([1, 2, 3], 10) threw ${formatThrown(miss.error)}`);
+  } else {
+    yield* Console.log("A.getUnsafe([1, 2, 3], 10) unexpectedly succeeded.");
+  }
+});
+
+const exampleDataLastAndFlooring = Effect.gen(function* () {
+  const getAtOnePointNine = A.getUnsafe(1.9);
+  const hit = getAtOnePointNine(["kick", "snare", "hat"]);
+  const miss = yield* attemptThunk(() => A.getUnsafe(-0.2)(["kick", "snare", "hat"]));
+
+  yield* Console.log(`A.getUnsafe(1.9)(["kick", "snare", "hat"]) => ${hit}`);
+  if (miss._tag === "Left") {
+    yield* Console.log(`A.getUnsafe(-0.2)(["kick", "snare", "hat"]) threw ${formatThrown(miss.error)}`);
+  } else {
+    yield* Console.log("A.getUnsafe(-0.2)(...) unexpectedly succeeded.");
+  }
 });
 
 /* ========================================================================== *
@@ -75,9 +94,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Unsafe Lookup",
+      description: "Mirror the docs: read an in-range index and capture the out-of-range throw.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Data-Last + Floored Index",
+      description: "Use curried form and show that non-integer indexes are floored before bounds checks.",
+      run: exampleDataLastAndFlooring,
     },
   ],
 });

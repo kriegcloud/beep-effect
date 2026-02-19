@@ -33,15 +33,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,19 +49,32 @@ const sourceSummary =
   "Filters an `Option` using a predicate. Returns `None` if the predicate is not satisfied or the input is `None`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconst removeEmpty = (input: Option.Option<string>) =>\n  Option.filter(input, (value) => value !== \"\")\n\nconsole.log(removeEmpty(Option.some(\"hello\")))\n// Output: { _id: 'Option', _tag: 'Some', value: 'hello' }\n\nconsole.log(removeEmpty(Option.some(\"\")))\n// Output: { _id: 'Option', _tag: 'None' }\n\nconsole.log(removeEmpty(Option.none()))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAligned = Effect.gen(function* () {
+  const removeEmpty = (input: O.Option<string>) => O.filter(input, (value) => value !== "");
+
+  const keepHello = removeEmpty(O.some("hello"));
+  const dropEmpty = removeEmpty(O.some(""));
+  const keepNone = removeEmpty(O.none<string>());
+
+  yield* Console.log(`some("hello") -> ${formatUnknown(keepHello)}`);
+  yield* Console.log(`some("") -> ${formatUnknown(dropEmpty)}`);
+  yield* Console.log(`none() -> ${formatUnknown(keepNone)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCurriedPredicate = Effect.gen(function* () {
+  const keepEven = O.filter((n: number) => n % 2 === 0);
+
+  const evenValue = keepEven(O.some(6));
+  const oddValue = keepEven(O.some(5));
+  const noneValue = keepEven(O.none<number>());
+
+  yield* Console.log(`keepEven(some(6)) -> ${formatUnknown(evenValue)}`);
+  yield* Console.log(`keepEven(some(5)) -> ${formatUnknown(oddValue)}`);
+  yield* Console.log(`keepEven(none()) -> ${formatUnknown(noneValue)}`);
 });
 
 /* ========================================================================== *
@@ -80,14 +89,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Filtering",
+      description: "Apply filter to non-empty, empty, and none inputs using the JSDoc pattern.",
+      run: exampleSourceAligned,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Curried Predicate Reuse",
+      description: "Prebuild a predicate with data-last form, then reuse it across options.",
+      run: exampleCurriedPredicate,
     },
   ],
 });

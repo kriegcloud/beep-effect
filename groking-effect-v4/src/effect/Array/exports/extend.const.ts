@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const sourceSummary =
   "Applies a function to each suffix of the array (starting from each index), collecting the results.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.extend([1, 2, 3], (as) => as.length)) // [3, 2, 1]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,18 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedSuffixLengths = Effect.gen(function* () {
+  const result = A.extend([1, 2, 3], (as) => as.length);
+  yield* Console.log(`extend([1,2,3], (as) => as.length) => ${JSON.stringify(result)}`);
+});
+
+const exampleCurriedSuffixAggregation = Effect.gen(function* () {
+  const suffixSum = A.extend((as: ReadonlyArray<number>) => as.reduce((sum, n) => sum + n, 0));
+  const sums = suffixSum([10, 20, 30, 40]);
+  const emptyInput = suffixSum([]);
+
+  yield* Console.log(`extend(sumSuffix)([10,20,30,40]) => ${JSON.stringify(sums)}`);
+  yield* Console.log(`extend(sumSuffix)([]) => ${JSON.stringify(emptyInput)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +80,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Suffix Lengths",
+      description: "Apply the callback to each suffix, matching the documented example.",
+      run: exampleSourceAlignedSuffixLengths,
+    },
+    {
+      title: "Curried Suffix Aggregation",
+      description: "Use the curried form and aggregate each suffix into a deterministic sum.",
+      run: exampleCurriedSuffixAggregation,
     },
   ],
 });

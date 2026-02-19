@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -37,19 +33,29 @@ const exportKind = "const";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "A {@link Cause} with an empty `reasons` array.";
 const sourceExample = "";
-const moduleRecord = CauseModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleEmptyShape = Effect.gen(function* () {
+  const empty = CauseModule.empty;
+
+  yield* Console.log(`isCause(empty): ${CauseModule.isCause(empty)}`);
+  yield* Console.log(`empty.reasons.length: ${empty.reasons.length}`);
+  yield* Console.log(`hasFails(empty): ${CauseModule.hasFails(empty)}`);
+  yield* Console.log(`hasInterrupts(empty): ${CauseModule.hasInterrupts(empty)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCombineIdentity = Effect.gen(function* () {
+  const failCause = CauseModule.fail("boom");
+  const interruptCause = CauseModule.interrupt();
+  const withEmptyOnLeft = CauseModule.combine(CauseModule.empty, failCause);
+  const withEmptyOnRight = CauseModule.combine(failCause, CauseModule.empty);
+  const interruptWithEmpty = CauseModule.combine(CauseModule.empty, interruptCause);
+
+  yield* Console.log(`combine(empty, fail) keeps reference: ${withEmptyOnLeft === failCause}`);
+  yield* Console.log(`combine(fail, empty) keeps reference: ${withEmptyOnRight === failCause}`);
+  yield* Console.log(`combine(empty, interrupt).reasons.length: ${interruptWithEmpty.reasons.length}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +70,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Empty Cause Shape",
+      description: "Inspect the core invariants of `Cause.empty` as a data value.",
+      run: exampleEmptyShape,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Identity In Cause.combine",
+      description: "`Cause.empty` acts as a neutral element when combining causes.",
+      run: exampleCombineIdentity,
     },
   ],
 });

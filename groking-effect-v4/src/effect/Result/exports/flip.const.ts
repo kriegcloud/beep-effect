@@ -27,11 +27,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -46,19 +42,29 @@ const moduleImportPath = "effect/Result";
 const sourceSummary = "Swaps the success and failure channels of a `Result`.";
 const sourceExample =
   'import { Result } from "effect"\n\nconsole.log(Result.flip(Result.succeed(42)))\n// Output: { _tag: "Failure", failure: 42, ... }\n\nconsole.log(Result.flip(Result.fail("error")))\n// Output: { _tag: "Success", success: "error", ... }';
-const moduleRecord = ResultModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAligned = Effect.gen(function* () {
+  const flippedSuccess = ResultModule.flip(ResultModule.succeed(42));
+  const flippedFailure = ResultModule.flip(ResultModule.fail("error"));
+
+  yield* Console.log(`flip(succeed(42)) -> ${formatUnknown(flippedSuccess)}`);
+  yield* Console.log(`flip(fail("error")) -> ${formatUnknown(flippedFailure)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleRoundTrip = Effect.gen(function* () {
+  const originalSuccess = ResultModule.succeed({ id: 1, status: "ok" });
+  const originalFailure = ResultModule.fail({ code: "E_TIMEOUT", retryable: true });
+
+  const roundTripSuccess = ResultModule.flip(ResultModule.flip(originalSuccess));
+  const roundTripFailure = ResultModule.flip(ResultModule.flip(originalFailure));
+
+  yield* Console.log(`double-flip succeed tags: ${originalSuccess._tag} -> ${roundTripSuccess._tag}`);
+  yield* Console.log(`double-flip fail tags: ${originalFailure._tag} -> ${roundTripFailure._tag}`);
+  yield* Console.log(`roundTripSuccess -> ${formatUnknown(roundTripSuccess)}`);
+  yield* Console.log(`roundTripFailure -> ${formatUnknown(roundTripFailure)}`);
 });
 
 /* ========================================================================== *
@@ -73,14 +79,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Channel Swap",
+      description: "Flip a success and a failure value, matching the JSDoc behavior.",
+      run: exampleSourceAligned,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Double-Flip Round Trip",
+      description: "Apply flip twice to confirm the original channel orientation is restored.",
+      run: exampleRoundTrip,
     },
   ],
 });

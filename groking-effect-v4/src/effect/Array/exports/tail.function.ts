@@ -23,13 +23,9 @@
  * - Function export exploration with focused runtime examples.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,7 +38,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Returns all elements except the first, or `undefined` if the array is empty.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.tail([1, 2, 3, 4])) // [2, 3, 4]\nconsole.log(Array.tail([])) // undefined';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -52,9 +48,19 @@ const exampleFunctionDiscovery = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleFunctionInvocation = Effect.gen(function* () {
-  yield* Console.log("Execute a safe zero-arg invocation probe.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3, 4];
+  const result = A.tail(input);
+  const formattedResult = result === undefined ? "undefined" : `[${result.join(", ")}]`;
+
+  yield* Console.log(`tail([${input.join(", ")}]) -> ${formattedResult}`);
+});
+
+const exampleEmptyArrayBoundary = Effect.gen(function* () {
+  const input: ReadonlyArray<number> = [];
+  const result = A.tail(input);
+
+  yield* Console.log(`tail([]) -> ${result === undefined ? "undefined" : `[${result.join(", ")}]`}`);
 });
 
 /* ========================================================================== *
@@ -74,9 +80,14 @@ const program = createPlaygroundProgram({
       run: exampleFunctionDiscovery,
     },
     {
-      title: "Zero-Arg Invocation Probe",
-      description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation,
+      title: "Source-Aligned Invocation",
+      description: "Mirror the documented example with a non-empty array input.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Boundary: Empty Input",
+      description: "Show that an empty array returns undefined.",
+      run: exampleEmptyArrayBoundary,
     },
   ],
 });

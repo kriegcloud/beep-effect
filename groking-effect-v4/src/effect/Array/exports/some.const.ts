@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -44,7 +40,7 @@ const sourceSummary =
   "Tests whether at least one element satisfies the predicate. Narrows the type to `NonEmptyReadonlyArray` on success.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.some([1, 3, 4], (x) => x % 2 === 0)) // true\nconsole.log(Array.some([1, 3, 5], (x) => x % 2 === 0)) // false';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -54,9 +50,33 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const hasEven = A.some([1, 3, 4], (x) => x % 2 === 0);
+  const allOdd = A.some([1, 3, 5], (x) => x % 2 === 0);
+  yield* Console.log(`some([1, 3, 4], isEven) => ${hasEven}`);
+  yield* Console.log(`some([1, 3, 5], isEven) => ${allOdd}`);
+});
+
+const exampleCurriedShortCircuit = Effect.gen(function* () {
+  const readings = [12, 15, 22, 9, 30];
+  let callsUntilFirstMatch = 0;
+  const isCritical = (value: unknown) => {
+    const numeric = typeof value === "number" ? value : Number(value);
+    callsUntilFirstMatch += 1;
+    return numeric > 20;
+  };
+  const hasCriticalReading = A.some(isCritical)(readings);
+  let stablePredicateCalls = 0;
+  const isCriticalStable = (value: unknown) => {
+    const numeric = typeof value === "number" ? value : Number(value);
+    stablePredicateCalls += 1;
+    return numeric > 20;
+  };
+  const stableReadings = A.some(isCriticalStable)([5, 7, 9]);
+  yield* Console.log(`A.some(isCritical)([12, 15, 22, 9, 30]) => ${hasCriticalReading}`);
+  yield* Console.log(`predicate evaluated ${callsUntilFirstMatch} element(s) before first match`);
+  yield* Console.log(`A.some(isCritical)([5, 7, 9]) => ${stableReadings}`);
+  yield* Console.log(`predicate evaluated ${stablePredicateCalls} element(s) when no match exists`);
 });
 
 /* ========================================================================== *
@@ -76,9 +96,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Mirror the documented parity checks and observe true/false outcomes.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Short-Circuit Behavior",
+      description: "Use the data-last form and show predicate calls stop after the first match.",
+      run: exampleCurriedShortCircuit,
     },
   ],
 });

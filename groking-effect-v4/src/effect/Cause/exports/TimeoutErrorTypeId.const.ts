@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -37,19 +33,43 @@ const exportKind = "const";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "Unique brand for {@link TimeoutError}.";
 const sourceExample = "";
-const moduleRecord = CauseModule as Record<string, unknown>;
+
+const readBrandValue = (value: unknown, brandKey: PropertyKey): unknown => {
+  if (typeof value !== "object" || value === null) {
+    return undefined;
+  }
+
+  return (value as Record<PropertyKey, unknown>)[brandKey];
+};
+
+const hasOwnBrand = (value: unknown, brandKey: PropertyKey): boolean =>
+  typeof value === "object" && value !== null && Object.prototype.hasOwnProperty.call(value, brandKey);
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleBrandedErrorShape = Effect.gen(function* () {
+  const brandKey = CauseModule.TimeoutErrorTypeId;
+  const error = new CauseModule.TimeoutError("Operation timed out after 5000ms");
+  const brandValue = readBrandValue(error, brandKey);
+
+  yield* Console.log(`Brand key: ${brandKey}`);
+  yield* Console.log(`Error tag/message: ${error._tag} / ${error.message}`);
+  yield* Console.log(`error[brandKey]: ${formatUnknown(brandValue)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleBrandDiscrimination = Effect.gen(function* () {
+  const brandKey = CauseModule.TimeoutErrorTypeId;
+  const timeout = new CauseModule.TimeoutError("Operation timed out");
+  const noSuchElement = new CauseModule.NoSuchElementError("Missing request token");
+  const generic = new Error("boom");
+
+  yield* Console.log(
+    `Has brand (Timeout/NoSuch/Error): ${hasOwnBrand(timeout, brandKey)} / ${hasOwnBrand(noSuchElement, brandKey)} / ${hasOwnBrand(generic, brandKey)}`
+  );
+  yield* Console.log(
+    `Type guard (Timeout/NoSuch/Error): ${CauseModule.isTimeoutError(timeout)} / ${CauseModule.isTimeoutError(noSuchElement)} / ${CauseModule.isTimeoutError(generic)}`
+  );
 });
 
 /* ========================================================================== *
@@ -64,14 +84,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Branded Error Shape",
+      description: "Create a TimeoutError and read its brand property via this type id.",
+      run: exampleBrandedErrorShape,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Brand Discrimination",
+      description: "Compare brand-key and type-guard checks across TimeoutError and other errors.",
+      run: exampleBrandDiscrimination,
     },
   ],
 });

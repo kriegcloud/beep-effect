@@ -25,11 +25,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -50,13 +46,45 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect prettyErrors as a callable rendering helper.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedErrorExtraction = Effect.gen(function* () {
+  yield* Console.log('Convert a fail(new Error("boom")) cause, matching the source example.');
+
+  const cause = CauseModule.fail(new Error("boom"));
+  const errors = CauseModule.prettyErrors(cause);
+  const first = errors[0];
+
+  yield* Console.log(`error count: ${errors.length}`);
+  yield* Console.log(`first error: ${first?.name ?? "<missing>"}: ${first?.message ?? "<missing>"}`);
+});
+
+const exampleMixedFailDieAndInterrupt = Effect.gen(function* () {
+  yield* Console.log("Fail and die reasons become separate Errors; interrupts are auxiliary.");
+
+  const failAndDie = CauseModule.combine(CauseModule.fail("typed failure"), CauseModule.die("defect boom"));
+  const mixedCause = CauseModule.combine(failAndDie, CauseModule.interrupt(7));
+  const errors = CauseModule.prettyErrors(mixedCause);
+  const messages = errors.map((error) => error.message).join(" | ");
+
+  yield* Console.log(`error count: ${errors.length}`);
+  yield* Console.log(`messages: ${messages}`);
+});
+
+const exampleInterruptOnlyFallback = Effect.gen(function* () {
+  yield* Console.log("Interrupt-only causes map to one InterruptError with interrupt metadata.");
+
+  const interruptCause = CauseModule.combine(CauseModule.interrupt(3), CauseModule.interrupt(9));
+  const errors = CauseModule.prettyErrors(interruptCause);
+  const first = errors[0];
+  const interruptCauseError = first?.cause as Error | undefined;
+  const interruptStack = String(interruptCauseError?.stack ?? "");
+
+  yield* Console.log(`error count: ${errors.length}`);
+  yield* Console.log(`first error: ${first?.name ?? "<missing>"}: ${first?.message ?? "<missing>"}`);
+  yield* Console.log(`lists #3 and #9: ${interruptStack.includes("#3") && interruptStack.includes("#9")}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +104,19 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Error Extraction",
+      description: 'Convert fail(new Error("boom")) and inspect the resulting Error output.',
+      run: exampleSourceAlignedErrorExtraction,
+    },
+    {
+      title: "Mixed Fail / Die / Interrupt Cause",
+      description: "Show that fail and die reasons each produce an Error in order.",
+      run: exampleMixedFailDieAndInterrupt,
+    },
+    {
+      title: "Interrupt-Only Fallback",
+      description: "Show the single InterruptError returned when no fail/die reasons exist.",
+      run: exampleInterruptOnlyFallback,
     },
   ],
 });

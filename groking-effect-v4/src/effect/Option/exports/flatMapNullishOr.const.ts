@@ -36,15 +36,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -56,19 +52,61 @@ const sourceSummary =
   "Combines {@link flatMap} with {@link fromNullishOr}: applies a function that may return `null`/`undefined` to the value of a `Some`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\ninterface Employee {\n  company?: { address?: { street?: { name?: string } } }\n}\n\nconst emp: Employee = {\n  company: { address: { street: { name: \"high street\" } } }\n}\n\nconsole.log(\n  Option.some(emp).pipe(\n    Option.flatMapNullishOr((e) => e.company?.address?.street?.name)\n  )\n)\n// Output: { _id: 'Option', _tag: 'Some', value: 'high street' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedNestedLookup = Effect.gen(function* () {
+  interface Employee {
+    readonly company?: {
+      readonly address?: {
+        readonly street?: {
+          readonly name?: string;
+        };
+      };
+    };
+  }
+
+  const streetName = (employee: Employee) =>
+    O.some(employee).pipe(O.flatMapNullishOr((e) => e.company?.address?.street?.name));
+
+  const employeeWithStreet: Employee = {
+    company: { address: { street: { name: "high street" } } },
+  };
+
+  const employeeWithoutStreet: Employee = {
+    company: { address: {} },
+  };
+
+  const employeeWithoutCompany: Employee = {};
+
+  yield* Console.log(`with street -> ${formatUnknown(streetName(employeeWithStreet))}`);
+  yield* Console.log(`without street -> ${formatUnknown(streetName(employeeWithoutStreet))}`);
+  yield* Console.log(`without company -> ${formatUnknown(streetName(employeeWithoutCompany))}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleDataFirstAndDataLast = Effect.gen(function* () {
+  const classifyStatus = (status: number): string | null => {
+    if (status === 200) {
+      return "ok";
+    }
+    if (status === 404) {
+      return "not-found";
+    }
+    return null;
+  };
+
+  const dataFirstKnown = O.flatMapNullishOr(O.some(200), classifyStatus);
+  const dataFirstUnknown = O.flatMapNullishOr(O.some(500), classifyStatus);
+
+  const toStatusLabel = O.flatMapNullishOr(classifyStatus);
+  const dataLastMissingInput = O.none<number>().pipe(toStatusLabel);
+  const dataLastKnown = O.some(404).pipe(toStatusLabel);
+
+  yield* Console.log(`data-first 200 -> ${formatUnknown(dataFirstKnown)}`);
+  yield* Console.log(`data-first 500 -> ${formatUnknown(dataFirstUnknown)}`);
+  yield* Console.log(`data-last none -> ${formatUnknown(dataLastMissingInput)}`);
+  yield* Console.log(`data-last 404 -> ${formatUnknown(dataLastKnown)}`);
 });
 
 /* ========================================================================== *
@@ -83,14 +121,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Nested Property Lookup",
+      description: "Follow optional employee fields and convert missing `name` values into `None`.",
+      run: exampleSourceAlignedNestedLookup,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Data-First and Data-Last Invocation",
+      description: "Compare both call styles when the mapper may return `null` for unknown statuses.",
+      run: exampleDataFirstAndDataLast,
     },
   ],
 });

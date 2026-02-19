@@ -28,15 +28,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,19 +43,33 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Creates an `Option` representing the absence of a value.";
 const sourceExample =
   "import { Option } from \"effect\"\n\n//      ┌─── Option<never>\n//      ▼\nconst noValue = Option.none()\n\nconsole.log(noValue)\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Option.none as a runtime export before behavior checks.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedNoneValue = Effect.gen(function* () {
+  const noValue = O.none<number>();
+
+  yield* Console.log(`O.none<number>() => ${formatUnknown(noValue)}`);
+  yield* Console.log(`O.isNone(noValue) => ${O.isNone(noValue)}`);
+});
+
+const exampleNoneBranchBehavior = Effect.gen(function* () {
+  const left = O.none<string>();
+  const right = O.none<number>();
+  const sameReference = Object.is(left, right);
+  const fallback = O.getOrElse(() => "fallback")(left);
+  const asArray = O.toArray(right);
+
+  yield* Console.log(`Object.is(O.none(), O.none()) => ${sameReference}`);
+  yield* Console.log(`O.getOrElse(() => "fallback")(none) => ${fallback}`);
+  yield* Console.log(`O.toArray(none) => ${formatUnknown(asArray)}`);
 });
 
 /* ========================================================================== *
@@ -79,9 +89,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source JSDoc Behavior",
+      description: "Call none() and confirm it yields an Option tagged as None.",
+      run: exampleSourceAlignedNoneValue,
+    },
+    {
+      title: "None Branch Handling",
+      description: "Show None singleton behavior and how fallback/array projections behave.",
+      run: exampleNoneBranchBehavior,
     },
   ],
 });

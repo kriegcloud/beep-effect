@@ -25,15 +25,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,13 +47,37 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect die as a callable constructor for defect causes.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedCreation = Effect.gen(function* () {
+  yield* Console.log("Create a die cause and verify the first reason is a Die.");
+  const defect = new Error("Unexpected");
+  const cause = CauseModule.die(defect);
+  const firstReason = cause.reasons[0];
+  const isDieReason = firstReason !== undefined && CauseModule.isDieReason(firstReason);
+
+  yield* Console.log(`reasons.length: ${cause.reasons.length}`);
+  yield* Console.log(`first reason is Die: ${isDieReason}`);
+  yield* Console.log(`hasDies: ${CauseModule.hasDies(cause)}`);
+  yield* Console.log(`hasFails: ${CauseModule.hasFails(cause)}`);
+  if (isDieReason) {
+    yield* Console.log(`defect identity preserved: ${firstReason.defect === defect}`);
+  }
+});
+
+const exampleFindDefectContract = Effect.gen(function* () {
+  yield* Console.log("findDefect succeeds for die causes and fails for typed fail causes.");
+  const dieResult = CauseModule.findDefect(CauseModule.die({ code: "E_UNEXPECTED", retriable: false }));
+  const failResult = CauseModule.findDefect(CauseModule.fail("typed-error"));
+
+  yield* Console.log(`die lookup failed: ${ResultModule.isFailure(dieResult)}`);
+  if (!ResultModule.isFailure(dieResult)) {
+    yield* Console.log(`die defect: ${formatUnknown(dieResult.success)}`);
+  }
+
+  yield* Console.log(`fail lookup failed: ${ResultModule.isFailure(failResult)}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +97,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Create a Die Cause",
+      description: "Use the source-aligned Error input and verify Die-specific predicates.",
+      run: exampleSourceAlignedCreation,
+    },
+    {
+      title: "Find Defect Behavior",
+      description: "Show success for die causes and the expected failure path for fail causes.",
+      run: exampleFindDefectContract,
     },
   ],
 });

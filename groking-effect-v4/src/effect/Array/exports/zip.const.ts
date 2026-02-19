@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const sourceSummary =
   "Pairs elements from two iterables by position. If the iterables differ in length, the extra elements from the longer one are discarded.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.zip([1, 2, 3], ["a", "b"])) // [[1, "a"], [2, "b"]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,23 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const numbers = [1, 2, 3];
+  const labels = ["a", "b"];
+  const zipped = A.zip(numbers, labels);
+
+  yield* Console.log(`zip([1,2,3], ["a","b"]) => ${JSON.stringify(zipped)}`);
+});
+
+const exampleDualAndLengthBehavior = Effect.gen(function* () {
+  const zipWithLetters = A.zip(["x", "y", "z"]);
+  const curriedResult = zipWithLetters([10, 20]);
+  const longerRight = A.zip([1, 2], ["a", "b", "c"]);
+  const longerLeft = A.zip([1, 2, 3, 4], ["a"]);
+
+  yield* Console.log(`zip(["x","y","z"])([10,20]) => ${JSON.stringify(curriedResult)}`);
+  yield* Console.log(`zip([1,2], ["a","b","c"]) => ${JSON.stringify(longerRight)}`);
+  yield* Console.log(`zip([1,2,3,4], ["a"]) => ${JSON.stringify(longerLeft)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +85,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Zip two arrays by index using the documented call shape.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Dual Form and Truncation Behavior",
+      description: "Show curried usage and how zip truncates to the shorter input.",
+      run: exampleDualAndLengthBehavior,
     },
   ],
 });

@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -41,19 +37,28 @@ const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Returns the number of elements in a `ReadonlyArray`.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.length([1, 2, 3])) // 3';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime type and preview for length.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const values = [1, 2, 3];
+  const result = A.length(values);
+  yield* Console.log(`Array.length([1, 2, 3]) => ${result}`);
+});
+
+const exampleReadonlyAndEmptyInputs = Effect.gen(function* () {
+  const empty: ReadonlyArray<number> = [];
+  const readonlyTuple = ["north", "south", "east", "west"] as const;
+
+  yield* Console.log(`Array.length([]) => ${A.length(empty)}`);
+  yield* Console.log(`Array.length(["north", "south", "east", "west"] as const) => ${A.length(readonlyTuple)}`);
 });
 
 /* ========================================================================== *
@@ -73,9 +78,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented length call and log the resulting element count.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Readonly and Empty Inputs",
+      description: "Show that empty arrays and readonly tuples both return deterministic counts.",
+      run: exampleReadonlyAndEmptyInputs,
     },
   ],
 });

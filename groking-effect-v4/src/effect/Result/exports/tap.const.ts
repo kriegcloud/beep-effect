@@ -30,11 +30,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -55,13 +51,51 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect tap as a runtime Result success-side-effect helper.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedSuccessTap = Effect.gen(function* () {
+  yield* Console.log("Tap runs side-effects for Success and returns the original Result.");
+  const original = ResultModule.succeed(42);
+  const seen: Array<number> = [];
+
+  const tapped = original.pipe(
+    ResultModule.tap((n) => {
+      seen.push(n);
+    })
+  );
+
+  yield* Console.log(`seen: [${seen.join(", ")}]`);
+  yield* Console.log(`result: ${summarizeResult(tapped)}`);
+  yield* Console.log(`sameReference: ${Object.is(tapped, original)}`);
+});
+
+const exampleDataFirstAndFailureBehavior = Effect.gen(function* () {
+  yield* Console.log("Data-first tap behaves the same and skips side-effects for Failure.");
+  const observed: Array<number> = [];
+  const successInput: ResultModule.Result<number, string> = ResultModule.succeed(7);
+  const failureInput: ResultModule.Result<number, string> = ResultModule.fail("boom");
+
+  const successOutput = ResultModule.tap(successInput, (n) => {
+    observed.push(n * 10);
+  });
+  const observedAfterSuccess = [...observed];
+
+  const failureOutput = ResultModule.tap(failureInput, (n) => {
+    observed.push(n * 10);
+  });
+
+  yield* Console.log(`success -> ${summarizeResult(successOutput)} | observed: [${observedAfterSuccess.join(", ")}]`);
+  yield* Console.log(`failure -> ${summarizeResult(failureOutput)} | observed: [${observed.join(", ")}]`);
+  yield* Console.log(`successSameReference: ${Object.is(successOutput, successInput)}`);
+  yield* Console.log(`failureSameReference: ${Object.is(failureOutput, failureInput)}`);
 });
 
 /* ========================================================================== *
@@ -81,9 +115,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Success Tap",
+      description: "Run the documented Success tap flow and confirm side-effect plus identity preservation.",
+      run: exampleSourceAlignedSuccessTap,
+    },
+    {
+      title: "Data-First + Failure Behavior",
+      description: "Show data-first invocation and that Failure bypasses side-effects while preserving identity.",
+      run: exampleDataFirstAndFailureBehavior,
     },
   ],
 });

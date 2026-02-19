@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -41,7 +37,7 @@ const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Keeps the first `n` elements, creating a new array.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.take([1, 2, 3, 4, 5], 3)) // [1, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -51,9 +47,22 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3, 4, 5];
+  const firstThree = A.take(input, 3);
+
+  yield* Console.log(`A.take([1, 2, 3, 4, 5], 3) => ${JSON.stringify(firstThree)}`);
+  yield* Console.log(`original input remains ${JSON.stringify(input)}`);
+});
+
+const exampleCurriedAndBoundaryInvocation = Effect.gen(function* () {
+  const fromSet = A.take(2)(new Set([10, 20, 30, 40]));
+  const takesAll = A.take([1, 2], 5);
+  const takesNone = A.take([1, 2], 0);
+
+  yield* Console.log(`A.take(2)(Set(10, 20, 30, 40)) => ${JSON.stringify(fromSet)}`);
+  yield* Console.log(`A.take([1, 2], 5) => ${JSON.stringify(takesAll)}`);
+  yield* Console.log(`A.take([1, 2], 0) => ${JSON.stringify(takesNone)}`);
 });
 
 /* ========================================================================== *
@@ -73,9 +82,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Mirror the JSDoc form and keep the first three values from an input array.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable + Boundary Case",
+      description: "Use data-last style on an iterable and show behavior for larger and zero limits.",
+      run: exampleCurriedAndBoundaryInvocation,
     },
   ],
 });

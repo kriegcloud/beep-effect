@@ -28,11 +28,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -53,13 +49,39 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect isSuccess as a runtime function export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedNarrowing = Effect.gen(function* () {
+  const result = ResultModule.succeed(42);
+  const success = ResultModule.isSuccess(result);
+
+  yield* Console.log(`result: ${summarizeResult(result)}`);
+  yield* Console.log(`isSuccess(result): ${success}`);
+  if (success) {
+    yield* Console.log(`success payload: ${result.success}`);
+  }
+});
+
+const exampleSuccessCollection = Effect.gen(function* () {
+  const samples: Array<ResultModule.Result<number, string>> = [
+    ResultModule.succeed(42),
+    ResultModule.fail("invalid input"),
+    ResultModule.succeed(7),
+  ];
+
+  const successes = samples.filter(ResultModule.isSuccess);
+
+  yield* Console.log(`samples: ${samples.map(summarizeResult).join(", ")}`);
+  yield* Console.log(`success count: ${successes.length}/${samples.length}`);
+  yield* Console.log(`success values: ${successes.map((item) => item.success).join(", ")}`);
 });
 
 /* ========================================================================== *
@@ -79,9 +101,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Success Narrowing",
+      description: "Reproduce the JSDoc flow and read .success after isSuccess narrows the value.",
+      run: exampleSourceAlignedNarrowing,
+    },
+    {
+      title: "Filtering to Successes",
+      description: "Use isSuccess as a predicate to keep only Success results from a mixed list.",
+      run: exampleSuccessCollection,
     },
   ],
 });

@@ -34,16 +34,18 @@ const moduleImportPath = "effect/Cause";
 const sourceSummary = "Unique brand for {@link Done} values.";
 const sourceExample = "";
 
+const isPropertyRecord = (value: unknown): value is Record<PropertyKey, unknown> =>
+  typeof value === "object" && value !== null;
+
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleDoneBrandRoundTrip = Effect.gen(function* () {
   const marker = CauseModule.DoneTypeId;
   const doneSignal = CauseModule.Done("queue drained");
-  const doneRecord = doneSignal as Record<string, unknown>;
-  const brandField = doneRecord[marker];
+  const brandField = isPropertyRecord(doneSignal) ? doneSignal[marker] : undefined;
 
-  yield* Console.log(`DoneTypeId runtime value: ${marker}`);
+  yield* Console.log(`DoneTypeId runtime value: ${String(marker)}`);
   yield* Console.log(`Done signal tag: ${doneSignal._tag}`);
   yield* Console.log(`Done brand field equals DoneTypeId: ${brandField === marker}`);
 });
@@ -51,15 +53,11 @@ const exampleDoneBrandRoundTrip = Effect.gen(function* () {
 const exampleDoneDiscrimination = Effect.gen(function* () {
   const doneSignal = CauseModule.Done("stream complete");
   const failReason = CauseModule.makeFailReason("boom");
-  const doneRecord = doneSignal as Record<string, unknown>;
-  const failRecord = failReason as Record<string, unknown>;
+  const doneHasMarker = isPropertyRecord(doneSignal) && CauseModule.DoneTypeId in doneSignal;
+  const failHasMarker = isPropertyRecord(failReason) && CauseModule.DoneTypeId in failReason;
 
-  yield* Console.log(
-    `Done reason -> has marker: ${CauseModule.DoneTypeId in doneRecord}, isDone: ${CauseModule.isDone(doneSignal)}`
-  );
-  yield* Console.log(
-    `Fail reason -> has marker: ${CauseModule.DoneTypeId in failRecord}, isDone: ${CauseModule.isDone(failReason)}`
-  );
+  yield* Console.log(`Done reason -> has marker: ${doneHasMarker}, isDone: ${CauseModule.isDone(doneSignal)}`);
+  yield* Console.log(`Fail reason -> has marker: ${failHasMarker}, isDone: ${CauseModule.isDone(failReason)}`);
   yield* Console.log(`Fail reason preview: ${formatUnknown(failReason)}`);
 });
 

@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Groups consecutive equal elements using a custom equivalence function.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.groupWith(["a", "a", "b", "b", "b", "c", "a"], (x, y) => x === y))\n// [["a", "a"], ["b", "b", "b"], ["c"], ["a"]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,19 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input: readonly [string, ...string[]] = ["a", "a", "b", "b", "b", "c", "a"];
+  const result = A.groupWith(input, (left, right) => left === right);
+  yield* Console.log(`groupWith(docsInput, eq) => ${JSON.stringify(result)}`);
+  yield* Console.log('Only adjacent duplicates are grouped; the final "a" stays separate.');
+});
+
+const exampleCurriedInvocation = Effect.gen(function* () {
+  const byParity = A.groupWith<number>((left, right) => left % 2 === right % 2);
+  const input: readonly [number, ...number[]] = [1, 3, 5, 2, 4, 1, 7, 8];
+  const result = byParity(input);
+  yield* Console.log(`groupWith(byParity)([1,3,5,2,4,1,7,8]) => ${JSON.stringify(result)}`);
+  yield* Console.log("Curried form is useful when reusing the same equivalence across inputs.");
 });
 
 /* ========================================================================== *
@@ -75,9 +81,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented grouping example with explicit equality.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Invocation",
+      description: "Reuse a parity equivalence with the curried `groupWith` signature.",
+      run: exampleCurriedInvocation,
     },
   ],
 });

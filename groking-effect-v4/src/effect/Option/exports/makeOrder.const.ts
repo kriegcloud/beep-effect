@@ -33,15 +33,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as N from "effect/Number";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,19 +49,37 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Creates an `Order` for `Option<A>` from an `Order` for `A`.";
 const sourceExample =
   'import { Option } from "effect"\nimport * as N from "effect/Number"\n\nconst ord = Option.makeOrder(N.Order)\n\nconsole.log(ord(Option.none(), Option.some(1)))\n// Output: -1\n\nconsole.log(ord(Option.some(1), Option.none()))\n// Output: 1\n\nconsole.log(ord(Option.some(1), Option.some(2)))\n// Output: -1';
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect makeOrder as the Option ordering constructor.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedOrdering = Effect.gen(function* () {
+  const ord = O.makeOrder(N.Order);
+
+  yield* Console.log(`none vs some(1) -> ${ord(O.none(), O.some(1))}`);
+  yield* Console.log(`some(1) vs none -> ${ord(O.some(1), O.none())}`);
+  yield* Console.log(`some(1) vs some(2) -> ${ord(O.some(1), O.some(2))}`);
+  yield* Console.log(`none vs none -> ${ord(O.none(), O.none())}`);
+});
+
+const exampleSortOptionValues = Effect.gen(function* () {
+  const ord = O.makeOrder(N.Order);
+  const values = [O.some(3), O.none<number>(), O.some(1), O.some(2), O.none<number>()];
+  const sorted = [...values].sort(ord);
+  const labels = sorted.map((value) =>
+    O.match(value, {
+      onNone: () => "none",
+      onSome: (n) => `some(${n})`,
+    })
+  );
+
+  yield* Console.log(`sorted -> [${labels.join(", ")}]`);
 });
 
 /* ========================================================================== *
@@ -84,9 +99,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Ordering",
+      description: "Mirror the JSDoc comparisons for none/some and some/some pairs.",
+      run: exampleSourceAlignedOrdering,
+    },
+    {
+      title: "Sorting Option Values",
+      description: "Use the generated order to sort Options, keeping none values first.",
+      run: exampleSortOptionValues,
     },
   ],
 });

@@ -23,15 +23,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,19 +40,40 @@ const sourceSummary =
   "Returns the last element matching a predicate, refinement, or mapping function, wrapped in `Option`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.findLast([1, 2, 3, 4, 5], (n) => n % 2 === 0)) // Option.some(4)';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
+const formatOption = <A>(option: O.Option<A>): string =>
+  O.isSome(option) ? `Option.some(${formatUnknown(option.value)})` : "Option.none()";
+
 const exampleRuntimeInspection = Effect.gen(function* () {
   yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedPredicate = Effect.gen(function* () {
+  const result = A.findLast([1, 2, 3, 4, 5], (n) => n % 2 === 0);
+  yield* Console.log(`A.findLast([1, 2, 3, 4, 5], n % 2 === 0) => ${formatOption(result)}`);
+});
+
+const exampleOptionMapping = Effect.gen(function* () {
+  const jobs = [
+    { id: "job-a", needsRetry: false, attempt: 1 },
+    { id: "job-b", needsRetry: true, attempt: 2 },
+    { id: "job-c", needsRetry: false, attempt: 1 },
+    { id: "job-d", needsRetry: true, attempt: 3 },
+  ];
+
+  const lastRetryWithIndex = A.findLast(jobs, (job, index) =>
+    job.needsRetry ? O.some(`${job.id}@${index}`) : O.none()
+  );
+
+  const noHighAttemptRetry = A.findLast(jobs, (job) => (job.needsRetry && job.attempt > 4 ? O.some(job.id) : O.none()));
+
+  yield* Console.log(`Mapping overload (last retry job) => ${formatOption(lastRetryWithIndex)}`);
+  yield* Console.log(`Mapping overload (attempt > 4) => ${formatOption(noHighAttemptRetry)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +93,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Predicate Search",
+      description: "Mirror the JSDoc behavior and return the last even value.",
+      run: exampleSourceAlignedPredicate,
+    },
+    {
+      title: "Option-Mapping Overload",
+      description: "Find the last matching value while mapping to a derived payload.",
+      run: exampleOptionMapping,
     },
   ],
 });

@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const sourceSummary =
   "Computes the intersection of two arrays using `Equal.equivalence()`. Order is determined by the first array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.intersection([1, 2, 3], [3, 4, 1])) // [1, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,22 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const left = [1, 2, 3];
+  const right = [3, 4, 1];
+  const result = A.intersection(left, right);
+
+  yield* Console.log(`intersection([1, 2, 3], [3, 4, 1]) => ${JSON.stringify(result)}`);
+  yield* Console.log(`left input remains ${JSON.stringify(left)}`);
+});
+
+const exampleCurriedIterableAndOrder = Effect.gen(function* () {
+  const intersectWithAlphaBeta = A.intersection(["alpha", "beta"]);
+  const fromSet = intersectWithAlphaBeta(new Set(["zeta", "alpha", "beta", "alpha"]));
+  const preservesLeftOrder = A.intersection(["c", "a", "b", "a"], ["b", "a"]);
+
+  yield* Console.log(`intersection(["alpha", "beta"])(Set(...)) => ${JSON.stringify(fromSet)}`);
+  yield* Console.log(`intersection(["c", "a", "b", "a"], ["b", "a"]) => ${JSON.stringify(preservesLeftOrder)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +84,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Compute overlap using the documented two-argument call form.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable + Left Order",
+      description: "Use data-last style with an iterable and show that the first input controls result order.",
+      run: exampleCurriedIterableAndOrder,
     },
   ],
 });

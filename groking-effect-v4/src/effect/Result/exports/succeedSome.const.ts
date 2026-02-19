@@ -25,14 +25,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
@@ -50,13 +47,42 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect succeedSome as a runtime constructor for Result<Option<A>> values.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeOptionResult = <A, E>(result: ResultModule.Result<O.Option<A>, E>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: O.match({
+      onNone: () => "Success(None)",
+      onSome: (value) => `Success(Some(${formatUnknown(value)}))`,
+    }),
+  })(result);
+
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const result = ResultModule.succeedSome(42);
+
+  yield* Console.log(`succeedSome(42) -> ${summarizeOptionResult(result)}`);
+  yield* Console.log(`isSuccess: ${ResultModule.isSuccess(result)}`);
+
+  if (ResultModule.isSuccess(result)) {
+    const payload = O.match({
+      onNone: () => "None",
+      onSome: (value: number) => `Some(${value})`,
+    })(result.success);
+    yield* Console.log(`payload: ${payload}`);
+  }
+});
+
+const exampleEquivalentConstructor = Effect.gen(function* () {
+  const viaSucceedSome = ResultModule.succeedSome("alpha");
+  const viaSucceedAndSome = ResultModule.succeed(O.some("alpha"));
+  const sameStructure = JSON.stringify(viaSucceedSome) === JSON.stringify(viaSucceedAndSome);
+
+  yield* Console.log(`succeedSome("alpha") -> ${summarizeOptionResult(viaSucceedSome)}`);
+  yield* Console.log(`succeed(Option.some("alpha")) -> ${summarizeOptionResult(viaSucceedAndSome)}`);
+  yield* Console.log(`same structure: ${sameStructure}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +102,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Some Construction",
+      description: "Create the documented Success(Some(value)) result and inspect the payload.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Constructor Equivalence",
+      description: "Show that succeedSome(a) matches succeed(Option.some(a)).",
+      run: exampleEquivalentConstructor,
     },
   ],
 });

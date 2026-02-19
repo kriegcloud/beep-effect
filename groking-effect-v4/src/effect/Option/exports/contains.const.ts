@@ -30,15 +30,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -50,19 +46,28 @@ const sourceSummary =
   "Checks if an `Option` contains a value equal to the given one, using default structural equality.";
 const sourceExample =
   'import { Option } from "effect"\n\nconsole.log(Option.some(2).pipe(Option.contains(2)))\n// Output: true\n\nconsole.log(Option.some(1).pipe(Option.contains(2)))\n// Output: false\n\nconsole.log(Option.none().pipe(Option.contains(2)))\n// Output: false';
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedComparison = Effect.gen(function* () {
+  const containsTwo = O.contains(2);
+  const someTwoContainsTwo = O.some(2).pipe(containsTwo);
+  const someOneContainsTwo = O.some(1).pipe(containsTwo);
+  const noneContainsTwo = O.none<number>().pipe(containsTwo);
+
+  yield* Console.log(`some(2) contains 2 -> ${someTwoContainsTwo}`);
+  yield* Console.log(`some(1) contains 2 -> ${someOneContainsTwo}`);
+  yield* Console.log(`none contains 2 -> ${noneContainsTwo}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleStructuralEquality = Effect.gen(function* () {
+  const target = { id: 1, tags: ["x", "y"] };
+  const matchesStructurally = O.some({ id: 1, tags: ["x", "y"] }).pipe(O.contains(target));
+  const mismatchesStructurally = O.some({ id: 1, tags: ["x", "z"] }).pipe(O.contains(target));
+
+  yield* Console.log(`nested object match -> ${matchesStructurally}`);
+  yield* Console.log(`nested object mismatch -> ${mismatchesStructurally}`);
 });
 
 /* ========================================================================== *
@@ -77,14 +82,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Number Checks",
+      description: "Mirror the JSDoc flow with matching, non-matching, and none cases.",
+      run: exampleSourceAlignedComparison,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Structural Equality Check",
+      description: "Show deep structural comparison with nested object values.",
+      run: exampleStructuralEquality,
     },
   ],
 });

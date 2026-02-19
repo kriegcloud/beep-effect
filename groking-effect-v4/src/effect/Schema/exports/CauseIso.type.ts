@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `CauseIso` is compile-time only, but `Schema.Cause` provides a runtime companion.
+ * - `Schema.toCodecIso` demonstrates the executable Cause <-> CauseIso bridge.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,43 @@ const exportKind = "type";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDecodeCauseIso = Effect.gen(function* () {
+  const causeSchema = SchemaModule.Cause(SchemaModule.String, SchemaModule.Number);
+  const causeIsoCodec = SchemaModule.toCodecIso(causeSchema);
+  const decodeCauseIso = SchemaModule.decodeUnknownSync(causeIsoCodec);
+  const causeIsoInput = [
+    { _tag: "Fail", error: "db unavailable" },
+    { _tag: "Die", defect: 503 },
+    { _tag: "Interrupt", fiberId: 7 },
+  ];
+  const decodedCause = decodeCauseIso(causeIsoInput);
+
+  yield* Console.log("CauseIso is erased at runtime; decode via Schema.toCodecIso.");
+  yield* Console.log(`Iso input: ${formatUnknown(causeIsoInput)}`);
+  yield* Console.log(`Decoded Cause: ${String(decodedCause)}`);
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCauseIsoRoundTrip = Effect.gen(function* () {
+  const causeSchema = SchemaModule.Cause(SchemaModule.String, SchemaModule.Number);
+  const causeIsoCodec = SchemaModule.toCodecIso(causeSchema);
+  const decodeCauseIso = SchemaModule.decodeUnknownSync(causeIsoCodec);
+  const encodeCauseIso = SchemaModule.encodeUnknownSync(causeIsoCodec);
+  const decodeCauseIsoExit = SchemaModule.decodeUnknownExit(causeIsoCodec);
+
+  const cause = decodeCauseIso([
+    { _tag: "Fail", error: "first failure" },
+    { _tag: "Interrupt", fiberId: undefined },
+  ]);
+  const roundTripIso = encodeCauseIso(cause);
+  const invalidExit = decodeCauseIsoExit([{ _tag: "Fail", error: 123 }]);
+
+  yield* Console.log(`Round-trip tags: ${roundTripIso.map((reason) => reason._tag).join(" -> ")}`);
+  yield* Console.log(`Round-trip iso: ${formatUnknown(roundTripIso)}`);
+  yield* Console.log(`Invalid decode exit: ${String(invalidExit)}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +84,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Decode CauseIso via Codec",
+      description: "Decode an iso-shaped failure array into a runtime Cause value.",
+      run: exampleDecodeCauseIso,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Round-Trip + Validation Failure",
+      description: "Encode Cause back to CauseIso and show invalid iso input failure details.",
+      run: exampleCauseIsoRoundTrip,
     },
   ],
 });

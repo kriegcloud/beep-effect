@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,26 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Splits an iterable into `n` roughly equal-sized chunks.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.split([1, 2, 3, 4, 5, 6, 7, 8], 3)) // [[1, 2, 3], [4, 5, 6], [7, 8]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedSplit = Effect.gen(function* () {
+  const values = [1, 2, 3, 4, 5, 6, 7, 8];
+  const groups = A.split(values, 3);
+  const groupSizes = groups.map((group) => group.length);
+
+  yield* Console.log(`split([1, 2, 3, 4, 5, 6, 7, 8], 3) -> ${JSON.stringify(groups)}`);
+  yield* Console.log(`group sizes -> [${groupSizes.join(", ")}]`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCurriedSplitAndHighGroupCount = Effect.gen(function* () {
+  const splitIntoFour = A.split(4);
+  const taskBatches = splitIntoFour(new Set(["ingest", "validate", "enrich", "store", "publish", "notify"]));
+  const oversizedGroupCount = A.split(["a", "b", "c", "d"], 8);
+
+  yield* Console.log(`split(4)(Set tasks) -> ${JSON.stringify(taskBatches)}`);
+  yield* Console.log(`split(["a", "b", "c", "d"], 8) -> ${JSON.stringify(oversizedGroupCount)}`);
 });
 
 /* ========================================================================== *
@@ -69,14 +72,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Split",
+      description: "Split eight values into three groups and inspect how the remainder is distributed.",
+      run: exampleSourceAlignedSplit,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Curried Split And High Group Count",
+      description: "Use the curried form with a Set and observe behavior when target groups exceed input length.",
+      run: exampleCurriedSplitAndHighGroupCount,
     },
   ],
 });

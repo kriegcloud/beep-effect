@@ -26,11 +26,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -51,13 +47,44 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect succeed as a runtime constructor for Success results.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedSuccess = Effect.gen(function* () {
+  yield* Console.log("Create a success result with the JSDoc input and verify predicates.");
+  const result = ResultModule.succeed(42);
+
+  yield* Console.log(`result: ${summarizeResult(result)}`);
+  yield* Console.log(`isSuccess: ${ResultModule.isSuccess(result)}`);
+  yield* Console.log(`isFailure: ${ResultModule.isFailure(result)}`);
+  if (ResultModule.isSuccess(result)) {
+    yield* Console.log(`success payload: ${result.success}`);
+  }
+});
+
+const exampleSuccessTransformFlow = Effect.gen(function* () {
+  yield* Console.log("Success values run through andThen/map and keep the transformed output.");
+  let andThenInvoked = false;
+
+  const transformed = ResultModule.succeed(10).pipe(
+    ResultModule.andThen((value) => {
+      andThenInvoked = true;
+      return ResultModule.succeed(value + 5);
+    }),
+    ResultModule.map((value) => value * 2)
+  );
+
+  const finalValue = ResultModule.getOrElse(() => -1)(transformed);
+  yield* Console.log(`transformed: ${summarizeResult(transformed)}`);
+  yield* Console.log(`andThenInvoked: ${andThenInvoked}`);
+  yield* Console.log(`finalValue: ${finalValue}`);
 });
 
 /* ========================================================================== *
@@ -77,9 +104,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Create a Success Result",
+      description: "Use succeed with the source-aligned value and verify Success predicates.",
+      run: exampleSourceAlignedSuccess,
+    },
+    {
+      title: "Success Transformation Flow",
+      description: "Show that andThen/map execute for Success and produce the transformed value.",
+      run: exampleSuccessTransformFlow,
     },
   ],
 });

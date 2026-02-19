@@ -26,13 +26,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -45,7 +41,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Creates a shallow copy of an array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst original = [1, 2, 3]\nconst copied = Array.copy(original)\nconsole.log(copied) // [1, 2, 3]\nconsole.log(original === copied) // false';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -55,9 +51,27 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedCopy = Effect.gen(function* () {
+  const original = [1, 2, 3];
+  const copied = A.copy(original);
+
+  yield* Console.log(`copy([1, 2, 3]) => ${JSON.stringify(copied)}`);
+  yield* Console.log(`original === copied -> ${original === copied}`);
+});
+
+const exampleShallowCopyBehavior = Effect.gen(function* () {
+  const original = [
+    { id: 1, tags: ["a"] },
+    { id: 2, tags: ["b"] },
+  ];
+  const copied = A.copy(original);
+
+  copied.push({ id: 3, tags: ["c"] });
+  copied[0]?.tags.push("shared");
+
+  yield* Console.log(`after copied.push(...): original length=${original.length}, copied length=${copied.length}`);
+  yield* Console.log(`copied[0] shares reference with original[0] -> ${copied[0] === original[0]}`);
+  yield* Console.log(`original[0].tags => ${JSON.stringify(original[0]?.tags)}`);
 });
 
 /* ========================================================================== *
@@ -77,9 +91,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Copy",
+      description: "Copy a basic array and confirm the returned array is a new reference.",
+      run: exampleSourceAlignedCopy,
+    },
+    {
+      title: "Shallow Copy Behavior",
+      description: "Show that top-level array structure is copied while nested object references are shared.",
+      run: exampleShallowCopyBehavior,
     },
   ],
 });

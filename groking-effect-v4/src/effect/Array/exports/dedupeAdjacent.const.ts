@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,7 +38,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Removes consecutive duplicate elements using `Equal.equivalence()`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.dedupeAdjacent([1, 1, 2, 2, 3, 3])) // [1, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -52,9 +48,18 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 1, 2, 2, 3, 3];
+  const result = A.dedupeAdjacent(input);
+  yield* Console.log(`dedupeAdjacent([1, 1, 2, 2, 3, 3]) => ${JSON.stringify(result)}`);
+  yield* Console.log(`original input remains ${JSON.stringify(input)}`);
+});
+
+const exampleNonAdjacentContrast = Effect.gen(function* () {
+  const input = [1, 2, 1, 2, 2, 3, 3, 2];
+  const result = A.dedupeAdjacent(input);
+  yield* Console.log(`dedupeAdjacent([1, 2, 1, 2, 2, 3, 3, 2]) => ${JSON.stringify(result)}`);
+  yield* Console.log("Only adjacent runs are collapsed; earlier duplicates are preserved.");
 });
 
 /* ========================================================================== *
@@ -74,9 +79,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Remove adjacent duplicates using the documented example input.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Non-Adjacent Duplicate Contrast",
+      description: "Show that only consecutive duplicates are removed.",
+      run: exampleNonAdjacentContrast,
     },
   ],
 });

@@ -31,11 +31,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -56,13 +52,45 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect liftPredicate as a runtime function export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedValidation = Effect.gen(function* () {
+  yield* Console.log("Lift a positive-number predicate into a reusable Result constructor.");
+
+  const ensurePositive = ResultModule.liftPredicate(
+    (n: number) => n > 0,
+    (n) => `${n} is not positive`
+  );
+  const positive = ensurePositive(5);
+  const notPositive = ensurePositive(0);
+
+  yield* Console.log(`ensurePositive(5): ${summarizeResult(positive)}`);
+  yield* Console.log(`ensurePositive(0): ${summarizeResult(notPositive)}`);
+});
+
+const exampleDataFirstInvocation = Effect.gen(function* () {
+  yield* Console.log("Use the data-first overload and observe when the error mapper runs.");
+
+  let errorMapperCalls = 0;
+  const oddError = (n: number): string => {
+    errorMapperCalls += 1;
+    return `${n} is odd`;
+  };
+
+  const even = ResultModule.liftPredicate(8, (n: number) => n % 2 === 0, oddError);
+  const odd = ResultModule.liftPredicate(7, (n: number) => n % 2 === 0, oddError);
+
+  yield* Console.log(`liftPredicate(8, isEven, oddError): ${summarizeResult(even)}`);
+  yield* Console.log(`liftPredicate(7, isEven, oddError): ${summarizeResult(odd)}`);
+  yield* Console.log(`oddError calls: ${errorMapperCalls}`);
 });
 
 /* ========================================================================== *
@@ -82,9 +110,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Predicate Lift",
+      description: "Use data-last invocation to turn a predicate into a Result-producing function.",
+      run: exampleSourceAlignedValidation,
+    },
+    {
+      title: "Data-First Invocation",
+      description: "Call liftPredicate directly with a value and confirm failure mapping behavior.",
+      run: exampleDataFirstInvocation,
     },
   ],
 });

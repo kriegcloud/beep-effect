@@ -1,0 +1,9 @@
+{
+  "$schema": "https://tstyche.org/schemas/config.json",
+  "testFileMatch": [
+    "packages/*/dtslint/**/*.tst.*",
+    "tooling/*/dtslint/**/*.tst.*",
+    "apps/*/dtslint/**/*.tst.*"
+  ],
+  "tsconfig": "ignore"
+}

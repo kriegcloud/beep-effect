@@ -25,11 +25,7 @@
  * - Runtime examples still provide module-level context for learning.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectTypeLikeExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -50,13 +46,18 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* Console.log("Compile-time `TimeoutError` is erased; inspect runtime symbol visibility.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleRuntimeCompanionFlow = Effect.gen(function* () {
+  const timeoutError = new CauseModule.TimeoutError("Operation timed out");
+  const instanceCheck = CauseModule.isTimeoutError(timeoutError);
+  const plainErrorCheck = CauseModule.isTimeoutError(new Error("Operation timed out"));
+
+  yield* Console.log(`Constructed ${timeoutError._tag} with message: ${timeoutError.message}`);
+  yield* Console.log(`Cause.isTimeoutError(instance): ${instanceCheck}`);
+  yield* Console.log(`Cause.isTimeoutError(Error): ${plainErrorCheck}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +77,9 @@ const program = createPlaygroundProgram({
       run: exampleTypeRuntimeCheck,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Runtime Companion Flow",
+      description: "Use `Cause.TimeoutError` and `Cause.isTimeoutError` at runtime.",
+      run: exampleRuntimeCompanionFlow,
     },
   ],
 });

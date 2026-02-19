@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,25 @@ const sourceSummary =
   "Combines elements from two iterables pairwise using a function. If the iterables differ in length, extra elements are discarded.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.zipWith([1, 2, 3], [4, 5, 6], (a, b) => a + b)) // [5, 7, 9]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedAddition = Effect.gen(function* () {
+  const left = [1, 2, 3];
+  const right = [4, 5, 6];
+  const summed = A.zipWith(left, right, (a, b) => a + b);
+
+  yield* Console.log(`zipWith([1,2,3],[4,5,6],+) => ${JSON.stringify(summed)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleTruncationBehavior = Effect.gen(function* () {
+  const users = ["ada", "linus", "grace"];
+  const roles = ["admin", "maintainer"];
+  const assignments = A.zipWith(users, roles, (user, role) => `${user}:${role}`);
+
+  yield* Console.log(`zipWith(users,roles,join) => ${JSON.stringify(assignments)}`);
+  yield* Console.log(`result length => ${assignments.length} (shorter input wins)`);
 });
 
 /* ========================================================================== *
@@ -70,14 +72,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Addition",
+      description: "Combine two numeric arrays with the documented addition callback.",
+      run: exampleSourceAlignedAddition,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Truncation by Shorter Input",
+      description: "Show zipWith stopping when one iterable runs out of values.",
+      run: exampleTruncationBehavior,
     },
   ],
 });

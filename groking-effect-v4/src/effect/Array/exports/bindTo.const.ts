@@ -27,13 +27,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -47,19 +43,27 @@ const sourceSummary =
   "Names the elements of an array by wrapping each in an object with the given key, starting a do-notation scope.";
 const sourceExample =
   'import { Array, pipe } from "effect"\n\nconst result = pipe(\n  [1, 2, 3],\n  Array.bindTo("x")\n)\nconsole.log(result) // [{ x: 1 }, { x: 2 }, { x: 3 }]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect bindTo as a runtime value before applying it.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const result = A.bindTo([1, 2, 3], "x");
+  yield* Console.log(`bindTo([1,2,3], "x"): ${JSON.stringify(result)}`);
+});
+
+const exampleDoNotationSeed = Effect.gen(function* () {
+  const scoped = A.bindTo(["beep", "boop"], "name");
+  const withLength = A.bind(scoped, "length", ({ name }) => [name.length]);
+  const withLabel = A.let(withLength, "label", ({ name, length }) => `${name}:${length}`);
+
+  yield* Console.log(`Seed + bind + let: ${JSON.stringify(withLabel)}`);
 });
 
 /* ========================================================================== *
@@ -79,9 +83,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Naming",
+      description: "Apply bindTo to wrap each element with a single key as shown in the docs.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Seed Scope for Do-Notation",
+      description: "Start from bindTo and extend records with bind/let in a deterministic pipeline.",
+      run: exampleDoNotationSeed,
     },
   ],
 });

@@ -25,11 +25,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -50,13 +46,44 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect isReason as a runtime guard for reason values.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+  yield* Console.log(`Guard arity: ${CauseModule.isReason.length}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedGuardChecks = Effect.gen(function* () {
+  const reason = CauseModule.fail("error").reasons[0];
+
+  yield* Console.log(`reason tag: ${reason?._tag ?? "(none)"}`);
+  yield* Console.log(`isReason(cause.reasons[0]): ${CauseModule.isReason(reason)}`);
+  yield* Console.log(`isReason("not a reason"): ${CauseModule.isReason("not a reason")}`);
+});
+
+const exampleMixedReasonCandidates = Effect.gen(function* () {
+  const failReason = CauseModule.makeFailReason("bad input");
+  const dieReason = CauseModule.makeDieReason(new Error("defect"));
+  const interruptReason = CauseModule.makeInterruptReason(7);
+  const cause = CauseModule.fail("bad input");
+  const brandedLookalike = {
+    _tag: "Fail",
+    error: "bad input",
+    [CauseModule.ReasonTypeId]: CauseModule.ReasonTypeId,
+  };
+  const unbrandedLookalike = { _tag: "Fail", error: "bad input" };
+
+  const candidates: Array<{ readonly label: string; readonly value: unknown }> = [
+    { label: 'Cause.makeFailReason("bad input")', value: failReason },
+    { label: 'Cause.makeDieReason(new Error("defect"))', value: dieReason },
+    { label: "Cause.makeInterruptReason(7)", value: interruptReason },
+    { label: 'Cause.fail("bad input")', value: cause },
+    { label: "branded plain object", value: brandedLookalike },
+    { label: "unbranded plain object", value: unbrandedLookalike },
+  ];
+
+  for (const candidate of candidates) {
+    yield* Console.log(`isReason(${candidate.label}): ${CauseModule.isReason(candidate.value)}`);
+  }
+  yield* Console.log("Contract note: prefer Cause constructors over structural lookalikes.");
 });
 
 /* ========================================================================== *
@@ -72,13 +99,18 @@ const program = createPlaygroundProgram({
   examples: [
     {
       title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      description: "Inspect module export count, runtime type, preview, and function arity.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Guard Checks",
+      description: "Run the documented reason and non-reason inputs to show true vs false behavior.",
+      run: exampleSourceAlignedGuardChecks,
+    },
+    {
+      title: "Mixed Reason Candidates",
+      description: "Check real reason variants, a Cause value, and structural objects through the guard.",
+      run: exampleMixedReasonCandidates,
     },
   ],
 });

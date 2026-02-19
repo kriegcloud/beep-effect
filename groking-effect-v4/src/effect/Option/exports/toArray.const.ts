@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +42,25 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Converts an `Option` into an `Array`.";
 const sourceExample =
   'import { Option } from "effect"\n\nconsole.log(Option.toArray(Option.some(1)))\n// Output: [1]\n\nconsole.log(Option.toArray(Option.none()))\n// Output: []';
-const moduleRecord = OptionModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedSomeAndNone = Effect.gen(function* () {
+  yield* Console.log("Convert Some to a singleton array and None to an empty array.");
+  const fromSome = O.toArray(O.some(1));
+  const fromNone = O.toArray(O.none<number>());
+
+  yield* Console.log(`toArray(some(1)) => ${JSON.stringify(fromSome)}`);
+  yield* Console.log(`toArray(none()) => ${JSON.stringify(fromNone)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleFlattenOptionalInputs = Effect.gen(function* () {
+  yield* Console.log("Use toArray to keep present values and drop missing values in one pass.");
+  const optionalNames = [O.some("Ada"), O.none<string>(), O.some("Linus"), O.none<string>()];
+  const presentNames = optionalNames.flatMap((option) => O.toArray(option));
+
+  yield* Console.log(`flatMap(toArray) => ${JSON.stringify(presentNames)}`);
 });
 
 /* ========================================================================== *
@@ -73,14 +75,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Some/None Conversion",
+      description: "Reproduce the documented behavior for Some and None inputs.",
+      run: exampleSourceAlignedSomeAndNone,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Flatten Optional Inputs",
+      description: "Use toArray with Array.flatMap to keep only present Option values.",
+      run: exampleFlattenOptionalInputs,
     },
   ],
 });

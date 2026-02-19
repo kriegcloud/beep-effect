@@ -31,11 +31,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -57,13 +53,53 @@ const moduleRecord = ResultModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect filterOrFail as a callable Result helper.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const summarizeResult = (result: ResultModule.Result<unknown, unknown>): string =>
+  ResultModule.match({
+    onFailure: (failure) => `Failure(${formatUnknown(failure)})`,
+    onSuccess: (value) => `Success(${formatUnknown(value)})`,
+  })(result);
+
+const exampleSourceAlignedFiltering = Effect.gen(function* () {
+  yield* Console.log("Filter success values and fail with the provided mapper.");
+
+  const passing = ResultModule.succeed(5).pipe(
+    ResultModule.filterOrFail(
+      (n) => n > 0,
+      (n) => `${n} is not positive`
+    )
+  );
+  const failing = ResultModule.succeed(0).pipe(
+    ResultModule.filterOrFail(
+      (n) => n > 0,
+      (n) => `${n} is not positive`
+    )
+  );
+
+  yield* Console.log(`passing: ${summarizeResult(passing)}`);
+  yield* Console.log(`failing: ${summarizeResult(failing)}`);
+});
+
+const exampleFailurePassThrough = Effect.gen(function* () {
+  yield* Console.log("Existing failures are preserved and skip predicate checks.");
+  let predicateRuns = 0;
+
+  const input: ResultModule.Result<number, string> = ResultModule.fail("already-failed");
+  const output = input.pipe(
+    ResultModule.filterOrFail(
+      (n) => {
+        predicateRuns += 1;
+        return n > 0;
+      },
+      (n) => `${n} is not positive`
+    )
+  );
+
+  yield* Console.log(`output: ${summarizeResult(output)}`);
+  yield* Console.log(`predicateRuns: ${predicateRuns}`);
 });
 
 /* ========================================================================== *
@@ -83,9 +119,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Filtering",
+      description: "Apply filterOrFail to success values and compare pass/fail outputs.",
+      run: exampleSourceAlignedFiltering,
+    },
+    {
+      title: "Failure Pass-Through",
+      description: "Show that existing failures stay unchanged and skip predicate execution.",
+      run: exampleFailurePassThrough,
     },
   ],
 });

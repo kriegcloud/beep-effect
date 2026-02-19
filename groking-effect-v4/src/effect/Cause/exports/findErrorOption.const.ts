@@ -27,15 +27,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -53,13 +50,37 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect findErrorOption as a callable export that searches for typed failures.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedOptionOutcomes = Effect.gen(function* () {
+  yield* Console.log("Source-aligned behavior: fail causes produce Some, die causes produce None.");
+
+  const fromFail = CauseModule.findErrorOption(CauseModule.fail("error"));
+  const fromDie = CauseModule.findErrorOption(CauseModule.die("defect"));
+
+  yield* Console.log(`from fail -> isSome: ${O.isSome(fromFail)}`);
+  if (O.isSome(fromFail)) {
+    yield* Console.log(`from fail -> value: ${fromFail.value}`);
+  }
+
+  yield* Console.log(`from die -> isNone: ${O.isNone(fromDie)}`);
+});
+
+const exampleMixedCauseSearch = Effect.gen(function* () {
+  yield* Console.log("Mixed causes still return the typed fail value when one exists.");
+
+  const typedError = { code: "E_PARSE", retriable: false };
+  const mixedCause = CauseModule.combine(CauseModule.die(new Error("boom")), CauseModule.fail(typedError));
+  const result = CauseModule.findErrorOption(mixedCause);
+
+  yield* Console.log(`mixed cause has fails: ${CauseModule.hasFails(mixedCause)}`);
+  yield* Console.log(`result isSome: ${O.isSome(result)}`);
+  if (O.isSome(result)) {
+    yield* Console.log(`extracted error: ${formatUnknown(result.value)}`);
+    yield* Console.log(`error identity preserved: ${result.value === typedError}`);
+  }
 });
 
 /* ========================================================================== *
@@ -79,9 +100,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Option Outcomes",
+      description: "Run the documented fail/die inputs and verify Some vs None.",
+      run: exampleSourceAlignedOptionOutcomes,
+    },
+    {
+      title: "Mixed Cause Search",
+      description: "Show that findErrorOption extracts a typed fail from a mixed cause.",
+      run: exampleMixedCauseSearch,
     },
   ],
 });

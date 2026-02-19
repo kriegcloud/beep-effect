@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,33 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  const target = moduleRecord[exportName];
+
+  yield* Console.log("Inspect runtime shape to confirm this export is a callable type guard.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+  if (typeof target === "function") {
+    yield* Console.log(`Callable predicate arity hint: ${target.length}`);
+  }
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedGuardCheck = Effect.gen(function* () {
+  const unknown = new CauseModule.UnknownError("x");
+
+  yield* Console.log(`isUnknownError(new Cause.UnknownError("x")): ${CauseModule.isUnknownError(unknown)}`);
+  yield* Console.log(`isUnknownError("nope"): ${CauseModule.isUnknownError("nope")}`);
+});
+
+const exampleStructuralBrandCheck = Effect.gen(function* () {
+  const brandKey = CauseModule.UnknownErrorTypeId;
+  const unknown = new CauseModule.UnknownError({ raw: true }, "Unexpected value");
+  const timeout = new CauseModule.TimeoutError("Timed out");
+  const brandedPlainObject = { [brandKey]: brandKey, _tag: "UnknownError" };
+
+  yield* Console.log(
+    `Unknown/Timeout: ${CauseModule.isUnknownError(unknown)} / ${CauseModule.isUnknownError(timeout)}`
+  );
+  yield* Console.log(`Branded plain object: ${CauseModule.isUnknownError(brandedPlainObject)}`);
+  yield* Console.log("Contract note: this guard is structural and checks for the unknown-error brand.");
 });
 
 /* ========================================================================== *
@@ -71,13 +87,18 @@ const program = createPlaygroundProgram({
   examples: [
     {
       title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      description: "Inspect module export count, runtime type, preview, and function arity.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Guard Check",
+      description: "Run the JSDoc scenario with an UnknownError and a non-matching value.",
+      run: exampleSourceAlignedGuardCheck,
+    },
+    {
+      title: "Structural Brand Check",
+      description: "Compare UnknownError vs TimeoutError and show a branded object also satisfies the guard.",
+      run: exampleStructuralBrandCheck,
     },
   ],
 });

@@ -21,7 +21,7 @@
 
 import { createPlaygroundProgram, inspectTypeLikeExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -34,7 +34,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary =
   "Utility types for working with `ReadonlyArray` at the type level. Use these to infer element types, preserve non-emptiness, and flatten nested arrays.";
 const sourceExample = "";
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -47,15 +47,15 @@ const exampleTypeErasure = Effect.gen(function* () {
 
 const exampleRuntimeAlignment = Effect.gen(function* () {
   const nested: ReadonlyArray<ReadonlyArray<number>> = [[1, 2], [3]];
-  const flattened = ArrayModule.flatten(nested);
+  const flattened = A.flatten(nested);
 
   yield* Console.log(`flatten([[1, 2], [3]]) -> ${JSON.stringify(flattened)}`);
 
-  const nonEmpty = ArrayModule.isReadonlyArrayNonEmpty(flattened);
+  const nonEmpty = A.isReadonlyArrayNonEmpty(flattened);
   yield* Console.log(`isReadonlyArrayNonEmpty(flattened) -> ${nonEmpty}`);
 
   if (nonEmpty) {
-    yield* Console.log(`headNonEmpty(flattened) -> ${ArrayModule.headNonEmpty(flattened)}`);
+    yield* Console.log(`headNonEmpty(flattened) -> ${A.headNonEmpty(flattened)}`);
   }
 });
 

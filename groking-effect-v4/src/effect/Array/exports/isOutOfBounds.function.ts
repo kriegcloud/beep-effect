@@ -18,13 +18,9 @@
  * - Function export exploration with focused runtime examples.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -36,7 +32,7 @@ const exportKind = "function";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -46,9 +42,33 @@ const exampleFunctionDiscovery = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleFunctionInvocation = Effect.gen(function* () {
-  yield* Console.log("Execute a safe zero-arg invocation probe.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const runtimeExport = moduleRecord[exportName];
+  if (typeof runtimeExport !== "function") {
+    yield* Console.log("isOutOfBounds is not a callable runtime export in this build.");
+    return;
+  }
+  const isOutOfBounds = runtimeExport as (index: number, values: ReadonlyArray<unknown>) => boolean;
+  const input = ["kick", "snare", "hat"];
+
+  yield* Console.log(`isOutOfBounds(0, ["kick", "snare", "hat"]) => ${isOutOfBounds(0, input)}`);
+  yield* Console.log(`isOutOfBounds(2, ["kick", "snare", "hat"]) => ${isOutOfBounds(2, input)}`);
+  yield* Console.log(`isOutOfBounds(3, ["kick", "snare", "hat"]) => ${isOutOfBounds(3, input)}`);
+});
+
+const exampleBoundaryCases = Effect.gen(function* () {
+  const runtimeExport = moduleRecord[exportName];
+  if (typeof runtimeExport !== "function") {
+    yield* Console.log("isOutOfBounds is not a callable runtime export in this build.");
+    return;
+  }
+  const isOutOfBounds = runtimeExport as (index: number, values: ReadonlyArray<unknown>) => boolean;
+  const empty: ReadonlyArray<number> = [];
+  const singleton = [42];
+
+  yield* Console.log(`isOutOfBounds(0, []) => ${isOutOfBounds(0, empty)}`);
+  yield* Console.log(`isOutOfBounds(-1, [42]) => ${isOutOfBounds(-1, singleton)}`);
+  yield* Console.log(`isOutOfBounds(0, [42]) => ${isOutOfBounds(0, singleton)}`);
 });
 
 /* ========================================================================== *
@@ -68,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleFunctionDiscovery,
     },
     {
-      title: "Zero-Arg Invocation Probe",
-      description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation,
+      title: "Source-Aligned Invocation",
+      description: "Check in-range and out-of-range indexes against a non-empty array.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Boundary: Empty and Negative Indexes",
+      description: "Show bounds behavior for an empty array and a negative index.",
+      run: exampleBoundaryCases,
     },
   ],
 });

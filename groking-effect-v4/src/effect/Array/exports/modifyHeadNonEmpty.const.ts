@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,30 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Applies a function to the first element of a non-empty array, returning a new array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.modifyHeadNonEmpty([1, 2, 3], (n) => n * 10)) // [10, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime metadata for the exported value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input: [number, ...Array<number>] = [1, 2, 3];
+  const updated = A.modifyHeadNonEmpty(input, (n) => n * 10);
+  yield* Console.log(`input=${JSON.stringify(input)}`);
+  yield* Console.log(`modifyHeadNonEmpty(..., n => n * 10) -> ${JSON.stringify(updated)}`);
+});
+
+const exampleHeadOnlyUpdate = Effect.gen(function* () {
+  const input: [string, ...Array<string>] = ["alpha", "beta", "gamma"];
+  const updated = A.modifyHeadNonEmpty(input, (head) => head.toUpperCase());
+  const tailUnchanged = JSON.stringify(input.slice(1)) === JSON.stringify(updated.slice(1));
+  yield* Console.log(`original=${JSON.stringify(input)}`);
+  yield* Console.log(`updated=${JSON.stringify(updated)}`);
+  yield* Console.log(`tail unchanged=${tailUnchanged}; same reference=${Object.is(input, updated)}`);
 });
 
 /* ========================================================================== *
@@ -74,9 +81,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Apply the documented numeric transformation to the first element of a non-empty array.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Head-Only Modification",
+      description: "Show that only the head changes while the tail values stay the same.",
+      run: exampleHeadOnlyUpdate,
     },
   ],
 });

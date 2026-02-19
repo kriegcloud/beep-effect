@@ -26,15 +26,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ResultModule from "effect/Result";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,13 +49,34 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect findError as a callable export that extracts typed Fail errors.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedErrorLookup = Effect.gen(function* () {
+  yield* Console.log("Use the source-aligned call shape: pass a fail cause and read the typed error.");
+
+  const typedError = { code: "E_PARSE", retryable: false as const };
+  const result = CauseModule.findError(CauseModule.fail(typedError));
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (!ResultModule.isFailure(result)) {
+    yield* Console.log(`extracted error: ${formatUnknown(result.success)}`);
+    yield* Console.log(`error identity preserved: ${result.success === typedError}`);
+  }
+});
+
+const exampleNoFailContract = Effect.gen(function* () {
+  yield* Console.log("When a cause has no Fail reason, findError stays in the failure channel.");
+
+  const noFailCause = CauseModule.combine(CauseModule.die("unexpected-defect"), CauseModule.interrupt(7));
+  const result = CauseModule.findError(noFailCause);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (ResultModule.isFailure(result)) {
+    yield* Console.log(`failure has typed errors: ${CauseModule.hasFails(result.failure)}`);
+    yield* Console.log(`failure has defects: ${CauseModule.hasDies(result.failure)}`);
+  }
 });
 
 /* ========================================================================== *
@@ -78,9 +96,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Error Lookup",
+      description: "Call findError with a fail cause and verify typed error extraction.",
+      run: exampleSourceAlignedErrorLookup,
+    },
+    {
+      title: "No-Fail Failure Contract",
+      description: "Show the failure-path behavior when a cause has no fail reason.",
+      run: exampleNoFailContract,
     },
   ],
 });

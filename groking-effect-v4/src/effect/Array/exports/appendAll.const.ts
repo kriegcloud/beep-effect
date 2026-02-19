@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,26 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Concatenates two iterables into a single array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.appendAll([1, 2], [3, 4])\nconsole.log(result) // [1, 2, 3, 4]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedConcatenation = Effect.gen(function* () {
+  const left = [1, 2];
+  const right = [3, 4];
+  const combined = A.appendAll(left, right);
+
+  yield* Console.log(`appendAll([1, 2], [3, 4]) -> [${combined.join(", ")}]`);
+  yield* Console.log(`inputs unchanged -> left:[${left.join(", ")}] right:[${right.join(", ")}]`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCurriedIterableConcatenation = Effect.gen(function* () {
+  const streamStages = new Set(["boot", "sync"]);
+  const appendShutdownStages = A.appendAll(["flush", "shutdown"]);
+  const fullPlan = appendShutdownStages(streamStages);
+
+  yield* Console.log(`curried Set + Array -> [${fullPlan.join(" -> ")}]`);
+  yield* Console.log(`result length -> ${fullPlan.length}`);
 });
 
 /* ========================================================================== *
@@ -70,14 +73,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Concatenation",
+      description: "Concatenate two arrays with the same call shape shown in the source JSDoc example.",
+      run: exampleSourceAlignedConcatenation,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Curried Iterable Concatenation",
+      description: "Use curried appendAll to combine a Set and an Array into a single Array result.",
+      run: exampleCurriedIterableConcatenation,
     },
   ],
 });

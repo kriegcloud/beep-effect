@@ -25,11 +25,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -50,13 +46,35 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect isInterruptReason as a reason-level narrowing predicate.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedReasonFiltering = Effect.gen(function* () {
+  yield* Console.log("Filter an interrupt cause's reasons with isInterruptReason.");
+  const cause = CauseModule.interrupt(123);
+  const interrupts = cause.reasons.filter(CauseModule.isInterruptReason);
+  const firstInterrupt = interrupts[0];
+
+  yield* Console.log(`reason count: ${cause.reasons.length}`);
+  yield* Console.log(`interrupt count: ${interrupts.length}`);
+  yield* Console.log(`first fiberId: ${firstInterrupt === undefined ? "(none)" : String(firstInterrupt.fiberId)}`);
+});
+
+const exampleMixedReasonFiltering = Effect.gen(function* () {
+  yield* Console.log("Retain only Interrupt reasons from a mixed cause.");
+  const mixedCause = CauseModule.combine(
+    CauseModule.combine(CauseModule.fail("validation-error"), CauseModule.interrupt(7)),
+    CauseModule.combine(CauseModule.die("panic"), CauseModule.interrupt())
+  );
+  const interrupts = mixedCause.reasons.filter(CauseModule.isInterruptReason);
+  const fiberIds = interrupts
+    .map((reason) => (reason.fiberId === undefined ? "undefined" : String(reason.fiberId)))
+    .join(", ");
+
+  yield* Console.log(`all tags: ${mixedCause.reasons.map((reason) => reason._tag).join(", ")}`);
+  yield* Console.log(`interrupt count: ${interrupts.length}`);
+  yield* Console.log(`interrupt fiberIds: ${fiberIds || "(none)"}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +94,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Interrupt Filtering",
+      description: "Reproduce the documented flow by filtering an interrupt cause and reading the narrowed fiber id.",
+      run: exampleSourceAlignedReasonFiltering,
+    },
+    {
+      title: "Mixed Reason Filtering",
+      description: "Apply isInterruptReason to a combined cause containing fail, die, and interrupt reasons.",
+      run: exampleMixedReasonFiltering,
     },
   ],
 });

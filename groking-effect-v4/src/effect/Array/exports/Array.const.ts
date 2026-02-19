@@ -26,7 +26,7 @@
 
 import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -45,7 +45,7 @@ const sourceExample =
  * ========================================================================== */
 const exampleConstructWithLength = Effect.gen(function* () {
   yield* Console.log("Construct with a single number to create a sparse array.");
-  const sparse = new ArrayModule.Array<number>(3);
+  const sparse = new A.Array<number>(3);
   yield* Console.log(`length -> ${sparse.length}`);
   yield* Console.log(`index 0 exists before fill -> ${0 in sparse}`);
   sparse.fill(0);
@@ -54,7 +54,7 @@ const exampleConstructWithLength = Effect.gen(function* () {
 
 const exampleConstructWithValues = Effect.gen(function* () {
   yield* Console.log("Construct with multiple arguments to create an array of values.");
-  const tones = new ArrayModule.Array("beep", "boop", "bop");
+  const tones = new A.Array("beep", "boop", "bop");
   yield* Console.log(`initial -> [${tones.join(", ")}]`);
   tones.push("buzz");
   yield* Console.log(`after push('buzz') -> [${tones.join(", ")}]`);

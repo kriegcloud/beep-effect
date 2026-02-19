@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,40 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Computes the union of two arrays using a custom equivalence, removing duplicates.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.unionWith([1, 2], [2, 3], (a, b) => a === b)) // [1, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect the export and confirm it is a callable union builder.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedUnion = Effect.gen(function* () {
+  const equalsNumber = (left: number, right: number) => left === right;
+  const direct = A.unionWith([1, 2], [2, 3], equalsNumber);
+  const curried = A.unionWith([2, 3], equalsNumber)([1, 2]);
+
+  yield* Console.log(`unionWith([1,2],[2,3],===) -> [${direct.join(", ")}]`);
+  yield* Console.log(`unionWith([2,3],===)([1,2]) -> [${curried.join(", ")}]`);
+});
+
+const exampleObjectUnionById = Effect.gen(function* () {
+  type User = { readonly id: number; readonly name: string };
+  const localUsers: ReadonlyArray<User> = [
+    { id: 1, name: "Ada" },
+    { id: 2, name: "Grace" },
+    { id: 1, name: "Ada Duplicate" },
+  ];
+  const remoteUsers: ReadonlyArray<User> = [
+    { id: 2, name: "Grace Hopper" },
+    { id: 3, name: "Edsger" },
+  ];
+  const unionById = A.unionWith(localUsers, remoteUsers, (left, right) => left.id === right.id);
+
+  yield* Console.log(`unionById ids -> [${unionById.map((user) => user.id).join(", ")}]`);
+  yield* Console.log(`unionById names -> [${unionById.map((user) => user.name).join(", ")}]`);
 });
 
 /* ========================================================================== *
@@ -74,9 +91,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Union",
+      description: "Run the documented numeric union and compare direct vs curried invocation forms.",
+      run: exampleSourceAlignedUnion,
+    },
+    {
+      title: "Object Union by ID",
+      description: "Union object arrays with custom ID equivalence to show dedupe and ordering behavior.",
+      run: exampleObjectUnionById,
     },
   ],
 });

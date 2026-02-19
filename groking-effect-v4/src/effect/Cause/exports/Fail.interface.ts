@@ -51,14 +51,26 @@ const moduleRecord = CauseModule as Record<string, unknown>;
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
+const exampleTypeErasureAndCompanionContext = Effect.gen(function* () {
+  yield* Console.log("Fail is compile-time only; runtime behavior lives in companion APIs.");
   yield* inspectTypeLikeExport({ moduleRecord, exportName });
+
+  yield* Console.log("Inspecting the runtime companion constructor: Cause.fail.");
+  yield* inspectNamedExport({ moduleRecord, exportName: "fail" });
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleFailRuntimeFlow = Effect.gen(function* () {
+  const cause = CauseModule.fail("Something went wrong");
+  const firstReason = cause.reasons[0];
+
+  yield* Console.log(`Constructed cause with ${cause.reasons.length} reason(s).`);
+
+  if (firstReason !== undefined && CauseModule.isFailReason(firstReason)) {
+    yield* Console.log(`First reason is Fail; error: ${String(firstReason.error)}`);
+    return;
+  }
+
+  yield* Console.log("First reason did not match Cause.isFailReason.");
 });
 
 /* ========================================================================== *
@@ -73,14 +85,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Type Erasure + Companion Context",
+      description: "Show erasure at runtime, then inspect the `Cause.fail` companion API.",
+      run: exampleTypeErasureAndCompanionContext,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Cause.fail Runtime Flow",
+      description: "Create a fail cause and verify its first reason with `Cause.isFailReason`.",
+      run: exampleFailRuntimeFlow,
     },
   ],
 });

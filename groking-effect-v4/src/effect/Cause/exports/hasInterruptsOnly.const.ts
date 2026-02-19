@@ -25,11 +25,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -51,13 +47,33 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect hasInterruptsOnly as a predicate over Cause values.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInterruptFailEmpty = Effect.gen(function* () {
+  const interruptCause = CauseModule.interrupt(123);
+  const failCause = CauseModule.fail("error");
+  const emptyCause = CauseModule.empty;
+  const emptyResult = CauseModule.hasInterruptsOnly(emptyCause);
+
+  yield* Console.log(`hasInterruptsOnly(interrupt): ${CauseModule.hasInterruptsOnly(interruptCause)}`);
+  yield* Console.log(`hasInterruptsOnly(fail): ${CauseModule.hasInterruptsOnly(failCause)}`);
+  yield* Console.log(`hasInterruptsOnly(empty): ${emptyResult}`);
+
+  if (emptyResult !== false) {
+    yield* Console.log("Contract note: docs say empty should be false; current runtime evaluates it as true.");
+  }
+});
+
+const exampleAllInterruptsVsMixedReasons = Effect.gen(function* () {
+  const allInterrupts = CauseModule.combine(CauseModule.interrupt(1), CauseModule.interrupt(2));
+  const interruptAndFail = CauseModule.combine(allInterrupts, CauseModule.fail("boom"));
+  const interruptAndDie = CauseModule.combine(allInterrupts, CauseModule.die("defect"));
+
+  yield* Console.log(`hasInterruptsOnly(interrupt + interrupt): ${CauseModule.hasInterruptsOnly(allInterrupts)}`);
+  yield* Console.log(`hasInterruptsOnly(interrupt + fail): ${CauseModule.hasInterruptsOnly(interruptAndFail)}`);
+  yield* Console.log(`hasInterruptsOnly(interrupt + die): ${CauseModule.hasInterruptsOnly(interruptAndDie)}`);
 });
 
 /* ========================================================================== *
@@ -77,9 +93,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Inputs + Empty Contract Note",
+      description: "Run documented inputs and call out that current runtime treats empty as true.",
+      run: exampleSourceAlignedInterruptFailEmpty,
+    },
+    {
+      title: "All Interrupts Vs Mixed Reasons",
+      description: "Show combined causes stay true only when every reason is an Interrupt.",
+      run: exampleAllInterruptsVsMixedReasons,
     },
   ],
 });

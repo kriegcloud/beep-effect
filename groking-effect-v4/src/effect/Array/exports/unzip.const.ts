@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,19 +38,36 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Splits an array of pairs into two arrays. Inverse of {@link zip}.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.unzip([[1, "a"], [2, "b"], [3, "c"]])) // [[1, 2, 3], ["a", "b", "c"]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime metadata for Array.unzip.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedSplit = Effect.gen(function* () {
+  const pairs: ReadonlyArray<readonly [number, string]> = [
+    [1, "a"],
+    [2, "b"],
+    [3, "c"],
+  ];
+  const [numbers, letters] = A.unzip(pairs);
+
+  yield* Console.log(`pairs=${JSON.stringify(pairs)}`);
+  yield* Console.log(`unzip(pairs) -> numbers=${JSON.stringify(numbers)}, letters=${JSON.stringify(letters)}`);
+});
+
+const exampleZipInverseFlow = Effect.gen(function* () {
+  const left = [10, 20, 30];
+  const right = ["x", "y"];
+  const zipped = A.zip(left, right);
+  const [leftOut, rightOut] = A.unzip(zipped);
+
+  yield* Console.log(`zip(left,right) -> ${JSON.stringify(zipped)}`);
+  yield* Console.log(`unzip(zip(left,right)) -> left=${JSON.stringify(leftOut)}, right=${JSON.stringify(rightOut)}`);
 });
 
 /* ========================================================================== *
@@ -74,9 +87,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Pair Split",
+      description: "Split the documented list of numeric/string pairs into parallel arrays.",
+      run: exampleSourceAlignedSplit,
+    },
+    {
+      title: "Zip Inverse Flow",
+      description: "Show unzip reversing zip on produced pairs (including zip truncation behavior).",
+      run: exampleZipInverseFlow,
     },
   ],
 });

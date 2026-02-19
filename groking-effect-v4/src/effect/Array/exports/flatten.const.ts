@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -42,7 +38,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Flattens a nested array of arrays into a single array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.flatten([[1, 2], [], [3, 4], [], [5, 6]])) // [1, 2, 3, 4, 5, 6]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -52,9 +48,23 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [[1, 2], [], [3, 4], [], [5, 6]];
+  const result = A.flatten(input);
+
+  yield* Console.log(`A.flatten([[1, 2], [], [3, 4], [], [5, 6]]) => ${JSON.stringify(result)}`);
+  yield* Console.log(`input remains ${JSON.stringify(input)}`);
+});
+
+const exampleSingleLevelFlattening = Effect.gen(function* () {
+  const input: ReadonlyArray<ReadonlyArray<number | ReadonlyArray<number>>> = [[1, [2]], [], [[3], 4]];
+  const before = JSON.stringify(input);
+  const result = A.flatten(input);
+  const after = JSON.stringify(input);
+
+  yield* Console.log(`A.flatten([[1, [2]], [], [[3], 4]]) => ${JSON.stringify(result)}`);
+  yield* Console.log(`single-level flatten keeps nested arrays -> ${JSON.stringify(result[1])}`);
+  yield* Console.log(`input unchanged -> ${before === after}`);
 });
 
 /* ========================================================================== *
@@ -74,9 +84,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Flatten the exact nested structure from the JSDoc example.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Single-Level Flatten Contract",
+      description: "Show that flatten removes only one nesting level and does not mutate the input.",
+      run: exampleSingleLevelFlattening,
     },
   ],
 });

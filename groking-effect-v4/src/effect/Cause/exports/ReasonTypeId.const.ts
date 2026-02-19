@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -37,19 +33,49 @@ const exportKind = "const";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "Unique brand for `Reason` values, used for runtime type checks via {@link isReason}.";
 const sourceExample = "";
-const moduleRecord = CauseModule as Record<string, unknown>;
+
+const readBrandValue = (value: unknown, brandKey: PropertyKey): unknown => {
+  if (typeof value !== "object" || value === null) {
+    return undefined;
+  }
+
+  return (value as Record<PropertyKey, unknown>)[brandKey];
+};
+
+const hasOwnBrand = (value: unknown, brandKey: PropertyKey): boolean =>
+  typeof value === "object" && value !== null && Object.prototype.hasOwnProperty.call(value, brandKey);
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleReasonBrandRoundTrip = Effect.gen(function* () {
+  const brandKey = CauseModule.ReasonTypeId;
+  const failReason = CauseModule.makeFailReason("boom");
+  const dieReason = CauseModule.makeDieReason(new Error("defect"));
+  const interruptReason = CauseModule.makeInterruptReason(42);
+
+  yield* Console.log(`ReasonTypeId runtime value: ${brandKey}`);
+  yield* Console.log(
+    `Brand matches (Fail/Die/Interrupt): ${readBrandValue(failReason, brandKey) === brandKey} / ${readBrandValue(dieReason, brandKey) === brandKey} / ${readBrandValue(interruptReason, brandKey) === brandKey}`
+  );
+  yield* Console.log(`Reason tags: ${failReason._tag} / ${dieReason._tag} / ${interruptReason._tag}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleReasonDiscrimination = Effect.gen(function* () {
+  const brandKey = CauseModule.ReasonTypeId;
+  const reason = CauseModule.makeFailReason("bad input");
+  const cause = CauseModule.fail("bad input");
+  const lookalike = { _tag: "Fail", error: "bad input", [brandKey]: "not-the-brand" };
+  const lookalikeBrandMatches = readBrandValue(lookalike, brandKey) === brandKey;
+
+  yield* Console.log(
+    `Has own brand (Reason/Cause/lookalike): ${hasOwnBrand(reason, brandKey)} / ${hasOwnBrand(cause, brandKey)} / ${hasOwnBrand(lookalike, brandKey)}`
+  );
+  yield* Console.log(
+    `isReason (Reason/Cause/lookalike): ${CauseModule.isReason(reason)} / ${CauseModule.isReason(cause)} / ${CauseModule.isReason(lookalike)}`
+  );
+  yield* Console.log(`Lookalike brand equals ReasonTypeId: ${lookalikeBrandMatches}`);
+  yield* Console.log("Contract note: this runtime treats ReasonTypeId key presence as sufficient for isReason.");
 });
 
 /* ========================================================================== *
@@ -64,14 +90,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Reason Brand Round-Trip",
+      description: "Create each Reason variant and verify its brand field matches Cause.ReasonTypeId.",
+      run: exampleReasonBrandRoundTrip,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Brand vs Runtime Guard",
+      description: "Compare raw brand-key presence with Cause.isReason across real and lookalike values.",
+      run: exampleReasonDiscrimination,
     },
   ],
 });

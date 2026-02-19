@@ -26,15 +26,13 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ResultModule from "effect/Result";
+import * as ServiceMap from "effect/ServiceMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,13 +50,51 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect findInterrupt as a callable export that searches a cause for interrupt reasons.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInterruptLookup = Effect.gen(function* () {
+  yield* Console.log("Use the source-aligned call shape: pass an interrupt cause and read the Interrupt reason.");
+
+  const interruptCause = CauseModule.interrupt(42);
+  const result = CauseModule.findInterrupt(interruptCause);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (!ResultModule.isFailure(result)) {
+    yield* Console.log(`reason tag: ${result.success._tag}`);
+    yield* Console.log(`fiberId: ${formatUnknown(result.success.fiberId)}`);
+    yield* Console.log(`returned reason identity preserved: ${result.success === interruptCause.reasons[0]}`);
+  }
+});
+
+const exampleAnnotatedInterruptPreserved = Effect.gen(function* () {
+  yield* Console.log("Annotations on interrupt reasons remain available through findInterrupt.");
+
+  const ExamplePhase = ServiceMap.Service<string>("example/findInterrupt/phase");
+  const annotatedCause = CauseModule.annotate(CauseModule.interrupt(7), ServiceMap.make(ExamplePhase, "shutdown"));
+  const result = CauseModule.findInterrupt(annotatedCause);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (!ResultModule.isFailure(result)) {
+    const annotation = result.success.annotations.get(ExamplePhase.key);
+    yield* Console.log(`annotation present: ${result.success.annotations.has(ExamplePhase.key)}`);
+    yield* Console.log(`annotation value: ${formatUnknown(annotation)}`);
+  }
+});
+
+const exampleNoInterruptContract = Effect.gen(function* () {
+  yield* Console.log("When no Interrupt reason exists, findInterrupt fails with the original cause.");
+
+  const causeWithoutInterrupt = CauseModule.combine(CauseModule.fail("typed-error"), CauseModule.die("defect"));
+  const result = CauseModule.findInterrupt(causeWithoutInterrupt);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (ResultModule.isFailure(result)) {
+    yield* Console.log(`failure carries original cause: ${result.failure === causeWithoutInterrupt}`);
+    yield* Console.log(`failure has interrupts: ${CauseModule.hasInterrupts(result.failure)}`);
+    yield* Console.log(`failure has typed fails: ${CauseModule.hasFails(result.failure)}`);
+  }
 });
 
 /* ========================================================================== *
@@ -78,9 +114,19 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Interrupt Lookup",
+      description: "Call findInterrupt with an interrupt cause and inspect the extracted reason.",
+      run: exampleSourceAlignedInterruptLookup,
+    },
+    {
+      title: "Annotated Interrupt Reason",
+      description: "Verify that returned interrupt reasons retain attached annotations.",
+      run: exampleAnnotatedInterruptPreserved,
+    },
+    {
+      title: "No-Interrupt Failure Contract",
+      description: "Show the failure path when the cause has no interrupt reason.",
+      run: exampleNoInterruptContract,
     },
   ],
 });

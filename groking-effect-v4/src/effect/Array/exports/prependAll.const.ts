@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Prepends all elements from a prefix iterable to the front of an array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconst result = Array.prependAll([2, 3], [0, 1])\nconsole.log(result) // [0, 1, 2, 3]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,20 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const original = [2, 3];
+  const prefix = [0, 1];
+  const result = A.prependAll(original, prefix);
+
+  yield* Console.log(`prependAll([2, 3], [0, 1]) => ${JSON.stringify(result)}`);
+  yield* Console.log(`inputs unchanged => original=${JSON.stringify(original)}, prefix=${JSON.stringify(prefix)}`);
+});
+
+const exampleCurriedIterableInvocation = Effect.gen(function* () {
+  const prependFlags = A.prependAll(["--verbose", "--dry-run"]);
+  const result = prependFlags(new Set(["build", "watch"]));
+
+  yield* Console.log(`prependAll(["--verbose", "--dry-run"])(Set("build", "watch")) => ${JSON.stringify(result)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +82,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Use the documented two-argument form to prepend one array to another.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Iterable Invocation",
+      description: "Use data-last style with a Set to prepend a prefix to iterable command args.",
+      run: exampleCurriedIterableInvocation,
     },
   ],
 });

@@ -19,11 +19,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -35,21 +31,61 @@ import * as SchemaModule from "effect/Schema";
 const exportName = "Annotations";
 const exportKind = "namespace";
 const moduleImportPath = "effect/Schema";
-const sourceSummary = "No summary found in JSDoc.";
+const sourceSummary =
+  "Defines the typed annotation keys that can be attached to schemas and extended via module augmentation.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSchemaLevelAnnotations = Effect.gen(function* () {
+  const Person = SchemaModule.Struct({
+    name: SchemaModule.String,
+    age: SchemaModule.Number,
+  }).pipe(
+    SchemaModule.annotate({
+      title: "Person",
+      description: "Person payload used by the API.",
+      examples: [{ name: "Ada", age: 37 }],
+    })
+  );
+
+  const annotations = SchemaModule.resolveInto(Person);
+  yield* Console.log(`title: ${annotations?.title ?? "(missing)"}`);
+  yield* Console.log(`description: ${annotations?.description ?? "(missing)"}`);
+  yield* Console.log(`examples: ${formatUnknown(annotations?.examples)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleKeyAnnotations = Effect.gen(function* () {
+  const NameField = SchemaModule.String.pipe(
+    SchemaModule.annotateKey({
+      title: "Full name",
+      messageMissingKey: "name is required",
+    })
+  );
+  const Person = SchemaModule.Struct({
+    name: NameField,
+    age: SchemaModule.Number,
+  });
+
+  const firstProperty = Person.ast.propertySignatures[0];
+  yield* Console.log(`field: ${String(firstProperty?.name ?? "(missing)")}`);
+  yield* Console.log(`key annotations: ${formatUnknown(firstProperty?.type.context?.annotations)}`);
+});
+
+const exampleUnsetAnnotation = Effect.gen(function* () {
+  const withTitle = SchemaModule.String.pipe(
+    SchemaModule.annotate({
+      title: "Display Name",
+      description: "Used in UI forms",
+    })
+  );
+  const clearedTitle = withTitle.pipe(SchemaModule.annotate({ title: undefined }));
+
+  const before = SchemaModule.resolveInto(withTitle)?.title;
+  const after = SchemaModule.resolveInto(clearedTitle)?.title;
+  yield* Console.log(`title before clear: ${before ?? "(missing)"}`);
+  yield* Console.log(`title after clear: ${after ?? "(missing)"}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +100,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Schema-Level Annotations",
+      description: "Attach documentation annotations and read them back via resolveInto.",
+      run: exampleSchemaLevelAnnotations,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Key-Level Annotations",
+      description: "Use annotateKey and inspect field context annotations inside a Struct.",
+      run: exampleKeyAnnotations,
+    },
+    {
+      title: "Removing Annotations",
+      description: "Set an annotation key to undefined to remove it from schema metadata.",
+      run: exampleUnsetAnnotation,
     },
   ],
 });

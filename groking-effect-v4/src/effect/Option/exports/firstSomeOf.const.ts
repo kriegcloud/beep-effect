@@ -28,15 +28,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -47,19 +43,47 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Returns the first `Some` found in an iterable of `Option`s, or `None` if all are `None`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconsole.log(Option.firstSomeOf([\n  Option.none(),\n  Option.some(1),\n  Option.some(2)\n]))\n// Output: { _id: 'Option', _tag: 'Some', value: 1 }";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
+
+const formatOption = <A>(option: O.Option<A>): string =>
+  O.match({
+    onNone: () => "None",
+    onSome: (value) => `Some(${JSON.stringify(value)})`,
+  })(option);
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect Option.firstSomeOf as a callable runtime export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAligned = Effect.gen(function* () {
+  yield* Console.log("Pick the first Some from a left-to-right priority list.");
+  const found = O.firstSomeOf([O.none<number>(), O.some(1), O.some(2)]);
+  const missing = O.firstSomeOf([O.none<number>(), O.none<number>()]);
+
+  yield* Console.log(`firstSomeOf([None, Some(1), Some(2)]) => ${formatOption(found)}`);
+  yield* Console.log(`firstSomeOf([None, None]) => ${formatOption(missing)}`);
+});
+
+const exampleShortCircuit = Effect.gen(function* () {
+  yield* Console.log("Iteration stops after the first Some is discovered.");
+  const visited: Array<string> = [];
+
+  function* candidates(): Iterable<O.Option<string>> {
+    visited.push("fallback-1");
+    yield O.none();
+    visited.push("primary");
+    yield O.some("hit");
+    visited.push("fallback-2");
+    yield O.some("unused");
+  }
+
+  const first = O.firstSomeOf(candidates());
+  yield* Console.log(`visited: ${visited.join(" -> ")}`);
+  yield* Console.log(`result => ${formatOption(first)}`);
 });
 
 /* ========================================================================== *
@@ -79,9 +103,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Priority Search",
+      description: "Run the documented array scenario plus the all-None fallback.",
+      run: exampleSourceAligned,
+    },
+    {
+      title: "Iterable Short-Circuit Behavior",
+      description: "Show that iteration halts once the first Some is found.",
+      run: exampleShortCircuit,
     },
   ],
 });

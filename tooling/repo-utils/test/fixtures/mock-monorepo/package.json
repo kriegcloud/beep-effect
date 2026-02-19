@@ -1,0 +1,12 @@
+{
+  "name": "@mock/root",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "dependencies": {
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0"
+  }
+}

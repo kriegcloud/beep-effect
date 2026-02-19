@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,19 +39,36 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Tests whether a mutable `Array` is empty, narrowing the type to `[]`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.isArrayEmpty([])) // true\nconsole.log(Array.isArrayEmpty([1, 2, 3])) // false';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime shape and preview for Array.isArrayEmpty.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const emptyResult = A.isArrayEmpty([]);
+  const nonEmptyResult = A.isArrayEmpty([1, 2, 3]);
+
+  yield* Console.log(`A.isArrayEmpty([]) => ${emptyResult}`);
+  yield* Console.log(`A.isArrayEmpty([1, 2, 3]) => ${nonEmptyResult}`);
+});
+
+const exampleGuardedProcessing = Effect.gen(function* () {
+  const batches: Array<Array<number>> = [[], [440, 660], [], [880]];
+
+  for (const [index, batch] of batches.entries()) {
+    if (A.isArrayEmpty(batch)) {
+      yield* Console.log(`batch ${index}: empty`);
+      continue;
+    }
+
+    const average = batch.reduce((sum, value) => sum + value, 0) / batch.length;
+    yield* Console.log(`batch ${index}: size=${batch.length}, avg=${average}`);
+  }
 });
 
 /* ========================================================================== *
@@ -75,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Mirror the JSDoc checks for empty and non-empty mutable arrays.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Guarded Batch Processing",
+      description: "Skip empty batches and process non-empty batches after the emptiness check.",
+      run: exampleGuardedProcessing,
     },
   ],
 });

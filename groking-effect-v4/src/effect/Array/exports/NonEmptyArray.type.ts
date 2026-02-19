@@ -30,7 +30,7 @@ import {
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +43,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "A mutable array guaranteed to have at least one element.";
 const sourceExample =
   'import type { Array } from "effect"\n\nconst nonEmpty: Array.NonEmptyArray<number> = [1, 2, 3]\nnonEmpty.push(4)';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -54,13 +54,13 @@ const exampleTypeRuntimeCheck = Effect.gen(function* () {
 });
 
 const exampleCompanionConstructionAndMutation = Effect.gen(function* () {
-  const nonEmpty = ArrayModule.make(1, 2, 3);
+  const nonEmpty = A.make(1, 2, 3);
   yield* Console.log(`Array.make(1, 2, 3) -> ${JSON.stringify(nonEmpty)}`);
 
   nonEmpty.push(4);
   yield* Console.log(`push(4) on mutable array -> ${JSON.stringify(nonEmpty)}`);
 
-  const withAppended = ArrayModule.append(nonEmpty, 5);
+  const withAppended = A.append(nonEmpty, 5);
   yield* Console.log(`Array.append(current, 5) -> ${JSON.stringify(withAppended)}`);
 });
 
@@ -69,7 +69,7 @@ const exampleCompanionGuardFlow = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName: "isArrayNonEmpty" });
 
   const maybeNonEmpty: Array<number> = [10, 20];
-  if (ArrayModule.isArrayNonEmpty(maybeNonEmpty)) {
+  if (A.isArrayNonEmpty(maybeNonEmpty)) {
     const head = maybeNonEmpty[0];
     maybeNonEmpty.push(head + 100);
     yield* Console.log(`Guard passed; head=${head}, after push -> ${JSON.stringify(maybeNonEmpty)}`);

@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,29 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect makeDieReason as a function export.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedDieReason = Effect.gen(function* () {
+  const defect = new Error("bug");
+  const reason = CauseModule.makeDieReason(defect);
+
+  yield* Console.log(`reason tag: ${reason._tag}`);
+  yield* Console.log(`defect preserved by reference: ${reason.defect === defect}`);
+  yield* Console.log(`isReason / isDieReason: ${CauseModule.isReason(reason)} / ${CauseModule.isDieReason(reason)}`);
+});
+
+const exampleStandaloneReasonUsage = Effect.gen(function* () {
+  const reason = CauseModule.makeDieReason("panic");
+  const cause = CauseModule.fromReasons([reason]);
+  const firstReason = cause.reasons[0];
+  const storedDefect = CauseModule.isDieReason(firstReason) ? String(firstReason.defect) : "n/a";
+
+  yield* Console.log(`isCause(reason): ${CauseModule.isCause(reason)}`);
+  yield* Console.log(`cause reasons: ${cause.reasons.length}`);
+  yield* Console.log(`same reason instance in cause: ${firstReason === reason}`);
+  yield* Console.log(`stored defect: ${storedDefect}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +87,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Die Reason",
+      description: "Run the documented constructor call and verify Die-specific runtime fields.",
+      run: exampleSourceAlignedDieReason,
+    },
+    {
+      title: "Standalone Reason Usage",
+      description: "Show that makeDieReason returns a Reason and how to wrap it into a Cause.",
+      run: exampleStandaloneReasonUsage,
     },
   ],
 });

@@ -1,0 +1,32 @@
+===== build =====
+$ tsc -b tsconfig.build.json
+src/effect/Schema/exports/Cause.function.ts(81,52): error TS2314: Generic type 'Cause<E>' requires 1 type argument(s).
+src/effect/Schema/exports/Cause.function.ts(84,51): error TS2314: Generic type 'Cause<E>' requires 1 type argument(s).
+error: script "build" exited with code 1
+EXIT_CODE(build)=
+
+===== check =====
+$ tsc -p tsconfig.src.json --noEmit
+src/effect/Schema/exports/Cause.function.ts(81,52): error TS2314: Generic type 'Cause<E>' requires 1 type argument(s).
+src/effect/Schema/exports/Cause.function.ts(84,51): error TS2314: Generic type 'Cause<E>' requires 1 type argument(s).
+EXIT_CODE(check)=
+
+===== lint_fix_1 =====
+$ biome check . --write
+Checked 6581 files in 5s. Fixed 12 files.
+EXIT_CODE(lint_fix_1)=
+
+===== lint_fix_2 =====
+$ biome check . --write
+Checked 6581 files in 5s. No fixes applied.
+EXIT_CODE(lint_fix_2)=
+
+SECOND_LINT_FIX_CHANGED=0
+
+===== lint =====
+$ biome check .
+Checked 6581 files in 3s. No fixes applied.
+EXIT_CODE(lint)=
+
+SUMMARY BUILD_EXIT=0 CHECK_EXIT=0 LINT_FIX_1_EXIT=0 LINT_FIX_2_EXIT=0 LINT_EXIT=0 SECOND_LINT_FIX_CHANGED=0
+REPORT_COUNT=12

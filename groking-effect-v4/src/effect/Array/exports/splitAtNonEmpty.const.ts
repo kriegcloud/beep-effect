@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -44,19 +40,34 @@ const sourceSummary =
   "Splits a non-empty array into two parts at the given index. The first part is guaranteed to be non-empty (`n` is clamped to >= 1).";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.splitAtNonEmpty(["a", "b", "c", "d", "e"], 3))\n// [["a", "b", "c"], ["d", "e"]]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSourceAlignedSplit = Effect.gen(function* () {
+  const input = ["a", "b", "c", "d", "e"] as const;
+  const result = A.splitAtNonEmpty(input, 3);
+
+  yield* Console.log(`A.splitAtNonEmpty(["a", "b", "c", "d", "e"], 3) => ${formatUnknown(result)}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleClampAndFloorBehavior = Effect.gen(function* () {
+  const input = ["alpha", "beta", "gamma"] as const;
+  const clampedToOne = A.splitAtNonEmpty(input, 0);
+  const flooredIndex = A.splitAtNonEmpty(input, 2.9);
+
+  yield* Console.log(`n = 0 clamps to 1 => ${formatUnknown(clampedToOne)}`);
+  yield* Console.log(`n = 2.9 floors to 2 => ${formatUnknown(flooredIndex)}`);
+});
+
+const exampleCurriedOversizedIndex = Effect.gen(function* () {
+  const input: readonly [string, ...string[]] = ["todo", "doing"];
+  const splitAtTen = A.splitAtNonEmpty(10);
+  const result = splitAtTen(input);
+  const inputAsReadonlyArray: ReadonlyArray<string> = input;
+
+  yield* Console.log(`A.splitAtNonEmpty(10)(["todo", "doing"]) => ${formatUnknown(result)}`);
+  yield* Console.log(`left side is a copy of input: ${result[0] !== inputAsReadonlyArray}`);
 });
 
 /* ========================================================================== *
@@ -71,14 +82,19 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Source-Aligned Split",
+      description: "Split at index 3 exactly as shown in the module documentation.",
+      run: exampleSourceAlignedSplit,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Clamp + Floor Behavior",
+      description: "Show how `n` is normalized with `Math.max(1, Math.floor(n))`.",
+      run: exampleClampAndFloorBehavior,
+    },
+    {
+      title: "Curried + Oversized Index",
+      description: "Use data-last style and show that oversized indices return `[copy(input), []]`.",
+      run: exampleCurriedOversizedIndex,
     },
   ],
 });

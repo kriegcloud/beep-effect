@@ -23,13 +23,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -41,19 +37,35 @@ const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Returns all elements except the first of a `NonEmptyReadonlyArray`.";
 const sourceExample = 'import { Array } from "effect"\n\nconsole.log(Array.tailNonEmpty([1, 2, 3, 4])) // [2, 3, 4]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime metadata for tailNonEmpty.");
   yield* inspectNamedExport({ moduleRecord, exportName });
+  yield* Console.log(`tailNonEmpty.length at runtime: ${A.tailNonEmpty.length}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const input = [1, 2, 3, 4] as const;
+  const tail = A.tailNonEmpty(input);
+
+  yield* Console.log(`Array.tailNonEmpty(${JSON.stringify(input)}) -> ${JSON.stringify(tail)}`);
+});
+
+const exampleBoundaryAndSafeAlternative = Effect.gen(function* () {
+  const singleton = [42] as const;
+  const singletonTail = A.tailNonEmpty(singleton);
+  const maybeEmpty: ReadonlyArray<number> = [];
+  const safeTail = A.tail(maybeEmpty);
+
+  yield* Console.log(`Array.tailNonEmpty(${JSON.stringify(singleton)}) -> ${JSON.stringify(singletonTail)}`);
+  yield* Console.log("Contract note: tailNonEmpty requires a non-empty array.");
+  yield* Console.log(
+    `For possibly-empty input use Array.tail([]) -> ${safeTail === undefined ? "undefined" : JSON.stringify(safeTail)}`
+  );
 });
 
 /* ========================================================================== *
@@ -69,13 +81,18 @@ const program = createPlaygroundProgram({
   examples: [
     {
       title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
+      description: "Inspect runtime shape and callable metadata for tailNonEmpty.",
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Invocation",
+      description: "Run the documented non-empty input example and confirm the first element is removed.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Boundary + Safe Alternative",
+      description: "Show singleton behavior and when to prefer Array.tail for uncertain inputs.",
+      run: exampleBoundaryAndSafeAlternative,
     },
   ],
 });

@@ -29,15 +29,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -48,7 +44,7 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Lifts a function that may throw into one that returns an `Option`.";
 const sourceExample =
   "import { Option } from \"effect\"\n\nconst parse = Option.liftThrowable(JSON.parse)\n\nconsole.log(parse(\"1\"))\n// Output: { _id: 'Option', _tag: 'Some', value: 1 }\n\nconsole.log(parse(\"\"))\n// Output: { _id: 'Option', _tag: 'None' }";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -58,9 +54,19 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedJsonParse = Effect.gen(function* () {
+  const parse = O.liftThrowable(JSON.parse);
+
+  yield* Console.log(`parse("1") -> ${formatUnknown(parse("1"))}`);
+  yield* Console.log(`parse("") -> ${formatUnknown(parse(""))}`);
+  yield* Console.log(`parse("{\\"ok\\":true}") -> ${formatUnknown(parse('{"ok":true}'))}`);
+});
+
+const exampleMalformedInputHandling = Effect.gen(function* () {
+  const decodeUri = O.liftThrowable(decodeURIComponent);
+
+  yield* Console.log(`decodeUri("hello%20world") -> ${formatUnknown(decodeUri("hello%20world"))}`);
+  yield* Console.log(`decodeUri("%E0%A4%A") -> ${formatUnknown(decodeUri("%E0%A4%A"))}`);
 });
 
 /* ========================================================================== *
@@ -80,9 +86,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned JSON Parsing",
+      description: "Lift JSON.parse and observe valid inputs become Some while parse failures become None.",
+      run: exampleSourceAlignedJsonParse,
+    },
+    {
+      title: "Malformed Input Recovery",
+      description: "Use a second throwing function to show that invalid input is captured as None.",
+      run: exampleMalformedInputHandling,
     },
   ],
 });

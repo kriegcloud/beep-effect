@@ -24,15 +24,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -44,19 +41,34 @@ const sourceSummary =
   "Safely reads an element at the given index, returning `Option.some` or `Option.none` if the index is out of bounds.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.get([1, 2, 3], 1)) // Some(2)\nconsole.log(Array.get([1, 2, 3], 10)) // None';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
+const formatOption = <A>(option: O.Option<A>): string =>
+  O.isSome(option) ? `Option.some(${formatUnknown(option.value)})` : "Option.none()";
+
 const exampleRuntimeInspection = Effect.gen(function* () {
   yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedInvocation = Effect.gen(function* () {
+  const hit = A.get([1, 2, 3], 1);
+  const miss = A.get([1, 2, 3], 10);
+
+  yield* Console.log(`A.get([1, 2, 3], 1) => ${formatOption(hit)}`);
+  yield* Console.log(`A.get([1, 2, 3], 10) => ${formatOption(miss)}`);
+});
+
+const exampleCurriedIterableInvocation = Effect.gen(function* () {
+  const getAtIndexOne = A.get(1);
+  const fromArray = getAtIndexOne(["kick", "snare", "hat"]);
+  const outOfRange = getAtIndexOne(["kick"]);
+
+  yield* Console.log(`A.get(1)(["kick", "snare", "hat"]) => ${formatOption(fromArray)}`);
+  yield* Console.log(`A.get(1)(["kick"]) => ${formatOption(outOfRange)}`);
 });
 
 /* ========================================================================== *
@@ -76,9 +88,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Index Lookup",
+      description: "Mirror the JSDoc example and show both in-range and out-of-range reads.",
+      run: exampleSourceAlignedInvocation,
+    },
+    {
+      title: "Curried Data-Last Invocation",
+      description: "Use data-last style and compare in-range vs out-of-range access.",
+      run: exampleCurriedIterableInvocation,
     },
   ],
 });

@@ -30,7 +30,7 @@ import {
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +43,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "A readonly array guaranteed to have at least one element.";
 const sourceExample =
   'import type { Array } from "effect"\n\nconst nonEmpty: Array.NonEmptyReadonlyArray<number> = [1, 2, 3]\nconst head: number = nonEmpty[0] // guaranteed to exist';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -59,9 +59,9 @@ const exampleCompanionGuardedHeadAccess = Effect.gen(function* () {
   const input: ReadonlyArray<number> = [1, 2, 3];
   yield* Console.log(`Readonly input -> ${JSON.stringify(input)}`);
 
-  if (ArrayModule.isReadonlyArrayNonEmpty(input)) {
+  if (A.isReadonlyArrayNonEmpty(input)) {
     const headByIndex = input[0];
-    const headByApi = ArrayModule.headNonEmpty(input);
+    const headByApi = A.headNonEmpty(input);
     yield* Console.log(`Guard passed; input[0]=${headByIndex}, headNonEmpty=${headByApi}`);
   } else {
     yield* Console.log("Guard failed; skipped head access.");
@@ -73,10 +73,10 @@ const exampleCompanionNonMutatingFlow = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName: "isReadonlyArrayNonEmpty" });
 
   const base: ReadonlyArray<number> = [10, 20, 30];
-  const appended = ArrayModule.append(base, 40);
+  const appended = A.append(base, 40);
 
-  if (ArrayModule.isReadonlyArrayNonEmpty(appended)) {
-    const tail = ArrayModule.tailNonEmpty(appended);
+  if (A.isReadonlyArrayNonEmpty(appended)) {
+    const tail = A.tailNonEmpty(appended);
     yield* Console.log(`append(base, 40) -> ${JSON.stringify(appended)}; tailNonEmpty -> ${JSON.stringify(tail)}`);
   }
 });

@@ -24,11 +24,7 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -49,13 +45,37 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect isCause as a runtime predicate value.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedGuard = Effect.gen(function* () {
+  const failureCause = CauseModule.fail("error");
+  const nonCause = "not a cause";
+
+  yield* Console.log(`isCause(Cause.fail("error")): ${CauseModule.isCause(failureCause)}`);
+  yield* Console.log(`isCause("not a cause"): ${CauseModule.isCause(nonCause)}`);
+});
+
+const exampleMixedCandidates = Effect.gen(function* () {
+  const candidates: Array<{ readonly label: string; readonly value: unknown }> = [
+    { label: "Cause.empty", value: CauseModule.empty },
+    { label: "Cause.interrupt()", value: CauseModule.interrupt() },
+    {
+      label: 'Cause.combine(Cause.fail("boom"), Cause.interrupt())',
+      value: CauseModule.combine(CauseModule.fail("boom"), CauseModule.interrupt()),
+    },
+    { label: "{ reasons: [] }", value: { reasons: [] } },
+    {
+      label: "{ [TypeId]: TypeId, reasons: [] }",
+      value: { [CauseModule.TypeId]: CauseModule.TypeId, reasons: [] },
+    },
+  ];
+
+  for (const candidate of candidates) {
+    yield* Console.log(`isCause(${candidate.label}): ${CauseModule.isCause(candidate.value)}`);
+  }
+  yield* Console.log("Contract note: prefer Cause constructors over structural objects.");
 });
 
 /* ========================================================================== *
@@ -75,9 +95,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Guard Checks",
+      description: "Run the documented Cause and non-Cause inputs to show true vs false behavior.",
+      run: exampleSourceAlignedGuard,
+    },
+    {
+      title: "Mixed Runtime Candidates",
+      description: "Check real Cause constructors and structural lookalikes through the guard.",
+      run: exampleMixedCandidates,
     },
   ],
 });

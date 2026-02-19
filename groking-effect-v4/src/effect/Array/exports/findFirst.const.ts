@@ -23,15 +23,12 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -43,19 +40,39 @@ const sourceSummary =
   "Returns the first element matching a predicate, refinement, or mapping function, wrapped in `Option`.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.findFirst([1, 2, 3, 4, 5], (x) => x > 3)) // Option.some(4)';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
+const formatOption = <A>(option: O.Option<A>): string =>
+  O.isSome(option) ? `Option.some(${formatUnknown(option.value)})` : "Option.none()";
+
 const exampleRuntimeInspection = Effect.gen(function* () {
   yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedPredicate = Effect.gen(function* () {
+  const result = A.findFirst([1, 2, 3, 4, 5], (x) => x > 3);
+  yield* Console.log(`A.findFirst([1, 2, 3, 4, 5], x > 3) => ${formatOption(result)}`);
+});
+
+const exampleOptionMapping = Effect.gen(function* () {
+  const samples = [
+    { name: "edge-a", latencyMs: 110 },
+    { name: "edge-b", latencyMs: 47 },
+    { name: "edge-c", latencyMs: 62 },
+  ];
+
+  const firstFastEndpoint = A.findFirst(samples, (sample, index) =>
+    sample.latencyMs < 50 ? O.some(`${sample.name}@${index}`) : O.none()
+  );
+
+  const noFastEndpoint = A.findFirst(samples, (sample) => (sample.latencyMs < 20 ? O.some(sample.name) : O.none()));
+
+  yield* Console.log(`Mapping overload (first fast endpoint) => ${formatOption(firstFastEndpoint)}`);
+  yield* Console.log(`Mapping overload (strict threshold) => ${formatOption(noFastEndpoint)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +92,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Predicate Search",
+      description: "Mirror the JSDoc example and return the first value above a threshold.",
+      run: exampleSourceAlignedPredicate,
+    },
+    {
+      title: "Option-Mapping Overload",
+      description: "Use find-and-transform overload and show both some/none outcomes.",
+      run: exampleOptionMapping,
     },
   ],
 });

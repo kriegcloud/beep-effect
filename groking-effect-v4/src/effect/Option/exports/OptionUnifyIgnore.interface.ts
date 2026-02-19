@@ -27,7 +27,7 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -37,7 +37,7 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Option";
 const sourceSummary = "Internal interface for type unification ignore behavior.";
 const sourceExample = "";
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,20 +53,20 @@ const exampleCompanionExportInspection = Effect.gen(function* () {
 });
 
 const exampleUnificationCompanionFlow = Effect.gen(function* () {
-  const seed = OptionModule.some(5);
-  const doubled = OptionModule.andThen(seed, (value) => OptionModule.some(value * 2));
-  const replacedWithLiteral = OptionModule.andThen(seed, "ready");
-  const skippedBecauseNone = OptionModule.andThen(OptionModule.none<number>(), (value) => OptionModule.some(value * 2));
+  const seed = O.some(5);
+  const doubled = O.andThen(seed, (value) => O.some(value * 2));
+  const replacedWithLiteral = O.andThen(seed, "ready");
+  const skippedBecauseNone = O.andThen(O.none<number>(), (value) => O.some(value * 2));
 
-  const doubledMessage = OptionModule.match(doubled, {
+  const doubledMessage = O.match(doubled, {
     onNone: () => "None",
     onSome: (value) => `Some(${value})`,
   });
-  const replacedMessage = OptionModule.match(replacedWithLiteral, {
+  const replacedMessage = O.match(replacedWithLiteral, {
     onNone: () => "None",
     onSome: (value) => `Some(${value})`,
   });
-  const skippedMessage = OptionModule.match(skippedBecauseNone, {
+  const skippedMessage = O.match(skippedBecauseNone, {
     onNone: () => "None",
     onSome: (value) => `Some(${value})`,
   });

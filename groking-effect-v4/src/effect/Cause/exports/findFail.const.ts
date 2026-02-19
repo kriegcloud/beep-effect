@@ -26,15 +26,13 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ResultModule from "effect/Result";
+import * as ServiceMap from "effect/ServiceMap";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -52,13 +50,55 @@ const moduleRecord = CauseModule as Record<string, unknown>;
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect findFail as a callable export that searches causes for Fail reasons.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedFailLookup = Effect.gen(function* () {
+  yield* Console.log("Use the source-aligned call shape: pass a fail cause and inspect the Fail reason.");
+
+  const typedError = { code: "E_PARSE", retryable: false as const };
+  const failCause = CauseModule.fail(typedError);
+  const result = CauseModule.findFail(failCause);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (!ResultModule.isFailure(result)) {
+    yield* Console.log(`reason tag: ${result.success._tag}`);
+    yield* Console.log(`error payload: ${formatUnknown(result.success.error)}`);
+    yield* Console.log(`returned reason identity preserved: ${result.success === failCause.reasons[0]}`);
+  }
+});
+
+const exampleAnnotatedFailPreserved = Effect.gen(function* () {
+  yield* Console.log("findFail returns Fail reasons with annotations intact.");
+
+  const ExampleTrace = ServiceMap.Service<string>("example/findFail/trace");
+  const annotatedCause = CauseModule.annotate(
+    CauseModule.fail("annotated-error"),
+    ServiceMap.make(ExampleTrace, "batch-012")
+  );
+  const result = CauseModule.findFail(annotatedCause);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (!ResultModule.isFailure(result)) {
+    const annotation = ServiceMap.getOrUndefined(CauseModule.reasonAnnotations(result.success), ExampleTrace);
+    yield* Console.log(`annotation present: ${annotation !== undefined}`);
+    yield* Console.log(`annotation value: ${formatUnknown(annotation)}`);
+  }
+});
+
+const exampleNoFailContract = Effect.gen(function* () {
+  yield* Console.log("When no Fail reason exists, findFail stays in the failure channel.");
+
+  const causeWithoutFail = CauseModule.combine(CauseModule.die("unexpected-defect"), CauseModule.interrupt(99));
+  const result = CauseModule.findFail(causeWithoutFail);
+
+  yield* Console.log(`result is failure: ${ResultModule.isFailure(result)}`);
+  if (ResultModule.isFailure(result)) {
+    yield* Console.log(`failure carries original cause: ${result.failure === causeWithoutFail}`);
+    yield* Console.log(`failure has fails: ${CauseModule.hasFails(result.failure)}`);
+    yield* Console.log(`failure has dies: ${CauseModule.hasDies(result.failure)}`);
+  }
 });
 
 /* ========================================================================== *
@@ -78,9 +118,19 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Fail Lookup",
+      description: "Call findFail with a fail cause and inspect the extracted Fail reason.",
+      run: exampleSourceAlignedFailLookup,
+    },
+    {
+      title: "Annotated Fail Reason",
+      description: "Verify that returned Fail reasons retain attached annotations.",
+      run: exampleAnnotatedFailPreserved,
+    },
+    {
+      title: "No-Fail Failure Contract",
+      description: "Show the failure path when the cause has no fail reason.",
+      run: exampleNoFailContract,
     },
   ],
 });

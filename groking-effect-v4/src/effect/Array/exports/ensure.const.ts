@@ -24,13 +24,9 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as ArrayModule from "effect/Array";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 
@@ -43,7 +39,7 @@ const moduleImportPath = "effect/Array";
 const sourceSummary = "Normalizes a value that is either a single element or an array into an array.";
 const sourceExample =
   'import { Array } from "effect"\n\nconsole.log(Array.ensure("a")) // ["a"]\nconsole.log(Array.ensure(["a", "b", "c"])) // ["a", "b", "c"]';
-const moduleRecord = ArrayModule as Record<string, unknown>;
+const moduleRecord = A as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
@@ -53,9 +49,22 @@ const exampleRuntimeInspection = Effect.gen(function* () {
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedNormalization = Effect.gen(function* () {
+  const normalizedSingle = A.ensure("a");
+  const normalizedArray = A.ensure(["a", "b", "c"]);
+
+  yield* Console.log(`ensure("a") => ${JSON.stringify(normalizedSingle)}`);
+  yield* Console.log(`ensure(["a", "b", "c"]) => ${JSON.stringify(normalizedArray)}`);
+});
+
+const exampleArrayPassThroughReference = Effect.gen(function* () {
+  const input = ["left", "right"];
+  const ensured = A.ensure(input);
+
+  ensured.push("center");
+
+  yield* Console.log(`ensure(input) returns same reference -> ${ensured === input}`);
+  yield* Console.log(`after ensured.push("center"), input => ${JSON.stringify(input)}`);
 });
 
 /* ========================================================================== *
@@ -75,9 +84,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source-Aligned Normalization",
+      description: "Normalize a single value and preserve an existing array as shown in the docs.",
+      run: exampleSourceAlignedNormalization,
+    },
+    {
+      title: "Array Pass-Through Reference",
+      description: "Show that array inputs are returned by reference rather than copied.",
+      run: exampleArrayPassThroughReference,
     },
   ],
 });

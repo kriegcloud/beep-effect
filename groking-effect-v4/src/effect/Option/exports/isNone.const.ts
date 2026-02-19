@@ -27,15 +27,11 @@
  * - Clean executable examples with shared logging/error utilities.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown, inspectNamedExport } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as OptionModule from "effect/Option";
+import * as O from "effect/Option";
 
 /* ========================================================================== *
  * Export Coordinates
@@ -46,19 +42,31 @@ const moduleImportPath = "effect/Option";
 const sourceSummary = "Checks whether an `Option` is `None` (absent).";
 const sourceExample =
   'import { Option } from "effect"\n\nconsole.log(Option.isNone(Option.some(1)))\n// Output: false\n\nconsole.log(Option.isNone(Option.none()))\n// Output: true';
-const moduleRecord = OptionModule as Record<string, unknown>;
+const moduleRecord = O as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
 const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* Console.log("Inspect runtime shape before behavior-focused invocations.");
   yield* inspectNamedExport({ moduleRecord, exportName });
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleSourceAlignedBehavior = Effect.gen(function* () {
+  const someValue = O.some(1);
+  const noneValue = O.none<number>();
+
+  yield* Console.log(`O.isNone(${formatUnknown(someValue)}) => ${O.isNone(someValue)}`);
+  yield* Console.log(`O.isNone(${formatUnknown(noneValue)}) => ${O.isNone(noneValue)}`);
+});
+
+const exampleBatchChecks = Effect.gen(function* () {
+  const polled = [O.none<number>(), O.some(7), O.none<number>(), O.some(9)];
+  const emptyIndices = polled.map((option, index) => (O.isNone(option) ? index : -1)).filter((index) => index >= 0);
+
+  yield* Console.log(`poll results: ${formatUnknown(polled)}`);
+  yield* Console.log(`empty poll indices: ${formatUnknown(emptyIndices)}`);
+  yield* Console.log(`all empty: ${polled.every(O.isNone)}`);
 });
 
 /* ========================================================================== *
@@ -78,9 +86,14 @@ const program = createPlaygroundProgram({
       run: exampleRuntimeInspection,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Source JSDoc Behavior",
+      description: "Run the documented Some/None checks and log their boolean results.",
+      run: exampleSourceAlignedBehavior,
+    },
+    {
+      title: "Batch None Detection",
+      description: "Use isNone across multiple Option values to find absent entries.",
+      run: exampleBatchChecks,
     },
   ],
 });

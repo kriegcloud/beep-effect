@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - Interface export with a runtime schema companion (`Schema.Any`).
+ * - Executable checks using companion APIs instead of reflection-only probes.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,30 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleAnyPredicate = Effect.gen(function* () {
+  const isAny = SchemaModule.is(SchemaModule.Any);
+  const samples: ReadonlyArray<unknown> = ["beep", 42, null, { nested: [1, "two"] }, [true, false], undefined];
+
+  yield* Console.log("Compile-time Any is erased; runtime checks use Schema.Any.");
+  for (const sample of samples) {
+    yield* Console.log(`- ${formatUnknown(sample)} => ${isAny(sample)}`);
+  }
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleAnyDecodeEncodeRoundTrip = Effect.gen(function* () {
+  const decodeAny = SchemaModule.decodeUnknownSync(SchemaModule.Any);
+  const encodeAny = SchemaModule.encodeUnknownSync(SchemaModule.Any);
+  const input = { id: 1, tags: ["beep", "effect"], meta: { ok: true } };
+  const decoded = decodeAny(input);
+  const encoded = encodeAny(decoded);
+
+  yield* Console.log(`decodeUnknownSync keeps reference: ${decoded === input}`);
+  yield* Console.log(`encodeUnknownSync keeps reference: ${encoded === decoded}`);
+  yield* Console.log(`Round-trip preview: ${formatUnknown(encoded)}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +71,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Schema.is with Any",
+      description: "Show that the runtime Any schema accepts varied unknown values.",
+      run: exampleAnyPredicate,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Decode/Encode Round Trip",
+      description: "Demonstrate that Any decoding and encoding pass values through.",
+      run: exampleAnyDecodeEncodeRoundTrip,
     },
   ],
 });
