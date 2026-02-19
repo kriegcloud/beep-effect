@@ -19,6 +19,8 @@
     "disableSolutionSearching": true
   },
   "references": [
-
+    {
+      "path": "tsconfig.slices/tooling.json"
+    }
   ]
 }

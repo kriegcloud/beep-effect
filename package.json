@@ -4,7 +4,6 @@
   "name": "@beep/root",
   "packageManager": "bun@1.3.9",
   "workspaces": [
-
   ],
   "repository": {
     "repository": {
@@ -25,6 +24,19 @@
     "@beep/*": "Needed to force PNPM to install local packages"
   },
   "devDependencies": {
+    "effect": "^4.0.0-beta.4",
+    "@effect/ai-anthropic": "^4.0.0-beta.4",
+    "@effect/ai-openai": "^4.0.0-beta.4",
+    "@effect/ai-openai-compat": "^4.0.0-beta.4",
+    "@effect/ai-openrouter": "^4.0.0-beta.4",
+    "@effect/atom-react": "^4.0.0-beta.4",
+    "@effect/opentelemetry": "^4.0.0-beta.4",
+    "@effect/platform-browser": "^4.0.0-beta.4",
+    "@effect/platform-bun": "^4.0.0-beta.4",
+    "@effect/platform-node": "^4.0.0-beta.4",
+    "@effect/platform-node-shared": "^4.0.0-beta.4",
+    "@effect/sql-pg": "^4.0.0-beta.4",
+    "@effect/vitest": "^4.0.0-beta.4",
     "@babel/cli": "catalog:",
     "@babel/core": "catalog:",
     "@babel/plugin-transform-export-namespace-from": "catalog:",
