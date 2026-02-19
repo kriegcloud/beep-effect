@@ -1,0 +1,16 @@
+{
+  "$schema": "./schema.json",
+  "exclude": ["src/internal/**/*.ts", "src/bin.ts"],
+  "parseCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "exactOptionalPropertyTypes": true,
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  }
+}
