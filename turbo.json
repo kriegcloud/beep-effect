@@ -42,65 +42,6 @@
         "!.next/cache/**"
       ]
     },
-    "@beep/web#build": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
-      "dependsOn": [
-        "^build"
-      ],
-      "env": [
-        "NEXT_PUBLIC_STATIC_URL"
-      ],
-      "outputs": [
-        "dist/**",
-        "build/**",
-        ".next/**",
-        "!.next/cache/**",
-        "_next/**",
-        "next-env.d.ts",
-        ".expo/**",
-        ".output/**",
-        ".vercel/output/**",
-        "**/.tsbuildinfo/**",
-        "!**/.turbo/**"
-      ]
-    },
-    "db:generate": {
-      "dependsOn": [
-        "^db:generate"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
-    },
-    "db:push": {
-      "dependsOn": [
-        "^db:push"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ],
-      "cache": false,
-      "interactive": true
-    },
-    "db:migrate": {
-      "dependsOn": [
-        "^db:migrate"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
-    },
-    "db:studio": {
-      "dependsOn": [
-        "^db:studio"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$"
-      ]
-    },
     "lint": {
       "cache": true,
       "dependsOn": [
@@ -127,22 +68,6 @@
       "inputs": [
         "$TURBO_DEFAULT$"
       ]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "dev:https": {
-      "cache": false,
-      "persistent": true
-    },
-    "build:turbo": {
-      "cache": true,
-      "persistent": true
-    },
-    "start": {
-      "cache": false,
-      "persistent": true
     }
   }
 }
