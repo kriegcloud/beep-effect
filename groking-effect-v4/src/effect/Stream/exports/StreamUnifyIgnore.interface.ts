@@ -1,0 +1,86 @@
+/**
+ * Export Playground
+ *
+ * Package: effect
+ * Module: effect/Stream
+ * Export: StreamUnifyIgnore
+ * Kind: interface
+ * Source: .repos/effect-smol/packages/effect/src/Stream.ts
+ * Generated: 2026-02-19T04:14:21.444Z
+ *
+ * Overview:
+ * Type-level marker that excludes Stream from unification.
+ *
+ * Source JSDoc Example:
+ * ```ts
+ * import type * as Stream from "effect/Stream"
+ * 
+ * // Used internally by the type system
+ * // Users typically don't interact with this directly
+ * type StreamIgnore = Stream.StreamUnifyIgnore
+ * ```
+ *
+ * Focus:
+ * - Type-only exports (`type`, `interface`) are erased at runtime.
+ * - Runtime examples still provide module-level context for learning.
+ */
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as StreamModule from "effect/Stream";
+import {
+  createPlaygroundProgram,
+  inspectNamedExport,
+  inspectTypeLikeExport
+} from "@beep/groking-effect-v4/runtime/Playground";
+
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
+const exportName = "StreamUnifyIgnore";
+const exportKind = "interface";
+const moduleImportPath = "effect/Stream";
+const sourceSummary = "Type-level marker that excludes Stream from unification.";
+const sourceExample = "import type * as Stream from \"effect/Stream\"\n\n// Used internally by the type system\n// Users typically don't interact with this directly\ntype StreamIgnore = Stream.StreamUnifyIgnore";
+const moduleRecord = StreamModule as Record<string, unknown>;
+
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleTypeRuntimeCheck = Effect.gen(function* () {
+  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+});
+
+const exampleModuleContextInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect runtime module context around this type-like export.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
+
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🧠",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Type Erasure Check",
+      description: "Confirm whether this symbol appears at runtime.",
+      run: exampleTypeRuntimeCheck
+    },
+    {
+      title: "Module Context Inspection",
+      description: "Inspect the runtime module value for additional context.",
+      run: exampleModuleContextInspection
+    }
+  ]
+});
+
+BunRuntime.runMain(program);

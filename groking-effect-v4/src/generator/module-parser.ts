@@ -320,7 +320,10 @@ export const parseModuleExports = (options: {
 
   const astNames = new Set(astExports.keys())
   const tsMorphNames = new Set(tsMorphExports.keys())
-  const mergedNames = new Set<string>([...astNames, ...tsMorphNames])
+  const mergedNames =
+    tsMorphNames.size > 0
+      ? new Set<string>(tsMorphNames)
+      : new Set<string>(astNames)
 
   const moduleSourceRelativePath = normalizePath(
     path.relative(options.repoRoot, options.moduleSourcePath)

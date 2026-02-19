@@ -1,0 +1,97 @@
+/**
+ * Export Playground
+ *
+ * Package: effect
+ * Module: effect/DateTime
+ * Export: formatIntl
+ * Kind: const
+ * Source: .repos/effect-smol/packages/effect/src/DateTime.ts
+ * Generated: 2026-02-19T04:14:11.265Z
+ *
+ * Overview:
+ * Format a `DateTime` as a string using the `DateTimeFormat` API.
+ *
+ * Source JSDoc Example:
+ * ```ts
+ * import { DateTime } from "effect"
+ * 
+ * const dt = DateTime.makeUnsafe("2024-06-15T14:30:00Z")
+ * 
+ * // Create a custom formatter
+ * const formatter = new Intl.DateTimeFormat("de-DE", {
+ *   year: "numeric",
+ *   month: "long",
+ *   day: "numeric",
+ *   hour: "2-digit",
+ *   minute: "2-digit",
+ *   timeZone: "Europe/Berlin"
+ * })
+ * 
+ * const formatted = DateTime.formatIntl(dt, formatter)
+ * console.log(formatted) // "15. Juni 2024, 16:30"
+ * ```
+ *
+ * Focus:
+ * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ * - Clean executable examples with shared logging/error utilities.
+ */
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as DateTimeModule from "effect/DateTime";
+import {
+  createPlaygroundProgram,
+  inspectNamedExport,
+  probeNamedExportFunction
+} from "@beep/groking-effect-v4/runtime/Playground";
+
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
+const exportName = "formatIntl";
+const exportKind = "const";
+const moduleImportPath = "effect/DateTime";
+const sourceSummary = "Format a `DateTime` as a string using the `DateTimeFormat` API.";
+const sourceExample = "import { DateTime } from \"effect\"\n\nconst dt = DateTime.makeUnsafe(\"2024-06-15T14:30:00Z\")\n\n// Create a custom formatter\nconst formatter = new Intl.DateTimeFormat(\"de-DE\", {\n  year: \"numeric\",\n  month: \"long\",\n  day: \"numeric\",\n  hour: \"2-digit\",\n  minute: \"2-digit\",\n  timeZone: \"Europe/Berlin\"\n})\n\nconst formatted = DateTime.formatIntl(dt, formatter)\nconsole.log(formatted) // \"15. Juni 2024, 16:30\"";
+const moduleRecord = DateTimeModule as Record<string, unknown>;
+
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleRuntimeInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
+
+const exampleCallableProbe = Effect.gen(function* () {
+  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
+  yield* probeNamedExportFunction({ moduleRecord, exportName });
+});
+
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🔎",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Runtime Shape Inspection",
+      description: "Inspect module export count, runtime type, and formatted preview.",
+      run: exampleRuntimeInspection
+    },
+    {
+      title: "Callable Value Probe",
+      description: "Attempt a zero-arg invocation when the value is function-like.",
+      run: exampleCallableProbe
+    }
+  ]
+});
+
+BunRuntime.runMain(program);

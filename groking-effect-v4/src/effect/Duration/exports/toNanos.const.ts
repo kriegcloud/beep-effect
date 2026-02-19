@@ -1,0 +1,86 @@
+/**
+ * Export Playground
+ *
+ * Package: effect
+ * Module: effect/Duration
+ * Export: toNanos
+ * Kind: const
+ * Source: .repos/effect-smol/packages/effect/src/Duration.ts
+ * Generated: 2026-02-19T04:14:11.324Z
+ *
+ * Overview:
+ * Get the duration in nanoseconds as a bigint.
+ *
+ * Source JSDoc Example:
+ * ```ts
+ * import { Duration } from "effect"
+ * 
+ * Duration.toNanos(Duration.seconds(1)) // 1000000000n
+ * 
+ * Duration.toNanos(Duration.infinity) // undefined
+ * ```
+ *
+ * Focus:
+ * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ * - Clean executable examples with shared logging/error utilities.
+ */
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as DurationModule from "effect/Duration";
+import {
+  createPlaygroundProgram,
+  inspectNamedExport,
+  probeNamedExportFunction
+} from "@beep/groking-effect-v4/runtime/Playground";
+
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
+const exportName = "toNanos";
+const exportKind = "const";
+const moduleImportPath = "effect/Duration";
+const sourceSummary = "Get the duration in nanoseconds as a bigint.";
+const sourceExample = "import { Duration } from \"effect\"\n\nDuration.toNanos(Duration.seconds(1)) // 1000000000n\n\nDuration.toNanos(Duration.infinity) // undefined";
+const moduleRecord = DurationModule as Record<string, unknown>;
+
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleRuntimeInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
+
+const exampleCallableProbe = Effect.gen(function* () {
+  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
+  yield* probeNamedExportFunction({ moduleRecord, exportName });
+});
+
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🔎",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Runtime Shape Inspection",
+      description: "Inspect module export count, runtime type, and formatted preview.",
+      run: exampleRuntimeInspection
+    },
+    {
+      title: "Callable Value Probe",
+      description: "Attempt a zero-arg invocation when the value is function-like.",
+      run: exampleCallableProbe
+    }
+  ]
+});
+
+BunRuntime.runMain(program);

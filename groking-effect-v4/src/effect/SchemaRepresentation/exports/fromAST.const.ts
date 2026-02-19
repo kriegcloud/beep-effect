@@ -1,0 +1,91 @@
+/**
+ * Export Playground
+ *
+ * Package: effect
+ * Module: effect/SchemaRepresentation
+ * Export: fromAST
+ * Kind: const
+ * Source: .repos/effect-smol/packages/effect/src/SchemaRepresentation.ts
+ * Generated: 2026-02-19T04:14:19.663Z
+ *
+ * Overview:
+ * Converts a Schema AST into a {@link Document}.
+ *
+ * Source JSDoc Example:
+ * ```ts
+ * import { Schema, SchemaRepresentation } from "effect"
+ * 
+ * const Person = Schema.Struct({
+ *   name: Schema.String,
+ *   age: Schema.Number
+ * })
+ * 
+ * const doc = SchemaRepresentation.fromAST(Person.ast)
+ * console.log(doc.representation._tag)
+ * // "Objects"
+ * ```
+ *
+ * Focus:
+ * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ * - Clean executable examples with shared logging/error utilities.
+ */
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as SchemaRepresentationModule from "effect/SchemaRepresentation";
+import {
+  createPlaygroundProgram,
+  inspectNamedExport,
+  probeNamedExportFunction
+} from "@beep/groking-effect-v4/runtime/Playground";
+
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
+const exportName = "fromAST";
+const exportKind = "const";
+const moduleImportPath = "effect/SchemaRepresentation";
+const sourceSummary = "Converts a Schema AST into a {@link Document}.";
+const sourceExample = "import { Schema, SchemaRepresentation } from \"effect\"\n\nconst Person = Schema.Struct({\n  name: Schema.String,\n  age: Schema.Number\n})\n\nconst doc = SchemaRepresentation.fromAST(Person.ast)\nconsole.log(doc.representation._tag)\n// \"Objects\"";
+const moduleRecord = SchemaRepresentationModule as Record<string, unknown>;
+
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleRuntimeInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
+
+const exampleCallableProbe = Effect.gen(function* () {
+  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
+  yield* probeNamedExportFunction({ moduleRecord, exportName });
+});
+
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🔎",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Runtime Shape Inspection",
+      description: "Inspect module export count, runtime type, and formatted preview.",
+      run: exampleRuntimeInspection
+    },
+    {
+      title: "Callable Value Probe",
+      description: "Attempt a zero-arg invocation when the value is function-like.",
+      run: exampleCallableProbe
+    }
+  ]
+});
+
+BunRuntime.runMain(program);

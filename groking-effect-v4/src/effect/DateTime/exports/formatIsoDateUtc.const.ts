@@ -1,0 +1,90 @@
+/**
+ * Export Playground
+ *
+ * Package: effect
+ * Module: effect/DateTime
+ * Export: formatIsoDateUtc
+ * Kind: const
+ * Source: .repos/effect-smol/packages/effect/src/DateTime.ts
+ * Generated: 2026-02-19T04:14:11.265Z
+ *
+ * Overview:
+ * Format a `DateTime` as a UTC ISO date string.
+ *
+ * Source JSDoc Example:
+ * ```ts
+ * import { DateTime } from "effect"
+ * 
+ * const dt = DateTime.makeUnsafe("2024-01-01T23:30:00Z")
+ * console.log(DateTime.formatIsoDateUtc(dt)) // "2024-01-01"
+ * 
+ * const zoned = DateTime.makeZonedUnsafe("2024-01-01T23:30:00Z", {
+ *   timeZone: "Pacific/Auckland"
+ * })
+ * console.log(DateTime.formatIsoDateUtc(zoned)) // "2024-01-01" (always UTC)
+ * ```
+ *
+ * Focus:
+ * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ * - Clean executable examples with shared logging/error utilities.
+ */
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as DateTimeModule from "effect/DateTime";
+import {
+  createPlaygroundProgram,
+  inspectNamedExport,
+  probeNamedExportFunction
+} from "@beep/groking-effect-v4/runtime/Playground";
+
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
+const exportName = "formatIsoDateUtc";
+const exportKind = "const";
+const moduleImportPath = "effect/DateTime";
+const sourceSummary = "Format a `DateTime` as a UTC ISO date string.";
+const sourceExample = "import { DateTime } from \"effect\"\n\nconst dt = DateTime.makeUnsafe(\"2024-01-01T23:30:00Z\")\nconsole.log(DateTime.formatIsoDateUtc(dt)) // \"2024-01-01\"\n\nconst zoned = DateTime.makeZonedUnsafe(\"2024-01-01T23:30:00Z\", {\n  timeZone: \"Pacific/Auckland\"\n})\nconsole.log(DateTime.formatIsoDateUtc(zoned)) // \"2024-01-01\" (always UTC)";
+const moduleRecord = DateTimeModule as Record<string, unknown>;
+
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleRuntimeInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
+
+const exampleCallableProbe = Effect.gen(function* () {
+  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
+  yield* probeNamedExportFunction({ moduleRecord, exportName });
+});
+
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🔎",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Runtime Shape Inspection",
+      description: "Inspect module export count, runtime type, and formatted preview.",
+      run: exampleRuntimeInspection
+    },
+    {
+      title: "Callable Value Probe",
+      description: "Attempt a zero-arg invocation when the value is function-like.",
+      run: exampleCallableProbe
+    }
+  ]
+});
+
+BunRuntime.runMain(program);

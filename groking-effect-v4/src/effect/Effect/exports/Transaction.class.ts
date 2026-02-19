@@ -1,0 +1,88 @@
+/**
+ * Export Playground
+ *
+ * Package: effect
+ * Module: effect/Effect
+ * Export: Transaction
+ * Kind: class
+ * Source: .repos/effect-smol/packages/effect/src/Effect.ts
+ * Generated: 2026-02-19T04:14:12.396Z
+ *
+ * Overview:
+ * Service that holds the current transaction state, it includes
+ *
+ * Source JSDoc Example:
+ * ```ts
+ * import { Effect } from "effect"
+ * 
+ * // Transaction class for software transactional memory operations
+ * const txEffect = Effect.gen(function*() {
+ *   const tx = yield* Effect.Transaction
+ *   // Use transaction for coordinated state changes
+ *   return "Transaction complete"
+ * })
+ * ```
+ *
+ * Focus:
+ * - Class export exploration with focused runtime examples.
+ */
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as EffectModule from "effect/Effect";
+import {
+  createPlaygroundProgram,
+  inspectNamedExport,
+  probeNamedExportConstructor
+} from "@beep/groking-effect-v4/runtime/Playground";
+
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
+const exportName = "Transaction";
+const exportKind = "class";
+const moduleImportPath = "effect/Effect";
+const sourceSummary = "Service that holds the current transaction state, it includes";
+const sourceExample = "import { Effect } from \"effect\"\n\n// Transaction class for software transactional memory operations\nconst txEffect = Effect.gen(function*() {\n  const tx = yield* Effect.Transaction\n  // Use transaction for coordinated state changes\n  return \"Transaction complete\"\n})";
+const moduleRecord = EffectModule as Record<string, unknown>;
+
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleClassDiscovery = Effect.gen(function* () {
+  yield* Console.log("Inspect runtime metadata and class-like surface information.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
+
+const exampleConstructionProbe = Effect.gen(function* () {
+  yield* Console.log("Attempt a zero-arg construction probe.");
+  yield* probeNamedExportConstructor({ moduleRecord, exportName });
+});
+
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🧱",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Class Discovery",
+      description: "Inspect runtime shape and discover class metadata.",
+      run: exampleClassDiscovery
+    },
+    {
+      title: "Zero-Arg Construction Probe",
+      description: "Attempt construction and report constructor behavior.",
+      run: exampleConstructionProbe
+    }
+  ]
+});
+
+BunRuntime.runMain(program);

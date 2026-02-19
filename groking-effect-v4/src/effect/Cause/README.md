@@ -14,7 +14,7 @@ This module was parsed deterministically with:
 
 AST export count: 66
 TS-Morph export count: 62
-Merged export count: 66
+Merged export count: 62
 
 ### Parser Parity Notes
 - Missing in TS-Morph set: Error, Extract, Only, ReasonProto

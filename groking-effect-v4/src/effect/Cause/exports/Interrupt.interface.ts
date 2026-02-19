@@ -6,7 +6,7 @@
  * Export: Interrupt
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Cause.ts
- * Generated: 2026-02-19T04:02:04.687Z
+ * Generated: 2026-02-19T04:14:10.144Z
  *
  * Overview:
  * A fiber interruption signal, optionally carrying the ID of the fiber that initiated the interruption.
@@ -24,7 +24,7 @@
  *
  * Focus:
  * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - This executable example documents and verifies module-level runtime context.
+ * - Runtime examples still provide module-level context for learning.
  */
 import * as Effect from "effect/Effect";
 import * as Console from "effect/Console";
@@ -32,33 +32,57 @@ import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import {
-  logBunContextLayer,
-  logCompletion,
-  logHeader,
-  logSourceExample,
-  logSummary,
-  reportProgramError
+  createPlaygroundProgram,
+  inspectNamedExport,
+  inspectTypeLikeExport
 } from "@beep/groking-effect-v4/runtime/Playground";
 
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
 const exportName = "Interrupt";
 const exportKind = "interface";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "A fiber interruption signal, optionally carrying the ID of the fiber that initiated the interruption.";
 const sourceExample = "import { Cause } from \"effect\"\n\nconst cause = Cause.interrupt(123)\nconst reason = cause.reasons[0]\nif (Cause.isInterruptReason(reason)) {\n  console.log(reason.fiberId) // 123\n}";
+const moduleRecord = CauseModule as Record<string, unknown>;
 
-const program = Effect.gen(function* () {
-  yield* logHeader({ icon: "🧠", moduleImportPath, exportName, exportKind });
-  yield* logSummary(sourceSummary);
-  yield* logSourceExample(sourceExample);
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleTypeRuntimeCheck = Effect.gen(function* () {
+  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+});
 
-  const runtimeExportKeys = Object.keys(CauseModule);
-  const appearsAtRuntime = runtimeExportKeys.includes(exportName);
+const exampleModuleContextInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect runtime module context around this type-like export.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
 
-  yield* Console.log(`\n📦 Runtime export count: ${runtimeExportKeys.length}`);
-  yield* Console.log(`🧬 Type exports are erased at runtime.`);
-  yield* Console.log(`🔍 Does "${exportName}" appear at runtime? ${appearsAtRuntime ? "yes" : "no"}`);
-  yield* logBunContextLayer(BunContext);
-  yield* logCompletion(moduleImportPath, exportName);
-}).pipe(reportProgramError);
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🧠",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Type Erasure Check",
+      description: "Confirm whether this symbol appears at runtime.",
+      run: exampleTypeRuntimeCheck
+    },
+    {
+      title: "Module Context Inspection",
+      description: "Inspect the runtime module value for additional context.",
+      run: exampleModuleContextInspection
+    }
+  ]
+});
 
 BunRuntime.runMain(program);

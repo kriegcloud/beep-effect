@@ -14,7 +14,7 @@ This module was parsed deterministically with:
 
 AST export count: 140
 TS-Morph export count: 135
-Merged export count: 140
+Merged export count: 135
 
 ### Parser Parity Notes
 - Missing in TS-Morph set: AndNonEmpty, Flatten, Infer, OrNonEmpty, With

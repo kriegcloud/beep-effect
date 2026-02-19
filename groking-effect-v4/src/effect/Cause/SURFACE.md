@@ -1,6 +1,6 @@
 # effect/Cause Surface
 
-Total exports: 66
+Total exports: 62
 
 | Export | Kind | Overview |
 |---|---|---|
@@ -14,10 +14,8 @@ Total exports: 66
 | `Done` | `interface` | A graceful completion signal for queues and streams. |
 | `DoneTypeId` | `const` | Unique brand for {@link Done} values. |
 | `empty` | `const` | A {@link Cause} with an empty `reasons` array. |
-| `Error` | `type` | No summary found in JSDoc. |
 | `ExceededCapacityError` | `interface` | An error indicating that a bounded resource (queue, pool, semaphore, etc.) has exceeded its capacity. |
 | `ExceededCapacityErrorTypeId` | `const` | Unique brand for {@link ExceededCapacityError}. |
-| `Extract` | `type` | No summary found in JSDoc. |
 | `fail` | `const` | Creates a {@link Cause} containing a single {@link Fail} reason with the given typed error. |
 | `Fail` | `interface` | A typed, expected error produced by `Effect.fail`. |
 | `filterInterruptors` | `const` | Extracts the set of interrupting fiber IDs from a cause. Returns `Filter.fail` with the original cause when no {@link Interrupt} reason is found. |
@@ -55,12 +53,10 @@ Total exports: 66
 | `map` | `const` | Transforms the typed error values inside a {@link Cause} using the provided function. Only {@link Fail} reasons are affected; {@link Die} and {@link Interrupt} reasons pass thro... |
 | `NoSuchElementError` | `interface` | An error indicating that a requested element does not exist. |
 | `NoSuchElementErrorTypeId` | `const` | Unique brand for {@link NoSuchElementError}. |
-| `Only` | `type` | No summary found in JSDoc. |
 | `pretty` | `const` | Renders a {@link Cause} as a human-readable string for logging or debugging. |
 | `prettyErrors` | `const` | Converts a {@link Cause} into an `Array<Error>` suitable for logging or rethrowing. |
 | `Reason` | `type` | A single entry inside a {@link Cause}'s `reasons` array. |
 | `reasonAnnotations` | `const` | Reads the annotations from a single {@link Reason} as a `ServiceMap`. |
-| `ReasonProto` | `interface` | No summary found in JSDoc. |
 | `ReasonTypeId` | `const` | Unique brand for `Reason` values, used for runtime type checks via {@link isReason}. |
 | `squash` | `const` | Collapses a {@link Cause} into a single `unknown` value, picking the "most important" failure in this order: |
 | `StackTrace` | `class` | `ServiceMap` key for the stack frame captured at the point of failure. |

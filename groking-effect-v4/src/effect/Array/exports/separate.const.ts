@@ -6,7 +6,7 @@
  * Export: separate
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Array.ts
- * Generated: 2026-02-19T04:02:05.397Z
+ * Generated: 2026-02-19T04:14:09.706Z
  *
  * Overview:
  * Separates an iterable of `Result`s into two arrays: failures and successes.
@@ -23,50 +23,66 @@
  * ```
  *
  * Focus:
- * - Runtime inspection for value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ * - Clean executable examples with shared logging/error utilities.
  */
 import * as Effect from "effect/Effect";
 import * as Console from "effect/Console";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as Array from "effect/Array";
+import * as ArrayModule from "effect/Array";
 import {
-  formatUnknown,
-  logBunContextLayer,
-  logCompletion,
-  logHeader,
-  logSourceExample,
-  logSummary,
-  reportProgramError
+  createPlaygroundProgram,
+  inspectNamedExport,
+  probeNamedExportFunction
 } from "@beep/groking-effect-v4/runtime/Playground";
 
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
 const exportName = "separate";
 const exportKind = "const";
 const moduleImportPath = "effect/Array";
 const sourceSummary = "Separates an iterable of `Result`s into two arrays: failures and successes.";
 const sourceExample = "import { Array, Result } from \"effect\"\n\nconst [failures, successes] = Array.separate([\n  Result.succeed(1), Result.fail(\"error\"), Result.succeed(2)\n])\nconsole.log(failures) // [\"error\"]\nconsole.log(successes) // [1, 2]";
+const moduleRecord = ArrayModule as Record<string, unknown>;
 
-const program = Effect.gen(function* () {
-  yield* logHeader({ icon: "🔎", moduleImportPath, exportName, exportKind });
-  yield* logSummary(sourceSummary);
-  yield* logSourceExample(sourceExample);
-  yield* Console.log(`\n📦 Inspecting runtime value-like export...`);
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleRuntimeInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
 
-  const moduleKeys = Object.keys(Array);
-  yield* Console.log(`\n📦 Module export count: ${moduleKeys.length}`);
+const exampleCallableProbe = Effect.gen(function* () {
+  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
+  yield* probeNamedExportFunction({ moduleRecord, exportName });
+});
 
-  const target = Array[exportName as keyof typeof Array];
-  yield* Console.log(`🔬 Runtime typeof: ${typeof target}`);
-
-  if (typeof target === "function") {
-    const signaturePreview = String(target).replace(/\s+/g, " ").slice(0, 240);
-    yield* Console.log(`⚙️ Function-like value preview: ${signaturePreview}${String(target).length > 240 ? "..." : ""}`);
-  } else {
-    yield* Console.log(`📄 Value preview:\n${formatUnknown(target)}`);
-  }
-
-  yield* logBunContextLayer(BunContext);
-  yield* logCompletion(moduleImportPath, exportName);
-}).pipe(reportProgramError);
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🔎",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Runtime Shape Inspection",
+      description: "Inspect module export count, runtime type, and formatted preview.",
+      run: exampleRuntimeInspection
+    },
+    {
+      title: "Callable Value Probe",
+      description: "Attempt a zero-arg invocation when the value is function-like.",
+      run: exampleCallableProbe
+    }
+  ]
+});
 
 BunRuntime.runMain(program);

@@ -81,11 +81,7 @@ const toModuleAlias = (modulePath: string): string => {
   const segments = modulePath.split("/").filter((segment) => segment.length > 0)
   const leaf = segments.at(-1) ?? "Module"
   const alias = toSafeIdentifier(leaf)
-  const reserved = new Set(["Effect", "Console", "BunContext", "BunRuntime", "Cause"])
-  if (reserved.has(alias)) {
-    return `${alias}Module`
-  }
-  return alias
+  return alias.endsWith("Module") ? alias : `${alias}Module`
 }
 
 const toCommentSafe = (value: string): string => value.replace(/\*\//g, "*\\/")

@@ -6,7 +6,7 @@
  * Export: fromReasons
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Cause.ts
- * Generated: 2026-02-19T04:02:04.687Z
+ * Generated: 2026-02-19T04:14:10.144Z
  *
  * Overview:
  * Creates a {@link Cause} from an array of {@link Reason} values.
@@ -24,7 +24,8 @@
  * ```
  *
  * Focus:
- * - Runtime inspection for value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
+ * - Clean executable examples with shared logging/error utilities.
  */
 import * as Effect from "effect/Effect";
 import * as Console from "effect/Console";
@@ -32,42 +33,57 @@ import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import {
-  formatUnknown,
-  logBunContextLayer,
-  logCompletion,
-  logHeader,
-  logSourceExample,
-  logSummary,
-  reportProgramError
+  createPlaygroundProgram,
+  inspectNamedExport,
+  probeNamedExportFunction
 } from "@beep/groking-effect-v4/runtime/Playground";
 
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
 const exportName = "fromReasons";
 const exportKind = "const";
 const moduleImportPath = "effect/Cause";
 const sourceSummary = "Creates a {@link Cause} from an array of {@link Reason} values.";
 const sourceExample = "import { Cause } from \"effect\"\n\nconst reasons = [\n  Cause.makeFailReason(\"err1\"),\n  Cause.makeFailReason(\"err2\")\n]\nconst cause = Cause.fromReasons(reasons)\nconsole.log(cause.reasons.length) // 2";
+const moduleRecord = CauseModule as Record<string, unknown>;
 
-const program = Effect.gen(function* () {
-  yield* logHeader({ icon: "🔎", moduleImportPath, exportName, exportKind });
-  yield* logSummary(sourceSummary);
-  yield* logSourceExample(sourceExample);
-  yield* Console.log(`\n📦 Inspecting runtime value-like export...`);
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleRuntimeInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
 
-  const moduleKeys = Object.keys(CauseModule);
-  yield* Console.log(`\n📦 Module export count: ${moduleKeys.length}`);
+const exampleCallableProbe = Effect.gen(function* () {
+  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
+  yield* probeNamedExportFunction({ moduleRecord, exportName });
+});
 
-  const target = CauseModule[exportName as keyof typeof CauseModule];
-  yield* Console.log(`🔬 Runtime typeof: ${typeof target}`);
-
-  if (typeof target === "function") {
-    const signaturePreview = String(target).replace(/\s+/g, " ").slice(0, 240);
-    yield* Console.log(`⚙️ Function-like value preview: ${signaturePreview}${String(target).length > 240 ? "..." : ""}`);
-  } else {
-    yield* Console.log(`📄 Value preview:\n${formatUnknown(target)}`);
-  }
-
-  yield* logBunContextLayer(BunContext);
-  yield* logCompletion(moduleImportPath, exportName);
-}).pipe(reportProgramError);
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🔎",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Runtime Shape Inspection",
+      description: "Inspect module export count, runtime type, and formatted preview.",
+      run: exampleRuntimeInspection
+    },
+    {
+      title: "Callable Value Probe",
+      description: "Attempt a zero-arg invocation when the value is function-like.",
+      run: exampleCallableProbe
+    }
+  ]
+});
 
 BunRuntime.runMain(program);

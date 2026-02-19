@@ -1,0 +1,93 @@
+/**
+ * Export Playground
+ *
+ * Package: effect
+ * Module: effect/unstable/ai/Prompt
+ * Export: ToolResultPart
+ * Kind: interface
+ * Source: .repos/effect-smol/packages/effect/src/unstable/ai/Prompt.ts
+ * Generated: 2026-02-19T04:14:24.061Z
+ *
+ * Overview:
+ * Content part representing the result of a tool call.
+ *
+ * Source JSDoc Example:
+ * ```ts
+ * import { Prompt } from "effect/unstable/ai"
+ * 
+ * const toolResultPart: Prompt.ToolResultPart = Prompt.makePart("tool-result", {
+ *   id: "call_123",
+ *   name: "get_weather",
+ *   isFailure: false,
+ *   result: {
+ *     temperature: 22,
+ *     condition: "sunny",
+ *     humidity: 65
+ *   }
+ * })
+ * ```
+ *
+ * Focus:
+ * - Type-only exports (`type`, `interface`) are erased at runtime.
+ * - Runtime examples still provide module-level context for learning.
+ */
+import * as Effect from "effect/Effect";
+import * as Console from "effect/Console";
+import * as BunContext from "@effect/platform-bun/BunContext";
+import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as PromptModule from "effect/unstable/ai/Prompt";
+import {
+  createPlaygroundProgram,
+  inspectNamedExport,
+  inspectTypeLikeExport
+} from "@beep/groking-effect-v4/runtime/Playground";
+
+/* ========================================================================== *
+ * Export Coordinates
+ * ========================================================================== */
+const exportName = "ToolResultPart";
+const exportKind = "interface";
+const moduleImportPath = "effect/unstable/ai/Prompt";
+const sourceSummary = "Content part representing the result of a tool call.";
+const sourceExample = "import { Prompt } from \"effect/unstable/ai\"\n\nconst toolResultPart: Prompt.ToolResultPart = Prompt.makePart(\"tool-result\", {\n  id: \"call_123\",\n  name: \"get_weather\",\n  isFailure: false,\n  result: {\n    temperature: 22,\n    condition: \"sunny\",\n    humidity: 65\n  }\n})";
+const moduleRecord = PromptModule as Record<string, unknown>;
+
+/* ========================================================================== *
+ * Example Blocks
+ * ========================================================================== */
+const exampleTypeRuntimeCheck = Effect.gen(function* () {
+  yield* Console.log("Check runtime visibility for this type/interface export.");
+  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+});
+
+const exampleModuleContextInspection = Effect.gen(function* () {
+  yield* Console.log("Inspect runtime module context around this type-like export.");
+  yield* inspectNamedExport({ moduleRecord, exportName });
+});
+
+/* ========================================================================== *
+ * Program
+ * ========================================================================== */
+const program = createPlaygroundProgram({
+  icon: "🧠",
+  moduleImportPath,
+  exportName,
+  exportKind,
+  summary: sourceSummary,
+  sourceExample,
+  bunContext: BunContext,
+  examples: [
+    {
+      title: "Type Erasure Check",
+      description: "Confirm whether this symbol appears at runtime.",
+      run: exampleTypeRuntimeCheck
+    },
+    {
+      title: "Module Context Inspection",
+      description: "Inspect the runtime module value for additional context.",
+      run: exampleModuleContextInspection
+    }
+  ]
+});
+
+BunRuntime.runMain(program);
