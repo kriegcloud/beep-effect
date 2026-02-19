@@ -7,7 +7,7 @@
 
 import { Command } from "effect/unstable/cli";
 import { codegenCommand } from "./codegen.js";
-import { createPackageCommand } from "./create-package.js";
+import { createPackageCommand } from "./create-package/index.js";
 import { topoSortCommand } from "./topo-sort.js";
 
 /**

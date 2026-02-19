@@ -58,7 +58,9 @@
   "dependencies": {
     "@beep/repo-utils": "workspace:*",
     "effect": "catalog:",
-    "@effect/platform-node": "catalog:"
+    "@effect/platform-node": "catalog:",
+    "handlebars": "catalog:",
+    "jsonc-parser": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -27,7 +27,7 @@ export {
    * @since 0.0.0
    */
   createPackageCommand,
-} from "./commands/create-package.js";
+} from "./commands/create-package/index.js";
 /**
  * @since 0.0.0
  */

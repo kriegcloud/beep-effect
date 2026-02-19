@@ -45,7 +45,7 @@ export interface FsUtilsShape {
    */
   readonly glob: (
     pattern: string | ReadonlyArray<string>,
-    options?: GlobOptions
+    options?: undefined | GlobOptions
   ) => Effect.Effect<ReadonlyArray<string>, DomainError>;
 
   /**
@@ -55,7 +55,7 @@ export interface FsUtilsShape {
    */
   readonly globFiles: (
     pattern: string | ReadonlyArray<string>,
-    options?: GlobOptions
+    options?: undefined | GlobOptions
   ) => Effect.Effect<ReadonlyArray<string>, DomainError>;
 
   /**
@@ -135,7 +135,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
 
     const runGlob = (
       pattern: string | ReadonlyArray<string>,
-      options?: GlobOptions & { readonly nodir?: boolean }
+      options?: undefined | (GlobOptions & { readonly nodir?: undefined | boolean })
     ): Effect.Effect<ReadonlyArray<string>, DomainError> =>
       Effect.tryPromise({
         try: () => {

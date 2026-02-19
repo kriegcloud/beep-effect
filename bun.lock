@@ -62,17 +62,6 @@
       "name": "scratchpad",
       "version": "0.0.0",
     },
-    "tooling/_test-pkg-1771494921478": {
-      "name": "@beep/_test-pkg-1771494921478",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "tooling/cli": {
       "name": "@beep/repo-cli",
       "version": "0.0.0",
@@ -83,6 +72,8 @@
         "@beep/repo-utils": "workspace:*",
         "@effect/platform-node": "catalog:",
         "effect": "catalog:",
+        "handlebars": "catalog:",
+        "jsonc-parser": "catalog:",
       },
       "devDependencies": {
         "@effect/vitest": "catalog:",
@@ -142,6 +133,7 @@
     "glob": "^13.0.5",
     "handlebars": "^4.7.8",
     "jscodeshift": "^17.3.0",
+    "jsonc-parser": "^3.3.1",
     "lint-staged": "^16.2.7",
     "madge": "^8.0.0",
     "syncpack": "14.0.0-alpha.41",
@@ -230,8 +222,6 @@
     "@babel/types": ["@babel/types@7.29.0", "", { "dependencies": { "@babel/helper-string-parser": "^7.27.1", "@babel/helper-validator-identifier": "^7.28.5" } }, "sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A=="],
 
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
-
-    "@beep/_test-pkg-1771494921478": ["@beep/_test-pkg-1771494921478@workspace:tooling/_test-pkg-1771494921478"],
 
     "@beep/groking-effect-v4": ["@beep/groking-effect-v4@workspace:groking-effect-v4"],
 
@@ -806,6 +796,8 @@
     "jsesc": ["jsesc@3.1.0", "", { "bin": { "jsesc": "bin/jsesc" } }, "sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA=="],
 
     "json5": ["json5@2.2.3", "", { "bin": { "json5": "lib/cli.js" } }, "sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg=="],
+
+    "jsonc-parser": ["jsonc-parser@3.3.1", "", {}, "sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ=="],
 
     "kind-of": ["kind-of@6.0.3", "", {}, "sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw=="],
 
