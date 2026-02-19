@@ -62,8 +62,7 @@ const TestLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, Relati
 
 layer(TestLayer)("RelationResolver", (it) => {
   describe("similar relation", () => {
-    it.effect("returns vector search results excluding the source symbol", () =>
-      Effect.gen(function* () {
+    it.effect("returns vector search results excluding the source symbol", Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const embeddingSvc = yield* EmbeddingService;
         const resolverSvc = yield* RelationResolver;
@@ -125,8 +124,7 @@ layer(TestLayer)("RelationResolver", (it) => {
       })
     );
 
-    it.effect("respects the limit parameter", () =>
-      Effect.gen(function* () {
+    it.effect("respects the limit parameter", Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const embeddingSvc = yield* EmbeddingService;
         const resolverSvc = yield* RelationResolver;
@@ -168,8 +166,7 @@ layer(TestLayer)("RelationResolver", (it) => {
   });
 
   describe("same-module relation (stubbed)", () => {
-    it.effect("returns empty array for now", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty array for now", Effect.fn(function* () {
         const resolverSvc = yield* RelationResolver;
 
         const results = yield* resolverSvc.resolve({
@@ -184,8 +181,7 @@ layer(TestLayer)("RelationResolver", (it) => {
   });
 
   describe("imports relation (stubbed)", () => {
-    it.effect("returns empty array for now", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty array for now", Effect.fn(function* () {
         const resolverSvc = yield* RelationResolver;
 
         const results = yield* resolverSvc.resolve({
@@ -200,8 +196,7 @@ layer(TestLayer)("RelationResolver", (it) => {
   });
 
   describe("imported-by relation (stubbed)", () => {
-    it.effect("returns empty array for now", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty array for now", Effect.fn(function* () {
         const resolverSvc = yield* RelationResolver;
 
         const results = yield* resolverSvc.resolve({
@@ -216,8 +211,7 @@ layer(TestLayer)("RelationResolver", (it) => {
   });
 
   describe("provides relation (stubbed)", () => {
-    it.effect("returns empty array for now", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty array for now", Effect.fn(function* () {
         const resolverSvc = yield* RelationResolver;
 
         const results = yield* resolverSvc.resolve({
@@ -232,8 +226,7 @@ layer(TestLayer)("RelationResolver", (it) => {
   });
 
   describe("depends-on relation (stubbed)", () => {
-    it.effect("returns empty array for now", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty array for now", Effect.fn(function* () {
         const resolverSvc = yield* RelationResolver;
 
         const results = yield* resolverSvc.resolve({

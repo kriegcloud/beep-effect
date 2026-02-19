@@ -12,8 +12,7 @@ const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
 
 layer(TestLayer)("FsUtils", (it) => {
   describe("glob", () => {
-    it.effect("should match files with a pattern", () =>
-      Effect.gen(function* () {
+    it.effect("should match files with a pattern", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const results = yield* utils.glob("src/**/*.ts", {
           cwd: `${__dirname}/..`,
@@ -23,8 +22,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should return empty array for non-matching pattern", () =>
-      Effect.gen(function* () {
+    it.effect("should return empty array for non-matching pattern", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const results = yield* utils.glob("**/*.nonexistent-ext-xyz", {
           cwd: `${__dirname}/..`,
@@ -33,8 +31,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should respect ignore option", () =>
-      Effect.gen(function* () {
+    it.effect("should respect ignore option", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const results = yield* utils.glob("src/**/*.ts", {
           cwd: `${__dirname}/..`,
@@ -46,8 +43,7 @@ layer(TestLayer)("FsUtils", (it) => {
   });
 
   describe("globFiles", () => {
-    it.effect("should only return files, not directories", () =>
-      Effect.gen(function* () {
+    it.effect("should only return files, not directories", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const results = yield* utils.globFiles("src/**", {
           cwd: `${__dirname}/..`,
@@ -60,8 +56,7 @@ layer(TestLayer)("FsUtils", (it) => {
   });
 
   describe("readJson / writeJson", () => {
-    it.effect("should round-trip JSON through write and read", () =>
-      Effect.gen(function* () {
+    it.effect("should round-trip JSON through write and read", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
@@ -79,8 +74,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should write with 2-space indentation and trailing newline", () =>
-      Effect.gen(function* () {
+    it.effect("should write with 2-space indentation and trailing newline", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
@@ -95,8 +89,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should fail with NoSuchFileError for missing file", () =>
-      Effect.gen(function* () {
+    it.effect("should fail with NoSuchFileError for missing file", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const result = yield* utils
           .readJson("/nonexistent/path/file.json")
@@ -105,8 +98,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should fail with DomainError for invalid JSON", () =>
-      Effect.gen(function* () {
+    it.effect("should fail with DomainError for invalid JSON", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
@@ -126,8 +118,7 @@ layer(TestLayer)("FsUtils", (it) => {
   });
 
   describe("modifyFile", () => {
-    it.effect("should modify file content and return true", () =>
-      Effect.gen(function* () {
+    it.effect("should modify file content and return true", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
@@ -145,8 +136,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should return false and not write when content unchanged", () =>
-      Effect.gen(function* () {
+    it.effect("should return false and not write when content unchanged", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
@@ -161,8 +151,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should fail with NoSuchFileError for missing file", () =>
-      Effect.gen(function* () {
+    it.effect("should fail with NoSuchFileError for missing file", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const result = yield* utils
           .modifyFile("/nonexistent/file.txt", (c) => c)
@@ -173,8 +162,7 @@ layer(TestLayer)("FsUtils", (it) => {
   });
 
   describe("existsOrThrow", () => {
-    it.effect("should succeed for existing path", () =>
-      Effect.gen(function* () {
+    it.effect("should succeed for existing path", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
@@ -183,8 +171,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should fail for non-existing path", () =>
-      Effect.gen(function* () {
+    it.effect("should fail for non-existing path", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const result = yield* utils
           .existsOrThrow("/nonexistent/path/xyz")
@@ -195,8 +182,7 @@ layer(TestLayer)("FsUtils", (it) => {
   });
 
   describe("isDirectory / isFile", () => {
-    it.effect("should return true for a directory", () =>
-      Effect.gen(function* () {
+    it.effect("should return true for a directory", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
@@ -208,8 +194,7 @@ layer(TestLayer)("FsUtils", (it) => {
       })
     );
 
-    it.effect("should return true for a file", () =>
-      Effect.gen(function* () {
+    it.effect("should return true for a file", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpFile = yield* fs.makeTempFile();
@@ -223,16 +208,14 @@ layer(TestLayer)("FsUtils", (it) => {
   });
 
   describe("getParentDirectory", () => {
-    it.effect("should return the parent directory", () =>
-      Effect.gen(function* () {
+    it.effect("should return the parent directory", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const parent = yield* utils.getParentDirectory("/foo/bar/baz.ts");
         expect(parent).toBe("/foo/bar");
       })
     );
 
-    it.effect("should handle root path", () =>
-      Effect.gen(function* () {
+    it.effect("should handle root path", Effect.fn(function* () {
         const utils = yield* FsUtils;
         const parent = yield* utils.getParentDirectory("/");
         expect(parent).toBe("/");

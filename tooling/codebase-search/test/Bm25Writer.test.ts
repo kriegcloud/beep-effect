@@ -9,13 +9,23 @@ import { Bm25Writer, Bm25WriterMock, type Bm25WriterShape } from "../src/indexer
 // FileSystem | Path in their Effect requirements even though the mock is a no-op)
 // ---------------------------------------------------------------------------
 
-const FsMock = Layer.mock(FileSystem.FileSystem)({});
+const FsMock = FileSystem.layerNoop({});
 const PathMock = Layer.mock(Path.Path)({
+  [Path.TypeId]: Path.TypeId,
   sep: "/",
-  basename: (p) => { const i = p.lastIndexOf("/"); return i >= 0 ? p.slice(i + 1) : p; },
-  dirname: (p) => { const i = p.lastIndexOf("/"); return i >= 0 ? p.slice(0, i) : "."; },
-  extname: (p) => { const i = p.lastIndexOf("."); return i >= 0 ? p.slice(i) : ""; },
-  format: () => "",
+  basename: (p) => {
+    const i = p.lastIndexOf("/");
+    return i >= 0 ? p.slice(i + 1) : p;
+  },
+  dirname: (p) => {
+    const i = p.lastIndexOf("/");
+    return i >= 0 ? p.slice(0, i) : ".";
+  },
+  extname: (p) => {
+    const i = p.lastIndexOf(".");
+    return i >= 0 ? p.slice(i) : "";
+  },
+  format: (obj) => [obj.dir, obj.base].filter(Boolean).join("/"),
   fromFileUrl: (url) => Effect.succeed(url.pathname),
   isAbsolute: (p) => p.startsWith("/"),
   join: (...parts) => parts.join("/"),
@@ -23,7 +33,7 @@ const PathMock = Layer.mock(Path.Path)({
   parse: (p) => ({ root: "", dir: "", base: p, ext: "", name: p }),
   relative: (_f, t) => t,
   resolve: (...parts) => parts.join("/"),
-  toFileUrl: (p) => Effect.succeed(new URL("file://" + p)),
+  toFileUrl: (p) => Effect.succeed(new URL(`file://${p}`)),
   toNamespacedPath: (p) => p,
 });
 const TestLayer = Layer.mergeAll(Bm25WriterMock, FsMock, PathMock);
@@ -98,8 +108,7 @@ const addMinDocuments = (svc: Bm25WriterShape) =>
 
 layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   describe("createIndex", () => {
-    it.effect("succeeds without errors", () =>
-      Effect.gen(function* () {
+    it.effect("succeeds without errors", Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
       })
@@ -107,8 +116,7 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   });
 
   describe("addDocuments + search", () => {
-    it.effect("returns matching results for keyword query", () =>
-      Effect.gen(function* () {
+    it.effect("returns matching results for keyword query", Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);
@@ -121,8 +129,7 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
       })
     );
 
-    it.effect("matches camelCase-split tokens", () =>
-      Effect.gen(function* () {
+    it.effect("matches camelCase-split tokens", Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);
@@ -135,8 +142,7 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
       })
     );
 
-    it.effect("scores are positive numbers", () =>
-      Effect.gen(function* () {
+    it.effect("scores are positive numbers", Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);
@@ -151,8 +157,7 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   });
 
   describe("removeBySymbolIds", () => {
-    it.effect("removes documents so they no longer appear in search", () =>
-      Effect.gen(function* () {
+    it.effect("removes documents so they no longer appear in search", Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
 
@@ -175,8 +180,7 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   });
 
   describe("empty search", () => {
-    it.effect("returns empty array for query with no matches", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty array for query with no matches", Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);
@@ -188,8 +192,7 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
   });
 
   describe("save and load", () => {
-    it.effect("mock save and load are no-ops", () =>
-      Effect.gen(function* () {
+    it.effect("mock save and load are no-ops", Effect.fn(function* () {
         const svc = yield* Bm25Writer;
         yield* svc.createIndex();
         yield* addMinDocuments(svc);

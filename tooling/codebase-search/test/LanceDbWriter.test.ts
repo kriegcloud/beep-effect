@@ -68,8 +68,7 @@ const makeSymbolWithVector = (overrides: Partial<IndexedSymbol> = {}, vectorSeed
 
 layer(LanceDbWriterMock)("LanceDbWriter (Mock)", (it) => {
   describe("createTable", () => {
-    it.effect("succeeds and resets state", () =>
-      Effect.gen(function* () {
+    it.effect("succeeds and resets state", Effect.fn(function* () {
         const svc = yield* LanceDbWriter;
         yield* svc.createTable();
         const count = yield* svc.countRows();
@@ -79,8 +78,7 @@ layer(LanceDbWriterMock)("LanceDbWriter (Mock)", (it) => {
   });
 
   describe("upsert", () => {
-    it.effect("adds symbols that can be found via vectorSearch", () =>
-      Effect.gen(function* () {
+    it.effect("adds symbols that can be found via vectorSearch", Effect.fn(function* () {
         const svc = yield* LanceDbWriter;
         yield* svc.createTable();
 
@@ -93,8 +91,7 @@ layer(LanceDbWriterMock)("LanceDbWriter (Mock)", (it) => {
       })
     );
 
-    it.effect("deletes old rows for modified files before inserting", () =>
-      Effect.gen(function* () {
+    it.effect("deletes old rows for modified files before inserting", Effect.fn(function* () {
         const svc = yield* LanceDbWriter;
         yield* svc.createTable();
 
@@ -117,8 +114,7 @@ layer(LanceDbWriterMock)("LanceDbWriter (Mock)", (it) => {
   });
 
   describe("deleteByFiles", () => {
-    it.effect("removes rows for specified files", () =>
-      Effect.gen(function* () {
+    it.effect("removes rows for specified files", Effect.fn(function* () {
         const svc = yield* LanceDbWriter;
         yield* svc.createTable();
 
@@ -138,8 +134,7 @@ layer(LanceDbWriterMock)("LanceDbWriter (Mock)", (it) => {
   });
 
   describe("vectorSearch", () => {
-    it.effect("returns results sorted by similarity", () =>
-      Effect.gen(function* () {
+    it.effect("returns results sorted by similarity", Effect.fn(function* () {
         const svc = yield* LanceDbWriter;
         yield* svc.createTable();
 
@@ -159,8 +154,7 @@ layer(LanceDbWriterMock)("LanceDbWriter (Mock)", (it) => {
       })
     );
 
-    it.effect("filters by kind", () =>
-      Effect.gen(function* () {
+    it.effect("filters by kind", Effect.fn(function* () {
         const svc = yield* LanceDbWriter;
         yield* svc.createTable();
 
@@ -181,8 +175,7 @@ layer(LanceDbWriterMock)("LanceDbWriter (Mock)", (it) => {
       })
     );
 
-    it.effect("filters by package", () =>
-      Effect.gen(function* () {
+    it.effect("filters by package", Effect.fn(function* () {
         const svc = yield* LanceDbWriter;
         yield* svc.createTable();
 
@@ -205,8 +198,7 @@ layer(LanceDbWriterMock)("LanceDbWriter (Mock)", (it) => {
   });
 
   describe("countRows", () => {
-    it.effect("returns correct count", () =>
-      Effect.gen(function* () {
+    it.effect("returns correct count", Effect.fn(function* () {
         const svc = yield* LanceDbWriter;
         yield* svc.createTable();
 

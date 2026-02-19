@@ -2,14 +2,14 @@ import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import type { IndexedSymbol, EffectPattern } from "../src/IndexedSymbol.js";
+import type { EffectPattern, IndexedSymbol } from "../src/IndexedSymbol.js";
 import {
-  classifySymbol,
-  generateId,
   buildEmbeddingText,
   buildKeywordText,
-  validateIndexedSymbol,
+  classifySymbol,
   computeContentHash,
+  generateId,
+  validateIndexedSymbol,
 } from "../src/IndexedSymbol.js";
 
 // ---------------------------------------------------------------------------
@@ -44,11 +44,12 @@ const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   provides: [],
   dependsOn: [],
   imports: [],
-  signature: "export const PackageName: Schema.brand<string, \"PackageName\">",
+  signature: 'export const PackageName: Schema.brand<string, "PackageName">',
   since: "0.0.0",
   deprecated: false,
   exported: true,
-  embeddingText: "[schema] Package Name A branded string type representing a valid NPM package name. Valid NPM package name with scope.",
+  embeddingText:
+    "[schema] Package Name A branded string type representing a valid NPM package name. Valid NPM package name with scope.",
   contentHash: "abc123def456",
   indexedAt: "2026-02-19T00:00:00.000Z",
   ...overrides,
@@ -262,9 +263,7 @@ describe("buildEmbeddingText", () => {
 
   it("includes parameter descriptions", () => {
     const symbol = makeSymbol({
-      params: [
-        { name: "input", description: "The raw package name string" },
-      ],
+      params: [{ name: "input", description: "The raw package name string" }],
     });
     const text = buildEmbeddingText(symbol);
     expect(text).toContain("Parameter input: The raw package name string");
@@ -284,9 +283,7 @@ describe("buildEmbeddingText", () => {
 
   it("includes field descriptions when present", () => {
     const symbol = makeSymbol({
-      fieldDescriptions: [
-        { name: "scope", description: "NPM scope prefix" },
-      ],
+      fieldDescriptions: [{ name: "scope", description: "NPM scope prefix" }],
     });
     const text = buildEmbeddingText(symbol);
     expect(text).toContain("Field scope: NPM scope prefix");

@@ -4,9 +4,8 @@ import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import { systemError } from "effect/PlatformError";
 import * as S from "effect/Schema";
-import { IndexingError } from "../src/errors.js";
 import type { FileHash, ScanResult } from "../src/extractor/FileScanner.js";
-import { computeFileHashes, FILE_HASHES_PATH, saveFileHashes, scanFiles } from "../src/extractor/FileScanner.js";
+import { FILE_HASHES_PATH, saveFileHashes, scanFiles } from "../src/extractor/FileScanner.js";
 
 // ---------------------------------------------------------------------------
 // In-memory filesystem helpers
@@ -141,10 +140,13 @@ const createMemoryFs = (
         })
       );
     },
-    makeDirectory: (path: string, _options?: {
-      readonly recursive?: boolean | undefined;
-      readonly mode?: number | undefined;
-    }) => {
+    makeDirectory: (
+      path: string,
+      _options?: {
+        readonly recursive?: boolean | undefined;
+        readonly mode?: number | undefined;
+      }
+    ) => {
       dirs.add(path);
       return Effect.void;
     },
@@ -167,8 +169,7 @@ const createMemoryFs = (
       const dot = p.lastIndexOf(".");
       return dot >= 0 ? p.slice(dot) : "";
     },
-    format: (obj) =>
-      [obj.dir, obj.base].filter(Boolean).join("/"),
+    format: (obj) => [obj.dir, obj.base].filter(Boolean).join("/"),
     fromFileUrl: (url: URL) => Effect.succeed(url.pathname),
     isAbsolute: (p: string) => p.startsWith("/"),
     normalize: (p: string) => p,
@@ -188,7 +189,7 @@ const createMemoryFs = (
       };
     },
     relative: (_from: string, to: string) => to,
-    toFileUrl: (p: string) => Effect.succeed(new URL("file://" + p)),
+    toFileUrl: (p: string) => Effect.succeed(new URL(`file://${p}`)),
     toNamespacedPath: (p: string) => p,
   });
 
@@ -389,8 +390,7 @@ describe("FileScanner", () => {
 
       return pipe(
         saveFileHashes("/root", hashes),
-        Effect.flatMap(() =>
-          Effect.gen(function* () {
+        Effect.flatMap(Effect.fn(function* () {
             const fs = yield* FileSystem.FileSystem;
             const content = yield* fs.readFileString("/root/.code-index/file-hashes.json");
             const parsed = yield* S.decodeUnknownEffect(

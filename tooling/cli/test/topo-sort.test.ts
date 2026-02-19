@@ -29,8 +29,7 @@ const run = Command.runWith(topoSortCommand, { version: "0.0.0" });
 // ---------------------------------------------------------------------------
 
 describe("topo-sort command", () => {
-  it.effect("should output packages in dependency order", () =>
-    Effect.gen(function* () {
+  it.effect("should output packages in dependency order", Effect.fn(function* () {
       yield* run([]);
 
       const logs = yield* TestConsole.logLines;
@@ -47,8 +46,7 @@ describe("topo-sort command", () => {
     }).pipe(Effect.provide(TestLayers))
   );
 
-  it.effect("should output all workspace packages", () =>
-    Effect.gen(function* () {
+  it.effect("should output all workspace packages", Effect.fn(function* () {
       yield* run([]);
 
       const logs = yield* TestConsole.logLines;

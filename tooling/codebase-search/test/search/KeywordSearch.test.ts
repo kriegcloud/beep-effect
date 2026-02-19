@@ -60,8 +60,7 @@ const TestLayer = Layer.mergeAll(Bm25WriterMock, KeywordSearchLive);
 
 layer(TestLayer)("KeywordSearch", (it) => {
   describe("search", () => {
-    it.effect("delegates to BM25 and returns matching results", () =>
-      Effect.gen(function* () {
+    it.effect("delegates to BM25 and returns matching results", Effect.fn(function* () {
         const bm25Svc = yield* Bm25Writer;
         const keywordSvc = yield* KeywordSearch;
 
@@ -102,8 +101,7 @@ layer(TestLayer)("KeywordSearch", (it) => {
       })
     );
 
-    it.effect("minScore filter removes low-scoring results", () =>
-      Effect.gen(function* () {
+    it.effect("minScore filter removes low-scoring results", Effect.fn(function* () {
         const bm25Svc = yield* Bm25Writer;
         const keywordSvc = yield* KeywordSearch;
 
@@ -140,8 +138,7 @@ layer(TestLayer)("KeywordSearch", (it) => {
       })
     );
 
-    it.effect("returns empty results for query matching nothing", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty results for query matching nothing", Effect.fn(function* () {
         const bm25Svc = yield* Bm25Writer;
         const keywordSvc = yield* KeywordSearch;
 
@@ -161,8 +158,7 @@ layer(TestLayer)("KeywordSearch", (it) => {
       })
     );
 
-    it.effect("respects limit parameter", () =>
-      Effect.gen(function* () {
+    it.effect("respects limit parameter", Effect.fn(function* () {
         const bm25Svc = yield* Bm25Writer;
         const keywordSvc = yield* KeywordSearch;
 

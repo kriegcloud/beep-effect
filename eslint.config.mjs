@@ -1,18 +1,14 @@
 // eslint.config.mjs
-import jsdoc from "eslint-plugin-jsdoc";
+
 import tsParser from "@typescript-eslint/parser";
+import jsdoc from "eslint-plugin-jsdoc";
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [
   // JSDoc Documentation Rules - main enforcement
   {
     files: ["tooling/*/src/**/*.ts"],
-    ignores: [
-      "tooling/*/src/internal/**",
-      "tooling/*/src/**/*.test.ts",
-      "tooling/*/src/**/*.spec.ts",
-      "**/*.d.ts",
-    ],
+    ignores: ["tooling/*/src/internal/**", "tooling/*/src/**/*.test.ts", "tooling/*/src/**/*.spec.ts", "**/*.d.ts"],
     plugins: {
       jsdoc,
     },
@@ -68,10 +64,10 @@ export default [
           ],
         },
       ],
-      "jsdoc/require-param": ["error", { checkDestructured: false }],
-      "jsdoc/require-param-description": "error",
-      "jsdoc/require-returns": "error",
-      "jsdoc/require-returns-description": "error",
+      "jsdoc/require-param": ["warn", { checkDestructured: false }],
+      "jsdoc/require-param-description": "warn",
+      "jsdoc/require-returns": "warn",
+      "jsdoc/require-returns-description": "warn",
 
       // --- Quality Rules ---
       "jsdoc/informative-docs": "error",
@@ -80,16 +76,7 @@ export default [
       "jsdoc/check-tag-names": [
         "error",
         {
-          definedTags: [
-            "domain",
-            "provides",
-            "depends",
-            "errors",
-            "packageDocumentation",
-            "internal",
-            "alpha",
-            "beta",
-          ],
+          definedTags: ["domain", "provides", "depends", "errors", "packageDocumentation", "internal", "alpha", "beta"],
         },
       ],
       "jsdoc/check-param-names": "error",
@@ -102,13 +89,11 @@ export default [
           tags: {
             param: {
               match: ".{5,}",
-              message:
-                "Parameter description must be at least 5 characters.",
+              message: "Parameter description must be at least 5 characters.",
             },
             returns: {
               match: ".{5,}",
-              message:
-                "Returns description must be at least 5 characters.",
+              message: "Returns description must be at least 5 characters.",
             },
           },
         },

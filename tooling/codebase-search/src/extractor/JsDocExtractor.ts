@@ -282,8 +282,9 @@ export const extractJsDoc = (node: tsMorph.Node): JsDocResult =>
 
 /**
  * Extracts the module-level JSDoc comment from a TypeScript source file.
- * Looks for the first JSDoc comment containing a @packageDocumentation or
- * @module tag. Returns null if no module-level documentation exists.
+ * Looks for the first JSDoc comment containing either the
+ * `@packageDocumentation` tag or the `@module` tag.
+ * Returns null if no module-level documentation exists.
  * @since 0.0.0
  * @category extractors
  */

@@ -126,10 +126,13 @@ const createMemoryFs = (
         })
       );
     },
-    makeDirectory: (path: string, _options?: {
-      readonly recursive?: boolean | undefined;
-      readonly mode?: number | undefined;
-    }) => {
+    makeDirectory: (
+      path: string,
+      _options?: {
+        readonly recursive?: boolean | undefined;
+        readonly mode?: number | undefined;
+      }
+    ) => {
       dirs.add(path);
       return Effect.void;
     },
@@ -151,8 +154,7 @@ const createMemoryFs = (
       const dot = p.lastIndexOf(".");
       return dot >= 0 ? p.slice(dot) : "";
     },
-    format: (obj) =>
-      [obj.dir, obj.base].filter(Boolean).join("/"),
+    format: (obj) => [obj.dir, obj.base].filter(Boolean).join("/"),
     fromFileUrl: (url: URL) => Effect.succeed(url.pathname),
     isAbsolute: (p: string) => p.startsWith("/"),
     normalize: (p: string) => p,
@@ -172,7 +174,7 @@ const createMemoryFs = (
       };
     },
     relative: (_from: string, to: string) => to,
-    toFileUrl: (p: string) => Effect.succeed(new URL("file://" + p)),
+    toFileUrl: (p: string) => Effect.succeed(new URL(`file://${p}`)),
     toNamespacedPath: (p: string) => p,
     sep: "/",
   });
@@ -218,9 +220,10 @@ const makeConfig = (overrides: Partial<PipelineConfig> = {}): PipelineConfig => 
 // Mock Pipeline tests
 // ---------------------------------------------------------------------------
 
-layer(PipelineMock)("Pipeline (Mock)", (it) => {
-  it.effect("returns PipelineStats with all zero values", () =>
-    Effect.gen(function* () {
+const PipelineMockLayer = Layer.mergeAll(PipelineMock, createMemoryFs([]).layer);
+
+layer(PipelineMockLayer)("Pipeline (Mock)", (it) => {
+  it.effect("returns PipelineStats with all zero values", Effect.fn(function* () {
       const pipeline = yield* Pipeline;
       const stats: PipelineStats = yield* pipeline.run(makeConfig());
       expect(stats.filesScanned).toBe(0);
@@ -231,16 +234,14 @@ layer(PipelineMock)("Pipeline (Mock)", (it) => {
     })
   );
 
-  it.effect("accepts incremental mode config", () =>
-    Effect.gen(function* () {
+  it.effect("accepts incremental mode config", Effect.fn(function* () {
       const pipeline = yield* Pipeline;
       const stats = yield* pipeline.run(makeConfig({ mode: "incremental" }));
       expect(stats.filesScanned).toBe(0);
     })
   );
 
-  it.effect("accepts packageFilter config", () =>
-    Effect.gen(function* () {
+  it.effect("accepts packageFilter config", Effect.fn(function* () {
       const pipeline = yield* Pipeline;
       const stats = yield* pipeline.run(makeConfig({ packageFilter: "@beep/cli" }));
       expect(stats.symbolsIndexed).toBe(0);
@@ -259,15 +260,11 @@ const MockServicesLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock
 const defaultFsPathLayer = createMemoryFs([]).layer;
 
 /** PipelineLive backed by mock services, with default FS/Path included. */
-const TestPipelineLayer = PipelineLive.pipe(
-  Layer.provide(MockServicesLayer),
-  Layer.provideMerge(defaultFsPathLayer)
-);
+const TestPipelineLayer = PipelineLive.pipe(Layer.provide(MockServicesLayer), Layer.provideMerge(defaultFsPathLayer));
 
 layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
   describe("full mode", () => {
-    it.effect("returns correct filesScanned for single file", () =>
-      Effect.gen(function* () {
+    it.effect("returns correct filesScanned for single file", Effect.fn(function* () {
         const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
 
         const pipeline = yield* Pipeline;
@@ -277,8 +274,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
       })
     );
 
-    it.effect("returns correct filesChanged count", () =>
-      Effect.gen(function* () {
+    it.effect("returns correct filesChanged count", Effect.fn(function* () {
         const { layer: fsLayer } = createMemoryFs([
           [`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE],
           [`${ROOT}/tooling/cli/src/constants.ts`, SAMPLE_TS_SOURCE_2],
@@ -292,8 +288,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
       })
     );
 
-    it.effect("returns symbolsIndexed > 0 for file with exports", () =>
-      Effect.gen(function* () {
+    it.effect("returns symbolsIndexed > 0 for file with exports", Effect.fn(function* () {
         const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
 
         const pipeline = yield* Pipeline;
@@ -303,8 +298,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
       })
     );
 
-    it.effect("reports durationMs >= 0", () =>
-      Effect.gen(function* () {
+    it.effect("reports durationMs >= 0", Effect.fn(function* () {
         const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
 
         const pipeline = yield* Pipeline;
@@ -314,8 +308,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
       })
     );
 
-    it.effect("writes index-meta.json to the index path", () =>
-      Effect.gen(function* () {
+    it.effect("writes index-meta.json to the index path", Effect.fn(function* () {
         const memFs = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
 
         const pipeline = yield* Pipeline;
@@ -327,8 +320,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
       })
     );
 
-    it.effect("writes file-hashes.json after pipeline run", () =>
-      Effect.gen(function* () {
+    it.effect("writes file-hashes.json after pipeline run", Effect.fn(function* () {
         const memFs = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
 
         const pipeline = yield* Pipeline;
@@ -339,8 +331,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
       })
     );
 
-    it.effect("returns symbolsRemoved = 0 in full mode", () =>
-      Effect.gen(function* () {
+    it.effect("returns symbolsRemoved = 0 in full mode", Effect.fn(function* () {
         const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
 
         const pipeline = yield* Pipeline;
@@ -352,8 +343,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
   });
 
   describe("incremental mode", () => {
-    it.effect("processes only changed files", () =>
-      Effect.gen(function* () {
+    it.effect("processes only changed files", Effect.fn(function* () {
         const crypto = require("node:crypto");
         const unchangedContent = "export const x = 1;";
         const unchangedHash = crypto.createHash("sha256").update(unchangedContent).digest("hex");
@@ -380,8 +370,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
       })
     );
 
-    it.effect("counts deleted files in symbolsRemoved", () =>
-      Effect.gen(function* () {
+    it.effect("counts deleted files in symbolsRemoved", Effect.fn(function* () {
         const storedHashes = JSON.stringify([
           {
             filePath: "tooling/cli/src/index.ts",
@@ -408,8 +397,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
   });
 
   describe("empty project", () => {
-    it.effect("handles project with no TypeScript files gracefully", () =>
-      Effect.gen(function* () {
+    it.effect("handles project with no TypeScript files gracefully", Effect.fn(function* () {
         const { layer: fsLayer } = createMemoryFs([]);
 
         const pipeline = yield* Pipeline;
@@ -423,8 +411,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
   });
 
   describe("package filter", () => {
-    it.effect("restricts extraction to the specified package", () =>
-      Effect.gen(function* () {
+    it.effect("restricts extraction to the specified package", Effect.fn(function* () {
         const { layer: fsLayer } = createMemoryFs([
           [`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE],
           [`${ROOT}/tooling/utils/src/helpers.ts`, SAMPLE_TS_SOURCE_2],

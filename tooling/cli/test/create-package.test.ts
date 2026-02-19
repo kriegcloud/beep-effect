@@ -66,8 +66,7 @@ describe("create-package command", () => {
   // ── Dry-run tests ────────────────────────────────────────────────────────
 
   describe("dry-run", () => {
-    it.effect("should list all 13 files for a library package", () =>
-      Effect.gen(function* () {
+    it.effect("should list all 13 files for a library package", Effect.fn(function* () {
         yield* run(["test-lib", "--dry-run"]);
 
         const logs = yield* TestConsole.logLines;
@@ -90,8 +89,7 @@ describe("create-package command", () => {
       }).pipe(Effect.provide(TestLayers))
     );
 
-    it.effect("should dry-run a tool package", () =>
-      Effect.gen(function* () {
+    it.effect("should dry-run a tool package", Effect.fn(function* () {
         yield* run(["test-tool", "--type", "tool", "--dry-run"]);
 
         const logs = yield* TestConsole.logLines;
@@ -101,8 +99,7 @@ describe("create-package command", () => {
       }).pipe(Effect.provide(TestLayers))
     );
 
-    it.effect("should dry-run an app package", () =>
-      Effect.gen(function* () {
+    it.effect("should dry-run an app package", Effect.fn(function* () {
         yield* run(["test-app", "--type", "app", "--dry-run"]);
 
         const logs = yield* TestConsole.logLines;
@@ -119,8 +116,7 @@ describe("create-package command", () => {
   describe("file generation", () => {
     it.effect("should create all 13 files", () => {
       const pkgName = `_test-pkg-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -150,8 +146,7 @@ describe("create-package command", () => {
 
     it.effect("should generate valid package.json", () => {
       const pkgName = `_test-pkgjson-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -170,8 +165,7 @@ describe("create-package command", () => {
 
     it.effect("should add platform-node dep for tool type", () => {
       const pkgName = `_test-tool-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName, "--type", "tool"], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName, "--type", "tool"], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -185,8 +179,7 @@ describe("create-package command", () => {
 
     it.effect("should generate tsconfig.json with correct content", () => {
       const pkgName = `_test-tsconfig-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -202,8 +195,7 @@ describe("create-package command", () => {
 
     it.effect("should generate src/index.ts with VERSION export", () => {
       const pkgName = `_test-index-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -218,8 +210,7 @@ describe("create-package command", () => {
 
     it.effect("should generate LICENSE with MIT text and current year", () => {
       const pkgName = `_test-license-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -234,8 +225,7 @@ describe("create-package command", () => {
 
     it.effect("should generate README.md with package name", () => {
       const pkgName = `_test-readme-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -250,8 +240,7 @@ describe("create-package command", () => {
 
     it.effect("should generate AGENTS.md with canonical sections", () => {
       const pkgName = `_test-agents-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -268,8 +257,7 @@ describe("create-package command", () => {
 
     it.effect("should generate ai-context.md with YAML frontmatter", () => {
       const pkgName = `_test-aicontext-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -285,8 +273,7 @@ describe("create-package command", () => {
 
     it.effect("should create CLAUDE.md as symlink to AGENTS.md", () => {
       const pkgName = `_test-symlink-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -307,8 +294,7 @@ describe("create-package command", () => {
 
     it.effect("should generate docgen.json with correct paths", () => {
       const pkgName = `_test-docgen-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -325,8 +311,7 @@ describe("create-package command", () => {
 
     it.effect("should generate vitest.config.ts with shared config", () => {
       const pkgName = `_test-vitest-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -341,8 +326,7 @@ describe("create-package command", () => {
 
     it.effect("should generate docs/index.md with frontmatter", () => {
       const pkgName = `_test-docs-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -362,8 +346,7 @@ describe("create-package command", () => {
     it.effect("should populate description in generated files", () => {
       const pkgName = `_test-desc-${Date.now()}`;
       const desc = "A utility library for testing";
-      return withTempPackage(pkgName, [pkgName, "--description", desc], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName, "--description", desc], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -386,8 +369,7 @@ describe("create-package command", () => {
 
     it.effect("should default description to empty string", () => {
       const pkgName = `_test-nodesc-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], (outputDir) =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* (outputDir) {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
 
@@ -404,8 +386,7 @@ describe("create-package command", () => {
   describe("config updates", () => {
     it.effect("should add reference to tsconfig.packages.json", () => {
       const pkgName = `_test-cfgref-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], () =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const repoRoot = yield* findRepoRoot();
@@ -418,8 +399,7 @@ describe("create-package command", () => {
 
     it.effect("should add path aliases to tsconfig.json", () => {
       const pkgName = `_test-cfgpath-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], () =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const repoRoot = yield* findRepoRoot();
@@ -435,8 +415,7 @@ describe("create-package command", () => {
 
     it.effect("should preserve comments in tsconfig.json", () => {
       const pkgName = `_test-cfgcmts-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], () =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const repoRoot = yield* findRepoRoot();
@@ -451,8 +430,7 @@ describe("create-package command", () => {
 
     it.effect("should be idempotent for config updates", () => {
       const pkgName = `_test-idempotent-${Date.now()}`;
-      return withTempPackage(pkgName, [pkgName], () =>
-        Effect.gen(function* () {
+      return withTempPackage(pkgName, [pkgName], Effect.fn(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
           const repoRoot = yield* findRepoRoot();
@@ -477,8 +455,7 @@ describe("create-package command", () => {
   // ── Name validation tests ───────────────────────────────────────────────
 
   describe("name validation", () => {
-    it.effect("should reject invalid package names", () =>
-      Effect.gen(function* () {
+    it.effect("should reject invalid package names", Effect.fn(function* () {
         // Starts with number
         const r1 = yield* Effect.exit(run(["123pkg", "--dry-run"]));
         expect(r1._tag).toBe("Failure");
@@ -497,8 +474,7 @@ describe("create-package command", () => {
   // ── Dry-run config preview tests ────────────────────────────────────────
 
   describe("dry-run config preview", () => {
-    it.effect("should show config updates in dry-run output", () =>
-      Effect.gen(function* () {
+    it.effect("should show config updates in dry-run output", Effect.fn(function* () {
         yield* run(["test-dryrun-cfg", "--dry-run"]);
 
         const logs = yield* TestConsole.logLines;
@@ -516,8 +492,7 @@ describe("create-package command", () => {
   // ── Error handling tests ─────────────────────────────────────────────────
 
   describe("error handling", () => {
-    it.effect("should fail when directory already exists", () =>
-      Effect.gen(function* () {
+    it.effect("should fail when directory already exists", Effect.fn(function* () {
         const result = yield* Effect.exit(run(["cli"]));
         expect(result._tag).toBe("Failure");
       }).pipe(Effect.provide(TestLayers))

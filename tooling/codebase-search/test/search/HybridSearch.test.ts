@@ -51,20 +51,6 @@ const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   ...overrides,
 });
 
-/** Create a deterministic vector from a seed for testing */
-const makeVector = (seed: number): Float32Array => {
-  const vec = new Float32Array(768);
-  for (let i = 0; i < 768; i++) {
-    vec[i] = Math.sin(seed * 1000 + i);
-  }
-  return vec;
-};
-
-const makeSymbolWithVector = (overrides: Partial<IndexedSymbol> = {}, vectorSeed = 1): SymbolWithVector => ({
-  symbol: makeSymbol(overrides),
-  vector: makeVector(vectorSeed),
-});
-
 // ---------------------------------------------------------------------------
 // Test Layer
 // ---------------------------------------------------------------------------
@@ -179,8 +165,7 @@ describe("reciprocalRankFusion", () => {
 
 layer(TestLayer)("HybridSearch", (it) => {
   describe("search", () => {
-    it.effect("returns fused results from vector and keyword searches", () =>
-      Effect.gen(function* () {
+    it.effect("returns fused results from vector and keyword searches", Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;
@@ -241,8 +226,7 @@ layer(TestLayer)("HybridSearch", (it) => {
       })
     );
 
-    it.effect("returns empty array for query matching nothing", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty array for query matching nothing", Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;
@@ -272,8 +256,7 @@ layer(TestLayer)("HybridSearch", (it) => {
       })
     );
 
-    it.effect("respects minScore filter", () =>
-      Effect.gen(function* () {
+    it.effect("respects minScore filter", Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;
@@ -333,8 +316,7 @@ layer(TestLayer)("HybridSearch", (it) => {
       })
     );
 
-    it.effect("respects limit parameter", () =>
-      Effect.gen(function* () {
+    it.effect("respects limit parameter", Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;
@@ -383,8 +365,7 @@ layer(TestLayer)("HybridSearch", (it) => {
       })
     );
 
-    it.effect("results are sorted by score descending", () =>
-      Effect.gen(function* () {
+    it.effect("results are sorted by score descending", Effect.fn(function* () {
         const lanceSvc = yield* LanceDbWriter;
         const bm25Svc = yield* Bm25Writer;
         const hybridSvc = yield* HybridSearch;

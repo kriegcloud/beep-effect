@@ -14,9 +14,15 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-import { IndexMeta } from "../IndexedSymbol.js";
+import type { IndexMeta as ImportedIndexMeta } from "../IndexedSymbol.js";
+import { IndexMeta as IndexMetaSchema } from "../IndexedSymbol.js";
 
-export type { IndexMeta } from "../IndexedSymbol.js";
+/**
+ * Re-exported index metadata schema-derived type.
+ * @since 0.0.0
+ * @category types
+ */
+export type IndexMeta = ImportedIndexMeta;
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -89,7 +95,7 @@ export interface PackageStat {
 // ---------------------------------------------------------------------------
 
 /** @internal JSON string <-> IndexMeta schema */
-const IndexMetaFromJson = S.fromJsonString(IndexMeta);
+const IndexMetaFromJson = S.fromJsonString(IndexMetaSchema);
 
 // ---------------------------------------------------------------------------
 // generateSessionOverview

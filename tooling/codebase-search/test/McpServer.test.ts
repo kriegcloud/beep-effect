@@ -1,5 +1,5 @@
 import { describe, expect, it, layer } from "@effect/vitest";
-import { Effect, Exit, FileSystem, Layer, Path } from "effect";
+import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import {
@@ -14,7 +14,7 @@ import { Bm25Writer, Bm25WriterMock } from "../src/indexer/Bm25Writer.js";
 import { EmbeddingService, EmbeddingServiceMock } from "../src/indexer/EmbeddingService.js";
 import type { SymbolWithVector } from "../src/indexer/LanceDbWriter.js";
 import { LanceDbWriter, LanceDbWriterMock } from "../src/indexer/LanceDbWriter.js";
-import { Pipeline, PipelineMock } from "../src/indexer/Pipeline.js";
+import { PipelineMock } from "../src/indexer/Pipeline.js";
 import {
   ErrorCodes,
   formatError,
@@ -23,8 +23,8 @@ import {
   handleReindex,
   handleSearchCodebase,
 } from "../src/mcp/McpServer.js";
-import { HybridSearch, HybridSearchLive } from "../src/search/HybridSearch.js";
-import { RelationResolver, RelationResolverLive } from "../src/search/RelationResolver.js";
+import { HybridSearchLive } from "../src/search/HybridSearch.js";
+import { RelationResolverLive } from "../src/search/RelationResolver.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -76,13 +76,23 @@ const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
 const MockServicesLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, Bm25WriterMock);
 
 /** FileSystem + Path mocks (required by Bm25Writer save/load and Pipeline type signatures). */
-const FsMock = Layer.mock(FileSystem.FileSystem)({});
+const FsMock = FileSystem.layerNoop({});
 const PathMock = Layer.mock(Path.Path)({
+  [Path.TypeId]: Path.TypeId,
   sep: "/",
-  basename: (p) => { const i = p.lastIndexOf("/"); return i >= 0 ? p.slice(i + 1) : p; },
-  dirname: (p) => { const i = p.lastIndexOf("/"); return i >= 0 ? p.slice(0, i) : "."; },
-  extname: (p) => { const i = p.lastIndexOf("."); return i >= 0 ? p.slice(i) : ""; },
-  format: () => "",
+  basename: (p) => {
+    const i = p.lastIndexOf("/");
+    return i >= 0 ? p.slice(i + 1) : p;
+  },
+  dirname: (p) => {
+    const i = p.lastIndexOf("/");
+    return i >= 0 ? p.slice(0, i) : ".";
+  },
+  extname: (p) => {
+    const i = p.lastIndexOf(".");
+    return i >= 0 ? p.slice(i) : "";
+  },
+  format: (obj) => [obj.dir, obj.base].filter(Boolean).join("/"),
   fromFileUrl: (url) => Effect.succeed(url.pathname),
   isAbsolute: (p) => p.startsWith("/"),
   join: (...parts) => parts.join("/"),
@@ -90,19 +100,25 @@ const PathMock = Layer.mock(Path.Path)({
   parse: (p) => ({ root: "", dir: "", base: p, ext: "", name: p }),
   relative: (_f, t) => t,
   resolve: (...parts) => parts.join("/"),
-  toFileUrl: (p) => Effect.succeed(new URL("file://" + p)),
+  toFileUrl: (p) => Effect.succeed(new URL(`file://${p}`)),
   toNamespacedPath: (p) => p,
 });
 
 /** Full test layer with all services (real search logic backed by mocks). */
-const TestLayer = Layer.mergeAll(MockServicesLayer, HybridSearchLive, RelationResolverLive, PipelineMock, FsMock, PathMock);
+const TestLayer = Layer.mergeAll(
+  MockServicesLayer,
+  HybridSearchLive,
+  RelationResolverLive,
+  PipelineMock,
+  FsMock,
+  PathMock
+);
 
 // ---------------------------------------------------------------------------
 // Helper: seed the index with test data
 // ---------------------------------------------------------------------------
 
-const seedIndex = (symbols: ReadonlyArray<IndexedSymbol>) =>
-  Effect.gen(function* () {
+const seedIndex = Effect.fn(function* (symbols: ReadonlyArray<IndexedSymbol>) {
     const lanceSvc = yield* LanceDbWriter;
     const bm25Svc = yield* Bm25Writer;
     const embeddingSvc = yield* EmbeddingService;
@@ -130,8 +146,7 @@ const seedIndex = (symbols: ReadonlyArray<IndexedSymbol>) =>
 
 layer(TestLayer)("McpServer - search_codebase", (it) => {
   describe("returns results for a valid query", () => {
-    it.effect("returns matching symbols", () =>
-      Effect.gen(function* () {
+    it.effect("returns matching symbols", Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -166,8 +181,7 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
   });
 
   describe("returns empty array for no matches", () => {
-    it.effect("returns empty results for unmatched query", () =>
-      Effect.gen(function* () {
+    it.effect("returns empty results for unmatched query", Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Foo",
@@ -199,8 +213,7 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
   });
 
   describe("respects limit parameter", () => {
-    it.effect("returns at most limit results", () =>
-      Effect.gen(function* () {
+    it.effect("returns at most limit results", Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/A",
@@ -232,8 +245,7 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
   });
 
   describe("respects kind filter", () => {
-    it.effect("filters by kind when specified", () =>
-      Effect.gen(function* () {
+    it.effect("filters by kind when specified", Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -274,8 +286,7 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
 
 layer(TestLayer)("McpServer - find_related", (it) => {
   describe("returns similar symbols", () => {
-    it.effect("finds related symbols for a valid symbolId", () =>
-      Effect.gen(function* () {
+    it.effect("finds related symbols for a valid symbolId", Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -308,8 +319,7 @@ layer(TestLayer)("McpServer - find_related", (it) => {
   });
 
   describe("returns empty for unknown symbolId", () => {
-    it.effect("handles nonexistent symbol gracefully", () =>
-      Effect.gen(function* () {
+    it.effect("handles nonexistent symbol gracefully", Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -341,8 +351,7 @@ layer(TestLayer)("McpServer - find_related", (it) => {
 
 layer(TestLayer)("McpServer - browse_symbols", (it) => {
   describe("returns packages when no args", () => {
-    it.effect("returns index summary", () =>
-      Effect.gen(function* () {
+    it.effect("returns index summary", Effect.fn(function* () {
         const symbols = [
           makeSymbol({
             id: "pkg/mod/Alpha",
@@ -373,8 +382,7 @@ layer(TestLayer)("McpServer - browse_symbols", (it) => {
 
 layer(TestLayer)("McpServer - reindex", (it) => {
   describe("returns stats", () => {
-    it.effect("returns pipeline stats on reindex", () =>
-      Effect.gen(function* () {
+    it.effect("returns pipeline stats on reindex", Effect.fn(function* () {
         const result = (yield* handleReindex({
           rootDir: "/root",
           indexPath: "/root/.code-index",

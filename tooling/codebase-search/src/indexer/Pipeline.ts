@@ -240,8 +240,7 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
     const lanceDbWriter = yield* LanceDbWriter;
     const bm25Writer = yield* Bm25Writer;
 
-    const run: PipelineShape["run"] = (config) =>
-      Effect.gen(function* () {
+    const run: PipelineShape["run"] = Effect.fn(function* (config) {
         const startTime = Date.now();
 
         // ---------------------------------------------------------------

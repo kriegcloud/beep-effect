@@ -18,8 +18,7 @@ const makeAdj = (entries: Record<string, ReadonlyArray<string>>): HashMap.HashMa
 // ---------------------------------------------------------------------------
 
 describe("topologicalSort", () => {
-  it.effect("should sort a simple linear DAG (A -> B -> C)", () =>
-    Effect.gen(function* () {
+  it.effect("should sort a simple linear DAG (A -> B -> C)", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: ["C"],
@@ -38,8 +37,7 @@ describe("topologicalSort", () => {
     })
   );
 
-  it.effect("should sort a diamond dependency (A -> B,C; B,C -> D)", () =>
-    Effect.gen(function* () {
+  it.effect("should sort a diamond dependency (A -> B,C; B,C -> D)", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B", "C"],
         B: ["D"],
@@ -62,8 +60,7 @@ describe("topologicalSort", () => {
     })
   );
 
-  it.effect("should fail with CyclicDependencyError for a cycle (A -> B -> C -> A)", () =>
-    Effect.gen(function* () {
+  it.effect("should fail with CyclicDependencyError for a cycle (A -> B -> C -> A)", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: ["C"],
@@ -80,8 +77,7 @@ describe("topologicalSort", () => {
     })
   );
 
-  it.effect("should fail with CyclicDependencyError for a self-cycle (A -> A)", () =>
-    Effect.gen(function* () {
+  it.effect("should fail with CyclicDependencyError for a self-cycle (A -> A)", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["A"],
       });
@@ -95,8 +91,7 @@ describe("topologicalSort", () => {
     })
   );
 
-  it.effect("should handle a disconnected graph", () =>
-    Effect.gen(function* () {
+  it.effect("should handle a disconnected graph", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: [],
@@ -113,16 +108,14 @@ describe("topologicalSort", () => {
     })
   );
 
-  it.effect("should handle an empty graph", () =>
-    Effect.gen(function* () {
+  it.effect("should handle an empty graph", Effect.fn(function* () {
       const adj = HashMap.empty<string, HashSet.HashSet<string>>();
       const order = yield* topologicalSort(adj);
       expect(order).toEqual([]);
     })
   );
 
-  it.effect("should handle a single node with no dependencies", () =>
-    Effect.gen(function* () {
+  it.effect("should handle a single node with no dependencies", Effect.fn(function* () {
       const adj = makeAdj({ A: [] });
       const order = yield* topologicalSort(adj);
       expect(order).toEqual(["A"]);
@@ -135,8 +128,7 @@ describe("topologicalSort", () => {
 // ---------------------------------------------------------------------------
 
 describe("detectCycles", () => {
-  it.effect("should return empty array for acyclic graph", () =>
-    Effect.gen(function* () {
+  it.effect("should return empty array for acyclic graph", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: ["C"],
@@ -147,8 +139,7 @@ describe("detectCycles", () => {
     })
   );
 
-  it.effect("should detect a simple cycle (A -> B -> C -> A)", () =>
-    Effect.gen(function* () {
+  it.effect("should detect a simple cycle (A -> B -> C -> A)", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: ["C"],
@@ -164,8 +155,7 @@ describe("detectCycles", () => {
     })
   );
 
-  it.effect("should detect a self-cycle (A -> A)", () =>
-    Effect.gen(function* () {
+  it.effect("should detect a self-cycle (A -> A)", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["A"],
       });
@@ -175,16 +165,14 @@ describe("detectCycles", () => {
     })
   );
 
-  it.effect("should return empty for empty graph", () =>
-    Effect.gen(function* () {
+  it.effect("should return empty for empty graph", Effect.fn(function* () {
       const adj = HashMap.empty<string, HashSet.HashSet<string>>();
       const cycles = yield* detectCycles(adj);
       expect(cycles).toEqual([]);
     })
   );
 
-  it.effect("should return empty for disconnected acyclic graph", () =>
-    Effect.gen(function* () {
+  it.effect("should return empty for disconnected acyclic graph", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: [],
@@ -196,8 +184,7 @@ describe("detectCycles", () => {
     })
   );
 
-  it.effect("should detect multiple independent cycles", () =>
-    Effect.gen(function* () {
+  it.effect("should detect multiple independent cycles", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: ["A"],
@@ -215,8 +202,7 @@ describe("detectCycles", () => {
 // ---------------------------------------------------------------------------
 
 describe("computeTransitiveClosure", () => {
-  it.effect("should compute direct + indirect deps for linear chain", () =>
-    Effect.gen(function* () {
+  it.effect("should compute direct + indirect deps for linear chain", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: ["C"],
@@ -229,8 +215,7 @@ describe("computeTransitiveClosure", () => {
     })
   );
 
-  it.effect("should compute transitive closure for diamond dependency", () =>
-    Effect.gen(function* () {
+  it.effect("should compute transitive closure for diamond dependency", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B", "C"],
         B: ["D"],
@@ -245,8 +230,7 @@ describe("computeTransitiveClosure", () => {
     })
   );
 
-  it.effect("should return empty set for leaf node", () =>
-    Effect.gen(function* () {
+  it.effect("should return empty set for leaf node", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: [],
@@ -256,8 +240,7 @@ describe("computeTransitiveClosure", () => {
     })
   );
 
-  it.effect("should return empty set for unknown package", () =>
-    Effect.gen(function* () {
+  it.effect("should return empty set for unknown package", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: [],
@@ -267,16 +250,14 @@ describe("computeTransitiveClosure", () => {
     })
   );
 
-  it.effect("should return empty set for empty graph", () =>
-    Effect.gen(function* () {
+  it.effect("should return empty set for empty graph", Effect.fn(function* () {
       const adj = HashMap.empty<string, HashSet.HashSet<string>>();
       const deps = yield* computeTransitiveClosure(adj, "A");
       expect(HashSet.size(deps)).toBe(0);
     })
   );
 
-  it.effect("should handle disconnected components (no cross-deps)", () =>
-    Effect.gen(function* () {
+  it.effect("should handle disconnected components (no cross-deps)", Effect.fn(function* () {
       const adj = makeAdj({
         A: ["B"],
         B: [],
@@ -292,8 +273,7 @@ describe("computeTransitiveClosure", () => {
     })
   );
 
-  it.effect("should handle single node with no dependencies", () =>
-    Effect.gen(function* () {
+  it.effect("should handle single node with no dependencies", Effect.fn(function* () {
       const adj = makeAdj({ A: [] });
       const deps = yield* computeTransitiveClosure(adj, "A");
       expect(HashSet.size(deps)).toBe(0);

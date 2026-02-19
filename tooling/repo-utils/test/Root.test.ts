@@ -6,8 +6,7 @@ import { findRepoRoot } from "../src/Root.js";
 
 layer(NodeFileSystem.layer)("Root", (it) => {
   describe("findRepoRoot", () => {
-    it.effect("should find repo root from current directory", () =>
-      Effect.gen(function* () {
+    it.effect("should find repo root from current directory", Effect.fn(function* () {
         const root = yield* findRepoRoot();
         // The repo root should contain a .git directory
         const fs = yield* Fs.FileSystem;
@@ -16,8 +15,7 @@ layer(NodeFileSystem.layer)("Root", (it) => {
       })
     );
 
-    it.effect("should find repo root from a subdirectory", () =>
-      Effect.gen(function* () {
+    it.effect("should find repo root from a subdirectory", Effect.fn(function* () {
         const root = yield* findRepoRoot(`${__dirname}/../src/errors`);
         const fs = yield* Fs.FileSystem;
         const hasGit = yield* fs.exists(`${root}/.git`);
@@ -25,8 +23,7 @@ layer(NodeFileSystem.layer)("Root", (it) => {
       })
     );
 
-    it.effect("should find repo root when starting from itself", () =>
-      Effect.gen(function* () {
+    it.effect("should find repo root when starting from itself", Effect.fn(function* () {
         // First find the actual root
         const root = yield* findRepoRoot();
         // Then verify starting from root finds root
@@ -35,8 +32,7 @@ layer(NodeFileSystem.layer)("Root", (it) => {
       })
     );
 
-    it.effect("should fail with NoSuchFileError when no marker is found", () =>
-      Effect.gen(function* () {
+    it.effect("should fail with NoSuchFileError when no marker is found", Effect.fn(function* () {
         const fs = yield* Fs.FileSystem;
         // Create an isolated temp directory with no markers
         const tmpDir = yield* fs.makeTempDirectory();
@@ -52,8 +48,7 @@ layer(NodeFileSystem.layer)("Root", (it) => {
       })
     );
 
-    it.effect("should detect bun.lock as a root marker", () =>
-      Effect.gen(function* () {
+    it.effect("should detect bun.lock as a root marker", Effect.fn(function* () {
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
         const subDir = `${tmpDir}/sub/dir`;
@@ -69,8 +64,7 @@ layer(NodeFileSystem.layer)("Root", (it) => {
       })
     );
 
-    it.effect("should detect .git as a root marker", () =>
-      Effect.gen(function* () {
+    it.effect("should detect .git as a root marker", Effect.fn(function* () {
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectory();
         const subDir = `${tmpDir}/a/b/c`;

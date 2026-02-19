@@ -16,15 +16,15 @@ export {
   /**
    * @since 0.0.0
    */
-  IndexNotFoundError,
-  /**
-   * @since 0.0.0
-   */
-  SymbolNotFoundError,
-  /**
-   * @since 0.0.0
-   */
   EmbeddingModelError,
+  /**
+   * @since 0.0.0
+   */
+  IndexingError,
+  /**
+   * @since 0.0.0
+   */
+  IndexNotFoundError,
   /**
    * @since 0.0.0
    */
@@ -32,18 +32,14 @@ export {
   /**
    * @since 0.0.0
    */
-  IndexingError,
+  SymbolNotFoundError,
 } from "./errors.js";
 
 export type {
   /**
    * @since 0.0.0
    */
-  IndexedSymbol,
-  /**
-   * @since 0.0.0
-   */
-  SymbolKind,
+  ClassifyInput,
   /**
    * @since 0.0.0
    */
@@ -51,30 +47,22 @@ export type {
   /**
    * @since 0.0.0
    */
-  ParamDoc,
-  /**
-   * @since 0.0.0
-   */
   FieldDoc,
   /**
    * @since 0.0.0
    */
-  ClassifyInput,
+  IndexedSymbol,
+  /**
+   * @since 0.0.0
+   */
+  ParamDoc,
+  /**
+   * @since 0.0.0
+   */
+  SymbolKind,
 } from "./IndexedSymbol.js";
 
 export {
-  /**
-   * @since 0.0.0
-   */
-  IndexMeta,
-  /**
-   * @since 0.0.0
-   */
-  generateId,
-  /**
-   * @since 0.0.0
-   */
-  classifySymbol,
   /**
    * @since 0.0.0
    */
@@ -86,9 +74,21 @@ export {
   /**
    * @since 0.0.0
    */
-  validateIndexedSymbol,
+  classifySymbol,
   /**
    * @since 0.0.0
    */
   computeContentHash,
+  /**
+   * @since 0.0.0
+   */
+  generateId,
+  /**
+   * @since 0.0.0
+   */
+  IndexMeta,
+  /**
+   * @since 0.0.0
+   */
+  validateIndexedSymbol,
 } from "./IndexedSymbol.js";

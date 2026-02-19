@@ -201,8 +201,7 @@ export const createPlaygroundProgram = (options: PlaygroundProgramOptions): Effe
 
 export const reportProgramError = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
   effect.pipe(
-    Effect.catch((error) =>
-      Effect.gen(function* () {
+    Effect.catch(Effect.fn(function* (error) {
         const msg = toDisplayString(error);
         yield* Console.log(`\n💥 Program failed: ${msg}`);
         const cause = Cause.fail(error);

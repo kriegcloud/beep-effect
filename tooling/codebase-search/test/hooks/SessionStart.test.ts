@@ -7,13 +7,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 import type { IndexMeta, PackageStat } from "../../src/hooks/SessionStart.js";
-import {
-  generateSessionOverview,
-  INDEX_DIR,
-  INDEX_META_FILE,
-  STALENESS_THRESHOLD_MS,
-  sessionStartHook,
-} from "../../src/hooks/SessionStart.js";
+import { generateSessionOverview, STALENESS_THRESHOLD_MS, sessionStartHook } from "../../src/hooks/SessionStart.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -82,7 +76,7 @@ const createMemoryFs = (
 
   const state: MemoryFsState = { files, dirs };
 
-  const fsLayer = Layer.mock(FileSystem.FileSystem)({
+  const fsLayer = FileSystem.layerNoop({
     exists: (path: string) => Effect.succeed(files.has(path) || dirs.has(path)),
     readFileString: (path: string) => {
       const content = files.get(path);
@@ -91,7 +85,7 @@ const createMemoryFs = (
       }
       return Effect.fail(
         systemError({
-          kind: "NotFound",
+          _tag: "NotFound",
           module: "FileSystem",
           method: "readFileString",
           pathOrDescriptor: path,
@@ -106,7 +100,7 @@ const createMemoryFs = (
     readDirectory: (path: string) => {
       const entries: Array<string> = [];
       for (const filePath of files.keys()) {
-        if (filePath.startsWith(path + "/")) {
+        if (filePath.startsWith(`${path}/`)) {
           const remaining = filePath.slice(path.length + 1);
           const firstPart = remaining.split("/")[0];
           if (!entries.includes(firstPart)) {
@@ -137,7 +131,7 @@ const createMemoryFs = (
       }
       return Effect.fail(
         systemError({
-          kind: "NotFound",
+          _tag: "NotFound",
           module: "FileSystem",
           method: "stat",
           pathOrDescriptor: path,
@@ -148,6 +142,7 @@ const createMemoryFs = (
   });
 
   const pathLayer = Layer.mock(Path.Path)({
+    [Path.TypeId]: Path.TypeId,
     join: (...parts: ReadonlyArray<string>) => parts.join("/"),
     resolve: (...parts: ReadonlyArray<string>) => parts.join("/"),
     dirname: (p: string) => {
@@ -176,7 +171,7 @@ const createMemoryFs = (
       return { root: p.startsWith("/") ? "/" : "", dir, base, ext, name };
     },
     relative: (_from, to) => to,
-    toFileUrl: (p) => Effect.succeed(new URL("file://" + p)),
+    toFileUrl: (p) => Effect.succeed(new URL(`file://${p}`)),
     toNamespacedPath: (p) => p,
     sep: "/",
   });

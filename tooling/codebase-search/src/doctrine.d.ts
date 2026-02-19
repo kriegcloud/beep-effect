@@ -13,10 +13,10 @@ declare module "doctrine" {
 
   export interface Type {
     readonly type: string;
-    readonly name?: undefined |  string;
-    readonly expression?: undefined |  Type;
-    readonly elements?: undefined |  ReadonlyArray<Type>;
-    readonly applications?: undefined |  ReadonlyArray<Type>;
+    readonly name?: undefined | string;
+    readonly expression?: undefined | Type;
+    readonly elements?: undefined | ReadonlyArray<Type>;
+    readonly applications?: undefined | ReadonlyArray<Type>;
   }
 
   export interface Annotation {
@@ -25,15 +25,15 @@ declare module "doctrine" {
   }
 
   export interface ParseOptions {
-    readonly unwrap?: undefined |  boolean;
-    readonly tags?: undefined |  ReadonlyArray<string>;
-    readonly recoverable?: undefined |  boolean;
-    readonly sloppy?: undefined |  boolean;
-    readonly lineNumbers?: undefined |  boolean;
-    readonly range?: undefined |  boolean;
+    readonly unwrap?: undefined | boolean;
+    readonly tags?: undefined | ReadonlyArray<string>;
+    readonly recoverable?: undefined | boolean;
+    readonly sloppy?: undefined | boolean;
+    readonly lineNumbers?: undefined | boolean;
+    readonly range?: undefined | boolean;
   }
 
-  export function parse(comment: string, options?: undefined |  ParseOptions): Annotation;
+  export function parse(comment: string, options?: undefined | ParseOptions): Annotation;
 
   const doctrine: {
     parse: typeof parse;

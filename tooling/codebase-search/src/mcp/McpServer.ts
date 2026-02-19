@@ -32,12 +32,7 @@ import {
   SearchTimeoutError,
   SymbolNotFoundError,
 } from "../errors.js";
-import {
-  formatBrowseResult,
-  formatReindexResult,
-  formatRelatedResults,
-  formatSearchResults,
-} from "./formatters.js";
+import { formatBrowseResult, formatReindexResult, formatRelatedResults, formatSearchResults } from "./formatters.js";
 
 // ---------------------------------------------------------------------------
 // Error Response Types

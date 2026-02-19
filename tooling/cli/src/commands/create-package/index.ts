@@ -5,7 +5,12 @@
  * @module
  */
 
+import { createPackageCommand as createPackageCommandFromHandler } from "./handler.js";
+
 /**
+ * Package creation command.
+ *
  * @since 0.0.0
+ * @category commands
  */
-export { createPackageCommand } from "./handler.js";
+export const createPackageCommand = createPackageCommandFromHandler;

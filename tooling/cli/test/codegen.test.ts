@@ -32,8 +32,7 @@ const REPO_UTILS_DIR = nodePath.resolve(__dirname, "../../repo-utils");
 // ---------------------------------------------------------------------------
 
 describe("codegen command", () => {
-  it.effect("should dry-run barrel generation for repo-utils", () =>
-    Effect.gen(function* () {
+  it.effect("should dry-run barrel generation for repo-utils", Effect.fn(function* () {
       yield* run(["--package", REPO_UTILS_DIR, "--dry-run"]);
 
       const logs = yield* TestConsole.logLines;
@@ -52,8 +51,7 @@ describe("codegen command", () => {
     }).pipe(Effect.provide(TestLayers))
   );
 
-  it.effect("should discover modules in subdirectories", () =>
-    Effect.gen(function* () {
+  it.effect("should discover modules in subdirectories", Effect.fn(function* () {
       yield* run(["--package", REPO_UTILS_DIR, "--dry-run"]);
 
       const logs = yield* TestConsole.logLines;
@@ -66,8 +64,7 @@ describe("codegen command", () => {
     }).pipe(Effect.provide(TestLayers))
   );
 
-  it.effect("should generate barrel file in a temp package", () =>
-    Effect.gen(function* () {
+  it.effect("should generate barrel file in a temp package", Effect.fn(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
 
@@ -108,8 +105,7 @@ describe("codegen command", () => {
     }).pipe(Effect.provide(TestLayers))
   );
 
-  it.effect("should skip internal directories and test files", () =>
-    Effect.gen(function* () {
+  it.effect("should skip internal directories and test files", Effect.fn(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
 
@@ -147,8 +143,7 @@ describe("codegen command", () => {
     }).pipe(Effect.provide(TestLayers))
   );
 
-  it.effect("should report error for missing src/ directory", () =>
-    Effect.gen(function* () {
+  it.effect("should report error for missing src/ directory", Effect.fn(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
 

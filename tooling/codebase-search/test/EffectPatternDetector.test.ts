@@ -246,8 +246,7 @@ export const myProgram = Effect.gen(function* () {
   describe("Command.make", () => {
     it("detects Command.make pattern", () => {
       const node = firstStatement(`
-export const myCommand = Command.make("my-command", { verbose }, () =>
-  Effect.gen(function* () {
+export const myCommand = Command.make("my-command", { verbose }, Effect.fn(function* () {
     yield* Console.log("hello");
   })
 );

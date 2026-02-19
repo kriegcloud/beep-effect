@@ -9,6 +9,70 @@ export type {
   /**
    * @since 0.0.0
    */
+  FormattedBrowseResult,
+  /**
+   * @since 0.0.0
+   */
+  FormattedReindexResult,
+  /**
+   * @since 0.0.0
+   */
+  FormattedRelatedSymbol,
+  /**
+   * @since 0.0.0
+   */
+  FormattedSearchResult,
+  /**
+   * @since 0.0.0
+   */
+  ParsedSymbolId,
+  /**
+   * @since 0.0.0
+   */
+  RawRelatedSymbol,
+  /**
+   * @since 0.0.0
+   */
+  RawSearchResult,
+} from "./formatters.js";
+export {
+  /**
+   * @since 0.0.0
+   */
+  formatBrowseResult,
+  /**
+   * @since 0.0.0
+   */
+  formatReindexResult,
+  /**
+   * @since 0.0.0
+   */
+  formatRelatedResults,
+  /**
+   * @since 0.0.0
+   */
+  formatSearchResults,
+  /**
+   * @since 0.0.0
+   */
+  HOOK_SIGNATURE_MAX_LENGTH,
+  /**
+   * @since 0.0.0
+   */
+  MCP_SIGNATURE_MAX_LENGTH,
+  /**
+   * @since 0.0.0
+   */
+  parseSymbolId,
+  /**
+   * @since 0.0.0
+   */
+  truncateSignature,
+} from "./formatters.js";
+export type {
+  /**
+   * @since 0.0.0
+   */
   ErrorCode,
   /**
    * @since 0.0.0
@@ -73,67 +137,3 @@ export {
    */
   SearchCodebaseTool,
 } from "./McpServer.js";
-export type {
-  /**
-   * @since 0.0.0
-   */
-  FormattedBrowseResult,
-  /**
-   * @since 0.0.0
-   */
-  FormattedReindexResult,
-  /**
-   * @since 0.0.0
-   */
-  FormattedRelatedSymbol,
-  /**
-   * @since 0.0.0
-   */
-  FormattedSearchResult,
-  /**
-   * @since 0.0.0
-   */
-  ParsedSymbolId,
-  /**
-   * @since 0.0.0
-   */
-  RawRelatedSymbol,
-  /**
-   * @since 0.0.0
-   */
-  RawSearchResult,
-} from "./formatters.js";
-export {
-  /**
-   * @since 0.0.0
-   */
-  formatBrowseResult,
-  /**
-   * @since 0.0.0
-   */
-  formatReindexResult,
-  /**
-   * @since 0.0.0
-   */
-  formatRelatedResults,
-  /**
-   * @since 0.0.0
-   */
-  formatSearchResults,
-  /**
-   * @since 0.0.0
-   */
-  HOOK_SIGNATURE_MAX_LENGTH,
-  /**
-   * @since 0.0.0
-   */
-  MCP_SIGNATURE_MAX_LENGTH,
-  /**
-   * @since 0.0.0
-   */
-  parseSymbolId,
-  /**
-   * @since 0.0.0
-   */
-  truncateSignature,
-} from "./formatters.js";
