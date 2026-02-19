@@ -34,34 +34,34 @@
 
 ## Architecture Decision Records
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| AD-001 | Graphiti + FalkorDB over Basic Memory or mem0 | Temporal knowledge graph with relationship tracking; deduplication; best retrieval accuracy |
-| AD-002 | Local Docker over remote Tailscale server | Simpler setup, works offline, <1ms latency; can upgrade to remote later by changing one env var |
-| AD-003 | Host bind mount for persistence | Survives everything including `docker compose down -v`; data at `~/graphiti-mcp/data/` |
-| AD-004 | Systemd user service over system service | Runs in user context, no root needed, starts on login; `loginctl enable-linger` for boot-start |
-| AD-005 | Python stdlib HTTP helper for hooks | No external dependencies; handles MCP JSON-RPC 2.0 init + tool call handshake |
+| ID     | Decision                                             | Rationale                                                                                         |
+|--------|------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| AD-001 | Graphiti + FalkorDB over Basic Memory or mem0        | Temporal knowledge graph with relationship tracking; deduplication; best retrieval accuracy       |
+| AD-002 | Local Docker over remote Tailscale server            | Simpler setup, works offline, <1ms latency; can upgrade to remote later by changing one env var   |
+| AD-003 | Host bind mount for persistence                      | Survives everything including `docker compose down -v`; data at `~/graphiti-mcp/data/`            |
+| AD-004 | Systemd user service over system service             | Runs in user context, no root needed, starts on login; `loginctl enable-linger` for boot-start    |
+| AD-005 | Python stdlib HTTP helper for hooks                  | No external dependencies; handles MCP JSON-RPC 2.0 init + tool call handshake                     |
 | AD-006 | Dual recording strategy (hooks + agent instructions) | Hooks provide baseline auto-recording; AGENTS.md/CLAUDE.md enable proactive, higher-quality saves |
 
 ## Phase Breakdown
 
-| Phase | Focus | Outputs | Agent(s) | Sessions |
-|-------|-------|---------|----------|----------|
-| P0 | Scaffolding | README.md, REFLECTION_LOG.md, spec structure | doc-writer | 1 |
-| P1 | Discovery & Research | shared-memory-research.md, graphiti-implementation-plan.md | web-researcher, codebase-researcher | 1 |
-| P2 | Infrastructure Setup | docker-compose.yml, .env, systemd service, verification | code-writer | 1 |
-| P3 | Integration & Hooks | MCP configs, hook scripts, helper scripts, AGENTS.md | code-writer | 1 |
-| P4 | Verification & Polish | End-to-end test, backup cron, shell aliases, docs | test-writer | 1 |
+| Phase | Focus                 | Outputs                                                    | Agent(s)                            | Sessions |
+|-------|-----------------------|------------------------------------------------------------|-------------------------------------|----------|
+| P0    | Scaffolding           | README.md, REFLECTION_LOG.md, spec structure               | doc-writer                          | 1        |
+| P1    | Discovery & Research  | shared-memory-research.md, graphiti-implementation-plan.md | web-researcher, codebase-researcher | 1        |
+| P2    | Infrastructure Setup  | docker-compose.yml, .env, systemd service, verification    | code-writer                         | 1        |
+| P3    | Integration & Hooks   | MCP configs, hook scripts, helper scripts, AGENTS.md       | code-writer                         | 1        |
+| P4    | Verification & Polish | End-to-end test, backup cron, shell aliases, docs          | test-writer                         | 1        |
 
 ## Phase Exit Criteria
 
-| Phase | Done When |
-|-------|-----------|
-| P0 | Spec structure exists, README complete, REFLECTION_LOG initialized |
-| P1 | Research outputs complete: 11 solutions compared, Graphiti plan detailed |
-| P2 | `curl http://localhost:8000/health` returns OK, systemd service enabled, volume verified |
-| P3 | Both Claude Code and Codex see Graphiti MCP tools, hooks registered, scripts executable |
-| P4 | Memory written from Claude Code is searchable from Codex CLI, backup cron active |
+| Phase | Done When                                                                                |
+|-------|------------------------------------------------------------------------------------------|
+| P0    | Spec structure exists, README complete, REFLECTION_LOG initialized                       |
+| P1    | Research outputs complete: 11 solutions compared, Graphiti plan detailed                 |
+| P2    | `curl http://localhost:8000/health` returns OK, systemd service enabled, volume verified |
+| P3    | Both Claude Code and Codex see Graphiti MCP tools, hooks registered, scripts executable  |
+| P4    | Memory written from Claude Code is searchable from Codex CLI, backup cron active         |
 
 ## Complexity Assessment
 
@@ -78,24 +78,24 @@ Total:              42  → Medium complexity
 
 ## Risk Assessment
 
-| Risk | Impact | Likelihood | Mitigation |
-|------|--------|------------|------------|
-| Graphiti MCP HTTP requires session handshake | Medium | Confirmed | Python helper script wraps the 2-step init + tool call |
-| Codex `notify` hook schema underdocumented | Low | High | AGENTS.md proactive instructions are the primary Codex recording path |
-| FalkorDB memory usage grows large | Low | Low | `--maxmemory 4gb` cap; monitoring via `redis-cli INFO memory` |
-| LLM costs for entity extraction | Low | Confirmed | Use gpt-4o-mini; ~$0.05-0.50/day at typical usage |
-| Hook scripts block session if Graphiti is down | Medium | Low | All hook calls backgrounded with `&`; fire-and-forget |
+| Risk                                           | Impact | Likelihood | Mitigation                                                            |
+|------------------------------------------------|--------|------------|-----------------------------------------------------------------------|
+| Graphiti MCP HTTP requires session handshake   | Medium | Confirmed  | Python helper script wraps the 2-step init + tool call                |
+| Codex `notify` hook schema underdocumented     | Low    | High       | AGENTS.md proactive instructions are the primary Codex recording path |
+| FalkorDB memory usage grows large              | Low    | Low        | `--maxmemory 4gb` cap; monitoring via `redis-cli INFO memory`         |
+| LLM costs for entity extraction                | Low    | Confirmed  | Use gpt-4o-mini; ~$0.05-0.50/day at typical usage                     |
+| Hook scripts block session if Graphiti is down | Medium | Low        | All hook calls backgrounded with `&`; fire-and-forget                 |
 
 ## Dependencies
 
-| Dependency | Type | Status |
-|------------|------|--------|
-| Docker & Docker Compose | System | Installed |
-| OpenAI API key | External | Available |
-| Python 3 (stdlib only) | System | Installed |
-| `~/.claude/settings.json` | Config | Exists |
-| `~/.codex/config.toml` | Config | Exists |
-| Graphiti source at `~/YeeBois/dev/references/graphiti` | Reference | Cloned |
+| Dependency                                             | Type      | Status    |
+|--------------------------------------------------------|-----------|-----------|
+| Docker & Docker Compose                                | System    | Installed |
+| OpenAI API key                                         | External  | Available |
+| Python 3 (stdlib only)                                 | System    | Installed |
+| `~/.claude/settings.json`                              | Config    | Exists    |
+| `~/.codex/config.toml`                                 | Config    | Exists    |
+| Graphiti source at `~/YeeBois/dev/references/graphiti` | Reference | Cloned    |
 
 ## Verification Commands
 
@@ -123,17 +123,17 @@ xdg-open http://localhost:3001
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `~/graphiti-mcp/docker-compose.yml` | Docker stack definition |
-| `~/graphiti-mcp/.env` | API keys and config |
-| `~/.config/systemd/user/graphiti-mcp.service` | Auto-start service |
-| `~/.local/bin/graphiti-add-memory.py` | MCP HTTP helper (Python stdlib) |
-| `~/.local/bin/claude-graphiti-stop-hook.sh` | Claude Code Stop hook |
-| `~/.local/bin/codex-graphiti-notify-hook.sh` | Codex CLI notify hook |
-| `~/.claude/settings.json` | Claude Code hook registration |
-| `~/.codex/config.toml` | Codex MCP + notify config |
-| `~/.codex/AGENTS.md` | Codex proactive memory instructions |
+| File                                          | Purpose                             |
+|-----------------------------------------------|-------------------------------------|
+| `~/graphiti-mcp/docker-compose.yml`           | Docker stack definition             |
+| `~/graphiti-mcp/.env`                         | API keys and config                 |
+| `~/.config/systemd/user/graphiti-mcp.service` | Auto-start service                  |
+| `~/.local/bin/graphiti-add-memory.py`         | MCP HTTP helper (Python stdlib)     |
+| `~/.local/bin/claude-graphiti-stop-hook.sh`   | Claude Code Stop hook               |
+| `~/.local/bin/codex-graphiti-notify-hook.sh`  | Codex CLI notify hook               |
+| `~/.claude/settings.json`                     | Claude Code hook registration       |
+| `~/.codex/config.toml`                        | Codex MCP + notify config           |
+| `~/.codex/AGENTS.md`                          | Codex proactive memory instructions |
 
 ## Related Specs
 
