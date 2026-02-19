@@ -13,8 +13,9 @@
  *
  * Source JSDoc Example:
  * ```ts
- * const dataGenerator: Arbitrary<string> = ...;
- * const limitedShrinkableDataGenerator: Arbitrary<string> = fc.limitShrink(dataGenerator, 10);
+ * import * as fc from "effect/testing/FastCheck";
+ * const dataGenerator = fc.string();
+ * const limitedShrinkableDataGenerator = fc.limitShrink(dataGenerator, 10);
  * // up to 10 shrunk values could be extracted from the resulting arbitrary
  * ```
  *

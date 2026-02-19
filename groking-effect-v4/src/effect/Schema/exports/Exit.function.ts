@@ -15,17 +15,16 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Function export exploration with focused runtime examples.
+ * - `Schema.Exit` builds an Exit codec from success, error, and defect schemas.
+ * - Examples show decode/encode across success, fail, and die exits.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ExitModule from "effect/Exit";
 import * as SchemaModule from "effect/Schema";
 
 /* ========================================================================== *
@@ -36,19 +35,46 @@ const exportKind = "function";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleFunctionDiscovery = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime metadata before attempting invocation.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleExitDecodeEncode = Effect.gen(function* () {
+  const ExitSchema = SchemaModule.Exit(SchemaModule.Number, SchemaModule.String, SchemaModule.DefectWithStack);
+  const decodeExit = SchemaModule.decodeUnknownSync(ExitSchema);
+  const encodeExit = SchemaModule.encodeUnknownSync(ExitSchema);
+
+  const success = decodeExit(ExitModule.succeed(7));
+  const failure = decodeExit(ExitModule.fail("invalid-input"));
+  const successSummary = success._tag === "Success" ? `Success(${success.value})` : "Failure(unexpected)";
+  const failureSummary =
+    failure._tag === "Failure" ? String(Cause.pretty(failure.cause)).split("\n")[0] : "Success(unexpected)";
+
+  yield* Console.log(`decode(Exit.succeed(7)) => ${successSummary}`);
+  yield* Console.log(`decode(Exit.fail("invalid-input")) => ${failureSummary}`);
+  yield* Console.log(`encode(success) => ${formatUnknown(encodeExit(success))}`);
+  yield* Console.log(`encode(failure) => ${formatUnknown(encodeExit(failure))}`);
 });
 
-const exampleFunctionInvocation = Effect.gen(function* () {
-  yield* Console.log("Execute a safe zero-arg invocation probe.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleExitValidationAndDefect = Effect.gen(function* () {
+  const ExitSchema = SchemaModule.Exit(SchemaModule.Number, SchemaModule.String, SchemaModule.DefectWithStack);
+  const decodeExit = SchemaModule.decodeUnknownSync(ExitSchema);
+  const encodeExit = SchemaModule.encodeUnknownSync(ExitSchema);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeExit({ _tag: "Success", value: 1 }));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log("decode(non-Exit object) unexpectedly succeeded.");
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode(non-Exit object) failed as expected: ${message}`);
+  }
+
+  const fatal = new Error("fatal");
+  fatal.name = "FatalError";
+  fatal.stack = "STACK_FRAME";
+  const dieExit = decodeExit(ExitModule.die(fatal));
+  yield* Console.log(`decode(Exit.die(Error)) => ${dieExit._tag}`);
+  yield* Console.log(`encode(die exit) => ${formatUnknown(encodeExit(dieExit))}`);
 });
 
 /* ========================================================================== *
@@ -63,14 +89,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Function Discovery",
-      description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery,
+      title: "Exit Decode + Encode",
+      description: "Decode success/failure exits and encode them through the generated Exit schema.",
+      run: exampleExitDecodeEncode,
     },
     {
-      title: "Zero-Arg Invocation Probe",
-      description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation,
+      title: "Validation + Defect Flow",
+      description: "Reject non-Exit inputs and encode a die exit carrying defect information.",
+      run: exampleExitValidationAndDefect,
     },
   ],
 });

@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `Date` as a type is compile-time only; runtime behavior comes from `Schema.Date`.
+ * - Examples contrast plain `Date` acceptance with stricter `DateValid` behavior.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,47 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDateRuntimeCompanion = Effect.gen(function* () {
+  const isDate = SchemaModule.is(SchemaModule.Date);
+  const decodeDate = SchemaModule.decodeUnknownSync(SchemaModule.Date);
+
+  const validDate = new Date("2024-01-02T03:04:05.000Z");
+  const invalidDate = new Date("invalid");
+
+  yield* Console.log("Date interface is erased; runtime checks use Schema.Date.");
+  yield* Console.log(`is(Date)(valid) => ${isDate(validDate)}`);
+  yield* Console.log(`is(Date)(invalid) => ${isDate(invalidDate)}`);
+  yield* Console.log(`decode(valid).toISOString() => ${decodeDate(validDate).toISOString()}`);
+  yield* Console.log(`decode(invalid).toString() => ${decodeDate(invalidDate).toString()}`);
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleDateJsonCodecContrast = Effect.gen(function* () {
+  const DateJson = SchemaModule.toCodecJson(SchemaModule.Date);
+  const DateValidJson = SchemaModule.toCodecJson(SchemaModule.DateValid);
+
+  const decodeDateJson = SchemaModule.decodeUnknownSync(DateJson);
+  const encodeDateJson = SchemaModule.encodeUnknownSync(DateJson);
+  const decodeDateValidJson = SchemaModule.decodeUnknownSync(DateValidJson);
+
+  const parsed = decodeDateJson("2024-06-15T10:20:30.000Z");
+  const encoded = encodeDateJson(parsed);
+  const invalidParsed = decodeDateJson("not-a-date");
+
+  yield* Console.log(`decode Date JSON => ${parsed.toISOString()}`);
+  yield* Console.log(`encode Date JSON => ${formatUnknown(encoded)}`);
+  yield* Console.log(`decode invalid with Date => ${invalidParsed.toString()}`);
+
+  const strictAttempt = yield* attemptThunk(() => decodeDateValidJson("not-a-date"));
+  if (strictAttempt._tag === "Right") {
+    yield* Console.log("DateValid JSON unexpectedly accepted an invalid date string.");
+  } else {
+    const message = String(strictAttempt.error).split("\n")[0] ?? String(strictAttempt.error);
+    yield* Console.log(`DateValid JSON rejects invalid date as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +88,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Runtime Date Companion",
+      description: "Use Schema.Date guard/decode behavior on valid and invalid Date instances.",
+      run: exampleDateRuntimeCompanion,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Date vs DateValid JSON Decode",
+      description: "Compare permissive Date JSON decoding with strict DateValid JSON decoding.",
+      run: exampleDateJsonCodecContrast,
     },
   ],
 });

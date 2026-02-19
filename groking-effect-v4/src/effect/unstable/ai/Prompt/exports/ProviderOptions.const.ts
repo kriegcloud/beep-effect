@@ -13,11 +13,12 @@
  *
  * Source JSDoc Example:
  * ```ts
- * {
- *   "<provider-specific-key>": {
- *     // Provider-specific options
+ * const providerOptions = {
+ *   openai: {
+ *     temperature: 0.2,
+ *     maxOutputTokens: 1024
  *   }
- * }
+ * };
  * ```
  *
  * Focus:

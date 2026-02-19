@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `Decoder` is type-level and erased at runtime.
+ * - Runtime decoding behavior is exercised with values typed as `Schema.Decoder<T>`.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,40 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "A `Codec` view intended for APIs that only *decode* (parse/validate) values.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDecoderErasureAndBridge = Effect.gen(function* () {
+  const moduleRecord = SchemaModule as Record<string, unknown>;
+  const hasRuntimeDecoder = Object.prototype.hasOwnProperty.call(moduleRecord, "Decoder");
+
+  const numberDecoder: SchemaModule.Decoder<number> = SchemaModule.Number;
+  const decodeNumber = SchemaModule.decodeUnknownSync(numberDecoder);
+
+  yield* Console.log(`Schema.Decoder runtime export present: ${hasRuntimeDecoder}`);
+  yield* Console.log(`decode(NumberDecoder, 12) => ${decodeNumber(12)}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeNumber("12"));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log('decode(NumberDecoder, "12") unexpectedly succeeded.');
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode(NumberDecoder, "12") failed as expected: ${message}`);
+  }
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSpecializedDecoder = Effect.gen(function* () {
+  const bitDecoder: SchemaModule.Decoder<boolean> = SchemaModule.BooleanFromBit;
+  const decodeBit = SchemaModule.decodeUnknownSync(bitDecoder);
+
+  const decoded = decodeBit(1);
+  yield* Console.log(`decode(BooleanFromBitDecoder, 1) => ${decoded}`);
+
+  const optionSuccess = SchemaModule.decodeUnknownOption(bitDecoder)(0);
+  const optionFailure = SchemaModule.decodeUnknownOption(bitDecoder)(2);
+  yield* Console.log(`decodeUnknownOption(0) => ${formatUnknown(optionSuccess)}`);
+  yield* Console.log(`decodeUnknownOption(2) => ${formatUnknown(optionFailure)}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +81,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Decoder Type Erasure + Bridge",
+      description: "Use a value typed as Schema.Decoder<T> with decodeUnknownSync at runtime.",
+      run: exampleDecoderErasureAndBridge,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Specialized Decoder Flow",
+      description: "Decode with BooleanFromBit via sync and option-based decode helpers.",
+      run: exampleSpecializedDecoder,
     },
   ],
 });

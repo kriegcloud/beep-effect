@@ -123,14 +123,13 @@ const getRawJsDocText = (node: tsMorph.Node): O.Option<string> => {
     const sourceFile = node.getSourceFile();
     const fullText = sourceFile.getFullText();
     // Find the last block comment that looks like JSDoc (starts with /**)
-    const jsDocComment = pipe(
+    return pipe(
       commentRanges,
       A.filter((range) => range.getKind() === tsMorph.ts.SyntaxKind.MultiLineCommentTrivia),
       A.map((range) => fullText.slice(range.getPos(), range.getEnd())),
-      A.filter((text) => text.startsWith("/**")),
+      A.filter(Str.startsWith("/**")),
       A.last
     );
-    return jsDocComment;
   }
 
   return O.none();
@@ -303,26 +302,23 @@ export const extractModuleDoc = (sourceFile: tsMorph.SourceFile): JsDocResult | 
   const fullText = sourceFile.getFullText();
   // Find /** ... */ block comments that contain @packageDocumentation or @module
   const commentRegex = /\/\*\*[\s\S]*?\*\//g;
-  let match: RegExpExecArray | null = commentRegex.exec(fullText);
+  const allMatches = A.fromIterable(pipe(fullText, Str.matchAll(commentRegex)));
 
-  while (match !== null) {
-    const commentText = match[0];
-    // Only consider comments before the first non-comment code
-    const firstStatementPos = pipe(
-      A.head(statements),
-      O.map((stmt) => stmt.getStart()),
-      O.getOrElse(() => Str.length(fullText))
-    );
+  const firstStatementPos = pipe(
+    A.head(statements),
+    O.map((stmt) => stmt.getStart()),
+    O.getOrElse(() => Str.length(fullText))
+  );
 
-    if (match.index < firstStatementPos) {
-      const parsed = parseDoctrineComment(commentText);
-      if (parsed.isPackageDocumentation) {
-        return parsed;
-      }
-    }
+  const result = pipe(
+    allMatches,
+    A.filter((m) => (m.index ?? 0) < firstStatementPos),
+    A.findFirst((m) => {
+      const parsed = parseDoctrineComment(m[0]);
+      return parsed.isPackageDocumentation;
+    }),
+    O.map((m) => parseDoctrineComment(m[0]))
+  );
 
-    match = commentRegex.exec(fullText);
-  }
-
-  return null;
+  return O.getOrElse(result, () => null as JsDocResult | null);
 };

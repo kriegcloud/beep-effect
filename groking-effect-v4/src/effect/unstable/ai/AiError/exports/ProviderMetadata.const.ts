@@ -13,11 +13,12 @@
  *
  * Source JSDoc Example:
  * ```ts
- * {
- *   "<provider-name>": {
- *     // Provider-specific metadata (e.g. errorCode, requestId, etc.)
+ * const providerMetadata = {
+ *   openai: {
+ *     errorCode: "rate_limit",
+ *     requestId: "req_123"
  *   }
- * }
+ * };
  * ```
  *
  * Focus:

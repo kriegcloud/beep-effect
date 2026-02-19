@@ -15,17 +15,14 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `DateTimeUtcFromMillis` is type-level, with runtime behavior from its schema companion.
+ * - Examples demonstrate millis <-> DateTime.Utc conversion and invalid input handling.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as SchemaModule from "effect/Schema";
 
@@ -37,19 +34,35 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDecodeFromMillis = Effect.gen(function* () {
+  const decodeFromMillis = SchemaModule.decodeUnknownSync(SchemaModule.DateTimeUtcFromMillis);
+
+  const epochMillis = 1706933106000;
+  const decoded = decodeFromMillis(epochMillis);
+
+  yield* Console.log(`decode(${epochMillis}) => ${DateTime.formatIso(decoded)}`);
+  yield* Console.log(`toEpochMillis(decoded) => ${DateTime.toEpochMillis(decoded)}`);
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleEncodeToMillisAndFailures = Effect.gen(function* () {
+  const decodeFromMillis = SchemaModule.decodeUnknownSync(SchemaModule.DateTimeUtcFromMillis);
+  const encodeToMillis = SchemaModule.encodeUnknownSync(SchemaModule.DateTimeUtcFromMillis);
+
+  const utc = decodeFromMillis(1706933106000);
+  const encoded = encodeToMillis(utc);
+  yield* Console.log(`encode(DateTime.Utc) => ${encoded}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeFromMillis("1706933106000"));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log("decode(string millis) unexpectedly succeeded.");
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode(string millis) failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +77,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Decode Millis -> DateTime.Utc",
+      description: "Decode epoch milliseconds into UTC DateTime values.",
+      run: exampleDecodeFromMillis,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Encode + Invalid Input",
+      description: "Encode DateTime.Utc back to millis and reject non-number decode input.",
+      run: exampleEncodeToMillisAndFailures,
     },
   ],
 });

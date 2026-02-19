@@ -25,13 +25,19 @@ const getStatements = (code: string) => {
 /** Gets the first statement from code. */
 const firstStatement = (code: string) => {
   const stmts = getStatements(code);
-  return pipe(A.head(stmts), O.getOrThrowWith(() => new Error("No statements found")));
+  return pipe(
+    A.head(stmts),
+    O.getOrThrowWith(() => new Error("No statements found"))
+  );
 };
 
 /** Gets the last statement from code (useful when imports precede the target). */
 const lastStatement = (code: string) => {
   const stmts = getStatements(code);
-  return pipe(A.last(stmts), O.getOrThrowWith(() => new Error("No statements found")));
+  return pipe(
+    A.last(stmts),
+    O.getOrThrowWith(() => new Error("No statements found"))
+  );
 };
 
 import { pipe } from "effect/Function";
@@ -357,9 +363,7 @@ export const MySchema = S.Struct({
     expect(annotations).not.toBe(null);
     expect((annotations as SchemaAnnotations).identifier).toBe("@beep/pkg/MySchema");
     expect((annotations as SchemaAnnotations).title).toBe("My Schema");
-    expect((annotations as SchemaAnnotations).description).toBe(
-      "A test schema for annotation extraction testing.",
-    );
+    expect((annotations as SchemaAnnotations).description).toBe("A test schema for annotation extraction testing.");
   });
 
   it("returns partial annotations when not all fields present", () => {
@@ -416,12 +420,10 @@ export const Author = Schema.Union([
 `);
     const annotations = extractSchemaAnnotations(node);
     expect(annotations).not.toBe(null);
-    expect((annotations as SchemaAnnotations).identifier).toBe(
-      "@beep/repo-utils/schemas/PackageJson/Author",
-    );
+    expect((annotations as SchemaAnnotations).identifier).toBe("@beep/repo-utils/schemas/PackageJson/Author");
     expect((annotations as SchemaAnnotations).title).toBe("Author");
     expect((annotations as SchemaAnnotations).description).toBe(
-      "Package author information for the package.json file.",
+      "Package author information for the package.json file."
     );
   });
 });
@@ -442,21 +444,20 @@ export const MyStruct = S.Struct({
     expect(fields).not.toBe(null);
     expect(A.length(fields as ReadonlyArray<unknown>)).toBe(2);
 
-    const nameField = pipe(
-      A.findFirst(fields as ReadonlyArray<{ name: string; description: string }>, (f) =>
-        f.name === "name",
-      ),
+    const nameField = A.findFirst(
+      fields as ReadonlyArray<{ name: string; description: string }>,
+      (f) => f.name === "name"
     );
     expect(O.isSome(nameField)).toBe(true);
     if (O.isSome(nameField)) {
       expect(nameField.value.description).toBe("The user name field for identification");
     }
 
-    const ageField = pipe(
-      A.findFirst(fields as ReadonlyArray<{ name: string; description: string }>, (f) =>
-        f.name === "age",
-      ),
+    const ageField = A.findFirst(
+      fields as ReadonlyArray<{ name: string; description: string }>,
+      (f) => f.name === "age"
     );
+
     expect(O.isSome(ageField)).toBe(true);
     if (O.isSome(ageField)) {
       expect(ageField.value.description).toBe("The user age in years since birth");

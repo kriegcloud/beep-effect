@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `Encoder` is type-level and erased at runtime.
+ * - Runtime examples encode through values typed as `Schema.Encoder<E>`.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,40 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "A `Codec` view intended for APIs that only *encode* values.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleEncoderErasureAndBridge = Effect.gen(function* () {
+  const moduleRecord = SchemaModule as Record<string, unknown>;
+  const hasRuntimeEncoder = Object.prototype.hasOwnProperty.call(moduleRecord, "Encoder");
+
+  const numberToStringEncoder: SchemaModule.Encoder<string> = SchemaModule.NumberFromString;
+  const encodeNumber = SchemaModule.encodeUnknownSync(numberToStringEncoder);
+
+  yield* Console.log(`Schema.Encoder runtime export present: ${hasRuntimeEncoder}`);
+  yield* Console.log(`encode(NumberFromStringEncoder, 42) => ${encodeNumber(42)}`);
+
+  const invalidAttempt = yield* attemptThunk(() => encodeNumber("42"));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log('encode(NumberFromStringEncoder, "42") unexpectedly succeeded.');
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`encode(NumberFromStringEncoder, "42") failed as expected: ${message}`);
+  }
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleSpecializedEncoder = Effect.gen(function* () {
+  const bitEncoder: SchemaModule.Encoder<number> = SchemaModule.BooleanFromBit;
+  const encodeBit = SchemaModule.encodeUnknownSync(bitEncoder);
+
+  yield* Console.log(`encode(BooleanFromBitEncoder, true) => ${encodeBit(true)}`);
+  yield* Console.log(`encode(BooleanFromBitEncoder, false) => ${encodeBit(false)}`);
+
+  const optionSuccess = SchemaModule.encodeUnknownOption(bitEncoder)(true);
+  const optionFailure = SchemaModule.encodeUnknownOption(bitEncoder)(1);
+  yield* Console.log(`encodeUnknownOption(true) => ${formatUnknown(optionSuccess)}`);
+  yield* Console.log(`encodeUnknownOption(1) => ${formatUnknown(optionFailure)}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +81,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Encoder Type Erasure + Bridge",
+      description: "Use a value typed as Schema.Encoder<E> with runtime encode helpers.",
+      run: exampleEncoderErasureAndBridge,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Specialized Encoder Flow",
+      description: "Encode booleans with BooleanFromBit and inspect option-based success/failure.",
+      run: exampleSpecializedEncoder,
     },
   ],
 });

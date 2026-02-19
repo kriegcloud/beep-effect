@@ -13,13 +13,13 @@
  *
  * Source JSDoc Example:
  * ```ts
- * {
+ * const entityRelations = {
  *   employee: {
  *     manager: { arity: '0-1', type: 'employee' },
  *     team: { arity: '1', type: 'team' }
  *   },
  *   team: {}
- * }
+ * };
  * ```
  *
  * Focus:

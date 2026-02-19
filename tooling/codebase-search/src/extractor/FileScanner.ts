@@ -6,13 +6,15 @@
  * @since 0.0.0
  * @packageDocumentation
  */
-import * as A from "effect/Array";
+
+import * as crypto from "node:crypto";
 import { Effect, FileSystem, Path } from "effect";
+import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import * as crypto from "node:crypto";
 
 import { IndexingError } from "../errors.js";
 
@@ -90,6 +92,9 @@ const FileHashesFile = S.Array(FileHashEntry).annotate({
   description: "Array of file hash entries persisted for incremental indexing change detection.",
 });
 
+/** @internal Schema for decoding file hashes from JSON string */
+const FileHashesFromJson = S.fromJsonString(FileHashesFile);
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -106,47 +111,34 @@ export const FILE_HASHES_PATH = ".code-index/file-hashes.json" as const;
 // ---------------------------------------------------------------------------
 
 /** @internal */
-const GLOB_PATTERNS: ReadonlyArray<string> = [
-  "tooling/*/src/**/*.ts",
-  "packages/*/src/**/*.ts",
-];
+const GLOB_PATTERNS: ReadonlyArray<string> = ["tooling/*/src/**/*.ts", "packages/*/src/**/*.ts"];
 
 /** @internal */
-const EXCLUDE_PATTERNS: ReadonlyArray<RegExp> = [
-  /\.test\./,
-  /\.spec\./,
-  /\/internal\//,
-  /\.d\.ts$/,
-];
+const EXCLUDE_PATTERNS: ReadonlyArray<RegExp> = [/\.test\./, /\.spec\./, /\/internal\//, /\.d\.ts$/];
 
 /** @internal */
-const shouldIncludeFile = (filePath: string): boolean =>
-  !A.some(EXCLUDE_PATTERNS, (pattern) => pattern.test(filePath));
+const shouldIncludeFile = (filePath: string): boolean => !A.some(EXCLUDE_PATTERNS, (pattern) => pattern.test(filePath));
 
 /** @internal */
-const computeFileHash = (content: string): string =>
-  crypto.createHash("sha256").update(content).digest("hex");
+const computeFileHash = (content: string): string => crypto.createHash("sha256").update(content).digest("hex");
 
 /** @internal */
 const collectTsFiles: (
-  rootDir: string,
-) => Effect.Effect<
-  ReadonlyArray<string>,
-  IndexingError,
-  FileSystem.FileSystem | Path.Path
-> = Effect.fn(function* (rootDir: string) {
+  rootDir: string
+) => Effect.Effect<ReadonlyArray<string>, IndexingError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
+  rootDir: string
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const allFiles: Array<string> = [];
+  const allFiles = A.empty<string>();
 
   for (const pattern of GLOB_PATTERNS) {
-    // Manually walk the directory structure instead of relying on glob
-    // since Effect FileSystem may not have glob support
+    // Extract the base directory from the glob pattern (first segment)
     const patternParts = Str.split("/")(pattern);
     const baseDir = pipe(
       A.head(patternParts),
-      O.getOrElse(() => ""),
+      O.getOrElse(() => "")
     );
 
     const fullBaseDir = path.join(rootDir, baseDir);
@@ -154,44 +146,46 @@ const collectTsFiles: (
     // Check if the base directory exists
     const exists = yield* pipe(
       fs.exists(fullBaseDir),
-      Effect.orElseSucceed(() => false),
+      Effect.orElseSucceed(() => false)
     );
 
     if (!exists) continue;
 
     // Walk the base directory recursively to find .ts files
-    const walkDir: (dir: string) => Effect.Effect<
-      void,
-      IndexingError,
-      FileSystem.FileSystem
-    > = Effect.fn(function* (dir: string) {
+    const walkDir: (dir: string) => Effect.Effect<void, IndexingError, FileSystem.FileSystem> = Effect.fn(function* (
+      dir: string
+    ) {
       const entries = yield* pipe(
         fs.readDirectory(dir),
-        Effect.mapError((err) => new IndexingError({
-          message: `Failed to read directory ${dir}: ${String(err)}`,
-          phase: "file-scan",
-        })),
+        Effect.mapError(
+          (err) =>
+            new IndexingError({
+              message: `Failed to read directory ${dir}: ${String(err)}`,
+              phase: "file-scan",
+            })
+        )
       );
 
       for (const entry of entries) {
         const fullPath = path.join(dir, entry);
         const stat = yield* pipe(
           fs.stat(fullPath),
-          Effect.mapError((err) => new IndexingError({
-            message: `Failed to stat ${fullPath}: ${String(err)}`,
-            phase: "file-scan",
-          })),
+          Effect.mapError(
+            (err) =>
+              new IndexingError({
+                message: `Failed to stat ${fullPath}: ${String(err)}`,
+                phase: "file-scan",
+              })
+          )
         );
 
         if (stat.type === "Directory") {
           yield* walkDir(fullPath);
         } else if (stat.type === "File" && Str.endsWith(".ts")(entry)) {
           // Convert to relative path from rootDir
-          const relativePath = fullPath.startsWith(rootDir + "/")
-            ? fullPath.slice(Str.length(rootDir) + 1)
-            : fullPath;
+          const relativePath = fullPath.startsWith(`${rootDir}/`) ? fullPath.slice(Str.length(rootDir) + 1) : fullPath;
 
-          // Check if this file matches the expected src/**/*.ts pattern
+          // Check if this file matches the expected src pattern
           if (Str.includes("/src/")(relativePath) && shouldIncludeFile(relativePath)) {
             allFiles.push(relativePath);
           }
@@ -211,12 +205,10 @@ const collectTsFiles: (
 
 /** @internal */
 const loadStoredHashes: (
-  rootDir: string,
-) => Effect.Effect<
-  ReadonlyArray<FileHash>,
-  IndexingError,
-  FileSystem.FileSystem | Path.Path
-> = Effect.fn(function* (rootDir: string) {
+  rootDir: string
+) => Effect.Effect<ReadonlyArray<FileHash>, IndexingError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
+  rootDir: string
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
@@ -224,30 +216,34 @@ const loadStoredHashes: (
 
   const exists = yield* pipe(
     fs.exists(hashesPath),
-    Effect.orElseSucceed(() => false),
+    Effect.orElseSucceed(() => false)
   );
 
   if (!exists) {
-    return [];
+    return [] as ReadonlyArray<FileHash>;
   }
 
   const content = yield* pipe(
     fs.readFileString(hashesPath),
-    Effect.mapError((err) => new IndexingError({
-      message: `Failed to read file hashes: ${String(err)}`,
-      phase: "file-scan",
-    })),
+    Effect.mapError(
+      (err) =>
+        new IndexingError({
+          message: `Failed to read file hashes: ${String(err)}`,
+          phase: "file-scan",
+        })
+    )
   );
 
-  const parsed = yield* pipe(
-    S.decodeUnknown(S.parseJson(FileHashesFile))(content),
-    Effect.mapError((err) => new IndexingError({
-      message: `Failed to parse file hashes JSON: ${String(err)}`,
-      phase: "file-scan",
-    })),
+  return yield* pipe(
+    S.decodeUnknownEffect(FileHashesFromJson)(content),
+    Effect.mapError(
+      (err) =>
+        new IndexingError({
+          message: `Failed to parse file hashes JSON: ${String(err)}`,
+          phase: "file-scan",
+        })
+    )
   );
-
-  return parsed;
 });
 
 // ---------------------------------------------------------------------------
@@ -268,12 +264,11 @@ const loadStoredHashes: (
  */
 export const scanFiles: (
   rootDir: string,
-  mode: ScanMode,
-) => Effect.Effect<
-  ScanResult,
-  IndexingError,
-  FileSystem.FileSystem | Path.Path
-> = Effect.fn(function* (rootDir: string, mode: ScanMode) {
+  mode: ScanMode
+) => Effect.Effect<ScanResult, IndexingError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
+  rootDir: string,
+  mode: ScanMode
+) {
   // Discover all matching TypeScript files
   const currentFiles = yield* collectTsFiles(rootDir);
 
@@ -293,46 +288,49 @@ export const scanFiles: (
   const storedHashes = yield* loadStoredHashes(rootDir);
 
   // Build a map of stored file path -> hash
-  const storedHashMap = new Map<string, string>();
+  const storedHashMap = MutableHashMap.empty<string, string>();
   pipe(
     storedHashes,
     A.forEach((entry) => {
-      storedHashMap.set(entry.filePath, entry.contentHash);
-    }),
+      MutableHashMap.set(storedHashMap, entry.filePath, entry.contentHash);
+    })
   );
 
   // Classify current files
-  const added: Array<string> = [];
-  const modified: Array<string> = [];
-  const unchanged: Array<string> = [];
+  const added = A.empty<string>();
+  const modified = A.empty<string>();
+  const unchanged = A.empty<string>();
 
   for (const filePath of currentFiles) {
     const fullPath = path.join(rootDir, filePath);
     const content = yield* pipe(
       fs.readFileString(fullPath),
-      Effect.mapError((err) => new IndexingError({
-        message: `Failed to read file ${fullPath}: ${String(err)}`,
-        phase: "file-scan",
-      })),
+      Effect.mapError(
+        (err) =>
+          new IndexingError({
+            message: `Failed to read file ${fullPath}: ${String(err)}`,
+            phase: "file-scan",
+          })
+      )
     );
 
     const currentHash = computeFileHash(content);
-    const storedHash = storedHashMap.get(filePath);
+    const storedHash = MutableHashMap.get(storedHashMap, filePath);
 
-    if (storedHash === undefined) {
+    if (O.isNone(storedHash)) {
       added.push(filePath);
-    } else if (storedHash !== currentHash) {
+    } else if (storedHash.value !== currentHash) {
       modified.push(filePath);
     } else {
       unchanged.push(filePath);
     }
 
     // Remove from stored map so we can detect deletions
-    storedHashMap.delete(filePath);
+    MutableHashMap.remove(storedHashMap, filePath);
   }
 
   // Remaining entries in storedHashMap are deleted files
-  const deleted = A.fromIterable(storedHashMap.keys());
+  const deleted = A.fromIterable(MutableHashMap.keys(storedHashMap));
 
   return {
     added,
@@ -356,25 +354,27 @@ export const scanFiles: (
  */
 export const computeFileHashes: (
   rootDir: string,
-  filePaths: ReadonlyArray<string>,
-) => Effect.Effect<
-  ReadonlyArray<FileHash>,
-  IndexingError,
-  FileSystem.FileSystem | Path.Path
-> = Effect.fn(function* (rootDir: string, filePaths: ReadonlyArray<string>) {
+  filePaths: ReadonlyArray<string>
+) => Effect.Effect<ReadonlyArray<FileHash>, IndexingError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
+  rootDir: string,
+  filePaths: ReadonlyArray<string>
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const results: Array<FileHash> = [];
+  const results = A.empty<FileHash>();
 
   for (const filePath of filePaths) {
     const fullPath = path.join(rootDir, filePath);
     const content = yield* pipe(
       fs.readFileString(fullPath),
-      Effect.mapError((err) => new IndexingError({
-        message: `Failed to read file ${fullPath} for hashing: ${String(err)}`,
-        phase: "file-scan",
-      })),
+      Effect.mapError(
+        (err) =>
+          new IndexingError({
+            message: `Failed to read file ${fullPath} for hashing: ${String(err)}`,
+            phase: "file-scan",
+          })
+      )
     );
 
     results.push({
@@ -400,12 +400,11 @@ export const computeFileHashes: (
  */
 export const saveFileHashes: (
   rootDir: string,
-  hashes: ReadonlyArray<FileHash>,
-) => Effect.Effect<
-  void,
-  IndexingError,
-  FileSystem.FileSystem | Path.Path
-> = Effect.fn(function* (rootDir: string, hashes: ReadonlyArray<FileHash>) {
+  hashes: ReadonlyArray<FileHash>
+) => Effect.Effect<void, IndexingError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
+  rootDir: string,
+  hashes: ReadonlyArray<FileHash>
+) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
@@ -415,26 +414,35 @@ export const saveFileHashes: (
   // Ensure directory exists
   yield* pipe(
     fs.makeDirectory(dirPath, { recursive: true }),
-    Effect.mapError((err) => new IndexingError({
-      message: `Failed to create directory ${dirPath}: ${String(err)}`,
-      phase: "file-scan",
-    })),
+    Effect.mapError(
+      (err) =>
+        new IndexingError({
+          message: `Failed to create directory ${dirPath}: ${String(err)}`,
+          phase: "file-scan",
+        })
+    )
   );
 
-  // Encode and write
+  // Encode hashes to JSON string and write
   const encoded = yield* pipe(
-    S.encodeUnknown(S.parseJson(FileHashesFile))(A.fromIterable(hashes)),
-    Effect.mapError((err) => new IndexingError({
-      message: `Failed to encode file hashes: ${String(err)}`,
-      phase: "file-scan",
-    })),
+    S.encodeUnknownEffect(FileHashesFromJson)(A.fromIterable(hashes)),
+    Effect.mapError(
+      (err) =>
+        new IndexingError({
+          message: `Failed to encode file hashes: ${String(err)}`,
+          phase: "file-scan",
+        })
+    )
   );
 
   yield* pipe(
     fs.writeFileString(hashesPath, encoded),
-    Effect.mapError((err) => new IndexingError({
-      message: `Failed to write file hashes: ${String(err)}`,
-      phase: "file-scan",
-    })),
+    Effect.mapError(
+      (err) =>
+        new IndexingError({
+          message: `Failed to write file hashes: ${String(err)}`,
+          phase: "file-scan",
+        })
+    )
   );
 });

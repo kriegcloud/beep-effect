@@ -15,17 +15,14 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `DurationFromNanos` is type-level; runtime behavior comes from `Schema.DurationFromNanos`.
+ * - Examples cover non-negative decode/encode plus invalid input and Infinity rejection.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as SchemaModule from "effect/Schema";
 
@@ -37,19 +34,41 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDecodeFromNanos = Effect.gen(function* () {
+  const decodeFromNanos = SchemaModule.decodeUnknownSync(SchemaModule.DurationFromNanos);
+  const encodeToNanos = SchemaModule.encodeUnknownSync(SchemaModule.DurationFromNanos);
+
+  const onePointFiveSeconds = decodeFromNanos(1_500_000_000n);
+  const zero = decodeFromNanos(0n);
+
+  yield* Console.log(`decode(1_500_000_000n) => ${Duration.format(onePointFiveSeconds)}`);
+  yield* Console.log(`decode(0n) => ${Duration.format(zero)}`);
+  yield* Console.log(`encode(duration from 1_500_000_000n) => ${encodeToNanos(onePointFiveSeconds)}n`);
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleRejectionCases = Effect.gen(function* () {
+  const decodeFromNanos = SchemaModule.decodeUnknownSync(SchemaModule.DurationFromNanos);
+  const encodeToNanos = SchemaModule.encodeUnknownSync(SchemaModule.DurationFromNanos);
+
+  const negativeAttempt = yield* attemptThunk(() => decodeFromNanos(-1n));
+  if (negativeAttempt._tag === "Right") {
+    yield* Console.log("decode(-1n) unexpectedly succeeded.");
+  } else {
+    const message = String(negativeAttempt.error).split("\n")[0] ?? String(negativeAttempt.error);
+    yield* Console.log(`decode(-1n) failed as expected: ${message}`);
+  }
+
+  const infinityAttempt = yield* attemptThunk(() => encodeToNanos(Duration.infinity));
+  if (infinityAttempt._tag === "Right") {
+    yield* Console.log(`encode(Duration.infinity) unexpectedly succeeded => ${String(infinityAttempt.value)}`);
+  } else {
+    const message = String(infinityAttempt.error).split("\n")[0] ?? String(infinityAttempt.error);
+    yield* Console.log(`encode(Duration.infinity) failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +83,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Decode Nanoseconds",
+      description: "Decode non-negative bigint nanoseconds and encode Duration values back to bigint.",
+      run: exampleDecodeFromNanos,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Invalid Value Rejections",
+      description: "Reject negative bigint input and reject encoding Infinity to bigint nanoseconds.",
+      run: exampleRejectionCases,
     },
   ],
 });

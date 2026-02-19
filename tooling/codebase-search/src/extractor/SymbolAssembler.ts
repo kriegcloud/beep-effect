@@ -8,26 +8,22 @@
  */
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import { SyntaxKind } from "ts-morph";
 import type * as tsMorph from "ts-morph";
+import { SyntaxKind } from "ts-morph";
 
 import type { IndexedSymbol } from "../IndexedSymbol.js";
 import {
   buildEmbeddingText,
-  buildKeywordText,
   classifySymbol,
   computeContentHash,
   generateId,
   validateIndexedSymbol,
 } from "../IndexedSymbol.js";
+import { detectEffectPattern, extractFieldAnnotations, extractSchemaAnnotations } from "./EffectPatternDetector.js";
 import { extractJsDoc, extractModuleDoc } from "./JsDocExtractor.js";
-import {
-  detectEffectPattern,
-  extractFieldAnnotations,
-  extractSchemaAnnotations,
-} from "./EffectPatternDetector.js";
 
 // ---------------------------------------------------------------------------
 // extractSignature
@@ -46,7 +42,7 @@ export const extractSignature = (node: tsMorph.Node): string => {
   const firstLine = pipe(
     A.head(lines),
     O.map(Str.trim),
-    O.getOrElse(() => ""),
+    O.getOrElse(() => "")
   );
 
   // For short declarations, return the whole thing trimmed
@@ -116,12 +112,8 @@ const getExportName = (node: tsMorph.Node): O.Option<string> => {
 /** @internal */
 const isNodeExported = (node: tsMorph.Node): boolean => {
   const modifiers = pipe(
-    O.fromNullishOr(
-      "getModifiers" in node
-        ? (node as tsMorph.VariableStatement).getModifiers()
-        : undefined,
-    ),
-    O.getOrElse(() => [] as ReadonlyArray<tsMorph.Node>),
+    O.fromNullishOr("getModifiers" in node ? (node as tsMorph.VariableStatement).getModifiers() : undefined),
+    O.getOrElse(() => [] as ReadonlyArray<tsMorph.Node>)
   );
 
   return A.some(modifiers, (mod) => mod.getKind() === SyntaxKind.ExportKeyword);
@@ -151,7 +143,7 @@ const assembleOneSymbol = (
   pkg: string,
   moduleName: string,
   filePath: string,
-  moduleDescription: string | null,
+  moduleDescription: string | null
 ): IndexedSymbol => {
   // 1. Extract JSDoc metadata
   const jsDoc = extractJsDoc(node);
@@ -163,9 +155,7 @@ const assembleOneSymbol = (
   const schemaAnnotations = extractSchemaAnnotations(node);
 
   // 4. Extract field annotations for Schema patterns
-  const fieldDescriptions = isSchemaPattern(effectPattern)
-    ? extractFieldAnnotations(node)
-    : null;
+  const fieldDescriptions = isSchemaPattern(effectPattern) ? extractFieldAnnotations(node) : null;
 
   // 5. Determine classification inputs
   const kind = node.getKind();
@@ -212,17 +202,17 @@ const assembleOneSymbol = (
     title: pipe(
       O.fromNullishOr(schemaAnnotations),
       O.flatMap((a) => O.fromNullishOr(a.title)),
-      O.getOrElse(() => null as string | null),
+      O.getOrElse(() => null as string | null)
     ),
     schemaIdentifier: pipe(
       O.fromNullishOr(schemaAnnotations),
       O.flatMap((a) => O.fromNullishOr(a.identifier)),
-      O.getOrElse(() => null as string | null),
+      O.getOrElse(() => null as string | null)
     ),
     schemaDescription: pipe(
       O.fromNullishOr(schemaAnnotations),
       O.flatMap((a) => O.fromNullishOr(a.description)),
-      O.getOrElse(() => null as string | null),
+      O.getOrElse(() => null as string | null)
     ),
     remarks: jsDoc.remarks,
     moduleDescription,
@@ -262,7 +252,7 @@ const assembleOneSymbol = (
       A.forEach((err) => {
         // eslint-disable-next-line no-console
         console.warn(`[SymbolAssembler] Validation warning for ${id}: ${err}`);
-      }),
+      })
     );
   }
 
@@ -279,7 +269,12 @@ const assembleModuleSymbol = (
   pkg: string,
   moduleName: string,
   filePath: string,
-  moduleDoc: { readonly description: string; readonly since: string; readonly category: string; readonly moduleDescription: string | null },
+  moduleDoc: {
+    readonly description: string;
+    readonly since: string;
+    readonly category: string;
+    readonly moduleDescription: string | null;
+  }
 ): IndexedSymbol => {
   const id = generateId(pkg, moduleName, "_module");
   const now = new Date().toISOString();
@@ -349,33 +344,27 @@ const assembleModuleSymbol = (
 export const assembleSymbols = (
   sourceFile: tsMorph.SourceFile,
   pkg: string,
-  moduleName: string,
+  moduleName: string
 ): ReadonlyArray<IndexedSymbol> => {
   const filePath = sourceFile.getFilePath();
-  const symbols: Array<IndexedSymbol> = [];
+  const symbols = A.empty<IndexedSymbol>();
 
   // Extract module-level documentation
   const moduleDoc = extractModuleDoc(sourceFile);
   const moduleDescription = pipe(
     O.fromNullishOr(moduleDoc),
     O.flatMap((doc) => O.fromNullishOr(doc.moduleDescription)),
-    O.getOrElse(() => null as string | null),
+    O.getOrElse(() => null as string | null)
   );
 
   // If module-level doc exists, create a module symbol
   if (moduleDoc !== null) {
-    const moduleSym = assembleModuleSymbol(
-      sourceFile,
-      pkg,
-      moduleName,
-      filePath,
-      {
-        description: moduleDoc.description,
-        since: moduleDoc.since,
-        category: moduleDoc.category,
-        moduleDescription: moduleDoc.moduleDescription,
-      },
-    );
+    const moduleSym = assembleModuleSymbol(sourceFile, pkg, moduleName, filePath, {
+      description: moduleDoc.description,
+      since: moduleDoc.since,
+      category: moduleDoc.category,
+      moduleDescription: moduleDoc.moduleDescription,
+    });
     symbols.push(moduleSym);
   }
 
@@ -392,16 +381,9 @@ export const assembleSymbols = (
       if (O.isNone(nameOpt)) return;
       const name = nameOpt.value;
 
-      const sym = assembleOneSymbol(
-        node,
-        name,
-        pkg,
-        moduleName,
-        filePath,
-        moduleDescription,
-      );
+      const sym = assembleOneSymbol(node, name, pkg, moduleName, filePath, moduleDescription);
       symbols.push(sym);
-    }),
+    })
   );
 
   return symbols;
@@ -422,20 +404,20 @@ export const assembleSymbols = (
 export const resolveImports = (
   symbols: ReadonlyArray<IndexedSymbol>,
   sourceFiles: ReadonlyArray<tsMorph.SourceFile>,
-  fileToSymbolIds: ReadonlyMap<string, ReadonlyArray<string>>,
+  _fileToSymbolIds: ReadonlyMap<string, ReadonlyArray<string>>
 ): ReadonlyArray<IndexedSymbol> => {
   // Build a map from symbol name to symbol IDs for quick lookup
-  const nameToIds = new Map<string, Array<string>>();
+  const nameToIds = MutableHashMap.empty<string, Array<string>>();
   pipe(
     symbols,
     A.forEach((sym) => {
-      const existing = nameToIds.get(sym.name);
-      if (existing !== undefined) {
-        existing.push(sym.id);
+      const existing = MutableHashMap.get(nameToIds, sym.name);
+      if (O.isSome(existing)) {
+        existing.value.push(sym.id);
       } else {
-        nameToIds.set(sym.name, [sym.id]);
+        MutableHashMap.set(nameToIds, sym.name, [sym.id]);
       }
-    }),
+    })
   );
 
   return pipe(
@@ -444,14 +426,14 @@ export const resolveImports = (
       // Find the source file for this symbol
       const sourceFile = pipe(
         sourceFiles,
-        A.findFirst((sf) => sf.getFilePath() === sym.filePath),
+        A.findFirst((sf) => sf.getFilePath() === sym.filePath)
       );
 
       if (O.isNone(sourceFile)) return sym;
 
       // Get import declarations from this source file
       const importDecls = sourceFile.value.getImportDeclarations();
-      const importedIds: Array<string> = [];
+      const importedIds = A.empty<string>();
 
       pipe(
         A.fromIterable(importDecls),
@@ -462,33 +444,33 @@ export const resolveImports = (
             A.fromIterable(namedImports),
             A.forEach((named) => {
               const importedName = named.getName();
-              const matchingIds = nameToIds.get(importedName);
-              if (matchingIds !== undefined) {
+              const matchingIds = MutableHashMap.get(nameToIds, importedName);
+              if (O.isSome(matchingIds)) {
                 pipe(
-                  A.fromIterable(matchingIds),
+                  A.fromIterable(matchingIds.value),
                   A.forEach((id) => {
                     importedIds.push(id);
-                  }),
+                  })
                 );
               }
-            }),
+            })
           );
 
           // Get default import
           const defaultImport = importDecl.getDefaultImport();
           if (defaultImport !== undefined) {
             const defaultName = defaultImport.getText();
-            const matchingIds = nameToIds.get(defaultName);
-            if (matchingIds !== undefined) {
+            const matchingIds = MutableHashMap.get(nameToIds, defaultName);
+            if (O.isSome(matchingIds)) {
               pipe(
-                A.fromIterable(matchingIds),
+                A.fromIterable(matchingIds.value),
                 A.forEach((id) => {
                   importedIds.push(id);
-                }),
+                })
               );
             }
           }
-        }),
+        })
       );
 
       if (A.isArrayNonEmpty(importedIds)) {
@@ -496,7 +478,7 @@ export const resolveImports = (
       }
 
       return sym;
-    }),
+    })
   );
 };
 

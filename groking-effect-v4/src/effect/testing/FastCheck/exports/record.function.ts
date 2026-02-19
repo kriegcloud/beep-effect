@@ -13,8 +13,10 @@
  *
  * Source JSDoc Example:
  * ```ts
- * record({ x: someArbitraryInt, y: someArbitraryInt }, {requiredKeys: []}): Arbitrary<{x?:number,y?:number}>
- * // merge two integer arbitraries to produce a {x, y}, {x}, {y} or {} record
+ * import * as fc from "effect/testing/FastCheck";
+ * const someArbitraryInt = fc.integer();
+ * const optionalRecord = fc.record({ x: someArbitraryInt, y: someArbitraryInt }, { requiredKeys: [] });
+ * // optionalRecord can generate {x, y}, {x}, {y}, or {}
  * ```
  *
  * Focus:

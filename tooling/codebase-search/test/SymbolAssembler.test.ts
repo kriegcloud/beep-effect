@@ -1,15 +1,14 @@
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import { pipe } from "effect/Function";
 import * as Str from "effect/String";
 import { Project } from "ts-morph";
 
 import {
   assembleSymbols,
+  extractSignature,
   resolveImports,
   resolveModuleName,
-  extractSignature,
 } from "../src/extractor/SymbolAssembler.js";
 import type { IndexedSymbol } from "../src/IndexedSymbol.js";
 
@@ -17,15 +16,14 @@ import type { IndexedSymbol } from "../src/IndexedSymbol.js";
 // Helpers
 // ---------------------------------------------------------------------------
 
-const createProject = (): Project =>
-  new Project({ useInMemoryFileSystem: true, compilerOptions: { strict: true } });
+const createProject = (): Project => new Project({ useInMemoryFileSystem: true, compilerOptions: { strict: true } });
 
 /** Creates a source file in an in-memory project and assembles symbols from it. */
 const assembleFromSource = (
   code: string,
   pkg = "@beep/test-pkg",
   moduleName = "test-module",
-  fileName = "test.ts",
+  fileName = "test.ts"
 ): ReadonlyArray<IndexedSymbol> => {
   const project = createProject();
   const sf = project.createSourceFile(fileName, code);
@@ -33,10 +31,7 @@ const assembleFromSource = (
 };
 
 /** Finds a symbol by name in an array of IndexedSymbols. */
-const findByName = (
-  symbols: ReadonlyArray<IndexedSymbol>,
-  name: string,
-): O.Option<IndexedSymbol> =>
+const findByName = (symbols: ReadonlyArray<IndexedSymbol>, name: string): O.Option<IndexedSymbol> =>
   A.findFirst(symbols, (s) => s.name === name);
 
 // ---------------------------------------------------------------------------
@@ -235,7 +230,7 @@ export const VERSION = "0.0.0";
 
       if (O.isSome(versionOpt)) {
         expect(versionOpt.value.moduleDescription).toBe(
-          "Core utility functions for string manipulation and validation.",
+          "Core utility functions for string manipulation and validation."
         );
       }
     });
@@ -397,7 +392,7 @@ export const TIMEOUT = 5000;
 export const MyConst = "test";
 `,
         "@beep/my-pkg",
-        "utils/helpers",
+        "utils/helpers"
       );
 
       const constOpt = findByName(symbols, "MyConst");
@@ -429,7 +424,7 @@ describe("resolveImports", () => {
  * @category functions
  */
 export const formatString = (s: string) => s.trim();
-`,
+`
     );
 
     // File B: imports from File A
@@ -444,7 +439,7 @@ import { formatString } from "./fileA.js";
  * @category functions
  */
 export const processName = (name: string) => formatString(name);
-`,
+`
     );
 
     const symbolsA = assembleSymbols(fileA, "@beep/test", "fileA");
@@ -500,10 +495,7 @@ describe("resolveModuleName", () => {
 describe("extractSignature", () => {
   it("returns trimmed text for short declarations", () => {
     const project = createProject();
-    const sf = project.createSourceFile(
-      "sig-test.ts",
-      `export const VERSION = "1.0.0";`,
-    );
+    const sf = project.createSourceFile("sig-test.ts", `export const VERSION = "1.0.0";`);
     const stmt = sf.getStatements()[0];
     const sig = extractSignature(stmt);
     expect(sig).toBe(`export const VERSION = "1.0.0";`);
@@ -511,13 +503,8 @@ describe("extractSignature", () => {
 
   it("returns first line for long declarations", () => {
     const project = createProject();
-    const longBody = A.join("\n")(
-      A.replicate("  readonly field: string;", 100),
-    );
-    const sf = project.createSourceFile(
-      "sig-long.ts",
-      `export interface BigInterface {\n${longBody}\n}`,
-    );
+    const longBody = A.join("\n")(A.replicate("  readonly field: string;", 100));
+    const sf = project.createSourceFile("sig-long.ts", `export interface BigInterface {\n${longBody}\n}`);
     const stmt = sf.getStatements()[0];
     const sig = extractSignature(stmt);
     expect(sig).toBe("export interface BigInterface {");

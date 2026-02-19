@@ -442,7 +442,7 @@ export const buildEmbeddingText = (symbol: IndexedSymbol): string => {
  * @category builders
  */
 export const buildKeywordText = (symbol: IndexedSymbol): string => {
-  const parts: Array<string> = [];
+  const parts = A.empty<string>();
 
   // Core identifiers
   parts.push(symbol.name);

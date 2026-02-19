@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `Error` as a type is compile-time only, while `Schema.Error` provides runtime behavior.
+ * - Examples show guard/decode behavior and default JSON codec stack omission.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,50 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleErrorRuntimeCompanion = Effect.gen(function* () {
+  const moduleRecord = SchemaModule as Record<string, unknown>;
+  const hasRuntimeError = Object.prototype.hasOwnProperty.call(moduleRecord, "Error");
+
+  const isError = SchemaModule.is(SchemaModule.Error);
+  const decodeError = SchemaModule.decodeUnknownSync(SchemaModule.Error);
+
+  const networkError = new Error("network timeout");
+  networkError.name = "NetworkError";
+
+  const decoded = decodeError(networkError);
+
+  yield* Console.log(`Schema.Error runtime export present: ${hasRuntimeError}`);
+  yield* Console.log(`is(Error)(new Error(...)) => ${isError(networkError)}`);
+  yield* Console.log(`is(Error)({ message: "x" }) => ${isError({ message: "x" })}`);
+  yield* Console.log(`decode(Error, value) keeps reference => ${decoded === networkError}`);
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleErrorJsonCodec = Effect.gen(function* () {
+  const ErrorJson = SchemaModule.toCodecJson(SchemaModule.Error);
+  const decodeErrorJson = SchemaModule.decodeUnknownSync(ErrorJson);
+  const encodeErrorJson = SchemaModule.encodeUnknownSync(ErrorJson);
+
+  const boom = new Error("boom");
+  boom.name = "BoomError";
+  boom.stack = "STACK_LINE";
+
+  yield* Console.log(`encode(ErrorJson, Error) => ${formatUnknown(encodeErrorJson(boom))}`);
+
+  const decoded = decodeErrorJson({ name: "UpstreamError", message: "failed", stack: "VISIBLE_STACK" });
+  yield* Console.log(`decode(ErrorJson, struct).name => ${decoded.name}`);
+  yield* Console.log(`decode(ErrorJson, struct).stack => ${decoded.stack}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeErrorJson({ name: "MissingMessage" }));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log("decode(ErrorJson, missing message) unexpectedly succeeded.");
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode(ErrorJson, missing message) failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +91,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Runtime Error Companion",
+      description: "Use Schema.Error guard/decode behavior while highlighting type/runtime split.",
+      run: exampleErrorRuntimeCompanion,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Error JSON Codec Behavior",
+      description: "Encode/decode Error JSON and show default stack omission plus required message validation.",
+      run: exampleErrorJsonCodec,
     },
   ],
 });

@@ -1,0 +1,593 @@
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Char.const.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 effect/Schema.Char
+Kind: const
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+A schema representing a single character.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Char Guard Behavior
+🧭 Use Schema.is(Char) on single-char, multi-char, and non-string inputs.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+is(Char)(A) => true
+is(Char)() => false
+is(Char)(AB) => false
+is(Char)(🧠) => false
+is(Char)(7) => false
+is(Char)(null) => false
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Decode + Encode Char
+🧭 Decode and encode valid chars, then show failures for invalid inputs.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode("Z") => Z
+encode("Z") => Z
+decode() failed as expected: Error: Expected a value with a length of 1, got ""
+decode(AB) failed as expected: Error: Expected a value with a length of 1, got "AB"
+decode(5) failed as expected: Error: Expected string, got 5
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.Char
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Char.const.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Class.interface.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.Class
+Kind: interface
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Runtime Class Companion
+🧭 Build a schema class and inspect identifier, fields, and constructed value.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Class interface is erased; runtime behavior comes from Schema.Class(...).
+Person.identifier => Person
+Person.fields => name, age
+new Person(...) => {
+  "name": "Ada",
+  "age": 37
+}
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Class Decode Validation
+🧭 Decode valid/invalid payloads against a Schema.Class-based schema.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode valid employee => {
+  "id": 101,
+  "name": "Lin"
+}
+decode({
+  "id": 2.5,
+  "name": "Lin"
+}) failed as expected: Error: Expected an integer, got 2.5
+decode({
+  "id": 102,
+  "name": ""
+}) failed as expected: Error: Expected a value with a length of at least 1, got ""
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.Class
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Class.interface.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Codec.namespace.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 effect/Schema.Codec
+Kind: namespace
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Namespace Erasure Check
+🧭 Show that Codec namespace symbols are type-level and absent at runtime.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Schema.Codec runtime export present: false
+Codec namespace aliases (Encoded / DecodingServices / etc.) are compile-time only.
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Runtime Codec Round-Trip
+🧭 Use runtime codec helpers to decode/encode structured values.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+revealCodec(Account) returns same reference: true
+decode({ id: "42", active: 1 }) => {
+  "id": 42,
+  "active": true
+}
+encode(decoded) => {
+  "id": "42",
+  "active": 1
+}
+decode invalid account unexpectedly succeeded.
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.Codec
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Codec.namespace.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/ConstructorDefault.type.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.ConstructorDefault
+Kind: type
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+Does the constructor of this schema supply a default value?
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Constructor Defaults via tag
+🧭 Show constructor defaults in action using Schema.tag inside a class schema.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Type alias ConstructorDefault is erased; behavior is visible through runtime constructors.
+new TaggedEvent({ payload: "created" }) => {
+  "payload": "created",
+  "_tag": "TaggedEvent"
+}
+Auto-populated tag => TaggedEvent
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Literal Has No Constructor Default
+🧭 Contrast tag-based defaults with literal schemas in makeUnsafe flows.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+tag(...) default in makeUnsafe => {
+  "_tag": "TaggedStruct",
+  "payload": "ok"
+}
+Literal schema without constructor default failed as expected: Error: Missing key
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 3: Decode Path Still Requires Encoded Key
+🧭 Demonstrate that decodeUnknownSync still expects the encoded tag field.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode without _tag failed as expected: Error: Missing key
+decode with _tag => {
+  "_tag": "DecodeTaggedEvent",
+  "payload": "created"
+}
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.ConstructorDefault
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/ConstructorDefault.type.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Date.interface.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.Date
+Kind: interface
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Runtime Date Companion
+🧭 Use Schema.Date guard/decode behavior on valid and invalid Date instances.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Date interface is erased; runtime checks use Schema.Date.
+is(Date)(valid) => true
+is(Date)(invalid) => true
+decode(valid).toISOString() => 2024-01-02T03:04:05.000Z
+decode(invalid).toString() => Invalid Date
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Date vs DateValid JSON Decode
+🧭 Compare permissive Date JSON decoding with strict DateValid JSON decoding.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode Date JSON => 2024-06-15T10:20:30.000Z
+encode Date JSON => 2024-06-15T10:20:30.000Z
+decode invalid with Date => Invalid Date
+DateValid JSON rejects invalid date as expected: Error: Expected a valid date, got Invalid Date
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.Date
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Date.interface.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateTimeUtc.interface.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.DateTimeUtc
+Kind: interface
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: UTC Guard + Decode
+🧭 Validate UTC vs zoned values and decode only UTC instances.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DateTimeUtc interface is erased; runtime checks use Schema.DateTimeUtc.
+is(DateTimeUtc)(utc) => true
+is(DateTimeUtc)(zoned) => false
+decode(utc) => 2024-06-15T10:20:30.000Z
+decode(zoned) failed as expected: Error: Expected DateTime.Utc, got DateTime.Zoned(2024-06-15T11:20:30.000+01:00[Europe/London])
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: DateTimeUtc JSON Codec
+🧭 Round-trip UTC values through the default JSON codec.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode JSON => 2024-06-15T10:20:30.000Z
+encode JSON => 2024-06-15T10:20:30.000Z
+decode invalid JSON failed as expected: Error: Invalid DateTime input
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.DateTimeUtc
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateTimeUtc.interface.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateTimeUtcFromDate.interface.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.DateTimeUtcFromDate
+Kind: interface
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Decode Date -> DateTime.Utc
+🧭 Decode valid Date objects and reject invalid Date instances.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode(valid Date) => 2024-06-15T10:20:30.000Z
+decode(invalid Date) failed as expected: Error: Expected a valid date, got Invalid Date
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Encode DateTime.Utc -> Date
+🧭 Encode UTC values back into JavaScript Date objects.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+encode(DateTime.Utc) returns Date: true
+encode(DateTime.Utc).toISOString() => 2024-06-15T10:20:30.000Z
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.DateTimeUtcFromDate
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateTimeUtcFromDate.interface.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateTimeUtcFromMillis.interface.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.DateTimeUtcFromMillis
+Kind: interface
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Decode Millis -> DateTime.Utc
+🧭 Decode epoch milliseconds into UTC DateTime values.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode(1706933106000) => 2024-02-03T04:05:06.000Z
+toEpochMillis(decoded) => 1706933106000
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Encode + Invalid Input
+🧭 Encode DateTime.Utc back to millis and reject non-number decode input.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+encode(DateTime.Utc) => 1706933106000
+decode(string millis) failed as expected: Error: Expected number, got "1706933106000"
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.DateTimeUtcFromMillis
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateTimeUtcFromMillis.interface.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateTimeUtcFromString.interface.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.DateTimeUtcFromString
+Kind: interface
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Decode String -> DateTime.Utc
+🧭 Decode valid UTC strings and reject invalid date strings.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode(valid string) => 2024-06-15T10:20:30.000Z
+decode(invalid string) failed as expected: IllegalArgumentError: Invalid date
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Encode + Round-Trip
+🧭 Encode UTC values back to strings and verify round-trip decoding.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+encode(DateTime.Utc) => 2024-06-15T10:20:30.000Z
+round-trip decode => 2024-06-15T10:20:30.000Z
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.DateTimeUtcFromString
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateTimeUtcFromString.interface.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateValid.interface.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.DateValid
+Kind: interface
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: DateValid Guard + Decode
+🧭 Validate and decode only valid Date instances.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+is(Date)(invalid Date) => true
+is(DateValid)(valid Date) => true
+is(DateValid)(invalid Date) => false
+decode(DateValid, valid).toISOString() => 2024-06-15T10:20:30.000Z
+decode(DateValid, invalid Date) failed as expected: Error: Expected a valid date, got Invalid Date
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: DateValid JSON Strictness
+🧭 Contrast permissive Date JSON decoding with strict DateValid JSON decoding.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+toCodecJson(Date) accepts invalid string => Invalid Date
+toCodecJson(DateValid) rejects invalid string as expected: Error: Expected a valid date, got Invalid Date
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.DateValid
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DateValid.interface.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Decoder.interface.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.Decoder
+Kind: interface
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+A `Codec` view intended for APIs that only *decode* (parse/validate) values.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Decoder Type Erasure + Bridge
+🧭 Use a value typed as Schema.Decoder<T> with decodeUnknownSync at runtime.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Schema.Decoder runtime export present: false
+decode(NumberDecoder, 12) => 12
+decode(NumberDecoder, "12") failed as expected: Error: Expected number, got "12"
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Specialized Decoder Flow
+🧭 Decode with NumberFromString via sync and option-based decode helpers.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode(NumberFromStringDecoder, "42") => 42
+decodeUnknownOption("100") => {
+  "_id": "Option",
+  "_tag": "Some",
+  "value": 100
+}
+decodeUnknownOption("x") => {
+  "_id": "Option",
+  "_tag": "Some",
+  "value": null
+}
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.Decoder
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/Decoder.interface.ts
+
+$ bun run /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DecodingDefaultOptions.type.ts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 effect/Schema.DecodingDefaultOptions
+Kind: type
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Overview
+No summary found in JSDoc.
+
+📚 Source JSDoc Example
+(no inline example found)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 1: Passthrough Encoding Strategy
+🧭 Show default decode behavior and passthrough encoding for defaulted keys.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DecodingDefaultOptions type is erased; runtime behavior comes from withDecodingDefaultKey.
+decode({}) => {
+  "darkMode": false
+}
+encode(decoded) with default passthrough => {
+  "darkMode": false
+}
+✅ Example completed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📘 Example 2: Omit Encoding Strategy
+🧭 Show how encodingStrategy: "omit" removes default-valued keys.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+decode({}) => {
+  "darkMode": false
+}
+encode(default value) with omit => {}
+encode(non-default value) with omit => {}
+✅ Example completed
+
+🧱 BunRuntime.runMain detected: true
+
+✅ Demo complete for effect/Schema.DecodingDefaultOptions
+PASS: /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4/src/effect/Schema/exports/DecodingDefaultOptions.type.ts
+
+$ bun run --cwd /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4 build
+$ tsc -b tsconfig.build.json
+
+$ bun run --cwd /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4 check
+$ tsc -p tsconfig.src.json --noEmit
+
+$ bun run --cwd /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4 lint:fix
+$ biome check . --write
+src/effect/Schema/exports/ConstructorDefault.type.ts:63:68 lint/suspicious/noExplicitAny ━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    61 │   });
+    62 │ 
+  > 63 │   const taggedValue = TaggedStruct.makeUnsafe({ payload: "ok" } as any);
+       │                                                                    ^^^
+    64 │   yield* Console.log(`tag(...) default in makeUnsafe => ${formatUnknown(taggedValue)}`);
+    65 │ 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/effect/Schema/exports/ConstructorDefault.type.ts:66:98 lint/suspicious/noExplicitAny ━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    64 │   yield* Console.log(`tag(...) default in makeUnsafe => ${formatUnknown(taggedValue)}`);
+    65 │ 
+  > 66 │   const literalAttempt = yield* attemptThunk(() => LiteralStruct.makeUnsafe({ payload: "ok" } as any));
+       │                                                                                                  ^^^
+    67 │   if (literalAttempt._tag === "Right") {
+    68 │     yield* Console.log(`Literal schema unexpectedly defaulted tag => ${formatUnknown(literalAttempt.value)}`);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+Checked 6581 files in 3s. Fixed 3 files.
+Found 2 warnings.
+
+$ bun run --cwd /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4 lint:fix
+$ biome check . --write
+src/effect/Schema/exports/ConstructorDefault.type.ts:63:68 lint/suspicious/noExplicitAny ━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    61 │   });
+    62 │ 
+  > 63 │   const taggedValue = TaggedStruct.makeUnsafe({ payload: "ok" } as any);
+       │                                                                    ^^^
+    64 │   yield* Console.log(`tag(...) default in makeUnsafe => ${formatUnknown(taggedValue)}`);
+    65 │ 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/effect/Schema/exports/ConstructorDefault.type.ts:66:98 lint/suspicious/noExplicitAny ━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    64 │   yield* Console.log(`tag(...) default in makeUnsafe => ${formatUnknown(taggedValue)}`);
+    65 │ 
+  > 66 │   const literalAttempt = yield* attemptThunk(() => LiteralStruct.makeUnsafe({ payload: "ok" } as any));
+       │                                                                                                  ^^^
+    67 │   if (literalAttempt._tag === "Right") {
+    68 │     yield* Console.log(`Literal schema unexpectedly defaulted tag => ${formatUnknown(literalAttempt.value)}`);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+Checked 6581 files in 5s. No fixes applied.
+Found 2 warnings.
+
+$ bun run --cwd /home/elpresidank/YeeBois/projects/beep-effect2/groking-effect-v4 lint
+$ biome check .
+src/effect/Schema/exports/ConstructorDefault.type.ts:63:68 lint/suspicious/noExplicitAny ━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    61 │   });
+    62 │ 
+  > 63 │   const taggedValue = TaggedStruct.makeUnsafe({ payload: "ok" } as any);
+       │                                                                    ^^^
+    64 │   yield* Console.log(`tag(...) default in makeUnsafe => ${formatUnknown(taggedValue)}`);
+    65 │ 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/effect/Schema/exports/ConstructorDefault.type.ts:66:98 lint/suspicious/noExplicitAny ━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    64 │   yield* Console.log(`tag(...) default in makeUnsafe => ${formatUnknown(taggedValue)}`);
+    65 │ 
+  > 66 │   const literalAttempt = yield* attemptThunk(() => LiteralStruct.makeUnsafe({ payload: "ok" } as any));
+       │                                                                                                  ^^^
+    67 │   if (literalAttempt._tag === "Right") {
+    68 │     yield* Console.log(`Literal schema unexpectedly defaulted tag => ${formatUnknown(literalAttempt.value)}`);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+Checked 6581 files in 3s. No fixes applied.
+Found 2 warnings.
+
+ALL_GATES_PASS

@@ -43,6 +43,12 @@
     "check": {
       "dependsOn": ["^build", "^check"],
       "inputs": ["$TURBO_DEFAULT$"]
+    },
+    "docgen": {
+      "cache": true,
+      "dependsOn": ["^docgen"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["docs/**", "dtslint/**"]
     }
   }
 }

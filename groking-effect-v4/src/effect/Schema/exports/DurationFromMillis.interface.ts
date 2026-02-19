@@ -15,17 +15,14 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `DurationFromMillis` is type-level; runtime behavior comes from `Schema.DurationFromMillis`.
+ * - Examples cover non-negative decode, Infinity support, and negative-input rejection.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as SchemaModule from "effect/Schema";
 
@@ -37,19 +34,34 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDecodeFromMillis = Effect.gen(function* () {
+  const decodeFromMillis = SchemaModule.decodeUnknownSync(SchemaModule.DurationFromMillis);
+
+  const regular = decodeFromMillis(1500);
+  const infinite = decodeFromMillis(Number.POSITIVE_INFINITY);
+
+  yield* Console.log(`decode(1500) => ${Duration.format(regular)}`);
+  yield* Console.log(`decode(Infinity) => ${Duration.format(infinite)}`);
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleEncodeAndFailures = Effect.gen(function* () {
+  const decodeFromMillis = SchemaModule.decodeUnknownSync(SchemaModule.DurationFromMillis);
+  const encodeToMillis = SchemaModule.encodeUnknownSync(SchemaModule.DurationFromMillis);
+
+  const duration = decodeFromMillis(2500);
+  yield* Console.log(`encode(duration from 2500) => ${encodeToMillis(duration)}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeFromMillis(-1));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log("decode(-1) unexpectedly succeeded.");
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode(-1) failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +76,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Decode Milliseconds",
+      description: "Decode non-negative milliseconds (including Infinity) into Duration values.",
+      run: exampleDecodeFromMillis,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Encode + Negative Rejection",
+      description: "Encode Duration back to millis and reject negative input on decode.",
+      run: exampleEncodeAndFailures,
     },
   ],
 });

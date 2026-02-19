@@ -13,10 +13,10 @@
  *
  * Source JSDoc Example:
  * ```ts
- * {
+ * const entityArbitraries = {
  *   employee: { name: fc.string(), age: fc.nat(100) },
  *   team: { name: fc.string(), size: fc.nat(50) }
- * }
+ * };
  * ```
  *
  * Focus:

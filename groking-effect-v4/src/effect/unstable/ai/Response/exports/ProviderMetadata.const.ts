@@ -13,11 +13,12 @@
  *
  * Source JSDoc Example:
  * ```ts
- * {
- *   "<provider-specific-key>": {
- *     // Provider-specific metadata
+ * const responseProviderMetadata = {
+ *   openai: {
+ *     model: "gpt-4.1",
+ *     completionTokens: 120
  *   }
- * }
+ * };
  * ```
  *
  * Focus:

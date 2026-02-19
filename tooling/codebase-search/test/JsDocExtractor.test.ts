@@ -1,22 +1,14 @@
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
-import * as O from "effect/Option";
-import { pipe } from "effect/Function";
 import { Project } from "ts-morph";
 
-import {
-  extractJsDoc,
-  extractModuleDoc,
-  DEFAULT_JSDOC_RESULT,
-} from "../src/extractor/JsDocExtractor.js";
-import type { JsDocResult } from "../src/extractor/JsDocExtractor.js";
+import { DEFAULT_JSDOC_RESULT, extractJsDoc, extractModuleDoc } from "../src/extractor/JsDocExtractor.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-const createProject = (): Project =>
-  new Project({ useInMemoryFileSystem: true, compilerOptions: { strict: true } });
+const createProject = (): Project => new Project({ useInMemoryFileSystem: true, compilerOptions: { strict: true } });
 
 /**
  * Creates an in-memory source file and returns the first statement node for
@@ -627,7 +619,7 @@ describe("extractModuleDoc", () => {
  * @packageDocumentation
  */
 export const VERSION = "0.0.0";
-`,
+`
     );
     const result = extractModuleDoc(sf);
     expect(result).not.toBeNull();
@@ -647,7 +639,7 @@ export const VERSION = "0.0.0";
  * @module
  */
 export const UTIL_VERSION = "0.0.0";
-`,
+`
     );
     const result = extractModuleDoc(sf);
     expect(result).not.toBeNull();
@@ -662,7 +654,7 @@ export const UTIL_VERSION = "0.0.0";
       `
 /** Just a regular constant. */
 export const Foo = "bar";
-`,
+`
     );
     const result = extractModuleDoc(sf);
     expect(result).toBeNull();
@@ -686,7 +678,7 @@ export const Foo = "bar";
  * @category functions
  */
 export function doStuff() { return 42; }
-`,
+`
     );
     const result = extractModuleDoc(sf);
     expect(result).toBeNull();
@@ -708,7 +700,7 @@ export const A_CONST = "a";
 
 /** @since 0.0.0 */
 export const B_CONST = "b";
-`,
+`
     );
     const result = extractModuleDoc(sf);
     expect(result).not.toBeNull();

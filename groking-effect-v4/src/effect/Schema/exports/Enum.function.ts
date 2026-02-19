@@ -15,14 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Function export exploration with focused runtime examples.
+ * - `Schema.Enum` builds a runtime schema from enum-like objects.
+ * - Examples cover both string-valued and numeric enum objects.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -36,19 +33,58 @@ const exportKind = "function";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleFunctionDiscovery = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime metadata before attempting invocation.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleStringEnumObject = Effect.gen(function* () {
+  const Status = SchemaModule.Enum({
+    Pending: "pending",
+    Active: "active",
+    Disabled: "disabled",
+  } as const);
+
+  const decodeStatus = SchemaModule.decodeUnknownSync(Status);
+  const encodeStatus = SchemaModule.encodeUnknownSync(Status);
+
+  yield* Console.log(`Status.enums keys => ${Object.keys(Status.enums).join(", ")}`);
+  yield* Console.log(`decode("active") => ${decodeStatus("active")}`);
+  yield* Console.log(`encode("disabled") => ${encodeStatus("disabled")}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeStatus("archived"));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log('decode("archived") unexpectedly succeeded.');
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode("archived") failed as expected: ${message}`);
+  }
 });
 
-const exampleFunctionInvocation = Effect.gen(function* () {
-  yield* Console.log("Execute a safe zero-arg invocation probe.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleNumericEnumObject = Effect.gen(function* () {
+  const TrafficLight = {
+    0: "Red",
+    1: "Yellow",
+    2: "Green",
+    Red: 0,
+    Yellow: 1,
+    Green: 2,
+  } as const;
+  const Light = SchemaModule.Enum(TrafficLight);
+  const decodeLight = SchemaModule.decodeUnknownSync(Light);
+  const encodeLight = SchemaModule.encodeUnknownSync(Light);
+
+  yield* Console.log(`decode(0) => ${decodeLight(0)}`);
+  yield* Console.log(`decode(2) => ${decodeLight(2)}`);
+  yield* Console.log(`encode(1) => ${encodeLight(1)}`);
+  yield* Console.log(`TrafficLight schema enums snapshot => ${formatUnknown(Light.enums)}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeLight("Red"));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log('decode("Red") unexpectedly succeeded.');
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode("Red") failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -63,14 +99,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Function Discovery",
-      description: "Inspect runtime shape and preview callable details.",
-      run: exampleFunctionDiscovery,
+      title: "String Enum Schema",
+      description: "Build an enum schema from string literal values and validate decode/encode behavior.",
+      run: exampleStringEnumObject,
     },
     {
-      title: "Zero-Arg Invocation Probe",
-      description: "Attempt invocation and report success/failure details.",
-      run: exampleFunctionInvocation,
+      title: "Numeric Enum Schema",
+      description: "Use a numeric enum-style object and observe accepted values and invalid labels.",
+      run: exampleNumericEnumObject,
     },
   ],
 });

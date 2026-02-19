@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
- * - Clean executable examples with shared logging/error utilities.
+ * - `Schema.Char` is the runtime companion for single-character strings.
+ * - Examples show guard / decode / encode behavior for valid and invalid inputs.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,26 +33,45 @@ const exportKind = "const";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "A schema representing a single character.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleCharGuard = Effect.gen(function* () {
+  const isChar = SchemaModule.is(SchemaModule.Char);
+  const samples: ReadonlyArray<unknown> = ["A", "", "AB", "🧠", 7, null];
+
+  for (const sample of samples) {
+    yield* Console.log(`is(Char)(${formatUnknown(sample)}) => ${isChar(sample)}`);
+  }
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCharDecodeEncode = Effect.gen(function* () {
+  const decodeChar = SchemaModule.decodeUnknownSync(SchemaModule.Char);
+  const encodeChar = SchemaModule.encodeUnknownSync(SchemaModule.Char);
+
+  const decoded = decodeChar("Z");
+  const encoded = encodeChar(decoded);
+  yield* Console.log(`decode("Z") => ${decoded}`);
+  yield* Console.log(`encode("${decoded}") => ${encoded}`);
+
+  const invalidInputs: ReadonlyArray<unknown> = ["", "AB", 5];
+  for (const input of invalidInputs) {
+    const attempt = yield* attemptThunk(() => decodeChar(input));
+    if (attempt._tag === "Right") {
+      yield* Console.log(`decode(${formatUnknown(input)}) unexpectedly succeeded => ${attempt.value}`);
+    } else {
+      const message = String(attempt.error).split("\n")[0] ?? String(attempt.error);
+      yield* Console.log(`decode(${formatUnknown(input)}) failed as expected: ${message}`);
+    }
+  }
 });
 
 /* ========================================================================== *
  * Program
  * ========================================================================== */
 const program = createPlaygroundProgram({
-  icon: "🔎",
+  icon: "📚",
   moduleImportPath,
   exportName,
   exportKind,
@@ -64,14 +79,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Char Guard Behavior",
+      description: "Use Schema.is(Char) on single-char, multi-char, and non-string inputs.",
+      run: exampleCharGuard,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Decode + Encode Char",
+      description: "Decode and encode valid chars, then show failures for invalid inputs.",
+      run: exampleCharDecodeEncode,
     },
   ],
 });

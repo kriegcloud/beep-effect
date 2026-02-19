@@ -15,17 +15,14 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `DateTimeUtcFromDate` is type-level, with runtime behavior from `Schema.DateTimeUtcFromDate`.
+ * - Examples exercise Date -> DateTime.Utc decode and DateTime.Utc -> Date encode.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as SchemaModule from "effect/Schema";
 
@@ -37,19 +34,35 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDecodeFromDate = Effect.gen(function* () {
+  const decodeFromDate = SchemaModule.decodeUnknownSync(SchemaModule.DateTimeUtcFromDate);
+
+  const validDate = new Date("2024-06-15T10:20:30.000Z");
+  const decoded = decodeFromDate(validDate);
+  yield* Console.log(`decode(valid Date) => ${DateTime.formatIso(decoded)}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeFromDate(new Date("invalid")));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log("decode(invalid Date) unexpectedly succeeded.");
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode(invalid Date) failed as expected: ${message}`);
+  }
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleEncodeToDate = Effect.gen(function* () {
+  const decodeFromDate = SchemaModule.decodeUnknownSync(SchemaModule.DateTimeUtcFromDate);
+  const encodeToDate = SchemaModule.encodeUnknownSync(SchemaModule.DateTimeUtcFromDate);
+
+  const utc = decodeFromDate(new Date("2024-06-15T10:20:30.000Z"));
+  const encodedDate = encodeToDate(utc);
+
+  yield* Console.log(`encode(DateTime.Utc) returns Date: ${encodedDate instanceof Date}`);
+  yield* Console.log(`encode(DateTime.Utc).toISOString() => ${encodedDate.toISOString()}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +77,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Decode Date -> DateTime.Utc",
+      description: "Decode valid Date objects and reject invalid Date instances.",
+      run: exampleDecodeFromDate,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Encode DateTime.Utc -> Date",
+      description: "Encode UTC values back into JavaScript Date objects.",
+      run: exampleEncodeToDate,
     },
   ],
 });

@@ -15,18 +15,16 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `ExitIso` is type-level and erased at runtime.
+ * - Runtime behavior is exercised via `Schema.toCodecIso(Schema.Exit(...))`.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
+import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as ExitModule from "effect/Exit";
 import * as SchemaModule from "effect/Schema";
 
 /* ========================================================================== *
@@ -37,19 +35,59 @@ const exportKind = "type";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleExitIsoBridge = Effect.gen(function* () {
+  const moduleRecord = SchemaModule as Record<string, unknown>;
+  const hasRuntimeExitIso = Object.prototype.hasOwnProperty.call(moduleRecord, "ExitIso");
+
+  const ExitSchema = SchemaModule.Exit(SchemaModule.Number, SchemaModule.String, SchemaModule.DefectWithStack);
+  const ExitIsoCodec = SchemaModule.toCodecIso(ExitSchema);
+  const decodeIso = SchemaModule.decodeUnknownSync(ExitIsoCodec);
+  const encodeIso = SchemaModule.encodeUnknownSync(ExitIsoCodec);
+
+  const decodedSuccess = decodeIso({ _tag: "Success", value: 9 });
+  const encodedSuccess = encodeIso(ExitModule.succeed(12));
+  const successSummary = decodedSuccess._tag === "Success" ? `Success(${decodedSuccess.value})` : "Failure(unexpected)";
+
+  yield* Console.log(`Schema.ExitIso runtime export present: ${hasRuntimeExitIso}`);
+  yield* Console.log(`decodeIso({ _tag: "Success", value: 9 }) => ${successSummary}`);
+  yield* Console.log(`encodeIso(Exit.succeed(12)) => ${formatUnknown(encodedSuccess)}`);
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleExitIsoFailureShape = Effect.gen(function* () {
+  const ExitSchema = SchemaModule.Exit(SchemaModule.Number, SchemaModule.String, SchemaModule.DefectWithStack);
+  const ExitIsoCodec = SchemaModule.toCodecIso(ExitSchema);
+  const decodeIso = SchemaModule.decodeUnknownSync(ExitIsoCodec);
+  const encodeIso = SchemaModule.encodeUnknownSync(ExitIsoCodec);
+
+  const decodedFailure = decodeIso({
+    _tag: "Failure",
+    cause: [{ _tag: "Fail", error: "missing-token" }],
+  });
+  const failureSummary =
+    decodedFailure._tag === "Failure"
+      ? String(Cause.pretty(decodedFailure.cause)).split("\n")[0]
+      : "Success(unexpected)";
+  yield* Console.log(`decodeIso(failure) => ${failureSummary}`);
+
+  const dieIso = encodeIso(ExitModule.die({ module: "auth", retryable: true }));
+  yield* Console.log(`encodeIso(Exit.die(object defect)) => ${formatUnknown(dieIso)}`);
+
+  const invalidShape = yield* attemptThunk(() =>
+    decodeIso({
+      _tag: "Failure",
+      cause: { _tag: "Fail", error: "x" },
+    })
+  );
+  if (invalidShape._tag === "Right") {
+    yield* Console.log("decodeIso(non-array cause) unexpectedly succeeded.");
+  } else {
+    const message = String(invalidShape.error).split("\n")[0] ?? String(invalidShape.error);
+    yield* Console.log(`decodeIso(non-array cause) failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +102,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Type Erasure + Iso Bridge",
+      description: "Show ExitIso erasure and bridge runtime behavior with toCodecIso over Exit schemas.",
+      run: exampleExitIsoBridge,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Failure Iso Shape",
+      description: "Decode/encode failure iso payloads and reject invalid non-array cause shapes.",
+      run: exampleExitIsoFailureShape,
     },
   ],
 });

@@ -73,8 +73,7 @@ const SCHEMA_CALL_PATTERNS: ReadonlyArray<readonly [string, EffectPattern]> = [
 ] as const;
 
 /** @internal */
-const containsSubstring = (haystack: string, needle: string): boolean =>
-  Str.includes(needle)(haystack);
+const containsSubstring = (haystack: string, needle: string): boolean => Str.includes(needle)(haystack);
 
 /**
  * Extracts a string-valued field from an object literal text.
@@ -83,28 +82,29 @@ const containsSubstring = (haystack: string, needle: string): boolean =>
  */
 const extractStringField = (text: string, fieldName: string): string | null => {
   // Match field: "value" or field: 'value' (single-line)
-  const singleLineRegex = new RegExp(
-    `${fieldName}\\s*:\\s*["']([^"']+)["']`,
+  const singleLineRegex = new RegExp(`${fieldName}\\s*:\\s*["']([^"']+)["']`);
+  const singleResult = pipe(
+    text,
+    Str.match(singleLineRegex),
+    O.fromNullishOr,
+    O.flatMap((m) => A.get(m, 1)),
+    O.filter((s) => Str.length(s) > 0)
   );
-  const singleMatch = text.match(singleLineRegex);
-  if (singleMatch !== null) {
-    return pipe(
-      A.get(singleMatch, 1),
-      O.getOrElse(() => "" as string),
-    ) || null;
+  if (O.isSome(singleResult)) {
+    return singleResult.value;
   }
 
   // Match multi-line: field:\n    "value"
-  const multiLineRegex = new RegExp(
-    `${fieldName}\\s*:\\s*\\n?\\s*["']([\\s\\S]*?)["']\\s*$`,
-    "m",
+  const multiLineRegex = new RegExp(`${fieldName}\\s*:\\s*\\n?\\s*["']([\\s\\S]*?)["']\\s*$`, "m");
+  const multiResult = pipe(
+    text,
+    Str.match(multiLineRegex),
+    O.fromNullishOr,
+    O.flatMap((m) => A.get(m, 1)),
+    O.filter((s) => Str.length(s) > 0)
   );
-  const multiMatch = text.match(multiLineRegex);
-  if (multiMatch !== null) {
-    return pipe(
-      A.get(multiMatch, 1),
-      O.getOrElse(() => "" as string),
-    ) || null;
+  if (O.isSome(multiResult)) {
+    return multiResult.value;
   }
 
   return null;
@@ -139,7 +139,7 @@ export const detectEffectPattern = (node: Node): EffectPattern | null => {
     const schemaMatch = pipe(
       SCHEMA_CALL_PATTERNS,
       A.findFirst(([pattern]) => containsSubstring(text, pattern)),
-      O.map(([, effectPattern]) => effectPattern),
+      O.map(([, effectPattern]) => effectPattern)
     );
     if (O.isSome(schemaMatch)) {
       return schemaMatch.value;
@@ -154,7 +154,7 @@ export const detectEffectPattern = (node: Node): EffectPattern | null => {
     const textMatch = pipe(
       TEXT_PATTERNS,
       A.findFirst(([pattern]) => containsSubstring(text, pattern)),
-      O.map(([, effectPattern]) => effectPattern),
+      O.map(([, effectPattern]) => effectPattern)
     );
     if (O.isSome(textMatch)) {
       return textMatch.value;
@@ -162,16 +162,13 @@ export const detectEffectPattern = (node: Node): EffectPattern | null => {
   }
 
   // 3. For other node types, try text-based matching
-  if (
-    node.getKind() !== SyntaxKind.ClassDeclaration &&
-    node.getKind() !== SyntaxKind.VariableStatement
-  ) {
+  if (node.getKind() !== SyntaxKind.ClassDeclaration && node.getKind() !== SyntaxKind.VariableStatement) {
     const text = node.getText();
 
     const textMatch = pipe(
       TEXT_PATTERNS,
       A.findFirst(([pattern]) => containsSubstring(text, pattern)),
-      O.map(([, effectPattern]) => effectPattern),
+      O.map(([, effectPattern]) => effectPattern)
     );
     if (O.isSome(textMatch)) {
       return textMatch.value;
@@ -196,16 +193,16 @@ export const extractSchemaAnnotations = (node: Node): SchemaAnnotations | null =
   const text = node.getText();
 
   // Look for .annotate({ ... })
-  const annotateRegex = /\.annotate\s*\(\s*\{([\s\S]*?)\}\s*\)/;
-  const match = text.match(annotateRegex);
+  const annotateRegex = /\.annotate\s*\(\s*\{([\s\S]*?)}\s*\)/;
+  const matchResult = pipe(text, Str.match(annotateRegex), O.fromNullishOr);
 
-  if (match === null) {
+  if (O.isNone(matchResult)) {
     return null;
   }
 
   const annotateBody = pipe(
-    A.get(match, 1),
-    O.getOrElse(() => ""),
+    A.get(matchResult.value, 1),
+    O.getOrElse(() => "")
   );
 
   const identifier = extractStringField(annotateBody, "identifier");
@@ -237,20 +234,20 @@ export const extractFieldAnnotations = (node: Node): ReadonlyArray<FieldDoc> | n
   // Look for patterns like:
   //   fieldName: S.String.annotateKey({ description: "..." })
   //   fieldName: Schema.String.annotateKey({ description: "..." })
-  const annotateKeyRegex = /(\w+)\s*:\s*[\w.]+\.annotateKey\s*\(\s*\{([\s\S]*?)\}\s*\)/g;
+  const annotateKeyRegex = /(\w+)\s*:\s*[\w.]+\.annotateKey\s*\(\s*\{([\s\S]*?)}\s*\)/g;
 
-  const matches: ReadonlyArray<RegExpExecArray> = A.fromIterable(text.matchAll(annotateKeyRegex));
+  const matches: ReadonlyArray<RegExpMatchArray> = A.fromIterable(pipe(text, Str.matchAll(annotateKeyRegex)));
 
   const optionalResults = pipe(
     matches,
     A.map((execResult): O.Option<FieldDoc> => {
       const fieldName = pipe(
         A.get(execResult, 1),
-        O.getOrElse(() => ""),
+        O.getOrElse(() => "")
       );
       const annotateBody = pipe(
         A.get(execResult, 2),
-        O.getOrElse(() => ""),
+        O.getOrElse(() => "")
       );
 
       const fieldDescription = extractStringField(annotateBody, "description");
@@ -260,7 +257,7 @@ export const extractFieldAnnotations = (node: Node): ReadonlyArray<FieldDoc> | n
       }
 
       return O.none();
-    }),
+    })
   );
 
   const results = A.getSomes(optionalResults);

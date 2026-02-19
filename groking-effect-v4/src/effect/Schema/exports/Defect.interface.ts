@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `Defect` is type-level; runtime behavior comes from `Schema.Defect` and companions.
+ * - Examples show error-vs-unknown defect encoding behavior.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,41 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDefectErrorEncoding = Effect.gen(function* () {
+  const decodeDefect = SchemaModule.decodeUnknownSync(SchemaModule.Defect);
+  const decodeDefectWithStack = SchemaModule.decodeUnknownSync(SchemaModule.DefectWithStack);
+  const encodeDefect = SchemaModule.encodeUnknownSync(SchemaModule.Defect);
+  const encodeDefectWithStack = SchemaModule.encodeUnknownSync(SchemaModule.DefectWithStack);
+
+  const boom = new Error("boom");
+  boom.name = "BoomError";
+  boom.stack = "STACK_LINE";
+
+  const defect = decodeDefect(boom);
+  const defectWithStack = decodeDefectWithStack(boom);
+
+  yield* Console.log("Defect type is erased; runtime behavior comes from Schema.Defect.");
+  yield* Console.log(`encode(Schema.Defect, Error) => ${formatUnknown(encodeDefect(defect))}`);
+  yield* Console.log(
+    `encode(Schema.DefectWithStack, Error) => ${formatUnknown(encodeDefectWithStack(defectWithStack))}`
+  );
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleDefectUnknownPassthrough = Effect.gen(function* () {
+  const decodeDefect = SchemaModule.decodeUnknownSync(SchemaModule.Defect);
+  const encodeDefect = SchemaModule.encodeUnknownSync(SchemaModule.Defect);
+
+  const plainObject = { module: "scheduler", retryable: true };
+  const plainDefect = decodeDefect(plainObject);
+  yield* Console.log(`decode plain object => ${formatUnknown(plainDefect)}`);
+  yield* Console.log(`encode plain object => ${formatUnknown(encodeDefect(plainDefect))}`);
+
+  const fnDefect = decodeDefect(() => 123);
+  yield* Console.log(`encode function defect => ${formatUnknown(encodeDefect(fnDefect))}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +82,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Error Defect Encoding",
+      description: "Compare Defect vs DefectWithStack encoding for Error inputs.",
+      run: exampleDefectErrorEncoding,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Unknown Defect Passthrough",
+      description: "Show unknown defect values survive decode and encode with fallback formatting.",
+      run: exampleDefectUnknownPassthrough,
     },
   ],
 });

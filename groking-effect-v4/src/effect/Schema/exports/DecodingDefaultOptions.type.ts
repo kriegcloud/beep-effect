@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `DecodingDefaultOptions` is compile-time only.
+ * - Runtime behavior is demonstrated through `withDecodingDefaultKey` strategies.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,41 @@ const exportKind = "type";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const examplePassthroughEncodingStrategy = Effect.gen(function* () {
+  const PreferencesPassthrough = SchemaModule.Struct({
+    darkMode: SchemaModule.Boolean.pipe(SchemaModule.withDecodingDefaultKey(() => false)),
+  });
+
+  const decodePreferences = SchemaModule.decodeUnknownSync(PreferencesPassthrough);
+  const encodePreferences = SchemaModule.encodeUnknownSync(PreferencesPassthrough);
+
+  const decoded = decodePreferences({});
+  const encoded = encodePreferences(decoded);
+
+  yield* Console.log("DecodingDefaultOptions type is erased; runtime behavior comes from withDecodingDefaultKey.");
+  yield* Console.log(`decode({}) => ${formatUnknown(decoded)}`);
+  yield* Console.log(`encode(decoded) with default passthrough => ${formatUnknown(encoded)}`);
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleOmitEncodingStrategy = Effect.gen(function* () {
+  const PreferencesOmit = SchemaModule.Struct({
+    darkMode: SchemaModule.Boolean.pipe(SchemaModule.withDecodingDefaultKey(() => false, { encodingStrategy: "omit" })),
+  });
+
+  const decodePreferences = SchemaModule.decodeUnknownSync(PreferencesOmit);
+  const encodePreferences = SchemaModule.encodeUnknownSync(PreferencesOmit);
+
+  const decodedDefault = decodePreferences({});
+  const encodedDefault = encodePreferences(decodedDefault);
+  const encodedTrue = encodePreferences({ darkMode: true });
+
+  yield* Console.log(`decode({}) => ${formatUnknown(decodedDefault)}`);
+  yield* Console.log(`encode(default value) with omit => ${formatUnknown(encodedDefault)}`);
+  yield* Console.log(`encode(true) with omit => ${formatUnknown(encodedTrue)}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +82,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Passthrough Encoding Strategy",
+      description: "Show default decode behavior and passthrough encoding for defaulted keys.",
+      run: examplePassthroughEncodingStrategy,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Omit Encoding Strategy",
+      description: 'Show how encodingStrategy: "omit" removes the key on encode.',
+      run: exampleOmitEncodingStrategy,
     },
   ],
 });

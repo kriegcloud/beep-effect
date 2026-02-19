@@ -15,17 +15,14 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Type-only exports (`type`, `interface`) are erased at runtime.
- * - Runtime examples still provide module-level context for learning.
+ * - `Duration` is type-level; runtime behavior comes from `Schema.Duration`.
+ * - Examples demonstrate runtime guards plus default JSON codec behavior.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  inspectTypeLikeExport,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as SchemaModule from "effect/Schema";
 
@@ -37,19 +34,38 @@ const exportKind = "interface";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleTypeRuntimeCheck = Effect.gen(function* () {
-  yield* Console.log("Check runtime visibility for this type/interface export.");
-  yield* inspectTypeLikeExport({ moduleRecord, exportName });
+const exampleDurationGuardAndDecode = Effect.gen(function* () {
+  const isDuration = SchemaModule.is(SchemaModule.Duration);
+  const decodeDuration = SchemaModule.decodeUnknownSync(SchemaModule.Duration);
+
+  const twoSeconds = Duration.seconds(2);
+  yield* Console.log(`is(Duration)(Duration.seconds(2)) => ${isDuration(twoSeconds)}`);
+  yield* Console.log(`decode(Duration, value) keeps reference => ${decodeDuration(twoSeconds) === twoSeconds}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeDuration(2000));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log("decode(Duration, 2000) unexpectedly succeeded.");
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode(Duration, 2000) failed as expected: ${message}`);
+  }
 });
 
-const exampleModuleContextInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect runtime module context around this type-like export.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleDurationJsonCodec = Effect.gen(function* () {
+  const DurationJson = SchemaModule.toCodecJson(SchemaModule.Duration);
+  const decodeDurationJson = SchemaModule.decodeUnknownSync(DurationJson);
+  const encodeDurationJson = SchemaModule.encodeUnknownSync(DurationJson);
+
+  const fromMillis = decodeDurationJson({ _tag: "Millis", value: 500 });
+  const fromInfinity = decodeDurationJson({ _tag: "Infinity" });
+
+  yield* Console.log(`decode JSON millis => ${Duration.format(fromMillis)}`);
+  yield* Console.log(`decode JSON infinity => ${Duration.format(fromInfinity)}`);
+  yield* Console.log(`encode JSON millis => ${formatUnknown(encodeDurationJson(fromMillis))}`);
 });
 
 /* ========================================================================== *
@@ -64,14 +80,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Type Erasure Check",
-      description: "Confirm whether this symbol appears at runtime.",
-      run: exampleTypeRuntimeCheck,
+      title: "Duration Guard + Decode",
+      description: "Validate runtime Duration values and reject non-Duration inputs.",
+      run: exampleDurationGuardAndDecode,
     },
     {
-      title: "Module Context Inspection",
-      description: "Inspect the runtime module value for additional context.",
-      run: exampleModuleContextInspection,
+      title: "Duration JSON Codec",
+      description: "Decode and encode Duration values via the default JSON codec shape.",
+      run: exampleDurationJsonCodec,
     },
   ],
 });

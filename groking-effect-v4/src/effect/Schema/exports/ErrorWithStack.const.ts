@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
- * - Clean executable examples with shared logging/error utilities.
+ * - `Schema.ErrorWithStack` preserves stack traces in default JSON encoding.
+ * - Examples contrast stack-preserving behavior against `Schema.Error`.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,19 +33,49 @@ const exportKind = "const";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "A schema that represents `Error` objects.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleStackEncodingContrast = Effect.gen(function* () {
+  const ErrorJson = SchemaModule.toCodecJson(SchemaModule.Error);
+  const ErrorWithStackJson = SchemaModule.toCodecJson(SchemaModule.ErrorWithStack);
+  const encodeError = SchemaModule.encodeUnknownSync(ErrorJson);
+  const encodeErrorWithStack = SchemaModule.encodeUnknownSync(ErrorWithStackJson);
+
+  const issue = new Error("boom");
+  issue.name = "BoomError";
+  issue.stack = "STACK_LINE";
+
+  yield* Console.log(`encode(ErrorJson, Error) => ${formatUnknown(encodeError(issue))}`);
+  yield* Console.log(`encode(ErrorWithStackJson, Error) => ${formatUnknown(encodeErrorWithStack(issue))}`);
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleDecodeAndValidation = Effect.gen(function* () {
+  const ErrorWithStackJson = SchemaModule.toCodecJson(SchemaModule.ErrorWithStack);
+  const decodeErrorWithStack = SchemaModule.decodeUnknownSync(ErrorWithStackJson);
+
+  const parsed = decodeErrorWithStack({
+    name: "GatewayError",
+    message: "bad gateway",
+    stack: "TRACE_LINE",
+  });
+  yield* Console.log(`decode with stack => name=${parsed.name}, stack=${parsed.stack}`);
+
+  const withoutStack = decodeErrorWithStack({
+    name: "NoStackError",
+    message: "still valid",
+  });
+  const stackSummary = String(withoutStack.stack).split("\n")[0] ?? String(withoutStack.stack);
+  yield* Console.log(`decode without stack => name=${withoutStack.name}, stack=${stackSummary}`);
+
+  const invalidAttempt = yield* attemptThunk(() => decodeErrorWithStack({ name: "MissingMessage" }));
+  if (invalidAttempt._tag === "Right") {
+    yield* Console.log("decode missing message unexpectedly succeeded.");
+  } else {
+    const message = String(invalidAttempt.error).split("\n")[0] ?? String(invalidAttempt.error);
+    yield* Console.log(`decode missing message failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
@@ -64,14 +90,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Stack-Preserving Encoding",
+      description: "Compare Error JSON encoding with and without stack preservation.",
+      run: exampleStackEncodingContrast,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Decode + Validation",
+      description: "Decode stack-bearing payloads and reject invalid payloads missing required fields.",
+      run: exampleDecodeAndValidation,
     },
   ],
 });

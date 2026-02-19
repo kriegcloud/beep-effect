@@ -55,10 +55,10 @@
   "dependencies": {
     "@beep/repo-utils": "workspace:*",
     "effect": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
     "@lancedb/lancedb": "catalog:",
     "@huggingface/transformers": "catalog:",
-    "@modelcontextprotocol/sdk": "catalog:",
     "wink-bm25-text-search": "catalog:",
     "ts-morph": "catalog:",
     "doctrine": "catalog:"

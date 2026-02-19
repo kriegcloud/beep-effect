@@ -15,15 +15,11 @@
  * (No inline example was found in the source JSDoc.)
  *
  * Focus:
- * - Value-like exports (`const`, `let`, `var`, `enum`, `namespace`, `reexport`).
- * - Clean executable examples with shared logging/error utilities.
+ * - `Codec` namespace members are type-level and erased at runtime.
+ * - Runtime companion behavior is shown with `revealCodec`, `decodeUnknownSync`, and `encodeUnknownSync`.
  */
 
-import {
-  createPlaygroundProgram,
-  inspectNamedExport,
-  probeNamedExportFunction,
-} from "@beep/groking-effect-v4/runtime/Playground";
+import { attemptThunk, createPlaygroundProgram, formatUnknown } from "@beep/groking-effect-v4/runtime/Playground";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -37,26 +33,49 @@ const exportKind = "namespace";
 const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
-const moduleRecord = SchemaModule as Record<string, unknown>;
 
 /* ========================================================================== *
  * Example Blocks
  * ========================================================================== */
-const exampleRuntimeInspection = Effect.gen(function* () {
-  yield* Console.log("Inspect the export as a runtime value and capture shape/preview.");
-  yield* inspectNamedExport({ moduleRecord, exportName });
+const exampleNamespaceErasure = Effect.gen(function* () {
+  const moduleRecord = SchemaModule as Record<string, unknown>;
+  const hasRuntimeCodec = Object.prototype.hasOwnProperty.call(moduleRecord, "Codec");
+
+  yield* Console.log(`Schema.Codec runtime export present: ${hasRuntimeCodec}`);
+  yield* Console.log("Codec namespace aliases (Encoded / DecodingServices / etc.) are compile-time only.");
 });
 
-const exampleCallableProbe = Effect.gen(function* () {
-  yield* Console.log("If the value is callable, run a zero-arg probe to observe behavior.");
-  yield* probeNamedExportFunction({ moduleRecord, exportName });
+const exampleCodecRoundTrip = Effect.gen(function* () {
+  const Account = SchemaModule.Struct({
+    id: SchemaModule.NumberFromString,
+    active: SchemaModule.BooleanFromBit,
+  });
+
+  const codec = SchemaModule.revealCodec(Account);
+  const decodeAccount = SchemaModule.decodeUnknownSync(codec);
+  const encodeAccount = SchemaModule.encodeUnknownSync(codec);
+
+  const decoded = decodeAccount({ id: "42", active: 1 });
+  const encoded = encodeAccount(decoded);
+
+  yield* Console.log(`revealCodec(Account) returns same reference: ${codec === Account}`);
+  yield* Console.log(`decode({ id: "42", active: 1 }) => ${formatUnknown(decoded)}`);
+  yield* Console.log(`encode(decoded) => ${formatUnknown(encoded)}`);
+
+  const invalid = yield* attemptThunk(() => decodeAccount({ id: "42", active: 2 }));
+  if (invalid._tag === "Right") {
+    yield* Console.log(`decode({ id: "42", active: 2 }) unexpectedly succeeded => ${formatUnknown(invalid.value)}`);
+  } else {
+    const message = String(invalid.error).split("\n")[0] ?? String(invalid.error);
+    yield* Console.log(`decode invalid account failed as expected: ${message}`);
+  }
 });
 
 /* ========================================================================== *
  * Program
  * ========================================================================== */
 const program = createPlaygroundProgram({
-  icon: "🔎",
+  icon: "📚",
   moduleImportPath,
   exportName,
   exportKind,
@@ -64,14 +83,14 @@ const program = createPlaygroundProgram({
   sourceExample,
   examples: [
     {
-      title: "Runtime Shape Inspection",
-      description: "Inspect module export count, runtime type, and formatted preview.",
-      run: exampleRuntimeInspection,
+      title: "Namespace Erasure Check",
+      description: "Show that Codec namespace symbols are type-level and absent at runtime.",
+      run: exampleNamespaceErasure,
     },
     {
-      title: "Callable Value Probe",
-      description: "Attempt a zero-arg invocation when the value is function-like.",
-      run: exampleCallableProbe,
+      title: "Runtime Codec Round-Trip",
+      description: "Use runtime codec helpers to decode/encode structured values.",
+      run: exampleCodecRoundTrip,
     },
   ],
 });
