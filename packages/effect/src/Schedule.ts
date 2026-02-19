@@ -346,7 +346,7 @@ export const fromStep = <Input, Output, EnvX, Error, ErrorX, Env>(
     Error,
     Env
   >
-): Schedule<Output, Input, Error | ErrorX, Env | EnvX> => {
+): Schedule<Output, Input, Error | Pull.ExcludeDone<ErrorX>, Env | EnvX> => {
   const self = Object.create(ScheduleProto)
   self.step = step
   return self
@@ -395,7 +395,7 @@ export const fromStepWithMetadata = <Input, Output, EnvX, ErrorX, Error, Env>(
     Error,
     Env
   >
-): Schedule<Output, Input, Error | ErrorX, Env | EnvX> =>
+): Schedule<Output, Input, Error | Pull.ExcludeDone<ErrorX>, Env | EnvX> =>
   fromStep(effect.map(step, (f) => {
     const meta = metadataFn()
     return (now, input) => f(meta(now, input))
@@ -1545,6 +1545,24 @@ export const delays = <Out, In, E, R>(self: Schedule<Out, In, E, R>): Schedule<D
         )
     )
   )
+
+/**
+ * Returns a schedule that recurs once after the specified duration.
+ *
+ * The schedule outputs the configured duration for its first recurrence and
+ * then completes.
+ *
+ * @since 2.0.0
+ * @category constructors
+ */
+export const duration = (durationInput: Duration.DurationInput): Schedule<Duration.Duration> => {
+  const duration = Duration.fromDurationInputUnsafe(durationInput)
+  return fromStepWithMetadata(effect.succeed((meta) =>
+    meta.attempt === 1
+      ? effect.succeed([duration, duration])
+      : Cause.done(Duration.zero)
+  ))
+}
 
 /**
  * Returns a new `Schedule` that will always recur, but only during the
