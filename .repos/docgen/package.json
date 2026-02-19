@@ -1,0 +1,81 @@
+{
+  "name": "@effect/docgen",
+  "version": "0.5.2",
+  "type": "module",
+  "packageManager": "pnpm@9.0.4",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "description": "An opinionated documentation generator for Effect projects",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/effect-ts/docgen.git"
+  },
+  "author": "Giulio Canti <giulio.canti@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/effect-ts/docgen/issues"
+  },
+  "homepage": "https://github.com/effect-ts/docgen",
+  "scripts": {
+    "prepare": "pnpm clean && pnpm build",
+    "lint": "eslint src test",
+    "lint-fix": "eslint src test --fix",
+    "coverage": "vitest run --coverage",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest",
+    "clean": "rimraf dist coverage .tsbuildinfo",
+    "build": "pnpm schema && tsup && tsx scripts/copy-package-json.ts",
+    "schema": "tsx scripts/gen-schema.ts",
+    "docgen": "tsx src/bin.ts",
+    "changeset-version": "changeset version && node ./scripts/version.mjs",
+    "changeset-publish": "pnpm build && TEST_DIST= pnpm vitest && changeset publish"
+  },
+  "dependencies": {
+    "@effect/markdown-toc": "^0.1.0",
+    "doctrine": "^3.0.0",
+    "glob": "^10.3.12",
+    "prettier": "^3.2.5"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.0",
+    "@changesets/cli": "^2.27.7",
+    "@effect/cli": "0.42.0",
+    "@effect/eslint-plugin": "^0.2.0",
+    "@effect/language-service": "^0.1.0",
+    "@effect/platform": "0.63.0",
+    "@effect/platform-node": "0.58.0",
+    "@effect/schema": "0.72.0",
+    "@types/doctrine": "0.0.9",
+    "@types/glob": "^8.1.0",
+    "@types/node": "^22.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
+    "@vitest/coverage-v8": "^2.0.5",
+    "chalk": "^5.3.0",
+    "effect": "3.7.0",
+    "eslint": "^8.56.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-codegen": "^0.28.0",
+    "eslint-plugin-deprecation": "^3.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-sort-destructure-keys": "^2.0.0",
+    "rimraf": "^6.0.1",
+    "ts-morph": "^23.0.0",
+    "tsconfck": "^3.1.3",
+    "tsup": "^8.2.4",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5"
+  },
+  "peerDependencies": {
+    "tsx": "^4.1.0",
+    "typescript": "^5.2.2"
+  }
+}
