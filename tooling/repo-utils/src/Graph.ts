@@ -27,7 +27,7 @@ import { CyclicDependencyError } from "./errors/index.js";
  * @internal
  */
 const fromAdjacencyList = (
-  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
+  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
 ): {
   graph: G.DirectedGraph<string, void>;
   nameToIndex: MutableHashMap.MutableHashMap<string, G.NodeIndex>;
@@ -103,32 +103,35 @@ const fromAdjacencyList = (
  * @category algorithms
  */
 export const topologicalSort: (
-  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
-) => Effect.Effect<ReadonlyArray<string>, CyclicDependencyError> =
-  Effect.fn(function* (adjacencyList) {
-    // Empty graph – nothing to sort
-    if (HashMap.size(adjacencyList) === 0) {
-      return A.empty<string>();
-    }
+  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
+) => Effect.Effect<ReadonlyArray<string>, CyclicDependencyError> = Effect.fn(function* (adjacencyList) {
+  // Empty graph – nothing to sort
+  if (HashMap.size(adjacencyList) === 0) {
+    return A.empty<string>();
+  }
 
-    const { graph } = fromAdjacencyList(adjacencyList);
+  const { graph } = fromAdjacencyList(adjacencyList);
 
-    // Check for cycles first (isAcyclic is cheap and cached)
-    if (!G.isAcyclic(graph)) {
-      const cycles = yield* detectCycles(adjacencyList);
-      return yield* new CyclicDependencyError({
-        message: `Cyclic dependencies detected: ${pipe(cycles, A.map((c) => A.join(c, " -> ")), A.join("; "))}`,
+  // Check for cycles first (isAcyclic is cheap and cached)
+  if (!G.isAcyclic(graph)) {
+    const cycles = yield* detectCycles(adjacencyList);
+    return yield* new CyclicDependencyError({
+      message: `Cyclic dependencies detected: ${pipe(
         cycles,
-      });
-    }
+        A.map((c) => A.join(c, " -> ")),
+        A.join("; ")
+      )}`,
+      cycles,
+    });
+  }
 
-    // Use the built-in topological sort.
-    // The topo sort outputs zero-in-degree nodes first. In our graph where
-    // edges go from package -> dependency, roots/dependents have zero
-    // in-degree. Reversing gives us dependency-first (build) order.
-    const walker = G.topo(graph);
-    return pipe(A.fromIterable(G.values(walker)), A.reverse);
-  });
+  // Use the built-in topological sort.
+  // The topo sort outputs zero-in-degree nodes first. In our graph where
+  // edges go from package -> dependency, roots/dependents have zero
+  // in-degree. Reversing gives us dependency-first (build) order.
+  const walker = G.topo(graph);
+  return pipe(A.fromIterable(G.values(walker)), A.reverse);
+});
 
 /**
  * Detect all cycles in a directed dependency graph.
@@ -160,7 +163,7 @@ export const topologicalSort: (
  * @category algorithms
  */
 export const detectCycles = (
-  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
+  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
 ): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>> =>
   Effect.sync(() => {
     if (HashMap.size(adjacencyList) === 0) {
@@ -191,7 +194,7 @@ export const detectCycles = (
         const names = pipe(
           scc,
           A.map((idx) => MutableHashMap.get(indexToName, idx)),
-          A.getSomes,
+          A.getSomes
         );
 
         // Build a path by DFS within the SCC starting from the first member
@@ -230,7 +233,7 @@ const buildCyclePath = (
   graph: G.DirectedGraph<string, void>,
   startIdx: G.NodeIndex,
   memberSet: MutableHashSet.MutableHashSet<G.NodeIndex>,
-  indexToName: MutableHashMap.MutableHashMap<G.NodeIndex, string>,
+  indexToName: MutableHashMap.MutableHashMap<G.NodeIndex, string>
 ): ReadonlyArray<string> => {
   type StackItem = { readonly node: G.NodeIndex; readonly path: ReadonlyArray<G.NodeIndex> };
 
@@ -252,14 +255,14 @@ const buildCyclePath = (
         const pathNames = pipe(
           current.path,
           A.map((idx) => MutableHashMap.get(indexToName, idx)),
-          A.getSomes,
+          A.getSomes
         );
         return pipe(
           MutableHashMap.get(indexToName, startIdx),
           O.match({
             onNone: () => pathNames,
             onSome: (startName) => A.append(pathNames, startName),
-          }),
+          })
         );
       }
 
@@ -307,7 +310,7 @@ const buildCyclePath = (
  */
 export const computeTransitiveClosure = (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
-  pkg: string,
+  pkg: string
 ): Effect.Effect<HashSet.HashSet<string>> =>
   Effect.sync(() => {
     if (HashMap.size(adjacencyList) === 0) {
@@ -336,6 +339,6 @@ export const computeTransitiveClosure = (
 
           return result;
         },
-      }),
+      })
     );
   });

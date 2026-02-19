@@ -51,8 +51,8 @@ const ROOT_KEY = "@beep/root";
  */
 export const buildRepoDependencyIndex: (
   rootDir: string
-) => Effect.Effect<HashMap.HashMap<string, WorkspaceDeps>, NoSuchFileError | DomainError, FsUtils> =
-  Effect.fn(function* (rootDir) {
+) => Effect.Effect<HashMap.HashMap<string, WorkspaceDeps>, NoSuchFileError | DomainError, FsUtils> = Effect.fn(
+  function* (rootDir) {
     const fsUtils = yield* FsUtils;
     const workspaces = yield* resolveWorkspaceDirs(rootDir);
 
@@ -68,12 +68,13 @@ export const buildRepoDependencyIndex: (
     const rootPkgPath = `${rootDir}/package.json`;
     const rawRootPkg = yield* fsUtils.readJson(rootPkgPath);
     const rootPkg = yield* decodePackageJsonEffect(rawRootPkg).pipe(
-      Effect.mapError((error) =>
-        new DomainError({
-          message: `Failed to decode root package.json at "${rootPkgPath}"`,
-          cause: error,
-        }),
-      ),
+      Effect.mapError(
+        (error) =>
+          new DomainError({
+            message: `Failed to decode root package.json at "${rootPkgPath}"`,
+            cause: error,
+          })
+      )
     );
     const rootDeps = extractWorkspaceDependencies(rootPkg, workspaceNames);
     result = HashMap.set(result, ROOT_KEY, { ...rootDeps, packageName: ROOT_KEY });
@@ -83,16 +84,18 @@ export const buildRepoDependencyIndex: (
       const pkgPath = `${dir}/package.json`;
       const rawPkg = yield* fsUtils.readJson(pkgPath);
       const pkg = yield* decodePackageJsonEffect(rawPkg).pipe(
-        Effect.mapError((error) =>
-          new DomainError({
-            message: `Failed to decode package.json at "${pkgPath}"`,
-            cause: error,
-          }),
-        ),
+        Effect.mapError(
+          (error) =>
+            new DomainError({
+              message: `Failed to decode package.json at "${pkgPath}"`,
+              cause: error,
+            })
+        )
       );
       const deps = extractWorkspaceDependencies(pkg, workspaceNames);
       result = HashMap.set(result, name, deps);
     }
 
     return result;
-  });
+  }
+);

@@ -17,15 +17,17 @@ import * as S from "effect/Schema";
  * @since 0.0.0
  * @category errors
  */
-export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyError>("@beep/repo-utils/errors/CyclicDependencyError/CyclicDependencyError")(
-	"CyclicDependencyError",
-	{
-		message: S.String,
-		cycles: S.Array(S.Array(S.String))
-	},
-	{
-		title: "Cyclic Dependency Error",
-		description: "Raised when topological sorting or cycle detection finds circular\ndependencies in the workspace dependency graph."
-	}
-) {
-}
+export class CyclicDependencyError extends S.TaggedErrorClass<CyclicDependencyError>(
+  "@beep/repo-utils/errors/CyclicDependencyError/CyclicDependencyError"
+)(
+  "CyclicDependencyError",
+  {
+    message: S.String,
+    cycles: S.Array(S.Array(S.String)),
+  },
+  {
+    title: "Cyclic Dependency Error",
+    description:
+      "Raised when topological sorting or cycle detection finds circular\ndependencies in the workspace dependency graph.",
+  }
+) {}

@@ -18,13 +18,17 @@
     }
   },
   "scripts": {
+    "beep": "bun run tooling/cli/src/bin.ts --",
+    "beep:topo-sort": "bun run beep topo-sort",
+    "beep:codegen": "bun run beep codegen",
+    "beep:create-package": "bun run beep create-package",
     "clean": "node scripts/clean.mjs",
     "build": "bunx turbo run build",
     "build:tsgo": "tsgo -b tsconfig.packages.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "check:tsgo": "tsgo -b tsconfig.json",
     "test": "vitest",
-    "test-types": "tstyche",
+    "test:types": "tstyche",
     "coverage": "vitest --coverage",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",

@@ -90,6 +90,23 @@ export {
   /**
    * @since 0.0.0
    */
+  jsonParse,
+  /**
+   * @since 0.0.0
+   */
+  jsonStringifyCompact,
+  /**
+   * @since 0.0.0
+   */
+  jsonStringifyPretty,
+} from "./JsonUtils.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
   findRepoRoot,
 } from "./Root.js";
 /**
@@ -108,6 +125,18 @@ export {
    * @since 0.0.0
    */
   decodePackageJsonExit,
+  /**
+   * @since 0.0.0
+   */
+  encodePackageJsonEffect,
+  /**
+   * @since 0.0.0
+   */
+  encodePackageJsonPrettyEffect,
+  /**
+   * @since 0.0.0
+   */
+  encodePackageJsonToJsonEffect,
   /**
    * @since 0.0.0
    */

@@ -16,13 +16,14 @@ import * as S from "effect/Schema";
  * @category errors
  */
 export class DomainError extends S.TaggedErrorClass<DomainError>("@beep/repo-utils/errors/DomainError/DomainError")(
-	"DomainError",
-	{
-		message: S.String,
-		cause: S.optional(S.Unknown),
-	},
-	{
-		title: "Domain Error",
-		description: "A generic domain-level error with an optional underlying cause for JSON parse failures, glob failures, and other operational errors."
-	}
+  "DomainError",
+  {
+    message: S.String,
+    cause: S.optional(S.Unknown),
+  },
+  {
+    title: "Domain Error",
+    description:
+      "A generic domain-level error with an optional underlying cause for JSON parse failures, glob failures, and other operational errors.",
+  }
 ) {}

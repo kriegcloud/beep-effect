@@ -10,11 +10,12 @@
  */
 
 import { FsUtils } from "@beep/repo-utils";
-import { FileSystem, Path } from "effect";
+import { FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
@@ -39,7 +40,7 @@ const isTestFile = (name: string): boolean =>
 const toImportPath = (name: string): string => {
   for (const ext of TS_EXTENSIONS) {
     if (Str.endsWith(ext)(name)) {
-      return `./${name.slice(0, -ext.length)}.js`;
+      return `./${Str.slice(0, -ext.length)(name)}.js`;
     }
   }
   return `./${name}`;
@@ -64,14 +65,11 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const walk: (
-    dir: string,
-    prefix: string
-  ) => Effect.Effect<Array<string>, never, FileSystem.FileSystem | Path.Path> =
+  const walk: (dir: string, prefix: string) => Effect.Effect<Array<string>, never, FileSystem.FileSystem | Path.Path> =
     Effect.fn(function* (dir, prefix) {
-      const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => [] as ReadonlyArray<string>));
+      const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(A.empty<string>));
 
-      const results: Array<string> = [];
+      const results = A.empty<string>();
 
       for (const entry of entries) {
         const fullPath = path.join(dir, entry);
@@ -94,7 +92,7 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
           if (isTestFile(entry)) continue;
 
           // Skip root-level index.ts (that's what we're generating)
-          if (prefix === "" && entry === "index.ts") continue;
+          if (Str.isEmpty(prefix) && entry === "index.ts") continue;
 
           results.push(`${prefix}${entry}`);
         }
@@ -103,7 +101,7 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
       return results;
     });
 
-  return yield* walk(srcDir, "");
+  return yield* walk(srcDir, Str.empty);
 });
 
 /**
@@ -113,11 +111,14 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
  * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).
  */
 const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>): string => {
-  const header = ["/**", ` * Re-exports for ${packageName}.`, " *", " * @since 0.0.0", " */", ""].join("\n");
+  const header = pipe(
+    A.make("/**", ` * Re-exports for ${packageName}.`, " *", " * @since 0.0.0", " */", ""),
+    A.join("\n")
+  );
 
   const exportLines = A.map(modules, (mod) => {
     const importPath = toImportPath(mod);
-    return ["/**", " * @since 0.0.0", " */", `export * from "${importPath}";`].join("\n");
+    return pipe(A.make("/**", " * @since 0.0.0", " */", `export * from "${importPath}";`), A.join("\n"));
   });
 
   return `${header + A.join(exportLines, "\n\n")}\n`;
@@ -163,13 +164,15 @@ export const codegenCommand = Command.make(
     const packageName = yield* Effect.gen(function* () {
       const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(() => undefined as unknown));
       if (
-        json !== undefined &&
-        typeof json === "object" &&
-        json !== null &&
-        "name" in json &&
-        typeof (json as Record<string, unknown>).name === "string"
+        P.isNotUndefined(json) &&
+        P.isObject(json) &&
+        P.isNotNull(json) &&
+        P.hasProperty(json, "name") &&
+        P.Struct({
+          name: P.isString,
+        })(json)
       ) {
-        return (json as Record<string, unknown>).name as string;
+        return json.name;
       }
       return pathSvc.basename(packageDir);
     });

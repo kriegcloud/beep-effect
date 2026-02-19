@@ -7,7 +7,9 @@
  * @since 0.0.0
  * @module
  */
-import { Schema } from "effect";
+import { Effect, Schema } from "effect";
+import type { DomainError } from "../errors/index.js";
+import { jsonStringifyPretty } from "../JsonUtils.js";
 
 /**
  * Schema for `author` field which can be a string or an object with
@@ -23,7 +25,12 @@ export const Author = Schema.Union([
     email: Schema.optionalKey(Schema.String),
     url: Schema.optionalKey(Schema.String),
   }),
-]);
+]).annotate({
+  identifier: "@beep/repo-utils/schemas/PackageJson/Author",
+  title: "Author",
+  description:
+    "Package author, either as a string (e.g. 'Name <email> (url)') or a structured object with name, optional email, and optional url.",
+});
 
 /**
  * Schema for `repository` field which can be a string or an object with
@@ -44,7 +51,12 @@ export const Repository = Schema.Union([
    * keys or other malformed shapes found in the wild).
    */
   Schema.Record(Schema.String, Schema.Unknown),
-]);
+]).annotate({
+  identifier: "@beep/repo-utils/schemas/PackageJson/Repository",
+  title: "Repository",
+  description:
+    "Source code repository reference, either as a URL string, a structured object with type/url/directory, or an arbitrary record for non-standard shapes.",
+});
 
 /**
  * Schema for `bugs` field which can be a string or an object with
@@ -59,7 +71,11 @@ export const Bugs = Schema.Union([
     url: Schema.optionalKey(Schema.String),
     email: Schema.optionalKey(Schema.String),
   }),
-]);
+]).annotate({
+  identifier: "@beep/repo-utils/schemas/PackageJson/Bugs",
+  title: "Bugs",
+  description: "Bug tracker reference, either as a URL string or a structured object with optional url and email.",
+});
 
 /**
  * A `Record<string, string>` schema used for dependency maps, scripts, engines, etc.
@@ -67,7 +83,11 @@ export const Bugs = Schema.Union([
  * @since 0.0.0
  * @category schemas
  */
-const StringRecord = Schema.Record(Schema.String, Schema.String);
+const StringRecord = Schema.Record(Schema.String, Schema.String).annotate({
+  identifier: "@beep/repo-utils/schemas/PackageJson/StringRecord",
+  title: "String Record",
+  description: "A record mapping string keys to string values, used for dependency maps, scripts, and engines.",
+});
 
 /**
  * Schema for `bin` field which can be a string (single executable) or
@@ -76,7 +96,11 @@ const StringRecord = Schema.Record(Schema.String, Schema.String);
  * @since 0.0.0
  * @category schemas
  */
-export const Bin = Schema.Union([Schema.String, StringRecord]);
+export const Bin = Schema.Union([Schema.String, StringRecord]).annotate({
+  identifier: "@beep/repo-utils/schemas/PackageJson/Bin",
+  title: "Bin",
+  description: "Executable binaries, either a single file path string or a record mapping command names to file paths.",
+});
 
 /**
  * Type-safe schema for package.json files.
@@ -116,6 +140,12 @@ export const PackageJson = Schema.Struct({
   homepage: Schema.optionalKey(Schema.String),
   sideEffects: Schema.optionalKey(Schema.Unknown),
   publishConfig: Schema.optionalKey(Schema.Unknown),
+}).annotate({
+  identifier: "@beep/repo-utils/schemas/PackageJson/PackageJson",
+  title: "Package JSON",
+  description:
+    "Type-safe schema for package.json files. Only `name` is required; all other fields are optional and match the npm package.json specification.",
+  examples: [{ name: "@beep/my-pkg", version: "1.0.0", dependencies: { effect: "^4.0.0" } }],
 });
 
 /**
@@ -152,3 +182,37 @@ export const decodePackageJsonExit = Schema.decodeUnknownExit(PackageJson);
  * @category decoding
  */
 export const decodePackageJsonEffect = Schema.decodeUnknownEffect(PackageJson);
+
+/**
+ * Encode a `PackageJson` value back to its encoded (plain object) form as an Effect.
+ * Returns `Effect<unknown, SchemaError>`.
+ *
+ * @since 0.0.0
+ * @category encoding
+ */
+export const encodePackageJsonEffect = Schema.encodeUnknownEffect(PackageJson);
+
+/**
+ * Encode a `PackageJson` value to a compact JSON string as an Effect.
+ * Uses `Schema.fromJsonString(PackageJson)` for schema-validated serialization.
+ * Returns `Effect<string, SchemaError>`.
+ *
+ * @since 0.0.0
+ * @category encoding
+ */
+export const encodePackageJsonToJsonEffect = Schema.encodeUnknownEffect(Schema.fromJsonString(PackageJson));
+
+/**
+ * Encode a `PackageJson` value to a pretty-printed JSON string (2-space indent).
+ * Validates through the `PackageJson` schema before serialization.
+ * Returns `Effect<string, SchemaError>`.
+ *
+ * @since 0.0.0
+ * @category encoding
+ */
+export const encodePackageJsonPrettyEffect: (
+  input: unknown
+) => Effect.Effect<string, Schema.SchemaError | DomainError> = Effect.fn(function* (input) {
+  const validated = yield* encodePackageJsonEffect(input);
+  return yield* jsonStringifyPretty(validated);
+});

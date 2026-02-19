@@ -5,8 +5,8 @@
  * @category commands
  */
 
-import { findRepoRoot } from "@beep/repo-utils";
-import { FileSystem, Path } from "effect";
+import { DomainError, encodePackageJsonPrettyEffect, findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
+import { FileSystem, Path, type Schema } from "effect";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { Argument, Command, Flag } from "effect/unstable/cli";
@@ -38,9 +38,9 @@ export const createPackageCommand = Command.make(
 
     // ── Validate type ──────────────────────────────────────────────────
     if (!VALID_TYPES.includes(type as (typeof VALID_TYPES)[number])) {
-      return yield* Effect.fail(
-        new Error(`Invalid package type "${type}". Must be one of: ${VALID_TYPES.join(", ")}`)
-      );
+      return yield* new DomainError({
+        message: `Invalid package type "${type}". Must be one of: ${VALID_TYPES.join(", ")}`,
+      });
     }
 
     // ── Resolve services ───────────────────────────────────────────────
@@ -57,14 +57,14 @@ export const createPackageCommand = Command.make(
     // ── Check if directory already exists ──────────────────────────────
     const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
     if (alreadyExists) {
-      return yield* Effect.fail(
-        new Error(`Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`)
-      );
+      return yield* new DomainError({
+        message: `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`,
+      });
     }
 
     // ── Generate file contents ─────────────────────────────────────────
-    const packageJson = generatePackageJson(name, type);
-    const tsConfigJson = generateTsConfig();
+    const packageJson = yield* generatePackageJson(name, type);
+    const tsConfigJson = yield* generateTsConfig();
     const indexTs = generateIndexTs(name);
     const gitkeep = "";
 
@@ -110,61 +110,63 @@ export const createPackageCommand = Command.make(
 
 // ── Template generators ────────────────────────────────────────────────────
 
-const generatePackageJson = (name: string, type: string): string => {
-  const dependencies: Record<string, string> = {
-    effect: "catalog:",
-  };
+const generatePackageJson: (name: string, type: string) => Effect.Effect<string, DomainError | Schema.SchemaError> =
+  Effect.fn(function* (name, type) {
+    const dependencies: Record<string, string> = {
+      effect: "catalog:",
+    };
 
-  if (type === "tool") {
-    dependencies["@effect/platform-node"] = "catalog:";
-  }
+    if (type === "tool") {
+      dependencies["@effect/platform-node"] = "catalog:";
+    }
 
-  const pkg = {
-    name: `@beep/${name}`,
-    version: "0.0.0",
-    type: "module",
-    private: true,
-    license: "MIT",
-    description: "",
-    sideEffects: [],
-    exports: {
-      "./package.json": "./package.json",
-      ".": "./src/index.ts",
-      "./*": "./src/*.ts",
-      "./internal/*": null,
-    },
-    files: ["src/**/*.ts", "dist/**/*.js", "dist/**/*.js.map", "dist/**/*.d.ts", "dist/**/*.d.ts.map"],
-    publishConfig: {
-      access: "public",
-      provenance: true,
+    const pkg = {
+      name: `@beep/${name}`,
+      version: "0.0.0",
+      type: "module",
+      private: true,
+      license: "MIT",
+      description: "",
+      sideEffects: [],
       exports: {
         "./package.json": "./package.json",
-        ".": "./dist/index.js",
-        "./*": "./dist/*.js",
+        ".": "./src/index.ts",
+        "./*": "./src/*.ts",
         "./internal/*": null,
       },
-    },
-    scripts: {
-      codegen: "echo 'no codegen needed'",
-      build: "tsc -b tsconfig.json && bun run babel",
-      "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
-      babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-      check: "tsc -b tsconfig.json",
-      test: "vitest",
-      coverage: "vitest --coverage",
-      docgen: "bunx @effect/docgen",
-    },
-    dependencies,
-    devDependencies: {
-      "@types/node": "catalog:",
-      "@effect/vitest": "catalog:",
-    },
-  };
+      files: ["src/**/*.ts", "dist/**/*.js", "dist/**/*.js.map", "dist/**/*.d.ts", "dist/**/*.d.ts.map"],
+      publishConfig: {
+        access: "public",
+        provenance: true,
+        exports: {
+          "./package.json": "./package.json",
+          ".": "./dist/index.js",
+          "./*": "./dist/*.js",
+          "./internal/*": null,
+        },
+      },
+      scripts: {
+        codegen: "echo 'no codegen needed'",
+        build: "tsc -b tsconfig.json && bun run babel",
+        "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
+        babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+        check: "tsc -b tsconfig.json",
+        test: "vitest",
+        coverage: "vitest --coverage",
+        docgen: "bunx @effect/docgen",
+      },
+      dependencies,
+      devDependencies: {
+        "@types/node": "catalog:",
+        "@effect/vitest": "catalog:",
+      },
+    };
 
-  return `${JSON.stringify(pkg, null, 2)}\n`;
-};
+    const json = yield* encodePackageJsonPrettyEffect(pkg);
+    return `${json}\n`;
+  });
 
-const generateTsConfig = (): string => {
+const generateTsConfig: () => Effect.Effect<string, DomainError> = Effect.fn(function* () {
   const config = {
     $schema: "http://json.schemastore.org/tsconfig",
     extends: "../../tsconfig.base.json",
@@ -176,8 +178,9 @@ const generateTsConfig = (): string => {
     },
   };
 
-  return `${JSON.stringify(config, null, 2)}\n`;
-};
+  const json = yield* jsonStringifyPretty(config);
+  return `${json}\n`;
+});
 
 const generateIndexTs = (name: string): string =>
   `/**

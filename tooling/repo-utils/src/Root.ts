@@ -7,11 +7,11 @@
  * @since 0.0.0
  * @module
  */
-import {Effect, FileSystem, pipe} from "effect";
+import { Effect, FileSystem, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import {NoSuchFileError} from "./errors/index.js";
+import { NoSuchFileError } from "./errors/index.js";
 
 /**
  * Markers that indicate a repository root directory.
@@ -46,45 +46,43 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  * @category functions
  */
 export const findRepoRoot: (
-	startFrom?: undefined | string
-) => Effect.Effect<string, NoSuchFileError, FileSystem.FileSystem> =
-	Effect.fn(function* (startFrom) {
-		const fs = yield* FileSystem.FileSystem;
-		const start = startFrom ?? process.cwd();
+  startFrom?: undefined | string
+) => Effect.Effect<string, NoSuchFileError, FileSystem.FileSystem> = Effect.fn(function* (startFrom) {
+  const fs = yield* FileSystem.FileSystem;
+  const start = startFrom ?? process.cwd();
 
-		let current = start;
+  let current = start;
 
-		// eslint-disable-next-line no-constant-condition
-		while (true) {
-			for (const marker of ROOT_MARKERS) {
-				const markerPath = Str.endsWith("/")(current) ? current + marker : `${current}/${marker}`;
-				const exists = yield* fs.exists(markerPath).pipe(Effect.orElseSucceed(() => false));
-				if (exists) {
-					return current;
-				}
-			}
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    for (const marker of ROOT_MARKERS) {
+      const markerPath = Str.endsWith("/")(current) ? current + marker : `${current}/${marker}`;
+      const exists = yield* fs.exists(markerPath).pipe(Effect.orElseSucceed(() => false));
+      if (exists) {
+        return current;
+      }
+    }
 
-			// Move to parent directory
-			const parent = parentDir(current);
-			if (parent === current) {
-				// Reached filesystem root without finding a marker
-				return yield* new NoSuchFileError({
-					path: start,
-					message: `Could not find repository root (looked for ${A.join(", ")(ROOT_MARKERS)}) starting from "${start}"`,
-				})
-
-			}
-			current = parent;
-		}
-	});
+    // Move to parent directory
+    const parent = parentDir(current);
+    if (parent === current) {
+      // Reached filesystem root without finding a marker
+      return yield* new NoSuchFileError({
+        path: start,
+        message: `Could not find repository root (looked for ${A.join(", ")(ROOT_MARKERS)}) starting from "${start}"`,
+      });
+    }
+    current = parent;
+  }
+});
 
 /**
  * Get the parent directory of a path (pure string operation).
  */
 const parentDir = (p: string): string =>
-	pipe(
-		Str.lastIndexOf("/")(p),
-		O.fromNullishOr,
-		O.map((lastSlash) => (lastSlash === 0 ? "/" : Str.substring(0, lastSlash)(p))),
-		O.getOrElse(() => "/"),
-	);
+  pipe(
+    Str.lastIndexOf("/")(p),
+    O.fromNullishOr,
+    O.map((lastSlash) => (lastSlash === 0 ? "/" : Str.substring(0, lastSlash)(p))),
+    O.getOrElse(() => "/")
+  );

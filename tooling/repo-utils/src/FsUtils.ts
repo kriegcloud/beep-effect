@@ -7,11 +7,12 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, FileSystem, Path } from "effect";
+import { Effect, FileSystem, Path, Schema } from "effect";
 import * as Layer from "effect/Layer";
 import * as ServiceMap from "effect/ServiceMap";
 import { glob as globNpm } from "glob";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
+import { jsonStringifyPretty } from "./JsonUtils.js";
 
 /**
  * Options for glob matching operations.
@@ -168,18 +169,20 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
             })
         )
       );
-      return yield* Effect.try({
-        try: () => JSON.parse(content) as unknown,
-        catch: (error) =>
-          new DomainError({
-            message: `Failed to parse JSON at "${filePath}"`,
-            cause: error,
-          }),
-      });
+      return yield* Schema.decodeUnknownEffect(Schema.UnknownFromJsonString)(content).pipe(
+        Effect.mapError(
+          (error) =>
+            new DomainError({
+              message: `Failed to parse JSON at "${filePath}"`,
+              cause: error,
+            })
+        )
+      );
     });
 
-    const writeJson: FsUtilsShape["writeJson"] = (filePath, json) =>
-      fs.writeFileString(filePath, `${JSON.stringify(json, null, 2)}\n`).pipe(
+    const writeJson: FsUtilsShape["writeJson"] = Effect.fn(function* (filePath, json) {
+      const content = yield* jsonStringifyPretty(json);
+      yield* fs.writeFileString(filePath, `${content}\n`).pipe(
         Effect.mapError(
           (e) =>
             new DomainError({
@@ -188,6 +191,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
             })
         )
       );
+    });
 
     const modifyFile: FsUtilsShape["modifyFile"] = Effect.fn(function* (filePath, transform) {
       const original = yield* fs.readFileString(filePath).pipe(
@@ -226,11 +230,10 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
         )
       );
       if (!exists) {
-        return yield*
-          new NoSuchFileError({
-            path: filePath,
-            message: `Path does not exist: "${filePath}"`,
-          })
+        return yield* new NoSuchFileError({
+          path: filePath,
+          message: `Path does not exist: "${filePath}"`,
+        });
       }
     });
 

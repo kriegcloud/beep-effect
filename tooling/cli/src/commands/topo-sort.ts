@@ -15,7 +15,9 @@ import { Command } from "effect/unstable/cli";
  * @since 0.0.0
  * @category commands
  */
-export const topoSortCommand = Command.make("topo-sort", {},
+export const topoSortCommand = Command.make(
+  "topo-sort",
+  {},
   Effect.fn(function* () {
     const rootDir = yield* findRepoRoot();
     const depIndex = yield* buildRepoDependencyIndex(rootDir);
@@ -38,17 +40,19 @@ export const topoSortCommand = Command.make("topo-sort", {},
       adjacencyList = HashMap.set(adjacencyList, name, depSet);
     }
 
-    const sorted = yield* Effect.catchTag(topologicalSort(adjacencyList), "CyclicDependencyError",
+    const sorted = yield* Effect.catchTag(
+      topologicalSort(adjacencyList),
+      "CyclicDependencyError",
       Effect.fn(function* (err) {
         yield* Console.error(`Error: Cyclic dependencies detected`);
         for (const cycle of err.cycles) {
           yield* Console.error(`  ${cycle.join(" -> ")}`);
         }
-        return yield* Effect.fail(err);
+        return yield* err;
       })
     );
 
-    yield* Effect.forEach(sorted, (pkg) => Console.log(pkg), {
+    yield* Effect.forEach(sorted, Console.log, {
       discard: true,
     });
   })

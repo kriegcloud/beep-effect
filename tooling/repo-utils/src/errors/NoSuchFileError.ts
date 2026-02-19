@@ -16,14 +16,16 @@ import * as S from "effect/Schema";
  * @since 0.0.0
  * @category errors
  */
-export class NoSuchFileError extends S.TaggedErrorClass<NoSuchFileError>("@beep/repo-utils/errors/NoSuchFileError/NoSuchFileError")(
-	"NoSuchFileError",
-	{
-		path: S.String,
-		message: S.String,
-	},
-	{
-		title: "No Such File Error",
-		description: "Raised when a required file or directory cannot be located on the filesystem."
-	}
+export class NoSuchFileError extends S.TaggedErrorClass<NoSuchFileError>(
+  "@beep/repo-utils/errors/NoSuchFileError/NoSuchFileError"
+)(
+  "NoSuchFileError",
+  {
+    path: S.String,
+    message: S.String,
+  },
+  {
+    title: "No Such File Error",
+    description: "Raised when a required file or directory cannot be located on the filesystem.",
+  }
 ) {}
