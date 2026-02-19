@@ -10,7 +10,7 @@
 import { Effect, HashMap, type Option } from "effect";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
-import { decodePackageJson } from "./schemas/PackageJson.js";
+import { decodePackageJsonEffect } from "./schemas/PackageJson.js";
 
 /**
  * Directories to exclude when scanning workspace globs.
@@ -44,23 +44,23 @@ const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.tu
  * @since 0.0.0
  * @category functions
  */
-export const resolveWorkspaceDirs = (
+export const resolveWorkspaceDirs: (
   rootDir: string
-): Effect.Effect<HashMap.HashMap<string, string>, NoSuchFileError | DomainError, FsUtils> =>
-  Effect.gen(function* () {
+) => Effect.Effect<HashMap.HashMap<string, string>, NoSuchFileError | DomainError, FsUtils> =
+  Effect.fn(function* (rootDir) {
     const fsUtils = yield* FsUtils;
 
     // Read and decode root package.json
     const rootPkgPath = `${rootDir}/package.json`;
     const rawPkg = yield* fsUtils.readJson(rootPkgPath);
-    const rootPkg = yield* Effect.try({
-      try: () => decodePackageJson(rawPkg),
-      catch: (error) =>
+    const rootPkg = yield* decodePackageJsonEffect(rawPkg).pipe(
+      Effect.mapError((error) =>
         new DomainError({
           message: `Failed to decode root package.json at "${rootPkgPath}"`,
           cause: error,
         }),
-    });
+      ),
+    );
 
     const workspaceGlobs = rootPkg.workspaces ?? [];
     if (workspaceGlobs.length === 0) {
@@ -86,14 +86,14 @@ export const resolveWorkspaceDirs = (
         continue;
       }
 
-      const childPkg = yield* Effect.try({
-        try: () => decodePackageJson(rawChildPkg),
-        catch: (error) =>
+      const childPkg = yield* decodePackageJsonEffect(rawChildPkg).pipe(
+        Effect.mapError((error) =>
           new DomainError({
             message: `Failed to decode package.json at "${pkgJsonPath}"`,
             cause: error,
           }),
-      });
+        ),
+      );
 
       result = HashMap.set(result, childPkg.name, dir);
     }
@@ -127,11 +127,11 @@ export const resolveWorkspaceDirs = (
  * @since 0.0.0
  * @category functions
  */
-export const getWorkspaceDir = (
+export const getWorkspaceDir: (
   rootDir: string,
   name: string
-): Effect.Effect<Option.Option<string>, NoSuchFileError | DomainError, FsUtils> =>
-  Effect.gen(function* () {
+) => Effect.Effect<Option.Option<string>, NoSuchFileError | DomainError, FsUtils> =
+  Effect.fn(function* (rootDir, name) {
     const workspaces = yield* resolveWorkspaceDirs(rootDir);
     return HashMap.get(workspaces, name);
   });

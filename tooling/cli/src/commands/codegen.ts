@@ -60,52 +60,51 @@ const alphabetical: Order.Order<string> = Order.String;
  * Returns relative paths from `srcDir` (e.g. `"FsUtils.ts"`, `"errors/index.ts"`).
  * Skips `index.ts` at the root level, `internal/` directories, and test files.
  */
-const discoverModules = (srcDir: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+const discoverModules = Effect.fn(function* (srcDir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    const walk = (
-      dir: string,
-      prefix: string
-    ): Effect.Effect<Array<string>, never, FileSystem.FileSystem | Path.Path> =>
-      Effect.gen(function* () {
-        const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => [] as ReadonlyArray<string>));
+  const walk: (
+    dir: string,
+    prefix: string
+  ) => Effect.Effect<Array<string>, never, FileSystem.FileSystem | Path.Path> =
+    Effect.fn(function* (dir, prefix) {
+      const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => [] as ReadonlyArray<string>));
 
-        const results: Array<string> = [];
+      const results: Array<string> = [];
 
-        for (const entry of entries) {
-          const fullPath = path.join(dir, entry);
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry);
 
-          // Check if this entry is a directory
-          const info = yield* fs.stat(fullPath).pipe(Effect.orElseSucceed(() => undefined));
-          if (info === undefined) continue;
+        // Check if this entry is a directory
+        const info = yield* fs.stat(fullPath).pipe(Effect.orElseSucceed(() => undefined));
+        if (info === undefined) continue;
 
-          if (info.type === "Directory") {
-            // Skip internal directories
-            if (entry === "internal") continue;
+        if (info.type === "Directory") {
+          // Skip internal directories
+          if (entry === "internal") continue;
 
-            // Recurse into subdirectories
-            const nested = yield* walk(fullPath, `${prefix}${entry}/`);
-            for (const n of nested) {
-              results.push(n);
-            }
-          } else if (info.type === "File" && isTsFile(entry)) {
-            // Skip test files
-            if (isTestFile(entry)) continue;
-
-            // Skip root-level index.ts (that's what we're generating)
-            if (prefix === "" && entry === "index.ts") continue;
-
-            results.push(`${prefix}${entry}`);
+          // Recurse into subdirectories
+          const nested = yield* walk(fullPath, `${prefix}${entry}/`);
+          for (const n of nested) {
+            results.push(n);
           }
+        } else if (info.type === "File" && isTsFile(entry)) {
+          // Skip test files
+          if (isTestFile(entry)) continue;
+
+          // Skip root-level index.ts (that's what we're generating)
+          if (prefix === "" && entry === "index.ts") continue;
+
+          results.push(`${prefix}${entry}`);
         }
+      }
 
-        return results;
-      });
+      return results;
+    });
 
-    return yield* walk(srcDir, "");
-  });
+  return yield* walk(srcDir, "");
+});
 
 /**
  * Build the barrel file content from a sorted list of module relative paths.
@@ -142,74 +141,73 @@ export const codegenCommand = Command.make(
     ),
     dryRun: Flag.boolean("dry-run").pipe(Flag.withDescription("Preview changes without writing files")),
   },
-  (config) =>
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const pathSvc = yield* Path.Path;
-      const fsUtils = yield* FsUtils;
+  Effect.fn(function* (config) {
+    const fs = yield* FileSystem.FileSystem;
+    const pathSvc = yield* Path.Path;
+    const fsUtils = yield* FsUtils;
 
-      // Resolve absolute path to the package
-      const packageDir = pathSvc.isAbsolute(config.packageDir) ? config.packageDir : pathSvc.resolve(config.packageDir);
+    // Resolve absolute path to the package
+    const packageDir = pathSvc.isAbsolute(config.packageDir) ? config.packageDir : pathSvc.resolve(config.packageDir);
 
-      const srcDir = pathSvc.join(packageDir, "src");
+    const srcDir = pathSvc.join(packageDir, "src");
 
-      // Verify src/ exists
-      const srcExists = yield* fs.exists(srcDir).pipe(Effect.orElseSucceed(() => false));
-      if (!srcExists) {
-        yield* Console.error(`Error: No src/ directory found at ${srcDir}`);
-        return;
+    // Verify src/ exists
+    const srcExists = yield* fs.exists(srcDir).pipe(Effect.orElseSucceed(() => false));
+    if (!srcExists) {
+      yield* Console.error(`Error: No src/ directory found at ${srcDir}`);
+      return;
+    }
+
+    // Read package.json to extract the package name for the header
+    const packageJsonPath = pathSvc.join(packageDir, "package.json");
+    const packageName = yield* Effect.gen(function* () {
+      const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(() => undefined as unknown));
+      if (
+        json !== undefined &&
+        typeof json === "object" &&
+        json !== null &&
+        "name" in json &&
+        typeof (json as Record<string, unknown>).name === "string"
+      ) {
+        return (json as Record<string, unknown>).name as string;
       }
+      return pathSvc.basename(packageDir);
+    });
 
-      // Read package.json to extract the package name for the header
-      const packageJsonPath = pathSvc.join(packageDir, "package.json");
-      const packageName = yield* Effect.gen(function* () {
-        const json = yield* fsUtils.readJson(packageJsonPath).pipe(Effect.orElseSucceed(() => undefined as unknown));
-        if (
-          json !== undefined &&
-          typeof json === "object" &&
-          json !== null &&
-          "name" in json &&
-          typeof (json as Record<string, unknown>).name === "string"
-        ) {
-          return (json as Record<string, unknown>).name as string;
-        }
-        return pathSvc.basename(packageDir);
-      });
+    yield* Console.log(`Scanning ${srcDir} for modules...`);
 
-      yield* Console.log(`Scanning ${srcDir} for modules...`);
+    // Discover modules
+    const rawModules = yield* discoverModules(srcDir);
 
-      // Discover modules
-      const rawModules = yield* discoverModules(srcDir);
+    // Sort alphabetically for determinism
+    const modules = A.sort(rawModules, alphabetical);
 
-      // Sort alphabetically for determinism
-      const modules = A.sort(rawModules, alphabetical);
+    if (A.isArrayEmpty(modules)) {
+      yield* Console.log("No modules found to export.");
+      return;
+    }
 
-      if (A.isArrayEmpty(modules)) {
-        yield* Console.log("No modules found to export.");
-        return;
-      }
+    yield* Console.log(`Found ${String(A.length(modules))} module(s):`);
+    for (const mod of modules) {
+      yield* Console.log(`  - ${mod}`);
+    }
 
-      yield* Console.log(`Found ${String(A.length(modules))} module(s):`);
-      for (const mod of modules) {
-        yield* Console.log(`  - ${mod}`);
-      }
+    // Generate barrel content
+    const content = buildBarrelContent(packageName, modules);
 
-      // Generate barrel content
-      const content = buildBarrelContent(packageName, modules);
+    const indexPath = pathSvc.join(srcDir, "index.ts");
 
-      const indexPath = pathSvc.join(srcDir, "index.ts");
-
-      if (config.dryRun) {
-        yield* Console.log("");
-        yield* Console.log("--- Dry run: would generate the following ---");
-        yield* Console.log(`File: ${indexPath}`);
-        yield* Console.log("---");
-        yield* Console.log(content);
-        yield* Console.log("--- End dry run ---");
-      } else {
-        yield* fs.writeFileString(indexPath, content);
-        yield* Console.log("");
-        yield* Console.log(`Wrote ${indexPath}`);
-      }
-    })
+    if (config.dryRun) {
+      yield* Console.log("");
+      yield* Console.log("--- Dry run: would generate the following ---");
+      yield* Console.log(`File: ${indexPath}`);
+      yield* Console.log("---");
+      yield* Console.log(content);
+      yield* Console.log("--- End dry run ---");
+    } else {
+      yield* fs.writeFileString(indexPath, content);
+      yield* Console.log("");
+      yield* Console.log(`Wrote ${indexPath}`);
+    }
+  })
 ).pipe(Command.withDescription("Generate barrel file exports for a package"));

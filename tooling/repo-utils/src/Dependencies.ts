@@ -9,6 +9,7 @@
  * @module
  */
 import { HashSet } from "effect";
+import * as R from "effect/Record";
 import type { PackageJson } from "./schemas/PackageJson.js";
 import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js";
 
@@ -18,12 +19,12 @@ import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js
 const classifyRecord = (
   record: Readonly<Record<string, string>> | undefined,
   workspaceNames: HashSet.HashSet<string>
-): { workspace: DependencyRecord; npm: DependencyRecord } => {
-  const workspace: Record<string, string> = {};
-  const npm: Record<string, string> = {};
+): { readonly workspace: DependencyRecord; readonly npm: DependencyRecord } => {
+  const workspace = R.empty<string, string>();
+  const npm = R.empty<string, string>();
 
   if (record) {
-    for (const [name, version] of Object.entries(record)) {
+    for (const [name, version] of R.toEntries(record)) {
       if (HashSet.has(workspaceNames, name)) {
         workspace[name] = version;
       } else {

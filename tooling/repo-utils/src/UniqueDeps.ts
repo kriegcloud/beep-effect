@@ -8,7 +8,8 @@
  * @since 0.0.0
  * @module
  */
-import { Effect } from "effect";
+import { Effect, MutableHashSet, Order, Struct, pipe } from "effect";
+import * as A from "effect/Array";
 import { buildRepoDependencyIndex } from "./DependencyIndex.js";
 import type { DomainError, NoSuchFileError } from "./errors/index.js";
 import type { FsUtils } from "./FsUtils.js";
@@ -57,36 +58,39 @@ export interface UniqueNpmDeps {
  * @since 0.0.0
  * @category functions
  */
-export const collectUniqueNpmDependencies = (
-  rootDir: string
-): Effect.Effect<UniqueNpmDeps, NoSuchFileError | DomainError, FsUtils> =>
-  Effect.gen(function* () {
+export const collectUniqueNpmDependencies: (
+  rootDir: string,
+) => Effect.Effect<UniqueNpmDeps, NoSuchFileError | DomainError, FsUtils> =
+  Effect.fn(function* (rootDir) {
     const index = yield* buildRepoDependencyIndex(rootDir);
 
-    const depsSet = new Set<string>();
-    const devDepsSet = new Set<string>();
+    const depsSet = MutableHashSet.empty<string>();
+    const devDepsSet = MutableHashSet.empty<string>();
 
     for (const [_name, workspaceDeps] of index) {
       // Runtime dependencies
-      for (const depName of Object.keys(workspaceDeps.npm.dependencies)) {
-        depsSet.add(depName);
+      for (const depName of Struct.keys(workspaceDeps.npm.dependencies)) {
+        MutableHashSet.add(depsSet, depName);
       }
       // Peer dependencies count as runtime
-      for (const depName of Object.keys(workspaceDeps.npm.peerDependencies)) {
-        depsSet.add(depName);
+      for (const depName of Struct.keys(workspaceDeps.npm.peerDependencies)) {
+        MutableHashSet.add(depsSet, depName);
       }
       // Optional dependencies count as runtime
-      for (const depName of Object.keys(workspaceDeps.npm.optionalDependencies)) {
-        depsSet.add(depName);
+      for (const depName of Struct.keys(workspaceDeps.npm.optionalDependencies)) {
+        MutableHashSet.add(depsSet, depName);
       }
       // Dev dependencies
-      for (const depName of Object.keys(workspaceDeps.npm.devDependencies)) {
-        devDepsSet.add(depName);
+      for (const depName of Struct.keys(workspaceDeps.npm.devDependencies)) {
+        MutableHashSet.add(devDepsSet, depName);
       }
     }
 
     return {
-      dependencies: Array.from(depsSet).sort(),
-      devDependencies: Array.from(devDepsSet).sort(),
+      dependencies: sortHashSet(depsSet),
+      devDependencies: sortHashSet(devDepsSet),
     };
   });
+
+
+const sortHashSet = (set: MutableHashSet.MutableHashSet<string>) => pipe(set, A.fromIterable, A.sort(Order.String))

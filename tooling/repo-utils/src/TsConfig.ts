@@ -46,10 +46,10 @@ const ROOT_KEY = "@beep/root";
  * @since 0.0.0
  * @category functions
  */
-export const collectTsConfigPaths = (
+export const collectTsConfigPaths: (
   rootDir: string
-): Effect.Effect<HashMap.HashMap<string, ReadonlyArray<string>>, NoSuchFileError | DomainError, FsUtils> =>
-  Effect.gen(function* () {
+) => Effect.Effect<HashMap.HashMap<string, ReadonlyArray<string>>, NoSuchFileError | DomainError, FsUtils> =
+  Effect.fn(function* (rootDir) {
     const fsUtils = yield* FsUtils;
     const workspaces = yield* resolveWorkspaceDirs(rootDir);
 

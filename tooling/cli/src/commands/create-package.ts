@@ -33,80 +33,79 @@ export const createPackageCommand = Command.make(
     ),
     dryRun: Flag.boolean("dry-run").pipe(Flag.withDescription("Preview changes without writing files")),
   },
-  (config) =>
-    Effect.gen(function* () {
-      const { name, type, dryRun } = config;
+  Effect.fn(function* (config) {
+    const { name, type, dryRun } = config;
 
-      // ── Validate type ──────────────────────────────────────────────────
-      if (!VALID_TYPES.includes(type as (typeof VALID_TYPES)[number])) {
-        return yield* Effect.fail(
-          new Error(`Invalid package type "${type}". Must be one of: ${VALID_TYPES.join(", ")}`)
-        );
-      }
+    // ── Validate type ──────────────────────────────────────────────────
+    if (!VALID_TYPES.includes(type as (typeof VALID_TYPES)[number])) {
+      return yield* Effect.fail(
+        new Error(`Invalid package type "${type}". Must be one of: ${VALID_TYPES.join(", ")}`)
+      );
+    }
 
-      // ── Resolve services ───────────────────────────────────────────────
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
+    // ── Resolve services ───────────────────────────────────────────────
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
 
-      // ── Discover repo root ─────────────────────────────────────────────
-      const repoRoot = yield* findRepoRoot();
+    // ── Discover repo root ─────────────────────────────────────────────
+    const repoRoot = yield* findRepoRoot();
 
-      // ── Determine output directory ─────────────────────────────────────
-      const parentDir = type === "app" ? "apps" : "tooling";
-      const outputDir = path.join(repoRoot, parentDir, name);
+    // ── Determine output directory ─────────────────────────────────────
+    const parentDir = type === "app" ? "apps" : "tooling";
+    const outputDir = path.join(repoRoot, parentDir, name);
 
-      // ── Check if directory already exists ──────────────────────────────
-      const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
-      if (alreadyExists) {
-        return yield* Effect.fail(
-          new Error(`Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`)
-        );
-      }
+    // ── Check if directory already exists ──────────────────────────────
+    const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+    if (alreadyExists) {
+      return yield* Effect.fail(
+        new Error(`Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`)
+      );
+    }
 
-      // ── Generate file contents ─────────────────────────────────────────
-      const packageJson = generatePackageJson(name, type);
-      const tsConfigJson = generateTsConfig();
-      const indexTs = generateIndexTs(name);
-      const gitkeep = "";
+    // ── Generate file contents ─────────────────────────────────────────
+    const packageJson = generatePackageJson(name, type);
+    const tsConfigJson = generateTsConfig();
+    const indexTs = generateIndexTs(name);
+    const gitkeep = "";
 
-      const files: ReadonlyArray<readonly [relativePath: string, content: string]> = [
-        ["package.json", packageJson],
-        ["tsconfig.json", tsConfigJson],
-        ["src/index.ts", indexTs],
-        ["test/.gitkeep", gitkeep],
-      ];
+    const files: ReadonlyArray<readonly [relativePath: string, content: string]> = [
+      ["package.json", packageJson],
+      ["tsconfig.json", tsConfigJson],
+      ["src/index.ts", indexTs],
+      ["test/.gitkeep", gitkeep],
+    ];
 
-      // ── Dry-run: just print what would be created ──────────────────────
-      if (dryRun) {
-        yield* Console.log(`[dry-run] Would create package @beep/${name} (type: ${type})`);
-        yield* Console.log(`[dry-run] Directory: ${outputDir}`);
-        yield* Console.log(`[dry-run] Files:`);
-        for (const [relativePath] of files) {
-          yield* Console.log(`  - ${relativePath}`);
-        }
-        return;
-      }
-
-      // ── Create directories ─────────────────────────────────────────────
-      yield* fs.makeDirectory(path.join(outputDir, "src"), { recursive: true });
-      yield* fs.makeDirectory(path.join(outputDir, "test"), { recursive: true });
-
-      // ── Write files ────────────────────────────────────────────────────
-      for (const [relativePath, content] of files) {
-        const filePath = path.join(outputDir, relativePath);
-        yield* fs.writeFileString(filePath, content);
-      }
-
-      yield* Console.log(`Created package @beep/${name} at ${outputDir}`);
-      yield* Console.log(`Files created:`);
+    // ── Dry-run: just print what would be created ──────────────────────
+    if (dryRun) {
+      yield* Console.log(`[dry-run] Would create package @beep/${name} (type: ${type})`);
+      yield* Console.log(`[dry-run] Directory: ${outputDir}`);
+      yield* Console.log(`[dry-run] Files:`);
       for (const [relativePath] of files) {
         yield* Console.log(`  - ${relativePath}`);
       }
-      yield* Console.log(`\nNext steps:`);
-      yield* Console.log(`  1. Run "bun install" to link the new package`);
-      yield* Console.log(`  2. Add the package to tsconfig.packages.json`);
-      yield* Console.log(`  3. Start building in src/index.ts`);
-    })
+      return;
+    }
+
+    // ── Create directories ─────────────────────────────────────────────
+    yield* fs.makeDirectory(path.join(outputDir, "src"), { recursive: true });
+    yield* fs.makeDirectory(path.join(outputDir, "test"), { recursive: true });
+
+    // ── Write files ────────────────────────────────────────────────────
+    for (const [relativePath, content] of files) {
+      const filePath = path.join(outputDir, relativePath);
+      yield* fs.writeFileString(filePath, content);
+    }
+
+    yield* Console.log(`Created package @beep/${name} at ${outputDir}`);
+    yield* Console.log(`Files created:`);
+    for (const [relativePath] of files) {
+      yield* Console.log(`  - ${relativePath}`);
+    }
+    yield* Console.log(`\nNext steps:`);
+    yield* Console.log(`  1. Run "bun install" to link the new package`);
+    yield* Console.log(`  2. Add the package to tsconfig.packages.json`);
+    yield* Console.log(`  3. Start building in src/index.ts`);
+  })
 ).pipe(Command.withDescription("Create a new package following Effect v4 conventions"));
 
 // ── Template generators ────────────────────────────────────────────────────

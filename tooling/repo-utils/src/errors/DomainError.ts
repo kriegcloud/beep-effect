@@ -7,7 +7,7 @@
  * @since 0.0.0
  * @category errors
  */
-import * as Data from "effect/Data";
+import * as S from "effect/Schema";
 
 /**
  * A generic domain-level error with an optional underlying cause.
@@ -15,7 +15,14 @@ import * as Data from "effect/Data";
  * @since 0.0.0
  * @category errors
  */
-export class DomainError extends Data.TaggedError("DomainError")<{
-  readonly message: string;
-  readonly cause?: unknown;
-}> {}
+export class DomainError extends S.TaggedErrorClass<DomainError>("@beep/repo-utils/errors/DomainError/DomainError")(
+	"DomainError",
+	{
+		message: S.String,
+		cause: S.optional(S.Unknown),
+	},
+	{
+		title: "Domain Error",
+		description: "A generic domain-level error with an optional underlying cause for JSON parse failures, glob failures, and other operational errors."
+	}
+) {}

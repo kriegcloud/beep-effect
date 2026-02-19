@@ -11,7 +11,7 @@ import { Effect, HashMap, HashSet } from "effect";
 import { extractWorkspaceDependencies } from "./Dependencies.js";
 import { DomainError, type NoSuchFileError } from "./errors/index.js";
 import { FsUtils } from "./FsUtils.js";
-import { decodePackageJson } from "./schemas/PackageJson.js";
+import { decodePackageJsonEffect } from "./schemas/PackageJson.js";
 import type { WorkspaceDeps } from "./schemas/WorkspaceDeps.js";
 import { resolveWorkspaceDirs } from "./Workspaces.js";
 
@@ -49,10 +49,10 @@ const ROOT_KEY = "@beep/root";
  * @since 0.0.0
  * @category functions
  */
-export const buildRepoDependencyIndex = (
+export const buildRepoDependencyIndex: (
   rootDir: string
-): Effect.Effect<HashMap.HashMap<string, WorkspaceDeps>, NoSuchFileError | DomainError, FsUtils> =>
-  Effect.gen(function* () {
+) => Effect.Effect<HashMap.HashMap<string, WorkspaceDeps>, NoSuchFileError | DomainError, FsUtils> =
+  Effect.fn(function* (rootDir) {
     const fsUtils = yield* FsUtils;
     const workspaces = yield* resolveWorkspaceDirs(rootDir);
 
@@ -67,14 +67,14 @@ export const buildRepoDependencyIndex = (
     // Process root package.json
     const rootPkgPath = `${rootDir}/package.json`;
     const rawRootPkg = yield* fsUtils.readJson(rootPkgPath);
-    const rootPkg = yield* Effect.try({
-      try: () => decodePackageJson(rawRootPkg),
-      catch: (error) =>
+    const rootPkg = yield* decodePackageJsonEffect(rawRootPkg).pipe(
+      Effect.mapError((error) =>
         new DomainError({
           message: `Failed to decode root package.json at "${rootPkgPath}"`,
           cause: error,
         }),
-    });
+      ),
+    );
     const rootDeps = extractWorkspaceDependencies(rootPkg, workspaceNames);
     result = HashMap.set(result, ROOT_KEY, { ...rootDeps, packageName: ROOT_KEY });
 
@@ -82,14 +82,14 @@ export const buildRepoDependencyIndex = (
     for (const [name, dir] of workspaces) {
       const pkgPath = `${dir}/package.json`;
       const rawPkg = yield* fsUtils.readJson(pkgPath);
-      const pkg = yield* Effect.try({
-        try: () => decodePackageJson(rawPkg),
-        catch: (error) =>
+      const pkg = yield* decodePackageJsonEffect(rawPkg).pipe(
+        Effect.mapError((error) =>
           new DomainError({
             message: `Failed to decode package.json at "${pkgPath}"`,
             cause: error,
           }),
-      });
+        ),
+      );
       const deps = extractWorkspaceDependencies(pkg, workspaceNames);
       result = HashMap.set(result, name, deps);
     }

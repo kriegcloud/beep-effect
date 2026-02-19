@@ -9,7 +9,10 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, Graph as EffectGraph, HashMap, HashSet } from "effect";
+import { Effect, HashMap, HashSet, MutableHashMap, MutableHashSet, pipe } from "effect";
+import * as A from "effect/Array";
+import * as G from "effect/Graph";
+import * as O from "effect/Option";
 import { CyclicDependencyError } from "./errors/index.js";
 
 // ---------------------------------------------------------------------------
@@ -18,44 +21,47 @@ import { CyclicDependencyError } from "./errors/index.js";
 
 /**
  * Convert a `HashMap<string, HashSet<string>>` adjacency list into an
- * `EffectGraph.DirectedGraph<string, void>` and a bidirectional lookup
+ * `G.DirectedGraph<string, void>` and a bidirectional lookup
  * between package names and node indices.
  *
  * @internal
  */
 const fromAdjacencyList = (
-  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
+  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
 ): {
-  graph: EffectGraph.DirectedGraph<string, void>;
-  nameToIndex: Map<string, EffectGraph.NodeIndex>;
-  indexToName: Map<EffectGraph.NodeIndex, string>;
+  graph: G.DirectedGraph<string, void>;
+  nameToIndex: MutableHashMap.MutableHashMap<string, G.NodeIndex>;
+  indexToName: MutableHashMap.MutableHashMap<G.NodeIndex, string>;
 } => {
-  const nameToIndex = new Map<string, EffectGraph.NodeIndex>();
-  const indexToName = new Map<EffectGraph.NodeIndex, string>();
+  const nameToIndex = MutableHashMap.empty<string, G.NodeIndex>();
+  const indexToName = MutableHashMap.empty<G.NodeIndex, string>();
 
-  const graph = EffectGraph.directed<string, void>((mutable) => {
+  const graph = G.directed<string, void>((mutable) => {
     // First pass: add all nodes (keys AND their deps, in case a dep
     // appears only as a value and not as a key).
-    const allNames = new Set<string>();
+    const allNames = MutableHashSet.empty<string>();
     for (const [name, deps] of adjacencyList) {
-      allNames.add(name);
+      MutableHashSet.add(allNames, name);
       for (const dep of deps) {
-        allNames.add(dep);
+        MutableHashSet.add(allNames, dep);
       }
     }
 
     for (const name of allNames) {
-      const idx = EffectGraph.addNode(mutable, name);
-      nameToIndex.set(name, idx);
-      indexToName.set(idx, name);
+      const idx = G.addNode(mutable, name);
+      MutableHashMap.set(nameToIndex, name, idx);
+      MutableHashMap.set(indexToName, idx, name);
     }
 
     // Second pass: add edges (package -> dependency)
     for (const [name, deps] of adjacencyList) {
-      const sourceIdx = nameToIndex.get(name)!;
+      const sourceIdxOpt = MutableHashMap.get(nameToIndex, name);
       for (const dep of deps) {
-        const targetIdx = nameToIndex.get(dep)!;
-        EffectGraph.addEdge(mutable, sourceIdx, targetIdx, undefined as void);
+        const targetIdxOpt = MutableHashMap.get(nameToIndex, dep);
+
+        if (O.isSome(sourceIdxOpt) && O.isSome(targetIdxOpt)) {
+          G.addEdge(mutable, sourceIdxOpt.value, targetIdxOpt.value, undefined);
+        }
       }
     }
   });
@@ -96,39 +102,32 @@ const fromAdjacencyList = (
  * @since 0.0.0
  * @category algorithms
  */
-export const topologicalSort = (
-  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
-): Effect.Effect<ReadonlyArray<string>, CyclicDependencyError> =>
-  Effect.gen(function* () {
+export const topologicalSort: (
+  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
+) => Effect.Effect<ReadonlyArray<string>, CyclicDependencyError> =
+  Effect.fn(function* (adjacencyList) {
     // Empty graph – nothing to sort
     if (HashMap.size(adjacencyList) === 0) {
-      return [] as ReadonlyArray<string>;
+      return A.empty<string>();
     }
 
     const { graph } = fromAdjacencyList(adjacencyList);
 
     // Check for cycles first (isAcyclic is cheap and cached)
-    if (!EffectGraph.isAcyclic(graph)) {
+    if (!G.isAcyclic(graph)) {
       const cycles = yield* detectCycles(adjacencyList);
-      return yield*
-        new CyclicDependencyError({
-          message: `Cyclic dependencies detected: ${cycles.map((c) => c.join(" -> ")).join("; ")}`,
-          cycles,
-        })
-
+      return yield* new CyclicDependencyError({
+        message: `Cyclic dependencies detected: ${pipe(cycles, A.map((c) => A.join(c, " -> ")), A.join("; "))}`,
+        cycles,
+      });
     }
 
     // Use the built-in topological sort.
     // The topo sort outputs zero-in-degree nodes first. In our graph where
     // edges go from package -> dependency, roots/dependents have zero
     // in-degree. Reversing gives us dependency-first (build) order.
-    const walker = EffectGraph.topo(graph);
-    const result: string[] = [];
-    for (const value of EffectGraph.values(walker)) {
-      result.push(value);
-    }
-    result.reverse();
-    return result as ReadonlyArray<string>;
+    const walker = G.topo(graph);
+    return pipe(A.fromIterable(G.values(walker)), A.reverse);
   });
 
 /**
@@ -161,52 +160,59 @@ export const topologicalSort = (
  * @category algorithms
  */
 export const detectCycles = (
-  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
+  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
 ): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>> =>
   Effect.sync(() => {
     if (HashMap.size(adjacencyList) === 0) {
-      return [];
+      return A.empty<ReadonlyArray<string>>();
     }
 
     const { graph, indexToName } = fromAdjacencyList(adjacencyList);
 
     // Quick check – if acyclic, short-circuit
-    if (EffectGraph.isAcyclic(graph)) {
-      return [];
+    if (G.isAcyclic(graph)) {
+      return A.empty<ReadonlyArray<string>>();
     }
 
-    const sccs = EffectGraph.stronglyConnectedComponents(graph);
+    const sccs = G.stronglyConnectedComponents(graph);
 
     // Filter to SCCs with more than one node, or a single node with a
     // self-edge.
-    const cyclePaths: Array<ReadonlyArray<string>> = [];
+    let cyclePaths: ReadonlyArray<ReadonlyArray<string>> = A.empty();
 
     for (const scc of sccs) {
-      if (scc.length > 1) {
+      const firstOpt = A.get(scc, 0);
+      if (O.isNone(firstOpt)) continue;
+      const first = firstOpt.value;
+
+      if (A.length(scc) > 1) {
         // Reconstruct a cycle path through this SCC.
-        // We walk the SCC members in their SCC order, following edges
-        // that stay within the component.
-        const memberSet = new Set(scc);
-        const names = scc.map((idx) => indexToName.get(idx)!);
+        const memberSet = MutableHashSet.fromIterable(scc);
+        const names = pipe(
+          scc,
+          A.map((idx) => MutableHashMap.get(indexToName, idx)),
+          A.getSomes,
+        );
 
         // Build a path by DFS within the SCC starting from the first member
-        const path = buildCyclePath(graph, scc[0], memberSet, indexToName);
-        if (path.length > 0) {
-          cyclePaths.push(path);
+        const path = buildCyclePath(graph, first, memberSet, indexToName);
+        if (A.length(path) > 0) {
+          cyclePaths = A.append(cyclePaths, path);
         } else {
           // Fallback: just list the members with the first repeated
-          cyclePaths.push([...names, names[0]]);
+          const firstNameOpt = A.get(names, 0);
+          if (O.isSome(firstNameOpt)) {
+            cyclePaths = A.append(cyclePaths, A.append(names, firstNameOpt.value));
+          }
         }
-      } else if (scc.length === 1) {
+      } else {
         // Check for self-loop
-        const nodeIdx = scc[0];
-        const name = indexToName.get(nodeIdx)!;
-        const selfEdge = EffectGraph.findEdge(
-          graph,
-          (_data, source, target) => source === nodeIdx && target === nodeIdx
-        );
+        const nameOpt = MutableHashMap.get(indexToName, first);
+        if (O.isNone(nameOpt)) continue;
+
+        const selfEdge = G.findEdge(graph, (_data, source, target) => source === first && target === first);
         if (selfEdge !== undefined) {
-          cyclePaths.push([name, name]);
+          cyclePaths = A.append(cyclePaths, [nameOpt.value, nameOpt.value]);
         }
       }
     }
@@ -221,38 +227,53 @@ export const detectCycles = (
  * @internal
  */
 const buildCyclePath = (
-  graph: EffectGraph.DirectedGraph<string, void>,
-  startIdx: EffectGraph.NodeIndex,
-  memberSet: Set<EffectGraph.NodeIndex>,
-  indexToName: Map<EffectGraph.NodeIndex, string>
+  graph: G.DirectedGraph<string, void>,
+  startIdx: G.NodeIndex,
+  memberSet: MutableHashSet.MutableHashSet<G.NodeIndex>,
+  indexToName: MutableHashMap.MutableHashMap<G.NodeIndex, string>,
 ): ReadonlyArray<string> => {
-  // DFS within the SCC to find a cycle back to startIdx
-  const stack: Array<{ node: EffectGraph.NodeIndex; path: EffectGraph.NodeIndex[] }> = [
-    { node: startIdx, path: [startIdx] },
-  ];
-  const visited = new Set<EffectGraph.NodeIndex>();
+  type StackItem = { readonly node: G.NodeIndex; readonly path: ReadonlyArray<G.NodeIndex> };
 
-  while (stack.length > 0) {
-    const { node, path } = stack.pop()!;
+  // DFS within the SCC to find a cycle back to startIdx
+  let stack: Array<StackItem> = A.of({ node: startIdx, path: A.of(startIdx) });
+  const visited = MutableHashSet.empty<G.NodeIndex>();
+
+  while (A.isArrayNonEmpty(stack)) {
+    const [current, remaining] = A.unprepend(stack);
+    stack = remaining;
 
     // Get outgoing neighbors that are within the SCC
-    const neighbors = EffectGraph.neighborsDirected(graph, node, "outgoing");
+    const neighbors = G.neighborsDirected(graph, current.node, "outgoing");
     for (const neighbor of neighbors) {
-      if (!memberSet.has(neighbor)) continue;
+      if (!MutableHashSet.has(memberSet, neighbor)) continue;
 
-      if (neighbor === startIdx && path.length > 1) {
-        // Found a cycle back to start
-        return [...path.map((idx) => indexToName.get(idx)!), indexToName.get(startIdx)!];
+      if (neighbor === startIdx && A.length(current.path) > 1) {
+        // Found a cycle back to start – resolve names
+        const pathNames = pipe(
+          current.path,
+          A.map((idx) => MutableHashMap.get(indexToName, idx)),
+          A.getSomes,
+        );
+        return pipe(
+          MutableHashMap.get(indexToName, startIdx),
+          O.match({
+            onNone: () => pathNames,
+            onSome: (startName) => A.append(pathNames, startName),
+          }),
+        );
       }
 
-      if (!visited.has(neighbor)) {
-        visited.add(neighbor);
-        stack.push({ node: neighbor, path: [...path, neighbor] });
+      if (!MutableHashSet.has(visited, neighbor)) {
+        MutableHashSet.add(visited, neighbor);
+        stack = A.prepend(stack, {
+          node: neighbor,
+          path: A.append(current.path, neighbor),
+        });
       }
     }
   }
 
-  return [];
+  return A.empty<string>();
 };
 
 /**
@@ -286,7 +307,7 @@ const buildCyclePath = (
  */
 export const computeTransitiveClosure = (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
-  pkg: string
+  pkg: string,
 ): Effect.Effect<HashSet.HashSet<string>> =>
   Effect.sync(() => {
     if (HashMap.size(adjacencyList) === 0) {
@@ -295,24 +316,26 @@ export const computeTransitiveClosure = (
 
     const { graph, nameToIndex, indexToName } = fromAdjacencyList(adjacencyList);
 
-    const startIdx = nameToIndex.get(pkg);
-    if (startIdx === undefined) {
-      // Package not in graph – no transitive deps
-      return HashSet.empty<string>();
-    }
+    return pipe(
+      MutableHashMap.get(nameToIndex, pkg),
+      O.match({
+        onNone: HashSet.empty<string>,
+        onSome: (startIdx) => {
+          // BFS from the starting package, collecting all reachable nodes
+          const walker = G.bfs(graph, { start: [startIdx] });
+          let result = HashSet.empty<string>();
 
-    // BFS from the starting package, collecting all reachable nodes
-    const walker = EffectGraph.bfs(graph, { start: [startIdx] });
-    let result = HashSet.empty<string>();
+          for (const [idx, _value] of walker) {
+            // Skip the starting node itself
+            if (idx === startIdx) continue;
+            const nameOpt = MutableHashMap.get(indexToName, idx);
+            if (O.isSome(nameOpt)) {
+              result = HashSet.add(result, nameOpt.value);
+            }
+          }
 
-    for (const [idx, _value] of walker) {
-      // Skip the starting node itself
-      if (idx === startIdx) continue;
-      const name = indexToName.get(idx);
-      if (name !== undefined) {
-        result = HashSet.add(result, name);
-      }
-    }
-
-    return result;
+          return result;
+        },
+      }),
+    );
   });

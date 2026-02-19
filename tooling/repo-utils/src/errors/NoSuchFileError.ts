@@ -8,7 +8,7 @@
  * @since 0.0.0
  * @category errors
  */
-import * as Data from "effect/Data";
+import * as S from "effect/Schema";
 
 /**
  * Raised when a required file or directory cannot be located.
@@ -16,7 +16,14 @@ import * as Data from "effect/Data";
  * @since 0.0.0
  * @category errors
  */
-export class NoSuchFileError extends Data.TaggedError("NoSuchFileError")<{
-  readonly path: string;
-  readonly message: string;
-}> {}
+export class NoSuchFileError extends S.TaggedErrorClass<NoSuchFileError>("@beep/repo-utils/errors/NoSuchFileError/NoSuchFileError")(
+	"NoSuchFileError",
+	{
+		path: S.String,
+		message: S.String,
+	},
+	{
+		title: "No Such File Error",
+		description: "Raised when a required file or directory cannot be located on the filesystem."
+	}
+) {}
