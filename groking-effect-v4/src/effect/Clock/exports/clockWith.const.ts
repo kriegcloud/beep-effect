@@ -6,7 +6,7 @@
  * Export: clockWith
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Clock.ts
- * Generated: 2026-02-19T04:14:10.896Z
+ * Generated: 2026-02-19T04:50:34.386Z
  *
  * Overview:
  * Accesses the current Clock service and uses it to run the provided function.
@@ -34,7 +34,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ClockModule from "effect/Clock";
 import * as Console from "effect/Console";
@@ -74,7 +73,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

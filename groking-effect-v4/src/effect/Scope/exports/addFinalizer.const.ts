@@ -6,7 +6,7 @@
  * Export: addFinalizer
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Scope.ts
- * Generated: 2026-02-19T04:14:20.123Z
+ * Generated: 2026-02-19T04:50:40.702Z
  *
  * Overview:
  * Adds a finalizer to a scope. The finalizer is a simple `Effect` that will be executed when the scope is closed, regardless of whether the scope closes successfully or with an error.
@@ -41,7 +41,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -82,7 +81,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

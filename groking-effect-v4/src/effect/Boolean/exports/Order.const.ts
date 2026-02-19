@@ -6,7 +6,7 @@
  * Export: Order
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Boolean.ts
- * Generated: 2026-02-19T04:14:10.095Z
+ * Generated: 2026-02-19T04:50:32.945Z
  *
  * Overview:
  * Provides an `Order` instance for `boolean` that allows comparing and sorting boolean values. In this ordering, `false` is considered less than `true`.
@@ -30,7 +30,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BooleanModule from "effect/Boolean";
 import * as Console from "effect/Console";
@@ -71,7 +70,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

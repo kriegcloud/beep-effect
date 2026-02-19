@@ -11,6 +11,7 @@ The report must include:
 - Hard blocker status (explicit `none` when no blockers exist)
 - Callable probe strategy declaration (e.g., documented invocation vs zero-arg probe)
 - Semantic risks (cases where example output is technically valid but pedagogically misleading)
+- Source example coverage (explicit yes/no + why)
 - What changes to documentation would improve execution
 - What changes to the deployment prompt would improve execution
 - What changes to agent config would improve execution

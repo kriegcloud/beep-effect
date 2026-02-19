@@ -6,7 +6,7 @@
  * Export: InvalidType
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/SchemaIssue.ts
- * Generated: 2026-02-19T04:14:19.209Z
+ * Generated: 2026-02-19T04:50:40.381Z
  *
  * Overview:
  * Issue produced when the runtime type of the input does not match the type expected by the schema (e.g. got `null` when `string` was expected).
@@ -34,7 +34,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -75,7 +74,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

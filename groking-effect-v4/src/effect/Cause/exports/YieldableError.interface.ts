@@ -6,7 +6,7 @@
  * Export: YieldableError
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Cause.ts
- * Generated: 2026-02-19T04:14:10.146Z
+ * Generated: 2026-02-19T04:50:33.198Z
  *
  * Overview:
  * Base interface for error classes that can be yielded directly inside `Effect.gen` (via `Symbol.iterator`) or converted to a failing Effect via `.asEffect()`.
@@ -32,7 +32,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -73,7 +72,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

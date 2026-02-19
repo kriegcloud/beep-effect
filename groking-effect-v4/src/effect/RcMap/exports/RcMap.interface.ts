@@ -6,7 +6,7 @@
  * Export: RcMap
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/RcMap.ts
- * Generated: 2026-02-19T04:14:16.239Z
+ * Generated: 2026-02-19T04:50:38.592Z
  *
  * Overview:
  * An `RcMap` is a reference-counted map data structure that manages the lifecycle of resources indexed by keys. Resources are lazily acquired and automatically released when no longer in use.
@@ -47,7 +47,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -88,7 +87,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

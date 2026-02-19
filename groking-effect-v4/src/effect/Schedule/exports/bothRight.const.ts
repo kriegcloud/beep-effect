@@ -6,7 +6,7 @@
  * Export: bothRight
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Schedule.ts
- * Generated: 2026-02-19T04:14:17.050Z
+ * Generated: 2026-02-19T04:50:39.066Z
  *
  * Overview:
  * Combines two `Schedule`s by recurring if both of the two schedules want to recur, using the maximum of the two durations between recurrences and outputting the result of the right schedule (i.e. `other`).
@@ -46,7 +46,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -87,7 +86,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

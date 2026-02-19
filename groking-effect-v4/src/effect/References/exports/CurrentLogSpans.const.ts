@@ -6,7 +6,7 @@
  * Export: CurrentLogSpans
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/References.ts
- * Generated: 2026-02-19T04:14:16.489Z
+ * Generated: 2026-02-19T04:50:38.765Z
  *
  * Overview:
  * Reference for managing log spans that track the duration and hierarchy of operations. Each span represents a labeled time period for performance analysis and debugging.
@@ -72,7 +72,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -113,7 +112,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

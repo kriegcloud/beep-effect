@@ -6,7 +6,7 @@
  * Export: Action
  * Kind: type
  * Source: .repos/effect-smol/packages/effect/src/unstable/cli/Prompt.ts
- * Generated: 2026-02-19T04:14:24.720Z
+ * Generated: 2026-02-19T04:50:46.788Z
  *
  * Overview:
  * Represents the action that should be taken by a `Prompt` based upon the user input received during the current frame.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

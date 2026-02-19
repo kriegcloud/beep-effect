@@ -6,7 +6,7 @@
  * Export: TaggedClass
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Data.ts
- * Generated: 2026-02-19T04:14:11.232Z
+ * Generated: 2026-02-19T04:50:34.573Z
  *
  * Overview:
  * Provides a Tagged constructor for a Case Class.
@@ -40,7 +40,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as DataModule from "effect/Data";
@@ -80,7 +79,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

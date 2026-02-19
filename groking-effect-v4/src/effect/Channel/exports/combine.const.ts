@@ -6,7 +6,7 @@
  * Export: combine
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Channel.ts
- * Generated: 2026-02-19T04:14:10.636Z
+ * Generated: 2026-02-19T04:50:34.223Z
  *
  * Overview:
  * Combines the elements from this channel and the specified channel by repeatedly applying the function `f` to extract an element using both sides and conceptually "offer" it to the destination channel. `f` can maintain some internal state to control the combining process, with the initial state being specified by `s`.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ChannelModule from "effect/Channel";
 import * as Console from "effect/Console";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

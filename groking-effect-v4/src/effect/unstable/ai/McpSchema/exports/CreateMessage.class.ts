@@ -6,7 +6,7 @@
  * Export: CreateMessage
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/unstable/ai/McpSchema.ts
- * Generated: 2026-02-19T04:14:23.960Z
+ * Generated: 2026-02-19T04:50:45.426Z
  *
  * Overview:
  * A request from the server to sample an LLM via the client. The client has full discretion over which model to select. The client should also inform the user before beginning sampling, to allow them to inspect the request (human in the loop) and decide whether to approve it.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

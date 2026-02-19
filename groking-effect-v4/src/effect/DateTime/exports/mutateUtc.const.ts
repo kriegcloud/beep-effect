@@ -6,7 +6,7 @@
  * Export: mutateUtc
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/DateTime.ts
- * Generated: 2026-02-19T04:14:11.267Z
+ * Generated: 2026-02-19T04:50:34.613Z
  *
  * Overview:
  * Modify a `DateTime` by applying a function to a cloned UTC `Date` instance.
@@ -36,7 +36,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as DateTimeModule from "effect/DateTime";
@@ -76,7 +75,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

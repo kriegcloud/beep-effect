@@ -6,7 +6,7 @@
  * Export: FiberMap
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/FiberMap.ts
- * Generated: 2026-02-19T04:14:13.038Z
+ * Generated: 2026-02-19T04:50:36.324Z
  *
  * Overview:
  * A FiberMap is a collection of fibers, indexed by a key. When the associated Scope is closed, all fibers in the map will be interrupted. Fibers are automatically removed from the map when they complete.
@@ -39,7 +39,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -80,7 +79,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

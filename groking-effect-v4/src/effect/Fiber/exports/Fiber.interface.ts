@@ -6,7 +6,7 @@
  * Export: Fiber
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Fiber.ts
- * Generated: 2026-02-19T04:14:12.663Z
+ * Generated: 2026-02-19T04:50:36.065Z
  *
  * Overview:
  * A runtime fiber is a lightweight thread that executes Effects. Fibers are the unit of concurrency in Effect. They provide a way to run multiple Effects concurrently while maintaining structured concurrency and cancellation safety.
@@ -37,7 +37,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -78,7 +77,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

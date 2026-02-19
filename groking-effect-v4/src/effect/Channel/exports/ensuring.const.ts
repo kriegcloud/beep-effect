@@ -6,7 +6,7 @@
  * Export: ensuring
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Channel.ts
- * Generated: 2026-02-19T04:14:10.636Z
+ * Generated: 2026-02-19T04:50:34.224Z
  *
  * Overview:
  * Returns a new channel with an attached finalizer. The finalizer is guaranteed to be executed so long as the channel begins execution (and regardless of whether or not it completes).
@@ -39,7 +39,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ChannelModule from "effect/Channel";
 import * as Console from "effect/Console";
@@ -80,7 +79,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

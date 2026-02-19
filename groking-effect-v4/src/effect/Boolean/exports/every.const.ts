@@ -6,7 +6,7 @@
  * Export: every
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Boolean.ts
- * Generated: 2026-02-19T04:14:10.094Z
+ * Generated: 2026-02-19T04:50:32.944Z
  *
  * Overview:
  * This utility function is used to check if all the elements in a collection of boolean values are `true`.
@@ -30,7 +30,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BooleanModule from "effect/Boolean";
 import * as Console from "effect/Console";
@@ -71,7 +70,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: done
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Deferred.ts
- * Generated: 2026-02-19T04:14:11.284Z
+ * Generated: 2026-02-19T04:50:34.632Z
  *
  * Overview:
  * Exits the `Deferred` with the specified `Exit` value, which will be propagated to all fibers waiting on the value of the `Deferred`.
@@ -34,7 +34,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as DeferredModule from "effect/Deferred";
@@ -75,7 +74,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

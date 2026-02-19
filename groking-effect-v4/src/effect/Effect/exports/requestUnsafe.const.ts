@@ -6,7 +6,7 @@
  * Export: requestUnsafe
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Effect.ts
- * Generated: 2026-02-19T04:14:12.392Z
+ * Generated: 2026-02-19T04:50:35.913Z
  *
  * Overview:
  * Low-level entry point that registers a request with a resolver and delivers the exit value via `onExit`. Use this when you already have a `ServiceMap` and need to enqueue a request outside an `Effect`.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

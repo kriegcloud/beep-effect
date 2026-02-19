@@ -6,7 +6,7 @@
  * Export: pop
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Record.ts
- * Generated: 2026-02-19T04:14:16.283Z
+ * Generated: 2026-02-19T04:50:38.645Z
  *
  * Overview:
  * Retrieves the value of the property with the given `key` from a record and returns an `Option` of a tuple with the value and the record with the removed property. If the key is not present, returns `undefined`.
@@ -31,7 +31,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -72,7 +71,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

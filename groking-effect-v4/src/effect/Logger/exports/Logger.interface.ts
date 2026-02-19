@@ -6,7 +6,7 @@
  * Export: Logger
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Logger.ts
- * Generated: 2026-02-19T04:14:14.511Z
+ * Generated: 2026-02-19T04:50:37.427Z
  *
  * Overview:
  * No summary found in JSDoc.
@@ -41,7 +41,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -81,7 +80,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

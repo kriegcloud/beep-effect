@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -5,10 +6,14 @@ import { generateModuleSurface, generatePackageSurface, generateRepositorySurfac
 
 interface CliFlags {
   readonly packageName: string | undefined;
+  readonly packageNames: ReadonlyArray<string> | undefined;
   readonly moduleName: string | undefined;
   readonly effectSmolRoot: string | undefined;
   readonly outputRoot: string | undefined;
   readonly manifestPath: string | undefined;
+  readonly allPackages: boolean;
+  readonly resolvableOnly: boolean;
+  readonly formatWrite: boolean;
   readonly dryRun: boolean;
 }
 
@@ -16,10 +21,14 @@ type Command = "generate" | "bootstrap";
 
 const parseFlags = (rawFlags: ReadonlyArray<string>): CliFlags => {
   let packageName: string | undefined;
+  let packageNames: ReadonlyArray<string> | undefined;
   let moduleName: string | undefined;
   let effectSmolRoot: string | undefined;
   let outputRoot: string | undefined;
   let manifestPath: string | undefined;
+  let allPackages = false;
+  let resolvableOnly = true;
+  let formatWrite = true;
   let dryRun = false;
 
   const requireValue = (index: number, flag: string): string => {
@@ -42,6 +51,14 @@ const parseFlags = (rawFlags: ReadonlyArray<string>): CliFlags => {
       index++;
       continue;
     }
+    if (flag === "--packages") {
+      packageNames = requireValue(index, flag)
+        .split(",")
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0);
+      index++;
+      continue;
+    }
     if (flag === "--effect-smol-root") {
       effectSmolRoot = requireValue(index, flag);
       index++;
@@ -61,16 +78,32 @@ const parseFlags = (rawFlags: ReadonlyArray<string>): CliFlags => {
       dryRun = true;
       continue;
     }
+    if (flag === "--all-packages") {
+      allPackages = true;
+      continue;
+    }
+    if (flag === "--no-resolvable-filter") {
+      resolvableOnly = false;
+      continue;
+    }
+    if (flag === "--no-format") {
+      formatWrite = false;
+      continue;
+    }
 
     throw new Error(`Unknown flag: ${flag}`);
   }
 
   return {
     packageName,
+    packageNames,
     moduleName,
     effectSmolRoot,
     outputRoot,
     manifestPath,
+    allPackages,
+    resolvableOnly,
+    formatWrite,
     dryRun,
   };
 };
@@ -176,6 +209,13 @@ const verifyRepositoryOutput = (
   };
 };
 
+const runBiomeWrite = (targetPath: string, cwd: string): void => {
+  execFileSync("bunx", ["biome", "check", targetPath, "--write"], {
+    cwd,
+    stdio: "inherit",
+  });
+};
+
 const runGenerateCommand = (flags: CliFlags): void => {
   const resolved = resolveRoots(flags);
   const packageName = flags.packageName ?? "effect";
@@ -207,6 +247,7 @@ const runGenerateCommand = (flags: CliFlags): void => {
     effectSmolRoot: resolved.effectSmolRoot,
     outputRoot: resolved.outputRoot,
     repoRoot: resolved.repoRoot,
+    resolvableImportsOnly: flags.resolvableOnly,
     dryRun: flags.dryRun,
   });
 
@@ -224,14 +265,30 @@ const runGenerateCommand = (flags: CliFlags): void => {
 const runBootstrapCommand = (flags: CliFlags): void => {
   const resolved = resolveRoots(flags);
 
+  const packageNames =
+    flags.allPackages === true
+      ? undefined
+      : flags.packageNames !== undefined
+        ? flags.packageNames
+        : flags.packageName === undefined
+          ? ["effect"]
+          : undefined;
+
   const repositoryResult = generateRepositorySurface({
     effectSmolRoot: resolved.effectSmolRoot,
     outputRoot: resolved.outputRoot,
     repoRoot: resolved.repoRoot,
     ...(flags.packageName === undefined ? {} : { packageName: flags.packageName }),
+    ...(packageNames === undefined ? {} : { packageNames }),
     ...(resolved.manifestPath === undefined ? {} : { manifestPath: resolved.manifestPath }),
+    resolvableImportsOnly: flags.resolvableOnly,
+    cleanPackageRoots: true,
     dryRun: flags.dryRun,
   });
+
+  if (flags.dryRun === false && flags.formatWrite === true) {
+    runBiomeWrite(resolved.packageRoot, resolved.repoRoot);
+  }
 
   const verification = verifyRepositoryOutput(resolved.outputRoot);
   const parityDiffModules = repositoryResult.manifest.packages.flatMap((packageEntry) =>

@@ -6,7 +6,7 @@
  * Export: withTime
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Console.ts
- * Generated: 2026-02-19T04:14:11.196Z
+ * Generated: 2026-02-19T04:50:34.528Z
  *
  * Overview:
  * Wraps an Effect with a timer.
@@ -36,7 +36,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as ConsoleModule from "effect/Console";
@@ -76,7 +75,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

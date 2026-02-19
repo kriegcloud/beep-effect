@@ -6,7 +6,7 @@
  * Export: getEdge
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Graph.ts
- * Generated: 2026-02-19T04:14:13.623Z
+ * Generated: 2026-02-19T04:50:36.806Z
  *
  * Overview:
  * Gets the edge data associated with an edge index, if it exists.
@@ -41,7 +41,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -81,7 +80,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

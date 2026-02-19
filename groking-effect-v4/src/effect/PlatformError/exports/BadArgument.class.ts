@@ -6,7 +6,7 @@
  * Export: BadArgument
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/PlatformError.ts
- * Generated: 2026-02-19T04:14:15.698Z
+ * Generated: 2026-02-19T04:50:38.219Z
  *
  * Overview:
  * No summary found in JSDoc.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -62,7 +61,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

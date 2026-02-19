@@ -6,7 +6,7 @@
  * Export: join
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/FiberMap.ts
- * Generated: 2026-02-19T04:14:13.038Z
+ * Generated: 2026-02-19T04:50:36.325Z
  *
  * Overview:
  * Join all fibers in the FiberMap. If any of the Fiber's in the map terminate with a failure, the returned Effect will terminate with the first failure that occurred.
@@ -34,7 +34,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -75,7 +74,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

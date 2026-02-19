@@ -6,7 +6,7 @@
  * Export: Path
  * Kind: type
  * Source: .repos/effect-smol/packages/effect/src/ConfigProvider.ts
- * Generated: 2026-02-19T04:14:11.183Z
+ * Generated: 2026-02-19T04:50:34.513Z
  *
  * Overview:
  * An ordered sequence of string or numeric segments that addresses a node in the configuration tree.
@@ -28,7 +28,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ConfigProviderModule from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -69,7 +68,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

@@ -6,7 +6,7 @@
  * Export: matchRight
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Array.ts
- * Generated: 2026-02-19T04:14:09.705Z
+ * Generated: 2026-02-19T04:50:32.362Z
  *
  * Overview:
  * Pattern-matches on an array from the right, providing all elements except the last and the last element separately.
@@ -33,7 +33,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ArrayModule from "effect/Array";
 import * as Console from "effect/Console";
@@ -74,7 +73,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

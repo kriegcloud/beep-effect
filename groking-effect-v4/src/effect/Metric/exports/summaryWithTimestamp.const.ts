@@ -6,7 +6,7 @@
  * Export: summaryWithTimestamp
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Metric.ts
- * Generated: 2026-02-19T04:14:14.962Z
+ * Generated: 2026-02-19T04:50:37.747Z
  *
  * Overview:
  * Creates a `Summary` metric that records observations and calculates quantiles which takes a value and the current timestamp as input.
@@ -36,7 +36,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -77,7 +76,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

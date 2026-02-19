@@ -13,3 +13,4 @@ Design heuristics:
 - Include invocation constraints and expected failure modes.
 - If value is data-only, demonstrate read/inspect workflows.
 - If runtime-permissive behavior conflicts with summary/JSDoc contract, include an explicit contract note.
+- Do not rely on `function.length` alone for variadic/rest signatures; prefer docs-aware contract interpretation.

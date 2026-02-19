@@ -6,7 +6,7 @@
  * Export: negativeInfinity
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Duration.ts
- * Generated: 2026-02-19T04:14:11.324Z
+ * Generated: 2026-02-19T04:50:34.676Z
  *
  * Overview:
  * A Duration representing negative infinite time.
@@ -28,7 +28,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as DurationModule from "effect/Duration";
@@ -68,7 +67,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

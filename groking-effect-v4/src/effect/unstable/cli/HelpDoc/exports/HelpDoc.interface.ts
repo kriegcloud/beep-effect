@@ -6,7 +6,7 @@
  * Export: HelpDoc
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/unstable/cli/HelpDoc.ts
- * Generated: 2026-02-19T04:14:24.466Z
+ * Generated: 2026-02-19T04:50:46.280Z
  *
  * Overview:
  * Structured representation of help documentation for a command. This data structure is independent of formatting, allowing for different output formats (text, markdown, JSON, etc.).
@@ -56,7 +56,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -97,7 +96,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

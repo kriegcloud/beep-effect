@@ -6,7 +6,7 @@
  * Export: remove
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/MutableHashMap.ts
- * Generated: 2026-02-19T04:14:14.981Z
+ * Generated: 2026-02-19T04:50:37.766Z
  *
  * Overview:
  * Removes the specified key from the MutableHashMap, mutating the map in place. If the key doesn't exist, the map remains unchanged.
@@ -48,7 +48,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -89,7 +88,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

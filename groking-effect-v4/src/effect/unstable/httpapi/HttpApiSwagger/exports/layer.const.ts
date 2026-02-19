@@ -6,7 +6,7 @@
  * Export: layer
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/unstable/httpapi/HttpApiSwagger.ts
- * Generated: 2026-02-19T04:14:27.693Z
+ * Generated: 2026-02-19T04:50:49.421Z
  *
  * Overview:
  * Exported layer mounting Swagger/OpenAPI documentation UI.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

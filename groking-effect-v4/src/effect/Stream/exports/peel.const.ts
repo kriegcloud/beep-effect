@@ -6,7 +6,7 @@
  * Export: peel
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Stream.ts
- * Generated: 2026-02-19T04:14:21.442Z
+ * Generated: 2026-02-19T04:50:42.466Z
  *
  * Overview:
  * Runs a sink to peel off enough elements to produce a value and returns that value with the remaining stream in a scope.
@@ -40,7 +40,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -81,7 +80,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

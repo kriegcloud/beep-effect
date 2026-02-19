@@ -6,7 +6,7 @@
  * Export: currentSpan
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Effect.ts
- * Generated: 2026-02-19T04:14:12.387Z
+ * Generated: 2026-02-19T04:50:35.908Z
  *
  * Overview:
  * Returns the current span from the context.
@@ -34,7 +34,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -74,7 +73,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

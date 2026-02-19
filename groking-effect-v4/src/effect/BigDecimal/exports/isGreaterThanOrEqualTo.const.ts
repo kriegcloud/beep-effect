@@ -6,7 +6,7 @@
  * Export: isGreaterThanOrEqualTo
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/BigDecimal.ts
- * Generated: 2026-02-19T04:14:09.907Z
+ * Generated: 2026-02-19T04:50:32.755Z
  *
  * Overview:
  * Checks if a given `BigDecimal` is greater than or equal to the provided one.
@@ -40,7 +40,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BigDecimalModule from "effect/BigDecimal";
 import * as Console from "effect/Console";
@@ -80,7 +79,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: $Document
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/SchemaRepresentation.ts
- * Generated: 2026-02-19T04:14:19.661Z
+ * Generated: 2026-02-19T04:50:40.593Z
  *
  * Overview:
  * Schema codec for {@link Document}. Use with `Schema.decodeUnknownSync` or `Schema.encodeSync` to validate or serialize document data.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

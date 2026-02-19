@@ -6,7 +6,7 @@
  * Export: ProgressNotification
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/unstable/ai/McpSchema.ts
- * Generated: 2026-02-19T04:14:23.962Z
+ * Generated: 2026-02-19T04:50:45.428Z
  *
  * Overview:
  * An out-of-band notification used to inform the receiver of a progress update for a long-running request.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

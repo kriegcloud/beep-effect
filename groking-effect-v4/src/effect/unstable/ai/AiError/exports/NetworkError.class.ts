@@ -6,7 +6,7 @@
  * Export: NetworkError
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/unstable/ai/AiError.ts
- * Generated: 2026-02-19T04:14:23.846Z
+ * Generated: 2026-02-19T04:50:45.138Z
  *
  * Overview:
  * Error indicating a network-level failure before receiving a response.
@@ -41,7 +41,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -81,7 +80,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

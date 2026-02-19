@@ -6,7 +6,7 @@
  * Export: Deferred
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Deferred.ts
- * Generated: 2026-02-19T04:14:11.284Z
+ * Generated: 2026-02-19T04:50:34.631Z
  *
  * Overview:
  * A `Deferred` represents an asynchronous variable that can be set exactly once, with the ability for an arbitrary number of fibers to suspend (by calling `Deferred.await`) and automatically resume when the variable is set.
@@ -54,7 +54,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as DeferredModule from "effect/Deferred";
@@ -95,7 +94,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

@@ -51,7 +51,7 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.src.json --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "bun test",

@@ -6,7 +6,7 @@
  * Export: asCache
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/RequestResolver.ts
- * Generated: 2026-02-19T04:14:16.536Z
+ * Generated: 2026-02-19T04:50:38.824Z
  *
  * Overview:
  * Wraps a request resolver in a cache, allowing it to cache results up to a specified capacity and optional time-to-live.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

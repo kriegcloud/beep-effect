@@ -6,7 +6,7 @@
  * Export: float
  * Kind: function
  * Source: node_modules/fast-check/lib/types/arbitrary/float.d.ts
- * Generated: 2026-02-19T04:14:22.330Z
+ * Generated: 2026-02-19T04:50:43.245Z
  *
  * Overview:
  * For 32-bit floating point numbers: - sign: 1 bit - significand: 23 bits - exponent: 8 bits
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -62,7 +61,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

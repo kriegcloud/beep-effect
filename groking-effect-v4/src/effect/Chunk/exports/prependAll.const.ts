@@ -6,7 +6,7 @@
  * Export: prependAll
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Chunk.ts
- * Generated: 2026-02-19T04:14:10.888Z
+ * Generated: 2026-02-19T04:50:34.379Z
  *
  * Overview:
  * Prepends the specified prefix chunk to the beginning of the specified chunk. If either chunk is non-empty, the result is also a non-empty chunk.
@@ -34,7 +34,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ChunkModule from "effect/Chunk";
 import * as Console from "effect/Console";
@@ -75,7 +74,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

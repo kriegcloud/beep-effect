@@ -6,7 +6,7 @@
  * Export: SinkUnifyIgnore
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Sink.ts
- * Generated: 2026-02-19T04:14:20.454Z
+ * Generated: 2026-02-19T04:50:40.916Z
  *
  * Overview:
  * Interface used to ignore certain types during Sink unification. Part of the internal type system machinery.
@@ -29,7 +29,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -70,7 +69,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

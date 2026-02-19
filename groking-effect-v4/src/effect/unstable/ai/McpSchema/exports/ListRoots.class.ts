@@ -6,7 +6,7 @@
  * Export: ListRoots
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/unstable/ai/McpSchema.ts
- * Generated: 2026-02-19T04:14:23.961Z
+ * Generated: 2026-02-19T04:50:45.427Z
  *
  * Overview:
  * Sent from the server to request a list of root URIs from the client. Roots allow servers to ask for specific directories or files to operate on. A common example for roots is providing a set of repositories or directories a server should operate on.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

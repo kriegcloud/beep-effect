@@ -6,7 +6,7 @@
  * Export: Effect
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Effect.ts
- * Generated: 2026-02-19T04:14:12.387Z
+ * Generated: 2026-02-19T04:50:35.908Z
  *
  * Overview:
  * The `Effect` interface defines a value that lazily describes a workflow or job. The workflow requires some context `R`, and may fail with an error of type `E`, or succeed with a value of type `A`.
@@ -39,7 +39,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -80,7 +79,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

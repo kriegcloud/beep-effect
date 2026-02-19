@@ -6,7 +6,7 @@
  * Export: nominal
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/Brand.ts
- * Generated: 2026-02-19T04:14:10.105Z
+ * Generated: 2026-02-19T04:50:32.975Z
  *
  * Overview:
  * This function returns a `Constructor` that **does not apply any runtime checks**, it just returns the provided value. It can be used to create nominal types that allow distinguishing between two values of the same type but with different meanings.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BrandModule from "effect/Brand";
 import * as Console from "effect/Console";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

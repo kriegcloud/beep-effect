@@ -6,7 +6,7 @@
  * Export: min
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Order.ts
- * Generated: 2026-02-19T04:14:15.470Z
+ * Generated: 2026-02-19T04:50:38.098Z
  *
  * Overview:
  * Returns the minimum of two values according to the given order. If they are equal, returns the first argument.
@@ -32,7 +32,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -73,7 +72,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

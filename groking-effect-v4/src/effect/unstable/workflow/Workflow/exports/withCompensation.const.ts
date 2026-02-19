@@ -6,7 +6,7 @@
  * Export: withCompensation
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/unstable/workflow/Workflow.ts
- * Generated: 2026-02-19T04:14:30.976Z
+ * Generated: 2026-02-19T04:50:53.269Z
  *
  * Overview:
  * Add compensation logic to an effect inside a Workflow. The compensation finalizer will be called if the entire workflow fails, allowing you to perform cleanup or other actions based on the success value and the cause of the workflow failure.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: date
  * Kind: function
  * Source: node_modules/fast-check/lib/types/arbitrary/date.d.ts
- * Generated: 2026-02-19T04:14:22.329Z
+ * Generated: 2026-02-19T04:50:43.244Z
  *
  * Overview:
  * For date between constraints.min or new Date(-8640000000000000) (included) and constraints.max or new Date(8640000000000000) (included)
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

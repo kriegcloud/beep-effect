@@ -6,7 +6,7 @@
  * Export: absurd
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Function.ts
- * Generated: 2026-02-19T04:14:13.308Z
+ * Generated: 2026-02-19T04:50:36.534Z
  *
  * Overview:
  * The `absurd` function is a stub for cases where a value of type `never` is encountered in your code, meaning that it should be impossible for this code to be executed.
@@ -30,7 +30,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -71,7 +70,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

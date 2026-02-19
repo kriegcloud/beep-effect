@@ -29,6 +29,11 @@
 - Example behavior alignment:
 - Gaps:
 
+## Source Example Coverage
+- Source example exists:
+- Source-aligned behavior executed in examples:
+- If not, why:
+
 ## Proposed Changes
 ### Documentation
 - 

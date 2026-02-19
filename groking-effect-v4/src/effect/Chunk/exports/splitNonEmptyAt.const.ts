@@ -6,7 +6,7 @@
  * Export: splitNonEmptyAt
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Chunk.ts
- * Generated: 2026-02-19T04:14:10.889Z
+ * Generated: 2026-02-19T04:50:34.380Z
  *
  * Overview:
  * Splits a `NonEmptyChunk` into two segments, with the first segment containing a maximum of `n` elements. The value of `n` must be `>= 1`.
@@ -39,7 +39,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ChunkModule from "effect/Chunk";
 import * as Console from "effect/Console";
@@ -80,7 +79,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

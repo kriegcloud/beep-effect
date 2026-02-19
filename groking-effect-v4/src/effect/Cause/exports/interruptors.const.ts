@@ -6,7 +6,7 @@
  * Export: interruptors
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Cause.ts
- * Generated: 2026-02-19T04:14:10.144Z
+ * Generated: 2026-02-19T04:50:33.192Z
  *
  * Overview:
  * Collects the fiber IDs of all {@link Interrupt} reasons in the cause into a `ReadonlySet`. Returns an empty set when the cause has no interrupts.
@@ -32,7 +32,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -73,7 +72,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

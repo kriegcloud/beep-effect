@@ -6,7 +6,7 @@
  * Export: modify
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/SubscriptionRef.ts
- * Generated: 2026-02-19T04:14:21.694Z
+ * Generated: 2026-02-19T04:50:42.696Z
  *
  * Overview:
  * Atomically modifies the `SubscriptionRef` with a function that computes a return value and a new value, notifying subscribers of the change.
@@ -39,7 +39,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -80,7 +79,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

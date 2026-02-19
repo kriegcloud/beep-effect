@@ -16,6 +16,7 @@ Quality bar:
 - Example code should be small and concrete.
 - If behavior is uncertain, include explicit notes in comments/logs.
 - Prefer domain-semantic examples over purely mechanical probes when the export has a clear intended use.
+- If source JSDoc includes runnable examples, execute or simulate at least one source-aligned behavior in examples.
 
 Delivery:
 - Return only the requested artifacts.

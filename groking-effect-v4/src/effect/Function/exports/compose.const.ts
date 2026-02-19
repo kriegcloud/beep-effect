@@ -6,7 +6,7 @@
  * Export: compose
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Function.ts
- * Generated: 2026-02-19T04:14:13.308Z
+ * Generated: 2026-02-19T04:50:36.534Z
  *
  * Overview:
  * Composes two functions, `ab` and `bc` into a single function that takes in an argument `a` of type `A` and returns a result of type `C`. The result is obtained by first applying the `ab` function to `a` and then applying the `bc` function to the result of `ab`.
@@ -32,7 +32,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -73,7 +72,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

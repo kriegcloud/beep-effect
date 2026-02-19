@@ -6,7 +6,7 @@
  * Export: makeReducer
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/Order.ts
- * Generated: 2026-02-19T04:14:15.470Z
+ * Generated: 2026-02-19T04:50:38.097Z
  *
  * Overview:
  * Creates a `Reducer` for combining `Order` instances, useful for aggregating orders in collections.
@@ -31,7 +31,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -72,7 +71,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

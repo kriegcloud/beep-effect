@@ -6,7 +6,7 @@
  * Export: findDie
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Cause.ts
- * Generated: 2026-02-19T04:14:10.144Z
+ * Generated: 2026-02-19T04:50:33.184Z
  *
  * Overview:
  * Returns the first {@link Die} reason from a cause, including its annotations. Returns `Filter.fail` with the original cause when no `Die` is found.
@@ -31,7 +31,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -72,7 +71,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: fromEnv
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/ConfigProvider.ts
- * Generated: 2026-02-19T04:14:11.182Z
+ * Generated: 2026-02-19T04:50:34.513Z
  *
  * Overview:
  * Creates a `ConfigProvider` backed by environment variables.
@@ -38,7 +38,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ConfigProviderModule from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -78,7 +77,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

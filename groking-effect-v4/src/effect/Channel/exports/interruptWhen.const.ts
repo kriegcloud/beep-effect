@@ -6,7 +6,7 @@
  * Export: interruptWhen
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Channel.ts
- * Generated: 2026-02-19T04:14:10.639Z
+ * Generated: 2026-02-19T04:50:34.226Z
  *
  * Overview:
  * Returns a new channel, which is the same as this one, except it will be interrupted when the specified effect completes. If the effect completes successfully before the underlying channel is done, then the returned channel will yield the success value of the effect as its terminal value. On the other hand, if the underlying channel finishes first, then the returned channel will yield the success value of the underlying channel as its terminal value.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ChannelModule from "effect/Channel";
 import * as Console from "effect/Console";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: intersectionWith
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Array.ts
- * Generated: 2026-02-19T04:14:09.704Z
+ * Generated: 2026-02-19T04:50:32.360Z
  *
  * Overview:
  * Computes the intersection of two arrays using a custom equivalence. Order is determined by the first array.
@@ -31,7 +31,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ArrayModule from "effect/Array";
 import * as Console from "effect/Console";
@@ -72,7 +71,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

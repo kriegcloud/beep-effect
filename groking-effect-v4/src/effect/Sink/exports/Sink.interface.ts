@@ -6,7 +6,7 @@
  * Export: Sink
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Sink.ts
- * Generated: 2026-02-19T04:14:20.454Z
+ * Generated: 2026-02-19T04:50:40.916Z
  *
  * Overview:
  * A `Sink<A, In, L, E, R>` is used to consume elements produced by a `Stream`. You can think of a sink as a function that will consume a variable amount of `In` elements (could be 0, 1, or many), might fail with an error of type `E`, and will eventually yield a value of type `A` together with a remainder of type `L` (i.e. any leftovers).
@@ -38,7 +38,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -79,7 +78,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

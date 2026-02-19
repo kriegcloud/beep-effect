@@ -6,7 +6,7 @@
  * Export: exhaustive
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Match.ts
- * Generated: 2026-02-19T04:14:14.900Z
+ * Generated: 2026-02-19T04:50:37.668Z
  *
  * Overview:
  * The `Match.exhaustive` method finalizes the pattern matching process by ensuring that all possible cases are accounted for. If any case is missing, TypeScript will produce a type error. This is particularly useful when working with unions, as it helps prevent unintended gaps in pattern matching.
@@ -36,7 +36,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -77,7 +76,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

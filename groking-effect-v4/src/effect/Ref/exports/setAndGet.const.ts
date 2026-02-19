@@ -6,7 +6,7 @@
  * Export: setAndGet
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Ref.ts
- * Generated: 2026-02-19T04:14:16.480Z
+ * Generated: 2026-02-19T04:50:38.752Z
  *
  * Overview:
  * Atomically sets the value of the Ref to the specified value and returns the new value.
@@ -46,7 +46,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -86,7 +85,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

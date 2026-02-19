@@ -6,7 +6,7 @@
  * Export: SlidingStrategy
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/PubSub.ts
- * Generated: 2026-02-19T04:14:15.991Z
+ * Generated: 2026-02-19T04:50:38.432Z
  *
  * Overview:
  * A strategy that adds new messages and drops old messages when the `PubSub` is at capacity. This guarantees that a slow subscriber will not slow down the rate at which messages are published and received by other subscribers. However, it creates the risk that a slow subscriber will not receive some messages published to the `PubSub` while it is subscribed.
@@ -50,7 +50,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -91,7 +90,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

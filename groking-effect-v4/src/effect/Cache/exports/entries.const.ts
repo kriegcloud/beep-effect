@@ -6,7 +6,7 @@
  * Export: entries
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Cache.ts
- * Generated: 2026-02-19T04:14:10.125Z
+ * Generated: 2026-02-19T04:50:33.087Z
  *
  * Overview:
  * Retrieves all key-value pairs from the cache as an iterable. This function only returns entries with successfully resolved values, filtering out any failed lookups or expired entries.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CacheModule from "effect/Cache";
 import * as Console from "effect/Console";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

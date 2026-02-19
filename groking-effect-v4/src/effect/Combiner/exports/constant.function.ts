@@ -6,7 +6,7 @@
  * Export: constant
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/Combiner.ts
- * Generated: 2026-02-19T04:14:10.902Z
+ * Generated: 2026-02-19T04:50:34.392Z
  *
  * Overview:
  * Creates a `Combiner` that returns a constant value.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CombinerModule from "effect/Combiner";
 import * as Console from "effect/Console";
@@ -62,7 +61,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

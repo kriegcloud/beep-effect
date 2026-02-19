@@ -6,7 +6,7 @@
  * Export: match
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Cron.ts
- * Generated: 2026-02-19T04:14:11.219Z
+ * Generated: 2026-02-19T04:50:34.556Z
  *
  * Overview:
  * Checks if a given date/time falls within an active Cron time window.
@@ -38,7 +38,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as CronModule from "effect/Cron";
@@ -78,7 +77,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

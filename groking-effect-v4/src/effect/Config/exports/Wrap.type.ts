@@ -6,7 +6,7 @@
  * Export: Wrap
  * Kind: type
  * Source: .repos/effect-smol/packages/effect/src/Config.ts
- * Generated: 2026-02-19T04:14:11.162Z
+ * Generated: 2026-02-19T04:50:34.490Z
  *
  * Overview:
  * Utility type that recursively replaces primitives with `Config` in a nested structure.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ConfigModule from "effect/Config";
 import * as Console from "effect/Console";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

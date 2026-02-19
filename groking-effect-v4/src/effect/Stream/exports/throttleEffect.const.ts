@@ -6,7 +6,7 @@
  * Export: throttleEffect
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Stream.ts
- * Generated: 2026-02-19T04:14:21.445Z
+ * Generated: 2026-02-19T04:50:42.477Z
  *
  * Overview:
  * Delays the arrays of this stream according to the given bandwidth parameters using the token bucket algorithm. Allows for burst processing by allowing the bucket to accumulate tokens up to a `units + burst` threshold. The weight of each array is determined by the effectful `cost` function.
@@ -42,7 +42,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -83,7 +82,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

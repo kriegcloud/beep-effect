@@ -1,7 +1,7 @@
+import * as BunContext from "@effect/platform-bun/BunContext";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as BunContext from "@effect/platform-bun/BunContext";
 
 export interface PlaygroundHeader {
   readonly icon: string;

@@ -6,7 +6,7 @@
  * Export: set
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/ScopedRef.ts
- * Generated: 2026-02-19T04:14:20.354Z
+ * Generated: 2026-02-19T04:50:40.812Z
  *
  * Overview:
  * Sets the value of this reference to the specified resourcefully-created value. Any resources associated with the old value will be released.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: ReadonlyMap
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/Schema.ts
- * Generated: 2026-02-19T04:14:18.719Z
+ * Generated: 2026-02-19T04:50:40.203Z
  *
  * Overview:
  * Creates a schema that validates a `ReadonlyMap` where keys and values must conform to the provided schemas.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

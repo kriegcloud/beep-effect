@@ -6,7 +6,7 @@
  * Export: fromJsonSchemaDocument
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/SchemaRepresentation.ts
- * Generated: 2026-02-19T04:14:19.663Z
+ * Generated: 2026-02-19T04:50:40.595Z
  *
  * Overview:
  * Parses a Draft 2020-12 JSON Schema document into a {@link Document}.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -62,7 +61,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

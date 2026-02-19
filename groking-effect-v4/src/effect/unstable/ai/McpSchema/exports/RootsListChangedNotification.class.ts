@@ -6,7 +6,7 @@
  * Export: RootsListChangedNotification
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/unstable/ai/McpSchema.ts
- * Generated: 2026-02-19T04:14:23.963Z
+ * Generated: 2026-02-19T04:50:45.430Z
  *
  * Overview:
  * A notification from the client to the server, informing it that the list of roots has changed. This notification should be sent whenever the client adds, removes, or modifies any root. The server should then request an updated list of roots using the ListRootsRequest.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

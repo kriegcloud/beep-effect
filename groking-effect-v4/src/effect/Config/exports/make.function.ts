@@ -6,7 +6,7 @@
  * Export: make
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/Config.ts
- * Generated: 2026-02-19T04:14:11.161Z
+ * Generated: 2026-02-19T04:50:34.489Z
  *
  * Overview:
  * Creates a `Config` from a raw parsing function.
@@ -36,7 +36,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ConfigModule from "effect/Config";
 import * as Console from "effect/Console";
@@ -76,7 +75,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

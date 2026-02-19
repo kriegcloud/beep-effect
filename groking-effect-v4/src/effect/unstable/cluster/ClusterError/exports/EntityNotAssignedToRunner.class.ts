@@ -6,7 +6,7 @@
  * Export: EntityNotAssignedToRunner
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/unstable/cluster/ClusterError.ts
- * Generated: 2026-02-19T04:14:25.020Z
+ * Generated: 2026-02-19T04:50:47.059Z
  *
  * Overview:
  * Represents an error that occurs when a Runner receives a message for an entity that it is not assigned to it.
@@ -23,7 +23,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -63,7 +62,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

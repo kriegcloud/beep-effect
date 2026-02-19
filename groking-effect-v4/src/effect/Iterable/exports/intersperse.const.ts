@@ -6,7 +6,7 @@
  * Export: intersperse
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Iterable.ts
- * Generated: 2026-02-19T04:14:14.235Z
+ * Generated: 2026-02-19T04:50:37.170Z
  *
  * Overview:
  * Places an element in between members of an `Iterable`. If the input is a non-empty array, the result is also a non-empty array.
@@ -51,7 +51,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -92,7 +91,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: poll
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/Deferred.ts
- * Generated: 2026-02-19T04:14:11.285Z
+ * Generated: 2026-02-19T04:50:34.633Z
  *
  * Overview:
  * Returns a `Effect<A, E, R>` from the `Deferred` if this `Deferred` has already been completed, `undefined` otherwise.
@@ -35,7 +35,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as DeferredModule from "effect/Deferred";
@@ -76,7 +75,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

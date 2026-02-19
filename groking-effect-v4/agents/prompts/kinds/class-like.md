@@ -12,3 +12,4 @@ Design heuristics:
 - Prefer deterministic examples that teach intended usage over opaque constructor success/failure logs.
 - Constructor probe alone is insufficient for semantic-key exports; include at least one summary-aligned domain workflow example.
 - Trigger phrase heuristic: if summary includes terms like `ServiceMap key`, `annotation`, or `reference`, prioritize round-trip usage examples.
+- When using deterministic fixtures to model runtime metadata, explicitly disclose that fixture data is synthetic.

@@ -6,7 +6,7 @@
  * Export: filterMap
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Record.ts
- * Generated: 2026-02-19T04:14:16.282Z
+ * Generated: 2026-02-19T04:50:38.644Z
  *
  * Overview:
  * Transforms a record into a record by applying the function `f` to each key and value in the original record. If the function returns `Some`, the key-value pair is included in the output record.
@@ -31,7 +31,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -72,7 +71,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

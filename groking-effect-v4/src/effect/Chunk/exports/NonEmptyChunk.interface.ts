@@ -6,7 +6,7 @@
  * Export: NonEmptyChunk
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Chunk.ts
- * Generated: 2026-02-19T04:14:10.888Z
+ * Generated: 2026-02-19T04:50:34.379Z
  *
  * Overview:
  * A non-empty Chunk guaranteed to contain at least one element.
@@ -30,7 +30,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ChunkModule from "effect/Chunk";
 import * as Console from "effect/Console";
@@ -70,7 +69,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

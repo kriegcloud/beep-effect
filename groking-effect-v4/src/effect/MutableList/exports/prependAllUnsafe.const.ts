@@ -6,7 +6,7 @@
  * Export: prependAllUnsafe
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/MutableList.ts
- * Generated: 2026-02-19T04:14:15.165Z
+ * Generated: 2026-02-19T04:50:37.846Z
  *
  * Overview:
  * Prepends all elements from a ReadonlyArray to the beginning of the MutableList. This is an optimized version that can reuse the array when mutable=true.
@@ -41,7 +41,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -82,7 +81,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

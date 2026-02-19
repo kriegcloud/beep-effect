@@ -6,7 +6,7 @@
  * Export: interruptAllAs
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Fiber.ts
- * Generated: 2026-02-19T04:14:12.663Z
+ * Generated: 2026-02-19T04:50:36.065Z
  *
  * Overview:
  * Interrupts all fibers in the provided iterable using the specified fiber ID as the interrupting fiber. This allows you to control which fiber is considered the source of the interruption, which can be useful for debugging and tracing.
@@ -54,7 +54,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -95,7 +94,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

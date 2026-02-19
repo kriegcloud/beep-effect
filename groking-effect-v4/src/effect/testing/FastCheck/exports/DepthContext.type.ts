@@ -6,7 +6,7 @@
  * Export: DepthContext
  * Kind: type
  * Source: node_modules/fast-check/lib/types/arbitrary/_internals/helpers/DepthContext.d.ts
- * Generated: 2026-02-19T04:14:22.329Z
+ * Generated: 2026-02-19T04:50:43.244Z
  *
  * Overview:
  * Instance of depth, can be used to alter the depth perceived by an arbitrary or to bias your own arbitraries based on the current depth
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

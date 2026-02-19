@@ -6,7 +6,7 @@
  * Export: Scheduler
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Scheduler.ts
- * Generated: 2026-02-19T04:14:17.063Z
+ * Generated: 2026-02-19T04:50:39.077Z
  *
  * Overview:
  * A scheduler manages the execution of Effects by controlling when and how tasks are scheduled and executed. It determines the execution mode (synchronous or asynchronous) and handles task prioritization and yielding behavior.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

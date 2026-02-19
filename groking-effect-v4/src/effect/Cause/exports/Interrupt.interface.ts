@@ -6,7 +6,7 @@
  * Export: Interrupt
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/Cause.ts
- * Generated: 2026-02-19T04:14:10.144Z
+ * Generated: 2026-02-19T04:50:33.188Z
  *
  * Overview:
  * A fiber interruption signal, optionally carrying the ID of the fiber that initiated the interruption.
@@ -32,7 +32,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as CauseModule from "effect/Cause";
 import * as Console from "effect/Console";
@@ -73,7 +72,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

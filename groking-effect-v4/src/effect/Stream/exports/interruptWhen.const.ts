@@ -6,7 +6,7 @@
  * Export: interruptWhen
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Stream.ts
- * Generated: 2026-02-19T04:14:21.440Z
+ * Generated: 2026-02-19T04:50:42.455Z
  *
  * Overview:
  * Interrupts the evaluation of this stream when the provided effect completes. The given effect will be forked as part of this stream, and its success will be discarded. This combinator will also interrupt any in-progress element being pulled from upstream.
@@ -44,7 +44,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -85,7 +84,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

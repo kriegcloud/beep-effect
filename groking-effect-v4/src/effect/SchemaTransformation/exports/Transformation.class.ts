@@ -6,7 +6,7 @@
  * Export: Transformation
  * Kind: class
  * Source: .repos/effect-smol/packages/effect/src/SchemaTransformation.ts
- * Generated: 2026-02-19T04:14:19.708Z
+ * Generated: 2026-02-19T04:50:40.615Z
  *
  * Overview:
  * A bidirectional transformation between a decoded type `T` and an encoded type `E`, built from a pair of `Getter`s.
@@ -31,7 +31,6 @@ import {
   inspectNamedExport,
   probeNamedExportConstructor,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -72,7 +71,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Class Discovery",

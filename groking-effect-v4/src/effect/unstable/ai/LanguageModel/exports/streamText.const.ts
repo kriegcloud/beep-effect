@@ -6,7 +6,7 @@
  * Export: streamText
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/unstable/ai/LanguageModel.ts
- * Generated: 2026-02-19T04:14:23.924Z
+ * Generated: 2026-02-19T04:50:45.272Z
  *
  * Overview:
  * Generate text using a language model with streaming output.
@@ -36,7 +36,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -76,7 +75,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

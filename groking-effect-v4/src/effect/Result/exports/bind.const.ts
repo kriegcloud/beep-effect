@@ -6,7 +6,7 @@
  * Export: bind
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Result.ts
- * Generated: 2026-02-19T04:14:16.771Z
+ * Generated: 2026-02-19T04:50:38.941Z
  *
  * Overview:
  * Adds a named field to the do-notation accumulator by running a `Result`-producing function that receives the current accumulated object.
@@ -34,7 +34,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -75,7 +74,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

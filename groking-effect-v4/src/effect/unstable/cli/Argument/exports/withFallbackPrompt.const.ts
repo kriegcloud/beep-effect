@@ -6,7 +6,7 @@
  * Export: withFallbackPrompt
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/unstable/cli/Argument.ts
- * Generated: 2026-02-19T04:14:24.406Z
+ * Generated: 2026-02-19T04:50:46.202Z
  *
  * Overview:
  * Adds a fallback prompt that is shown when a required argument is missing.
@@ -30,7 +30,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -70,7 +69,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

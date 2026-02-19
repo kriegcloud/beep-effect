@@ -6,7 +6,7 @@
  * Export: containsWith
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Array.ts
- * Generated: 2026-02-19T04:14:09.701Z
+ * Generated: 2026-02-19T04:50:32.347Z
  *
  * Overview:
  * Returns a membership-test function using a custom equivalence.
@@ -29,7 +29,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ArrayModule from "effect/Array";
 import * as Console from "effect/Console";
@@ -69,7 +68,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

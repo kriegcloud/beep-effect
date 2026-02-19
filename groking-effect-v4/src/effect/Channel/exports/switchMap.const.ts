@@ -6,7 +6,7 @@
  * Export: switchMap
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Channel.ts
- * Generated: 2026-02-19T04:14:10.641Z
+ * Generated: 2026-02-19T04:50:34.229Z
  *
  * Overview:
  * Returns a new channel, which sequentially combines this channel, together with the provided factory function, which creates a second channel based on the output values of this channel. The result is a channel that will first perform the functions of this channel, before performing the functions of the created channel (including yielding its terminal value).
@@ -41,7 +41,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ChannelModule from "effect/Channel";
 import * as Console from "effect/Console";
@@ -82,7 +81,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

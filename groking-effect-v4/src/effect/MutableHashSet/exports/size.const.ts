@@ -6,7 +6,7 @@
  * Export: size
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/MutableHashSet.ts
- * Generated: 2026-02-19T04:14:15.152Z
+ * Generated: 2026-02-19T04:50:37.834Z
  *
  * Overview:
  * Returns the number of unique values in the MutableHashSet.
@@ -40,7 +40,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -80,7 +79,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: add
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/HashRing.ts
- * Generated: 2026-02-19T04:14:14.000Z
+ * Generated: 2026-02-19T04:50:37.004Z
  *
  * Overview:
  * Add a new node to the ring. If the node already exists in the ring, it will be updated. For example, you can use this to update the node's weight.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

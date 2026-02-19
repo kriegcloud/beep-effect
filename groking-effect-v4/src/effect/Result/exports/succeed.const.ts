@@ -6,7 +6,7 @@
  * Export: succeed
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Result.ts
- * Generated: 2026-02-19T04:14:16.772Z
+ * Generated: 2026-02-19T04:50:38.942Z
  *
  * Overview:
  * Creates a `Result` holding a `Success` value.
@@ -31,7 +31,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -71,7 +70,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

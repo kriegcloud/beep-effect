@@ -6,7 +6,7 @@
  * Export: makeReducer
  * Kind: function
  * Source: .repos/effect-smol/packages/effect/src/Struct.ts
- * Generated: 2026-02-19T04:14:21.492Z
+ * Generated: 2026-02-19T04:50:42.533Z
  *
  * Overview:
  * Creates a `Reducer` for a struct shape by providing a `Reducer` for each property. The initial value is derived from each property's `Reducer.initialValue`. When reducing a collection of structs, each property is combined independently.
@@ -37,7 +37,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -78,7 +77,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Function Discovery",

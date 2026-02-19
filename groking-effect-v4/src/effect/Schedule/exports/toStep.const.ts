@@ -6,7 +6,7 @@
  * Export: toStep
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Schedule.ts
- * Generated: 2026-02-19T04:14:17.053Z
+ * Generated: 2026-02-19T04:50:39.069Z
  *
  * Overview:
  * Extracts the step function from a Schedule.
@@ -39,7 +39,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -79,7 +78,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

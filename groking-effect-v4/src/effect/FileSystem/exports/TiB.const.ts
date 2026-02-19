@@ -6,7 +6,7 @@
  * Export: TiB
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/FileSystem.ts
- * Generated: 2026-02-19T04:14:13.237Z
+ * Generated: 2026-02-19T04:50:36.446Z
  *
  * Overview:
  * Creates a `Size` representing tebibytes (1024⁴ bytes).
@@ -43,7 +43,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -83,7 +82,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

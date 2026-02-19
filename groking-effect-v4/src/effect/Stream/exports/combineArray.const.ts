@@ -6,7 +6,7 @@
  * Export: combineArray
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Stream.ts
- * Generated: 2026-02-19T04:14:21.437Z
+ * Generated: 2026-02-19T04:50:42.445Z
  *
  * Overview:
  * Combines the arrays (chunks) from this stream and the specified stream by repeatedly applying the function `f` to extract an array using both sides and conceptually "offer" it to the destination stream. `f` can maintain some internal state to control the combining process, with the initial state being specified by `s`.
@@ -46,7 +46,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -87,7 +86,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

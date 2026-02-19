@@ -6,7 +6,7 @@
  * Export: fromNullishOr
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Array.ts
- * Generated: 2026-02-19T04:14:09.703Z
+ * Generated: 2026-02-19T04:50:32.349Z
  *
  * Overview:
  * Converts a nullable value to an array: `null`/`undefined` becomes `[]`, anything else becomes `[value]`.
@@ -30,7 +30,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ArrayModule from "effect/Array";
 import * as Console from "effect/Console";
@@ -71,7 +70,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

@@ -6,7 +6,7 @@
  * Export: filter
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/TxHashSet.ts
- * Generated: 2026-02-19T04:14:23.138Z
+ * Generated: 2026-02-19T04:50:44.146Z
  *
  * Overview:
  * Filters the TxHashSet keeping only values that satisfy the predicate, returning a new TxHashSet.
@@ -35,7 +35,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -76,7 +75,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",

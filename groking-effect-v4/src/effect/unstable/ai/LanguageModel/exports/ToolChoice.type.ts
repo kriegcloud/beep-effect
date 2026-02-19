@@ -6,7 +6,7 @@
  * Export: ToolChoice
  * Kind: type
  * Source: .repos/effect-smol/packages/effect/src/unstable/ai/LanguageModel.ts
- * Generated: 2026-02-19T04:14:23.924Z
+ * Generated: 2026-02-19T04:50:45.273Z
  *
  * Overview:
  * The tool choice mode for the language model. - `auto` (default): The model can decide whether or not to call tools, as well as which tools to call. - `required`: The model **must** call a tool but can decide which tool will be called. - `none`: The model **must not** call a tool. - `{ tool: <tool_name> }`: The model must call the specified tool. - `{ mode?: "auto" (default) | "required", "oneOf": [<tool-names>] }`: The model is restricted to the subset of tools specified by `oneOf`. When `mode` is `"auto"` or omitted, the model can decide whether or not a tool from the allowed subset of tools can be called. When `mode` is `"required"`, the model **must** call one tool from the allowed subset of tools.
@@ -24,7 +24,6 @@ import {
   inspectNamedExport,
   inspectTypeLikeExport,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -64,7 +63,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Type Erasure Check",

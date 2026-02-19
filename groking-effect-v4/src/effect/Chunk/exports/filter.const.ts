@@ -6,7 +6,7 @@
  * Export: filter
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/Chunk.ts
- * Generated: 2026-02-19T04:14:10.886Z
+ * Generated: 2026-02-19T04:50:34.377Z
  *
  * Overview:
  * Returns a filtered subset of the elements.
@@ -35,7 +35,6 @@ import {
   inspectNamedExport,
   probeNamedExportFunction,
 } from "@beep/groking-effect-v4/runtime/Playground";
-import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as ChunkModule from "effect/Chunk";
 import * as Console from "effect/Console";
@@ -75,7 +74,6 @@ const program = createPlaygroundProgram({
   exportKind,
   summary: sourceSummary,
   sourceExample,
-  bunContext: BunContext,
   examples: [
     {
       title: "Runtime Shape Inspection",
