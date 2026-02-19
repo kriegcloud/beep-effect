@@ -5,6 +5,7 @@
   "references": [
     { "path": "groking-effect-v4" },
     { "path": "tooling/cli" },
-    { "path": "tooling/repo-utils" }
+    { "path": "tooling/repo-utils" },
+    { "path": "tooling/codebase-search" }
   ]
 }

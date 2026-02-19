@@ -6,7 +6,7 @@
  * idempotent — existing entries are silently skipped.
  *
  * @since 0.0.0
- * @category config
+ * @module
  */
 
 import { DomainError } from "@beep/repo-utils";
@@ -18,8 +18,13 @@ import * as jsonc from "jsonc-parser";
 // ── Types ────────────────────────────────────────────────────────────────────
 
 /**
+ * Summary of which root configuration files were modified during a config update pass.
+ *
+ * Each boolean field is `true` when the corresponding file was actually written
+ * (or, in the case of {@link checkConfigNeedsUpdate}, would need updating).
+ *
  * @since 0.0.0
- * @category models
+ * @category types
  */
 export interface ConfigUpdateResult {
   readonly tsconfigPackages: boolean;
@@ -68,8 +73,14 @@ const modifyFileString: (
 /**
  * Add a project reference to `tsconfig.packages.json`.
  *
+ * Idempotent: if the reference already exists, the file is left untouched.
+ *
+ * @param repoRoot - Absolute path to the repository root directory.
+ * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
+ * @returns `true` when the file was modified, `false` when the entry already existed.
+ * @depends FileSystem, Path
  * @since 0.0.0
- * @category config
+ * @category functions
  */
 export const updateTsconfigPackages: (
   repoRoot: string,
@@ -100,8 +111,17 @@ export const updateTsconfigPackages: (
 /**
  * Add path aliases to `tsconfig.json` (JSONC-safe, preserves comments).
  *
+ * Creates both a root alias (`@beep/<name>`) and a wildcard alias
+ * (`@beep/<name>/*`) pointing at the package's `src/` directory.
+ * Idempotent: if the alias already exists, the file is left untouched.
+ *
+ * @param repoRoot - Absolute path to the repository root directory.
+ * @param packageName - Unscoped package name (e.g. `"my-utils"`).
+ * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
+ * @returns `true` when the file was modified, `false` when the aliases already existed.
+ * @depends FileSystem, Path
  * @since 0.0.0
- * @category config
+ * @category functions
  */
 export const updateTsconfigPaths: (
   repoRoot: string,
@@ -140,10 +160,18 @@ export const updateTsconfigPaths: (
 );
 
 /**
- * Orchestrate all root config updates. Returns which files were modified.
+ * Orchestrate all root config updates for a newly created package.
  *
+ * Delegates to {@link updateTsconfigPackages} and {@link updateTsconfigPaths}
+ * in sequence, returning a summary of which files were actually written.
+ *
+ * @param repoRoot - Absolute path to the repository root directory.
+ * @param packageName - Unscoped package name (e.g. `"my-utils"`).
+ * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
+ * @returns A {@link ConfigUpdateResult} indicating which config files were modified.
+ * @depends FileSystem, Path
  * @since 0.0.0
- * @category config
+ * @category functions
  */
 export const updateRootConfigs: (
   repoRoot: string,
@@ -159,10 +187,18 @@ export const updateRootConfigs: (
 
 /**
  * Check whether config entries already exist (for dry-run output).
- * Returns `true` for each config that **would need** an update.
  *
+ * Returns `true` for each config file that **would need** an update.
+ * Unlike {@link updateRootConfigs}, this function is read-only and never
+ * modifies files on disk.
+ *
+ * @param repoRoot - Absolute path to the repository root directory.
+ * @param packageName - Unscoped package name (e.g. `"my-utils"`).
+ * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
+ * @returns A {@link ConfigUpdateResult} where `true` means the file still needs updating.
+ * @depends FileSystem, Path
  * @since 0.0.0
- * @category config
+ * @category functions
  */
 export const checkConfigNeedsUpdate: (
   repoRoot: string,

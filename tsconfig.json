@@ -30,7 +30,9 @@
       "@beep/repo-cli": ["./tooling/cli/src/index.ts"],
       "@beep/repo-cli/*": ["./tooling/cli/src/*.ts"],
       "@beep/utils": ["./tooling/utils/src/index.ts"],
-      "@beep/utils/*": ["./tooling/utils/src/*.ts"]
+      "@beep/utils/*": ["./tooling/utils/src/*.ts"],
+      "@beep/codebase-search": ["./tooling/codebase-search/src/index.ts"],
+      "@beep/codebase-search/*": ["./tooling/codebase-search/src/*.ts"]
     },
     "plugins": [
       {

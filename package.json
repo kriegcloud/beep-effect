@@ -39,7 +39,8 @@
     "nuke": "docker compose down && docker system prune -a -f && docker volume prune -a -f",
     "services:up": "bun run dotenvx -- docker compose up -d",
     "dotenvx": "bunx @dotenvx/dotenvx run -f .env --",
-    "deps:update": "bunx syncpack update --target=latest --dependency-types=catalog"
+    "deps:update": "bunx syncpack update --target=latest --dependency-types=catalog",
+    "postinstall": "lefthook install"
   },
   "resolutions#": {
     "@beep/*": "Needed to force PNPM to install local packages"
@@ -79,15 +80,8 @@
     "tstyche": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
+    "lefthook": "catalog:",
     "vite-tsconfig-paths": "catalog:"
-  },
-  "lint-staged": {
-    "*": [
-      "biome check"
-    ],
-    "**/*.{ts,tsx,js,jsx,cjs,mjs}": [
-      "biome check"
-    ]
   },
   "catalog": {
     "@babel/cli": "^7.28.6",
@@ -111,6 +105,9 @@
     "@effect/platform-node-shared": "^4.0.0-beta.5",
     "@effect/sql-pg": "^4.0.0-beta.5",
     "@effect/vitest": "^4.0.0-beta.5",
+    "@huggingface/transformers": "^3.8.1",
+    "@lancedb/lancedb": "^0.26.2",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "@turbo/gen": "^2.8.10",
     "effect": "^4.0.0-beta.5",
     "@typescript/native-preview": "7.0.0-dev.20260219.1",
@@ -125,11 +122,12 @@
     "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "babel-plugin-transform-next-use-client": "^1.1.1",
     "copyfiles": "^2.4.1",
+    "doctrine": "^3.0.0",
     "glob": "^13.0.5",
     "handlebars": "^4.7.8",
     "jsonc-parser": "^3.3.1",
     "jscodeshift": "^17.3.0",
-    "lint-staged": "^16.2.7",
+    "lefthook": "^2.1.1",
     "madge": "^8.0.0",
     "syncpack": "14.0.0-alpha.41",
     "ts-morph": "^27.0.2",
@@ -137,6 +135,7 @@
     "tstyche": "^6.2.0",
     "turbo": "^2.8.10",
     "typescript": "^5.9.3",
-    "vite-tsconfig-paths": "^6.1.1"
+    "vite-tsconfig-paths": "^6.1.1",
+    "wink-bm25-text-search": "^3.1.2"
   }
 }

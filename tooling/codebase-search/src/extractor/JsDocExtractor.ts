@@ -5,13 +5,14 @@
  * @since 0.0.0
  * @packageDocumentation
  */
+
+import type { Tag as DoctrineTag } from "doctrine";
+import doctrine from "doctrine";
 import * as A from "effect/Array";
-import * as O from "effect/Option";
 import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as tsMorph from "ts-morph";
-import doctrine from "doctrine";
-import type { Tag as DoctrineTag } from "doctrine";
 
 import type { ParamDoc } from "../IndexedSymbol.js";
 
@@ -80,32 +81,23 @@ const getTagDescription = (tag: DoctrineTag): string =>
   pipe(
     O.fromNullishOr(tag.description),
     O.map(Str.trim),
-    O.getOrElse(() => ""),
+    O.getOrElse(() => "")
   );
 
 /** @internal */
-const getTagsByTitle = (
-  tags: ReadonlyArray<DoctrineTag>,
-  title: string,
-): ReadonlyArray<DoctrineTag> =>
+const getTagsByTitle = (tags: ReadonlyArray<DoctrineTag>, title: string): ReadonlyArray<DoctrineTag> =>
   A.filter(tags, (tag) => tag.title === title);
 
 /** @internal */
-const getFirstTagByTitle = (
-  tags: ReadonlyArray<DoctrineTag>,
-  title: string,
-): O.Option<DoctrineTag> =>
+const getFirstTagByTitle = (tags: ReadonlyArray<DoctrineTag>, title: string): O.Option<DoctrineTag> =>
   A.findFirst(tags, (tag) => tag.title === title);
 
 /** @internal */
-const collectTagDescriptions = (
-  tags: ReadonlyArray<DoctrineTag>,
-  title: string,
-): ReadonlyArray<string> =>
+const collectTagDescriptions = (tags: ReadonlyArray<DoctrineTag>, title: string): ReadonlyArray<string> =>
   pipe(
     getTagsByTitle(tags, title),
     A.map(getTagDescription),
-    A.filter((desc) => Str.length(desc) > 0),
+    A.filter((desc) => Str.length(desc) > 0)
   );
 
 /**
@@ -136,7 +128,7 @@ const getRawJsDocText = (node: tsMorph.Node): O.Option<string> => {
       A.filter((range) => range.getKind() === tsMorph.ts.SyntaxKind.MultiLineCommentTrivia),
       A.map((range) => fullText.slice(range.getPos(), range.getEnd())),
       A.filter((text) => text.startsWith("/**")),
-      A.last,
+      A.last
     );
     return jsDocComment;
   }
@@ -162,7 +154,7 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
   const description = pipe(
     O.fromNullishOr(parsed.description),
     O.map(Str.trim),
-    O.getOrElse(() => ""),
+    O.getOrElse(() => "")
   );
 
   // @since
@@ -170,7 +162,7 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
     getFirstTagByTitle(tags, "since"),
     O.map(getTagDescription),
     O.filter((s) => Str.length(s) > 0),
-    O.getOrElse(() => "0.0.0"),
+    O.getOrElse(() => "0.0.0")
   );
 
   // @category
@@ -178,7 +170,7 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
     getFirstTagByTitle(tags, "category"),
     O.map(getTagDescription),
     O.filter((s) => Str.length(s) > 0),
-    O.getOrElse(() => "uncategorized"),
+    O.getOrElse(() => "uncategorized")
   );
 
   // @domain (custom tag)
@@ -186,7 +178,7 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
     getFirstTagByTitle(tags, "domain"),
     O.map(getTagDescription),
     O.filter((s) => Str.length(s) > 0),
-    O.getOrElse(() => null as string | null),
+    O.getOrElse(() => null as string | null)
   );
 
   // @remarks
@@ -194,7 +186,7 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
     getFirstTagByTitle(tags, "remarks"),
     O.map(getTagDescription),
     O.filter((s) => Str.length(s) > 0),
-    O.getOrElse(() => null as string | null),
+    O.getOrElse(() => null as string | null)
   );
 
   // @example (collect all)
@@ -203,14 +195,16 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
   // @param
   const params: ReadonlyArray<ParamDoc> = pipe(
     getTagsByTitle(tags, "param"),
-    A.map((tag): ParamDoc => ({
-      name: pipe(
-        O.fromNullishOr(tag.name),
-        O.getOrElse(() => ""),
-      ),
-      description: getTagDescription(tag),
-    })),
-    A.filter((p) => Str.length(p.name) > 0),
+    A.map(
+      (tag): ParamDoc => ({
+        name: pipe(
+          O.fromNullishOr(tag.name),
+          O.getOrElse(() => "")
+        ),
+        description: getTagDescription(tag),
+      })
+    ),
+    A.filter((p) => Str.length(p.name) > 0)
   );
 
   // @returns / @return
@@ -219,15 +213,13 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
     O.orElse(() => getFirstTagByTitle(tags, "return")),
     O.map(getTagDescription),
     O.filter((s) => Str.length(s) > 0),
-    O.getOrElse(() => null as string | null),
+    O.getOrElse(() => null as string | null)
   );
 
   // @throws / @errors (collect all)
-  const errors: ReadonlyArray<string> = pipe(
-    A.appendAll(
-      collectTagDescriptions(tags, "throws"),
-      collectTagDescriptions(tags, "errors"),
-    ),
+  const errors: ReadonlyArray<string> = A.appendAll(
+    collectTagDescriptions(tags, "throws"),
+    collectTagDescriptions(tags, "errors")
   );
 
   // @see (collect all)
@@ -240,26 +232,15 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
   const dependsOn: ReadonlyArray<string> = collectTagDescriptions(tags, "depends");
 
   // @deprecated (presence check)
-  const deprecated = pipe(
-    getFirstTagByTitle(tags, "deprecated"),
-    O.isSome,
-  );
+  const deprecated = pipe(getFirstTagByTitle(tags, "deprecated"), O.isSome);
 
   // @packageDocumentation / @module (presence check)
-  const hasPackageDoc = pipe(
-    getFirstTagByTitle(tags, "packageDocumentation"),
-    O.isSome,
-  );
-  const hasModule = pipe(
-    getFirstTagByTitle(tags, "module"),
-    O.isSome,
-  );
+  const hasPackageDoc = pipe(getFirstTagByTitle(tags, "packageDocumentation"), O.isSome);
+  const hasModule = pipe(getFirstTagByTitle(tags, "module"), O.isSome);
   const isPackageDocumentation = hasPackageDoc || hasModule;
 
   // moduleDescription is set only for package documentation nodes
-  const moduleDescription = isPackageDocumentation && Str.length(description) > 0
-    ? description
-    : null;
+  const moduleDescription = isPackageDocumentation && Str.length(description) > 0 ? description : null;
 
   return {
     description,
@@ -297,7 +278,7 @@ export const extractJsDoc = (node: tsMorph.Node): JsDocResult =>
     O.match({
       onNone: () => DEFAULT_JSDOC_RESULT,
       onSome: parseDoctrineComment,
-    }),
+    })
   );
 
 /**
@@ -330,7 +311,7 @@ export const extractModuleDoc = (sourceFile: tsMorph.SourceFile): JsDocResult | 
     const firstStatementPos = pipe(
       A.head(statements),
       O.map((stmt) => stmt.getStart()),
-      O.getOrElse(() => Str.length(fullText)),
+      O.getOrElse(() => Str.length(fullText))
     );
 
     if (match.index < firstStatementPos) {

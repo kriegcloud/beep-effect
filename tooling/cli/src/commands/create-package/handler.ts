@@ -78,8 +78,14 @@ const ALL_FILES: ReadonlyArray<string> = [
 // ── Template context ──────────────────────────────────────────────────────────
 
 /**
+ * Variables passed into every Handlebars template during package scaffolding.
+ *
+ * Derived from the CLI flags and a handful of computed values (year, parent
+ * directory, boolean type selectors). Templates reference these via
+ * `{{name}}`, `{{scopedName}}`, `{{#if isTool}}`, etc.
+ *
  * @since 0.0.0
- * @category models
+ * @category types
  */
 interface TemplateContext {
   readonly name: string;
@@ -95,6 +101,18 @@ interface TemplateContext {
 
 // ── Template loading ──────────────────────────────────────────────────────────
 
+/**
+ * Read a Handlebars template file from the templates directory and compile it.
+ *
+ * Template files live alongside the compiled JS output at `src/commands/create-package/templates/`.
+ * The returned delegate is ready to be invoked with a {@link TemplateContext}.
+ *
+ * @param templateName - Filename of the `.hbs` template (e.g. `"tsconfig.json.hbs"`).
+ * @returns A compiled Handlebars template delegate.
+ * @depends FileSystem
+ * @since 0.0.0
+ * @category functions
+ */
 const loadTemplate: (
   templateName: string
 ) => Effect.Effect<Handlebars.TemplateDelegate, DomainError, FileSystem.FileSystem> = Effect.fn(
@@ -112,6 +130,9 @@ const loadTemplate: (
 // ── Command ───────────────────────────────────────────────────────────────────
 
 /**
+ * CLI command that scaffolds a new package with Handlebars templates, a Schema-validated
+ * `package.json`, and automatic root tsconfig updates (project references + path aliases).
+ *
  * @since 0.0.0
  * @category commands
  */
@@ -260,6 +281,20 @@ export const createPackageCommand = Command.make(
 
 // ── Template generators ────────────────────────────────────────────────────
 
+/**
+ * Build a pretty-printed `package.json` string for a new package.
+ *
+ * Constructs the package manifest object with standard scripts, exports map,
+ * and publish configuration, then encodes it through the repo-utils Schema
+ * encoder to guarantee structural validity.
+ *
+ * @param name - The unscoped package name (e.g. `"my-utils"`). Will be prefixed with `@beep/`.
+ * @param type - One of `"library"`, `"tool"`, or `"app"`. Tools receive an extra `@effect/platform-node` dependency.
+ * @param description - Human-readable package description for the `"description"` field.
+ * @returns A JSON string (with trailing newline) ready to be written to disk.
+ * @since 0.0.0
+ * @category functions
+ */
 const generatePackageJson: (
   name: string,
   type: string,

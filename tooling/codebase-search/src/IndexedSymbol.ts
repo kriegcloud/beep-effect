@@ -5,11 +5,12 @@
  * @since 0.0.0
  * @packageDocumentation
  */
-import * as A from "effect/Array";
-import * as S from "effect/Schema";
-import { pipe } from "effect/Function";
-import * as Str from "effect/String";
+
 import * as crypto from "node:crypto";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // ---------------------------------------------------------------------------
 // Symbol Kind
@@ -211,8 +212,7 @@ export const IndexMeta = S.Struct({
 }).annotate({
   identifier: "@beep/codebase-search/IndexedSymbol/IndexMeta",
   title: "Index Metadata",
-  description:
-    "Metadata about the codebase search index including version, timestamps, and statistics.",
+  description: "Metadata about the codebase search index including version, timestamps, and statistics.",
 });
 
 /**
@@ -233,8 +233,7 @@ export type IndexMeta = typeof IndexMeta.Type;
  * @since 0.0.0
  * @category builders
  */
-export const generateId = (pkg: string, module: string, name: string): string =>
-  `${pkg}/${module}/${name}`;
+export const generateId = (pkg: string, module: string, name: string): string => `${pkg}/${module}/${name}`;
 
 // ---------------------------------------------------------------------------
 // classifySymbol
@@ -276,11 +275,8 @@ export const classifySymbol = (input: ClassifyInput): SymbolKind => {
   if (category === "services") return "service";
 
   // 4. Layer patterns or layers category → layer
-  if (
-    effectPattern === "Layer.effect" ||
-    effectPattern === "Layer.succeed" ||
-    effectPattern === "Layer.provide"
-  ) return "layer";
+  if (effectPattern === "Layer.effect" || effectPattern === "Layer.succeed" || effectPattern === "Layer.provide")
+    return "layer";
   if (category === "layers") return "layer";
 
   // 5. Schema patterns or schemas category → schema
@@ -290,7 +286,8 @@ export const classifySymbol = (input: ClassifyInput): SymbolKind => {
     effectPattern === "Schema.Union" ||
     effectPattern === "Schema.TaggedStruct" ||
     effectPattern === "Schema.brand"
-  ) return "schema";
+  )
+    return "schema";
   if (category === "schemas") return "schema";
 
   // 6. Type alias or interface → type
@@ -304,7 +301,8 @@ export const classifySymbol = (input: ClassifyInput): SymbolKind => {
     effectPattern === "Flag.boolean" ||
     effectPattern === "Argument.string" ||
     effectPattern === "Argument.number"
-  ) return "function";
+  )
+    return "function";
 
   // 8. Package documentation → module
   if (isPackageDocumentation) return "module";
@@ -328,7 +326,7 @@ const MAX_EMBEDDING_CHARS = 3000;
  * @category builders
  */
 export const buildEmbeddingText = (symbol: IndexedSymbol): string => {
-  const parts: Array<string> = [];
+  const parts = A.empty<string>();
 
   // 1. Kind prefix
   parts.push(`[${symbol.kind}]`);
@@ -364,18 +362,13 @@ export const buildEmbeddingText = (symbol: IndexedSymbol): string => {
       const commentLines = pipe(
         lines,
         A.filter((line) => Str.startsWith("//")(Str.trim(line)) || Str.startsWith("*")(Str.trim(line))),
-        A.map((line) =>
-          pipe(
-            Str.trim(line),
-            (trimmed) => trimmed.replace(/^\/\/\s*/, "").replace(/^\*\s*/, ""),
-          ),
-        ),
-        A.filter((line) => pipe(line, Str.trim, Str.length) > 0),
+        A.map((line) => pipe(Str.trim(line), (trimmed) => trimmed.replace(/^\/\/\s*/, "").replace(/^\*\s*/, ""))),
+        A.filter((line) => pipe(line, Str.trim, Str.length) > 0)
       );
       if (A.isArrayNonEmpty(commentLines)) {
         parts.push(A.join(" ")(commentLines));
       }
-    }),
+    })
   );
 
   // 8. Parameter descriptions
@@ -383,7 +376,7 @@ export const buildEmbeddingText = (symbol: IndexedSymbol): string => {
     symbol.params,
     A.forEach((param) => {
       parts.push(`Parameter ${param.name}: ${param.description}`);
-    }),
+    })
   );
 
   // 9. Returns description
@@ -396,7 +389,7 @@ export const buildEmbeddingText = (symbol: IndexedSymbol): string => {
     symbol.errors,
     A.forEach((error) => {
       parts.push(`Throws: ${error}`);
-    }),
+    })
   );
 
   // 11. Field descriptions
@@ -405,7 +398,7 @@ export const buildEmbeddingText = (symbol: IndexedSymbol): string => {
       symbol.fieldDescriptions,
       A.forEach((field) => {
         parts.push(`Field ${field.name}: ${field.description}`);
-      }),
+      })
     );
   }
 
@@ -476,18 +469,24 @@ export const buildKeywordText = (symbol: IndexedSymbol): string => {
   // Provides/depends identifiers
   pipe(
     symbol.provides,
-    A.forEach((p) => { parts.push(p); }),
+    A.forEach((p) => {
+      parts.push(p);
+    })
   );
   pipe(
     symbol.dependsOn,
-    A.forEach((d) => { parts.push(d); }),
+    A.forEach((d) => {
+      parts.push(d);
+    })
   );
 
   // Field names
   if (symbol.fieldDescriptions !== null) {
     pipe(
       symbol.fieldDescriptions,
-      A.forEach((field) => { parts.push(field.name); }),
+      A.forEach((field) => {
+        parts.push(field.name);
+      })
     );
   }
 
@@ -506,7 +505,7 @@ export const buildKeywordText = (symbol: IndexedSymbol): string => {
  * @category validators
  */
 export const validateIndexedSymbol = (symbol: IndexedSymbol): ReadonlyArray<string> => {
-  const errors: Array<string> = [];
+  const errors = A.empty<string>();
 
   if (Str.length(symbol.id) === 0) {
     errors.push("id must be non-empty");
