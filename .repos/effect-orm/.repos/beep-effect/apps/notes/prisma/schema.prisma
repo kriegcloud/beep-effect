@@ -1,0 +1,184 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+// TODO: Re-enable once @premieroctet/next-admin supports Prisma 7
+// The next-admin-generator-prisma currently generates incompatible Prisma client code
+// generator nextAdmin {
+//   provider         = "next-admin-generator-prisma"
+//   includeRelations = true
+// }
+
+generator jsonSchema {
+  provider = "prisma-json-schema-generator"
+  output   = "../.next-admin"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Session {
+  id         String   @id
+  user_id    String
+  expires_at DateTime
+  user       User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  ip_address String?  @db.VarChar(45)
+  user_agent String?
+}
+
+model OauthAccount {
+  id             String @id @default(cuid())
+  providerId     String
+  providerUserId String
+  userId         String
+  user           User   @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@unique([providerId, providerUserId])
+}
+
+model User {
+  id            String         @id
+  username      String         @unique
+  password_hash String?
+  email         String?        @unique
+  sessions      Session[]
+  oauthAccounts OauthAccount[]
+  role          UserRole       @default(USER)
+
+  uploadLimit Int @default(100000000)
+
+  name             String?
+  firstName        String?
+  lastName         String?
+  profileImageUrl  String? @db.Text
+  version          Int     @default(1)
+  stripeCustomerId String? @unique
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  documents        Document[]
+  comments         Comment[]
+  files            File[]
+  discussions      Discussion[]
+  documentVersions DocumentVersion[]
+
+  @@index([username])
+}
+
+model Document {
+  id         String  @id
+  templateId String?
+
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String
+  parentDocumentId String?
+  parentDocument   Document?  @relation("ParentChild", fields: [parentDocumentId], references: [id])
+  children         Document[] @relation("ParentChild")
+
+  title        String?
+  content      String?
+  contentRich  Json?
+  yjsSnapshot  Bytes?
+  coverImage   String?
+  icon         String?
+  isPublished  Boolean @default(false)
+  isArchived   Boolean @default(false)
+
+  textStyle TextStyle @default(DEFAULT)
+  smallText Boolean   @default(false)
+  fullWidth Boolean   @default(false)
+  lockPage  Boolean   @default(false)
+  toc       Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  discussions      Discussion[]
+  documentVersions DocumentVersion[]
+  files            File[]
+
+  @@unique([userId, templateId])
+}
+
+model DocumentVersion {
+  id         String   @id
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String?
+  contentRich Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Discussion {
+  id String @id
+
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  documentContent     String
+  documentContentRich Json?
+  isResolved          Boolean   @default(false)
+  comments            Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Comment {
+  id String @id
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  discussionId String
+  discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+
+  content     String
+  contentRich Json?
+  isEdited    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model File {
+  id String @id
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id])
+
+  size   Int
+  url    String @db.Text
+  appUrl String @db.Text
+  type   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum TextStyle {
+  DEFAULT
+  SERIF
+  MONO
+}

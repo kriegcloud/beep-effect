@@ -1,0 +1,45 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: beep-redis
+    ports:
+      - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
+    volumes:
+      - redis_data:/data
+  postgres:
+    container_name: beep-db
+    image: postgres:alpine
+    restart: always
+    shm_size: 1g
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d postgres'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    command: |
+      postgres
+      -c wal_level=logical
+      -c max_wal_senders=10
+      -c max_replication_slots=5
+      -c hot_standby=on
+      -c hot_standby_feedback=on
+      -c max_connections=200
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    ports:
+      - "${DB_PG_PORT:-5432}:${DB_PG_PORT:-5432}"
+
+  grafana:
+    image: grafana/otel-lgtm:0.11.10
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "4000:3000"
+      - "4318:4318"
+    volumes:
+      - ./docker/grafana/otelcol-config.yaml:/otel-lgtm/otelcol-config.yaml:ro
+
+volumes:
+  redis_data:

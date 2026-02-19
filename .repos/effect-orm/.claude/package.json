@@ -1,0 +1,30 @@
+{
+  "name": "claude-setup",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@effect-atom/atom": "^0.4.10",
+    "@effect-atom/atom-react": "^0.4.4",
+    "@effect/cli": "^0.72.1",
+    "@effect/cluster": "^0.52.8",
+    "@effect/platform": "^0.93.7",
+    "@effect/platform-browser": "^0.73.0",
+    "@effect/platform-bun": "^0.86.0",
+    "@effect/platform-node": "^0.103.0",
+    "@effect/schema": "^0.75.5",
+    "@effect/typeclass": "^0.38.0",
+    "@effect/vitest": "^0.27.0",
+    "effect": "^3.19.9",
+    "msgpackr": "^1.11.5",
+    "picomatch": "^4.0.3",
+    "tsx": "^4.20.6"
+  },
+  "devDependencies": {
+    "@types/picomatch": "^4.0.2",
+    "@types/react": "^19.2.7",
+    "bun-types": "^1.1.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0"
+  }
+}
