@@ -1,0 +1,210 @@
+# Error Catalog Template
+# Use this format when creating .claude/errors/catalog.yaml in Phase 2
+
+version: "1.0"
+description: |
+  Machine-readable error catalog for AI agent error recovery.
+  Based on patterns from CWE, SonarQube, and Biome.
+
+# Error Categories
+categories:
+  - id: typescript
+    name: TypeScript Errors
+    prefix: TS
+    auto_fixable: partial
+    description: TypeScript compiler errors
+
+  - id: effect
+    name: Effect-TS Errors
+    prefix: EFF
+    auto_fixable: false
+    description: Effect ecosystem type and runtime errors
+
+  - id: biome
+    name: Biome Lint/Format
+    prefix: BIOME
+    auto_fixable: true
+    description: Biome linter and formatter issues
+
+  - id: turborepo
+    name: Build Pipeline
+    prefix: TURBO
+    auto_fixable: false
+    description: Turborepo and monorepo build issues
+
+  - id: runtime
+    name: Runtime Errors
+    prefix: RT
+    auto_fixable: false
+    description: Runtime exceptions and failures
+
+# Fix Type Classification (based on Biome model)
+fix_types:
+  safe:
+    description: Won't change program semantics
+    auto_apply: true
+    examples: [formatting, import_sorting]
+
+  unsafe:
+    description: May change program behavior
+    auto_apply: false
+    requires_review: true
+    examples: [variable_rename, type_widening]
+
+  manual:
+    description: Requires human understanding
+    auto_apply: false
+    requires_review: true
+    examples: [logic_errors, architecture_changes]
+
+# Remediation Effort (based on SonarQube model)
+remediation_levels:
+  trivial:
+    description: No logic understanding needed
+    estimated_time: "< 5 min"
+    examples: [formatting, semicolons]
+
+  easy:
+    description: No logic but potential impacts
+    estimated_time: "5-15 min"
+    examples: [rename, add_import]
+
+  major:
+    description: Understanding logic required
+    estimated_time: "> 15 min"
+    examples: [refactor, type_fix]
+
+# Error Entry Schema
+error_schema:
+  id:
+    type: string
+    format: "{PREFIX}_{NNN}"
+    required: true
+    description: Unique identifier
+
+  pattern:
+    type: regex
+    required: true
+    description: Regex to match error message
+
+  category:
+    type: enum
+    values: [typescript, effect, biome, turborepo, runtime]
+    required: true
+
+  severity:
+    type: enum
+    values: [error, warning, info]
+    required: true
+
+  fix_type:
+    type: enum
+    values: [safe, unsafe, manual]
+    required: true
+
+  remediation:
+    type: enum
+    values: [trivial, easy, major]
+    required: true
+
+  description:
+    type: string
+    required: true
+    description: Human-readable explanation
+
+  diagnosis:
+    type: string
+    required: false
+    description: How to identify root cause
+
+  fix_steps:
+    type: array[string]
+    required: true
+    description: Ordered steps to fix
+
+  auto_fix_command:
+    type: string
+    required: false
+    description: Command to auto-fix (only for safe fixes)
+
+  manual_review:
+    type: boolean
+    default: false
+    description: Whether human review required
+
+  example:
+    type: object
+    required: false
+    properties:
+      error: string      # Example error message
+      before: string     # Code before fix
+      after: string      # Code after fix
+
+# Example Entries (copy and modify)
+errors:
+  # TypeScript Example
+  - id: TS_EXAMPLE
+    pattern: "Property '(.+)' is missing in type"
+    category: typescript
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Missing required property in type definition
+    diagnosis: Check schema/interface definition for required fields
+    fix_steps:
+      - Identify the missing property from error message
+      - Add property to the type/interface/schema
+      - Ensure property type matches expected
+    example:
+      error: "Property 'id' is missing in type '{ name: string; }'"
+      before: |
+        S.Struct({ name: S.String })
+      after: |
+        S.Struct({ name: S.String, id: S.String })
+
+  # Effect Example
+  - id: EFF_EXAMPLE
+    pattern: "Cannot find name 'yield'"
+    category: effect
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Using yield outside generator function
+    diagnosis: Missing Effect.gen wrapper
+    fix_steps:
+      - Wrap code in Effect.gen(function* () { ... })
+      - Or use pipe() with flatMap instead of yield*
+    example:
+      before: |
+        const result = yield* someEffect;
+      after: |
+        Effect.gen(function* () {
+          const result = yield* someEffect;
+        })
+
+  # Biome Example
+  - id: BIOME_EXAMPLE
+    pattern: "missing semicolon|extra semicolon"
+    category: biome
+    severity: warning
+    fix_type: safe
+    remediation: trivial
+    description: Semicolon formatting issue
+    auto_fix_command: "bun run lint:fix"
+    fix_steps:
+      - Run auto-fix command
+    manual_review: false
+
+  # Turborepo Example
+  - id: TURBO_EXAMPLE
+    pattern: "Cannot find module '@beep/(.+)'"
+    category: turborepo
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Missing package reference in tsconfig
+    auto_fix_command: "bun run repo-cli tsconfig-sync"
+    fix_steps:
+      - Run tsconfig-sync to update references
+      - Verify package exists in packages/
+      - Check tsconfig.json references array

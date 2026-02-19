@@ -1,0 +1,13 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": [],
+  "exclude": ["src/**/*.test.ts"],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./build/tsconfig.tsbuildinfo"
+  },
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    }
+  ]
+}

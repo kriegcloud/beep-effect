@@ -1,0 +1,120 @@
+{
+  "extends": "../../tsconfig.base.jsonc",
+  "include": ["src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../packages/common/invariant"
+    },
+    {
+      "path": "../../tooling/testkit"
+    },
+    {
+      "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/common/identity"
+    },
+    {
+      "path": "../../packages/common/utils"
+    },
+    {
+      "path": "../../packages/common/schema"
+    },
+    {
+      "path": "../../packages/common/constants"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/domain"
+    },
+    {
+      "path": "../../packages/ui/core"
+    },
+    {
+      "path": "../../packages/common/errors"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/client"
+    },
+    {
+      "path": "../../packages/shared/domain"
+    },
+    {
+      "path": "../../packages/calendar/domain"
+    },
+    {
+      "path": "../../packages/comms/domain"
+    },
+    {
+      "path": "../../packages/customization/domain"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/server"
+    },
+    {
+      "path": "../../packages/iam/domain"
+    },
+    {
+      "path": "../../packages/knowledge/domain"
+    },
+    {
+      "path": "../../packages/shared/env"
+    },
+    {
+      "path": "../../packages/shared/server"
+    },
+    {
+      "path": "../../packages/shared/tables"
+    },
+    {
+      "path": "../../packages/calendar/tables"
+    },
+    {
+      "path": "../../packages/comms/tables"
+    },
+    {
+      "path": "../../packages/customization/tables"
+    },
+    {
+      "path": "../../packages/iam/tables"
+    },
+    {
+      "path": "../../packages/knowledge/tables"
+    },
+    {
+      "path": "../../packages/calendar/server"
+    },
+    {
+      "path": "../../packages/comms/server"
+    },
+    {
+      "path": "../../packages/customization/server"
+    },
+    {
+      "path": "../../packages/iam/server"
+    },
+    {
+      "path": "../../packages/knowledge/server"
+    },
+    {
+      "path": "../../packages/runtime/server"
+    },
+    {
+      "path": "../../packages/workspaces/server"
+    },
+    {
+      "path": "../../packages/workspaces/domain"
+    },
+    {
+      "path": "../../packages/workspaces/tables"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "rootDir": "src",
+    "noEmit": true,
+    "outDir": "build/test"
+  }
+}

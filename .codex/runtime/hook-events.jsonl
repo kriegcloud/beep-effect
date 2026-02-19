@@ -1,0 +1,17 @@
+{"ts":"2026-02-07T09:15:21.452Z","event":"SessionStart","sessionId":"p6-proof","status":"pass","detail":{"requiredFiles":["AGENTS.md",".codex/context-index.md"],"missing":[]}}
+{"ts":"2026-02-07T09:15:21.472Z","event":"UserPromptSubmit","sessionId":"p6-proof","status":"pass","detail":{"promptChars":27,"hint":"Spec-related prompt detected. Keep outputs and handoffs in sync."}}
+{"ts":"2026-02-07T09:15:21.494Z","event":"PreToolUse","sessionId":"p6-proof","status":"pass","detail":{"toolName":"Bash","content":"echo codex-hook-allow","matched":[]}}
+{"ts":"2026-02-07T09:15:21.535Z","event":"PostToolUse","sessionId":"p6-proof","status":"pass","detail":{"toolName":"Bash","content":"echo codex-hook-allow","exitCode":0,"contextCount":0,"commandStdoutChars":17,"commandStderrChars":0}}
+{"ts":"2026-02-07T09:15:21.536Z","event":"SubagentStop","sessionId":"p6-proof","status":"pass","detail":{"agentType":"shell","outcome":"success","durationMs":40}}
+{"ts":"2026-02-07T09:15:21.555Z","event":"PreToolUse","sessionId":"p6-proof","status":"deny","detail":{"toolName":"Bash","content":"git push --force origin main","reason":"Blocked by deny list: git push --force origin main","source":"deny-list"}}
+{"ts":"2026-02-07T09:15:21.575Z","event":"SubagentStop","sessionId":"p6-proof","status":"pass","detail":{"agentType":"shell","outcome":"success","durationMs":42}}
+{"ts":"2026-02-07T09:17:10.444Z","event":"PreToolUse","sessionId":"p6-recheck","status":"pass","detail":{"toolName":"Bash","content":"echo hook-recheck","matched":[]}}
+{"ts":"2026-02-07T09:17:10.469Z","event":"PostToolUse","sessionId":"p6-recheck","status":"pass","detail":{"toolName":"Bash","content":"echo hook-recheck","exitCode":0,"contextCount":0,"commandStdoutChars":13,"commandStderrChars":0}}
+{"ts":"2026-02-07T09:17:10.470Z","event":"SubagentStop","sessionId":"p6-recheck","status":"pass","detail":{"agentType":"shell","outcome":"success","durationMs":25}}
+{"ts":"2026-02-07T09:17:17.764Z","event":"SessionStart","sessionId":"p6-proof","status":"pass","detail":{"requiredFiles":["AGENTS.md",".codex/context-index.md"],"missing":[]}}
+{"ts":"2026-02-07T09:17:17.786Z","event":"UserPromptSubmit","sessionId":"p6-proof","status":"pass","detail":{"promptChars":27,"hint":"Spec-related prompt detected. Keep outputs and handoffs in sync."}}
+{"ts":"2026-02-07T09:17:17.812Z","event":"PreToolUse","sessionId":"p6-proof","status":"pass","detail":{"toolName":"Bash","content":"echo codex-hook-allow","matched":[]}}
+{"ts":"2026-02-07T09:17:17.833Z","event":"PostToolUse","sessionId":"p6-proof","status":"pass","detail":{"toolName":"Bash","content":"echo codex-hook-allow","exitCode":0,"contextCount":0,"commandStdoutChars":17,"commandStderrChars":0}}
+{"ts":"2026-02-07T09:17:17.834Z","event":"SubagentStop","sessionId":"p6-proof","status":"pass","detail":{"agentType":"shell","outcome":"success","durationMs":21}}
+{"ts":"2026-02-07T09:17:17.853Z","event":"PreToolUse","sessionId":"p6-proof","status":"deny","detail":{"toolName":"Bash","content":"git push --force origin main","reason":"Blocked by deny list: git push --force origin main","source":"deny-list"}}
+{"ts":"2026-02-07T09:17:17.873Z","event":"SubagentStop","sessionId":"p6-proof","status":"pass","detail":{"agentType":"shell","outcome":"success","durationMs":42}}

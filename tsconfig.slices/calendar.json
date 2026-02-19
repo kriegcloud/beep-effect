@@ -1,0 +1,20 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "../packages/calendar/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/calendar/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/calendar/server/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/calendar/client/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/calendar/ui/tsconfig.build.json"
+    }
+  ]
+}

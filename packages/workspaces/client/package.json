@@ -1,0 +1,58 @@
+{
+  "name": "@beep/workspaces-client",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Effect-first client SDK for workspace management, knowledge pages, discussions, and file operations",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/workspaces/client"
+  },
+  "scripts": {
+    "dev": "bun run dotenvx -- bunx tsc -b tsconfig.build.json --watch",
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps ",
+    "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
+    "check": "tsgo --noEmit -p tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "catalog:",
+    "@effect/docgen": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "babel-plugin-transform-next-use-client": "catalog:",
+    "effect": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../../../packages/common/invariant"
+    },
+    {
+      "path": "../../../tooling/testkit"
+    },
+    {
+      "path": "../../../packages/common/types"
+    },
+    {
+      "path": "../../../packages/common/identity"
+    },
+    {
+      "path": "../../../packages/common/utils"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"],
+    "outDir": "build/src",
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  }
+}

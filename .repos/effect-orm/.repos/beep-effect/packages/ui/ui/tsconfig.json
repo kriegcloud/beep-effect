@@ -1,0 +1,16 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": [],
+  "exclude": ["src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    }
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@beep/ui/*": ["./src/*"],
+      "@beep/ui/test/*": ["./test/*"]
+    }
+  }
+}
