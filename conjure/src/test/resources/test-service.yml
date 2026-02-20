@@ -1,0 +1,40 @@
+types:
+  imports:
+    ResourceIdentifier:
+      base-type: string
+      external:
+        java: com.palantir.ri.ResourceIdentifier
+
+  definitions: 
+    default-package: test.api
+    objects:     
+      SimpleObject:
+        fields:
+          stringField: string
+    errors:
+      EndpointError:
+        namespace: Test
+        code: INVALID_ARGUMENT
+        safe-args:
+          id: integer
+        unsafe-args:
+          unsafeId: integer
+      EndpointError2:
+        namespace: Test
+        code: INVALID_ARGUMENT
+        safe-args:
+          id: integer
+        unsafe-args:
+          unsafeId: integer
+
+services:
+  TestService:
+    name: Test Service
+    package: test.api
+
+    endpoints:
+      get:
+        http: GET /get
+        errors:
+          - error: EndpointError2
+            docs: Some docs here.

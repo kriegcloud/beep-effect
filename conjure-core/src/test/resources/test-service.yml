@@ -1,0 +1,44 @@
+types:
+  imports:
+    ResourceIdentifier:
+      base-type: string
+      external:
+        java: com.palantir.ri.ResourceIdentifier
+
+  definitions:
+    default-package: test.api
+    objects:
+      SimpleObject:
+        fields:
+          stringField: string
+
+      StringAlias:
+        alias: string
+    errors:
+      InvalidArgument:
+        namespace: Test
+        code: INVALID_ARGUMENT
+        safe-args:
+          field: string
+        unsafe-args:
+          value: string
+services:
+  MyTestService:
+    name: Test Service
+    package: test.api
+
+    endpoints:
+      get:
+        http: GET /get
+        errors:
+          - InvalidArgument
+
+      post:
+        tags: ['test-tag']
+        http: POST /post
+        args:
+          foo:
+            type: StringAlias
+            param-id: Foo
+            param-type: header
+            tags: ['safe']
