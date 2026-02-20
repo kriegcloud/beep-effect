@@ -1,0 +1,25 @@
+version: "2"
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  enable:
+    - nolintlint
+    - revive
+  settings:
+    govet:
+      enable:
+        - nilness
+        - reflectvaluecompare
+        - sortslice
+        - unusedwrite
+  exclusions:
+    generated: lax
+
+formatters:
+  enable:
+    - gofumpt
+  exclusions:
+    generated: lax

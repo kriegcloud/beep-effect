@@ -1,0 +1,62 @@
+[env]
+GOBIN = "{{ config_root }}/bin"
+_.path = ["bin"]
+
+[tools]
+go = "latest"
+"aqua:golangci/golangci-lint" = "latest"
+"ubi:miniscruff/changie" = "latest"
+"ubi:abhinav/doc2go" = "latest"
+gofumpt = "latest"
+
+[tasks.all]
+description = "Build, lint and test the code."
+depends = ["build", "lint", "test"]
+
+[tasks.build]
+run = "go build ./..."
+description = "Build the project"
+
+[tasks.lint]
+description = "Run all linters"
+depends = ["lint:*"]
+
+[tasks.test]
+description = "Run tests"
+run = "go test -race ./..."
+
+[tasks.generate]
+description = "Run all code generators"
+depends = ["tools"]
+run = "go generate ./..."
+
+[tasks.tools]
+run = "go install tool"
+
+[tasks.cover]
+description = "Run tests with coverage"
+run = [
+    "go test -race -coverprofile=cover.out -coverpkg=./... ./...",
+    "go tool cover -html=cover.out -o cover.html"
+]
+
+[tasks."lint:tidy"]
+description = "Ensure go.mod is tidy"
+run = "go mod tidy -diff"
+
+[tasks."lint:golangci"]
+description = "Run golangci-lint"
+run = "golangci-lint run"
+
+[tasks."lint:generate"]
+description = "Verify generated code is up-to-date"
+depends = ["generate"]
+run = "git diff --exit-code"
+
+[tasks."changes:new"]
+description = "Add a changelog entry"
+run = "changie new"
+
+[tasks."changes:prepare"]
+description = "Prepare the changelog for release"
+run = 'changie batch {{arg(name="version")}} && changie merge'
