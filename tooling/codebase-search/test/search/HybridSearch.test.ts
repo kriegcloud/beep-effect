@@ -1,13 +1,19 @@
+import type { IndexedSymbol, SymbolWithVector } from "@beep/codebase-search";
+import {
+  Bm25Writer,
+  Bm25WriterMock,
+  EmbeddingService,
+  EmbeddingServiceMock,
+  HybridSearch,
+  HybridSearchLive,
+  LanceDbWriter,
+  LanceDbWriterMock,
+  RRF_K,
+  reciprocalRankFusion,
+} from "@beep/codebase-search";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
-
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
-import { Bm25Writer, Bm25WriterMock } from "../../src/indexer/Bm25Writer.js";
-import { EmbeddingService, EmbeddingServiceMock } from "../../src/indexer/EmbeddingService.js";
-import type { SymbolWithVector } from "../../src/indexer/LanceDbWriter.js";
-import { LanceDbWriter, LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
-import { HybridSearch, HybridSearchLive, RRF_K, reciprocalRankFusion } from "../../src/search/HybridSearch.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

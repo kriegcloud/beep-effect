@@ -1,10 +1,8 @@
+import type { IndexedSymbol } from "@beep/codebase-search";
+import { Bm25Writer, Bm25WriterMock, KeywordSearch, KeywordSearchLive } from "@beep/codebase-search";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
-
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
-import { Bm25Writer, Bm25WriterMock } from "../../src/indexer/Bm25Writer.js";
-import { KeywordSearch, KeywordSearchLive } from "../../src/search/KeywordSearch.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

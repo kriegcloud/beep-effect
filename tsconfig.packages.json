@@ -10,28 +10,37 @@
       "path": "groking-effect-v4"
     },
     {
-      "path": "tooling/cli"
-    },
-    {
-      "path": "tooling/repo-utils"
-    },
-    {
-      "path": "tooling/codebase-search"
-    },
-    {
-      "path": "tooling/_test-idempotent-1771557733674"
-    },
-    {
       "path": "packages/common/types"
     },
     {
       "path": "packages/common/utils"
     },
     {
+      "path": "scratchpad"
+    },
+    {
+      "path": "tooling/_test-idempotent-1771558038638"
+    },
+    {
       "path": "tooling/_test-idempotent-1771560353205"
     },
     {
       "path": "tooling/_test-license-1771561808031"
+    },
+    {
+      "path": "tooling/_test-nodesc-1771558038551"
+    },
+    {
+      "path": "tooling/_test-symlink-1771558038373"
+    },
+    {
+      "path": "tooling/cli"
+    },
+    {
+      "path": "tooling/codebase-search"
+    },
+    {
+      "path": "tooling/repo-utils"
     }
   ]
 }

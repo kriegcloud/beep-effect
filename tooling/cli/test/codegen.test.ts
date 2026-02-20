@@ -164,6 +164,38 @@ describe("codegen command", () => {
   );
 
   it.effect(
+    "should report when no exportable modules are found",
+    withTestLayers(
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+
+        const tmpDir = path.join(path.resolve("."), `_test-codegen-empty-${Date.now()}`);
+
+        try {
+          yield* fs.makeDirectory(path.join(tmpDir, "src"), { recursive: true });
+          yield* fs.writeFileString(path.join(tmpDir, "src", "index.ts"), "// keep existing barrel\n");
+
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            JSON.stringify({ name: "@beep/test-empty" }, null, 2)
+          );
+
+          yield* run(["--package", tmpDir]);
+
+          const logs = (yield* TestConsole.logLines).map(String);
+          expect(logs.some((line) => line.includes("No modules found to export."))).toBe(true);
+
+          const indexContent = yield* fs.readFileString(path.join(tmpDir, "src", "index.ts"));
+          expect(indexContent).toBe("// keep existing barrel\n");
+        } finally {
+          yield* fs.remove(tmpDir, { recursive: true }).pipe(Effect.orElseSucceed(() => void 0));
+        }
+      })
+    )
+  );
+
+  it.effect(
     "should report error for missing src/ directory",
     withTestLayers(
       Effect.fn(function* () {

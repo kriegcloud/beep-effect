@@ -1,9 +1,17 @@
+import { isAbsolute, join } from "node:path";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
 
 export const HookEntryPlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+
+export const resolveIndexDir = (cwd: string, indexPath: string | undefined, defaultDir: string): string => {
+  if (indexPath === undefined) {
+    return join(cwd, defaultDir);
+  }
+  return isAbsolute(indexPath) ? indexPath : join(cwd, indexPath);
+};
 
 export const readStdinWithIdleTimeout = (idleTimeoutMs = 250): Effect.Effect<string> =>
   Effect.callback<string>((resume) => {

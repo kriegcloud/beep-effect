@@ -1,9 +1,7 @@
+import { handleReindex, IndexingError, IndexNotFoundError, PipelineMock } from "@beep/codebase-search";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
-import { IndexNotFoundError } from "../../src/errors.js";
-import { PipelineMock } from "../../src/indexer/Pipeline.js";
-import { handleReindex } from "../../src/mcp/ReindexTool.js";
 
 const TestLayer = Layer.mergeAll(PipelineMock, NodeFileSystem.layer, NodePath.layer);
 
@@ -31,6 +29,22 @@ layer(TestLayer)("ReindexTool", (it) => {
         mode: "incremental",
       }).pipe(Effect.flip);
       expect(error).toBeInstanceOf(IndexNotFoundError);
+    })
+  );
+
+  it.effect(
+    "fails with IndexingError for full mode when package filter is provided",
+    Effect.fn(function* () {
+      const error = yield* handleReindex({
+        rootDir: "/root",
+        indexPath: "/root/.code-index",
+        mode: "full",
+        package: "@beep/cli",
+      }).pipe(Effect.flip);
+      expect(error).toBeInstanceOf(IndexingError);
+      if (error instanceof IndexingError) {
+        expect(error.phase).toBe("reindex-validate");
+      }
     })
   );
 });

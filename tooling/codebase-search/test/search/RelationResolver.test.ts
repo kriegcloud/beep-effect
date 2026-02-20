@@ -1,13 +1,16 @@
+import type { IndexedSymbol, SymbolWithVector } from "@beep/codebase-search";
+import {
+  EmbeddingService,
+  EmbeddingServiceMock,
+  LanceDbWriter,
+  LanceDbWriterMock,
+  RelationResolver,
+  RelationResolverLive,
+} from "@beep/codebase-search";
+import { SymbolNotFoundError } from "@beep/codebase-search/errors";
 import { expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
-
-import { SymbolNotFoundError } from "../../src/errors.js";
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
-import { EmbeddingService, EmbeddingServiceMock } from "../../src/indexer/EmbeddingService.js";
-import type { SymbolWithVector } from "../../src/indexer/LanceDbWriter.js";
-import { LanceDbWriter, LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
-import { RelationResolver, RelationResolverLive } from "../../src/search/RelationResolver.js";
 
 const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   id: "@beep/repo-utils/schemas/PackageName",

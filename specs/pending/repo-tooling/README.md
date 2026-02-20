@@ -61,6 +61,8 @@ Overhaul the `beep create-package` CLI command to scaffold production-ready pack
 | 2 | Implementation: refactor handler to use templates, add symlink creation, update tests | Complete |
 | 3 | Verification: full quality checks, update AGENTS.md/ai-context.md for cli package | Partial (gates not fully green) |
 | 4 | Reuse Extraction: make create-package core reusable for `.repos/beep-effect` `create-slice` and close zero-manual baseline gaps | ACTIVE |
+| 5 | Hardening: fix dist/runtime defects, output correctness, and missing error-path tests | READY |
+| 6 | Validation: certify spec completion with traceability evidence and zero-manual acceptance checks | PLANNED |
 
 ## Prior Work
 Existing outputs from repo-utils migration (completed):
@@ -129,6 +131,26 @@ Existing outputs from repo-utils migration (completed):
 See:
 - `outputs/create-slice-reuse-gap-analysis.md`
 - `handoffs/HANDOFF_P4.md`
+
+## Hardening Trigger (2026-02-20)
+
+A comprehensive `tooling/cli` review identified hardening issues that must be fixed before final acceptance:
+
+- `create-package` dist runtime missing template assets
+- `topo-sort` output includes unexpected numeric index suffixes
+- missing tests for `tsconfig-sync` filter/cycle error paths and `codegen` empty-module branch
+
+See:
+- `handoffs/HANDOFF_P5.md`
+- `handoffs/P5_ORCHESTRATOR_PROMPT.md`
+
+## Validation Trigger (2026-02-20)
+
+After hardening, a dedicated validation phase is required to prove all repo-tooling success criteria with explicit evidence and confirm zero-manual generation workflows.
+
+See:
+- `handoffs/HANDOFF_P6.md`
+- `handoffs/P6_ORCHESTRATOR_PROMPT.md`
 
 ## Reference Patterns
 

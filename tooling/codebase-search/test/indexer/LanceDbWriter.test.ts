@@ -1,10 +1,8 @@
+import type { IndexedSymbol, SymbolWithVector } from "@beep/codebase-search";
+import { LanceDbWriter, LanceDbWriterMock } from "@beep/codebase-search";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect } from "effect";
 import * as A from "effect/Array";
-
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
-import type { SymbolWithVector } from "../../src/indexer/LanceDbWriter.js";
-import { LanceDbWriter, LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

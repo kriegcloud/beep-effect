@@ -179,8 +179,9 @@ const readExistingIndexMeta = (
  * @returns Returns the computed value.
  */
 const resolvePackageName = (filePath: string): string => {
+  const normalizedFilePath = pipe(filePath, Str.replace(/\\/g, "/"), Str.replace(/^\.\//, ""), Str.replace(/^\/+/, ""));
   // Convention: tooling/<name>/src/... or packages/<name>/src/...
-  const segments = Str.split("/")(filePath);
+  const segments = Str.split("/")(normalizedFilePath);
   if (A.length(segments) >= 2) {
     const scope = A.get(segments, 0);
     const name = A.get(segments, 1);
@@ -204,6 +205,22 @@ const resolveSymbolPrefixFromFilePath = (filePath: string): string => {
   return `${pkg}/${moduleName}/`;
 };
 
+/**
+ * Filter file paths by package when a package filter is provided.
+ *
+ * @param filePaths filePaths parameter value.
+ * @param packageFilter packageFilter parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const filterFilesByPackage = (
+  filePaths: ReadonlyArray<string>,
+  packageFilter: string | undefined
+): ReadonlyArray<string> =>
+  packageFilter === undefined
+    ? filePaths
+    : A.filter(filePaths, (filePath) => resolvePackageName(filePath) === packageFilter);
+
 // ---------------------------------------------------------------------------
 // Internal: extract symbols from files using ts-morph
 // ---------------------------------------------------------------------------
@@ -224,10 +241,11 @@ const extractSymbolsFromFiles: (
 
     // Read all file contents via Effect FileSystem so tests can use in-memory FS
     const fileContents = yield* Effect.forEach(filePaths, (fp) => {
-      const absPath = pathSvc.join(rootDir, fp);
+      const normalizedPath = Str.replace(/^\.\//, "")(fp);
+      const absPath = pathSvc.join(rootDir, normalizedPath);
       return pipe(
         fs.readFileString(absPath),
-        Effect.map((content) => [fp, content] as const),
+        Effect.map((content) => [normalizedPath, content] as const),
         Effect.mapError(
           (error) =>
             new IndexingError({
@@ -265,8 +283,13 @@ const extractSymbolsFromFiles: (
           A.fromIterable(sourceFiles),
           A.forEach((sourceFile) => {
             const sfPath = sourceFile.getFilePath();
-            // Convert back to relative path
-            const relativePath = sfPath.startsWith(`${rootDir}/`) ? sfPath.slice(rootDir.length + 1) : sfPath;
+            // Convert back to normalized relative path for package/module resolution.
+            const relativePath = pipe(
+              sfPath.startsWith(`${rootDir}/`) ? sfPath.slice(rootDir.length + 1) : sfPath,
+              Str.replace(/\\/g, "/"),
+              Str.replace(/^\.\//, ""),
+              Str.replace(/^\/+/, "")
+            );
 
             const pkg = resolvePackageName(relativePath);
 
@@ -334,6 +357,16 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
     const bm25Writer = yield* Bm25Writer;
 
     const run: PipelineShape["run"] = Effect.fn(function* (config) {
+      if (config.mode === "full" && config.packageFilter !== undefined) {
+        return yield* Effect.fail(
+          new IndexingError({
+            message:
+              "Full reindex with package filter is not supported. Use mode='incremental' with package filter, or omit package for a full rebuild.",
+            phase: "pipeline-config",
+          })
+        );
+      }
+
       const startTime = yield* DateTime.now;
 
       const fsSvc = yield* FileSystem.FileSystem;
@@ -342,17 +375,19 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
       // ---------------------------------------------------------------
       // 1. Scan files
       // ---------------------------------------------------------------
-      const scanResult: ScanResult = yield* scanFiles(config.rootDir, config.mode);
+      const scanResult: ScanResult = yield* scanFiles(config.rootDir, config.mode, { indexPath: config.indexPath });
+
+      const addedInScope = filterFilesByPackage(scanResult.added, config.packageFilter);
+      const modifiedInScope = filterFilesByPackage(scanResult.modified, config.packageFilter);
+      const deletedInScope = filterFilesByPackage(scanResult.deleted, config.packageFilter);
+      const unchangedInScope = filterFilesByPackage(scanResult.unchanged, config.packageFilter);
 
       const totalFilesScanned =
-        A.length(scanResult.added) +
-        A.length(scanResult.modified) +
-        A.length(scanResult.deleted) +
-        A.length(scanResult.unchanged);
+        A.length(addedInScope) + A.length(modifiedInScope) + A.length(deletedInScope) + A.length(unchangedInScope);
 
-      const filesToProcess = pipe(scanResult.added, A.appendAll(scanResult.modified));
+      const filesToProcess = pipe(addedInScope, A.appendAll(modifiedInScope));
 
-      const filesToDelete = pipe(scanResult.modified, A.appendAll(scanResult.deleted));
+      const filesToDelete = pipe(modifiedInScope, A.appendAll(deletedInScope));
 
       // ---------------------------------------------------------------
       // 2. Extract symbols from added+modified files
@@ -422,7 +457,7 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
           )
         );
 
-        const affectedFilePaths = pipe(scanResult.modified, A.appendAll(scanResult.deleted));
+        const affectedFilePaths = filesToDelete;
         if (A.isReadonlyArrayNonEmpty(affectedFilePaths)) {
           const affectedPrefixes = pipe(affectedFilePaths, A.map(resolveSymbolPrefixFromFilePath), A.dedupe);
           const existingSymbolIds = yield* bm25Writer.listSymbolIds();
@@ -451,7 +486,7 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
       );
 
       const hashes = yield* computeFileHashes(config.rootDir, allCurrentFiles);
-      yield* saveFileHashes(config.rootDir, hashes);
+      yield* saveFileHashes(config.rootDir, hashes, config.indexPath);
 
       // ---------------------------------------------------------------
       // 8. Write IndexMeta JSON

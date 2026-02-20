@@ -1,13 +1,19 @@
+import type { IndexedSymbol, SymbolWithVector } from "@beep/codebase-search";
+import {
+  Bm25Writer,
+  Bm25WriterMock,
+  EmbeddingService,
+  EmbeddingServiceMock,
+  HybridSearch,
+  HybridSearchLive,
+  handleSearchCodebase,
+  LanceDbWriter,
+  LanceDbWriterMock,
+} from "@beep/codebase-search";
 import { expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
-import { Bm25Writer, Bm25WriterMock } from "../../src/indexer/Bm25Writer.js";
-import { EmbeddingService, EmbeddingServiceMock } from "../../src/indexer/EmbeddingService.js";
-import type { SymbolWithVector } from "../../src/indexer/LanceDbWriter.js";
-import { LanceDbWriter, LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
-import { handleSearchCodebase } from "../../src/mcp/SearchCodebaseTool.js";
-import { HybridSearchLive } from "../../src/search/HybridSearch.js";
+import { pipe } from "effect/Function";
 
 const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   id: "@beep/pkg/mod/Alpha",
@@ -109,6 +115,96 @@ layer(TestLayer)("SearchCodebaseTool", (it) => {
       expect(result.totalMatches).toBeGreaterThanOrEqual(1);
       expect(result.results.every((row) => row.kind === "schema")).toBe(true);
       expect(result.results[0]?.score).toBeGreaterThanOrEqual(0);
+    })
+  );
+});
+
+const FilterStressHybridLayer = Layer.mergeAll(
+  LanceDbWriterMock,
+  Layer.succeed(
+    HybridSearch,
+    HybridSearch.of({
+      search: (config) => {
+        const orderedIds = [
+          "pkg/mod/Service01",
+          "pkg/mod/Service02",
+          "pkg/mod/Service03",
+          "pkg/mod/Service04",
+          "pkg/mod/Service05",
+          "pkg/mod/Service06",
+          "pkg/mod/Service07",
+          "pkg/mod/Service08",
+          "pkg/mod/Service09",
+          "pkg/mod/Service10",
+          "pkg/mod/Schema01",
+          "pkg/mod/Schema02",
+        ];
+
+        const ranked = A.map(orderedIds, (symbolId, index) => ({
+          symbolId,
+          score: 1 - index / 100,
+          vectorRank: index + 1,
+          keywordRank: null,
+        }));
+
+        return Effect.succeed(A.take(ranked, config.limit));
+      },
+    })
+  )
+);
+
+layer(FilterStressHybridLayer)("SearchCodebaseTool (filter truncation regression)", (it) => {
+  it.effect(
+    "returns requested filtered results by expanding hybrid candidate window",
+    Effect.fn(function* () {
+      const lance = yield* LanceDbWriter;
+      yield* lance.createTable();
+
+      const makeSymbolWithVector = (symbol: IndexedSymbol): SymbolWithVector => ({
+        symbol,
+        vector: new Float32Array(768),
+      });
+
+      const services: ReadonlyArray<SymbolWithVector> = Array.from({ length: 10 }, (_, i) =>
+        makeSymbolWithVector(
+          makeSymbol({
+            id: `pkg/mod/Service${String(i + 1).padStart(2, "0")}`,
+            name: `Service${String(i + 1).padStart(2, "0")}`,
+            kind: "service",
+            package: "@beep/pkg",
+          })
+        )
+      );
+
+      const schemas = A.make(
+        makeSymbolWithVector(
+          makeSymbol({
+            id: "pkg/mod/Schema01",
+            name: "Schema01",
+            kind: "schema",
+            package: "@beep/pkg",
+          })
+        ),
+        makeSymbolWithVector(
+          makeSymbol({
+            id: "pkg/mod/Schema02",
+            name: "Schema02",
+            kind: "schema",
+            package: "@beep/pkg",
+          })
+        )
+      );
+
+      yield* lance.upsert([], pipe(services, A.appendAll(schemas)));
+
+      const result = yield* handleSearchCodebase({
+        query: "schema",
+        kind: "schema",
+        limit: 2,
+      });
+
+      expect(result.totalMatches).toBe(2);
+      expect(result.results.every((row) => row.kind === "schema")).toBe(true);
     })
   );
 });

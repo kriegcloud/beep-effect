@@ -10,6 +10,7 @@
  * @packageDocumentation
  */
 
+import { isAbsolute, resolve } from "node:path";
 import { BunStdio } from "@effect/platform-bun";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
@@ -38,11 +39,14 @@ const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 
 const program = Effect.gen(function* () {
   const config = yield* ServerConfig;
+  const rootDir = resolve(config.rootDir);
+  const indexPath = isAbsolute(config.indexPath) ? config.indexPath : resolve(rootDir, config.indexPath);
+  const normalizedConfig = { rootDir, indexPath };
 
   const indexerServicesLayer = Layer.mergeAll(
     EmbeddingServiceLive,
-    LanceDbWriterLive(config.indexPath),
-    Bm25WriterLive(config.indexPath)
+    LanceDbWriterLive(normalizedConfig.indexPath),
+    Bm25WriterLive(normalizedConfig.indexPath)
   );
 
   const searchAndPipelineLayer = Layer.mergeAll(HybridSearchLive, RelationResolverLive, PipelineLive).pipe(
@@ -50,7 +54,7 @@ const program = Effect.gen(function* () {
   );
 
   const mcpLayer = makeServerLayer.pipe(
-    Layer.provide(makeMcpServerConfigLayer(config)),
+    Layer.provide(makeMcpServerConfigLayer(normalizedConfig)),
     Layer.provide(searchAndPipelineLayer),
     Layer.provide(BunStdio.layer),
     Layer.provide(PlatformLayer)

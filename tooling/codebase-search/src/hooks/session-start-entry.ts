@@ -41,8 +41,9 @@ const program = Effect.gen(function* () {
     Effect.orElseSucceed(() => ({ cwd: undefined }))
   );
   const cwd = parsed.cwd ?? process.cwd();
+  const indexPath = process.env.INDEX_PATH;
 
-  const result = yield* sessionStartHook(cwd).pipe(
+  const result = yield* sessionStartHook(cwd, indexPath).pipe(
     Effect.provide(HookEntryPlatformLayer),
     Effect.timeout("5 seconds"),
     Effect.orElseSucceed(() => "")

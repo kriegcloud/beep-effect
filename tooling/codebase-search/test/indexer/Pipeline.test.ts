@@ -1,14 +1,21 @@
+import type { PipelineConfig, PipelineStats } from "@beep/codebase-search";
+import {
+  Bm25Writer,
+  Bm25WriterMock,
+  EmbeddingService,
+  EmbeddingServiceMock,
+  LanceDbWriter,
+  LanceDbWriterMock,
+  Pipeline,
+  PipelineLive,
+  PipelineMock,
+} from "@beep/codebase-search";
+import { EmbeddingModelError, IndexingError } from "@beep/codebase-search/errors";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import { systemError } from "effect/PlatformError";
-import { EmbeddingModelError, IndexingError } from "../../src/errors.js";
-import { Bm25WriterMock } from "../../src/indexer/Bm25Writer.js";
-import { EmbeddingService, EmbeddingServiceMock } from "../../src/indexer/EmbeddingService.js";
-import { LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
-import type { PipelineConfig, PipelineStats } from "../../src/indexer/Pipeline.js";
-import { Pipeline, PipelineLive, PipelineMock } from "../../src/indexer/Pipeline.js";
 
 // ---------------------------------------------------------------------------
 // In-memory filesystem helpers (adapted from FileScanner.test.ts)
@@ -307,7 +314,7 @@ const FailingEmbeddingPipelineLayer = PipelineLive.pipe(
   Layer.provide(Layer.mergeAll(EmbeddingServiceFailing, LanceDbWriterMock, Bm25WriterMock))
 );
 
-layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
+layer(Layer.mergeAll(TestPipelineLayer, MockServicesLayer))("Pipeline (Live with mocks)", (it) => {
   describe("full mode", () => {
     it.effect(
       "returns correct filesScanned for single file",
@@ -471,7 +478,7 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
 
   describe("package filter", () => {
     it.effect(
-      "restricts extraction to the specified package",
+      "rejects package filter in full mode",
       Effect.fn(function* () {
         const { layer: fsLayer } = createMemoryFs([
           [`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE],
@@ -479,15 +486,133 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
         ]);
 
         const pipeline = yield* Pipeline;
-        const statsFiltered = yield* pipe(
-          pipeline.run(makeConfig({ packageFilter: "@beep/cli" })),
-          Effect.provide(fsLayer)
+        const error = yield* pipe(
+          pipeline.run(makeConfig({ mode: "full", packageFilter: "@beep/cli" })),
+          Effect.provide(fsLayer),
+          Effect.flip
         );
 
-        const statsAll = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer));
+        expect(error).toBeInstanceOf(IndexingError);
+        expect(error.phase).toBe("pipeline-config");
+        expect(error.message).toContain("Full reindex with package filter is not supported");
+      })
+    );
 
-        // Filtered should have fewer or equal symbols
-        expect(statsFiltered.symbolsIndexed).toBeLessThanOrEqual(statsAll.symbolsIndexed);
+    it.effect(
+      "incremental package filter preserves non-target package data in LanceDB and BM25",
+      Effect.fn(function* () {
+        const cliPath = `${ROOT}/tooling/cli/src/index.ts`;
+        const utilsPath = `${ROOT}/tooling/utils/src/index.ts`;
+        const cliV1 = `
+/**
+ * CLI symbol for package filter regression tests.
+ * @since 0.0.0
+ * @category constants
+ */
+export const CliSymbol = "v1";
+`;
+        const utilsV1 = `
+/**
+ * Utils symbol for package filter regression tests.
+ * @since 0.0.0
+ * @category constants
+ */
+export const UtilsSymbol = "v1";
+`;
+        const cliV2 = cliV1.replace('"v1"', '"v2"');
+        const utilsV2 = utilsV1.replace('"v1"', '"v2"');
+
+        const memFs = createMemoryFs([
+          [cliPath, cliV1],
+          [utilsPath, utilsV1],
+        ]);
+
+        const pipeline = yield* Pipeline;
+        const lance = yield* LanceDbWriter;
+        const bm25 = yield* Bm25Writer;
+
+        // Seed index with both packages.
+        yield* pipe(pipeline.run(makeConfig({ mode: "full" })), Effect.provide(memFs.layer));
+
+        // Modify both files, then reindex only @beep/cli.
+        memFs.files.set(cliPath, cliV2);
+        memFs.files.set(utilsPath, utilsV2);
+
+        const stats = yield* pipe(
+          pipeline.run(makeConfig({ mode: "incremental", packageFilter: "@beep/cli" })),
+          Effect.provide(memFs.layer)
+        );
+        expect(stats.filesChanged).toBe(1);
+
+        const rows = yield* lance.list();
+        const rowIds = rows.map((row) => row.id);
+        expect(rowIds.some((id) => id.startsWith("@beep/cli/"))).toBe(true);
+        expect(rowIds.some((id) => id.startsWith("@beep/utils/"))).toBe(true);
+
+        const bm25Ids = yield* bm25.listSymbolIds();
+        expect(bm25Ids.some((id) => id.startsWith("@beep/cli/"))).toBe(true);
+        expect(bm25Ids.some((id) => id.startsWith("@beep/utils/"))).toBe(true);
+      })
+    );
+
+    it.effect(
+      "applies package filter correctly when rootDir is relative",
+      Effect.fn(function* () {
+        const cliPath = "./tooling/cli/src/index.ts";
+        const utilsPath = "./tooling/utils/src/index.ts";
+        const cliV1 = `
+/**
+ * CLI symbol for relative root path tests.
+ * @since 0.0.0
+ * @category constants
+ */
+export const CliRelative = "v1";
+`;
+        const utilsV1 = `
+/**
+ * Utils symbol for relative root path tests.
+ * @since 0.0.0
+ * @category constants
+ */
+export const UtilsRelative = "v1";
+`;
+        const cliV2 = cliV1.replace('"v1"', '"v2"');
+
+        const memFs = createMemoryFs([
+          [cliPath, cliV1],
+          [utilsPath, utilsV1],
+        ]);
+
+        const pipeline = yield* Pipeline;
+        const lance = yield* LanceDbWriter;
+
+        yield* pipe(
+          pipeline.run({
+            rootDir: ".",
+            indexPath: ".code-index",
+            mode: "full",
+          }),
+          Effect.provide(memFs.layer)
+        );
+
+        const fullRows = yield* lance.list();
+        expect(fullRows.some((row) => row.package === "@beep/cli")).toBe(true);
+        expect(fullRows.some((row) => row.package === "@beep/utils")).toBe(true);
+
+        memFs.files.set(cliPath, cliV2);
+
+        const stats = yield* pipe(
+          pipeline.run({
+            rootDir: ".",
+            indexPath: ".code-index",
+            mode: "incremental",
+            packageFilter: "@beep/cli",
+          }),
+          Effect.provide(memFs.layer)
+        );
+
+        expect(stats.filesChanged).toBe(1);
+        expect(stats.symbolsIndexed).toBeGreaterThan(0);
       })
     );
   });

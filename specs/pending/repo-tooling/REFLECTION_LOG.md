@@ -40,3 +40,17 @@ Cumulative learnings from the repo-tooling spec phases.
 - **Task**: Extract reusable create-package service boundaries and verify zero-manual multi-package scaffolding
 - **Key Insight**: Treating package creation as a deterministic plan (`createPlan`/`executePlan`) plus multi-target config orchestration removes handler coupling and creates a direct handoff surface for create-slice flows
 - **Pattern**: Keep command handlers thin; push template rendering, generation planning, and batch config updates into explicit service contracts, and include required `homepage` metadata in generated package manifests so docgen/lint gates stay green without manual patching
+
+### refl-2026-02-20-003
+- **Phase**: phase-5-hardening
+- **Outcome**: success
+- **Task**: Fix dist/runtime defects and lock missing CLI failure-path coverage
+- **Key Insight**: `create-package` template failures in built CLI were caused by a two-part asset gap: build output did not copy `.hbs` templates into `dist`, and publish `files` metadata did not include those template assets; fixing only runtime lookup was insufficient without build + package metadata alignment
+- **Pattern**: For template-driven CLIs, treat static assets as first-class build artifacts by: (1) explicit copy step during build, (2) package `files` allowlist coverage, and (3) runtime template directory resolution that supports both source and built execution roots
+
+### refl-2026-02-20-004
+- **Phase**: phase-5-hardening
+- **Outcome**: success
+- **Task**: Correct `topo-sort` output contract and add missing negative/edge tests
+- **Key Insight**: Passing `Console.log` directly into `Effect.forEach` leaked the iteration index because callback arity did not match the intended single-argument contract, producing `"<package> <index>"` output lines
+- **Pattern**: Avoid passing variadic/arity-sensitive functions directly as higher-order callbacks in Effect collection traversals; wrap with explicit lambdas, and backstop with branch tests for unmatched filters, cycle detection, and empty-result command paths

@@ -180,51 +180,62 @@ export const generateSessionOverview = (
  * @since 0.0.0
  * @category hooks
  */
-export const sessionStartHook: (cwd: string) => Effect.Effect<string, never, FileSystem.FileSystem | Path.Path> =
-  Effect.fn(function* (cwd: string) {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+export const sessionStartHook: (
+  cwd: string,
+  indexPath?: string | undefined
+) => Effect.Effect<string, never, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
+  cwd: string,
+  indexPath?: string | undefined
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    const metaPath = path.join(cwd, INDEX_DIR, INDEX_META_FILE);
+  const indexDir =
+    indexPath === undefined
+      ? path.join(cwd, INDEX_DIR)
+      : path.isAbsolute(indexPath)
+        ? indexPath
+        : path.join(cwd, indexPath);
+  const metaPath = path.join(indexDir, INDEX_META_FILE);
 
-    // Check if file exists
-    const exists = yield* fs.exists(metaPath).pipe(Effect.orElseSucceed(() => false));
+  // Check if file exists
+  const exists = yield* fs.exists(metaPath).pipe(Effect.orElseSucceed(() => false));
 
-    if (!exists) {
-      return generateSessionOverview(null, A.empty<PackageStat>(), false);
-    }
+  if (!exists) {
+    return generateSessionOverview(null, A.empty<PackageStat>(), false);
+  }
 
-    // Read and decode the metadata file
-    const contentResult = yield* fs.readFileString(metaPath).pipe(
-      Effect.map(O.some),
-      Effect.orElseSucceed(() => O.none<string>())
-    );
+  // Read and decode the metadata file
+  const contentResult = yield* fs.readFileString(metaPath).pipe(
+    Effect.map(O.some),
+    Effect.orElseSucceed(() => O.none<string>())
+  );
 
-    if (O.isNone(contentResult)) {
-      return "";
-    }
+  if (O.isNone(contentResult)) {
+    return "";
+  }
 
-    const content = contentResult.value;
-    if (Str.isEmpty(content)) {
-      return "";
-    }
+  const content = contentResult.value;
+  if (Str.isEmpty(content)) {
+    return "";
+  }
 
-    const metaResult = yield* pipe(
-      S.decodeUnknownEffect(IndexMetaFromJson)(content),
-      Effect.map(O.some),
-      Effect.orElseSucceed(() => O.none<IndexMeta>())
-    );
+  const metaResult = yield* pipe(
+    S.decodeUnknownEffect(IndexMetaFromJson)(content),
+    Effect.map(O.some),
+    Effect.orElseSucceed(() => O.none<IndexMeta>())
+  );
 
-    if (O.isNone(metaResult)) {
-      return "";
-    }
+  if (O.isNone(metaResult)) {
+    return "";
+  }
 
-    const meta = metaResult.value;
+  const meta = metaResult.value;
 
-    // Determine staleness
-    const lastIndexedMs = Date.parse(meta.lastIncrementalIndex);
-    const isStale = Number.isNaN(lastIndexedMs) ? false : Date.now() - lastIndexedMs > STALENESS_THRESHOLD_MS;
+  // Determine staleness
+  const lastIndexedMs = Date.parse(meta.lastIncrementalIndex);
+  const isStale = Number.isNaN(lastIndexedMs) ? false : Date.now() - lastIndexedMs > STALENESS_THRESHOLD_MS;
 
-    // For now, no per-package stats (will be added when T12 Pipeline is complete)
-    return generateSessionOverview(meta, A.empty<PackageStat>(), isStale);
-  });
+  // For now, no per-package stats (will be added when T12 Pipeline is complete)
+  return generateSessionOverview(meta, A.empty<PackageStat>(), isStale);
+});

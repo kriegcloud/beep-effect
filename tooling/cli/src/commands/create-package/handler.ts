@@ -12,6 +12,7 @@
 
 import { DomainError, encodePackageJsonPrettyEffect, findRepoRoot } from "@beep/repo-utils";
 import { FileSystem, Path, type Schema } from "effect";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -28,12 +29,51 @@ import { createTemplateService, type TemplateSpec } from "./template-service.js"
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 /**
- * Absolute path to the Handlebars template directory, resolved relative to the compiled module.
+ * Build ordered template directory candidates for create-package execution.
  *
+ * @param baseDir - Directory of the currently executing command module.
+ * @param path - Path service used to compose normalized candidate paths.
+ * @returns Candidate directories in preferred lookup order.
  * @since 0.0.0
- * @category constants
+ * @category constructors
  */
-const TEMPLATE_DIR = `${import.meta.dirname}/templates`;
+const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<string> => [
+  path.join(baseDir, "templates"),
+  path.join(baseDir, "..", "..", "..", "src", "commands", "create-package", "templates"),
+];
+
+/**
+ * Resolve create-package template directory for both src and dist runtimes.
+ *
+ * In source execution (`bun run src/bin.ts`), templates live beside this file.
+ * In built execution (`dist/bin.js`), templates are copied under `dist/.../templates`.
+ * A src fallback is retained for local development scenarios where dist assets
+ * are stale but source templates are present.
+ *
+ * @param baseDir - Optional command module directory override (defaults to current module directory).
+ * @returns Resolved template directory path.
+ * @since 0.0.0
+ * @category constructors
+ */
+export const resolveCreatePackageTemplateDir = Effect.fn(function* (baseDir: string = import.meta.dirname) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const candidates = templateDirCandidates(baseDir, path);
+
+  for (const candidate of candidates) {
+    const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(() => false));
+    if (exists) {
+      return candidate;
+    }
+  }
+
+  return yield* new DomainError({
+    message: `Unable to resolve create-package templates. Checked:\n${A.join(
+      A.map(candidates, (candidate) => `  - ${candidate}`),
+      "\n"
+    )}`,
+  });
+});
 
 /**
  * Valid package types.
@@ -269,8 +309,9 @@ export const createPackageCommand = Command.make(
     };
 
     // ── Render templates and generate plan ─────────────────────────────
+    const templateDir = yield* resolveCreatePackageTemplateDir();
     const templateFiles = yield* templateService.renderTemplates({
-      templateDir: TEMPLATE_DIR,
+      templateDir,
       templates: TEMPLATE_SPECS,
       context: ctx,
     });

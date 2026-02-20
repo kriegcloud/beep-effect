@@ -1,8 +1,8 @@
+import type { IndexedSymbol } from "@beep/codebase-search";
+import { Bm25Writer, Bm25WriterMock, type Bm25WriterShape } from "@beep/codebase-search";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
-import { Bm25Writer, Bm25WriterMock, type Bm25WriterShape } from "../../src/indexer/Bm25Writer.js";
 
 // ---------------------------------------------------------------------------
 // FileSystem + Path mocks (needed because Bm25WriterShape.save/load declare

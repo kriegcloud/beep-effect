@@ -1,23 +1,28 @@
+import type { IndexedSymbol, SymbolWithVector } from "@beep/codebase-search";
+import {
+  Bm25Writer,
+  Bm25WriterMock,
+  CodebaseSearchToolkit,
+  EmbeddingModelError,
+  EmbeddingService,
+  EmbeddingServiceMock,
+  ErrorCodes,
+  formatError,
+  HybridSearchLive,
+  IndexingError,
+  IndexNotFoundError,
+  LanceDbWriter,
+  LanceDbWriterMock,
+  makeMcpServerConfigLayer,
+  makeToolkitHandlerLayer,
+  PipelineMock,
+  RelationResolverLive,
+  SearchTimeoutError,
+  SymbolNotFoundError,
+} from "@beep/codebase-search";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path, Stream } from "effect";
 import * as A from "effect/Array";
-import {
-  EmbeddingModelError,
-  IndexingError,
-  IndexNotFoundError,
-  SearchTimeoutError,
-  SymbolNotFoundError,
-} from "../../src/errors.js";
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
-import { Bm25Writer, Bm25WriterMock } from "../../src/indexer/Bm25Writer.js";
-import { EmbeddingService, EmbeddingServiceMock } from "../../src/indexer/EmbeddingService.js";
-import type { SymbolWithVector } from "../../src/indexer/LanceDbWriter.js";
-import { LanceDbWriter, LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
-import { PipelineMock } from "../../src/indexer/Pipeline.js";
-import { ErrorCodes, formatError } from "../../src/mcp/contracts.js";
-import { CodebaseSearchToolkit, makeMcpServerConfigLayer, makeToolkitHandlerLayer } from "../../src/mcp/McpServer.js";
-import { HybridSearchLive } from "../../src/search/HybridSearch.js";
-import { RelationResolverLive } from "../../src/search/RelationResolver.js";
 
 const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   id: "@beep/pkg/mod/Alpha",

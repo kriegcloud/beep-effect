@@ -1,11 +1,11 @@
+import type { FileHash, ScanResult } from "@beep/codebase-search";
+import { FILE_HASHES_PATH, saveFileHashes, scanFiles } from "@beep/codebase-search";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import { systemError } from "effect/PlatformError";
 import * as S from "effect/Schema";
-import type { FileHash, ScanResult } from "../../src/extractor/FileScanner.js";
-import { FILE_HASHES_PATH, saveFileHashes, scanFiles } from "../../src/extractor/FileScanner.js";
 
 // ---------------------------------------------------------------------------
 // In-memory filesystem helpers
@@ -395,6 +395,27 @@ describe("FileScanner", () => {
         })
       )
     );
+
+    it.effect("reads hashes from custom indexPath", () => {
+      const content = "export const x = 1;";
+      const crypto = require("node:crypto");
+      const hash = crypto.createHash("sha256").update(content).digest("hex");
+      const storedHashes = JSON.stringify([{ filePath: "tooling/cli/src/index.ts", contentHash: hash }]);
+
+      return runWithFs(
+        [
+          ["/root/tooling/cli/src/index.ts", content],
+          ["/root/.custom-index/file-hashes.json", storedHashes],
+        ],
+        Effect.gen(function* () {
+          const result: ScanResult = yield* scanFiles("/root", "incremental", { indexPath: ".custom-index" });
+          expect(A.length(result.added)).toBe(0);
+          expect(A.length(result.modified)).toBe(0);
+          expect(A.length(result.deleted)).toBe(0);
+          expect(A.some(result.unchanged, (f) => f === "tooling/cli/src/index.ts")).toBe(true);
+        })
+      );
+    });
   });
 
   // -------------------------------------------------------------------------
@@ -420,6 +441,27 @@ describe("FileScanner", () => {
               S.fromJsonString(S.Array(S.Struct({ filePath: S.String, contentHash: S.String })))
             )(content);
             expect(A.length(parsed)).toBe(2);
+          })
+        ),
+        Effect.provide(memFs.layer)
+      );
+    });
+
+    it.effect("writes hashes to custom indexPath", () => {
+      const memFs = createMemoryFs([]);
+
+      const hashes: ReadonlyArray<FileHash> = [{ filePath: "tooling/cli/src/index.ts", contentHash: "abc123" }];
+
+      return pipe(
+        saveFileHashes("/root", hashes, ".custom-index"),
+        Effect.flatMap(
+          Effect.fn(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const content = yield* fs.readFileString("/root/.custom-index/file-hashes.json");
+            const parsed = yield* S.decodeUnknownEffect(
+              S.fromJsonString(S.Array(S.Struct({ filePath: S.String, contentHash: S.String })))
+            )(content);
+            expect(A.length(parsed)).toBe(1);
           })
         ),
         Effect.provide(memFs.layer)

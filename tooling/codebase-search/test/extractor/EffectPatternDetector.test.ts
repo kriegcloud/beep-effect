@@ -1,14 +1,9 @@
+import type { SchemaAnnotations } from "@beep/codebase-search";
+import { detectEffectPattern, extractFieldAnnotations, extractSchemaAnnotations } from "@beep/codebase-search";
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { Project } from "ts-morph";
-
-import type { SchemaAnnotations } from "../../src/extractor/EffectPatternDetector.js";
-import {
-  detectEffectPattern,
-  extractFieldAnnotations,
-  extractSchemaAnnotations,
-} from "../../src/extractor/EffectPatternDetector.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

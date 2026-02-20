@@ -344,10 +344,12 @@ export const formatSymbolIdResults = (
  */
 export const promptSubmitHook: (
   cwd: string,
-  prompt: string
+  prompt: string,
+  indexPath?: string | undefined
 ) => Effect.Effect<string, never, FileSystem.FileSystem | Path.Path | Bm25Writer> = Effect.fn(function* (
   cwd: string,
-  prompt: string
+  prompt: string,
+  indexPath?: string | undefined
 ) {
   // 1. Check if we should skip
   if (shouldSkipSearch(prompt)) {
@@ -358,7 +360,12 @@ export const promptSubmitHook: (
   const path = yield* Path.Path;
 
   // 2. Build path to .code-index/
-  const indexDir = path.join(cwd, INDEX_DIR);
+  const indexDir =
+    indexPath === undefined
+      ? path.join(cwd, INDEX_DIR)
+      : path.isAbsolute(indexPath)
+        ? indexPath
+        : path.join(cwd, indexPath);
   const bm25Path = path.join(indexDir, BM25_INDEX_FILE);
 
   // 3. Check if BM25 index exists

@@ -303,8 +303,15 @@ export const Bm25WriterLive: (indexPath: string) => Layer.Layer<Bm25Writer, Inde
               state.engine.consolidate();
               state.consolidated = true;
             }
-            const rawResults = state.engine.search(query, limit);
-            return convertSearchResults(rawResults, state.docToSymbol);
+            const normalizedLimit = Math.max(1, limit);
+            let activeDocCount = 0;
+            for (const _ of state.docToSymbol) {
+              activeDocCount = activeDocCount + 1;
+            }
+            const fetchLimit = Math.max(normalizedLimit, activeDocCount);
+            const rawResults = state.engine.search(query, fetchLimit);
+            const mapped = convertSearchResults(rawResults, state.docToSymbol);
+            return A.take(mapped, normalizedLimit);
           },
           catch: (error) =>
             new IndexingError({
@@ -508,8 +515,15 @@ export const Bm25WriterMock: Layer.Layer<Bm25Writer> = Layer.succeed(
               state.engine.consolidate();
               state.consolidated = true;
             }
-            const rawResults = state.engine.search(query, limit);
-            return convertSearchResults(rawResults, state.docToSymbol);
+            const normalizedLimit = Math.max(1, limit);
+            let activeDocCount = 0;
+            for (const _ of state.docToSymbol) {
+              activeDocCount = activeDocCount + 1;
+            }
+            const fetchLimit = Math.max(normalizedLimit, activeDocCount);
+            const rawResults = state.engine.search(query, fetchLimit);
+            const mapped = convertSearchResults(rawResults, state.docToSymbol);
+            return A.take(mapped, normalizedLimit);
           },
           catch: (error) =>
             new IndexingError({

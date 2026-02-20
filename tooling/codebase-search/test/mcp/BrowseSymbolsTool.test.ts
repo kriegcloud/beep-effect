@@ -1,11 +1,14 @@
+import type { IndexedSymbol, SymbolWithVector } from "@beep/codebase-search";
+import {
+  EmbeddingService,
+  EmbeddingServiceMock,
+  handleBrowseSymbols,
+  LanceDbWriter,
+  LanceDbWriterMock,
+} from "@beep/codebase-search";
 import { expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
-import { EmbeddingService, EmbeddingServiceMock } from "../../src/indexer/EmbeddingService.js";
-import type { SymbolWithVector } from "../../src/indexer/LanceDbWriter.js";
-import { LanceDbWriter, LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
-import { handleBrowseSymbols } from "../../src/mcp/BrowseSymbolsTool.js";
 
 const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   id: "@beep/pkg/mod/Alpha",

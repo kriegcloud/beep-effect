@@ -71,3 +71,10 @@ Closeout action executed:
 
 Post-move validation:
 - Completed spec path contains updated outputs, handoffs, and reflection log.
+
+## Post-Closeout Addendum
+
+- Comprehensive review artifact:
+  - `specs/completed/semantic-codebase-search/outputs/codebase-search-comprehensive-review.md`
+- Remediation artifact:
+  - `specs/completed/semantic-codebase-search/outputs/codebase-search-review-remediation.md`

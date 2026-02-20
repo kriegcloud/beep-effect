@@ -1,13 +1,12 @@
-import { describe, expect, layer } from "@effect/vitest";
-import { Effect, Option } from "effect";
-import * as A from "effect/Array";
-
 import {
   DEFAULT_BATCH_SIZE,
   EMBEDDING_DIMENSIONS,
   EmbeddingService,
   EmbeddingServiceMock,
-} from "../../src/indexer/EmbeddingService.js";
+} from "@beep/codebase-search";
+import { describe, expect, layer } from "@effect/vitest";
+import { Effect, Option } from "effect";
+import * as A from "effect/Array";
 
 layer(EmbeddingServiceMock)("EmbeddingService (Mock)", (it) => {
   // ---------------------------------------------------------------------------

@@ -1,11 +1,11 @@
-import { describe, expect, it } from "@effect/vitest";
 import {
   EmbeddingModelError,
   IndexingError,
   IndexNotFoundError,
   SearchTimeoutError,
   SymbolNotFoundError,
-} from "../src/errors.js";
+} from "@beep/codebase-search/errors";
+import { describe, expect, it } from "@effect/vitest";
 
 describe("errors", () => {
   it("constructs IndexNotFoundError", () => {

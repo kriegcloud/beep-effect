@@ -11,6 +11,7 @@ import {
   updateRootConfigsForTargets,
 } from "../src/commands/create-package/config-updater.js";
 import { createFileGenerationPlanService } from "../src/commands/create-package/file-generation-plan-service.js";
+import { resolveCreatePackageTemplateDir } from "../src/commands/create-package/handler.js";
 import { createTemplateService } from "../src/commands/create-package/template-service.js";
 import { createTsMorphIntegrationService } from "../src/commands/create-package/ts-morph-integration-service.js";
 
@@ -117,6 +118,38 @@ describe("create-package service contracts", () => {
               content: "beep-type-utils|beep_type_utils|@beep/type-utils",
             },
           ]);
+        } finally {
+          yield* fs.remove(tmpDir, { recursive: true, force: true }).pipe(Effect.orElseSucceed(() => void 0));
+        }
+      })
+    )
+  );
+
+  it.effect(
+    "template directory resolution prefers dist templates and falls back to src templates",
+    withTestLayers(
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tmpDir = path.join(path.resolve("."), `_test-template-resolution-${uniqueSuffix()}`);
+        const distCommandDir = path.join(tmpDir, "dist", "commands", "create-package");
+        const distTemplatesDir = path.join(distCommandDir, "templates");
+        const srcTemplatesDir = path.join(tmpDir, "src", "commands", "create-package", "templates");
+
+        try {
+          yield* fs.makeDirectory(distTemplatesDir, { recursive: true });
+          yield* fs.makeDirectory(srcTemplatesDir, { recursive: true });
+
+          yield* fs.writeFileString(path.join(distTemplatesDir, "README.md.hbs"), "# dist");
+          yield* fs.writeFileString(path.join(srcTemplatesDir, "README.md.hbs"), "# src");
+
+          const distResolved = yield* resolveCreatePackageTemplateDir(distCommandDir);
+          expect(distResolved).toBe(distTemplatesDir);
+
+          yield* fs.remove(distTemplatesDir, { recursive: true, force: true });
+
+          const fallbackResolved = yield* resolveCreatePackageTemplateDir(distCommandDir);
+          expect(fallbackResolved).toBe(srcTemplatesDir);
         } finally {
           yield* fs.remove(tmpDir, { recursive: true, force: true }).pipe(Effect.orElseSucceed(() => void 0));
         }

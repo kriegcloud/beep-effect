@@ -4,6 +4,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Schema from "effect/Schema";
 import { TestConsole } from "effect/testing";
 import { Command } from "effect/unstable/cli";
 import { ChildProcessSpawner } from "effect/unstable/process";
@@ -67,6 +68,9 @@ const withTempPackageBase = Effect.fn(function* (
 });
 
 const withTempPackage = withTestLayers(withTempPackageBase);
+
+const decodeJson = <A = unknown>(content: string): Effect.Effect<A, Schema.SchemaError> =>
+  Schema.decodeUnknownEffect(Schema.UnknownFromJsonString)(content) as Effect.Effect<A, Schema.SchemaError>;
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -195,7 +199,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const content = yield* fs.readFileString(path.join(outputDir, "package.json"));
-          const pkg = JSON.parse(content);
+          const pkg = yield* decodeJson<any>(content);
 
           expect(pkg.name).toBe(`@beep/${pkgName}`);
           expect(pkg.version).toBe("0.0.0");
@@ -221,7 +225,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const content = yield* fs.readFileString(path.join(outputDir, "package.json"));
-          const pkg = JSON.parse(content);
+          const pkg = yield* decodeJson<any>(content);
 
           expect(pkg.dependencies["@effect/platform-node"]).toBe("catalog:");
         })
@@ -238,7 +242,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const content = yield* fs.readFileString(path.join(outputDir, "tsconfig.json"));
-          const config = JSON.parse(content);
+          const config = yield* decodeJson<any>(content);
 
           expect(config.extends).toBe("../../tsconfig.base.json");
           expect(config.compilerOptions.outDir).toBe("dist");
@@ -374,7 +378,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const content = yield* fs.readFileString(path.join(outputDir, "docgen.json"));
-          const config = JSON.parse(content);
+          const config = yield* decodeJson<any>(content);
 
           expect(config.srcLink).toContain(`tooling/${pkgName}/src/`);
           expect(config.examplesCompilerOptions.paths[`@beep/${pkgName}`]).toEqual([
@@ -431,7 +435,7 @@ describe("create-package command", () => {
           const repoRoot = yield* findRepoRoot();
 
           const tsconfigRaw = yield* fs.readFileString(path.join(outputDir, "tsconfig.json"));
-          const tsconfig = JSON.parse(tsconfigRaw);
+          const tsconfig = yield* decodeJson<any>(tsconfigRaw);
           expect(tsconfig.extends).toBe("../../../tsconfig.base.json");
 
           const vitestConfig = yield* fs.readFileString(path.join(outputDir, "vitest.config.ts"));
@@ -441,7 +445,7 @@ describe("create-package command", () => {
           expect(aiContext).toContain(`path: packages/common/${pkgName}`);
 
           const docgenRaw = yield* fs.readFileString(path.join(outputDir, "docgen.json"));
-          const docgen = JSON.parse(docgenRaw);
+          const docgen = yield* decodeJson<any>(docgenRaw);
           expect(docgen.$schema).toBe("../../../node_modules/@effect/docgen/schema.json");
           expect(docgen.examplesCompilerOptions.paths.effect).toEqual(["../../../packages/effect/src/index.ts"]);
           expect(docgen.examplesCompilerOptions.paths[`@beep/${pkgName}`]).toEqual([
@@ -495,8 +499,10 @@ describe("create-package command", () => {
 
             const typesTsconfigRaw = yield* fs.readFileString(path.join(typesDir, "tsconfig.json"));
             const utilsTsconfigRaw = yield* fs.readFileString(path.join(utilsDir, "tsconfig.json"));
-            expect(JSON.parse(typesTsconfigRaw).extends).toBe("../../../tsconfig.base.json");
-            expect(JSON.parse(utilsTsconfigRaw).extends).toBe("../../../tsconfig.base.json");
+            const typesTsconfig = yield* decodeJson<any>(typesTsconfigRaw);
+            const utilsTsconfig = yield* decodeJson<any>(utilsTsconfigRaw);
+            expect(typesTsconfig.extends).toBe("../../../tsconfig.base.json");
+            expect(utilsTsconfig.extends).toBe("../../../tsconfig.base.json");
 
             const check = yield* checkConfigNeedsUpdateForTargets(repoRoot, [
               { packageName: typesName, packagePath: `packages/common/${typesName}` },
@@ -539,7 +545,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const pkgContent = yield* fs.readFileString(path.join(outputDir, "package.json"));
-          const pkg = JSON.parse(pkgContent);
+          const pkg = yield* decodeJson<any>(pkgContent);
           expect(pkg.description).toBe(desc);
 
           const readme = yield* fs.readFileString(path.join(outputDir, "README.md"));
@@ -565,7 +571,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const pkgContent = yield* fs.readFileString(path.join(outputDir, "package.json"));
-          const pkg = JSON.parse(pkgContent);
+          const pkg = yield* decodeJson<any>(pkgContent);
           expect(pkg.description).toBe("");
         })
       );

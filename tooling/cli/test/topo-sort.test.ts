@@ -1,3 +1,4 @@
+import { topoSortCommand } from "@beep/repo-cli/commands/topo-sort";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
@@ -6,7 +7,6 @@ import * as Layer from "effect/Layer";
 import { TestConsole } from "effect/testing";
 import { Command } from "effect/unstable/cli";
 import { ChildProcessSpawner } from "effect/unstable/process";
-import { topoSortCommand } from "../src/commands/topo-sort.js";
 
 // ---------------------------------------------------------------------------
 // Test layers
@@ -50,6 +50,9 @@ describe("topo-sort command", () => {
         const utilsIdx = output.indexOf("@beep/repo-utils");
         const cliIdx = output.indexOf("@beep/repo-cli");
         expect(utilsIdx).toBeLessThan(cliIdx);
+
+        // Ensure output lines are package names only (no leaked array indices)
+        expect(output.some((line) => /\s\d+$/.test(line))).toBe(false);
       })
     )
   );

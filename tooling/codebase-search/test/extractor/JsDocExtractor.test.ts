@@ -1,8 +1,7 @@
+import { DEFAULT_JSDOC_RESULT, extractJsDoc, extractModuleDoc } from "@beep/codebase-search";
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import { Project } from "ts-morph";
-
-import { DEFAULT_JSDOC_RESULT, extractJsDoc, extractModuleDoc } from "../../src/extractor/JsDocExtractor.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -48,9 +48,13 @@ export const handleSearchCodebase: (params: {
     O.getOrElse(() => 5)
   );
 
+  // Fetch a wider candidate set when strict filters are present so final
+  // filtering is applied before user-visible truncation.
+  const candidateLimit = params.kind !== undefined || params.package !== undefined ? 20 : limit;
+
   const config: HybridSearchConfig = {
     query: params.query,
-    limit,
+    limit: candidateLimit,
     kind: params.kind,
     package: params.package,
   };
@@ -94,8 +98,10 @@ export const handleSearchCodebase: (params: {
     return !(params.package !== undefined && result.package !== params.package);
   });
 
+  const limited = A.take(filtered, limit);
+
   return formatSearchResults(
-    filtered,
+    limited,
     {
       kind: params.kind ?? null,
       package: params.package ?? null,

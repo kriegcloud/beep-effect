@@ -35,28 +35,16 @@
       "@beep/repo-cli": ["./tooling/cli/src/index.ts"],
       "@beep/repo-cli/*": ["./tooling/cli/src/*.ts"],
       "@beep/repo-cli/test/*": ["./tooling/cli/test/*.ts"],
-      "@beep/repo-utils": ["./tooling/utils/src/index.ts"],
-      "@beep/repo-utils/*": ["./tooling/utils/src/*.ts"],
+      "@beep/repo-utils": ["./tooling/repo-utils/src/index.ts"],
+      "@beep/repo-utils/*": ["./tooling/repo-utils/src/*.ts"],
       "@beep/repo-utils/test/*": ["./tooling/utils/test/*.ts"],
       "@beep/codebase-search": ["./tooling/codebase-search/src/index.ts"],
       "@beep/codebase-search/*": ["./tooling/codebase-search/src/*.ts"],
       "@beep/codebase-search/test/*": ["./tooling/codebase-search/test/*.ts"],
-      "@beep/_test-idempotent-1771557733674": [
-        "./tooling/_test-idempotent-1771557733674/src/index.ts"
-      ],
-      "@beep/_test-idempotent-1771557733674/*": [
-        "./tooling/_test-idempotent-1771557733674/src/*.ts"
-      ],
       "@beep/types": ["./packages/common/types/src/index.ts"],
       "@beep/types/*": ["./packages/common/types/src/*.ts"],
       "@beep/utils": ["./packages/common/utils/src/index.ts"],
       "@beep/utils/*": ["./packages/common/utils/src/*.ts"],
-      "@beep/_test-pkg-1771560352063": [
-        "./tooling/_test-pkg-1771560352063/src/index.ts"
-      ],
-      "@beep/_test-pkg-1771560352063/*": [
-        "./tooling/_test-pkg-1771560352063/src/*.ts"
-      ],
       "@beep/_test-idempotent-1771560353205": [
         "./tooling/_test-idempotent-1771560353205/src/index.ts"
       ],
@@ -68,7 +56,27 @@
       ],
       "@beep/_test-license-1771561808031/*": [
         "./tooling/_test-license-1771561808031/src/*.ts"
-      ]
+      ],
+      "@beep/_test-idempotent-1771558038638": [
+        "./tooling/_test-idempotent-1771558038638/src/index.ts"
+      ],
+      "@beep/_test-idempotent-1771558038638/*": [
+        "./tooling/_test-idempotent-1771558038638/src/*.ts"
+      ],
+      "@beep/_test-nodesc-1771558038551": [
+        "./tooling/_test-nodesc-1771558038551/src/index.ts"
+      ],
+      "@beep/_test-nodesc-1771558038551/*": [
+        "./tooling/_test-nodesc-1771558038551/src/*.ts"
+      ],
+      "@beep/_test-symlink-1771558038373": [
+        "./tooling/_test-symlink-1771558038373/src/index.ts"
+      ],
+      "@beep/_test-symlink-1771558038373/*": [
+        "./tooling/_test-symlink-1771558038373/src/*.ts"
+      ],
+      "@beep/groking-effect-v4": ["./groking-effect-v4/src/index.ts"],
+      "@beep/groking-effect-v4/*": ["./groking-effect-v4/src/*.ts"]
     },
     "plugins": [
       {

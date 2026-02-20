@@ -1,3 +1,10 @@
+import {
+  assembleSymbols,
+  extractSignature,
+  resolveImports,
+  resolveModuleName,
+} from "@beep/codebase-search/extractor/SymbolAssembler";
+import type { IndexedSymbol } from "@beep/codebase-search/IndexedSymbol";
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
@@ -5,14 +12,6 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { Project } from "ts-morph";
-
-import {
-  assembleSymbols,
-  extractSignature,
-  resolveImports,
-  resolveModuleName,
-} from "../../src/extractor/SymbolAssembler.js";
-import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

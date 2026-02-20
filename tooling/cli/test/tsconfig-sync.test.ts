@@ -39,6 +39,8 @@ interface Fixture {
   readonly pkgBTsconfigPath: string;
   readonly pkgCBuildTsconfigPath: string;
   readonly pkgCRootTsconfigPath: string;
+  readonly pkgAPackageJsonPath: string;
+  readonly pkgBPackageJsonPath: string;
 }
 
 interface TsconfigReferencesLike {
@@ -63,6 +65,8 @@ const createFixture = Effect.fn(function* () {
   const pkgADir = path.join(rootDir, "tooling", "pkg-a");
   const pkgBDir = path.join(rootDir, "tooling", "pkg-b");
   const pkgCDir = path.join(rootDir, "packages", "pkg-c");
+  const pkgAPackageJsonPath = path.join(pkgADir, "package.json");
+  const pkgBPackageJsonPath = path.join(pkgBDir, "package.json");
 
   yield* fs.makeDirectory(path.join(rootDir, ".git"), { recursive: true });
   yield* fs.makeDirectory(path.join(pkgADir, "src"), { recursive: true });
@@ -84,7 +88,7 @@ const createFixture = Effect.fn(function* () {
   );
 
   yield* fs.writeFileString(
-    path.join(pkgADir, "package.json"),
+    pkgAPackageJsonPath,
     JSON.stringify(
       {
         name: "@beep/pkg-a",
@@ -98,7 +102,7 @@ const createFixture = Effect.fn(function* () {
   );
 
   yield* fs.writeFileString(
-    path.join(pkgBDir, "package.json"),
+    pkgBPackageJsonPath,
     JSON.stringify(
       {
         name: "@beep/pkg-b",
@@ -250,6 +254,8 @@ const createFixture = Effect.fn(function* () {
     pkgBTsconfigPath: path.join(pkgBDir, "tsconfig.json"),
     pkgCBuildTsconfigPath: path.join(pkgCDir, "tsconfig.build.json"),
     pkgCRootTsconfigPath: path.join(pkgCDir, "tsconfig.json"),
+    pkgAPackageJsonPath,
+    pkgBPackageJsonPath,
   } as const satisfies Fixture;
 });
 
@@ -422,6 +428,71 @@ describe("tsconfig-sync command", () => {
 
           const logs = (yield* TestConsole.logLines).map(String);
           expect(logs.some((line) => line.includes("dry-run planned changes"))).toBe(true);
+        } finally {
+          yield* cleanupFixture(fixture.rootDir);
+        }
+      })
+    )
+  );
+
+  it.effect(
+    "returns TsconfigSyncFilterError when --filter does not match any workspace",
+    withTestLayers(
+      Effect.fn(function* () {
+        const fixture = yield* createFixture();
+
+        try {
+          const outcome = yield* syncTsconfigAtRoot(fixture.rootDir, {
+            mode: "sync",
+            filter: "@beep/does-not-exist",
+            verbose: false,
+          }).pipe(
+            Effect.match({
+              onFailure: (error) => error._tag,
+              onSuccess: () => "Success",
+            })
+          );
+
+          expect(outcome).toBe("TsconfigSyncFilterError");
+        } finally {
+          yield* cleanupFixture(fixture.rootDir);
+        }
+      })
+    )
+  );
+
+  it.effect(
+    "returns TsconfigSyncCycleError when workspace graph contains a cycle",
+    withTestLayers(
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const fixture = yield* createFixture();
+
+        try {
+          yield* fs.writeFileString(
+            fixture.pkgAPackageJsonPath,
+            JSON.stringify(
+              {
+                name: "@beep/pkg-a",
+                version: "0.0.0",
+                private: true,
+                dependencies: {
+                  "@beep/pkg-b": "workspace:*",
+                },
+              },
+              null,
+              2
+            )
+          );
+
+          const outcome = yield* runSync(fixture).pipe(
+            Effect.match({
+              onFailure: (error) => error._tag,
+              onSuccess: () => "Success",
+            })
+          );
+
+          expect(outcome).toBe("TsconfigSyncCycleError");
         } finally {
           yield* cleanupFixture(fixture.rootDir);
         }

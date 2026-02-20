@@ -1,8 +1,4 @@
-import { describe, expect, it } from "@effect/vitest";
-import * as A from "effect/Array";
-import * as O from "effect/Option";
-import * as Str from "effect/String";
-import type { EffectPattern, IndexedSymbol } from "../src/IndexedSymbol.js";
+import type { EffectPattern, IndexedSymbol } from "@beep/codebase-search/IndexedSymbol";
 import {
   buildEmbeddingText,
   buildKeywordText,
@@ -10,7 +6,11 @@ import {
   computeContentHash,
   generateId,
   validateIndexedSymbol,
-} from "../src/IndexedSymbol.js";
+} from "@beep/codebase-search/IndexedSymbol";
+import { describe, expect, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 // ---------------------------------------------------------------------------
 // Helpers

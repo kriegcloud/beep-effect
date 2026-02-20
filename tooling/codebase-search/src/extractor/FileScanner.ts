@@ -56,6 +56,17 @@ export interface ScanResult {
   readonly unchanged: ReadonlyArray<string>;
 }
 
+/**
+ * Optional scan settings.
+ *
+ * @since 0.0.0
+ * @category types
+ */
+export interface ScanOptions {
+  /** Optional index directory path (absolute or relative to rootDir). */
+  readonly indexPath?: string | undefined;
+}
+
 // ---------------------------------------------------------------------------
 // ScanMode
 // ---------------------------------------------------------------------------
@@ -114,6 +125,40 @@ const FileHashesFromJson = S.fromJsonString(FileHashesFile);
  * @category constants
  */
 export const FILE_HASHES_PATH = ".code-index/file-hashes.json" as const;
+
+/** @internal */
+const DEFAULT_INDEX_DIR = ".code-index" as const;
+
+/** @internal */
+const FILE_HASHES_FILE = "file-hashes.json" as const;
+
+/**
+ * Resolve the index directory for hash persistence.
+ *
+ * @param rootDir rootDir parameter value.
+ * @param indexPath indexPath parameter value.
+ * @param path path parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const resolveIndexDir = (rootDir: string, indexPath: string | undefined, path: Path.Path): string => {
+  if (indexPath === undefined) {
+    return path.join(rootDir, DEFAULT_INDEX_DIR);
+  }
+  return path.isAbsolute(indexPath) ? indexPath : path.join(rootDir, indexPath);
+};
+
+/**
+ * Resolve the hash file path for scan/hash persistence.
+ *
+ * @param rootDir rootDir parameter value.
+ * @param indexPath indexPath parameter value.
+ * @param path path parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const resolveHashesPath = (rootDir: string, indexPath: string | undefined, path: Path.Path): string =>
+  path.join(resolveIndexDir(rootDir, indexPath, path), FILE_HASHES_FILE);
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -209,15 +254,16 @@ const collectTsFiles: (
             O.map((value) => value.slice(normalizedRoot.length + 1)),
             O.getOrElse(() => rawRelativePath)
           );
+          const normalizedRelativePath = pipe(relativePath, Str.replace(/^\.\//, ""), Str.replace(/^\/+/, ""));
 
           // Skip any path that escapes rootDir
-          if (relativePath.startsWith("..")) {
+          if (normalizedRelativePath.startsWith("..")) {
             continue;
           }
 
           // Check if this file matches the expected src pattern
-          if (Str.includes("/src/")(relativePath) && shouldIncludeFile(relativePath)) {
-            allFiles.push(relativePath);
+          if (Str.includes("/src/")(normalizedRelativePath) && shouldIncludeFile(normalizedRelativePath)) {
+            allFiles.push(normalizedRelativePath);
           }
         }
       }
@@ -235,14 +281,16 @@ const collectTsFiles: (
 
 /** @internal */
 const loadStoredHashes: (
-  rootDir: string
+  rootDir: string,
+  indexPath?: string | undefined
 ) => Effect.Effect<ReadonlyArray<FileHash>, IndexingError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
-  rootDir: string
+  rootDir: string,
+  indexPath?: string | undefined
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const hashesPath = path.join(rootDir, FILE_HASHES_PATH);
+  const hashesPath = resolveHashesPath(rootDir, indexPath, path);
 
   const exists = yield* pipe(fs.exists(hashesPath), Effect.orElseSucceed(thunkFalse));
 
@@ -291,10 +339,12 @@ const loadStoredHashes: (
  */
 export const scanFiles: (
   rootDir: string,
-  mode: ScanMode
+  mode: ScanMode,
+  options?: ScanOptions | undefined
 ) => Effect.Effect<ScanResult, IndexingError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
   rootDir: string,
-  mode: ScanMode
+  mode: ScanMode,
+  options?: ScanOptions | undefined
 ) {
   // Discover all matching TypeScript files
   const currentFiles = yield* collectTsFiles(rootDir);
@@ -312,7 +362,7 @@ export const scanFiles: (
   // Incremental mode: compare against stored hashes
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const storedHashes = yield* loadStoredHashes(rootDir);
+  const storedHashes = yield* loadStoredHashes(rootDir, options?.indexPath);
 
   // Build a map of stored file path -> hash
   const storedHashMap = MutableHashMap.empty<string, string>();
@@ -427,16 +477,18 @@ export const computeFileHashes: (
  */
 export const saveFileHashes: (
   rootDir: string,
-  hashes: ReadonlyArray<FileHash>
+  hashes: ReadonlyArray<FileHash>,
+  indexPath?: string | undefined
 ) => Effect.Effect<void, IndexingError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
   rootDir: string,
-  hashes: ReadonlyArray<FileHash>
+  hashes: ReadonlyArray<FileHash>,
+  indexPath?: string | undefined
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const dirPath = path.join(rootDir, ".code-index");
-  const hashesPath = path.join(rootDir, FILE_HASHES_PATH);
+  const dirPath = resolveIndexDir(rootDir, indexPath, path);
+  const hashesPath = resolveHashesPath(rootDir, indexPath, path);
 
   // Ensure directory exists
   yield* pipe(

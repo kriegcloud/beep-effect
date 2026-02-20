@@ -99,7 +99,10 @@ Index refresh.
 
 Inputs:
 - `mode?: "incremental" | "full"`
-- `package?: string`
+- `package?: string` (supported with `mode="incremental"` only)
+
+`INDEX_PATH` note:
+- If you customize `INDEX_PATH` for MCP, use the same `INDEX_PATH` for hook commands so hooks and MCP read/write the same index directory.
 
 ## Index Layout
 

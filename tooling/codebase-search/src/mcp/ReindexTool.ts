@@ -92,6 +92,16 @@ export const handleReindex: (params: {
 
   const mode: "full" | "incremental" = params.mode === "full" ? "full" : "incremental";
 
+  if (mode === "full" && params.package !== undefined) {
+    return yield* Effect.fail(
+      new IndexingError({
+        message:
+          "Full reindex with package filter is not supported. Use mode='incremental' with package filter, or omit package for a full rebuild.",
+        phase: "reindex-validate",
+      })
+    );
+  }
+
   if (mode === "incremental") {
     const indexMetaPath = join(params.indexPath, "index-meta.json");
     const exists = yield* Effect.sync(() => existsSync(indexMetaPath)).pipe(Effect.orElseSucceed(() => false));
