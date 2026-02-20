@@ -1,0 +1,18 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "dependsOn": ["@osdk/foundry-sdk-generator#transpile", "codegen"]
+    },
+    "codegen": {
+      "inputs": ["generateMockOntology.js"],
+      "outputs": ["build/codegen/**/*"],
+      "dependsOn": [
+        "@osdk/foundry-sdk-generator#transpile",
+        "@osdk/foundry-sdk-generator#typecheck",
+        "@osdk/shared.test#transpile",
+        "@osdk/shared.test#typecheck"
+      ]
+    }
+  }
+}

@@ -1,0 +1,93 @@
+/*
+ * Copyright 2024 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import invariant from "tiny-invariant";
+import { cloneDefinition } from "./cloneDefinition.js";
+import { OntologyEntityTypeEnum } from "./common/OntologyEntityTypeEnum.js";
+import {
+  importedTypes,
+  namespace,
+  withoutNamespace,
+} from "./defineOntology.js";
+import type { InterfaceType } from "./interface/InterfaceType.js";
+import { combineApiNamespaceIfMissing } from "./namespace/combineApiNamespaceIfMissing.js";
+
+type Meta = { apiName: string; displayName?: string; description?: string };
+type ApiNameOrInterfaceType = string | InterfaceType;
+
+type Many = {
+  apiName: string;
+  from: InterfaceType;
+  toMany: ApiNameOrInterfaceType;
+  toOne?: never;
+  displayName?: string;
+  description?: string;
+  required?: boolean;
+};
+type One = {
+  apiName: string;
+  from: InterfaceType;
+  toOne: ApiNameOrInterfaceType;
+  toMany?: never;
+  displayName?: string;
+  description?: string;
+  required?: boolean;
+};
+
+export function defineInterfaceLinkConstraint(
+  linkDefInput: One | Many,
+): void {
+  const linkDef = cloneDefinition(linkDefInput);
+
+  invariant(
+    importedTypes[OntologyEntityTypeEnum.INTERFACE_TYPE][linkDef.from.apiName]
+      == null,
+    `Cannot define a link constraint from imported interface ${linkDef.from.apiName}. The "from" side must be a locally defined interface.`,
+  );
+
+  const fromLinkMeta = getLinkMeta(linkDef);
+
+  invariant(
+    linkDef.from.links.find(a => a.metadata.apiName === fromLinkMeta.apiName)
+      == null,
+    `Link with apiName ${fromLinkMeta.apiName} already exists on ${linkDef.apiName}`,
+  );
+
+  linkDef.from.links.push({
+    cardinality: linkDef.toMany ? "MANY" : "SINGLE",
+    linkedEntityTypeId: getLinkedType(linkDef.toMany ?? linkDef.toOne),
+    metadata: fromLinkMeta,
+    required: linkDef.required ?? true,
+  });
+}
+
+function getLinkedType(t: string | InterfaceType) {
+  return {
+    type: "interfaceType" as const,
+    interfaceType: typeof t === "string" ? t : t.apiName,
+  };
+}
+
+function getLinkMeta(meta: One | Many): Required<Meta> {
+  const { apiName, displayName, description } = meta;
+  const apiNameWithNamespace = combineApiNamespaceIfMissing(namespace, apiName);
+  const apiNameWithoutNamespace = withoutNamespace(apiNameWithNamespace);
+  return {
+    apiName: apiNameWithNamespace,
+    displayName: displayName ?? apiNameWithoutNamespace,
+    description: description ?? displayName ?? apiNameWithoutNamespace,
+  };
+}

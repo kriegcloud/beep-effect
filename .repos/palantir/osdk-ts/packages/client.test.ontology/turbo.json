@@ -1,0 +1,10 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "codegen": {
+      "inputs": ["generateMockOntology.js"],
+      "outputs": ["src/generatedNoCheck/**/*"],
+      "dependsOn": ["@osdk/generator#transpileEsm", "@osdk/shared.test#transpileEsm"]
+    }
+  }
+}

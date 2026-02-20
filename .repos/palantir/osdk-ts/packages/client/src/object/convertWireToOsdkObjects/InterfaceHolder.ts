@@ -1,0 +1,39 @@
+/*
+ * Copyright 2024 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import type { InterfaceMetadata, ObjectMetadata, Osdk } from "@osdk/api";
+import type { FormatPropertyOptions } from "../formatting/applyPropertyFormatter.js";
+import type { BaseHolder } from "./BaseHolder.js";
+import type { InterfaceDefRef } from "./InternalSymbols.js";
+
+/** @internal */
+export interface InterfaceHolder<
+  _Q extends Osdk.Instance<any> = never,
+> extends BaseHolder {
+  [InterfaceDefRef]: InterfaceMetadata;
+
+  readonly "$__EXPERIMENTAL__NOT_SUPPORTED_YET__metadata": {
+    readonly ObjectMetadata: ObjectMetadata;
+    readonly InterfaceMetadata: InterfaceMetadata;
+  };
+
+  readonly "$__EXPERIMENTAL__NOT_SUPPORTED_YET__getFormattedValue": <
+    PropertyApiName extends string,
+  >(
+    propertyApiName: PropertyApiName,
+    options?: FormatPropertyOptions,
+  ) => string | undefined;
+}
