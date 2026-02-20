@@ -1,0 +1,95 @@
+/*
+ * (c) Copyright 2018 Palantir Technologies Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import net.ltgt.gradle.errorprone.CheckSeverity
+
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
+    dependencies {
+        classpath 'com.palantir.baseline-error-prone:gradle-baseline-error-prone:0.9.0'
+        classpath 'com.palantir.jakartapackagealignment:jakarta-package-alignment:0.6.0'
+        classpath 'com.palantir.gradle.jdks:gradle-jdks:0.74.0'
+        classpath 'com.palantir.gradle.jdkslatest:gradle-jdks-latest:0.26.0'
+        classpath 'com.palantir.gradle.externalpublish:gradle-external-publish-plugin:1.33.0'
+        classpath 'com.palantir.gradle.failure-reports:gradle-failure-reports:1.18.0'
+        classpath 'com.palantir.baseline:gradle-baseline-java:7.2.0'
+        classpath 'com.palantir.gradle.conjure:gradle-conjure:5.64.0'
+        classpath 'com.palantir.gradle.consistentversions:gradle-consistent-versions:3.13.0'
+        classpath 'com.palantir.gradle.gitversion:gradle-git-version:4.3.0'
+        classpath 'com.palantir.gradle.idea-configuration:gradle-idea-configuration:0.8.0'
+        classpath 'com.palantir.javaformat:gradle-palantir-java-format:2.88.0'
+        classpath 'com.palantir.suppressible-error-prone:gradle-suppressible-error-prone:2.28.0'
+    }
+}
+
+apply plugin: 'com.palantir.external-publish'
+apply plugin: 'com.palantir.failure-reports'
+apply plugin: 'com.palantir.baseline'
+apply plugin: 'com.palantir.baseline-error-prone-root'
+apply plugin: 'com.palantir.git-version'
+apply plugin: 'com.palantir.jdks'
+apply plugin: 'com.palantir.consistent-versions'
+apply plugin: 'com.palantir.baseline-java-versions'
+apply plugin: 'com.palantir.jdks.latest'
+
+version gitVersion()
+
+allprojects {
+    apply plugin: 'com.palantir.java-format'
+    apply plugin: 'com.palantir.jakarta-package-alignment'
+
+    version rootProject.version
+    group 'com.palantir.conjure'
+
+    repositories {
+        mavenCentral() { metadataSources { mavenPom(); ignoreGradleMetadataRedirection() } }
+    }
+}
+
+configure(subprojects - project(':conjure-api')) {
+    apply plugin: 'java-library'
+
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs += ['-Werror']
+        options.errorprone {
+            check("PreferSafeLogger", CheckSeverity.OFF)
+            check("PreferSafeLoggingPreconditions", CheckSeverity.OFF)
+            check("PreferSafeLoggableExceptions", CheckSeverity.OFF)
+            check("Slf4jLogsafeArgs", CheckSeverity.OFF)
+        }
+    }
+
+    // Run `./gradlew test -Drecreate=true` to recreate all the expected
+    // generated code that we have checked into the repo.
+    tasks.withType(Test) {
+        systemProperty 'recreate', System.getProperty('recreate', 'false')
+    }
+}
+
+javaVersions {
+    javaCompiler = 25
+    libraryTarget = 17
+    runtime = 25
+}
+
+jdks {
+    daemonTarget = 21
+}
