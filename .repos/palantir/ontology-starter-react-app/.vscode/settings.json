@@ -1,0 +1,9 @@
+{
+    "editor.codeActionsOnSave": ["source.fixAll.prettier", "source.fixAll.eslint", "source.fixAll.stylelint"],
+    "editor.insertSpaces": true,
+    "editor.formatOnSave": true,
+    "eslint.format.enable": false,
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "stylelint.validate": ["css", "scss"]
+}
