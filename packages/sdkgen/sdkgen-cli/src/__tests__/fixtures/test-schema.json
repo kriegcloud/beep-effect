@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "description": "Test API Schema",
+  "types": {
+    "User": {
+      "id": "string",
+      "name": "string",
+      "email": "string",
+      "createdAt": "Date"
+    },
+    "Post": {
+      "id": "string",
+      "title": "string",
+      "content": "string",
+      "authorId": "string"
+    },
+    "Comment": {
+      "id": "string",
+      "postId": "string",
+      "userId": "string",
+      "content": "string",
+      "createdAt": "Date"
+    }
+  }
+}

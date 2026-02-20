@@ -1,0 +1,6 @@
+{
+  "packageName": "@demo/canvas.sdk",
+  "description": "Generated SDK from canvas schema",
+  "schemaName": "Canvas Document",
+  "schemaDescription": "Schema for the Demo Canvas Application"
+}

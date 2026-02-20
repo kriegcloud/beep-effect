@@ -1,0 +1,23 @@
+- add-records:
+    ObjectNode:
+      fields:
+        x: double
+        'y': double
+        label: optional<string>
+      docs: Represents a node in a graph
+    TextBox:
+      fields:
+        x: double
+        'y': double
+        text: string
+      docs: Represents a text box
+    Edge:
+      fields:
+        source: ObjectNode
+        target: ObjectNode
+      docs: Represents an edge
+- add-union:
+    Node:
+      variants:
+        object: ObjectNode
+        textBox: TextBox

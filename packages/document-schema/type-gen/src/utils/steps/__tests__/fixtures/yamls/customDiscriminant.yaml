@@ -1,0 +1,18 @@
+- add-records:
+    Cat:
+      docs: 'A cat'
+      fields:
+        meow: string
+        whiskers: double
+    Dog:
+      docs: 'A dog'
+      fields:
+        bark: string
+        tailWags: double
+
+- add-union:
+    Animal:
+      discriminant: kind
+      variants:
+        cat: Cat
+        dog: Dog

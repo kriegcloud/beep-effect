@@ -1,0 +1,28 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build:yaml": {
+      "outputLogs": "new-only",
+      "dependsOn": ["@palantir/pack.document-schema.type-gen#build"],
+      "inputs": [
+        "src/**"
+      ],
+      "outputs": [
+        "build/migrations/**"
+      ]
+    },
+    "sdk-gen": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "build:yaml",
+        "@palantir/pack.sdkgen#build",
+        "@palantir/pack.sdkgen.pack-template#build"
+      ],
+      "inputs": ["build/migrations/**", "pack-config.json", "scripts/**"]
+    },
+    "build": {
+      "dependsOn": ["build:yaml", "sdk-gen"],
+      "outputLogs": "new-only"
+    }
+  }
+}

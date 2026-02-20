@@ -1,0 +1,31 @@
+- local-fragment:
+    position:
+      x: double
+      y: double
+
+- add-records:
+    ObjectNode:
+      docs: 'A node in the graph'
+      extends: [position]
+      fields:
+        object: string # should be an object reference.
+        label: optional<string>
+        edges: list<Edge>
+    TextBox:
+      docs: 'A text box in the graph'
+      extends: [position]
+      fields:
+        text: string
+
+- add-union:
+    Node:
+      variants:
+        object: ObjectNode
+        textBox: TextBox
+
+- add-records:
+    Edge:
+      docs: 'An edge in the graph'
+      fields:
+        source: ObjectNode
+        target: ObjectNode

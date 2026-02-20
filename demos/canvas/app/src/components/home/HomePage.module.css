@@ -1,0 +1,293 @@
+.pageWrapper {
+  width: 100%;
+  max-width: 60vw;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f5f5f5;
+  margin: 0 auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #333;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #c23030;
+}
+
+.pageHeader {
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 2rem;
+}
+
+.pageHeader h1 {
+  flex: 1;
+  font-size: 2rem;
+  margin: 0;
+  color: #222;
+}
+
+.createButton {
+  background-color: #0066cc;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.createButton:hover {
+  background-color: #0055aa;
+}
+
+.canvasLink {
+  background: none;
+  border: none;
+  color: #0066cc;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0;
+  text-align: left;
+}
+
+.canvasLink:hover {
+  text-decoration: underline;
+}
+
+.emptyList {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
+.emptyList p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.listItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  overflow: hidden;
+}
+
+.listItem:hover {
+  background: #f5f5f5;
+  border-color: #4c90f0;
+  box-shadow: 0 2px 4px rgba(76, 144, 240, 0.1);
+}
+
+.itemNumber {
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #333;
+  background: #e8e8e8;
+  border-radius: 50%;
+  font-size: 0.9rem;
+}
+
+.itemContent {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.listItemName {
+  font-weight: 600;
+  color: #222;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ownerTag {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background: #4c90f0;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.listItemType {
+  font-size: 0.875rem;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.createdTime {
+  font-size: 0.8rem;
+  color: #888;
+  white-space: nowrap;
+}
+
+.listHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 0.5rem;
+}
+
+.columnHeader {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.createProjectForm {
+  margin-top: 20px;
+  margin-bottom: 40px;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.createProjectForm h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  color: #222;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #ffffff;
+  transition: border-color 0.15s ease;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #4c90f0;
+}
+
+.formGroup input:disabled,
+.formGroup textarea:disabled {
+  background: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: #4c90f0;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #3a7ad6;
+}
+
+.submitButton:active:not(:disabled) {
+  background: #2d6bc4;
+}
+
+.submitButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.contentSection {
+  padding: 1.5rem 2rem;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.listHeader h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #222;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.listControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}

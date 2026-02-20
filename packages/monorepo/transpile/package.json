@@ -1,0 +1,59 @@
+{
+  "name": "@palantir/pack.monorepo.transpile",
+  "private": true,
+  "version": "0.0.5",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/palantir/pack.git"
+  },
+  "bin": {
+    "monorepo-transpile": "./bin/transpile2.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./build/types/index.d.ts",
+      "default": "./build/esm/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf .turbo build dist lib test-output *.tgz tsconfig.tsbuildinfo",
+    "lint": "eslint ./src && dprint check --config $(find-up dprint.json) --allow-no-files",
+    "lint:fix": "eslint ./src --fix && dprint fmt --config $(find-up dprint.json) --allow-no-files",
+    "test": "vitest run --passWithNoTests -u",
+    "test:watch": "vitest --passWithNoTests",
+    "transpile": "tsc",
+    "transpileEsm": "monorepo-transpile -f esm -m normal -t node",
+    "transpileTypes": "tsc --emitDeclarationOnly",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@babel/preset-typescript": "catalog:",
+    "babel-plugin-dev-expression": "^0.2.3",
+    "babel-plugin-minify-dead-code-elimination": "^0.5.2",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
+    "esbuild-plugin-babel": "^0.2.3",
+    "execa": "catalog:",
+    "find-up": "catalog:",
+    "oxc-transform": "^0.93.0",
+    "tiny-invariant": "catalog:",
+    "tsup": "^8.5.1",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@palantir/pack.monorepo.tsconfig": "workspace:~",
+    "@types/node": "catalog:",
+    "@types/yargs": "catalog:",
+    "find-up": "catalog:",
+    "rimraf": "catalog:",
+    "tslib": "catalog:",
+    "typescript": "catalog:"
+  },
+  "files": [
+    "bin",
+    "build"
+  ],
+  "main": "./build/esm/index.js",
+  "types": "./build/types/index.d.ts",
+  "type": "module"
+}

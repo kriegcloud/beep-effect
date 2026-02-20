@@ -1,0 +1,36 @@
+/**
+ * Generated on <%= new Date().toISOString() %>
+ * Author: <%= answers.author %>
+ */
+
+export class HelloWorld {
+  private greeting: string = '<%= answers.greeting %>';
+
+  constructor(customGreeting?: string) {
+    if (customGreeting) {
+      this.greeting = customGreeting;
+    }
+  }
+
+  greet(name: string = 'World'): string {
+    return `${this.greeting}, ${name}!`;
+  }
+
+  // Schema information
+  getSchemaInfo(): object {
+    return <%- JSON.stringify(schema, null, 2) %>;
+  }
+  
+  // Demonstrate utility functions
+  getFormattedName(name: string): Record<string, string> {
+    return {
+      original: name,
+      camelCase: '<%= utils.camelCase(projectName) %>',
+      pascalCase: '<%= utils.pascalCase(projectName) %>',
+      kebabCase: '<%= utils.kebabCase(projectName) %>',
+      snakeCase: '<%= utils.snakeCase(projectName) %>',
+    };
+  }
+}
+
+export default HelloWorld;

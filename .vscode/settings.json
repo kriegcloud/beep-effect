@@ -1,0 +1,41 @@
+{
+  "dprint.path": "node_modules/.bin/dprint",
+  "editor.defaultFormatter": "dprint.dprint",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "json.schemas": [{
+    "fileMatch": ["turbo.jsonc"],
+    "schema": {
+      "allowTrailingCommas": true
+    }
+  }],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": [
+    "\\.\\./build",
+    "\\.\\./src",
+    "\\.\\./.*?/src",
+    "\\.\\./.*?/build",
+    "\\./index.js"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["src/**", "template/**", "template.config.js", "tsconfig.json"],
+      "outputs": ["build/**"]
+    }
+  }
+}

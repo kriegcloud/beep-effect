@@ -1,0 +1,15 @@
+- add-records:
+    OtherRecord:
+      fields:
+        id: string
+      docs: Other record
+    AllFieldTypes:
+      fields:
+        stringField: string
+        doubleField: double
+        booleanField: optional<boolean>
+        optionalField: optional<string>
+        arrayField: array<double>
+        unknownField: unknown
+        refField: OtherRecord
+      docs: Test all field types

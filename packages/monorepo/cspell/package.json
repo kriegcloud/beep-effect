@@ -1,0 +1,15 @@
+{
+  "name": "@palantir/pack.monorepo.cspell",
+  "private": true,
+  "version": "0.4.3",
+  "description": "CSpell configuration for the monorepo",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/palantir/pack.git"
+  },
+  "dependencies": {
+    "@cspell/cspell-types": "^9.4.0",
+    "@types/node": "catalog:"
+  }
+}
