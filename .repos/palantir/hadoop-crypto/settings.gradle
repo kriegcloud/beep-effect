@@ -1,0 +1,5 @@
+rootProject.name = 'hadoop-crypto-root'
+
+include 'crypto-core'
+include 'crypto-keys'
+include 'hadoop-crypto'

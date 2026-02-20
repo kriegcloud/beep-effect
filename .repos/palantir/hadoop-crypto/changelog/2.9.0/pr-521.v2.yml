@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Use upstream commons crypto as they published a release newer than 1.0
+  links:
+  - https://github.com/palantir/hadoop-crypto/pull/521

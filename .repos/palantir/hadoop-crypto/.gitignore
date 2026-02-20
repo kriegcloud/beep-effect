@@ -1,0 +1,31 @@
+# Gradle
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+!http-clients/lib/VersionTest.jar
+.gradle
+build/
+
+# Eclipse
+.classpath
+.checkstyle
+.factorypath
+.project
+.settings
+bin/
+
+# Idea
+*.iml
+*.ipr
+*.iws
+.idea/
+out/
+generated_src/
+generated_testSrc/
+
+# Codegen
+.generated
+
+# Mac
+.DS_Store
+build/

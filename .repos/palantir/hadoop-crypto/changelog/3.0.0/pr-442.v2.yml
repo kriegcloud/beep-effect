@@ -1,0 +1,5 @@
+type: break
+break:
+  description: Upgrade to Hadoop 3.x
+  links:
+  - https://github.com/palantir/hadoop-crypto/pull/442

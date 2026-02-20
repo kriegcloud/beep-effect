@@ -1,0 +1,7 @@
+type: improvement
+improvement:
+  description: CryptoStreamFactory logs once at `INFO` whether OpenSSL is detected.
+    Systems without OpenSSL no longer log a warning each time encryption or decryption
+    is used.
+  links:
+  - https://github.com/palantir/hadoop-crypto/pull/592

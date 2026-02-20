@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: EncryptedFileSystem#delete now correctly can delete a partially deleted
+    (aka only keymaterial deleted) file.
+  links:
+  - https://github.com/palantir/hadoop-crypto/pull/696
