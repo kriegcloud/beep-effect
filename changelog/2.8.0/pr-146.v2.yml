@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: "`isConjureError` now returns `false` for `null` and `undefined` instead of throwing an error."
+  links:
+    - https://github.com/palantir/conjure-typescript-runtime/pull/146

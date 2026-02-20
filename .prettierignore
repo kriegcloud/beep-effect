@@ -1,0 +1,10 @@
+packages/conjure-client/src/__integTest__/__generated__
+*.json
+*.md
+lib/
+coverage/
+lib-modern/
+*.yml
+changelog/
+*.js
+packages/conjure-client/src/generated

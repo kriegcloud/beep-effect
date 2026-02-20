@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Accept suppliers returning an array of user agents
+  links:
+  - https://github.com/palantir/conjure-typescript-runtime/pull/183
