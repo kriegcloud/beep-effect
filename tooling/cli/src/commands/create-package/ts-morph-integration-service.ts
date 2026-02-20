@@ -7,6 +7,7 @@
 import type { DomainError } from "@beep/repo-utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import type * as O from "effect/Option";
 /**
  * Supported AST mutation categories required by create-slice.
  *
@@ -29,8 +30,8 @@ export interface TsMorphMutation {
   readonly kind: TsMorphMutationKind;
   readonly filePath: string;
   readonly symbolName: string;
-  readonly importPath?: string | undefined;
-  readonly statementText?: string | undefined;
+  readonly importPath: O.Option<string>;
+  readonly statementText: O.Option<string>;
 }
 
 /**

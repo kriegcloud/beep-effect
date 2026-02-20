@@ -7,7 +7,10 @@
 
 import { DomainError } from "@beep/repo-utils";
 import { FileSystem } from "effect";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import Handlebars from "handlebars";
 
 /**
@@ -57,45 +60,43 @@ export interface TemplateService {
 }
 
 const toWords = (value: string): ReadonlyArray<string> => {
-  const normalized = value
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/[^a-zA-Z0-9]+/g, " ")
-    .trim()
-    .toLowerCase();
+  const normalized = Str.toLowerCase(
+    Str.trim(Str.replace(/[^a-zA-Z0-9]+/g, " ")(Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2")(value)))
+  );
 
-  return normalized.length === 0 ? [] : normalized.split(/\s+/g);
+  return A.filter(Str.split(/\s+/g)(normalized), Str.isNonEmpty);
 };
 
 const toCamelCase = (value: string): string => {
   const words = toWords(value);
-  if (words.length === 0) {
-    return "";
+  const firstWord = A.head(words);
+
+  if (O.isNone(firstWord)) {
+    return Str.empty;
   }
-  return (
-    words[0]! +
-    words
-      .slice(1)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join("")
-  );
+
+  return `${firstWord.value}${A.join(A.map(A.drop(words, 1), Str.capitalize), Str.empty)}`;
 };
 
-const toPascalCase = (value: string): string =>
-  toWords(value)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join("");
+const toPascalCase = (value: string): string => A.join(A.map(toWords(value), Str.capitalize), Str.empty);
 
-const toKebabCase = (value: string): string => toWords(value).join("-");
+const toKebabCase = (value: string): string => A.join(toWords(value), "-");
 
-const toSnakeCase = (value: string): string => toWords(value).join("_");
+const toSnakeCase = (value: string): string => A.join(toWords(value), "_");
+
+const toHelperValue = (value: unknown): string =>
+  O.match(O.fromNullishOr(value), {
+    onNone: () => Str.empty,
+    onSome: (inner) => `${inner}`,
+  });
 
 const createHandlebarsEnvironment = () => {
   const hbs = Handlebars.create();
 
-  hbs.registerHelper("camelCase", (value: unknown) => toCamelCase(String(value ?? "")));
-  hbs.registerHelper("pascalCase", (value: unknown) => toPascalCase(String(value ?? "")));
-  hbs.registerHelper("kebabCase", (value: unknown) => toKebabCase(String(value ?? "")));
-  hbs.registerHelper("snakeCase", (value: unknown) => toSnakeCase(String(value ?? "")));
+  hbs.registerHelper("camelCase", (value: unknown) => toCamelCase(toHelperValue(value)));
+  hbs.registerHelper("pascalCase", (value: unknown) => toPascalCase(toHelperValue(value)));
+  hbs.registerHelper("kebabCase", (value: unknown) => toKebabCase(toHelperValue(value)));
+  hbs.registerHelper("snakeCase", (value: unknown) => toSnakeCase(toHelperValue(value)));
 
   return hbs;
 };

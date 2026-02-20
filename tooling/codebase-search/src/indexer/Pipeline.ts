@@ -185,7 +185,7 @@ const resolvePackageName = (filePath: string): string => {
   if (A.length(segments) >= 2) {
     const scope = A.get(segments, 0);
     const name = A.get(segments, 1);
-    if (scope._tag === "Some" && name._tag === "Some") {
+    if (O.isSome(scope) && O.isSome(name)) {
       return `@beep/${name.value}`;
     }
   }
@@ -358,13 +358,11 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
 
     const run: PipelineShape["run"] = Effect.fn(function* (config) {
       if (config.mode === "full" && config.packageFilter !== undefined) {
-        return yield* Effect.fail(
-          new IndexingError({
-            message:
-              "Full reindex with package filter is not supported. Use mode='incremental' with package filter, or omit package for a full rebuild.",
-            phase: "pipeline-config",
-          })
-        );
+        return yield* new IndexingError({
+          message:
+            "Full reindex with package filter is not supported. Use mode='incremental' with package filter, or omit package for a full rebuild.",
+          phase: "pipeline-config",
+        });
       }
 
       const startTime = yield* DateTime.now;
@@ -492,7 +490,9 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
       // 8. Write IndexMeta JSON
       // ---------------------------------------------------------------
       const now = DateTime.formatIso(yield* DateTime.now);
-      const previousMeta = yield* readExistingIndexMeta(config.indexPath).pipe(Effect.orElseSucceed(() => O.none()));
+      const previousMeta = yield* readExistingIndexMeta(config.indexPath).pipe(
+        Effect.orElseSucceed(O.none<typeof IndexMeta.Type>)
+      );
       const totalIndexedSymbols = yield* lanceDbWriter
         .countRows()
         .pipe(Effect.orElseSucceed(() => A.length(extractedSymbols)));

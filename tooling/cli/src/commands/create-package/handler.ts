@@ -16,6 +16,9 @@ import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import {
   type ConfigUpdateBatchResult,
@@ -83,7 +86,7 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (baseDir: str
  */
 const VALID_TYPES = ["library", "tool", "app"] as const;
 
-type PackageType = (typeof VALID_TYPES)[number];
+const isValidPackageType: P.Predicate<string> = (value) => A.some(VALID_TYPES, (type) => type === value);
 
 /**
  * Mapping from template source to output path.
@@ -167,9 +170,21 @@ interface TemplateContext {
  * @returns True when the override is safe and repo-relative.
  */
 const isValidParentDir = (value: string): boolean => {
+  const hasBoundaryMarker: P.Predicate<string> = P.some(
+    A.make(Str.startsWith("/"), Str.endsWith("/"), Str.includes("//"))
+  );
+  const isReservedSegment: P.Predicate<string> = P.some(
+    A.make(
+      (segment: string) => segment === ".",
+      (segment: string) => segment === "..",
+      Str.isEmpty
+    )
+  );
+  const hasReservedSegment: P.Predicate<string> = (parentDir) => A.some(Str.split("/")(parentDir), isReservedSegment);
+
   if (!/^[a-z0-9][a-z0-9/_-]*$/.test(value)) return false;
-  if (value.startsWith("/") || value.endsWith("/") || value.includes("//")) return false;
-  return !value.split("/").some((segment) => segment === "." || segment === ".." || segment.length === 0);
+  if (hasBoundaryMarker(value)) return false;
+  return P.not(hasReservedSegment)(value);
 };
 
 /**
@@ -182,7 +197,11 @@ const isValidParentDir = (value: string): boolean => {
  * @param packagePath Repo-relative package path.
  * @returns Relative path from the package directory to repo root.
  */
-const toRootRelative = (packagePath: string): string => "../".repeat(packagePath.split("/").length);
+const toRootRelative = (packagePath: string): string =>
+  A.join(
+    A.makeBy(A.length(Str.split("/")(packagePath)), () => "../"),
+    ""
+  );
 
 const singleTargetFallback = (
   target: ConfigUpdateTarget,
@@ -227,9 +246,9 @@ export const createPackageCommand = Command.make(
     const { name, type, parentDir: parentDirOverride, description, dryRun } = config;
 
     // ── Validate type ──────────────────────────────────────────────────
-    if (!VALID_TYPES.includes(type as PackageType)) {
+    if (P.not(isValidPackageType)(type)) {
       return yield* new DomainError({
-        message: `Invalid package type "${type}". Must be one of: ${VALID_TYPES.join(", ")}`,
+        message: `Invalid package type "${type}". Must be one of: ${A.join(VALID_TYPES, ", ")}`,
       });
     }
 
@@ -243,7 +262,7 @@ export const createPackageCommand = Command.make(
 
     // ── Resolve parent directory ───────────────────────────────────────
     const defaultParentDir = type === "app" ? "apps" : "tooling";
-    const parentDir = parentDirOverride.length > 0 ? parentDirOverride : defaultParentDir;
+    const parentDir = Str.isNonEmpty(parentDirOverride) ? parentDirOverride : defaultParentDir;
     if (!isValidParentDir(parentDir)) {
       return yield* new DomainError({
         message: `Invalid parent dir "${parentDir}". Use a repo-relative path like "tooling", "apps", or "packages/common".`,
@@ -286,7 +305,10 @@ export const createPackageCommand = Command.make(
       const configNeedsBatch = yield* checkConfigNeedsUpdateForTargets(repoRoot, [configTarget]).pipe(
         Effect.orElseSucceed(() => singleTargetFallback(configTarget, { tsconfigPackages: true, tsconfigPaths: true }))
       );
-      const configNeeds = configNeedsBatch.targets[0]?.result ?? { tsconfigPackages: true, tsconfigPaths: true };
+      const configNeeds = O.getOrElse(
+        O.map(A.get(configNeedsBatch.targets, 0), (targetResult) => targetResult.result),
+        () => ({ tsconfigPackages: true, tsconfigPaths: true })
+      );
 
       yield* Console.log(`[dry-run] Root config updates:`);
       yield* Console.log(
@@ -299,7 +321,7 @@ export const createPackageCommand = Command.make(
     }
 
     // ── Build template context ─────────────────────────────────────────
-    const currentYear = String(DateTime.getPartUtc(DateTime.nowUnsafe(), "year"));
+    const currentYear = `${DateTime.getPartUtc(DateTime.nowUnsafe(), "year")}`;
     const ctx: TemplateContext = {
       name,
       scopedName: `@beep/${name}`,
@@ -327,12 +349,14 @@ export const createPackageCommand = Command.make(
     const plan = fileGenerationPlanService.createPlan({
       outputDir,
       directories: PACKAGE_DIRECTORIES,
-      files: [
-        { relativePath: "package.json", content: packageJson },
-        ...templateFiles.map((file) => ({ relativePath: file.outputPath, content: file.content })),
-        { relativePath: "test/.gitkeep", content: "" },
-        { relativePath: "dtslint/.gitkeep", content: "" },
-      ],
+      files: A.flatMap(
+        A.make(
+          A.make({ relativePath: "package.json", content: packageJson }),
+          A.map(templateFiles, (file) => ({ relativePath: file.outputPath, content: file.content })),
+          A.make({ relativePath: "test/.gitkeep", content: "" }, { relativePath: "dtslint/.gitkeep", content: "" })
+        ),
+        (entries) => entries
+      ),
       symlinks: [{ relativePath: "CLAUDE.md", target: "AGENTS.md" }],
     });
 
@@ -342,7 +366,10 @@ export const createPackageCommand = Command.make(
     const configBatch = yield* updateRootConfigsForTargets(repoRoot, [configTarget]).pipe(
       Effect.orElseSucceed(() => singleTargetFallback(configTarget, { tsconfigPackages: false, tsconfigPaths: false }))
     );
-    const configResults = configBatch.targets[0]?.result ?? { tsconfigPackages: false, tsconfigPaths: false };
+    const configResults = O.getOrElse(
+      O.map(A.get(configBatch.targets, 0), (targetResult) => targetResult.result),
+      () => ({ tsconfigPackages: false, tsconfigPaths: false })
+    );
 
     // ── Print summary ──────────────────────────────────────────────────
     yield* Console.log(`Created package @beep/${name} at ${outputDir}`);

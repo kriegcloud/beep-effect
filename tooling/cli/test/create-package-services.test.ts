@@ -4,6 +4,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import { TestConsole } from "effect/testing";
 import { ChildProcessSpawner } from "effect/unstable/process";
 import {
@@ -176,7 +177,7 @@ describe("create-package service contracts", () => {
           symlinks: [{ relativePath: "CLAUDE.md", target: "README.md" }],
         });
 
-        expect(plan.actions.map((action) => `${action.kind}:${action.relativePath}`)).toEqual([
+        expect(plan.actions.map((action) => `${action._tag}:${action.relativePath}`)).toEqual([
           "mkdir:docs",
           "mkdir:src",
           "write-file:README.md",
@@ -223,12 +224,15 @@ describe("create-package service contracts", () => {
             kind: "add-entity-id-export" as const,
             filePath: "packages/domain/src/entity-id.ts",
             symbolName: "OrderId",
+            importPath: O.none<string>(),
+            statementText: O.none<string>(),
           },
           {
             kind: "wire-persistence" as const,
             filePath: "packages/persistence/src/index.ts",
             symbolName: "OrderRepository",
-            importPath: "@beep/order",
+            importPath: O.some("@beep/order"),
+            statementText: O.none<string>(),
           },
         ];
 

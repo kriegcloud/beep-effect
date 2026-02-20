@@ -206,10 +206,9 @@ export const sessionStartHook: (
   }
 
   // Read and decode the metadata file
-  const contentResult = yield* fs.readFileString(metaPath).pipe(
-    Effect.map(O.some),
-    Effect.orElseSucceed(() => O.none<string>())
-  );
+  const contentResult = yield* fs
+    .readFileString(metaPath)
+    .pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>));
 
   if (O.isNone(contentResult)) {
     return "";
@@ -223,7 +222,7 @@ export const sessionStartHook: (
   const metaResult = yield* pipe(
     S.decodeUnknownEffect(IndexMetaFromJson)(content),
     Effect.map(O.some),
-    Effect.orElseSucceed(() => O.none<IndexMeta>())
+    Effect.orElseSucceed(O.none<IndexMeta>)
   );
 
   if (O.isNone(metaResult)) {
