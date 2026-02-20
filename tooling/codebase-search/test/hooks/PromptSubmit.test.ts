@@ -16,7 +16,7 @@ import {
   shouldSkipSearch,
 } from "../../src/hooks/PromptSubmit.js";
 import { INDEX_DIR } from "../../src/hooks/SessionStart.js";
-import { type Bm25Writer, Bm25WriterLive } from "../../src/indexer/index.js";
+import { type Bm25Writer, Bm25WriterMock } from "../../src/indexer/index.js";
 
 // ---------------------------------------------------------------------------
 // In-memory filesystem (matches SessionStart.test.ts pattern)
@@ -151,7 +151,7 @@ const runWithFs = <A, E>(
   effect: Effect.Effect<A, E, FileSystem.FileSystem | Path.Path | Bm25Writer>
 ): Effect.Effect<A, E> => {
   const { layer } = createMemoryFs(initialFiles);
-  const testLayer = Layer.mergeAll(layer, Bm25WriterLive(`/project/${INDEX_DIR}`));
+  const testLayer = Layer.mergeAll(layer, Bm25WriterMock);
   return Effect.provide(effect, testLayer);
 };
 

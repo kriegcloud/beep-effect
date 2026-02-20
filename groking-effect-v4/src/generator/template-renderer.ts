@@ -2,11 +2,13 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import Handlebars from "handlebars";
+import { resolveModuleImportPath } from "./module-import-compat.ts";
 import type { ExportKind } from "./types.ts";
 
 export interface RenderExportTemplateParams {
   readonly packageName: string;
   readonly moduleName: string;
+  readonly moduleImportPath: string;
   readonly exportName: string;
   readonly exportKind: ExportKind;
   readonly sourceRelativePath: string;
@@ -122,12 +124,20 @@ const toLiteral = (value: string): string => JSON.stringify(value);
 
 const toTemplateContext = (params: RenderExportTemplateParams): ExportTemplateContext => {
   const moduleAlias = toModuleAlias(params.moduleName);
+  const moduleImportPath = resolveModuleImportPath(params.packageName, params.moduleName);
+
+  if (params.moduleImportPath !== moduleImportPath) {
+    throw new Error(
+      `Mismatched module import path for ${params.packageName}/${params.moduleName}: expected ${moduleImportPath}, received ${params.moduleImportPath}`
+    );
+  }
+
   return {
     GeneratedAt: new Date().toISOString(),
     PackageName: params.packageName,
     ModulePath: params.moduleName,
     ModuleName: moduleAlias,
-    ModuleImportPath: `${params.packageName}/${params.moduleName}`,
+    ModuleImportPath: moduleImportPath,
     ExportName: params.exportName,
     ExportKind: params.exportKind,
     SourcePath: params.sourceRelativePath,

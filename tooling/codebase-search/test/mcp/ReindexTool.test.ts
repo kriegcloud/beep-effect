@@ -1,10 +1,11 @@
+import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import { IndexNotFoundError } from "../../src/errors.js";
 import { PipelineMock } from "../../src/indexer/Pipeline.js";
 import { handleReindex } from "../../src/mcp/ReindexTool.js";
 
-const TestLayer = PipelineMock;
+const TestLayer = Layer.mergeAll(PipelineMock, NodeFileSystem.layer, NodePath.layer);
 
 layer(TestLayer)("ReindexTool", (it) => {
   it.effect(

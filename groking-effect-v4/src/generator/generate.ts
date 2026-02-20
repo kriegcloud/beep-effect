@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import * as path from "node:path";
 import { Project } from "ts-morph";
 import { extractModuleJsDoc } from "./doc.ts";
+import { resolveModuleImportPath } from "./module-import-compat.ts";
 import { parseModuleExports } from "./module-parser.ts";
 import { renderExportFileFromTemplate } from "./template-renderer.ts";
 import type {
@@ -326,7 +327,7 @@ const generateModuleSurfaceWithProject = (options: GenerateModuleOptions, projec
   const packageDirectory = findPackageDirectory(options.effectSmolRoot, options.packageName);
   const moduleSourcePathAbsolute = resolveModuleSourcePath(packageDirectory, options.moduleName);
   const moduleSourcePathRelative = normalizePath(path.relative(options.repoRoot, moduleSourcePathAbsolute));
-  const moduleImportPath = `${options.packageName}/${options.moduleName}`;
+  const moduleImportPath = resolveModuleImportPath(options.packageName, options.moduleName);
   const sourceText = fs.readFileSync(moduleSourcePathAbsolute, "utf8");
   const moduleJSDoc = extractModuleJsDoc(sourceText);
 
@@ -365,6 +366,7 @@ const generateModuleSurfaceWithProject = (options: GenerateModuleOptions, projec
       renderExportFileFromTemplate({
         packageName: options.packageName,
         moduleName: options.moduleName,
+        moduleImportPath,
         exportName: entry.exportName,
         exportKind: entry.exportKind,
         sourceRelativePath: entry.sourceRelativePath,
@@ -406,7 +408,7 @@ const generatePackageSurfaceWithProject = (
 
   for (const moduleName of modules) {
     if (options.resolvableImportsOnly === true) {
-      const moduleImportPath = `${options.packageName}/${moduleName}`;
+      const moduleImportPath = resolveModuleImportPath(options.packageName, moduleName);
       if (isImportResolvable === undefined || isImportResolvable(moduleImportPath) === false) {
         continue;
       }
