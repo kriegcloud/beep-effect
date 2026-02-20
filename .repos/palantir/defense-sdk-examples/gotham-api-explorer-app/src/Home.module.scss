@@ -1,0 +1,87 @@
+/*
+ * (c) Copyright 2025 Palantir Technologies Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@use "_variables.scss" as vars;
+
+:root {
+  --background-color: #ffffff;
+  --text-color: #000;
+  --text-hover-color: #46645e;
+  --header-background-color: #eee6e6;
+  --sidebar-background-color: #f4f4f4;
+  --callout-background-color: #fcf8e3;
+  --callout-border-color: #f39c12;
+  --button-background-color: #ddd;
+  --border-color: #ddd;
+  --pre-background-color: #f5f5f5;
+  --pre-border-color: #ccc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #333;
+    --text-color: #fff;
+    --text-hover-color: #b6ede2;
+    --header-background-color: #444;
+    --sidebar-background-color: #555;
+    --callout-background-color: #666;
+    --callout-border-color: #ffcc00;
+    --button-background-color: #777;
+    --border-color: #888;
+    --pre-background-color: #666;
+    --pre-border-color: #888;
+  }
+}
+
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--header-background-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: calc(90vh - 50px);
+  width: 95vw;
+  margin-top: 20px; /* Gap between header and content */
+}
+
+.endpointList {
+  margin-right: 30px; /* Gap between endpoint list and main content */
+}
+
+.mainContent {
+  flex: 1;
+}
+
+.contentList {
+  flex: 0 0 auto;
+  margin-left: 20px; /* Gap between content list and main content */
+}
