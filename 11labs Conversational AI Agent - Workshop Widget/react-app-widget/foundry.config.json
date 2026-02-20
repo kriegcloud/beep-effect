@@ -1,0 +1,12 @@
+{
+  "foundryUrl": "https://xxxx.palantirfoundry.com",
+  "site": {
+    "application": "ri.third-party-applications.main.application.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx",
+    "directory": "./dist",
+    "autoVersion": {
+      "type": "git-describe",
+      "tagPrefix": ""
+    },
+    "uploadOnly": false
+  }
+}
