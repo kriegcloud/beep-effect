@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Add call method to HTTPBridge which takes a list of parameters instead of a request object to reduce the size of generated code
+  links:
+   - https://github.com/palantir/conjure-typescript-runtime/pull/105

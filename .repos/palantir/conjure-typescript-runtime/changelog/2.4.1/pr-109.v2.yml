@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix ordering of parameters in new `call` method on `FetchBridge`
+  links:
+  - https://github.com/palantir/conjure-typescript-runtime/pull/109

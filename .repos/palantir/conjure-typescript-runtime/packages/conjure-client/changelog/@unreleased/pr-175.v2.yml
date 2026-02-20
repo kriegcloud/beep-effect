@@ -1,0 +1,8 @@
+type: improvement
+improvement:
+  description: Updated the isConjureError type guard return type to more accurately
+    indicate that the error body type is unknown. JSON error responses are already
+    parsed and so the error body may be an object (or other primitive), not just a
+    string.
+  links:
+  - https://github.com/palantir/conjure-typescript-runtime/pull/175

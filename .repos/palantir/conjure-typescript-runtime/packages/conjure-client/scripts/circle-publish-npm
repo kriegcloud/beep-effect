@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -ex
+set -o pipefail
+
+if [ -z ${CIRCLECI+x} ]; then
+    echo "Not on Circle; refusing to run."
+    exit 1
+fi
+
+# Defend against yarn adding enviroment variables for config  https://github.com/yarnpkg/yarn/issues/4475
+unset $(env | awk -F= '$1 ~ /^npm_/ {print $1}')
+
+# Change package version to latest tag
+npm version "$CIRCLE_TAG" --no-git-tag-version
+
+# Package and publish
+npm publish --access public
