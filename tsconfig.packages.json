@@ -6,9 +6,20 @@
   },
   "include": [],
   "references": [
-    { "path": "groking-effect-v4" },
-    { "path": "tooling/cli" },
-    { "path": "tooling/repo-utils" },
-    { "path": "tooling/codebase-search" }
+    {
+      "path": "groking-effect-v4"
+    },
+    {
+      "path": "tooling/cli"
+    },
+    {
+      "path": "tooling/repo-utils"
+    },
+    {
+      "path": "tooling/codebase-search"
+    },
+    {
+      "path": "tooling/_test-idempotent-1771557733674"
+    }
   ]
 }

@@ -34,7 +34,7 @@ const moduleImportPath = "effect/Schema";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
 const moduleRecord = SchemaModule as Record<string, unknown>;
-const causeFailureSchema = SchemaModule.CauseFailure(SchemaModule.String, SchemaModule.String);
+const causeFailureSchema = SchemaModule.CauseReason(SchemaModule.String, SchemaModule.String);
 const causeFailureIsoCodec = SchemaModule.toCodecIso(causeFailureSchema);
 
 /* ========================================================================== *
@@ -66,16 +66,16 @@ const exampleDieBranchShape = Effect.gen(function* () {
   const decodeIso = SchemaModule.decodeUnknownSync(causeFailureIsoCodec);
   const encodeIso = SchemaModule.encodeSync(causeFailureIsoCodec);
 
-  const dieWithDefect = { _tag: "Die", defect: "fatal defect" };
+  const dieWithDefect = { _tag: "Die", error: "fatal defect" };
   const reason = decodeIso(dieWithDefect);
-  yield* Console.log(`Accepted Die payload: ${formatUnknown(encodeIso(reason))}`);
+  yield* Console.log(`Accepted Die payload (error key): ${formatUnknown(encodeIso(reason))}`);
 
   try {
-    decodeIso({ _tag: "Die", error: "fatal defect" });
-    yield* Console.log("Unexpectedly accepted Die payload using `error`.");
+    decodeIso({ _tag: "Die", defect: "fatal defect" });
+    yield* Console.log("Unexpectedly accepted Die payload using `defect`.");
   } catch (error) {
     const message = String(error).split("\n")[0] ?? String(error);
-    yield* Console.log(`Die payload uses \`defect\`: ${message}`);
+    yield* Console.log(`Die payload uses \`error\`: ${message}`);
   }
 });
 

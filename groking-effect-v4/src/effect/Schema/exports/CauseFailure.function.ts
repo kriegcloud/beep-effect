@@ -38,7 +38,7 @@ const sourceExample = "";
  * Example Blocks
  * ========================================================================== */
 const exampleSchemaConstruction = Effect.gen(function* () {
-  const causeFailureSchema = SchemaModule.CauseFailure(SchemaModule.String, SchemaModule.Number);
+  const causeFailureSchema = SchemaModule.CauseReason(SchemaModule.String, SchemaModule.Number);
 
   yield* Console.log("Create CauseFailure(String, Number).");
   yield* Console.log(`error schema wired: ${causeFailureSchema.error === SchemaModule.String}`);
@@ -46,7 +46,7 @@ const exampleSchemaConstruction = Effect.gen(function* () {
 });
 
 const exampleDecodeReasonVariants = Effect.gen(function* () {
-  const causeFailureSchema = SchemaModule.CauseFailure(SchemaModule.String, SchemaModule.Number);
+  const causeFailureSchema = SchemaModule.CauseReason(SchemaModule.String, SchemaModule.Number);
   const decodeReason = SchemaModule.decodeUnknownSync(causeFailureSchema);
 
   const decodedFail = decodeReason(Cause.makeFailReason("missing-profile"));
@@ -59,7 +59,7 @@ const exampleDecodeReasonVariants = Effect.gen(function* () {
 });
 
 const exampleRejectMismatchedPayloads = Effect.gen(function* () {
-  const causeFailureSchema = SchemaModule.CauseFailure(SchemaModule.String, SchemaModule.Number);
+  const causeFailureSchema = SchemaModule.CauseReason(SchemaModule.String, SchemaModule.Number);
   const decodeReason = SchemaModule.decodeUnknownOption(causeFailureSchema);
 
   const invalidFail = decodeReason(Cause.makeFailReason(123));

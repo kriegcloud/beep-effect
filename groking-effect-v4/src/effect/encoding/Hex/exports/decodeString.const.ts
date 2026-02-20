@@ -35,14 +35,14 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as HexModule from "effect/encoding/Hex";
+import * as HexModule from "effect/Encoding";
 
 /* ========================================================================== *
  * Export Coordinates
  * ========================================================================== */
 const exportName = "decodeString";
 const exportKind = "const";
-const moduleImportPath = "effect/encoding/Hex";
+const moduleImportPath = "effect/Encoding";
 const sourceSummary = "Decodes a hex encoded `string` into a UTF-8 `string`.";
 const sourceExample =
   'import { Result } from "effect"\nimport { Hex } from "effect/encoding"\n\nconst result = Hex.decodeString("68656c6c6f")\nif (Result.isSuccess(result)) {\n  console.log(result.success) // "hello"\n}';

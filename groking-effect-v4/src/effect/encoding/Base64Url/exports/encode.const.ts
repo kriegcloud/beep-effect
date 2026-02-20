@@ -35,14 +35,14 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as Base64UrlModule from "effect/encoding/Base64Url";
+import * as Base64UrlModule from "effect/Encoding";
 
 /* ========================================================================== *
  * Export Coordinates
  * ========================================================================== */
 const exportName = "encode";
 const exportKind = "const";
-const moduleImportPath = "effect/encoding/Base64Url";
+const moduleImportPath = "effect/Encoding";
 const sourceSummary = "Encodes the given value into a base64 (URL) `string`.";
 const sourceExample =
   'import { Base64Url } from "effect/encoding"\n\n// URL-safe base64 encoding (uses - and _ instead of + and /)\nconsole.log(Base64Url.encode("hello?")) // "aGVsbG8_"\n\nconst bytes = new Uint8Array([72, 101, 108, 108, 111, 63])\nconsole.log(Base64Url.encode(bytes)) // "SGVsbG8_"';

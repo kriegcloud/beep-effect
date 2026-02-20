@@ -27,14 +27,14 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as EncodingErrorModule from "effect/encoding/EncodingError";
+import * as EncodingErrorModule from "effect/Encoding";
 
 /* ========================================================================== *
  * Export Coordinates
  * ========================================================================== */
 const exportName = "isEncodingError";
 const exportKind = "const";
-const moduleImportPath = "effect/encoding/EncodingError";
+const moduleImportPath = "effect/Encoding";
 const sourceSummary = "No summary found in JSDoc.";
 const sourceExample = "";
 const moduleRecord = EncodingErrorModule as Record<string, unknown>;

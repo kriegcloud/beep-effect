@@ -36,14 +36,14 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as HexModule from "effect/encoding/Hex";
+import * as HexModule from "effect/Encoding";
 
 /* ========================================================================== *
  * Export Coordinates
  * ========================================================================== */
 const exportName = "encode";
 const exportKind = "const";
-const moduleImportPath = "effect/encoding/Hex";
+const moduleImportPath = "effect/Encoding";
 const sourceSummary = "Encodes the given value into a hex `string`.";
 const sourceExample =
   'import { Hex } from "effect/encoding"\n\n// Encode a string to hex\nconsole.log(Hex.encode("hello")) // "68656c6c6f"\n\n// Encode binary data to hex\nconst bytes = new Uint8Array([72, 101, 108, 108, 111])\nconsole.log(Hex.encode(bytes)) // "48656c6c6f"';

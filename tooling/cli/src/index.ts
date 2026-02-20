@@ -38,6 +38,19 @@ export {
   createPackageCommand,
 } from "./commands/create-package/index.js";
 /**
+ * Purge command for removing root/workspace build artifacts.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Purge command for removing root/workspace build artifacts.
+   *
+   * @since 0.0.0
+   */
+  purgeCommand,
+} from "./commands/purge.js";
+/**
  * Root CLI command that composes subcommands.
  *
  * @since 0.0.0

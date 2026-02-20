@@ -16,7 +16,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-import { Bm25Writer, Bm25WriterLive } from "../indexer/index.js";
+import { Bm25Writer } from "../indexer/index.js";
 import { HOOK_SIGNATURE_MAX_LENGTH, truncateSignature } from "../mcp/formatters.js";
 import { INDEX_DIR } from "./SessionStart.js";
 
@@ -345,7 +345,7 @@ export const formatSymbolIdResults = (
 export const promptSubmitHook: (
   cwd: string,
   prompt: string
-) => Effect.Effect<string, never, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (
+) => Effect.Effect<string, never, FileSystem.FileSystem | Path.Path | Bm25Writer> = Effect.fn(function* (
   cwd: string,
   prompt: string
 ) {
@@ -381,7 +381,6 @@ export const promptSubmitHook: (
     yield* bm25.load();
     return yield* bm25.search(query, MAX_RESULTS);
   }).pipe(
-    Effect.provide(Bm25WriterLive(indexDir)),
     Effect.map(O.some),
     Effect.orElseSucceed(O.none<ReadonlyArray<{ readonly symbolId: string; readonly score: number }>>)
   );

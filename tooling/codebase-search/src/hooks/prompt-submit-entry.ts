@@ -9,12 +9,15 @@
  * @module
  */
 
+import { join } from "node:path";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import { Console, Effect } from "effect";
+import { Console, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
 
+import { Bm25WriterLive } from "../indexer/index.js";
 import { HookEntryPlatformLayer, readStdinWithIdleTimeout } from "../internal/HookEntryRuntime.js";
 import { promptSubmitHook } from "./PromptSubmit.js";
+import { INDEX_DIR } from "./SessionStart.js";
 
 // ---------------------------------------------------------------------------
 // Stdin Schema
@@ -43,9 +46,11 @@ const program = Effect.gen(function* () {
   );
   const cwd = parsed.cwd ?? process.cwd();
   const prompt = parsed.prompt ?? "";
+  const indexDir = join(cwd, INDEX_DIR);
+  const hookRuntimeLayer = Layer.mergeAll(HookEntryPlatformLayer, Bm25WriterLive(indexDir));
 
   const result = yield* promptSubmitHook(cwd, prompt).pipe(
-    Effect.provide(HookEntryPlatformLayer),
+    Effect.provide(hookRuntimeLayer),
     Effect.timeout("5 seconds"),
     Effect.orElseSucceed(() => "")
   );

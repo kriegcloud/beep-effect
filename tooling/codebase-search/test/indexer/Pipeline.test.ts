@@ -278,11 +278,8 @@ layer(PipelineMockLayer)("Pipeline (Mock)", (it) => {
 /** Combined mock layer providing all three indexer services. */
 const MockServicesLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, Bm25WriterMock);
 
-/** Default empty FS/Path layer so that TestPipelineLayer satisfies FileSystem | Path. */
-const defaultFsPathLayer = createMemoryFs([]).layer;
-
-/** PipelineLive backed by mock services, with default FS/Path included. */
-const TestPipelineLayer = PipelineLive.pipe(Layer.provide(MockServicesLayer), Layer.provideMerge(defaultFsPathLayer));
+/** PipelineLive backed by mock indexer services. */
+const TestPipelineLayer = PipelineLive.pipe(Layer.provide(MockServicesLayer));
 
 /** Embedding service mock that always fails, used to verify embedding error mapping. */
 const EmbeddingServiceFailing = Layer.succeed(
@@ -307,8 +304,7 @@ const EmbeddingServiceFailing = Layer.succeed(
 
 /** PipelineLive wired with failing embeddings for failure-path assertions. */
 const FailingEmbeddingPipelineLayer = PipelineLive.pipe(
-  Layer.provide(Layer.mergeAll(EmbeddingServiceFailing, LanceDbWriterMock, Bm25WriterMock)),
-  Layer.provideMerge(defaultFsPathLayer)
+  Layer.provide(Layer.mergeAll(EmbeddingServiceFailing, LanceDbWriterMock, Bm25WriterMock))
 );
 
 layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {

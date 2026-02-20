@@ -61,13 +61,13 @@ export const resolveWorkspaceDirs: (
       )
     );
 
-    const workspaceGlobs = rootPkg.workspaces ?? [];
+    const workspaceGlobs: ReadonlyArray<string> = rootPkg.workspaces ?? [];
     if (workspaceGlobs.length === 0) {
       return HashMap.empty<string, string>();
     }
 
     // Expand all workspace globs
-    const dirs = yield* fsUtils.glob(workspaceGlobs as unknown as string[], {
+    const dirs = yield* fsUtils.glob(workspaceGlobs, {
       cwd: rootDir,
       absolute: true,
       ignore: IGNORED_DIRS,

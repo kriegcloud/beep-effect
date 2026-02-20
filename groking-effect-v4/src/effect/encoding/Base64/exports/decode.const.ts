@@ -35,14 +35,14 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as Base64Module from "effect/encoding/Base64";
+import * as Base64Module from "effect/Encoding";
 
 /* ========================================================================== *
  * Export Coordinates
  * ========================================================================== */
 const exportName = "decode";
 const exportKind = "const";
-const moduleImportPath = "effect/encoding/Base64";
+const moduleImportPath = "effect/Encoding";
 const sourceSummary = "Decodes a base64 (RFC4648) encoded `string` into a `Uint8Array`.";
 const sourceExample =
   'import { Result } from "effect"\nimport { Base64 } from "effect/encoding"\n\nconst result = Base64.decode("SGVsbG8=")\nif (Result.isSuccess(result)) {\n  console.log(Array.from(result.success)) // [72, 101, 108, 108, 111]\n}';

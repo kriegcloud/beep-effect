@@ -36,7 +36,13 @@
       "@beep/repo-utils/test/*": ["./tooling/utils/test/*.ts"],
       "@beep/codebase-search": ["./tooling/codebase-search/src/index.ts"],
       "@beep/codebase-search/*": ["./tooling/codebase-search/src/*.ts"],
-      "@beep/codebase-search/test/*": ["./tooling/codebase-search/test/*.ts"]
+      "@beep/codebase-search/test/*": ["./tooling/codebase-search/test/*.ts"],
+      "@beep/_test-idempotent-1771557733674": [
+        "./tooling/_test-idempotent-1771557733674/src/index.ts"
+      ],
+      "@beep/_test-idempotent-1771557733674/*": [
+        "./tooling/_test-idempotent-1771557733674/src/*.ts"
+      ]
     },
     "plugins": [
       {

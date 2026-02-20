@@ -5,7 +5,7 @@
  * @module
  */
 
-import { Effect, Layer, Logger } from "effect";
+import { Effect, type FileSystem, Layer, Logger, type Path } from "effect";
 import * as ServiceMap from "effect/ServiceMap";
 import type { Stdio } from "effect/Stdio";
 import { McpServer as EffectMcpServer, type Tool, Toolkit } from "effect/unstable/ai";
@@ -72,7 +72,7 @@ const makeToolkitHandlerLayerFromConfig = (
 ): Layer.Layer<
   Tool.HandlersFor<Toolkit.Tools<typeof CodebaseSearchToolkit>>,
   never,
-  LanceDbWriter | HybridSearch | RelationResolver | Pipeline
+  LanceDbWriter | HybridSearch | RelationResolver | Pipeline | FileSystem.FileSystem | Path.Path
 > => {
   const runHandler = <A, R>(
     effect: Effect.Effect<
@@ -130,7 +130,7 @@ const makeToolkitHandlerLayerFromConfig = (
 export const makeToolkitHandlerLayer: Layer.Layer<
   Tool.HandlersFor<Toolkit.Tools<typeof CodebaseSearchToolkit>>,
   never,
-  LanceDbWriter | HybridSearch | RelationResolver | Pipeline | McpServerConfig
+  LanceDbWriter | HybridSearch | RelationResolver | Pipeline | FileSystem.FileSystem | Path.Path | McpServerConfig
 > = Layer.unwrap(Effect.map(Effect.service(McpServerConfig), makeToolkitHandlerLayerFromConfig));
 
 /**
@@ -143,7 +143,14 @@ export const makeToolkitHandlerLayer: Layer.Layer<
 export const makeServerLayer: Layer.Layer<
   never,
   never,
-  LanceDbWriter | HybridSearch | RelationResolver | Pipeline | Stdio | McpServerConfig
+  | LanceDbWriter
+  | HybridSearch
+  | RelationResolver
+  | Pipeline
+  | FileSystem.FileSystem
+  | Path.Path
+  | Stdio
+  | McpServerConfig
 > = (() => {
   const handlersLayer = makeToolkitHandlerLayer;
   const registrationLayer = Layer.effectDiscard(EffectMcpServer.registerToolkit(CodebaseSearchToolkit));

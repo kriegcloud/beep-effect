@@ -95,7 +95,9 @@ export interface PipelineShape {
    *
    * @since 0.0.0
    */
-  readonly run: (config: PipelineConfig) => Effect.Effect<PipelineStats, IndexingError>;
+  readonly run: (
+    config: PipelineConfig
+  ) => Effect.Effect<PipelineStats, IndexingError, FileSystem.FileSystem | Path.Path>;
 }
 
 /**
@@ -279,39 +281,23 @@ const extractSymbolsFromFiles: (
  * @since 0.0.0
  * @category layers
  */
-export const PipelineLive: Layer.Layer<
-  Pipeline,
-  never,
-  EmbeddingService | LanceDbWriter | Bm25Writer | FileSystem.FileSystem | Path.Path
-> = Layer.effect(
+export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | LanceDbWriter | Bm25Writer> = Layer.effect(
   Pipeline,
   Effect.gen(function* () {
     const embeddingService = yield* EmbeddingService;
     const lanceDbWriter = yield* LanceDbWriter;
     const bm25Writer = yield* Bm25Writer;
-    const defaultFs = yield* FileSystem.FileSystem;
-    const defaultPath = yield* Path.Path;
 
     const run: PipelineShape["run"] = Effect.fn(function* (config) {
       const startTime = yield* DateTime.now;
 
-      const fsSvc: FileSystem.FileSystem = yield* pipe(
-        Effect.serviceOption(FileSystem.FileSystem),
-        Effect.map(O.getOrElse(() => defaultFs))
-      );
-      const pathSvc: Path.Path = yield* pipe(
-        Effect.serviceOption(Path.Path),
-        Effect.map(O.getOrElse(() => defaultPath))
-      );
-      const fsPathLayer = Layer.mergeAll(
-        Layer.succeed(FileSystem.FileSystem, fsSvc),
-        Layer.succeed(Path.Path, pathSvc)
-      );
+      const fsSvc = yield* FileSystem.FileSystem;
+      const pathSvc = yield* Path.Path;
 
       // ---------------------------------------------------------------
       // 1. Scan files
       // ---------------------------------------------------------------
-      const scanResult: ScanResult = yield* Effect.provide(scanFiles(config.rootDir, config.mode), fsPathLayer);
+      const scanResult: ScanResult = yield* scanFiles(config.rootDir, config.mode);
 
       const totalFilesScanned =
         A.length(scanResult.added) +
@@ -326,10 +312,7 @@ export const PipelineLive: Layer.Layer<
       // ---------------------------------------------------------------
       // 2. Extract symbols from added+modified files
       // ---------------------------------------------------------------
-      const extractedSymbols = yield* Effect.provide(
-        extractSymbolsFromFiles(config.rootDir, filesToProcess, config.packageFilter),
-        fsPathLayer
-      );
+      const extractedSymbols = yield* extractSymbolsFromFiles(config.rootDir, filesToProcess, config.packageFilter);
 
       // ---------------------------------------------------------------
       // 3. Generate embeddings for extracted symbols
@@ -384,7 +367,7 @@ export const PipelineLive: Layer.Layer<
       if (config.mode === "full") {
         yield* bm25Writer.createIndex();
       } else {
-        yield* Effect.provide(bm25Writer.load(), fsPathLayer).pipe(
+        yield* bm25Writer.load().pipe(
           Effect.mapError(
             (error) =>
               new IndexingError({
@@ -411,7 +394,7 @@ export const PipelineLive: Layer.Layer<
 
       // Add all newly extracted symbols to BM25
       yield* bm25Writer.addDocuments(extractedSymbols);
-      yield* Effect.provide(bm25Writer.save(), fsPathLayer);
+      yield* bm25Writer.save();
 
       // ---------------------------------------------------------------
       // 7. Save file hashes for future incremental scans
@@ -422,8 +405,8 @@ export const PipelineLive: Layer.Layer<
         A.appendAll(scanResult.unchanged)
       );
 
-      const hashes = yield* Effect.provide(computeFileHashes(config.rootDir, allCurrentFiles), fsPathLayer);
-      yield* Effect.provide(saveFileHashes(config.rootDir, hashes), fsPathLayer);
+      const hashes = yield* computeFileHashes(config.rootDir, allCurrentFiles);
+      yield* saveFileHashes(config.rootDir, hashes);
 
       // ---------------------------------------------------------------
       // 8. Write IndexMeta JSON

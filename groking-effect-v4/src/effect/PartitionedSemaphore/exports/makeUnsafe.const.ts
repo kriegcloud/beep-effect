@@ -27,14 +27,14 @@ import {
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as PartitionedSemaphoreModule from "effect/PartitionedSemaphore";
+import * as PartitionedSemaphoreModule from "effect/Semaphore";
 
 /* ========================================================================== *
  * Export Coordinates
  * ========================================================================== */
 const exportName = "makeUnsafe";
 const exportKind = "const";
-const moduleImportPath = "effect/PartitionedSemaphore";
+const moduleImportPath = "effect/Semaphore";
 const sourceSummary = "Creates a `PartitionedSemaphore` unsafely.";
 const sourceExample = "";
 const moduleRecord = PartitionedSemaphoreModule as Record<string, unknown>;
