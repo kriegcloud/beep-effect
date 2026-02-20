@@ -31,13 +31,13 @@ import {
   SymbolNotFoundError,
 } from "../errors.js";
 import {
+  type FormattedBrowseResult,
+  type FormattedReindexResult,
+  type FormattedSearchResult,
   formatBrowseResult,
   formatReindexResult,
   formatRelatedResults,
   formatSearchResults,
-  type FormattedBrowseResult,
-  type FormattedReindexResult,
-  type FormattedSearchResult,
 } from "./formatters.js";
 
 // ---------------------------------------------------------------------------
@@ -77,7 +77,7 @@ export const ErrorCodeSchema = S.Literals([
   ErrorCodes.EMBEDDING_MODEL_ERROR,
   ErrorCodes.SEARCH_TIMEOUT,
   ErrorCodes.INTERNAL_ERROR,
-]) satisfies S.Decoder<ErrorCode>;
+]);
 
 /**
  * Structured error response returned by MCP tool handlers.
@@ -103,7 +103,7 @@ export const McpErrorResponseSchema = S.Struct({
     message: S.String,
     suggestion: S.String,
   }),
-}) satisfies S.Decoder<McpErrorResponse>;
+});
 
 // ---------------------------------------------------------------------------
 // Error Formatting
@@ -219,7 +219,7 @@ export const ReindexStatsSchema = S.Struct({
   symbolsIndexed: S.Number,
   symbolsRemoved: S.Number,
   durationMs: S.Number,
-}) satisfies S.Decoder<ReindexStats>;
+});
 
 /**
  * Schema for the reindex tool success response.
@@ -229,7 +229,7 @@ export const ReindexSuccessSchema = S.Struct({
   status: S.Literal("ok"),
   mode: S.Literals(["full", "incremental"]),
   stats: ReindexStatsSchema,
-}) satisfies S.Decoder<ReindexSuccess>;
+});
 
 /**
  * Handle the search_codebase tool invocation.
@@ -369,7 +369,7 @@ export const handleReindex: (params: {
   const stats = yield* pipeline.run(config);
 
   return yield* pipe(
-    S.decodeUnknown(ReindexSuccessSchema)(formatReindexResult(mode, stats) satisfies FormattedReindexResult),
+    S.decodeUnknownEffect(ReindexSuccessSchema)(formatReindexResult(mode, stats) satisfies FormattedReindexResult),
     Effect.mapError(
       (error) =>
         new IndexingError({
@@ -600,15 +600,7 @@ export const makeToolkitHandlerLayer: (
  */
 export const makeServerLayer: (
   config: McpServerConfig
-) => Layer.Layer<
-  never,
-  never,
-  | HybridSearch
-  | RelationResolver
-  | Pipeline
-  | LanceDbWriter
-  | Stdio
-> = (config) => {
+) => Layer.Layer<never, never, HybridSearch | RelationResolver | Pipeline | LanceDbWriter | Stdio> = (config) => {
   const handlersLayer = makeToolkitHandlerLayer(config);
 
   // Register the toolkit with McpServer (requires McpServer + handlers)

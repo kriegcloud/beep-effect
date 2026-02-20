@@ -179,7 +179,7 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
 
         yield* seedIndex(symbols);
 
-        const results = yield* handleSearchCodebase({ query: "Alpha schema" });
+        const results = (yield* handleSearchCodebase({ query: "Alpha schema" })) as ReadonlyArray<unknown>;
         expect(A.length(results)).toBeGreaterThanOrEqual(1);
       })
     );
@@ -243,10 +243,10 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
 
         yield* seedIndex(symbols);
 
-        const results = yield* handleSearchCodebase({
+        const results = (yield* handleSearchCodebase({
           query: "Schema validation",
           limit: 1,
-        });
+        })) as ReadonlyArray<unknown>;
         expect(A.length(results)).toBeLessThanOrEqual(1);
       })
     );
@@ -316,9 +316,13 @@ layer(TestLayer)("McpServer - find_related", (it) => {
 
         yield* seedIndex(symbols);
 
-        const result = yield* handleFindRelated({
+        const result = (yield* handleFindRelated({
           symbolId: "pkg/mod/Alpha",
-        });
+        })) as {
+          sourceSymbolId: string;
+          relation: string;
+          results: ReadonlyArray<unknown>;
+        };
 
         expect(result.sourceSymbolId).toBe("pkg/mod/Alpha");
         expect(result.relation).toBe("similar");
@@ -342,9 +346,12 @@ layer(TestLayer)("McpServer - find_related", (it) => {
 
         // The find_related handler should not fail on unknown symbols
         // because the similar search just re-embeds the ID text
-        const result = yield* handleFindRelated({
+        const result = (yield* handleFindRelated({
           symbolId: "nonexistent/symbol/id",
-        });
+        })) as {
+          sourceSymbolId: string;
+          results: ReadonlyArray<unknown>;
+        };
 
         expect(result.sourceSymbolId).toBe("nonexistent/symbol/id");
       })
@@ -371,7 +378,10 @@ layer(TestLayer)("McpServer - browse_symbols", (it) => {
 
         yield* seedIndex(symbols);
 
-        const result = yield* handleBrowseSymbols({});
+        const result = (yield* handleBrowseSymbols({})) as {
+          totalSymbols: number;
+          filters: { package: null; module: null; kind: null };
+        };
 
         expect(result.totalSymbols).toBeGreaterThanOrEqual(0);
         expect(result.filters.package).toBeNull();
@@ -406,7 +416,82 @@ layer(TestLayer)("McpServer - reindex", (it) => {
         expect(result.stats.durationMs).toBe(0);
       })
     );
+
+    it.effect(
+      "fails with IndexingError when reindex formatter output violates schema",
+      Effect.fn(function* () {
+        const InvalidPipeline = Pipeline.of({
+          run: (_config) =>
+            Effect.succeed({
+              filesScanned: 0,
+              filesChanged: 0,
+              symbolsIndexed: 0,
+              symbolsRemoved: 0,
+              durationMs: "not-a-number" as unknown as number,
+            } satisfies PipelineStats),
+        });
+
+        const error = yield* handleReindex({
+          rootDir: "/root",
+          indexPath: "/root/.code-index",
+          mode: "incremental",
+        }).pipe(Effect.provideService(Pipeline, InvalidPipeline), Effect.flip);
+
+        expect(error).toBeInstanceOf(IndexingError);
+        expect(error.phase).toBe("reindex-result");
+      })
+    );
   });
+});
+
+// ---------------------------------------------------------------------------
+// Tests: Toolkit Layer Integration
+// ---------------------------------------------------------------------------
+
+const ToolkitDependenciesLayer = Layer.mergeAll(
+  Layer.succeed(
+    HybridSearch,
+    HybridSearch.of({
+      search: (_config) =>
+        Effect.fail(
+          new IndexingError({
+            message: "Injected search failure",
+            phase: "hybrid-search",
+          })
+        ),
+    })
+  ),
+  Layer.succeed(
+    RelationResolver,
+    RelationResolver.of({
+      resolve: (_config) => Effect.succeed(A.empty()),
+    })
+  ),
+  PipelineMock,
+  LanceDbWriterMock,
+  EmbeddingServiceMock,
+  Bm25WriterMock
+);
+
+const FailingSearchToolkitLayer = makeToolkitHandlerLayer({
+  rootDir: "/root",
+  indexPath: "/root/.code-index",
+}).pipe(Layer.provideMerge(ToolkitDependenciesLayer));
+
+layer(FailingSearchToolkitLayer)("McpServer - toolkit layer integration", (it) => {
+  it.effect(
+    "maps domain errors to McpErrorResponse in handler failure channel",
+    Effect.fn(function* () {
+      const toolkit = yield* CodebaseSearchToolkit;
+      const stream = yield* toolkit.handle("search_codebase", { query: "schema" });
+      const error = yield* Stream.runLast(stream).pipe(Effect.flip);
+
+      expect(isMcpErrorResponse(error)).toBe(true);
+      if (isMcpErrorResponse(error)) {
+        expect(error.error.code).toBe(ErrorCodes.INTERNAL_ERROR);
+      }
+    })
+  );
 });
 
 // ---------------------------------------------------------------------------

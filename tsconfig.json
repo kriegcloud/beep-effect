@@ -29,10 +29,13 @@
       // These will be populated as packages are created
       "@beep/repo-cli": ["./tooling/cli/src/index.ts"],
       "@beep/repo-cli/*": ["./tooling/cli/src/*.ts"],
-      "@beep/utils": ["./tooling/utils/src/index.ts"],
-      "@beep/utils/*": ["./tooling/utils/src/*.ts"],
+      "@beep/repo-cli/test/*": ["./tooling/cli/test/*.ts"],
+      "@beep/repo-utils": ["./tooling/utils/src/index.ts"],
+      "@beep/repo-utils/*": ["./tooling/utils/src/*.ts"],
+      "@beep/repo-utils/test/*": ["./tooling/utils/test/*.ts"],
       "@beep/codebase-search": ["./tooling/codebase-search/src/index.ts"],
-      "@beep/codebase-search/*": ["./tooling/codebase-search/src/*.ts"]
+      "@beep/codebase-search/*": ["./tooling/codebase-search/src/*.ts"],
+      "@beep/codebase-search/test/*": ["./tooling/codebase-search/test/*.ts"]
     },
     "plugins": [
       {

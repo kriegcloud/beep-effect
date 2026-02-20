@@ -4,6 +4,7 @@
   "compilerOptions": {
     "outDir": "${configDir}/dist",
     "rootDir": "${configDir}/src",
+    "tsBuildInfoFile": "${configDir}/dist/tsconfig.tsbuildinfo",
     // Use incremental builds with project references.
     "incremental": true,
     "composite": true,
