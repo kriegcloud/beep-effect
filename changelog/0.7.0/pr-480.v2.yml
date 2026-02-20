@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: Support nested directories in metric schema source set
+  links:
+  - https://github.com/palantir/metric-schema/pull/480

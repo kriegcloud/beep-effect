@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix markdown rendering sort order to prioritize local metrics
+  links:
+  - https://github.com/palantir/metric-schema/pull/43

@@ -1,0 +1,6 @@
+type: improvement
+improvement:
+  description: Metric methods which return a value are now annotated with `@CheckReturnValue`
+    to ensure proper usage.
+  links:
+  - https://github.com/palantir/metric-schema/pull/380

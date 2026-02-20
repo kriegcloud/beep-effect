@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Fix tag enum names for lower-hyphen inputs such that UPPER_UNDERSCORE names are used.
+  links:
+  - https://github.com/palantir/metric-schema/pull/434

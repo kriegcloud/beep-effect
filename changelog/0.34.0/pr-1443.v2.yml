@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Properly declare all required dependencies for generated code
+  links:
+  - https://github.com/palantir/metric-schema/pull/1443

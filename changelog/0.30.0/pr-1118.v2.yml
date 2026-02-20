@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Project version is provided by gradle
+  links:
+  - https://github.com/palantir/metric-schema/pull/1118

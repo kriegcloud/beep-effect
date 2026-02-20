@@ -1,0 +1,26 @@
+namespaces:
+  monitors:
+    docs: General web server metrics.
+    metrics:
+      processing:
+        docs: Measures number of installations that were processed
+        type: meter
+        tags:
+          - name: result
+            docs: The result of processing
+            values:
+              - value: success
+                docs: Successful installations processed
+              - failure
+          - type
+          - name: locator
+            values: [ package:identifier ]
+          - name: otherLocator
+            values: [ package:identifier, package:identifier2 ]
+      more:
+        docs: Measures more
+        type: meter
+        tags:
+          - type
+          - name: locator
+            values: [ package:identifier ]

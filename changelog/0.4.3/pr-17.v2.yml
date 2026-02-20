@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Generated Metric manifest is now a map of GAVs to lists of metric schema
+  links:
+  - https://github.com/palantir/metric-schema/pull/17

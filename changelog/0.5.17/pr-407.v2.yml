@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: add support for constants in metric-schema
+  links:
+  - https://github.com/palantir/metric-schema/pull/407

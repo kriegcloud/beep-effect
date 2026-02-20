@@ -1,0 +1,6 @@
+type: improvement
+improvement:
+  description: For any gauges defined in metric-schema, there are now methods that
+    allow getting the raw `MetricName` (either via the staged builder or directly)
+  links:
+  - https://github.com/palantir/metric-schema/pull/293

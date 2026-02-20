@@ -1,0 +1,32 @@
+namespaces:
+  reserved.conflict:
+    docs: Tests that reserved words are escaped.
+    metrics:
+      int:
+        type: histogram
+        tags:
+          - int
+          - registry
+          - long
+        docs: Uh-oh!
+      long:
+        type: meter
+        tags:
+          - int
+        docs: Meter with a single tag.
+      float:
+        type: gauge
+        docs: Gauge metric with a single no tags.
+      double:
+        type: gauge
+        tags:
+          - int
+        docs: Gauge metric with a single tag.
+      includes.default.tags:
+        type: meter
+        tags: [ javaVersion, libraryName, libraryVersion ]
+        docs: docs.
+      includes.default.tags.different.case:
+        type: meter
+        tags: [ javaversion, libraryname, libraryversion ]
+        docs: docs.

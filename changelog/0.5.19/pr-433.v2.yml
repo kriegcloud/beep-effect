@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fixed publishing.
+  links:
+  - https://github.com/palantir/metric-schema/pull/433

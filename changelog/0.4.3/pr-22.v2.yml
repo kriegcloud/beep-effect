@@ -1,0 +1,7 @@
+type: improvement
+improvement:
+  description: Metric markdown provides provenance. Metrics from the local project
+    (as determined by the artifact group) are listed above those inherited from other
+    projects.
+  links:
+  - https://github.com/palantir/metric-schema/pull/22

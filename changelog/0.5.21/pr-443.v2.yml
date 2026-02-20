@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Inline single value tags
+  links:
+  - https://github.com/palantir/metric-schema/pull/443

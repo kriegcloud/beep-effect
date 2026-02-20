@@ -1,0 +1,6 @@
+type: feature
+feature:
+  description: Expose `com.palantir.metric-schema-markdown` plugin which allows any
+    project to opt into metric-schema markdown generation.
+  links:
+  - https://github.com/palantir/metric-schema/pull/15

@@ -1,0 +1,9 @@
+type: feature
+feature:
+  description: Generated code now includes a libraryName and libraryVersion tag in
+    all metrics, to help attribute fleet wide cost to particular libraries. This uses
+    a libraryName derived from the gradle `rootProject.name` by default, although
+    this can be overridden on the `generateMetricSchema` task if desired. (Setting
+    it to `null` turns off the tag entirely).
+  links:
+  - https://github.com/palantir/metric-schema/pull/288

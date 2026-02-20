@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Provide stable markdown order when a namespace is defined twice
+  links:
+  - https://github.com/palantir/metric-schema/pull/28

@@ -1,0 +1,8 @@
+type: fix
+fix:
+  description: Instead of setting sourceDirs and generatedSourceDirs to be an ImmutableSet,
+    retrieve the existing respective sets and add to them. This is the commonly accepted
+    method of appending sourceDirs and generatedSourceDirs, and keeps each set mutable
+    to avoid breaking other plugins.
+  links:
+  - https://github.com/palantir/metric-schema/pull/625

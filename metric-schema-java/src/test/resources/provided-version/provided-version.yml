@@ -1,0 +1,7 @@
+namespaces:
+  provided.version:
+    docs: Test data metric.
+    metrics:
+      utilization:
+        type: gauge
+        docs: Test data.

@@ -1,0 +1,14 @@
+options:
+  javaVisibility: packagePrivate
+namespaces:
+  visibility:
+    docs: Tests we respect javaVisibility
+    metrics:
+      test:
+        type: counter
+        docs: just a metric
+      complex:
+        type: gauge
+        tags: [foo, bar]
+        docs: Tagged gauge metric.
+

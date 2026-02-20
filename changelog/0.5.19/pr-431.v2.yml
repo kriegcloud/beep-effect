@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: Add support for docs to tag definitions
+  links:
+  - https://github.com/palantir/metric-schema/pull/431

@@ -1,0 +1,7 @@
+type: fix
+fix:
+  description: The `generateMetrics` task can now get hits from the gradle build cache
+    irrespective of where the repo is checked out.  Previously you'd only see `FROM-CACHE`
+    hits in the exact checkout path that the original build ran.
+  links:
+  - https://github.com/palantir/metric-schema/pull/376

@@ -1,0 +1,5 @@
+type: break
+break:
+  description: Require jdk11 and format java code with Goethe
+  links:
+  - https://github.com/palantir/metric-schema/pull/470

@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: correctly set project group and name as inputs to `generateMetricMarkdown`
+  links:
+  - https://github.com/palantir/metric-schema/pull/93

@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Allow last segment of a namespace to start with an uppercase
+  links:
+  - https://github.com/palantir/metric-schema/pull/282<S-F7>

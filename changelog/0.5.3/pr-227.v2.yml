@@ -1,0 +1,6 @@
+type: improvement
+improvement:
+  description: |-
+    Staged builders are now "strict" in that a field can't be mutated once it's set, and an earlier state of a builder can't be reused. This eliminates a class of buggy misuse.
+  links:
+  - https://github.com/palantir/metric-schema/pull/227
