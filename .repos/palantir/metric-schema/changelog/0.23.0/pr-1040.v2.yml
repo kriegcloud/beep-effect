@@ -1,0 +1,8 @@
+type: break
+break:
+  description: |-
+    <!-- User-facing outcomes this PR delivers -->
+    Gauges now require numeric return types. This matches the constraints of Prometheus
+    and avoids having non-numeric values silently dropped downstream.
+  links:
+  - https://github.com/palantir/metric-schema/pull/1040

@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix gauges when namespace tags are applied.
+  links:
+  - https://github.com/palantir/metric-schema/pull/841

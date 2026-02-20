@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: Allow to specify namespace tags.
+  links:
+  - https://github.com/palantir/metric-schema/pull/840

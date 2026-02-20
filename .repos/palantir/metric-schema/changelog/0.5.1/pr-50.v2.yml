@@ -1,0 +1,13 @@
+type: improvement
+improvement:
+  description: |-
+    Generated utilities use TaggedMetricRegistry.registerWithReplacement
+
+    This prevents non-obvious resource leaks where attmpts to
+    re-register gauges are silently ignored while the registry holds
+    a reference to the original gauge.
+
+    The `registerWithReplacement` api was added in Tritium `0.16.1`, a dependency
+    upgrade may be required for generated code to compile.
+  links:
+  - https://github.com/palantir/metric-schema/pull/50

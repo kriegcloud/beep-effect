@@ -1,0 +1,72 @@
+apply plugin: 'com.gradle.plugin-publish'
+// java-gradle-plugin MUST be applied before publish-jar.gradle
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'groovy'
+apply plugin: 'com.palantir.external-publish-jar'
+apply plugin: 'com.palantir.gradle-plugin-testing'
+
+dependencies {
+    implementation project(':metric-schema-api:metric-schema-api-objects')
+    implementation project(':metric-schema-java')
+    implementation project(':metric-schema-lang')
+    implementation project(':metric-schema-markdown')
+    implementation 'com.google.guava:guava'
+    implementation 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
+    implementation 'com.palantir.sls.versions:sls-versions'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+
+    testImplementation gradleTestKit()
+    testImplementation 'com.netflix.nebula:nebula-test'
+    testImplementation 'commons-io:commons-io'
+
+    // These need to contain the dependencies added by the plugin
+    testRuntimeOnly 'com.google.errorprone:error_prone_annotations'
+    testRuntimeOnly 'com.palantir.tritium:tritium-registry'
+    testRuntimeOnly 'com.palantir.safe-logging:preconditions'
+    testRuntimeOnly 'com.palantir.safe-logging:safe-logging'
+    testRuntimeOnly 'io.dropwizard.metrics:metrics-core'
+
+    compileOnly 'org.immutables:value::annotations'
+}
+
+
+gradlePlugin {
+    website = 'https://github.com/palantir/metric-schema'
+    vcsUrl = 'https://github.com/palantir/metric-schema'
+
+    plugins {
+        metricSchemaPlugin {
+            id = 'com.palantir.metric-schema'
+            implementationClass = 'com.palantir.metric.schema.gradle.MetricSchemaPlugin'
+            displayName = 'Metric Schema Plugin'
+            description = 'Schema for standard metric definitions with generators for documentation and type-safe instrumentation utilities.'
+            tags.set(['instrumentation', 'metrics', 'observability'])
+        }
+        metricSchemaMarkdownPlugin {
+            id = 'com.palantir.metric-schema-markdown'
+            implementationClass = 'com.palantir.metric.schema.gradle.MetricSchemaMarkdownPlugin'
+            displayName = "Metric Schema Markdown Plugin"
+            description = 'Schema for standard metric definitions with generators for documentation and type-safe instrumentation utilities.'
+            tags.set(['instrumentation', 'metrics', 'observability'])
+        }
+    }
+}
+
+idea {
+    module {
+        testSourceDirs += file("src/test/groovy")
+    }
+}
+
+publishPlugins.onlyIf {
+    project.version ==~ /[0-9]+(\.[0-9]+)+(-rc[0-9]+)?(-alpha[0-9]+)?/
+}
+
+// Configure the publishPlugins task
+tasks.publish.dependsOn publishPlugins
+project.ext.'gradle.publish.key' = System.env["GRADLE_KEY"]
+project.ext.'gradle.publish.secret' = System.env["GRADLE_SECRET"]
+
+gradleTestUtils {
+    configurationCacheEnabled = true
+}

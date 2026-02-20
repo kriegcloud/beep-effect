@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Upgrade to tritium 0.16.3
+  links:
+  - https://github.com/palantir/metric-schema/pull/53

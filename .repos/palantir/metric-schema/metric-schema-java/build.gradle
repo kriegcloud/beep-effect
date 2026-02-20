@@ -1,0 +1,49 @@
+apply plugin: 'com.palantir.external-publish-jar'
+
+
+sourceSets {
+    integrationInput
+}
+
+idea {
+    module {
+        sourceDirs += sourceSets.integrationInput.java.srcDirs
+    }
+}
+
+tasks.checkstyleIntegrationInput.enabled = false
+
+dependencies {
+    implementation project(':metric-schema-api:metric-schema-api-objects')
+    implementation project(':metric-schema-lang')
+    implementation 'com.palantir.tritium:tritium-registry'
+    implementation 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization'
+    implementation 'com.squareup:javapoet'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    implementation 'com.google.guava:guava'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'com.atlassian.commonmark:commonmark'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'com.palantir.goethe:goethe'
+
+    annotationProcessor 'org.immutables:value'
+    compileOnly 'org.immutables:value::annotations'
+    testCompileOnly 'org.immutables:value::annotations'
+
+    testImplementation sourceSets.integrationInput.output
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
+
+    // Make sure generated code compiles
+    integrationInputImplementation 'com.palantir.tritium:tritium-registry'
+    integrationInputImplementation 'com.palantir.safe-logging:preconditions'
+    // work around warning about unknown enum constant ImplementationVisibility.PACKAGE
+    integrationInputCompileOnly 'org.immutables:value::annotations'
+}
+
+// Ignore generated code when formatting since we currently use g-j-f in code and p-j-f in gradle
+spotless.java {
+    targetExclude = sourceSets.integrationInput.java
+    target target
+}

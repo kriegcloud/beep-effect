@@ -1,0 +1,8 @@
+type: fix
+fix:
+  description: Add missing validation to the metric-schema parser. Validation was
+    dropped incorrectly, so it's possible some metric names will need to be updated.
+    Our current pipelines don't differentiate between hyphens and underscores so it's
+    safe to replace underscores with hyphens.
+  links:
+  - https://github.com/palantir/metric-schema/pull/271

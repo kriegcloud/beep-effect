@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: generateMetricsMarkdown no longer requires `--write-locks`
+  links:
+  - https://github.com/palantir/metric-schema/pull/314

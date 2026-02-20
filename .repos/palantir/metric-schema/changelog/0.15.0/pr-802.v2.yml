@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Allow empty schemas in check markdown task
+  links:
+  - https://github.com/palantir/metric-schema/pull/802

@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Render tag values in markdown
+  links:
+  - https://github.com/palantir/metric-schema/pull/428

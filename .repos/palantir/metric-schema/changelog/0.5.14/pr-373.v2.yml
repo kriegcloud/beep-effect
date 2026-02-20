@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: correct cache up-to-dateness for project dependencies
+  links:
+  - https://github.com/palantir/metric-schema/pull/373

@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: CreateMetricsManifestTask is not cached and no longer causes confusing
+    errors with false cache hits
+  links:
+  - https://github.com/palantir/metric-schema/pull/348

@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Metric markdown includes missing tag docs for tags without enumerated
+    values
+  links:
+  - https://github.com/palantir/metric-schema/pull/1064

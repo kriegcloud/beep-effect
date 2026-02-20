@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Relax metric name validation
+  links:
+  - https://github.com/palantir/metric-schema/pull/275

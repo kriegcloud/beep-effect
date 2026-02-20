@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Use TaggedMetricRegistry.registerWithReplacement for all gauges
+  links:
+  - https://github.com/palantir/metric-schema/pull/54

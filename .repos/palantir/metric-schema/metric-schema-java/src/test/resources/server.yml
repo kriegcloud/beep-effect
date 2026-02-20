@@ -1,0 +1,13 @@
+namespaces:
+  server:
+    docs: General web server metrics.
+    metrics:
+      response.size:
+        type: histogram
+        tags:
+          - service-name
+          - endpoint
+        docs: A histogram of the number of bytes written into the response.
+      worker.utilization:
+        type: gauge
+        docs: A gauge of the ratio of active workers to the number of workers.

@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Correctly handle single non-constant param
+  links:
+  - https://github.com/palantir/metric-schema/pull/445

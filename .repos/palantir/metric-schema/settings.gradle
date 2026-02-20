@@ -1,0 +1,18 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.palantir.gradle.jdks:gradle-jdks-settings:0.74.0'
+    }
+}
+apply plugin: 'com.palantir.jdks.settings'
+rootProject.name = 'metric-schema-root'
+
+include 'gradle-metric-schema'
+include 'metric-schema-api'
+include 'metric-schema-api:metric-schema-api-objects'
+include 'metric-schema-java'
+include 'metric-schema-lang'
+include 'metric-schema-markdown'

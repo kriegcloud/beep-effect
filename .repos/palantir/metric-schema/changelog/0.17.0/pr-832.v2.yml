@@ -1,0 +1,6 @@
+type: improvement
+improvement:
+  description: metric-schema includes the java version by default as a `javaVersion`
+    tag, for example `javaVersion:17.0.3`
+  links:
+  - https://github.com/palantir/metric-schema/pull/832

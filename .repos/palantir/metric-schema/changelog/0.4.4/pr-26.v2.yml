@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Stable markdown order regardless of the input schema order. Prevents
+    failing checks due to build order differences.
+  links:
+  - https://github.com/palantir/metric-schema/pull/26

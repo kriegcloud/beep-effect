@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Use correct `experimentalExcludeEmptyCollections` flag to generate
+    the metric-schema-api
+  links:
+  - https://github.com/palantir/metric-schema/pull/935
