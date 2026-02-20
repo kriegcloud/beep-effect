@@ -58,6 +58,7 @@
     "build": "tsc -b tsconfig.json && bun run babel",
     "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "lint": "cd ../.. && biome check tooling/codebase-search/src tooling/codebase-search/test && eslint --config eslint.config.mjs 'tooling/codebase-search/src/**/*.ts' && bunx turbo run docgen --filter=@beep/codebase-search",
     "check": "tsc -b tsconfig.json",
     "test": "vitest",
     "coverage": "vitest --coverage",
