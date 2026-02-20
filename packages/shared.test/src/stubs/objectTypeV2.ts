@@ -1,0 +1,750 @@
+/*
+ * Copyright 2023 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import type { ObjectTypeV2 } from "@osdk/foundry.ontologies";
+
+export const employeeObjectType: ObjectTypeV2 = {
+  apiName: "Employee",
+  displayName: "Employee",
+  pluralDisplayName: "Employees",
+  icon: { type: "blueprint", color: "blue", name: "person" },
+  description: "A full-time or part-time \n\n employee of our firm",
+  primaryKey: "employeeId",
+  titleProperty: "fullName",
+  visibility: "NORMAL",
+  properties: {
+    employeeId: {
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+    fullName: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    office: {
+      description:
+        "The unique \"ID\" of the employee's \\\"primary\\\" assigned office.\n This is some more text.",
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    class: {
+      description: "",
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    startDate: {
+      description:
+        "The date the employee was hired (most recently, if they were re-hired)",
+      dataType: {
+        type: "date",
+      },
+      rid: "rid",
+    },
+    employeeStatus: {
+      description: "TimeSeries of the status of the employee",
+      dataType: {
+        type: "timeseries",
+        itemType: {
+          type: "string",
+        },
+      },
+      rid: "rid",
+    },
+    employeeSensor: {
+      description: "TimeSeries sensor of the status of the employee",
+      dataType: {
+        type: "timeseries",
+        itemType: { type: "string" },
+      },
+      rid: "rid",
+    },
+    employeeLocation: {
+      description: "Geotime series reference of the location of the employee",
+      dataType: {
+        type: "geotimeSeriesReference",
+      },
+      rid: "rid",
+    },
+    skillSet: {
+      description: "The skills of the employee",
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    skillSetEmbedding: {
+      description: "Vectorized skill set",
+      dataType: {
+        type: "vector",
+        dimension: 1536,
+        supportsSearchWith: [{ "value": "COSINE_SIMILARITY" }],
+        embeddingModel: {
+          type: "lms",
+          value: "OPENAI_TEXT_EMBEDDING_ADA_002",
+        },
+      },
+      rid: "rid",
+    },
+    favoriteRestaurants: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "string",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+  },
+  rid: "ri.ontology.main.object-type.401ac022-89eb-4591-8b7e-0a912b9efb44",
+  status: "ACTIVE",
+} as const satisfies ObjectTypeV2;
+
+export const officeObjectType: {
+  readonly apiName: "Office";
+  readonly displayName: "Office";
+  readonly pluralDisplayName: "Office";
+  readonly icon: {
+    readonly type: "blueprint";
+    readonly color: "blue";
+    readonly name: "office";
+  };
+  readonly description: "A office in our Company";
+  readonly primaryKey: "officeId";
+  readonly titleProperty: "officeId";
+  readonly properties: {
+    readonly officeId: {
+      readonly dataType: {
+        readonly type: "string";
+      };
+      readonly rid: "rid";
+    };
+    readonly entrance: {
+      readonly dataType: {
+        readonly type: "geopoint";
+      };
+      readonly rid: "rid";
+    };
+    readonly occupiedArea: {
+      readonly description: "The occupied area of the Office";
+      readonly dataType: {
+        readonly type: "geoshape";
+      };
+      readonly rid: "rid";
+    };
+    readonly name: {
+      readonly description: "The Name of the Office";
+      readonly dataType: {
+        readonly type: "string";
+      };
+      readonly rid: "rid";
+    };
+    readonly capacity: {
+      readonly description: "The capacity of the Office";
+      readonly dataType: {
+        readonly type: "integer";
+      };
+      readonly rid: "rid";
+    };
+  };
+  readonly rid:
+    "ri.ontology.main.object-type.404ac022-89eb-4591-8b7e-1a912b9efb45";
+  readonly status: "ACTIVE";
+} = {
+  apiName: "Office",
+  displayName: "Office",
+  pluralDisplayName: "Office",
+  icon: { type: "blueprint", color: "blue", name: "office" },
+  description: "A office in our Company",
+  primaryKey: "officeId",
+  titleProperty: "officeId",
+  properties: {
+    officeId: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    entrance: {
+      dataType: {
+        type: "geopoint",
+      },
+      rid: "rid",
+    },
+    occupiedArea: {
+      description: "The occupied area of the Office",
+      dataType: {
+        type: "geoshape",
+      },
+      rid: "rid",
+    },
+    name: {
+      description: "The Name of the Office",
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    capacity: {
+      description: "The capacity of the Office",
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+  },
+  rid: "ri.ontology.main.object-type.404ac022-89eb-4591-8b7e-1a912b9efb45",
+  status: "ACTIVE",
+} as const satisfies ObjectTypeV2;
+
+export const equipmentObjectType: ObjectTypeV2 = {
+  apiName: "equipment",
+  displayName: "Equipment",
+  pluralDisplayName: "Equipment",
+  icon: { type: "blueprint", color: "blue", name: "gear" },
+  primaryKey: "equipmentId",
+  titleProperty: "type",
+  properties: {
+    equipmentId: {
+      description: "The id of an equipment",
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    type: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+  },
+  rid: "ri.ontology.main.object-type.808ac022-89eb-4591-8b7e-1a912b9efb45",
+  status: "ACTIVE",
+};
+
+export const objectTypeWithTimestampPrimaryKey: ObjectTypeV2 = {
+  apiName: "ObjectWithTimestampPrimaryKey",
+  displayName: "ObjectWithTimestampPrimaryKey",
+  pluralDisplayName: "ObjectWithTimestampPrimaryKeys",
+  icon: { type: "blueprint", color: "blue", name: "person" },
+  description: "Object Type With Timestamp Primary Key",
+  primaryKey: "timestamp",
+  titleProperty: "value",
+  properties: {
+    timestamp: {
+      dataType: {
+        type: "timestamp",
+      },
+      rid: "rid",
+    },
+    value: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+  },
+  rid: "ri.ontology.main.object-type.32bb9402-9cab-4705-81bb-edb65a4a6806",
+  status: "ACTIVE",
+};
+
+export const objectTypeWithAllPropertyTypes: ObjectTypeV2 = {
+  apiName: "objectTypeWithAllPropertyTypes",
+  displayName: "objectTypeWithAllPropertyType",
+  pluralDisplayName: "objectTypeWithAllPropertyTypes",
+  icon: { type: "blueprint", color: "blue", name: "person" },
+  description: "An object type with all property types",
+  primaryKey: "id",
+  titleProperty: "string",
+  properties: {
+    id: {
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+    string: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    boolean: {
+      dataType: {
+        type: "boolean",
+      },
+      rid: "rid",
+    },
+    date: {
+      dataType: {
+        type: "date",
+      },
+      rid: "rid",
+    },
+    dateTime: {
+      dataType: {
+        type: "timestamp",
+      },
+      rid: "rid",
+    },
+    decimal: {
+      dataType: {
+        type: "decimal",
+      },
+      rid: "rid",
+    },
+    integer: {
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+    long: {
+      dataType: {
+        type: "long",
+      },
+      rid: "rid",
+    },
+    short: {
+      dataType: {
+        type: "short",
+      },
+      rid: "rid",
+    },
+    float: {
+      dataType: {
+        type: "float",
+      },
+      rid: "rid",
+    },
+    double: {
+      dataType: {
+        type: "double",
+      },
+      rid: "rid",
+    },
+    byte: {
+      dataType: {
+        type: "byte",
+      },
+      rid: "rid",
+    },
+    attachment: {
+      dataType: {
+        type: "attachment",
+      },
+      rid: "rid",
+    },
+    attachment2: {
+      dataType: {
+        type: "attachment",
+      },
+      rid: "rid",
+    },
+    geoPoint: {
+      dataType: {
+        type: "geopoint",
+      },
+      rid: "rid",
+    },
+    geoShape: {
+      dataType: {
+        type: "geoshape",
+      },
+      rid: "rid",
+    },
+    stringArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "string",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    booleanArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "boolean",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    dateArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "date",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    dateTimeArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "timestamp",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    decimalArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "decimal",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    integerArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "integer",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    longArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "long",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    shortArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "short",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    floatArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "float",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    doubleArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "double",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    byteArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "byte",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    attachmentArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "attachment",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    geoPointArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "geopoint",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    geoShapeArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "geoshape",
+        },
+        reducers: [],
+      },
+      rid: "rid",
+    },
+    mediaReference: {
+      dataType: {
+        type: "mediaReference",
+      },
+      rid: "rid",
+    },
+    vector: {
+      dataType: {
+        type: "vector",
+        dimension: 100,
+        supportsSearchWith: [],
+      },
+      rid: "rid",
+    },
+  },
+  rid: "ri.ontology.main.object-type.401ac022-89eb-4591-8b7e-0a912b9efb44",
+  status: "ACTIVE",
+};
+
+export const ObjectTypesV2: ObjectTypeV2[] = [
+  employeeObjectType,
+  objectTypeWithAllPropertyTypes,
+  objectTypeWithTimestampPrimaryKey,
+  officeObjectType,
+  equipmentObjectType,
+];
+
+export const taskObjectType: ObjectTypeV2 = {
+  apiName: "Task",
+  displayName: "Task",
+  pluralDisplayName: "Tasks",
+  icon: { type: "blueprint", color: "blue", name: "box" },
+  primaryKey: "id",
+  properties: {
+    id: {
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+
+    name: {
+      dataType: { type: "string" },
+      rid: "rid",
+    },
+  },
+  status: "ACTIVE",
+  rid: "ri.task",
+  titleProperty: "name",
+};
+
+export const todoObjectType: ObjectTypeV2 = {
+  apiName: "Todo",
+  displayName: "Todo",
+  pluralDisplayName: "ManyTodo",
+  icon: { type: "blueprint", color: "blue", name: "box" },
+  primaryKey: "id",
+  properties: {
+    id: {
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+    text: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+  },
+  rid: "ri.todo",
+  status: "ACTIVE",
+  titleProperty: "text",
+};
+
+export const personObjectType: ObjectTypeV2 = {
+  apiName: "Person",
+  displayName: "Person",
+  pluralDisplayName: "Persons",
+  icon: { type: "blueprint", color: "blue", name: "person" },
+  primaryKey: "id",
+  properties: {
+    id: {
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+    name: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+  },
+  rid: "ri.person",
+  status: "ACTIVE",
+  titleProperty: "name",
+};
+
+export const BGaoNflPlayerObjectType: ObjectTypeV2 = {
+  apiName: "BgaoNflPlayer",
+  displayName: "id",
+  pluralDisplayName: "BgaoNflPlayers",
+  icon: { type: "blueprint", color: "blue", name: "box" },
+  primaryKey: "id",
+  properties: {
+    id: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    gamesPlayed: {
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+    name: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    number: {
+      dataType: {
+        type: "integer",
+      },
+      rid: "rid",
+    },
+    wikiUrl: {
+      dataType: {
+        type: "string",
+      },
+      rid: "rid",
+    },
+    address: {
+      dataType: {
+        type: "struct",
+        structFieldTypes: [
+          {
+            apiName: "addressLine1",
+            dataType: {
+              type: "string",
+            },
+            rid: "ri.a.b.c.d",
+          },
+          {
+            apiName: "addressLine2",
+            dataType: {
+              type: "string",
+            },
+            rid: "ri.a.b.c.d",
+          },
+          {
+            apiName: "city",
+            dataType: {
+              type: "string",
+            },
+            rid: "ri.a.b.c.d",
+          },
+          {
+            apiName: "state",
+            dataType: {
+              type: "string",
+            },
+            rid: "ri.a.b.c.d",
+          },
+          {
+            apiName: "zipCode",
+            dataType: {
+              type: "integer",
+            },
+            rid: "ri.a.b.c.d",
+          },
+        ],
+      },
+      rid: "rid",
+    },
+    addressArray: {
+      dataType: {
+        type: "array",
+        subType: {
+          type: "struct",
+          structFieldTypes: [
+            {
+              apiName: "addressLine1",
+              dataType: {
+                type: "string",
+              },
+              rid: "ri.a.b.c.d",
+            },
+            {
+              apiName: "addressLine2",
+              dataType: {
+                type: "string",
+              },
+              rid: "ri.a.b.c.d",
+            },
+            {
+              apiName: "city",
+              dataType: {
+                type: "geoshape",
+              },
+              rid: "ri.a.b.c.d",
+            },
+            {
+              apiName: "location",
+              dataType: {
+                type: "geopoint",
+              },
+              rid: "ri.a.b.c.d",
+            },
+            {
+              apiName: "zipCode",
+              dataType: {
+                type: "integer",
+              },
+              rid: "ri.a.b.c.d",
+            },
+          ],
+        },
+        reducers: [],
+      },
+      rid: "ri.a.b.c.structArray",
+    },
+  },
+  rid: "ri.nflplayer",
+  status: "ACTIVE",
+  titleProperty: "name",
+};
