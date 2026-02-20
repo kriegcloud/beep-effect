@@ -1,0 +1,57 @@
+- add-records:
+    ActivityShapeAddEvent:
+      fields:
+        nodeId: string
+      docs: An event representing the addition of a shape node.
+    ActivityShapeDeleteEvent:
+      fields:
+        nodeId: string
+      docs: An event representing the deletion of a shape node.
+    ActivityShapeUpdateEvent:
+      fields:
+        nodeId: string
+        oldShape: NodeShape
+        newShape: NodeShape
+      docs: An event representing the update of a shape node.
+    PresenceCursorEvent:
+      fields:
+        x: double
+        'y': double
+      docs: Cursor position for remote user.
+    PresenceSelectionEvent:
+      fields:
+        selectedNodeIds: array<string>
+      docs: Selected nodes for remote user.
+    ShapeBox:
+      fields:
+        bottom: double
+        left: double
+        right: double
+        top: double
+        color: optional<string>
+      docs: A box.
+    ShapeCircle:
+      fields:
+        bottom: double
+        left: double
+        right: double
+        top: double
+        color: optional<string>
+      docs: A circle.
+- add-union:
+    ActivityEvent:
+      variants:
+        shapeAdd: ActivityShapeAddEvent
+        shapeDelete: ActivityShapeDeleteEvent
+        shapeUpdate: ActivityShapeUpdateEvent
+      discriminant: eventType
+    NodeShape:
+      variants:
+        box: ShapeBox
+        circle: ShapeCircle
+      discriminant: shapeType
+    PresenceEvent:
+      variants:
+        cursor: PresenceCursorEvent
+        selection: PresenceSelectionEvent
+      discriminant: eventType

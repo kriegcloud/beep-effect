@@ -1,0 +1,12 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "build",
+        "^build"
+      ]
+    }
+  }
+}

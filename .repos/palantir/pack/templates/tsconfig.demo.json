@@ -1,0 +1,19 @@
+{
+  "extends": "@palantir/pack.monorepo.tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./build/esm",
+    "rootDir": "./src",
+    "declarationDir": "./build/types",
+    "tsBuildInfoFile": "./build/tsconfig.tsbuildinfo",
+    "isolatedDeclarations": false
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "build",
+    "dist",
+    "node_modules",
+    "test-output",
+    "**/__tests__/**/__snapshots__",
+    "**/__tests__/**/fixtures"
+  ]
+}

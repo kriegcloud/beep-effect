@@ -1,0 +1,31 @@
+{
+  "name": "@demo/canvas.sdk",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Generated SDK from canvas schema",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": {
+      "types": "./build/types/index.d.ts",
+      "default": "./build/esm/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build dist *.tgz tsconfig.tsbuildinfo",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@palantir/pack.document-schema.model-types": "workspace:~"
+  },
+  "peerDependencies": {
+    "zod": "^4.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.12.0",
+    "typescript": "^5.9.2"
+  },
+  "main": "./build/esm/index.js",
+  "types": "./build/types/index.d.ts",
+  "type": "module"
+}

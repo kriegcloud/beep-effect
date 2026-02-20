@@ -1,0 +1,19 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "typecheck": {
+      "dependsOn": [
+        "^transpileTypes",
+        "transpileTypes",
+        "@demo/canvas.sdk#build"
+      ]
+    },
+    "build": {
+      "dependsOn": [
+        "transpile",
+        "transpileTypes",
+        "@demo/canvas.sdk#build"
+      ]
+    }
+  }
+}

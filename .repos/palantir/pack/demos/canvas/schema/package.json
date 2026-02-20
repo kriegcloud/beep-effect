@@ -1,0 +1,32 @@
+{
+  "name": "@demo/canvas.schema",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Canvas demo schema definitions",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/palantir/pack.git"
+  },
+  "scripts": {
+    "build:yaml": "type-gen schema yaml -i src/schema.mjs -o build/migrations/schema.yaml",
+    "clean": "rimraf .turbo build dist lib test-output *.tgz tsconfig.tsbuildinfo",
+    "lint": "eslint ./src && dprint check --config $(find-up dprint.json) --allow-no-files",
+    "lint:fix": "eslint ./src --fix && dprint fmt --config $(find-up dprint.json) --allow-no-files",
+    "sdk-gen": "bash scripts/build-sdk.sh",
+    "test": "vitest run --passWithNoTests -u",
+    "test:watch": "vitest --passWithNoTests",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "devDependencies": {
+    "@palantir/pack.document-schema.type-gen": "workspace:*",
+    "@palantir/pack.monorepo.tsconfig": "workspace:~",
+    "@palantir/pack.schema": "workspace:*",
+    "@palantir/pack.sdkgen": "workspace:*",
+    "@palantir/pack.sdkgen.pack-template": "workspace:*",
+    "rimraf": "catalog:",
+    "tslib": "catalog:",
+    "typescript": "catalog:"
+  },
+  "type": "module"
+}

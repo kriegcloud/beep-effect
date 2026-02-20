@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "declaration": true,
+
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+
+    "allowImportingTsExtensions": false,
+
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "stripInternal": true,
+    "jsx": "react-jsx"
+  }
+}

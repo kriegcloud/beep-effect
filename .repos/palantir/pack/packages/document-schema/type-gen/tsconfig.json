@@ -1,0 +1,27 @@
+{
+  "extends": "@palantir/pack.monorepo.tsconfig/base.json",
+  "compilerOptions": {
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "outDir": "./build/esm",
+    "rootDir": "./src",
+    "declarationDir": "./build/types",
+    "tsBuildInfoFile": "./build/tsconfig.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "build",
+    "dist",
+    "node_modules",
+    "test-output",
+    "**/__tests__/**/__snapshots__",
+    "**/__tests__/**/fixtures"
+  ],
+  "references": []
+}

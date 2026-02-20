@@ -1,0 +1,18 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["src/**", "tsconfig.json"],
+      "dependsOn": ["transpile", "transpileTypes"]
+    },
+    "transpileTypes": {
+      "inputs": ["src/**", "tsconfig.json"],
+      "dependsOn": ["@demo/canvas.schema#sdk-gen", "^transpileTypes"]
+    },
+    "typecheck": {
+      "inputs": ["src/**", "tsconfig.json"],
+      "dependsOn": ["@demo/canvas.schema#sdk-gen", "^transpileTypes", "transpileTypes"]
+    }
+  }
+}
