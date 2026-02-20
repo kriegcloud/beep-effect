@@ -1,8 +1,7 @@
 import * as Command from "@effect/cli/Command"
 import * as CLI from "@effect/docgen/CLI"
 import * as Configuration from "@effect/docgen/Configuration"
-import { DocgenError } from "@effect/docgen/Error"
-import * as Process from "@effect/docgen/Process"
+import * as Domain from "@effect/docgen/Domain"
 import * as NodeCommandExecutor from "@effect/platform-node/NodeCommandExecutor"
 import * as NodeTerminal from "@effect/platform-node/NodeTerminal"
 import * as Error from "@effect/platform/Error"
@@ -11,26 +10,24 @@ import * as Path from "@effect/platform/Path"
 import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import * as Exit from "effect/Exit"
-import { hole } from "effect/Function"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
-import { assert, describe, it } from "vitest"
+import * as assert from "node:assert/strict"
+import { describe, it } from "vitest"
 
-interface DocgenJson extends Record<string, unknown> {}
+type DocgenJson = typeof Configuration.ConfigurationSchema.Type
 
 class DocgenJsonTag extends Context.Tag("DocgenJsonTag")<DocgenJsonTag, DocgenJson>() {}
 
-const makeDocgenJson = (config: Record<string, unknown>) => Layer.succeed(DocgenJsonTag, config)
+const makeDocgenJson = (config: DocgenJson) => Layer.succeed(DocgenJsonTag, config)
 
 const TestFileSystem = Layer.effect(
   FileSystem.FileSystem,
-  Effect.gen(function*(_) {
-    const path = yield* _(Path.Path)
+  Effect.gen(function*() {
+    const path = yield* Path.Path
 
-    const docgenJson = yield* _(
-      Effect.contextWith((context: Context.Context<never>) =>
-        Option.getOrElse(Context.getOption(context, DocgenJsonTag), () => ({} as DocgenJson))
-      )
+    const docgenJson = yield* Effect.contextWith((context: Context.Context<never>) =>
+      Option.getOrElse(Context.getOption(context, DocgenJsonTag), () => ({} as DocgenJson))
     )
 
     const readFileString: FileSystem.FileSystem["readFileString"] = (filePath) => {
@@ -51,36 +48,9 @@ const TestFileSystem = Layer.effect(
     const exists: FileSystem.FileSystem["exists"] = (filePath) =>
       Effect.succeed(path.basename(filePath) === "docgen.json")
 
-    return FileSystem.FileSystem.of({
-      watch: hole,
-      access: hole,
-      chmod: hole,
-      chown: hole,
-      copy: hole,
-      copyFile: hole,
+    return FileSystem.makeNoop({
       exists,
-      link: hole,
-      makeDirectory: hole,
-      makeTempDirectory: hole,
-      makeTempDirectoryScoped: hole,
-      makeTempFile: hole,
-      makeTempFileScoped: hole,
-      open: hole,
-      readDirectory: hole,
-      readFile: hole,
-      readFileString,
-      readLink: hole,
-      realPath: hole,
-      remove: hole,
-      rename: hole,
-      sink: hole,
-      stat: hole,
-      stream: hole,
-      symlink: hole,
-      truncate: hole,
-      utimes: hole,
-      writeFile: hole,
-      writeFileString: hole
+      readFileString
     })
   })
 ).pipe(Layer.provide(Path.layer))
@@ -89,7 +59,7 @@ const TestLive = Configuration.configProviderLayer.pipe(
   Layer.provideMerge(Layer.mergeAll(
     NodeCommandExecutor.layer.pipe(Layer.provide(TestFileSystem)),
     Path.layer,
-    Process.layer,
+    Domain.Process.Default,
     NodeTerminal.layer,
     TestFileSystem
   ))
@@ -104,11 +74,12 @@ const testCliFor = (program: Effect.Effect<void, never, Configuration.Configurat
 
 describe("Configuration", () => {
   it("should use the default configuration if no configuration is provided", () => {
-    const program = Effect.gen(function*(_) {
-      const config = yield* _(Configuration.Configuration)
+    const program = Effect.gen(function*() {
+      const config = yield* Configuration.Configuration
       assert.deepStrictEqual(config, {
         projectName: "name",
         projectHomepage: "homepage",
+        srcLink: "homepage/blob/main/src/",
         srcDir: "src",
         outDir: "docs",
         theme: "mikearnaldi/just-the-docs",
@@ -116,7 +87,7 @@ describe("Configuration", () => {
         enforceDescriptions: false,
         enforceExamples: false,
         enforceVersion: true,
-        runExamples: true,
+        runExamples: false,
         exclude: [],
         parseCompilerOptions: Configuration.defaultCompilerOptions,
         examplesCompilerOptions: Configuration.defaultCompilerOptions
@@ -139,11 +110,12 @@ describe("Configuration", () => {
       target: "ES2022",
       lib: ["ES2022", "DOM"]
     }
-    const program = Effect.gen(function*(_) {
-      const config = yield* _(Configuration.Configuration)
+    const program = Effect.gen(function*() {
+      const config = yield* Configuration.Configuration
       assert.deepStrictEqual(config, {
         projectName: "name",
         projectHomepage: "myproject",
+        srcLink: "mygithub",
         srcDir: "src",
         outDir: "docs",
         theme: "mikearnaldi/just-the-docs",
@@ -151,7 +123,7 @@ describe("Configuration", () => {
         enforceDescriptions: false,
         enforceExamples: false,
         enforceVersion: true,
-        runExamples: true,
+        runExamples: false,
         exclude: [],
         parseCompilerOptions,
         examplesCompilerOptions: Configuration.defaultCompilerOptions
@@ -162,6 +134,7 @@ describe("Configuration", () => {
       Effect.provide(TestLive.pipe(Layer.provide(
         makeDocgenJson({
           projectHomepage: "myproject",
+          srcLink: "mygithub",
           parseCompilerOptions
         })
       ))),
@@ -172,13 +145,13 @@ describe("Configuration", () => {
   it("should raise a validation error if docgen.json is not valid", async () => {
     const cli = testCliFor(Effect.void)
     const result = await cli([]).pipe(
-      Effect.provide(TestLive.pipe(Layer.provide(makeDocgenJson({ projectHomepage: 1 })))),
+      Effect.provide(TestLive.pipe(Layer.provide(makeDocgenJson({ projectHomepage: 1 } as any)))),
       Effect.runPromiseExit
     )
     assert.deepStrictEqual(
       result,
       Exit.die(
-        new DocgenError({
+        new Domain.DocgenError({
           message: `[Configuration.validateJsonFile]
 ConfigurationSchema
 └─ ["projectHomepage"]

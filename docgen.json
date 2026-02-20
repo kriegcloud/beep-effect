@@ -8,9 +8,18 @@
     "exactOptionalPropertyTypes": true,
     "moduleResolution": "Bundler",
     "target": "ES2022",
-    "lib": [
-      "ES2022",
-      "DOM"
-    ]
+    "lib": ["ES2022", "DOM"]
+  },
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "exactOptionalPropertyTypes": true,
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "paths": {
+      "@effect/docgen": ["../../src/index.js"]
+    }
   }
 }

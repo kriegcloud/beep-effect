@@ -1,6 +1,5 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$ref": "#/$defs/ConfigurationSchema",
   "$defs": {
     "ConfigurationSchema": {
       "type": "object",
@@ -12,6 +11,10 @@
         "projectHomepage": {
           "type": "string",
           "description": "Will link to the project homepage from the Auxiliary Links of the generated documentation."
+        },
+        "srcLink": {
+          "type": "string",
+          "description": "Will link to the project source code."
         },
         "srcDir": {
           "type": "string",
@@ -65,11 +68,9 @@
               "type": "object",
               "required": [],
               "properties": {},
-              "patternProperties": {
-                "": {
-                  "$id": "/schemas/unknown",
-                  "title": "unknown"
-                }
+              "additionalProperties": {
+                "$id": "/schemas/unknown",
+                "title": "unknown"
               }
             }
           ],
@@ -85,11 +86,9 @@
               "type": "object",
               "required": [],
               "properties": {},
-              "patternProperties": {
-                "": {
-                  "$id": "/schemas/unknown",
-                  "title": "unknown"
-                }
+              "additionalProperties": {
+                "$id": "/schemas/unknown",
+                "title": "unknown"
               }
             }
           ],
@@ -99,5 +98,6 @@
       },
       "additionalProperties": false
     }
-  }
+  },
+  "$ref": "#/$defs/ConfigurationSchema"
 }

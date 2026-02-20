@@ -1,21 +1,23 @@
 ---
 title: Configuration.ts
-nav_order: 2
+nav_order: 3
 parent: Modules
 ---
 
-## Configuration overview
+## Configuration.ts overview
 
-Added in v1.0.0
+Since v0.6.0
 
 ---
 
-<h2 class="text-delta">Table of contents</h2>
+## Exports Grouped by Category
 
 - [service](#service)
   - [Configuration (class)](#configuration-class)
   - [ConfigurationSchema](#configurationschema)
   - [ConfigurationShape (interface)](#configurationshape-interface)
+- [utils](#utils)
+  - [DEFAULT_THEME](#default_theme)
 
 ---
 
@@ -26,19 +28,22 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare class Configuration
+declare class Configuration
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Configuration.ts#L114)
+
+Since v0.6.0
 
 ## ConfigurationSchema
 
 **Signature**
 
 ```ts
-export declare const ConfigurationSchema: Schema.Struct<{
+declare const ConfigurationSchema: Schema.Struct<{
   $schema: Schema.optional<typeof Schema.String>
   projectHomepage: Schema.optional<typeof Schema.String>
+  srcLink: Schema.optional<typeof Schema.String>
   srcDir: Schema.optional<typeof Schema.String>
   outDir: Schema.optional<typeof Schema.String>
   theme: Schema.optional<typeof Schema.String>
@@ -56,7 +61,9 @@ export declare const ConfigurationSchema: Schema.Struct<{
 }>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Configuration.ts#L38)
+
+Since v0.6.0
 
 ## ConfigurationShape (interface)
 
@@ -66,6 +73,7 @@ Added in v1.0.0
 export interface ConfigurationShape {
   readonly projectName: string
   readonly projectHomepage: string
+  readonly srcLink: string
   readonly srcDir: string
   readonly outDir: string
   readonly theme: string
@@ -80,4 +88,20 @@ export interface ConfigurationShape {
 }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Configuration.ts#L93)
+
+Since v0.6.0
+
+# utils
+
+## DEFAULT_THEME
+
+**Signature**
+
+```ts
+declare const DEFAULT_THEME: "mikearnaldi/just-the-docs"
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Configuration.ts#L24)
+
+Since v0.6.0

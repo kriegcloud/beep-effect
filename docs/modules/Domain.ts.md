@@ -1,269 +1,166 @@
 ---
 title: Domain.ts
-nav_order: 4
+nav_order: 5
 parent: Modules
 ---
 
-## Domain overview
+## Domain.ts overview
 
-Added in v1.0.0
+Since v0.6.0
 
 ---
 
-<h2 class="text-delta">Table of contents</h2>
+## Exports Grouped by Category
 
-- [constructors](#constructors)
-  - [createClass](#createclass)
-  - [createConstant](#createconstant)
-  - [createDoc](#createdoc)
-  - [createExport](#createexport)
-  - [createFunction](#createfunction)
-  - [createInterface](#createinterface)
-  - [createMethod](#createmethod)
-  - [createModule](#createmodule)
-  - [createNamedDoc](#createnameddoc)
-  - [createNamespace](#createnamespace)
-  - [createProperty](#createproperty)
-  - [createTypeAlias](#createtypealias)
 - [model](#model)
-  - [Class (interface)](#class-interface)
-  - [Constant (interface)](#constant-interface)
-  - [Doc (interface)](#doc-interface)
-  - [Example (type alias)](#example-type-alias)
-  - [Export (interface)](#export-interface)
-  - [Function (interface)](#function-interface)
-  - [Interface (interface)](#interface-interface)
-  - [Method (interface)](#method-interface)
-  - [Module (interface)](#module-interface)
-  - [NamedDoc (interface)](#nameddoc-interface)
-  - [Namespace (interface)](#namespace-interface)
-  - [Property (interface)](#property-interface)
-  - [TypeAlias (interface)](#typealias-interface)
+  - [Class (class)](#class-class)
+    - [\_tag (property)](#_tag-property)
+  - [Constant (class)](#constant-class)
+    - [\_tag (property)](#_tag-property-1)
+  - [Doc (class)](#doc-class)
+    - [modifyDescription (method)](#modifydescription-method)
+  - [DocEntry (class)](#docentry-class)
+  - [DocgenError (class)](#docgenerror-class)
+  - [Export (class)](#export-class)
+    - [\_tag (property)](#_tag-property-2)
+  - [File (class)](#file-class)
+  - [Function (class)](#function-class)
+    - [\_tag (property)](#_tag-property-3)
+  - [Interface (class)](#interface-class)
+    - [\_tag (property)](#_tag-property-4)
+  - [Module (class)](#module-class)
+  - [Namespace (class)](#namespace-class)
+    - [\_tag (property)](#_tag-property-5)
+  - [Position (interface)](#position-interface)
+  - [TypeAlias (class)](#typealias-class)
+    - [\_tag (property)](#_tag-property-6)
+- [service](#service)
+  - [Process (class)](#process-class)
 - [sorting](#sorting)
   - [ByPath](#bypath)
+- [symbol](#symbol)
+  - [DocgenErrorTypeId](#docgenerrortypeid)
+  - [DocgenErrorTypeId (type alias)](#docgenerrortypeid-type-alias)
 
 ---
-
-# constructors
-
-## createClass
-
-**Signature**
-
-```ts
-export declare const createClass: (
-  doc: NamedDoc,
-  signature: string,
-  methods: ReadonlyArray<Method>,
-  staticMethods: ReadonlyArray<Method>,
-  properties: ReadonlyArray<Property>
-) => Class
-```
-
-Added in v1.0.0
-
-## createConstant
-
-**Signature**
-
-```ts
-export declare const createConstant: (doc: NamedDoc, signature: string) => Constant
-```
-
-Added in v1.0.0
-
-## createDoc
-
-**Signature**
-
-```ts
-export declare const createDoc: (
-  description: Option.Option<string>,
-  since: Option.Option<string>,
-  deprecated: boolean,
-  examples: ReadonlyArray<Example>,
-  category: Option.Option<string>
-) => Doc
-```
-
-Added in v1.0.0
-
-## createExport
-
-**Signature**
-
-```ts
-export declare const createExport: (doc: NamedDoc, signature: string) => Export
-```
-
-Added in v1.0.0
-
-## createFunction
-
-**Signature**
-
-```ts
-export declare const createFunction: (doc: NamedDoc, signatures: ReadonlyArray<string>) => Function
-```
-
-Added in v1.0.0
-
-## createInterface
-
-**Signature**
-
-```ts
-export declare const createInterface: (doc: NamedDoc, signature: string) => Interface
-```
-
-Added in v1.0.0
-
-## createMethod
-
-**Signature**
-
-```ts
-export declare const createMethod: (doc: NamedDoc, signatures: ReadonlyArray<string>) => Method
-```
-
-Added in v1.0.0
-
-## createModule
-
-**Signature**
-
-```ts
-export declare const createModule: (
-  doc: NamedDoc,
-  path: ReadonlyArray<string>,
-  classes: ReadonlyArray<Class>,
-  interfaces: ReadonlyArray<Interface>,
-  functions: ReadonlyArray<Function>,
-  typeAliases: ReadonlyArray<TypeAlias>,
-  constants: ReadonlyArray<Constant>,
-  exports: ReadonlyArray<Export>,
-  namespaces: ReadonlyArray<Namespace>
-) => Module
-```
-
-Added in v1.0.0
-
-## createNamedDoc
-
-**Signature**
-
-```ts
-export declare const createNamedDoc: (
-  name: string,
-  description: Option.Option<string>,
-  since: Option.Option<string>,
-  deprecated: boolean,
-  examples: ReadonlyArray<Example>,
-  category: Option.Option<string>
-) => NamedDoc
-```
-
-Added in v1.0.0
-
-## createNamespace
-
-**Signature**
-
-```ts
-export declare const createNamespace: (
-  doc: NamedDoc,
-  interfaces: ReadonlyArray<Interface>,
-  typeAliases: ReadonlyArray<TypeAlias>,
-  namespaces: ReadonlyArray<Namespace>
-) => Namespace
-```
-
-Added in v1.0.0
-
-## createProperty
-
-**Signature**
-
-```ts
-export declare const createProperty: (doc: NamedDoc, signature: string) => Property
-```
-
-Added in v1.0.0
-
-## createTypeAlias
-
-**Signature**
-
-```ts
-export declare const createTypeAlias: (doc: NamedDoc, signature: string) => TypeAlias
-```
-
-Added in v1.0.0
 
 # model
 
-## Class (interface)
+## Class (class)
 
 **Signature**
 
 ```ts
-export interface Class extends NamedDoc {
-  readonly _tag: "Class"
-  readonly signature: string
-  readonly methods: ReadonlyArray<Method>
-  readonly staticMethods: ReadonlyArray<Method>
-  readonly properties: ReadonlyArray<Property>
-}
+declare class Class { constructor(
+    name: string,
+    doc: Doc,
+    signature: string,
+    position: Position,
+    readonly methods: ReadonlyArray<DocEntry>,
+    readonly staticMethods: ReadonlyArray<DocEntry>,
+    readonly properties: ReadonlyArray<DocEntry>
+  ) }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L79)
 
-## Constant (interface)
+Since v0.6.0
+
+### \_tag (property)
 
 **Signature**
 
 ```ts
-export interface Constant extends NamedDoc {
-  readonly _tag: "Constant"
-  readonly signature: string
-}
+readonly _tag: "Class"
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L80)
 
-## Doc (interface)
+## Constant (class)
 
 **Signature**
 
 ```ts
-export interface Doc {
-  readonly description: Option.Option<string>
-  readonly since: Option.Option<string>
-  readonly deprecated: boolean
-  readonly examples: ReadonlyArray<Example>
-  readonly category: Option.Option<string>
+declare class Constant {
+  constructor(name: string, doc: Doc, signature: string, position: Position)
 }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L155)
 
-## Example (type alias)
+Since v0.6.0
+
+### \_tag (property)
 
 **Signature**
 
 ```ts
-export type Example = {
-  body: string
-  fences?: {
-    start: string
-    end: string
-  }
-}
+readonly _tag: "Constant"
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L156)
 
-## Export (interface)
+## Doc (class)
+
+**Signature**
+
+```ts
+declare class Doc { constructor(
+    readonly description: string | undefined,
+    readonly since: ReadonlyArray<string>,
+    readonly deprecated: ReadonlyArray<string>,
+    readonly examples: ReadonlyArray<string>,
+    readonly category: ReadonlyArray<string>,
+    readonly throws: ReadonlyArray<string>,
+    readonly sees: ReadonlyArray<string>,
+    readonly tags: Record<string, ReadonlyArray<string> | undefined>
+  ) }
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L29)
+
+Since v0.6.0
+
+### modifyDescription (method)
+
+**Signature**
+
+```ts
+declare const modifyDescription: (description: string | undefined) => Doc
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L41)
+
+## DocEntry (class)
+
+**Signature**
+
+```ts
+declare class DocEntry { constructor(
+    readonly name: string,
+    readonly doc: Doc,
+    readonly signature: string,
+    readonly position: Position
+  ) }
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L16)
+
+Since v0.6.0
+
+## DocgenError (class)
+
+**Signature**
+
+```ts
+declare class DocgenError
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L252)
+
+Since v0.6.0
+
+## Export (class)
 
 These are manual exports, like:
 
@@ -278,122 +175,202 @@ export {
 **Signature**
 
 ```ts
-export interface Export extends NamedDoc {
-  readonly _tag: "Export"
-  readonly signature: string
-}
+declare class Export { constructor(
+    name: string,
+    doc: Doc,
+    signature: string,
+    position: Position,
+    readonly isNamespaceExport: boolean
+  ) }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L181)
 
-## Function (interface)
+Since v0.6.0
+
+### \_tag (property)
 
 **Signature**
 
 ```ts
-export interface Function extends NamedDoc {
-  readonly _tag: "Function"
-  readonly signatures: ReadonlyArray<string>
-}
+readonly _tag: "Export"
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L182)
 
-## Interface (interface)
+## File (class)
+
+Represents a file which can be optionally overwriteable.
 
 **Signature**
 
 ```ts
-export interface Interface extends NamedDoc {
-  readonly _tag: "Interface"
-  readonly signature: string
-}
+declare class File { constructor(
+    readonly path: string,
+    readonly content: string,
+    readonly isOverwriteable: boolean = false
+  ) }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L228)
 
-## Method (interface)
+Since v0.6.0
+
+## Function (class)
 
 **Signature**
 
 ```ts
-export interface Method extends NamedDoc {
-  readonly signatures: ReadonlyArray<string>
+declare class Function {
+  constructor(name: string, doc: Doc, signature: string, position: Position)
 }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L123)
 
-## Module (interface)
+Since v0.6.0
+
+### \_tag (property)
 
 **Signature**
 
 ```ts
-export interface Module extends NamedDoc {
-  readonly path: ReadonlyArray<string>
-  readonly classes: ReadonlyArray<Class>
-  readonly interfaces: ReadonlyArray<Interface>
-  readonly functions: ReadonlyArray<Function>
-  readonly typeAliases: ReadonlyArray<TypeAlias>
-  readonly constants: ReadonlyArray<Constant>
-  readonly exports: ReadonlyArray<Export>
-  readonly namespaces: ReadonlyArray<Namespace>
-}
+readonly _tag: "Function"
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L124)
 
-## NamedDoc (interface)
+## Interface (class)
 
 **Signature**
 
 ```ts
-export interface NamedDoc extends Doc {
-  readonly name: string
+declare class Interface {
+  constructor(name: string, doc: Doc, signature: string, position: Position)
 }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L98)
 
-## Namespace (interface)
+Since v0.6.0
+
+### \_tag (property)
 
 **Signature**
 
 ```ts
-export interface Namespace extends NamedDoc {
-  readonly _tag: "Namespace"
-  readonly interfaces: ReadonlyArray<Interface>
-  readonly typeAliases: ReadonlyArray<TypeAlias>
-  readonly namespaces: ReadonlyArray<Namespace>
-}
+readonly _tag: "Interface"
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L99)
 
-## Property (interface)
+## Module (class)
 
 **Signature**
 
 ```ts
-export interface Property extends NamedDoc {
-  readonly signature: string
-}
+declare class Module { constructor(
+    readonly source: Parser.SourceShape,
+    readonly name: string,
+    readonly doc: Doc,
+    readonly path: Array.NonEmptyReadonlyArray<string>,
+    readonly classes: ReadonlyArray<Class>,
+    readonly interfaces: ReadonlyArray<Interface>,
+    readonly functions: ReadonlyArray<Function>,
+    readonly typeAliases: ReadonlyArray<TypeAlias>,
+    readonly constants: ReadonlyArray<Constant>,
+    readonly exports: ReadonlyArray<Export>,
+    readonly namespaces: ReadonlyArray<Namespace>
+  ) }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L59)
 
-## TypeAlias (interface)
+Since v0.6.0
+
+## Namespace (class)
 
 **Signature**
 
 ```ts
-export interface TypeAlias extends NamedDoc {
-  readonly _tag: "TypeAlias"
-  readonly signature: string
+declare class Namespace { constructor(
+    readonly name: string,
+    readonly doc: Doc,
+    readonly position: Position,
+    readonly interfaces: ReadonlyArray<Interface>,
+    readonly typeAliases: ReadonlyArray<TypeAlias>,
+    readonly namespaces: ReadonlyArray<Namespace>
+  ) }
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L198)
+
+Since v0.6.0
+
+### \_tag (property)
+
+**Signature**
+
+```ts
+readonly _tag: "Namespace"
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L199)
+
+## Position (interface)
+
+**Signature**
+
+```ts
+export interface Position {
+  readonly line: number
+  readonly column: number
 }
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L114)
+
+Since v0.6.0
+
+## TypeAlias (class)
+
+**Signature**
+
+```ts
+declare class TypeAlias {
+  constructor(name: string, doc: Doc, signature: string, position: Position)
+}
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L139)
+
+Since v0.6.0
+
+### \_tag (property)
+
+**Signature**
+
+```ts
+readonly _tag: "TypeAlias"
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L140)
+
+# service
+
+## Process (class)
+
+Represents a handle to the currently executing process.
+
+**Signature**
+
+```ts
+declare class Process
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L262)
+
+Since v0.6.0
 
 # sorting
 
@@ -405,7 +382,35 @@ The file path is converted to lowercase before comparison.
 **Signature**
 
 ```ts
-export declare const ByPath: Order.Order<Module>
+declare const ByPath: Order.Order<Module>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L217)
+
+Since v0.6.0
+
+# symbol
+
+## DocgenErrorTypeId
+
+**Signature**
+
+```ts
+declare const DocgenErrorTypeId: unique symbol
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L240)
+
+Since v0.6.0
+
+## DocgenErrorTypeId (type alias)
+
+**Signature**
+
+```ts
+type DocgenErrorTypeId = typeof DocgenErrorTypeId
+```
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Domain.ts#L246)
+
+Since v0.6.0
