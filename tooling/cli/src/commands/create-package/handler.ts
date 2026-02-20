@@ -1,9 +1,10 @@
 /**
  * Package creation command - scaffold new packages following Effect v4 conventions.
  *
- * Generates 13 files using Handlebars templates, TypeScript + Schema validation
- * for package.json, and static files for .gitkeep markers. CLAUDE.md is created
- * as a symbolic link to AGENTS.md.
+ * Generates package files via reusable services:
+ * - TemplateService for template rendering
+ * - FileGenerationPlanService for deterministic plan/execute
+ * - Config updater orchestration for root tsconfig updates
  *
  * @since 0.0.0
  * @module
@@ -14,8 +15,14 @@ import { FileSystem, Path, type Schema } from "effect";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { Argument, Command, Flag } from "effect/unstable/cli";
-import Handlebars from "handlebars";
-import { checkConfigNeedsUpdate, updateRootConfigs } from "./config-updater.js";
+import {
+  type ConfigUpdateBatchResult,
+  type ConfigUpdateTarget,
+  checkConfigNeedsUpdateForTargets,
+  updateRootConfigsForTargets,
+} from "./config-updater.js";
+import { createFileGenerationPlanService } from "./file-generation-plan-service.js";
+import { createTemplateService, type TemplateSpec } from "./template-service.js";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -35,22 +42,24 @@ const TEMPLATE_DIR = `${import.meta.dirname}/templates`;
  */
 const VALID_TYPES = ["library", "tool", "app"] as const;
 
+type PackageType = (typeof VALID_TYPES)[number];
+
 /**
- * Mapping from HBS template file name to output relative path.
+ * Mapping from template source to output path.
  *
  * @since 0.0.0
  * @category constants
  */
-const TEMPLATE_MAP: ReadonlyArray<readonly [templateName: string, outputPath: string]> = [
-  ["tsconfig.json.hbs", "tsconfig.json"],
-  ["src-index.ts.hbs", "src/index.ts"],
-  ["LICENSE.hbs", "LICENSE"],
-  ["README.md.hbs", "README.md"],
-  ["AGENTS.md.hbs", "AGENTS.md"],
-  ["ai-context.md.hbs", "ai-context.md"],
-  ["docgen.json.hbs", "docgen.json"],
-  ["vitest.config.ts.hbs", "vitest.config.ts"],
-  ["docs-index.md.hbs", "docs/index.md"],
+const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
+  { templateName: "tsconfig.json.hbs", outputPath: "tsconfig.json" },
+  { templateName: "src-index.ts.hbs", outputPath: "src/index.ts" },
+  { templateName: "LICENSE.hbs", outputPath: "LICENSE" },
+  { templateName: "README.md.hbs", outputPath: "README.md" },
+  { templateName: "AGENTS.md.hbs", outputPath: "AGENTS.md" },
+  { templateName: "ai-context.md.hbs", outputPath: "ai-context.md" },
+  { templateName: "docgen.json.hbs", outputPath: "docgen.json" },
+  { templateName: "vitest.config.ts.hbs", outputPath: "vitest.config.ts" },
+  { templateName: "docs-index.md.hbs", outputPath: "docs/index.md" },
 ];
 
 /**
@@ -75,14 +84,21 @@ const ALL_FILES: ReadonlyArray<string> = [
   "docs/index.md",
 ];
 
+/**
+ * Root-relative directories created for each package.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+const PACKAGE_DIRECTORIES: ReadonlyArray<string> = ["src", "test", "dtslint", "docs"];
+
+const templateService = createTemplateService();
+const fileGenerationPlanService = createFileGenerationPlanService();
+
 // ── Template context ──────────────────────────────────────────────────────────
 
 /**
- * Variables passed into every Handlebars template during package scaffolding.
- *
- * Derived from the CLI flags and a handful of computed values (year, parent
- * directory, boolean type selectors). Templates reference these via
- * `{{name}}`, `{{scopedName}}`, `{{#if isTool}}`, etc.
+ * Variables passed into every template during package scaffolding.
  *
  * @since 0.0.0
  * @category types
@@ -121,38 +137,25 @@ const isValidParentDir = (value: string): boolean => {
  */
 const toRootRelative = (packagePath: string): string => "../".repeat(packagePath.split("/").length);
 
-// ── Template loading ──────────────────────────────────────────────────────────
-
-/**
- * Read a Handlebars template file from the templates directory and compile it.
- *
- * Template files live alongside the compiled JS output at `src/commands/create-package/templates/`.
- * The returned delegate is ready to be invoked with a {@link TemplateContext}.
- *
- * @param templateName - Filename of the `.hbs` template (e.g. `"tsconfig.json.hbs"`).
- * @returns A compiled Handlebars template delegate.
- * @depends FileSystem
- * @since 0.0.0
- * @category functions
- */
-const loadTemplate: (
-  templateName: string
-) => Effect.Effect<Handlebars.TemplateDelegate, DomainError, FileSystem.FileSystem> = Effect.fn(
-  function* (templateName) {
-    const fs = yield* FileSystem.FileSystem;
-    const raw = yield* fs
-      .readFileString(`${TEMPLATE_DIR}/${templateName}`)
-      .pipe(
-        Effect.mapError((e) => new DomainError({ message: `Failed to read template ${templateName}: ${String(e)}` }))
-      );
-    return Handlebars.compile(raw, { noEscape: true });
-  }
-);
+const singleTargetFallback = (
+  target: ConfigUpdateTarget,
+  result: { tsconfigPackages: boolean; tsconfigPaths: boolean }
+) =>
+  ({
+    targets: [
+      {
+        target,
+        result,
+      },
+    ],
+    tsconfigPackages: result.tsconfigPackages,
+    tsconfigPaths: result.tsconfigPaths,
+  }) satisfies ConfigUpdateBatchResult;
 
 // ── Command ───────────────────────────────────────────────────────────────────
 
 /**
- * CLI command that scaffolds a new package with Handlebars templates, a Schema-validated
+ * CLI command that scaffolds a new package with templates, a Schema-validated
  * `package.json`, and automatic root tsconfig updates (project references + path aliases).
  *
  * @since 0.0.0
@@ -177,7 +180,7 @@ export const createPackageCommand = Command.make(
     const { name, type, parentDir: parentDirOverride, description, dryRun } = config;
 
     // ── Validate type ──────────────────────────────────────────────────
-    if (!VALID_TYPES.includes(type as (typeof VALID_TYPES)[number])) {
+    if (!VALID_TYPES.includes(type as PackageType)) {
       return yield* new DomainError({
         message: `Invalid package type "${type}". Must be one of: ${VALID_TYPES.join(", ")}`,
       });
@@ -219,7 +222,12 @@ export const createPackageCommand = Command.make(
       });
     }
 
-    // ── Dry-run: just print what would be created ──────────────────────
+    const configTarget: ConfigUpdateTarget = {
+      packageName: name,
+      packagePath,
+    };
+
+    // ── Dry-run: preview output and root config updates ────────────────
     if (dryRun) {
       yield* Console.log(`[dry-run] Would create package @beep/${name} (type: ${type})`);
       yield* Console.log(`[dry-run] Directory: ${outputDir}`);
@@ -228,10 +236,11 @@ export const createPackageCommand = Command.make(
         yield* Console.log(`  - ${file}`);
       }
 
-      // ── Config update preview ────────────────────────────────────────
-      const configNeeds = yield* checkConfigNeedsUpdate(repoRoot, name, packagePath).pipe(
-        Effect.orElseSucceed(() => ({ tsconfigPackages: true, tsconfigPaths: true }))
+      const configNeedsBatch = yield* checkConfigNeedsUpdateForTargets(repoRoot, [configTarget]).pipe(
+        Effect.orElseSucceed(() => singleTargetFallback(configTarget, { tsconfigPackages: true, tsconfigPaths: true }))
       );
+      const configNeeds = configNeedsBatch.targets[0]?.result ?? { tsconfigPackages: true, tsconfigPaths: true };
+
       yield* Console.log(`[dry-run] Root config updates:`);
       yield* Console.log(
         `  - tsconfig.packages.json: ${configNeeds.tsconfigPackages ? `Add reference { "path": "${packagePath}" }` : "SKIP (already exists)"}`
@@ -257,43 +266,34 @@ export const createPackageCommand = Command.make(
       isLibrary: type === "library",
     };
 
-    // ── Load and render templates ──────────────────────────────────────
-    const templateFiles = yield* Effect.forEach(TEMPLATE_MAP, ([templateName, outputPath]) =>
-      Effect.map(loadTemplate(templateName), (template) => [outputPath, template(ctx)] as const)
-    );
+    // ── Render templates and generate plan ─────────────────────────────
+    const templateFiles = yield* templateService.renderTemplates({
+      templateDir: TEMPLATE_DIR,
+      templates: TEMPLATE_SPECS,
+      context: ctx,
+    });
 
-    // ── Generate package.json via TypeScript + Schema ──────────────────
     const packageJson = yield* generatePackageJson(name, type, description);
 
-    // ── Collect all files ──────────────────────────────────────────────
-    const files: ReadonlyArray<readonly [relativePath: string, content: string]> = [
-      ["package.json", packageJson],
-      ...templateFiles,
-      ["test/.gitkeep", ""],
-      ["dtslint/.gitkeep", ""],
-    ];
+    const plan = fileGenerationPlanService.createPlan({
+      outputDir,
+      directories: PACKAGE_DIRECTORIES,
+      files: [
+        { relativePath: "package.json", content: packageJson },
+        ...templateFiles.map((file) => ({ relativePath: file.outputPath, content: file.content })),
+        { relativePath: "test/.gitkeep", content: "" },
+        { relativePath: "dtslint/.gitkeep", content: "" },
+      ],
+      symlinks: [{ relativePath: "CLAUDE.md", target: "AGENTS.md" }],
+    });
 
-    // ── Create directories ─────────────────────────────────────────────
-    yield* fs.makeDirectory(path.join(outputDir, "src"), { recursive: true });
-    yield* fs.makeDirectory(path.join(outputDir, "test"), { recursive: true });
-    yield* fs.makeDirectory(path.join(outputDir, "dtslint"), { recursive: true });
-    yield* fs.makeDirectory(path.join(outputDir, "docs"), { recursive: true });
+    // ── Execute plan and config updates ────────────────────────────────
+    yield* fileGenerationPlanService.executePlan(plan);
 
-    // ── Write files ────────────────────────────────────────────────────
-    for (const [relativePath, content] of files) {
-      const filePath = path.join(outputDir, relativePath);
-      yield* fs.writeFileString(filePath, content);
-    }
-
-    // ── Create CLAUDE.md symlink ───────────────────────────────────────
-    yield* fs
-      .symlink("AGENTS.md", path.join(outputDir, "CLAUDE.md"))
-      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to create CLAUDE.md symlink: ${String(e)}` })));
-
-    // ── Update root configs ────────────────────────────────────────────
-    const configResults = yield* updateRootConfigs(repoRoot, name, packagePath).pipe(
-      Effect.orElseSucceed(() => ({ tsconfigPackages: false, tsconfigPaths: false }))
+    const configBatch = yield* updateRootConfigsForTargets(repoRoot, [configTarget]).pipe(
+      Effect.orElseSucceed(() => singleTargetFallback(configTarget, { tsconfigPackages: false, tsconfigPaths: false }))
     );
+    const configResults = configBatch.targets[0]?.result ?? { tsconfigPackages: false, tsconfigPaths: false };
 
     // ── Print summary ──────────────────────────────────────────────────
     yield* Console.log(`Created package @beep/${name} at ${outputDir}`);
