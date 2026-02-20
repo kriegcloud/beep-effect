@@ -1,0 +1,72 @@
+// Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+
+@use "sass:map";
+@import "../common/variables";
+
+$cell-border-width: 1px !default;
+$frozen-cell-border-width: $pt-spacing * 0.75 !default;
+
+$cell-padding-horizontal: $pt-spacing * 2 !default;
+$cell-padding-vertical: 0 !default;
+$cell-padding: $cell-padding-vertical $cell-padding-horizontal !default;
+$cell-height: $pt-spacing * 5 !default;
+$large-cell-height: $pt-spacing * 7.5 !default;
+
+$cell-background-color: $white !default;
+$cell-background-color-opacity: 0.1 !default;
+$cell-border-color: $pt-divider-black !default;
+$cell-text-color: $pt-text-color !default;
+$dark-cell-background-color: $dark-gray3 !default;
+$dark-cell-border-color: $pt-dark-divider-black !default;
+$dark-cell-text-color: $pt-dark-text-color !default;
+
+$cell-transition-duration: $pt-transition-duration * 3;
+
+@mixin cell() {
+  display: inline-block;
+  font-size: $pt-font-size-small;
+  height: $cell-height;
+  line-height: $cell-height;
+  padding: $cell-padding;
+  transition: color $cell-transition-duration;
+
+  .#{$ns}-dark & {
+    &:not([class*="#{$ns}-intent-"]):not(.#{$ns}-loading) {
+      color: $dark-cell-text-color;
+    }
+  }
+
+  @each $intent, $color in $pt-intent-colors {
+    &.#{$ns}-intent-#{$intent} {
+      background-color: rgba($color, $cell-background-color-opacity);
+      color: map.get($pt-intent-text-colors, $intent);
+    }
+
+    .#{$ns}-dark &.#{$ns}-intent-#{$intent} {
+      background: rgba($color, $cell-background-color-opacity);
+      color: map.get($pt-dark-intent-text-colors, $intent);
+    }
+  }
+}
+
+@mixin cell-large() {
+  font-size: $pt-font-size;
+  height: $large-cell-height;
+  line-height: $large-cell-height;
+}
+
+@mixin cell-cursors() {
+  .#{$ns}-table-editing-enabled & {
+    cursor: $select-text-cursor;
+  }
+
+  .#{$ns}-table-selection-enabled & {
+    cursor: $select-cell-cursor;
+  }
+}
+
+@mixin cell-content-align-vertical() {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

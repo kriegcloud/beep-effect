@@ -1,0 +1,55 @@
+// Copyright 2017 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "@blueprintjs/core/src/components/icon/icon-mixins";
+@import "@blueprintjs/icons/lib/scss/variables";
+@import "variables";
+
+$heading-margin: $pt-spacing * 10;
+$link-icon-padding: $pt-spacing * 2;
+
+$class-modifier-color: $rose4;
+$attribute-modifier-color: $violet5;
+
+// title of a section
+.docs-title {
+  margin: $heading-margin 0 ($heading-margin * 0.5);
+  position: relative;
+
+  // first heading (the h1 at the top) needs smaller top margin to avoid extra scrolling
+  .depth-1 > & {
+    margin-top: $content-padding;
+  }
+}
+
+// this element inside the <h*> tag creates extra space above when it is targeted by the location hash
+// but it doesn't change the bounds of the element or interfere with interactions. (thanks React docs site!)
+// so the heading will appear _below_ the navbar (since the navbar covers the top 50px of window).
+.docs-anchor {
+  margin-top: -$content-padding * 2;
+  position: absolute;
+}
+
+.docs-anchor-link {
+  @include pt-icon-colors;
+  left: 0;
+  line-height: $pt-icon-size-standard;
+  opacity: 0;
+  padding: $link-icon-padding;
+  position: absolute;
+  top: 50%;
+  transform: translate(-100%, -50%);
+
+  .#{$ns}-icon-standard {
+    vertical-align: top;
+  }
+
+  &:focus,
+  .docs-title:hover & {
+    opacity: 1;
+  }
+}
+
+.docs-markup .editor {
+  margin: 0;
+}

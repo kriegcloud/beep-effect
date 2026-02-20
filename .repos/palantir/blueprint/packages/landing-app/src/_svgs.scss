@@ -1,0 +1,92 @@
+$initial-delay: 2s;
+
+.landing-wireframes {
+  left: 50%;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+}
+
+.landing-wireframe {
+  position: absolute;
+
+  svg g {
+    path,
+    line,
+    circle,
+    use {
+      stroke-linecap: butt;
+    }
+  }
+}
+
+.landing-logo-wireframe-alert {
+  right: 280px;
+  top: 186px;
+}
+
+.landing-logo-wireframe-buttons {
+  right: 252px;
+  top: 32px;
+}
+
+.landing-logo-wireframe-calendar {
+  right: 238px;
+  top: 389px;
+}
+
+.landing-logo-wireframe-checkboxes {
+  left: 300px;
+  top: 434px;
+}
+
+.landing-logo-wireframe-file-upload {
+  left: 3px;
+  top: 620px;
+}
+
+.landing-logo-wireframe-input-groups {
+  left: -197px;
+  top: 34px;
+}
+
+.landing-logo-wireframe-inputs {
+  left: 130px;
+  top: 34px;
+}
+
+.landing-logo-wireframe-labels {
+  left: 500px;
+  top: 150px;
+}
+
+.landing-logo-wireframe-radios {
+  left: 300px;
+  top: 284px;
+}
+
+.landing-logo-wireframe-select-menus {
+  left: 500px;
+  top: 30px;
+}
+
+.landing-logo-wireframe-sliders {
+  left: 500px;
+  top: 300px;
+}
+
+.landing-logo-wireframe-switches {
+  left: 300px;
+  top: 354px;
+}
+
+.landing-logo-wireframe-time-selections {
+  left: 500px;
+  top: 450px;
+}
+
+.landing-logo-wireframe-toggles {
+  left: -201px;
+  top: 250px;
+}

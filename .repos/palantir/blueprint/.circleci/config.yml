@@ -1,0 +1,238 @@
+version: 2.1
+
+orbs:
+  browser-tools: circleci/browser-tools@2.1.0
+
+aliases:
+  - &docker-node-image
+    - image: cimg/node:24.11
+
+  - &docker-node-browsers-image
+    - image: cimg/node:24.11-browsers
+      environment:
+        CHROME_BIN: "/usr/bin/google-chrome"
+
+  - &restore-pnpm-cache
+    name: Restore pnpm store cache
+    key: v1-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
+
+  - &save-pnpm-cache
+    name: Save pnpm store cache
+    paths:
+      - ~/.local/share/pnpm/store
+    key: v1-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
+
+jobs:
+  checkout-code:
+    docker: *docker-node-image
+    steps:
+      - checkout
+      - restore_cache: *restore-pnpm-cache
+      - run: sudo corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm store prune
+      - save_cache: *save-pnpm-cache
+      - persist_to_workspace:
+          root: "."
+          paths:
+            - node_modules
+            - packages/*/node_modules
+
+  clean-lockfile:
+    docker: *docker-node-image
+    steps:
+      - checkout
+      - restore_cache: *restore-pnpm-cache
+      - run: sudo corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm dedupe --check
+
+  compile:
+    docker: *docker-node-image
+    resource_class: xlarge
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      - run: pnpm compile --parallel=7
+      - persist_to_workspace:
+          root: "."
+          paths:
+            - packages/*/lib
+            - packages/*/src/generated
+
+  format-check:
+    docker: *docker-node-image
+    environment:
+      JUNIT_REPORT_PATH: reports
+      NODE_ENV: test
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      - run: pnpm format-check
+
+  lint:
+    docker: *docker-node-image
+    resource_class: large
+    environment:
+      JUNIT_REPORT_PATH: reports
+      NODE_ENV: test
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      - run: mkdir -p ./reports/eslint ./reports/stylelint
+      # types and lint rules should already be compiled since this job depends on the 'compile' job
+      - run:
+          command: pnpm lint
+          no_output_timeout: 20m
+      - store_test_results: { path: ./reports }
+      - store_artifacts: { path: ./reports }
+
+  dist:
+    docker: *docker-node-image
+    resource_class: xlarge
+    environment:
+      NODE_ENV: test
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      - run: pnpm dist --parallel=7
+      - persist_to_workspace:
+          root: "."
+          paths: [packages/*/lib, packages/*/dist]
+
+  test-node-libs:
+    docker: *docker-node-image
+    environment:
+      JUNIT_REPORT_PATH: reports
+    parallelism: 2
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      - run: mkdir -p ./reports
+      - run:
+          command: |
+            case $CIRCLE_NODE_INDEX in \
+            0) pnpm nx test @blueprintjs/eslint-plugin ;; \
+            1) pnpm nx test @blueprintjs/stylelint-plugin ;; \
+            esac
+          when: always
+      - store_test_results: { path: ./reports }
+      - store_artifacts: { path: ./reports }
+
+  test-react-18: &test-react
+    docker: *docker-node-browsers-image
+    resource_class: xlarge
+    environment:
+      JUNIT_REPORT_PATH: reports
+    parallelism: 6
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      # Use an explicit version of Chrome for better test reproducibility.
+      - run: sudo apt-get update
+      - browser-tools/install_chrome:
+          chrome_version: "143.0.7499.192"
+      - browser-tools/install_chrome
+      - browser-tools/install_chromedriver
+      - run:
+          name: Verify Chrome browser installed
+          command: |
+            google-chrome --version
+            chromedriver --version
+      - run: mkdir -p ./reports
+      - run:
+          # split karma tests into containers because they can take up a lot of memory
+          # running them in one container caused Karma to time out frequently
+          # see https://github.com/palantir/blueprint/issues/3616
+          command: |
+            case $CIRCLE_NODE_INDEX in \
+            0) pnpm nx run-many -t test:typeCheck ;; \
+            1) pnpm nx test:vitest:run @blueprintjs/core ;; \
+            2) pnpm nx test:karma @blueprintjs/datetime ;; \
+            4) pnpm nx test:karma @blueprintjs/select ;; \
+            5) pnpm nx test:karma @blueprintjs/table
+            esac
+          when: always
+      - store_test_results: { path: ./reports }
+      - store_artifacts: { path: ./reports }
+
+  test-iso-react-18: &test-iso
+    docker: *docker-node-image
+    environment:
+      JUNIT_REPORT_PATH: reports
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      - run: mkdir ./reports
+      - run: pnpm nx run-many -t test:iso
+      - store_test_results: { path: ./reports }
+      - store_artifacts: { path: ./reports }
+
+  deploy-preview:
+    docker: *docker-node-image
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - store_artifacts: { path: packages/docs-app/dist }
+      - store_artifacts: { path: packages/landing-app/dist }
+      - store_artifacts: { path: packages/table-dev-app/dist }
+      - store_artifacts: { path: packages/demo-app/dist }
+      - run: ./scripts/submit-preview-comment.sh
+
+  store-packages:
+    docker: *docker-node-image
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      - run: mkdir ./artifacts
+      - run: ./scripts/pack-npm
+      - store_artifacts: { path: ./artifacts }
+
+  deploy-npm:
+    docker: *docker-node-image
+    steps:
+      - checkout
+      - attach_workspace: { at: "." }
+      - run: sudo corepack enable
+      - run: ./scripts/publish-npm-semver-tagged
+
+workflows:
+  compile_lint_test_dist_deploy:
+    jobs:
+      - checkout-code
+      - clean-lockfile:
+          requires: [checkout-code]
+      - compile:
+          requires: [checkout-code]
+      - format-check:
+          requires: [checkout-code]
+      - lint:
+          requires: [compile]
+      - dist:
+          requires: [compile]
+      - test-node-libs:
+          requires: [compile]
+      - test-react-18:
+          requires: [compile]
+      - test-iso-react-18:
+          requires: [compile]
+      - deploy-preview:
+          requires: [dist]
+      - store-packages:
+          requires: [dist]
+      - deploy-npm:
+          requires: [dist, lint, test-node-libs, test-react-18, test-iso-react-18]
+          filters:
+            branches:
+              only:
+                - develop
+                - next
+                - /^release\/.*/

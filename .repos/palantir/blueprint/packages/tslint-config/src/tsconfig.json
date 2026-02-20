@@ -1,0 +1,7 @@
+{
+    "extends": "../../../config/tsconfig.node",
+    "compilerOptions": {
+        "lib": ["ES2015", "dom"],
+        "outDir": "../lib/rules"
+    }
+}
