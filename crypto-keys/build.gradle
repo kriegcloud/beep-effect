@@ -1,0 +1,15 @@
+dependencies {
+    implementation 'com.google.code.findbugs:jsr305'
+    implementation 'com.google.errorprone:error_prone_annotations'
+    implementation 'com.google.guava:guava'
+    implementation 'com.palantir.safe-logging:logger'
+    implementation 'com.palantir.safe-logging:preconditions'
+    implementation 'com.palantir.safe-logging:safe-logging'
+
+    testImplementation 'com.palantir.safe-logging:preconditions-assertj'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.jmock:jmock'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.mockito:mockito-core'
+}

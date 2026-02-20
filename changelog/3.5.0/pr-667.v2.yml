@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: StandaloneEncryptedFileSystem returns to its old behavior, of only
+    overriding the scheme when the uri uses a scheme
+  links:
+  - https://github.com/palantir/hadoop-crypto/pull/667

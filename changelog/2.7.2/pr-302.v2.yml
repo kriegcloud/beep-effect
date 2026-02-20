@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: When CryptoStreamFactory is unable to use apache commons-crypto's fast
+    native codepath, the WARN log line now includes the exception
+  links:
+  - https://github.com/palantir/hadoop-crypto/pull/302

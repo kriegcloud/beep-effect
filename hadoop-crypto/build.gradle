@@ -1,0 +1,45 @@
+apply from: "${rootDir}/gradle/openssl.gradle"
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    api project(':crypto-core')
+    api 'org.apache.hadoop:hadoop-client-api'
+
+    implementation project(':crypto-keys')
+    implementation 'com.google.guava:guava'
+    implementation 'com.palantir.safe-logging:logger'
+    implementation 'com.palantir.safe-logging:preconditions'
+    implementation 'com.palantir.safe-logging:safe-logging'
+    implementation 'com.palantir.seek-io:seek-io'
+
+    runtimeOnly 'org.apache.hadoop:hadoop-client-runtime'
+
+    testImplementation 'com.palantir.safe-logging:preconditions-assertj'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+}
+
+shadowJar {
+    mergeServiceFiles()
+
+    dependencies {
+        // The shadow jar is expected to be added to the Hadoop cli classpath
+        // which comes with these deps
+        exclude(dependency('org.apache.hadoop:hadoop-client-api'))
+        exclude(dependency('org.apache.hadoop:hadoop-client-runtime'))
+    }
+}
+
+// Automatically shadow all included dependencies
+// https://imperceptiblethoughts.com/shadow/configuration/relocation/#automatically-relocating-dependencies
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+
+task relocateShadowJar(type: ConfigureShadowRelocation) {
+    target = tasks.shadowJar
+    prefix = "hadoop.crypto.shaded" // Default value is "shadow"
+}
+
+tasks.shadowJar.dependsOn tasks.relocateShadowJar

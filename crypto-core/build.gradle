@@ -1,0 +1,44 @@
+apply from: "${rootDir}/gradle/openssl.gradle"
+
+dependencies {
+    api project(':crypto-keys')
+
+    api 'com.google.guava:guava'
+    api 'com.palantir.seek-io:seek-io'
+    api 'org.apache.commons:commons-crypto'
+
+    implementation 'com.palantir.safe-logging:logger'
+    implementation 'com.palantir.safe-logging:preconditions'
+    implementation 'com.palantir.safe-logging:safe-logging'
+
+    testAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess'
+    testCompileOnly 'org.openjdk.jmh:jmh-generator-annprocess'
+
+    testImplementation 'com.palantir.safe-logging:preconditions-assertj'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.openjdk.jmh:jmh-core'
+}
+
+project.task(type: JavaExec, 'benchmarks') {
+    main = 'org.openjdk.jmh.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    maxHeapSize = '1024m'
+    // add jvm args with `jvmArgs <arg>`
+
+    if (project.hasProperty('jmh')) {
+        args(project.jmh.split(' '))
+    } else {
+        //args '-h' // help output
+        //args '-prof' // profilers
+        //args 'HS_GC' // HotSpot (tm) memory manager (GC) profiling via implementation-specific MBeans
+        //args 'HS_RT' // HotSpot (tm) runtime profiling via implementation-specific MBeans
+        //args 'HS_THR' // HotSpot (tm) threading subsystem via implementation-specific MBeans
+        //args 'HS_COMP' // HotSpot (tm) JIT compiler profiling via implementation-specific MBeans
+        //args 'HS_CL' // HotSpot (tm) classloader profiling via implementation-specific MBeans
+        //args 'STACK' // Simple and naive Java stack profiler
+    }
+}

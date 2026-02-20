@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Don't initialize the backing file system twice.
+  links:
+  - https://github.com/palantir/hadoop-crypto/pull/332
