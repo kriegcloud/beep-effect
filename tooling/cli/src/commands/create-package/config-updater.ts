@@ -14,6 +14,7 @@ import { FileSystem, Path } from "effect";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
+import * as Order from "effect/Order";
 import * as jsonc from "jsonc-parser";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -103,13 +104,18 @@ const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknow
   return parsed.compilerOptions.paths;
 };
 
+const byPackagePathAscending: Order.Order<ConfigUpdateTarget> = Order.mapInput(
+  Order.String,
+  (target: ConfigUpdateTarget) => target.packagePath
+);
+
 const normalizeTargets = (targets: ReadonlyArray<ConfigUpdateTarget>): ReadonlyArray<ConfigUpdateTarget> => {
   let deduped = HashMap.empty<string, ConfigUpdateTarget>();
   for (const target of targets) {
     deduped = HashMap.set(deduped, target.packagePath, target);
   }
 
-  return [...HashMap.values(deduped)].sort((left, right) => left.packagePath.localeCompare(right.packagePath));
+  return A.sort([...HashMap.values(deduped)], byPackagePathAscending);
 };
 
 /**

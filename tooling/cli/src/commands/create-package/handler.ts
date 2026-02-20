@@ -13,6 +13,7 @@
 import { DomainError, encodePackageJsonPrettyEffect, findRepoRoot } from "@beep/repo-utils";
 import { FileSystem, Path, type Schema } from "effect";
 import * as Console from "effect/Console";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import {
@@ -252,12 +253,13 @@ export const createPackageCommand = Command.make(
     }
 
     // ── Build template context ─────────────────────────────────────────
+    const currentYear = String(DateTime.getPartUtc(yield* DateTime.now, "year"));
     const ctx: TemplateContext = {
       name,
       scopedName: `@beep/${name}`,
       type,
       description,
-      year: String(new Date().getFullYear()),
+      year: currentYear,
       parentDir,
       packagePath,
       rootRelative: toRootRelative(packagePath),

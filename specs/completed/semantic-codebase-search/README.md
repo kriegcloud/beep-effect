@@ -1,6 +1,6 @@
 # Semantic Codebase Search via Annotation-Driven Indexing
 
-> **Status:** P5 Verification Attempted — Blocked on embedding model artifact mismatch
+> **Status:** P6 Complete — All verification gates passed
 > **Complexity:** High (41-60 points)
 > **Owner:** @elpresidank
 > **Created:** 2026-02-19
@@ -34,7 +34,7 @@ Source Code (enforced JSDoc + Schema annotations)
 ts-morph AST Parser ──→ Structured IndexedSymbol JSON
     │
     ▼
-Nomic CodeRankEmbed (137M, local, Apache-2.0) ──→ Embeddings
+Nomic Embed Text v1.5 (ONNX local inference) ──→ Embeddings
     │
     ▼
 LanceDB (serverless, TS-native) + BM25 keyword index
@@ -75,14 +75,15 @@ Claude Code Hooks (UserPromptSubmit auto-injection, SessionStart overview)
 | P4a | Documentation Standards Implementation | **Complete** | eslint rules, docgen config, apply to existing code |
 | P4b | Extractor & Indexer Implementation | **Complete** | ts-morph extractor, embedding pipeline, LanceDB store |
 | P4c | MCP Server & Hooks Implementation | **Complete** | MCP server, Claude Code hooks, integration |
-| P5 | Verification | **Blocked** | Retrieval/index gates blocked by embedding model ONNX artifact mismatch |
+| P5 | Verification | **Blocked** | Blocked by model artifact/runtime mismatch and follow-on runtime issues |
+| P6 | Blocker Remediation & Re-Verification | **Complete** | Model/runtime fixes, reruns complete, all gates passing |
 
 ## Key Decisions Made
 
 | Decision | Rationale | Source |
 |----------|-----------|--------|
 | Annotation-driven over LLM translation | Zero cost, deterministic, higher quality human-authored descriptions | P1 research: Greptile insight + user's annotation idea |
-| Nomic CodeRankEmbed for embeddings | SOTA for size (137M), Apache-2.0; selected in design but currently blocked by missing ONNX artifact | P1: custom-solution-architecture.md + P5 verification |
+| Nomic Embed Text v1.5 for embeddings | ONNX-compatible in current runtime; validated in live reindex/search paths during P6 | P6 remediation + rerun evidence |
 | LanceDB for vector storage | Serverless, TypeScript-native, no Docker/external process | P1: custom-solution-architecture.md |
 | Hybrid BM25 + vector search with RRF | Emerging best practice, 67% failure rate reduction | P1: real-world-implementations.md |
 | Build on docgen Parser APIs + custom ts-morph | Docgen handles JSDoc well, custom code for Effect patterns | P1: docgen-source-analysis.md |
@@ -107,7 +108,7 @@ Claude Code Hooks (UserPromptSubmit auto-injection, SessionStart overview)
 
 - **AST Parsing:** ts-morph (already used by @effect/docgen)
 - **JSDoc Parsing:** doctrine (already used by @effect/docgen)
-- **Embeddings:** Nomic CodeRankEmbed (137M, local) or Ollama nomic-embed-code
+- **Embeddings:** `nomic-ai/nomic-embed-text-v1.5` via `@huggingface/transformers` (ONNX backend)
 - **Vector Store:** LanceDB (embedded, serverless)
 - **MCP Protocol:** @modelcontextprotocol/sdk
 - **Lint Enforcement:** eslint-plugin-jsdoc
@@ -139,15 +140,23 @@ Claude Code Hooks (UserPromptSubmit auto-injection, SessionStart overview)
 | [p5-search-quality-report.md](./outputs/p5-search-quality-report.md) | 10-query quality run and precision gate result |
 | [p5-verification-summary.md](./outputs/p5-verification-summary.md) | Consolidated checklist, blockers, remediation tasks |
 
+## Verification Artifacts (P6 Outputs)
+
+| Document | Scope |
+|----------|-------|
+| [p6-remediation-results.md](./outputs/p6-remediation-results.md) | Implemented blocker fixes with root causes and outcomes |
+| [p6-rerun-performance-benchmarks.md](./outputs/p6-rerun-performance-benchmarks.md) | Rerun MCP latencies + full/incremental index timings |
+| [p6-rerun-search-quality-report.md](./outputs/p6-rerun-search-quality-report.md) | 10-query rerun quality scoring and aggregate precision |
+| [p6-closeout-summary.md](./outputs/p6-closeout-summary.md) | Final gate checklist and closeout decision |
+
 ## Current Blockers
 
-1. `EmbeddingServiceLive` targets `nomic-ai/CodeRankEmbed` with expected `onnx/model.onnx`, but current upstream model artifacts do not include that ONNX file.
-2. Live `reindex` and all retrieval MCP tool checks are blocked until embedding model configuration is updated to a compatible ONNX-backed model.
+None. P6 remediation cleared the P5 blockers and all mandatory gates are passing.
 
 ## Closeout State
 
-- Spec remains in `specs/pending/semantic-codebase-search`.
-- `bun run spec:move -- semantic-codebase-search completed` has not been executed because mandatory P5 gates are not yet passing.
+- Spec closeout criteria are satisfied in P6.
+- Spec was moved from pending to completed in P6 closeout (manual move fallback because `spec:move` script is not defined in this repository).
 
 ## Risk Register
 

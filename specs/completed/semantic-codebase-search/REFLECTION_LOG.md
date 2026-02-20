@@ -161,3 +161,25 @@
 
 **Next-phase remediation focus:**
 - Update embedding model configuration to an ONNX-available compatible model, then rerun full P5 verification and only move spec after all gates pass.
+
+---
+
+## P6: Blocker Remediation & Re-Verification (2026-02-20)
+
+**What went well:**
+- Runtime blocker was fixed with a live ONNX-compatible embedding model and validated through real `reindex` + `search_codebase` runs.
+- Full gate reruns were reproducible through one harness pass (E2E, hooks, MCP latencies, index timings, quality queries).
+- Final closeout targets were met, including full index performance and precision gate.
+
+**Key implementation learnings:**
+1. **LanceDB vector inference is sensitive to row value types** -- writing vectors as `Float32Array` caused non-queryable schema inference; numeric arrays were required for reliable vector search.
+2. **BM25 no-op incremental updates need explicit consolidation guardrails** -- flipping consolidation state on empty updates created invalid reconsolidation behavior.
+3. **Index metadata must be preserved across incremental runs** -- resetting `lastFullIndex`/`totalSymbols` on incremental mode produced misleading SessionStart overview metadata.
+4. **Embedding text length dominates indexing latency** -- capping embedding text to a smaller bound materially reduced full-index time and enabled the `<30s` gate.
+
+**Operational alignment updates:**
+- MCP and hook runtime docs now consistently show Bun execution.
+- Hook entrypoint paths in docs match built artifacts (`session-start-entry.js`, `prompt-submit-entry.js`).
+
+**Closeout outcome:**
+- All mandatory P6 gates passed; spec advanced to completed.
