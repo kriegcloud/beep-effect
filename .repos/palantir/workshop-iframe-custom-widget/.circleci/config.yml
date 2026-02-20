@@ -1,0 +1,91 @@
+version: 2.1
+
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:16.13.0
+
+jobs:
+  install-deps:
+    executor: node-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies-
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+
+  # TODO: need to set up tests
+  # run-tests:
+  #   executor: node-executor
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         keys:
+  #           - v1-dependencies-{{ checksum "package-lock.json" }}
+  #           - v1-dependencies-
+  #     - run:
+  #         name: Run Tests
+  #         command: npm test
+
+  build:
+    executor: node-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies-
+      - run:
+          name: Build Project
+          command: npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  publish:
+    executor: node-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Publish to NPM
+          command: |
+            npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+            npm publish
+  circle-all:
+    docker:
+    - image: busybox:1.34.1
+    resource_class: small
+    steps:
+    - run:
+        command: echo "All required jobs finished successfully"
+
+workflows:
+  version: 2
+  tagged-build:
+    jobs:
+      - install-deps
+      - build
+      - publish:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
+            branches: 
+              ignore: /.*/
+      - circle-all:
+          requires: []
+          filters:
+            tags:
+              only: /.*/
