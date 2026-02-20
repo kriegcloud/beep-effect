@@ -1,0 +1,345 @@
+/*
+ * (c) Copyright 2024 Palantir Technologies Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@use "../_variables.scss" as vars;
+
+.spinner {
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  height: 100px;
+  margin-left: 30px;
+}
+
+.domainWrapper {
+  display: flex;
+  flex-direction: column;
+  background-color: vars.$panelBackgroundColor;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: calc(100vh - 250px);
+  overflow: hidden;
+  margin: 0px 20px 20px 20px;
+
+  &.verticalLayout {
+    height: auto;
+    overflow: visible;
+  }
+}
+
+.domainHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 30px 10px;
+}
+
+.domainTitle {
+  font-size: 30px;
+  color: vars.$primaryColor;
+  margin: 0;
+}
+
+.domainDescription {
+  font-size: 18px;
+  color: vars.$mutedColor;
+  margin: 0 30px 20px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid vars.$dividerColor;
+  margin: 0 0 20px;
+}
+
+.domainContent {
+  flex: 1;
+  overflow: hidden;
+  padding: 0 30px;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 25px;
+  height: 100%;
+  overflow: hidden;
+
+  &.verticalContainer {
+    flex-direction: column;
+    overflow: visible;
+  }
+}
+
+.table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 90%;
+  min-height: 0;
+  margin-bottom: 20px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  background-color: vars.$panelBackgroundColor;
+  z-index: 2;
+  width: 100%;
+  padding-bottom: 10px;
+  border-bottom: 1px solid vars.$primaryColor;
+
+  h2 {
+    margin: 0;
+    margin-right: 10px;
+    color: vars.$primaryColor;
+  }
+}
+
+.interfaceTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  display: block;
+  height: calc(100% - 70px);
+}
+
+.tableBody {
+  display: table;
+  width: 100%;
+}
+
+tr {
+  display: table-row;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid vars.$primaryColor;
+  padding: 8px;
+  text-align: left;
+  font-size: 18px;
+  height: 25px;
+  line-height: 25px;
+  position: relative;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: vars.$primaryColor;
+}
+
+tr:hover {
+  box-shadow: inset 0 0 0 1px rgba(17, 20, 24, 0.2),
+    0 2px 4px rgba(17, 20, 24, 0.1), 0 8px 24px rgba(17, 20, 24, 0.2);
+  z-index: 1;
+  position: relative;
+  cursor: pointer;
+
+  td {
+    color: vars.$accentColor;
+  }
+}
+
+.selectedRow {
+  box-shadow: inset 0 0 0 1px rgba(17, 20, 24, 0.2),
+    0 2px 4px rgba(17, 20, 24, 0.1), 0 8px 24px rgba(17, 20, 24, 0.2);
+  z-index: 1;
+  position: relative;
+  background-color: rgba(vars.$backgroundColor, 0.3);
+
+  td {
+    color: vars.$accentColor;
+    border-color: vars.$accentColor;
+  }
+}
+
+.objectDetail {
+  flex: 2;
+  display: flex;
+  font-size: 16px;
+  background-color: rgba(vars.$backgroundColor, 0.3);
+  align-items: flex-start;
+  justify-content: flex-start;
+  border: 1px solid vars.$primaryColor;
+  padding: 16px;
+  overflow: auto;
+  width: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  color: vars.$primaryColor;
+}
+
+.objectDetailHeader {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+
+  img.mediaImage {
+    max-height: 30px;
+    margin-right: 8px;
+  }
+}
+
+.objectDetailHeader h2 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 50px);
+  margin: 0;
+  margin-right: 8px;
+  flex-shrink: 1;
+}
+
+.objectDetail pre {
+  font-family: "Courier New", Courier, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.icon {
+  margin-right: 8px;
+  color: vars.$accentColor;
+}
+
+.animateTable {
+  transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.comingSoonWrapper {
+  display: flex;
+  justify-content: top;
+  align-items: top;
+  font-size: 1.4rem;
+  margin-top: 8px;
+  height: 100%;
+  color: vars.$primaryColor;
+}
+
+.verticalLayout {
+  .table {
+    margin-bottom: 30px;
+  }
+
+  .objectDetail {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .domainTitle {
+    font-size: 1.5rem;
+  }
+
+  .domainDescription {
+    font-size: 0.9rem;
+  }
+
+  .tableHeader h2 {
+    font-size: 1.2rem;
+  }
+
+  th,
+  td {
+    font-size: 0.9rem;
+    padding: 4px;
+  }
+
+  .objectDetail {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .domainTitle {
+    font-size: 1.3rem;
+  }
+
+  .domainDescription {
+    font-size: 0.8rem;
+  }
+
+  .tableHeader {
+    flex-wrap: wrap;
+
+    h2 {
+      margin-bottom: 5px;
+      font-size: 1rem;
+    }
+  }
+
+  th,
+  td {
+    font-size: 0.8rem;
+    padding: 3px;
+  }
+
+  .objectDetail {
+    font-size: 0.7rem;
+  }
+
+  :global(.bp4-tag) {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+}
+
+@media (max-width: 375px) {
+  .domainTitle {
+    font-size: 1.1rem;
+  }
+
+  .domainDescription {
+    font-size: 0.7rem;
+  }
+
+  .tableHeader h2 {
+    font-size: 0.8rem;
+  }
+
+  th,
+  td {
+    font-size: 0.7rem;
+    padding: 2px;
+  }
+
+  .objectDetail {
+    font-size: 0.6rem;
+  }
+
+  :global(.bp4-tag) {
+    font-size: 8px;
+    padding: 1px 2px;
+  }
+
+  .verticalLayout {
+    .table {
+      margin-bottom: 20px;
+    }
+  }
+}

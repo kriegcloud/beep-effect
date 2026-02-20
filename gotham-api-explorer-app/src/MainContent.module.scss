@@ -1,0 +1,63 @@
+/*
+ * (c) Copyright 2025 Palantir Technologies Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@use "_variables.scss" as vars;
+
+.mainContent {
+  flex: 3;
+  padding: 0px 50px 50px 50px;
+  overflow-y: auto;
+  text-align: start;
+  position: relative;
+}
+  
+.mainContentHeader {
+  font-size: 1.75em;
+}
+  
+  .queryParameters,
+  .responseBody {
+    margin-bottom: 20px;
+  }
+  
+  .queryParameters h2,
+  .endpointDetails h3,
+  .responseBody h2 {
+    margin-top: 20px;
+  }
+
+  .submitButton {
+    margin-bottom: 20px;
+  }
+  
+  .callout {
+    padding: 15px;
+    margin: 20px 0;
+    border-left: 5px solid var(--callout-border-color);
+    background-color: var(--callout-background-color);
+  }
+  
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-family: monospace;
+    margin: 10px;
+    padding: 10px;
+    background-color: var(--pre-background-color);
+    border: 1px solid var(--pre-border-color);
+    border-radius: 5px;
+  }
+  
