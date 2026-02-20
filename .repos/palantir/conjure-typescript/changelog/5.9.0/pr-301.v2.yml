@@ -1,0 +1,6 @@
+type: fix
+fix:
+  description: Referencing a type with the same name in another package will correctly
+    be resolved instead of referencing the self type.
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/301

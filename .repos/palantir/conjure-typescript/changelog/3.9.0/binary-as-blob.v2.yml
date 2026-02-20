@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Conjure binary type is implemented as Blob type
+  links:
+   - https://github.com/palantir/conjure-typescript/pull/102

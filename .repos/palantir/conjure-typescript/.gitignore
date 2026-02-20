@@ -1,0 +1,40 @@
+# MacOS
+.DS_Store
+Thumbs.db
+
+# NPM
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Gradle
+.gradle
+
+# Application
+lib
+dist
+
+# VSCode
+.vscode/
+
+# Lerna
+lerna-debug.log
+yerna.log
+
+# Testing
+coverage
+test-report.xml
+.jest-cache
+
+# IntelliJ
+.idea/
+*.ipr
+*.iws
+*.iml
+out/
+
+build
+__generated__
+
+# Gradle JDKs setup
+!gradle/*

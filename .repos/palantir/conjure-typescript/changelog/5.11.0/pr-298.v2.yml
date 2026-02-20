@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: Generate a new method for each service endpoint where the method returns the "declared errors" on the endpoint as a result instead of throwing them
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/298

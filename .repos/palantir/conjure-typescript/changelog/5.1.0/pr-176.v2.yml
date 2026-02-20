@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix a regression introduced in https://github.com/palantir/conjure-typescript/pull/170 that resulted in generated code being incorrect for empty enums.
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/176

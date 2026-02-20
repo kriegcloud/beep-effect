@@ -1,0 +1,6 @@
+type: break
+break:
+  description: Generate binary return type as ReadableStream<Uint8Array> and binary
+    argument type as ReadableStream<Uint8Array> | BufferSource | Blob
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/126

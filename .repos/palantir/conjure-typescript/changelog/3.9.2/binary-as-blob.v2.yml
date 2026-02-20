@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Top level binary type is generated as Blob type with correct response and request media types
+  links:
+   - https://github.com/palantir/conjure-typescript/pull/104

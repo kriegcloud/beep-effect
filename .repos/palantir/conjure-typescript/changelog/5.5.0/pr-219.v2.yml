@@ -1,0 +1,8 @@
+type: feature
+feature:
+  description: Default generated typescript is difficult to work with in a project
+    with strict readonly usage, often requiring casting from readonly arrays to mutable
+    arrays to make service calls. Added `--readonlyInterfaces` generation option to
+    emit types with readonly fields and arrays.
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/219

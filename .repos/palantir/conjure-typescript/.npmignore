@@ -1,0 +1,8 @@
+**/*
+!LICENSE
+!README.md
+!bin/*
+!lib/**/*
+!src/**/*
+**/__tests__/*
+**/__mocks__/*

@@ -1,0 +1,253 @@
+types:
+  imports:
+    Safe:
+      external:
+        java: com.palantir.redaction.Safe
+
+    Nonnull:
+      external:
+        java: javax.annotation.Nonnull
+
+  definitions:
+    default-package: com.palantir.product
+    objects:
+      BackingFileSystem:
+        package: com.palantir.product.datasets
+        fields:
+          fileSystemId:
+            type: string
+            docs: The name by which this file system is identified.
+          baseUri: string
+          configuration: map<string, string>
+
+      Dataset:
+        package: com.palantir.product.datasets
+        fields:
+          fileSystemId: string
+          rid:
+            type: rid
+            docs: Uniquely identifies this dataset.
+
+      CreateDatasetRequest:
+        fields:
+          fileSystemId: string
+          path: string
+
+      AliasedBinary:
+        alias: binary
+
+      NestedAliasedBinary:
+        alias: AliasedBinary
+
+      AliasedString:
+        alias: string
+
+services:
+  TestService:
+    name: Test Service
+    package: com.palantir.another
+    default-auth: header
+    base-path: /catalog
+    docs: |
+      A Markdown description of the service.
+
+    endpoints:
+      getFileSystems:
+        markers:
+          - Nonnull # requires FeatureFlags.DangerousGothamMethodMarkers
+        http: GET /fileSystems
+        returns: map<string, BackingFileSystem>
+        docs: |
+          Returns a mapping from file system id to backing file system configuration.
+
+      createDataset:
+        http: POST /datasets
+        args:
+          request: CreateDatasetRequest
+          testHeaderArg:
+            param-id: Test-Header
+            param-type: header
+            type: string
+            markers:
+              - Safe
+        returns: Dataset
+
+      getDataset:
+        http: GET /datasets/{datasetRid}
+        args:
+          datasetRid:
+            type: rid
+            markers:
+             - Safe
+        returns: optional<Dataset>
+
+      getRawData:
+        http: GET /datasets/{datasetRid}/raw
+        args:
+          datasetRid:
+            type: rid
+            markers:
+             - Safe
+        returns: binary
+
+      getAliasedRawData:
+        http: GET /datasets/{datasetRid}/raw-aliased
+        args:
+          datasetRid:
+            type: rid
+            markers:
+             - Safe
+        returns: NestedAliasedBinary
+
+      maybeGetRawData:
+        http: GET /datasets/{datasetRid}/raw-maybe
+        args:
+          datasetRid:
+            type: rid
+            markers:
+             - Safe
+             - Nonnull
+        returns: optional<binary>
+
+      getAliasedString:
+        http: GET /datasets/{datasetRid}/string-aliased
+        args:
+          datasetRid:
+            type: rid
+            markers:
+             - Safe
+        returns: AliasedString
+
+      uploadRawData:
+        http: POST /datasets/upload-raw
+        args:
+          input:
+            type: binary
+            param-type: body
+            markers:
+              - Safe
+
+      uploadAliasedRawData:
+        http: POST /datasets/upload-raw-aliased
+        args:
+          input:
+            type: NestedAliasedBinary
+            param-type: body
+
+      getBranches:
+        http: GET /datasets/{datasetRid}/branches
+        args:
+          datasetRid:
+            type: rid
+            docs: |
+              A valid dataset resource identifier.
+            markers:
+             - Safe
+        returns: set<string>
+      getBranchesDeprecated:
+        http: GET /datasets/{datasetRid}/branchesDeprecated
+        args:
+          datasetRid:
+            type: rid
+            docs: |
+              A valid dataset resource identifier.
+            markers:
+             - Safe
+        returns: set<string>
+        docs: |
+          Gets all branches of this dataset.
+        deprecated: use getBranches instead
+
+      resolveBranch:
+        http: GET /datasets/{datasetRid}/branches/{branch:.+}/resolve
+        args:
+          datasetRid:
+            type: rid
+            markers:
+             - Safe
+          branch: string
+        returns: optional<string>
+
+      testParam:
+        http: GET /datasets/{datasetRid}/testParam
+        args:
+          datasetRid:
+            type: rid
+            param-id: datasetRid
+            param-type: path
+            markers:
+              - Safe
+        returns: optional<string>
+
+      testQueryParams:
+        http: POST /test-query-params
+        args:
+          query: string
+          something:
+            type: rid
+            param-id: different
+            param-type: query
+            markers:
+              - Safe
+          optionalMiddle:
+            type: optional<rid>
+            param-type: query
+          implicit:
+            type: rid
+            param-type: query
+          setEnd:
+            type: set<string>
+            param-type: query
+          optionalEnd:
+            type: optional<rid>
+            param-type: query
+        returns: integer
+
+      testNoResponseQueryParams:
+        http: POST /test-no-response-query-params
+        args:
+          query: string
+          something:
+            type: rid
+            param-id: different
+            param-type: query
+          optionalMiddle:
+            type: optional<rid>
+            param-type: query
+          implicit:
+            type: rid
+            param-type: query
+          setEnd:
+            type: set<string>
+            param-type: query
+          optionalEnd:
+            type: optional<rid>
+            param-type: query
+
+      testBoolean:
+        http: GET /boolean
+        returns: boolean
+
+      testDouble:
+        http: GET /double
+        returns: double
+
+      testInteger:
+        http: GET /integer
+        returns: integer
+
+      testPostOptional:
+        http: POST /optional
+        args:
+          maybeString: optional<string>
+        returns: optional<string>
+
+      testOptionalIntegerAndDouble:
+        http: GET /optional-integer-double
+        args:
+          maybeInteger:
+            type: optional<integer>
+            param-type: query
+          maybeDouble:
+            type: optional<double>
+            param-type: query

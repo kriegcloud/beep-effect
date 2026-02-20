@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Generate more compact service endpoint definitions to reduce code size
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/137

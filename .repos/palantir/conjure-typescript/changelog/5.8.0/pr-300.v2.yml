@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fixed an issue where importing errors was causing the generator to crash
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/300

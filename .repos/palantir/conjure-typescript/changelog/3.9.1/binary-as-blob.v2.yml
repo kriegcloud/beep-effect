@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Conjure binary type is any as previous change didn't account for difference in top level and nested binary types
+  links:
+   - https://github.com/palantir/conjure-typescript/pull/104
