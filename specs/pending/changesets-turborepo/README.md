@@ -1,195 +1,154 @@
-# Changesets Release Workflow (Turborepo-Aligned)
+# Changesets + Turborepo Release Setup
 
 ## Status
-ACTIVE
 
-## Owner
-@elpresidank
+- Status: `pending`
+- Slice: `repo root (release tooling + CI)`
+- Type: `workflow setup`
+- Started: `2026-02-20`
 
-## Created
-2026-02-20
+## Problem Statement
 
-## Purpose
-Implement Changesets-based versioning and publishing for this monorepo, using Turborepo-recommended task orchestration so release workflows stay fast, cache-aware, and package-graph-correct.
+This repo does not yet have a formal Changesets release workflow. Package versions exist, but there is no standardized process for:
 
-## Why This Spec Exists
-The repo currently has versioned workspace packages but no formal release workflow. Turborepo recommends using Changesets for package versioning and publishing in monorepos, with package tasks run through `turbo run` and release mutation steps handled explicitly.
+- authoring release notes/version bumps,
+- generating release PRs,
+- publishing from CI,
+- and keeping release steps aligned with Turborepo task orchestration.
 
-## Primary References
-- Turborepo guide: [Publishing libraries](https://turborepo.com/repo/docs/guides/publishing-libraries)
-- Changesets CLI docs: [changesets README](https://raw.githubusercontent.com/changesets/changesets/main/packages/cli/README.md)
-- Changesets config docs: [config-file-options.md](https://raw.githubusercontent.com/changesets/changesets/main/docs/config-file-options.md)
-- Changesets GitHub Action docs: [changesets/action](https://github.com/changesets/action)
-- Local Turborepo skill: `.agents/skills/turborepo/SKILL.md`
+Because the release guide was intentionally reset in this branch, this spec is written as a **discovery-first** setup plan: capture decisions first, then apply the minimum viable implementation.
 
-## Current Workspace Release Surface
-| Package | Version | Private | Current Intent |
-|---------|---------|---------|----------------|
-| `@beep/groking-effect-v4` | `0.0.0` | `false` | Publishable package |
-| `@beep/repo-cli` | `0.0.0` | `true` | Internal tooling |
-| `@beep/repo-utils` | `0.0.0` | `true` | Internal tooling |
-| `@beep/codebase-search` | `0.0.0` | `true` | Internal tooling |
-| `scratchpad` | `0.0.0` | `true` | Internal-only sandbox |
+## Context
 
-## Guiding Decisions
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| D1 | Use `@changesets/cli` at root | Officially recommended by Turborepo for monorepo versioning/publishing |
-| D2 | Keep package build/test/lint orchestration in Turborepo (`turbo run ...`) | Aligns with Turborepo package-task model and caching guidance |
-| D3 | Keep release mutation steps (`changeset version`, `changeset publish`) as root release scripts | These are repo-level version/publish operations, not package build tasks |
-| D4 | Default to releasing only non-private packages | Matches npm + Changesets behavior and avoids unnecessary internal version churn |
-| D5 | Use Changesets GitHub Action for Release PR + publish | Recommended operational flow for predictable changelog/version releases |
+- A reference subtree exists at `.repos/beep-effect/`.
+- Target style for this spec follows `.repos/beep-effect/specs/pending/*`.
+- Current workspace package surface includes both private tooling packages and at least one publishable package.
+
+## Goals
+
+1. Define a repo-specific Changesets policy (what releases, what stays private, and from which branch).
+2. Implement a Turborepo-aligned release flow where package build/test tasks run through `turbo run`.
+3. Add CI automation for release PR creation and publish.
+4. Document a lightweight contributor flow for adding changesets.
+
+## Non-Goals
+
+- Deciding long-term package visibility strategy for all tooling packages in this pass.
+- Adding prerelease channels (`next`, canary) unless explicitly chosen during decision capture.
+- Changing package naming, scope, or registry strategy.
 
 ## Scope
-### In Scope
-- Add Changesets tooling and initialize `.changeset/`
-- Define root scripts for authoring, versioning, and publishing
-- Wire release scripts to Turborepo package tasks (`turbo run build`, optionally plus test/lint)
-- Add CI workflow to open release PRs and publish on merge
-- Document contributor release workflow (when to add a changeset)
-- Define behavior for private packages and package access mode
 
-### Out of Scope
-- Migrating package names/scopes
-- Converting private tooling packages to public packages
-- Multi-registry publish support
-- Canary/nightly prerelease channels
+In scope:
 
-## Implementation Plan
+- Capture explicit release decisions in `outputs/` before implementation.
+- Add and initialize `@changesets/cli`.
+- Add root release scripts that delegate package work via Turborepo.
+- Add CI release workflow (Release PR + publish).
+- Add release documentation for contributors/maintainers.
 
-### Phase 1: Bootstrap Changesets
-1. Add root dev dependency: `@changesets/cli`.
-2. Run `changeset init` to create `.changeset/README.md` and `.changeset/config.json`.
-3. Update `.changeset/config.json` for this repo:
-   - `baseBranch`: `main` (or repo default branch if different)
-   - `access`: `public`
-   - `updateInternalDependencies`: `patch`
-   - `privatePackages`: `{ "version": false, "tag": false }`
-4. Keep `fixed` and `linked` empty until we intentionally introduce lockstep versioning.
+Out of scope:
 
-### Phase 2: Root Scripts and Turbo Alignment
-1. Add root scripts:
-   - `changeset`: `changeset`
-   - `changeset:version`: `changeset version`
-   - `changeset:status`: `changeset status --verbose`
-   - `release`: `turbo run build && changeset publish`
-2. Keep task execution package-based:
-   - Build/test/lint remains in package scripts and `turbo.json` tasks.
-   - Root scripts only orchestrate via `turbo run` plus Changesets commands.
-3. Do not add cacheable turbo tasks for publish/mutation operations.
+- Converting private packages to public.
+- Multi-registry publishing.
+- Repo-wide CI redesign beyond release path needs.
 
-### Phase 3: CI Release Automation
-1. Add `.github/workflows/release.yml` using `changesets/action@v1`.
-2. Workflow behavior:
-   - On push to `main`, action opens/updates a Release PR when unpublished changesets exist.
-   - When no pending changesets remain, action runs publish step.
-3. Configure action scripts:
-   - `version`: `bun run changeset:version`
-   - `publish`: `bun run release`
-4. Required CI secrets/vars:
-   - `NPM_TOKEN`
-   - `GITHUB_TOKEN` (provided by Actions)
-   - `TURBO_TOKEN` and `TURBO_TEAM` for remote cache (optional but recommended)
+## Decision Gates (Must Be Explicit)
 
-### Phase 4: Contributor and Maintainer Workflow Docs
-1. Add release workflow docs (for example `docs/releasing.md`) covering:
-   - When to create a changeset
-   - How to choose patch/minor/major
-   - How release PRs are merged
-2. Add a short "release checklist" for maintainers.
+1. **Base release branch**: confirm `main` or an alternative.
+2. **Publish surface**: confirm exactly which packages are expected to publish now.
+3. **Pre-publish quality gates**: decide required commands (`build` only vs `build + test + lint`).
+4. **CI release host**: confirm GitHub Actions workflow assumptions.
 
-## Proposed `.changeset/config.json` Baseline
-```json
-{
-  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
-  "changelog": "@changesets/cli/changelog",
-  "commit": false,
-  "fixed": [],
-  "linked": [],
-  "access": "public",
-  "baseBranch": "main",
-  "updateInternalDependencies": "patch",
-  "ignore": [],
-  "privatePackages": {
-    "version": false,
-    "tag": false
-  }
-}
-```
+## Proposed Approach
 
-## Proposed Release Workflow Skeleton
-```yaml
-name: Release
+### Phase 1: Inventory + Decision Capture (No Mutations)
 
-on:
-  push:
-    branches:
-      - main
+Produce the following:
 
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+- `outputs/current-release-surface.md`
+- `outputs/release-decisions.md`
 
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.9
+Minimum required contents:
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+- Package inventory (`name`, `private`, `version`, publish intent).
+- Decision Gate outcomes (branch, publish surface, quality gates, CI host).
+- Explicit notes for deferred decisions.
 
-      - name: Create Release PR or Publish
-        uses: changesets/action@v1
-        with:
-          version: bun run changeset:version
-          publish: bun run release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-```
+### Phase 2: Bootstrap Changesets
 
-## Success Criteria
-- [ ] `@changesets/cli` is installed and `.changeset/config.json` is committed
-- [ ] Root scripts exist for `changeset`, `changeset:version`, `changeset:status`, `release`
-- [ ] Release script uses `turbo run` for package tasks before publish
-- [ ] Release workflow exists and uses `changesets/action`
-- [ ] A release PR is auto-created when a PR with changesets lands on `main`
-- [ ] Publish succeeds from CI with `NPM_TOKEN`
-- [ ] Private packages are not version/tag churned by default
+- Add `@changesets/cli` as a root dev dependency.
+- Run `changeset init`.
+- Update `.changeset/config.json` with captured decisions.
+- Keep `fixed` and `linked` empty unless lockstep versioning is intentionally selected.
 
-## Risks and Mitigations
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Wrong `baseBranch` in Changesets config | Release PR generation fails or compares wrong range | Confirm default branch before merge (`main` assumed in this spec) |
-| Fixture/test `package.json` files accidentally detected | Noise or incorrect release targeting | Validate package detection with `changeset status`; add explicit ignore entries only if needed |
-| Publish without prior build artifacts | Broken npm package | Keep `release` script as `turbo run build && changeset publish` |
-| Missing npm auth in CI | Publish fails | Require `NPM_TOKEN` secret in workflow docs and setup |
+### Phase 3: Turborepo-Aligned Scripts
 
-## Verification Commands
+Add root scripts for:
+
+- `changeset`
+- `changeset:status`
+- `changeset:version`
+- `release`
+
+Release script rule:
+
+- Use Turborepo for package work (`turbo run ...`) before `changeset publish`.
+- Keep publish/version mutation as root-level workflow steps.
+
+### Phase 4: CI Release Automation
+
+- Add release workflow (expected path: `.github/workflows/release.yml`).
+- Use Changesets release PR flow.
+- Ensure required secrets/vars are documented (`NPM_TOKEN`, cache vars if used).
+
+### Phase 5: Verification + Docs
+
+- Validate local release flow commands.
+- Validate CI creates/updates release PR correctly.
+- Add maintainer release checklist and contributor quick steps.
+
+## Entry Points
+
+- Start execution: `handoffs/P1_ORCHESTRATOR_PROMPT.md`
+- Full Phase 1 context: `handoffs/HANDOFF_P1.md`
+- Ongoing learnings: `REFLECTION_LOG.md`
+
+## Verification
+
+Run from repo root:
+
 ```bash
-# Initialize (once)
-bun add -D @changesets/cli
-bunx changeset init
-
-# Day-to-day authoring
-bun run changeset
+# Inspect pending release state
 bun run changeset:status
 
-# Simulate release locally
+# Apply version updates from pending changesets
 bun run changeset:version
+
+# Build using turbo task graph
 bun run build
+
+# Publish path (requires registry auth)
 bun run release
 ```
 
-## Open Questions
-1. Is `main` confirmed as the long-lived release branch?
-2. Should `@beep/repo-cli`, `@beep/repo-utils`, or `@beep/codebase-search` remain private for the next quarter?
-3. Do we want a prerelease channel (`next`) in phase 1, or defer until stable publish cadence exists?
+## Acceptance Criteria
 
-## Exit Condition
-This spec is complete when Changesets-based releases can be performed end-to-end from merged PRs with Turborepo-managed package builds and documented maintainer workflow.
+- Decision outputs exist and capture all four Decision Gates.
+- `.changeset/config.json` is present and reflects decisions.
+- Root scripts for changeset + release flow are present.
+- Release workflow is present and wired for PR + publish behavior.
+- Release documentation exists for contributors and maintainers.
+
+## Open Questions
+
+1. Is `main` confirmed as release branch?
+2. Should private tooling packages remain private for this initial rollout?
+3. Should release gating require tests/lint in addition to build for publish?
+
+## Related References
+
+- `.repos/beep-effect/specs/README.md`
+- `.repos/beep-effect/specs/SPEC_STATUS_POLICY.md`
+- `.repos/beep-effect/specs/pending/knowledge-schema-standardization/README.md`
+- `.repos/beep-effect/specs/pending/knowledge-nonfatal-effect-lint-cleanup/README.md`

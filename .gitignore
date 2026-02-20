@@ -52,3 +52,4 @@ test-results/
 # Local MCP + Codex config (project-scoped, not committed)
 .mcp.json
 .codex/
+.code-index/

@@ -1,113 +1,62 @@
-# Handoff → P4: Implementation
+# HANDOFF_P4 — Semantic Codebase Search
 
-> Context transfer from P3 (Synthesis & Planning) to P4 (Implementation)
-> Token budget: ≤4,000 tokens
+## Scope Handed Off
 
----
+P3 synthesis is complete. Use these artifacts as implementation truth:
+- `specs/pending/semantic-codebase-search/outputs/package-scaffolding.md`
+- `specs/pending/semantic-codebase-search/outputs/task-graph.md`
+- `specs/pending/semantic-codebase-search/outputs/cross-validation-report.md`
 
-## Working Memory (≤2,000 tokens)
+## What Is Locked
 
-### Current Task
-Implement the semantic codebase search system across 3 sub-phases: P4a (documentation standards), P4b (extractor + pipeline), P4c (MCP server + hooks). Total: 18 tasks, ~25 hours estimated.
+- Package target: `tooling/codebase-search/`
+- Runtime style: Effect v4 patterns (catalog deps, `Effect.fn`, `S.TaggedErrorClass`)
+- Search architecture: hybrid vector (LanceDB) + BM25 + RRF
+- Tool surface: exactly 4 MCP tools (`search_codebase`, `find_related`, `browse_symbols`, `reindex`)
+- Hook surface: `SessionStart` + `UserPromptSubmit`
 
-### Phase Objectives
-1. **P4a (T1–T4):** Configure ESLint JSDoc rules, update docgen config, backfill existing code JSDoc, add lefthook pre-commit. Result: all existing code meets documentation standards.
-2. **P4b (T5–T12):** Scaffold package, implement IndexedSymbol schema, build JSDoc + Effect extractors, create embedding service, wire up LanceDB + BM25 storage, orchestrate pipeline. Result: `reindex` produces a searchable index.
-3. **P4c (T13–T18):** Implement hybrid search + relation resolver, build 4 MCP tools, tune output formatting, configure integration, implement hooks. Result: working MCP server + auto-injection hooks.
+## P4 Execution Plan
 
-### Critical Implementation Notes
-- **Two-pass import resolution:** SymbolAssembler must extract all symbols first (build ID registry), then resolve imports against registry in second pass. See cross-validation-report.md GAP-1.
-- **LanceDB has 21 columns** (not 18): SymbolRow in embedding-pipeline-design.md is authoritative. Includes `end_line`, `effect_pattern`, `title` that the mapping table missed.
-- **Hooks use BM25-only search** (no embedding model). MCP tools use full hybrid (vector + BM25 + RRF). This is intentional — hooks can't afford model cold start within 5s timeout.
-- **ONNX model is 521MB:** First `EmbeddingService` use downloads the model. Document this. Mock the service in tests.
-- **No ESLint rule for @category or @provides/@depends:** Accept in Phase 1. Extractor validates these via `validateIndexedSymbol()`.
+Follow task IDs from `outputs/task-graph.md`.
 
-### Blocking Issues
-None. All designs and plans are complete.
+1. P4a: T01-T04
+2. P4b: T05-T14
+3. P4c: T15-T18
 
-### Success Criteria
-- [ ] `npx eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts'` — zero errors
-- [ ] `tsc -b tooling/codebase-search/tsconfig.json` — compiles clean
-- [ ] `npx vitest run` — all tests pass (extractor, indexer, search, MCP, hooks)
-- [ ] MCP server starts on stdio, responds to all 4 tools
-- [ ] Hooks complete within 5s timeout
-- [ ] Full index of existing codebase completes in <30s
-- [ ] search_codebase returns relevant results for "schema for package names"
+Parallel starts allowed:
+- T01 and T05
+- T08 and T09
 
----
+Critical path:
+- `T05 -> T06 -> (T08,T09) -> T10 -> T11 -> T12 -> T14 -> T15 -> T16 -> T18`
 
-## Episodic Memory (≤1,000 tokens)
+## Cross-Validation Gaps to Resolve in P4
 
-### P3 Summary
-3 documents produced:
+- CV-01: two-pass import-to-symbol-ID resolution (`T10`)
+- CV-02: keep LanceDB mapping aligned with authoritative `SymbolRow` (`T12`)
+- CV-03: normalize `provides/depends` relationship targets to IDs when possible (`T10`, `T17`)
+- CV-04: require `@category` via custom lint or extractor validation (`T01`, `T10`)
+- CV-05: enforce layer `@provides/@depends` using kind-aware validation (`T10`, `T14`)
+- CV-06: add `@ignore` to `tsdoc.json` for tooling parity (`T02`)
 
-| Document | Key Output |
-|----------|-----------|
-| `package-scaffolding.md` | Exact directory layout (30+ files), package.json with 9 dependencies, tsconfig, vitest config, MCP + hook configs |
-| `task-graph.md` | 18 tasks across P4a/P4b/P4c with dependency edges, acceptance criteria, effort estimates |
-| `cross-validation-report.md` | 6 checks, 6 gaps found (none blocking), all with resolutions |
+## Mandatory Verification Gates
 
-### Parallelism Opportunities
-- T1 (ESLint) and T5 (package scaffold) can start in parallel
-- T7 (JSDoc extractor) and T8 (Effect extractor) can run in parallel after T6
-- T13 (search) and T17 (SessionStart hook) can run in parallel after T11
+After P4a:
+- `npx eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts'`
+- `bunx turbo run docgen --filter=@beep/repo-cli --filter=@beep/codebase-search`
 
-### Key Decisions from P3
-| Decision | Rationale |
-|----------|-----------|
-| 21 LanceDB columns (SymbolRow authoritative) | Mapping table was incomplete, SymbolRow has all needed fields |
-| Two-pass import resolution | Need full symbol registry before resolving cross-file imports |
-| Deferred @category enforcement | No built-in ESLint rule; custom rule in Phase 2 |
-| Intentional hook vs MCP format difference | Hooks optimize for compact injection; MCP for completeness |
+After P4b:
+- `tsc -b tooling/codebase-search/tsconfig.json`
+- `npx vitest run tooling/codebase-search/test`
+- `reindex(full)` creates `.code-index/` with LanceDB + BM25 + file hashes
 
----
+After P4c:
+- MCP server responds to `tools/list` with 4 tools
+- Hook commands run under 5s and do not throw
+- `search_codebase` returns ranked results with scores and filters
 
-## Semantic Memory (≤500 tokens)
+## Residual Risks
 
-### Tech Stack Constants
-- **Runtime:** Effect v4 (TypeScript)
-- **Testing:** `npx vitest run` (NEVER `bun test`)
-- **Coding style:** Effect.fn, no native Map/Set/Array, Schema annotations required
-- **Errors:** S.TaggedErrorClass (never Data.TaggedError)
-- **CLI module:** `effect/unstable/cli`
-
-### Package Dependencies (catalog additions)
-```
-@lancedb/lancedb ^0.15.0    — embedded vector DB
-@huggingface/transformers ^3.5.0 — ONNX embedding model
-@modelcontextprotocol/sdk ^1.12.0 — MCP server protocol
-wink-bm25-text-search ^2.2.0    — keyword search
-ts-morph ^25.0.0             — AST parsing
-doctrine ^3.0.0              — JSDoc parsing
-eslint-plugin-jsdoc ^50.0.0  — lint rules (root devDep)
-```
-
-### File Locations
-- Package scaffold: `tooling/codebase-search/`
-- ESLint config: `eslint.config.mjs` (root)
-- Custom rules: `eslint-rules/` (root)
-- tsdoc.json: root
-- Index output: `.code-index/` (gitignored)
-- MCP config: `.mcp.json`
-- Hook config: `.claude/settings.json`
-
----
-
-## Procedural Memory (Links Only)
-
-- P3 outputs: `specs/pending/semantic-codebase-search/outputs/package-scaffolding.md`, `task-graph.md`, `cross-validation-report.md`
-- P2 outputs: same directory (7 design documents)
-- Package template: `tooling/cli/` (follow for structure)
-- Effect v4 patterns: `tooling/cli/src/commands/create-package.ts`
-- Memory: `~/.claude/projects/.../memory/MEMORY.md` (Effect v4 API corrections)
-- Docgen source: `.repos/docgen/src/Parser.ts` (reference for JSDoc extraction patterns)
-
----
-
-## Verification Table
-
-| Phase | Verification |
-|-------|-------------|
-| P4a complete | `npx eslint` zero errors, `bunx @effect/docgen` succeeds, all exports documented |
-| P4b complete | `tsc -b` compiles, `npx vitest run` passes, full reindex produces valid index |
-| P4c complete | MCP server responds to all 4 tools, hooks complete <5s, search returns relevant results |
+- First embedding run downloads ONNX model (~521MB).
+- JSDoc backfill (T04) may overrun if export count is high.
+- Relation quality depends on ID normalization coverage in T10.

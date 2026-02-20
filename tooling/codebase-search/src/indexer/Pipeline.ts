@@ -10,7 +10,12 @@
 import { IndexingError } from "@beep/codebase-search/errors";
 import type { ScanResult } from "@beep/codebase-search/extractor/FileScanner";
 import { computeFileHashes, saveFileHashes, scanFiles } from "@beep/codebase-search/extractor/FileScanner";
-import { assembleSymbols, resolveModuleName } from "@beep/codebase-search/extractor/SymbolAssembler";
+import {
+  assembleSymbols,
+  resolveImports,
+  resolveLayerContractErrors,
+  resolveModuleName,
+} from "@beep/codebase-search/extractor/SymbolAssembler";
 import type { IndexedSymbol } from "@beep/codebase-search/IndexedSymbol";
 import { IndexMeta } from "@beep/codebase-search/IndexedSymbol";
 import { Bm25Writer } from "@beep/codebase-search/indexer/Bm25Writer";
@@ -182,6 +187,7 @@ const extractSymbolsFromFiles: (
         // Extract symbols from each source file
         const allSymbols = A.empty<IndexedSymbol>();
         const sourceFiles = project.getSourceFiles();
+        const fileToSymbolIds = new Map<string, ReadonlyArray<string>>();
 
         pipe(
           A.fromIterable(sourceFiles),
@@ -199,6 +205,10 @@ const extractSymbolsFromFiles: (
 
             const moduleName = resolveModuleName(relativePath);
             const symbols = assembleSymbols(sourceFile, pkg, moduleName);
+            fileToSymbolIds.set(
+              sourceFile.getFilePath(),
+              A.map(symbols, (symbol) => symbol.id)
+            );
 
             pipe(
               symbols,
@@ -209,7 +219,20 @@ const extractSymbolsFromFiles: (
           })
         );
 
-        return allSymbols as ReadonlyArray<IndexedSymbol>;
+        const resolvedSymbols = resolveImports(allSymbols, sourceFiles, fileToSymbolIds);
+        const layerContractErrors = resolveLayerContractErrors(resolvedSymbols);
+
+        if (A.isReadonlyArrayNonEmpty(layerContractErrors)) {
+          pipe(
+            layerContractErrors,
+            A.forEach((error) => {
+              // eslint-disable-next-line no-console
+              console.warn(`[Pipeline] Layer contract warning: ${error}`);
+            })
+          );
+        }
+
+        return resolvedSymbols as ReadonlyArray<IndexedSymbol>;
       },
       catch: (error) =>
         new IndexingError({
@@ -319,6 +342,10 @@ export const PipelineLive: Layer.Layer<
       // ---------------------------------------------------------------
       // 5. Upsert into LanceDB (delete modified/deleted, insert new)
       // ---------------------------------------------------------------
+      if (config.mode === "full") {
+        yield* lanceDbWriter.createTable();
+      }
+
       yield* lanceDbWriter.upsert(filesToDelete, symbolsWithVectors);
 
       // ---------------------------------------------------------------
@@ -354,6 +381,7 @@ export const PipelineLive: Layer.Layer<
 
       // Add all newly extracted symbols to BM25
       yield* bm25Writer.addDocuments(extractedSymbols);
+      yield* bm25Writer.save().pipe(provideFsPath);
 
       // ---------------------------------------------------------------
       // 7. Save file hashes for future incremental scans

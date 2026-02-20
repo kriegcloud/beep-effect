@@ -527,6 +527,15 @@ export const validateIndexedSymbol = (symbol: IndexedSymbol): ReadonlyArray<stri
     errors.push("category must be non-empty");
   }
 
+  if (symbol.kind === "layer") {
+    if (A.isReadonlyArrayEmpty(symbol.provides)) {
+      errors.push("layer symbols must include at least one @provides relation");
+    }
+    if (A.isReadonlyArrayEmpty(symbol.dependsOn)) {
+      errors.push("layer symbols must include at least one @depends relation");
+    }
+  }
+
   const embeddingLen = Str.length(symbol.embeddingText);
   if (embeddingLen < 30 || embeddingLen > MAX_EMBEDDING_CHARS) {
     errors.push(`embeddingText must be 30-${String(MAX_EMBEDDING_CHARS)} characters, got ${String(embeddingLen)}`);

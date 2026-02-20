@@ -1,451 +1,260 @@
-# Task Graph — Semantic Codebase Search Implementation
+# Task Graph — Semantic Codebase Search (P4)
 
-> P3 Output — 18 tasks decomposed into P4a/P4b/P4c phases with dependency edges and acceptance criteria.
+> P3 synthesis output: implementable tasks with hard dependencies, each task <=2 hours.
 
----
+## Task Count and Budget
 
-## Dependency Diagram
+- Total tasks: 18 (constraint: <=20)
+- All task estimates: <=2 hours
+- Phases: P4a (doc standards), P4b (extractor + pipeline), P4c (MCP + hooks)
 
+## Dependency Edges (Blocking)
+
+```text
+T01 -> T04
+T02 -> T04
+T03 -> T04
+
+T05 -> T06
+T06 -> T08
+T06 -> T09
+T08 -> T10
+T09 -> T10
+T07 -> T14
+T10 -> T14
+T11 -> T12
+T12 -> T14
+T13 -> T14
+
+T14 -> T15
+T15 -> T16
+T15 -> T17
+T16 -> T18
 ```
-T1 ──→ T2 ──→ T3 ──→ T4
-                       │
-T5 ──────────────────→ T6 ──→ T7 ──→ T8 ──→ T9 ──→ T10 ──→ T11 ──→ T12
-                                                               │
-                                                               ├──→ T13 ──→ T14 ──→ T15 ──→ T16
-                                                               │
-                                                               └──→ T17 ──→ T18
-```
 
-**Legend:** T1→T2 means T1 blocks T2 (T2 cannot start until T1 completes).
-
----
-
-## Phase P4a: Documentation Standards (T1–T4)
-
-### T1: ESLint JSDoc Configuration
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4a |
-| **Blocked by** | None |
-| **Blocks** | T2, T3 |
-| **Estimated effort** | 1 hour |
-| **Input docs** | `eslint-config-design.md`, `jsdoc-standard.md` |
-| **Output files** | `eslint.config.mjs`, `tsdoc.json`, `eslint-rules/require-since-semver.ts`, `eslint-rules/require-schema-annotations.ts`, `eslint-rules/index.ts` |
-
-**Description:** Install eslint-plugin-jsdoc, @typescript-eslint/parser, @typescript-eslint/eslint-plugin into root devDependencies via catalog. Create `eslint.config.mjs` with the three rule sets (jsdocRules, fileOverviewRules, moduleDocRules) from eslint-config-design.md. Create `tsdoc.json` with custom tag definitions. Implement the two custom rules. Add `lint:jsdoc` and `lint:jsdoc:fix` npm scripts to root package.json.
-
-**Acceptance criteria:**
-- `npx eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts'` runs without config errors
-- Custom tags (@domain, @provides, @depends, @errors) are recognized
-- Phase 1 override applied (match-description=warn, sort-tags=off, require-file-overview=off for non-index files)
-
----
-
-### T2: Docgen Configuration Update
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4a |
-| **Blocked by** | T1 |
-| **Blocks** | T3 |
-| **Estimated effort** | 30 minutes |
-| **Input docs** | `eslint-config-design.md` (docgen section) |
-| **Output files** | `tooling/cli/docgen.json`, `tooling/repo-utils/docgen.json` |
-
-**Description:** Update `docgen.json` in both existing packages to set `enforceDescriptions: true`, `enforceVersion: true`, and add test file exclusions. Verify `bunx @effect/docgen` still succeeds.
-
-**Acceptance criteria:**
-- `bunx turbo run docgen` completes without errors
-- Both packages have `enforceDescriptions: true`
-
----
-
-### T3: Backfill Existing Code JSDoc
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4a |
-| **Blocked by** | T1, T2 |
-| **Blocks** | T4 |
-| **Estimated effort** | 2 hours |
-| **Input docs** | `jsdoc-standard.md` (per-kind standards) |
-| **Output files** | All files in `tooling/repo-utils/src/`, `tooling/cli/src/` |
-
-**Description:** Add or improve JSDoc on all exported symbols to meet the tag requirement matrix. Add `@module` / `@packageDocumentation` headers to source files. Add `@category` tags. Add `.annotate()` metadata to schemas missing it. Add `@see` cross-references. This is the largest single task — focus on meeting Required (R) tags only; Should-have (S) tags can be deferred.
-
-**Acceptance criteria:**
-- `npx eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts'` reports zero errors (warnings acceptable)
-- Every exported symbol has: description (≥20 chars), `@since`, `@category`
-- Every index.ts has `@packageDocumentation`
-
----
-
-### T4: Lefthook Pre-commit Hook
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4a |
-| **Blocked by** | T3 |
-| **Blocks** | None |
-| **Estimated effort** | 30 minutes |
-| **Input docs** | `eslint-config-design.md` (lefthook section) |
-| **Output files** | `lefthook.yml` (or update existing) |
-
-**Description:** Configure lefthook pre-commit to run JSDoc lint on staged `.ts` files. Exclude test files and internal directories.
-
-**Acceptance criteria:**
-- `git commit` of a `.ts` file without JSDoc triggers lint warning/error
-- Test files and internal/ files are excluded
-
----
-
-## Phase P4b: Extractor & Pipeline (T5–T12)
-
-### T5: Package Scaffold
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4b |
-| **Blocked by** | None |
-| **Blocks** | T6 |
-| **Estimated effort** | 1 hour |
-| **Input docs** | `package-scaffolding.md` |
-| **Output files** | `tooling/codebase-search/package.json`, `tooling/codebase-search/tsconfig.json`, `tooling/codebase-search/vitest.config.ts`, `tooling/codebase-search/src/index.ts`, `tooling/codebase-search/src/errors.ts`, `tsconfig.packages.json` (updated), `.gitignore` (updated) |
-
-**Description:** Create the `tooling/codebase-search/` directory with all boilerplate files per package-scaffolding.md. Add dependencies to root catalog. Add project reference to tsconfig.packages.json. Define TaggedErrorClass errors (IndexNotFoundError, SymbolNotFoundError, EmbeddingModelError, SearchTimeoutError). Create the barrel index.ts. Verify `tsc -b` and `npx vitest run` both succeed (with empty test suite).
-
-**Acceptance criteria:**
-- `tsc -b tooling/codebase-search/tsconfig.json` succeeds
-- `bun install` resolves all dependencies
-- `npx vitest run --project codebase-search` exits cleanly
-
----
-
-### T6: IndexedSymbol Schema + Builders
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4b |
-| **Blocked by** | T5 |
-| **Blocks** | T7, T8, T9 |
-| **Estimated effort** | 1.5 hours |
-| **Input docs** | `indexed-symbol-schema.md` |
-| **Output files** | `tooling/codebase-search/src/schemas/IndexedSymbol.ts`, `tooling/codebase-search/src/schemas/IndexMeta.ts`, `tooling/codebase-search/test/extractor/KindClassifier.test.ts` |
-
-**Description:** Implement the `IndexedSymbol` interface, `SymbolKind` and `EffectPattern` unions, `ParamDoc` and `FieldDoc` types, `buildEmbeddingText()`, `buildKeywordText()`, `classifySymbol()`, `generateId()`, and `validateIndexedSymbol()` — all as Effect v4 Schemas where appropriate. Implement `IndexMeta` schema. Write tests for `classifySymbol` (all 9 paths), `buildEmbeddingText` (token range verification), and `buildKeywordText`.
-
-**Acceptance criteria:**
-- All types and functions exported and documented
-- `classifySymbol` tests cover all 9 symbol kinds
-- `buildEmbeddingText` produces 150–3000 character output for a sample symbol
-- `validateIndexedSymbol` catches missing id, short description, empty since
-
----
-
-### T7: JSDoc Extractor
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4b |
-| **Blocked by** | T6 |
-| **Blocks** | T9 |
-| **Estimated effort** | 2 hours |
-| **Input docs** | `docgen-vs-custom-evaluation.md`, `jsdoc-standard.md` |
-| **Output files** | `tooling/codebase-search/src/extractor/JsDocExtractor.ts`, `tooling/codebase-search/test/extractor/JsDocExtractor.test.ts` |
-
-**Description:** Implement JSDoc extraction using ts-morph for AST traversal and doctrine for JSDoc parsing. Extract: description, @since, @category, @example, @remarks, @see, @param, @returns, @throws/@errors, @provides, @depends, @domain, @deprecated, @packageDocumentation. Handle both standard and custom tags. Return a partial IndexedSymbol record covering all natural-language and tag fields.
-
-**Acceptance criteria:**
-- Extracts all 15 tags from a well-documented fixture file
-- Handles missing tags gracefully (returns null/empty array)
-- Extracts module-level @packageDocumentation
-- Extracts @example code blocks (raw string)
-- Tests use fixture files in test/fixtures/
-
----
-
-### T8: Effect Pattern Detector + Schema Annotation Extractor
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4b |
-| **Blocked by** | T6 |
-| **Blocks** | T9 |
-| **Estimated effort** | 2 hours |
-| **Input docs** | `embedding-pipeline-design.md` (AST extractor section), `indexed-symbol-schema.md` (EffectPattern type) |
-| **Output files** | `tooling/codebase-search/src/extractor/EffectPatternDetector.ts`, `tooling/codebase-search/src/extractor/SchemaAnnotationExtractor.ts`, `tooling/codebase-search/test/extractor/EffectPatternDetector.test.ts`, `tooling/codebase-search/test/extractor/SchemaAnnotationExtractor.test.ts` |
-
-**Description:** Implement `detectEffectPattern()` covering all 17 EffectPattern variants using ts-morph AST analysis. Implement `extractSchemaAnnotations()` to parse `.annotate({ identifier, title, description })` and `.annotateKey({ description })` from node text. Handle TaggedErrorClass heritage clause detection. Return partial IndexedSymbol fields for classification and schema metadata.
-
-**Acceptance criteria:**
-- Detects all 17 EffectPattern variants from fixture files
-- Extracts .annotate() with identifier, title, description
-- Extracts .annotateKey() field descriptions from S.Struct schemas
-- Detects TaggedErrorClass via extends clause
-- Returns null for non-Effect symbols
-
----
-
-### T9: Symbol Assembler + File Scanner
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4b |
-| **Blocked by** | T7, T8 |
-| **Blocks** | T10 |
-| **Estimated effort** | 1.5 hours |
-| **Input docs** | `embedding-pipeline-design.md` (file scanner, AST extractor) |
-| **Output files** | `tooling/codebase-search/src/extractor/SymbolAssembler.ts`, `tooling/codebase-search/src/extractor/FileScanner.ts`, `tooling/codebase-search/test/extractor/SymbolAssembler.test.ts`, `tooling/codebase-search/test/extractor/FileScanner.test.ts` |
-
-**Description:** Implement `SymbolAssembler` that merges JSDoc extraction + Effect extraction into complete `IndexedSymbol` records. Calls `classifySymbol()`, `generateId()`, `buildEmbeddingText()`, `buildKeywordText()`, and computes `contentHash`. Implement `FileScanner` with content-hash change detection: full scan mode (all files → added), incremental mode (compare against stored hashes → added/modified/deleted/unchanged). Glob pattern: `tooling/*/src/**/*.ts`, excluding test/internal/declaration files.
-
-**Acceptance criteria:**
-- Assembler produces valid IndexedSymbol from combined JSDoc + Effect inputs
-- FileScanner detects added, modified, deleted, and unchanged files
-- Incremental mode reads from and writes to `.code-index/file-hashes.json`
-- Full mode treats all files as "added"
-
----
-
-### T10: Embedding Service
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4b |
-| **Blocked by** | T9 |
-| **Blocks** | T11 |
-| **Estimated effort** | 1.5 hours |
-| **Input docs** | `embedding-pipeline-design.md` (embedding model, batch processing) |
-| **Output files** | `tooling/codebase-search/src/indexer/EmbeddingService.ts`, `tooling/codebase-search/test/indexer/EmbeddingService.test.ts` |
-
-**Description:** Implement `EmbeddingService` as a Context.Tag service wrapping `@huggingface/transformers` pipeline for `nomic-ai/CodeRankEmbed`. Provide `embed(text)` and `embedBatch(texts)` methods returning `Float32Array[768]`. Implement batch processing with configurable batch size (default 32). Create `EmbeddingServiceLive` layer. Create `EmbeddingServiceMock` layer for tests (returns deterministic vectors).
-
-**Acceptance criteria:**
-- `embed("test text")` returns Float32Array of length 768
-- `embedBatch` processes multiple texts and returns matching-length array
-- Mock layer works in tests without model download
-- Batch size is configurable
-
----
-
-### T11: LanceDB + BM25 Storage
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4b |
-| **Blocked by** | T10 |
-| **Blocks** | T12, T13, T17 |
-| **Estimated effort** | 2 hours |
-| **Input docs** | `embedding-pipeline-design.md` (LanceDB storage, BM25 index) |
-| **Output files** | `tooling/codebase-search/src/indexer/LanceDbWriter.ts`, `tooling/codebase-search/src/indexer/Bm25Writer.ts`, `tooling/codebase-search/test/indexer/LanceDbWriter.test.ts`, `tooling/codebase-search/test/indexer/Bm25Writer.test.ts` |
-
-**Description:** Implement `LanceDbWriter` with: `createTable()` (symbols table with 21 columns), `upsert()` (delete-then-insert by file_path), `deleteByFiles()`, `vectorSearch()` (cosine similarity with optional kind/package filter). Implement `Bm25Writer` with: `createIndex()`, `addDocuments()`, `removeBySymbolIds()`, `search()`, `save()` (to bm25-index.json), `load()`. Configure BM25 with k1=1.2, b=0.75, camelCase tokenization.
-
-**Acceptance criteria:**
-- LanceDB table creation with all 21 columns
-- Upsert correctly deletes old rows for modified files before inserting
-- Vector search returns results sorted by cosine similarity
-- BM25 search matches camelCase-split tokens
-- BM25 index persists to and loads from JSON file
-
----
-
-### T12: Pipeline Orchestrator
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4b |
-| **Blocked by** | T11 |
-| **Blocks** | None (but feeds into T13, T14 implicitly) |
-| **Estimated effort** | 1.5 hours |
-| **Input docs** | `embedding-pipeline-design.md` (incremental strategy, performance targets) |
-| **Output files** | `tooling/codebase-search/src/indexer/Pipeline.ts`, `tooling/codebase-search/test/indexer/Pipeline.test.ts` |
-
-**Description:** Implement the full indexing pipeline orchestrator: (1) FileScanner → ScanResult, (2) AST extraction via SymbolAssembler for added+modified files, (3) batch embedding via EmbeddingService, (4) LanceDB upsert + BM25 update, (5) save file hashes + update IndexMeta. Support both `full` and `incremental` modes. Support optional `package` filter. Return stats: filesScanned, filesChanged, symbolsIndexed, symbolsRemoved, durationMs.
-
-**Acceptance criteria:**
-- Full index mode processes all source files
-- Incremental mode only processes changed files
-- Package filter restricts to single package
-- Returns correct stats object
-- Saves updated file hashes and IndexMeta after completion
-
----
-
-## Phase P4c: MCP Server & Hooks (T13–T18)
-
-### T13: Hybrid Search + Relation Resolver
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4c |
-| **Blocked by** | T11 |
-| **Blocks** | T14 |
-| **Estimated effort** | 1.5 hours |
-| **Input docs** | `embedding-pipeline-design.md` (RRF), `mcp-api-design.md` (search algorithm, relation resolution) |
-| **Output files** | `tooling/codebase-search/src/search/HybridSearch.ts`, `tooling/codebase-search/src/search/KeywordSearch.ts`, `tooling/codebase-search/src/search/RelationResolver.ts`, `tooling/codebase-search/test/search/HybridSearch.test.ts`, `tooling/codebase-search/test/search/KeywordSearch.test.ts`, `tooling/codebase-search/test/search/RelationResolver.test.ts` |
-
-**Description:** Implement `HybridSearch`: embed query → parallel vector + BM25 search → RRF fusion (k=60) → score normalization → metadata filter → truncate. Implement `KeywordSearch`: BM25-only search for hooks (no embedding needed). Implement `RelationResolver`: resolve imports, imported-by, same-module, similar, provides, depends-on relationships from LanceDB metadata.
-
-**Acceptance criteria:**
-- Hybrid search returns fused results with normalized 0–1 scores
-- RRF correctly handles results appearing in one or both lists
-- KeywordSearch returns results without requiring embedding model
-- RelationResolver resolves all 6 relation types
-- Filters (kind, package) correctly narrow results
-
----
-
-### T14: MCP Server + Tools
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4c |
-| **Blocked by** | T13 |
-| **Blocks** | T15 |
-| **Estimated effort** | 2 hours |
-| **Input docs** | `mcp-api-design.md` (all 4 tools) |
-| **Output files** | `tooling/codebase-search/src/mcp/Server.ts`, `tooling/codebase-search/src/mcp/SearchCodebaseTool.ts`, `tooling/codebase-search/src/mcp/FindRelatedTool.ts`, `tooling/codebase-search/src/mcp/BrowseSymbolsTool.ts`, `tooling/codebase-search/src/mcp/ReindexTool.ts`, `tooling/codebase-search/src/bin.ts`, `tooling/codebase-search/test/mcp/*.test.ts` |
-
-**Description:** Implement MCP server using `@modelcontextprotocol/sdk` with stdio transport. Register 4 tools with input/output schemas matching mcp-api-design.md. Each tool handler calls into the appropriate search/indexer module. Implement consistent error format with codes: INDEX_NOT_FOUND, SYMBOL_NOT_FOUND, INDEX_STALE, EMBEDDING_MODEL_ERROR, SEARCH_TIMEOUT. Implement output formatters matching the compact result format (∼150 tokens per result). Create `bin.ts` entry point.
-
-**Acceptance criteria:**
-- MCP server starts on stdio and responds to `tools/list`
-- All 4 tools registered with correct input schemas
-- search_codebase returns compact formatted results (≤300 tokens per result)
-- browse_symbols works at all 3 levels (packages, modules, symbols)
-- Error responses include code, message, and suggestion
-- bin.ts runs as `node dist/bin.js`
-
----
-
-### T15: Output Formatting + Token Budget Compliance
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4c |
-| **Blocked by** | T14 |
-| **Blocks** | T16 |
-| **Estimated effort** | 1 hour |
-| **Input docs** | `mcp-api-design.md` (token budgets, output formatting), `hook-integration-design.md` (context injection format) |
-| **Output files** | Updates to T14 output files |
-
-**Description:** Verify and tune output formatters for all MCP tools and hooks to meet token budgets. search_codebase: ∼800–1300 tokens for 5 results. find_related: ∼430–630 tokens for 5 results. browse_symbols: ∼200–1000 tokens. Hook injection: ∼300–800 tokens. Ensure consistent formatting between MCP tool output and hook injection (same result format, different wrapping). Truncate signatures at 200 chars in MCP tools, 120 chars in hooks.
-
-**Acceptance criteria:**
-- Default search (5 results) fits within 1500 tokens
-- Hook injection fits within 800 tokens
-- Signatures truncated at appropriate lengths
-- Formatting is consistent between tools and hooks
-
----
-
-### T16: Integration Configuration
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4c |
-| **Blocked by** | T15 |
-| **Blocks** | None |
-| **Estimated effort** | 30 minutes |
-| **Input docs** | `package-scaffolding.md` (MCP config, hook config) |
-| **Output files** | `.mcp.json` (updated), `.claude/settings.json` (updated) |
-
-**Description:** Add `codebase-search` MCP server to `.mcp.json`. Add SessionStart and UserPromptSubmit hooks to `.claude/settings.json`. Verify no conflict with existing Graphiti MCP server (`graphiti-memory`) or existing hooks. Add `.code-index/` to `.gitignore`.
-
-**Acceptance criteria:**
-- MCP server name `codebase-search` does not conflict with `graphiti-memory`
-- Hook events (SessionStart, UserPromptSubmit) do not conflict with existing Stop hook
-- `.gitignore` includes `.code-index/`
-
----
-
-### T17: SessionStart Hook
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4c |
-| **Blocked by** | T11 |
-| **Blocks** | T18 |
-| **Estimated effort** | 1 hour |
-| **Input docs** | `hook-integration-design.md` (SessionStart section) |
-| **Output files** | `tooling/codebase-search/src/hooks/SessionStart.ts`, `tooling/codebase-search/src/hooks/session-start-entry.ts`, `tooling/codebase-search/test/hooks/SessionStart.test.ts` |
-
-**Description:** Implement SessionStart hook: read index metadata, compute per-package/per-kind stats, check staleness (>1 hour warning), format compact overview (∼200–400 tokens). Entry point reads JSON from stdin, outputs formatted markdown to stdout. Graceful degradation: if no index exists, output "run reindex" suggestion. Never throw — return empty string on error.
-
-**Acceptance criteria:**
-- Outputs project overview when index exists
-- Outputs "run reindex" message when no index exists
-- Outputs staleness warning when index > 1 hour old
-- Completes within 5000ms timeout
-- Never throws (returns empty string on error)
-
----
-
-### T18: UserPromptSubmit Hook
-
-| Field | Value |
-|-------|-------|
-| **Phase** | P4c |
-| **Blocked by** | T17 |
-| **Blocks** | None |
-| **Estimated effort** | 1.5 hours |
-| **Input docs** | `hook-integration-design.md` (UserPromptSubmit section) |
-| **Output files** | `tooling/codebase-search/src/hooks/PromptSubmit.ts`, `tooling/codebase-search/src/hooks/prompt-submit-entry.ts`, `tooling/codebase-search/test/hooks/PromptSubmit.test.ts` |
-
-**Description:** Implement UserPromptSubmit hook: read prompt from stdin, apply `shouldSkipSearch()` (skip short/meta/git/build messages), apply `constructSearchQuery()` (strip prefixes, truncate), execute BM25-only keyword search, filter by minScore 0.35, format as `<system-reminder>` block (∼300–800 tokens). Entry point reads JSON from stdin, outputs formatted context injection to stdout. Never throw.
-
-**Acceptance criteria:**
-- Skips prompts shorter than 15 chars
-- Skips slash commands (/commit, /help)
-- Skips git operations (commit, push, merge)
-- Strips "please create a" style prefixes
-- Returns BM25 results wrapped in `<system-reminder>` tags
-- Returns empty string when no relevant results (score < 0.35)
-- Completes within 5000ms timeout
-- Never throws
-
----
-
-## Summary Table
-
-| Task | Phase | Effort | Blocked By | Description |
-|------|-------|--------|------------|-------------|
-| T1 | P4a | 1h | — | ESLint JSDoc configuration |
-| T2 | P4a | 0.5h | T1 | Docgen config update |
-| T3 | P4a | 2h | T1, T2 | Backfill existing code JSDoc |
-| T4 | P4a | 0.5h | T3 | Lefthook pre-commit |
-| T5 | P4b | 1h | — | Package scaffold |
-| T6 | P4b | 1.5h | T5 | IndexedSymbol schema + builders |
-| T7 | P4b | 2h | T6 | JSDoc extractor |
-| T8 | P4b | 2h | T6 | Effect pattern detector + schema annotation extractor |
-| T9 | P4b | 1.5h | T7, T8 | Symbol assembler + file scanner |
-| T10 | P4b | 1.5h | T9 | Embedding service |
-| T11 | P4b | 2h | T10 | LanceDB + BM25 storage |
-| T12 | P4b | 1.5h | T11 | Pipeline orchestrator |
-| T13 | P4c | 1.5h | T11 | Hybrid search + relation resolver |
-| T14 | P4c | 2h | T13 | MCP server + tools |
-| T15 | P4c | 1h | T14 | Output formatting + token budget |
-| T16 | P4c | 0.5h | T15 | Integration configuration |
-| T17 | P4c | 1h | T11 | SessionStart hook |
-| T18 | P4c | 1.5h | T17 | UserPromptSubmit hook |
-
-**Totals:**
-- P4a: 4 tasks, 4 hours
-- P4b: 8 tasks, 13.5 hours
-- P4c: 6 tasks, 7.5 hours
-- **Grand total: 18 tasks, 25 hours**
-
----
-
-## Parallelism Opportunities
-
-Within each phase, some tasks can run in parallel:
-
-- **P4a:** T1 is independent. T2 depends on T1. T3 depends on T1+T2. T4 depends on T3. (Mostly serial.)
-- **P4b:** T5 is independent. T7 and T8 can run in parallel after T6. T10 waits on T9. (T7 ∥ T8 saves 2h.)
-- **P4c:** T13 and T17 can run in parallel after T11. T14 waits on T13. T18 waits on T17. (T13 ∥ T17 saves 1h.)
-- **Cross-phase:** P4a and P4b-T5 can start in parallel since T5 has no dependency on T1–T4. However, T3 (backfill JSDoc) improves extractor test quality so P4a completion before P4b-T7 is recommended.
-
-**Critical path:** T5 → T6 → T7/T8 → T9 → T10 → T11 → T13 → T14 → T15 → T16 = 16.5 hours
+## P4a — Documentation Standards
+
+### T01 — Root ESLint JSDoc Baseline
+- Phase: P4a
+- Estimate: 1.5h
+- Depends on: none
+- Input files: `specs/pending/semantic-codebase-search/outputs/eslint-config-design.md`, `specs/pending/semantic-codebase-search/outputs/jsdoc-standard.md`
+- Output files: `eslint.config.mjs`, `package.json`
+- Description: Install and configure `eslint-plugin-jsdoc` + TypeScript parser integration, add `lint:jsdoc` scripts, and enable required presence/quality/tag rules.
+- Acceptance criteria:
+  - `npx eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts'` runs without config errors.
+  - `jsdoc/require-jsdoc`, `jsdoc/require-description`, `jsdoc/check-tag-names` are active.
+  - Root scripts include `lint:jsdoc` and `lint:jsdoc:fix`.
+
+### T02 — `tsdoc.json` Custom Tag Contract
+- Phase: P4a
+- Estimate: 0.5h
+- Depends on: none
+- Input files: `specs/pending/semantic-codebase-search/outputs/jsdoc-standard.md`, `specs/pending/semantic-codebase-search/outputs/eslint-config-design.md`
+- Output files: `tsdoc.json`
+- Description: Add custom tags (`@domain`, `@provides`, `@depends`, `@errors`) and supported standard tags used by the extractor/linter/docgen toolchain.
+- Acceptance criteria:
+  - `tsdoc.json` includes all custom tags with correct `allowMultiple` settings.
+  - `@packageDocumentation`, `@since`, `@category`, `@param`, `@returns`, `@throws` are marked supported.
+
+### T03 — Docgen Enforcement Update
+- Phase: P4a
+- Estimate: 0.5h
+- Depends on: none
+- Input files: `specs/pending/semantic-codebase-search/outputs/eslint-config-design.md`
+- Output files: `tooling/cli/docgen.json`, `tooling/codebase-search/docgen.json`
+- Description: Align package docgen configs to enforce descriptions/version and exclude tests/internal files.
+- Acceptance criteria:
+  - Both `docgen.json` files set `enforceDescriptions: true` and `enforceVersion: true`.
+  - `bunx turbo run docgen --filter=@beep/repo-cli --filter=@beep/codebase-search` completes.
+
+### T04 — Existing Exported JSDoc Backfill
+- Phase: P4a
+- Estimate: 2.0h
+- Depends on: T01, T02, T03
+- Input files: `specs/pending/semantic-codebase-search/outputs/jsdoc-standard.md`
+- Output files: `tooling/cli/src/**/*.ts`, `tooling/codebase-search/src/**/*.ts`
+- Description: Backfill exported symbols to satisfy required tags/description quality and module docs.
+- Acceptance criteria:
+  - Exported symbols have non-empty descriptions + `@since`; non-module symbols have `@category`.
+  - Index/barrel files contain `@packageDocumentation`.
+  - ESLint JSDoc run reports zero errors (warnings allowed).
+
+## P4b — Extractor + Pipeline
+
+### T05 — Package Scaffold and Project Wiring
+- Phase: P4b
+- Estimate: 1.0h
+- Depends on: none
+- Input files: `specs/pending/semantic-codebase-search/outputs/package-scaffolding.md`
+- Output files: `tooling/codebase-search/package.json`, `tooling/codebase-search/tsconfig.json`, `tooling/codebase-search/docgen.json`, `tooling/codebase-search/vitest.config.ts`, `tsconfig.packages.json`, `.gitignore`
+- Description: Ensure package structure/config matches scaffold (catalog dependencies, scripts, references, index path gitignore).
+- Acceptance criteria:
+  - `tsc -b tooling/codebase-search/tsconfig.json` succeeds.
+  - `tooling/codebase-search` is present in `tsconfig.packages.json` references.
+  - `.gitignore` contains `.code-index/`.
+
+### T06 — IndexedSymbol + Error Types + Barrels
+- Phase: P4b
+- Estimate: 1.5h
+- Depends on: T05
+- Input files: `specs/pending/semantic-codebase-search/outputs/indexed-symbol-schema.md`
+- Output files: `tooling/codebase-search/src/IndexedSymbol.ts`, `tooling/codebase-search/src/errors.ts`, `tooling/codebase-search/src/index.ts`, `tooling/codebase-search/test/IndexedSymbol.test.ts`, `tooling/codebase-search/test/errors.test.ts`
+- Description: Implement canonical symbol schema, classifier/builders, validation helpers, and tagged errors used across index/search/MCP.
+- Acceptance criteria:
+  - `classifySymbol` covers all symbol kinds in tests.
+  - `buildEmbeddingText` and `buildKeywordText` produce deterministic output.
+  - Error constructors are `S.TaggedErrorClass` based and exported from barrel.
+
+### T07 — Incremental File Scanner
+- Phase: P4b
+- Estimate: 1.5h
+- Depends on: T05
+- Input files: `specs/pending/semantic-codebase-search/outputs/embedding-pipeline-design.md`
+- Output files: `tooling/codebase-search/src/extractor/FileScanner.ts`, `tooling/codebase-search/test/extractor/FileScanner.test.ts`
+- Description: Implement full/incremental scan using content hashes and `.code-index/file-hashes.json` persistence.
+- Acceptance criteria:
+  - Detects added/modified/deleted/unchanged files.
+  - Full mode marks all source files as added.
+  - Ignores tests/spec/internal/declaration files.
+
+### T08 — ts-morph + doctrine JSDoc Extractor
+- Phase: P4b
+- Estimate: 2.0h
+- Depends on: T06
+- Input files: `specs/pending/semantic-codebase-search/outputs/docgen-vs-custom-evaluation.md`, `specs/pending/semantic-codebase-search/outputs/jsdoc-standard.md`
+- Output files: `tooling/codebase-search/src/extractor/JsDocExtractor.ts`, `tooling/codebase-search/test/extractor/JsDocExtractor.test.ts`
+- Description: Extract JSDoc metadata and custom tags required by `IndexedSymbol`.
+- Acceptance criteria:
+  - Extracts description, since, category, remarks, examples, params, returns, throws/errors, domain, provides, depends, see refs.
+  - Handles module-level `@packageDocumentation`.
+  - Gracefully returns empty/null for missing tags.
+
+### T09 — Effect Pattern + Schema Annotation Extractors
+- Phase: P4b
+- Estimate: 2.0h
+- Depends on: T06
+- Input files: `specs/pending/semantic-codebase-search/outputs/embedding-pipeline-design.md`, `specs/pending/semantic-codebase-search/outputs/indexed-symbol-schema.md`
+- Output files: `tooling/codebase-search/src/extractor/EffectPatternDetector.ts`, `tooling/codebase-search/test/extractor/EffectPatternDetector.test.ts`
+- Description: Detect Effect patterns (Schema/Layer/Context/Command/Effect.fn) and extract `.annotate()` / `.annotateKey()` metadata.
+- Acceptance criteria:
+  - Tests cover all `EffectPattern` variants defined in schema.
+  - `.annotate({ identifier, title, description })` extraction works.
+  - Tagged error pattern detection works via AST (not regex-only fallback).
+
+### T10 — IndexedSymbol Assembler (Two-Pass Import Resolution)
+- Phase: P4b
+- Estimate: 2.0h
+- Depends on: T08, T09
+- Input files: `specs/pending/semantic-codebase-search/outputs/indexed-symbol-schema.md`, `specs/pending/semantic-codebase-search/outputs/cross-validation-report.md`
+- Output files: `tooling/codebase-search/src/extractor/SymbolAssembler.ts`, `tooling/codebase-search/test/extractor/SymbolAssembler.test.ts`
+- Description: Merge extractor outputs into canonical symbols and resolve imports to symbol IDs with two passes.
+- Acceptance criteria:
+  - First pass builds symbol ID registry.
+  - Second pass resolves internal imports to `imports: string[]` symbol IDs.
+  - `validateIndexedSymbol` passes for generated symbols from fixtures.
+
+### T11 — Embedding Service (CodeRankEmbed + Mock)
+- Phase: P4b
+- Estimate: 1.5h
+- Depends on: T06
+- Input files: `specs/pending/semantic-codebase-search/outputs/embedding-pipeline-design.md`
+- Output files: `tooling/codebase-search/src/indexer/EmbeddingService.ts`, `tooling/codebase-search/test/indexer/EmbeddingService.test.ts`
+- Description: Implement embedding service layer with single and batch embedding APIs, plus deterministic test mock.
+- Acceptance criteria:
+  - `embed` returns 768-dim vector.
+  - `embedBatch` returns one vector per input string.
+  - Tests run with mock service and do not download model.
+
+### T12 — LanceDB Writer (`SymbolRow` Mapping)
+- Phase: P4b
+- Estimate: 2.0h
+- Depends on: T11
+- Input files: `specs/pending/semantic-codebase-search/outputs/embedding-pipeline-design.md`, `specs/pending/semantic-codebase-search/outputs/indexed-symbol-schema.md`
+- Output files: `tooling/codebase-search/src/indexer/LanceDbWriter.ts`, `tooling/codebase-search/test/indexer/LanceDbWriter.test.ts`
+- Description: Implement table creation, delete-then-insert upsert, vector search, and metadata filters using authoritative `SymbolRow` columns.
+- Acceptance criteria:
+  - Table includes all required columns (`end_line`, `effect_pattern`, `title` included).
+  - Upsert replaces rows for modified/deleted files.
+  - Vector search supports optional `kind` and `package` filters.
+
+### T13 — BM25 Writer + Persistence
+- Phase: P4b
+- Estimate: 1.5h
+- Depends on: T06
+- Input files: `specs/pending/semantic-codebase-search/outputs/embedding-pipeline-design.md`, `specs/pending/semantic-codebase-search/outputs/indexed-symbol-schema.md`
+- Output files: `tooling/codebase-search/src/indexer/Bm25Writer.ts`, `tooling/codebase-search/test/indexer/Bm25Writer.test.ts`
+- Description: Implement keyword index build/update/search and JSON persistence in `.code-index/bm25-index.json`.
+- Acceptance criteria:
+  - Index builds from `buildKeywordText`.
+  - Search returns ranked symbol IDs.
+  - Save/load round-trip preserves equivalent search results.
+
+### T14 — Full Pipeline Orchestration
+- Phase: P4b
+- Estimate: 2.0h
+- Depends on: T07, T10, T12, T13
+- Input files: `specs/pending/semantic-codebase-search/outputs/embedding-pipeline-design.md`, `specs/pending/semantic-codebase-search/outputs/mcp-api-design.md`
+- Output files: `tooling/codebase-search/src/indexer/Pipeline.ts`, `tooling/codebase-search/test/indexer/Pipeline.test.ts`
+- Description: Wire scanner -> extractor -> embedder -> LanceDB -> BM25 with full/incremental modes and stats output.
+- Acceptance criteria:
+  - `mode=full` indexes all files.
+  - `mode=incremental` only processes changed files.
+  - Returns `{ filesScanned, filesChanged, symbolsIndexed, symbolsRemoved, durationMs }`.
+
+## P4c — MCP + Hooks
+
+### T15 — MCP Server Skeleton + Shared Formatters
+- Phase: P4c
+- Estimate: 1.5h
+- Depends on: T14
+- Input files: `specs/pending/semantic-codebase-search/outputs/mcp-api-design.md`
+- Output files: `tooling/codebase-search/src/mcp/McpServer.ts`, `tooling/codebase-search/src/mcp/formatters.ts`, `tooling/codebase-search/src/bin.ts`, `tooling/codebase-search/test/mcp/McpServer.test.ts`
+- Description: Stand up MCP server transport, register tool schemas, and centralize response/error formatting contracts.
+- Acceptance criteria:
+  - Server responds to `tools/list` with all 4 tool names.
+  - Error format matches `{ error: { code, message, suggestion } }`.
+  - `node dist/bin.js` starts server in stdio mode.
+
+### T16 — `search_codebase` + `browse_symbols` Tools
+- Phase: P4c
+- Estimate: 2.0h
+- Depends on: T15
+- Input files: `specs/pending/semantic-codebase-search/outputs/mcp-api-design.md`, `specs/pending/semantic-codebase-search/outputs/embedding-pipeline-design.md`
+- Output files: `tooling/codebase-search/src/mcp/SearchCodebaseTool.ts`, `tooling/codebase-search/src/mcp/BrowseSymbolsTool.ts`, `tooling/codebase-search/test/mcp/SearchCodebaseTool.test.ts`, `tooling/codebase-search/test/mcp/BrowseSymbolsTool.test.ts`
+- Description: Implement hybrid search tool + package/module/symbol browsing tool with schema-compliant outputs.
+- Acceptance criteria:
+  - `search_codebase` returns filtered, scored results with `searchMode`.
+  - `browse_symbols` works at `packages`, `modules`, and `symbols` levels.
+  - Default token budget target for 5 search results is met.
+
+### T17 — `find_related` + `reindex` Tools
+- Phase: P4c
+- Estimate: 2.0h
+- Depends on: T15
+- Input files: `specs/pending/semantic-codebase-search/outputs/mcp-api-design.md`, `specs/pending/semantic-codebase-search/outputs/indexed-symbol-schema.md`
+- Output files: `tooling/codebase-search/src/mcp/FindRelatedTool.ts`, `tooling/codebase-search/src/mcp/ReindexTool.ts`, `tooling/codebase-search/test/mcp/FindRelatedTool.test.ts`, `tooling/codebase-search/test/mcp/ReindexTool.test.ts`
+- Description: Implement relationship navigation and index rebuild tool endpoints.
+- Acceptance criteria:
+  - Supports relations: `imports`, `imported-by`, `same-module`, `similar`, `provides`, `depends-on`.
+  - `reindex` supports `incremental` and `full` modes with stats.
+  - `SYMBOL_NOT_FOUND` and `INDEX_NOT_FOUND` error paths are tested.
+
+### T18 — Claude Hooks (`SessionStart`, `UserPromptSubmit`)
+- Phase: P4c
+- Estimate: 2.0h
+- Depends on: T16
+- Input files: `specs/pending/semantic-codebase-search/outputs/hook-integration-design.md`, `specs/pending/semantic-codebase-search/outputs/mcp-api-design.md`
+- Output files: `tooling/codebase-search/src/hooks/SessionStart.ts`, `tooling/codebase-search/src/hooks/PromptSubmit.ts`, `tooling/codebase-search/src/hooks/session-start-entry.ts`, `tooling/codebase-search/src/hooks/prompt-submit-entry.ts`, `tooling/codebase-search/test/hooks/SessionStart.test.ts`, `tooling/codebase-search/test/hooks/PromptSubmit.test.ts`, `.claude/settings.json`, `.mcp.json`
+- Description: Implement hook entrypoints and formatting; SessionStart shows index overview, PromptSubmit injects BM25 context with skip heuristics.
+- Acceptance criteria:
+  - SessionStart output includes symbol/package summary when index exists.
+  - PromptSubmit skips short/meta prompts and returns empty string when irrelevant.
+  - PromptSubmit output is wrapped in `<system-reminder>` and remains <=800 tokens.
+  - Hook failures degrade gracefully (no throw; empty output).
+
+## Critical Path
+
+`T05 -> T06 -> (T08,T09) -> T10 -> T11 -> T12 -> T14 -> T15 -> T16 -> T18`
+
+Estimated critical-path effort: 16.5h.

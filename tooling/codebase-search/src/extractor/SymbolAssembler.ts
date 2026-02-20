@@ -404,83 +404,181 @@ export const assembleSymbols = (
 export const resolveImports = (
   symbols: ReadonlyArray<IndexedSymbol>,
   sourceFiles: ReadonlyArray<tsMorph.SourceFile>,
-  _fileToSymbolIds: ReadonlyMap<string, ReadonlyArray<string>>
+  fileToSymbolIds: ReadonlyMap<string, ReadonlyArray<string>>
 ): ReadonlyArray<IndexedSymbol> => {
-  // Build a map from symbol name to symbol IDs for quick lookup
+  const normalizePath = (value: string): string => value.replace(/\\/g, "/");
+  const makeFileAndNameKey = (filePath: string, symbolName: string): string =>
+    `${normalizePath(filePath)}::${symbolName}`;
+  const appendUnique = (target: Array<string>, value: string): void => {
+    if (!target.includes(value)) {
+      target.push(value);
+    }
+  };
+  const isSameList = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean =>
+    left.length === right.length && left.every((value, index) => value === (right[index] ?? ""));
+
+  // Build a symbol registry by name and by {file,name}
   const nameToIds = MutableHashMap.empty<string, Array<string>>();
+  const fileAndNameToId = MutableHashMap.empty<string, string>();
   pipe(
     symbols,
     A.forEach((sym) => {
       const existing = MutableHashMap.get(nameToIds, sym.name);
       if (O.isSome(existing)) {
-        existing.value.push(sym.id);
+        appendUnique(existing.value, sym.id);
       } else {
         MutableHashMap.set(nameToIds, sym.name, [sym.id]);
       }
+
+      MutableHashMap.set(fileAndNameToId, makeFileAndNameKey(sym.filePath, sym.name), sym.id);
     })
   );
+
+  // Build path -> source file map for fast lookup
+  const sourceFileByPath = MutableHashMap.empty<string, tsMorph.SourceFile>();
+  pipe(
+    sourceFiles,
+    A.forEach((sf) => {
+      MutableHashMap.set(sourceFileByPath, normalizePath(sf.getFilePath()), sf);
+    })
+  );
+
+  const normalizeReference = (reference: string): string => {
+    if (Str.includes("/")(reference)) {
+      return reference;
+    }
+
+    const direct = MutableHashMap.get(nameToIds, reference);
+    if (O.isSome(direct) && direct.value.length === 1) {
+      return direct.value[0] ?? reference;
+    }
+
+    return reference;
+  };
 
   return pipe(
     symbols,
     A.map((sym): IndexedSymbol => {
-      // Find the source file for this symbol
-      const sourceFile = pipe(
-        sourceFiles,
-        A.findFirst((sf) => sf.getFilePath() === sym.filePath)
-      );
-
-      if (O.isNone(sourceFile)) return sym;
-
-      // Get import declarations from this source file
-      const importDecls = sourceFile.value.getImportDeclarations();
+      const sourceFile = MutableHashMap.get(sourceFileByPath, normalizePath(sym.filePath));
       const importedIds = A.empty<string>();
+      if (O.isSome(sourceFile)) {
+        const importDecls = sourceFile.value.getImportDeclarations();
 
-      pipe(
-        A.fromIterable(importDecls),
-        A.forEach((importDecl) => {
-          // Get named imports
-          const namedImports = importDecl.getNamedImports();
-          pipe(
-            A.fromIterable(namedImports),
-            A.forEach((named) => {
-              const importedName = named.getName();
-              const matchingIds = MutableHashMap.get(nameToIds, importedName);
-              if (O.isSome(matchingIds)) {
-                pipe(
-                  A.fromIterable(matchingIds.value),
-                  A.forEach((id) => {
-                    importedIds.push(id);
-                  })
+        pipe(
+          A.fromIterable(importDecls),
+          A.forEach((importDecl) => {
+            const importedSourceFile = importDecl.getModuleSpecifierSourceFile();
+            const importedSourcePath = pipe(
+              O.fromNullishOr(importedSourceFile),
+              O.map((sf) => normalizePath(sf.getFilePath()))
+            );
+
+            // Get named imports
+            const namedImports = importDecl.getNamedImports();
+            pipe(
+              A.fromIterable(namedImports),
+              A.forEach((named) => {
+                const importedName = named.getName();
+                const resolvedId = pipe(
+                  importedSourcePath,
+                  O.flatMap((sourcePath) =>
+                    MutableHashMap.get(fileAndNameToId, makeFileAndNameKey(sourcePath, importedName))
+                  )
                 );
-              }
-            })
-          );
 
-          // Get default import
-          const defaultImport = importDecl.getDefaultImport();
-          if (defaultImport !== undefined) {
-            const defaultName = defaultImport.getText();
-            const matchingIds = MutableHashMap.get(nameToIds, defaultName);
-            if (O.isSome(matchingIds)) {
+                if (O.isSome(resolvedId)) {
+                  appendUnique(importedIds, resolvedId.value);
+                }
+              })
+            );
+
+            // Get default import
+            const defaultImport = importDecl.getDefaultImport();
+            if (defaultImport !== undefined) {
+              const defaultName = defaultImport.getText();
+              const resolvedId = pipe(
+                importedSourcePath,
+                O.flatMap((sourcePath) =>
+                  MutableHashMap.get(fileAndNameToId, makeFileAndNameKey(sourcePath, defaultName))
+                )
+              );
+
+              if (O.isSome(resolvedId)) {
+                appendUnique(importedIds, resolvedId.value);
+              }
+            }
+
+            // Fallback for precomputed file->symbol registry, useful in tests.
+            const importedFilePath = pipe(
+              importedSourcePath,
+              O.flatMap((sourcePath) => O.fromNullishOr(fileToSymbolIds.get(sourcePath)))
+            );
+            if (O.isSome(importedFilePath) && A.isArrayNonEmpty(namedImports)) {
+              const firstImportName = namedImports[0].getName();
               pipe(
-                A.fromIterable(matchingIds.value),
+                importedFilePath.value,
                 A.forEach((id) => {
-                  importedIds.push(id);
+                  if (id.endsWith(`/${firstImportName}`)) {
+                    appendUnique(importedIds, id);
+                  }
                 })
               );
             }
-          }
-        })
-      );
+          })
+        );
+      }
 
-      if (A.isArrayNonEmpty(importedIds)) {
-        return { ...sym, imports: importedIds };
+      const normalizedProvides = pipe(sym.provides, A.map(normalizeReference), A.dedupe);
+
+      const normalizedDependsOn = pipe(sym.dependsOn, A.map(normalizeReference), A.dedupe);
+
+      if (
+        (A.isArrayNonEmpty(importedIds) && !isSameList(sym.imports, importedIds)) ||
+        !isSameList(sym.provides, normalizedProvides) ||
+        !isSameList(sym.dependsOn, normalizedDependsOn)
+      ) {
+        return {
+          ...sym,
+          imports: A.isArrayNonEmpty(importedIds) ? importedIds : sym.imports,
+          provides: normalizedProvides,
+          dependsOn: normalizedDependsOn,
+        };
       }
 
       return sym;
     })
   );
 };
+
+// ---------------------------------------------------------------------------
+// resolveLayerContractErrors
+// ---------------------------------------------------------------------------
+
+/**
+ * Collects lint-like validation errors for Layer symbols.
+ * Ensures `@provides` and `@depends` are present for `kind === "layer"`.
+ *
+ * @since 0.0.0
+ * @category validators
+ */
+export const resolveLayerContractErrors = (symbols: ReadonlyArray<IndexedSymbol>): ReadonlyArray<string> =>
+  pipe(
+    symbols,
+    A.flatMap((symbol) => {
+      if (symbol.kind !== "layer") {
+        return A.empty<string>();
+      }
+
+      const errors = A.empty<string>();
+      if (A.isReadonlyArrayEmpty(symbol.provides)) {
+        errors.push(`${symbol.id}: Layer symbols must declare at least one @provides entry.`);
+      }
+      if (A.isReadonlyArrayEmpty(symbol.dependsOn)) {
+        errors.push(`${symbol.id}: Layer symbols must declare at least one @depends entry.`);
+      }
+      return errors;
+    })
+  );
 
 // ---------------------------------------------------------------------------
 // resolveModuleName

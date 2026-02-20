@@ -92,5 +92,7 @@ export {
   /** @since 0.0.0 */
   resolveImports,
   /** @since 0.0.0 */
+  resolveLayerContractErrors,
+  /** @since 0.0.0 */
   resolveModuleName,
 } from "./SymbolAssembler.js";

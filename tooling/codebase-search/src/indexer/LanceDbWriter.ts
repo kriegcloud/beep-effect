@@ -9,6 +9,7 @@
 import { Effect, Layer, Order } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as ServiceMap from "effect/ServiceMap";
 import * as Str from "effect/String";
 import { IndexingError } from "../errors.js";
@@ -51,6 +52,49 @@ export interface VectorSearchResult {
   readonly metadataJson: string;
 }
 
+/**
+ * Parsed metadata subset used by browse and relation resolvers.
+ * @since 0.0.0
+ * @category types
+ */
+export interface StoredSymbolMetadata {
+  readonly imports: ReadonlyArray<string>;
+  readonly provides: ReadonlyArray<string>;
+  readonly dependsOn: ReadonlyArray<string>;
+}
+
+/**
+ * Metadata record loaded from LanceDB for one indexed symbol.
+ * @since 0.0.0
+ * @category types
+ */
+export interface StoredSymbolRecord {
+  readonly id: string;
+  readonly name: string;
+  readonly kind: string;
+  readonly package: string;
+  readonly module: string;
+  readonly filePath: string;
+  readonly startLine: number;
+  readonly description: string;
+  readonly signature: string;
+  readonly metadataJson: string;
+  readonly metadata: StoredSymbolMetadata;
+}
+
+/**
+ * Optional metadata query filters for row listing.
+ * @since 0.0.0
+ * @category types
+ */
+export interface ListSymbolsOptions {
+  readonly package?: string | undefined;
+  readonly module?: string | undefined;
+  readonly kind?: string | undefined;
+  readonly ids?: ReadonlyArray<string> | undefined;
+  readonly limit?: number | undefined;
+}
+
 // ---------------------------------------------------------------------------
 // Service
 // ---------------------------------------------------------------------------
@@ -87,6 +131,18 @@ export interface LanceDbWriterShape {
     queryVector: Float32Array,
     options: VectorSearchOptions
   ) => Effect.Effect<ReadonlyArray<VectorSearchResult>, IndexingError>;
+  /**
+   * Get one symbol row by ID.
+   * @since 0.0.0
+   */
+  readonly getById: (symbolId: string) => Effect.Effect<O.Option<StoredSymbolRecord>, IndexingError>;
+  /**
+   * List symbol rows with optional filters.
+   * @since 0.0.0
+   */
+  readonly list: (
+    options?: ListSymbolsOptions | undefined
+  ) => Effect.Effect<ReadonlyArray<StoredSymbolRecord>, IndexingError>;
   /**
    * Count total rows in the symbols table.
    * @since 0.0.0
@@ -194,6 +250,69 @@ const buildFilePathPredicate = (filePaths: ReadonlyArray<string>): string => {
     A.map((fp) => `'${Str.replace(/'/g, "''")(fp)}'`)
   );
   return `file_path IN (${A.join(", ")(quoted)})`;
+};
+
+/** @internal */
+const escapeSqlString = (value: string): string => Str.replace(/'/g, "''")(value);
+
+/** @internal */
+const SELECT_COLUMNS: ReadonlyArray<string> = [
+  "id",
+  "name",
+  "kind",
+  "package",
+  "module",
+  "file_path",
+  "start_line",
+  "description",
+  "signature",
+  "metadata_json",
+];
+
+/** @internal */
+const parseStringArray = (value: unknown): ReadonlyArray<string> =>
+  Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string" && entry.length > 0)
+    : A.empty<string>();
+
+/** @internal */
+const parseMetadata = (json: string): StoredSymbolMetadata => {
+  try {
+    const parsed = JSON.parse(json) as {
+      readonly imports?: unknown;
+      readonly provides?: unknown;
+      readonly dependsOn?: unknown;
+    };
+    return {
+      imports: parseStringArray(parsed.imports),
+      provides: parseStringArray(parsed.provides),
+      dependsOn: parseStringArray(parsed.dependsOn),
+    };
+  } catch {
+    return {
+      imports: A.empty<string>(),
+      provides: A.empty<string>(),
+      dependsOn: A.empty<string>(),
+    };
+  }
+};
+
+/** @internal */
+const rowToStoredSymbolRecord = (row: Record<string, unknown>): StoredSymbolRecord => {
+  const metadataJson = String(row.metadata_json ?? "{}");
+  return {
+    id: String(row.id ?? ""),
+    name: String(row.name ?? ""),
+    kind: String(row.kind ?? "unknown"),
+    package: String(row.package ?? ""),
+    module: String(row.module ?? ""),
+    filePath: String(row.file_path ?? ""),
+    startLine: Number(row.start_line ?? 0),
+    description: String(row.description ?? ""),
+    signature: String(row.signature ?? ""),
+    metadataJson,
+    metadata: parseMetadata(metadataJson),
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -354,6 +473,69 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
         }
       );
 
+      const getById: LanceDbWriterShape["getById"] = Effect.fn("LanceDbWriter.getById")(function* (symbolId) {
+        const tbl = yield* getTable;
+        const rows = yield* Effect.tryPromise({
+          try: () =>
+            tbl
+              .query()
+              .where(`id = '${escapeSqlString(symbolId)}'`)
+              .limit(1)
+              .select(SELECT_COLUMNS)
+              .toArray(),
+          catch: (error) =>
+            new IndexingError({
+              message: `Failed to query symbol by ID: ${String(error)}`,
+              phase: "lancedb-search",
+            }),
+        });
+
+        const firstRow = pipe(A.fromIterable(rows as ReadonlyArray<Record<string, unknown>>), A.head);
+        return pipe(firstRow, O.map(rowToStoredSymbolRecord));
+      });
+
+      const list: LanceDbWriterShape["list"] = Effect.fn("LanceDbWriter.list")(function* (options) {
+        const tbl = yield* getTable;
+        const filters = A.empty<string>();
+
+        if (options?.kind !== undefined) {
+          filters.push(`kind = '${escapeSqlString(options.kind)}'`);
+        }
+        if (options?.package !== undefined) {
+          filters.push(`package = '${escapeSqlString(options.package)}'`);
+        }
+        if (options?.module !== undefined) {
+          filters.push(`module = '${escapeSqlString(options.module)}'`);
+        }
+        if (options?.ids !== undefined && A.isReadonlyArrayNonEmpty(options.ids)) {
+          const quotedIds = pipe(
+            options.ids,
+            A.map((id) => `'${escapeSqlString(id)}'`)
+          );
+          filters.push(`id IN (${A.join(", ")(quotedIds)})`);
+        }
+
+        const rows = yield* Effect.tryPromise({
+          try: () => {
+            let query = tbl.query();
+            if (A.isReadonlyArrayNonEmpty(filters)) {
+              query = query.where(A.join(" AND ")(filters));
+            }
+            if (options?.limit !== undefined) {
+              query = query.limit(options.limit);
+            }
+            return query.select(SELECT_COLUMNS).toArray();
+          },
+          catch: (error) =>
+            new IndexingError({
+              message: `Failed to list symbol rows: ${String(error)}`,
+              phase: "lancedb-search",
+            }),
+        });
+
+        return A.map(rows as ReadonlyArray<Record<string, unknown>>, rowToStoredSymbolRecord);
+      });
+
       const countRows: LanceDbWriterShape["countRows"] = Effect.fn("LanceDbWriter.countRows")(function* () {
         const tbl = yield* getTable;
         return yield* Effect.tryPromise({
@@ -371,6 +553,8 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
         upsert,
         deleteByFiles,
         vectorSearch,
+        getById,
+        list,
         countRows,
       });
     })
@@ -383,9 +567,14 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
 /** @internal */
 interface MockRow {
   readonly id: string;
+  readonly name: string;
   readonly filePath: string;
   readonly kind: string;
   readonly pkg: string;
+  readonly module: string;
+  readonly startLine: number;
+  readonly description: string;
+  readonly signature: string;
   readonly vector: Float32Array;
   readonly metadataJson: string;
 }
@@ -443,13 +632,21 @@ export const LanceDbWriterMock: Layer.Layer<LanceDbWriter> = Layer.succeed(
             symbols,
             (swv): MockRow => ({
               id: swv.symbol.id,
+              name: swv.symbol.name,
               filePath: swv.symbol.filePath,
               kind: swv.symbol.kind,
               pkg: swv.symbol.package,
+              module: swv.symbol.module,
+              startLine: swv.symbol.startLine,
+              description: swv.symbol.description,
+              signature: swv.symbol.signature,
               vector: swv.vector,
               metadataJson: JSON.stringify({
                 schemaIdentifier: swv.symbol.schemaIdentifier,
                 schemaDescription: swv.symbol.schemaDescription,
+                provides: swv.symbol.provides,
+                dependsOn: swv.symbol.dependsOn,
+                imports: swv.symbol.imports,
               }),
             })
           );
@@ -487,6 +684,59 @@ export const LanceDbWriterMock: Layer.Layer<LanceDbWriter> = Layer.succeed(
           return A.take(sorted, options.limit);
         });
 
+      const getById: LanceDbWriterShape["getById"] = (symbolId) =>
+        Effect.sync(() =>
+          pipe(
+            rows,
+            A.findFirst((row) => row.id === symbolId),
+            O.map(
+              (row): StoredSymbolRecord => ({
+                id: row.id,
+                name: row.name,
+                kind: row.kind,
+                package: row.pkg,
+                module: row.module,
+                filePath: row.filePath,
+                startLine: row.startLine,
+                description: row.description,
+                signature: row.signature,
+                metadataJson: row.metadataJson,
+                metadata: parseMetadata(row.metadataJson),
+              })
+            )
+          )
+        );
+
+      const list: LanceDbWriterShape["list"] = (options) =>
+        Effect.sync(() => {
+          const filtered = pipe(
+            rows,
+            A.filter((row) => (options?.kind === undefined ? true : row.kind === options.kind)),
+            A.filter((row) => (options?.package === undefined ? true : row.pkg === options.package)),
+            A.filter((row) => (options?.module === undefined ? true : row.module === options.module)),
+            A.filter((row) => (options?.ids === undefined ? true : options.ids.includes(row.id)))
+          );
+
+          const limited = options?.limit === undefined ? filtered : pipe(filtered, A.take(Math.max(0, options.limit)));
+
+          return A.map(
+            limited,
+            (row): StoredSymbolRecord => ({
+              id: row.id,
+              name: row.name,
+              kind: row.kind,
+              package: row.pkg,
+              module: row.module,
+              filePath: row.filePath,
+              startLine: row.startLine,
+              description: row.description,
+              signature: row.signature,
+              metadataJson: row.metadataJson,
+              metadata: parseMetadata(row.metadataJson),
+            })
+          );
+        });
+
       const countRows: LanceDbWriterShape["countRows"] = () => Effect.sync(() => A.length(rows));
 
       return {
@@ -494,6 +744,8 @@ export const LanceDbWriterMock: Layer.Layer<LanceDbWriter> = Layer.succeed(
         upsert,
         deleteByFiles,
         vectorSearch,
+        getById,
+        list,
         countRows,
       };
     })()

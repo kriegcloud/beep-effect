@@ -2,6 +2,13 @@
 
 import tsParser from "@typescript-eslint/parser";
 import jsdoc from "eslint-plugin-jsdoc";
+import requireCategoryTagRule from "./eslint-rules/require-category-tag.mjs";
+
+const beepJsdoc = {
+  rules: {
+    "require-category-tag": requireCategoryTagRule,
+  },
+};
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [
@@ -11,6 +18,7 @@ export default [
     ignores: ["tooling/*/src/internal/**", "tooling/*/src/**/*.test.ts", "tooling/*/src/**/*.spec.ts", "**/*.d.ts"],
     plugins: {
       jsdoc,
+      "beep-jsdoc": beepJsdoc,
     },
     languageOptions: {
       parser: tsParser,
@@ -76,10 +84,21 @@ export default [
       "jsdoc/check-tag-names": [
         "error",
         {
-          definedTags: ["domain", "provides", "depends", "errors", "packageDocumentation", "internal", "alpha", "beta"],
+          definedTags: [
+            "domain",
+            "provides",
+            "depends",
+            "errors",
+            "packageDocumentation",
+            "internal",
+            "alpha",
+            "beta",
+            "ignore",
+          ],
         },
       ],
       "jsdoc/check-param-names": "error",
+      "beep-jsdoc/require-category-tag": "warn",
 
       // --- Phase 1 Overrides (Gradual Adoption) ---
       "jsdoc/match-description": [

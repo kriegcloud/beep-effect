@@ -107,6 +107,21 @@
 - T10 (EmbeddingService) depends on ONNX model download (~521MB) — first run will be slow. Document this in the setup instructions.
 - The critical path (16.5 hours) has no slack — any task overrun cascades. Build in a buffer session between P4b and P4c.
 
+### P3 Addendum (2026-02-20)
+
+**What was refined:**
+- Re-scaffolded `outputs/package-scaffolding.md` with explicit `docgen.json`, full root updates, and test-mirroring rules tied directly to `src/`.
+- Reworked `outputs/task-graph.md` so all 18 tasks include explicit dependency edges, concrete P2 input docs, output file lists, and <=2h estimates.
+- Tightened `outputs/cross-validation-report.md` into 6 named gaps (CV-01..CV-06) with direct mapping to P4 task owners.
+
+**Additional implementation learnings:**
+1. **MCP relation normalization needs early design** — `@provides`/`@depends` text values should be normalized to symbol IDs during assembly to avoid ambiguous `find_related` matches.
+2. **LanceDB mapping drift is a doc risk** — keep the `SymbolRow` schema as the single authority and derive markdown mapping from code, not vice versa.
+3. **Lint-only enforcement is insufficient for kind-specific requirements** — layer-specific tags are better enforced in extractor validation where `kind` is known.
+
+**Execution improvement for P4:**
+- Run T01/T05 in parallel immediately, but gate T18 on T16 so hook formatting and search output stay aligned with one formatter contract.
+
 ---
 
 ## P4a-c: Implementation

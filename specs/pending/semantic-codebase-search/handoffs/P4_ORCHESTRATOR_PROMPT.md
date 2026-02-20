@@ -1,111 +1,78 @@
-# P4 Orchestrator Prompt — Implementation
+# P4_ORCHESTRATOR_PROMPT
 
-> Copy-paste ready prompt for the P4 implementation orchestrator.
+Implement Phase 4 of `specs/pending/semantic-codebase-search` using the finalized P3 artifacts.
 
----
+## Inputs (Read First)
 
-You are implementing Phase 4 of the Semantic Codebase Search spec. This phase has 3 sub-phases (P4a, P4b, P4c) with 18 total tasks.
+- `specs/pending/semantic-codebase-search/outputs/package-scaffolding.md`
+- `specs/pending/semantic-codebase-search/outputs/task-graph.md`
+- `specs/pending/semantic-codebase-search/outputs/cross-validation-report.md`
+- All P2 design docs in `specs/pending/semantic-codebase-search/outputs/`
 
-## Your Role
-You are the implementation orchestrator. You delegate coding tasks to agents, verify outputs, and ensure tasks complete in dependency order.
+## Non-Negotiable Constraints
 
-## Sub-Phase Overview
+- Follow Effect v4 conventions from project memory/AGENTS guidance.
+- Use the exact 18-task plan from `task-graph.md`.
+- Do not introduce additional MCP tools beyond the defined four.
+- Keep hook output compact and resilient (never throw; empty output on failure).
+- Preserve catalog dependency pattern in package manifests.
 
-### P4a: Documentation Standards (T1–T4, ~4 hours)
-Configure ESLint JSDoc enforcement, update docgen configs, backfill existing code JSDoc, add pre-commit hook.
+## Execution Order
 
-### P4b: Extractor & Pipeline (T5–T12, ~13.5 hours)
-Scaffold package, build IndexedSymbol schema, implement extractors (JSDoc + Effect), create embedding service, wire storage (LanceDB + BM25), orchestrate pipeline.
+1. Run P4a tasks T01-T04.
+2. Run P4b tasks T05-T14.
+3. Run P4c tasks T15-T18.
 
-### P4c: MCP Server & Hooks (T13–T18, ~7.5 hours)
-Implement search engine, build 4 MCP tools, tune formatting, configure integration, implement hooks.
+Allowed parallelism:
+- `T01 || T05`
+- `T08 || T09`
 
-## Task Execution Order
+## Required Deliverables
 
-Execute tasks in this order (respecting dependencies):
+- `tooling/codebase-search/` scaffold and implementation per task outputs.
+- Updated root lint/docgen/tsdoc configuration.
+- Working indexing pipeline (`full` + `incremental`) with LanceDB + BM25.
+- Working MCP server with tools:
+  - `search_codebase`
+  - `find_related`
+  - `browse_symbols`
+  - `reindex`
+- Working hooks:
+  - `SessionStart`
+  - `UserPromptSubmit`
 
-**P4a:**
-1. T1: ESLint JSDoc configuration
-2. T2: Docgen config update (after T1)
-3. T3: Backfill existing code JSDoc (after T1, T2)
-4. T4: Lefthook pre-commit hook (after T3)
+## Gap-Closure Requirements
 
-**P4b** (can start T5 in parallel with P4a):
-5. T5: Package scaffold
-6. T6: IndexedSymbol schema + builders (after T5)
-7. T7 ∥ T8: JSDoc extractor AND Effect pattern detector (parallel, after T6)
-8. T9: Symbol assembler + file scanner (after T7, T8)
-9. T10: Embedding service (after T9)
-10. T11: LanceDB + BM25 storage (after T10)
-11. T12: Pipeline orchestrator (after T11)
+Close all cross-validation items during implementation:
+- CV-01 in T10
+- CV-02 in T12
+- CV-03 in T10/T17
+- CV-04 in T01/T10
+- CV-05 in T10/T14
+- CV-06 in T02
 
-**P4c** (T13 and T17 can start in parallel after T11):
-12. T13 ∥ T17: Hybrid search + relation resolver AND SessionStart hook (parallel, after T11)
-13. T14: MCP server + tools (after T13)
-14. T15: Output formatting + token budget (after T14)
-15. T16: Integration configuration (after T15)
-16. T18: UserPromptSubmit hook (after T17)
+## Verification Commands
 
-## Reference Documents
+Run these gates before declaring P4 complete:
 
-For EVERY task, read the corresponding input docs from `specs/pending/semantic-codebase-search/outputs/`:
+```bash
+npx eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts'
+bunx turbo run docgen --filter=@beep/repo-cli --filter=@beep/codebase-search
+tsc -b tooling/codebase-search/tsconfig.json
+npx vitest run tooling/codebase-search/test
+```
 
-| Task | Input Docs |
-|------|-----------|
-| T1 | `eslint-config-design.md`, `jsdoc-standard.md` |
-| T2 | `eslint-config-design.md` (docgen section) |
-| T3 | `jsdoc-standard.md` (per-kind standards) |
-| T4 | `eslint-config-design.md` (lefthook section) |
-| T5 | `package-scaffolding.md` |
-| T6 | `indexed-symbol-schema.md` |
-| T7 | `docgen-vs-custom-evaluation.md`, `jsdoc-standard.md` |
-| T8 | `embedding-pipeline-design.md`, `indexed-symbol-schema.md` |
-| T9 | `embedding-pipeline-design.md` |
-| T10 | `embedding-pipeline-design.md` |
-| T11 | `embedding-pipeline-design.md` |
-| T12 | `embedding-pipeline-design.md` |
-| T13 | `embedding-pipeline-design.md`, `mcp-api-design.md` |
-| T14 | `mcp-api-design.md` |
-| T15 | `mcp-api-design.md`, `hook-integration-design.md` |
-| T16 | `package-scaffolding.md` |
-| T17 | `hook-integration-design.md` |
-| T18 | `hook-integration-design.md` |
+And runtime checks:
 
-Also reference: `cross-validation-report.md` for known gaps and resolutions.
+1. MCP server returns all 4 tools in `tools/list`.
+2. `reindex` full mode builds `.code-index/` and reports stats.
+3. `search_codebase` returns ranked results with score + filters.
+4. Hook entrypoints run under 5s and never crash.
 
-## Critical Implementation Notes
+## Completion Output Format
 
-1. **Effect v4 patterns:** Follow MEMORY.md strictly. Use Effect.fn, S.TaggedErrorClass, no native Map/Set/Array, Schema annotations on every schema.
-2. **Testing:** ALWAYS `npx vitest run`, NEVER `bun test`.
-3. **Two-pass import resolution (T9):** Extract all symbols first to build ID registry, then resolve imports in second pass.
-4. **LanceDB SymbolRow (T11):** Use the 21-column interface from embedding-pipeline-design.md (authoritative), not the 18-column mapping table.
-5. **Hooks use BM25-only (T17, T18):** No embedding model loading in hooks. MCP tools use full hybrid search.
-6. **EmbeddingService mock (T10):** Tests must use a mock layer (deterministic vectors) — no model download in CI.
-7. **Package template:** Follow `tooling/cli/` structure exactly for package.json, tsconfig, vitest.config.ts.
-
-## Verification Gates
-
-After each sub-phase, verify:
-
-**P4a complete:**
-- `npx eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts'` — zero errors
-- `bunx turbo run docgen` — succeeds
-- Every exported symbol has description + @since + @category
-
-**P4b complete:**
-- `tsc -b tooling/codebase-search/tsconfig.json` — compiles
-- `npx vitest run` — all extractor/indexer tests pass
-- Full reindex of existing codebase produces valid `.code-index/`
-
-**P4c complete:**
-- MCP server starts on stdio, responds to `tools/list`
-- All 4 tools return valid responses
-- Hooks complete within 5s
-- search_codebase returns relevant results for "schema for validating package names"
-
-## Constraints
-- Follow Effect v4 coding style per project MEMORY.md
-- No TBD placeholders in code — every function must be implemented
-- Every public export needs `/** @since 0.0.0 */` JSDoc
-- Tests mirror src/ directory structure in test/
-- Acceptance criteria from task-graph.md must be met for each task
+Provide:
+- Task completion checklist (T01-T18)
+- Verification results (pass/fail per gate)
+- Any deviations from plan with rationale
+- Remaining risks or follow-up work

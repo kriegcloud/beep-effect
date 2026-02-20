@@ -100,6 +100,15 @@ const collectTagDescriptions = (tags: ReadonlyArray<DoctrineTag>, title: string)
     A.filter((desc) => Str.length(desc) > 0)
   );
 
+/** @internal */
+const splitTagValueList = (value: string): ReadonlyArray<string> =>
+  pipe(
+    value.split(","),
+    A.fromIterable,
+    A.map(Str.trim),
+    A.filter((part) => Str.length(part) > 0)
+  );
+
 /**
  * Extracts the raw JSDoc comment text from a ts-morph Node. Attempts to use
  * the JSDocableNode interface first, falling back to leading comment ranges.
@@ -224,11 +233,11 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
   // @see (collect all)
   const seeRefs: ReadonlyArray<string> = collectTagDescriptions(tags, "see");
 
-  // @provides (custom tag, collect all)
-  const provides: ReadonlyArray<string> = collectTagDescriptions(tags, "provides");
+  // @provides (custom tag, collect all, split comma-separated references)
+  const provides: ReadonlyArray<string> = pipe(collectTagDescriptions(tags, "provides"), A.flatMap(splitTagValueList));
 
-  // @depends (custom tag, collect all)
-  const dependsOn: ReadonlyArray<string> = collectTagDescriptions(tags, "depends");
+  // @depends (custom tag, collect all, split comma-separated references)
+  const dependsOn: ReadonlyArray<string> = pipe(collectTagDescriptions(tags, "depends"), A.flatMap(splitTagValueList));
 
   // @deprecated (presence check)
   const deprecated = pipe(getFirstTagByTitle(tags, "deprecated"), O.isSome);
