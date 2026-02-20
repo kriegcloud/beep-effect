@@ -4,6 +4,7 @@
   "files": {
     "includes": [
       "**",
+      "!.agents",
       "!**/*.css",
       "!**/.tsup",
       "!**/.turbo",
