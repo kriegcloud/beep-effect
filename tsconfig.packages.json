@@ -1,6 +1,9 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./dist/tsconfig.packages.tsbuildinfo"
+  },
   "include": [],
   "references": [
     { "path": "groking-effect-v4" },

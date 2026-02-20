@@ -19,6 +19,7 @@
   ],
   "exclude": ["./tooling/*/test/fixtures/**/*.ts"],
   "compilerOptions": {
+    "tsBuildInfoFile": "./dist/tsconfig.root.tsbuildinfo",
     "rootDir": ".",
     "noEmit": true,
     "erasableSyntaxOnly": false,
