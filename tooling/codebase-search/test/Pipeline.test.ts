@@ -3,8 +3,9 @@ import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import { systemError } from "effect/PlatformError";
+import { EmbeddingModelError, IndexingError } from "../src/errors.js";
 import { Bm25WriterMock } from "../src/indexer/Bm25Writer.js";
-import { EmbeddingServiceMock } from "../src/indexer/EmbeddingService.js";
+import { EmbeddingService, EmbeddingServiceMock } from "../src/indexer/EmbeddingService.js";
 import { LanceDbWriterMock } from "../src/indexer/LanceDbWriter.js";
 import type { PipelineConfig, PipelineStats } from "../src/indexer/Pipeline.js";
 import { Pipeline, PipelineLive, PipelineMock } from "../src/indexer/Pipeline.js";
@@ -17,13 +18,17 @@ import { Pipeline, PipelineLive, PipelineMock } from "../src/indexer/Pipeline.js
  * Creates a mock FileSystem + Path layer backed by in-memory Maps.
  */
 const createMemoryFs = (
-  initialFiles: ReadonlyArray<readonly [string, string]>
+  initialFiles: ReadonlyArray<readonly [string, string]>,
+  options?: {
+    readonly failReadPaths?: ReadonlyArray<string>;
+  }
 ): {
   readonly files: Map<string, string>;
   readonly layer: Layer.Layer<FileSystem.FileSystem | Path.Path>;
 } => {
   const files = new Map<string, string>();
   const dirs = new Set<string>();
+  const failReadPaths = new Set(options?.failReadPaths ?? []);
 
   pipe(
     initialFiles,
@@ -39,6 +44,17 @@ const createMemoryFs = (
   const fsLayer = FileSystem.layerNoop({
     exists: (path: string) => Effect.succeed(files.has(path) || dirs.has(path)),
     readFileString: (path: string) => {
+      if (failReadPaths.has(path)) {
+        return Effect.fail(
+          systemError({
+            _tag: "NotFound",
+            module: "FileSystem",
+            method: "readFileString",
+            pathOrDescriptor: path,
+            description: `Injected read failure for testing: ${path}`,
+          })
+        );
+      }
       const content = files.get(path);
       if (content !== undefined) {
         return Effect.succeed(content);
@@ -268,6 +284,33 @@ const defaultFsPathLayer = createMemoryFs([]).layer;
 /** PipelineLive backed by mock services, with default FS/Path included. */
 const TestPipelineLayer = PipelineLive.pipe(Layer.provide(MockServicesLayer), Layer.provideMerge(defaultFsPathLayer));
 
+/** Embedding service mock that always fails, used to verify embedding error mapping. */
+const EmbeddingServiceFailing = Layer.succeed(
+  EmbeddingService,
+  EmbeddingService.of({
+    embed: (_text) =>
+      Effect.fail(
+        new EmbeddingModelError({
+          message: "Injected embed failure",
+          modelName: "test-model",
+        })
+      ),
+    embedBatch: (_texts) =>
+      Effect.fail(
+        new EmbeddingModelError({
+          message: "Injected embedBatch failure",
+          modelName: "test-model",
+        })
+      ),
+  })
+);
+
+/** PipelineLive wired with failing embeddings for failure-path assertions. */
+const FailingEmbeddingPipelineLayer = PipelineLive.pipe(
+  Layer.provide(Layer.mergeAll(EmbeddingServiceFailing, LanceDbWriterMock, Bm25WriterMock)),
+  Layer.provideMerge(defaultFsPathLayer)
+);
+
 layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
   describe("full mode", () => {
     it.effect(
@@ -458,4 +501,37 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
       })
     );
   });
+
+  describe("failure paths", () => {
+    it.effect(
+      "maps file read failures to IndexingError with symbol-extraction phase",
+      Effect.fn(function* () {
+        const sourcePath = `${ROOT}/tooling/cli/src/index.ts`;
+        const { layer: fsLayer } = createMemoryFs([[sourcePath, SAMPLE_TS_SOURCE]], {
+          failReadPaths: [sourcePath],
+        });
+
+        const pipeline = yield* Pipeline;
+        const error = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer), Effect.flip);
+
+        expect(error).toBeInstanceOf(IndexingError);
+        expect(error.phase).toBe("symbol-extraction");
+      })
+    );
+  });
+});
+
+layer(FailingEmbeddingPipelineLayer)("Pipeline (Live with failing embeddings)", (it) => {
+  it.effect(
+    "maps embedBatch failures to IndexingError with embedding phase",
+    Effect.fn(function* () {
+      const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
+      const pipeline = yield* Pipeline;
+
+      const error = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer), Effect.flip);
+
+      expect(error).toBeInstanceOf(IndexingError);
+      expect(error.phase).toBe("embedding");
+    })
+  );
 });

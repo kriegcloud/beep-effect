@@ -205,9 +205,7 @@ export interface HybridSearchShape {
    *
    * @since 0.0.0
    */
-  readonly search: (
-    config: HybridSearchConfig
-  ) => Effect.Effect<ReadonlyArray<HybridSearchResult>, IndexingError, EmbeddingService | LanceDbWriter | Bm25Writer>;
+  readonly search: (config: HybridSearchConfig) => Effect.Effect<ReadonlyArray<HybridSearchResult>, IndexingError>;
 }
 
 /**
@@ -236,48 +234,51 @@ const SOURCE_LIMIT = 20;
  * @since 0.0.0
  * @category layers
  */
-export const HybridSearchLive: Layer.Layer<HybridSearch> = Layer.succeed(
-  HybridSearch,
-  HybridSearch.of({
-    search: Effect.fn(function* (config) {
+export const HybridSearchLive: Layer.Layer<HybridSearch, never, EmbeddingService | LanceDbWriter | Bm25Writer> =
+  Layer.effect(
+    HybridSearch,
+    Effect.gen(function* () {
       const embeddingSvc = yield* EmbeddingService;
       const lanceSvc = yield* LanceDbWriter;
       const bm25Svc = yield* Bm25Writer;
 
-      // 1. Embed the query
-      const queryVector = yield* pipe(
-        embeddingSvc.embed(config.query),
-        Effect.mapError(
-          (e) =>
-            new IndexingError({
-              message: `Hybrid search embedding failed: ${e.message}`,
-              phase: "hybrid-search",
-            })
-        )
-      );
+      const search: HybridSearchShape["search"] = Effect.fn(function* (config) {
+        // 1. Embed the query
+        const queryVector = yield* pipe(
+          embeddingSvc.embed(config.query),
+          Effect.mapError(
+            (e) =>
+              new IndexingError({
+                message: `Hybrid search embedding failed: ${e.message}`,
+                phase: "hybrid-search",
+              })
+          )
+        );
 
-      // 2. Execute vector and keyword searches in parallel
-      const [vectorResults, keywordResults] = yield* Effect.all(
-        [
-          lanceSvc.vectorSearch(queryVector, {
-            limit: SOURCE_LIMIT,
-            kind: config.kind,
-            package: config.package,
-          }),
-          bm25Svc.search(config.query, SOURCE_LIMIT),
-        ],
-        { concurrency: 2 }
-      );
+        // 2. Execute vector and keyword searches in parallel
+        const [vectorResults, keywordResults] = yield* Effect.all(
+          [
+            lanceSvc.vectorSearch(queryVector, {
+              limit: SOURCE_LIMIT,
+              kind: config.kind,
+              package: config.package,
+            }),
+            bm25Svc.search(config.query, SOURCE_LIMIT),
+          ],
+          { concurrency: 2 }
+        );
 
-      // 3. Apply Reciprocal Rank Fusion
-      const fused = reciprocalRankFusion(vectorResults, keywordResults, RRF_K);
+        // 3. Apply Reciprocal Rank Fusion
+        const fused = reciprocalRankFusion(vectorResults, keywordResults, RRF_K);
 
-      // 4. Filter by minScore if provided
-      const filtered =
-        config.minScore !== undefined ? A.filter(fused, (r) => r.score >= (config.minScore ?? 0)) : fused;
+        // 4. Filter by minScore if provided
+        const filtered =
+          config.minScore !== undefined ? A.filter(fused, (r) => r.score >= (config.minScore ?? 0)) : fused;
 
-      // 5. Truncate to limit
-      return A.take(filtered, config.limit);
-    }),
-  })
-);
+        // 5. Truncate to limit
+        return A.take(filtered, config.limit);
+      });
+
+      return HybridSearch.of({ search });
+    })
+  );

@@ -1,5 +1,5 @@
 import { describe, expect, it, layer } from "@effect/vitest";
-import { Effect, FileSystem, Layer, Path } from "effect";
+import { Effect, FileSystem, Layer, Path, Stream } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import {
@@ -14,17 +14,21 @@ import { Bm25Writer, Bm25WriterMock } from "../src/indexer/Bm25Writer.js";
 import { EmbeddingService, EmbeddingServiceMock } from "../src/indexer/EmbeddingService.js";
 import type { SymbolWithVector } from "../src/indexer/LanceDbWriter.js";
 import { LanceDbWriter, LanceDbWriterMock } from "../src/indexer/LanceDbWriter.js";
-import { PipelineMock } from "../src/indexer/Pipeline.js";
+import type { PipelineStats } from "../src/indexer/Pipeline.js";
+import { Pipeline, PipelineMock } from "../src/indexer/Pipeline.js";
 import {
+  CodebaseSearchToolkit,
   ErrorCodes,
   formatError,
   handleBrowseSymbols,
   handleFindRelated,
   handleReindex,
   handleSearchCodebase,
+  type McpErrorResponse,
+  makeToolkitHandlerLayer,
 } from "../src/mcp/McpServer.js";
-import { HybridSearchLive } from "../src/search/HybridSearch.js";
-import { RelationResolverLive } from "../src/search/RelationResolver.js";
+import { HybridSearch, HybridSearchLive } from "../src/search/HybridSearch.js";
+import { RelationResolver, RelationResolverLive } from "../src/search/RelationResolver.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -68,12 +72,22 @@ const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   ...overrides,
 });
 
+const isMcpErrorResponse = (value: unknown): value is McpErrorResponse =>
+  typeof value === "object" &&
+  value !== null &&
+  "error" in value &&
+  typeof (value as { error?: unknown }).error === "object" &&
+  (value as { error?: unknown }).error !== null;
+
 // ---------------------------------------------------------------------------
 // Test Layer
 // ---------------------------------------------------------------------------
 
 /** Combined mock layer providing all indexer services. */
 const MockServicesLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, Bm25WriterMock);
+const SearchServicesLayer = Layer.mergeAll(HybridSearchLive, RelationResolverLive).pipe(
+  Layer.provideMerge(MockServicesLayer)
+);
 
 /** FileSystem + Path mocks (required by Bm25Writer save/load and Pipeline type signatures). */
 const FsMock = FileSystem.layerNoop({});
@@ -105,14 +119,7 @@ const PathMock = Layer.mock(Path.Path)({
 });
 
 /** Full test layer with all services (real search logic backed by mocks). */
-const TestLayer = Layer.mergeAll(
-  MockServicesLayer,
-  HybridSearchLive,
-  RelationResolverLive,
-  PipelineMock,
-  FsMock,
-  PathMock
-);
+const TestLayer = Layer.mergeAll(SearchServicesLayer, PipelineMock, FsMock, PathMock);
 
 // ---------------------------------------------------------------------------
 // Helper: seed the index with test data
@@ -172,11 +179,7 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
 
         yield* seedIndex(symbols);
 
-        const result = yield* handleSearchCodebase({ query: "Alpha schema" });
-        const results = result as ReadonlyArray<{
-          symbolId: string;
-          score: number;
-        }>;
+        const results = yield* handleSearchCodebase({ query: "Alpha schema" });
         expect(A.length(results)).toBeGreaterThanOrEqual(1);
       })
     );
@@ -240,11 +243,10 @@ layer(TestLayer)("McpServer - search_codebase", (it) => {
 
         yield* seedIndex(symbols);
 
-        const result = yield* handleSearchCodebase({
+        const results = yield* handleSearchCodebase({
           query: "Schema validation",
           limit: 1,
         });
-        const results = result as ReadonlyArray<unknown>;
         expect(A.length(results)).toBeLessThanOrEqual(1);
       })
     );
@@ -314,13 +316,9 @@ layer(TestLayer)("McpServer - find_related", (it) => {
 
         yield* seedIndex(symbols);
 
-        const result = (yield* handleFindRelated({
+        const result = yield* handleFindRelated({
           symbolId: "pkg/mod/Alpha",
-        })) as {
-          sourceSymbolId: string;
-          relation: string;
-          results: ReadonlyArray<unknown>;
-        };
+        });
 
         expect(result.sourceSymbolId).toBe("pkg/mod/Alpha");
         expect(result.relation).toBe("similar");
@@ -344,12 +342,9 @@ layer(TestLayer)("McpServer - find_related", (it) => {
 
         // The find_related handler should not fail on unknown symbols
         // because the similar search just re-embeds the ID text
-        const result = (yield* handleFindRelated({
+        const result = yield* handleFindRelated({
           symbolId: "nonexistent/symbol/id",
-        })) as {
-          sourceSymbolId: string;
-          results: ReadonlyArray<unknown>;
-        };
+        });
 
         expect(result.sourceSymbolId).toBe("nonexistent/symbol/id");
       })
@@ -376,10 +371,7 @@ layer(TestLayer)("McpServer - browse_symbols", (it) => {
 
         yield* seedIndex(symbols);
 
-        const result = (yield* handleBrowseSymbols({})) as {
-          totalSymbols: number;
-          filters: { package: null; module: null; kind: null };
-        };
+        const result = yield* handleBrowseSymbols({});
 
         expect(result.totalSymbols).toBeGreaterThanOrEqual(0);
         expect(result.filters.package).toBeNull();

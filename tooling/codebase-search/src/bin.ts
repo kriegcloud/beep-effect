@@ -47,14 +47,13 @@ const IndexerServicesLayer = Layer.mergeAll(
 );
 
 /** @internal */
-const SearchServicesLayer = Layer.mergeAll(HybridSearchLive, RelationResolverLive);
-
-/** @internal */
-const PipelineLayer = PipelineLive.pipe(Layer.provide(IndexerServicesLayer));
+const SearchAndPipelineLayer = Layer.mergeAll(HybridSearchLive, RelationResolverLive, PipelineLive).pipe(
+  Layer.provideMerge(IndexerServicesLayer)
+);
 
 /** @internal */
 const McpLayer = makeServerLayer({ rootDir, indexPath }).pipe(
-  Layer.provide(Layer.mergeAll(SearchServicesLayer, IndexerServicesLayer, PipelineLayer)),
+  Layer.provide(SearchAndPipelineLayer),
   Layer.provide(BunStdio.layer),
   Layer.provide(PlatformLayer)
 );

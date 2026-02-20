@@ -81,9 +81,7 @@ export interface PipelineShape {
    * Execute the full indexing pipeline and return run statistics.
    * @since 0.0.0
    */
-  readonly run: (
-    config: PipelineConfig
-  ) => Effect.Effect<PipelineStats, IndexingError>;
+  readonly run: (config: PipelineConfig) => Effect.Effect<PipelineStats, IndexingError>;
 }
 
 /**

@@ -54,7 +54,8 @@ const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
 // Test Layer
 // ---------------------------------------------------------------------------
 
-const TestLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, RelationResolverLive);
+const MockServicesLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock);
+const TestLayer = Layer.mergeAll(MockServicesLayer, RelationResolverLive.pipe(Layer.provide(MockServicesLayer)));
 
 // ---------------------------------------------------------------------------
 // Tests

@@ -61,9 +61,7 @@ export interface KeywordSearchShape {
    *
    * @since 0.0.0
    */
-  readonly search: (
-    config: KeywordSearchConfig
-  ) => Effect.Effect<ReadonlyArray<KeywordSearchResult>, IndexingError, Bm25Writer>;
+  readonly search: (config: KeywordSearchConfig) => Effect.Effect<ReadonlyArray<KeywordSearchResult>, IndexingError>;
 }
 
 /**
@@ -89,12 +87,12 @@ export class KeywordSearch extends ServiceMap.Service<KeywordSearch, KeywordSear
  * @since 0.0.0
  * @category layers
  */
-export const KeywordSearchLive: Layer.Layer<KeywordSearch> = Layer.succeed(
+export const KeywordSearchLive: Layer.Layer<KeywordSearch, never, Bm25Writer> = Layer.effect(
   KeywordSearch,
-  KeywordSearch.of({
-    search: Effect.fn(function* (config) {
-      const bm25Svc = yield* Bm25Writer;
+  Effect.gen(function* () {
+    const bm25Svc = yield* Bm25Writer;
 
+    const search: KeywordSearchShape["search"] = Effect.fn(function* (config) {
       const results = yield* bm25Svc.search(config.query, config.limit);
 
       // Map to KeywordSearchResult shape
@@ -112,6 +110,8 @@ export const KeywordSearchLive: Layer.Layer<KeywordSearch> = Layer.succeed(
       }
 
       return mapped;
-    }),
+    });
+
+    return KeywordSearch.of({ search });
   })
 );

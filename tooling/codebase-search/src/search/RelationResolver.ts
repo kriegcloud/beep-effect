@@ -93,11 +93,7 @@ export interface RelationResolverShape {
    */
   readonly resolve: (
     config: RelationResolverConfig
-  ) => Effect.Effect<
-    ReadonlyArray<RelatedSymbol>,
-    IndexingError | SymbolNotFoundError,
-    LanceDbWriter | EmbeddingService
-  >;
+  ) => Effect.Effect<ReadonlyArray<RelatedSymbol>, IndexingError | SymbolNotFoundError>;
 }
 
 /**
@@ -133,102 +129,88 @@ export class RelationResolver extends ServiceMap.Service<RelationResolver, Relat
  * @since 0.0.0
  * @category layers
  */
-export const RelationResolverLive: Layer.Layer<RelationResolver> = Layer.succeed(
-  RelationResolver,
-  RelationResolver.of({
-    resolve: Effect.fn("RelationResolver.resolve")(function* (config) {
-      switch (config.relation) {
-        case "similar":
-          return yield* resolveSimilar(config);
+export const RelationResolverLive: Layer.Layer<RelationResolver, never, LanceDbWriter | EmbeddingService> =
+  Layer.effect(
+    RelationResolver,
+    Effect.gen(function* () {
+      const embeddingSvc = yield* EmbeddingService;
+      const lanceSvc = yield* LanceDbWriter;
 
-        // TODO: Implement same-module once LanceDB supports filtering by
-        // the `module` column directly. Currently the vectorSearch API only
-        // supports `kind` and `package` filters.
-        case "same-module":
-          return A.empty<RelatedSymbol>();
+      const resolveSimilar = Effect.fn(function* (config: RelationResolverConfig) {
+        // Embed the symbol ID as a proxy for its content vector
+        const queryVector = yield* pipe(
+          embeddingSvc.embed(config.symbolId),
+          Effect.mapError(
+            (e) =>
+              new IndexingError({
+                message: `Relation resolver embedding failed: ${e.message}`,
+                phase: "relation-resolve",
+              })
+          )
+        );
 
-        // TODO: Implement imports once LanceDB query interface supports
-        // filtering by JSON fields within metadataJson.
-        case "imports":
-          return A.empty<RelatedSymbol>();
+        // Fetch one extra to account for the source symbol being in results
+        const results = yield* lanceSvc.vectorSearch(queryVector, {
+          limit: config.limit + 1,
+        });
 
-        // TODO: Implement imported-by once reverse import lookup is available.
-        case "imported-by":
-          return A.empty<RelatedSymbol>();
+        // Filter out the source symbol and map to RelatedSymbol
+        const filtered = A.filter(results, (r) => r.id !== config.symbolId);
+        const limited = A.take(filtered, config.limit);
 
-        // TODO: Implement provides once metadataJson field queries are supported.
-        case "provides":
-          return A.empty<RelatedSymbol>();
+        return A.map(
+          limited,
+          (r): RelatedSymbol => ({
+            id: r.id,
+            name: extractNameFromId(r.id),
+            kind: "unknown",
+            package: extractPackageFromId(r.id),
+            module: extractModuleFromId(r.id),
+            filePath: "",
+            startLine: 0,
+            description: "",
+            relationDetail: `Similar symbol (vector similarity score: ${String(r.score.toFixed(3))})`,
+          })
+        );
+      });
 
-        // TODO: Implement depends-on once metadataJson field queries are supported.
-        case "depends-on":
-          return A.empty<RelatedSymbol>();
-      }
-    }),
-  })
-);
+      const resolve: RelationResolverShape["resolve"] = Effect.fn("RelationResolver.resolve")(function* (config) {
+        switch (config.relation) {
+          case "similar":
+            return yield* resolveSimilar(config);
+
+          // TODO: Implement same-module once LanceDB supports filtering by
+          // the `module` column directly. Currently the vectorSearch API only
+          // supports `kind` and `package` filters.
+          case "same-module":
+            return A.empty<RelatedSymbol>();
+
+          // TODO: Implement imports once LanceDB query interface supports
+          // filtering by JSON fields within metadataJson.
+          case "imports":
+            return A.empty<RelatedSymbol>();
+
+          // TODO: Implement imported-by once reverse import lookup is available.
+          case "imported-by":
+            return A.empty<RelatedSymbol>();
+
+          // TODO: Implement provides once metadataJson field queries are supported.
+          case "provides":
+            return A.empty<RelatedSymbol>();
+
+          // TODO: Implement depends-on once metadataJson field queries are supported.
+          case "depends-on":
+            return A.empty<RelatedSymbol>();
+        }
+      });
+
+      return RelationResolver.of({ resolve });
+    })
+  );
 
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Resolve similar symbols by embedding the source symbol's ID and performing
- * a vector similarity search. The source symbol is excluded from results.
- *
- * Note: Ideally we would retrieve the source symbol's stored embedding vector
- * and use it directly. Since LanceDB does not currently expose a "get vector
- * by ID" API, we re-embed the symbol ID as a proxy. This will be improved
- * when the query interface is extended.
- *
- * @internal
- */
-const resolveSimilar: (
-  config: RelationResolverConfig
-) => Effect.Effect<
-  ReadonlyArray<RelatedSymbol>,
-  IndexingError | SymbolNotFoundError,
-  LanceDbWriter | EmbeddingService
-> = Effect.fn(function* (config: RelationResolverConfig) {
-  const embeddingSvc = yield* EmbeddingService;
-  const lanceSvc = yield* LanceDbWriter;
-
-  // Embed the symbol ID as a proxy for its content vector
-  const queryVector = yield* pipe(
-    embeddingSvc.embed(config.symbolId),
-    Effect.mapError(
-      (e) =>
-        new IndexingError({
-          message: `Relation resolver embedding failed: ${e.message}`,
-          phase: "relation-resolve",
-        })
-    )
-  );
-
-  // Fetch one extra to account for the source symbol being in results
-  const results = yield* lanceSvc.vectorSearch(queryVector, {
-    limit: config.limit + 1,
-  });
-
-  // Filter out the source symbol and map to RelatedSymbol
-  const filtered = A.filter(results, (r) => r.id !== config.symbolId);
-  const limited = A.take(filtered, config.limit);
-
-  return A.map(
-    limited,
-    (r): RelatedSymbol => ({
-      id: r.id,
-      name: extractNameFromId(r.id),
-      kind: "unknown",
-      package: extractPackageFromId(r.id),
-      module: extractModuleFromId(r.id),
-      filePath: "",
-      startLine: 0,
-      description: "",
-      relationDetail: `Similar symbol (vector similarity score: ${String(r.score.toFixed(3))})`,
-    })
-  );
-});
 
 /**
  * Extract the simple name from a symbol ID of the form `{pkg}/{module}/{name}`.

@@ -55,7 +55,8 @@ const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
 // Test Layer
 // ---------------------------------------------------------------------------
 
-const TestLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, Bm25WriterMock, HybridSearchLive);
+const MockServicesLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, Bm25WriterMock);
+const TestLayer = Layer.mergeAll(MockServicesLayer, HybridSearchLive.pipe(Layer.provide(MockServicesLayer)));
 
 // ---------------------------------------------------------------------------
 // Pure RRF Tests

@@ -9,8 +9,6 @@
  * @module
  */
 
-import { Bm25Writer } from "@beep/codebase-search/indexer/Bm25Writer";
-import { EmbeddingService } from "@beep/codebase-search/indexer/EmbeddingService";
 import { LanceDbWriter } from "@beep/codebase-search/indexer/LanceDbWriter";
 import type { PipelineConfig } from "@beep/codebase-search/indexer/Pipeline";
 import { Pipeline } from "@beep/codebase-search/indexer/Pipeline";
@@ -18,9 +16,9 @@ import type { HybridSearchConfig } from "@beep/codebase-search/search/HybridSear
 import { HybridSearch } from "@beep/codebase-search/search/HybridSearch";
 import type { RelationResolverConfig, RelationType } from "@beep/codebase-search/search/RelationResolver";
 import { RelationResolver } from "@beep/codebase-search/search/RelationResolver";
-import { Effect, FileSystem, Layer, Logger, Path } from "effect";
+import { Effect, Layer, Logger } from "effect";
 import * as A from "effect/Array";
-import { identity, pipe } from "effect/Function";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { Stdio } from "effect/Stdio";
@@ -32,7 +30,15 @@ import {
   SearchTimeoutError,
   SymbolNotFoundError,
 } from "../errors.js";
-import { formatBrowseResult, formatReindexResult, formatRelatedResults, formatSearchResults } from "./formatters.js";
+import {
+  formatBrowseResult,
+  formatReindexResult,
+  formatRelatedResults,
+  formatSearchResults,
+  type FormattedBrowseResult,
+  type FormattedReindexResult,
+  type FormattedSearchResult,
+} from "./formatters.js";
 
 // ---------------------------------------------------------------------------
 // Error Response Types
@@ -60,6 +66,20 @@ export const ErrorCodes = {
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
 
 /**
+ * Schema for MCP error codes.
+ * @since 0.0.0
+ * @category schemas
+ */
+export const ErrorCodeSchema = S.Literals([
+  ErrorCodes.INDEX_NOT_FOUND,
+  ErrorCodes.SYMBOL_NOT_FOUND,
+  ErrorCodes.INDEX_STALE,
+  ErrorCodes.EMBEDDING_MODEL_ERROR,
+  ErrorCodes.SEARCH_TIMEOUT,
+  ErrorCodes.INTERNAL_ERROR,
+]) satisfies S.Decoder<ErrorCode>;
+
+/**
  * Structured error response returned by MCP tool handlers.
  * @since 0.0.0
  * @category types
@@ -71,6 +91,19 @@ export interface McpErrorResponse {
     readonly suggestion: string;
   };
 }
+
+/**
+ * Schema for structured MCP tool error responses.
+ * @since 0.0.0
+ * @category schemas
+ */
+export const McpErrorResponseSchema = S.Struct({
+  error: S.Struct({
+    code: ErrorCodeSchema,
+    message: S.String,
+    suggestion: S.String,
+  }),
+}) satisfies S.Decoder<McpErrorResponse>;
 
 // ---------------------------------------------------------------------------
 // Error Formatting
@@ -154,7 +187,10 @@ const VALID_RELATION_TYPES: ReadonlyArray<RelationType> = [
   "depends-on",
 ];
 
-/** Reindex run statistics. */
+/**
+ * Reindex run statistics.
+ * @since 0.0.0
+ */
 export interface ReindexStats {
   readonly filesScanned: number;
   readonly filesChanged: number;
@@ -163,14 +199,20 @@ export interface ReindexStats {
   readonly durationMs: number;
 }
 
-/** Successful response returned by the reindex tool handler. */
+/**
+ * Successful response returned by the reindex tool handler.
+ * @since 0.0.0
+ */
 export interface ReindexSuccess {
   readonly status: "ok";
   readonly mode: "full" | "incremental";
   readonly stats: ReindexStats;
 }
 
-/** Schema for reindex run statistics. */
+/**
+ * Schema for reindex run statistics.
+ * @since 0.0.0
+ */
 export const ReindexStatsSchema = S.Struct({
   filesScanned: S.Number,
   filesChanged: S.Number,
@@ -179,7 +221,10 @@ export const ReindexStatsSchema = S.Struct({
   durationMs: S.Number,
 }) satisfies S.Decoder<ReindexStats>;
 
-/** Schema for the reindex tool success response. */
+/**
+ * Schema for the reindex tool success response.
+ * @since 0.0.0
+ */
 export const ReindexSuccessSchema = S.Struct({
   status: S.Literal("ok"),
   mode: S.Literals(["full", "incremental"]),
@@ -197,9 +242,9 @@ export const handleSearchCodebase: (params: {
   readonly package?: string | undefined;
   readonly limit?: number | undefined;
 }) => Effect.Effect<
-  unknown,
+  ReadonlyArray<FormattedSearchResult>,
   IndexingError | IndexNotFoundError | EmbeddingModelError | SearchTimeoutError,
-  HybridSearch | EmbeddingService | LanceDbWriter | Bm25Writer
+  HybridSearch
 > = Effect.fn(function* (params: {
   readonly query: string;
   readonly kind?: string | undefined;
@@ -236,9 +281,9 @@ export const handleFindRelated: (params: {
   readonly relation?: string | undefined;
   readonly limit?: number | undefined;
 }) => Effect.Effect<
-  unknown,
+  ReturnType<typeof formatRelatedResults>,
   IndexingError | SymbolNotFoundError | EmbeddingModelError,
-  RelationResolver | EmbeddingService | LanceDbWriter
+  RelationResolver
 > = Effect.fn(function* (params: {
   readonly symbolId: string;
   readonly relation?: string | undefined;
@@ -278,7 +323,7 @@ export const handleBrowseSymbols: (params: {
   readonly package?: string | undefined;
   readonly module?: string | undefined;
   readonly kind?: string | undefined;
-}) => Effect.Effect<unknown, IndexingError, LanceDbWriter> = Effect.fn(function* (params: {
+}) => Effect.Effect<FormattedBrowseResult, IndexingError, LanceDbWriter> = Effect.fn(function* (params: {
   readonly package?: string | undefined;
   readonly module?: string | undefined;
   readonly kind?: string | undefined;
@@ -323,7 +368,16 @@ export const handleReindex: (params: {
 
   const stats = yield* pipeline.run(config);
 
-  return S.decodeUnknownSync(ReindexSuccessSchema)(formatReindexResult(mode, stats));
+  return yield* pipe(
+    S.decodeUnknown(ReindexSuccessSchema)(formatReindexResult(mode, stats) satisfies FormattedReindexResult),
+    Effect.mapError(
+      (error) =>
+        new IndexingError({
+          message: `Reindex result schema validation failed: ${String(error)}`,
+          phase: "reindex-result",
+        })
+    )
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -358,6 +412,8 @@ export const SearchCodebaseTool = Tool.make("search_codebase", {
     ),
   }),
   success: S.Unknown,
+  failure: McpErrorResponseSchema,
+  dependencies: [HybridSearch],
 });
 
 /**
@@ -383,6 +439,8 @@ export const FindRelatedTool = Tool.make("find_related", {
     ),
   }),
   success: S.Unknown,
+  failure: McpErrorResponseSchema,
+  dependencies: [RelationResolver],
 });
 
 /**
@@ -410,6 +468,8 @@ export const BrowseSymbolsTool = Tool.make("browse_symbols", {
     ),
   }),
   success: S.Unknown,
+  failure: McpErrorResponseSchema,
+  dependencies: [LanceDbWriter],
 });
 
 /**
@@ -433,6 +493,8 @@ export const ReindexTool = Tool.make("reindex", {
     ),
   }),
   success: S.Unknown,
+  failure: McpErrorResponseSchema,
+  dependencies: [Pipeline],
 });
 
 // ---------------------------------------------------------------------------
@@ -468,8 +530,8 @@ export interface McpServerConfig {
 
 /**
  * Creates the toolkit handler layer that wires up service dependencies
- * to the tool handlers. Errors are caught and returned as structured error
- * responses so the toolkit handlers never fail.
+ * to the tool handlers. Domain errors are mapped to structured MCP error
+ * responses and preserved in the Effect error channel.
  *
  * @since 0.0.0
  * @category layers
@@ -479,81 +541,53 @@ export const makeToolkitHandlerLayer: (
 ) => Layer.Layer<
   Tool.HandlersFor<Toolkit.Tools<typeof CodebaseSearchToolkit>>,
   never,
-  HybridSearch | RelationResolver | Pipeline | LanceDbWriter | Bm25Writer | EmbeddingService
-> = (config) =>
-  CodebaseSearchToolkit.toLayer(
-  Effect.gen(function* () {
-      // Capture service instances for use inside tool handlers
-      const hybridSearch = yield* HybridSearch;
-      const relationResolver = yield* RelationResolver;
-      const pipelineSvc = yield* Pipeline;
-      const lanceDb = yield* LanceDbWriter;
-      const bm25 = yield* Bm25Writer;
-      const embeddingSvc = yield* EmbeddingService;
+  HybridSearch | RelationResolver | Pipeline | LanceDbWriter
+> = (config) => {
+  const runHandler = <A, R>(
+    effect: Effect.Effect<
+      A,
+      IndexingError | IndexNotFoundError | SymbolNotFoundError | EmbeddingModelError | SearchTimeoutError,
+      R
+    >
+  ): Effect.Effect<A, McpErrorResponse, R> => effect.pipe(Effect.mapError(formatError));
 
-      // Build layers to provide when running handler Effects
-      const allServiceLayers = Layer.mergeAll(
-        Layer.succeed(HybridSearch, hybridSearch),
-        Layer.succeed(RelationResolver, relationResolver),
-        Layer.succeed(Pipeline, pipelineSvc),
-        Layer.succeed(LanceDbWriter, lanceDb),
-        Layer.succeed(Bm25Writer, bm25),
-        Layer.succeed(EmbeddingService, embeddingSvc)
-      );
-
-      const runHandler = <A>(
-        effect: Effect.Effect<
-          A,
-          IndexingError | IndexNotFoundError | SymbolNotFoundError | EmbeddingModelError | SearchTimeoutError,
-          HybridSearch | RelationResolver | Pipeline | LanceDbWriter | Bm25Writer | EmbeddingService
-        >
-      ): Effect.Effect<A | McpErrorResponse> =>
-        effect.pipe(
-          Effect.provide(allServiceLayers),
-          Effect.match({
-            onSuccess: identity,
-            onFailure: formatError,
-          })
-        );
-
-      return {
-        search_codebase: (params) =>
-          runHandler(
-            handleSearchCodebase({
-              query: params.query,
-              kind: params.kind,
-              package: params.package,
-              limit: params.limit,
-            })
-          ),
-        find_related: (params) =>
-          runHandler(
-            handleFindRelated({
-              symbolId: params.symbolId,
-              relation: params.relation,
-              limit: params.limit,
-            })
-          ),
-        browse_symbols: (params) =>
-          runHandler(
-            handleBrowseSymbols({
-              package: params.package,
-              module: params.module,
-              kind: params.kind,
-            })
-          ),
-        reindex: (params) =>
-          runHandler(
-            handleReindex({
-              rootDir: config.rootDir,
-              indexPath: config.indexPath,
-              mode: params.mode,
-              package: params.package,
-            })
-          ),
-      };
-    })
-  );
+  return CodebaseSearchToolkit.toLayer({
+    search_codebase: (params) =>
+      runHandler(
+        handleSearchCodebase({
+          query: params.query,
+          kind: params.kind,
+          package: params.package,
+          limit: params.limit,
+        })
+      ),
+    find_related: (params) =>
+      runHandler(
+        handleFindRelated({
+          symbolId: params.symbolId,
+          relation: params.relation,
+          limit: params.limit,
+        })
+      ),
+    browse_symbols: (params) =>
+      runHandler(
+        handleBrowseSymbols({
+          package: params.package,
+          module: params.module,
+          kind: params.kind,
+        })
+      ),
+    reindex: (params) =>
+      runHandler(
+        handleReindex({
+          rootDir: config.rootDir,
+          indexPath: config.indexPath,
+          mode: params.mode,
+          package: params.package,
+        })
+      ),
+  });
+};
 
 /**
  * Creates the complete MCP server layer with stdio transport.
@@ -573,10 +607,6 @@ export const makeServerLayer: (
   | RelationResolver
   | Pipeline
   | LanceDbWriter
-  | Bm25Writer
-  | EmbeddingService
-  | FileSystem.FileSystem
-  | Path.Path
   | Stdio
 > = (config) => {
   const handlersLayer = makeToolkitHandlerLayer(config);

@@ -52,7 +52,7 @@ const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
 // Test Layer
 // ---------------------------------------------------------------------------
 
-const TestLayer = Layer.mergeAll(Bm25WriterMock, KeywordSearchLive);
+const TestLayer = KeywordSearchLive.pipe(Layer.provideMerge(Bm25WriterMock));
 
 // ---------------------------------------------------------------------------
 // Tests
