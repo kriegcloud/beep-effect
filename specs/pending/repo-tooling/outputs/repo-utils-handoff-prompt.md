@@ -26,7 +26,7 @@ You will implement a **from-scratch** monorepo utilities package following Effec
 **Required Reading** (in order):
 1. `specs/outputs/repo-utils-legacy-inventory.md` - What utilities exist and why
 2. `specs/outputs/repo-utils-implementation-plan.md` - Detailed implementation plan
-3. `specs/pending/effect-v4-migration/design-discussions/005-lessons-learned-creating-repo-cli.md` - Lessons from creating first package
+3. `specs/completed/effect-v4-migration/design-discussions/005-lessons-learned-creating-repo-cli.md` - Lessons from creating first package
 
 **Reference Examples:**
 - `tooling/cli/` - Example package following our standards

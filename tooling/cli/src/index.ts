@@ -76,3 +76,16 @@ export {
    */
   topoSortCommand,
 } from "./commands/topo-sort.js";
+/**
+ * Tsconfig sync command for workspace tsconfig references and root aliases.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Tsconfig sync command for workspace tsconfig references and root aliases.
+   *
+   * @since 0.0.0
+   */
+  tsconfigSyncCommand,
+} from "./commands/tsconfig-sync.js";

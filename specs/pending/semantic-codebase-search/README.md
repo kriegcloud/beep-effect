@@ -1,10 +1,10 @@
 # Semantic Codebase Search via Annotation-Driven Indexing
 
-> **Status:** P2 Complete (Evaluation/Design) | P3 Pending (Synthesis/Planning)
+> **Status:** P5 Verification Attempted — Blocked on embedding model artifact mismatch
 > **Complexity:** High (41-60 points)
 > **Owner:** @elpresidank
 > **Created:** 2026-02-19
-> **Last Updated:** 2026-02-19
+> **Last Updated:** 2026-02-20
 
 ---
 
@@ -70,19 +70,19 @@ Claude Code Hooks (UserPromptSubmit auto-injection, SessionStart overview)
 |-------|------|--------|-------------|
 | P0 | Scaffolding | **Complete** | Spec creation |
 | P1 | Discovery | **Complete** | Research across 10 documents (296KB) |
-| P2 | Evaluation & Design | **Pending** | Documentation standards, extraction schema, MCP API design |
-| P3 | Synthesis & Planning | Blocked on P2 | Implementation plan, work item breakdown |
-| P4a | Documentation Standards Implementation | Blocked on P3 | eslint rules, docgen config, apply to existing code |
-| P4b | Extractor & Indexer Implementation | Blocked on P4a | ts-morph extractor, embedding pipeline, LanceDB store |
-| P4c | MCP Server & Hooks Implementation | Blocked on P4b | MCP server, Claude Code hooks, integration |
-| P5 | Verification | Blocked on P4c | End-to-end testing, quality validation |
+| P2 | Evaluation & Design | **Complete** | Documentation standards, extraction schema, MCP API design |
+| P3 | Synthesis & Planning | **Complete** | Implementation plan, work item breakdown |
+| P4a | Documentation Standards Implementation | **Complete** | eslint rules, docgen config, apply to existing code |
+| P4b | Extractor & Indexer Implementation | **Complete** | ts-morph extractor, embedding pipeline, LanceDB store |
+| P4c | MCP Server & Hooks Implementation | **Complete** | MCP server, Claude Code hooks, integration |
+| P5 | Verification | **Blocked** | Retrieval/index gates blocked by embedding model ONNX artifact mismatch |
 
 ## Key Decisions Made
 
 | Decision | Rationale | Source |
 |----------|-----------|--------|
 | Annotation-driven over LLM translation | Zero cost, deterministic, higher quality human-authored descriptions | P1 research: Greptile insight + user's annotation idea |
-| Nomic CodeRankEmbed for embeddings | SOTA for size (137M), Apache-2.0, runs locally in Node via ONNX | P1: custom-solution-architecture.md |
+| Nomic CodeRankEmbed for embeddings | SOTA for size (137M), Apache-2.0; selected in design but currently blocked by missing ONNX artifact | P1: custom-solution-architecture.md + P5 verification |
 | LanceDB for vector storage | Serverless, TypeScript-native, no Docker/external process | P1: custom-solution-architecture.md |
 | Hybrid BM25 + vector search with RRF | Emerging best practice, 67% failure rate reduction | P1: real-world-implementations.md |
 | Build on docgen Parser APIs + custom ts-morph | Docgen handles JSDoc well, custom code for Effect patterns | P1: docgen-source-analysis.md |
@@ -129,6 +129,25 @@ Claude Code Hooks (UserPromptSubmit auto-injection, SessionStart overview)
 | [eslint-config-design.md](./outputs/eslint-config-design.md) | 17KB | ESLint flat config, 2 custom rules, gradual adoption |
 | [docgen-vs-custom-evaluation.md](./outputs/docgen-vs-custom-evaluation.md) | 23KB | Hybrid extractor recommendation with source analysis |
 | [embedding-pipeline-design.md](./outputs/embedding-pipeline-design.md) | 24KB | Full pipeline: CodeRankEmbed, LanceDB, BM25, RRF, incremental indexing |
+
+## Verification Artifacts (P5 Outputs)
+
+| Document | Scope |
+|----------|-------|
+| [p5-e2e-results.md](./outputs/p5-e2e-results.md) | Required E2E retrieval + hook behavior evidence |
+| [p5-performance-benchmarks.md](./outputs/p5-performance-benchmarks.md) | MCP latency attempts + reindex timing attempts |
+| [p5-search-quality-report.md](./outputs/p5-search-quality-report.md) | 10-query quality run and precision gate result |
+| [p5-verification-summary.md](./outputs/p5-verification-summary.md) | Consolidated checklist, blockers, remediation tasks |
+
+## Current Blockers
+
+1. `EmbeddingServiceLive` targets `nomic-ai/CodeRankEmbed` with expected `onnx/model.onnx`, but current upstream model artifacts do not include that ONNX file.
+2. Live `reindex` and all retrieval MCP tool checks are blocked until embedding model configuration is updated to a compatible ONNX-backed model.
+
+## Closeout State
+
+- Spec remains in `specs/pending/semantic-codebase-search`.
+- `bun run spec:move -- semantic-codebase-search completed` has not been executed because mandatory P5 gates are not yet passing.
 
 ## Risk Register
 

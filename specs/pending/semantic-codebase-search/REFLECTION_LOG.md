@@ -126,10 +126,38 @@
 
 ## P4a-c: Implementation
 
-*(To be filled after P4 completion)*
+**What went well:**
+- Core implementation landed across extractor, indexer, MCP tools, and hook entrypoints with full local test coverage.
+- `tooling/codebase-search` command surface is coherent: one package owns `search_codebase`, `find_related`, `browse_symbols`, `reindex`, plus both hook scripts.
+- Verification command baseline is healthy (`tsc`, `vitest`, `docgen`, eslint with no errors).
+
+**Key implementation learnings:**
+1. **Hook entrypoint naming matters operationally** -- built hook scripts are `session-start-entry.js` and `prompt-submit-entry.js`; docs that reference `session-start.js` / `prompt-submit.js` drift from runtime.
+2. **Runtime coupling is explicit** -- MCP entrypoint composes `@effect/platform-bun`, so running `dist/bin.js` with `node` fails. Bun is the intended runtime.
+3. **Cross-validation gaps were mostly resolved in code** -- relation traversal, schema formatting, and hook skip heuristics are implemented and test-covered.
+
+**What to improve:**
+- Keep operational docs synchronized with compiled artifact names and runtime expectations immediately after implementation merges.
 
 ---
 
 ## P5: Verification
 
-*(To be filled after P5 completion)*
+**What went well:**
+- Standards gate is green: required eslint/docgen/tsc/vitest commands all pass.
+- Hook behavior is confirmed in executable form (overview formatting, coding prompt injection, skip heuristics) using built hook entrypoints.
+- Verification harnessing was made reproducible with per-check timing/error capture.
+
+**Blocking outcome:**
+1. **Primary blocker: embedding model artifact drift** -- `EmbeddingServiceLive` targets `nomic-ai/CodeRankEmbed` expecting `onnx/model.onnx`, but that artifact no longer exists on the model repo. This blocks `reindex` and all MCP retrieval paths.
+2. **Secondary operational mismatch:** docs historically suggested Node launch for MCP server, but current implementation requires Bun runtime.
+
+**P5 gate status:**
+- E2E retrieval: fail (blocked by model load error)
+- MCP latency/index timings: fail (blocked by model load error before tool execution)
+- 10-query precision: fail/non-evaluable (0 successful retrievals)
+- Hook checks: pass (validated with seeded fixture index)
+- Standards checks: pass
+
+**Next-phase remediation focus:**
+- Update embedding model configuration to an ONNX-available compatible model, then rerun full P5 verification and only move spec after all gates pass.

@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-18
 **Participants:** User, Claude
-**Status:** In Progress
+**Status:** ✅ Completed (implemented)
 
 ## Context
 
@@ -50,42 +50,27 @@ Chose `create-package` for consistency with `create-slice` and clarity.
 ### Basic Usage
 
 ```bash
-bun run repo-cli create-package --name foo --type domain
+bun run beep create-package --name foo --type library
 ```
 
-### Questions to Resolve
+### Questions to Resolve (Resolved)
 
-1. **Package types**: What types of packages can be created?
-   - domain, tables, server, client, ui (slice sub-packages)
-   - tooling packages
-   - standalone packages
-   - Other?
+1. **Package types**
+   - Resolved: `library`, `tool`, `app`.
 
-2. **Template system**: How should templates be structured?
-   - Handlebars (like legacy create-slice)?
-   - Plain file templates?
-   - Programmatic generation?
+2. **Template system**
+   - Resolved: Handlebars templates under `src/commands/create-package/templates/`.
 
-3. **Required vs optional parameters**:
-   - Name (required)
-   - Type (required?)
-   - Description (optional)
-   - Location/scope (inferred or explicit?)
+3. **Required vs optional parameters**
+   - Resolved: name required, `--type` optional (default `library`), `--description` optional.
 
-4. **Workspace integration**:
-   - Auto-update pnpm-workspace.yaml / package.json workspaces?
-   - Auto-update tsconfig paths?
-   - Auto-install dependencies?
+4. **Workspace integration**
+   - Resolved: auto-updates `tsconfig.packages.json` references and root `tsconfig.json` aliases.
+   - Explicitly not part of this command: dependency installation.
 
-## Next Steps
+## Final Disposition
 
-1. Define package types and their templates
-2. Design template structure
-3. Implement command handler
-4. Create tests
-
-## Open Questions
-
-- Should we support custom template paths?
-- How to handle existing packages (error, skip, merge)?
-- Should this command also handle slice sub-package creation or is that `create-slice`'s job?
+1. ✅ Defined package types and template strategy.
+2. ✅ Implemented command handler and template rendering flow.
+3. ✅ Added tests for file generation, dry-run, config updates, validation, and error paths.
+4. ⏭️ Remaining robustness issues are tracked in `specs/pending/repo-cli-quality-hardening/README.md`.

@@ -37,12 +37,13 @@ const run = Command.runWith(createPackageCommand, { version: "0.0.0" });
 const withTempPackageBase = Effect.fn(function* (
   name: string,
   args: ReadonlyArray<string>,
-  assertions: (outputDir: string) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path>
+  assertions: (outputDir: string) => Effect.Effect<void, unknown, FileSystem.FileSystem | Path.Path>,
+  outputParentDir = "tooling"
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot();
-  const outputDir = path.join(repoRoot, "tooling", name);
+  const outputDir = path.join(repoRoot, outputParentDir, name);
 
   // Snapshot root configs before test
   const tsconfigPkgsPath = path.join(repoRoot, "tsconfig.packages.json");
@@ -123,6 +124,22 @@ describe("create-package command", () => {
 
           expect(output).toContain("[dry-run] Would create package @beep/test-app (type: app)");
           expect(output.some((l) => l.includes("/apps/test-app"))).toBe(true);
+        })
+      )
+    );
+
+    it.effect(
+      "should dry-run package creation with custom parent dir",
+      withTestLayers(
+        Effect.fn(function* () {
+          yield* run(["test-common", "--parent-dir", "packages/common", "--dry-run"]);
+
+          const logs = yield* TestConsole.logLines;
+          const output = logs.map(String);
+
+          expect(output).toContain("[dry-run] Would create package @beep/test-common (type: library)");
+          expect(output.some((l) => l.includes("/packages/common/test-common"))).toBe(true);
+          expect(output.some((l) => l.includes('"path": "packages/common/test-common"'))).toBe(true);
         })
       )
     );
@@ -394,6 +411,45 @@ describe("create-package command", () => {
         })
       );
     });
+
+    it.effect("should generate depth-aware templates under nested parent dir", () => {
+      const pkgName = `_test-common-${Date.now()}`;
+      return withTempPackage(
+        pkgName,
+        [pkgName, "--parent-dir", "packages/common"],
+        Effect.fn(function* (outputDir) {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const repoRoot = yield* findRepoRoot();
+
+          const tsconfigRaw = yield* fs.readFileString(path.join(outputDir, "tsconfig.json"));
+          const tsconfig = JSON.parse(tsconfigRaw);
+          expect(tsconfig.extends).toBe("../../../tsconfig.base.json");
+
+          const vitestConfig = yield* fs.readFileString(path.join(outputDir, "vitest.config.ts"));
+          expect(vitestConfig).toContain('import shared from "../../../vitest.shared.ts";');
+
+          const aiContext = yield* fs.readFileString(path.join(outputDir, "ai-context.md"));
+          expect(aiContext).toContain(`path: packages/common/${pkgName}`);
+
+          const docgenRaw = yield* fs.readFileString(path.join(outputDir, "docgen.json"));
+          const docgen = JSON.parse(docgenRaw);
+          expect(docgen.$schema).toBe("../../../node_modules/@effect/docgen/schema.json");
+          expect(docgen.examplesCompilerOptions.paths.effect).toEqual(["../../../packages/effect/src/index.ts"]);
+          expect(docgen.examplesCompilerOptions.paths[`@beep/${pkgName}`]).toEqual([
+            `../../../packages/common/${pkgName}/src/index.ts`,
+          ]);
+
+          const tsconfigPackages = yield* fs.readFileString(path.join(repoRoot, "tsconfig.packages.json"));
+          expect(tsconfigPackages).toContain(`"path": "packages/common/${pkgName}"`);
+
+          const tsconfigRoot = yield* fs.readFileString(path.join(repoRoot, "tsconfig.json"));
+          expect(tsconfigRoot).toContain(`"./packages/common/${pkgName}/src/index.ts"`);
+          expect(tsconfigRoot).toContain(`"./packages/common/${pkgName}/src/*.ts"`);
+        }),
+        "packages/common"
+      );
+    });
   });
 
   // ── Description flag tests ───────────────────────────────────────────────
@@ -544,6 +600,19 @@ describe("create-package command", () => {
           // Contains spaces
           const r3 = yield* Effect.exit(run(["has spaces", "--dry-run"]));
           expect(r3._tag).toBe("Failure");
+        })
+      )
+    );
+
+    it.effect(
+      "should reject invalid parent dir overrides",
+      withTestLayers(
+        Effect.fn(function* () {
+          const r1 = yield* Effect.exit(run(["goodname", "--parent-dir", "../escape", "--dry-run"]));
+          expect(r1._tag).toBe("Failure");
+
+          const r2 = yield* Effect.exit(run(["goodname", "--parent-dir", "/absolute/path", "--dry-run"]));
+          expect(r2._tag).toBe("Failure");
         })
       )
     );

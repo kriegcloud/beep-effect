@@ -42,10 +42,13 @@ Overhaul the `beep create-package` CLI command to scaffold production-ready pack
 - [ ] New tests cover every generated file's content and structure
 - [ ] Type tests pass (`bun run test:types`)
 - [ ] Full quality checks pass (build, check, test, lint)
+- [ ] Core scaffolding modules are reusable by a new `create-slice` implementation
+- [ ] Creating `@beep/types` and `@beep/utils` under `packages/common` requires zero manual post-fix work
 
 ## Expected Outputs
 - `specs/pending/repo-tooling/outputs/create-package-template-inventory.md` - Complete file-by-file template specification
 - `specs/pending/repo-tooling/outputs/create-package-design.md` - Architecture decisions, template variable schema, handler refactor plan
+- `specs/pending/repo-tooling/outputs/create-slice-reuse-gap-analysis.md` - Gap matrix and concrete extraction targets for create-slice reuse
 - Updated `tooling/cli/src/commands/create-package/` directory with templates and handler
 - Updated test suite with coverage for all generated files
 
@@ -53,10 +56,11 @@ Overhaul the `beep create-package` CLI command to scaffold production-ready pack
 
 | Phase | Goal | Status |
 |-------|------|--------|
-| 0 | Research & Design: inventory templates, define variables, design handler architecture | Pending |
-| 1 | Template Creation: write all .hbs templates, add handlebars dependency | Pending |
-| 2 | Implementation: refactor handler to use templates, add symlink creation, update tests | Pending |
-| 3 | Verification: full quality checks, update AGENTS.md/ai-context.md for cli package | Pending |
+| 0 | Research & Design: inventory templates, define variables, design handler architecture | Complete |
+| 1 | Template Creation: write all .hbs templates, add handlebars dependency | Complete |
+| 2 | Implementation: refactor handler to use templates, add symlink creation, update tests | Complete |
+| 3 | Verification: full quality checks, update AGENTS.md/ai-context.md for cli package | Partial (gates not fully green) |
+| 4 | Reuse Extraction: make create-package core reusable for `.repos/beep-effect` `create-slice` and close zero-manual baseline gaps | ACTIVE |
 
 ## Prior Work
 Existing outputs from repo-utils migration (completed):
@@ -68,13 +72,22 @@ Existing outputs from repo-utils migration (completed):
 
 ## Current State
 
-### What create-package generates today (4 files)
+### What create-package generates today (13 files + root config updates)
 | File | Method | Content |
 |------|--------|---------|
 | `package.json` | Effect.fn + `encodePackageJsonPrettyEffect` | Full npm metadata, Effect v4 deps, scripts |
-| `tsconfig.json` | Effect.fn + `jsonStringifyPretty` | Extends base, outDir/rootDir |
-| `src/index.ts` | String template literal | Module JSDoc + VERSION export |
-| `test/.gitkeep` | Empty string | Directory marker |
+| `tsconfig.json` | Handlebars template | Extends root config using package-depth-aware relative path |
+| `src/index.ts` | Handlebars template | Module JSDoc + VERSION export |
+| `test/.gitkeep` | Static write | Directory marker |
+| `dtslint/.gitkeep` | Static write | Type test directory marker |
+| `LICENSE` | Handlebars template | MIT license |
+| `README.md` | Handlebars template | Package docs skeleton |
+| `AGENTS.md` | Handlebars template | Contributor/agent guidance |
+| `ai-context.md` | Handlebars template | YAML frontmatter + context skeleton |
+| `CLAUDE.md` | Symlink | Symlink target: `AGENTS.md` |
+| `docgen.json` | Handlebars template | Package-specific docgen config |
+| `vitest.config.ts` | Handlebars template | Shared vitest merge config |
+| `docs/index.md` | Handlebars template | Docs front matter |
 
 ### What well-structured packages contain (target state)
 | File | Purpose | Template Vars |
@@ -101,7 +114,21 @@ Existing outputs from repo-utils migration (completed):
 | `type` | `--type` flag | `library`, `tool`, `app` |
 | `description` | `--description` flag | `Utility functions for...` |
 | `year` | `new Date().getFullYear()` | `2026` |
-| `parentDir` | Derived from type | `tooling`, `apps` |
+| `parentDir` | Derived from type or `--parent-dir` override | `tooling`, `apps`, `packages/common` |
+| `packagePath` | Derived: `${parentDir}/${name}` | `packages/common/types` |
+| `rootRelative` | Derived from package path depth | `../../`, `../../../` |
+
+## New Phase Trigger (2026-02-20)
+
+`create-package` now scaffolds `packages/common` packages, but reuse requirements for a new `.repos/beep-effect` `create-slice` are still incomplete:
+
+- Core logic is still handler-centric, not service-oriented (`FileGeneratorService`, `ConfigUpdaterService`, `TsMorphService` style modules are missing).
+- Verification gates are not reliably green for zero-manual work across the current branch.
+- A dedicated extraction phase is required to turn create-package internals into reusable primitives for multi-package slice generation.
+
+See:
+- `outputs/create-slice-reuse-gap-analysis.md`
+- `handoffs/HANDOFF_P4.md`
 
 ## Reference Patterns
 

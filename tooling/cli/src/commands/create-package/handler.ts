@@ -94,10 +94,32 @@ interface TemplateContext {
   readonly description: string;
   readonly year: string;
   readonly parentDir: string;
+  readonly packagePath: string;
+  readonly rootRelative: string;
   readonly isTool: boolean;
   readonly isApp: boolean;
   readonly isLibrary: boolean;
 }
+
+/**
+ * Validate an optional parent directory override like `packages/common`.
+ *
+ * Must be repo-relative, normalized, and free of traversal segments.
+ */
+const isValidParentDir = (value: string): boolean => {
+  if (!/^[a-z0-9][a-z0-9/_-]*$/.test(value)) return false;
+  if (value.startsWith("/") || value.endsWith("/") || value.includes("//")) return false;
+  return !value.split("/").some((segment) => segment === "." || segment === ".." || segment.length === 0);
+};
+
+/**
+ * Compute the path from a package directory back to repo root.
+ *
+ * Examples:
+ * - `tooling/cli` => `../../`
+ * - `packages/common/types` => `../../../`
+ */
+const toRootRelative = (packagePath: string): string => "../".repeat(packagePath.split("/").length);
 
 // ── Template loading ──────────────────────────────────────────────────────────
 
@@ -144,11 +166,15 @@ export const createPackageCommand = Command.make(
       Flag.withDescription("Package type: library, tool, or app"),
       Flag.withDefault("library")
     ),
+    parentDir: Flag.string("parent-dir").pipe(
+      Flag.withDescription("Optional output parent directory relative to repo root (e.g. packages/common)"),
+      Flag.withDefault("")
+    ),
     description: Flag.string("description").pipe(Flag.withDescription("Package description"), Flag.withDefault("")),
     dryRun: Flag.boolean("dry-run").pipe(Flag.withDescription("Preview changes without writing files")),
   },
   Effect.fn(function* (config) {
-    const { name, type, description, dryRun } = config;
+    const { name, type, parentDir: parentDirOverride, description, dryRun } = config;
 
     // ── Validate type ──────────────────────────────────────────────────
     if (!VALID_TYPES.includes(type as (typeof VALID_TYPES)[number])) {
@@ -165,6 +191,16 @@ export const createPackageCommand = Command.make(
       });
     }
 
+    // ── Resolve parent directory ───────────────────────────────────────
+    const defaultParentDir = type === "app" ? "apps" : "tooling";
+    const parentDir = parentDirOverride.length > 0 ? parentDirOverride : defaultParentDir;
+    if (!isValidParentDir(parentDir)) {
+      return yield* new DomainError({
+        message: `Invalid parent dir "${parentDir}". Use a repo-relative path like "tooling", "apps", or "packages/common".`,
+      });
+    }
+    const packagePath = `${parentDir}/${name}`;
+
     // ── Resolve services ───────────────────────────────────────────────
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
@@ -173,8 +209,7 @@ export const createPackageCommand = Command.make(
     const repoRoot = yield* findRepoRoot();
 
     // ── Determine output directory ─────────────────────────────────────
-    const parentDir = type === "app" ? "apps" : "tooling";
-    const outputDir = path.join(repoRoot, parentDir, name);
+    const outputDir = path.join(repoRoot, packagePath);
 
     // ── Check if directory already exists ──────────────────────────────
     const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
@@ -194,12 +229,12 @@ export const createPackageCommand = Command.make(
       }
 
       // ── Config update preview ────────────────────────────────────────
-      const configNeeds = yield* checkConfigNeedsUpdate(repoRoot, name, `${parentDir}/${name}`).pipe(
+      const configNeeds = yield* checkConfigNeedsUpdate(repoRoot, name, packagePath).pipe(
         Effect.orElseSucceed(() => ({ tsconfigPackages: true, tsconfigPaths: true }))
       );
       yield* Console.log(`[dry-run] Root config updates:`);
       yield* Console.log(
-        `  - tsconfig.packages.json: ${configNeeds.tsconfigPackages ? `Add reference { "path": "${parentDir}/${name}" }` : "SKIP (already exists)"}`
+        `  - tsconfig.packages.json: ${configNeeds.tsconfigPackages ? `Add reference { "path": "${packagePath}" }` : "SKIP (already exists)"}`
       );
       yield* Console.log(
         `  - tsconfig.json: ${configNeeds.tsconfigPaths ? `Add path aliases @beep/${name}, @beep/${name}/*` : "SKIP (already exists)"}`
@@ -215,6 +250,8 @@ export const createPackageCommand = Command.make(
       description,
       year: String(new Date().getFullYear()),
       parentDir,
+      packagePath,
+      rootRelative: toRootRelative(packagePath),
       isTool: type === "tool",
       isApp: type === "app",
       isLibrary: type === "library",
@@ -254,7 +291,7 @@ export const createPackageCommand = Command.make(
       .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to create CLAUDE.md symlink: ${String(e)}` })));
 
     // ── Update root configs ────────────────────────────────────────────
-    const configResults = yield* updateRootConfigs(repoRoot, name, `${parentDir}/${name}`).pipe(
+    const configResults = yield* updateRootConfigs(repoRoot, name, packagePath).pipe(
       Effect.orElseSucceed(() => ({ tsconfigPackages: false, tsconfigPaths: false }))
     );
 
@@ -267,7 +304,7 @@ export const createPackageCommand = Command.make(
     if (configResults.tsconfigPackages || configResults.tsconfigPaths) {
       yield* Console.log(`\nRoot configs updated:`);
       if (configResults.tsconfigPackages) {
-        yield* Console.log(`  - tsconfig.packages.json: Added reference "${parentDir}/${name}"`);
+        yield* Console.log(`  - tsconfig.packages.json: Added reference "${packagePath}"`);
       }
       if (configResults.tsconfigPaths) {
         yield* Console.log(`  - tsconfig.json: Added path aliases @beep/${name}`);

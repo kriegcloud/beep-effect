@@ -307,7 +307,7 @@ If anything is unclear:
 1. Check the specific document (Inventory, Plan, or Handoff)
 2. Look at `tooling/cli/` for package structure example
 3. Check `.repos/effect-smol/packages/effect/` for Effect v4 patterns
-4. Read `specs/pending/effect-v4-migration/design-discussions/005-lessons-learned-creating-repo-cli.md` for lessons learned
+4. Read `specs/completed/effect-v4-migration/design-discussions/005-lessons-learned-creating-repo-cli.md` for lessons learned
 
 ---
 

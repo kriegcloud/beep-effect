@@ -27,4 +27,9 @@ Cumulative learnings from the repo-tooling spec phases.
 
 ## create-package Overhaul Reflections
 
-(To be populated during implementation phases)
+### refl-2026-02-20-001
+- **Phase**: phase-4-planning
+- **Outcome**: identified gap
+- **Task**: Assess whether create-package internals are reusable for a new create-slice implementation
+- **Key Insight**: Handler-level implementation is sufficient for single-package scaffolding but not for create-slice's multi-package + ts-morph orchestration needs
+- **Pattern**: Extract service boundaries early (`TemplateService`, generation planner, config orchestration, AST integration) before implementing higher-level commands

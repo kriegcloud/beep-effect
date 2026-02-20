@@ -62,9 +62,64 @@
         "typescript": "catalog:",
       },
     },
+    "packages/common/types": {
+      "name": "@beep/types",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/common/utils": {
+      "name": "@beep/utils",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "scratchpad": {
       "name": "scratchpad",
       "version": "0.0.0",
+    },
+    "tooling/_test-idempotent-1771558038638": {
+      "name": "@beep/_test-idempotent-1771558038638",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "tooling/_test-nodesc-1771558038551": {
+      "name": "@beep/_test-nodesc-1771558038551",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "tooling/_test-symlink-1771558038373": {
+      "name": "@beep/_test-symlink-1771558038373",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
     },
     "tooling/cli": {
       "name": "@beep/repo-cli",
@@ -265,6 +320,12 @@
 
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
+    "@beep/_test-idempotent-1771558038638": ["@beep/_test-idempotent-1771558038638@workspace:tooling/_test-idempotent-1771558038638"],
+
+    "@beep/_test-nodesc-1771558038551": ["@beep/_test-nodesc-1771558038551@workspace:tooling/_test-nodesc-1771558038551"],
+
+    "@beep/_test-symlink-1771558038373": ["@beep/_test-symlink-1771558038373@workspace:tooling/_test-symlink-1771558038373"],
+
     "@beep/codebase-search": ["@beep/codebase-search@workspace:tooling/codebase-search"],
 
     "@beep/groking-effect-v4": ["@beep/groking-effect-v4@workspace:groking-effect-v4"],
@@ -272,6 +333,10 @@
     "@beep/repo-cli": ["@beep/repo-cli@workspace:tooling/cli"],
 
     "@beep/repo-utils": ["@beep/repo-utils@workspace:tooling/repo-utils"],
+
+    "@beep/types": ["@beep/types@workspace:packages/common/types"],
+
+    "@beep/utils": ["@beep/utils@workspace:packages/common/utils"],
 
     "@biomejs/biome": ["@biomejs/biome@2.4.3", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.4.3", "@biomejs/cli-darwin-x64": "2.4.3", "@biomejs/cli-linux-arm64": "2.4.3", "@biomejs/cli-linux-arm64-musl": "2.4.3", "@biomejs/cli-linux-x64": "2.4.3", "@biomejs/cli-linux-x64-musl": "2.4.3", "@biomejs/cli-win32-arm64": "2.4.3", "@biomejs/cli-win32-x64": "2.4.3" }, "bin": { "biome": "bin/biome" } }, "sha512-cBrjf6PNF6yfL8+kcNl85AjiK2YHNsbU0EvDOwiZjBPbMbQ5QcgVGFpjD0O52p8nec5O8NYw7PKw3xUR7fPAkQ=="],
 
