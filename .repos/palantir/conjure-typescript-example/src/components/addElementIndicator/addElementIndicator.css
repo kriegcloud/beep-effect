@@ -1,0 +1,28 @@
+
+.rp-add-element-indicator {
+    display: flex;
+    margin-top: 10px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.rp-add-element-indicator .bp3-icon {
+    color: gray;
+    margin: 0 5px;
+}
+
+.rp-add-element-indicator:hover .bp3-icon {
+    color: #0f9960;
+}
+
+.rp-add-element-indicator:hover .accent-line {
+    background-color: #0f9960;
+}
+
+.rp-add-element-indicator .accent-line {
+    flex-grow: 1;
+    height: 2px;
+    background-color: gray;
+}

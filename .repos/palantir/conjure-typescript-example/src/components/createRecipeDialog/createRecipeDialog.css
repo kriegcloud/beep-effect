@@ -1,0 +1,51 @@
+.rp-create-dialog-body {
+    display: flex;
+    flex-direction: column;
+    max-height: 500px;
+    overflow-y: scroll;
+}
+
+.rp-create-dialog-body .bp3-card {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 5px;
+    padding: 10px;
+}
+
+.rp-create-dialog-body .bp3-card:first-child {
+    margin: 1px 5px 10px 5px;
+}
+
+.rp-create-dialog-steps {
+    overflow-y: scroll;
+    max-height: 400px;
+}
+
+.rp-step-header {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+}
+
+.rp-mix-body li {
+    padding-bottom: 10px;
+}
+
+.rp-mix-body li:last-of-type {
+    padding-bottom: inherit;
+}
+
+.rp-bake-body .temperature-control {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-content: center;
+    padding-bottom: 10px;
+}
+
+.rp-bake-body .temperature-control > * {
+    align-self: center;
+}
+
+
