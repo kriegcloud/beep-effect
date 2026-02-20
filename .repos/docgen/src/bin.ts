@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * @since 1.0.0
+ * @since 0.6.0
  */
 
 import * as NodeContext from "@effect/platform-node/NodeContext"
@@ -12,13 +12,12 @@ import * as Logger from "effect/Logger"
 import * as LogLevel from "effect/LogLevel"
 import { cli } from "./CLI.js"
 import * as Configuration from "./Configuration.js"
-import * as Process from "./Process.js"
+import * as Domain from "./Domain.js"
 
-/** @internal */
-export const MainLive = Configuration.configProviderLayer.pipe(
+const MainLive = Configuration.configProviderLayer.pipe(
   Layer.provideMerge(Layer.mergeAll(
     Logger.minimumLogLevel(LogLevel.Info),
-    Process.layer,
+    Domain.Process.Default,
     NodeContext.layer
   ))
 )

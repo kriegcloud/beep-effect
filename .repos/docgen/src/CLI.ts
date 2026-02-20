@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 
 /**
- * @since 1.0.0
+ * @since 0.6.0
  */
 
 import * as Command from "@effect/cli/Command"
 import * as HelpDoc from "@effect/cli/HelpDoc"
 import * as Options from "@effect/cli/Options"
 import * as ValidationError from "@effect/cli/ValidationError"
-import * as Schema from "@effect/schema/Schema"
-import * as TreeFormatter from "@effect/schema/TreeFormatter"
 import * as Array from "effect/Array"
 import * as Config from "effect/Config"
 import * as Effect from "effect/Effect"
 import * as Either from "effect/Either"
+import * as ParseResult from "effect/ParseResult"
+import * as Schema from "effect/Schema"
 import * as Configuration from "./Configuration.js"
 import * as Core from "./Core.js"
+import * as Domain from "./Domain.js"
 import * as InternalVersion from "./internal/version.js"
 
 const projectHomepage = Options.text("homepage").pipe(
@@ -23,6 +24,14 @@ const projectHomepage = Options.text("homepage").pipe(
   Options.withDescription(
     "The link to the project homepage (will be shown in the Auxiliary Links " +
       "of the generated documentation)"
+  ),
+  Options.optional
+)
+
+const srcLink = Options.text("srcLink").pipe(
+  Options.withFallbackConfig(Config.string("srcLink")),
+  Options.withDescription(
+    "The link to the project source code"
   ),
   Options.optional
 )
@@ -44,7 +53,7 @@ const outDir = Options.directory("out").pipe(
 const theme = Options.directory("theme").pipe(
   Options.withFallbackConfig(
     Config.string("theme").pipe(
-      Config.withDefault("mikearnaldi/just-the-docs")
+      Config.withDefault(Configuration.DEFAULT_THEME)
     )
   ),
   Options.withDescription(
@@ -91,9 +100,8 @@ const enforceVersion = Options.boolean("no-enforce-version", {
   )
 )
 
-const runExamples = Options.boolean("no-run-examples", {
-  ifPresent: false,
-  negationNames: ["run-examples"]
+const runExamples = Options.boolean("run-examples", {
+  negationNames: ["no-run-examples"]
 }).pipe(
   Options.withFallbackConfig(Config.boolean("runExamples")),
   Options.withDescription(
@@ -125,7 +133,7 @@ const parseCompilerOptions = Options.file("parse-tsconfig-file", { exists: "yes"
         Schema.decodeUnknownEither(compilerOptionsSchema)(options).pipe(
           Either.mapLeft((e) => {
             const error = HelpDoc.p(
-              `Invalid TypeScript compiler options:\n${TreeFormatter.formatErrorSync(e)}`
+              `Invalid TypeScript compiler options:\n${ParseResult.TreeFormatter.formatErrorSync(e)}`
             )
             return ValidationError.invalidValue(error)
           })
@@ -145,7 +153,7 @@ const examplesCompilerOptions = Options.file("examples-tsconfig-file", { exists:
         Schema.decodeUnknownEither(compilerOptionsSchema)(options).pipe(
           Either.mapLeft((e) => {
             const error = HelpDoc.p(
-              `Invalid TypeScript compiler options:\n${TreeFormatter.formatErrorSync(e)}`
+              `Invalid TypeScript compiler options:\n${ParseResult.TreeFormatter.formatErrorSync(e)}`
             )
             return ValidationError.invalidValue(error)
           })
@@ -158,6 +166,7 @@ const examplesCompilerOptions = Options.file("examples-tsconfig-file", { exists:
 
 const options = {
   projectHomepage,
+  srcLink,
   srcDir,
   outDir,
   theme,
@@ -174,9 +183,22 @@ const options = {
 /** @internal */
 export const docgenCommand = Command.make("docgen", options)
 
-/** @internal */
+/**
+ * @category CLI
+ * @since 0.6.0
+ */
 export const cli = docgenCommand.pipe(
-  Command.withHandler(() => Effect.scoped(Core.program)),
+  Command.withHandler(() =>
+    Effect.scoped(Core.program).pipe(Effect.catchTag("DocgenError", (err) =>
+      Effect.gen(function*() {
+        const config = yield* Configuration.Configuration
+        return yield* Effect.fail(
+          new Domain.DocgenError({
+            message: `[${config.projectName}] ${err.message}`
+          })
+        )
+      })))
+  ),
   Command.provideEffect(Configuration.Configuration, (args) => Configuration.load(args)),
   Command.run({
     name: "docgen",

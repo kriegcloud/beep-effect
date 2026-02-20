@@ -1,16 +1,16 @@
 ---
 title: Parser.ts
-nav_order: 8
+nav_order: 7
 parent: Modules
 ---
 
-## Parser overview
+## Parser.ts overview
 
-Added in v1.0.0
+Since v0.6.0
 
 ---
 
-<h2 class="text-delta">Table of contents</h2>
+## Exports Grouped by Category
 
 - [parsers](#parsers)
   - [parseClasses](#parseclasses)
@@ -32,93 +32,111 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare const parseClasses: Effect.Effect<Domain.Class[], string[], Configuration.Configuration | Source>
+declare const parseClasses: Effect.Effect<Array<Domain.Class>, never, Source>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L584)
+
+Since v0.6.0
 
 ## parseConstants
 
 **Signature**
 
 ```ts
-export declare const parseConstants: Effect.Effect<Domain.Constant[], string[], Configuration.Configuration | Source>
+declare const parseConstants: Effect.Effect<Array<Domain.Constant>, never, Source>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L315)
+
+Since v0.6.0
 
 ## parseExports
 
 **Signature**
 
 ```ts
-export declare const parseExports: Effect.Effect<Domain.Export[], string[], Configuration.Configuration | Source>
+declare const parseExports: Effect.Effect<Array<Domain.Export>, never, Source>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L391)
+
+Since v0.6.0
 
 ## parseFiles
 
 **Signature**
 
 ```ts
-export declare const parseFiles: (
-  files: ReadonlyArray<File.File>
-) => Effect.Effect<Domain.Module[], string[][], Process.Process | Configuration.Configuration | Path.Path>
+declare const parseFiles: (
+  files: ReadonlyArray<Domain.File>
+) => Effect.Effect<
+  Array<Domain.Module>,
+  [Array<string>, ...Array<string>[]],
+  Configuration.Configuration | Domain.Process | Path.Path
+>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L688)
+
+Since v0.6.0
 
 ## parseFunctions
 
 **Signature**
 
 ```ts
-export declare const parseFunctions: Effect.Effect<Domain.Function[], string[], Configuration.Configuration | Source>
+declare const parseFunctions: Effect.Effect<Array<Domain.Function>, never, Source>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L240)
+
+Since v0.6.0
 
 ## parseInterfaces
 
 **Signature**
 
 ```ts
-export declare const parseInterfaces: Effect.Effect<Domain.Interface[], string[], Configuration.Configuration | Source>
+declare const parseInterfaces: Effect.Effect<Array<Domain.Interface>, never, Source>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L133)
+
+Since v0.6.0
 
 ## parseModule
 
 **Signature**
 
 ```ts
-export declare const parseModule: Effect.Effect<
-  Domain.Module,
-  string[],
-  Configuration.Configuration | Path.Path | Source
->
+declare const parseModule: Effect.Effect<Domain.Module, never, Configuration.Configuration | Source>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L613)
+
+Since v0.6.0
 
 ## parseNamespaces
 
 **Signature**
 
 ```ts
-export declare const parseNamespaces: Effect.Effect<Domain.Namespace[], string[], Configuration.Configuration | Source>
+declare const parseNamespaces: Effect.Effect<Array<Domain.Namespace>, never, Configuration.Configuration | Source>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L437)
+
+Since v0.6.0
 
 ## parseTypeAliases
 
 **Signature**
 
 ```ts
-export declare const parseTypeAliases: Effect.Effect<Domain.TypeAlias[], string[], Configuration.Configuration | Source>
+declare const parseTypeAliases: Effect.Effect<Array<Domain.TypeAlias>, never, Source>
 ```
 
-Added in v1.0.0
+[Source](https://github.com/effect-ts/docgen/blob/main/src/Parser.ts#L285)
+
+Since v0.6.0

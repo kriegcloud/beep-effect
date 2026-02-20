@@ -1,12 +1,12 @@
 import * as Configuration from "@effect/docgen/Configuration"
 import * as Domain from "@effect/docgen/Domain"
-import * as File from "@effect/docgen/File"
 import * as Parser from "@effect/docgen/Parser"
+import * as Printer from "@effect/docgen/Printer"
 import { Path } from "@effect/platform"
-import chalk from "chalk"
-import { Effect, Exit, Option, String } from "effect"
+import { Effect, Exit, Predicate } from "effect"
+import * as assert from "node:assert/strict"
 import * as ast from "ts-morph"
-import { assert, describe, expect, it } from "vitest"
+import { describe, it } from "vitest"
 
 let testCounter = 0
 
@@ -18,1570 +18,87 @@ const project = new ast.Project({
 const defaultConfig: Configuration.ConfigurationShape = {
   projectName: "docgen",
   projectHomepage: "https://github.com/effect-ts/docgen",
+  srcLink: "https://github.com/effect-ts/docgen/blob/main/src/",
   srcDir: "src",
   outDir: "docs",
-  theme: "pmarsceill/just-the-docs",
+  theme: "mikearnaldi/just-the-docs",
   enableSearch: true,
   enforceDescriptions: false,
   enforceExamples: false,
   enforceVersion: true,
-  runExamples: true,
+  runExamples: false,
   exclude: [],
   parseCompilerOptions: {},
   examplesCompilerOptions: {}
 }
 
-const getParser = (sourceText: string): Parser.SourceShape => ({
-  path: ["test"],
-  sourceFile: project.createSourceFile(`test-${testCounter++}.ts`, sourceText)
-})
-
-const expectFailure = <A, E>(
-  sourceText: string,
-  eff: Effect.Effect<A, E, Parser.Source | Configuration.Configuration | Path.Path>,
-  failure: E,
-  config?: Partial<Configuration.ConfigurationShape>
-) => {
-  expect(
-    eff.pipe(
-      Effect.provideService(Parser.Source, getParser(sourceText)),
-      Effect.provideService(Configuration.Configuration, { ...defaultConfig, ...config }),
-      Effect.provide(Path.layer),
-      Effect.runSyncExit
-    )
-  ).toEqual(Exit.fail(failure))
+const makeSourcefile = (source: string | ast.SourceFile) => {
+  if (Predicate.isString(source)) {
+    const filename = `test.ts`
+    const existing = project.getSourceFile(filename)
+    if (existing) {
+      project.removeSourceFile(existing)
+    }
+    return project.createSourceFile(filename, source)
+  }
+  return source
 }
 
-const expectSuccess = <A, E>(
+const makeSource = (source: string | ast.SourceFile) => {
+  const sourceFile = makeSourcefile(source)
+  const filename = sourceFile.getBaseName()
+  return Parser.Source.of({
+    path: [filename],
+    sourceFile
+  })
+}
+
+const print = (printables: ReadonlyArray<Printer.Printable>) => {
+  return Effect.gen(function*() {
+    const strings = yield* Effect.forEach(printables, (printable) => Printer.print(printable))
+    return strings.join("\n")
+  })
+}
+
+const isModule = (printableOr: ReadonlyArray<Printer.Printable> | Domain.Module): printableOr is Domain.Module => {
+  return !Array.isArray(printableOr)
+}
+
+const expectMarkdown = async <E>(
+  eff: Effect.Effect<
+    ReadonlyArray<Printer.Printable> | Domain.Module,
+    E,
+    Parser.Source | Configuration.Configuration | Path.Path
+  >,
   sourceText: string,
-  eff: Effect.Effect<A, E, Parser.Source | Configuration.Configuration | Path.Path>,
-  a: A,
+  expected: string,
   config?: Partial<Configuration.ConfigurationShape>
 ) => {
-  expect(
-    eff
-      .pipe(
-        Effect.provideService(Parser.Source, getParser(sourceText)),
-        Effect.provideService(Configuration.Configuration, { ...defaultConfig, ...config }),
-        Effect.provide(Path.layer),
-        Effect.runSyncExit
-      )
-  ).toEqual(Exit.succeed(a))
+  const exit = await eff.pipe(
+    Effect.flatMap((printableOr) => {
+      if (isModule(printableOr)) {
+        return Printer.printModule(printableOr)
+      }
+      return print(printableOr)
+    }),
+    Effect.provideService(Parser.Source, makeSource(sourceText)),
+    Effect.provideService(Configuration.Configuration, { ...defaultConfig, ...config }),
+    Effect.provide(Path.layer),
+    Effect.runPromiseExit
+  )
+  assert.ok(exit._tag === "Success")
+  if (exit.value !== expected) {
+    console.log(exit.value)
+  }
+  assert.strictEqual(exit.value, expected)
 }
 
 describe("Parser", () => {
-  describe("parsers", () => {
-    describe("parseNamespaces", () => {
-      it("should return no `Namespaces`s if the file is empty", () => {
-        expectSuccess("", Parser.parseNamespaces, [])
-      })
-
-      it("should return no `Namespaces`s if there are no exported namespaces", () => {
-        expectSuccess("namespace A {}", Parser.parseNamespaces, [])
-      })
-
-      it("should raise an error if the namespace is not well documented", () => {
-        expectFailure("export namespace A {}", Parser.parseNamespaces, [
-          `Missing ${chalk.bold("@since")} tag in ${chalk.bold("test#A")} documentation`
-        ])
-      })
-
-      const documentableA = Domain.createNamedDoc(
-        "A",
-        Option.none(),
-        Option.some("1.0.0"),
-        false,
-        [],
-        Option.none()
-      )
-
-      it("should parse an empty Namespace", () => {
-        expectSuccess(
-          `
-        /**
-         * @since 1.0.0
-         */
-        export namespace A {}
-        `,
-          Parser.parseNamespaces,
-          [
-            Domain.createNamespace(documentableA, [], [], [])
-          ]
-        )
-      })
-
-      describe("interfaces", () => {
-        it("should ignore not exported interfaces", () => {
-          expectSuccess(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            interface C {}
-          }
-          `,
-            Parser.parseNamespaces,
-            [Domain.createNamespace(documentableA, [], [], [])]
-          )
-        })
-
-        it("should raise an error if the interface is not well documented", () => {
-          expectFailure(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            export interface B {}
-          }
-          `,
-            Parser.parseNamespaces,
-            [`Missing ${chalk.bold("@since")} tag in ${chalk.bold("test#B")} documentation`]
-          )
-        })
-
-        it("should parse an interface", () => {
-          const documentableB = Domain.createNamedDoc(
-            "B",
-            Option.none(),
-            Option.some("1.0.1"),
-            false,
-            [],
-            Option.none()
-          )
-
-          expectSuccess(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            /**
-             * @since 1.0.1
-             */
-            export interface B {
-              readonly d: boolean
-            }
-          }
-          `,
-            Parser.parseNamespaces,
-            [Domain.createNamespace(
-              documentableA,
-              [Domain.createInterface(
-                documentableB,
-                `export interface B {
-              readonly d: boolean
-            }`
-              )],
-              [],
-              []
-            )]
-          )
-        })
-      })
-
-      describe("type aliases", () => {
-        it("should ignore not exported type alias", () => {
-          expectSuccess(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            type C = number
-          }
-          `,
-            Parser.parseNamespaces,
-            [Domain.createNamespace(documentableA, [], [], [])]
-          )
-        })
-
-        it("should raise an error if the type alias is not well documented", () => {
-          expectFailure(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            export type B = string
-          }
-          `,
-            Parser.parseNamespaces,
-            [`Missing ${chalk.bold("@since")} tag in ${chalk.bold("test#B")} documentation`]
-          )
-        })
-
-        it("should parse a type alias", () => {
-          const documentableB = Domain.createNamedDoc(
-            "B",
-            Option.none(),
-            Option.some("1.0.1"),
-            false,
-            [],
-            Option.none()
-          )
-
-          expectSuccess(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            /**
-             * @since 1.0.1
-             */
-            export type B = string
-          }
-          `,
-            Parser.parseNamespaces,
-            [Domain.createNamespace(documentableA, [], [
-              Domain.createTypeAlias(documentableB, "export type B = string")
-            ], [])]
-          )
-        })
-      })
-
-      describe("nested namespaces", () => {
-        it("should ignore not exported namespaces", () => {
-          expectSuccess(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            namespace B {}
-          }
-          `,
-            Parser.parseNamespaces,
-            [Domain.createNamespace(documentableA, [], [], [])]
-          )
-        })
-
-        it("should raise an error if the namespace is not well documented", () => {
-          expectFailure(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            export namespace B {}
-          }
-          `,
-            Parser.parseNamespaces,
-            [`Missing ${chalk.bold("@since")} tag in ${chalk.bold("test#B")} documentation`]
-          )
-        })
-
-        it("should parse a namespace", () => {
-          const documentableB = Domain.createNamedDoc(
-            "B",
-            Option.none(),
-            Option.some("1.0.1"),
-            false,
-            [],
-            Option.none()
-          )
-          const documentableC = Domain.createNamedDoc(
-            "C",
-            Option.none(),
-            Option.some("1.0.2"),
-            false,
-            [],
-            Option.none()
-          )
-
-          expectSuccess(
-            `
-          /**
-           * @since 1.0.0
-           */
-          export namespace A {
-            /**
-             * @since 1.0.1
-             */
-            export namespace B {
-              /**
-               * @since 1.0.2
-               */
-              export type C = string
-            }
-          }
-          `,
-            Parser.parseNamespaces,
-            [Domain.createNamespace(documentableA, [], [], [
-              Domain.createNamespace(documentableB, [], [
-                Domain.createTypeAlias(documentableC, "export type C = string")
-              ], [])
-            ])]
-          )
-        })
-      })
-    })
-
-    describe("parseInterfaces", () => {
-      it("should return no `Interface`s if the file is empty", () => {
-        expectSuccess("", Parser.parseInterfaces, [])
-      })
-
-      it("should return no `Interface`s if there are no exported interfaces", () => {
-        expectSuccess("interface A {}", Parser.parseInterfaces, [])
-      })
-
-      it("should return an `Interface`", () => {
-        expectSuccess(
-          `/**
-        * a description...
-        * @since 1.0.0
-        * @deprecated
-        */
-        export interface A {}`,
-          Parser.parseInterfaces,
-          [
-            {
-              _tag: "Interface",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "A",
-              signature: "export interface A {}",
-              since: Option.some("1.0.0"),
-              examples: [],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should return interfaces sorted by name", () => {
-        expectSuccess(
-          `
-        /**
-         * @since 1.0.0
-         */
-        export interface B {}
-        /**
-         * @since 1.0.0
-         */
-        export interface A {}
-        `,
-          Parser.parseInterfaces,
-          [
-            {
-              _tag: "Interface",
-              name: "A",
-              description: Option.none(),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              examples: [],
-              signature: "export interface A {}"
-            },
-            {
-              _tag: "Interface",
-              name: "B",
-              description: Option.none(),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              examples: [],
-              signature: "export interface B {}"
-            }
-          ]
-        )
-      })
-    })
-
-    describe("parseFunctions", () => {
-      it("should raise an error if the function is anonymous", () => {
-        expectFailure(
-          `export function(a: number, b: number): number { return a + b }`,
-          Parser.parseFunctions,
-          [`Missing ${chalk.bold("function name")} in module ${chalk.bold("test")}`]
-        )
-      })
-
-      it("should not return private function declarations", () => {
-        expectSuccess(
-          `function sum(a: number, b: number): number { return a + b }`,
-          Parser.parseFunctions,
-          []
-        )
-      })
-
-      it("should not return ignored function declarations", () => {
-        expectSuccess(
-          `/**
-        * @ignore
-        */
-        export function sum(a: number, b: number): number { return a + b }`,
-          Parser.parseFunctions,
-          []
-        )
-      })
-
-      it("should not return ignored function declarations with overloads", () => {
-        expectSuccess(
-          `/**
-            * @ignore
-            */
-            export function sum(a: number, b: number)
-            export function sum(a: number, b: number): number { return a + b }`,
-          Parser.parseFunctions,
-          []
-        )
-      })
-
-      it("should not return internal function declarations", () => {
-        expectSuccess(
-          `/**
-            * @internal
-            */
-            export function sum(a: number, b: number): number { return a + b }`,
-          Parser.parseFunctions,
-          []
-        )
-      })
-
-      it("should not return internal function declarations even with overloads", () => {
-        expectSuccess(
-          `/**
-            * @internal
-            */
-            export function sum(a: number, b: number)
-            export function sum(a: number, b: number): number { return a + b }`,
-          Parser.parseFunctions,
-          []
-        )
-      })
-
-      it("should not return private const function declarations", () => {
-        expectSuccess(
-          `const sum = (a: number, b: number): number => a + b `,
-          Parser.parseFunctions,
-          []
-        )
-      })
-
-      it("should not return internal const function declarations", () => {
-        expectSuccess(
-          `/**
-            * @internal
-            */
-            export const sum = (a: number, b: number): number => a + b `,
-          Parser.parseFunctions,
-          []
-        )
-      })
-
-      it("should account for nullable polymorphic return types", () => {
-        expectSuccess(
-          `/**
-            * @since 1.0.0
-            */
-           export const toNullable = <A>(ma: A | null): A | null => ma`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: false,
-              description: Option.none(),
-              name: "toNullable",
-              signatures: [
-                "export declare const toNullable: <A>(ma: A | null) => A | null"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should return a const function declaration", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @example
-            * assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-            * @example
-            * assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
-            * @deprecated
-            */
-            export const f = (a: number, b: number): { [key: string]: number } => ({ a, b })`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "f",
-              signatures: [
-                "export declare const f: (a: number, b: number) => { [key: string]: number; }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [
-                { body: "assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })" },
-                { body: "assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })" }
-              ],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should parse examples even when enclosed in code blocks using backticks", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @example
-            * \`\`\`ts
-            * assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-            * \`\`\`
-            * @example
-            * assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
-            * @deprecated
-            */
-            export const f = (a: number, b: number): { [key: string]: number } => ({ a, b })`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "f",
-              signatures: [
-                "export declare const f: (a: number, b: number) => { [key: string]: number; }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [
-                {
-                  body: "assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })",
-                  fences: { start: "```ts", end: "```" }
-                },
-                { body: "assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })" }
-              ],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should parse multiline examples even when enclosed in code blocks using backticks", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @example
-            * \`\`\`ts
-            * assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-            * 
-            * assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
-            * \`\`\`
-            * @deprecated
-            */
-            export const f = (a: number, b: number): { [key: string]: number } => ({ a, b })`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "f",
-              signatures: [
-                "export declare const f: (a: number, b: number) => { [key: string]: number; }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [
-                {
-                  body: String.stripMargin(
-                    `|assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-
-                    |assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })`
-                  ),
-                  fences: { start: "```ts", end: "```" }
-                }
-              ],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should parse examples even when enclosed in code blocks using tildes", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @example
-            * ~~~ts
-            * assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-            * ~~~
-            * @example
-            * assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
-            * @deprecated
-            */
-            export const f = (a: number, b: number): { [key: string]: number } => ({ a, b })`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "f",
-              signatures: [
-                "export declare const f: (a: number, b: number) => { [key: string]: number; }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [
-                {
-                  body: "assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })",
-                  fences: { start: "~~~ts", end: "~~~" }
-                },
-                { body: "assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })" }
-              ],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should parse multiline examples even when enclosed in code blocks using backticks", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @example
-            * ~~~ts
-            * assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-            * 
-            * assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
-            * ~~~
-            * @deprecated
-            */
-            export const f = (a: number, b: number): { [key: string]: number } => ({ a, b })`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "f",
-              signatures: [
-                "export declare const f: (a: number, b: number) => { [key: string]: number; }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [
-                {
-                  body: String.stripMargin(
-                    `|assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-
-                    |assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })`
-                  ),
-                  fences: { start: "~~~ts", end: "~~~" }
-                }
-              ],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should  parse twoslash examples using backtick fences", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @example
-            * \`\`\`ts twoslash
-            * assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-            * \`\`\`
-            * @example
-            * assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
-            * @deprecated
-            */
-            export const f = (a: number, b: number): { [key: string]: number } => ({ a, b })`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "f",
-              signatures: [
-                "export declare const f: (a: number, b: number) => { [key: string]: number; }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [
-                {
-                  body: "assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })",
-                  fences: { start: "```ts twoslash", end: "```" }
-                },
-                { body: "assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })" }
-              ],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should  parse twoslash examples using tilde fences", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @example
-            * ~~~ts twoslash
-            * assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
-            * ~~~
-            * @example
-            * assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
-            * @deprecated
-            */
-            export const f = (a: number, b: number): { [key: string]: number } => ({ a, b })`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "f",
-              signatures: [
-                "export declare const f: (a: number, b: number) => { [key: string]: number; }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [
-                {
-                  body: "assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })",
-                  fences: { start: "~~~ts twoslash", end: "~~~" }
-                },
-                { body: "assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })" }
-              ],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should return a function declaration", () => {
-        expectSuccess(
-          `/**
-            * @since 1.0.0
-            */
-            export function f(a: number, b: number): { [key: string]: number } { return { a, b } }`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: false,
-              description: Option.none(),
-              name: "f",
-              signatures: [
-                "export declare function f(a: number, b: number): { [key: string]: number }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should return a function with comments", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @deprecated
-            */
-            export function f(a: number, b: number): { [key: string]: number } { return { a, b } }`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              deprecated: true,
-              description: Option.some("a description..."),
-              name: "f",
-              signatures: [
-                "export declare function f(a: number, b: number): { [key: string]: number }"
-              ],
-              since: Option.some("1.0.0"),
-              examples: [],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should handle overloadings", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @deprecated
-            */
-            export function f(a: Int, b: Int): { [key: string]: number }
-            export function f(a: number, b: number): { [key: string]: number }
-            export function f(a: any, b: any): { [key: string]: number } { return { a, b } }`,
-          Parser.parseFunctions,
-          [
-            {
-              _tag: "Function",
-              name: "f",
-              description: Option.some("a description..."),
-              since: Option.some("1.0.0"),
-              deprecated: true,
-              category: Option.none(),
-              examples: [],
-              signatures: [
-                "export declare function f(a: Int, b: Int): { [key: string]: number }",
-                "export declare function f(a: number, b: number): { [key: string]: number }"
-              ]
-            }
-          ]
-        )
-      })
-    })
-
-    describe("parseTypeAlias", () => {
-      it("should return a `TypeAlias`", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @deprecated
-            */
-            export type Option<A> = None<A> | Some<A>`,
-          Parser.parseTypeAliases,
-          [
-            {
-              _tag: "TypeAlias",
-              name: "Option",
-              description: Option.some("a description..."),
-              since: Option.some("1.0.0"),
-              deprecated: true,
-              category: Option.none(),
-              signature: "export type Option<A> = None<A> | Some<A>",
-              examples: []
-            }
-          ]
-        )
-      })
-    })
-
-    describe("parseConstants", () => {
-      it("should handle a constant value", () => {
-        expectSuccess(
-          `/**
-            * a description...
-            * @since 1.0.0
-            * @deprecated
-            */
-            export const s: string = ''`,
-          Parser.parseConstants,
-          [
-            {
-              _tag: "Constant",
-              name: "s",
-              description: Option.some("a description..."),
-              since: Option.some("1.0.0"),
-              deprecated: true,
-              category: Option.none(),
-              signature: "export declare const s: string",
-              examples: []
-            }
-          ]
-        )
-      })
-
-      it("should support constants with default type parameters", () => {
-        expectSuccess(
-          `/**
-            * @since 1.0.0
-            */
-            export const left: <E = never, A = never>(l: E) => string = T.left`,
-          Parser.parseConstants,
-          [
-            {
-              _tag: "Constant",
-              name: "left",
-              description: Option.none(),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              signature: "export declare const left: <E = never, A = never>(l: E) => string",
-              examples: []
-            }
-          ]
-        )
-      })
-
-      it("should support untyped constants", () => {
-        expectSuccess(
-          `
-        class A {}
-      /**
-        * @since 1.0.0
-        */
-        export const empty = new A()`,
-          Parser.parseConstants,
-          [
-            {
-              _tag: "Constant",
-              name: "empty",
-              description: Option.none(),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              signature: "export declare const empty: A",
-              examples: []
-            }
-          ]
-        )
-      })
-
-      it("should handle constants with typeof annotations", () => {
-        expectSuccess(
-          ` const task: { a: number } = {
-          a: 1
-        }
-        /**
-        * @since 1.0.0
-        */
-        export const taskSeq: typeof task = {
-          ...task,
-          ap: (mab, ma) => () => mab().then(f => ma().then(a => f(a)))
-        }`,
-          Parser.parseConstants,
-          [
-            {
-              _tag: "Constant",
-              deprecated: false,
-              description: Option.none(),
-              name: "taskSeq",
-              signature: "export declare const taskSeq: { a: number; }",
-              since: Option.some("1.0.0"),
-              examples: [],
-              category: Option.none()
-            }
-          ]
-        )
-      })
-
-      it("should not include variables declared in for loops", () => {
-        expectSuccess(
-          ` const object = { a: 1, b: 2, c: 3 };
-
-        for (const property in object) {
-          console.log(property);
-        }`,
-          Parser.parseConstants,
-          []
-        )
-      })
-    })
-
-    describe("parseClasses", () => {
-      it("should raise an error if the class is anonymous", () => {
-        expectFailure(`export class {}`, Parser.parseClasses, [
-          `Missing ${chalk.bold("class name")} in module ${chalk.bold("test")}`
-        ])
-      })
-
-      it("should raise an error if an `@since` tag is missing in a module", () => {
-        expectFailure(`export class MyClass {}`, Parser.parseClasses, [
-          `Missing ${chalk.bold("@since")} tag in ${chalk.bold("test#MyClass")} documentation`
-        ])
-      })
-
-      it("should ignore internal classes", () => {
-        expectSuccess(`/** @internal */export class MyClass {}`, Parser.parseClasses, [])
-      })
-
-      it("should ignore `@ignore`d classes", () => {
-        expectSuccess(`/** @ignore */export class MyClass {}`, Parser.parseClasses, [])
-      })
-
-      it("should raise an error if `@since` is missing in a property", () => {
-        expectFailure(
-          `/**
-            * @since 1.0.0
-            */
-            export class MyClass<A> {
-              readonly _A!: A
-            }`,
-          Parser.parseClasses,
-          [`Missing ${chalk.bold("@since")} tag in ${chalk.bold("test#MyClass#_A")} documentation`]
-        )
-      })
-
-      it("should skip ignored properties", () => {
-        expectSuccess(
-          `/**
-        * @since 1.0.0
-        */
-        export class MyClass<A> {
-          /**
-           * @ignore
-           */
-          readonly _A!: A
-        }`,
-          Parser.parseClasses,
-          [
-            {
-              _tag: "Class",
-              name: "MyClass",
-              description: Option.none(),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              examples: [],
-              signature: "export declare class MyClass<A>",
-              methods: [],
-              staticMethods: [],
-              properties: []
-            }
-          ]
-        )
-      })
-
-      it("should skip the constructor body", () => {
-        expectSuccess(
-          `/**
-        * description
-        * @since 1.0.0
-        */
-        export class C { constructor() {} }`,
-          Parser.parseClasses,
-          [
-            {
-              _tag: "Class",
-              name: "C",
-              description: Option.some("description"),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              examples: [],
-              signature: "export declare class C { constructor() }",
-              methods: [],
-              staticMethods: [],
-              properties: []
-            }
-          ]
-        )
-      })
-
-      it("should get a constructor declaration signature", () => {
-        const sourceFile = project.createSourceFile(
-          `test-${testCounter++}.ts`,
-          `
-        /**
-         * @since 1.0.0
-         */
-        declare class A {
-          constructor()
-        }
-      `
-        )
-
-        const constructorDeclaration = sourceFile
-          .getClass("A")!
-          .getConstructors()[0]
-
-        assert.deepStrictEqual(
-          Parser.getConstructorDeclarationSignature(constructorDeclaration),
-          "constructor()"
-        )
-      })
-
-      it("should handle non-readonly properties", () => {
-        expectSuccess(
-          `/**
-        * description
-        * @since 1.0.0
-        */
-        export class C {
-          /**
-           * @since 1.0.0
-           */
-          a: string
-        }`,
-          Parser.parseClasses,
-          [
-            {
-              _tag: "Class",
-              name: "C",
-              description: Option.some("description"),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              examples: [],
-              signature: "export declare class C",
-              methods: [],
-              staticMethods: [],
-              properties: [
-                {
-                  name: "a",
-                  description: Option.none(),
-                  since: Option.some("1.0.0"),
-                  deprecated: false,
-                  category: Option.none(),
-                  examples: [],
-                  signature: "a: string"
-                }
-              ]
-            }
-          ]
-        )
-      })
-
-      it("should return a `Class`", () => {
-        expectSuccess(
-          `/**
-        * a class description...
-        * @since 1.0.0
-        * @deprecated
-        */
-        export class Test {
-          /**
-           * a property...
-           * @since 1.1.0
-           * @deprecated
-           */
-          readonly a: string
-          private readonly b: number
-          /**
-           * a static method description...
-           * @since 1.1.0
-           * @deprecated
-           */
-          static f(): void {}
-          constructor(readonly value: string) { }
-          /**
-           * a method description...
-           * @since 1.1.0
-           * @deprecated
-           */
-          g(a: number, b: number): { [key: string]: number } {
-            return { a, b }
-          }
-        }`,
-          Parser.parseClasses,
-          [
-            {
-              _tag: "Class",
-              name: "Test",
-              description: Option.some("a class description..."),
-              since: Option.some("1.0.0"),
-              deprecated: true,
-              category: Option.none(),
-              examples: [],
-              signature: "export declare class Test { constructor(readonly value: string) }",
-              methods: [
-                {
-                  name: "g",
-                  description: Option.some("a method description..."),
-                  since: Option.some("1.1.0"),
-                  deprecated: true,
-                  category: Option.none(),
-                  examples: [],
-                  signatures: [
-                    "g(a: number, b: number): { [key: string]: number }"
-                  ]
-                }
-              ],
-              staticMethods: [
-                {
-                  name: "f",
-                  description: Option.some("a static method description..."),
-                  since: Option.some("1.1.0"),
-                  deprecated: true,
-                  category: Option.none(),
-                  examples: [],
-                  signatures: ["static f(): void"]
-                }
-              ],
-              properties: [
-                {
-                  name: "a",
-                  description: Option.some("a property..."),
-                  since: Option.some("1.1.0"),
-                  deprecated: true,
-                  category: Option.none(),
-                  signature: "readonly a: string",
-                  examples: []
-                }
-              ]
-            }
-          ]
-        )
-      })
-
-      it("should handle method overloadings", () => {
-        expectSuccess(
-          `/**
-        * a class description...
-        * @since 1.0.0
-        * @deprecated
-        */
-        export class Test<A> {
-          /**
-           * a static method description...
-           * @since 1.1.0
-           * @deprecated
-           */
-          static f(x: number): number
-          static f(x: string): string
-          static f(x: any): any {}
-          constructor(readonly value: A) { }
-          /**
-           * a method description...
-           * @since 1.1.0
-           * @deprecated
-           */
-          map(f: (a: number) => number): Test
-          map(f: (a: string) => string): Test
-          map(f: (a: any) => any): any {
-            return new Test(f(this.value))
-          }
-        }`,
-          Parser.parseClasses,
-          [
-            {
-              _tag: "Class",
-              name: "Test",
-              description: Option.some("a class description..."),
-              since: Option.some("1.0.0"),
-              deprecated: true,
-              category: Option.none(),
-              examples: [],
-              signature: "export declare class Test<A> { constructor(readonly value: A) }",
-              methods: [
-                {
-                  name: "map",
-                  description: Option.some("a method description..."),
-                  since: Option.some("1.1.0"),
-                  deprecated: true,
-                  category: Option.none(),
-                  examples: [],
-                  signatures: [
-                    "map(f: (a: number) => number): Test",
-                    "map(f: (a: string) => string): Test"
-                  ]
-                }
-              ],
-              staticMethods: [
-                {
-                  name: "f",
-                  description: Option.some("a static method description..."),
-                  since: Option.some("1.1.0"),
-                  deprecated: true,
-                  category: Option.none(),
-                  examples: [],
-                  signatures: [
-                    "static f(x: number): number",
-                    "static f(x: string): string"
-                  ]
-                }
-              ],
-              properties: []
-            }
-          ]
-        )
-      })
-
-      it("should ignore internal/ignored methods (#42)", () => {
-        expectSuccess(
-          `/**
-        * a class description...
-        * @since 1.0.0
-        */
-        export class Test<A> {
-          /**
-           * @since 0.0.1
-           * @internal
-           **/
-          private foo(): void {}
-          /**
-           * @since 0.0.1
-           * @ignore
-           **/
-          private bar(): void {}
-        }`,
-          Parser.parseClasses,
-          [
-            {
-              _tag: "Class",
-              name: "Test",
-              description: Option.some("a class description..."),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              examples: [],
-              signature: "export declare class Test<A>",
-              methods: [],
-              staticMethods: [],
-              properties: []
-            }
-          ]
-        )
-      })
-    })
-
-    describe("parseModuleDocumentation", () => {
-      it("should return a description field and a deprecated field", () => {
-        expectSuccess(
-          `/**
-            * Manages the configuration settings for the widget
-            * @deprecated
-            * @since 1.0.0
-            */
-            /**
-             * @since 1.2.0
-             */
-            export const a: number = 1`,
-          Parser.parseModuleDocumentation,
-          {
-            name: "test",
-            description: Option.some(
-              "Manages the configuration settings for the widget"
-            ),
-            since: Option.some("1.0.0"),
-            deprecated: true,
-            category: Option.none(),
-            examples: []
-          }
-        )
-      })
-
-      it("should return an error when documentation is enforced but no documentation is provided", () => {
-        expectFailure(
-          "export const a: number = 1",
-          Parser.parseModuleDocumentation,
-          [`Missing ${chalk.bold("documentation")} in ${chalk.bold("test")} module`]
-        )
-      })
-
-      it("should support absence of module documentation when no documentation is enforced", () => {
-        expectSuccess(
-          "export const a: number = 1",
-          Parser.parseModuleDocumentation,
-          {
-            name: "test",
-            description: Option.none(),
-            since: Option.none(),
-            deprecated: false,
-            category: Option.none(),
-            examples: []
-          },
-          { enforceVersion: false }
-        )
-      })
-    })
-
-    describe("parseExports", () => {
-      it("should return no `Export`s if the file is empty", () => {
-        expectSuccess("", Parser.parseExports, [])
-      })
-
-      it("should handle renamimg", () => {
-        expectSuccess(
-          `const a = 1;
-          export {
-            /**
-             * @since 1.0.0
-             */
-            a as b
-          }`,
-          Parser.parseExports,
-          [
-            {
-              _tag: "Export",
-              name: "b",
-              description: Option.none(),
-              deprecated: false,
-              since: Option.some("1.0.0"),
-              category: Option.none(),
-              examples: [],
-              signature: "export declare const b: 1"
-            }
-          ]
-        )
-      })
-
-      it("should return an `Export`", () => {
-        expectSuccess(
-          `export {
-            /**
-             * description_of_a
-             * @since 1.0.0
-             */
-            a,
-            /**
-             * description_of_b
-             * @since 2.0.0
-             */
-            b
-          }`,
-          Parser.parseExports,
-          [
-            {
-              _tag: "Export",
-              name: "a",
-              description: Option.some("description_of_a"),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              signature: "export declare const a: any",
-              examples: []
-            },
-            {
-              _tag: "Export",
-              name: "b",
-              description: Option.some("description_of_b"),
-              since: Option.some("2.0.0"),
-              deprecated: false,
-              category: Option.none(),
-              signature: "export declare const b: any",
-              examples: []
-            }
-          ]
-        )
-      })
-
-      it("should raise an error if `@since` tag is missing in export", () => {
-        expectFailure("export { a }", Parser.parseExports, [
-          `Missing ${chalk.bold("a")} documentation in ${chalk.bold("test")}`
-        ])
-      })
-
-      it("should retrieve an export signature", () => {
-        project.createSourceFile("a.ts", `export const a = 1`)
-        const sourceFile = project.createSourceFile(
-          "b.ts",
-          `import { a } from './a'
-          const b = a
-          export {
-            /**
-              * @since 1.0.0
-              */
-            b
-          }`
-        )
-        const actual = Parser.parseExports.pipe(
-          Effect.provideService(Parser.Source, {
-            path: ["test"],
-            sourceFile
-          }),
-          Effect.provideService(Configuration.Configuration, defaultConfig),
-          Effect.runSyncExit
-        )
-        expect(actual).toEqual(
-          Exit.succeed([
-            {
-              _tag: "Export",
-              name: "b",
-              description: Option.none(),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              signature: "export declare const b: 1",
-              category: Option.none(),
-              examples: []
-            }
-          ])
-        )
-      })
-
-      it("parses export *", () => {
-        project.createSourceFile("example.ts", `export const a = 1`, { overwrite: true })
-
-        const sourceFile = project.createSourceFile(
-          "export-all.ts",
-          `
-           /**
-            * @since 1.0.0
-            */
-           export * from './example'
-          `
-        )
-
-        const actual = Parser.parseExports.pipe(
-          Effect.provideService(Parser.Source, {
-            path: ["test"],
-            sourceFile
-          }),
-          Effect.provideService(Configuration.Configuration, defaultConfig),
-          Effect.runSyncExit
-        )
-
-        expect(actual).toEqual(
-          Exit.succeed([
-            {
-              _tag: "Export",
-              name: "From './example'",
-              description: Option.some("Re-exports all named exports from the './example' module."),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              signature: "export * from './example'",
-              category: Option.some("exports"),
-              examples: []
-            }
-          ])
-        )
-      })
-
-      it("parse export * as", () => {
-        project.createSourceFile("example.ts", `export const a = 1`, { overwrite: true })
-
-        const sourceFile = project.createSourceFile(
-          "export-all-namespace.ts",
-          `
-            /**
-             * @since 1.0.0
-             */
-            export * as example from './example'
-          `
-        )
-
-        const actual = Parser.parseExports.pipe(
-          Effect.provideService(Parser.Source, {
-            path: ["test"],
-            sourceFile
-          }),
-          Effect.provideService(Configuration.Configuration, defaultConfig),
-          Effect.runSyncExit
-        )
-
-        expect(actual).toEqual(
-          Exit.succeed([
-            {
-              _tag: "Export",
-              name: "From './example'",
-              description: Option.some(
-                "Re-exports all named exports from the './example' module as `example`."
-              ),
-              since: Option.some("1.0.0"),
-              deprecated: false,
-              signature: "export * as example from './example'",
-              category: Option.some("exports"),
-              examples: []
-            }
-          ])
-        )
-      })
-    })
-
-    describe("parseModule", () => {
-      it("should raise an error if `@since` tag is missing", async () => {
-        expectFailure(`import * as assert from 'assert'`, Parser.parseModule, [
-          `Missing ${chalk.bold("documentation")} in ${chalk.bold("test")} module`
-        ])
-      })
-
-      it("should not require an example for modules when `enforceExamples` is set to true (#38)", () => {
-        expectSuccess(
-          `/**
+  describe("parseModule", () => {
+    it("should not require an example for modules when `enforceExamples` is set to true", async () => {
+      await expectMarkdown(
+        Parser.parseModule,
+        `/**
 * This is the assert module.
 *
 * @since 1.0.0
@@ -1596,185 +113,1614 @@ import * as assert from 'assert'
  *
  * console.log(foo)
  *
- * @category foo
+ * @category category
  * @since 1.0.0
  */
 export const foo = 'foo'`,
-          Parser.parseModule,
-          {
-            name: "test",
-            description: Option.some("This is the assert module."),
-            since: Option.some("1.0.0"),
-            deprecated: false,
-            examples: [],
-            category: Option.none(),
-            path: ["test"],
-            classes: [],
-            interfaces: [],
-            functions: [],
-            typeAliases: [],
-            constants: [
+        `## test.ts overview
+
+This is the assert module.
+
+Since v1.0.0
+
+<!-- toc -->
+
+# category
+
+## foo
+
+This is the foo export.
+
+**Example**
+
+\`\`\`ts
+import { foo } from 'test'
+
+console.log(foo)
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const foo: "foo"
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L19)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should ignore non-JSDoc comments above JSDoc comments", async () => {
+      await expectMarkdown(
+        Parser.parseModule,
+        `/**
+* This is the assert module.
+*
+* @since 1.0.0
+*/
+import * as assert from 'assert'
+
+// This comment should be ignored
+
+/**
+ * This is the foo export.
+ *
+ * @example
+ * import { foo } from 'test'
+ *
+ * console.log(foo)
+ *
+ * @category category
+ * @since 1.0.0
+ */
+export const foo = 'foo'`,
+        `## test.ts overview
+
+This is the assert module.
+
+Since v1.0.0
+
+<!-- toc -->
+
+# category
+
+## foo
+
+This is the foo export.
+
+**Example**
+
+\`\`\`ts
+import { foo } from 'test'
+
+console.log(foo)
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const foo: "foo"
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L21)
+
+Since v1.0.0`
+      )
+    })
+  })
+
+  describe("parseFunctions", () => {
+    it(`should remove all metadata from typedcript code blocks when the theme is ${Configuration.DEFAULT_THEME}`, async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * \`\`\`ts skip-type-checking a=1 showLineNumbers=true
+         * const a: string = 1
+         * \`\`\`
+         *
+         * @since 1.0.0
+         */
+         export function myfunc<A>() {}`,
+        `## myfunc
+
+\`\`\`ts
+const a: string = 1
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: <A>() => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L8)
+
+Since v1.0.0`
+      )
+    })
+    it("generics", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * This is a description containing two links to {@link foo} and {@link bar}.
+         *
+         * @since 1.2.0
+         */
+        export function myfunc<A>() {}`,
+        `## myfunc
+
+This is a description containing two links to \`foo\` and \`bar\`.
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: <A>() => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
+
+Since v1.2.0`
+      )
+    })
+
+    it("description", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * This is a description containing two links to {@link foo} and {@link bar}.
+         *
+         * @since 1.2.0
+         */
+        export function myfunc() {}`,
+        `## myfunc
+
+This is a description containing two links to \`foo\` and \`bar\`.
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
+
+Since v1.2.0`
+      )
+    })
+
+    it("throws", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * description...
+         * @throws \`Error1\` - Description 1
+         * @throws \`Error2\` - Description 2
+         * @since 1.2.0
+         */
+        export function myfunc() {}`,
+        `## myfunc
+
+description...
+
+**Throws**
+
+\`Error1\` - Description 1
+\`Error2\` - Description 2
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L7)
+
+Since v1.2.0`
+      )
+    })
+
+    it("sees", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * description...
+         * @see \`foo\` Description 1
+         * @see {@link bar} Description 2
+         * @see {@link baz quux} Description 2
+         * @since 1.2.0
+         */
+        export function myfunc() {}`,
+        `## myfunc
+
+description...
+
+**See**
+
+- \`foo\` Description 1
+- \`bar\` Description 2
+- \`quux\` Description 2
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L8)
+
+Since v1.2.0`
+      )
+    })
+
+    it("example without fence", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * description...
+         * @example
+         * const x = 1
+         * @since 1.0.0
+         */
+        export function myfunc() {}`,
+        `## myfunc
+
+description...
+
+**Example**
+
+\`\`\`ts
+const x = 1
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L7)
+
+Since v1.0.0`
+      )
+    })
+
+    it("example with backtick fence", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * description...
+         * @example
+         * \`\`\`ts
+         * const x = 1
+         * \`\`\`
+         * @since 1.0.0
+         */
+        export function myfunc() {}`,
+        `## myfunc
+
+description...
+
+**Example**
+
+\`\`\`ts
+const x = 1
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
+
+Since v1.0.0`
+      )
+    })
+
+    it("2 examples", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * description...
+         * @example
+         * \`\`\`ts
+         * const x = 1
+         * \`\`\`
+         * @example
+         * \`\`\`ts
+         * const x = 2
+         * \`\`\`
+         * @since 1.0.0
+         */
+        export function myfunc() {}`,
+        `## myfunc
+
+description...
+
+**Example**
+
+\`\`\`ts
+const x = 1
+\`\`\`
+
+**Example**
+
+\`\`\`ts
+const x = 2
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L13)
+
+Since v1.0.0`
+      )
+    })
+
+    it("example with metas", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * description...
+         * @example
+         * \`\`\`ts a=1
+         * const x = 1
+         * \`\`\`
+         * @since 1.0.0
+         */
+        export function myfunc() {}`,
+        `## myfunc
+
+description...
+
+**Example**
+
+\`\`\`ts a=1
+const x = 1
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
+
+Since v1.0.0`
+      )
+    })
+
+    it("example with titde fence", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * description...
+         * @example
+         * ~~~ts
+         * const x = 1
+         * ~~~
+         * @since 1.0.0
+         */
+        export function myfunc() {}`,
+        `## myfunc
+
+description...
+
+**Example**
+
+~~~ts
+const x = 1
+~~~
+
+**Signature**
+
+\`\`\`ts
+declare const myfunc: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should not return private function declarations", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * description...
+         */
+        function myfunc() {}`,
+        ""
+      )
+    })
+
+    it("should not return ignored function declarations", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+         * @ignore
+         */
+        export function myfunc() {}`,
+        ""
+      )
+    })
+
+    it("should not return ignored function declarations with overloads", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+          * @ignore
+          */
+          export function sum(a: number, b: number)
+          export function sum(a: number, b: number): number { return a + b }`,
+        ""
+      )
+    })
+
+    it("should not return internal function declarations", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+          * @internal
+          */
+          export function sum(a: number, b: number): number { return a + b }`,
+        ""
+      )
+    })
+
+    it("should not return internal function declarations even with overloads", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+          * @internal
+          */
+          export function sum(a: number, b: number)
+          export function sum(a: number, b: number): number { return a + b }`,
+        ""
+      )
+    })
+
+    it("should not return private const function declarations", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `const sum = (a: number, b: number): number => a + b `,
+        ""
+      )
+    })
+
+    it("should not return internal const function declarations", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+          * @internal
+          */
+          export const sum = (a: number, b: number): number => a + b `,
+        ""
+      )
+    })
+
+    it("should account for nullable polymorphic return types", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+          * @since 1.0.0
+          */
+         export const toNullable = <A>(ma: A | null): A | null => ma`,
+        `## toNullable
+
+**Signature**
+
+\`\`\`ts
+declare const toNullable: <A>(ma: A | null) => A | null
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L4)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should handle a const function declaration", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+          * a description...
+          * @since 1.0.0
+          * @example
+          * assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
+          * @example
+          * assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
+          * @deprecated
+          */
+          export const f = (a: number, b: number): { [key: string]: number } => ({ a, b })`,
+        `## ~~f~~
+
+a description...
+
+**Example**
+
+\`\`\`ts
+assert.deepStrictEqual(f(1, 2), { a: 1, b: 2 })
+\`\`\`
+
+**Example**
+
+\`\`\`ts
+assert.deepStrictEqual(f(3, 4), { a: 3, b: 4 })
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const f: (a: number, b: number) => { [key: string]: number; }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L10)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should handle a function declaration", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+        * @since 1.0.0
+        */
+        export function f(a: number, b: number): { [key: string]: number } { return { a, b } }`,
+        `## f
+
+**Signature**
+
+\`\`\`ts
+declare const f: (a: number, b: number) => { [key: string]: number; }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L4)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should handle overloadings", async () => {
+      await expectMarkdown(
+        Parser.parseFunctions,
+        `/**
+        * a description...
+        * @since 1.0.0
+        * @deprecated
+        */
+        export function f(a: Int, b: Int): { [key: string]: number }
+        export function f(a: number, b: number): { [key: string]: number }
+        export function f(a: any, b: any): { [key: string]: number } { return { a, b } }`,
+        `## ~~f~~
+
+a description...
+
+**Signature**
+
+\`\`\`ts
+declare const f: { (a: Int, b: Int): { [key: string]: number; }; (a: number, b: number): { [key: string]: number; }; }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L8)
+
+Since v1.0.0`
+      )
+    })
+  })
+
+  describe("parseConstants", () => {
+    it("should handle a constant value", async () => {
+      await expectMarkdown(
+        Parser.parseConstants,
+        `/**
+          * a description...
+          * @since 1.0.0
+          * @deprecated
+          */
+          export const s: string = ''`,
+        `## ~~s~~
+
+a description...
+
+**Signature**
+
+\`\`\`ts
+declare const s: string
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should support constants with default type parameters", async () => {
+      await expectMarkdown(
+        Parser.parseConstants,
+        `/**
+          * @since 1.0.0
+          */
+          export const left: <E = never, A = never>(l: E) => string = T.left`,
+        `## left
+
+**Signature**
+
+\`\`\`ts
+declare const left: <E = never, A = never>(l: E) => string
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L4)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should support untyped constants", async () => {
+      await expectMarkdown(
+        Parser.parseConstants,
+        `
+      class A {}
+    /**
+      * @since 1.0.0
+      */
+      export const empty = new A()`,
+        `## empty
+
+**Signature**
+
+\`\`\`ts
+declare const empty: A
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should handle constants with typeof annotations", async () => {
+      await expectMarkdown(
+        Parser.parseConstants,
+        ` const task: { a: number } = {
+        a: 1
+      }
+      /**
+      * @since 1.0.0
+      */
+      export const taskSeq: typeof task = {
+        ...task,
+        ap: (mab, ma) => () => mab().then(f => ma().then(a => f(a)))
+      }`,
+        `## taskSeq
+
+**Signature**
+
+\`\`\`ts
+declare const taskSeq: { a: number; }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L7)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should not include variables declared in for loops", async () => {
+      await expectMarkdown(
+        Parser.parseConstants,
+        ` const object = { a: 1, b: 2, c: 3 };
+
+      for (const property in object) {
+        console.log(property);
+      }`,
+        ""
+      )
+    })
+  })
+
+  describe("parseTypeAliases", () => {
+    it("should return a type alias", async () => {
+      await expectMarkdown(
+        Parser.parseTypeAliases,
+        `
+        type None<A> = { readonly _tag: "None" }
+        type Some<A> = { readonly _tag: "Some"; readonly value: A }
+        /**
+          * a description...
+          * @since 1.0.0
+          * @deprecated
+          */
+          export type Option<A> = None<A> | Some<A>`,
+        `## ~~Option~~ (type alias)
+
+a description...
+
+**Signature**
+
+\`\`\`ts
+type Option<A> = None<A> | Some<A>
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
+
+Since v1.0.0`
+      )
+    })
+  })
+
+  describe("parseExports", () => {
+    it("should return no exports if the file is empty", async () => {
+      await expectMarkdown(
+        Parser.parseExports,
+        "",
+        ""
+      )
+    })
+
+    it("should return an `Export`", async () => {
+      await expectMarkdown(
+        Parser.parseExports,
+        `
+        const a = 1;
+        const b = 2;
+        export {
+          /**
+           * description_of_a
+           * \`\`\`ts
+           * const a: string = 1
+           * \`\`\`
+           *
+           * @since 1.0.0
+           */
+          a,
+          /**
+           * description_of_b
+           * @since 2.0.0
+           */
+          b
+        }`,
+        `## a
+
+description_of_a
+\`\`\`ts
+const a: string = 1
+\`\`\`
+
+**Signature**
+
+\`\`\`ts
+declare const a: 1
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L13)
+
+Since v1.0.0
+## b
+
+description_of_b
+
+**Signature**
+
+\`\`\`ts
+declare const b: 2
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L18)
+
+Since v2.0.0`
+      )
+    })
+
+    it("should handle renamimg", async () => {
+      await expectMarkdown(
+        Parser.parseExports,
+        `const a = 1;
+        export {
+          /**
+            * @since 1.0.0
+            */
+            a as b
+          }`,
+        `## b
+
+**Signature**
+
+\`\`\`ts
+declare const b: 1
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should handle a single re-export", () => {
+      project.createSourceFile("a.ts", `export const a = 1`)
+      const sourceFile = project.createSourceFile(
+        "b.ts",
+        `import { a } from './a'
+        const b = a
+        export {
+          /**
+            * @since 1.0.0
+            */
+          b
+        }`
+      )
+      const actual = Parser.parseExports.pipe(
+        Effect.provideService(Parser.Source, makeSource(sourceFile)),
+        Effect.provideService(Configuration.Configuration, defaultConfig),
+        Effect.runSyncExit
+      )
+      assert.deepStrictEqual(
+        actual,
+        Exit.succeed([
+          new Domain.Export(
+            "b",
+            new Domain.Doc(
+              undefined,
+              ["1.0.0"],
+              [],
+              [],
+              [],
+              [],
+              [],
               {
-                _tag: "Constant",
-                name: "foo",
-                description: Option.some("This is the foo export."),
-                since: Option.some("1.0.0"),
-                deprecated: false,
-                examples: [{ body: `import { foo } from 'test'\n\nconsole.log(foo)` }],
-                category: Option.some("foo"),
-                signature: "export declare const foo: \"foo\""
+                "since": ["1.0.0"]
               }
-            ],
-            exports: [],
-            namespaces: []
-          },
-          { enforceExamples: true }
+            ),
+            "declare const b: 1",
+            {
+              "column": 11,
+              "line": 7
+            },
+            false
+          )
+        ])
+      )
+    })
+
+    it("should handle `export * from ...`", () => {
+      project.createSourceFile("example.ts", `export const a = 1`, { overwrite: true })
+
+      const sourceFile = project.createSourceFile(
+        "export-all.ts",
+        `
+         /**
+          * @since 1.0.0
+          */
+         export * from './example'
+        `
+      )
+
+      const actual = Parser.parseExports.pipe(
+        Effect.provideService(Parser.Source, makeSource(sourceFile)),
+        Effect.provideService(Configuration.Configuration, defaultConfig),
+        Effect.runSyncExit
+      )
+
+      assert.deepStrictEqual(
+        actual,
+        Exit.succeed([
+          new Domain.Export(
+            "'./example'",
+            new Domain.Doc(
+              "Re-exports all named exports from the './example' module.",
+              ["1.0.0"],
+              [],
+              [],
+              [],
+              [],
+              [],
+              {
+                "since": ["1.0.0"]
+              }
+            ),
+            "export * from './example'",
+            {
+              "column": 10,
+              "line": 5
+            },
+            true
+          )
+        ])
+      )
+    })
+
+    it("should handle `export * as ... from ...`", () => {
+      project.createSourceFile("example.ts", `export const a = 1`, { overwrite: true })
+
+      const sourceFile = project.createSourceFile(
+        "export-all-namespace.ts",
+        `
+          /**
+           * @since 1.0.0
+           */
+          export * as example from './example'
+        `
+      )
+
+      const actual = Parser.parseExports.pipe(
+        Effect.provideService(Parser.Source, makeSource(sourceFile)),
+        Effect.provideService(Configuration.Configuration, defaultConfig),
+        Effect.runSyncExit
+      )
+
+      assert.deepStrictEqual(
+        actual,
+        Exit.succeed([
+          new Domain.Export(
+            "example",
+            new Domain.Doc(
+              "Re-exports all named exports from the './example' module as `example`.",
+              ["1.0.0"],
+              [],
+              [],
+              [],
+              [],
+              [],
+              {
+                "since": ["1.0.0"]
+              }
+            ),
+            "export * as example from './example'",
+            {
+              "column": 11,
+              "line": 5
+            },
+            true
+          )
+        ])
+      )
+    })
+  })
+
+  describe("parseInterfaces", () => {
+    it("should return no interfaces if the file is empty", async () => {
+      await expectMarkdown(
+        Parser.parseInterfaces,
+        "",
+        ""
+      )
+    })
+
+    it("should return no interfaces if there are no exported interfaces", async () => {
+      await expectMarkdown(
+        Parser.parseInterfaces,
+        "interface A {}",
+        ""
+      )
+    })
+
+    it("should return an interface", async () => {
+      await expectMarkdown(
+        Parser.parseInterfaces,
+        `/**
+      * a description...
+      * @since 1.0.0
+      * @deprecated
+      */
+      export interface A {}`,
+        `## ~~A~~ (interface)
+
+a description...
+
+**Signature**
+
+\`\`\`ts
+export interface A {}
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
+
+Since v1.0.0`
+      )
+    })
+  })
+
+  describe("parseNamespaces", () => {
+    it("should return no namespaces if the file is empty", async () => {
+      await expectMarkdown(
+        Parser.parseNamespaces,
+        "",
+        ""
+      )
+    })
+
+    it("should return no namespaces if there are no exported namespaces", async () => {
+      await expectMarkdown(
+        Parser.parseNamespaces,
+        "namespace A {}",
+        ""
+      )
+    })
+
+    it("should parse an empty Namespace", async () => {
+      await expectMarkdown(
+        Parser.parseNamespaces,
+        `
+      /**
+       * @since 1.0.0
+       */
+      export namespace A {}
+      `,
+        `## A (namespace)
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0`
+      )
+    })
+
+    describe("namespace > interfaces", () => {
+      it("should ignore not exported interfaces", async () => {
+        await expectMarkdown(
+          Parser.parseNamespaces,
+          `
+        /**
+         * @since 1.0.0
+         */
+        export namespace A {
+          interface C {}
+        }
+        `,
+          `## A (namespace)
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0`
+        )
+      })
+
+      it("should parse an interface", async () => {
+        await expectMarkdown(
+          Parser.parseNamespaces,
+          `
+/**
+ * @since 1.0.0
+ */
+export namespace A {
+  /**
+   * @since 1.0.1
+   */
+  export interface B {
+    readonly d: boolean
+  }
+}
+        `,
+          `## A (namespace)
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0
+
+### B (interface)
+
+**Signature**
+
+\`\`\`ts
+export interface B {
+    readonly d: boolean
+  }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
+
+Since v1.0.1`
         )
       })
     })
 
-    describe("parseFile", () => {
-      it("should not parse a non-existent file", async () => {
-        const file = File.createFile("non-existent.ts", "")
-        const project = new ast.Project({ useInMemoryFileSystem: true })
+    describe("namespace > type aliases", () => {
+      it("should ignore not exported type aliases", async () => {
+        await expectMarkdown(
+          Parser.parseNamespaces,
+          `
+        /**
+         * @since 1.0.0
+         */
+        export namespace A {
+          type C = number
+        }
+        `,
+          `## A (namespace)
 
-        assert.deepStrictEqual(
-          Parser.parseFile(project)(file).pipe(
-            Effect.provideService(Configuration.Configuration, defaultConfig),
-            Effect.provide(Path.layer),
-            Effect.runSyncExit
-          ),
-          Exit.fail(["Unable to locate file: non-existent.ts"])
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0`
+        )
+      })
+
+      it("should parse a type alias", async () => {
+        await expectMarkdown(
+          Parser.parseNamespaces,
+          `
+        /**
+         * @since 1.0.0
+         */
+        export namespace A {
+          /**
+           * @since 1.0.1
+           */
+          export type B = string
+        }
+        `,
+          `## A (namespace)
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0
+
+### B (type alias)
+
+**Signature**
+
+\`\`\`ts
+type B = string
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
+
+Since v1.0.1`
+        )
+      })
+    })
+
+    describe("namespace > nested namespaces", () => {
+      it("should ignore not exported namespaces", async () => {
+        await expectMarkdown(
+          Parser.parseNamespaces,
+          `
+        /**
+         * @since 1.0.0
+         */
+        export namespace A {
+          namespace B {}
+        }
+        `,
+          `## A (namespace)
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0`
+        )
+      })
+
+      it("should parse a namespace", async () => {
+        await expectMarkdown(
+          Parser.parseNamespaces,
+          `
+        /**
+         * @since 1.0.0
+         */
+        export namespace A {
+          /**
+           * @since 1.0.1
+           */
+          export namespace B {
+            /**
+             * @since 1.0.2
+             */
+            export type C = string
+          }
+        }
+        `,
+          `## A (namespace)
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0
+
+### B (namespace)
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
+
+Since v1.0.1
+
+#### C (type alias)
+
+**Signature**
+
+\`\`\`ts
+type C = string
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L13)
+
+Since v1.0.2`
         )
       })
     })
   })
 
-  describe("utils", () => {
-    describe("getDoc", () => {
-      it("should parse comment information", () => {
-        const text = String.stripMargin(
-          `|/**
-           | * description
-           | * @category instances
-           | * @since 1.0.0
-           | */`
-        )
-        expectSuccess("", Parser.getDoc("name", text), {
-          description: Option.some("description"),
-          since: Option.some("1.0.0"),
-          category: Option.some("instances"),
-          deprecated: false,
-          examples: []
-        })
-      })
-
-      it("should fail if an empty comment tag is provided", () => {
-        const text = String.stripMargin(
-          `|/**
-           | * @category
-           | * @since 1.0.0
-           | */`
-        )
-        expectFailure(
-          "",
-          Parser.getDoc("name", text),
-          `Missing ${chalk.bold("@category")} tag in ${chalk.bold("test#name")} documentation`
-        )
-      })
-
-      it("should require a description if `enforceDescriptions` is set to true", () => {
-        const text = String.stripMargin(
-          `|/**
-           | * @category instances
-           | * @since 1.0.0
-           | */`
-        )
-        expectFailure(
-          "",
-          Parser.getDoc("name", text),
-          `Missing ${chalk.bold("description")} in ${chalk.bold("test#name")} documentation`,
-          {
-            enforceDescriptions: true
-          }
-        )
-      })
-
-      it("should require at least one example if `enforceExamples` is set to true", () => {
-        const text = String.stripMargin(
-          `|/**
-           | * description
-           | * @category instances
-           | * @since 1.0.0
-           | */`
-        )
-        expectFailure(
-          "",
-          Parser.getDoc("name", text),
-          `Missing ${chalk.bold("@example")} tag in ${chalk.bold("test#name")} documentation`,
-          {
-            enforceExamples: true
-          }
-        )
-      })
-
-      it("should require at least one non-empty example if `enforceExamples` is set to true", () => {
-        const text = String.stripMargin(
-          `|/**
-           | * description
-           | * @example
-           | * @category instances
-           | * @since 1.0.0
-           | */`
-        )
-        expectFailure(
-          "",
-          Parser.getDoc("name", text),
-          `Missing ${chalk.bold("@example")} tag in ${chalk.bold("test#name")} documentation`,
-          {
-            enforceExamples: true
-          }
-        )
-      })
-
-      it("should allow no since tag if `enforceVersion` is set to false", () => {
-        const text = `/**
-* description
-* @category instances
-*/`
-
-        expectSuccess(
-          "",
-          Parser.getDoc("name", text),
-          {
-            description: Option.some("description"),
-            since: Option.none(),
-            category: Option.some("instances"),
-            deprecated: false,
-            examples: []
-          },
-          { enforceVersion: false }
-        )
-      })
+  describe("parseClasses", () => {
+    it("should ignore `@internal` classes", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `/** @internal */export class MyClass {}`,
+        ""
+      )
     })
 
+    it("should ignore `@ignore` classes", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `
+        /** @ignore */
+        export class MyClass {}
+        `,
+        ""
+      )
+    })
+
+    it("should ignore not exported classes", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `
+        class MyClass {}
+        `,
+        ""
+      )
+    })
+
+    it("should skip ignored properties", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `/**
+      * @since 1.0.0
+      */
+      export class MyClass<A> {
+        /**
+         * @ignore
+         */
+        readonly _A!: A
+      }`,
+        `## MyClass (class)
+
+**Signature**
+
+\`\`\`ts
+declare class MyClass<A>
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L4)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should skip the constructor body", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `/**
+      * description
+      * @since 1.0.0
+      */
+      export class C { constructor() {} }`,
+        `## C (class)
+
+description
+
+**Signature**
+
+\`\`\`ts
+declare class C { constructor() }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should get a constructor declaration signature", () => {
+      const sourceFile = project.createSourceFile(
+        `test-${testCounter++}.ts`,
+        `
+      /**
+       * @since 1.0.0
+       */
+      declare class A {
+        constructor()
+      }
+    `
+      )
+
+      const constructorDeclaration = sourceFile
+        .getClass("A")!
+        .getConstructors()[0]
+
+      assert.deepStrictEqual(
+        Parser.getConstructorDeclarationSignature(constructorDeclaration),
+        "constructor()"
+      )
+    })
+
+    it("should handle non-readonly properties", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `/**
+      * description
+      * @since 1.0.0
+      */
+      export class C {
+        /**
+         * @since 1.0.0
+         */
+        a: string
+      }`,
+        `## C (class)
+
+description
+
+**Signature**
+
+\`\`\`ts
+declare class C
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0
+
+### a (property)
+
+**Signature**
+
+\`\`\`ts
+a: string
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
+
+Since v1.0.0`
+      )
+    })
+
+    it("should return a `Class`", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `/**
+      * a class description...
+      * @since 1.0.0
+      * @deprecated
+      */
+      export class Test {
+        /**
+         * a property...
+         * @since 1.1.0
+         * @deprecated
+         */
+        readonly a: string
+        private readonly b: number
+        /**
+         * a static method description...
+         * @since 1.1.0
+         * @deprecated
+         */
+        static f(): void {}
+        constructor(readonly value: string) { }
+        /**
+         * a method description...
+         * @since 1.1.0
+         * @deprecated
+         */
+        g(a: number, b: number): { [key: string]: number } {
+          return { a, b }
+        }
+      }`,
+        `## ~~Test~~ (class)
+
+a class description...
+
+**Signature**
+
+\`\`\`ts
+declare class Test { constructor(readonly value: string) }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
+
+Since v1.0.0
+
+### ~~f~~ (static method)
+
+a static method description...
+
+**Signature**
+
+\`\`\`ts
+declare const f: () => void
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L19)
+
+Since v1.1.0
+
+### ~~g~~ (method)
+
+a method description...
+
+**Signature**
+
+\`\`\`ts
+declare const g: (a: number, b: number) => { [key: string]: number; }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L26)
+
+Since v1.1.0
+
+### ~~a~~ (property)
+
+a property...
+
+**Signature**
+
+\`\`\`ts
+readonly a: string
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L12)
+
+Since v1.1.0`
+      )
+    })
+
+    it("should handle method overloadings", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `/**
+      * a class description...
+      * @since 1.0.0
+      * @deprecated
+      */
+      export class Test<A> {
+        /**
+         * a static method description...
+         * @since 1.1.0
+         * @deprecated
+         */
+        static f(x: number): number
+        static f(x: string): string
+        static f(x: any): any {}
+        constructor(readonly value: A) { }
+        /**
+         * a method description...
+         * @since 1.1.0
+         * @deprecated
+         */
+        map(f: (a: number) => number): Test
+        map(f: (a: string) => string): Test
+        map(f: (a: any) => any): any {
+          return new Test(f(this.value))
+        }
+      }`,
+        `## ~~Test~~ (class)
+
+a class description...
+
+**Signature**
+
+\`\`\`ts
+declare class Test<A> { constructor(readonly value: A) }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
+
+Since v1.0.0
+
+### ~~f~~ (static method)
+
+a static method description...
+
+**Signature**
+
+\`\`\`ts
+declare const f: { (x: number): number; (x: string): string; }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L14)
+
+Since v1.1.0
+
+### ~~map~~ (method)
+
+a method description...
+
+**Signature**
+
+\`\`\`ts
+declare const map: { (f: (a: number) => number): Test; (f: (a: string) => string): Test; }
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L23)
+
+Since v1.1.0`
+      )
+    })
+
+    it("should ignore internal/ignored methods (#42)", async () => {
+      await expectMarkdown(
+        Parser.parseClasses,
+        `/**
+      * a class description...
+      * @since 1.0.0
+      */
+      export class Test<A> {
+        /**
+         * @since 0.0.1
+         * @internal
+         **/
+        private foo(): void {}
+        /**
+         * @since 0.0.1
+         * @ignore
+         **/
+        private bar(): void {}
+      }`,
+        `## Test (class)
+
+a class description...
+
+**Signature**
+
+\`\`\`ts
+declare class Test<A>
+\`\`\`
+
+[Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
+
+Since v1.0.0`
+      )
+    })
+  })
+
+  describe("parseFile", () => {
+    it("should not parse a non-existent file", async () => {
+      const file = new Domain.File("non-existent.ts", "")
+      const project = new ast.Project({ useInMemoryFileSystem: true })
+
+      assert.deepStrictEqual(
+        Parser.parseFile(project)(file).pipe(
+          Effect.provideService(Configuration.Configuration, defaultConfig),
+          Effect.provide(Path.layer),
+          Effect.runSyncExit
+        ),
+        Exit.fail(["Unable to locate file: non-existent.ts"])
+      )
+    })
+  })
+
+  describe("utils", () => {
     it("parseComment", () => {
       assert.deepStrictEqual(Parser.parseComment(""), {
-        description: Option.none(),
+        description: undefined,
         tags: {}
       })
 
       assert.deepStrictEqual(Parser.parseComment("/** description */"), {
-        description: Option.some("description"),
+        description: "description",
         tags: {}
       })
 
       assert.deepStrictEqual(
         Parser.parseComment("/** description\n * @since 1.0.0\n */"),
         {
-          description: Option.some("description"),
+          description: "description",
           tags: {
-            since: [Option.some("1.0.0")]
+            since: ["1.0.0"]
           }
         }
       )
@@ -1782,9 +1728,9 @@ export const foo = 'foo'`,
       assert.deepStrictEqual(
         Parser.parseComment("/** description\n * @deprecated\n */"),
         {
-          description: Option.some("description"),
+          description: "description",
           tags: {
-            deprecated: [Option.none()]
+            deprecated: [""]
           }
         }
       )
@@ -1792,26 +1738,11 @@ export const foo = 'foo'`,
       assert.deepStrictEqual(
         Parser.parseComment("/** description\n * @category instance\n */"),
         {
-          description: Option.some("description"),
+          description: "description",
           tags: {
-            category: [Option.some("instance")]
+            category: ["instance"]
           }
         }
-      )
-    })
-
-    it("stripImportTypes", () => {
-      assert.deepStrictEqual(
-        Parser.stripImportTypes(
-          "{ <E, A, B>(refinement: import(\"/Users/giulio/Documents/Projects/github/fp-ts/src/function\").Refinement<A, B>, onFalse: (a: A) => E): (ma: Either<E, A>) => Either<E, B>; <E, A>(predicate: Predicate<A>, onFalse: (a: A) => E): (ma: Either<E, A>) => Either<E, A>; }"
-        ),
-        "{ <E, A, B>(refinement: Refinement<A, B>, onFalse: (a: A) => E): (ma: Either<E, A>) => Either<E, B>; <E, A>(predicate: Predicate<A>, onFalse: (a: A) => E): (ma: Either<E, A>) => Either<E, A>; }"
-      )
-      assert.deepStrictEqual(
-        Parser.stripImportTypes(
-          "{ <A, B>(refinementWithIndex: import(\"/Users/giulio/Documents/Projects/github/fp-ts/src/FilterableWithIndex\").RefinementWithIndex<number, A, B>): (fa: A[]) => B[]; <A>(predicateWithIndex: import(\"/Users/giulio/Documents/Projects/github/fp-ts/src/FilterableWithIndex\").PredicateWithIndex<number, A>): (fa: A[]) => A[]; }"
-        ),
-        "{ <A, B>(refinementWithIndex: RefinementWithIndex<number, A, B>): (fa: A[]) => B[]; <A>(predicateWithIndex: PredicateWithIndex<number, A>): (fa: A[]) => A[]; }"
       )
     })
   })
