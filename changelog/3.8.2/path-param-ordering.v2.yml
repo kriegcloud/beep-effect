@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix a problem with the generated code in the case where path params show up in different orders in the path template and the args block.
+  links:
+   - https://github.com/palantir/conjure-typescript/pull/100

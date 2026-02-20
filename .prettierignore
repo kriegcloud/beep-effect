@@ -1,0 +1,10 @@
+src/__integTest__/
+src/commands/generate/__tests__/resources
+lib/
+build/
+coverage/
+changelog/
+*.yml
+*.md
+*.js
+*.json

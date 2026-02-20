@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: Add JSDoc comments to class endpoint implementations
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/152

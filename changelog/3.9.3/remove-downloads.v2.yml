@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Remove downloads folder from published package
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/121

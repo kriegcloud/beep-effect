@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix published dist file structure
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/175

@@ -1,0 +1,5 @@
+type: break
+break:
+  description: Add `module` to reserved keywords. This can break generated types with fields called `module` which get renamed to `module_`.
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/167

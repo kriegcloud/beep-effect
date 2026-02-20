@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Publish distribution to maven-central
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/168

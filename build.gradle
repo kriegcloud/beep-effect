@@ -1,0 +1,71 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
+    dependencies {
+        classpath 'com.palantir.jakartapackagealignment:jakarta-package-alignment:0.6.0'
+        classpath 'com.palantir.gradle.externalpublish:gradle-external-publish-plugin:1.33.0'
+        classpath 'com.palantir.gradle.failure-reports:gradle-failure-reports:1.18.0'
+        classpath 'com.palantir.gradle.gitversion:gradle-git-version:4.3.0'
+        classpath 'com.palantir.gradle.idea-configuration:gradle-idea-configuration:0.8.0'
+        classpath 'com.palantir.gradle.jdks:gradle-jdks:0.74.0'
+        classpath 'com.palantir.gradle.jdkslatest:gradle-jdks-latest:0.26.0'
+    }
+}
+allprojects {
+    apply plugin: 'com.palantir.jakarta-package-alignment'
+}
+
+/**
+ * Previously we used a shell script to publish the distribution to bintray. With the migration to maven-central, we
+ * need to leverage more tooling coming from 'gradle-external-publish-plugin'. Based on that, this repo is currently
+ * in an awkward split-mode. This Gradle setup is just for publishing the dist to maven-central. The actual build and
+ * compilation is still done through yarn (see 'package.json').
+ * TODO(fawind): Move this project fully to Gradle (i.e. using 'gradlets/gradle-typescript').
+ */
+apply plugin: 'com.palantir.external-publish-dist'
+apply plugin: 'com.palantir.failure-reports'
+apply plugin: 'com.palantir.git-version'
+apply plugin: 'com.palantir.jdks'
+apply plugin: 'com.palantir.jdks.latest'
+
+group 'com.palantir.conjure.typescript'
+version gitVersion()
+
+task verifyBinariesExist() {
+    doLast {
+        [file('dist/bin/conjure-typescript'), file('dist/bin/conjure-typescript.bat')]
+                .forEach({
+                    if (!it.exists()) {
+                        throw new GradleException("Compiled binary file does not exist: ${it}")
+                    }
+                })
+    }
+}
+
+task distTar(type: Tar) {
+    String publicationName = "conjure-typescript-${gitVersion()}"
+
+    archiveFileName = "${publicationName}.tgz"
+    destinationDirectory = layout.buildDirectory.dir('dist')
+
+    compression Compression.GZIP
+
+    into("/${publicationName}/bin") {
+        from 'dist/bin'
+    }
+
+    eachFile { file ->
+        if (!file.getName().endsWith(".bat")) {
+            file.setMode(0755)
+        }
+    }
+}
+
+tasks.distTar.dependsOn(tasks.verifyBinariesExist)
+
+jdks {
+    daemonTarget = 21
+}

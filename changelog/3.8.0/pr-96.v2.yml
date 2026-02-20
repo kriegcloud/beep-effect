@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: A `.bat` script is provided for windows users
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/96

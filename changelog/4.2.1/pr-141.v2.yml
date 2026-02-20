@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix generated code being unable to compile with generated tsconfig
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/141

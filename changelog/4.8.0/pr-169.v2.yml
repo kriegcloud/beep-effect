@@ -1,0 +1,5 @@
+type: fix
+fix:
+  description: Fix publish failing due to dirty version
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/169

@@ -1,0 +1,15 @@
+type: improvement
+improvement:
+  description: |-
+    Carry Configured Service Optionality Through to Generated package.json
+
+    ## Before this PR
+    Service optionality was completely ignored
+
+    ## After this PR
+    Now if you configure something as optional it should be reflected in the TS dep (this is already true for Java)
+
+    ## Possible downsides?
+    Doesn't generate retroactively, so there is probably tons of boilerplate
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/238

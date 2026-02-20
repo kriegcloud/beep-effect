@@ -1,0 +1,262 @@
+# don't forget to update conjure-python/src/test/resources/types/example-types.yml
+types:
+  imports:
+    ExampleExternalReference:
+      base-type: string
+      external:
+        java: test.api.ExampleExternalReference
+    ExternalLong:
+      base-type: safelong
+      external:
+        java: java.lang.Long
+  definitions:
+    default-package: com.palantir.product
+    objects:
+      StringExample:
+        fields:
+          string: string
+      IntegerExample:
+        fields:
+          integer: integer
+      SafeLongExample:
+        fields:
+          safeLongValue: safelong
+      RidExample:
+        fields:
+          ridValue: rid
+      BearerTokenExample:
+        fields:
+          bearerTokenValue: bearertoken
+      DateTimeExample:
+        fields:
+          datetime: datetime
+      DoubleExample:
+        fields:
+          doubleValue: double
+      BinaryExample:
+        fields:
+          binary: binary
+      OptionalExample:
+        fields:
+          item: optional<string>
+      CovariantOptionalExample:
+        fields:
+          item: optional<any>
+      ListExample:
+        fields:
+          items: list<string>
+          primitiveItems: list<integer>
+          doubleItems: list<double>
+      CovariantListExample:
+        fields:
+          items: list<any>
+          externalItems: list<ExampleExternalReference>
+      SetExample:
+        fields:
+          items: set<string>
+          doubleItems: set<double>
+      MapExample:
+        fields:
+          items: map<string, string>
+      EnumExample:
+        docs: |
+          This enumerates the numbers 1:2 also 100.
+        values:
+          - ONE
+          - TWO
+          - value: ONE_HUNDRED
+            docs: Value of 100.
+      EnumFieldExample:
+        fields:
+          enum: EnumExample
+      BooleanExample:
+        fields:
+          coin: boolean
+      AnyExample:
+        fields:
+          any: any
+      AnyMapExample:
+        fields:
+          items: map<string, any>
+      UuidExample:
+        fields:
+          uuid: uuid
+      BearerAliasExample:
+        alias: bearertoken
+      StringAliasExample:
+        alias: string
+      NestedStringAliasExample:
+        alias: StringAliasExample
+      DoubleAliasExample:
+        alias: double
+      IntegerAliasExample:
+        alias: integer
+      BooleanAliasExample:
+        alias: boolean
+      SafeLongAliasExample:
+        alias: safelong
+      RidAliasExample:
+        alias: rid
+      BearerTokenAliasExample:
+        alias: bearertoken
+      UuidAliasExample:
+        alias: uuid
+      MapAliasExample:
+        alias: map<string, any>
+      ReferenceAliasExample:
+        alias: AnyExample
+      DateTimeAliasExample:
+        alias: datetime
+      BinaryAliasExample:
+        alias: binary
+      PrimitiveOptionalsExample:
+        fields:
+          num: optional<double>
+          bool: optional<boolean>
+          integer: optional<integer>
+          safelong: optional<safelong>
+          rid: optional<rid>
+          bearertoken: optional<bearertoken>
+          uuid: optional<uuid>
+      ExternalLongAliasExample:
+        alias: ExternalLong
+      ExternalLongExample:
+        fields:
+          externalLong: ExternalLong
+          optionalExternalLong: optional<ExternalLong>
+          listExternalLong: list<ExternalLong>
+      ManyFieldExample:
+        fields:
+          string:
+            type: string
+            docs: docs for string field
+          integer:
+            type: integer
+            docs: docs for integer field
+          doubleValue:
+            type: double
+            docs: docs for doubleValue field
+          optionalItem:
+            type: optional<string>
+            docs: docs for optionalItem field
+          items:
+            type: list<string>
+            docs: docs for items field
+          set:
+            type: set<string>
+            docs: docs for set field
+          map:
+            type: map<string, string>
+            docs: docs for map field
+          alias:
+            type: StringAliasExample
+            docs: docs for alias field
+      UnionTypeExample:
+        docs: A type which can either be a StringExample, a set of strings, or an integer.
+        union:
+          stringExample:
+            type: StringExample
+            docs: Docs for when UnionTypeExample is of type StringExample.
+          set: set<string>
+          thisFieldIsAnInteger: integer
+          alsoAnInteger: integer
+          if: integer # some 'bad' member names!
+          new: integer
+          interface: integer
+      EmptyUnionTypeExample:
+        union: {}
+      EmptyObjectExample:
+        fields: {}
+      AliasAsMapKeyExample:
+        fields:
+          strings: map<StringAliasExample, ManyFieldExample>
+          rids: map<RidAliasExample, ManyFieldExample>
+          bearertokens: map<BearerTokenAliasExample, ManyFieldExample>
+          integers: map<IntegerAliasExample, ManyFieldExample>
+          # doubles: map<DoubleAliasExample, ManyFieldExample> # typescript freaks out with the 'NaN'
+          safelongs: map<SafeLongAliasExample, ManyFieldExample>
+          datetimes: map<DateTimeAliasExample, ManyFieldExample>
+          uuids: map<UuidAliasExample, ManyFieldExample>
+      ReservedKeyExample:
+        fields:
+          package:
+            type: string
+          interface:
+            type: string
+          field-name-with-dashes:
+            type: string
+          primitve-field-name-with-dashes:
+            type: integer
+          memoizedHashCode:
+            type: integer
+      Union:
+        union:
+          foo: string
+          bar: integer
+          baz: ExternalLong
+      SingleUnion:
+        union:
+          foo: string
+      SimpleEnum:
+        values:
+          - VALUE
+      StringAliasOne:
+        alias: string
+      StringAliasTwo:
+        alias: optional<StringAliasOne>
+      StringAliasThree:
+        alias: StringAliasTwo
+      BinaryAliasOne:
+        alias: binary
+      BinaryAliasTwo:
+        alias: BinaryAliasOne
+      EmptyEnum:
+        values: []
+      ExternalLongAliasOne:
+        alias: ExternalLong
+      ExternalLongAliasTwo:
+        alias: ExternalLongAliasOne
+      DeprecatedEnumExample:
+        values:
+          - ONE
+          - value: OLD_ONE
+            deprecated: use ONE
+          - value: OLD_DEPRECATED_ONE
+            docs: |
+              You should no longer use this
+            deprecated: use ONE
+          - value: OLD_DOCUMENTED_ONE
+            docs: |
+              You should no longer use this
+
+              @deprecated should use ONE
+            deprecated: use ONE
+      DeprecatedFieldExample:
+        fields:
+          one:
+            type: string
+          deprecatedOne:
+            type: string
+            deprecated: use ONE
+          documentedDeprecatedOne:
+            type: string
+            docs: |
+              You should no longer use this
+            deprecated: use ONE
+          deprecatedWithinDocumentOne:
+            type: string
+            docs: |
+              You should no longer use this
+
+              @deprecated should use ONE
+            deprecated: use ONE
+      DeprecatedUnion:
+        union:
+          good: string
+          noGood:
+            type: string
+            deprecated: use good
+          noGoodDoc:
+            type: string
+            deprecated: use good
+            docs: this is no good

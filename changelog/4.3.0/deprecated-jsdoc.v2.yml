@@ -1,0 +1,5 @@
+type: improvement
+improvement:
+  description: jsdoc has @deprecated added reason provided in definition
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/149

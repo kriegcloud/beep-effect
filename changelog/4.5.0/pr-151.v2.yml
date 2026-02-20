@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: Make conjure-client a direct dependency instead of a peer dependency
+  links:
+  - https://github.com/palantir/conjure-typescript/pull/151
