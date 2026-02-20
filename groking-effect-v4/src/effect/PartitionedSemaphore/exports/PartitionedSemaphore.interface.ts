@@ -2,11 +2,11 @@
  * Export Playground
  *
  * Package: effect
- * Module: effect/PartitionedSemaphore
+ * Module: effect/Semaphore
  * Export: PartitionedSemaphore
  * Kind: interface
  * Source: .repos/effect-smol/packages/effect/src/PartitionedSemaphore.ts
- * Generated: 2026-02-19T04:50:38.168Z
+ * Generated: 2026-02-20T03:29:54.710Z
  *
  * Overview:
  * A `PartitionedSemaphore` controls access to a shared permit pool while tracking waiters by partition key.

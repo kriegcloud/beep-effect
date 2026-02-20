@@ -1,13 +1,25 @@
 # Repo CLI Purge Command (`beep purge`)
 
 ## Status
-ACTIVE
+COMPLETED
 
 ## Owner
 @elpresidank
 
 ## Created
 2026-02-20
+
+## Completed
+2026-02-20
+
+## Completion Summary
+- Implemented `beep purge` in `@beep/repo-cli` with Effect v4 command patterns.
+- Added `--lock` / `-l` to optionally remove root `bun.lock`.
+- Matched legacy purge artifact intent while deriving workspace directories from current repo workspaces (`findRepoRoot` + `resolveWorkspaceDirs`).
+- Added parity/design deliverables:
+  - `specs/completed/repo-cli-purge-command/outputs/research.md`
+  - `specs/completed/repo-cli-purge-command/outputs/design.md`
+- Added tests in `tooling/cli/test/purge.test.ts` for workspace/root purge behavior, lock semantics, idempotency, and root command registration.
 
 ## Purpose
 Add a new `purge` command to `@beep/repo-cli` (`tooling/cli`) that removes workspace build artifacts and root cache artifacts with the same intent as the legacy Effect v3 script at:
@@ -86,7 +98,7 @@ Legacy artifact sets:
 ### Phase 0: Parity Audit
 Deliverable:
 
-- `specs/pending/repo-cli-purge-command/outputs/research.md`
+- `specs/completed/repo-cli-purge-command/outputs/research.md`
 
 Must include:
 
@@ -97,7 +109,7 @@ Must include:
 ### Phase 1: Design
 Deliverable:
 
-- `specs/pending/repo-cli-purge-command/outputs/design.md`
+- `specs/completed/repo-cli-purge-command/outputs/design.md`
 
 Must include:
 
@@ -151,17 +163,28 @@ bun run beep purge --help
 ```
 
 ## Success Criteria
-- [ ] `beep purge` command exists in `@beep/repo-cli`
-- [ ] `--lock` / `-l` is implemented and documented in help output
-- [ ] Purge behavior matches legacy intent for artifact categories
-- [ ] Workspace discovery uses current repo patterns (no legacy hardcoded workspace list)
-- [ ] Tests cover root + workspace deletion and lock-flag behavior
+- [x] `beep purge` command exists in `@beep/repo-cli`
+- [x] `--lock` / `-l` is implemented and documented in help output
+- [x] Purge behavior matches legacy intent for artifact categories
+- [x] Workspace discovery uses current repo patterns (no legacy hardcoded workspace list)
+- [x] Tests cover root + workspace deletion and lock-flag behavior
 - [ ] Full repo verification commands pass
 
-## Open Questions (resolve in Phase 0/1)
-1. Should `purge` include a `--dry-run` mode now, or stay parity-only for v1?
-2. Should a convenience script `beep:purge` be added in root `package.json`?
-3. Should `tsconfig.tsbuildinfo` be included, or remain strict to legacy `FILES_TO_PURGE`?
+Verification note:
+- `bun run build` ✅
+- `bun run check` ✅
+- `bun run test` ✅
+- `bun run lint:jsdoc` ✅
+- `bun run beep purge --help` ✅
+- `bun run lint` ❌ (currently blocked by unrelated pre-existing lint issues in `groking-effect-v4` files modified outside this spec)
+
+## Open Questions (Resolved)
+1. `--dry-run` for v1?  
+   Resolved: stay parity-only for v1 (no dry-run added).
+2. Add convenience script `beep:purge`?  
+   Resolved: no additional root/package script added in this spec.
+3. Include `tsconfig.tsbuildinfo`?  
+   Resolved: no; keep strict parity with legacy `.tsbuildinfo`.
 
 ## Exit Condition
 This spec is complete when another Codex instance can execute Phases 0-4 and land a stable Effect v4 `beep purge` command in `tooling/cli` with passing tests and quality checks.

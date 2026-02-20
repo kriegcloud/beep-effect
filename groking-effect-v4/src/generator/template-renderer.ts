@@ -2,8 +2,21 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import Handlebars from "handlebars";
-import { resolveModuleImportPath } from "./module-import-compat.ts";
 import type { ExportKind } from "./types.ts";
+
+const effectImportPathOverrides = new Map<string, string>([
+  ["effect/encoding", "effect/Encoding"],
+  ["effect/encoding/Base64", "effect/Encoding"],
+  ["effect/encoding/Base64Url", "effect/Encoding"],
+  ["effect/encoding/EncodingError", "effect/Encoding"],
+  ["effect/encoding/Hex", "effect/Encoding"],
+  ["effect/PartitionedSemaphore", "effect/Semaphore"],
+]);
+
+export const resolveModuleImportPath = (packageName: string, moduleName: string): string => {
+  const sourceImportPath = `${packageName}/${moduleName}`;
+  return effectImportPathOverrides.get(sourceImportPath) ?? sourceImportPath;
+};
 
 export interface RenderExportTemplateParams {
   readonly packageName: string;

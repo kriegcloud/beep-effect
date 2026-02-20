@@ -1,4 +1,4 @@
-# effect/encoding/Base64
+# effect/Encoding
 
 Source: `.repos/effect-smol/packages/effect/src/encoding/Base64.ts`
 

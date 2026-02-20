@@ -3,9 +3,8 @@ import { createRequire } from "node:module";
 import * as path from "node:path";
 import { Project } from "ts-morph";
 import { extractModuleJsDoc } from "./doc.ts";
-import { resolveModuleImportPath } from "./module-import-compat.ts";
 import { parseModuleExports } from "./module-parser.ts";
-import { renderExportFileFromTemplate } from "./template-renderer.ts";
+import { renderExportFileFromTemplate, resolveModuleImportPath } from "./template-renderer.ts";
 import type {
   BootstrapManifest,
   BootstrapManifestModuleEntry,

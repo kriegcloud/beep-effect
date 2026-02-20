@@ -1,4 +1,4 @@
-# effect/encoding/Base64 Surface
+# effect/Encoding Surface
 
 Total exports: 3
 

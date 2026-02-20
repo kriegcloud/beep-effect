@@ -1,4 +1,4 @@
-# effect/PartitionedSemaphore Surface
+# effect/Semaphore Surface
 
 Total exports: 4
 

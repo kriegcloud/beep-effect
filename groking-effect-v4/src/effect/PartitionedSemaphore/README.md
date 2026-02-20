@@ -1,4 +1,4 @@
-# effect/PartitionedSemaphore
+# effect/Semaphore
 
 Source: `.repos/effect-smol/packages/effect/src/PartitionedSemaphore.ts`
 

@@ -2,11 +2,11 @@
  * Export Playground
  *
  * Package: effect
- * Module: effect/PartitionedSemaphore
+ * Module: effect/Semaphore
  * Export: make
  * Kind: const
  * Source: .repos/effect-smol/packages/effect/src/PartitionedSemaphore.ts
- * Generated: 2026-02-19T04:50:38.168Z
+ * Generated: 2026-02-20T03:29:54.695Z
  *
  * Overview:
  * Creates a `PartitionedSemaphore`.
