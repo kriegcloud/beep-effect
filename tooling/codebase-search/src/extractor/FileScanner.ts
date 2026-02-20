@@ -117,6 +117,9 @@ const GLOB_PATTERNS: ReadonlyArray<string> = ["tooling/*/src/**/*.ts", "packages
 const EXCLUDE_PATTERNS: ReadonlyArray<RegExp> = [/\.test\./, /\.spec\./, /\/internal\//, /\.d\.ts$/];
 
 /** @internal */
+const toPosixPath = (value: string): string => value.replaceAll("\\", "/");
+
+/** @internal */
 const shouldIncludeFile = (filePath: string): boolean => !A.some(EXCLUDE_PATTERNS, (pattern) => pattern.test(filePath));
 
 /** @internal */
@@ -182,8 +185,20 @@ const collectTsFiles: (
         if (stat.type === "Directory") {
           yield* walkDir(fullPath);
         } else if (stat.type === "File" && Str.endsWith(".ts")(entry)) {
-          // Convert to relative path from rootDir
-          const relativePath = fullPath.startsWith(`${rootDir}/`) ? fullPath.slice(Str.length(rootDir) + 1) : fullPath;
+          // Convert to normalized posix-style relative path from rootDir
+          const rawRelativePath = toPosixPath(path.relative(rootDir, fullPath));
+          const normalizedRoot = toPosixPath(rootDir).replace(/\/+$/, "");
+          const relativePath = pipe(
+            path.isAbsolute(rawRelativePath) ? O.some(rawRelativePath) : O.none<string>(),
+            O.filter((value) => value.startsWith(`${normalizedRoot}/`)),
+            O.map((value) => value.slice(normalizedRoot.length + 1)),
+            O.getOrElse(() => rawRelativePath)
+          );
+
+          // Skip any path that escapes rootDir
+          if (relativePath.startsWith("..")) {
+            continue;
+          }
 
           // Check if this file matches the expected src pattern
           if (Str.includes("/src/")(relativePath) && shouldIncludeFile(relativePath)) {

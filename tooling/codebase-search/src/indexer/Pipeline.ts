@@ -132,6 +132,16 @@ const resolvePackageName = (filePath: string): string => {
   return "@beep/unknown";
 };
 
+/**
+ * Build the deterministic symbol ID prefix for a source file.
+ * @internal
+ */
+const resolveSymbolPrefixFromFilePath = (filePath: string): string => {
+  const pkg = resolvePackageName(filePath);
+  const moduleName = resolveModuleName(filePath);
+  return `${pkg}/${moduleName}/`;
+};
+
 // ---------------------------------------------------------------------------
 // Internal: extract symbols from files using ts-morph
 // ---------------------------------------------------------------------------
@@ -226,7 +236,6 @@ const extractSymbolsFromFiles: (
           pipe(
             layerContractErrors,
             A.forEach((error) => {
-              // eslint-disable-next-line no-console
               console.warn(`[Pipeline] Layer contract warning: ${error}`);
             })
           );
@@ -353,30 +362,38 @@ export const PipelineLive: Layer.Layer<
       // ---------------------------------------------------------------
       // In full mode, the BM25 index is rebuilt from scratch so we
       // create a fresh index first and add all extracted symbols.
-      // In incremental mode, remove symbols for modified files
-      // (using newly-extracted IDs which share the same naming scheme)
-      // then add the new extractions. Deleted file symbols cannot be
-      // removed from BM25 by ID because the files no longer exist on
-      // disk, but LanceDB handles deletion via file path in step 5.
+      // In incremental mode, load current BM25 state, remove symbols
+      // for modified/deleted files by deterministic file->module prefix,
+      // then add the newly extracted symbols.
       let symbolsRemoved = 0;
 
       if (config.mode === "full") {
         yield* bm25Writer.createIndex();
       } else {
-        // For modified files, remove old BM25 entries by symbol ID.
-        // We use the extracted symbols from the modified files since
-        // the IDs are deterministic (pkg/module/name).
-        const modifiedFilePaths = scanResult.modified;
-        if (A.isReadonlyArrayNonEmpty(modifiedFilePaths)) {
-          const modifiedSymbols = A.filter(extractedSymbols, (sym) =>
-            A.some(modifiedFilePaths, (fp) => sym.filePath.endsWith(fp) || fp === sym.filePath)
-          );
-          const modifiedSymbolIds = A.map(modifiedSymbols, (sym) => sym.id);
-          yield* bm25Writer.removeBySymbolIds(modifiedSymbolIds);
-        }
+        yield* bm25Writer.load().pipe(
+          provideFsPath,
+          Effect.mapError(
+            (error) =>
+              new IndexingError({
+                message: `Failed to load existing BM25 index for incremental mode: ${String(error)}`,
+                phase: "bm25-index",
+              })
+          )
+        );
 
-        // Count deleted files as symbolsRemoved (approximate)
-        symbolsRemoved = A.length(scanResult.deleted);
+        const affectedFilePaths = pipe(scanResult.modified, A.appendAll(scanResult.deleted));
+        if (A.isReadonlyArrayNonEmpty(affectedFilePaths)) {
+          const affectedPrefixes = pipe(affectedFilePaths, A.map(resolveSymbolPrefixFromFilePath), A.dedupe);
+          const existingSymbolIds = yield* bm25Writer.listSymbolIds();
+          const idsToRemove = A.filter(existingSymbolIds, (id) =>
+            A.some(affectedPrefixes, (prefix) => id.startsWith(prefix))
+          );
+
+          if (A.isReadonlyArrayNonEmpty(idsToRemove)) {
+            yield* bm25Writer.removeBySymbolIds(idsToRemove);
+            symbolsRemoved = A.length(idsToRemove);
+          }
+        }
       }
 
       // Add all newly extracted symbols to BM25

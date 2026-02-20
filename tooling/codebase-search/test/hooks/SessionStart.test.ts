@@ -296,22 +296,22 @@ describe("SessionStart", () => {
       );
     });
 
-    it.effect("returns 'no index' message when meta file contains invalid JSON", () =>
+    it.effect("returns empty output when meta file contains invalid JSON", () =>
       runWithFs(
         [["/project/.code-index/index-meta.json", "not valid json"]],
         Effect.gen(function* () {
           const result = yield* sessionStartHook("/project");
-          expect(result).toContain("No index found");
+          expect(result).toBe("");
         })
       )
     );
 
-    it.effect("returns 'no index' message when meta file contains wrong schema", () =>
+    it.effect("returns empty output when meta file contains wrong schema", () =>
       runWithFs(
         [["/project/.code-index/index-meta.json", '{"version": 2, "wrong": true}']],
         Effect.gen(function* () {
           const result = yield* sessionStartHook("/project");
-          expect(result).toContain("No index found");
+          expect(result).toBe("");
         })
       )
     );

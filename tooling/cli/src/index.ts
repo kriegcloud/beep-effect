@@ -12,37 +12,45 @@
  */
 
 /**
+ * Code generation command for workspace barrels and exports.
  * @since 0.0.0
  */
 export {
   /**
+   * Code generation command for workspace barrels and exports.
    * @since 0.0.0
    */
   codegenCommand,
 } from "./commands/codegen.js";
 /**
+ * Package scaffolding command for creating new workspace packages.
  * @since 0.0.0
  */
 export {
   /**
+   * Package scaffolding command for creating new workspace packages.
    * @since 0.0.0
    */
   createPackageCommand,
 } from "./commands/create-package/index.js";
 /**
+ * Root CLI command that composes subcommands.
  * @since 0.0.0
  */
 export {
   /**
+   * Root CLI command that composes subcommands.
    * @since 0.0.0
    */
   rootCommand,
 } from "./commands/root.js";
 /**
+ * Dependency topological sort command.
  * @since 0.0.0
  */
 export {
   /**
+   * Dependency topological sort command.
    * @since 0.0.0
    */
   topoSortCommand,

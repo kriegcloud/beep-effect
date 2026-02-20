@@ -447,10 +447,10 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
               // Build filter clauses
               const filters = A.empty<string>();
               if (options.kind !== undefined) {
-                filters.push(`kind = '${options.kind}'`);
+                filters.push(`kind = '${escapeSqlString(options.kind)}'`);
               }
               if (options.package !== undefined) {
-                filters.push(`package = '${options.package}'`);
+                filters.push(`package = '${escapeSqlString(options.package)}'`);
               }
               if (A.isArrayNonEmpty(filters)) {
                 q = q.where(A.join(" AND ")(filters));

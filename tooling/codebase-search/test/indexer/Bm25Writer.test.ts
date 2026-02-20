@@ -189,6 +189,22 @@ layer(TestLayer)("Bm25Writer (Mock)", (it) => {
     );
   });
 
+  describe("listSymbolIds", () => {
+    it.effect(
+      "returns currently indexed symbol IDs",
+      Effect.fn(function* () {
+        const svc = yield* Bm25Writer;
+        yield* svc.createIndex();
+        yield* addMinDocuments(svc);
+
+        const ids = yield* svc.listSymbolIds();
+        expect(ids).toContain("pkg/mod/PackageName");
+        expect(ids).toContain("pkg/mod/FileSystem");
+        expect(ids).toContain("pkg/mod/IndexingError");
+      })
+    );
+  });
+
   describe("empty search", () => {
     it.effect(
       "returns empty array for query with no matches",

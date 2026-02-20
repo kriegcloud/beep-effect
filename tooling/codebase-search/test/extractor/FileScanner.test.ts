@@ -23,7 +23,10 @@ interface MemoryFsState {
  * Creates a mock FileSystem layer backed by an in-memory Map.
  */
 const createMemoryFs = (
-  initialFiles: ReadonlyArray<readonly [string, string]>
+  initialFiles: ReadonlyArray<readonly [string, string]>,
+  options?: {
+    readonly windowsRelative?: boolean;
+  }
 ): {
   readonly state: MemoryFsState;
   readonly layer: Layer.Layer<FileSystem.FileSystem | Path.Path>;
@@ -188,7 +191,7 @@ const createMemoryFs = (
         name,
       };
     },
-    relative: (_from: string, to: string) => to,
+    relative: (_from: string, to: string) => (options?.windowsRelative === true ? to.replaceAll("/", "\\") : to),
     toFileUrl: (p: string) => Effect.succeed(new URL(`file://${p}`)),
     toNamespacedPath: (p: string) => p,
   });
@@ -204,9 +207,12 @@ const createMemoryFs = (
 
 const runWithFs = <A, E>(
   initialFiles: ReadonlyArray<readonly [string, string]>,
-  effect: Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>
+  effect: Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>,
+  options?: {
+    readonly windowsRelative?: boolean;
+  }
 ): Effect.Effect<A, E> => {
-  const { layer } = createMemoryFs(initialFiles);
+  const { layer } = createMemoryFs(initialFiles, options);
   return Effect.provide(effect, layer);
 };
 
@@ -279,6 +285,22 @@ describe("FileScanner", () => {
           const hasDts = A.some(result.added, (f) => f.endsWith(".d.ts"));
           expect(hasDts).toBe(false);
         })
+      )
+    );
+
+    it.effect("discovers files when Path.relative returns windows-style separators", () =>
+      runWithFs(
+        [
+          ["/root/tooling/cli/src/index.ts", "export const x = 1;"],
+          ["/root/tooling/cli/src/commands/run.ts", "export const run = () => {};"],
+        ],
+        Effect.gen(function* () {
+          const result: ScanResult = yield* scanFiles("/root", "full");
+          expect(A.length(result.added)).toBe(2);
+          expect(A.some(result.added, (f) => f === "tooling/cli/src/index.ts")).toBe(true);
+          expect(A.some(result.added, (f) => f === "tooling/cli/src/commands/run.ts")).toBe(true);
+        }),
+        { windowsRelative: true }
       )
     );
   });

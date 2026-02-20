@@ -65,6 +65,11 @@ export interface Bm25WriterShape {
    */
   readonly search: (query: string, limit: number) => Effect.Effect<ReadonlyArray<Bm25SearchResult>, IndexingError>;
   /**
+   * List all symbol IDs currently present in the BM25 mapping.
+   * @since 0.0.0
+   */
+  readonly listSymbolIds: () => Effect.Effect<ReadonlyArray<string>, IndexingError>;
+  /**
    * Persist the BM25 index to disk.
    * @since 0.0.0
    */
@@ -281,6 +286,16 @@ export const Bm25WriterLive: (indexPath: string) => Layer.Layer<Bm25Writer, Inde
         });
       });
 
+      const listSymbolIds: Bm25WriterShape["listSymbolIds"] = Effect.fn("Bm25Writer.listSymbolIds")(function* () {
+        return yield* Effect.sync(() => {
+          const symbolIds = A.empty<string>();
+          for (const [symbolId] of state.symbolToDoc) {
+            symbolIds.push(symbolId);
+          }
+          return symbolIds as ReadonlyArray<string>;
+        });
+      });
+
       const save: Bm25WriterShape["save"] = Effect.fn("Bm25Writer.save")(function* () {
         if (!state.consolidated) {
           state.engine.consolidate();
@@ -388,6 +403,7 @@ export const Bm25WriterLive: (indexPath: string) => Layer.Layer<Bm25Writer, Inde
         addDocuments,
         removeBySymbolIds,
         search,
+        listSymbolIds,
         save,
         load,
       });
@@ -471,6 +487,15 @@ export const Bm25WriterMock: Layer.Layer<Bm25Writer> = Layer.succeed(
             }),
         });
 
+      const listSymbolIds: Bm25WriterShape["listSymbolIds"] = () =>
+        Effect.sync(() => {
+          const symbolIds = A.empty<string>();
+          for (const [symbolId] of state.symbolToDoc) {
+            symbolIds.push(symbolId);
+          }
+          return symbolIds as ReadonlyArray<string>;
+        });
+
       const save: Bm25WriterShape["save"] = () => Effect.void;
 
       const load: Bm25WriterShape["load"] = () => Effect.void;
@@ -480,6 +505,7 @@ export const Bm25WriterMock: Layer.Layer<Bm25Writer> = Layer.succeed(
         addDocuments,
         removeBySymbolIds,
         search,
+        listSymbolIds,
         save,
         load,
       };

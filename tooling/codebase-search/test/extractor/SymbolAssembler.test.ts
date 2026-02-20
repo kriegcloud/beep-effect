@@ -1,5 +1,6 @@
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { Project } from "ts-morph";
@@ -458,6 +459,114 @@ export const processName = (name: string) => formatString(name);
       const sym = processNameOpt.value;
       expect(A.length(sym.imports)).toBeGreaterThan(0);
       expect(sym.imports).toContain("@beep/test/fileA/formatString");
+    }
+  });
+
+  it("resolves aliased named imports using exported symbol names", () => {
+    const project = createProject();
+
+    const fileA = project.createSourceFile(
+      "/project/src/fileA.ts",
+      `
+/**
+ * Formats a string in a deterministic way for downstream processing.
+ * @since 0.0.0
+ * @category functions
+ */
+export const formatString = (s: string) => s.trim();
+`
+    );
+
+    const fileB = project.createSourceFile(
+      "/project/src/fileB.ts",
+      `
+import { formatString as fmt } from "./fileA.js";
+
+/**
+ * Uses aliased imports while still depending on fileA.formatString.
+ * @since 0.0.0
+ * @category functions
+ */
+export const processName = (name: string) => fmt(name);
+`
+    );
+
+    const symbolsA = assembleSymbols(fileA, "@beep/test", "fileA");
+    const symbolsB = assembleSymbols(fileB, "@beep/test", "fileB");
+    const resolved = resolveImports(
+      A.appendAll(symbolsA, symbolsB),
+      [fileA, fileB],
+      new Map<string, ReadonlyArray<string>>()
+    );
+
+    const processNameOpt = A.findFirst(resolved, (s) => s.name === "processName");
+    expect(O.isSome(processNameOpt)).toBe(true);
+
+    if (O.isSome(processNameOpt)) {
+      expect(processNameOpt.value.imports).toContain("@beep/test/fileA/formatString");
+    }
+  });
+
+  it("fallback resolution handles multiple named imports from the same file", () => {
+    const project = createProject();
+
+    const fileA = project.createSourceFile(
+      "/project/src/fileA.ts",
+      `
+/**
+ * First exported dependency.
+ * @since 0.0.0
+ * @category constants
+ */
+export const Alpha = "alpha";
+
+/**
+ * Second exported dependency.
+ * @since 0.0.0
+ * @category constants
+ */
+export const Beta = "beta";
+`
+    );
+
+    const fileB = project.createSourceFile(
+      "/project/src/fileB.ts",
+      `
+import { Alpha, Beta } from "./fileA.js";
+
+/**
+ * Uses both Alpha and Beta from fileA.
+ * @since 0.0.0
+ * @category functions
+ */
+export const useBoth = () => \`\${Alpha}-\${Beta}\`;
+`
+    );
+
+    const symbolsA = assembleSymbols(fileA, "@beep/test", "fileA");
+    const symbolsB = assembleSymbols(fileB, "@beep/test", "fileB");
+    const symbolsWithMismatchedFilePath = pipe(
+      symbolsA,
+      A.map((symbol) => ({ ...symbol, filePath: "/virtual/fileA.ts" }))
+    );
+    const allSymbols = A.appendAll(symbolsWithMismatchedFilePath, symbolsB);
+    const fileToSymbolIds = new Map<string, ReadonlyArray<string>>();
+    fileToSymbolIds.set(
+      fileA.getFilePath(),
+      pipe(
+        symbolsA,
+        A.map((symbol) => symbol.id)
+      )
+    );
+
+    const resolved = resolveImports(allSymbols, [fileA, fileB], fileToSymbolIds);
+
+    const useBothOpt = A.findFirst(resolved, (s) => s.name === "useBoth");
+    expect(O.isSome(useBothOpt)).toBe(true);
+
+    if (O.isSome(useBothOpt)) {
+      expect(useBothOpt.value.imports).toContain("@beep/test/fileA/Alpha");
+      expect(useBothOpt.value.imports).toContain("@beep/test/fileA/Beta");
     }
   });
 });

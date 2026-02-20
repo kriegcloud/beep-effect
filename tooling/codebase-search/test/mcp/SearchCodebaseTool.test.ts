@@ -107,6 +107,7 @@ layer(TestLayer)("SearchCodebaseTool", (it) => {
       expect(result.searchMode).toBe("hybrid");
       expect(result.filtersApplied.kind).toBe("schema");
       expect(result.totalMatches).toBeGreaterThanOrEqual(1);
+      expect(result.results.every((row) => row.kind === "schema")).toBe(true);
       expect(result.results[0]?.score).toBeGreaterThanOrEqual(0);
     })
   );

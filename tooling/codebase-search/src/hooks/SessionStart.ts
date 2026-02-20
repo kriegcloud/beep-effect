@@ -184,10 +184,18 @@ export const sessionStartHook: (cwd: string) => Effect.Effect<string, never, Fil
     }
 
     // Read and decode the metadata file
-    const content = yield* fs.readFileString(metaPath).pipe(Effect.orElseSucceed(() => ""));
+    const contentResult = yield* fs.readFileString(metaPath).pipe(
+      Effect.map(O.some),
+      Effect.orElseSucceed(() => O.none<string>())
+    );
 
+    if (O.isNone(contentResult)) {
+      return "";
+    }
+
+    const content = contentResult.value;
     if (Str.isEmpty(content)) {
-      return generateSessionOverview(null, A.empty<PackageStat>(), false);
+      return "";
     }
 
     const metaResult = yield* pipe(
@@ -197,7 +205,7 @@ export const sessionStartHook: (cwd: string) => Effect.Effect<string, never, Fil
     );
 
     if (O.isNone(metaResult)) {
-      return generateSessionOverview(null, A.empty<PackageStat>(), false);
+      return "";
     }
 
     const meta = metaResult.value;

@@ -5,36 +5,44 @@
  * @packageDocumentation
  */
 
-export { BrowseSymbolsTool, handleBrowseSymbols } from "./BrowseSymbolsTool.js";
-export type { ErrorCode, McpErrorResponse } from "./contracts.js";
-export { ErrorCodeSchema, ErrorCodes, formatError, McpErrorResponseSchema } from "./contracts.js";
-export { FindRelatedTool, handleFindRelated } from "./FindRelatedTool.js";
-export type {
-  BrowseItem,
-  BrowseLevel,
-  FormattedBrowseResult,
-  FormattedReindexResult,
-  FormattedRelatedResult,
-  FormattedRelatedSymbol,
-  FormattedSearchResult,
-  ParsedSymbolId,
-  RawRelatedSymbol,
-  RawSearchResult,
-  RelatedSource,
-  SearchResultRow,
-} from "./formatters.js";
-export {
-  formatBrowseResult,
-  formatReindexResult,
-  formatRelatedResults,
-  formatSearchResults,
-  HOOK_SIGNATURE_MAX_LENGTH,
-  MCP_SIGNATURE_MAX_LENGTH,
-  parseSymbolId,
-  truncateSignature,
-} from "./formatters.js";
-export type { McpServerConfig } from "./McpServer.js";
-export { CodebaseSearchToolkit, makeServerLayer, makeToolkitHandlerLayer } from "./McpServer.js";
-export type { ReindexStats, ReindexSuccess } from "./ReindexTool.js";
-export { handleReindex, ReindexStatsSchema, ReindexSuccessSchema, ReindexTool } from "./ReindexTool.js";
-export { handleSearchCodebase, SearchCodebaseTool } from "./SearchCodebaseTool.js";
+/**
+ * Re-export browse-symbols MCP tool APIs.
+ * @since 0.0.0
+ */
+export * from "./BrowseSymbolsTool.js";
+
+/**
+ * Re-export shared MCP error contracts and schemas.
+ * @since 0.0.0
+ */
+export * from "./contracts.js";
+
+/**
+ * Re-export find-related MCP tool APIs.
+ * @since 0.0.0
+ */
+export * from "./FindRelatedTool.js";
+
+/**
+ * Re-export MCP response formatters and payload types.
+ * @since 0.0.0
+ */
+export * from "./formatters.js";
+
+/**
+ * Re-export MCP server composition APIs.
+ * @since 0.0.0
+ */
+export * from "./McpServer.js";
+
+/**
+ * Re-export reindex MCP tool APIs.
+ * @since 0.0.0
+ */
+export * from "./ReindexTool.js";
+
+/**
+ * Re-export search-codebase MCP tool APIs.
+ * @since 0.0.0
+ */
+export * from "./SearchCodebaseTool.js";

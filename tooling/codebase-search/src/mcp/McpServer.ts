@@ -19,7 +19,7 @@ import type { LanceDbWriter } from "../indexer/index.js";
 import type { Pipeline } from "../indexer/Pipeline.js";
 import type { HybridSearch, RelationResolver } from "../search/index.js";
 import { BrowseSymbolsTool, handleBrowseSymbols } from "./BrowseSymbolsTool.js";
-import { ErrorCodes, formatError, type McpErrorResponse } from "./contracts.js";
+import { formatError, type McpErrorResponse } from "./contracts.js";
 import { FindRelatedTool, handleFindRelated } from "./FindRelatedTool.js";
 import { handleReindex, ReindexTool } from "./ReindexTool.js";
 import { handleSearchCodebase, SearchCodebaseTool } from "./SearchCodebaseTool.js";
@@ -127,5 +127,3 @@ export const makeServerLayer: (
     Layer.provide(Layer.succeed(Logger.LogToStderr)(true))
   );
 };
-
-export { ErrorCodes, formatError };

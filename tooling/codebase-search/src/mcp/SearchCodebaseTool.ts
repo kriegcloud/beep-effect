@@ -86,8 +86,18 @@ export const handleSearchCodebase: (params: {
     })
   );
 
+  const filtered = A.filter(merged, (result) => {
+    if (params.kind !== undefined && result.kind !== params.kind) {
+      return false;
+    }
+    if (params.package !== undefined && result.package !== params.package) {
+      return false;
+    }
+    return true;
+  });
+
   return formatSearchResults(
-    merged,
+    filtered,
     {
       kind: params.kind ?? null,
       package: params.package ?? null,

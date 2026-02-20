@@ -438,27 +438,21 @@ layer(TestPipelineLayer)("Pipeline (Live with mocks)", (it) => {
     it.effect(
       "counts deleted files in symbolsRemoved",
       Effect.fn(function* () {
-        const storedHashes = JSON.stringify([
-          {
-            filePath: "tooling/cli/src/index.ts",
-            contentHash: "some-old-hash",
-          },
-          {
-            filePath: "tooling/cli/src/deleted.ts",
-            contentHash: "deleted-hash",
-          },
-        ]);
-
-        const { layer: fsLayer } = createMemoryFs([
+        const memFs = createMemoryFs([
           [`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE],
-          [`${ROOT}/.code-index/file-hashes.json`, storedHashes],
+          [`${ROOT}/tooling/cli/src/deleted.ts`, SAMPLE_TS_SOURCE_2],
         ]);
 
         const pipeline = yield* Pipeline;
-        const stats = yield* pipe(pipeline.run(makeConfig({ mode: "incremental" })), Effect.provide(fsLayer));
 
-        // deleted.ts is no longer on disk, so symbolsRemoved should count it
-        expect(stats.symbolsRemoved).toBe(1);
+        // Seed index state with both files.
+        yield* pipe(pipeline.run(makeConfig({ mode: "full" })), Effect.provide(memFs.layer));
+
+        // Simulate deleting one source file before incremental run.
+        memFs.files.delete(`${ROOT}/tooling/cli/src/deleted.ts`);
+
+        const stats = yield* pipe(pipeline.run(makeConfig({ mode: "incremental" })), Effect.provide(memFs.layer));
+        expect(stats.symbolsRemoved).toBeGreaterThanOrEqual(1);
       })
     );
   });

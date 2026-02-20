@@ -250,7 +250,6 @@ const assembleOneSymbol = (
     pipe(
       validationErrors,
       A.forEach((err) => {
-        // eslint-disable-next-line no-console
         console.warn(`[SymbolAssembler] Validation warning for ${id}: ${err}`);
       })
     );
@@ -414,6 +413,7 @@ export const resolveImports = (
       target.push(value);
     }
   };
+  const getImportedSpecifierName = (namedImport: tsMorph.ImportSpecifier): string => namedImport.getName();
   const isSameList = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean =>
     left.length === right.length && left.every((value, index) => value === (right[index] ?? ""));
 
@@ -478,7 +478,7 @@ export const resolveImports = (
             pipe(
               A.fromIterable(namedImports),
               A.forEach((named) => {
-                const importedName = named.getName();
+                const importedName = getImportedSpecifierName(named);
                 const resolvedId = pipe(
                   importedSourcePath,
                   O.flatMap((sourcePath) =>
@@ -514,13 +514,18 @@ export const resolveImports = (
               O.flatMap((sourcePath) => O.fromNullishOr(fileToSymbolIds.get(sourcePath)))
             );
             if (O.isSome(importedFilePath) && A.isArrayNonEmpty(namedImports)) {
-              const firstImportName = namedImports[0].getName();
               pipe(
-                importedFilePath.value,
-                A.forEach((id) => {
-                  if (id.endsWith(`/${firstImportName}`)) {
-                    appendUnique(importedIds, id);
-                  }
+                A.fromIterable(namedImports),
+                A.forEach((namedImport) => {
+                  const importedName = getImportedSpecifierName(namedImport);
+                  pipe(
+                    importedFilePath.value,
+                    A.forEach((id) => {
+                      if (id.endsWith(`/${importedName}`)) {
+                        appendUnique(importedIds, id);
+                      }
+                    })
+                  );
                 })
               );
             }
