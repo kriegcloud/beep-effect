@@ -1,0 +1,38 @@
+{
+  "name": "conjure-receipe-example-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts-ts start",
+    "build": "yarn lint && react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
+    "circle-publish": "echo 'Add publishing logic here...'",
+    "lint": "tslint 'src/**/*.ts*' --project tsconfig.json"
+  },
+  "dependencies": {
+    "@blueprintjs/core": "^3.0.1",
+    "@blueprintjs/datetime": "^3.0.0",
+    "classnames": "^2.2.6",
+    "conjure-client": "^1.2.0",
+    "conjure-recipe-example-api": "^0.4.0",
+    "moment": "^2.22.2",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-redux": "^5.0.7",
+    "react-scripts-ts": "2.16.0",
+    "redoodle": "^2.3.2",
+    "redux": "^4.0.0"
+  },
+  "devDependencies": {
+    "@blueprintjs/tslint-config": "^1.5.0",
+    "@types/classnames": "^2.2.6",
+    "@types/jest": "^23.3.0",
+    "@types/node": "^10.5.2",
+    "@types/react": "^16.4.6",
+    "@types/react-dom": "^16.0.6",
+    "@types/react-redux": "^5.0.19",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  }
+}
