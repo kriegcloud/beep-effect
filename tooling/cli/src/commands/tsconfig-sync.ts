@@ -848,7 +848,32 @@ export const tsconfigSyncCommand = Command.make(
       mode,
       filter: O.getOrUndefined(filter),
       verbose,
-    });
+    }).pipe(
+      Effect.catchTag(
+        "TsconfigSyncDriftError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`tsconfig-sync: ${error.summary}`);
+        })
+      ),
+      Effect.catchTag(
+        "TsconfigSyncFilterError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`tsconfig-sync: ${error.message}`);
+        })
+      ),
+      Effect.catchTag(
+        "TsconfigSyncCycleError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`tsconfig-sync: ${error.message}`);
+          for (const cycle of error.cycles) {
+            yield* Console.error(`  cycle: ${cycle.join(" -> ")}`);
+          }
+        })
+      )
+    );
   })
 ).pipe(
   Command.withDescription(

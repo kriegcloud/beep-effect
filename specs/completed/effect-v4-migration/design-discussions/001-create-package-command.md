@@ -73,4 +73,4 @@ bun run beep create-package --name foo --type library
 1. ✅ Defined package types and template strategy.
 2. ✅ Implemented command handler and template rendering flow.
 3. ✅ Added tests for file generation, dry-run, config updates, validation, and error paths.
-4. ⏭️ Remaining robustness issues are tracked in `specs/pending/repo-cli-quality-hardening/README.md`.
+4. ⏭️ Remaining robustness issues are tracked in `specs/completed/repo-cli-quality-hardening/README.md`.

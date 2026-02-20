@@ -342,9 +342,9 @@ tooling/cli/
 5. ✅ Document working examples
 6. ✅ Create comprehensive testing checklist
 7. ✅ Update tooling documentation with lessons learned
-8. ⏭️ Resolve coverage V8 provider error (moved to `specs/pending/repo-cli-quality-hardening/README.md`)
+8. ⏭️ Resolve coverage V8 provider error (moved to `specs/completed/repo-cli-quality-hardening/README.md`)
 9. ✅ Create `@effect/vitest` support for `it.effect`
 10. ✅ Implement actual `create-package` functionality
 11. ✅ Implement actual `codegen` functionality
 12. ✅ Add `tooling/cli` into normal turbo-aware workspace flow
-13. ⏭️ Create more packages to validate patterns work consistently (moved to `specs/pending/repo-cli-quality-hardening/README.md`)
+13. ⏭️ Create more packages to validate patterns work consistently (moved to `specs/completed/repo-cli-quality-hardening/README.md`)
