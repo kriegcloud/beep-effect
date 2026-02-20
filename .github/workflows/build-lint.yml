@@ -1,0 +1,33 @@
+name: Build & lint
+
+on: [push]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [16.x, 18.x, 20.x]
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Set up environment variables
+              run: |
+                  echo FOUNDRY_CLIENT_ID="test-client-id" >> .env.production
+                  echo FOUNDRY_API_URL="test-url" >> .env.production
+                  echo APPLICATION_REDIRECT_URL="https://localhost:8080/auth/callback" >> .env.production
+
+            - name: Install dependencies
+              run: npm install
+            - name: Build
+              run: npm run build
+
+            - name: Lint
+              run: npm run lint
