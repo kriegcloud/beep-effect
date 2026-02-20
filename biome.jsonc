@@ -5,6 +5,7 @@
     "includes": [
       "**",
       "!.agents",
+      "!specs",
       "!**/*.css",
       "!**/.tsup",
       "!**/.turbo",
