@@ -26,6 +26,9 @@
     },
     {
       "path": "packages/common/utils"
+    },
+    {
+      "path": "tooling/_test-idempotent-1771560353205"
     }
   ]
 }
