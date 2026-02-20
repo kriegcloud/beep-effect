@@ -1,0 +1,6 @@
+generators:
+  docs:
+    go-generate-dir: .
+    gen-paths:
+      paths:
+        - ./docs/
