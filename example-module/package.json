@@ -1,0 +1,20 @@
+{
+  "name": "example-module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
+    "start": "node dist/index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@palantir/compute-module": "../typescript-compute-module/src",
+    "@sinclair/typebox": "^0.32.35",
+    "esbuild": "^0.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4"
+  }
+}

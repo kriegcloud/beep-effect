@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "Node16",
+    "target": "ES6",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "strictNullChecks": true
+  },
+  "include": ["src/**/*"]
+}

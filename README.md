@@ -1,0 +1,204 @@
+<p align="right">
+<!-- <a href="https://autorelease.general.dmz.palantir.tech/palantir/typescript-compute-module"><img src="https://img.shields.io/badge/Perform%20an-Autorelease-success.svg" alt="Autorelease"></a> -->
+</p>
+
+# @palantir/compute-module
+
+[![npm version](https://img.shields.io/npm/v/@palantir%2Fcompute-module?style=flat)](https://www.npmjs.com/package/@palantir/compute-module)
+
+Node.JS compatible implementation of the Palantir Compute Module specification.
+
+- [@palantir/compute-module](#palantircompute-module)
+  - [Functions Mode](#functions-mode)
+    - [Basic usage](#basic-usage)
+    - [Streaming usage](#streaming-usage)
+    - [Schema registration](#schema-registration)
+  - [Pipelines Mode](#pipelines-mode)
+    - [Retrieving aliases](#retrieving-aliases)
+  - [General usage](#general-usage)
+    - [Retrieving source credentials](#retrieving-source-credentials)
+    - [Retrieving environment details](#retrieving-environment-details)
+    - [Retrieving Foundry services](#retrieving-foundry-services)
+  - [Developing the SDK](#developing-the-sdk)
+    - [Building the example module](#building-the-example-module)
+
+## Functions Mode
+
+### Basic usage
+
+This library can be used untyped with vanilla JavaScript to generate registerable functions in "Functions" execution mode.
+
+```js
+import { ComputeModule } from "@palantir/compute-module";
+
+new ComputeModule()
+  .register("addOne", async ({ value }) => ({ value: n + 1 }));
+  .register("stringify", async ({ n }) => "" + n)
+  .default(() => ({ error: "Unsupported query name" }));
+```
+
+### Streaming usage
+
+You can stream responses back from the compute module using `executeFunctionStreaming`. To use streaming, the output type must be declared as `Type.Array(...)`. Each element is streamed individually by calling `writeable.write(JSON.stringify(element))`. Both simple types (e.g. strings) and complex object types are supported.
+
+```ts
+import { ComputeModule } from "@palantir/compute-module";
+import { Type } from "@sinclair/typebox";
+
+const computeModule = new ComputeModule({
+  definitions: {
+    greet: {
+      input: Type.Object({ name: Type.String() }),
+      output: Type.Array(Type.String()),
+    },
+  },
+});
+
+// Each write must produce valid JSON, even for string literals
+computeModule.registerStreaming("greet", async ({ name }, writeable) => {
+  writeable.write(JSON.stringify("Hello, "));
+  writeable.write(JSON.stringify(name));
+  writeable.end();
+});
+```
+
+Streaming also works with complex object types:
+
+```ts
+import { ComputeModule } from "@palantir/compute-module";
+import { Type } from "@sinclair/typebox";
+
+const User = Type.Object({
+  name: Type.String(),
+  role: Type.String(),
+  active: Type.Boolean(),
+});
+
+const computeModule = new ComputeModule({
+  definitions: {
+    activeUsers: {
+      input: Type.Object({ users: Type.Array(User) }),
+      output: Type.Array(User),
+    },
+  },
+});
+
+computeModule.registerStreaming("activeUsers", async ({ users }, writeable) => {
+  for (const user of users) {
+    if (user.active) {
+      writeable.write(JSON.stringify(user));
+    }
+  }
+  writeable.end();
+});
+```
+
+### Schema registration
+
+Definitions can be generated using [typebox](https://github.com/sinclairzx81/typebox) allowing the Compute Module to register functions at runtime, while maintaining typesafety at compile time.
+
+```ts
+import { ComputeModule } from "@palantir/compute-module";
+import { Type } from "@sinclair/typebox";
+
+const myModule = new ComputeModule({
+  logger: console,
+  definitions: {
+    addOne: {
+      input: Type.Object({
+        value: Type.Number(),
+      }),
+      output: Type.Object({ value: Type.Number() }),
+    },
+  },
+});
+
+myModule.register("addOne", async ({ value }) => ({ value: n + 1 }));
+```
+
+## Pipelines Mode
+
+### Retrieving aliases
+
+Compute Modules can interact with resources in their execution environment, within Palantir Foundry these are defined as inputs and outputs on the Compute Module spec. Resource identifiers can be unique to the execution environment, so using aliases allows your code to maintain a static reference to known resources. To receive the identifier for an aliases resource, use the `getResource` method.
+
+```ts
+import { ComputeModule } from "@palantir/compute-module";
+
+const resourceId = ComputeModule.getResource("myResourceAlias");
+const result = await someDataFetcherForId(resourceId);
+```
+
+## General usage
+
+The following features are available in both Pipelines and Functions mode in order to interact with Palantir Foundry:
+
+### Retrieving source credentials
+
+Sources can be used to store secrets for use within a Compute Module, they prevent you from having to put secrets in your container or in plaintext in the job specification. Retrieving a source credential using this library is simple:
+
+```ts
+const myCredential = myModule.getCredential("MySourceApiName", "MyCredential");
+```
+
+Sources can be validated on startup by declaring them in the compute module options:
+
+```ts
+const myModule = new ComputeModule({
+  // Will throw if MyApi with credential MyCredential has not been mounted
+  sources: {
+    MyApi: {
+      credentials: ["MyCredential"]
+    },
+    // You can validate the source, without validating the credential
+    AnotherApi: {}
+  }
+});
+
+// ❌ Will throw a type error
+myModule.getCredential("YourApi", "YourCredential");
+myModule.getCredential("YourApi", "MyCredential");
+myModule.getCredential("MyApi", "YourCredential");
+
+// ✅ Passes type checking
+myModule.getCredential("MyApi", "MyCredential");
+
+// ✅ As there are no known credentials, any string can be passed to this source
+myModule.getCredential("AnotherApi", "AnyString");
+```
+
+If not provided, getCredential will do no type validation compile-time and the instance will not validate at run-time.
+
+### Retrieving environment details
+
+At runtime, you can retrieve details about the execution environment, which is useful for authenticating around services available:
+
+```ts
+import { ComputeModule } from "@palantir/compute-module";
+
+const environment = ComputeModule.getEnvironment();
+const buildToken =
+  environment.type === "pipelines" ? environment.buildToken : undefined;
+
+const thirdPartyApplicationCredentials = environment.type === "functions" ? environment.thirdPartyApplication : undefined;
+```
+
+### Retrieving Foundry services
+
+At runtime, you can retrieve the api paths for known Foundry services, this allows you to call those endpoints without using a source to ingress back into the platform:
+
+```ts
+import { FoundryService } from "@palantir/compute-module";
+
+const streamProxyApi = myModule.getServiceApi(FoundryService.STREAM_PROXY);
+```
+
+## Developing the SDK
+
+### Building the example module
+
+Run docker build from the top-level directory (not example-module):
+
+```sh
+docker build -f example-module/Dockerfile -t my-container-registry.palantirfoundry.com/example-module:0.0.1 .
+```

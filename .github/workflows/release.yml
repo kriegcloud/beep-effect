@@ -1,0 +1,29 @@
+name: Publish Package to npmjs
+on:
+  release:
+    types: [published]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: typescript-compute-module
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy root-level markdown files
+        run: cp ../*.md .
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - name: Publish to npm
+        run: |
+          if [[ "${{ github.event.release.tag_name }}" == *"-rc"* ]]; then
+            npm publish --provenance --access public --tag rc
+          else
+            npm publish --provenance --access public
+          fi
