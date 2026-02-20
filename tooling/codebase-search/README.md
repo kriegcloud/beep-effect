@@ -9,7 +9,7 @@ Semantic codebase search for the beep monorepo, built with:
 ## Runtime Requirements
 
 - Bun `>=1.3`
-- Node is supported for library/test workflows, but MCP entrypoint runtime is Bun (`@effect/platform-bun`).
+- Node is supported for library/test workflows, but MCP and hook entrypoint runtimes are Bun (`@effect/platform-bun`).
 
 ## Build
 
@@ -52,14 +52,14 @@ Add to `.claude/settings.json`:
     "SessionStart": [
       {
         "type": "command",
-        "command": "node ./tooling/codebase-search/dist/hooks/session-start-entry.js",
+        "command": "bun ./tooling/codebase-search/dist/hooks/session-start-entry.js",
         "timeout": 5000
       }
     ],
     "UserPromptSubmit": [
       {
         "type": "command",
-        "command": "node ./tooling/codebase-search/dist/hooks/prompt-submit-entry.js",
+        "command": "bun ./tooling/codebase-search/dist/hooks/prompt-submit-entry.js",
         "timeout": 5000
       }
     ]
@@ -132,6 +132,6 @@ npx eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts'
 bunx turbo run docgen --filter=@beep/repo-cli --filter=@beep/codebase-search
 ```
 
-## Current Blocking Issue
+## Embedding Model
 
-As of 2026-02-20 verification, `EmbeddingServiceLive` is configured for `nomic-ai/CodeRankEmbed`, but that model no longer exposes `onnx/model.onnx`. Live `reindex/search` fails until the embedding model configuration is updated to an ONNX-available model.
+Live embeddings are generated with `nomic-ai/nomic-embed-text-v1.5` via `@huggingface/transformers` feature-extraction (ONNX backend).

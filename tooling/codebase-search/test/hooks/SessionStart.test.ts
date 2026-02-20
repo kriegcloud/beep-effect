@@ -19,7 +19,7 @@ const makeValidMeta = (overrides: Partial<IndexMeta> = {}): IndexMeta => ({
   lastIncrementalIndex: new Date().toISOString(),
   totalSymbols: 127,
   totalFiles: 45,
-  embeddingModel: "nomic-ai/CodeRankEmbed",
+  embeddingModel: "nomic-ai/nomic-embed-text-v1.5",
   embeddingDimensions: 768 as const,
   ...overrides,
 });
@@ -212,7 +212,7 @@ describe("SessionStart", () => {
       expect(result).toContain("## Codebase Index Overview");
       expect(result).toContain("**127 symbols**");
       expect(result).toContain("**45 files**");
-      expect(result).toContain("nomic-ai/CodeRankEmbed");
+      expect(result).toContain("nomic-ai/nomic-embed-text-v1.5");
       expect(result).toContain("search_codebase");
       expect(result).toContain("find_related");
       expect(result).toContain("browse_symbols");

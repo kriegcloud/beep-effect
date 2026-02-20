@@ -164,7 +164,10 @@ describe("formatError", () => {
   });
 
   it("maps EmbeddingModelError", () => {
-    const error = new EmbeddingModelError({ message: "Model error", modelName: "nomic-ai/CodeRankEmbed" });
+    const error = new EmbeddingModelError({
+      message: "Model error",
+      modelName: "nomic-ai/nomic-embed-text-v1.5",
+    });
     expect(formatError(error).error.code).toBe(ErrorCodes.EMBEDDING_MODEL_ERROR);
   });
 

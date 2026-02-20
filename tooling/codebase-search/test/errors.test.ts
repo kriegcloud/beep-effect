@@ -29,9 +29,9 @@ describe("errors", () => {
   it("constructs EmbeddingModelError", () => {
     const error = new EmbeddingModelError({
       message: "Model failed",
-      modelName: "nomic-ai/CodeRankEmbed",
+      modelName: "nomic-ai/nomic-embed-text-v1.5",
     });
-    expect(error.modelName).toBe("nomic-ai/CodeRankEmbed");
+    expect(error.modelName).toBe("nomic-ai/nomic-embed-text-v1.5");
   });
 
   it("constructs SearchTimeoutError", () => {

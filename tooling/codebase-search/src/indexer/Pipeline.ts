@@ -418,7 +418,7 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
         lastIncrementalIndex: config.mode === "incremental" ? now : "",
         totalSymbols: A.length(extractedSymbols),
         totalFiles: totalFilesScanned,
-        embeddingModel: "nomic-ai/CodeRankEmbed",
+        embeddingModel: "nomic-ai/nomic-embed-text-v1.5",
         embeddingDimensions: 768,
       };
 

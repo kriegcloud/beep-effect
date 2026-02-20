@@ -5,7 +5,9 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      sequence: {
+        concurrent: false,
+      },
     },
   })
 );

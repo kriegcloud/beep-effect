@@ -51,7 +51,7 @@ Results:
 
 Remaining hardening tasks were moved to:
 
-- `specs/pending/repo-cli-quality-hardening/README.md`
+- `specs/completed/repo-cli-quality-hardening/README.md`
 
 This spec is complete because the Effect v4 migration baseline and first tooling implementation are landed; remaining work is incremental hardening, not baseline migration setup.
 

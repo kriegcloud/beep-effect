@@ -1,6 +1,6 @@
 /**
  * Embedding service for generating vector embeddings from text using the
- * Nomic CodeRankEmbed model via `@huggingface/transformers`.
+ * Nomic Embed Text v1.5 model via `@huggingface/transformers`.
  *
  * Provides both single and batch embedding operations, wrapping the ONNX
  * feature-extraction pipeline in an Effect-based service interface.
@@ -14,7 +14,7 @@ import * as ServiceMap from "effect/ServiceMap";
 import { EmbeddingModelError } from "../errors.js";
 
 /**
- * The dimensionality of vectors produced by the Nomic CodeRankEmbed model.
+ * The dimensionality of vectors produced by the Nomic Embed Text v1.5 model.
  *
  * @since 0.0.0
  * @category constants
@@ -30,12 +30,12 @@ export const EMBEDDING_DIMENSIONS = 768;
 export const DEFAULT_BATCH_SIZE = 32;
 
 /**
- * The model identifier used for loading the Nomic CodeRankEmbed model.
+ * The model identifier used for loading the Nomic Embed Text v1.5 model.
  *
  * @since 0.0.0
  * @category constants
  */
-const MODEL_NAME = "nomic-ai/CodeRankEmbed" as const;
+const MODEL_NAME = "nomic-ai/nomic-embed-text-v1.5" as const;
 const MODEL_OPTIONS = { quantized: true } as const;
 const INFERENCE_OPTIONS = { pooling: "mean", normalize: true } as const;
 
@@ -148,7 +148,7 @@ export interface EmbeddingServiceShape {
 /**
  * Service tag for `EmbeddingService`.
  *
- * Provides vector embedding generation for text using the Nomic CodeRankEmbed ONNX model.
+ * Provides vector embedding generation for text using the Nomic Embed Text v1.5 ONNX model.
  *
  * @since 0.0.0
  * @category services
@@ -158,7 +158,7 @@ export class EmbeddingService extends ServiceMap.Service<EmbeddingService, Embed
 ) {}
 
 /**
- * Live layer for `EmbeddingService` that loads the Nomic CodeRankEmbed ONNX model
+ * Live layer for `EmbeddingService` that loads the Nomic Embed Text v1.5 ONNX model
  * and provides real embedding generation via `@huggingface/transformers`.
  *
  * The model is loaded once during layer construction and reused for all

@@ -33,19 +33,36 @@ export interface ConfigUpdateResult {
 
 // ── Internal helpers ─────────────────────────────────────────────────────────
 
-interface TsconfigReferences {
-  readonly references?: ReadonlyArray<{ readonly path: string }>;
-}
-
-interface TsconfigWithPaths {
-  readonly compilerOptions?: {
-    readonly paths?: Readonly<Record<string, ReadonlyArray<string>>>;
-  };
-}
-
 const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   tabSize: 2,
   insertSpaces: true,
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const parseJsoncObject = (content: string, filePath: string): Record<string, unknown> => {
+  const errors: Array<jsonc.ParseError> = [];
+  const parsed = jsonc.parse(content, errors);
+  if (errors.length > 0 || !isRecord(parsed)) {
+    const code = errors.at(0)?.error ?? "unknown";
+    throw new DomainError({
+      message: `Invalid JSONC in ${filePath} (parse error: ${String(code)})`,
+    });
+  }
+  return parsed;
+};
+
+const readReferences = (parsed: Record<string, unknown>): Array<unknown> =>
+  Array.isArray(parsed.references) ? [...parsed.references] : [];
+
+const hasReferencePath = (entry: unknown, target: string): boolean =>
+  isRecord(entry) && typeof entry.path === "string" && entry.path === target;
+
+const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknown> => {
+  if (!isRecord(parsed.compilerOptions)) return {};
+  if (!isRecord(parsed.compilerOptions.paths)) return {};
+  return parsed.compilerOptions.paths;
 };
 
 /**
@@ -60,7 +77,17 @@ const modifyFileString: (
   const original = yield* fs
     .readFileString(filePath)
     .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read ${filePath}: ${String(e)}` })));
-  const transformed = transform(original);
+  let transformed: string;
+  try {
+    transformed = transform(original);
+  } catch (error) {
+    if (error instanceof DomainError) {
+      return yield* error;
+    }
+    return yield* new DomainError({
+      message: `Failed to update ${filePath}: ${String(error)}`,
+    });
+  }
   if (transformed === original) return false;
   yield* fs
     .writeFileString(filePath, transformed)
@@ -91,11 +118,11 @@ export const updateTsconfigPackages: (
     const filePath = path.join(repoRoot, "tsconfig.packages.json");
 
     return yield* modifyFileString(filePath, (content) => {
-      const parsed: TsconfigReferences = jsonc.parse(content);
-      const references = parsed.references ?? [];
+      const parsed = parseJsoncObject(content, filePath);
+      const references = readReferences(parsed);
 
       // Idempotency: skip if reference already present
-      if (A.some(references, (ref) => ref.path === packagePath)) {
+      if (A.some(references, (ref) => hasReferencePath(ref, packagePath))) {
         return content;
       }
 
@@ -134,25 +161,31 @@ export const updateTsconfigPaths: (
     const alias = `@beep/${packageName}`;
 
     return yield* modifyFileString(filePath, (content) => {
-      const parsed: TsconfigWithPaths = jsonc.parse(content);
-      const paths = parsed.compilerOptions?.paths ?? {};
+      const parsed = parseJsoncObject(content, filePath);
+      const paths = readPathsRecord(parsed);
+      const hasBaseAlias = alias in paths;
+      const hasWildcardAlias = `${alias}/*` in paths;
 
-      // Idempotency: skip if alias already present
-      if (alias in paths) {
+      // Idempotency: skip if both aliases already present
+      if (hasBaseAlias && hasWildcardAlias) {
         return content;
       }
 
       let result = content;
 
-      const edits1 = jsonc.modify(result, ["compilerOptions", "paths", alias], [`./${packagePath}/src/index.ts`], {
-        formattingOptions: FORMATTING_OPTIONS,
-      });
-      result = jsonc.applyEdits(result, edits1);
+      if (!hasBaseAlias) {
+        const edits1 = jsonc.modify(result, ["compilerOptions", "paths", alias], [`./${packagePath}/src/index.ts`], {
+          formattingOptions: FORMATTING_OPTIONS,
+        });
+        result = jsonc.applyEdits(result, edits1);
+      }
 
-      const edits2 = jsonc.modify(result, ["compilerOptions", "paths", `${alias}/*`], [`./${packagePath}/src/*.ts`], {
-        formattingOptions: FORMATTING_OPTIONS,
-      });
-      result = jsonc.applyEdits(result, edits2);
+      if (!hasWildcardAlias) {
+        const edits2 = jsonc.modify(result, ["compilerOptions", "paths", `${alias}/*`], [`./${packagePath}/src/*.ts`], {
+          formattingOptions: FORMATTING_OPTIONS,
+        });
+        result = jsonc.applyEdits(result, edits2);
+      }
 
       return result;
     });
@@ -214,17 +247,17 @@ export const checkConfigNeedsUpdate: (
       .pipe(
         Effect.mapError((e) => new DomainError({ message: `Failed to read tsconfig.packages.json: ${String(e)}` }))
       );
-    const pkgsParsed: TsconfigReferences = jsonc.parse(pkgsContent);
-    const references = pkgsParsed.references ?? [];
-    const tsconfigPackages = !A.some(references, (ref) => ref.path === packagePath);
+    const pkgsParsed = parseJsoncObject(pkgsContent, "tsconfig.packages.json");
+    const references = readReferences(pkgsParsed);
+    const tsconfigPackages = !A.some(references, (ref) => hasReferencePath(ref, packagePath));
 
     const rootContent = yield* fs
       .readFileString(path.join(repoRoot, "tsconfig.json"))
       .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tsconfig.json: ${String(e)}` })));
-    const rootParsed: TsconfigWithPaths = jsonc.parse(rootContent);
-    const paths = rootParsed.compilerOptions?.paths ?? {};
+    const rootParsed = parseJsoncObject(rootContent, "tsconfig.json");
+    const paths = readPathsRecord(rootParsed);
     const alias = `@beep/${packageName}`;
-    const tsconfigPaths = !(alias in paths);
+    const tsconfigPaths = !(alias in paths && `${alias}/*` in paths);
 
     return { tsconfigPackages, tsconfigPaths };
   }

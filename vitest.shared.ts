@@ -9,7 +9,11 @@ const config: ViteUserConfig = {
   optimizeDeps: {
     exclude: ["bun:sqlite"],
   },
-  plugins: [aliases()],
+  plugins: [
+    aliases({
+      ignoreConfigErrors: true,
+    }),
+  ],
   server: {
     watch: {
       ignored: ["**/.context/**"],
