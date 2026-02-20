@@ -54,3 +54,17 @@ Cumulative learnings from the repo-tooling spec phases.
 - **Task**: Correct `topo-sort` output contract and add missing negative/edge tests
 - **Key Insight**: Passing `Console.log` directly into `Effect.forEach` leaked the iteration index because callback arity did not match the intended single-argument contract, producing `"<package> <index>"` output lines
 - **Pattern**: Avoid passing variadic/arity-sensitive functions directly as higher-order callbacks in Effect collection traversals; wrap with explicit lambdas, and backstop with branch tests for unmatched filters, cycle detection, and empty-result command paths
+
+### refl-2026-02-20-005
+- **Phase**: phase-6-validation
+- **Outcome**: partial
+- **Task**: Build final traceability matrix and run full acceptance gate for repo-tooling
+- **Key Insight**: Acceptance surfaced two non-code drift classes that can block signoff even when core behavior is stable: (1) spec wording drift versus intentional implementation choices (template-per-output strictness vs schema/static generation), and (2) shared-worktree lint instability outside the target feature area
+- **Pattern**: Treat acceptance as a contract audit, not just test execution: keep success criteria synchronized with intentional design decisions and run gate checks in a lint-clean baseline branch/worktree before final certification
+
+### refl-2026-02-20-006
+- **Phase**: phase-7-remaining-issue-resolution
+- **Outcome**: success
+- **Task**: Close residual SC-01/SC-03/SC-17 gaps and restore full gate-green state
+- **Key Insight**: Final acceptance required resolving contract drift and environment drift together: criteria had to explicitly encode intentional non-template generation boundaries, and transient `_test-*` config artifacts had to be purged to avoid false gate failures during typecheck/build reruns
+- **Pattern**: For closure phases, run a two-track checklist before final signoff: (1) spec-to-implementation contract audit for intentional deviations, and (2) workspace hygiene audit for temporary test artifacts that can poison repo-wide gates

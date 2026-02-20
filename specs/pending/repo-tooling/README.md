@@ -9,7 +9,7 @@ Overhaul the `beep create-package` CLI command to scaffold production-ready pack
 ## Scope
 
 ### In Scope
-- Handlebars (.hbs) template system for all generated files
+- Handlebars (.hbs) template system for all template-rendered scaffold files (with intentional non-template outputs for `package.json`, `.gitkeep` markers, and `CLAUDE.md` symlink creation)
 - Template directory at `tooling/cli/src/commands/create-package/templates/`
 - Generated file inventory: package.json, tsconfig.json, src/index.ts, test/.gitkeep, LICENSE, README.md, AGENTS.md, ai-context.md, CLAUDE.md (symlink), docgen.json, vitest.config.ts, dtslint/.gitkeep, docs/index.md
 - Three package types: `library`, `tool`, `app` (existing behavior preserved)
@@ -25,9 +25,9 @@ Overhaul the `beep create-package` CLI command to scaffold production-ready pack
 - Turbo pipeline auto-registration
 
 ## Success Criteria
-- [ ] All generated files use Handlebars templates (no string concatenation in handler)
+- [ ] All template-rendered scaffold files use Handlebars templates (intentional non-template outputs remain: Schema-encoded `package.json`, static `.gitkeep` markers, and `CLAUDE.md` symlink action)
 - [ ] `handlebars` added to root dependency catalog and cli package
-- [ ] Template directory contains one `.hbs` file per generated output
+- [ ] Template directory contains one `.hbs` file per template-rendered output (`tsconfig.json`, `src/index.ts`, `LICENSE`, `README.md`, `AGENTS.md`, `ai-context.md`, `docgen.json`, `vitest.config.ts`, `docs/index.md`)
 - [ ] `LICENSE` file generated with MIT license text (matches existing package pattern)
 - [ ] `README.md` generated with package name, description placeholder, and standard sections
 - [ ] `AGENTS.md` generated with canonical structure (Purpose & Fit, Surface Map, Guardrails, Verifications, Contributor Checklist)

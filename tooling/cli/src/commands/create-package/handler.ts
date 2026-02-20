@@ -162,6 +162,9 @@ interface TemplateContext {
  * Validate an optional parent directory override like `packages/common`.
  *
  * Must be repo-relative, normalized, and free of traversal segments.
+ *
+ * @param value Parent directory override to validate.
+ * @returns True when the override is safe and repo-relative.
  */
 const isValidParentDir = (value: string): boolean => {
   if (!/^[a-z0-9][a-z0-9/_-]*$/.test(value)) return false;
@@ -175,6 +178,9 @@ const isValidParentDir = (value: string): boolean => {
  * Examples:
  * - `tooling/cli` => `../../`
  * - `packages/common/types` => `../../../`
+ *
+ * @param packagePath Repo-relative package path.
+ * @returns Relative path from the package directory to repo root.
  */
 const toRootRelative = (packagePath: string): string => "../".repeat(packagePath.split("/").length);
 

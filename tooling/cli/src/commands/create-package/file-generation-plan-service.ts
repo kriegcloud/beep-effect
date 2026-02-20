@@ -7,8 +7,9 @@
 
 import { DomainError } from "@beep/repo-utils";
 import { FileSystem, Path } from "effect";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-
+import * as Match from "effect/Match";
 /**
  * A file write operation.
  *
@@ -158,6 +159,7 @@ const ensureDirectoryFor = Effect.fn(function* (absolutePath: string) {
 /**
  * Construct the default generation plan service implementation.
  *
+ * @returns Deterministic plan preview and execution helpers.
  * @since 0.0.0
  * @category constructors
  */
@@ -201,17 +203,15 @@ export const createFileGenerationPlanService = (): FileGenerationPlanService => 
     } satisfies FileGenerationPlan;
   };
 
-  const previewPlan: FileGenerationPlanService["previewPlan"] = (plan) =>
-    plan.actions.map((action) => {
-      switch (action.kind) {
-        case "mkdir":
-          return `mkdir ${action.relativePath}`;
-        case "write-file":
-          return `write ${action.relativePath}`;
-        case "symlink":
-          return `symlink ${action.relativePath} -> ${action.target}`;
-      }
-    });
+  const matchPlan = Match.type<GenerationAction>().pipe(
+    Match.discriminatorsExhaustive("kind")({
+      mkdir: (action) => `mkdir ${action.relativePath}`,
+      ["write-file" as const]: (action) => `write ${action.relativePath}`,
+      symlink: (action) => `symlink ${action.relativePath} -> ${action.target}`,
+    })
+  );
+
+  const previewPlan: FileGenerationPlanService["previewPlan"] = (plan) => A.map(plan.actions, matchPlan);
 
   const executePlan: FileGenerationPlanService["executePlan"] = Effect.fn(function* (plan) {
     const fs = yield* FileSystem.FileSystem;

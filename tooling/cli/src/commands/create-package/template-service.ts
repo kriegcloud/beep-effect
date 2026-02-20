@@ -103,6 +103,7 @@ const createHandlebarsEnvironment = () => {
 /**
  * Construct the default template service implementation.
  *
+ * @returns Template renderer backed by Handlebars.
  * @since 0.0.0
  * @category constructors
  */
@@ -114,8 +115,9 @@ export const createTemplateService = (): TemplateService => {
   ) {
     const fs = yield* FileSystem.FileSystem;
 
-    return yield* Effect.forEach(request.templates, ({ templateName, outputPath }) =>
-      Effect.gen(function* () {
+    return yield* Effect.forEach(
+      request.templates,
+      Effect.fn(function* ({ templateName, outputPath }) {
         const raw = yield* fs.readFileString(`${request.templateDir}/${templateName}`).pipe(
           Effect.mapError(
             (cause) =>

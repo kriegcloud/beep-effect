@@ -19,21 +19,6 @@
       "path": "scratchpad"
     },
     {
-      "path": "tooling/_test-idempotent-1771558038638"
-    },
-    {
-      "path": "tooling/_test-idempotent-1771560353205"
-    },
-    {
-      "path": "tooling/_test-license-1771561808031"
-    },
-    {
-      "path": "tooling/_test-nodesc-1771558038551"
-    },
-    {
-      "path": "tooling/_test-symlink-1771558038373"
-    },
-    {
       "path": "tooling/cli"
     },
     {

@@ -6,8 +6,8 @@ pre-commit:
       run: bunx biome check --write {staged_files} && git add {staged_files}
     jsdoc:
       glob: "tooling/*/src/**/*.ts"
-      exclude: "tooling/*/src/internal/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
-      run: npx eslint --config eslint.config.mjs {staged_files}
+      exclude: "tooling/*/src/internal/**|tooling/_test-*/src/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
+      run: npx eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' {staged_files}
 
 pre-push:
   parallel: true

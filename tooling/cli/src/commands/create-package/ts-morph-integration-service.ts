@@ -4,10 +4,9 @@
  * @since 0.0.0
  * @module
  */
-
 import type { DomainError } from "@beep/repo-utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-
 /**
  * Supported AST mutation categories required by create-slice.
  *
@@ -91,17 +90,18 @@ const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
 /**
  * Construct a ts-morph integration service with an optional adapter.
  *
+ * @param adapter Adapter used to apply ts-morph mutations.
+ * @returns Integration service for previewing and applying mutations.
  * @since 0.0.0
  * @category constructors
  */
 export const createTsMorphIntegrationService = (
   adapter: TsMorphMutationAdapter = UnsupportedTsMorphAdapter
 ): TsMorphIntegrationService => ({
-  previewMutations: (mutations) =>
-    mutations.map((mutation) => `${mutation.kind} ${mutation.symbolName} in ${mutation.filePath}`),
+  previewMutations: A.map((mutation) => `${mutation.kind} ${mutation.symbolName} in ${mutation.filePath}`),
 
   applyMutations: (mutations) =>
-    Effect.forEach(mutations, (mutation) => adapter.applyMutation(mutation)).pipe(
+    Effect.forEach(mutations, adapter.applyMutation).pipe(
       Effect.map((outcomes) => ({
         outcomes,
       }))

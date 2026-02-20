@@ -72,6 +72,38 @@ const withTempPackage = withTestLayers(withTempPackageBase);
 const decodeJson = <A = unknown>(content: string): Effect.Effect<A, Schema.SchemaError> =>
   Schema.decodeUnknownEffect(Schema.UnknownFromJsonString)(content) as Effect.Effect<A, Schema.SchemaError>;
 
+type GeneratedPackageJson = {
+  readonly name: string;
+  readonly version: string;
+  readonly type: string;
+  readonly license: string;
+  readonly description: string;
+  readonly homepage: string;
+  readonly dependencies: Record<string, string>;
+  readonly devDependencies: Record<string, string>;
+  readonly repository: {
+    readonly type: string;
+    readonly url: string;
+    readonly directory: string;
+  };
+};
+
+type GeneratedTsconfigJson = {
+  readonly extends: string;
+  readonly compilerOptions: {
+    readonly outDir: string;
+    readonly rootDir: string;
+  };
+};
+
+type GeneratedDocgenJson = {
+  readonly $schema: string;
+  readonly srcLink: string;
+  readonly examplesCompilerOptions: {
+    readonly paths: Record<string, ReadonlyArray<string>>;
+  };
+};
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -199,7 +231,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const content = yield* fs.readFileString(path.join(outputDir, "package.json"));
-          const pkg = yield* decodeJson<any>(content);
+          const pkg = yield* decodeJson<GeneratedPackageJson>(content);
 
           expect(pkg.name).toBe(`@beep/${pkgName}`);
           expect(pkg.version).toBe("0.0.0");
@@ -225,7 +257,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const content = yield* fs.readFileString(path.join(outputDir, "package.json"));
-          const pkg = yield* decodeJson<any>(content);
+          const pkg = yield* decodeJson<GeneratedPackageJson>(content);
 
           expect(pkg.dependencies["@effect/platform-node"]).toBe("catalog:");
         })
@@ -242,7 +274,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const content = yield* fs.readFileString(path.join(outputDir, "tsconfig.json"));
-          const config = yield* decodeJson<any>(content);
+          const config = yield* decodeJson<GeneratedTsconfigJson>(content);
 
           expect(config.extends).toBe("../../tsconfig.base.json");
           expect(config.compilerOptions.outDir).toBe("dist");
@@ -378,7 +410,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const content = yield* fs.readFileString(path.join(outputDir, "docgen.json"));
-          const config = yield* decodeJson<any>(content);
+          const config = yield* decodeJson<GeneratedDocgenJson>(content);
 
           expect(config.srcLink).toContain(`tooling/${pkgName}/src/`);
           expect(config.examplesCompilerOptions.paths[`@beep/${pkgName}`]).toEqual([
@@ -435,7 +467,7 @@ describe("create-package command", () => {
           const repoRoot = yield* findRepoRoot();
 
           const tsconfigRaw = yield* fs.readFileString(path.join(outputDir, "tsconfig.json"));
-          const tsconfig = yield* decodeJson<any>(tsconfigRaw);
+          const tsconfig = yield* decodeJson<GeneratedTsconfigJson>(tsconfigRaw);
           expect(tsconfig.extends).toBe("../../../tsconfig.base.json");
 
           const vitestConfig = yield* fs.readFileString(path.join(outputDir, "vitest.config.ts"));
@@ -445,7 +477,7 @@ describe("create-package command", () => {
           expect(aiContext).toContain(`path: packages/common/${pkgName}`);
 
           const docgenRaw = yield* fs.readFileString(path.join(outputDir, "docgen.json"));
-          const docgen = yield* decodeJson<any>(docgenRaw);
+          const docgen = yield* decodeJson<GeneratedDocgenJson>(docgenRaw);
           expect(docgen.$schema).toBe("../../../node_modules/@effect/docgen/schema.json");
           expect(docgen.examplesCompilerOptions.paths.effect).toEqual(["../../../packages/effect/src/index.ts"]);
           expect(docgen.examplesCompilerOptions.paths[`@beep/${pkgName}`]).toEqual([
@@ -499,8 +531,8 @@ describe("create-package command", () => {
 
             const typesTsconfigRaw = yield* fs.readFileString(path.join(typesDir, "tsconfig.json"));
             const utilsTsconfigRaw = yield* fs.readFileString(path.join(utilsDir, "tsconfig.json"));
-            const typesTsconfig = yield* decodeJson<any>(typesTsconfigRaw);
-            const utilsTsconfig = yield* decodeJson<any>(utilsTsconfigRaw);
+            const typesTsconfig = yield* decodeJson<GeneratedTsconfigJson>(typesTsconfigRaw);
+            const utilsTsconfig = yield* decodeJson<GeneratedTsconfigJson>(utilsTsconfigRaw);
             expect(typesTsconfig.extends).toBe("../../../tsconfig.base.json");
             expect(utilsTsconfig.extends).toBe("../../../tsconfig.base.json");
 
@@ -545,7 +577,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const pkgContent = yield* fs.readFileString(path.join(outputDir, "package.json"));
-          const pkg = yield* decodeJson<any>(pkgContent);
+          const pkg = yield* decodeJson<GeneratedPackageJson>(pkgContent);
           expect(pkg.description).toBe(desc);
 
           const readme = yield* fs.readFileString(path.join(outputDir, "README.md"));
@@ -571,7 +603,7 @@ describe("create-package command", () => {
           const path = yield* Path.Path;
 
           const pkgContent = yield* fs.readFileString(path.join(outputDir, "package.json"));
-          const pkg = yield* decodeJson<any>(pkgContent);
+          const pkg = yield* decodeJson<GeneratedPackageJson>(pkgContent);
           expect(pkg.description).toBe("");
         })
       );
