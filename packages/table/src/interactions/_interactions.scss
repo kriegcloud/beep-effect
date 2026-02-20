@@ -1,0 +1,180 @@
+// Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+
+@import "../common/variables";
+
+$resize-handle-target-width: $pt-spacing !default;
+$resize-handle-width: $pt-spacing * 0.75 !default;
+$resize-handle-position-correction: $pt-spacing * -0.75 !default;
+$resize-handle-padding: $pt-spacing * 0.5 !default;
+$resize-handle-color: $pt-intent-primary !default;
+$resize-handle-dragging-color: $pt-intent-primary !default;
+
+// we want to square off the margin around the handle
+// so we need a special value based on the handle icon shape
+$reorder-handle-width: $pt-spacing * 5.5 !default;
+
+@mixin grabbable() {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+@mixin reorderable-header() {
+  &.#{$ns}-table-header-reorderable {
+    @include grabbable;
+
+    .#{$ns}-table-interaction-bar {
+      @include grabbable;
+    }
+  }
+}
+
+.#{$ns}-table-selection-enabled {
+  &.#{$ns}-table-column-headers .#{$ns}-table-header {
+    @include reorderable-header;
+    cursor: $select-column-cursor;
+  }
+
+  &.#{$ns}-table-row-headers .#{$ns}-table-header {
+    @include reorderable-header;
+    cursor: $select-row-cursor;
+  }
+
+  &.#{$ns}-table-menu {
+    cursor: $select-table-cursor;
+  }
+
+  .#{$ns}-editable-text::before,
+  .#{$ns}-editable-content {
+    cursor: $select-cell-cursor;
+  }
+}
+
+/* prettier-ignore */
+.#{$ns}-table-column-header-cell.#{$ns}-table-has-reorder-handle:not(.#{$ns}-table-has-interaction-bar) {
+  .#{$ns}-table-column-name-text {
+    padding-left: $reorder-handle-width;
+  }
+
+  // keep the editable cell input flush with the cell's left border
+  .#{$ns}-table-editable-name::before {
+    left: -$reorder-handle-width;
+  }
+}
+
+.#{$ns}-table-reorder-handle-target {
+  @include grabbable;
+  align-items: center;
+  bottom: 0;
+  color: $pt-text-color-disabled;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: $reorder-handle-width;
+
+  &:hover {
+    color: $pt-icon-color-hover;
+  }
+
+  &:active {
+    color: $pt-intent-primary;
+  }
+
+  .#{$ns}-dark & {
+    color: $pt-dark-text-color-disabled;
+
+    &:hover {
+      color: $pt-dark-icon-color-hover;
+    }
+
+    &:active {
+      color: $pt-intent-primary;
+    }
+  }
+}
+
+.#{$ns}-table-reorder-handle {
+  // center icon within handle
+  display: flex;
+}
+
+// The wide, transparent, clickable target that contains the
+// thin resize handle bar
+.#{$ns}-table-resize-handle-target {
+  opacity: 0;
+  position: absolute;
+  user-select: none;
+  // Move the handle target above the following cell
+  // this allows the mouse to hover the target on both
+  // sides when the mouse is within the padding distance
+  z-index: $pt-z-index-overlay;
+
+  &:hover,
+  &.#{$ns}-table-dragging {
+    opacity: 1;
+  }
+
+  &.#{$ns}-table-resize-vertical {
+    bottom: -$cell-border-width;
+    cursor: $resize-vertical-cursor;
+    right: 0;
+    top: 0;
+    width: $resize-handle-target-width;
+  }
+
+  &.#{$ns}-table-resize-horizontal {
+    bottom: 0;
+    cursor: $resize-horizontal-cursor;
+    height: $resize-handle-target-width;
+    left: 0;
+    right: -$cell-border-width;
+  }
+}
+
+.#{$ns}-table-resize-handle {
+  background-color: $resize-handle-color;
+  position: absolute;
+  z-index: $pt-z-index-overlay;
+
+  &.#{$ns}-table-dragging {
+    background-color: $resize-handle-dragging-color;
+  }
+}
+
+.#{$ns}-table-resize-vertical .#{$ns}-table-resize-handle {
+  bottom: 0;
+  left: $resize-handle-padding;
+  top: 0;
+  width: $resize-handle-width;
+}
+
+.#{$ns}-table-resize-horizontal .#{$ns}-table-resize-handle {
+  height: $resize-handle-width;
+  left: 0;
+  right: 0;
+  top: $resize-handle-padding;
+}
+
+.#{$ns}-table-resize-guides .#{$ns}-table-horizontal-guide {
+  background-color: $resize-handle-dragging-color;
+  height: $resize-handle-width;
+  margin-top: $resize-handle-position-correction;
+
+  &.#{$ns}-table-horizontal-guide-flush-top {
+    margin-top: 0;
+  }
+}
+
+.#{$ns}-table-resize-guides .#{$ns}-table-vertical-guide {
+  background-color: $resize-handle-dragging-color;
+  margin-left: $resize-handle-position-correction;
+  width: $resize-handle-width;
+
+  &.#{$ns}-table-vertical-guide-flush-left {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,130 @@
+// Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "../common/variables";
+@import "./common";
+
+/*
+We use box shadows instead of borders since it makes the size and position
+calculations much more well-behaved. This mixin allows us to define the themes
+for all borders with minimal duplication. See the bottom of this file.
+*/
+@mixin pt-table-borders-mixin($border-width, $frozen-border-width, $border-color) {
+  $border-right-default: $border-width 0 0 $border-color;
+  $border-bottom-default: 0 $border-width 0 $border-color;
+  $inset-border-right-default: inset (-$border-width) 0 0 $border-color;
+  $inset-border-bottom-default: inset 0 (-$border-width) 0 $border-color;
+  $inset-border-right-frozen: inset (-$frozen-border-width) 0 0 $border-color;
+  $inset-border-bottom-frozen: inset 0 (-$frozen-border-width) 0 $border-color;
+
+  .#{$ns}-table-container {
+    box-shadow: 0 0 0 $border-width $border-color;
+  }
+
+  .#{$ns}-table-menu {
+    box-shadow: $border-bottom-default, $border-right-default;
+  }
+
+  .#{$ns}-table-header {
+    box-shadow: $border-bottom-default;
+  }
+
+  .#{$ns}-table-cell {
+    box-shadow: $inset-border-bottom-default, $inset-border-right-default;
+  }
+
+  .#{$ns}-table-horizontal-cell-divider {
+    box-shadow: inset 0 $border-width 0 $border-color;
+    height: $border-width;
+  }
+
+  .#{$ns}-table-column-headers .#{$ns}-table-header {
+    box-shadow: $border-bottom-default, $inset-border-right-default;
+
+    &::before {
+      bottom: 0;
+      // hover shadow
+      right: $border-width;
+    }
+  }
+
+  .#{$ns}-table-row-headers .#{$ns}-table-header {
+    box-shadow: $inset-border-bottom-default, $border-right-default;
+
+    &::before {
+      bottom: $border-width;
+      // hover shadow
+      right: 0;
+    }
+  }
+
+  .#{$ns}-table-body {
+    .#{$ns}-table-last-in-row {
+      box-shadow: $inset-border-bottom-default, $border-right-default;
+    }
+
+    .#{$ns}-table-last-in-column {
+      box-shadow: $border-bottom-default, $inset-border-right-default;
+    }
+
+    .#{$ns}-table-last-in-row.#{$ns}-table-last-in-column {
+      box-shadow: $border-bottom-default, $border-right-default;
+    }
+  }
+
+  .#{$ns}-table-quadrant-top-left {
+    .#{$ns}-table-cell {
+      &.#{$ns}-table-last-in-row {
+        box-shadow: $inset-border-bottom-default, $inset-border-right-frozen;
+      }
+
+      &.#{$ns}-table-last-in-column {
+        box-shadow: $inset-border-bottom-frozen, $inset-border-right-default;
+      }
+
+      &.#{$ns}-table-last-in-column.#{$ns}-table-last-in-row {
+        box-shadow: $inset-border-bottom-frozen, $inset-border-right-frozen;
+      }
+    }
+
+    .#{$ns}-table-header {
+      &.#{$ns}-table-last-in-row {
+        box-shadow: $border-bottom-default, $inset-border-right-frozen;
+
+        &::before {
+          bottom: 0;
+          // hover shadow
+          right: $frozen-border-width;
+        }
+      }
+
+      &.#{$ns}-table-last-in-column {
+        box-shadow: $inset-border-bottom-frozen, $border-right-default;
+
+        &::before {
+          bottom: $frozen-border-width;
+          // hover shadow
+          right: 0;
+        }
+      }
+    }
+  }
+
+  .#{$ns}-table-quadrant-left .#{$ns}-table-cell.#{$ns}-table-last-in-row {
+    box-shadow: $inset-border-bottom-default, $inset-border-right-frozen;
+  }
+
+  .#{$ns}-table-quadrant-top .#{$ns}-table-cell.#{$ns}-table-last-in-column {
+    box-shadow: $inset-border-bottom-frozen, $inset-border-right-default;
+  }
+}
+
+@include pt-table-borders-mixin($cell-border-width, $frozen-cell-border-width, $cell-border-color);
+
+.#{$ns}-dark {
+  @include pt-table-borders-mixin(
+    $cell-border-width,
+    $frozen-cell-border-width,
+    $dark-cell-border-color
+  );
+}

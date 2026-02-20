@@ -1,0 +1,341 @@
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import classNames from "classnames";
+import { PureComponent } from "react";
+
+import { DISPLAYNAME_PREFIX, Popover, type Props } from "@blueprintjs/core";
+import { More } from "@blueprintjs/icons";
+
+import * as Classes from "../../common/classes";
+import { Utils } from "../../common/utils";
+import { LocatorImpl } from "../../locator";
+
+// amount in pixels that the content div width changes when truncated vs when
+// not truncated. Note: could be modified by styles
+// Note 2: this doesn't come from the width of the popover element, but the "right" style
+// on the div, which comes from styles
+const CONTENT_DIV_WIDTH_DELTA = 25;
+
+export enum TruncatedPopoverMode {
+    ALWAYS = "always",
+    NEVER = "never",
+    WHEN_TRUNCATED = "when-truncated",
+    WHEN_TRUNCATED_APPROX = "when-truncated-approx",
+}
+
+export interface TrucatedFormateMeasureByApproximateOptions {
+    /**
+     * Approximate character width (in pixels), used to determine whether to display the popover in approx truncation mode.
+     * The default value should work for normal table styles,
+     * but should be changed as necessary if the fonts or styles are changed significantly.
+     *
+     * @default 8
+     */
+    approximateCharWidth: number;
+
+    /**
+     * Approximate line height (in pixels), used to determine whether to display the popover in approx truncation mode.
+     * The default value should work for normal table styles, but should be changed if the fonts or styles are changed significantly.
+     *
+     * @default 18
+     */
+    approximateLineHeight: number;
+
+    /**
+     * Total horizonal cell padding (both sides), used to determine whether to display the popover in approx truncation mode.
+     * The default value should work for normal table styles,
+     * but should be changed as necessary if the fonts or styles are changed significantly.
+     *
+     * @default 20
+     */
+    cellHorizontalPadding: number;
+
+    /**
+     * Number of buffer lines desired, used to determine whether to display the popover in approx truncation mode.
+     * Buffer lines are extra lines at the bottom of the cell that space is made for, to make sure that the cell text will fit
+     * after the math calculates how many lines the text is expected to take.
+     * The default value should work for normal table styles,
+     * but should be changed as necessary if the fonts or styles are changed significantly.
+     *
+     * @default 0
+     */
+    numBufferLines: number;
+}
+
+export interface TruncatedFormatProps extends Props {
+    children?: string;
+
+    /**
+     * Should the component keep track of the truncation state of the string content. If true, the
+     * value of `truncateLength` is ignored. When combined with a `showPopover` value of
+     * `WHEN_TRUNCATED`, popovers will only render when necessary.
+     *
+     * @default false;
+     */
+    detectTruncation?: boolean;
+
+    /**
+     * Values to use for character width, line height, cell padding, and buffer lines desired, when using approximate truncation.
+     * These values are used to guess at the size of the text and determine if the popover should be drawn. They should work well
+     * enough for default table styles, but may need to be overridden for more accuracy if the default styles or font size, etc
+     * are changed.
+     */
+    measureByApproxOptions?: TrucatedFormateMeasureByApproximateOptions;
+
+    /**
+     * Height of the parent cell. Used by shouldComponentUpdate only
+     */
+    parentCellHeight?: number;
+
+    /**
+     * Width of the parent cell. Used by shouldComponentUpdate only
+     */
+    parentCellWidth?: number;
+
+    /**
+     * Sets the popover content style to `white-space: pre` if `true` or
+     * `white-space: normal` if `false`.
+     *
+     * @default false
+     */
+    preformatted?: boolean;
+
+    /**
+     * Configures when the popover is shown with the `TruncatedPopoverMode` enum.
+     *
+     * The enum values are:
+     * - `ALWAYS`: show the popover.
+     * - `NEVER`: don't show the popover.
+     * - `WHEN_TRUNCATED`: show the popover only when the text is truncated (default).
+     * - `WHEN_TRUNCATED_APPROX`: show the popover only when the text is trunctated, but use
+     *   a formula to calculate this based on text length, which is faster but less accurate.
+     *
+     * @default WHEN_TRUNCATED
+     */
+    showPopover?: TruncatedPopoverMode;
+
+    /**
+     * Number of characters that are displayed before being truncated and appended with the
+     * `truncationSuffix` prop. A value of 0 will disable truncation. This prop is ignored if
+     * `detectTruncation` is `true`.
+     *
+     * @default 2000
+     */
+    truncateLength?: number;
+
+    /**
+     * The string that is appended to the display string if it is truncated.
+     *
+     * @default "..."
+     */
+    truncationSuffix?: string;
+}
+
+export interface TruncatedFormatState {
+    isTruncated?: boolean;
+    isPopoverOpen?: boolean;
+}
+
+/**
+ * Truncated cell format component.
+ *
+ * @see https://blueprintjs.com/docs/#table/api.truncatedformat
+ */
+export class TruncatedFormat extends PureComponent<TruncatedFormatProps, TruncatedFormatState> {
+    public static displayName = `${DISPLAYNAME_PREFIX}.TruncatedFormat`;
+
+    public static defaultProps: TruncatedFormatProps = {
+        detectTruncation: false,
+        measureByApproxOptions: {
+            approximateCharWidth: 8,
+            approximateLineHeight: 18,
+            cellHorizontalPadding: 2 * LocatorImpl.CELL_HORIZONTAL_PADDING,
+            numBufferLines: 0,
+        },
+        preformatted: false,
+        showPopover: TruncatedPopoverMode.WHEN_TRUNCATED,
+        truncateLength: 2000,
+        truncationSuffix: "...",
+    };
+
+    public state: TruncatedFormatState = {
+        isPopoverOpen: false,
+        isTruncated: false,
+    };
+
+    private contentDiv: HTMLDivElement | null | undefined;
+
+    private handleContentDivRef = (ref: HTMLDivElement | null) => (this.contentDiv = ref);
+
+    public componentDidMount() {
+        this.setTruncationState();
+    }
+
+    public componentDidUpdate() {
+        this.setTruncationState();
+    }
+
+    public render() {
+        const { children, detectTruncation, truncateLength, truncationSuffix } = this.props;
+        const content = "" + children;
+
+        let cellContent = content;
+        if (!detectTruncation && truncateLength! > 0 && cellContent.length > truncateLength!) {
+            cellContent = cellContent.substring(0, truncateLength) + truncationSuffix;
+        }
+
+        if (this.shouldShowPopover(content)) {
+            const className = classNames(this.props.className, Classes.TABLE_TRUNCATED_FORMAT);
+            return (
+                <div className={className}>
+                    <div className={Classes.TABLE_TRUNCATED_VALUE} ref={this.handleContentDivRef}>
+                        {cellContent}
+                    </div>
+                    {this.renderPopover()}
+                </div>
+            );
+        } else {
+            const className = classNames(this.props.className, Classes.TABLE_TRUNCATED_FORMAT_TEXT);
+            return (
+                <div className={className} ref={this.handleContentDivRef}>
+                    {cellContent}
+                </div>
+            );
+        }
+    }
+
+    private renderPopover() {
+        const { children, preformatted } = this.props;
+
+        // `<Popover>` will always check the content's position on update
+        // regardless if it is open or not. This negatively affects perf due to
+        // layout thrashing. So instead we manage the popover state ourselves
+        // and mimic its popover target
+        if (this.state.isPopoverOpen) {
+            const popoverClasses = classNames(
+                Classes.TABLE_TRUNCATED_POPOVER,
+                preformatted ? Classes.TABLE_POPOVER_WHITESPACE_PRE : Classes.TABLE_POPOVER_WHITESPACE_NORMAL,
+            );
+            const popoverContent = <div className={popoverClasses}>{children}</div>;
+            return (
+                <Popover
+                    className={Classes.TABLE_TRUNCATED_POPOVER_TARGET}
+                    content={popoverContent}
+                    isOpen={true}
+                    onClose={this.handlePopoverClose}
+                    placement="bottom"
+                    rootBoundary="document"
+                >
+                    <More />
+                </Popover>
+            );
+        } else {
+            // NOTE: This structure matches what `<Popover>` does internally. If `<Popover>` changes, this must be updated.
+            return (
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+                <span className={Classes.TABLE_TRUNCATED_POPOVER_TARGET} onClick={this.handlePopoverOpen}>
+                    <More />
+                </span>
+            );
+        }
+    }
+
+    private handlePopoverOpen = () => {
+        this.setState({ isPopoverOpen: true });
+    };
+
+    private handlePopoverClose = () => {
+        this.setState({ isPopoverOpen: false });
+    };
+
+    private shouldShowPopover(content: string) {
+        const { detectTruncation, measureByApproxOptions, showPopover, truncateLength } = this.props;
+
+        switch (showPopover) {
+            case TruncatedPopoverMode.ALWAYS:
+                return true;
+            case TruncatedPopoverMode.NEVER:
+                return false;
+            case TruncatedPopoverMode.WHEN_TRUNCATED:
+                return detectTruncation
+                    ? this.state.isTruncated
+                    : truncateLength! > 0 && content.length > truncateLength!;
+            case TruncatedPopoverMode.WHEN_TRUNCATED_APPROX:
+                if (!detectTruncation) {
+                    return truncateLength! > 0 && content.length > truncateLength!;
+                }
+                if (this.props.parentCellHeight == null || this.props.parentCellWidth == null) {
+                    return false;
+                }
+
+                const { approximateCharWidth, approximateLineHeight, cellHorizontalPadding, numBufferLines } =
+                    measureByApproxOptions!;
+
+                const cellWidth = this.props.parentCellWidth;
+                const approxCellHeight = Utils.getApproxCellHeight(
+                    content,
+                    cellWidth,
+                    approximateCharWidth,
+                    approximateLineHeight,
+                    cellHorizontalPadding,
+                    numBufferLines,
+                );
+
+                const shouldTruncate = approxCellHeight > this.props.parentCellHeight;
+                return shouldTruncate;
+            default:
+                return false;
+        }
+    }
+
+    private setTruncationState() {
+        if (!this.props.detectTruncation || this.props.showPopover !== TruncatedPopoverMode.WHEN_TRUNCATED) {
+            return;
+        }
+
+        if (this.contentDiv == null) {
+            this.setState({ isTruncated: false });
+            return;
+        }
+
+        const { isTruncated } = this.state;
+
+        // take all measurements at once to avoid excessive DOM reflows.
+        const {
+            clientHeight: containerHeight,
+            clientWidth: containerWidth,
+            scrollHeight: actualContentHeight,
+            scrollWidth: contentWidth,
+        } = this.contentDiv;
+
+        // if the content is truncated, then a popover handle will be present as a
+        // sibling of the content. we don't want to consider that handle when
+        // calculating the width of the actual content, so subtract it.
+        const actualContentWidth = isTruncated ? contentWidth - CONTENT_DIV_WIDTH_DELTA : contentWidth;
+
+        // we of course truncate the content if it doesn't fit in the container. but we
+        // also aggressively truncate if they're the same size with truncation enabled;
+        // this addresses browser-crashing stack-overflow bugs at various zoom levels.
+        // (see: https://github.com/palantir/blueprint/pull/1519)
+        const shouldTruncate =
+            (isTruncated && actualContentWidth === containerWidth) ||
+            actualContentWidth > containerWidth ||
+            actualContentHeight > containerHeight;
+
+        this.setState({ isTruncated: shouldTruncate });
+    }
+}

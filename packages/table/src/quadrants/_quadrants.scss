@@ -1,0 +1,201 @@
+@import "@blueprintjs/core/src/common/mixins";
+@import "../common/variables";
+
+$table-quadrant-z-index-main: 0;
+$table-quadrant-z-index-top: $table-quadrant-z-index-main + 1;
+$table-quadrant-z-index-left: $table-quadrant-z-index-top + 1;
+$table-quadrant-z-index-top-left: $table-quadrant-z-index-left + 1;
+
+// We mask the scrollable container with a smaller parent div to hide the scrollbars in the TOP,
+// LEFT, and TOP_LEFT quadrants. this value specifies the distance the scroll containers should
+// overflow within their parents; it should be large enough to hide a scrollbar of typical width.
+// Note that we require multiple values for different screen zoom levels (detectable via -webkit-device-pixel-ratio).
+// See:
+//  - https://developer.mozilla.org/en-US/docs/Web/CSS/@media/-webkit-device-pixel-ratio
+//  - https://github.com/palantir/blueprint/issues/6172
+$scroll-container-overflow-default: 20px; // for standard device pixel ratio
+$scroll-container-overflow-low-dpi: 50px; // for device-pixel-ratio <1.5
+$scroll-container-overflow-high-dpi: 10px; // for device pixel-ratio >2.5
+
+.#{$ns}-table-quadrant-stack {
+  display: flex;
+  height: 100%;
+  position: relative;
+}
+
+.#{$ns}-table-quadrant {
+  background: $table-background-color;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+
+  .#{$ns}-dark & {
+    background-color: $dark-table-background-color;
+  }
+}
+
+.#{$ns}-table-quadrant-scroll-container {
+  inset: 0;
+  overflow: auto;
+  position: relative;
+  user-select: none;
+  will-change: transform; // forces hardware acceleration for smoother animations
+
+  // We disable x or y scrolling when we are displaying "ghost" cells that
+  // overflow the body.
+
+  .#{$ns}-table-no-vertical-scroll & {
+    overflow-y: hidden;
+  }
+
+  .#{$ns}-table-no-horizontal-scroll & {
+    overflow-x: hidden;
+  }
+}
+
+.#{$ns}-table-body-scrolling-indicator-overlay {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+%table-is-scrolling {
+  opacity: 1;
+  transition: opacity 0.2s linear;
+}
+
+.#{$ns}-table-body-is-scrolling-top {
+  @extend %table-is-scrolling;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 15%) 0%, transparent 10%);
+}
+
+.#{$ns}-table-body-is-scrolling-right {
+  @extend %table-is-scrolling;
+  background: linear-gradient(270deg, rgba(0, 0, 0, 15%) 0%, transparent 10%);
+}
+
+.#{$ns}-table-body-is-scrolling-bottom {
+  @extend %table-is-scrolling;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 15%) 0%, transparent 10%);
+}
+
+.#{$ns}-table-body-is-scrolling-left {
+  @extend %table-is-scrolling;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 15%) 0%, transparent 10%);
+}
+
+.#{$ns}-table-quadrant-body-container {
+  position: relative;
+}
+
+.#{$ns}-table-quadrant-main {
+  height: 100%;
+  left: auto;
+  // use `relative` to ensure the table can size itself according to the MAIN quadrant's contents alone.
+  // other quadrants should remain `absolute` to ensure they're taken out of the document flow.
+  position: relative;
+  top: auto;
+  // the MAIN quadrant should fill the whole table so that ghost cells will be visible if enabled
+  width: 100%;
+  z-index: $table-quadrant-z-index-main;
+
+  .#{$ns}-table-quadrant-scroll-container {
+    height: 100%;
+    // the MAIN quadrant's scroll bars should be visible and should be flush with the right and
+    // bottom edges of the table.
+    width: 100%;
+  }
+
+  .#{$ns}-table-cell-client {
+    background: $white;
+  }
+}
+
+.#{$ns}-table-quadrant-top {
+  right: 0;
+  z-index: $table-quadrant-z-index-top;
+
+  .#{$ns}-table-quadrant-scroll-container {
+    bottom: -$scroll-container-overflow-default;
+    overflow-y: hidden;
+  }
+}
+
+.#{$ns}-table-quadrant-left {
+  bottom: 0;
+
+  // animate width changes on scroll end
+  transition: width $pt-transition-duration $pt-transition-ease;
+  z-index: $table-quadrant-z-index-left;
+
+  .#{$ns}-table-quadrant-scroll-container {
+    bottom: 0;
+    height: auto;
+    overflow-x: hidden;
+    position: absolute;
+    right: -$scroll-container-overflow-default;
+    top: 0;
+  }
+
+  // require at least 1px of width to show the left selection border if
+  // necessary. this will be needed when selection includes cells in the first
+  // column (#1444).
+  .#{$ns}-table-body-virtual-client {
+    min-width: 1px;
+  }
+}
+
+.#{$ns}-table-quadrant-top-left {
+  // animate width changes on scroll end
+  transition: width $pt-transition-duration $pt-transition-ease;
+  z-index: $table-quadrant-z-index-top-left;
+
+  .#{$ns}-table-quadrant-scroll-container {
+    bottom: -$scroll-container-overflow-default;
+    overflow: hidden;
+    right: -$scroll-container-overflow-default;
+  }
+
+  // correct missing bottom-right corner in the menu-element (addresses #1444).
+  .#{$ns}-table-body-virtual-client {
+    min-width: 1px;
+  }
+}
+
+// N.B. we could do something fancier by detecting the exact width of the scroll bar and setting that value
+// as the overflow dimension, but this is good enough for most use cases.
+/* stylelint-disable-next-line media-feature-name-no-vendor-prefix */
+@media (-webkit-max-device-pixel-ratio: 1.5) {
+  // low dpi screen has larger scrollbars relative to quadrant dimensions
+  .#{$ns}-table-quadrant-top .#{$ns}-table-quadrant-scroll-container {
+    bottom: -$scroll-container-overflow-low-dpi;
+  }
+
+  .#{$ns}-table-quadrant-left .#{$ns}-table-quadrant-scroll-container {
+    right: -$scroll-container-overflow-low-dpi;
+  }
+
+  .#{$ns}-table-quadrant-top-left .#{$ns}-table-quadrant-scroll-container {
+    bottom: -$scroll-container-overflow-low-dpi;
+    right: -$scroll-container-overflow-low-dpi;
+  }
+}
+
+/* stylelint-disable-next-line media-feature-name-no-vendor-prefix */
+@media (-webkit-min-device-pixel-ratio: 2.5) {
+  // high dpi screen has smaller scrollbars relative to quadrant dimensions
+  .#{$ns}-table-quadrant-top .#{$ns}-table-quadrant-scroll-container {
+    bottom: -$scroll-container-overflow-high-dpi;
+  }
+
+  .#{$ns}-table-quadrant-left .#{$ns}-table-quadrant-scroll-container {
+    right: -$scroll-container-overflow-high-dpi;
+  }
+
+  .#{$ns}-table-quadrant-top-left .#{$ns}-table-quadrant-scroll-container {
+    bottom: -$scroll-container-overflow-high-dpi;
+    right: -$scroll-container-overflow-high-dpi;
+  }
+}
