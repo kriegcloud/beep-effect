@@ -1,0 +1,3086 @@
+{
+  "irVersion": "v2",
+  "namespaces": [{
+    "name": "Core",
+    "version": "v2",
+    "resources": [],
+    "components": [{
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "AndQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "value": {
+              "type": {
+                "type": "list",
+                "list": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "SearchJsonQueryV2"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where every query is satisfied.",
+        "plainTextDescription": "Returns objects where every query is satisfied.",
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "BoundingBoxValue"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "topLeft": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "WithinBoundingBoxPoint"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "bottomRight": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "WithinBoundingBoxPoint"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "The top left and bottom right coordinate points that make up the bounding box.\n",
+        "plainTextDescription": "The top left and bottom right coordinate points that make up the bounding box.",
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "CenterPoint"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "center": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "CenterPointTypes"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "distance": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "Distance"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "The coordinate point to use as the center of the distance query.\n",
+        "plainTextDescription": "The coordinate point to use as the center of the distance query.",
+        "example": [{
+          "distance": {
+            "unit": "MILLIMETERS",
+            "value": 10.0
+          }
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "CenterPointTypes"
+      },
+      "type": {
+        "type": "union",
+        "union": {
+          "discriminator": "type",
+          "subTypes": {
+            "Point": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Geo",
+                    "localName": "GeoPoint"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ContainsAllTermsInOrderPrefixLastTerm"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "string",
+                  "string": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": ["foo bar"]
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field contains all of the terms in the order provided, \nbut they do have to be adjacent to each other.\nThe last term can be a partial prefix match.\n",
+        "plainTextDescription": "Returns objects where the specified field contains all of the terms in the order provided,\nbut they do have to be adjacent to each other.\nThe last term can be a partial prefix match.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": "foo bar"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ContainsAllTermsInOrderQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "string",
+                  "string": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": ["foo bar"]
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field contains all of the terms in the order provided,\nbut they do have to be adjacent to each other.\n",
+        "plainTextDescription": "Returns objects where the specified field contains all of the terms in the order provided,\nbut they do have to be adjacent to each other.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": "foo bar"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ContainsAllTermsQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "string",
+                  "string": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": ["foo bar"]
+              }
+            },
+            "fuzzy": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "FuzzyV2"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "SAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field contains all of the whitespace separated words in any\norder in the provided value. This query supports fuzzy matching.\n",
+        "plainTextDescription": "Returns objects where the specified field contains all of the whitespace separated words in any\norder in the provided value. This query supports fuzzy matching.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": "foo bar",
+          "fuzzy": true
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ContainsAnyTermQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "string",
+                  "string": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": ["foo bar"]
+              }
+            },
+            "fuzzy": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "FuzzyV2"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "SAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field contains any of the whitespace separated words in any \norder in the provided value. This query supports fuzzy matching.\n",
+        "plainTextDescription": "Returns objects where the specified field contains any of the whitespace separated words in any\norder in the provided value. This query supports fuzzy matching.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": "foo bar",
+          "fuzzy": true
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ContainsQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified array contains a value.",
+        "plainTextDescription": "Returns objects where the specified array contains a value.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": 42
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "DoesNotIntersectBoundingBoxQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "BoundingBoxValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field does not intersect the bounding box provided.\n",
+        "plainTextDescription": "Returns objects where the specified field does not intersect the bounding box provided.",
+        "example": [{
+          "field": "numberOfSeats"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "DoesNotIntersectPolygonQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PolygonValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field does not intersect the polygon provided.\n",
+        "plainTextDescription": "Returns objects where the specified field does not intersect the polygon provided.",
+        "example": [{
+          "field": "numberOfSeats"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "EqualsQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field is equal to a value.",
+        "plainTextDescription": "Returns objects where the specified field is equal to a value.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": 42
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "FuzzyV2"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "boolean",
+          "boolean": {}
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "description": "Setting fuzzy to `true` allows approximate matching in search queries that support it.",
+        "plainTextDescription": "Setting fuzzy to true allows approximate matching in search queries that support it.",
+        "example": [true]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "GtQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field is greater than a value.",
+        "plainTextDescription": "Returns objects where the specified field is greater than a value.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": 42
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "GteQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field is greater than or equal to a value.",
+        "plainTextDescription": "Returns objects where the specified field is greater than or equal to a value.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": 42
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "InQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "list",
+                "list": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyValue"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field equals any of the provided values.",
+        "plainTextDescription": "Returns objects where the specified field equals any of the provided values.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": [42]
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "IntersectsBoundingBoxQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "BoundingBoxValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field intersects the bounding box provided.\n",
+        "plainTextDescription": "Returns objects where the specified field intersects the bounding box provided.",
+        "example": [{
+          "field": "numberOfSeats"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "IntersectsPolygonQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PolygonValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field intersects the polygon provided.\n",
+        "plainTextDescription": "Returns objects where the specified field intersects the polygon provided.",
+        "example": [{
+          "field": "numberOfSeats"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "IsNullQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "boolean",
+                  "boolean": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": [false]
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects based on the existence of the specified field.",
+        "plainTextDescription": "Returns objects based on the existence of the specified field.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": false
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "LinkTypeApiName"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "string",
+          "string": {}
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "The name of the link type in the API. To find the API name for your Link Type, check the [Ontology Manager](/docs/foundry/ontology-manager/overview/).\n",
+        "plainTextDescription": "The name of the link type in the API. To find the API name for your Link Type, check the Ontology Manager.",
+        "example": ["arrivingFlights"]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "LtQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field is less than a value.",
+        "plainTextDescription": "Returns objects where the specified field is less than a value.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": 42
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "LteQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field is less than or equal to a value.",
+        "plainTextDescription": "Returns objects where the specified field is less than or equal to a value.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": 42
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "NotQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "SearchJsonQueryV2"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the query is not satisfied.",
+        "plainTextDescription": "Returns objects where the query is not satisfied.",
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectRid"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "rid",
+          "rid": {}
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "description": "The Resource Identifier (RID) for an ontology object instance.",
+        "plainTextDescription": "The Resource Identifier (RID) for an ontology object instance.",
+        "example": ["ri.phonograph2-objects.main.object.48668bf6-8878-48d2-b8f8-f0017593feb5"]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSet"
+      },
+      "type": {
+        "type": "union",
+        "union": {
+          "discriminator": "type",
+          "subTypes": {
+            "searchAround": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetSearchAroundType"
+                  }
+                }
+              }
+            },
+            "static": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetStaticType"
+                  }
+                }
+              }
+            },
+            "intersect": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetIntersectionType"
+                  }
+                }
+              }
+            },
+            "withProperties": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetWithPropertiesType"
+                  }
+                }
+              }
+            },
+            "subtract": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetSubtractType"
+                  }
+                }
+              }
+            },
+            "nearestNeighbors": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetNearestNeighborsType"
+                  }
+                }
+              }
+            },
+            "union": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetUnionType"
+                  }
+                }
+              }
+            },
+            "asType": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetAsTypeType"
+                  }
+                }
+              }
+            },
+            "methodInput": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetMethodInputType"
+                  }
+                }
+              }
+            },
+            "reference": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetReferenceType"
+                  }
+                }
+              }
+            },
+            "filter": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetFilterType"
+                  }
+                }
+              }
+            },
+            "interfaceBase": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetInterfaceBaseType"
+                  }
+                }
+              }
+            },
+            "asBaseObjectTypes": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetAsBaseObjectTypesType"
+                  }
+                }
+              }
+            },
+            "base": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetBaseType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Represents the definition of an `ObjectSet` in the ontology.",
+        "plainTextDescription": "Represents the definition of an ObjectSet in the ontology.",
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetAsBaseObjectTypesType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "objectSet": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSet"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetAsTypeType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "entityType": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "string",
+                  "string": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "description": "An object type or interface type API name.\n",
+                "plainTextDescription": "An object type or interface type API name.",
+                "example": []
+              }
+            },
+            "objectSet": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSet"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Casts an object set to a specified object type or interface type API name. Any object whose object type does \nnot match the object type provided or implement the interface type provided will be dropped from the resulting \nobject set. This is currently unsupported and an exception will be thrown if used.\n",
+        "plainTextDescription": "Casts an object set to a specified object type or interface type API name. Any object whose object type does\nnot match the object type provided or implement the interface type provided will be dropped from the resulting\nobject set. This is currently unsupported and an exception will be thrown if used.",
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetBaseType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "objectType": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "string",
+                  "string": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "description": "The API name of the object type.",
+                "plainTextDescription": "The API name of the object type.",
+                "example": ["exampleAircraft"]
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": [{
+          "objectType": "exampleAircraft"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetFilterType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "objectSet": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSet"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "where": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "SearchJsonQueryV2"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetInterfaceBaseType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "interfaceType": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "string",
+                  "string": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "description": "An object set with objects that implement the interface with the given interface API name. The objects in \nthe object set will only have properties that implement properties of the given interface. This is currently \nunsupported and an exception will be thrown if used.\n",
+                "plainTextDescription": "An object set with objects that implement the interface with the given interface API name. The objects in\nthe object set will only have properties that implement properties of the given interface. This is currently\nunsupported and an exception will be thrown if used.",
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetIntersectionType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "objectSets": {
+              "type": {
+                "type": "list",
+                "list": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "ObjectSet"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetMethodInputType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {}
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetNearestNeighborsType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {}
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetReferenceType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "reference": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSetRid"
+                  }
+                }
+              },
+              "safety": "SAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "example": [{
+          "reference": "ri.object-set..object-set.00f8412a-c29d-4063-a417-8052825285a5"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetRid"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "rid",
+          "rid": {}
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "description": "The Resource Identifier (RID) for an object set.",
+        "plainTextDescription": "The Resource Identifier (RID) for an object set.",
+        "example": ["ri.object-set..object-set.00f8412a-c29d-4063-a417-8052825285a5"]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetSearchAroundType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "objectSet": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ObjectSet"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "link": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "LinkTypeApiName"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": [{
+          "link": "arrivingFlights"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetStaticType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "objects": {
+              "type": {
+                "type": "list",
+                "list": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "ObjectRid"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "SAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "example": [{
+          "objects": ["ri.phonograph2-objects.main.object.48668bf6-8878-48d2-b8f8-f0017593feb5"]
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetSubtractType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "objectSets": {
+              "type": {
+                "type": "list",
+                "list": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "ObjectSet"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetUnionType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "objectSets": {
+              "type": {
+                "type": "list",
+                "list": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "ObjectSet"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectSetWithPropertiesType"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {}
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectTypeId"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "string",
+          "string": {}
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "The unique identifier (ID) for an object type. This can be viewed in [Ontology Manager](/docs/foundry/ontology-manager/overview/).",
+        "plainTextDescription": "The unique identifier (ID) for an object type. This can be viewed in Ontology Manager.",
+        "example": ["example-aircraft"]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "ObjectTypeRid"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "rid",
+          "rid": {}
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "description": "The unique Resource Identifier (RID) of an object type, useful for interacting with other Foundry APIs.\n",
+        "plainTextDescription": "The unique Resource Identifier (RID) of an object type, useful for interacting with other Foundry APIs.",
+        "example": ["ri.ontology.main.object-type.1d57a96a-4ef7-8594-8fca-01ccd4f90cce"]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "OntologyIdentifier"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "string",
+          "string": {}
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Either an ontology RID or an ontology API name.",
+        "plainTextDescription": "Either an ontology RID or an ontology API name.",
+        "example": ["example-ontology"]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "OrQueryV2"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "value": {
+              "type": {
+                "type": "list",
+                "list": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "SearchJsonQueryV2"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where at least 1 query is satisfied.",
+        "plainTextDescription": "Returns objects where at least 1 query is satisfied.",
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "PolygonValue"
+      },
+      "type": {
+        "type": "union",
+        "union": {
+          "discriminator": "type",
+          "subTypes": {
+            "Polygon": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Geo",
+                    "localName": "Polygon"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "PropertyApiName"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "string",
+          "string": {}
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "The name of the property in the API. To find the API name for your property, use the `Get object type`\nendpoint or check the [Ontology Manager](/docs/foundry/ontology-manager/overview/).\n",
+        "plainTextDescription": "The name of the property in the API. To find the API name for your property, use the Get object type\nendpoint or check the Ontology Manager.",
+        "example": ["numberOfSeats"]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "PropertyApiNameSelector"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "apiName": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyApiName"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "A property api name that references properties to query on.",
+        "plainTextDescription": "A property api name that references properties to query on.",
+        "example": [{
+          "apiName": "numberOfSeats"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "PropertyIdentifier"
+      },
+      "type": {
+        "type": "union",
+        "union": {
+          "discriminator": "type",
+          "subTypes": {
+            "property": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyApiNameSelector"
+                  }
+                }
+              }
+            },
+            "structField": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "StructFieldSelector"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "An identifier used to select properties or struct fields.",
+        "plainTextDescription": "An identifier used to select properties or struct fields.",
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "PropertyTypeRid"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "rid",
+          "rid": {}
+        }
+      },
+      "safety": "SAFE",
+      "documentation": {
+        "description": "The RID for a property type from an ontology object.",
+        "plainTextDescription": "The RID for a property type from an ontology object.",
+        "example": ["ri.ontology.main.property.7899aeb4-a389-4f2e-a0fd-e7193a4f6cb1"]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "PropertyValue"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "any",
+          "any": {}
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Represents the value of a property in the following format.\n\n| Type       | JSON encoding                                         | Example                                                                                            |\n|----------- |-------------------------------------------------------|----------------------------------------------------------------------------------------------------|\n| Array      | array                                                 | `[\"alpha\", \"bravo\", \"charlie\"]`                                                                    |\n| Attachment | JSON encoded `AttachmentProperty` object              | `{\"rid\":\"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e\"}`                       |\n| Boolean    | boolean                                               | `true`                                                                                             |\n| Byte       | number                                                | `31`                                                                                               |\n| CipherText | string                                                | `\"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER\"                                                                           |\n| Date       | ISO 8601 extended local date string                   | `\"2021-05-01\"`                                                                                     |\n| Decimal    | string                                                | `\"2.718281828\"`                                                                                    |\n| Double     | number                                                | `3.14159265`                                                                                       |\n| Float      | number                                                | `3.14159265`                                                                                       |\n| GeoPoint   | geojson                                               | `{\"type\":\"Point\",\"coordinates\":[102.0,0.5]}`                                                       |\n| GeoShape   | geojson                                               | `{\"type\":\"LineString\",\"coordinates\":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}`            |\n| Integer    | number                                                | `238940`                                                                                           |\n| Long       | string                                                | `\"58319870951433\"`                                                                                 |\n| Short      | number                                                | `8739`                                                                                             |\n| String     | string                                                | `\"Call me Ishmael\"`                                                                                |\n| Timestamp  | ISO 8601 extended offset date-time string in UTC zone | `\"2021-01-04T05:00:00Z\"`                                                                           |\nNote that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.\n",
+        "plainTextDescription": "Represents the value of a property in the following format.\n| Type       | JSON encoding                                         | Example                                                                                            |\n|----------- |-------------------------------------------------------|----------------------------------------------------------------------------------------------------|\n| Array      | array                                                 | [\"alpha\", \"bravo\", \"charlie\"]                                                                    |\n| Attachment | JSON encoded AttachmentProperty object              | {\"rid\":\"ri.blobster.main.attachment.2f944bae-5851-4204-8615-920c969a9f2e\"}                       |\n| Boolean    | boolean                                               | true                                                                                             |\n| Byte       | number                                                | 31                                                                                               |\n| CipherText | string                                                | \"CIPHER::ri.bellaso.main.cipher-channel.e414ab9e-b606-499a-a0e1-844fa296ba7e::unzjs3VifsTxuIpf1fH1CJ7OaPBr2bzMMdozPaZJtCii8vVG60yXIEmzoOJaEl9mfFFe::CIPHER\" | | Date | ISO 8601 extended local date string |\"2021-05-01\"| | Decimal | string |\"2.718281828\"| | Double | number |3.14159265| | Float | number |3.14159265| | GeoPoint | geojson |{\"type\":\"Point\",\"coordinates\":[102.0,0.5]}| | GeoShape | geojson |{\"type\":\"LineString\",\"coordinates\":[[102.0,0.0],[103.0,1.0],[104.0,0.0],[105.0,1.0]]}| | Integer | number |238940| | Long | string |\"58319870951433\"| | Short | number |8739| | String | string |\"Call me Ishmael\"| | Timestamp | ISO 8601 extended offset date-time string in UTC zone |\"2021-01-04T05:00:00Z\"`                                                                           |\nNote that for backwards compatibility, the Boolean, Byte, Double, Float, Integer, and Short types can also be encoded as JSON strings.",
+        "example": [42]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "SearchJsonQueryV2"
+      },
+      "type": {
+        "type": "union",
+        "union": {
+          "discriminator": "type",
+          "subTypes": {
+            "or": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "OrQueryV2"
+                  }
+                }
+              }
+            },
+            "in": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "InQuery"
+                  }
+                }
+              }
+            },
+            "doesNotIntersectPolygon": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "DoesNotIntersectPolygonQuery"
+                  }
+                }
+              }
+            },
+            "lt": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "LtQueryV2"
+                  }
+                }
+              }
+            },
+            "doesNotIntersectBoundingBox": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "DoesNotIntersectBoundingBoxQuery"
+                  }
+                }
+              }
+            },
+            "eq": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "EqualsQueryV2"
+                  }
+                }
+              }
+            },
+            "containsAllTerms": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ContainsAllTermsQuery"
+                  }
+                }
+              }
+            },
+            "gt": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "GtQueryV2"
+                  }
+                }
+              }
+            },
+            "withinDistanceOf": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "WithinDistanceOfQuery"
+                  }
+                }
+              }
+            },
+            "withinBoundingBox": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "WithinBoundingBoxQuery"
+                  }
+                }
+              }
+            },
+            "contains": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ContainsQueryV2"
+                  }
+                }
+              }
+            },
+            "not": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "NotQueryV2"
+                  }
+                }
+              }
+            },
+            "intersectsBoundingBox": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "IntersectsBoundingBoxQuery"
+                  }
+                }
+              }
+            },
+            "and": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "AndQueryV2"
+                  }
+                }
+              }
+            },
+            "isNull": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "IsNullQueryV2"
+                  }
+                }
+              }
+            },
+            "containsAllTermsInOrderPrefixLastTerm": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ContainsAllTermsInOrderPrefixLastTerm"
+                  }
+                }
+              }
+            },
+            "containsAnyTerm": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ContainsAnyTermQuery"
+                  }
+                }
+              }
+            },
+            "gte": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "GteQueryV2"
+                  }
+                }
+              }
+            },
+            "containsAllTermsInOrder": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "ContainsAllTermsInOrderQuery"
+                  }
+                }
+              }
+            },
+            "withinPolygon": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "WithinPolygonQuery"
+                  }
+                }
+              }
+            },
+            "intersectsPolygon": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "IntersectsPolygonQuery"
+                  }
+                }
+              }
+            },
+            "lte": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "LteQueryV2"
+                  }
+                }
+              }
+            },
+            "startsWith": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "StartsWithQuery"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "StartsWithQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "builtin",
+                "builtin": {
+                  "type": "string",
+                  "string": {}
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": ["foo"]
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field starts with the provided value.",
+        "plainTextDescription": "Returns objects where the specified field starts with the provided value.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": "foo"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "StructFieldApiName"
+      },
+      "type": {
+        "type": "builtin",
+        "builtin": {
+          "type": "string",
+          "string": {}
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "The name of a struct field in the Ontology.",
+        "plainTextDescription": "The name of a struct field in the Ontology.",
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "StructFieldSelector"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "propertyApiName": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PropertyApiName"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "structFieldApiName": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "StructFieldApiName"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "A combination of a struct property api name and a struct field api name. This is used to select struct fields \nto query on. Note that you can still select struct properties with only a 'PropertyApiNameSelector'; the queries \nwill then become 'OR' queries across the fields of the struct property.\n",
+        "plainTextDescription": "A combination of a struct property api name and a struct field api name. This is used to select struct fields\nto query on. Note that you can still select struct properties with only a 'PropertyApiNameSelector'; the queries\nwill then become 'OR' queries across the fields of the struct property.",
+        "example": [{
+          "propertyApiName": "numberOfSeats"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "WithinBoundingBoxPoint"
+      },
+      "type": {
+        "type": "union",
+        "union": {
+          "discriminator": "type",
+          "subTypes": {
+            "Point": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Geo",
+                    "localName": "GeoPoint"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "example": []
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "WithinBoundingBoxQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "BoundingBoxValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field contains a point within the bounding box provided.\n",
+        "plainTextDescription": "Returns objects where the specified field contains a point within the bounding box provided.",
+        "example": [{
+          "field": "numberOfSeats"
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "WithinDistanceOfQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "CenterPoint"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field contains a point within the distance provided of the center point.\n",
+        "plainTextDescription": "Returns objects where the specified field contains a point within the distance provided of the center point.",
+        "example": [{
+          "field": "numberOfSeats",
+          "value": {
+            "distance": {
+              "unit": "MILLIMETERS",
+              "value": 10.0
+            }
+          }
+        }]
+      }
+    }, {
+      "locator": {
+        "namespaceName": "Core",
+        "localName": "WithinPolygonQuery"
+      },
+      "type": {
+        "type": "object",
+        "object": {
+          "properties": {
+            "field": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyApiName"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "propertyIdentifier": {
+              "type": {
+                "type": "optional",
+                "optional": {
+                  "subType": {
+                    "type": "reference",
+                    "reference": {
+                      "locator": {
+                        "namespaceName": "Core",
+                        "localName": "PropertyIdentifier"
+                      }
+                    }
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            },
+            "value": {
+              "type": {
+                "type": "reference",
+                "reference": {
+                  "locator": {
+                    "namespaceName": "Core",
+                    "localName": "PolygonValue"
+                  }
+                }
+              },
+              "safety": "UNSAFE",
+              "documentation": {
+                "example": []
+              }
+            }
+          }
+        }
+      },
+      "safety": "UNSAFE",
+      "documentation": {
+        "description": "Returns objects where the specified field contains a point within the polygon provided.\n",
+        "plainTextDescription": "Returns objects where the specified field contains a point within the polygon provided.",
+        "example": [{
+          "field": "numberOfSeats"
+        }]
+      }
+    }],
+    "errors": []
+  }]
+}
