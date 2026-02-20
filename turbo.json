@@ -1,0 +1,208 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "stream",
+  "tasks": {
+    "codegen": {
+      "outputLogs": "new-only"
+    }, // empty for overriding
+    "fix-lint": {
+      "cache": false
+    },
+
+    "lint": {
+      "outputLogs": "new-only",
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        ".eslintrc.cjs",
+        "tsconfig.json"
+      ],
+      "outputs": [],
+      "dependsOn": ["//#global-eslint-config", "//#dprint"]
+    },
+
+    /* Psuedo task to let us depend on dprint config */
+    "//#dprint": {
+      "outputLogs": "new-only",
+      "inputs": ["dprint.json"]
+    },
+
+    "check-attw": {
+      "outputLogs": "new-only",
+      "dependsOn": ["@osdk/monorepo.tool.attw#transpile", "transpile", "typecheck"],
+      "inputs": ["build/{esm,cjs,browser}", "package.json"]
+    },
+
+    "check-spelling": {
+      "outputLogs": "new-only",
+      "inputs": ["**/*.{ts,tsx,cts,mts,md,json,js,mjs,cjs}"]
+    },
+
+    /* Psuedo task to depend on the script contents */
+    "//#babel-config": {
+      "inputs": ["babel.config.mjs"]
+    },
+
+    "//#global-eslint-config": {
+      "inputs": ["eslint.config.mjs"]
+    },
+
+    "clean": {
+      "cache": false
+    },
+
+    "@osdk/e2e.generated.1.1.x#typecheck": {
+      "outputLogs": "new-only",
+      "inputs": [
+        "bin/**",
+        "src/**",
+        "src/**/*.{mts,cts,ts,tsx}",
+        "tsconfig.json",
+        "typecheck.sh",
+        "tsconfig.cjs.json",
+        "*.d.ts"
+      ],
+      "outputs": [
+        "build/{esm,cjs,browser}/**/*.{ts,cjs,ts.map,cts.map}"
+      ],
+      "dependsOn": [
+        "@osdk/monorepo.tsconfig#typecheck",
+        "@osdk/monorepo.tsup#typecheck",
+        "^typecheck",
+        "^transpile",
+        "codegen"
+      ]
+    },
+
+    "@osdk/e2e.generated.1.1.x#transpile": {
+      "outputLogs": "new-only",
+      "dependsOn": ["@osdk/monorepo.tsup#typecheck", "@osdk/monorepo.tsconfig#typecheck", "^transpile", "codegen"],
+      "inputs": ["bin/**", "src/**", "tsup.config.js", "tsconfig.json", "tsconfig.cjs.json", "transpile.sh"],
+      "outputs": ["dist/**", "lib/**", "build/**/*.{js,cjs,js.map,cjs.map}"]
+    },
+
+    // left around for muscle memory
+    "typecheck": {
+      "dependsOn": [
+        "transpile"
+      ]
+    },
+
+    "@osdk/monorepo.tsup#typecheck": {
+      "outputLogs": "new-only",
+      "inputs": ["tsup.mjs"]
+    },
+
+    "check-api": {
+      "outputLogs": "new-only",
+      "inputs": ["api-extractor.json", "build/esm/**/*", "api-extractor.json"],
+      "outputs": ["etc/*.report.api.md", "build/api-extractor/**/*"],
+      "dependsOn": ["typecheck", "@osdk/monorepo.api-extractor#check-api"]
+    },
+
+    // Doesn't do anything, just a virtual task to depend on the base.json file
+    "@osdk/monorepo.api-extractor#check-api": {
+      "inputs": ["base.json"]
+    },
+
+    "api-docs": {
+      "outputLogs": "new-only",
+      "inputs": ["temp/**/*"],
+      "outputs": ["api-docs/**/*"],
+      "dependsOn": ["check-api"]
+    },
+
+    "postVersioning": {
+    },
+
+    "@osdk/version-updater#postVersioning": {
+      "inputs": [
+        "scripts/postVersioning.mjs",
+        "../client/package.json",
+        "../client/src/Client.ts",
+        "../generator/src/v2.0/generateMetadata.ts"
+      ],
+      "outputs": ["../client/src/Client.ts", "../generator/src/v2.0/generateMetadata.ts"]
+    },
+
+    "@osdk/monorepo.tsconfig#typecheck": {
+      "outputLogs": "new-only",
+      "inputs": ["tsconfig.base.json"]
+    },
+
+    "build": {
+      "dependsOn": ["transpile", "typecheck"]
+    },
+
+    "@osdk/e2e.sandbox.todoapp#build": {
+      "inputs": ["src/**/*", "vite.config.ts", "postcss.config.js", "tailwind.config.js"],
+      "dependsOn": ["transpile", "typecheck"]
+    },
+
+    "@osdk/examples.next-static-export#build": {
+      "dependsOn": ["transpile", "typecheck"],
+      "inputs": ["../../google-font-mocked-response.js"]
+    },
+    "transpile": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "//#babel-config",
+        "@osdk/monorepo.tsconfig#typecheck",
+        "@osdk/monorepo.tsup#typecheck",
+        "^typecheck",
+        "codegen",
+        "@osdk/monorepo.tsup#typecheck",
+        "@osdk/monorepo.tsconfig#typecheck",
+        "^transpile",
+        "codegen"
+      ],
+      "inputs": [
+        "bin/**",
+        "src/**",
+        "tsup.config.js",
+        "tsconfig.json",
+        "tsconfig.cjs.json"
+      ],
+      "outputs": [
+        "dist/**",
+        "lib/**",
+        "build/{esm,cjs,browser}/*"
+      ]
+    },
+
+    "test": {
+      "outputLogs": "new-only",
+      "env": ["FORCE_COLOR"],
+      "dependsOn": ["transpile", "typecheck"]
+    },
+
+    "//#check-mrl": {
+      "inputs": [
+        "package.json",
+        ".monorepolint.config.mjs",
+        "packages/*/package.json",
+        "packages/*/tsconfig.json",
+        "examples/*/*/package.json",
+        "examples/*/*/tsconfig.json",
+        "examples-extra/*/*/package.json",
+        "examples-extra/*/*/tsconfig.json",
+        "templates/*"
+      ]
+    },
+
+    "check": {
+      "dependsOn": [
+        "//#check-mrl",
+        "lint",
+        "transpile",
+        "typecheck",
+        "test",
+        "check-attw",
+        "check-api",
+        "check-spelling"
+      ]
+    }
+  },
+
+  "globalDependencies": ["config/tsconfig.base.json"]
+}
