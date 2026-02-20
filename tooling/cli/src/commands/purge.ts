@@ -6,7 +6,7 @@
  */
 
 import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
-import { FileSystem, Path } from "effect";
+import { FileSystem, MutableHashSet, Path } from "effect";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { Command, Flag } from "effect/unstable/cli";
@@ -63,20 +63,20 @@ const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: bool
   const path = yield* Path.Path;
   const workspaceDirsByName = yield* resolveWorkspaceDirs(rootDir);
 
-  const targets = new Set<string>();
+  const targets = MutableHashSet.empty<string>();
 
   for (const artifact of ROOT_ARTIFACTS) {
-    targets.add(path.join(rootDir, artifact));
+    MutableHashSet.add(targets, path.join(rootDir, artifact));
   }
   if (removeLock) {
-    targets.add(path.join(rootDir, ROOT_LOCK_ARTIFACT));
+    MutableHashSet.add(targets, path.join(rootDir, ROOT_LOCK_ARTIFACT));
   }
 
   let workspaceCount = 0;
   for (const [, workspaceDir] of workspaceDirsByName) {
     workspaceCount += 1;
     for (const artifact of WORKSPACE_ARTIFACTS) {
-      targets.add(path.join(workspaceDir, artifact));
+      MutableHashSet.add(targets, path.join(workspaceDir, artifact));
     }
   }
 
