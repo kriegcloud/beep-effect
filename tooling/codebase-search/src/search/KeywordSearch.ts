@@ -7,11 +7,11 @@
  * @module
  */
 
-import type { IndexingError } from "@beep/codebase-search/errors";
-import { Bm25Writer } from "@beep/codebase-search/indexer/Bm25Writer";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
 import * as ServiceMap from "effect/ServiceMap";
+import type { IndexingError } from "../errors.js";
+import { Bm25Writer } from "../indexer/Bm25Writer.js";
 
 // ---------------------------------------------------------------------------
 // Types

@@ -5,14 +5,15 @@
  * @module
  */
 
-import { Effect, FileSystem, Path } from "effect";
-import { pipe } from "effect/Function";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { type IndexingError, IndexNotFoundError } from "../errors.js";
+import { IndexingError, IndexNotFoundError } from "../errors.js";
 import { Pipeline, type PipelineConfig } from "../indexer/Pipeline.js";
 import { McpErrorResponseSchema } from "./contracts.js";
-import { type FormattedReindexResult, formatReindexResult } from "./formatters.js";
+import { formatReindexResult } from "./formatters.js";
 
 /**
  * Reindex run statistics.
@@ -77,7 +78,7 @@ export const handleReindex: (params: {
   readonly indexPath: string;
   readonly mode?: string | undefined;
   readonly package?: string | undefined;
-}) => Effect.Effect<ReindexSuccess, IndexingError | IndexNotFoundError, Pipeline | FileSystem.FileSystem | Path.Path> =
+}) => Effect.Effect<S.Schema.Type<typeof ReindexSuccessSchema>, IndexingError | IndexNotFoundError, Pipeline> =
   Effect.fn(function* (params: {
     readonly rootDir: string;
     readonly indexPath: string;
@@ -85,24 +86,17 @@ export const handleReindex: (params: {
     readonly package?: string | undefined;
   }) {
     const pipeline = yield* Pipeline;
-    const fs = yield* FileSystem.FileSystem;
-    const pathSvc = yield* Path.Path;
 
     const mode: "full" | "incremental" = params.mode === "full" ? "full" : "incremental";
 
     if (mode === "incremental") {
-      const indexMetaPath = pathSvc.join(params.indexPath, "index-meta.json");
-      const exists = yield* pipe(
-        fs.exists(indexMetaPath),
-        Effect.orElseSucceed(() => false)
-      );
+      const indexMetaPath = join(params.indexPath, "index-meta.json");
+      const exists = yield* Effect.sync(() => existsSync(indexMetaPath)).pipe(Effect.orElseSucceed(() => false));
       if (!exists) {
-        return yield* Effect.fail(
-          new IndexNotFoundError({
-            message: `No index found at ${indexMetaPath}.`,
-            indexPath: params.indexPath,
-          })
-        );
+        return yield* new IndexNotFoundError({
+          message: `No index found at ${indexMetaPath}.`,
+          indexPath: params.indexPath,
+        });
       }
     }
 
@@ -115,13 +109,12 @@ export const handleReindex: (params: {
 
     const stats = yield* pipeline.run(config);
 
-    return yield* pipe(
-      S.decodeUnknownEffect(ReindexSuccessSchema)(formatReindexResult(mode, stats) satisfies FormattedReindexResult),
+    return yield* S.decodeUnknownEffect(ReindexSuccessSchema)(formatReindexResult(mode, stats)).pipe(
       Effect.mapError(
         (error) =>
-          new IndexNotFoundError({
+          new IndexingError({
             message: `Invalid reindex response payload: ${String(error)}`,
-            indexPath: params.indexPath,
+            phase: "response-encoding",
           })
       )
     );
@@ -149,5 +142,5 @@ export const ReindexTool = Tool.make("reindex", {
   }),
   success: S.Unknown,
   failure: McpErrorResponseSchema,
-  dependencies: [Pipeline, FileSystem.FileSystem, Path.Path],
+  dependencies: [Pipeline],
 });

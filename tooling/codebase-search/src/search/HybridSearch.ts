@@ -9,16 +9,16 @@
  * @module
  */
 
-import { IndexingError } from "@beep/codebase-search/errors";
-import { Bm25Writer } from "@beep/codebase-search/indexer/Bm25Writer";
-import { EmbeddingService } from "@beep/codebase-search/indexer/EmbeddingService";
-import { LanceDbWriter } from "@beep/codebase-search/indexer/LanceDbWriter";
 import { Effect, Layer, Order } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as ServiceMap from "effect/ServiceMap";
+import { IndexingError } from "../errors.js";
+import { Bm25Writer } from "../indexer/Bm25Writer.js";
+import { EmbeddingService } from "../indexer/EmbeddingService.js";
+import { LanceDbWriter } from "../indexer/LanceDbWriter.js";
 
 // ---------------------------------------------------------------------------
 // Constants

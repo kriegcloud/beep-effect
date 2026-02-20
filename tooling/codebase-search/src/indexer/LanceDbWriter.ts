@@ -481,7 +481,7 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
               .query()
               .where(`id = '${escapeSqlString(symbolId)}'`)
               .limit(1)
-              .select(SELECT_COLUMNS)
+              .select([...SELECT_COLUMNS])
               .toArray(),
           catch: (error) =>
             new IndexingError({
@@ -524,7 +524,7 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
             if (options?.limit !== undefined) {
               query = query.limit(options.limit);
             }
-            return query.select(SELECT_COLUMNS).toArray();
+            return query.select([...SELECT_COLUMNS]).toArray();
           },
           catch: (error) =>
             new IndexingError({

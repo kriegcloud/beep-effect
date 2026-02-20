@@ -18,8 +18,7 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as ServiceMap from "effect/ServiceMap";
 import { type EmbeddingModelError, IndexingError, SymbolNotFoundError } from "../errors.js";
-import { EmbeddingService } from "../indexer/EmbeddingService.js";
-import { LanceDbWriter, type StoredSymbolRecord } from "../indexer/LanceDbWriter.js";
+import { EmbeddingService, LanceDbWriter, type StoredSymbolRecord } from "../indexer/index.js";
 
 // ---------------------------------------------------------------------------
 // Types

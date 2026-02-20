@@ -13,7 +13,7 @@
 import { BunStdio } from "@effect/platform-bun";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
-import { Layer } from "effect";
+import { Effect, Layer } from "effect";
 import { Bm25WriterLive } from "./indexer/Bm25Writer.js";
 import { EmbeddingServiceLive } from "./indexer/EmbeddingService.js";
 import { LanceDbWriterLive } from "./indexer/LanceDbWriter.js";
@@ -62,4 +62,7 @@ const McpLayer = makeServerLayer({ rootDir, indexPath }).pipe(
 // Run
 // ---------------------------------------------------------------------------
 
-Layer.launch(McpLayer).pipe(BunRuntime.runMain);
+Layer.launch(McpLayer).pipe(
+  Effect.orElseSucceed(() => undefined),
+  BunRuntime.runMain
+);

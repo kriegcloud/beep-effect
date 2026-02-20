@@ -72,6 +72,18 @@ export type {
   /**
    * @since 0.0.0
    */
+  ListSymbolsOptions,
+  /**
+   * @since 0.0.0
+   */
+  StoredSymbolMetadata,
+  /**
+   * @since 0.0.0
+   */
+  StoredSymbolRecord,
+  /**
+   * @since 0.0.0
+   */
   SymbolWithVector,
   /**
    * @since 0.0.0

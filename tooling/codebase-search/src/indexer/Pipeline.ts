@@ -7,18 +7,6 @@
  * @module
  */
 
-import { IndexingError } from "@beep/codebase-search/errors";
-import type { ScanResult } from "@beep/codebase-search/extractor/FileScanner";
-import { computeFileHashes, saveFileHashes, scanFiles } from "@beep/codebase-search/extractor/FileScanner";
-import {
-  assembleSymbols,
-  resolveImports,
-  resolveLayerContractErrors,
-  resolveModuleName,
-} from "@beep/codebase-search/extractor/SymbolAssembler";
-import type { IndexedSymbol } from "@beep/codebase-search/IndexedSymbol";
-import { IndexMeta } from "@beep/codebase-search/IndexedSymbol";
-import { Bm25Writer } from "@beep/codebase-search/indexer/Bm25Writer";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
@@ -26,6 +14,18 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as ServiceMap from "effect/ServiceMap";
 import { Project } from "ts-morph";
+import { IndexingError } from "../errors.js";
+import type { ScanResult } from "../extractor/FileScanner.js";
+import { computeFileHashes, saveFileHashes, scanFiles } from "../extractor/FileScanner.js";
+import {
+  assembleSymbols,
+  resolveImports,
+  resolveLayerContractErrors,
+  resolveModuleName,
+} from "../extractor/SymbolAssembler.js";
+import type { IndexedSymbol } from "../IndexedSymbol.js";
+import { IndexMeta } from "../IndexedSymbol.js";
+import { Bm25Writer } from "./Bm25Writer.js";
 import { EmbeddingService } from "./EmbeddingService.js";
 import type { SymbolWithVector } from "./LanceDbWriter.js";
 import { LanceDbWriter } from "./LanceDbWriter.js";

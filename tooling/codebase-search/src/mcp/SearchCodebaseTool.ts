@@ -12,8 +12,8 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import type { EmbeddingModelError, IndexingError, IndexNotFoundError, SearchTimeoutError } from "../errors.js";
-import { LanceDbWriter } from "../indexer/LanceDbWriter.js";
-import { HybridSearch, type HybridSearchConfig } from "../search/HybridSearch.js";
+import { LanceDbWriter, type StoredSymbolRecord } from "../indexer/index.js";
+import { HybridSearch, type HybridSearchConfig } from "../search/index.js";
 import { McpErrorResponseSchema } from "./contracts.js";
 import { type FormattedSearchResult, formatSearchResults, type RawSearchResult } from "./formatters.js";
 
@@ -56,7 +56,9 @@ export const handleSearchCodebase: (params: {
 
   const hybridResults = yield* hybridSearch.search(config);
   const ids = A.map(hybridResults, (result) => result.symbolId);
-  const symbolRows = yield* lanceDb.list({ ids });
+  const symbolRows: ReadonlyArray<StoredSymbolRecord> = A.isReadonlyArrayNonEmpty(ids)
+    ? yield* lanceDb.list({ ids })
+    : A.empty<StoredSymbolRecord>();
   const rowById = new Map<string, (typeof symbolRows)[number]>();
 
   for (const row of symbolRows) {

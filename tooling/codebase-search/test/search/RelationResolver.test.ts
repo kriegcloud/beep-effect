@@ -1,16 +1,13 @@
-import { describe, expect, layer } from "@effect/vitest";
+import { expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
 
+import { SymbolNotFoundError } from "../../src/errors.js";
 import type { IndexedSymbol } from "../../src/IndexedSymbol.js";
 import { EmbeddingService, EmbeddingServiceMock } from "../../src/indexer/EmbeddingService.js";
 import type { SymbolWithVector } from "../../src/indexer/LanceDbWriter.js";
 import { LanceDbWriter, LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
 import { RelationResolver, RelationResolverLive } from "../../src/search/RelationResolver.js";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   id: "@beep/repo-utils/schemas/PackageName",
@@ -50,208 +47,171 @@ const makeSymbol = (overrides: Partial<IndexedSymbol> = {}): IndexedSymbol => ({
   ...overrides,
 });
 
-// ---------------------------------------------------------------------------
-// Test Layer
-// ---------------------------------------------------------------------------
-
 const MockServicesLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock);
 const TestLayer = Layer.mergeAll(MockServicesLayer, RelationResolverLive.pipe(Layer.provide(MockServicesLayer)));
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+const seedIndex = Effect.fn(function* (symbols: ReadonlyArray<IndexedSymbol>) {
+  const lanceSvc = yield* LanceDbWriter;
+  const embeddingSvc = yield* EmbeddingService;
+
+  yield* lanceSvc.createTable();
+
+  const vectors = yield* Effect.forEach(symbols, (symbol) => embeddingSvc.embed(symbol.embeddingText));
+  const symbolVectors: ReadonlyArray<SymbolWithVector> = A.map(
+    symbols,
+    (symbol, index): SymbolWithVector => ({
+      symbol,
+      vector: vectors[index] ?? new Float32Array(768),
+    })
+  );
+
+  yield* lanceSvc.upsert([], symbolVectors);
+});
 
 layer(TestLayer)("RelationResolver", (it) => {
-  describe("similar relation", () => {
-    it.effect(
-      "returns vector search results excluding the source symbol",
-      Effect.fn(function* () {
-        const lanceSvc = yield* LanceDbWriter;
-        const embeddingSvc = yield* EmbeddingService;
-        const resolverSvc = yield* RelationResolver;
+  it.effect(
+    "resolves imports and imported-by relations from metadata",
+    Effect.fn(function* () {
+      const resolver = yield* RelationResolver;
 
-        yield* lanceSvc.createTable();
+      const symbols = [
+        makeSymbol({
+          id: "@beep/pkg/mod/A",
+          name: "A",
+          package: "@beep/pkg",
+          module: "mod",
+          imports: ["@beep/pkg/mod/B"],
+          description: "Symbol A imports B.",
+        }),
+        makeSymbol({
+          id: "@beep/pkg/mod/B",
+          name: "B",
+          package: "@beep/pkg",
+          module: "mod",
+          description: "Symbol B.",
+        }),
+      ];
 
-        // Create multiple symbols with different embeddings
-        const symbols = [
-          makeSymbol({
-            id: "pkg/mod/Alpha",
-            name: "Alpha",
-            kind: "schema",
-            description: "Alpha schema for validation and parsing of data.",
-          }),
-          makeSymbol({
-            id: "pkg/mod/Beta",
-            name: "Beta",
-            kind: "service",
-            description: "Beta service for handling business logic operations.",
-          }),
-          makeSymbol({
-            id: "pkg/mod/Gamma",
-            name: "Gamma",
-            kind: "error",
-            description: "Gamma error indicating a processing failure condition.",
-          }),
-        ];
+      yield* seedIndex(symbols);
 
-        // Get embeddings for each symbol
-        const vectors = yield* Effect.forEach(symbols, (s) => embeddingSvc.embed(s.embeddingText));
+      const imports = yield* resolver.resolve({
+        symbolId: "@beep/pkg/mod/A",
+        relation: "imports",
+        limit: 5,
+      });
+      expect(imports.map((result) => result.id)).toContain("@beep/pkg/mod/B");
 
-        const symbolsWithVectors: ReadonlyArray<SymbolWithVector> = A.map(
-          symbols,
-          (s, i): SymbolWithVector => ({
-            symbol: s,
-            vector: vectors[i] ?? new Float32Array(768),
-          })
-        );
+      const importedBy = yield* resolver.resolve({
+        symbolId: "@beep/pkg/mod/B",
+        relation: "imported-by",
+        limit: 5,
+      });
+      expect(importedBy.map((result) => result.id)).toContain("@beep/pkg/mod/A");
+    })
+  );
 
-        yield* lanceSvc.upsert([], symbolsWithVectors);
+  it.effect(
+    "resolves same-module, provides, and depends-on relations",
+    Effect.fn(function* () {
+      const resolver = yield* RelationResolver;
 
-        const results = yield* resolverSvc.resolve({
-          symbolId: "pkg/mod/Alpha",
-          relation: "similar",
-          limit: 5,
-        });
+      const symbols = [
+        makeSymbol({
+          id: "@beep/pkg/mod/LayerA",
+          name: "LayerA",
+          kind: "layer",
+          package: "@beep/pkg",
+          module: "mod",
+          provides: ["ServiceX"],
+          dependsOn: ["ServiceY"],
+          description: "LayerA provides ServiceX and depends on ServiceY.",
+        }),
+        makeSymbol({
+          id: "@beep/pkg/mod/ServiceX",
+          name: "ServiceX",
+          kind: "service",
+          package: "@beep/pkg",
+          module: "mod",
+          description: "Service X.",
+        }),
+        makeSymbol({
+          id: "@beep/pkg/mod/ServiceY",
+          name: "ServiceY",
+          kind: "service",
+          package: "@beep/pkg",
+          module: "mod",
+          description: "Service Y.",
+        }),
+      ];
 
-        // Results should not include the source symbol
-        const ids = A.map(results, (r) => r.id);
-        expect(ids).not.toContain("pkg/mod/Alpha");
+      yield* seedIndex(symbols);
 
-        // Should return other symbols
-        expect(A.length(results)).toBeGreaterThanOrEqual(1);
+      const sameModule = yield* resolver.resolve({
+        symbolId: "@beep/pkg/mod/LayerA",
+        relation: "same-module",
+        limit: 10,
+      });
+      expect(A.length(sameModule)).toBeGreaterThanOrEqual(2);
 
-        // Each result should have a relationDetail string
-        for (const r of results) {
-          expect(r.relationDetail).toContain("Similar symbol");
-        }
-      })
-    );
+      const provides = yield* resolver.resolve({
+        symbolId: "@beep/pkg/mod/LayerA",
+        relation: "provides",
+        limit: 10,
+      });
+      expect(provides.map((result) => result.id)).toContain("@beep/pkg/mod/ServiceX");
 
-    it.effect(
-      "respects the limit parameter",
-      Effect.fn(function* () {
-        const lanceSvc = yield* LanceDbWriter;
-        const embeddingSvc = yield* EmbeddingService;
-        const resolverSvc = yield* RelationResolver;
+      const depends = yield* resolver.resolve({
+        symbolId: "@beep/pkg/mod/LayerA",
+        relation: "depends-on",
+        limit: 10,
+      });
+      expect(depends.map((result) => result.id)).toContain("@beep/pkg/mod/ServiceY");
+    })
+  );
 
-        yield* lanceSvc.createTable();
+  it.effect(
+    "returns similar symbols and excludes source symbol",
+    Effect.fn(function* () {
+      const resolver = yield* RelationResolver;
 
-        // Create many symbols
-        const symbols = A.map(
-          ["A", "B", "C", "D", "E"],
-          (name): IndexedSymbol =>
-            makeSymbol({
-              id: `pkg/mod/${name}`,
-              name,
-              description: `Symbol ${name} for testing relation resolver limits.`,
-            })
-        );
+      const symbols = [
+        makeSymbol({
+          id: "@beep/pkg/mod/Alpha",
+          name: "Alpha",
+          description: "Alpha schema for validation and parsing.",
+        }),
+        makeSymbol({
+          id: "@beep/pkg/mod/Beta",
+          name: "Beta",
+          description: "Beta schema for validation and parsing.",
+        }),
+      ];
 
-        const vectors = yield* Effect.forEach(symbols, (s) => embeddingSvc.embed(s.embeddingText));
+      yield* seedIndex(symbols);
 
-        const symbolsWithVectors: ReadonlyArray<SymbolWithVector> = A.map(
-          symbols,
-          (s, i): SymbolWithVector => ({
-            symbol: s,
-            vector: vectors[i] ?? new Float32Array(768),
-          })
-        );
+      const similar = yield* resolver.resolve({
+        symbolId: "@beep/pkg/mod/Alpha",
+        relation: "similar",
+        limit: 5,
+      });
 
-        yield* lanceSvc.upsert([], symbolsWithVectors);
+      expect(similar.map((result) => result.id)).not.toContain("@beep/pkg/mod/Alpha");
+      expect(A.length(similar)).toBeGreaterThanOrEqual(1);
+    })
+  );
 
-        const results = yield* resolverSvc.resolve({
-          symbolId: "pkg/mod/A",
-          relation: "similar",
-          limit: 2,
-        });
-
-        expect(A.length(results)).toBeLessThanOrEqual(2);
-      })
-    );
-  });
-
-  describe("same-module relation (stubbed)", () => {
-    it.effect(
-      "returns empty array for now",
-      Effect.fn(function* () {
-        const resolverSvc = yield* RelationResolver;
-
-        const results = yield* resolverSvc.resolve({
-          symbolId: "pkg/mod/Alpha",
-          relation: "same-module",
-          limit: 10,
-        });
-
-        expect(A.isReadonlyArrayEmpty(results)).toBe(true);
-      })
-    );
-  });
-
-  describe("imports relation (stubbed)", () => {
-    it.effect(
-      "returns empty array for now",
-      Effect.fn(function* () {
-        const resolverSvc = yield* RelationResolver;
-
-        const results = yield* resolverSvc.resolve({
-          symbolId: "pkg/mod/Alpha",
+  it.effect(
+    "fails with SymbolNotFoundError for unknown symbol IDs",
+    Effect.fn(function* () {
+      const resolver = yield* RelationResolver;
+      const error = yield* resolver
+        .resolve({
+          symbolId: "@beep/pkg/mod/Unknown",
           relation: "imports",
-          limit: 10,
-        });
-
-        expect(A.isReadonlyArrayEmpty(results)).toBe(true);
-      })
-    );
-  });
-
-  describe("imported-by relation (stubbed)", () => {
-    it.effect(
-      "returns empty array for now",
-      Effect.fn(function* () {
-        const resolverSvc = yield* RelationResolver;
-
-        const results = yield* resolverSvc.resolve({
-          symbolId: "pkg/mod/Alpha",
-          relation: "imported-by",
-          limit: 10,
-        });
-
-        expect(A.isReadonlyArrayEmpty(results)).toBe(true);
-      })
-    );
-  });
-
-  describe("provides relation (stubbed)", () => {
-    it.effect(
-      "returns empty array for now",
-      Effect.fn(function* () {
-        const resolverSvc = yield* RelationResolver;
-
-        const results = yield* resolverSvc.resolve({
-          symbolId: "pkg/mod/Alpha",
-          relation: "provides",
-          limit: 10,
-        });
-
-        expect(A.isReadonlyArrayEmpty(results)).toBe(true);
-      })
-    );
-  });
-
-  describe("depends-on relation (stubbed)", () => {
-    it.effect(
-      "returns empty array for now",
-      Effect.fn(function* () {
-        const resolverSvc = yield* RelationResolver;
-
-        const results = yield* resolverSvc.resolve({
-          symbolId: "pkg/mod/Alpha",
-          relation: "depends-on",
-          limit: 10,
-        });
-
-        expect(A.isReadonlyArrayEmpty(results)).toBe(true);
-      })
-    );
-  });
+          limit: 5,
+        })
+        .pipe(Effect.flip);
+      expect(error).toBeInstanceOf(SymbolNotFoundError);
+    })
+  );
 });

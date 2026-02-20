@@ -12,8 +12,8 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import { type IndexingError, SymbolNotFoundError } from "../errors.js";
-import { LanceDbWriter } from "../indexer/LanceDbWriter.js";
-import { RelationResolver, type RelationResolverConfig, type RelationType } from "../search/RelationResolver.js";
+import { LanceDbWriter } from "../indexer/index.js";
+import { RelationResolver, type RelationResolverConfig, type RelationType } from "../search/index.js";
 import { McpErrorResponseSchema } from "./contracts.js";
 import { type FormattedRelatedResult, formatRelatedResults } from "./formatters.js";
 
@@ -71,7 +71,7 @@ export const handleFindRelated: (params: {
                   symbolId: params.symbolId,
                 })
               ),
-            onSome: (row) => Effect.succeed(row),
+            onSome: Effect.succeed,
           })
         )
       )

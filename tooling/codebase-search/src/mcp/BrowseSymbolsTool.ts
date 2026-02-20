@@ -10,7 +10,7 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import type { IndexingError } from "../errors.js";
-import { LanceDbWriter } from "../indexer/LanceDbWriter.js";
+import { LanceDbWriter } from "../indexer/index.js";
 import { McpErrorResponseSchema } from "./contracts.js";
 import { type BrowseItem, type FormattedBrowseResult, formatBrowseResult } from "./formatters.js";
 
