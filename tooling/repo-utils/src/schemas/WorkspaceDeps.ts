@@ -50,6 +50,8 @@ export interface WorkspaceDeps {
 /**
  * Create an empty WorkspaceDeps for a given package name.
  *
+ * @param packageName Package name to initialize.
+ * @returns Empty dependency structure for the package.
  * @since 0.0.0
  * @category constructors
  */

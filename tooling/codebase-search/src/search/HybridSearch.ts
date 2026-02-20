@@ -16,9 +16,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as ServiceMap from "effect/ServiceMap";
 import { IndexingError } from "../errors.js";
-import { Bm25Writer } from "../indexer/Bm25Writer.js";
-import { EmbeddingService } from "../indexer/EmbeddingService.js";
-import { LanceDbWriter } from "../indexer/LanceDbWriter.js";
+import { Bm25Writer, EmbeddingService, LanceDbWriter } from "../indexer/index.js";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -96,8 +94,12 @@ interface RrfAccumulator {
  *
  * Scores are normalized to the 0-1 range by dividing by the maximum score.
  *
+ * @param vectorResults vectorResults parameter value.
+ * @param keywordResults keywordResults parameter value.
+ * @param k k parameter value.
  * @since 0.0.0
  * @category algorithms
+ * @returns Returns the computed value.
  */
 export const reciprocalRankFusion = (
   vectorResults: ReadonlyArray<{ readonly id: string }>,

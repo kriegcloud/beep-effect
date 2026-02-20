@@ -1,5 +1,6 @@
 /**
  * Error types for the codebase search system.
+ *
  * @since 0.0.0
  * @packageDocumentation
  */
@@ -8,6 +9,7 @@ import * as S from "effect/Schema";
 /**
  * Indicates the search index does not exist or cannot be found at the expected path.
  * Typically occurs on first run before any indexing has been performed.
+ *
  * @since 0.0.0
  * @category errors
  */
@@ -28,6 +30,7 @@ export class IndexNotFoundError extends S.TaggedErrorClass<IndexNotFoundError>(
 /**
  * Indicates a requested symbol could not be found in the search index.
  * May occur if the index is stale or the symbol ID is invalid.
+ *
  * @since 0.0.0
  * @category errors
  */
@@ -48,6 +51,7 @@ export class SymbolNotFoundError extends S.TaggedErrorClass<SymbolNotFoundError>
 /**
  * Indicates a failure loading or running the ONNX embedding model for vector search.
  * May occur if the model file is missing, corrupted, or the runtime is incompatible.
+ *
  * @since 0.0.0
  * @category errors
  */
@@ -68,6 +72,7 @@ export class EmbeddingModelError extends S.TaggedErrorClass<EmbeddingModelError>
 /**
  * Indicates a search operation exceeded the configured timeout threshold.
  * Common in hook contexts where the 5-second timeout is strict.
+ *
  * @since 0.0.0
  * @category errors
  */
@@ -88,6 +93,7 @@ export class SearchTimeoutError extends S.TaggedErrorClass<SearchTimeoutError>(
 /**
  * Indicates a failure during the indexing pipeline execution.
  * Wraps underlying errors from file scanning, AST extraction, or storage operations.
+ *
  * @since 0.0.0
  * @category errors
  */

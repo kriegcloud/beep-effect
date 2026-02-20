@@ -5,8 +5,11 @@
  * @module
  */
 
-import { Effect } from "effect";
+import { Effect, Order } from "effect";
 import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import type { IndexingError } from "../errors.js";
@@ -14,9 +17,30 @@ import { LanceDbWriter } from "../indexer/index.js";
 import { McpErrorResponseSchema } from "./contracts.js";
 import { type BrowseItem, type FormattedBrowseResult, formatBrowseResult } from "./formatters.js";
 
-/** @internal */
-const sortByName = (items: ReadonlyArray<BrowseItem>): ReadonlyArray<BrowseItem> =>
-  [...items].sort((left, right) => left.name.localeCompare(right.name));
+/**
+ * @param items items parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const byNameAscending: Order.Order<BrowseItem> = Order.mapInput(Order.String, (item: BrowseItem) => item.name);
+
+/**
+ * @param items items parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const sortByName = (items: ReadonlyArray<BrowseItem>): ReadonlyArray<BrowseItem> => A.sort(items, byNameAscending);
+
+const makePackageGroup = (): { count: number; kinds: Record<string, number> } => ({
+  count: 0,
+  kinds: {},
+});
+
+const makeModuleGroup = (): { count: number; kinds: Record<string, number>; description: string } => ({
+  count: 0,
+  kinds: {},
+  description: "",
+});
 
 /**
  * Handle `browse_symbols` invocation.
@@ -37,22 +61,25 @@ export const handleBrowseSymbols: (params: {
 
   if (params.package === undefined) {
     const rows = yield* lanceDb.list({ kind: params.kind });
-    const groups = new Map<string, { count: number; kinds: Record<string, number> }>();
+    const groups = MutableHashMap.empty<string, { count: number; kinds: Record<string, number> }>();
 
     for (const row of rows) {
-      const current = groups.get(row.package) ?? { count: 0, kinds: {} };
+      const current = pipe(MutableHashMap.get(groups, row.package), O.getOrElse(makePackageGroup));
       current.count += 1;
       current.kinds[row.kind] = (current.kinds[row.kind] ?? 0) + 1;
-      groups.set(row.package, current);
+      MutableHashMap.set(groups, row.package, current);
     }
 
-    const items = A.fromIterable(groups.entries()).map(
-      ([name, summary]): BrowseItem => ({
-        name,
-        count: summary.count,
-        kinds: summary.kinds,
-        description: `${summary.count} indexed symbols`,
-      })
+    const items = pipe(
+      A.fromIterable(groups),
+      A.map(
+        ([name, summary]): BrowseItem => ({
+          name,
+          count: summary.count,
+          kinds: summary.kinds,
+          description: `${summary.count} indexed symbols`,
+        })
+      )
     );
 
     return formatBrowseResult("packages", sortByName(items));
@@ -63,25 +90,31 @@ export const handleBrowseSymbols: (params: {
       package: params.package,
       kind: params.kind,
     });
-    const groups = new Map<string, { count: number; kinds: Record<string, number>; description: string }>();
+    const groups = MutableHashMap.empty<
+      string,
+      { count: number; kinds: Record<string, number>; description: string }
+    >();
 
     for (const row of rows) {
-      const current = groups.get(row.module) ?? { count: 0, kinds: {}, description: "" };
+      const current = pipe(MutableHashMap.get(groups, row.module), O.getOrElse(makeModuleGroup));
       current.count += 1;
       current.kinds[row.kind] = (current.kinds[row.kind] ?? 0) + 1;
       if (current.description.length === 0 && row.description.length > 0) {
         current.description = row.description;
       }
-      groups.set(row.module, current);
+      MutableHashMap.set(groups, row.module, current);
     }
 
-    const items = A.fromIterable(groups.entries()).map(
-      ([name, summary]): BrowseItem => ({
-        name,
-        count: summary.count,
-        kinds: summary.kinds,
-        description: summary.description,
-      })
+    const items = pipe(
+      A.fromIterable(groups),
+      A.map(
+        ([name, summary]): BrowseItem => ({
+          name,
+          count: summary.count,
+          kinds: summary.kinds,
+          description: summary.description,
+        })
+      )
     );
 
     return formatBrowseResult("modules", sortByName(items));

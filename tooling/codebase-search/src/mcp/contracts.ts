@@ -4,6 +4,9 @@
  * @since 0.0.0
  * @module
  */
+
+import { pipe } from "effect/Function";
+import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import {
   EmbeddingModelError,
@@ -51,19 +54,35 @@ export const ErrorCodeSchema = S.Literals([
   ErrorCodes.INTERNAL_ERROR,
 ]);
 
+type McpErrorResponseForCode<C extends ErrorCode> = {
+  readonly error: {
+    readonly code: C;
+    readonly message: string;
+    readonly suggestion: string;
+  };
+};
+
 /**
  * Structured MCP error response.
  *
  * @since 0.0.0
  * @category types
  */
-export interface McpErrorResponse {
-  readonly error: {
-    readonly code: ErrorCode;
-    readonly message: string;
-    readonly suggestion: string;
-  };
-}
+export type McpErrorResponse =
+  | McpErrorResponseForCode<typeof ErrorCodes.INDEX_NOT_FOUND>
+  | McpErrorResponseForCode<typeof ErrorCodes.SYMBOL_NOT_FOUND>
+  | McpErrorResponseForCode<typeof ErrorCodes.INDEX_STALE>
+  | McpErrorResponseForCode<typeof ErrorCodes.EMBEDDING_MODEL_ERROR>
+  | McpErrorResponseForCode<typeof ErrorCodes.SEARCH_TIMEOUT>
+  | McpErrorResponseForCode<typeof ErrorCodes.INTERNAL_ERROR>;
+
+type McpErrorSeed =
+  | { readonly code: typeof ErrorCodes.INDEX_NOT_FOUND; readonly message: string }
+  | { readonly code: typeof ErrorCodes.SYMBOL_NOT_FOUND; readonly message: string }
+  | { readonly code: typeof ErrorCodes.INDEX_STALE; readonly message: string }
+  | { readonly code: typeof ErrorCodes.EMBEDDING_MODEL_ERROR; readonly message: string }
+  | { readonly code: typeof ErrorCodes.SEARCH_TIMEOUT; readonly message: string }
+  | { readonly code: typeof ErrorCodes.INTERNAL_ERROR; readonly message: string };
 
 /**
  * Schema for structured MCP error responses.
@@ -71,76 +90,146 @@ export interface McpErrorResponse {
  * @since 0.0.0
  * @category schemas
  */
-export const McpErrorResponseSchema = S.Struct({
-  error: S.Struct({
-    code: ErrorCodeSchema,
-    message: S.String,
-    suggestion: S.String,
+export const McpErrorResponseSchema = S.Union([
+  S.Struct({
+    error: S.Struct({
+      code: S.Literal(ErrorCodes.INDEX_NOT_FOUND),
+      message: S.String,
+      suggestion: S.String,
+    }),
   }),
-});
+  S.Struct({
+    error: S.Struct({
+      code: S.Literal(ErrorCodes.SYMBOL_NOT_FOUND),
+      message: S.String,
+      suggestion: S.String,
+    }),
+  }),
+  S.Struct({
+    error: S.Struct({
+      code: S.Literal(ErrorCodes.INDEX_STALE),
+      message: S.String,
+      suggestion: S.String,
+    }),
+  }),
+  S.Struct({
+    error: S.Struct({
+      code: S.Literal(ErrorCodes.EMBEDDING_MODEL_ERROR),
+      message: S.String,
+      suggestion: S.String,
+    }),
+  }),
+  S.Struct({
+    error: S.Struct({
+      code: S.Literal(ErrorCodes.SEARCH_TIMEOUT),
+      message: S.String,
+      suggestion: S.String,
+    }),
+  }),
+  S.Struct({
+    error: S.Struct({
+      code: S.Literal(ErrorCodes.INTERNAL_ERROR),
+      message: S.String,
+      suggestion: S.String,
+    }),
+  }),
+]);
+
+const fromSeed = pipe(
+  Match.type<McpErrorSeed>(),
+  Match.discriminators("code")({
+    INDEX_NOT_FOUND: (seed): McpErrorResponse => ({
+      error: {
+        code: seed.code,
+        message: seed.message,
+        suggestion: "Run the 'reindex' tool with mode='full' to create the search index.",
+      },
+    }),
+    SYMBOL_NOT_FOUND: (seed): McpErrorResponse => ({
+      error: {
+        code: seed.code,
+        message: seed.message,
+        suggestion: "Use 'search_codebase' to find valid symbol IDs.",
+      },
+    }),
+    INDEX_STALE: (seed): McpErrorResponse => ({
+      error: {
+        code: seed.code,
+        message: seed.message,
+        suggestion: "Run 'reindex' with mode='incremental' or mode='full' to refresh the index.",
+      },
+    }),
+    EMBEDDING_MODEL_ERROR: (seed): McpErrorResponse => ({
+      error: {
+        code: seed.code,
+        message: seed.message,
+        suggestion: "Verify the embedding model is available and the runtime is compatible.",
+      },
+    }),
+    SEARCH_TIMEOUT: (seed): McpErrorResponse => ({
+      error: {
+        code: seed.code,
+        message: seed.message,
+        suggestion: "Try a more specific query or reduce the limit parameter.",
+      },
+    }),
+    INTERNAL_ERROR: (seed): McpErrorResponse => ({
+      error: {
+        code: seed.code,
+        message: seed.message,
+        suggestion: "Check index files and configuration, then retry.",
+      },
+    }),
+  }),
+  Match.exhaustive
+);
 
 /**
  * Convert a domain error to a structured MCP error payload.
  *
+ * @param error error parameter value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const formatError = (error: unknown): McpErrorResponse => {
   if (error instanceof IndexNotFoundError) {
-    return {
-      error: {
-        code: ErrorCodes.INDEX_NOT_FOUND,
-        message: error.message,
-        suggestion: "Run the 'reindex' tool with mode='full' to create the search index.",
-      },
-    };
+    return fromSeed({
+      code: ErrorCodes.INDEX_NOT_FOUND,
+      message: error.message,
+    });
   }
 
   if (error instanceof SymbolNotFoundError) {
-    return {
-      error: {
-        code: ErrorCodes.SYMBOL_NOT_FOUND,
-        message: error.message,
-        suggestion: "Use 'search_codebase' to find valid symbol IDs.",
-      },
-    };
+    return fromSeed({
+      code: ErrorCodes.SYMBOL_NOT_FOUND,
+      message: error.message,
+    });
   }
 
   if (error instanceof EmbeddingModelError) {
-    return {
-      error: {
-        code: ErrorCodes.EMBEDDING_MODEL_ERROR,
-        message: error.message,
-        suggestion: "Verify the embedding model is available and the runtime is compatible.",
-      },
-    };
+    return fromSeed({
+      code: ErrorCodes.EMBEDDING_MODEL_ERROR,
+      message: error.message,
+    });
   }
 
   if (error instanceof SearchTimeoutError) {
-    return {
-      error: {
-        code: ErrorCodes.SEARCH_TIMEOUT,
-        message: error.message,
-        suggestion: "Try a more specific query or reduce the limit parameter.",
-      },
-    };
+    return fromSeed({
+      code: ErrorCodes.SEARCH_TIMEOUT,
+      message: error.message,
+    });
   }
 
   if (error instanceof IndexingError) {
-    return {
-      error: {
-        code: ErrorCodes.INTERNAL_ERROR,
-        message: error.message,
-        suggestion: "Check index files and configuration, then retry.",
-      },
-    };
+    return fromSeed({
+      code: ErrorCodes.INTERNAL_ERROR,
+      message: error.message,
+    });
   }
 
-  return {
-    error: {
-      code: ErrorCodes.INTERNAL_ERROR,
-      message: String(error),
-      suggestion: "An unexpected error occurred. Check the server logs and retry.",
-    },
-  };
+  return fromSeed({
+    code: ErrorCodes.INTERNAL_ERROR,
+    message: String(error),
+  });
 };

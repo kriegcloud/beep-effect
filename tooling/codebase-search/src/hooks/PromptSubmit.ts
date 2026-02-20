@@ -27,6 +27,7 @@ import { INDEX_DIR } from "./SessionStart.js";
 /**
  * Minimum prompt length to trigger a codebase search.
  * Prompts shorter than this are assumed to be too vague.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -34,6 +35,7 @@ export const MIN_PROMPT_LENGTH = 15;
 
 /**
  * Maximum length of the constructed search query after stripping prefixes.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -41,6 +43,7 @@ export const MAX_QUERY_LENGTH = 200;
 
 /**
  * Minimum BM25 score threshold for including a result.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -48,6 +51,7 @@ export const MIN_SCORE = 0.35;
 
 /**
  * Maximum number of search results to return.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -55,6 +59,7 @@ export const MAX_RESULTS = 5;
 
 /**
  * File name for the BM25 index JSON file.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -66,6 +71,7 @@ export const BM25_INDEX_FILE = "bm25-index.json" as const;
 
 /**
  * Input received from Claude Code on user prompt submission via stdin.
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -81,6 +87,7 @@ export const PromptSubmitInput = S.Struct({
 
 /**
  * TypeScript type derived from the PromptSubmitInput schema.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -93,6 +100,7 @@ export type PromptSubmitInput = typeof PromptSubmitInput.Type;
 /**
  * Lightweight search result shape used for formatting hook output.
  * Contains only the fields needed for the system-reminder block.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -124,7 +132,12 @@ const GIT_OPS_RE = /^(commit|push|pull|merge|rebase|checkout|branch)\b/i;
 /** @internal Build/run commands (followed by space or end of string) */
 const BUILD_CMD_RE = /^(run|test|build|lint|format)(\s|$)/i;
 
-/** @internal Helper: test a regex against a string, returning boolean */
+/**
+ * @param re re parameter value.
+ * @param str str parameter value.
+ * @internal Helper: test a regex against a string, returning boolean
+ * @returns Returns the computed value.
+ */
 const testRegex = (re: RegExp, str: string): boolean => O.isSome(pipe(Str.match(re)(str), O.fromNullishOr));
 
 /**
@@ -132,8 +145,10 @@ const testRegex = (re: RegExp, str: string): boolean => O.isSome(pipe(Str.match(
  * prompt is too short, is a slash command, conversational response,
  * general knowledge question, git operation, or build command.
  *
+ * @param prompt prompt parameter value.
  * @since 0.0.0
  * @category filters
+ * @returns Returns the computed value.
  */
 export const shouldSkipSearch = (prompt: string): boolean => {
   const trimmed = Str.trim(prompt);
@@ -179,8 +194,10 @@ const ACTION_PREFIXES_RE = /^(create|add|implement|build|write|make)\s+(a\s+|an\
  * 200 characters, extracts the first sentence (up to the first period
  * followed by a space) or slices to 200 characters.
  *
+ * @param prompt prompt parameter value.
  * @since 0.0.0
  * @category builders
+ * @returns Returns the computed value.
  */
 export const constructSearchQuery = (prompt: string): string => {
   // 1. Trim first so anchored regexes work on leading content
@@ -225,8 +242,10 @@ const MAX_SIGNATURE_LENGTH = HOOK_SIGNATURE_MAX_LENGTH;
  * injection into the Claude Code context. Returns an empty string
  * when no results are provided.
  *
+ * @param results results parameter value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const formatContextInjection = (results: ReadonlyArray<SearchResultForHook>): string => {
   if (A.length(results) === 0) {
@@ -267,8 +286,10 @@ export const formatContextInjection = (results: ReadonlyArray<SearchResultForHoo
  * block. The symbolId format `{pkg}/{module}/{name}` is informative
  * enough to guide the agent without requiring full metadata lookups.
  *
+ * @param results results parameter value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const formatSymbolIdResults = (
   results: ReadonlyArray<{ readonly symbolId: string; readonly score: number }>

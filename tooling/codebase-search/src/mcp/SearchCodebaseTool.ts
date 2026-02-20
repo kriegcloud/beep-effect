@@ -8,6 +8,7 @@
 import { Effect } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
@@ -59,16 +60,16 @@ export const handleSearchCodebase: (params: {
   const symbolRows: ReadonlyArray<StoredSymbolRecord> = A.isReadonlyArrayNonEmpty(ids)
     ? yield* lanceDb.list({ ids })
     : A.empty<StoredSymbolRecord>();
-  const rowById = new Map<string, (typeof symbolRows)[number]>();
+  const rowById = MutableHashMap.empty<string, StoredSymbolRecord>();
 
   for (const row of symbolRows) {
-    rowById.set(row.id, row);
+    MutableHashMap.set(rowById, row.id, row);
   }
 
   const merged: ReadonlyArray<RawSearchResult> = pipe(
     hybridResults,
     A.map((result): RawSearchResult => {
-      const row = rowById.get(result.symbolId);
+      const row = pipe(MutableHashMap.get(rowById, result.symbolId), O.getOrUndefined);
       return {
         symbolId: result.symbolId,
         score: result.score,
@@ -90,10 +91,7 @@ export const handleSearchCodebase: (params: {
     if (params.kind !== undefined && result.kind !== params.kind) {
       return false;
     }
-    if (params.package !== undefined && result.package !== params.package) {
-      return false;
-    }
-    return true;
+    return !(params.package !== undefined && result.package !== params.package);
   });
 
   return formatSearchResults(

@@ -59,6 +59,51 @@ const getNodeName = (node) => {
 };
 
 /**
+ * @param {import("eslint").SourceCode} sourceCode
+ * @param {unknown} node
+ * @returns {ReadonlyArray<import("estree").Comment>}
+ */
+const getCandidateComments = (sourceCode, node) => {
+  /** @type {Array<import("estree").Comment>} */
+  const out = [];
+
+  if (node === null || typeof node !== "object") {
+    return out;
+  }
+
+  /**
+   * @param {unknown} current
+   */
+  const addFromNode = (current) => {
+    if (current === null || typeof current !== "object") {
+      return;
+    }
+
+    const astNode = /** @type {import("estree").Node} */ (
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      current
+    );
+
+    const jsDoc = sourceCode.getJSDocComment(astNode);
+    if (jsDoc !== null && jsDoc !== undefined) {
+      out.push(jsDoc);
+    }
+
+    for (const comment of sourceCode.getCommentsBefore(astNode)) {
+      if (comment.type === "Block" && comment.value.startsWith("*")) {
+        out.push(comment);
+      }
+    }
+  };
+
+  addFromNode(node);
+  addFromNode(node.parent);
+  addFromNode(node.parent?.parent);
+
+  return out;
+};
+
+/**
  * @type {import("eslint").Rule.RuleModule}
  */
 const requireCategoryTagRule = {
@@ -83,8 +128,9 @@ const requireCategoryTagRule = {
         return;
       }
 
-      const jsDoc = context.sourceCode.getJSDocComment(node);
-      if (jsDoc === null || jsDoc === undefined || !CATEGORY_RE.test(jsDoc.value)) {
+      const comments = getCandidateComments(context.sourceCode, node);
+      const hasCategory = comments.some((comment) => CATEGORY_RE.test(comment.value));
+      if (!hasCategory) {
         context.report({
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           node,

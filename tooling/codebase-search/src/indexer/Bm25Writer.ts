@@ -26,6 +26,7 @@ import { buildKeywordText } from "../IndexedSymbol.js";
 
 /**
  * A single result from a BM25 keyword search.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -40,42 +41,50 @@ export interface Bm25SearchResult {
 
 /**
  * Shape of the Bm25Writer service interface.
+ *
  * @since 0.0.0
  * @category models
  */
 export interface Bm25WriterShape {
   /**
    * Create a fresh BM25 index, resetting any existing state.
+   *
    * @since 0.0.0
    */
   readonly createIndex: () => Effect.Effect<void, IndexingError>;
   /**
    * Add indexed symbols to the BM25 index.
+   *
    * @since 0.0.0
    */
   readonly addDocuments: (symbols: ReadonlyArray<IndexedSymbol>) => Effect.Effect<void, IndexingError>;
   /**
    * Remove documents by their symbol IDs.
+   *
    * @since 0.0.0
    */
   readonly removeBySymbolIds: (ids: ReadonlyArray<string>) => Effect.Effect<void, IndexingError>;
   /**
    * Search the BM25 index for matching documents.
+   *
    * @since 0.0.0
    */
   readonly search: (query: string, limit: number) => Effect.Effect<ReadonlyArray<Bm25SearchResult>, IndexingError>;
   /**
    * List all symbol IDs currently present in the BM25 mapping.
+   *
    * @since 0.0.0
    */
   readonly listSymbolIds: () => Effect.Effect<ReadonlyArray<string>, IndexingError>;
   /**
    * Persist the BM25 index to disk.
+   *
    * @since 0.0.0
    */
   readonly save: () => Effect.Effect<void, IndexingError, FileSystem.FileSystem | Path.Path>;
   /**
    * Load the BM25 index from disk.
+   *
    * @since 0.0.0
    */
   readonly load: () => Effect.Effect<void, IndexingError, FileSystem.FileSystem | Path.Path>;
@@ -109,7 +118,10 @@ const BM25_INDEX_FILE = "bm25-index.json" as const;
 /**
  * Tokenizer for BM25 indexing. Splits camelCase, replaces non-alphanumeric
  * with space, lowercases, splits on whitespace, and filters tokens > 1 char.
+ *
+ * @param text text parameter value.
  * @internal
+ * @returns Returns the computed value.
  */
 const tokenize = (text: string): ReadonlyArray<string> => {
   // Split camelCase: insert space before uppercase letters preceded by lowercase
@@ -160,7 +172,10 @@ interface Bm25State {
   consolidated: boolean;
 }
 
-/** @internal */
+/**
+ * @internal
+ * @returns Returns the initialized BM25 engine.
+ */
 const initEngine = (): ReturnType<typeof createBM25> => {
   const engine = createBM25();
   engine.defineConfig({
@@ -171,7 +186,10 @@ const initEngine = (): ReturnType<typeof createBM25> => {
   return engine;
 };
 
-/** @internal */
+/**
+ * @internal
+ * @returns Returns a fresh BM25 writer state.
+ */
 const createState = (): Bm25State => ({
   engine: initEngine(),
   symbolToDoc: MutableHashMap.empty<string, number>(),
@@ -180,7 +198,12 @@ const createState = (): Bm25State => ({
   consolidated: false,
 });
 
-/** @internal Convert raw BM25 search results to typed Bm25SearchResult array */
+/**
+ * @param rawResults rawResults parameter value.
+ * @param docToSymbol docToSymbol parameter value.
+ * @internal Convert raw BM25 search results to typed Bm25SearchResult array
+ * @returns Returns the computed value.
+ */
 const convertSearchResults = (
   rawResults: ReadonlyArray<RawBM25Result>,
   docToSymbol: MutableHashMap.MutableHashMap<number, string>
@@ -211,8 +234,10 @@ const convertSearchResults = (
  * Live layer for `Bm25Writer` that manages a BM25 keyword search index
  * at the specified `indexPath` directory.
  *
+ * @param indexPath indexPath parameter value.
  * @since 0.0.0
  * @category layers
+ * @returns Returns the computed value.
  */
 export const Bm25WriterLive: (indexPath: string) => Layer.Layer<Bm25Writer, IndexingError> = (indexPath: string) =>
   Layer.effect(

@@ -15,8 +15,11 @@
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as ServiceMap from "effect/ServiceMap";
+import * as Str from "effect/String";
 import { type EmbeddingModelError, IndexingError, SymbolNotFoundError } from "../errors.js";
 import { EmbeddingService, LanceDbWriter, type StoredSymbolRecord } from "../indexer/index.js";
 
@@ -112,7 +115,12 @@ export class RelationResolver extends ServiceMap.Service<RelationResolver, Relat
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** @internal */
+/**
+ * @param row row parameter value.
+ * @param relationDetail relationDetail parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const toRelated = (row: StoredSymbolRecord, relationDetail: string): RelatedSymbol => ({
   id: row.id,
   name: row.name,
@@ -125,7 +133,11 @@ const toRelated = (row: StoredSymbolRecord, relationDetail: string): RelatedSymb
   relationDetail,
 });
 
-/** @internal */
+/**
+ * @param symbols symbols parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const dedupeRelated = (symbols: ReadonlyArray<RelatedSymbol>): ReadonlyArray<RelatedSymbol> => {
   const seen = new Set<string>();
   const results = A.empty<RelatedSymbol>();
@@ -139,70 +151,81 @@ const dedupeRelated = (symbols: ReadonlyArray<RelatedSymbol>): ReadonlyArray<Rel
   return results;
 };
 
-/** @internal */
+/**
+ * @param value value parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const lastSegment = (value: string): string => {
   const idx = value.lastIndexOf("/");
-  return idx >= 0 ? value.slice(idx + 1) : value;
+  return idx >= 0 ? Str.slice(idx + 1)(value) : value;
 };
 
-/** @internal */
+/**
+ * @param rows rows parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const buildRowMaps = (
   rows: ReadonlyArray<StoredSymbolRecord>
 ): {
-  readonly byId: Map<string, StoredSymbolRecord>;
-  readonly byName: Map<string, ReadonlyArray<StoredSymbolRecord>>;
+  readonly byId: MutableHashMap.MutableHashMap<string, StoredSymbolRecord>;
+  readonly byName: MutableHashMap.MutableHashMap<string, Array<StoredSymbolRecord>>;
 } => {
-  const byId = new Map<string, StoredSymbolRecord>();
-  const byNameMutable = new Map<string, Array<StoredSymbolRecord>>();
+  const byId = MutableHashMap.empty<string, StoredSymbolRecord>();
+  const byName = MutableHashMap.empty<string, Array<StoredSymbolRecord>>();
 
   for (const row of rows) {
-    byId.set(row.id, row);
-    const existing = byNameMutable.get(row.name);
-    if (existing !== undefined) {
-      existing.push(row);
+    MutableHashMap.set(byId, row.id, row);
+    const existing = MutableHashMap.get(byName, row.name);
+    if (O.isSome(existing)) {
+      existing.value.push(row);
     } else {
-      byNameMutable.set(row.name, [row]);
+      MutableHashMap.set(byName, row.name, [row]);
     }
-  }
-
-  const byName = new Map<string, ReadonlyArray<StoredSymbolRecord>>();
-  for (const [name, symbolRows] of byNameMutable) {
-    byName.set(name, symbolRows);
   }
 
   return { byId, byName };
 };
 
-/** @internal */
+/**
+ * @param references references parameter value.
+ * @param relationLabel relationLabel parameter value.
+ * @param maps maps parameter value.
+ * @param maps.byId byId field value.
+ * @param maps.byName byName field value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const resolveReferenceRows = (
   references: ReadonlyArray<string>,
   relationLabel: string,
   maps: {
-    readonly byId: Map<string, StoredSymbolRecord>;
-    readonly byName: Map<string, ReadonlyArray<StoredSymbolRecord>>;
+    readonly byId: MutableHashMap.MutableHashMap<string, StoredSymbolRecord>;
+    readonly byName: MutableHashMap.MutableHashMap<string, Array<StoredSymbolRecord>>;
   }
 ): ReadonlyArray<RelatedSymbol> => {
   const matches = A.empty<RelatedSymbol>();
 
   for (const reference of references) {
-    const byId = maps.byId.get(reference);
-    if (byId !== undefined) {
-      matches.push(toRelated(byId, `${relationLabel}: resolved symbol ID '${reference}'.`));
+    const byId = MutableHashMap.get(maps.byId, reference);
+    if (O.isSome(byId)) {
+      matches.push(toRelated(byId.value, `${relationLabel}: resolved symbol ID '${reference}'.`));
       continue;
     }
 
-    const byExactName = maps.byName.get(reference);
-    if (byExactName !== undefined && A.isReadonlyArrayNonEmpty(byExactName)) {
-      for (const row of byExactName) {
+    const byExactName = MutableHashMap.get(maps.byName, reference);
+    if (O.isSome(byExactName) && A.isReadonlyArrayNonEmpty(byExactName.value)) {
+      for (const row of byExactName.value) {
         matches.push(toRelated(row, `${relationLabel}: matched '${reference}' by symbol name.`));
       }
       continue;
     }
 
     const fallbackName = lastSegment(reference);
-    const byFallbackName = maps.byName.get(fallbackName);
-    if (byFallbackName !== undefined && A.isReadonlyArrayNonEmpty(byFallbackName)) {
-      for (const row of byFallbackName) {
+    const byFallbackName = MutableHashMap.get(maps.byName, fallbackName);
+    if (O.isSome(byFallbackName) && A.isReadonlyArrayNonEmpty(byFallbackName.value)) {
+      for (const row of byFallbackName.value) {
         matches.push(
           toRelated(row, `${relationLabel}: matched reference '${reference}' by fallback name '${fallbackName}'.`)
         );
@@ -254,88 +277,90 @@ export const RelationResolverLive: Layer.Layer<RelationResolver, never, LanceDbW
         const allRows = yield* lanceSvc.list();
         const maps = buildRowMaps(allRows);
 
-        switch (config.relation) {
-          case "imports": {
-            const related = resolveReferenceRows(sourceRow.metadata.imports, "imports", maps);
-            return A.take(related, config.limit);
-          }
-
-          case "imported-by": {
-            const related = pipe(
-              allRows,
-              A.filter((row) => row.id !== sourceRow.id),
-              A.filter(
-                (row) =>
-                  row.metadata.imports.includes(sourceRow.id) ||
-                  row.metadata.imports.includes(sourceRow.name) ||
-                  row.metadata.imports.includes(lastSegment(sourceRow.id))
-              ),
-              A.map((row) => toRelated(row, `imported-by: '${row.id}' imports '${sourceRow.id}'.`))
-            );
-            return A.take(dedupeRelated(related), config.limit);
-          }
-
-          case "same-module": {
-            const related = pipe(
-              allRows,
-              A.filter((row) => row.id !== sourceRow.id),
-              A.filter((row) => row.package === sourceRow.package && row.module === sourceRow.module),
-              A.map((row) => toRelated(row, `same-module: '${row.module}'.`))
-            );
-            return A.take(related, config.limit);
-          }
-
-          case "provides": {
-            const related = resolveReferenceRows(sourceRow.metadata.provides, "@provides", maps);
-            return A.take(related, config.limit);
-          }
-
-          case "depends-on": {
-            const related = resolveReferenceRows(sourceRow.metadata.dependsOn, "@depends", maps);
-            return A.take(related, config.limit);
-          }
-
-          case "similar": {
-            const queryText =
-              sourceRow.description.length > 0
-                ? `${sourceRow.name} ${sourceRow.description}`
-                : `${sourceRow.id} ${sourceRow.signature}`;
-
-            const queryVector = yield* pipe(
-              embeddingSvc.embed(queryText),
-              Effect.mapError(
-                (error: EmbeddingModelError) =>
-                  new IndexingError({
-                    message: `Relation resolver embedding failed: ${error.message}`,
-                    phase: "relation-resolve",
-                  })
+        const relationEffect = Match.value(config.relation).pipe(
+          Match.when("imports", () =>
+            Effect.succeed(A.take(resolveReferenceRows(sourceRow.metadata.imports, "imports", maps), config.limit))
+          ),
+          Match.when("imported-by", () =>
+            Effect.succeed(
+              pipe(
+                allRows,
+                A.filter((row) => row.id !== sourceRow.id),
+                A.filter(
+                  (row) =>
+                    row.metadata.imports.includes(sourceRow.id) ||
+                    row.metadata.imports.includes(sourceRow.name) ||
+                    row.metadata.imports.includes(lastSegment(sourceRow.id))
+                ),
+                A.map((row) => toRelated(row, `imported-by: '${row.id}' imports '${sourceRow.id}'.`)),
+                dedupeRelated,
+                (related) => A.take(related, config.limit)
               )
-            );
+            )
+          ),
+          Match.when("same-module", () =>
+            Effect.succeed(
+              pipe(
+                allRows,
+                A.filter((row) => row.id !== sourceRow.id),
+                A.filter((row) => row.package === sourceRow.package && row.module === sourceRow.module),
+                A.map((row) => toRelated(row, `same-module: '${row.module}'.`)),
+                (related) => A.take(related, config.limit)
+              )
+            )
+          ),
+          Match.when("provides", () =>
+            Effect.succeed(A.take(resolveReferenceRows(sourceRow.metadata.provides, "@provides", maps), config.limit))
+          ),
+          Match.when("depends-on", () =>
+            Effect.succeed(A.take(resolveReferenceRows(sourceRow.metadata.dependsOn, "@depends", maps), config.limit))
+          ),
+          Match.when("similar", () =>
+            Effect.gen(function* () {
+              const queryText =
+                sourceRow.description.length > 0
+                  ? `${sourceRow.name} ${sourceRow.description}`
+                  : `${sourceRow.id} ${sourceRow.signature}`;
 
-            const vectorResults = yield* lanceSvc.vectorSearch(queryVector, {
-              limit: config.limit + 1,
-            });
+              const queryVector = yield* pipe(
+                embeddingSvc.embed(queryText),
+                Effect.mapError(
+                  (error: EmbeddingModelError) =>
+                    new IndexingError({
+                      message: `Relation resolver embedding failed: ${error.message}`,
+                      phase: "relation-resolve",
+                    })
+                )
+              );
 
-            const related = pipe(
-              vectorResults,
-              A.filter((result) => result.id !== sourceRow.id),
-              A.map((result) =>
-                pipe(
-                  O.fromNullishOr(maps.byId.get(result.id)),
-                  O.map((row) =>
-                    toRelated(
-                      row,
-                      `similar: vector similarity score ${String(Math.round(result.score * 1000) / 1000)}.`
+              const vectorResults = yield* lanceSvc.vectorSearch(queryVector, {
+                limit: config.limit + 1,
+              });
+
+              const related = pipe(
+                vectorResults,
+                A.filter((result) => result.id !== sourceRow.id),
+                A.map((result) =>
+                  pipe(
+                    MutableHashMap.get(maps.byId, result.id),
+                    O.map((row) =>
+                      toRelated(
+                        row,
+                        `similar: vector similarity score ${String(Math.round(result.score * 1000) / 1000)}.`
+                      )
                     )
                   )
-                )
-              ),
-              A.getSomes
-            );
+                ),
+                A.getSomes
+              );
 
-            return A.take(dedupeRelated(related), config.limit);
-          }
-        }
+              return A.take(dedupeRelated(related), config.limit);
+            })
+          ),
+          Match.exhaustive
+        );
+
+        return yield* relationEffect;
       });
 
       return RelationResolver.of({ resolve });

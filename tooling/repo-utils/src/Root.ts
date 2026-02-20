@@ -30,7 +30,6 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  * @param startFrom - Optional starting directory. Defaults to `process.cwd()`.
  * @returns An Effect that succeeds with the absolute path of the repo root,
  *   or fails with `NoSuchFileError` if no root marker is found.
- *
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -41,7 +40,6 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  *   console.log("Repo root:", root)
  * })
  * ```
- *
  * @since 0.0.0
  * @category functions
  */
@@ -53,7 +51,6 @@ export const findRepoRoot: (
 
   let current = start;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     for (const marker of ROOT_MARKERS) {
       const markerPath = Str.endsWith("/")(current) ? current + marker : `${current}/${marker}`;
@@ -78,6 +75,9 @@ export const findRepoRoot: (
 
 /**
  * Get the parent directory of a path (pure string operation).
+ *
+ * @param p Absolute or relative path string.
+ * @returns Parent directory path.
  */
 const parentDir = (p: string): string =>
   pipe(

@@ -31,7 +31,6 @@ const ROOT_KEY = "@beep/root";
  *
  * @param rootDir - Absolute path to the monorepo root directory.
  * @returns A HashMap mapping package names to arrays of tsconfig file paths.
- *
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -42,7 +41,6 @@ const ROOT_KEY = "@beep/root";
  *   // HashMap<string, string[]>
  * })
  * ```
- *
  * @since 0.0.0
  * @category functions
  */

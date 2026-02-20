@@ -9,20 +9,25 @@
 
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
 import { pipe } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as ServiceMap from "effect/ServiceMap";
+import * as Str from "effect/String";
 import { Project } from "ts-morph";
 import { IndexingError } from "../errors.js";
-import type { ScanResult } from "../extractor/FileScanner.js";
-import { computeFileHashes, saveFileHashes, scanFiles } from "../extractor/FileScanner.js";
+import type { ScanResult } from "../extractor/index.js";
 import {
   assembleSymbols,
+  computeFileHashes,
   resolveImports,
   resolveLayerContractErrors,
   resolveModuleName,
-} from "../extractor/SymbolAssembler.js";
+  saveFileHashes,
+  scanFiles,
+} from "../extractor/index.js";
 import type { IndexedSymbol } from "../IndexedSymbol.js";
 import { IndexMeta } from "../IndexedSymbol.js";
 import { Bm25Writer } from "./Bm25Writer.js";
@@ -36,6 +41,7 @@ import { LanceDbWriter } from "./LanceDbWriter.js";
 
 /**
  * Configuration for a single pipeline run.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -56,6 +62,7 @@ export interface PipelineConfig {
 
 /**
  * Statistics returned by a pipeline run summarising the work performed.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -78,12 +85,14 @@ export interface PipelineStats {
 
 /**
  * Shape of the Pipeline service interface.
+ *
  * @since 0.0.0
  * @category models
  */
 export interface PipelineShape {
   /**
    * Execute the full indexing pipeline and return run statistics.
+   *
    * @since 0.0.0
    */
   readonly run: (config: PipelineConfig) => Effect.Effect<PipelineStats, IndexingError>;
@@ -117,11 +126,14 @@ const INDEX_META_FILE = "index-meta.json" as const;
 /**
  * Extracts the package name from a relative file path by looking at the
  * first two path segments (e.g. `tooling/cli/src/foo.ts` -> `@beep/cli`).
+ *
+ * @param filePath filePath parameter value.
  * @internal
+ * @returns Returns the computed value.
  */
 const resolvePackageName = (filePath: string): string => {
   // Convention: tooling/<name>/src/... or packages/<name>/src/...
-  const segments = filePath.split("/");
+  const segments = Str.split("/")(filePath);
   if (A.length(segments) >= 2) {
     const scope = A.get(segments, 0);
     const name = A.get(segments, 1);
@@ -134,7 +146,10 @@ const resolvePackageName = (filePath: string): string => {
 
 /**
  * Build the deterministic symbol ID prefix for a source file.
+ *
+ * @param filePath filePath parameter value.
  * @internal
+ * @returns Returns the computed value.
  */
 const resolveSymbolPrefixFromFilePath = (filePath: string): string => {
   const pkg = resolvePackageName(filePath);
@@ -197,7 +212,7 @@ const extractSymbolsFromFiles: (
         // Extract symbols from each source file
         const allSymbols = A.empty<IndexedSymbol>();
         const sourceFiles = project.getSourceFiles();
-        const fileToSymbolIds = new Map<string, ReadonlyArray<string>>();
+        const fileToSymbolIds = MutableHashMap.empty<string, ReadonlyArray<string>>();
 
         pipe(
           A.fromIterable(sourceFiles),
@@ -215,7 +230,8 @@ const extractSymbolsFromFiles: (
 
             const moduleName = resolveModuleName(relativePath);
             const symbols = assembleSymbols(sourceFile, pkg, moduleName);
-            fileToSymbolIds.set(
+            MutableHashMap.set(
+              fileToSymbolIds,
               sourceFile.getFilePath(),
               A.map(symbols, (symbol) => symbol.id)
             );
@@ -241,7 +257,7 @@ const extractSymbolsFromFiles: (
           );
         }
 
-        return resolvedSymbols as ReadonlyArray<IndexedSymbol>;
+        return resolvedSymbols;
       },
       catch: (error) =>
         new IndexingError({
@@ -277,7 +293,7 @@ export const PipelineLive: Layer.Layer<
     const defaultPath = yield* Path.Path;
 
     const run: PipelineShape["run"] = Effect.fn(function* (config) {
-      const startTime = Date.now();
+      const startTime = yield* DateTime.now;
 
       const fsSvc: FileSystem.FileSystem = yield* pipe(
         Effect.serviceOption(FileSystem.FileSystem),
@@ -291,12 +307,11 @@ export const PipelineLive: Layer.Layer<
         Layer.succeed(FileSystem.FileSystem, fsSvc),
         Layer.succeed(Path.Path, pathSvc)
       );
-      const provideFsPath = Effect.provide(fsPathLayer);
 
       // ---------------------------------------------------------------
       // 1. Scan files
       // ---------------------------------------------------------------
-      const scanResult: ScanResult = yield* scanFiles(config.rootDir, config.mode).pipe(provideFsPath);
+      const scanResult: ScanResult = yield* Effect.provide(scanFiles(config.rootDir, config.mode), fsPathLayer);
 
       const totalFilesScanned =
         A.length(scanResult.added) +
@@ -311,11 +326,10 @@ export const PipelineLive: Layer.Layer<
       // ---------------------------------------------------------------
       // 2. Extract symbols from added+modified files
       // ---------------------------------------------------------------
-      const extractedSymbols = yield* extractSymbolsFromFiles(
-        config.rootDir,
-        filesToProcess,
-        config.packageFilter
-      ).pipe(provideFsPath);
+      const extractedSymbols = yield* Effect.provide(
+        extractSymbolsFromFiles(config.rootDir, filesToProcess, config.packageFilter),
+        fsPathLayer
+      );
 
       // ---------------------------------------------------------------
       // 3. Generate embeddings for extracted symbols
@@ -370,8 +384,7 @@ export const PipelineLive: Layer.Layer<
       if (config.mode === "full") {
         yield* bm25Writer.createIndex();
       } else {
-        yield* bm25Writer.load().pipe(
-          provideFsPath,
+        yield* Effect.provide(bm25Writer.load(), fsPathLayer).pipe(
           Effect.mapError(
             (error) =>
               new IndexingError({
@@ -398,7 +411,7 @@ export const PipelineLive: Layer.Layer<
 
       // Add all newly extracted symbols to BM25
       yield* bm25Writer.addDocuments(extractedSymbols);
-      yield* bm25Writer.save().pipe(provideFsPath);
+      yield* Effect.provide(bm25Writer.save(), fsPathLayer);
 
       // ---------------------------------------------------------------
       // 7. Save file hashes for future incremental scans
@@ -409,13 +422,13 @@ export const PipelineLive: Layer.Layer<
         A.appendAll(scanResult.unchanged)
       );
 
-      const hashes = yield* computeFileHashes(config.rootDir, allCurrentFiles).pipe(provideFsPath);
-      yield* saveFileHashes(config.rootDir, hashes).pipe(provideFsPath);
+      const hashes = yield* Effect.provide(computeFileHashes(config.rootDir, allCurrentFiles), fsPathLayer);
+      yield* Effect.provide(saveFileHashes(config.rootDir, hashes), fsPathLayer);
 
       // ---------------------------------------------------------------
       // 8. Write IndexMeta JSON
       // ---------------------------------------------------------------
-      const now = new Date().toISOString();
+      const now = DateTime.formatIso(yield* DateTime.now);
       const meta: typeof IndexMeta.Type = {
         version: 1,
         lastFullIndex: config.mode === "full" ? now : "",
@@ -464,7 +477,8 @@ export const PipelineLive: Layer.Layer<
       // ---------------------------------------------------------------
       // 9. Return stats
       // ---------------------------------------------------------------
-      const durationMs = Date.now() - startTime;
+      const endTime = yield* DateTime.now;
+      const durationMs = DateTime.toEpochMillis(endTime) - DateTime.toEpochMillis(startTime);
 
       return {
         filesScanned: totalFilesScanned,

@@ -19,6 +19,7 @@ import { IndexMeta as IndexMetaSchema } from "../IndexedSymbol.js";
 
 /**
  * Re-exported index metadata schema-derived type.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -31,6 +32,7 @@ export type IndexMeta = ImportedIndexMeta;
 /**
  * Staleness threshold in milliseconds (1 hour).
  * If the index is older than this, a warning is appended to the overview.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -38,6 +40,7 @@ export const STALENESS_THRESHOLD_MS = 3_600_000;
 
 /**
  * Default directory name where the code index is stored.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -45,6 +48,7 @@ export const INDEX_DIR = ".code-index" as const;
 
 /**
  * File name for the index metadata JSON file.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -56,6 +60,7 @@ export const INDEX_META_FILE = "index-meta.json" as const;
 
 /**
  * Input received from Claude Code on session start via stdin.
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -70,6 +75,7 @@ export const SessionStartInput = S.Struct({
 
 /**
  * TypeScript type derived from the SessionStartInput schema.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -81,6 +87,7 @@ export type SessionStartInput = typeof SessionStartInput.Type;
 
 /**
  * Summary statistics for a single package in the index.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -110,8 +117,12 @@ const IndexMetaFromJson = S.fromJsonString(IndexMetaSchema);
  * of indexed symbols, files, and available MCP tools. If the index is stale,
  * appends a staleness warning.
  *
+ * @param indexMeta indexMeta parameter value.
+ * @param _packageStats _packageStats parameter value.
+ * @param isStale isStale parameter value.
  * @since 0.0.0
  * @category builders
+ * @returns Returns the computed value.
  */
 export const generateSessionOverview = (
   indexMeta: IndexMeta | null,

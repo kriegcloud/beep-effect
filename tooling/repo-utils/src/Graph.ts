@@ -24,7 +24,9 @@ import { CyclicDependencyError } from "./errors/index.js";
  * `G.DirectedGraph<string, void>` and a bidirectional lookup
  * between package names and node indices.
  *
+ * @param adjacencyList Package dependency adjacency list.
  * @internal
+ * @returns Graph plus lookup maps for package names and node indices.
  */
 const fromAdjacencyList = (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
@@ -98,7 +100,6 @@ const fromAdjacencyList = (
  *   console.log(order) // ["C", "B", "A"]
  * })
  * ```
- *
  * @since 0.0.0
  * @category algorithms
  */
@@ -142,6 +143,8 @@ export const topologicalSort: (
  *
  * Returns an empty array when the graph is acyclic.
  *
+ * @param adjacencyList Package dependency adjacency list.
+ * @returns Effect producing all detected cycle paths.
  * @example
  * ```ts
  * import { Effect, HashMap, HashSet } from "effect"
@@ -158,7 +161,6 @@ export const topologicalSort: (
  *   // cycles contains [["A", "B", "C", "A"]] (or similar rotation)
  * })
  * ```
- *
  * @since 0.0.0
  * @category algorithms
  */
@@ -227,7 +229,12 @@ export const detectCycles = (
  * Build an explicit cycle path through an SCC by DFS, returning a path of
  * the form `[start, ..., start]`.
  *
+ * @param graph Directed dependency graph.
+ * @param startIdx Starting node index for cycle reconstruction.
+ * @param memberSet Node-index membership set for the SCC.
+ * @param indexToName Lookup map from node index to package name.
  * @internal
+ * @returns Cycle path as package names when found, otherwise an empty array.
  */
 const buildCyclePath = (
   graph: G.DirectedGraph<string, void>,
@@ -288,6 +295,9 @@ const buildCyclePath = (
  *
  * Uses BFS traversal via the built-in `Graph.bfs`.
  *
+ * @param adjacencyList Package dependency adjacency list.
+ * @param pkg Package name whose dependency closure should be computed.
+ * @returns Effect producing all transitively reachable dependencies.
  * @example
  * ```ts
  * import { Effect, HashMap, HashSet } from "effect"
@@ -304,7 +314,6 @@ const buildCyclePath = (
  *   // deps = HashSet("B", "C")
  * })
  * ```
- *
  * @since 0.0.0
  * @category algorithms
  */

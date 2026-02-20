@@ -1,5 +1,6 @@
 /**
  * Semantic codebase search package public entrypoint.
+ *
  * @since 0.0.0
  * @packageDocumentation
  */

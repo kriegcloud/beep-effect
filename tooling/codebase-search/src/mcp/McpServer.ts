@@ -6,6 +6,7 @@
  */
 
 import { Effect, Layer, Logger } from "effect";
+import * as ServiceMap from "effect/ServiceMap";
 import type { Stdio } from "effect/Stdio";
 import { McpServer as EffectMcpServer, type Tool, Toolkit } from "effect/unstable/ai";
 import type {
@@ -38,7 +39,7 @@ export const CodebaseSearchToolkit = Toolkit.make(SearchCodebaseTool, FindRelate
  * @since 0.0.0
  * @category types
  */
-export interface McpServerConfig {
+export interface McpServerConfigShape {
   /** Absolute path to the monorepo root directory. */
   readonly rootDir: string;
   /** Absolute or cwd-relative path to the search index directory. */
@@ -46,18 +47,33 @@ export interface McpServerConfig {
 }
 
 /**
- * Create toolkit handler layer for all MCP tools.
+ * Service tag for MCP runtime configuration.
  *
  * @since 0.0.0
- * @category layers
+ * @category services
  */
-export const makeToolkitHandlerLayer: (
-  config: McpServerConfig
-) => Layer.Layer<
+export class McpServerConfig extends ServiceMap.Service<McpServerConfig, McpServerConfigShape>()(
+  "@beep/codebase-search/mcp/McpServerConfig"
+) {}
+
+/**
+ * Create a layer supplying MCP runtime configuration.
+ *
+ * @param config config parameter value.
+ * @since 0.0.0
+ * @category layers
+ * @returns Returns the computed value.
+ */
+export const makeMcpServerConfigLayer = (config: McpServerConfigShape): Layer.Layer<McpServerConfig> =>
+  Layer.succeed(McpServerConfig, McpServerConfig.of(config));
+
+const makeToolkitHandlerLayerFromConfig = (
+  config: McpServerConfigShape
+): Layer.Layer<
   Tool.HandlersFor<Toolkit.Tools<typeof CodebaseSearchToolkit>>,
   never,
   LanceDbWriter | HybridSearch | RelationResolver | Pipeline
-> = (config) => {
+> => {
   const runHandler = <A, R>(
     effect: Effect.Effect<
       A,
@@ -105,15 +121,31 @@ export const makeToolkitHandlerLayer: (
 };
 
 /**
+ * Create toolkit handler layer for all MCP tools.
+ *
+ * @since 0.0.0
+ * @category layers
+ * @returns Returns the computed value.
+ */
+export const makeToolkitHandlerLayer: Layer.Layer<
+  Tool.HandlersFor<Toolkit.Tools<typeof CodebaseSearchToolkit>>,
+  never,
+  LanceDbWriter | HybridSearch | RelationResolver | Pipeline | McpServerConfig
+> = Layer.unwrap(Effect.map(Effect.service(McpServerConfig), makeToolkitHandlerLayerFromConfig));
+
+/**
  * Create complete MCP server layer with stdio transport.
  *
  * @since 0.0.0
  * @category layers
+ * @returns Returns the computed value.
  */
-export const makeServerLayer: (
-  config: McpServerConfig
-) => Layer.Layer<never, never, LanceDbWriter | HybridSearch | RelationResolver | Pipeline | Stdio> = (config) => {
-  const handlersLayer = makeToolkitHandlerLayer(config);
+export const makeServerLayer: Layer.Layer<
+  never,
+  never,
+  LanceDbWriter | HybridSearch | RelationResolver | Pipeline | Stdio | McpServerConfig
+> = (() => {
+  const handlersLayer = makeToolkitHandlerLayer;
   const registrationLayer = Layer.effectDiscard(EffectMcpServer.registerToolkit(CodebaseSearchToolkit));
 
   return registrationLayer.pipe(
@@ -126,4 +158,4 @@ export const makeServerLayer: (
     ),
     Layer.provide(Layer.succeed(Logger.LogToStderr)(true))
   );
-};
+})();

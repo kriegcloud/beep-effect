@@ -23,6 +23,7 @@ import type { EffectPattern, FieldDoc } from "../IndexedSymbol.js";
 /**
  * Metadata extracted from a Schema `.annotate()` call including the identifier,
  * human-readable title, and description fields.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -39,6 +40,7 @@ export interface SchemaAnnotations {
 /**
  * Mapping of Effect API call expression prefixes to their canonical EffectPattern values.
  * Used for text-based pattern matching on node source text.
+ *
  * @internal
  */
 const TEXT_PATTERNS: ReadonlyArray<readonly [string, EffectPattern]> = [
@@ -59,6 +61,7 @@ const TEXT_PATTERNS: ReadonlyArray<readonly [string, EffectPattern]> = [
  * Schema call expression patterns mapped from their function name to the
  * corresponding EffectPattern. Checked against the initializer text of
  * variable declarations.
+ *
  * @internal
  */
 const SCHEMA_CALL_PATTERNS: ReadonlyArray<readonly [string, EffectPattern]> = [
@@ -72,13 +75,22 @@ const SCHEMA_CALL_PATTERNS: ReadonlyArray<readonly [string, EffectPattern]> = [
   ["Schema.TaggedStruct(", "Schema.TaggedStruct"],
 ] as const;
 
-/** @internal */
+/**
+ * @param haystack haystack parameter value.
+ * @param needle needle parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const containsSubstring = (haystack: string, needle: string): boolean => Str.includes(needle)(haystack);
 
 /**
  * Extracts a string-valued field from an object literal text.
  * Handles both single-quoted and double-quoted values.
+ *
+ * @param text text parameter value.
+ * @param fieldName fieldName parameter value.
  * @internal
+ * @returns Returns the computed value.
  */
 const extractStringField = (text: string, fieldName: string): string | null => {
   // Match field: "value" or field: 'value' (single-line)
@@ -100,7 +112,7 @@ const extractStringField = (text: string, fieldName: string): string | null => {
     text,
     Str.match(multiLineRegex),
     O.fromNullishOr,
-    O.flatMap((m) => A.get(m, 1)),
+    O.flatMap(A.get(1)),
     O.filter((s) => Str.length(s) > 0)
   );
   if (O.isSome(multiResult)) {
@@ -119,8 +131,11 @@ const extractStringField = (text: string, fieldName: string): string | null => {
  * AST node matches. Uses a priority-ordered decision tree: TaggedErrorClass
  * class declarations first, then Schema call expressions, then general
  * text-based pattern matching. Returns null if no pattern is detected.
+ *
+ * @param node node parameter value.
  * @since 0.0.0
  * @category detectors
+ * @returns Returns the computed value.
  */
 export const detectEffectPattern = (node: Node): EffectPattern | null => {
   // 1. TaggedErrorClass: class declaration with heritage clause
@@ -186,8 +201,11 @@ export const detectEffectPattern = (node: Node): EffectPattern | null => {
  * Extracts `.annotate()` metadata from a Schema expression AST node. Parses
  * the annotation object literal to find identifier, title, and description
  * string fields. Returns null if no `.annotate()` call is found on the node.
+ *
+ * @param node node parameter value.
  * @since 0.0.0
  * @category extractors
+ * @returns Returns the computed value.
  */
 export const extractSchemaAnnotations = (node: Node): SchemaAnnotations | null => {
   const text = node.getText();
@@ -225,8 +243,11 @@ export const extractSchemaAnnotations = (node: Node): SchemaAnnotations | null =
  * Extracts per-field `.annotateKey()` metadata from a Schema.Struct declaration
  * AST node. Returns an array of FieldDoc objects containing the field name and
  * its description, or null if no annotateKey calls are found.
+ *
+ * @param node node parameter value.
  * @since 0.0.0
  * @category extractors
+ * @returns Returns the computed value.
  */
 export const extractFieldAnnotations = (node: Node): ReadonlyArray<FieldDoc> | null => {
   const text = node.getText();

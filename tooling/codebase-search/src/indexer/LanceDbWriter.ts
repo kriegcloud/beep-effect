@@ -10,6 +10,7 @@ import { Effect, Layer, Order } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as ServiceMap from "effect/ServiceMap";
 import * as Str from "effect/String";
 import { IndexingError } from "../errors.js";
@@ -22,6 +23,7 @@ import { buildKeywordText } from "../IndexedSymbol.js";
 
 /**
  * A symbol paired with its embedding vector for storage in LanceDB.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -32,6 +34,7 @@ export interface SymbolWithVector {
 
 /**
  * Options for controlling vector similarity search.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -43,6 +46,7 @@ export interface VectorSearchOptions {
 
 /**
  * A single result from a vector similarity search.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -54,6 +58,7 @@ export interface VectorSearchResult {
 
 /**
  * Parsed metadata subset used by browse and relation resolvers.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -65,6 +70,7 @@ export interface StoredSymbolMetadata {
 
 /**
  * Metadata record loaded from LanceDB for one indexed symbol.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -84,6 +90,7 @@ export interface StoredSymbolRecord {
 
 /**
  * Optional metadata query filters for row listing.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -101,17 +108,20 @@ export interface ListSymbolsOptions {
 
 /**
  * Shape of the LanceDbWriter service interface.
+ *
  * @since 0.0.0
  * @category models
  */
 export interface LanceDbWriterShape {
   /**
    * Create or overwrite the "symbols" table.
+   *
    * @since 0.0.0
    */
   readonly createTable: () => Effect.Effect<void, IndexingError>;
   /**
    * Delete rows for modified/deleted files, then insert new symbol rows.
+   *
    * @since 0.0.0
    */
   readonly upsert: (
@@ -120,11 +130,13 @@ export interface LanceDbWriterShape {
   ) => Effect.Effect<void, IndexingError>;
   /**
    * Delete all rows matching the given file paths.
+   *
    * @since 0.0.0
    */
   readonly deleteByFiles: (filePaths: ReadonlyArray<string>) => Effect.Effect<void, IndexingError>;
   /**
    * Perform a cosine-distance vector search.
+   *
    * @since 0.0.0
    */
   readonly vectorSearch: (
@@ -133,11 +145,13 @@ export interface LanceDbWriterShape {
   ) => Effect.Effect<ReadonlyArray<VectorSearchResult>, IndexingError>;
   /**
    * Get one symbol row by ID.
+   *
    * @since 0.0.0
    */
   readonly getById: (symbolId: string) => Effect.Effect<O.Option<StoredSymbolRecord>, IndexingError>;
   /**
    * List symbol rows with optional filters.
+   *
    * @since 0.0.0
    */
   readonly list: (
@@ -145,6 +159,7 @@ export interface LanceDbWriterShape {
   ) => Effect.Effect<ReadonlyArray<StoredSymbolRecord>, IndexingError>;
   /**
    * Count total rows in the symbols table.
+   *
    * @since 0.0.0
    */
   readonly countRows: () => Effect.Effect<number, IndexingError>;
@@ -169,55 +184,132 @@ export class LanceDbWriter extends ServiceMap.Service<LanceDbWriter, LanceDbWrit
 /** @internal */
 const TABLE_NAME = "symbols" as const;
 
-/** @internal */
-const symbolToRow = (swv: SymbolWithVector): Record<string, unknown> => {
-  const s = swv.symbol;
-  return {
-    vector: swv.vector,
-    id: s.id,
-    name: s.name,
-    qualified_name: s.qualifiedName,
-    file_path: s.filePath,
-    start_line: s.startLine,
-    end_line: s.endLine,
-    kind: s.kind,
-    effect_pattern: s.effectPattern,
-    package: s.package,
-    module: s.module,
-    category: s.category,
-    domain: s.domain,
-    description: s.description,
-    title: s.title,
-    signature: s.signature,
-    since: s.since,
-    deprecated: s.deprecated,
-    keyword_text: buildKeywordText(s),
-    content_hash: s.contentHash,
-    indexed_at: s.indexedAt,
-    metadata_json: JSON.stringify({
-      schemaIdentifier: s.schemaIdentifier,
-      schemaDescription: s.schemaDescription,
-      remarks: s.remarks,
-      moduleDescription: s.moduleDescription,
-      examples: s.examples,
-      params: s.params,
-      returns: s.returns,
-      errors: s.errors,
-      fieldDescriptions: s.fieldDescriptions,
-      seeRefs: s.seeRefs,
-      provides: s.provides,
-      dependsOn: s.dependsOn,
-      imports: s.imports,
-      exported: s.exported,
-      embeddingText: s.embeddingText,
-    }),
-  };
-};
+const ParamDocSchema = S.Struct({
+  name: S.String,
+  description: S.String,
+});
+
+const FieldDocSchema = S.Struct({
+  name: S.String,
+  description: S.String,
+});
+
+const StoredMetadataPayloadSchema = S.Struct({
+  schemaIdentifier: S.NullOr(S.String),
+  schemaDescription: S.NullOr(S.String),
+  remarks: S.NullOr(S.String),
+  moduleDescription: S.NullOr(S.String),
+  examples: S.Array(S.String),
+  params: S.Array(ParamDocSchema),
+  returns: S.NullOr(S.String),
+  errors: S.Array(S.String),
+  fieldDescriptions: S.NullOr(S.Array(FieldDocSchema)),
+  seeRefs: S.Array(S.String),
+  provides: S.Array(S.String),
+  dependsOn: S.Array(S.String),
+  imports: S.Array(S.String),
+  exported: S.Boolean,
+  embeddingText: S.String,
+});
+
+type StoredMetadataPayload = typeof StoredMetadataPayloadSchema.Type;
+
+const StoredMetadataFromJson = S.fromJsonString(StoredMetadataPayloadSchema);
+
+const VectorSearchRowSchema = S.Struct({
+  id: S.String,
+  _distance: S.Number,
+  metadata_json: S.String,
+});
+
+type VectorSearchRow = typeof VectorSearchRowSchema.Type;
+
+const StoredSymbolRowSchema = S.Struct({
+  id: S.String,
+  name: S.String,
+  kind: S.String,
+  package: S.String,
+  module: S.String,
+  file_path: S.String,
+  start_line: S.Number,
+  description: S.String,
+  signature: S.String,
+  metadata_json: S.String,
+});
+
+type StoredSymbolRow = typeof StoredSymbolRowSchema.Type;
+
+const buildStoredMetadataPayload = (symbol: IndexedSymbol): StoredMetadataPayload => ({
+  schemaIdentifier: symbol.schemaIdentifier,
+  schemaDescription: symbol.schemaDescription,
+  remarks: symbol.remarks,
+  moduleDescription: symbol.moduleDescription,
+  examples: symbol.examples,
+  params: symbol.params,
+  returns: symbol.returns,
+  errors: symbol.errors,
+  fieldDescriptions: symbol.fieldDescriptions,
+  seeRefs: symbol.seeRefs,
+  provides: symbol.provides,
+  dependsOn: symbol.dependsOn,
+  imports: symbol.imports,
+  exported: symbol.exported,
+  embeddingText: symbol.embeddingText,
+});
+
+const encodeMetadataJson = (symbol: IndexedSymbol): Effect.Effect<string, IndexingError> =>
+  S.encodeUnknownEffect(StoredMetadataFromJson)(buildStoredMetadataPayload(symbol)).pipe(
+    Effect.mapError(
+      (error) =>
+        new IndexingError({
+          message: `Failed to encode symbol metadata for "${symbol.id}": ${String(error)}`,
+          phase: "lancedb-write",
+        })
+    )
+  );
+
+/**
+ * @param swv swv parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const symbolToRow = (swv: SymbolWithVector): Effect.Effect<Record<string, unknown>, IndexingError> =>
+  Effect.gen(function* () {
+    const s = swv.symbol;
+    const metadataJson = yield* encodeMetadataJson(s);
+    return {
+      vector: swv.vector,
+      id: s.id,
+      name: s.name,
+      qualified_name: s.qualifiedName,
+      file_path: s.filePath,
+      start_line: s.startLine,
+      end_line: s.endLine,
+      kind: s.kind,
+      effect_pattern: s.effectPattern,
+      package: s.package,
+      module: s.module,
+      category: s.category,
+      domain: s.domain,
+      description: s.description,
+      title: s.title,
+      signature: s.signature,
+      since: s.since,
+      deprecated: s.deprecated,
+      keyword_text: buildKeywordText(s),
+      content_hash: s.contentHash,
+      indexed_at: s.indexedAt,
+      metadata_json: metadataJson,
+    };
+  });
 
 /** @internal */
 const DUMMY_ID = "__dummy__" as const;
 
-/** @internal */
+/**
+ * @internal
+ * @returns Returns a placeholder row used for table bootstrap.
+ */
 const makeDummyRow = (): Record<string, unknown> => ({
   vector: new Float32Array(768),
   id: DUMMY_ID,
@@ -243,7 +335,11 @@ const makeDummyRow = (): Record<string, unknown> => ({
   metadata_json: "{}",
 });
 
-/** @internal */
+/**
+ * @param filePaths filePaths parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const buildFilePathPredicate = (filePaths: ReadonlyArray<string>): string => {
   const quoted = pipe(
     filePaths,
@@ -252,7 +348,11 @@ const buildFilePathPredicate = (filePaths: ReadonlyArray<string>): string => {
   return `file_path IN (${A.join(", ")(quoted)})`;
 };
 
-/** @internal */
+/**
+ * @param value value parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const escapeSqlString = (value: string): string => Str.replace(/'/g, "''")(value);
 
 /** @internal */
@@ -269,50 +369,83 @@ const SELECT_COLUMNS: ReadonlyArray<string> = [
   "metadata_json",
 ];
 
-/** @internal */
+/**
+ * @param value value parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const parseStringArray = (value: unknown): ReadonlyArray<string> =>
   Array.isArray(value)
     ? value.filter((entry): entry is string => typeof entry === "string" && entry.length > 0)
     : A.empty<string>();
 
-/** @internal */
-const parseMetadata = (json: string): StoredSymbolMetadata => {
-  try {
-    const parsed = JSON.parse(json) as {
-      readonly imports?: unknown;
-      readonly provides?: unknown;
-      readonly dependsOn?: unknown;
-    };
-    return {
+const emptyStoredSymbolMetadata = (): StoredSymbolMetadata => ({
+  imports: A.empty<string>(),
+  provides: A.empty<string>(),
+  dependsOn: A.empty<string>(),
+});
+
+/**
+ * @param json json parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const parseMetadata = (json: string): Effect.Effect<StoredSymbolMetadata> =>
+  S.decodeUnknownEffect(StoredMetadataFromJson)(json).pipe(
+    Effect.map((parsed) => ({
       imports: parseStringArray(parsed.imports),
       provides: parseStringArray(parsed.provides),
       dependsOn: parseStringArray(parsed.dependsOn),
-    };
-  } catch {
-    return {
-      imports: A.empty<string>(),
-      provides: A.empty<string>(),
-      dependsOn: A.empty<string>(),
-    };
-  }
-};
+    })),
+    Effect.orElseSucceed(emptyStoredSymbolMetadata)
+  );
 
-/** @internal */
-const rowToStoredSymbolRecord = (row: Record<string, unknown>): StoredSymbolRecord => {
-  const metadataJson = String(row.metadata_json ?? "{}");
-  return {
-    id: String(row.id ?? ""),
-    name: String(row.name ?? ""),
-    kind: String(row.kind ?? "unknown"),
-    package: String(row.package ?? ""),
-    module: String(row.module ?? ""),
-    filePath: String(row.file_path ?? ""),
-    startLine: Number(row.start_line ?? 0),
-    description: String(row.description ?? ""),
-    signature: String(row.signature ?? ""),
-    metadataJson,
-    metadata: parseMetadata(metadataJson),
-  };
+const parseMetadataSync = (json: string): StoredSymbolMetadata => Effect.runSync(parseMetadata(json));
+
+const decodeVectorSearchRows = (value: unknown): Effect.Effect<ReadonlyArray<VectorSearchRow>, IndexingError> =>
+  S.decodeUnknownEffect(S.Array(VectorSearchRowSchema))(value).pipe(
+    Effect.mapError(
+      (error) =>
+        new IndexingError({
+          message: `Failed to decode vector search rows: ${String(error)}`,
+          phase: "lancedb-search",
+        })
+    )
+  );
+
+const decodeStoredSymbolRows = (value: unknown): Effect.Effect<ReadonlyArray<StoredSymbolRow>, IndexingError> =>
+  S.decodeUnknownEffect(S.Array(StoredSymbolRowSchema))(value).pipe(
+    Effect.mapError(
+      (error) =>
+        new IndexingError({
+          message: `Failed to decode symbol rows: ${String(error)}`,
+          phase: "lancedb-search",
+        })
+    )
+  );
+
+/**
+ * @param row row parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const rowToStoredSymbolRecord = (row: StoredSymbolRow): Effect.Effect<StoredSymbolRecord> => {
+  const metadataJson = row.metadata_json;
+  return parseMetadata(metadataJson).pipe(
+    Effect.map((metadata) => ({
+      id: row.id,
+      name: row.name,
+      kind: row.kind,
+      package: row.package,
+      module: row.module,
+      filePath: row.file_path,
+      startLine: row.start_line,
+      description: row.description,
+      signature: row.signature,
+      metadataJson,
+      metadata,
+    }))
+  );
 };
 
 // ---------------------------------------------------------------------------
@@ -323,8 +456,10 @@ const rowToStoredSymbolRecord = (row: Record<string, unknown>): StoredSymbolReco
  * Live layer for `LanceDbWriter` that connects to a LanceDB database at the
  * specified `indexPath` directory. All operations are wrapped in `IndexingError`.
  *
+ * @param indexPath indexPath parameter value.
  * @since 0.0.0
  * @category layers
+ * @returns Returns the computed value.
  */
 export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter, IndexingError> = (
   indexPath: string
@@ -408,7 +543,7 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
 
           // Insert new rows
           if (A.isReadonlyArrayNonEmpty(symbols)) {
-            const rows = A.map(symbols, symbolToRow);
+            const rows = yield* Effect.forEach(symbols, symbolToRow);
             yield* Effect.tryPromise({
               try: () => tbl.add(rows),
               catch: (error) =>
@@ -465,7 +600,8 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
               }),
           });
 
-          return A.map(results as ReadonlyArray<Record<string, unknown>>, (row) => ({
+          const rows = yield* decodeVectorSearchRows(results);
+          return A.map(rows, (row) => ({
             id: String(row.id),
             score: 1 - Number(row._distance),
             metadataJson: String(row.metadata_json),
@@ -490,8 +626,15 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
             }),
         });
 
-        const firstRow = pipe(A.fromIterable(rows as ReadonlyArray<Record<string, unknown>>), A.head);
-        return pipe(firstRow, O.map(rowToStoredSymbolRecord));
+        const decodedRows = yield* decodeStoredSymbolRows(rows);
+        const firstRow = pipe(A.fromIterable(decodedRows), A.head);
+        return yield* pipe(
+          firstRow,
+          O.match({
+            onNone: () => Effect.succeed(O.none<StoredSymbolRecord>()),
+            onSome: (row) => rowToStoredSymbolRecord(row).pipe(Effect.map(O.some)),
+          })
+        );
       });
 
       const list: LanceDbWriterShape["list"] = Effect.fn("LanceDbWriter.list")(function* (options) {
@@ -533,7 +676,8 @@ export const LanceDbWriterLive: (indexPath: string) => Layer.Layer<LanceDbWriter
             }),
         });
 
-        return A.map(rows as ReadonlyArray<Record<string, unknown>>, rowToStoredSymbolRecord);
+        const decodedRows = yield* decodeStoredSymbolRows(rows);
+        return yield* Effect.forEach(decodedRows, rowToStoredSymbolRecord);
       });
 
       const countRows: LanceDbWriterShape["countRows"] = Effect.fn("LanceDbWriter.countRows")(function* () {
@@ -585,7 +729,12 @@ const byScoreDescending: Order.Order<VectorSearchResult> = Order.mapInput(
   (r: VectorSearchResult) => r.score
 );
 
-/** @internal Compute cosine distance between two Float32Array vectors. */
+/**
+ * @param a a parameter value.
+ * @param b b parameter value.
+ * @internal Compute cosine distance between two Float32Array vectors.
+ * @returns Returns the computed value.
+ */
 const cosineDistance = (a: Float32Array, b: Float32Array): number => {
   let dotProduct = 0;
   let normA = 0;
@@ -641,13 +790,7 @@ export const LanceDbWriterMock: Layer.Layer<LanceDbWriter> = Layer.succeed(
               description: swv.symbol.description,
               signature: swv.symbol.signature,
               vector: swv.vector,
-              metadataJson: JSON.stringify({
-                schemaIdentifier: swv.symbol.schemaIdentifier,
-                schemaDescription: swv.symbol.schemaDescription,
-                provides: swv.symbol.provides,
-                dependsOn: swv.symbol.dependsOn,
-                imports: swv.symbol.imports,
-              }),
+              metadataJson: Effect.runSync(encodeMetadataJson(swv.symbol).pipe(Effect.orElseSucceed(() => "{}"))),
             })
           );
           rows = pipe(rows, A.appendAll(newRows));
@@ -662,7 +805,7 @@ export const LanceDbWriterMock: Layer.Layer<LanceDbWriter> = Layer.succeed(
 
       const vectorSearch: LanceDbWriterShape["vectorSearch"] = (queryVector, options) =>
         Effect.sync(() => {
-          let filtered = rows as ReadonlyArray<MockRow>;
+          let filtered: ReadonlyArray<MockRow> = rows;
           if (options.kind !== undefined) {
             filtered = A.filter(filtered, (r) => r.kind === options.kind);
           }
@@ -701,7 +844,7 @@ export const LanceDbWriterMock: Layer.Layer<LanceDbWriter> = Layer.succeed(
                 description: row.description,
                 signature: row.signature,
                 metadataJson: row.metadataJson,
-                metadata: parseMetadata(row.metadataJson),
+                metadata: parseMetadataSync(row.metadataJson),
               })
             )
           )
@@ -732,7 +875,7 @@ export const LanceDbWriterMock: Layer.Layer<LanceDbWriter> = Layer.succeed(
               description: row.description,
               signature: row.signature,
               metadataJson: row.metadataJson,
-              metadata: parseMetadata(row.metadataJson),
+              metadata: parseMetadataSync(row.metadataJson),
             })
           );
         });

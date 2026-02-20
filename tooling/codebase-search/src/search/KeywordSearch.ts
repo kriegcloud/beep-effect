@@ -11,7 +11,7 @@ import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
 import * as ServiceMap from "effect/ServiceMap";
 import type { IndexingError } from "../errors.js";
-import { Bm25Writer } from "../indexer/Bm25Writer.js";
+import { Bm25Writer } from "../indexer/index.js";
 
 // ---------------------------------------------------------------------------
 // Types

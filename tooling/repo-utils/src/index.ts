@@ -2,6 +2,7 @@
  * Effect-based monorepo utilities for repository analysis and workspace management.
  *
  * @since 0.0.0
+ * @packageDocumentation
  */
 
 /**

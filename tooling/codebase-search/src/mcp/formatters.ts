@@ -15,6 +15,7 @@ import * as Str from "effect/String";
 
 /**
  * Maximum signature length for MCP tool output.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -22,6 +23,7 @@ export const MCP_SIGNATURE_MAX_LENGTH = 200;
 
 /**
  * Maximum signature length for hook context injection.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -34,8 +36,11 @@ export const HOOK_SIGNATURE_MAX_LENGTH = 120;
 /**
  * Truncate a signature string to a maximum length.
  *
+ * @param signature signature parameter value.
+ * @param maxLength maxLength parameter value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const truncateSignature = (signature: string, maxLength: number): string => {
   if (Str.length(signature) <= maxLength) {
@@ -64,8 +69,10 @@ export interface ParsedSymbolId {
 /**
  * Parse a symbol ID into package/module/name components.
  *
+ * @param symbolId symbolId parameter value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const parseSymbolId = (symbolId: string): ParsedSymbolId => {
   const parts = A.fromIterable(symbolId.split("/"));
@@ -167,8 +174,14 @@ export interface FormattedSearchResult {
 /**
  * Format search results for the `search_codebase` MCP tool.
  *
+ * @param results results parameter value.
+ * @param filters filters parameter value.
+ * @param filters.kind kind field value.
+ * @param filters.package package field value.
+ * @param searchMode searchMode parameter value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const formatSearchResults = (
   results: ReadonlyArray<RawSearchResult>,
@@ -271,8 +284,12 @@ export interface FormattedRelatedResult {
 /**
  * Format related symbols for the `find_related` MCP tool.
  *
+ * @param source source parameter value.
+ * @param relation relation parameter value.
+ * @param results results parameter value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const formatRelatedResults = (
   source: RelatedSource,
@@ -333,8 +350,11 @@ export interface FormattedBrowseResult {
 /**
  * Format browse output with explicit hierarchy level.
  *
+ * @param level level parameter value.
+ * @param items items parameter value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const formatBrowseResult = (level: BrowseLevel, items: ReadonlyArray<BrowseItem>): FormattedBrowseResult => ({
   level,
@@ -366,8 +386,16 @@ export interface FormattedReindexResult {
 /**
  * Format reindex tool output.
  *
+ * @param mode mode parameter value.
+ * @param stats stats parameter value.
+ * @param stats.filesScanned filesScanned field value.
+ * @param stats.filesChanged filesChanged field value.
+ * @param stats.symbolsIndexed symbolsIndexed field value.
+ * @param stats.symbolsRemoved symbolsRemoved field value.
+ * @param stats.durationMs durationMs field value.
  * @since 0.0.0
  * @category formatters
+ * @returns Returns the computed value.
  */
 export const formatReindexResult = (
   mode: string,

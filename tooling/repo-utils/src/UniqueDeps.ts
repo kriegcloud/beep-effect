@@ -42,7 +42,6 @@ export interface UniqueNpmDeps {
  * @param rootDir - Absolute path to the monorepo root directory.
  * @returns An object with sorted, deduplicated `dependencies` and
  *   `devDependencies` arrays.
- *
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -54,7 +53,6 @@ export interface UniqueNpmDeps {
  *   console.log("Dev deps:", unique.devDependencies)
  * })
  * ```
- *
  * @since 0.0.0
  * @category functions
  */

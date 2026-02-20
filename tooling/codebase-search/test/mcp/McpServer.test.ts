@@ -15,7 +15,7 @@ import type { SymbolWithVector } from "../../src/indexer/LanceDbWriter.js";
 import { LanceDbWriter, LanceDbWriterMock } from "../../src/indexer/LanceDbWriter.js";
 import { PipelineMock } from "../../src/indexer/Pipeline.js";
 import { ErrorCodes, formatError } from "../../src/mcp/contracts.js";
-import { CodebaseSearchToolkit, makeToolkitHandlerLayer } from "../../src/mcp/McpServer.js";
+import { CodebaseSearchToolkit, makeMcpServerConfigLayer, makeToolkitHandlerLayer } from "../../src/mcp/McpServer.js";
 import { HybridSearchLive } from "../../src/search/HybridSearch.js";
 import { RelationResolverLive } from "../../src/search/RelationResolver.js";
 
@@ -81,10 +81,10 @@ const PathMock = Layer.mock(Path.Path)({
 
 const BaseServices = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, Bm25WriterMock);
 const SearchServices = Layer.mergeAll(HybridSearchLive, RelationResolverLive).pipe(Layer.provideMerge(BaseServices));
-const HandlerLayer = makeToolkitHandlerLayer({
-  rootDir: "/root",
-  indexPath: "/root/.code-index",
-}).pipe(Layer.provideMerge(Layer.mergeAll(SearchServices, PipelineMock, FsMock, PathMock)));
+const HandlerLayer = makeToolkitHandlerLayer.pipe(
+  Layer.provideMerge(makeMcpServerConfigLayer({ rootDir: "/root", indexPath: "/root/.code-index" })),
+  Layer.provideMerge(Layer.mergeAll(SearchServices, PipelineMock, FsMock, PathMock))
+);
 
 const seedIndex = Effect.fn(function* () {
   const lance = yield* LanceDbWriter;

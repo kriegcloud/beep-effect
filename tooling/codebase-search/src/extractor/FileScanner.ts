@@ -18,6 +18,9 @@ import * as Str from "effect/String";
 
 import { IndexingError } from "../errors.js";
 
+const thunkEmptyStr = () => "";
+const thunkFalse = () => false;
+
 // ---------------------------------------------------------------------------
 // FileHash
 // ---------------------------------------------------------------------------
@@ -25,6 +28,7 @@ import { IndexingError } from "../errors.js";
 /**
  * A record of a file path and its SHA-256 content hash, used for change
  * detection during incremental indexing.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -41,6 +45,7 @@ export interface FileHash {
  * The result of a file scan operation, classifying discovered files into
  * added, modified, deleted, and unchanged categories for incremental
  * indexing decisions.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -58,6 +63,7 @@ export interface ScanResult {
 /**
  * The scanning mode: "full" treats all files as newly added, "incremental"
  * compares against previously stored content hashes.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -69,6 +75,7 @@ export type ScanMode = "full" | "incremental";
 
 /**
  * Effect Schema for a single file hash entry persisted in the file hashes JSON.
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -83,6 +90,7 @@ const FileHashEntry = S.Struct({
 
 /**
  * Effect Schema for the persisted file hashes JSON file, an array of hash entries.
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -101,6 +109,7 @@ const FileHashesFromJson = S.fromJsonString(FileHashesFile);
 
 /**
  * The relative path to the stored file hashes JSON within the index directory.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -116,13 +125,25 @@ const GLOB_PATTERNS: ReadonlyArray<string> = ["tooling/*/src/**/*.ts", "packages
 /** @internal */
 const EXCLUDE_PATTERNS: ReadonlyArray<RegExp> = [/\.test\./, /\.spec\./, /\/internal\//, /\.d\.ts$/];
 
-/** @internal */
+/**
+ * @param value value parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const toPosixPath = (value: string): string => value.replaceAll("\\", "/");
 
-/** @internal */
+/**
+ * @param filePath filePath parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const shouldIncludeFile = (filePath: string): boolean => !A.some(EXCLUDE_PATTERNS, (pattern) => pattern.test(filePath));
 
-/** @internal */
+/**
+ * @param content content parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const computeFileHash = (content: string): string => crypto.createHash("sha256").update(content).digest("hex");
 
 /** @internal */
@@ -139,18 +160,12 @@ const collectTsFiles: (
   for (const pattern of GLOB_PATTERNS) {
     // Extract the base directory from the glob pattern (first segment)
     const patternParts = Str.split("/")(pattern);
-    const baseDir = pipe(
-      A.head(patternParts),
-      O.getOrElse(() => "")
-    );
+    const baseDir = pipe(A.head(patternParts), O.getOrElse(thunkEmptyStr));
 
     const fullBaseDir = path.join(rootDir, baseDir);
 
     // Check if the base directory exists
-    const exists = yield* pipe(
-      fs.exists(fullBaseDir),
-      Effect.orElseSucceed(() => false)
-    );
+    const exists = yield* pipe(fs.exists(fullBaseDir), Effect.orElseSucceed(thunkFalse));
 
     if (!exists) continue;
 
@@ -229,13 +244,10 @@ const loadStoredHashes: (
 
   const hashesPath = path.join(rootDir, FILE_HASHES_PATH);
 
-  const exists = yield* pipe(
-    fs.exists(hashesPath),
-    Effect.orElseSucceed(() => false)
-  );
+  const exists = yield* pipe(fs.exists(hashesPath), Effect.orElseSucceed(thunkFalse));
 
   if (!exists) {
-    return [] as ReadonlyArray<FileHash>;
+    return A.empty<FileHash>();
   }
 
   const content = yield* pipe(

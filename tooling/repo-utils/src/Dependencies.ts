@@ -15,6 +15,10 @@ import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js
 
 /**
  * Classify a single dependency record into workspace and npm buckets.
+ *
+ * @param record Dependency record keyed by package name.
+ * @param workspaceNames Set of package names that belong to local workspaces.
+ * @returns Classified dependency maps for workspace and npm packages.
  */
 const classifyRecord = (
   record: Readonly<Record<string, string>> | undefined,
@@ -46,7 +50,6 @@ const classifyRecord = (
  * @param packageJson - A decoded PackageJson object.
  * @param workspaceNames - A HashSet of all workspace package names in the monorepo.
  * @returns A `WorkspaceDeps` object with classified dependencies.
- *
  * @example
  * ```ts
  * import { HashSet } from "effect"
@@ -59,7 +62,6 @@ const classifyRecord = (
  * // deps.workspace.dependencies -> { "@my/other": "workspace:*" }
  * // deps.npm.dependencies -> { "lodash": "^4.0.0" }
  * ```
- *
  * @since 0.0.0
  * @category functions
  */

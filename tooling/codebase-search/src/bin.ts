@@ -13,24 +13,21 @@
 import { BunStdio } from "@effect/platform-bun";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
-import { Bm25WriterLive } from "./indexer/Bm25Writer.js";
-import { EmbeddingServiceLive } from "./indexer/EmbeddingService.js";
-import { LanceDbWriterLive } from "./indexer/LanceDbWriter.js";
+import { Config, Effect, Layer } from "effect";
+import { Bm25WriterLive, EmbeddingServiceLive, LanceDbWriterLive } from "./indexer/index.js";
 import { PipelineLive } from "./indexer/Pipeline.js";
-import { makeServerLayer } from "./mcp/McpServer.js";
-import { HybridSearchLive } from "./search/HybridSearch.js";
-import { RelationResolverLive } from "./search/RelationResolver.js";
+import { makeMcpServerConfigLayer, makeServerLayer } from "./mcp/index.js";
+import { HybridSearchLive, RelationResolverLive } from "./search/index.js";
 
 // ---------------------------------------------------------------------------
 // Configuration from environment
 // ---------------------------------------------------------------------------
 
 /** @internal */
-const rootDir = process.env.CODEBASE_ROOT ?? ".";
-
-/** @internal */
-const indexPath = process.env.INDEX_PATH ?? ".code-index";
+const ServerConfig = Config.all({
+  rootDir: Config.string("CODEBASE_ROOT").pipe(Config.withDefault(() => ".")),
+  indexPath: Config.string("INDEX_PATH").pipe(Config.withDefault(() => ".code-index")),
+});
 
 // ---------------------------------------------------------------------------
 // Layer composition
@@ -39,30 +36,34 @@ const indexPath = process.env.INDEX_PATH ?? ".code-index";
 /** @internal */
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 
-/** @internal */
-const IndexerServicesLayer = Layer.mergeAll(
-  EmbeddingServiceLive,
-  LanceDbWriterLive(indexPath),
-  Bm25WriterLive(indexPath)
-);
+const program = Effect.gen(function* () {
+  const config = yield* ServerConfig;
 
-/** @internal */
-const SearchAndPipelineLayer = Layer.mergeAll(HybridSearchLive, RelationResolverLive, PipelineLive).pipe(
-  Layer.provideMerge(IndexerServicesLayer)
-);
+  const indexerServicesLayer = Layer.mergeAll(
+    EmbeddingServiceLive,
+    LanceDbWriterLive(config.indexPath),
+    Bm25WriterLive(config.indexPath)
+  );
 
-/** @internal */
-const McpLayer = makeServerLayer({ rootDir, indexPath }).pipe(
-  Layer.provide(SearchAndPipelineLayer),
-  Layer.provide(BunStdio.layer),
-  Layer.provide(PlatformLayer)
-);
+  const searchAndPipelineLayer = Layer.mergeAll(HybridSearchLive, RelationResolverLive, PipelineLive).pipe(
+    Layer.provideMerge(indexerServicesLayer)
+  );
+
+  const mcpLayer = makeServerLayer.pipe(
+    Layer.provide(makeMcpServerConfigLayer(config)),
+    Layer.provide(searchAndPipelineLayer),
+    Layer.provide(BunStdio.layer),
+    Layer.provide(PlatformLayer)
+  );
+
+  return yield* Layer.launch(mcpLayer);
+});
 
 // ---------------------------------------------------------------------------
 // Run
 // ---------------------------------------------------------------------------
 
-Layer.launch(McpLayer).pipe(
+program.pipe(
   Effect.orElseSucceed(() => undefined),
   BunRuntime.runMain
 );

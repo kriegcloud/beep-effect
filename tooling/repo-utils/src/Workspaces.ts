@@ -29,7 +29,6 @@ const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.tu
  *
  * @param rootDir - Absolute path to the monorepo root directory.
  * @returns A HashMap mapping package names to their absolute directory paths.
- *
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -40,7 +39,6 @@ const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.tu
  *   // HashMap<string, string> e.g. { "@mock/pkg-a" => "/path/to/repo/packages/pkg-a" }
  * })
  * ```
- *
  * @since 0.0.0
  * @category functions
  */
@@ -113,7 +111,6 @@ export const resolveWorkspaceDirs: (
  * @param rootDir - Absolute path to the monorepo root directory.
  * @param name - The package name to look up.
  * @returns An Option containing the absolute directory path, or None.
- *
  * @example
  * ```ts
  * import { Effect, Option } from "effect"
@@ -126,7 +123,6 @@ export const resolveWorkspaceDirs: (
  *   }
  * })
  * ```
- *
  * @since 0.0.0
  * @category functions
  */

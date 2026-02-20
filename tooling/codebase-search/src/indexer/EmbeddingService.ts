@@ -36,6 +36,90 @@ export const DEFAULT_BATCH_SIZE = 32;
  * @category constants
  */
 const MODEL_NAME = "nomic-ai/CodeRankEmbed" as const;
+const MODEL_OPTIONS = { quantized: true } as const;
+const INFERENCE_OPTIONS = { pooling: "mean", normalize: true } as const;
+
+type NumericTypedArray =
+  | Int8Array
+  | Uint8Array
+  | Uint8ClampedArray
+  | Int16Array
+  | Uint16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array
+  | Float64Array;
+
+const isNumericTypedArray = (value: unknown): value is NumericTypedArray =>
+  value instanceof Int8Array ||
+  value instanceof Uint8Array ||
+  value instanceof Uint8ClampedArray ||
+  value instanceof Int16Array ||
+  value instanceof Uint16Array ||
+  value instanceof Int32Array ||
+  value instanceof Uint32Array ||
+  value instanceof Float32Array ||
+  value instanceof Float64Array;
+
+const formatUnknownError = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
+const toEmbeddingModelError =
+  (context: string) =>
+  (error: unknown): EmbeddingModelError =>
+    error instanceof EmbeddingModelError
+      ? error
+      : new EmbeddingModelError({
+          message: `${context}: ${formatUnknownError(error)}`,
+          modelName: MODEL_NAME,
+        });
+
+const getFunctionProperty = (value: unknown, key: string): Function | null => {
+  if (value === null || typeof value !== "object") {
+    return null;
+  }
+  const candidate = Reflect.get(value, key);
+  return typeof candidate === "function" ? candidate : null;
+};
+
+const readEmbeddingData = (output: unknown, expectedLength: number, context: string): Float32Array => {
+  if (output === null || typeof output !== "object") {
+    throw new EmbeddingModelError({
+      message: `${context}: model output is not an object`,
+      modelName: MODEL_NAME,
+    });
+  }
+
+  const data = Reflect.get(output, "data");
+  let vector: Float32Array;
+
+  if (data instanceof Float32Array) {
+    vector = data;
+  } else if (isNumericTypedArray(data)) {
+    vector = Float32Array.from(data);
+  } else if (Array.isArray(data)) {
+    if (!A.every(data, (value) => typeof value === "number" && Number.isFinite(value))) {
+      throw new EmbeddingModelError({
+        message: `${context}: model output contains non-numeric values`,
+        modelName: MODEL_NAME,
+      });
+    }
+    vector = Float32Array.from(data);
+  } else {
+    throw new EmbeddingModelError({
+      message: `${context}: model output does not include numeric embedding data`,
+      modelName: MODEL_NAME,
+    });
+  }
+
+  if (vector.length !== expectedLength) {
+    throw new EmbeddingModelError({
+      message: `${context}: expected ${expectedLength} values, received ${vector.length}`,
+      modelName: MODEL_NAME,
+    });
+  }
+
+  return vector;
+};
 
 /**
  * Shape of the EmbeddingService interface.
@@ -89,32 +173,31 @@ export const EmbeddingServiceLive: Layer.Layer<EmbeddingService, EmbeddingModelE
   Effect.gen(function* () {
     const extractor = yield* Effect.tryPromise({
       try: async () => {
-        const { pipeline } = await import("@huggingface/transformers");
-        return await pipeline("feature-extraction", MODEL_NAME, {
-          quantized: true,
-        } as Record<string, unknown>);
+        const transformersModule: unknown = await import("@huggingface/transformers");
+        const pipelineFn = getFunctionProperty(transformersModule, "pipeline");
+        if (pipelineFn === null) {
+          throw new Error("Transformers pipeline loader is unavailable");
+        }
+        const loaded = await Reflect.apply(pipelineFn, transformersModule, [
+          "feature-extraction",
+          MODEL_NAME,
+          MODEL_OPTIONS,
+        ]);
+        if (typeof loaded !== "function") {
+          throw new Error("Loaded embedding extractor is not callable");
+        }
+        return loaded;
       },
-      catch: (error) =>
-        new EmbeddingModelError({
-          message: `Failed to load embedding model: ${String(error)}`,
-          modelName: MODEL_NAME,
-        }),
+      catch: toEmbeddingModelError("Failed to load embedding model"),
     });
 
     const embed: EmbeddingServiceShape["embed"] = Effect.fn("EmbeddingService.embed")(function* (text) {
       return yield* Effect.tryPromise({
         try: async () => {
-          const output = await extractor(text, {
-            pooling: "mean",
-            normalize: true,
-          });
-          return new Float32Array(output.data as Float32Array);
+          const output: unknown = await Reflect.apply(extractor, undefined, [text, INFERENCE_OPTIONS]);
+          return readEmbeddingData(output, EMBEDDING_DIMENSIONS, "Embedding inference failed");
         },
-        catch: (error) =>
-          new EmbeddingModelError({
-            message: `Embedding inference failed: ${String(error)}`,
-            modelName: MODEL_NAME,
-          }),
+        catch: toEmbeddingModelError("Embedding inference failed"),
       });
     });
 
@@ -138,18 +221,15 @@ export const EmbeddingServiceLive: Layer.Layer<EmbeddingService, EmbeddingModelE
         const chunkResults = yield* Effect.forEach(chunks, (chunk) =>
           Effect.tryPromise({
             try: async () => {
-              const output = await extractor(chunk as unknown as string[], {
-                pooling: "mean",
-                normalize: true,
-              });
-              const flatData = new Float32Array(output.data as Float32Array);
+              const output: unknown = await Reflect.apply(extractor, undefined, [Array.from(chunk), INFERENCE_OPTIONS]);
+              const flatData = readEmbeddingData(
+                output,
+                A.length(chunk) * EMBEDDING_DIMENSIONS,
+                "Batch embedding inference failed"
+              );
               return splitFlatVectors(flatData, A.length(chunk));
             },
-            catch: (error) =>
-              new EmbeddingModelError({
-                message: `Batch embedding inference failed: ${String(error)}`,
-                modelName: MODEL_NAME,
-              }),
+            catch: toEmbeddingModelError("Batch embedding inference failed"),
           })
         );
 
@@ -168,8 +248,11 @@ export const EmbeddingServiceLive: Layer.Layer<EmbeddingService, EmbeddingModelE
  * Generate a deterministic Float32Array of the given length from a seed string.
  * Uses a simple hash-based approach to produce reproducible vectors.
  *
+ * @param seed seed parameter value.
+ * @param length length parameter value.
  * @since 0.0.0
  * @category internal
+ * @returns Returns the computed value.
  */
 const deterministicVector = (seed: string, length: number): Float32Array => {
   const vector = new Float32Array(length);

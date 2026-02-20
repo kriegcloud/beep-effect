@@ -6,16 +6,24 @@
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "node ./tooling/codebase-search/dist/hooks/session-start-entry.js",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./tooling/codebase-search/dist/hooks/session-start-entry.js",
+            "timeout": 5000
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
       {
-        "type": "command",
-        "command": "node ./tooling/codebase-search/dist/hooks/prompt-submit-entry.js",
-        "timeout": 5000
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./tooling/codebase-search/dist/hooks/prompt-submit-entry.js",
+            "timeout": 5000
+          }
+        ]
       }
     ]
   }

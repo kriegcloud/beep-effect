@@ -33,8 +33,11 @@ import { extractJsDoc, extractModuleDoc } from "./JsDocExtractor.js";
  * Extracts a concise type signature from a ts-morph AST node. Returns the
  * first meaningful line of the declaration text, trimmed and truncated
  * to 500 characters maximum.
+ *
+ * @param node node parameter value.
  * @since 0.0.0
  * @category helpers
+ * @returns Returns the computed value.
  */
 export const extractSignature = (node: tsMorph.Node): string => {
   const text = node.getText();
@@ -58,7 +61,11 @@ export const extractSignature = (node: tsMorph.Node): string => {
 // getExportName
 // ---------------------------------------------------------------------------
 
-/** @internal */
+/**
+ * @param node node parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const getExportName = (node: tsMorph.Node): O.Option<string> => {
   const kind = node.getKind();
 
@@ -109,7 +116,11 @@ const getExportName = (node: tsMorph.Node): O.Option<string> => {
 // isNodeExported
 // ---------------------------------------------------------------------------
 
-/** @internal */
+/**
+ * @param node node parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const isNodeExported = (node: tsMorph.Node): boolean => {
   const modifiers = pipe(
     O.fromNullishOr("getModifiers" in node ? (node as tsMorph.VariableStatement).getModifiers() : undefined),
@@ -123,7 +134,11 @@ const isNodeExported = (node: tsMorph.Node): boolean => {
 // isSchemaPattern
 // ---------------------------------------------------------------------------
 
-/** @internal */
+/**
+ * @param pattern pattern parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const isSchemaPattern = (pattern: string | null): boolean =>
   pattern === "Schema.Struct" ||
   pattern === "Schema.Class" ||
@@ -136,7 +151,16 @@ const isSchemaPattern = (pattern: string | null): boolean =>
 // assembleOneSymbol
 // ---------------------------------------------------------------------------
 
-/** @internal */
+/**
+ * @param node node parameter value.
+ * @param name name parameter value.
+ * @param pkg pkg parameter value.
+ * @param moduleName moduleName parameter value.
+ * @param filePath filePath parameter value.
+ * @param moduleDescription moduleDescription parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const assembleOneSymbol = (
   node: tsMorph.Node,
   name: string,
@@ -202,17 +226,17 @@ const assembleOneSymbol = (
     title: pipe(
       O.fromNullishOr(schemaAnnotations),
       O.flatMap((a) => O.fromNullishOr(a.title)),
-      O.getOrElse(() => null as string | null)
+      O.getOrNull
     ),
     schemaIdentifier: pipe(
       O.fromNullishOr(schemaAnnotations),
       O.flatMap((a) => O.fromNullishOr(a.identifier)),
-      O.getOrElse(() => null as string | null)
+      O.getOrNull
     ),
     schemaDescription: pipe(
       O.fromNullishOr(schemaAnnotations),
       O.flatMap((a) => O.fromNullishOr(a.description)),
-      O.getOrElse(() => null as string | null)
+      O.getOrNull
     ),
     remarks: jsDoc.remarks,
     moduleDescription,
@@ -262,7 +286,19 @@ const assembleOneSymbol = (
 // assembleModuleSymbol
 // ---------------------------------------------------------------------------
 
-/** @internal */
+/**
+ * @param sourceFile sourceFile parameter value.
+ * @param pkg pkg parameter value.
+ * @param moduleName moduleName parameter value.
+ * @param filePath filePath parameter value.
+ * @param moduleDoc moduleDoc parameter value.
+ * @param moduleDoc.description description field value.
+ * @param moduleDoc.since since field value.
+ * @param moduleDoc.category category field value.
+ * @param moduleDoc.moduleDescription moduleDescription field value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const assembleModuleSymbol = (
   sourceFile: tsMorph.SourceFile,
   pkg: string,
@@ -337,8 +373,12 @@ const assembleModuleSymbol = (
  * This is a pure function operating on in-memory ts-morph data structures.
  * It does not require FileSystem or any Effect services.
  *
+ * @param sourceFile sourceFile parameter value.
+ * @param pkg pkg parameter value.
+ * @param moduleName moduleName parameter value.
  * @since 0.0.0
  * @category assemblers
+ * @returns Returns the computed value.
  */
 export const assembleSymbols = (
   sourceFile: tsMorph.SourceFile,
@@ -353,7 +393,7 @@ export const assembleSymbols = (
   const moduleDescription = pipe(
     O.fromNullishOr(moduleDoc),
     O.flatMap((doc) => O.fromNullishOr(doc.moduleDescription)),
-    O.getOrElse(() => null as string | null)
+    O.getOrNull
   );
 
   // If module-level doc exists, create a module symbol
@@ -397,15 +437,19 @@ export const assembleSymbols = (
  * For each source file's import declarations, matches import specifiers against
  * known symbol IDs and populates the `imports` field on each symbol.
  *
+ * @param symbols symbols parameter value.
+ * @param sourceFiles sourceFiles parameter value.
+ * @param fileToSymbolIds fileToSymbolIds parameter value.
  * @since 0.0.0
  * @category assemblers
+ * @returns Returns the computed value.
  */
 export const resolveImports = (
   symbols: ReadonlyArray<IndexedSymbol>,
   sourceFiles: ReadonlyArray<tsMorph.SourceFile>,
-  fileToSymbolIds: ReadonlyMap<string, ReadonlyArray<string>>
+  fileToSymbolIds: MutableHashMap.MutableHashMap<string, ReadonlyArray<string>>
 ): ReadonlyArray<IndexedSymbol> => {
-  const normalizePath = (value: string): string => value.replace(/\\/g, "/");
+  const normalizePath = (value: string): string => Str.replace(/\\/g, "/")(value);
   const makeFileAndNameKey = (filePath: string, symbolName: string): string =>
     `${normalizePath(filePath)}::${symbolName}`;
   const appendUnique = (target: Array<string>, value: string): void => {
@@ -415,7 +459,7 @@ export const resolveImports = (
   };
   const getImportedSpecifierName = (namedImport: tsMorph.ImportSpecifier): string => namedImport.getName();
   const isSameList = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean =>
-    left.length === right.length && left.every((value, index) => value === (right[index] ?? ""));
+    left.length === right.length && A.every(left, (value, index) => value === (right[index] ?? ""));
 
   // Build a symbol registry by name and by {file,name}
   const nameToIds = MutableHashMap.empty<string, Array<string>>();
@@ -511,7 +555,7 @@ export const resolveImports = (
             // Fallback for precomputed file->symbol registry, useful in tests.
             const importedFilePath = pipe(
               importedSourcePath,
-              O.flatMap((sourcePath) => O.fromNullishOr(fileToSymbolIds.get(sourcePath)))
+              O.flatMap((sourcePath) => MutableHashMap.get(fileToSymbolIds, sourcePath))
             );
             if (O.isSome(importedFilePath) && A.isArrayNonEmpty(namedImports)) {
               pipe(
@@ -563,8 +607,10 @@ export const resolveImports = (
  * Collects lint-like validation errors for Layer symbols.
  * Ensures `@provides` and `@depends` are present for `kind === "layer"`.
  *
+ * @param symbols symbols parameter value.
  * @since 0.0.0
  * @category validators
+ * @returns Returns the computed value.
  */
 export const resolveLayerContractErrors = (symbols: ReadonlyArray<IndexedSymbol>): ReadonlyArray<string> =>
   pipe(
@@ -595,8 +641,10 @@ export const resolveLayerContractErrors = (symbols: ReadonlyArray<IndexedSymbol>
  * clean module path (e.g. `tooling/cli/src/commands/codegen.ts` yields
  * `commands/codegen`).
  *
+ * @param filePath filePath parameter value.
  * @since 0.0.0
  * @category helpers
+ * @returns Returns the computed value.
  */
 export const resolveModuleName = (filePath: string): string => {
   // Find the src/ segment and extract everything after it
@@ -604,11 +652,11 @@ export const resolveModuleName = (filePath: string): string => {
   if (srcIndex === -1) {
     // Fall back to just stripping the extension
     const lastSlash = filePath.lastIndexOf("/");
-    const basename = lastSlash >= 0 ? filePath.slice(lastSlash + 1) : filePath;
-    return basename.replace(/\.ts$/, "");
+    const basename = lastSlash >= 0 ? Str.slice(lastSlash + 1)(filePath) : filePath;
+    return Str.replace(/\.ts$/, "")(basename);
   }
 
-  const afterSrc = filePath.slice(srcIndex + 5); // skip "/src/"
+  const afterSrc = Str.slice(srcIndex + 5)(filePath); // skip "/src/"
   // Remove .ts extension
-  return afterSrc.replace(/\.ts$/, "");
+  return Str.replace(/\.ts$/, "")(afterSrc);
 };

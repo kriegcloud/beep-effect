@@ -2,6 +2,7 @@
  * JSDoc metadata extraction from TypeScript source files using ts-morph AST
  * traversal and doctrine for comment parsing. Produces partial IndexedSymbol
  * records containing all documentation fields.
+ *
  * @since 0.0.0
  * @packageDocumentation
  */
@@ -23,6 +24,7 @@ import type { ParamDoc } from "../IndexedSymbol.js";
 /**
  * The partial result from JSDoc tag extraction for a single code symbol.
  * Contains all documentation-derived fields that feed into an IndexedSymbol.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -51,6 +53,7 @@ export interface JsDocResult {
 /**
  * The default JsDocResult returned when no JSDoc comment is found on a node.
  * Provides sensible empty/default values for every documentation field.
+ *
  * @since 0.0.0
  * @category constants
  */
@@ -76,7 +79,11 @@ export const DEFAULT_JSDOC_RESULT: JsDocResult = {
 // Internal helpers
 // ---------------------------------------------------------------------------
 
-/** @internal */
+/**
+ * @param tag tag parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const getTagDescription = (tag: DoctrineTag): string =>
   pipe(
     O.fromNullishOr(tag.description),
@@ -84,15 +91,30 @@ const getTagDescription = (tag: DoctrineTag): string =>
     O.getOrElse(() => "")
   );
 
-/** @internal */
+/**
+ * @param tags tags parameter value.
+ * @param title title parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const getTagsByTitle = (tags: ReadonlyArray<DoctrineTag>, title: string): ReadonlyArray<DoctrineTag> =>
   A.filter(tags, (tag) => tag.title === title);
 
-/** @internal */
+/**
+ * @param tags tags parameter value.
+ * @param title title parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const getFirstTagByTitle = (tags: ReadonlyArray<DoctrineTag>, title: string): O.Option<DoctrineTag> =>
   A.findFirst(tags, (tag) => tag.title === title);
 
-/** @internal */
+/**
+ * @param tags tags parameter value.
+ * @param title title parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const collectTagDescriptions = (tags: ReadonlyArray<DoctrineTag>, title: string): ReadonlyArray<string> =>
   pipe(
     getTagsByTitle(tags, title),
@@ -100,7 +122,11 @@ const collectTagDescriptions = (tags: ReadonlyArray<DoctrineTag>, title: string)
     A.filter((desc) => Str.length(desc) > 0)
   );
 
-/** @internal */
+/**
+ * @param value value parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
 const splitTagValueList = (value: string): ReadonlyArray<string> =>
   pipe(
     value.split(","),
@@ -112,8 +138,11 @@ const splitTagValueList = (value: string): ReadonlyArray<string> =>
 /**
  * Extracts the raw JSDoc comment text from a ts-morph Node. Attempts to use
  * the JSDocableNode interface first, falling back to leading comment ranges.
+ *
+ * @param node node parameter value.
  * @since 0.0.0
  * @category internal
+ * @returns Returns the computed value.
  */
 const getRawJsDocText = (node: tsMorph.Node): O.Option<string> => {
   // Try the structured JSDoc API first
@@ -147,8 +176,11 @@ const getRawJsDocText = (node: tsMorph.Node): O.Option<string> => {
 /**
  * Parses a raw JSDoc comment string using doctrine and extracts all fields
  * into a JsDocResult. Handles tag collection, defaults, and custom tags.
+ *
+ * @param rawComment rawComment parameter value.
  * @since 0.0.0
  * @category internal
+ * @returns Returns the computed value.
  */
 const parseDoctrineComment = (rawComment: string): JsDocResult => {
   const parsed = doctrine.parse(rawComment, {
@@ -186,7 +218,7 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
     getFirstTagByTitle(tags, "domain"),
     O.map(getTagDescription),
     O.filter((s) => Str.length(s) > 0),
-    O.getOrElse(() => null as string | null)
+    O.getOrNull
   );
 
   // @remarks
@@ -194,7 +226,7 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
     getFirstTagByTitle(tags, "remarks"),
     O.map(getTagDescription),
     O.filter((s) => Str.length(s) > 0),
-    O.getOrElse(() => null as string | null)
+    O.getOrNull
   );
 
   // @example (collect all)
@@ -221,7 +253,7 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
     O.orElse(() => getFirstTagByTitle(tags, "return")),
     O.map(getTagDescription),
     O.filter((s) => Str.length(s) > 0),
-    O.getOrElse(() => null as string | null)
+    O.getOrNull
   );
 
   // @throws / @errors (collect all)
@@ -277,8 +309,11 @@ const parseDoctrineComment = (rawComment: string): JsDocResult => {
  * Extracts JSDoc metadata from a ts-morph AST node. Parses the nearest JSDoc
  * comment using doctrine and returns a structured JsDocResult with all
  * documentation fields populated from the comment tags.
+ *
+ * @param node node parameter value.
  * @since 0.0.0
  * @category extractors
+ * @returns Returns the computed value.
  */
 export const extractJsDoc = (node: tsMorph.Node): JsDocResult =>
   pipe(
@@ -294,8 +329,11 @@ export const extractJsDoc = (node: tsMorph.Node): JsDocResult =>
  * Looks for the first JSDoc comment containing either the
  * `@packageDocumentation` tag or the `@module` tag.
  * Returns null if no module-level documentation exists.
+ *
+ * @param sourceFile sourceFile parameter value.
  * @since 0.0.0
  * @category extractors
+ * @returns Returns the computed value.
  */
 export const extractModuleDoc = (sourceFile: tsMorph.SourceFile): JsDocResult | null => {
   // Strategy 1: Check the first statement's JSDoc for @packageDocumentation
@@ -330,5 +368,5 @@ export const extractModuleDoc = (sourceFile: tsMorph.SourceFile): JsDocResult | 
     O.map((m) => parseDoctrineComment(m[0]))
   );
 
-  return O.getOrElse(result, () => null as JsDocResult | null);
+  return O.getOrNull(result);
 };

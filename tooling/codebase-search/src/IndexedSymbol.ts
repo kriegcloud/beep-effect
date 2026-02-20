@@ -2,6 +2,7 @@
  * Core schema and types for indexed code symbols in the codebase search system.
  * Defines the canonical IndexedSymbol interface that serves as the contract
  * between the extractor pipeline and the search engine.
+ *
  * @since 0.0.0
  * @packageDocumentation
  */
@@ -20,6 +21,7 @@ import * as Str from "effect/String";
  * The classification kind of an indexed code symbol.
  * Represents the nine canonical categories used to classify symbols
  * extracted from an Effect v4 codebase.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -42,6 +44,7 @@ export type SymbolKind =
  * Known Effect v4 API patterns that can be detected during AST extraction.
  * These patterns drive automatic classification of symbols into their
  * canonical SymbolKind categories.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -71,6 +74,7 @@ export type EffectPattern =
 /**
  * Documentation for a single function parameter extracted from JSDoc @param tags.
  * Used in the natural language embedding text to improve search relevance.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -86,6 +90,7 @@ export interface ParamDoc {
 /**
  * Documentation for a single schema field extracted from Schema annotations.
  * Captures per-field descriptions used to enrich embedding text for struct schemas.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -103,6 +108,7 @@ export interface FieldDoc {
  * system. Serves as the contract between the extractor pipeline, the vector/BM25
  * indexer, and the search engine. Contains identity, classification, natural
  * language documentation, relationships, code context, and derived fields.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -198,6 +204,7 @@ export interface IndexedSymbol {
  * Effect Schema for the codebase search index metadata file. Tracks version,
  * timestamps, symbol/file counts, and embedding model configuration. Persisted
  * as JSON alongside the vector and BM25 indexes.
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -218,6 +225,7 @@ export const IndexMeta = S.Struct({
 /**
  * TypeScript type derived from the IndexMeta Effect Schema. Represents the
  * decoded form of the index metadata JSON file on disk.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -230,8 +238,13 @@ export type IndexMeta = typeof IndexMeta.Type;
 /**
  * Generates a deterministic unique identifier for an indexed symbol.
  * Format: `{pkg}/{module}/{name}` (e.g. `@beep/repo-utils/schemas/PackageJson`).
+ *
+ * @param pkg pkg parameter value.
+ * @param module module parameter value.
+ * @param name name parameter value.
  * @since 0.0.0
  * @category builders
+ * @returns Returns the computed value.
  */
 export const generateId = (pkg: string, module: string, name: string): string => `${pkg}/${module}/${name}`;
 
@@ -242,6 +255,7 @@ export const generateId = (pkg: string, module: string, name: string): string =>
 /**
  * Input structure for classifying a code symbol into its canonical SymbolKind.
  * Accepts optional hints from AST extraction and JSDoc metadata.
+ *
  * @since 0.0.0
  * @category types
  */
@@ -257,8 +271,11 @@ export interface ClassifyInput {
  * Classifies a code symbol into one of nine canonical SymbolKind values.
  * Uses a priority-ordered set of heuristics based on Effect patterns,
  * JSDoc categories, and AST node types.
+ *
+ * @param input input parameter value.
  * @since 0.0.0
  * @category builders
+ * @returns Returns the computed value.
  */
 export const classifySymbol = (input: ClassifyInput): SymbolKind => {
   const { effectPattern, category, isTypeAlias, isInterface, isPackageDocumentation } = input;
@@ -322,8 +339,11 @@ const MAX_EMBEDDING_CHARS = 3000;
  * Composes a natural language text representation of an IndexedSymbol
  * optimized for semantic embedding models. Concatenates documentation
  * fields in priority order and truncates to a maximum of 3000 characters.
+ *
+ * @param symbol symbol parameter value.
  * @since 0.0.0
  * @category builders
+ * @returns Returns the computed value.
  */
 export const buildEmbeddingText = (symbol: IndexedSymbol): string => {
   const parts = A.empty<string>();
@@ -438,8 +458,11 @@ export const buildEmbeddingText = (symbol: IndexedSymbol): string => {
  * Composes a keyword-oriented text representation of an IndexedSymbol
  * optimized for BM25 exact-match search. Includes identifiers, classification
  * tokens, and structural metadata.
+ *
+ * @param symbol symbol parameter value.
  * @since 0.0.0
  * @category builders
+ * @returns Returns the computed value.
  */
 export const buildKeywordText = (symbol: IndexedSymbol): string => {
   const parts = A.empty<string>();
@@ -501,8 +524,11 @@ export const buildKeywordText = (symbol: IndexedSymbol): string => {
  * Validates an IndexedSymbol and returns an array of human-readable error
  * messages describing any constraint violations. Returns an empty array
  * when the symbol is fully valid.
+ *
+ * @param symbol symbol parameter value.
  * @since 0.0.0
  * @category validators
+ * @returns Returns the computed value.
  */
 export const validateIndexedSymbol = (symbol: IndexedSymbol): ReadonlyArray<string> => {
   const errors = A.empty<string>();
@@ -556,8 +582,11 @@ export const validateIndexedSymbol = (symbol: IndexedSymbol): ReadonlyArray<stri
  * Computes a SHA-256 hash of the given content string and returns the
  * result as a lowercase hexadecimal string. Used for change detection
  * during incremental indexing.
+ *
+ * @param content content parameter value.
  * @since 0.0.0
  * @category builders
+ * @returns Returns the computed value.
  */
 export const computeContentHash = (content: string): string =>
   crypto.createHash("sha256").update(content).digest("hex");

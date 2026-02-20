@@ -10,11 +10,10 @@
  */
 
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
-import { Console, Effect, Layer } from "effect";
+import { Console, Effect } from "effect";
 import * as S from "effect/Schema";
 
+import { HookEntryPlatformLayer, readStdinWithIdleTimeout } from "../internal/HookEntryRuntime.js";
 import { promptSubmitHook } from "./PromptSubmit.js";
 
 // ---------------------------------------------------------------------------
@@ -32,63 +31,7 @@ const StdinPayload = S.Struct({
 // ---------------------------------------------------------------------------
 
 /** @internal */
-const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
-
-/** @internal */
-const STDIN_IDLE_TIMEOUT_MS = 250;
-
-/** @internal */
-const readStdin: Effect.Effect<string> = Effect.callback<string>((resume) => {
-  const chunks: Array<Buffer> = [];
-  let resolved = false;
-  let idleTimer: ReturnType<typeof setTimeout> | undefined;
-
-  const cleanup = (): void => {
-    process.stdin.off("data", onData);
-    process.stdin.off("end", onEnd);
-    process.stdin.off("error", onError);
-    if (idleTimer !== undefined) {
-      clearTimeout(idleTimer);
-    }
-  };
-
-  const resolve = (): void => {
-    if (resolved) {
-      return;
-    }
-    resolved = true;
-    cleanup();
-    resume(Effect.succeed(Buffer.concat(chunks).toString("utf8")));
-  };
-
-  const scheduleIdleResolve = (): void => {
-    if (idleTimer !== undefined) {
-      clearTimeout(idleTimer);
-    }
-    idleTimer = setTimeout(resolve, STDIN_IDLE_TIMEOUT_MS);
-  };
-
-  const onData = (chunk: string | Buffer): void => {
-    chunks.push(Buffer.from(chunk));
-    scheduleIdleResolve();
-  };
-
-  const onEnd = (): void => {
-    resolve();
-  };
-
-  const onError = (): void => {
-    resolve();
-  };
-
-  process.stdin.setEncoding("utf8");
-  process.stdin.on("data", onData);
-  process.stdin.on("end", onEnd);
-  process.stdin.on("error", onError);
-
-  // Resolve empty payloads quickly when stdin provides no data.
-  scheduleIdleResolve();
-});
+const readStdin = readStdinWithIdleTimeout();
 
 /** @internal */
 const program = Effect.gen(function* () {
@@ -102,7 +45,7 @@ const program = Effect.gen(function* () {
   const prompt = parsed.prompt ?? "";
 
   const result = yield* promptSubmitHook(cwd, prompt).pipe(
-    Effect.provide(PlatformLayer),
+    Effect.provide(HookEntryPlatformLayer),
     Effect.timeout("5 seconds"),
     Effect.orElseSucceed(() => "")
   );

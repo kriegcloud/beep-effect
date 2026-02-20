@@ -1,6 +1,7 @@
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { Project } from "ts-morph";
@@ -448,7 +449,7 @@ export const processName = (name: string) => formatString(name);
     const allSymbols = A.appendAll(symbolsA, symbolsB);
     const sourceFiles = [fileA, fileB];
 
-    const fileToSymbolIds = new Map<string, ReadonlyArray<string>>();
+    const fileToSymbolIds = MutableHashMap.empty<string, ReadonlyArray<string>>();
 
     const resolved = resolveImports(allSymbols, sourceFiles, fileToSymbolIds);
 
@@ -496,7 +497,7 @@ export const processName = (name: string) => fmt(name);
     const resolved = resolveImports(
       A.appendAll(symbolsA, symbolsB),
       [fileA, fileB],
-      new Map<string, ReadonlyArray<string>>()
+      MutableHashMap.empty<string, ReadonlyArray<string>>()
     );
 
     const processNameOpt = A.findFirst(resolved, (s) => s.name === "processName");
@@ -550,8 +551,9 @@ export const useBoth = () => \`\${Alpha}-\${Beta}\`;
       A.map((symbol) => ({ ...symbol, filePath: "/virtual/fileA.ts" }))
     );
     const allSymbols = A.appendAll(symbolsWithMismatchedFilePath, symbolsB);
-    const fileToSymbolIds = new Map<string, ReadonlyArray<string>>();
-    fileToSymbolIds.set(
+    const fileToSymbolIds = MutableHashMap.empty<string, ReadonlyArray<string>>();
+    MutableHashMap.set(
+      fileToSymbolIds,
       fileA.getFilePath(),
       pipe(
         symbolsA,
