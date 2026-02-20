@@ -38,7 +38,7 @@ export interface RenderedTemplate {
  * @since 0.0.0
  * @category models
  */
-export interface TemplateRenderRequest<Context extends Record<string, unknown>> {
+export interface TemplateRenderRequest<Context extends object> {
   readonly templateDir: string;
   readonly templates: ReadonlyArray<TemplateSpec>;
   readonly context: Context;
@@ -51,7 +51,7 @@ export interface TemplateRenderRequest<Context extends Record<string, unknown>> 
  * @category models
  */
 export interface TemplateService {
-  readonly renderTemplates: <Context extends Record<string, unknown>>(
+  readonly renderTemplates: <Context extends object>(
     request: TemplateRenderRequest<Context>
   ) => Effect.Effect<ReadonlyArray<RenderedTemplate>, DomainError, FileSystem.FileSystem>;
 }
@@ -89,7 +89,7 @@ const toKebabCase = (value: string): string => toWords(value).join("-");
 
 const toSnakeCase = (value: string): string => toWords(value).join("_");
 
-const createHandlebarsEnvironment = (): Handlebars => {
+const createHandlebarsEnvironment = () => {
   const hbs = Handlebars.create();
 
   hbs.registerHelper("camelCase", (value: unknown) => toCamelCase(String(value ?? "")));
@@ -109,9 +109,9 @@ const createHandlebarsEnvironment = (): Handlebars => {
 export const createTemplateService = (): TemplateService => {
   const hbs = createHandlebarsEnvironment();
 
-  const renderTemplates: TemplateService["renderTemplates"] = Effect.fn(function* <
-    Context extends Record<string, unknown>,
-  >(request: TemplateRenderRequest<Context>) {
+  const renderTemplates: TemplateService["renderTemplates"] = Effect.fn(function* <Context extends object>(
+    request: TemplateRenderRequest<Context>
+  ) {
     const fs = yield* FileSystem.FileSystem;
 
     return yield* Effect.forEach(request.templates, ({ templateName, outputPath }) =>

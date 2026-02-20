@@ -278,7 +278,7 @@ const symbolToRow = (swv: SymbolWithVector): Effect.Effect<Record<string, unknow
     const s = swv.symbol;
     const metadataJson = yield* encodeMetadataJson(s);
     return {
-      vector: swv.vector,
+      vector: Array.from(swv.vector),
       id: s.id,
       name: s.name,
       qualified_name: s.qualifiedName,
@@ -311,7 +311,7 @@ const DUMMY_ID = "__dummy__" as const;
  * @returns Returns a placeholder row used for table bootstrap.
  */
 const makeDummyRow = (): Record<string, unknown> => ({
-  vector: new Float32Array(768),
+  vector: Array.from({ length: 768 }, () => 0),
   id: DUMMY_ID,
   name: "",
   qualified_name: "",

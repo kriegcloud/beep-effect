@@ -254,6 +254,9 @@ export const Bm25WriterLive: (indexPath: string) => Layer.Layer<Bm25Writer, Inde
       const addDocuments: Bm25WriterShape["addDocuments"] = Effect.fn("Bm25Writer.addDocuments")(function* (symbols) {
         return yield* Effect.try({
           try: () => {
+            if (A.isReadonlyArrayEmpty(symbols)) {
+              return;
+            }
             pipe(
               symbols,
               A.forEach((symbol) => {
@@ -460,6 +463,9 @@ export const Bm25WriterMock: Layer.Layer<Bm25Writer> = Layer.succeed(
       const addDocuments: Bm25WriterShape["addDocuments"] = (symbols) =>
         Effect.try({
           try: () => {
+            if (A.isReadonlyArrayEmpty(symbols)) {
+              return;
+            }
             pipe(
               symbols,
               A.forEach((symbol) => {

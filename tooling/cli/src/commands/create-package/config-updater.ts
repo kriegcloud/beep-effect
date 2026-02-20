@@ -13,6 +13,7 @@ import { DomainError } from "@beep/repo-utils";
 import { FileSystem, Path } from "effect";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as HashMap from "effect/HashMap";
 import * as jsonc from "jsonc-parser";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -103,12 +104,12 @@ const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknow
 };
 
 const normalizeTargets = (targets: ReadonlyArray<ConfigUpdateTarget>): ReadonlyArray<ConfigUpdateTarget> => {
-  const deduped = new Map<string, ConfigUpdateTarget>();
+  let deduped = HashMap.empty<string, ConfigUpdateTarget>();
   for (const target of targets) {
-    deduped.set(target.packagePath, target);
+    deduped = HashMap.set(deduped, target.packagePath, target);
   }
 
-  return [...deduped.values()].sort((left, right) => left.packagePath.localeCompare(right.packagePath));
+  return [...HashMap.values(deduped)].sort((left, right) => left.packagePath.localeCompare(right.packagePath));
 };
 
 /**
@@ -123,17 +124,15 @@ const modifyFileString: (
   const original = yield* fs
     .readFileString(filePath)
     .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read ${filePath}: ${String(e)}` })));
-  let transformed: string;
-  try {
-    transformed = transform(original);
-  } catch (error) {
-    if (error instanceof DomainError) {
-      return yield* error;
-    }
-    return yield* new DomainError({
-      message: `Failed to update ${filePath}: ${String(error)}`,
-    });
-  }
+  const transformed = yield* Effect.try({
+    try: () => transform(original),
+    catch: (cause) =>
+      cause instanceof DomainError
+        ? cause
+        : new DomainError({
+            message: `Failed to update ${filePath}: ${String(cause)}`,
+          }),
+  });
   if (transformed === original) return false;
   yield* fs
     .writeFileString(filePath, transformed)

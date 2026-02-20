@@ -273,7 +273,7 @@ export const createPackageCommand = Command.make(
       context: ctx,
     });
 
-    const packageJson = yield* generatePackageJson(name, type, description);
+    const packageJson = yield* generatePackageJson(name, type, description, packagePath);
 
     const plan = fileGenerationPlanService.createPlan({
       outputDir,
@@ -328,6 +328,7 @@ export const createPackageCommand = Command.make(
  * @param name - The unscoped package name (e.g. `"my-utils"`). Will be prefixed with `@beep/`.
  * @param type - One of `"library"`, `"tool"`, or `"app"`. Tools receive an extra `@effect/platform-node` dependency.
  * @param description - Human-readable package description for the `"description"` field.
+ * @param packagePath - Package path relative to repo root (e.g. `"tooling/my-utils"`).
  * @returns A JSON string (with trailing newline) ready to be written to disk.
  * @since 0.0.0
  * @category functions
@@ -335,58 +336,67 @@ export const createPackageCommand = Command.make(
 const generatePackageJson: (
   name: string,
   type: string,
-  description: string
-) => Effect.Effect<string, DomainError | Schema.SchemaError> = Effect.fn(function* (name, type, description) {
-  const dependencies: Record<string, string> = {
-    effect: "catalog:",
-  };
+  description: string,
+  packagePath: string
+) => Effect.Effect<string, DomainError | Schema.SchemaError> = Effect.fn(
+  function* (name, type, description, packagePath) {
+    const dependencies: Record<string, string> = {
+      effect: "catalog:",
+    };
 
-  if (type === "tool") {
-    dependencies["@effect/platform-node"] = "catalog:";
-  }
+    if (type === "tool") {
+      dependencies["@effect/platform-node"] = "catalog:";
+    }
 
-  const pkg = {
-    name: `@beep/${name}`,
-    version: "0.0.0",
-    type: "module",
-    private: true,
-    license: "MIT",
-    description,
-    sideEffects: [],
-    exports: {
-      "./package.json": "./package.json",
-      ".": "./src/index.ts",
-      "./*": "./src/*.ts",
-      "./internal/*": null,
-    },
-    files: ["src/**/*.ts", "dist/**/*.js", "dist/**/*.js.map", "dist/**/*.d.ts", "dist/**/*.d.ts.map"],
-    publishConfig: {
-      access: "public",
-      provenance: true,
+    const pkg = {
+      name: `@beep/${name}`,
+      version: "0.0.0",
+      type: "module",
+      private: true,
+      license: "MIT",
+      description,
+      homepage: `https://github.com/kriegcloud/beep-effect/tree/main/${packagePath}`,
+      repository: {
+        type: "git",
+        url: "git@github.com:kriegcloud/beep-effect.git",
+        directory: packagePath,
+      },
+      sideEffects: [],
       exports: {
         "./package.json": "./package.json",
-        ".": "./dist/index.js",
-        "./*": "./dist/*.js",
+        ".": "./src/index.ts",
+        "./*": "./src/*.ts",
         "./internal/*": null,
       },
-    },
-    scripts: {
-      codegen: "echo 'no codegen needed'",
-      build: "tsc -b tsconfig.json && bun run babel",
-      "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
-      babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-      check: "tsc -b tsconfig.json",
-      test: "vitest",
-      coverage: "vitest --coverage",
-      docgen: "bunx @effect/docgen",
-    },
-    dependencies,
-    devDependencies: {
-      "@types/node": "catalog:",
-      "@effect/vitest": "catalog:",
-    },
-  };
+      files: ["src/**/*.ts", "dist/**/*.js", "dist/**/*.js.map", "dist/**/*.d.ts", "dist/**/*.d.ts.map"],
+      publishConfig: {
+        access: "public",
+        provenance: true,
+        exports: {
+          "./package.json": "./package.json",
+          ".": "./dist/index.js",
+          "./*": "./dist/*.js",
+          "./internal/*": null,
+        },
+      },
+      scripts: {
+        codegen: "echo 'no codegen needed'",
+        build: "tsc -b tsconfig.json && bun run babel",
+        "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
+        babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+        check: "tsc -b tsconfig.json",
+        test: "vitest",
+        coverage: "vitest --coverage",
+        docgen: "bunx @effect/docgen",
+      },
+      dependencies,
+      devDependencies: {
+        "@types/node": "catalog:",
+        "@effect/vitest": "catalog:",
+      },
+    };
 
-  const json = yield* encodePackageJsonPrettyEffect(pkg);
-  return `${json}\n`;
-});
+    const json = yield* encodePackageJsonPrettyEffect(pkg);
+    return `${json}\n`;
+  }
+);

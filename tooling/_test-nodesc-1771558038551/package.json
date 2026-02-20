@@ -45,5 +45,11 @@
       "./*": "./dist/*.js",
       "./internal/*": null
     }
+  },
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/_test-nodesc-1771558038551",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "tooling/_test-nodesc-1771558038551"
   }
 }

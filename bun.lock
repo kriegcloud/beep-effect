@@ -99,6 +99,17 @@
         "@types/node": "catalog:",
       },
     },
+    "tooling/_test-idempotent-1771560353205": {
+      "name": "@beep/_test-idempotent-1771560353205",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "tooling/_test-nodesc-1771558038551": {
       "name": "@beep/_test-nodesc-1771558038551",
       "version": "0.0.0",
@@ -323,6 +334,8 @@
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
     "@beep/_test-idempotent-1771558038638": ["@beep/_test-idempotent-1771558038638@workspace:tooling/_test-idempotent-1771558038638"],
+
+    "@beep/_test-idempotent-1771560353205": ["@beep/_test-idempotent-1771560353205@workspace:tooling/_test-idempotent-1771560353205"],
 
     "@beep/_test-nodesc-1771558038551": ["@beep/_test-nodesc-1771558038551@workspace:tooling/_test-nodesc-1771558038551"],
 

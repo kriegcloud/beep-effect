@@ -121,6 +121,51 @@ const IndexMetaFromJson = S.fromJsonString(IndexMeta);
 /** @internal Default file name for index metadata */
 const INDEX_META_FILE = "index-meta.json" as const;
 
+/**
+ * Read and decode previously persisted index metadata if present.
+ *
+ * @param indexPath indexPath parameter value.
+ * @internal
+ * @returns Returns the computed value.
+ */
+const readExistingIndexMeta = (
+  indexPath: string
+): Effect.Effect<O.Option<typeof IndexMeta.Type>, IndexingError, FileSystem.FileSystem | Path.Path> =>
+  Effect.gen(function* () {
+    const fsSvc = yield* FileSystem.FileSystem;
+    const pathSvc = yield* Path.Path;
+    const metaFilePath = pathSvc.join(indexPath, INDEX_META_FILE);
+
+    const exists = yield* fsSvc.exists(metaFilePath).pipe(Effect.orElseSucceed(() => false));
+    if (!exists) {
+      return O.none();
+    }
+
+    const raw = yield* pipe(
+      fsSvc.readFileString(metaFilePath),
+      Effect.mapError(
+        (error) =>
+          new IndexingError({
+            message: `Failed to read existing IndexMeta file: ${String(error)}`,
+            phase: "meta-write",
+          })
+      )
+    );
+
+    const decoded = yield* pipe(
+      S.decodeUnknownEffect(IndexMetaFromJson)(raw),
+      Effect.mapError(
+        (error) =>
+          new IndexingError({
+            message: `Failed to decode existing IndexMeta file: ${String(error)}`,
+            phase: "meta-write",
+          })
+      )
+    );
+
+    return O.some(decoded);
+  });
+
 // ---------------------------------------------------------------------------
 // Internal: extract package name from file path
 // ---------------------------------------------------------------------------
@@ -412,11 +457,16 @@ export const PipelineLive: Layer.Layer<Pipeline, never, EmbeddingService | Lance
       // 8. Write IndexMeta JSON
       // ---------------------------------------------------------------
       const now = DateTime.formatIso(yield* DateTime.now);
+      const previousMeta = yield* readExistingIndexMeta(config.indexPath).pipe(Effect.orElseSucceed(() => O.none()));
+      const totalIndexedSymbols = yield* lanceDbWriter
+        .countRows()
+        .pipe(Effect.orElseSucceed(() => A.length(extractedSymbols)));
+      const previous = pipe(previousMeta, O.getOrUndefined);
       const meta: typeof IndexMeta.Type = {
         version: 1,
-        lastFullIndex: config.mode === "full" ? now : "",
-        lastIncrementalIndex: config.mode === "incremental" ? now : "",
-        totalSymbols: A.length(extractedSymbols),
+        lastFullIndex: config.mode === "full" ? now : (previous?.lastFullIndex ?? ""),
+        lastIncrementalIndex: config.mode === "incremental" ? now : (previous?.lastIncrementalIndex ?? ""),
+        totalSymbols: totalIndexedSymbols,
         totalFiles: totalFilesScanned,
         embeddingModel: "nomic-ai/nomic-embed-text-v1.5",
         embeddingDimensions: 768,

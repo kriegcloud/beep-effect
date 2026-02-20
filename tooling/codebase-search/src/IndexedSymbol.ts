@@ -333,12 +333,12 @@ export const classifySymbol = (input: ClassifyInput): SymbolKind => {
 // ---------------------------------------------------------------------------
 
 /** @internal */
-const MAX_EMBEDDING_CHARS = 3000;
+const MAX_EMBEDDING_CHARS = 200;
 
 /**
  * Composes a natural language text representation of an IndexedSymbol
  * optimized for semantic embedding models. Concatenates documentation
- * fields in priority order and truncates to a maximum of 3000 characters.
+ * fields in priority order and truncates to the configured maximum length.
  *
  * @param symbol symbol parameter value.
  * @since 0.0.0

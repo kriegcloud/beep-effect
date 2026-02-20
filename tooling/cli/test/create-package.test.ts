@@ -7,7 +7,11 @@ import * as Layer from "effect/Layer";
 import { TestConsole } from "effect/testing";
 import { Command } from "effect/unstable/cli";
 import { ChildProcessSpawner } from "effect/unstable/process";
-import { updateRootConfigs } from "../src/commands/create-package/config-updater.js";
+import {
+  checkConfigNeedsUpdateForTargets,
+  updateRootConfigs,
+  updateRootConfigsForTargets,
+} from "../src/commands/create-package/config-updater.js";
 import { createPackageCommand } from "../src/commands/create-package/index.js";
 
 // ---------------------------------------------------------------------------
@@ -199,6 +203,10 @@ describe("create-package command", () => {
           expect(pkg.license).toBe("MIT");
           expect(pkg.dependencies.effect).toBe("catalog:");
           expect(pkg.devDependencies["@effect/vitest"]).toBe("catalog:");
+          expect(pkg.homepage).toBe(`https://github.com/kriegcloud/beep-effect/tree/main/tooling/${pkgName}`);
+          expect(pkg.repository.type).toBe("git");
+          expect(pkg.repository.url).toBe("git@github.com:kriegcloud/beep-effect.git");
+          expect(pkg.repository.directory).toBe(`tooling/${pkgName}`);
         })
       );
     });
@@ -450,6 +458,71 @@ describe("create-package command", () => {
         "packages/common"
       );
     });
+
+    it.effect(
+      "should support zero-manual dual package generation under packages/common",
+      withTestLayers(
+        Effect.fn(function* () {
+          const typesName = `_test-types-${Date.now()}`;
+          const utilsName = `_test-utils-${Date.now()}`;
+
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const repoRoot = yield* findRepoRoot();
+          const typesDir = path.join(repoRoot, "packages/common", typesName);
+          const utilsDir = path.join(repoRoot, "packages/common", utilsName);
+
+          const tsconfigPkgsPath = path.join(repoRoot, "tsconfig.packages.json");
+          const tsconfigRootPath = path.join(repoRoot, "tsconfig.json");
+          const tsconfigPkgsSnapshot = yield* fs.readFileString(tsconfigPkgsPath);
+          const tsconfigRootSnapshot = yield* fs.readFileString(tsconfigRootPath);
+
+          try {
+            yield* run([
+              typesName,
+              "--parent-dir",
+              "packages/common",
+              "--description",
+              "Shared type utilities for beep",
+            ]);
+            yield* run([
+              utilsName,
+              "--parent-dir",
+              "packages/common",
+              "--description",
+              "Shared runtime utilities for beep",
+            ]);
+
+            const typesTsconfigRaw = yield* fs.readFileString(path.join(typesDir, "tsconfig.json"));
+            const utilsTsconfigRaw = yield* fs.readFileString(path.join(utilsDir, "tsconfig.json"));
+            expect(JSON.parse(typesTsconfigRaw).extends).toBe("../../../tsconfig.base.json");
+            expect(JSON.parse(utilsTsconfigRaw).extends).toBe("../../../tsconfig.base.json");
+
+            const check = yield* checkConfigNeedsUpdateForTargets(repoRoot, [
+              { packageName: typesName, packagePath: `packages/common/${typesName}` },
+              { packageName: utilsName, packagePath: `packages/common/${utilsName}` },
+            ]);
+            expect(check.tsconfigPackages).toBe(false);
+            expect(check.tsconfigPaths).toBe(false);
+            expect(check.targets.every((entry) => !entry.result.tsconfigPackages && !entry.result.tsconfigPaths)).toBe(
+              true
+            );
+
+            const rerun = yield* updateRootConfigsForTargets(repoRoot, [
+              { packageName: typesName, packagePath: `packages/common/${typesName}` },
+              { packageName: utilsName, packagePath: `packages/common/${utilsName}` },
+            ]);
+            expect(rerun.tsconfigPackages).toBe(false);
+            expect(rerun.tsconfigPaths).toBe(false);
+          } finally {
+            yield* fs.writeFileString(tsconfigPkgsPath, tsconfigPkgsSnapshot).pipe(Effect.orElseSucceed(() => void 0));
+            yield* fs.writeFileString(tsconfigRootPath, tsconfigRootSnapshot).pipe(Effect.orElseSucceed(() => void 0));
+            yield* fs.remove(typesDir, { recursive: true, force: true }).pipe(Effect.orElseSucceed(() => void 0));
+            yield* fs.remove(utilsDir, { recursive: true, force: true }).pipe(Effect.orElseSucceed(() => void 0));
+          }
+        })
+      )
+    );
   });
 
   // ── Description flag tests ───────────────────────────────────────────────
