@@ -1,6 +1,6 @@
 # Phase 6 Spec Validation Report
 
-**Spec**: `specs/pending/repo-tooling/README.md`  
+**Spec**: `specs/completed/repo-tooling/README.md`  
 **Phase**: 6 (Validation)  
 **Validation Timestamp (UTC)**: 2026-02-20 05:12:20 UTC
 
@@ -93,7 +93,7 @@ Result: **2 files passed, 34 tests passed**.
 
 ## Traceability Matrix
 
-Source criteria: `specs/pending/repo-tooling/README.md:27`
+Source criteria: `specs/completed/repo-tooling/README.md:27`
 
 | ID | Success Criterion | Status | Evidence |
 |---|---|---|---|

@@ -1,6 +1,6 @@
 # Orchestrator Prompt: Phase 7 (Remaining Issue Resolution & Gate Closure)
 
-You are implementing **Phase 7** of `specs/pending/repo-tooling`.
+You are implementing **Phase 7** of `specs/completed/repo-tooling`.
 
 ## Objective
 
@@ -8,10 +8,10 @@ Resolve all residual acceptance gaps from Phase 6 (`SC-01`, `SC-03`, `SC-17`) an
 
 ## Read First
 
-1. `specs/pending/repo-tooling/README.md`
-2. `specs/pending/repo-tooling/handoffs/HANDOFF_P7.md`
-3. `specs/pending/repo-tooling/outputs/phase-6-spec-validation-report.md`
-4. `specs/pending/repo-tooling/REFLECTION_LOG.md`
+1. `specs/completed/repo-tooling/README.md`
+2. `specs/completed/repo-tooling/handoffs/HANDOFF_P7.md`
+3. `specs/completed/repo-tooling/outputs/phase-6-spec-validation-report.md`
+4. `specs/completed/repo-tooling/REFLECTION_LOG.md`
 
 ## Required Deliverables
 
@@ -26,11 +26,11 @@ Resolve all residual acceptance gaps from Phase 6 (`SC-01`, `SC-03`, `SC-17`) an
    - `bun run check`
    - `bun run test`
    - `bun run lint`
-4. Produce `specs/pending/repo-tooling/outputs/phase-7-remaining-issues-resolution.md` with:
+4. Produce `specs/completed/repo-tooling/outputs/phase-7-remaining-issues-resolution.md` with:
    - issue-by-issue remediation summary
    - before/after criterion status
    - command outputs summary
-5. Update `specs/pending/repo-tooling/REFLECTION_LOG.md` with Phase 7 learnings.
+5. Update `specs/completed/repo-tooling/REFLECTION_LOG.md` with Phase 7 learnings.
 
 ## Done Criteria
 

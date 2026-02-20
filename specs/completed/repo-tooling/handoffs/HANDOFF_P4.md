@@ -8,7 +8,7 @@
 `create-package` now generates canonical package structure (including `packages/common/*` via `--parent-dir`), but its core still lives mostly inside one handler.  
 Legacy `create-slice` architecture expects reusable service boundaries (file generation, config orchestration, AST integration) that are not yet provided by current `create-package`.
 
-Primary gap report: `specs/pending/repo-tooling/outputs/create-slice-reuse-gap-analysis.md`
+Primary gap report: `specs/completed/repo-tooling/outputs/create-slice-reuse-gap-analysis.md`
 
 ## Phase 4 Objective
 
@@ -36,8 +36,8 @@ Extract and stabilize reusable core modules so a new `.repos/beep-effect/tooling
 - `tooling/cli/src/commands/create-package/handler.ts` (thin orchestration)
 - `tooling/cli/src/commands/create-package/` (new service modules)
 - `tooling/cli/test/create-package.test.ts` (service/integration coverage)
-- `specs/pending/repo-tooling/outputs/` (phase outputs and verification artifacts)
-- `specs/pending/repo-tooling/REFLECTION_LOG.md` (phase learnings)
+- `specs/completed/repo-tooling/outputs/` (phase outputs and verification artifacts)
+- `specs/completed/repo-tooling/REFLECTION_LOG.md` (phase learnings)
 
 ## Verification Gate
 

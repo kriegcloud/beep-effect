@@ -35,14 +35,14 @@ Run an explicit, evidence-backed validation pass against the repo-tooling spec a
    - `bun run test`
    - `bun run lint`
 6. Produce final validation artifact:
-   - `specs/pending/repo-tooling/outputs/phase-6-spec-validation-report.md`
+   - `specs/completed/repo-tooling/outputs/phase-6-spec-validation-report.md`
 7. Update reflection log with final acceptance insights and any residual risks.
 
 ## Suggested File Targets
 
-- `specs/pending/repo-tooling/README.md`
-- `specs/pending/repo-tooling/outputs/phase-6-spec-validation-report.md`
-- `specs/pending/repo-tooling/REFLECTION_LOG.md`
+- `specs/completed/repo-tooling/README.md`
+- `specs/completed/repo-tooling/outputs/phase-6-spec-validation-report.md`
+- `specs/completed/repo-tooling/REFLECTION_LOG.md`
 - `tooling/cli/test/create-package.test.ts`
 - `tooling/cli/test/create-package-services.test.ts`
 

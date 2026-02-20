@@ -30,9 +30,9 @@ Research and design are complete. Template specifications and architecture decis
 - Run tests with `npx vitest run`, never `bun test`
 
 ### Reference Files
-- `specs/pending/repo-tooling/outputs/create-package-template-inventory.md` - Complete template specs
-- `specs/pending/repo-tooling/outputs/create-package-design.md` - Architecture decisions
-- `specs/pending/repo-tooling/handoffs/HANDOFF_P1.md` - Full phase context
+- `specs/completed/repo-tooling/outputs/create-package-template-inventory.md` - Complete template specs
+- `specs/completed/repo-tooling/outputs/create-package-design.md` - Architecture decisions
+- `specs/completed/repo-tooling/handoffs/HANDOFF_P1.md` - Full phase context
 
 ### Verification
 After each task, run:
@@ -51,4 +51,4 @@ bun run build && bun run check && bun run test && bun run test:types && bun run 
 - [ ] Full quality checks pass
 
 ### Handoff Document
-Read full context in: `specs/pending/repo-tooling/handoffs/HANDOFF_P1.md`
+Read full context in: `specs/completed/repo-tooling/handoffs/HANDOFF_P1.md`

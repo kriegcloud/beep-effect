@@ -97,8 +97,8 @@ import Handlebars from "handlebars";
 - `tooling/cli/src/index.ts` - CLI entry (update imports)
 - `tooling/cli/package.json` - Add handlebars dep
 - `package.json` (root) - Add handlebars to catalog
-- `specs/pending/repo-tooling/outputs/create-package-template-inventory.md` - Full template specs
-- `specs/pending/repo-tooling/outputs/create-package-design.md` - Architecture decisions
+- `specs/completed/repo-tooling/outputs/create-package-template-inventory.md` - Full template specs
+- `specs/completed/repo-tooling/outputs/create-package-design.md` - Architecture decisions
 
 ## Success Criteria
 - [ ] Handlebars installed and importable

@@ -1,6 +1,6 @@
 # Orchestrator Prompt: Phase 5 (CLI Hardening & Issue Remediation)
 
-You are implementing **Phase 5** of `specs/pending/repo-tooling`.
+You are implementing **Phase 5** of `specs/completed/repo-tooling`.
 
 ## Objective
 
@@ -8,9 +8,9 @@ Fix all known `tooling/cli` implementation defects and coverage gaps so the spec
 
 ## Read First
 
-1. `specs/pending/repo-tooling/README.md`
-2. `specs/pending/repo-tooling/handoffs/HANDOFF_P5.md`
-3. `specs/pending/repo-tooling/REFLECTION_LOG.md`
+1. `specs/completed/repo-tooling/README.md`
+2. `specs/completed/repo-tooling/handoffs/HANDOFF_P5.md`
+3. `specs/completed/repo-tooling/REFLECTION_LOG.md`
 
 ## Required Deliverables
 

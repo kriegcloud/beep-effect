@@ -50,7 +50,7 @@ Close all known implementation defects and enforcement gaps so `tooling/cli` is 
 - `tooling/cli/test/topo-sort.test.ts`
 - `tooling/cli/test/tsconfig-sync.test.ts`
 - `tooling/cli/test/codegen.test.ts`
-- `specs/pending/repo-tooling/REFLECTION_LOG.md`
+- `specs/completed/repo-tooling/REFLECTION_LOG.md`
 
 ## Verification Gate
 

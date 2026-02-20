@@ -68,3 +68,10 @@ Cumulative learnings from the repo-tooling spec phases.
 - **Task**: Close residual SC-01/SC-03/SC-17 gaps and restore full gate-green state
 - **Key Insight**: Final acceptance required resolving contract drift and environment drift together: criteria had to explicitly encode intentional non-template generation boundaries, and transient `_test-*` config artifacts had to be purged to avoid false gate failures during typecheck/build reruns
 - **Pattern**: For closure phases, run a two-track checklist before final signoff: (1) spec-to-implementation contract audit for intentional deviations, and (2) workspace hygiene audit for temporary test artifacts that can poison repo-wide gates
+
+### refl-2026-02-20-007
+- **Phase**: phase-8-comprehensive-final-review
+- **Outcome**: success
+- **Task**: Execute final independent implementation/test/traceability audit and certify closeout readiness
+- **Key Insight**: Final signoff confidence came from recomputing evidence directly (fresh gate + src/dist runtime smoke + edge-test presence audit) rather than trusting prior phase outputs alone
+- **Pattern**: For spec closeout, require a three-part evidence chain in the same run: (1) contract audit across code/tests/docs, (2) repo-wide gate rerun, and (3) runtime smoke checks for both source and built execution paths

@@ -1,6 +1,6 @@
 # Phase 7 Remaining Issues Resolution
 
-**Spec**: `specs/pending/repo-tooling/README.md`  
+**Spec**: `specs/completed/repo-tooling/README.md`  
 **Phase**: 7 (Remaining Issue Resolution & Gate Closure)  
 **Resolution Timestamp (UTC)**: 2026-02-20 05:34:55 UTC
 
@@ -19,9 +19,9 @@ Phase 7 resolved `SC-01` and `SC-03` via the **spec-alignment path** (intentiona
   - Updated scope wording to define template coverage as template-rendered scaffold files and explicitly call out intentional non-template outputs.
   - Updated success criteria wording for `SC-01` and `SC-03` to match the implemented design contract.
 - **Evidence**:
-  - Scope alignment: `specs/pending/repo-tooling/README.md:12`
-  - `SC-01` alignment text: `specs/pending/repo-tooling/README.md:28`
-  - `SC-03` alignment text: `specs/pending/repo-tooling/README.md:30`
+  - Scope alignment: `specs/completed/repo-tooling/README.md:12`
+  - `SC-01` alignment text: `specs/completed/repo-tooling/README.md:28`
+  - `SC-03` alignment text: `specs/completed/repo-tooling/README.md:30`
   - Intentional non-template operations in implementation: `tooling/cli/src/commands/create-package/handler.ts:325`, `tooling/cli/src/commands/create-package/handler.ts:333`, `tooling/cli/src/commands/create-package/handler.ts:336`
 
 ### 2) `SC-17`: explicit `any` lint diagnostics in `create-package` tests

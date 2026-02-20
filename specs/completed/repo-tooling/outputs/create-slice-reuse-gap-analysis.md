@@ -1,7 +1,7 @@
 # create-package → create-slice Reuse Gap Analysis
 
 **Date**: 2026-02-20  
-**Spec**: `specs/pending/repo-tooling`
+**Spec**: `specs/completed/repo-tooling`
 
 ## Goal
 

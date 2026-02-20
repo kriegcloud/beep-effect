@@ -69,4 +69,4 @@ import { UserSessionStart } from "./hooks/SessionStart.js"
 ## Related
 
 - **AGENTS.md** - Detailed contributor guidance
-- **specs/pending/repo-tooling/** - Original specification
+- **specs/completed/repo-tooling/** - Repo-tooling specification

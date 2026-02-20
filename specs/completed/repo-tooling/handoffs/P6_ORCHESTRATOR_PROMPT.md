@@ -1,6 +1,6 @@
 # Orchestrator Prompt: Phase 6 (Spec Validation & Acceptance)
 
-You are implementing **Phase 6** of `specs/pending/repo-tooling`.
+You are implementing **Phase 6** of `specs/completed/repo-tooling`.
 
 ## Objective
 
@@ -8,9 +8,9 @@ Validate the repo-tooling spec end-to-end and produce final acceptance evidence 
 
 ## Read First
 
-1. `specs/pending/repo-tooling/README.md`
-2. `specs/pending/repo-tooling/handoffs/HANDOFF_P6.md`
-3. `specs/pending/repo-tooling/REFLECTION_LOG.md`
+1. `specs/completed/repo-tooling/README.md`
+2. `specs/completed/repo-tooling/handoffs/HANDOFF_P6.md`
+3. `specs/completed/repo-tooling/REFLECTION_LOG.md`
 
 ## Required Deliverables
 
@@ -18,7 +18,7 @@ Validate the repo-tooling spec end-to-end and produce final acceptance evidence 
 2. Validate `create-package` across package types and nested parent paths.
 3. Validate zero-manual `packages/common` flow for `@beep/types` + `@beep/utils`.
 4. Validate Phase 4 reuse contracts are present and exercised by tests.
-5. Produce `specs/pending/repo-tooling/outputs/phase-6-spec-validation-report.md`.
+5. Produce `specs/completed/repo-tooling/outputs/phase-6-spec-validation-report.md`.
 6. Run full verification gate:
    - `bun run build`
    - `bun run check`

@@ -1,7 +1,7 @@
 # Repo Tooling: create-package Overhaul
 
 ## Status
-ACTIVE
+- Status: `completed`
 
 ## Purpose
 Overhaul the `beep create-package` CLI command to scaffold production-ready packages with Handlebars templates, full config bootstrapping (LICENSE, README, AGENTS.md, ai-context.md, CLAUDE.md symlink, docgen.json, vitest.config.ts), and alignment with established beep-effect conventions.
@@ -25,30 +25,30 @@ Overhaul the `beep create-package` CLI command to scaffold production-ready pack
 - Turbo pipeline auto-registration
 
 ## Success Criteria
-- [ ] All template-rendered scaffold files use Handlebars templates (intentional non-template outputs remain: Schema-encoded `package.json`, static `.gitkeep` markers, and `CLAUDE.md` symlink action)
-- [ ] `handlebars` added to root dependency catalog and cli package
-- [ ] Template directory contains one `.hbs` file per template-rendered output (`tsconfig.json`, `src/index.ts`, `LICENSE`, `README.md`, `AGENTS.md`, `ai-context.md`, `docgen.json`, `vitest.config.ts`, `docs/index.md`)
-- [ ] `LICENSE` file generated with MIT license text (matches existing package pattern)
-- [ ] `README.md` generated with package name, description placeholder, and standard sections
-- [ ] `AGENTS.md` generated with canonical structure (Purpose & Fit, Surface Map, Guardrails, Verifications, Contributor Checklist)
-- [ ] `ai-context.md` generated with YAML frontmatter (path, summary, tags) and skeleton sections
-- [ ] `CLAUDE.md` created as symlink to `AGENTS.md`
-- [ ] `docgen.json` generated with correct schema path, srcLink, and path aliases
-- [ ] `vitest.config.ts` generated with shared config merge pattern
-- [ ] `docs/index.md` generated with front matter
-- [ ] `dtslint/.gitkeep` generated for type test directory
-- [ ] Dry-run mode lists all files including new ones
-- [ ] All 135+ existing tests continue to pass
-- [ ] New tests cover every generated file's content and structure
-- [ ] Type tests pass (`bun run test:types`)
-- [ ] Full quality checks pass (build, check, test, lint)
-- [ ] Core scaffolding modules are reusable by a new `create-slice` implementation
-- [ ] Creating `@beep/types` and `@beep/utils` under `packages/common` requires zero manual post-fix work
+- [x] All template-rendered scaffold files use Handlebars templates (intentional non-template outputs remain: Schema-encoded `package.json`, static `.gitkeep` markers, and `CLAUDE.md` symlink action)
+- [x] `handlebars` added to root dependency catalog and cli package
+- [x] Template directory contains one `.hbs` file per template-rendered output (`tsconfig.json`, `src/index.ts`, `LICENSE`, `README.md`, `AGENTS.md`, `ai-context.md`, `docgen.json`, `vitest.config.ts`, `docs/index.md`)
+- [x] `LICENSE` file generated with MIT license text (matches existing package pattern)
+- [x] `README.md` generated with package name, description placeholder, and standard sections
+- [x] `AGENTS.md` generated with canonical structure (Purpose & Fit, Surface Map, Guardrails, Verifications, Contributor Checklist)
+- [x] `ai-context.md` generated with YAML frontmatter (path, summary, tags) and skeleton sections
+- [x] `CLAUDE.md` created as symlink to `AGENTS.md`
+- [x] `docgen.json` generated with correct schema path, srcLink, and path aliases
+- [x] `vitest.config.ts` generated with shared config merge pattern
+- [x] `docs/index.md` generated with front matter
+- [x] `dtslint/.gitkeep` generated for type test directory
+- [x] Dry-run mode lists all files including new ones
+- [x] All 135+ existing tests continue to pass
+- [x] New tests cover every generated file's content and structure
+- [x] Type tests pass (`bun run test:types`)
+- [x] Full quality checks pass (build, check, test, lint)
+- [x] Core scaffolding modules are reusable by a new `create-slice` implementation
+- [x] Creating `@beep/types` and `@beep/utils` under `packages/common` requires zero manual post-fix work
 
 ## Expected Outputs
-- `specs/pending/repo-tooling/outputs/create-package-template-inventory.md` - Complete file-by-file template specification
-- `specs/pending/repo-tooling/outputs/create-package-design.md` - Architecture decisions, template variable schema, handler refactor plan
-- `specs/pending/repo-tooling/outputs/create-slice-reuse-gap-analysis.md` - Gap matrix and concrete extraction targets for create-slice reuse
+- `specs/completed/repo-tooling/outputs/create-package-template-inventory.md` - Complete file-by-file template specification
+- `specs/completed/repo-tooling/outputs/create-package-design.md` - Architecture decisions, template variable schema, handler refactor plan
+- `specs/completed/repo-tooling/outputs/create-slice-reuse-gap-analysis.md` - Gap matrix and concrete extraction targets for create-slice reuse
 - Updated `tooling/cli/src/commands/create-package/` directory with templates and handler
 - Updated test suite with coverage for all generated files
 
@@ -59,10 +59,10 @@ Overhaul the `beep create-package` CLI command to scaffold production-ready pack
 | 0 | Research & Design: inventory templates, define variables, design handler architecture | Complete |
 | 1 | Template Creation: write all .hbs templates, add handlebars dependency | Complete |
 | 2 | Implementation: refactor handler to use templates, add symlink creation, update tests | Complete |
-| 3 | Verification: full quality checks, update AGENTS.md/ai-context.md for cli package | Partial (gates not fully green) |
-| 4 | Reuse Extraction: make create-package core reusable for `.repos/beep-effect` `create-slice` and close zero-manual baseline gaps | ACTIVE |
-| 5 | Hardening: fix dist/runtime defects, output correctness, and missing error-path tests | READY |
-| 6 | Validation: certify spec completion with traceability evidence and zero-manual acceptance checks | PLANNED |
+| 3 | Verification: full quality checks, update AGENTS.md/ai-context.md for cli package | Complete (resolved by Phases 5-8) |
+| 4 | Reuse Extraction: make create-package core reusable for `.repos/beep-effect` `create-slice` and close zero-manual baseline gaps | Complete |
+| 5 | Hardening: fix dist/runtime defects, output correctness, and missing error-path tests | Complete |
+| 6 | Validation: certify spec completion with traceability evidence and zero-manual acceptance checks | Complete |
 
 ## Prior Work
 Existing outputs from repo-utils migration (completed):

@@ -35,16 +35,16 @@ Perform a full-scope comprehensive review of repo-tooling implementation and acc
    - `create-package` dry-run in built `dist` mode
    - `tsconfig-sync --check`
 6. Produce final review artifact:
-   - `specs/pending/repo-tooling/outputs/phase-8-comprehensive-review.md`
+   - `specs/completed/repo-tooling/outputs/phase-8-comprehensive-review.md`
 7. Update reflection log with final signoff learnings and any long-tail watch items.
 
 ## Suggested File Targets
 
-- `specs/pending/repo-tooling/README.md`
-- `specs/pending/repo-tooling/outputs/phase-6-spec-validation-report.md`
-- `specs/pending/repo-tooling/outputs/phase-7-remaining-issues-resolution.md`
-- `specs/pending/repo-tooling/outputs/phase-8-comprehensive-review.md`
-- `specs/pending/repo-tooling/REFLECTION_LOG.md`
+- `specs/completed/repo-tooling/README.md`
+- `specs/completed/repo-tooling/outputs/phase-6-spec-validation-report.md`
+- `specs/completed/repo-tooling/outputs/phase-7-remaining-issues-resolution.md`
+- `specs/completed/repo-tooling/outputs/phase-8-comprehensive-review.md`
+- `specs/completed/repo-tooling/REFLECTION_LOG.md`
 - `tooling/cli/src/commands/create-package/`
 - `tooling/cli/test/create-package.test.ts`
 - `tooling/cli/test/create-package-services.test.ts`

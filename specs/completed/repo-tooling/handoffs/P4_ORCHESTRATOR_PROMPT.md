@@ -1,6 +1,6 @@
 # Orchestrator Prompt: Phase 4 (create-slice Reuse Extraction)
 
-You are implementing **Phase 4** of `specs/pending/repo-tooling`.
+You are implementing **Phase 4** of `specs/completed/repo-tooling`.
 
 ## Objective
 
@@ -8,9 +8,9 @@ Make `create-package` core modules reusable for a new `.repos/beep-effect` `crea
 
 ## Read First
 
-1. `specs/pending/repo-tooling/README.md`
-2. `specs/pending/repo-tooling/outputs/create-slice-reuse-gap-analysis.md`
-3. `specs/pending/repo-tooling/handoffs/HANDOFF_P4.md`
+1. `specs/completed/repo-tooling/README.md`
+2. `specs/completed/repo-tooling/outputs/create-slice-reuse-gap-analysis.md`
+3. `specs/completed/repo-tooling/handoffs/HANDOFF_P4.md`
 
 ## Required Deliverables
 

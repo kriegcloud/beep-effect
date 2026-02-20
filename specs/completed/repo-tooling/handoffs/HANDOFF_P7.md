@@ -33,15 +33,15 @@ Resolve all residual acceptance gaps from Phase 6, restore a fully green verific
    - `bun run lint`
 4. Update acceptance evidence:
    - Refresh or supersede Phase 6 matrix with final Pass/Fail status after remediation.
-   - Produce `specs/pending/repo-tooling/outputs/phase-7-remaining-issues-resolution.md`.
-5. Update `specs/pending/repo-tooling/REFLECTION_LOG.md` with closure learnings and prevention patterns.
+   - Produce `specs/completed/repo-tooling/outputs/phase-7-remaining-issues-resolution.md`.
+5. Update `specs/completed/repo-tooling/REFLECTION_LOG.md` with closure learnings and prevention patterns.
 
 ## Suggested File Targets
 
-- `specs/pending/repo-tooling/README.md`
-- `specs/pending/repo-tooling/outputs/phase-6-spec-validation-report.md`
-- `specs/pending/repo-tooling/outputs/phase-7-remaining-issues-resolution.md`
-- `specs/pending/repo-tooling/REFLECTION_LOG.md`
+- `specs/completed/repo-tooling/README.md`
+- `specs/completed/repo-tooling/outputs/phase-6-spec-validation-report.md`
+- `specs/completed/repo-tooling/outputs/phase-7-remaining-issues-resolution.md`
+- `specs/completed/repo-tooling/REFLECTION_LOG.md`
 - `tooling/cli/test/create-package.test.ts`
 - `tooling/codebase-search/test/` (files flagged by lint diagnostics)
 - Any create-package implementation/template files needed by the selected `SC-01`/`SC-03` resolution path
@@ -66,5 +66,5 @@ bun tooling/cli/src/bin.ts tsconfig-sync --check
 
 - `SC-01`, `SC-03`, and `SC-17` are resolved and marked pass with evidence.
 - Full verification gate is green.
-- Updated remediation artifact is committed under `specs/pending/repo-tooling/outputs/`.
+- Updated remediation artifact is committed under `specs/completed/repo-tooling/outputs/`.
 - Reflection log contains concrete closure learnings.
