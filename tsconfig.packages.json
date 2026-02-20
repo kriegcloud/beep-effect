@@ -29,6 +29,9 @@
     },
     {
       "path": "tooling/_test-idempotent-1771560353205"
+    },
+    {
+      "path": "tooling/_test-license-1771561808031"
     }
   ]
 }

@@ -253,7 +253,7 @@ export const createPackageCommand = Command.make(
     }
 
     // ── Build template context ─────────────────────────────────────────
-    const currentYear = String(DateTime.getPartUtc(yield* DateTime.now, "year"));
+    const currentYear = String(DateTime.getPartUtc(DateTime.nowUnsafe(), "year"));
     const ctx: TemplateContext = {
       name,
       scopedName: `@beep/${name}`,

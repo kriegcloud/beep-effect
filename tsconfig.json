@@ -62,6 +62,12 @@
       ],
       "@beep/_test-idempotent-1771560353205/*": [
         "./tooling/_test-idempotent-1771560353205/src/*.ts"
+      ],
+      "@beep/_test-license-1771561808031": [
+        "./tooling/_test-license-1771561808031/src/index.ts"
+      ],
+      "@beep/_test-license-1771561808031/*": [
+        "./tooling/_test-license-1771561808031/src/*.ts"
       ]
     },
     "plugins": [
