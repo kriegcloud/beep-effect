@@ -1,0 +1,5 @@
+- What IaC tool to use? Terraform, SST or Alchemy?
+- Should I use better-auth or WorkOS?
+- Should I Run everything full AWS? Or should I use a comination of Vercel/Cloudflare, AWS/GCP
+- I need to finish setting up 1password
+- 

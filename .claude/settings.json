@@ -2,29 +2,5 @@
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true,
     "serena@claude-plugins-official": true
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ./tooling/codebase-search/dist/hooks/session-start-entry.js",
-            "timeout": 5000
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ./tooling/codebase-search/dist/hooks/prompt-submit-entry.js",
-            "timeout": 5000
-          }
-        ]
-      }
-    ]
   }
 }
