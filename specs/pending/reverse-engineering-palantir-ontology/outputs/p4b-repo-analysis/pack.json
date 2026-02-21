@@ -1,0 +1,407 @@
+{
+  "repo": "palantir/pack",
+  "repoUrl": "https://github.com/palantir/pack",
+  "summary": "Platform Application Capabilities Kit (PACK) is a TypeScript monorepo providing an ALPHA-state framework for building collaborative, real-time document-based applications on Palantir Foundry. It provides a complete application SDK with document schemas (Zod-validated models), real-time state synchronization via Yjs CRDTs, presence/activity event broadcasting, OAuth authentication against Foundry, and React hooks for UI integration. The framework centers on a 'Document' abstraction rather than direct Ontology manipulation, but bridges to Foundry's Ontology via OSDK client integration, ontologyRid configuration, and ObjectRef types for referencing Ontology objects within documents.",
+  "ontologyConcepts": [
+    {
+      "concept": "ontologyRid",
+      "location": "packages/core/src/types/AppConfig.ts, packages/core/src/utils/getOntologyRid.ts",
+      "description": "AppConfig stores ontologyRid as Promise<string>; every PACK app is scoped to a Foundry Ontology via its RID. The getOntologyRid utility resolves it from the app instance. Format: ri.ontology.main.ontology.<uuid>."
+    },
+    {
+      "concept": "OSDK Client integration",
+      "location": "packages/core/package.json (depends on @osdk/client), packages/app/src/utils/initPackApp.ts",
+      "description": "PACK apps are initialized with an OSDK Client instance (from @osdk/client). The osdkClient is stored on AppConfig and used for Foundry API communication. OSDK is Palantir's Ontology SDK for TypeScript."
+    },
+    {
+      "concept": "ObjectRef",
+      "location": "packages/document-schema/model-types/src/types/ObjectRef.ts, packages/schema/src/primitives.ts",
+      "description": "ObjectRef is a branded reference type pointing to an Ontology object (ObjectId). Marked @experimental with TODO for implementation. Allows document schemas to reference Ontology objects as field values within document records."
+    },
+    {
+      "concept": "DocumentRef / Document as collaborative state container",
+      "location": "packages/document-schema/model-types/src/types/DocumentRef.ts",
+      "description": "DocumentRef is the central abstraction: a reference to a collaborative, real-time document. While not an Ontology object itself, documents exist within an Ontology-scoped context and can contain references to Ontology objects (ObjectRef), users (UserRef), media (MediaRef), and other documents (DocRef)."
+    },
+    {
+      "concept": "External reference types (DocRef, MediaRef, ObjectRef, UserRef)",
+      "location": "packages/document-schema/model-types/src/types/Model.ts, packages/schema/src/primitives.ts",
+      "description": "The Model metadata tracks which fields are external references via externalRefFieldTypes. ExternalRefType enum: DOC_REF, MEDIA_REF, OBJECT_REF, USER_REF. ObjectRef specifically bridges to Ontology objects."
+    },
+    {
+      "concept": "Foundry Pack API (subscriptions endpoint)",
+      "location": "packages/core/src/types/AppConfig.ts (packWsPath: /api/v2/packSubscriptions)",
+      "description": "The state service connects to Foundry via WebSocket at /api/v2/packSubscriptions for real-time document sync. This is a Foundry platform API for the Pack system."
+    },
+    {
+      "concept": "@osdk/foundry.pack dependency",
+      "location": "packages/state/foundry/package.json, packages/state/foundry-event/package.json",
+      "description": "The Foundry state implementations depend on @osdk/foundry.pack (v2.47.0), a generated OSDK package providing typed access to Foundry's Pack service APIs."
+    }
+  ],
+  "apiSurface": {
+    "packages": [
+      {
+        "name": "@palantir/pack.core",
+        "version": "0.2.2",
+        "description": "Core types and utilities: PackApp, AppConfig, ModuleKey, TokenProvider, branded types (Flavored), getOntologyRid, generateId, parseJwtPayload",
+        "exports": [
+          "PackApp",
+          "PackAppInternal",
+          "AppConfig",
+          "AppOptions",
+          "ModuleKey",
+          "ModuleConfig",
+          "ModuleConfigTuple",
+          "TokenProvider",
+          "Branded",
+          "Flavored",
+          "Unsubscribe",
+          "assertNever",
+          "generateId",
+          "getOntologyRid",
+          "justOnce",
+          "parseJwtPayload"
+        ]
+      },
+      {
+        "name": "@palantir/pack.app",
+        "version": "0.3.0",
+        "description": "Main application package: initPackApp, page environment detection, demo OAuth client",
+        "exports": [
+          "initPackApp",
+          "AppBuilders",
+          "getPageEnv",
+          "getPageEnvOrThrow",
+          "PageEnv",
+          "RequiredPageEnv",
+          "isDemoEnv",
+          "DemoPublicOauthClient",
+          "createDemoPublicOauthClient"
+        ]
+      },
+      {
+        "name": "@palantir/pack.auth",
+        "version": "0.1.2",
+        "description": "Authentication core: AuthModule, AuthState, UserRef, token management",
+        "exports": [
+          "AuthModule",
+          "AuthState",
+          "AuthStateCallback",
+          "AuthStateChangeEvent",
+          "BaseAuthService",
+          "TokenChangeCallback",
+          "UnverifiedTokenInfo",
+          "createUserRef",
+          "invalidUserRef",
+          "isValidUserRef",
+          "AuthModuleConfig",
+          "createAuthModuleConfig",
+          "AuthModuleImpl"
+        ]
+      },
+      {
+        "name": "@palantir/pack.auth.foundry",
+        "version": "0.1.2",
+        "description": "Foundry OAuth implementations: public, confidential, and static token auth services",
+        "exports": [
+          "createPublicOauthService",
+          "createConfidentialOauthService",
+          "createStaticTokenService",
+          "createAuthModuleConfig"
+        ]
+      },
+      {
+        "name": "@palantir/pack.schema",
+        "version": "0.3.1",
+        "description": "Schema definition DSL: defineRecord, defineUnion, defineMigration, primitive types (String, Double, Boolean, Array, Optional, DocRef, MediaRef, ObjectRef, UserRef, Unknown)",
+        "exports": [
+          "defineRecord",
+          "defineUnion",
+          "defineMigration",
+          "RecordDef",
+          "UnionDef",
+          "ModelDef",
+          "ModelDefType",
+          "TypeKind",
+          "Type",
+          "String",
+          "Double",
+          "Boolean",
+          "Array",
+          "Optional",
+          "Ref",
+          "DocRef",
+          "MediaRef",
+          "ObjectRef",
+          "UserRef",
+          "Unknown"
+        ]
+      },
+      {
+        "name": "@palantir/pack.document-schema.model-types",
+        "version": "0.4.0",
+        "description": "Runtime model types supporting generated schemas: DocumentSchema, DocumentRef, Model, RecordRef, RecordCollectionRef, branded ref types, activity/presence events",
+        "exports": [
+          "DocumentSchema",
+          "DocumentSchemaMetadata",
+          "DocumentState",
+          "DocumentRef",
+          "DocumentRefBrand",
+          "DocumentId",
+          "DocumentMetadata",
+          "DocumentSecurity",
+          "Model",
+          "RecordModel",
+          "UnionModel",
+          "ModelData",
+          "EditDescription",
+          "ExternalRefType",
+          "RecordRef",
+          "RecordRefBrand",
+          "RecordId",
+          "RecordCollectionRef",
+          "RecordCollectionRefBrand",
+          "ObjectRef",
+          "ObjectRefBrand",
+          "ObjectId",
+          "MediaRef",
+          "MediaRefBrand",
+          "MediaId",
+          "UserRef",
+          "UserRefBrand",
+          "UserId",
+          "Metadata",
+          "getMetadata",
+          "hasMetadata",
+          "ActivityEvent",
+          "ActivityEventDataType",
+          "ActivityEvents",
+          "PresenceEvent",
+          "PresenceEventDataType",
+          "PresenceEvents"
+        ]
+      },
+      {
+        "name": "@palantir/pack.document-schema.type-gen",
+        "version": "0.4.0",
+        "description": "CLI code generator: converts YAML schema definitions to TypeScript types and Zod validation schemas via an intermediate representation (IR)",
+        "exports": [
+          "cli",
+          "registerIrCommands",
+          "registerSchemaCommands",
+          "registerStepsCommands",
+          "generateZodSchemasFromIr",
+          "convertSchemaToSteps",
+          "convertStepsToYamlString",
+          "generateTypesFromSchema",
+          "generateZodFromSchema",
+          "convertSchemaToIr",
+          "convertStepsToIr",
+          "generateZodFromStepsSchema"
+        ]
+      },
+      {
+        "name": "@palantir/pack.state.core",
+        "version": "0.5.0",
+        "description": "State management core: DocumentService interface, StateModule, Yjs-based base service, document lifecycle (create, search, load, subscribe)",
+        "exports": [
+          "DocumentService",
+          "DocumentLoadStatus",
+          "DocumentLiveStatus",
+          "DocumentSyncStatus",
+          "DocumentStatus",
+          "SearchDocumentsResult",
+          "StateModule",
+          "getStateModule",
+          "BaseYjsDocumentService",
+          "createDocumentServiceConfig",
+          "getDocumentService",
+          "createDocRef",
+          "createRecordRef",
+          "createRecordCollectionRef",
+          "createInMemoryDocumentServiceConfig",
+          "FileSystemType",
+          "CreateDocumentMetadata"
+        ]
+      },
+      {
+        "name": "@palantir/pack.state.foundry",
+        "version": "0.4.0",
+        "description": "Foundry-backed DocumentService implementation using Foundry Pack APIs and conjure-client",
+        "exports": ["createFoundryDocumentServiceConfig"]
+      },
+      {
+        "name": "@palantir/pack.state.foundry-event",
+        "version": "0.4.0",
+        "description": "Real-time event service for Foundry document sync via CometD (Bayeux protocol) and WebSocket",
+        "exports": [
+          "createFoundryEventService",
+          "FoundryEventService",
+          "SyncSession"
+        ]
+      },
+      {
+        "name": "@palantir/pack.state.demo",
+        "version": "0.4.0",
+        "description": "Demo/test implementation of DocumentService using in-browser BroadcastChannel for local-only collaborative editing",
+        "exports": ["createDemoDocumentServiceConfig"]
+      },
+      {
+        "name": "@palantir/pack.state.react",
+        "version": "0.4.0",
+        "description": "React hooks and providers for PACK state: document references, records, search, presence, activity, auth",
+        "exports": [
+          "PackAppProvider",
+          "usePackApp",
+          "useDocRef",
+          "useDocMetadata",
+          "useRecord",
+          "useRecords",
+          "useSearchDocuments",
+          "useOnDocActivityEvents",
+          "useOnDocPresenceEvents",
+          "useAuthState",
+          "useAuthToken"
+        ]
+      },
+      {
+        "name": "@palantir/pack.sdkgen",
+        "version": "0.2.2",
+        "description": "Generic TypeScript SDK generator CLI: creates project scaffolding from templates using EJS, commander, and inquirer",
+        "exports": [
+          "cli",
+          "createCommand",
+          "ContextBuilder",
+          "Generator",
+          "SchemaParser",
+          "TemplateLoader",
+          "Logger",
+          "promptUser",
+          "createTemplateUtils"
+        ]
+      }
+    ]
+  },
+  "architecturePatterns": [
+    {
+      "pattern": "Document-centric state model",
+      "description": "PACK introduces a 'Document' abstraction as its primary state container, distinct from Ontology objects. Documents have typed schemas (via Zod), contain Records (key-value entries within named collections), and support real-time collaborative editing. This is a higher-level construct built atop Foundry's storage layer."
+    },
+    {
+      "pattern": "Yjs CRDT-based real-time sync",
+      "description": "State synchronization uses Yjs (CRDT library) as the conflict-resolution layer. BaseYjsDocumentService provides the base implementation, with Foundry and demo backends plugging in different transport layers. This enables Google-Docs-style collaborative editing."
+    },
+    {
+      "pattern": "Module system with dependency injection",
+      "description": "PackApp uses a ModuleKey-based module system. Modules (auth, state) register via ModuleConfig tuples and are accessed via module accessors added dynamically during initialization. Declaration merging extends the PackApp interface."
+    },
+    {
+      "pattern": "Schema-first code generation pipeline",
+      "description": "A multi-stage code generation pipeline: YAML schema definitions -> steps -> intermediate representation (IR) -> TypeScript types + Zod validation schemas. The type-gen CLI processes schemas through this pipeline. Separate sdkgen CLI generates full project scaffolding from templates."
+    },
+    {
+      "pattern": "Branded/Flavored type safety",
+      "description": "Uses branded types (Flavored<T>) for type-safe IDs: DocumentId, RecordId, ObjectId, MediaId, UserId. Symbol-based branding (DocumentRefBrand, ObjectRefBrand, etc.) prevents accidental reference type confusion."
+    },
+    {
+      "pattern": "Backend-agnostic with Foundry/Demo dual implementations",
+      "description": "Core interfaces (DocumentService, AuthService, EventService) are backend-agnostic. Two implementations exist: Foundry (production, uses real APIs) and Demo (local, uses BroadcastChannel/IndexedDB). Auto-detection via isDemoEnv/demoMode config."
+    },
+    {
+      "pattern": "CometD/Bayeux protocol for real-time events",
+      "description": "The foundry-event package uses CometD (Bayeux protocol) over WebSocket at /api/v2/packSubscriptions for real-time presence and activity event streaming from Foundry."
+    },
+    {
+      "pattern": "React hooks layer for UI integration",
+      "description": "pack.state.react provides idiomatic React hooks (useDocRef, useRecord, useRecords, useSearchDocuments, etc.) wrapping the imperative DocumentService API, with a PackAppProvider context."
+    }
+  ],
+  "typeDefinitions": [
+    {
+      "name": "PackApp",
+      "location": "packages/core/src/types/PackApp.ts",
+      "description": "Top-level application instance providing access to config and dynamically-added modules (auth, state). Created via initPackApp()."
+    },
+    {
+      "name": "AppConfig",
+      "location": "packages/core/src/types/AppConfig.ts",
+      "description": "Application configuration: app identity (appId, appVersion), OSDK client, ontologyRid (Promise<string>), remote endpoints (baseUrl, packWsPath), logger, demoMode flag."
+    },
+    {
+      "name": "DocumentSchema",
+      "location": "packages/document-schema/model-types/src/types/DocumentSchema.ts",
+      "description": "Interface for generated document schemas. Maps model names to Model instances. Includes version metadata. DocumentState<S> derives the plain object representation."
+    },
+    {
+      "name": "Model",
+      "location": "packages/document-schema/model-types/src/types/Model.ts",
+      "description": "Defines the structure of a document record or union. Contains Zod schema for validation, metadata (name, externalRefFieldTypes for records, discriminant for unions)."
+    },
+    {
+      "name": "DocumentRef",
+      "location": "packages/document-schema/model-types/src/types/DocumentRef.ts",
+      "description": "Branded reference to a collaborative document. Provides methods: getDocSnapshot, getRecords, onActivity, onMetadataChange, onPresence, onStateChange, updateCustomPresence, withTransaction."
+    },
+    {
+      "name": "DocumentService",
+      "location": "packages/state/core/src/types/DocumentService.ts",
+      "description": "Core service interface for document operations: createDocument, searchDocuments, createDocRef, record CRUD, collection operations, subscriptions for activity/presence/status/metadata changes."
+    },
+    {
+      "name": "RecordDef / UnionDef",
+      "location": "packages/schema/src/defs.ts",
+      "description": "Schema DSL definition types. RecordDef has named typed fields, UnionDef has named variants with a discriminant field. Used as input to the code generation pipeline."
+    },
+    {
+      "name": "ObjectRef",
+      "location": "packages/document-schema/model-types/src/types/ObjectRef.ts",
+      "description": "Branded reference to an Ontology object (ObjectId). Marked @experimental. Bridge type enabling documents to reference Ontology objects."
+    },
+    {
+      "name": "ExternalRefType",
+      "location": "packages/document-schema/model-types/src/types/Model.ts",
+      "description": "Enum of external reference field types: DOC_REF, MEDIA_REF, OBJECT_REF, USER_REF. Used in RecordModelMetadata to annotate which fields hold cross-entity references."
+    }
+  ],
+  "dependencies": {
+    "runtime": {
+      "@osdk/client": "^2.5.2 (OSDK client for Foundry API access)",
+      "@osdk/api": "^2.5.2 (OSDK type definitions)",
+      "@osdk/oauth": "^1.4.0 (OAuth client for Foundry auth)",
+      "@osdk/foundry.pack": "^2.47.0 (generated Foundry Pack service API types)",
+      "@osdk/foundry.admin": "^2.42.0 (Foundry admin API types for auth)",
+      "@osdk/shared.client2": "^1.0.0 (shared OSDK client utilities)",
+      "yjs": "^13.6.27 (CRDT library for collaborative editing)",
+      "cometd": "^7.0.18 (Bayeux protocol client for real-time events)",
+      "conjure-client": "^2.15.0 (Palantir Conjure RPC client)",
+      "zod": "^4.1.13 (schema validation)",
+      "remeda": "^2.32.0 (functional utilities)",
+      "tiny-invariant": "^1.3.3 (assertion helper)"
+    },
+    "devAndBuild": {
+      "typescript": "^5.9.3",
+      "vitest": "^4.0.14",
+      "turbo": "^2.6.1",
+      "pnpm": "10.27.0",
+      "eslint": "^9.39.1",
+      "dprint": "^0.50.2",
+      "commander": "^14.0.0 (sdkgen CLI)",
+      "ejs": "^3.1.10 (sdkgen template engine)",
+      "react": "^17 || ^18 || ^19 (peer dep for state.react)"
+    }
+  },
+  "tags": [
+    "collaborative-editing",
+    "real-time-sync",
+    "document-state",
+    "foundry-platform",
+    "crdt-yjs",
+    "react-hooks",
+    "schema-codegen",
+    "osdk-integration",
+    "typescript-monorepo",
+    "ontology-low-relevance",
+    "alpha-state"
+  ]
+}

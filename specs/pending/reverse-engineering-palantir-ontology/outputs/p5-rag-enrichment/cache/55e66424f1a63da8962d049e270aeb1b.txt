@@ -1,0 +1,80 @@
+How Palantir Integrates Threat Modeling Into Product Development (Software Supply Chain Security, #2)
+Palantir
+Follow
+6 min read
+·
+Dec 10, 2024
+
+27
+
+Press enter or click to view image in full size
+
+Editor’s Note: This is the second post in a series that shares insights from our journey to enhance our software supply chain security story at Palantir. This post provides background on how Palantir integrates threat modeling into product development.
+
+Introduction
+
+Palantir has always placed security as a first-order consideration in our products and it serves as one of our key differentiators. After evaluating our current product security review processes, we identified several areas for improvement and began designing a new process to better capture risk and provide security feedback in the design phase of all products we build. Our goal is to ensure that security feedback is incorporated early in the software engineering process so that our products are secure by design.
+
+We chose to implement a formal threat modeling exercise, a process for identifying the attack surface of a system and developing possible mitigations. By placing security design early in the development cycle, we are better able to catch potential vulnerabilities and risks before they’re introduced. This also gives us signal on common risk patterns and the ability to develop mitigations at scale, allowing us to eliminate entire classes of vulnerabilities. Additionally, because we make threat modeling a collaborative process between AppSec and product development, we’re able to provide security education and build strong relationships between security and product teams. This, in turn, helps reinforce the idea that security is a shared responsibility.
+
+Process
+
+Before a new product or service can be deployed at Palantir, it must undergo an initial AppSec review. We enforce this policy via an enforcement gate in our deployment platform, Apollo. When a user in Apollo attempts to add a service to a production system, our policy engine checks to ensure that the service has undergone an AppSec review and been approved for General Availability (GA). There are more configuration options and nuances to how our policy engine enforces the check, but that’s a topic for a separate post.
+
+Product Team Initial Threat Model
+
+First, product development teams will submit an AppSec ticket requesting a review of a new product. The ticket automatically refers them to documentation on how to proceed with the review and outlines the remaining steps in the process. Several initial data points need to be provided by product teams before a review can commence. A short questionnaire ensures teams have done some key basic security housekeeping and prompts them to think critically about how their service implements security primitives. While the questionnaire rarely generates actionable feedback, it helps ensure the developers are aware of the security primitives we require. For newer developers, the questionnaire serves as an educational conversation starter to explain some of our internal framework security controls and what the developer is responsible for.
+
+We then require the team to diagram an initial threat model. The scope of the model should encompass the entire feature set and how it interacts with the larger architecture of products and services. Asking the product team to be responsible for this initial diagram helps them be introspective about their own security and optimizes the time spent collaborating with AppSec. Product teams are best placed to explain how the service works, how it might work in the future, and what set of things it interacts with.
+
+The AppSec team shares guides and examples of effective threat modeling for the product development team to reference as they create the initial threat model. We use the open source tool from OWASP, Threat Dragon, to standardize diagram components and allow for clear communication of security-critical components (e.g., trust boundaries, endpoints, AuthN and AuthZ enforcement, data stores, token usage, and dependencies on other services). This standardization contributes to output consistency across teams that can be easily interpreted by both security engineers and developers.
+
+The threat model diagram provides additional value in the event of incidents, compliance reviews, or other post-mortem investigations. It serves as a reference for security engineers to revisit and can help quickly improve or validate their understanding of the product.
+
+Discussion with AppSec
+
+Once the threat model and questionnaire are ready, AppSec sets up a meeting with the product team to review the threat model diagram, understand its overall architecture, discuss the attack surface area, and strategize possible mitigations.
+
+AppSec uses the STRIDE model to structure the conversation about the attack surface which focuses on spoofing, tampering, repudiation, information disclosure, denial of service, and elevation of privilege. AppSec documents any potential vulnerabilities and possible mitigations for the product team to implement.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+At the end of the meeting, AppSec and the product team enumerate any needed actions and agree on timelines. The AppSec engineer documents a summary of the session, which is emailed to all participants and the entire AppSec team.
+
+Review Meeting Prerequisites
+
+In order for a Review Meeting to be scheduled, several prerequisites must first be met:
+
+Product teams must have completed an initial AppSec questionnaire.
+Product teams must provide an overview document similar to what would be provided during a typical product development engineering review.
+Product teams must complete a threat model diagram using the provided Palantir AppSec documents and tool.
+Product teams must open a pull request in the AppSec threat model git repository, and include in the pull request: the threat model diagram, a link to the engineering review, and the completed questionnaire.
+
+Once these requirements have been met, the review meeting can be scheduled with an AppSec engineer, a product security expert, and representatives from the owning product development team.
+
+Review Meetings Stakeholders
+
+Review meetings include the following stakeholders:
+
+AppSec engineer: Responsible for leading the meeting and eventually signing off on any risk, fixes, and GA of the product or feature.
+Product security expert: Provide context for how the service fits into the larger architecture of the platform and helps determine if the platform security primitives are being properly used.
+Owning product team: Develops and maintains the product — the most knowledgeable about product functions, the level of effort required for any requested changes, and business timelines and tradeoffs for deploying the product.
+Finalizing Threat Model and Mitigations
+
+After the review meeting, AppSec tracks the action items and verifies they have been addressed. Whether action items are required prior to deployment of the product or new feature, or are long-term items that may take many months, it is AppSec’s responsibility to confirm their completion. AppSec stores the threat model and session summary in the threat models git repository for posterity and future revisions.
+
+Review Cadence
+
+All new products undergo a threat modeling exercise. This is part of AppSec’s product review, which is required prior to deployment in production environments. AppSec also has a list of security-critical products that require continuous reviews. The review cadence for these products depends on their complexity, risk, and rate of change. At minimum, reviews are biannual (once every two years) but usually occur more frequently. Penetration tests, security scanning, and other forms of security risk assessment are separate from the threat model exercise and occur more regularly.
+
+Additionally, product teams engage AppSec ad-hoc in threat modeling any new security-relevant features. Most often, these reviews stem from an engineering review of a change or a product team’s desire to verify a new feature set has been appropriately risk-mitigated.
+
+Conclusion
+
+Palantir continues to invest significantly in securing our software development lifecycle (SDLC). Threat modeling is one of many tools in our broader defense strategy to secure our SDLC. By implementing a structured and collaborative threat modeling process, we ensure that security is built into our products from the beginning. This proactive approach allows us to address vulnerabilities early, educate our teams, and foster a culture where security is a shared responsibility. You can read about our other controls in our SDLC paper.
+
+By continuously refining our processes and incorporating feedback, we aim to stay ahead of emerging threats and maintain the highest standards of security for our products and services.

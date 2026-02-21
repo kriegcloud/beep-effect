@@ -1,0 +1,84 @@
+Getting started • Requesting justification for sensitive actions • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Security & governance Getting started Requesting justification for sensitive actions 
+
+ Requesting justification for sensitive actions
+
+Use Checkpoints to request justification for sensitive actions by following the steps below:
+
+First, determine which type of action should require justification, and verify that there is a corresponding checkpoint type .
+
+Follow the checkpoints configuration guide to set the parameters and conditions of the justification prompt.
+
+In the Configuration tab of the Checkpoints application , find your newly-created checkpoint configuration and use the Preview feature to view the prompt interface users will see. Make changes as needed.
+
+Trigger a checkpoint by attempting a sensitive action that will match the configuration, complete the justification, and submit. Try reviewing records to find a copy of your justification.
+
+ ← 
+ PREVIOUS Checking permissions 
+
+ NEXT Concepts / Organizations and spaces 
+ →

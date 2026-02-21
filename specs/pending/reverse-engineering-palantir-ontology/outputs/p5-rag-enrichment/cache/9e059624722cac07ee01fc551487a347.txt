@@ -1,0 +1,61 @@
+Introducing Conjure, Palantir’s toolchain for HTTP/JSON APIs
+Palantir
+Follow
+4 min read
+·
+Nov 20, 2018
+
+396
+
+3
+
+Press enter or click to view image in full size
+
+Today we’re open sourcing Conjure, Palantir’s toolchain for HTTP/JSON APIs. From a declarative API definition written in YAML, Conjure generates client and server bindings in a variety of languages, including Java, Typescript and Python.
+
+Conjure clients translate method invocations into HTTP requests and serialize method parameters into JSON objects. Conjure defines hundreds of APIs across Palantir’s products and provides the RPC infrastructure for internal as well as third-party applications, from Java, Go, and Python backend services to frontend Typescript applications running in Web browsers.
+
+We built Conjure to drive consistency across our breadth of HTTP/JSON APIs and to make it easier to define, discuss, review and collaborate on those APIs. Originally, we had planned to use Conjure as a stepping-stone to gRPC, but along the way we learned to love the limits it imposed on API design and the resulting focus and clarity that those limits generate. Notably, Conjure is not rocket science; however, it’s precisely Conjure’s simplicity that has become a driver of engineering velocity across teams and developers.
+
+Getting started
+
+Conjure APIs define data types and service endpoints. For example, a simple FlightSearch API could look like this:
+
+Given this API definition, the conjure-java generator produces a server stub suitable for JAX-RS/Jersey servers like Dropwizard:
+
+The generator further produces immutable value types for Conjure-defined types (e.g., Connection and SearchResult) that are internally serialized and deserialized with Jackson object mappers (see below). Conjure's runtime libraries make it easy to create clients, for instance, the Java runtime works as follows:
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Conjure also supports Python and Typescript clients, please refer to the respective READMEs or the Getting Started guide for examples and reference documentation. We are working on open-sourcing our toolchain for conjure-go servers and clients, and are experimenting with conjure-rust, stay tuned!
+
+Under the hood
+
+Let’s look at two aspects in more detail, the code generator infrastructure and the Conjure wire format. The central conjure repository defines two formats for Conjure definitions: a concise, human-readable format in which service authors typically author API definitions, and a machine-readable intermediate representation (IR) format that is used as input to code generators:
+
+Press enter or click to view image in full size
+Conjure compilation steps from API definition to language-specific bindings
+
+The Conjure IR format is self-hosting, i.e., it is defined as a collection of Conjure data types. After bootstrapping, code generators can thus deserialize Conjure API definitions into abstract syntax trees (AST) defined over the idiomatic, language-specific value types in the target language. For instance, the conjure-java generator uses Square’s JavaPoet library to turn an AST of Java value types representing an API definition into Java source code for server and client stubs; the deserialization of the API definition into the AST is free. Similarly, conjure-typescript uses ts-simple-ast to generate Typescript code from the IR API definition; again, the deserialization step is free after bootstrapping the generator.
+
+The Conjure wire format dictates how messages between clients and servers are encoded into HTTP requests and responses. Parameters are encoded as HTTP header, path, or query parameters (for primitive types like integers or Booleans), or as JSON-formatted HTTP body payload in the case of complex objects. For example, the call to FlightSearchService.search(..) yields an HTTP POST request to /flights/search and transports a SearchRequest parameter as a JSON object of the form {"from":"MUC", "to":"LHR", "number":"XY123"}. In Java, we use the Jackson data-bind library to serialize and deserialize between Java and JSON objects. The Conjure verification framework defines test cases by which client and server implementations can assess whether they conform to the specification.
+
+Discussion
+
+We built Conjure in order to accelerate the velocity at which our developers can write and maintain backend and frontend applications. When we started Conjure, different development teams were using different flavors of HTTP-JSON-RESTish API definitions, most of them in Java via JAX-RS, some of them in Golang, and some in Python. The variance necessitated custom clients for different services and made cross-language RPC very brittle; in particular, frontend teams often had to guess the exact semantics of those APIs and re-implement appropriate clients over and over. Conjure was conceived as a common denominator for those RPC variants, as a mechanism that could get retrofitted to existing server and client implementations in order to provide a well-defined, shared RPC framework across the backend and frontend ecosystems.
+
+Before starting Conjure, we had investigated Swagger/OpenREST, and found that while it’s expressive enough to declare our APIs, the definition language was actually too expressive: one of our goals was to make our microservice architecture feel more consistent, and Conjure’s limitations help enforce API consistency. To that end, Conjure supports only a small subset of HTTP by design.
+
+Today, bug fixes and improvements to our RPC system are overseen by the software infrastructure team and made available consistently across all of our software platforms. This model effectively removes RPC concerns from all other developers’ purview and lets them focus on their respective core problem spaces.
+
+What’s next
+
+We hope you will Get Started with Conjure! All documentation and code is available on Palantir’s GitHub, and of course we are always interested in hearing about bugs and feature requests as GitHub issues on the respective repositories. Contributions are welcome, and we encourage discussion of larger features or changes on a GitHub issue prior to its implementation. In the meantime, we are working on open-sourcing our conjure-go ecosystem as well as our Java server-side toolchain. We also have a prototype of a CLI for checking Conjure API changes against back-compatibility breaks that we are hoping to publish soon.
+
+Authors
+
+Dan F., Dan S., Felipe O., Mark E., Robert F., and many other contributors

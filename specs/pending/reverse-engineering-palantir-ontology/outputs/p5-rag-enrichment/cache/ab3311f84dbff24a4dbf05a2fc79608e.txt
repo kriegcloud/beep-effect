@@ -1,0 +1,144 @@
+Protecting tokens and API keys • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Security & governance Protecting tokens and API keys 
+
+ Protecting tokens and API keys
+
+It is important for Foundry users to protect their tokens, API keys, and other authentication material. If tokens are spilled externally (unintentionally exposed) or are compromised by a malicious actor, an unauthorized third-party may be able to access Foundry under the user context of the compromised token.
+
+ Tokens
+
+Foundry uses several different types of tokens:
+
+ User-generated tokens 
+
+ Session token 
+
+ Data connector coordinator token 
+
+ User-generated tokens
+
+A user-generated token (or personal access token) is an API key that grants user-level access to all applications in the platform. Users may specify a time-to-live (TTL) for a token on creation. The TTL is the maximum time that the access token will be valid for use. Once the TTL expires, the token is revoked.
+
+One security property of user-generated tokens is that they are unable to generate other user-generated tokens. Only a session token can be used to create a new user-generated token. Learn how to generate this kind of token. 
+
+ Session token
+
+A session token is an ephemeral, time-bound token stored in your browser as a cookie (PALANTIR_TOKEN). When a session token is generated, the token is automatically assigned a time-to-live (TTL). The default TTL is 16 hours. Once the TTL expires, the token is revoked.
+
+ Data connector coordinator token
+
+A data connector coordinator token is used to authenticate a data connector agent with a Foundry installation. By default, this token is stored in {BOOTVISOR_DIRECTORY}/var/data/coordinator-token.json . The data connector coordinator token grants agent-specific access to the platform.
+
+When a new data connector is created, a time-bound token is dynamically inserted into the deployment tarball. This tarball should be treated as sensitive as it contains authentication material within it.
+
+If a data connector agent is configured with credentials to other data sources (such as a SQL database), additional credential material may be cached or stored locally within the agent.
+
+ Best practices for tokens
+
+To prevent your tokens and API keys from being compromised or abused, we recommend the following best practices and behaviors:
+
+Never give tokens to another user or post tokens publicly.
+
+Ideally use environment variables when locally working with tokens.
+
+If you choose to use dotfiles for token storage, ensure that the dotfiles are excluded from version control.
+
+Do not put tokens into command line arguments.
+
+Do not hardcode tokens in scripts or software.
+
+Revoke unused or unnecessary tokens.
+
+Apply reasonable time-to-live values for user-generated tokens.
+
+Do not use browser-based cookie synchronization technologies for other devices.
+
+Minimize the number of browser extensions you use.
+
+ Token spills
+
+A token is “spilled” if the token is exposed or made accessible on an unauthorized system, such as being accidentally published to a publicly-available repository. Any spill of a token should be treated as an information security incident. You should take immediate action to disable the token, and then notify your information security team of the issue. Steps for disabling different types of tokens are available below.
+
+ Revoke user-generated tokens
+
+You can revoke user-generated tokens in the Foundry user interface. Learn how in the user-generated token documentation.
+
+ Revoke session tokens
+
+To revoke a session token, simply log out of the Foundry instance.
+
+ GitHub token revocation service
+
+Palantir’s Information Security team runs an automated service that will attempt to identify and revoke spilled tokens in source control on Github.com ↗ . If a token is leaked into a public repository on GitHub, the GitHub token revocation service will be notified and will automatically attempt to revoke the token on your behalf.
+
+The GitHub token revocation service is unable to notify you if this revocation occurs. Additionally, if your Foundry installation is not network-accessible from the service, the service will be unable to automatically revoke the token for you.
+
+ ← 
+ PREVIOUS Protecting your on-premise Foundry Data Connector 
+
+ NEXT Protecting against phishing 
+ →

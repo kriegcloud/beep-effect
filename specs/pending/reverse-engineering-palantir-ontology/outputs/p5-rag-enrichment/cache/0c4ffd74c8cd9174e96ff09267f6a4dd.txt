@@ -1,0 +1,116 @@
+Object and link types • Properties • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Object and link types Properties Overview 
+
+ Properties
+
+A property of an object type is the schema definition of a characteristic of a real-world entity or event. A property value refers to the value of a property on an object, or a single instance of that real world entity or event.
+
+For example, in the Ontology Manager, an Employee object type may have properties employee number , start date , and role . The notional employee “Melissa Chang” may have property values “11502” for employee number , “October 9, 2016” for start date , and “software engineer” for role .
+
+Similarly, in the Ontology Manager, a Flight object type may have properties departure date , arrival date , and passenger count . The object “JFK → SFO 24-02-2021” may have property values “24-02-2021” for departure date , “25-02-2021” for arrival date , and “150” for passenger count .
+
+The concepts underpinning the Ontology have analogous concepts in the structure of a dataset. The definition of a property in the Ontology is analogous to that of a column in a dataset, while the definition of a property value is analogous to that of a field in the dataset. For example, an Employee dataset may have columns for departure date , arrival date , and passenger count . In this case, a single field will have the value “11502” for the employee number column of the row for employee “Melissa Chang.”
+
+Rather than being an abstract data model, the Foundry Ontology maps each ontological concept to an organization's actual data, enabling this data asset to power real-world applications. Property values are created and displayed in user applications by adding backing datasources to an object type in the Ontology Manager. To create property values for properties employee number , start date , and role on objects of type Employee , an organization will add backing datasources to the Employee object type and feed their employee directory and other enterprise data into the Ontology.
+
+ Supported property types
+
+ Property base type Valid as title key? Valid as primary key? Notes 
+
+ Commonly used: String , Integer , Short Yes Yes 
+
+ Time-based: Date , Timestamp Yes Discouraged Typically, time values are inappropriate as primary keys, due to potentially unexpected collisions / uniqueness based on the storage format differing from the display format. In most cases, we recommend using String instead. 
+
+ Number-like: Boolean , Byte , Long Yes Discouraged Boolean limits your object type to two object instances. Byte properties can only be assigned in Actions via an Integer parameter, so in most cases we recommend using Integer properties instead. Long has representational issues in Javascript , so not all frontend libraries and code work well with Long values greater than 1e15. In most cases, we recommend using String instead. 
+
+ Float-like: Float , Double , Decimal Yes No 
+
+ Vector No No 
+
+ Array Yes No Array properties cannot contain null elements.
+If the inner type of the Array is not a valid title property, the Array property also cannot be used as the title property.
+Nested arrays are not supported in Object Storage V2. 
+
+ Struct No No Struct properties do not support nesting, and fields cannot be arrays. See the struct documentation for detailed information on supported field types. 
+
+ Media Reference , Time Series , Attachment No No 
+
+ Geopoint Yes No 
+
+ Geoshape No No 
+
+ Marking No No 
+
+ Cipher Yes No 
+
+To learn more about base types, see base types .
+
+ ← 
+ PREVIOUS Object types / Metadata reference 
+
+ NEXT Edit object type properties 
+ →

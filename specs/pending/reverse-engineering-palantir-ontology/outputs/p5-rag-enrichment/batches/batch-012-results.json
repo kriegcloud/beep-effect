@@ -1,0 +1,1430 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/authentication/overview",
+    "title": "Authentication - Overview - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Authentication",
+        "description": "The process by which Foundry validates user identity through one or more identity providers, supporting SAML 2.0 and OpenID Connect 1.0 (OIDC) protocols"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Identity Provider",
+        "description": "External system that validates users and provides Foundry with information about users, attributes, and groups for authentication and access management"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "SAML 2.0",
+        "description": "Security Assertion Markup Language protocol supported by Foundry for identity provider integration and single sign-on"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OpenID Connect",
+        "description": "OIDC 1.0 protocol supported by Foundry for identity provider integration alongside SAML 2.0"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data platform that manages access through identity provider integrations"
+      },
+      {
+        "type": "Product",
+        "name": "Control Panel",
+        "description": "Foundry administration interface used to set up and manage identity provider integrations via the Authentication tab"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "User Attributes",
+        "description": "Structured information about users (name, email, job title) provided by identity providers to Foundry for access management"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Groups",
+        "description": "Collections of users provided by identity providers that Foundry uses for access management and role assignment"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Authentication",
+        "relationship": "SECURES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Identity Provider",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Authentication",
+        "relationship": "EXPOSED_BY",
+        "target": "Control Panel"
+      },
+      {
+        "source": "SAML 2.0",
+        "relationship": "ENABLES",
+        "target": "Authentication"
+      },
+      {
+        "source": "OpenID Connect",
+        "relationship": "ENABLES",
+        "target": "Authentication"
+      },
+      {
+        "source": "Identity Provider",
+        "relationship": "REFERENCES",
+        "target": "Groups"
+      }
+    ],
+    "keyInsights": [
+      "Foundry authentication is fully delegated to external identity providers, allowing organizations to reuse their existing IdP infrastructure",
+      "Two standard protocols are supported for IdP integration: SAML 2.0 and OpenID Connect 1.0 (OIDC)",
+      "Identity providers supply not just authentication but also user metadata including attributes and group memberships",
+      "The Control Panel Authentication tab is the central management interface for all identity provider integrations"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/checkpoints/overview",
+    "title": "Checkpoints - Overview - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Checkpoints",
+        "description": "Data governance tool that interrupts potentially sensitive user interactions with configurable prompts requiring justification, supporting purpose justification and auditability across 60+ Foundry interactions"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Checkpoint Configuration",
+        "description": "Settings that define the prompt content, justification type required, and which users see a checkpoint for specific interaction types"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Checkpoint Record",
+        "description": "Audit record containing timestamp, user identity, justification provided, checkpoint type, and associated data (resources, objects, Markings) from a governed interaction"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data platform into which Checkpoints is deeply integrated across 60+ different interaction types"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Purpose Justification",
+        "description": "The requirement for users to explain why they are performing a sensitive action, with justifications recorded for audit review"
+      },
+      {
+        "type": "Product",
+        "name": "Approvals",
+        "description": "Foundry feature that works alongside Checkpoints for asynchronous interaction requests"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Markings",
+        "description": "Security classifications associated with data that appear in checkpoint records as contextual information"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Organization",
+        "description": "Foundry organizational unit within which checkpoint configurations and records can be managed"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Checkpoints",
+        "relationship": "SECURES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Checkpoints",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Checkpoint Configuration",
+        "relationship": "CONTAINS",
+        "target": "Checkpoint Record"
+      },
+      {
+        "source": "Checkpoint Record",
+        "relationship": "REFERENCES",
+        "target": "Markings"
+      },
+      {
+        "source": "Checkpoints",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Approvals"
+      },
+      {
+        "source": "Checkpoints",
+        "relationship": "USES_PATTERN",
+        "target": "Purpose Justification"
+      }
+    ],
+    "keyInsights": [
+      "Checkpoints are integrated into 60+ different interactions in Foundry, providing comprehensive coverage of sensitive user workflows",
+      "Checkpoint records capture rich contextual data including timestamp, user, justification, and associated resources/Markings for complete audit trails",
+      "Checkpoints support both synchronous (user-initiated) and asynchronous (via Approvals) interaction governance",
+      "Configuration is highly granular: administrators can control who sees checkpoints, for which interaction types, with custom prompt language and justification requirements",
+      "The Checkpoints application serves dual purpose: configuration management for administrators and personal justification review for all users"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/cipher/core-concepts",
+    "title": "Cipher - Core concepts - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Cipher",
+        "description": "Foundry's encryption and hashing service that provides column-level data encryption through Channels and Licenses, supporting both probabilistic and deterministic encryption modes"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cipher Channel",
+        "description": "A Foundry filesystem resource that defines a specific protocol for obfuscating or de-obfuscating values, including encryption algorithm, key parameters, or hashing algorithm and secret"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cipher License",
+        "description": "A Foundry filesystem resource that controls permissions to use cryptographic operations defined in a parent Cipher Channel, granting access to users who can view the License"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Cipher Encrypted Value",
+        "description": "Encrypted value format following the syntax CIPHER::<channel-rid>::<encrypted-value>::CIPHER, embedding metadata needed for decryption"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core platform that hosts Cipher as a security service within the filesystem workspace"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Deterministic Encryption",
+        "description": "Encryption mode where the same plaintext always produces the same ciphertext, preserving join capability across encrypted columns"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Probabilistic Encryption",
+        "description": "Encryption mode where the same plaintext produces different ciphertexts each time, providing stronger security but preventing joins on encrypted values"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Cipher", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Cipher License",
+        "relationship": "REFERENCES",
+        "target": "Cipher Channel"
+      },
+      { "source": "Cipher", "relationship": "SECURES", "target": "Property" },
+      {
+        "source": "Cipher Encrypted Value",
+        "relationship": "DEFINED_BY",
+        "target": "Cipher Channel"
+      },
+      {
+        "source": "Cipher Channel",
+        "relationship": "CONTAINS",
+        "target": "Cipher License"
+      },
+      {
+        "source": "Deterministic Encryption",
+        "relationship": "ENABLES",
+        "target": "Cipher"
+      },
+      {
+        "source": "Probabilistic Encryption",
+        "relationship": "ENABLES",
+        "target": "Cipher"
+      }
+    ],
+    "keyInsights": [
+      "Cipher provides two distinct encryption modes: deterministic (preserves join capability) and probabilistic (stronger security), allowing administrators to trade off between data utility and protection level",
+      "The Channel-License model separates encryption configuration from access control: Channels define the cryptographic protocol while Licenses control who can use those operations",
+      "Cipher encrypted values are self-describing with the format CIPHER::<channel-rid>::<encrypted-value>::CIPHER, embedding enough metadata for the service to decrypt without external context",
+      "Licenses are standard Foundry filesystem resources that can be moved, shared, and permissioned like any other resource, leveraging existing access control infrastructure"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/security/security-glossary",
+    "title": "Security glossary - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Mandatory Access Controls",
+        "description": "All-or-nothing access restrictions in Foundry implemented through Markings and Organizations that cannot be overridden by discretionary grants"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Discretionary Access Controls",
+        "description": "Additive capabilities granted via Roles that expand what a user can do beyond their base access, cannot restrict permissions"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Markings",
+        "description": "Mandatory access control mechanism representing a data classification; when applied to a resource, users without the marking are guaranteed to never access that data"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Organization",
+        "description": "A mandatory access control boundary that determines which users can access resources; resources can require membership in one or more organizations"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Roles",
+        "description": "Sets of operations granting specific capabilities on resources. Four default roles exist: Owner, Editor, Viewer, and Discoverer"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Access Requirements",
+        "description": "The combination of Organizations and Markings that determine which users may access a Project or resource"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Groups",
+        "description": "Collections of users and/or other groups that can be internal (Foundry-defined) or external (from identity providers)"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Identity Provider",
+        "description": "System that validates users during login and provides information on users, groups, and attributes"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform with a dual security model combining mandatory and discretionary access controls"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Expand Access",
+        "description": "Any change in access requirements that broadens the potential audience, such as removing a Marking or adding Organizations when at least one is already applied"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Mandatory Access Controls",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Discretionary Access Controls",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Markings",
+        "relationship": "ENABLES",
+        "target": "Mandatory Access Controls"
+      },
+      {
+        "source": "Organization",
+        "relationship": "ENABLES",
+        "target": "Mandatory Access Controls"
+      },
+      {
+        "source": "Roles",
+        "relationship": "ENABLES",
+        "target": "Discretionary Access Controls"
+      },
+      {
+        "source": "Access Requirements",
+        "relationship": "CONTAINS",
+        "target": "Markings"
+      },
+      {
+        "source": "Access Requirements",
+        "relationship": "CONTAINS",
+        "target": "Organization"
+      },
+      {
+        "source": "Mandatory Access Controls",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Discretionary Access Controls",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Foundry security uses a dual model: Mandatory controls (Markings + Organizations) determine IF a user can access a resource, while Discretionary controls (Roles) determine WHAT they can do with it",
+      "Discretionary controls are strictly additive -- they can only grant additional permissions, never restrict them, preventing accidental permission removal through role changes",
+      "Four default platform Roles exist (Owner, Editor, Viewer, Discoverer) that can be customized or extended by role administrators",
+      "Groups can be internal (Foundry-defined) or external (from identity providers like Active Directory), and internal groups can contain external groups, enabling hybrid access management",
+      "Access expansion events are tracked carefully: removing Markings always expands access, while Organization changes follow specific rules depending on whether organizations are already applied"
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/how-palantir-meets-il6-security-requirements-with-apollo-f6c3f0c51fe",
+    "title": "How Palantir Meets IL6 Security Requirements with Apollo - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's continuous delivery and deployment management platform that enables patching, updating, and managing services across environments including air-gapped and classified networks"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "IL6 Authorization",
+        "description": "DISA Impact Level 6 provisional authorization covering potentially classified data, the highest currently defined impact level for cloud services in the DoD"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cryptographic Signing",
+        "description": "Artifact integrity validation mechanism where all Apollo artifacts are cryptographically signed to ensure they have not been tampered with"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Vulnerability Management",
+        "description": "Apollo's capability to detect vulnerabilities, alert teams, and use severity criteria to gate deployments, preventing vulnerable code from reaching production"
+      },
+      {
+        "type": "Pattern",
+        "name": "Air-Gapped Deployment",
+        "description": "Deployment pattern for disconnected networks where Apollo manages software delivery without continuous internet connectivity"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "FedRAMP",
+        "description": "Federal Risk and Authorization Management Program providing standardized security assessment for cloud service providers"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "NIST Risk Management Framework",
+        "description": "Framework used by the DoD for security evaluations, providing guidance for identifying and assessing security controls in IT systems"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data platform that operates within IL6-authorized environments deployed and managed by Apollo"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Apollo", "relationship": "BUILT_ON", "target": "Foundry" },
+      {
+        "source": "IL6 Authorization",
+        "relationship": "SECURES",
+        "target": "Apollo"
+      },
+      {
+        "source": "Cryptographic Signing",
+        "relationship": "SECURES",
+        "target": "Apollo"
+      },
+      {
+        "source": "Vulnerability Management",
+        "relationship": "PART_OF",
+        "target": "Apollo"
+      },
+      {
+        "source": "Air-Gapped Deployment",
+        "relationship": "ENABLES",
+        "target": "Apollo"
+      },
+      { "source": "FedRAMP", "relationship": "SECURES", "target": "Apollo" }
+    ],
+    "keyInsights": [
+      "Apollo achieves 3.5-minute average patch/update deployment time, reducing production issue remediation from hours to under 5 minutes",
+      "Palantir received DISA IL6 provisional authorization in October 2022, the highest impact level covering potentially classified data",
+      "Apollo's design supports disconnected and air-gapped networks, critical for defense and intelligence environments where continuous internet connectivity is not available",
+      "All deployment artifacts are cryptographically signed for integrity validation, and vulnerability detection gates prevent deploying compromised code",
+      "IL6 is based on DISA's Cloud Computing SRG and NIST RMF, creating a standardized 'Do Once, Use Many' accreditation approach for government cloud services"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/apollo/core/authorization",
+    "title": "Security - Authorization - Palantir Apollo Documentation",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's deployment management platform using role-based access controls (RBAC) for authorization across resources like Release Channels, Products, and Environments"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "RBAC",
+        "description": "Role-Based Access Control model used by Apollo where Teams gain permissions to operations based on assigned roles, grantable globally per resource type or per specific resource instance"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Apollo Roles",
+        "description": "Named permission sets in Apollo including Administrator, Contributor, Restricted Contributor, Viewer, Approver, and resource-specific role variants"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Release Channel",
+        "description": "Apollo resource representing a deployment channel (e.g., STAGING) with roles including Administrator, Contributor, Restricted Contributor, and Viewer"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Teams",
+        "description": "Groups of users in Apollo that are assigned roles, granting all team members the operations that the role permits"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Vulnerability Suppression Roles",
+        "description": "Apollo role set for vulnerability management including Administrator, Approver, and Viewer roles for suppression settings"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Product Roles",
+        "description": "Apollo role set for product management including Product Administrator, Release Creator, Product Creator, Product Editor, and Product Viewer"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Environment Roles",
+        "description": "Apollo role set for environment management including Administrator, Upgrader, and Viewer roles"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "RBAC", "relationship": "SECURES", "target": "Apollo" },
+      {
+        "source": "Apollo Roles",
+        "relationship": "PART_OF",
+        "target": "Apollo"
+      },
+      {
+        "source": "Teams",
+        "relationship": "REFERENCES",
+        "target": "Apollo Roles"
+      },
+      {
+        "source": "Apollo Roles",
+        "relationship": "SECURES",
+        "target": "Release Channel"
+      },
+      {
+        "source": "Vulnerability Suppression Roles",
+        "relationship": "EXAMPLE_OF",
+        "target": "Apollo Roles"
+      },
+      {
+        "source": "Product Roles",
+        "relationship": "EXAMPLE_OF",
+        "target": "Apollo Roles"
+      },
+      {
+        "source": "Environment Roles",
+        "relationship": "EXAMPLE_OF",
+        "target": "Apollo Roles"
+      }
+    ],
+    "keyInsights": [
+      "Apollo RBAC supports both global grants (all resources of a type) and specific resource grants (e.g., only the STAGING Release Channel), providing flexible permission scoping",
+      "Roles are assigned to Teams rather than individual users, ensuring consistent permission management across groups",
+      "Release Channels have a nuanced contributor model: Contributor can add any Product Release, while Restricted Contributor can only add releases they own",
+      "Apollo separates configuration and secrets from infrastructure, enabling secure reapplication onto new systems without exposing sensitive deployment data",
+      "Each resource type in Apollo has its own role hierarchy: Release Channels, Products, Labels, Environments, and Vulnerability settings all have distinct role sets"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-permissioning/managing-object-security",
+    "title": "Object permissioning - Managing object security - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Object Security Policy",
+        "description": "Ontology-level policy governing visibility of object instances, enabling row-level security independent of backing data source permissions"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Property Security Policy",
+        "description": "Ontology-level policy governing visibility of individual property values, enabling column-level security independent of backing data source permissions"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cell-Level Security",
+        "description": "Combined row and column level security in the Ontology achieved through object and property security policies working together"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Data Source Policy",
+        "description": "Legacy security approach where object type permissions are implicitly controlled by the permissions applied to the input data sources"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity (e.g., Passenger) whose instances and properties can be secured at row, column, and cell levels through security policies"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attribute of an Object Type (e.g., Name, Address, Phone Number) that can be individually secured via property security policies"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Row-Level Security",
+        "description": "Security mechanism restricting visibility of entire object instances (rows) based on markings or other access controls"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Column-Level Security",
+        "description": "Security mechanism restricting visibility of specific properties (columns) based on markings like PII"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry tool where object and property security policies can be directly configured on each object type"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Markings",
+        "description": "Mandatory access control labels (e.g., VIP, PII) applied to objects or properties to enforce row-level and column-level security"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Security Policy",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Property Security Policy",
+        "relationship": "SECURES",
+        "target": "Property"
+      },
+      {
+        "source": "Cell-Level Security",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Security Policy",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Property Security Policy",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Data Source Policy",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Markings",
+        "relationship": "ENABLES",
+        "target": "Row-Level Security"
+      },
+      {
+        "source": "Markings",
+        "relationship": "ENABLES",
+        "target": "Column-Level Security"
+      },
+      {
+        "source": "Row-Level Security",
+        "relationship": "PART_OF",
+        "target": "Cell-Level Security"
+      },
+      {
+        "source": "Column-Level Security",
+        "relationship": "PART_OF",
+        "target": "Cell-Level Security"
+      }
+    ],
+    "keyInsights": [
+      "Object and property security policies are the recommended approach over data source policies, providing unified cell-level security directly on the object type rather than requiring complex multi-datasource configurations",
+      "Cell-level security is the combination of row-level (object instances) and column-level (properties) security, achieved through separate but complementary policy types",
+      "Object security policies are independent of backing data source permissions, decoupling Ontology access control from data infrastructure permissions",
+      "Media reference properties create a potential security gap: property visibility and referenced media set visibility are independently controlled, requiring administrators to align permissions across both",
+      "The Passenger example illustrates the canonical pattern: VIP marking for row-level security on certain passengers, PII marking for column-level security on Name/Address/Phone Number properties"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-manager/ontology-roles-migration",
+    "title": "Ontology Manager - Ontology roles migration - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Ontology Roles",
+        "description": "Authorization model for Ontology resources (object types, link types, action types) that decouples metadata permissions from data permissions, replacing legacy datasource-derived permissions"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Datasource-Derived Permissions",
+        "description": "Legacy authorization model where Ontology resource permissions were implicitly derived from the permissions on input data sources"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology resource that can be permissioned via Ontology roles, with metadata permissions decoupled from data instance permissions"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Ontology resource that can be permissioned via Ontology roles alongside object types and action types"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology resource that can be permissioned via Ontology roles alongside object types and link types"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Ontology Editor Role",
+        "description": "Role granting permission to edit Ontology resources and their metadata without requiring permissions on the underlying data source"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Ontology Owner Role",
+        "description": "Role with full control over an Ontology resource including the ability to manage permissions on that resource"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry tool where Ontology role metadata permissions are managed and migration from legacy permissions is performed"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology feature requiring Ontology roles to be enabled, part of the newer Ontology capabilities"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property Type",
+        "description": "Ontology feature requiring Ontology roles to be enabled, allowing property type definitions to be shared across object types"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology Roles",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology Roles",
+        "relationship": "SECURES",
+        "target": "Link Type"
+      },
+      {
+        "source": "Ontology Roles",
+        "relationship": "SECURES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Ontology Roles",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Ontology Editor Role",
+        "relationship": "PART_OF",
+        "target": "Ontology Roles"
+      },
+      {
+        "source": "Ontology Owner Role",
+        "relationship": "PART_OF",
+        "target": "Ontology Roles"
+      },
+      {
+        "source": "Ontology Roles",
+        "relationship": "ENABLES",
+        "target": "Interface"
+      },
+      {
+        "source": "Ontology Roles",
+        "relationship": "ENABLES",
+        "target": "Shared Property Type"
+      }
+    ],
+    "keyInsights": [
+      "Ontology roles fundamentally decouple metadata permissions (who can edit the Object Type definition) from data permissions (who can see individual object instances), which remain governed by data source permissions",
+      "Ontology roles became the default authorization model for all new enrollments since September 2023, replacing datasource-derived permissions",
+      "Migration to Ontology roles is required to use newer Ontology features including shared property types and interfaces",
+      "After migration, all users with access to the Ontology gain view permission on all migrated resources (object types, link types, action types), making resource metadata universally visible within the Ontology",
+      "Migration can be performed incrementally -- there is no required ordering, and mixed permission models (some resources on old model, some on new) are supported during transition",
+      "The latest evolution moves permissioning to the Compass filesystem, making Ontology roles themselves a legacy approach being superseded"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/permissions",
+    "title": "Functions - Language agnostic features - Permissions - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology computation unit whose authoring and execution are subject to multiple permission layers including repository, Ontology entity, and caller permissions"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Function Execution Context",
+        "description": "Permission context under which a function runs, determining what data it can access based on caller identity and repository permissions"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Repository Permissions",
+        "description": "Project-level permissions granted to a functions repository that determine which Ontology entities and data sources are accessible during code generation and execution"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Caller Permissions",
+        "description": "Permissions of the user invoking a function, which constrain what data the function can access during execution"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity that must be explicitly imported into a repository's Project for function code generation and data access"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Ontology entity that must be explicitly imported alongside object types for complete function code generation"
+      },
+      {
+        "type": "Product",
+        "name": "Code Assist",
+        "description": "Foundry infrastructure for live preview function execution, subject to the same permission requirements as code generation in repositories"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Restricted View",
+        "description": "Special data source import required for object types with row-level security enabled, used instead of direct dataset imports"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Function Binding",
+        "description": "Auto-generated code bindings for every object and link type loaded based on repository permissions during code generation"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Function Execution Context",
+        "relationship": "SECURES",
+        "target": "Function"
+      },
+      {
+        "source": "Repository Permissions",
+        "relationship": "SECURES",
+        "target": "Function"
+      },
+      {
+        "source": "Caller Permissions",
+        "relationship": "SECURES",
+        "target": "Function"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "Link Type"
+      },
+      {
+        "source": "Function",
+        "relationship": "EXPOSED_BY",
+        "target": "Code Assist"
+      },
+      {
+        "source": "Restricted View",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Function Binding",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      }
+    ],
+    "keyInsights": [
+      "Functions operate under a three-layer permission model: repository permissions (what entities are available), Ontology entity permissions (what types are accessible), and caller permissions (who is running the function)",
+      "Repository permissions are distinct from user permissions and must be explicitly configured -- a user's personal access does not automatically transfer to their repository",
+      "Ontology entities (object types, link types) must be explicitly imported at the Project level, and changes in one repository's imports affect all repositories in the same Project",
+      "Published functions enforce caller permissions at execution time, ensuring the function can only access data the invoking user is authorized to see",
+      "Object types with row-level security require importing Restricted Views instead of direct datasets, adding an additional security layer for sensitive data in function contexts"
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/trust-in-data-palantir-explained-4-c2adcdc31325",
+    "title": "Trust in Data (Palantir Explained #4) - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Data Provenance",
+        "description": "Tracking pattern that traces data from its original source through all transformations, enabling users to assess reliability and make informed decisions about data quality"
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Lineage",
+        "description": "End-to-end visibility into how data flows and transforms through the platform, from raw ingestion to final analytical outputs"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Audit Trail",
+        "description": "Comprehensive record of data operations and transformations that enables accountability and transparency in data-driven decision making"
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Quality Management",
+        "description": "Systematic approach to monitoring, validating, and ensuring completeness, accuracy, and timeliness of data across an organization"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform providing comprehensive data provenance, lineage, and quality management capabilities"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Foundry entity whose data quality and provenance can be traced through the platform's lineage tracking capabilities"
+      },
+      {
+        "type": "UseCase",
+        "name": "COVID-19 Response",
+        "description": "Real-world use case where data trust, accountability, and transparency were critical for pandemic response decision-making"
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Harmonization",
+        "description": "Process of integrating data from multiple heterogeneous sources into a unified, standardized format for analysis"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Data Provenance",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Data Provenance",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Audit Trail",
+        "relationship": "SECURES",
+        "target": "Foundry"
+      },
+      {
+        "source": "COVID-19 Response",
+        "relationship": "DEMONSTRATES",
+        "target": "Data Quality Management"
+      },
+      {
+        "source": "Data Harmonization",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Data trust in Foundry is built on three pillars: provenance (where data came from), lineage (how it was transformed), and audit trails (who did what)",
+      "Poor data quality can propagate insidiously through an organization -- a single bad dataset can compromise entire data-driven initiatives",
+      "Data quality must be paired with transparency: users with relevant roles and permissions should have full context necessary to assess and trust their data",
+      "Foundry addresses the fundamental challenge of harmonizing data from heterogeneous sources with differing standards, definitions, schemas, and formats into a single source of truth",
+      "The COVID-19 response demonstrated that data trust tenets of accountability and transparency are especially critical in crisis situations"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/security/protecting-sensitive-data",
+    "title": "Getting started - Protecting sensitive data - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Markings",
+        "description": "Foundry mandatory access controls representing a data classification (e.g., PII, PHI) that propagate along data lineage and guarantee non-members can never access marked data"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Marking Category",
+        "description": "Named grouping of related markings (e.g., 'Information' category containing PII and PHI markings) for organized classification management"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Marking Propagation",
+        "description": "Behavior where markings automatically flow downstream along data lineage, ensuring derived data inherits the security classifications of its sources"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Marking Simulation",
+        "description": "Feature allowing administrators to preview the impact of applying markings to a pipeline before committing, showing which downstream datasets will be affected"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform providing comprehensive sensitive data protection through markings, organizations, restricted views, Cipher, and Checkpoints"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Restricted View",
+        "description": "Security feature that provides a filtered view of data, removing sensitive columns while maintaining downstream accessibility"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cipher",
+        "description": "Foundry encryption service used as part of the comprehensive data protection strategy for sensitive data types"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Checkpoints",
+        "description": "Governance tool used alongside markings for purpose justification when accessing sensitive data"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Object Type attribute (e.g., date of birth) that may contain sensitive PII data requiring marking-based protection"
+      },
+      {
+        "type": "Pattern",
+        "name": "Sensitive Data Protection Strategy",
+        "description": "Combined pattern using markings, organizations, restricted views, Cipher, and Checkpoints to build comprehensive data protection for PII and PHI"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Markings",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      { "source": "Markings", "relationship": "SECURES", "target": "Property" },
+      {
+        "source": "Marking Propagation",
+        "relationship": "ENABLES",
+        "target": "Markings"
+      },
+      {
+        "source": "Marking Simulation",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Sensitive Data Protection Strategy",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Cipher",
+        "relationship": "PART_OF",
+        "target": "Sensitive Data Protection Strategy"
+      },
+      {
+        "source": "Checkpoints",
+        "relationship": "PART_OF",
+        "target": "Sensitive Data Protection Strategy"
+      },
+      {
+        "source": "Restricted View",
+        "relationship": "PART_OF",
+        "target": "Sensitive Data Protection Strategy"
+      }
+    ],
+    "keyInsights": [
+      "Markings propagate automatically along data lineage, meaning applying a PII marking to a raw dataset will cascade to all downstream derived datasets",
+      "Marking simulation mode allows administrators to preview the full lineage impact of applying a marking before committing, preventing accidental lockouts of downstream users",
+      "The recommended strategy is to keep sensitive data in the pipeline as long as possible and remove sensitive columns only at the final Ontology output layer",
+      "Five complementary tools form the comprehensive data protection strategy: Markings (mandatory access), Organizations (boundary controls), Restricted Views (filtered access), Cipher (encryption), and Checkpoints (justification)",
+      "Marking categories provide organizational structure (e.g., 'Information' category) enabling scalable classification as new data types (PII, PHI, etc.) are identified"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/platform-security-management/manage-roles",
+    "title": "Management - Manage roles - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Roles",
+        "description": "Named sets of operations in Foundry that grant specific capabilities on resources; four default roles (Owner, Editor, Viewer, Discoverer) can be customized or extended"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Operations",
+        "description": "Individual permissions checked by Foundry applications to verify a user can perform a given action, identified by unique identifiers like 'stemma:mutate-default-branch'"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Role Sets",
+        "description": "Groups of roles applied at the Organization level that allow customization of role permissions in specific contexts like Projects or the Ontology"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Custom Roles",
+        "description": "User-defined roles that can include other roles and be granted additional operations, such as Merger or Supporter roles for specialized workflows"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Default Roles",
+        "description": "Four built-in Foundry roles: Owner (full control), Editor (modify), Viewer (read), and Discoverer (limited visibility)"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform with customizable role-based access control at the Organization level"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Operation Identifier",
+        "description": "Unique string identifying a Foundry permission, following the format namespace:action-name (e.g., 'stemma:mutate-default-branch')"
+      },
+      {
+        "type": "UseCase",
+        "name": "Merger Role",
+        "description": "Example custom role providing ability to merge to protected branches, combining Viewer permissions with additional merge-related operations"
+      },
+      {
+        "type": "UseCase",
+        "name": "Supporter Role",
+        "description": "Example custom role for support teams who can see Project issues but not metadata like dataset schemas, designed for third-party support with restricted data visibility"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Roles", "relationship": "CONTAINS", "target": "Operations" },
+      { "source": "Role Sets", "relationship": "CONTAINS", "target": "Roles" },
+      {
+        "source": "Custom Roles",
+        "relationship": "EXTENDS",
+        "target": "Default Roles"
+      },
+      { "source": "Roles", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Merger Role",
+        "relationship": "DEMONSTRATES",
+        "target": "Custom Roles"
+      },
+      {
+        "source": "Supporter Role",
+        "relationship": "DEMONSTRATES",
+        "target": "Custom Roles"
+      },
+      {
+        "source": "Operation Identifier",
+        "relationship": "DEFINED_BY",
+        "target": "Operations"
+      }
+    ],
+    "keyInsights": [
+      "Roles are composed of Operations, which are individual permission checks identified by unique namespaced identifiers (e.g., 'stemma:mutate-default-branch')",
+      "Custom roles can include other roles as a base, enabling role composition -- the Merger role includes all Viewer operations plus additional merge-specific operations",
+      "Default roles can only be edited through custom role sets, not directly, protecting the baseline permission model while allowing Organization-level customization",
+      "Role sets enable Organization-level customization of permissions for different contexts (Projects, Ontology), allowing different organizations on the same enrollment to have different role definitions",
+      "The Supporter role pattern demonstrates how to give third-party support teams issue visibility without exposing dataset metadata, schemas, or other sensitive operational details"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/use-case-patterns/multi-organization-ecosystems",
+    "title": "Use case patterns - Multi-organization ecosystems - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Multi-Organization Ecosystem",
+        "description": "Architectural pattern where multiple organizations coexist within a Foundry enrollment with strict data isolation while enabling controlled cross-organizational data and application sharing"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Organization",
+        "description": "Mandatory access control boundary in Foundry that determines user access to resources; each organization fully owns its own space and data governance"
+      },
+      {
+        "type": "Pattern",
+        "name": "Market Ecosystem",
+        "description": "Ecosystem model where one organization introduces an ecosystem platform and other organizations participate as vendors, app developers, or consumers"
+      },
+      {
+        "type": "Pattern",
+        "name": "Cross-Organization Data Sharing",
+        "description": "Pattern enabling organizations within an ecosystem to securely share data in standardized formats while maintaining complete control over what is shared and what remains private"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform enabling cross-organizational ecosystems with proven delivery across aviation, automotive, finance, and pharmaceuticals industries"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Data Isolation",
+        "description": "Guarantee that organizations within a shared enrollment maintain strict separation of data unless explicitly shared through controlled mechanisms"
+      },
+      {
+        "type": "UseCase",
+        "name": "Supply Chain Ecosystem",
+        "description": "Use case where retailers, manufacturers, and vendors share inventory and demand data within an ecosystem for mutual operational benefit"
+      },
+      {
+        "type": "UseCase",
+        "name": "Government Inter-Agency Collaboration",
+        "description": "Use case where government agencies share data within a Foundry ecosystem while maintaining agency-level data governance and security boundaries"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Guest Access",
+        "description": "Mechanism allowing users from one organization to access specific resources in another organization within the same ecosystem"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Multi-Organization Ecosystem",
+        "relationship": "USES_PATTERN",
+        "target": "Cross-Organization Data Sharing"
+      },
+      {
+        "source": "Organization",
+        "relationship": "ENABLES",
+        "target": "Multi-Organization Ecosystem"
+      },
+      {
+        "source": "Data Isolation",
+        "relationship": "SECURES",
+        "target": "Organization"
+      },
+      {
+        "source": "Multi-Organization Ecosystem",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Supply Chain Ecosystem",
+        "relationship": "DEMONSTRATES",
+        "target": "Multi-Organization Ecosystem"
+      },
+      {
+        "source": "Government Inter-Agency Collaboration",
+        "relationship": "DEMONSTRATES",
+        "target": "Multi-Organization Ecosystem"
+      },
+      {
+        "source": "Guest Access",
+        "relationship": "ENABLES",
+        "target": "Cross-Organization Data Sharing"
+      },
+      {
+        "source": "Market Ecosystem",
+        "relationship": "EXTENDS",
+        "target": "Multi-Organization Ecosystem"
+      }
+    ],
+    "keyInsights": [
+      "Foundry's multi-organization model enables ecosystem-level collaboration while maintaining strict data isolation -- each party controls their own space and governance with precise control over sharing",
+      "Organizations move beyond a central point of control: Foundry divides permissions such that every party independently manages their own data governance",
+      "Multiple ecosystem models are supported and often combined as the ecosystem grows, including Market Ecosystem and peer-to-peer sharing patterns",
+      "The pattern has proven delivery across multiple industries: aviation, automotive, finance, and pharmaceuticals, demonstrating cross-domain applicability",
+      "The fundamental value proposition is converting siloed organizations into collaborative ecosystems, reducing lost resources, accelerating innovation, and preventing repeated mistakes"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/compute-modules/execution-modes",
+    "title": "Compute modules - Configuration - Execution modes - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Compute Module",
+        "description": "Foundry resource for hosting custom logic in any language that can operate in Function mode (serving logic across Foundry) or Pipeline mode (strict provenance-controlled data processing)"
+      },
+      {
+        "type": "Pattern",
+        "name": "Function Execution Mode",
+        "description": "Compute module mode where custom logic is registered as functions callable from Workshop, Developer Console, or OSDK, with optional platform permissions via service user"
+      },
+      {
+        "type": "Pattern",
+        "name": "Pipeline Execution Mode",
+        "description": "Compute module mode enforcing strict provenance control where all inputs/outputs pass through the Foundry build system with job tokens scoped to specific resources"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Zero Trust Security Model",
+        "description": "Security approach applied to compute modules where no implicit trust is granted and all access must be explicitly authorized through scoped tokens or permissions"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Job Token",
+        "description": "Scoped access token attached to pipeline-mode compute modules, limited to specifically declared input and output resources"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Application Permissions",
+        "description": "Function mode permission model where a service user determines platform API and OSDK access, consistent regardless of the invoking user"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "No Platform Permissions",
+        "description": "Function mode permission model where the compute module has no access to platform APIs or OSDK, only running isolated logic with optional external egress"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application platform that can invoke compute module functions in function execution mode"
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology SDK that can invoke compute module functions and is accessible via application permissions in function mode"
+      },
+      {
+        "type": "Product",
+        "name": "Data Lineage",
+        "description": "Foundry application providing provenance tracking for pipeline-mode compute modules, tracing data flow across resources"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OAuth Token Exchange",
+        "description": "Mechanism for compute modules with application permissions to exchange client ID and secret for an access token with desired permissions"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Zero Trust Security Model",
+        "relationship": "SECURES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Job Token",
+        "relationship": "SECURES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Function Execution Mode",
+        "relationship": "ENABLES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Pipeline Execution Mode",
+        "relationship": "ENABLES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Application Permissions",
+        "relationship": "SECURES",
+        "target": "Function Execution Mode"
+      },
+      {
+        "source": "Compute Module",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Compute Module",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Pipeline Execution Mode",
+        "relationship": "PART_OF",
+        "target": "Data Lineage"
+      },
+      {
+        "source": "OAuth Token Exchange",
+        "relationship": "DEFINED_BY",
+        "target": "Application Permissions"
+      }
+    ],
+    "keyInsights": [
+      "Compute modules support two fundamentally different security postures: Function mode (serving logic to applications) and Pipeline mode (strict provenance-controlled data processing)",
+      "Pipeline mode enforces data provenance by requiring all inputs/outputs to flow through the Foundry build system, enabling complete lineage tracking via the Data Lineage application",
+      "Function mode offers a permission spectrum: No Platform Permissions (fully isolated) vs Application Permissions (service-user-based platform access), allowing precise control over module capabilities",
+      "Application permissions use a dedicated service user whose access is consistent regardless of who invokes the function, providing predictable and auditable access patterns",
+      "The zero trust model means compute modules receive no implicit access -- pipeline mode uses scoped job tokens while function mode requires explicit permission configuration"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/platform-security-third-party/3pa-api-guidance",
+    "title": "Third-party applications - Foundry third-party application & API guidance - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth2 Authorization Code Flow",
+        "description": "Authentication mechanism allowing external applications to act on behalf of individual Foundry users with explicit consent, ensuring correct permissions and clear audit trail"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Third-Party Application",
+        "description": "Non-Foundry application or script that interacts with Foundry APIs through OAuth2 authentication, subject to scope restrictions and appropriate use policies"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Scope Restrictions",
+        "description": "Limitations on what operations a third-party application can perform through Foundry APIs, enforced through OAuth2 token scoping"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Token Isolation",
+        "description": "Security requirement that data accessed with one user's token must never be exposed to another user, preventing circumvention of Foundry's authorization model"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform providing OAuth2-based third-party application integration with strict data isolation and scope restrictions"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology capability accessible to third-party applications through Foundry APIs for executing logic and interacting with the Ontology"
+      },
+      {
+        "type": "UseCase",
+        "name": "Mobile Ontology Application",
+        "description": "Example appropriate use: mobile phone application interacting with Foundry's Ontology and Actions APIs for streamlined critical workflows"
+      },
+      {
+        "type": "UseCase",
+        "name": "Pipeline Monitoring Application",
+        "description": "Example appropriate use: application connecting to Foundry's monitoring and data health APIs to assess pipeline state and trigger builds"
+      },
+      {
+        "type": "Pattern",
+        "name": "Service User Migration",
+        "description": "Recommended pattern of replacing service account-based integrations with OAuth2 Authorization Code Flow for proper per-user permissions and audit trails"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OAuth2 Authorization Code Flow",
+        "relationship": "SECURES",
+        "target": "Third-Party Application"
+      },
+      {
+        "source": "Scope Restrictions",
+        "relationship": "SECURES",
+        "target": "Third-Party Application"
+      },
+      {
+        "source": "Token Isolation",
+        "relationship": "SECURES",
+        "target": "Third-Party Application"
+      },
+      {
+        "source": "Third-Party Application",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Mobile Ontology Application",
+        "relationship": "DEMONSTRATES",
+        "target": "Third-Party Application"
+      },
+      {
+        "source": "Pipeline Monitoring Application",
+        "relationship": "DEMONSTRATES",
+        "target": "Third-Party Application"
+      },
+      {
+        "source": "Service User Migration",
+        "relationship": "ENABLES",
+        "target": "OAuth2 Authorization Code Flow"
+      },
+      {
+        "source": "Third-Party Application",
+        "relationship": "OPERATES_ON",
+        "target": "Function"
+      }
+    ],
+    "keyInsights": [
+      "OAuth2 Authorization Code Flow is the recommended authentication mechanism for third-party applications, replacing service accounts to ensure per-user permissions and clear audit trails",
+      "Token isolation is a critical security requirement: data accessed with one user's Foundry token must never be exposed to another user, preventing authorization bypass through the third-party application layer",
+      "Inappropriate API use includes circumventing data controls (cross-user token data sharing), performing actions without user consent, and building competing data management interfaces outside Foundry",
+      "The guidance explicitly calls out that third-party application integration presents risks to data security and should only be undertaken with system administrator approval",
+      "Appropriate uses include external system integration, custom mobile workflows against the Ontology, and pipeline monitoring -- all patterns that extend Foundry's reach while maintaining its security model"
+    ]
+  }
+]

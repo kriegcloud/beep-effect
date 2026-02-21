@@ -1,0 +1,123 @@
+On Monotonicity in Relational Databases and Service-oriented Architecture
+Robert Fink
+Follow
+7 min read
+·
+Nov 19, 2020
+
+79
+
+1
+
+Monotonicity is an important concept in relational databases and, as I will demonstrate in this blog post, also for APIs in service-oriented architectures.
+
+Press enter or click to view image in full size
+
+Intuitively, a database or an API is monotonic if information “does not disappear”. Monotonic database queries can be more efficiently analyzed and optimized than non-monotonic queries, and monotonic APIs can help developers avoid race conditions and undefined state. At Palantir, we obviously care about fast database queries and safe, well-behaving APIs, and I use the framework of monotonicity regularly when discussing database or API architecture with my teams. So let’s dig in!
+
+Relational databases
+
+I suspect that most readers will be familiar with the calculus concept of monotonic functions: a function f is called monotonically increasing, if for all x, y with x ≤ y we have f(x) ≤ f(y). The graph on the left shows such a function. In database theory, we can define in analogy the concept of monotonic queries: query Q is monotonic if for all databases D1, D2 with D1 ⊆ D2 we have Q(D1) ⊆ Q(D2). In plain English, if we evaluate a monotonic query Q on a database D2 that has more rows than some other database D1, then the query result will always be larger (or equally large) on the larger database D2.
+
+Now let’s review a few key results on query optimization in relational databases, with a particular focus on monotonic queries. As a running example, consider a data domain with two entities, accounts and access policies (policies, for short): every account is associated with exactly one policy, but the same policy may be associated with more than one account. We can model this as two tables, accounts and policies, and obtain the list of accounts and corresponding access policies with the following SQL query:
+
+-- Q1
+SELECT * FROM 
+  accounts NATURAL JOIN policies;
+
+We can make the example a bit more interesting by splitting policies into active policies and disabled policies. A query asking for all accounts that are not associated with a disabled policy could be written as follows. (Note that this database schema is for illustration purposes only, I don’t think I would model disabled policies like this in reality.)
+
+-- Q2
+SELECT * FROM
+  accounts NATURAL JOIN (SELECT * FROM policies EXCEPT SELECT * FROM disabled_policies) AS active_policies;
+
+Query Q1 is monotonic: intuitively, this means that the query cannot produce fewer results if we add more rows to the underlying database. Conversely, query Q2 is not monotonic, because we can remove rows from the query result by adding rows to the disabled_policies table. Negation (here, the EXCEPT statement) is a common source of non-monotonicity in database query languages.
+
+Now, what’s the point of monotonic queries? Well, it turns out that many query analysis and optimization problems can be solved for monotonic queries, but not for a large class of non-monotonic queries. For example, the query equivalence problem, given queries Q1 and Q2, is Q1(D) = Q2(D) for all databases D?, is decidable for monotonic queries, but undecidable for relational calculus (which includes the non-monotonic difference operator).
+
+In terms of SQL queries, this means that we can decide whether two select/project/join SQL queries are equivalent, but we cannot generally decide this for select/project/join/union/difference SQL queries (see Abiteboul et al, Foundations of Databases).
+
+The simplest example of query equivalence in action is predicate push-down: it’s easy to verify that Q1: SELECT * FROM accounts NATURAL JOIN policies WHERE policy.id == 42 is equivalent to Q2: SELECT * FROM accounts NATURAL JOIN (SELECT * FROM policies WHERE policies.id ==42). The results reviewed above above state that we can always decide whether Q1=Q2 for monotonic select/project/join SQL queries while there is no general algorithm for deciding Q1=Q2 for arbitrary SQL queries. An interesting corollary to the undecidability result is that global syntactic query optimization is impossible for relational calculus: given a query Q, there is no algorithm that can compute the smallest relational calculus query equivalent to Q.
+
+Non-monotonicity is not the only source of complexity for relational query languages; for example, the equivalence problem is also undecidable for Datalog queries (roughly, select/project/join queries with recursion) even though they are monotonic.
+
+Intuitively, the take-away for relational databases is that non-monotonicity is a considerable source of difficulty for many query analysis tasks.
+
+REST APIs
+
+Let’s shift gears and look at the role of what I would call “API monotonicity” in service-oriented architectures, specifically in the case of REST APIs. In the same account/policy domain from above, we could imagine an account service and a separate policy service that manage account and policy objects, respectively:
+
+# HTTP/JSON implementation of account and policy services
+# Account service
+--> {"account_id": {account_id}, "policy_id": {policy_id}}
+PUT /accounts/{account_id}
+GET /accounts/{account_id}
+<-- {"account_id": {account_id}, "policy_id": {policy_id}}
+# Policy service
+--> {"policy_id": {policy_id}, "policy": { ... }}
+PUT /policies/{policy_id}
+GET /policies/{policy_id}
+<-- {"policy_id": {policy_id}, "policy": { ... }}
+
+The services have methods for adding and retrieving account and policy objects. The database join between accounts and policies is implemented in the SoA model by linking objects via their identifiers. Since we have a 1:N join here (i.e., each account has one policy, and the same policy can apply to multiple accounts), I chose to add a policy_id field to the account object.
+
+Get Robert Fink’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+In analogy to the database definition of monotonic queries, I would call this API monotonic in the sense that we can never remove accounts or policies by interacting with the API. (We could overwrite a policy with some policy_id with a new policy, but we can never remove policies. Similar for accounts.) We can make the API non-monotonic by adding DELETE endpoints:
+
+DELETE /accounts/{account_id}
+DELETE /policies/{policy_id}
+
+Now one can issue a sequence of requests to illustrate that information can disappear:
+
+--> {"policy_id": 123, "policy": { ... }}
+PUT /policies/123
+GET /policies/123
+<-- {"policy_id": 123, "policy": { ... }}
+DELETE /policies/123
+GET /policies/123
+<-- 404 NOT FOUND
+
+The monotonicity property is very useful if we want to guarantee certain integrity constraints across service boundaries. For example, we may want to enforce that every account has a valid policy:
+
+def putAccount(account_id, policy_id):
+  if policyService.getPolicy(policy_id) == 404:
+    fail("No such policy: " + policy_id)
+  else:
+    database.storeAccount(account_id, policy_id)
+
+Even though we are not using any form of distributed transaction system, the above code correctly maintains the every-account-has-valid-policy invariant in case of the monotonic policy service API: we check that the requested policy exists before we store the account information in the database, and we are guaranteed that the policy never disappears if it existed at some point. (Bonus points if one of my readers wants to model this claim with temporal logic…) Of course, this invariant can easily be violated in the case of the non-monotonic policy service API.
+
+Can we support policy deletion and still maintain a monotonic API and the every-account-has-valid-policy invariant? A possible solution is to add an isDeleted field to the policy object:
+
+--> {"policy_id": 123, "policy": { ... }}
+PUT /policies/123
+GET /policies/123
+<-- {"policy_id": 123, "policy": { ... }, isDeleted: false}
+DELETE /policies/123
+GET /policies/123
+<-- {"policy_id": 123, "policy": { ... }, isDeleted: true}
+
+The account service can use the isDeleted flag to initiate user action to fix the inconsistency, for instance by displaying the account alongside with an “Invalid policy: please select new policy” warning message. More importantly, if the account service stores only the policy_id (rather than the full policy object), it always has access to the referenced policies, even the deleted ones.
+
+An interesting corollary is that monotonic APIs don’t gel well with deletion. For example, say we have a legal obligation to delete policy information, for instance because it contains PII data. The deletion requirement is at odds with the monotonicity property, because we cannot simultaneously delete the policy and retain it. API designers must keep this tradeoff in mind when they balance legal constraints such as the principle of data minimization in the GDPR on the one hand with architectural or performance desiderata on the other hand. I know this is a bit of a cliffhanger, but I think I will reserve further thoughts on this topic for a future blog post, stay tuned!
+
+Bottom-line, monotonic APIs can help us guarantee cross-service invariants in REST APIs.
+
+Event-sourcing
+
+Finally, let’s look at the event-sourcing paradigm for cross-service communication in service-oriented architectures. In a nutshell, the idea behind event-sourcing is to store immutable change events instead of mutating data. API consumers are given access to the event log and process events in sequence.
+
+The sequence of PUT and DELETE calls from above would give rise to a sequence of two events, [putPolicy(123), deletePolicy(123)]. The account service tails the event log of the the policy service and can keep an internal representation of the available policies in the policy service. For instance, we can keep all created policies and mark them as isDeleted when receiving a deletePolicy(..) event, and thereby implement the monotonic behavior described in the REST example from above. Further, note that the event log itself is append-only and thus by definition monotonic.
+
+If you’re interested in event-sourcing, I would also encourage you to take a look at my previous blog post, Rethinking the Foundry job orchestration back end: From CRUD to event-sourcing.
+
+Conclusion
+
+Abstract concepts such as monotonicity often apply across various domains in computer science and software engineering. This blog post illustrates that monotonic database queries are easier to analyze and optimize, and that monotonic service APIs allow developers to enforce desirable data consistency invariants.
+
+Author: Robert Fink is the founding engineer of Palantir’s Foundry platform.

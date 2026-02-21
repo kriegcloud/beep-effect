@@ -1,0 +1,1582 @@
+[
+  {
+    "url": "https://www.palantir.com/platforms/aip/",
+    "title": "Palantir Artificial Intelligence Platform",
+    "summary": "Palantir's main AIP product page. AIP connects AI with enterprise data and operations, providing governed access to LLMs and multimodal models. It includes builder tools like AIP Logic, Agent Studio, and AIP Evals for developing production-ready AI-powered workflows, agents, and functions on top of the Ontology.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "AIP platform overview connecting AI to enterprise operations",
+      "Builder tools: AIP Logic, Agent Studio, AIP Evals",
+      "Governed LLM access and security controls"
+    ],
+    "tags": ["AIP", "platform", "LLM", "governance", "enterprise-ai"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Action Type", "Functions"],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip/overview",
+    "title": "Overview - AIP - Palantir Docs",
+    "summary": "Official AIP documentation overview. AIP provides a full set of capabilities for building with generative AI: governed LLM access, LLM-driven functions, agent creation/management, evaluation suites, and automation definitions. AIP is designed for everyone from developers to frontline users.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Comprehensive AIP capability listing",
+      "Connection between AIP and Ontology developer toolchain",
+      "Security and governance model for AI operations"
+    ],
+    "tags": ["AIP", "documentation", "overview", "capabilities", "governance"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/ontology-augmented-generation",
+    "title": "Semantic search - Ontology augmented generation - Palantir Docs",
+    "summary": "Official documentation on Ontology Augmented Generation (OAG). Explains how OAG extends RAG by grounding LLMs in the Ontology's decision-centric model that combines data, logic, and actions. Covers semantic search implementation for querying Ontology objects from LLM contexts.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "OAG as an extension of RAG grounded in the Ontology",
+      "Semantic search over Ontology objects using vector embeddings",
+      "Integration of data, logic, and actions for LLM grounding"
+    ],
+    "tags": [
+      "OAG",
+      "semantic-search",
+      "RAG",
+      "embeddings",
+      "ontology-grounding"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type", "Functions"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-data-tools-for-rag-oag-b3b509c8b0f3",
+    "title": "Building with Palantir AIP: Data Tools for RAG / OAG - Palantir Blog",
+    "summary": "Palantir engineering blog post explaining how to build data tools that enable LLMs to query the Ontology for trusted data. Covers how equipping LLMs with Ontology query capabilities is a significant step in reducing hallucinations. Details the data tool paradigm within OAG.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "How data tools allow LLMs to query Ontology objects",
+      "Practical implementation of OAG data retrieval",
+      "Hallucination reduction through trusted data access"
+    ],
+    "tags": [
+      "OAG",
+      "data-tools",
+      "RAG",
+      "hallucination-reduction",
+      "ontology-query"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-logic-tools-for-rag-oag-fdaf8938d02e",
+    "title": "Building with Palantir AIP: Logic Tools for RAG/OAG - Palantir Blog",
+    "summary": "Engineering blog post on logic tools for RAG/OAG. Explains how enterprises can combine forecasting models, optimizers, and other logic assets with LLM reasoning capabilities. Logic tools let LLMs invoke deterministic functions alongside non-deterministic LLM reasoning.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Logic tools combining deterministic computation with LLM reasoning",
+      "Integration of forecasting models and optimizers as LLM tools",
+      "Enterprise-scale AI that leverages existing logic assets"
+    ],
+    "tags": [
+      "OAG",
+      "logic-tools",
+      "RAG",
+      "functions",
+      "deterministic-reasoning"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Action Type", "Object Type"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/reducing-hallucinations-with-the-ontology-in-palantir-aip-288552477383",
+    "title": "Reducing Hallucinations with the Ontology in Palantir AIP - Palantir Blog",
+    "summary": "Part 1 of the 'Engineering Responsible AI' series. Explains how AIP prevents hallucinations by giving LLMs the right context from the start via the Ontology. Rather than fixing hallucinations after they occur, OAG retrieves structured objects and their connections, keeping reasoning narrow and accurate.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Prevention-first approach to hallucination reduction",
+      "Structured object retrieval vs. traditional text-based RAG",
+      "Ontology metadata augmentation for LLM prompt guidance"
+    ],
+    "tags": [
+      "hallucination-reduction",
+      "responsible-ai",
+      "OAG",
+      "ontology-grounding",
+      "structured-data"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type", "Functions"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/thinking-outside-the-black-box-24d0c87ec8a5",
+    "title": "How Palantir AIP Improves LLM Explainability - Palantir Blog",
+    "summary": "Blog post on improving LLM explainability through AIP. Discusses how AIP Logic tools enable delegation of specific tasks to purpose-built, interpretable tools rather than relying solely on LLM processing, creating composable and auditable AI systems. Covers LLM Debugger for tracking orchestration.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "LLM explainability through composable, auditable tool chains",
+      "AIP Logic Debugger for tracking LLM orchestration and tool handoffs",
+      "Transparent AI reasoning via Ontology grounding"
+    ],
+    "tags": [
+      "explainability",
+      "responsible-ai",
+      "debugging",
+      "AIP-Logic",
+      "transparency"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Object Type", "Action Type"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72",
+    "title": "Connecting AI to Decisions with the Palantir Ontology - Palantir Blog",
+    "summary": "Foundational blog post on how the Ontology connects AI to enterprise decision-making. The Ontology brings together data, logic, and actions into a decision-centric model that LLMs can interface with through an extensible tools paradigm. Aggregate user decisions can be leveraged as fine-tuning training data.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Ontology as the bridge between AI and enterprise decisions",
+      "Extensible tools paradigm for LLM-Ontology interaction",
+      "Decision data as training data for model fine-tuning"
+    ],
+    "tags": [
+      "ontology",
+      "decision-making",
+      "fine-tuning",
+      "tools-paradigm",
+      "LLM-integration"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/logic/overview",
+    "title": "AIP Logic - Overview - Palantir Docs",
+    "summary": "Official documentation for AIP Logic, the no-code development environment for building LLM-powered functions. Tools are the mechanism by which AIP Logic enables LLMs to read/write to the Ontology via three categories: data tools, logic tools, and action tools for powering real-world operations.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "No-code environment for building LLM-powered functions",
+      "Three tool categories: data, logic, and action",
+      "LLM orchestration with Ontology read/write capabilities"
+    ],
+    "tags": [
+      "AIP-Logic",
+      "no-code",
+      "LLM-functions",
+      "tools",
+      "ontology-integration"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Action Type", "Object Type", "Property"],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/agent-studio/overview",
+    "title": "AIP Agent Studio - Overview - Palantir Docs",
+    "summary": "Official documentation for AIP Agent Studio. Allows building interactive assistants (AIP Agents) equipped with enterprise-specific information and tools powered by LLMs, the Ontology, documents, and custom tools. Agents are deployable internally and externally through the Ontology SDK and platform APIs.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Agent Studio for building enterprise AI assistants",
+      "Agents leverage Ontology, documents, and custom tools",
+      "Internal and external deployment via OSDK and APIs"
+    ],
+    "tags": [
+      "Agent-Studio",
+      "AI-agents",
+      "enterprise-assistants",
+      "OSDK",
+      "deployment"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/agent-studio/tools",
+    "title": "AIP Agent Studio - Tools - Overview - Palantir Docs",
+    "summary": "Documentation on the tools available in AIP Agent Studio. Includes action tools (ontology edits), object query tools (LLM access to object types), request clarification, commands (interact with Palantir apps on behalf of users), and custom functions. Supports native and prompted tool calling modes.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Tool types: action, object query, clarification, commands, functions",
+      "Native vs prompted tool calling modes for agents",
+      "Parallel tool calling support in native mode"
+    ],
+    "tags": [
+      "Agent-Studio",
+      "tools",
+      "function-calling",
+      "object-query",
+      "actions"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Action Type",
+      "Object Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/agent-studio/core-concepts",
+    "title": "AIP Agent Studio - Core concepts - Palantir Docs",
+    "summary": "Core concepts documentation for AIP Agent Studio covering how agents use Ontology, document, or custom function-backed context for targeted interactions. Explains RAG within the agent context, where retrieval-augmented generation dynamically provides LLMs with relevant information from external sources.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Agent context types: Ontology, document, custom function",
+      "RAG implementation within Agent Studio",
+      "Dynamic context provision for enterprise-specific interactions"
+    ],
+    "tags": [
+      "Agent-Studio",
+      "core-concepts",
+      "RAG",
+      "context",
+      "ontology-context"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip/supported-llms",
+    "title": "Supported LLMs - Palantir Docs",
+    "summary": "Documentation listing all LLMs supported in Palantir AIP. Includes models from OpenAI (GPT-5.2, GPT-4.1, GPT-4o), Anthropic (Claude Opus 4.6, Claude Haiku 4.5, Claude 3.5 Sonnet), Google (Gemini), Meta (Llama), xAI, and others. Covers capacity management via TPM and RPM.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Comprehensive list of supported LLM providers and models",
+      "Multi-provider support: OpenAI, Anthropic, Google, Meta, xAI",
+      "LLM capacity management with TPM/RPM metrics"
+    ],
+    "tags": [
+      "supported-LLMs",
+      "GPT",
+      "Claude",
+      "Gemini",
+      "Llama",
+      "model-management"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip/aip-features",
+    "title": "AIP features - Palantir Docs",
+    "summary": "Comprehensive listing of all AIP features including AIP Logic, Agent Studio, AIP Evals, AIP Assist, Pipeline Builder LLM node, and more. Provides the complete feature map of how AIP integrates across the Foundry platform for building AI-powered workflows.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Complete AIP feature inventory",
+      "Cross-platform integration points",
+      "Feature categorization by developer vs. frontline user"
+    ],
+    "tags": [
+      "AIP-features",
+      "feature-list",
+      "platform-overview",
+      "integration"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/platform-overview/aip-capabilities",
+    "title": "Platform overview - AIP capabilities - Palantir Docs",
+    "summary": "Platform overview page focused on AIP capabilities within the broader Foundry platform. Shows how AIP fits into the overall architecture alongside data integration, Ontology, and application layers. Describes AIP as the AI layer that sits on top of the Ontology.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "AIP positioning within Foundry platform architecture",
+      "Relationship between AIP and Ontology layers",
+      "End-to-end capability from data ingestion to AI-powered operations"
+    ],
+    "tags": [
+      "platform-overview",
+      "architecture",
+      "AIP-capabilities",
+      "Foundry"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip-evals/overview",
+    "title": "AIP Evals - Overview - Palantir Docs",
+    "summary": "Documentation for AIP Evals, the testing environment for evaluating LLM-powered function performance. Designed to handle non-deterministic LLM behavior with grid search parameter testing, custom evaluators (no-code, Python, TypeScript, or LLM-as-judge), and execution trace debugging.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "LLM evaluation framework for non-deterministic outputs",
+      "Grid search for parameter combination testing",
+      "Custom evaluators including LLM-as-judge pattern"
+    ],
+    "tags": [
+      "AIP-Evals",
+      "evaluation",
+      "testing",
+      "LLM-performance",
+      "non-deterministic"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/evaluating-generative-ai-a-field-manual-0cdaf574a9e1",
+    "title": "A Palantir Manual for Evaluating Generative AI - Palantir Blog",
+    "summary": "Palantir's field manual for evaluating generative AI systems. Provides practical guidance on how to systematically assess and improve LLM-powered workflows. Covers evaluation methodology, metrics selection, and operational best practices for responsible AI deployment.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Systematic evaluation methodology for generative AI",
+      "Practical guidance on metrics and assessment",
+      "Responsible AI deployment best practices"
+    ],
+    "tags": [
+      "evaluation",
+      "generative-AI",
+      "methodology",
+      "responsible-ai",
+      "best-practices"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/from-prototype-to-production-engineering-responsible-ai-3-ea18818cd222",
+    "title": "Palantir AIP | Testing & Evaluating AI Systems - Palantir Blog",
+    "summary": "Part 3 of the 'Engineering Responsible AI' series. Covers the journey from AI prototype to production, focusing on systematic testing and evaluation. Discusses how AIP provides tools for generating audit trails, explanations, and model decision evaluations.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Prototype-to-production pathway for responsible AI",
+      "Audit trails and model decision explanations",
+      "Systematic testing frameworks within AIP"
+    ],
+    "tags": [
+      "responsible-ai",
+      "testing",
+      "production",
+      "audit-trails",
+      "prototype-to-production"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Action Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/overview-semantic-search",
+    "title": "Semantic search - Overview - Palantir Docs",
+    "summary": "Documentation on semantic search in the Ontology. Explains how AI models transform text into vector embeddings for similarity-based retrieval. When embedded text is associated with Ontology objects, search-driven operational workflows become more useful and contextually grounded.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Vector embedding creation from text for semantic search",
+      "Association of embeddings with Ontology objects",
+      "Implementation approaches: AI Agents, custom functions, document processing"
+    ],
+    "tags": [
+      "semantic-search",
+      "embeddings",
+      "vectors",
+      "ontology-objects",
+      "KNN"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property"],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/using-palantir-provided-models-to-create-a-semantic-search-workflow",
+    "title": "Semantic search - Use Palantir-provided models - Palantir Docs",
+    "summary": "Step-by-step documentation for creating semantic search workflows using Palantir-provided embedding models. Covers the end-to-end process from generating embeddings to performing KNN searches over object types, with the goal of enabling user input to vector conversion and similarity retrieval.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "End-to-end semantic search workflow setup",
+      "Palantir-provided embedding model usage",
+      "KNN search implementation over Ontology object types"
+    ],
+    "tags": [
+      "semantic-search",
+      "embeddings",
+      "KNN",
+      "workflow",
+      "palantir-models"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/using-custom-models-to-create-a-semantic-search-workflow",
+    "title": "Semantic search - Use custom models - Palantir Docs",
+    "summary": "Documentation for creating semantic search workflows using custom embedding models instead of Palantir-provided ones. Covers how to bring your own embedding model and integrate it with the Ontology's semantic search infrastructure for specialized domain-specific search.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Custom embedding model integration for semantic search",
+      "BYOM (Bring Your Own Model) for embeddings",
+      "Domain-specific search customization"
+    ],
+    "tags": [
+      "semantic-search",
+      "custom-models",
+      "BYOM",
+      "embeddings",
+      "domain-specific"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/document-processing",
+    "title": "Semantic search - Document processing - Palantir Docs",
+    "summary": "Documentation on document processing for semantic search in the Ontology. Covers how PDFs and other documents are chunked and embedded separately for more granular retrieval. Enables users and workflows to find important information across unstructured document content.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "PDF and document chunking for semantic search",
+      "Embedding individual document chunks separately",
+      "Unstructured content access through the Ontology"
+    ],
+    "tags": [
+      "document-processing",
+      "chunking",
+      "semantic-search",
+      "PDF",
+      "unstructured-data"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property"],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-semantic-search-dc3adf40f6a6",
+    "title": "Building with Palantir AIP: Semantic Search - Palantir Blog",
+    "summary": "Engineering blog post on building semantic search with AIP. Covers generating interactive AI copilots that uncover knowledge within enterprise unstructured data, including actionable insights across ticketing systems, emails, and documents without requiring data duplication or complex integration.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Building AI copilots with semantic search over enterprise data",
+      "Accessing insights across ticketing, emails, and documents",
+      "No data duplication required for semantic search"
+    ],
+    "tags": [
+      "semantic-search",
+      "copilot",
+      "unstructured-data",
+      "enterprise-search",
+      "AIP"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/pipeline-builder/pipeline-builder-llm",
+    "title": "Pipeline Builder - Transforms - Use LLM node - Palantir Docs",
+    "summary": "Documentation for the Use LLM node in Pipeline Builder. Provides a no-code method for executing LLMs on data at scale within data transformation pipelines. Includes pre-engineered prompt templates and supports iterating on prompts before full dataset execution.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "No-code LLM execution within data pipelines",
+      "Pre-engineered prompt templates for common tasks",
+      "Scalable LLM processing integrated with data transformations"
+    ],
+    "tags": [
+      "Pipeline-Builder",
+      "LLM-node",
+      "no-code",
+      "data-transformation",
+      "prompt-templates"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm",
+    "title": "Foundry platform summary for LLMs - Palantir Docs",
+    "summary": "A platform summary page specifically designed as context for LLM consumption. This page provides a structured overview of the Foundry platform optimized for LLM understanding, serving as a reference document when LLMs need to understand the Palantir platform architecture.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Platform summary optimized for LLM consumption",
+      "Structured reference for AI systems to understand Foundry",
+      "Meta-approach to AI-readable platform documentation"
+    ],
+    "tags": [
+      "platform-summary",
+      "LLM-context",
+      "documentation",
+      "Foundry",
+      "architecture"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip/chat-completion-function-interface-quickstart",
+    "title": "Bring your own model - Register an LLM using function interfaces - Palantir Docs",
+    "summary": "Documentation for BYOM (Bring Your Own Model) capability. Shows how to register custom LLMs using function interfaces for use across all Palantir developer products including AIP Logic, Pipeline Builder, Agent Studio, and Workshop. Supports on-premise, cloud, or fine-tuned models.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "BYOM registration via function interfaces",
+      "Cross-platform LLM integration (Logic, Pipeline Builder, Agent Studio, Workshop)",
+      "Support for on-premise, cloud-hosted, and fine-tuned models"
+    ],
+    "tags": [
+      "BYOM",
+      "function-interfaces",
+      "custom-LLM",
+      "registration",
+      "cross-platform"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Interfaces"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/language-models",
+    "title": "Functions - Models - Language models within functions - Palantir Docs",
+    "summary": "Documentation on using language models within Foundry Functions. Covers how to integrate LLM capabilities directly into TypeScript/Python functions that can then be used across the Ontology, enabling programmatic access to LLMs within the function execution context.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "LLM integration within TypeScript/Python functions",
+      "Programmatic LLM access in function execution contexts",
+      "Connection between Functions layer and language models"
+    ],
+    "tags": [
+      "functions",
+      "language-models",
+      "TypeScript",
+      "Python",
+      "programmatic-LLM"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Object Type", "Action Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/logic/blocks",
+    "title": "AIP Logic - Blocks - Palantir Docs",
+    "summary": "Documentation on AIP Logic blocks, the building blocks used to construct LLM-powered functions in the no-code environment. Each block represents a step in the LLM orchestration chain, including semantic search blocks for finding closest items based on properties and queries.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Block-based no-code LLM function construction",
+      "Semantic search block for object similarity matching",
+      "LLM orchestration chain building blocks"
+    ],
+    "tags": [
+      "AIP-Logic",
+      "blocks",
+      "no-code",
+      "semantic-search-block",
+      "orchestration"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Object Type", "Property"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/logic/getting-started",
+    "title": "AIP Logic - Getting started - Palantir Docs",
+    "summary": "Getting started guide for AIP Logic. Walks through the initial setup and first steps for building LLM-powered functions using the no-code development environment. Covers how to configure tools, test functions, and release them for use across the platform.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Step-by-step AIP Logic setup guide",
+      "Tool configuration and function testing",
+      "Release process for LLM-powered functions"
+    ],
+    "tags": [
+      "AIP-Logic",
+      "getting-started",
+      "tutorial",
+      "setup",
+      "function-release"
+    ],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Object Type", "Action Type"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/logic/aip-logic-integration-automate",
+    "title": "AIP Logic - Automate AIP Logic - Palantir Docs",
+    "summary": "Documentation on automating AIP Logic functions via Automate. Enables creating automations that apply or stage Ontology edits for human review. Automations can be triggered on existing objects or when new objects are created, bridging AI-generated insights to operational action.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Automating LLM-powered function execution",
+      "Human-in-the-loop review for AI-generated Ontology edits",
+      "Trigger-based automation for object creation events"
+    ],
+    "tags": [
+      "automation",
+      "AIP-Logic",
+      "Automate",
+      "human-in-the-loop",
+      "ontology-edits"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Action Type", "Object Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/assist/overview",
+    "title": "AIP Assist - Overview - Palantir Docs",
+    "summary": "Documentation for AIP Assist, an LLM-powered support tool for navigating the Palantir platform. Uses NLP and third-party LLMs trained on Palantir documentation to provide real-time assistance. Includes Developer Assist mode specializing in Foundry APIs and developer examples.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "LLM-powered platform navigation assistant",
+      "Developer Assist mode for Foundry API guidance",
+      "Natural language interface for platform help"
+    ],
+    "tags": [
+      "AIP-Assist",
+      "copilot",
+      "developer-assist",
+      "NLP",
+      "platform-support"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Interfaces"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/assist/custom-documentation-best-practices",
+    "title": "AIP Assist - Custom content source best practices - Palantir Docs",
+    "summary": "Best practices for powering AIP Assist with custom content sources. Covers how RAG enables AIP Assist to efficiently retrieve relevant information in response to specific inquiries, improving accuracy and helpfulness. Provides guidance on content structuring for optimal retrieval.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "RAG best practices for custom content sources",
+      "Content structuring guidance for optimal LLM retrieval",
+      "Custom knowledge base integration with AIP Assist"
+    ],
+    "tags": [
+      "AIP-Assist",
+      "RAG",
+      "custom-content",
+      "best-practices",
+      "content-structuring"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property"],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/deploying-full-spectrum-ai-in-days-how-aip-bootcamps-work-21829ec8d560",
+    "title": "Deploying Full Spectrum AI in Days: How AIP Bootcamps Work - Palantir Blog",
+    "summary": "Blog post explaining how AIP Bootcamps work as immersive 1-5 day workshops. Participants go from zero to use case, getting hands-on with LLMs and Generative AI to build MVP deployments. Partners solve problems they have struggled with for years in days through hands-on keyboard sessions.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Rapid AI deployment methodology via bootcamps",
+      "Hands-on LLM and generative AI experience",
+      "Zero to production use case in 1-5 days"
+    ],
+    "tags": [
+      "bootcamp",
+      "rapid-deployment",
+      "training",
+      "use-cases",
+      "hands-on"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Action Type", "Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://learn.palantir.com/speedrun-your-first-agentic-aip-workflow",
+    "title": "Speedrun: Your First Agentic AIP Workflow - Palantir Learn",
+    "summary": "Tutorial on building a first agentic AIP workflow. Covers the steps to create an end-to-end agentic workflow where AI agents can handle complex workflows autonomously, publishing agents as functions and integrating them into AIP Automate for automated execution.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Step-by-step guide for building agentic workflows",
+      "Agent-to-function publication process",
+      "Integration of agents with AIP Automate"
+    ],
+    "tags": [
+      "agentic-workflow",
+      "tutorial",
+      "speedrun",
+      "automation",
+      "agent-function"
+    ],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Action Type", "Functions", "Object Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/automate/overview",
+    "title": "Automate - Overview - Palantir Docs",
+    "summary": "Documentation for the Automate application that enables business automation through condition-based triggers and effects. Supports scheduled, real-time event-driven, and API-driven automations. Integrates with AIP Logic to automate the execution of LLM-powered functions.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Condition-based automation triggers and effects",
+      "Schedule, event-driven, and API-driven automation modes",
+      "Integration with AIP Logic for automated LLM function execution"
+    ],
+    "tags": [
+      "Automate",
+      "automation",
+      "triggers",
+      "scheduling",
+      "event-driven"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Action Type", "Object Type", "Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/architecture-center/aip-architecture",
+    "title": "AIP architecture overview - Palantir Docs",
+    "summary": "Technical architecture documentation for AIP showing how LLM orchestration, tool calling, and model management are structured. Describes how durable orchestrations can be configured through low-code (AIP Logic) or pro-code (Code Workspaces) interfaces for pipeline-style AI workflows.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "AIP technical architecture and orchestration patterns",
+      "Durable orchestration via low-code and pro-code interfaces",
+      "LLM pipeline and tool calling architecture"
+    ],
+    "tags": [
+      "architecture",
+      "orchestration",
+      "durable-execution",
+      "technical",
+      "pipeline"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Action Type", "Interfaces"],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip/ethics-governance",
+    "title": "AI ethics and governance - Palantir Docs",
+    "summary": "Documentation on AI ethics and governance within AIP. Covers Palantir's eight core themes of responsible AI development with concrete capabilities and workflows. Includes tools for identifying bias, evaluating model fairness, and monitoring ethical AI concerns during model use.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Eight core themes of responsible AI development",
+      "Bias identification and fairness evaluation tools",
+      "Governance framework for AI operations"
+    ],
+    "tags": [
+      "ethics",
+      "governance",
+      "responsible-ai",
+      "bias-detection",
+      "fairness"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Roles", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip/aip-security",
+    "title": "AIP security and privacy - Palantir Docs",
+    "summary": "Documentation on AIP security and privacy features. Covers access controls, encryption, auditing capabilities for AI operations. Defines what LLMs can and cannot see and do with safe AI handoff functions, particularly important for classified and sensitive data environments.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "AI-specific security controls and access management",
+      "LLM visibility and action boundary definitions",
+      "Safe AI handoff functions for sensitive operations"
+    ],
+    "tags": ["security", "privacy", "access-control", "encryption", "audit"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Roles", "Action Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/palantir-mcp/overview",
+    "title": "Palantir MCP - Overview - Palantir Docs",
+    "summary": "Documentation for Palantir's Model Context Protocol (MCP) integration. Enables external AI systems to read data and metadata from Foundry using configured user token permissions. Includes Palantir MCP for ontology builders and Ontology MCP for consumers to safely read/write data.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "MCP protocol for external AI system integration with Foundry",
+      "Two MCP modes: Palantir MCP (builders) and Ontology MCP (consumers)",
+      "Tool exposure of object types, action types, and query functions"
+    ],
+    "tags": [
+      "MCP",
+      "model-context-protocol",
+      "external-AI",
+      "integration",
+      "OSDK"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/ontology-oriented-software-development-68d7353fdb12",
+    "title": "Ontology-Oriented Software Development - Palantir Blog",
+    "summary": "Blog post on the paradigm of ontology-oriented software development. Explains how the OSDK allows developers to write AIP-powered applications in Python, Java, or TypeScript with built-in access to AIP Logic functions. Covers how AI/LLM functions integrate into existing applications via the OSDK.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Ontology-oriented development paradigm for AI applications",
+      "OSDK integration with AIP Logic functions",
+      "Multi-language support: Python, Java, TypeScript"
+    ],
+    "tags": [
+      "OSDK",
+      "ontology-oriented",
+      "development",
+      "AIP-Logic",
+      "multi-language"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-the-ontology-software-development-kit-823fe5ac7aae",
+    "title": "Building with Palantir AIP: The Ontology Software Development Kit - Palantir Blog",
+    "summary": "Blog post on the Ontology SDK (OSDK). Explains how OSDK allows pulling in objects, actions, and AI-backed functions into new and existing applications without building from scratch. LLM integration, writeback, and generative AI are accessible through the same typed SDK interface.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "OSDK for integrating AI-backed functions into applications",
+      "Typed interface for LLM, writeback, and generative AI",
+      "Accelerated development with minimal code for Ontology access"
+    ],
+    "tags": ["OSDK", "SDK", "integration", "typed-interface", "generative-ai"],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/overview",
+    "title": "Ontology SDK - Overview - Palantir Docs",
+    "summary": "Official documentation for the Ontology SDK. Supports NPM (TypeScript), Pip/Conda (Python), Maven (Java), and OpenAPI spec. Types and functions are generated from the Ontology, enabling developers to query and explore their Ontology directly in their editor with full type safety.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Multi-language SDK: TypeScript, Python, Java, OpenAPI",
+      "Type-safe generated code from Ontology definitions",
+      "Editor-integrated Ontology exploration"
+    ],
+    "tags": [
+      "OSDK",
+      "TypeScript",
+      "Python",
+      "Java",
+      "type-safety",
+      "code-generation"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/ai-infrastructure-and-ontology-78b86f173ea6",
+    "title": "AI Infrastructure & Ontology | Palantir & NVIDIA - Palantir Blog",
+    "summary": "Blog post on the Palantir-NVIDIA partnership for AI infrastructure. NVIDIA accelerated computing, CUDA-X libraries, and Nemotron models are integrated into Palantir platforms via the Ontology. Future integration with NVIDIA Blackwell architecture for accelerated AI workflows.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "NVIDIA model integration via the Ontology",
+      "Accelerated computing for AI workflows",
+      "Blackwell architecture integration roadmap"
+    ],
+    "tags": [
+      "NVIDIA",
+      "partnership",
+      "infrastructure",
+      "accelerated-computing",
+      "Nemotron"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/platforms/aip/defense/",
+    "title": "Palantir AIP for Defense",
+    "summary": "Palantir's AIP for Defense page. AIP unleashes LLMs and AI on defense networks from classified systems to the tactical edge. Provides real-time environment representation from sensitive intelligence data, with security features defining what LLMs can see and do including safe AI handoff functions.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Defense-specific AIP deployment on classified networks",
+      "LLM security boundaries for sensitive military data",
+      "Safe AI handoff functions for defense operations"
+    ],
+    "tags": ["defense", "military", "classified", "security", "tactical-edge"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Action Type", "Roles", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/workshop/widgets-aip-agent",
+    "title": "Workshop - AIP widgets - AIP Agent - Palantir Docs",
+    "summary": "Documentation for the AIP Agent widget in Workshop. Allows embedding interactive AI assistants directly into operational workflow applications. The widget can read/write application variables, interact with visualization widgets, and perform object traversal, property reading, filtering, and aggregations.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "AI agent embedding in operational Workshop applications",
+      "Agent interaction with application variables and visualizations",
+      "Object traversal and property access capabilities"
+    ],
+    "tags": [
+      "Workshop",
+      "AIP-Agent",
+      "widget",
+      "operational-workflow",
+      "embedded-AI"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Action Type",
+      "Functions",
+      "Object Views"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/workshop/widgets-aip-analyst",
+    "title": "Workshop - AIP widgets - AIP Analyst - Palantir Docs",
+    "summary": "Documentation for the AIP Analyst widget in Workshop. Provides AI-powered analysis capabilities embedded directly in Workshop modules, with extensive configuration for data access, tool availability, and UI customization to support operational decision-making.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "AI-powered analysis embedded in Workshop",
+      "Configurable data access and tool availability",
+      "Operational decision support through AI analysis"
+    ],
+    "tags": [
+      "Workshop",
+      "AIP-Analyst",
+      "widget",
+      "analysis",
+      "decision-support"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions", "Object Views"],
+    "quality": 3
+  },
+  {
+    "url": "https://towardsai.net/p/machine-learning/the-context-advantage-how-palantir-aip-operates-the-modern-enterprise",
+    "title": "The Context Advantage: How Palantir AIP Operates the Modern Enterprise - Towards AI",
+    "summary": "Third-party analysis of how AIP uses context advantage to operate enterprises. Compares AIP's Ontology-grounded approach to ChatGPT's general approach, explaining how AIP uses the Ontology like ChatGPT uses training data but grounded in enterprise-specific reality for accurate, actionable insights.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Context advantage concept for enterprise AI",
+      "Ontology-grounded AI vs. general-purpose LLMs",
+      "Enterprise-specific reality as AI foundation"
+    ],
+    "tags": [
+      "context-advantage",
+      "enterprise-AI",
+      "comparison",
+      "ChatGPT",
+      "ontology-grounding"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://medium.com/aimonks/palantir-aip-the-next-generation-enterprise-ai-system-from-semantic-ontology-to-autonomous-9da0ee26079b",
+    "title": "Palantir AIP: The Next-Generation Enterprise AI System - From Semantic Ontology to Autonomous Operations - AI Monks (Medium)",
+    "summary": "In-depth Medium analysis of Palantir AIP covering the progression from semantic Ontology to autonomous operations. Discusses how the Ontology serves as the semantic layer, kinetic layer, and dynamic layer that together enable AI-driven autonomous enterprise operations.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Three-layer Ontology model: semantic, kinetic, dynamic",
+      "Progression from data representation to autonomous operations",
+      "AI-driven enterprise autonomy via the Ontology"
+    ],
+    "tags": [
+      "semantic-layer",
+      "kinetic-layer",
+      "dynamic-layer",
+      "autonomous-operations",
+      "enterprise"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://pythonebasta.medium.com/understanding-palantirs-ontology-semantic-kinetic-and-dynamic-layers-explained-c1c25b39ea3c",
+    "title": "Understanding Palantir's Ontology: Semantic, Kinetic, and Dynamic Layers Explained - Medium",
+    "summary": "Detailed explanation of Palantir Ontology's three layers. The semantic layer provides business-aware data representation, the kinetic layer enables actions and workflows, and the dynamic layer supports AI-driven decision-making. Together they form the foundation for AI-Ontology integration.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Semantic layer: business-aware data representation",
+      "Kinetic layer: actions and workflow execution",
+      "Dynamic layer: AI-driven decision-making on top of Ontology"
+    ],
+    "tags": [
+      "semantic-layer",
+      "kinetic-layer",
+      "dynamic-layer",
+      "ontology-architecture",
+      "AI-integration"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://kenhuangus.substack.com/p/a-technical-follow-up-building-an",
+    "title": "A Technical Follow-Up: Building an Ontology and Wiring It into Agentic AI Applications with Palantir Foundry and AIP - Substack",
+    "summary": "Technical walkthrough of building an Ontology and connecting it to agentic AI applications using Palantir Foundry and AIP. Provides practical implementation details on how to wire Ontology objects, actions, and functions into AI agent workflows for autonomous operation.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "End-to-end technical guide for Ontology-to-AI wiring",
+      "Practical implementation of agentic AI on Palantir",
+      "Connection between Ontology primitives and AI agent capabilities"
+    ],
+    "tags": [
+      "agentic-AI",
+      "technical-guide",
+      "implementation",
+      "Foundry",
+      "Ontology-wiring"
+    ],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Action Type", "Link Type", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://convequity.substack.com/p/palantir-the-llm-enabler-for-enterprise",
+    "title": "Palantir - the LLM Enabler for Enterprise - Convequity (Substack)",
+    "summary": "Analysis positioning Palantir as the enterprise LLM enabler. Discusses how Palantir's ontologies embed policies into knowledge graphs powering models, and how with ontology-guided training on labeled company data, LLMs gain enterprise-specific knowledge rapidly. Covers OSDK and AIP integration.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Ontology as policy-embedded knowledge graph for LLMs",
+      "Enterprise-specific LLM knowledge acquisition via Ontology",
+      "Palantir as the infrastructure layer for operationalizing AI"
+    ],
+    "tags": [
+      "LLM-enabler",
+      "knowledge-graph",
+      "enterprise-knowledge",
+      "policy-embedding",
+      "analysis"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type", "Roles"],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.sharmavishal.com/2025/05/palantirs-llm-synthesiser-bolstering.html",
+    "title": "Palantir's Secret Weapon: The LLM Synthesiser Secures Its AI Lead - Strategic Foresight",
+    "summary": "Analysis of Palantir's LLM Synthesiser feature that brings multiple large language models together within the Ontology Platform. The synthesiser gets responses from multiple LLMs, cross-validates them, and produces a reliable composite answer to reduce hallucination and increase accuracy.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "LLM Synthesiser for multi-model response aggregation",
+      "Cross-validation across multiple LLMs for reliability",
+      "Composite answer generation for hallucination reduction"
+    ],
+    "tags": [
+      "LLM-Synthesiser",
+      "multi-model",
+      "cross-validation",
+      "hallucination-reduction",
+      "reliability"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "2025-05",
+    "relatedConcepts": ["Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/models",
+    "title": "Models in the Ontology - Palantir Docs",
+    "summary": "Documentation on how models are integrated into and represented within the Ontology. Once integrated, models can be deployed using Modeling Objectives and registered for use within the Ontology layer, with results mapped to real-world concepts as properties of object types.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Model registration and deployment within the Ontology",
+      "Modeling results as Ontology object properties",
+      "Abstraction of ML complexity through business concepts"
+    ],
+    "tags": [
+      "models",
+      "ontology-integration",
+      "deployment",
+      "modeling-objectives",
+      "properties"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/aip/developers/",
+    "title": "AIP for Developers - Palantir",
+    "summary": "Palantir's developer-focused AIP page. AIP is presented as a modular and interoperable developer platform for rapid AI deployment. Highlights OSDK 2.0 and Platform APIs with customer reports of 50x faster building speeds on the AIP platform.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Developer-centric AIP platform positioning",
+      "OSDK 2.0 and Platform APIs",
+      "50x development speed improvement claims"
+    ],
+    "tags": [
+      "developers",
+      "OSDK-2.0",
+      "APIs",
+      "platform",
+      "developer-experience"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Functions",
+      "Interfaces",
+      "Object Type",
+      "Action Type"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://build.palantir.com/",
+    "title": "Build with AIP - Palantir",
+    "summary": "Palantir's developer portal for building on AIP. Provides access to tutorials, code examples, and platform resources for developers building AI-powered applications. Includes quickstart guides for OSDK, RAG evaluation, and platform API integration.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Developer portal with tutorials and code examples",
+      "OSDK quickstart and RAG evaluation guides",
+      "Platform API integration resources"
+    ],
+    "tags": [
+      "developer-portal",
+      "tutorials",
+      "quickstart",
+      "code-examples",
+      "build"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://build.palantir.com/platform/7997a708-4d1e-4efb-bfca-882dc172b4e8",
+    "title": "Evaluate Retrieval-Augmented Generation (RAG) methods - Build with AIP",
+    "summary": "Tutorial on Palantir's Build portal for evaluating RAG methods. Provides a structured approach to testing and comparing different RAG implementations within the Palantir platform, helping developers optimize their retrieval strategies for LLM-powered applications.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "RAG evaluation methodology and tooling",
+      "Comparison framework for retrieval strategies",
+      "Practical developer tutorial for RAG optimization"
+    ],
+    "tags": [
+      "RAG",
+      "evaluation",
+      "tutorial",
+      "retrieval-optimization",
+      "build-portal"
+    ],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Object Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://github.com/palantir/aip-community-registry",
+    "title": "palantir/aip-community-registry - GitHub",
+    "summary": "Official Palantir GitHub repository for community-built applications and projects leveraging AIP. Contains a collection of examples showing real-world implementations of AIP-powered applications, providing code patterns for AI integration with the Ontology.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Community-built AIP application examples",
+      "Open-source code patterns for AI-Ontology integration",
+      "Real-world implementation references"
+    ],
+    "tags": [
+      "GitHub",
+      "community",
+      "code-examples",
+      "open-source",
+      "AIP-applications"
+    ],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/ai-systems-governance-through-the-palantir-platform-74e52d95bdb5",
+    "title": "How Palantir Helps Ensure AI Compliance - Palantir Blog",
+    "summary": "Blog post on AI systems governance through the Palantir platform. Covers how the platform provides tools for generating audit trails, explanations, and evaluations of model decisions, helping organizations maintain compliance with AI regulations and governance frameworks.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "AI compliance and governance tooling",
+      "Audit trail generation for model decisions",
+      "Regulatory compliance support for AI systems"
+    ],
+    "tags": [
+      "governance",
+      "compliance",
+      "audit-trails",
+      "AI-regulation",
+      "responsible-ai"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Roles", "Functions", "Action Type"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/model-integration/overview",
+    "title": "Overview - Model integration - Palantir Docs",
+    "summary": "Documentation on integrating models into the Palantir platform. Models can be leveraged across workflows in data pipelines, Ontology, and application layers. Once integrated, models are deployed using Modeling Objectives and registered for interactive workflows backed by high-trust models.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Model integration across pipeline, Ontology, and application layers",
+      "Modeling Objectives for model deployment",
+      "High-trust model registration for operational workflows"
+    ],
+    "tags": [
+      "model-integration",
+      "deployment",
+      "modeling-objectives",
+      "high-trust",
+      "workflows"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/industry-ai-8cd003a81be1",
+    "title": "How Palantir AIP Enables UNS for Industry AI - Palantir Blog",
+    "summary": "Blog post on how AIP enables Unified Name Space (UNS) for industrial AI applications. Covers the integration of operational technology data with enterprise AI through the Ontology, enabling AI-powered decision making in manufacturing, energy, and industrial settings.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Industrial AI through Unified Name Space on AIP",
+      "Operational technology data integration with AI",
+      "Manufacturing and energy sector AI applications"
+    ],
+    "tags": ["industry-AI", "UNS", "manufacturing", "OT-data", "industrial"],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type"],
+    "quality": 3
+  },
+  {
+    "url": "https://publish.obsidian.md/followtheidea/Content/AI/Ontology+Palantir+-+notes",
+    "title": "Ontology Palantir - notes - follow the idea (Obsidian Publish)",
+    "summary": "Community research notes on Palantir's Ontology and AI integration. Provides an independent analysis of how the Ontology functions as the semantic foundation for AI, covering structured knowledge in knowledge graphs and how it enables AI intelligent behaviors through relationship modeling.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Independent community analysis of Ontology-AI relationship",
+      "Knowledge graph intelligence through relationship modeling",
+      "Semantic foundation analysis for enterprise AI"
+    ],
+    "tags": [
+      "community-notes",
+      "knowledge-graph",
+      "relationship-modeling",
+      "semantic-foundation",
+      "analysis"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Link Type"],
+    "quality": 3
+  },
+  {
+    "url": "https://medium.com/timbr-ai/palantir-timbr-the-enterprise-race-to-make-data-ai-ready-4b26a1efe89c",
+    "title": "Closed or Open Architectured Ontologies: The Enterprise Race to Make Data AI-Ready - Timbr.ai (Medium)",
+    "summary": "Comparative analysis of closed (Palantir) vs. open ontology architectures for making data AI-ready. Discusses how creating an ontology involves semantic representation of enterprise data where LLMs need to understand data relationships via a common vocabulary.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Comparison of closed vs. open ontology architectures for AI",
+      "Semantic representation requirements for LLM data understanding",
+      "Common vocabulary as prerequisite for LLM-Ontology interaction"
+    ],
+    "tags": [
+      "ontology-architecture",
+      "comparison",
+      "AI-readiness",
+      "semantic-representation",
+      "open-vs-closed"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Shared Property"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/transforms-python-spark/aip-orchestrators",
+    "title": "Python (Spark) - AIP - Orchestrators - Palantir Docs",
+    "summary": "Documentation for the transforms-aip library that simplifies LLM API integration into PySpark workflows. Enables creating requests for completions and embedding models using data within Spark DataFrames, bridging the gap between data engineering pipelines and AI capabilities.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "PySpark-LLM integration via transforms-aip library",
+      "Embedding model requests from Spark DataFrames",
+      "Data engineering to AI pipeline bridge"
+    ],
+    "tags": [
+      "PySpark",
+      "transforms-aip",
+      "orchestrators",
+      "embeddings",
+      "data-engineering"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://community.palantir.com/t/aip-logic-semantic-search-block/1859",
+    "title": "AIP Logic Semantic Search Block - Palantir Developer Community",
+    "summary": "Developer community discussion about the semantic search block in AIP Logic. Community members discuss implementation approaches for adding semantic search capabilities to Logic functions, including using actions and functions-on-objects that can be called from AIP Logic.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Community implementation patterns for semantic search in Logic",
+      "Integration approaches between AIP Logic and semantic search",
+      "Developer experience insights and troubleshooting"
+    ],
+    "tags": [
+      "community",
+      "semantic-search",
+      "AIP-Logic",
+      "implementation",
+      "developer-discussion"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Object Type", "Property", "Functions"],
+    "quality": 3
+  },
+  {
+    "url": "https://community.palantir.com/t/model-context-protocol-mcp/3265",
+    "title": "Model Context Protocol (MCP) - Palantir Developer Community",
+    "summary": "Developer community discussion about Model Context Protocol integration with Palantir. Covers community implementation experiences with MCP for connecting external AI systems (Claude Code, Cursor, etc.) to Foundry resources and the Ontology.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Community MCP implementation experiences",
+      "External AI tool integration patterns (Claude Code, Cursor)",
+      "Practical MCP setup and usage insights"
+    ],
+    "tags": ["MCP", "community", "Claude-Code", "Cursor", "external-AI-tools"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Action Type",
+      "Functions",
+      "Interfaces"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/logic/faq",
+    "title": "AIP Logic - FAQ - Palantir Docs",
+    "summary": "Frequently asked questions about AIP Logic. Covers common implementation questions, limitations, and best practices for building LLM-powered functions. Useful reference for understanding the boundaries and capabilities of the no-code AI function development environment.",
+    "category": "ai-llm",
+    "relevantParts": [
+      "Common AIP Logic implementation questions and answers",
+      "Known limitations and workarounds",
+      "Best practices for LLM-powered function development"
+    ],
+    "tags": [
+      "AIP-Logic",
+      "FAQ",
+      "best-practices",
+      "limitations",
+      "implementation"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Functions", "Object Type", "Action Type"],
+    "quality": 3
+  }
+]

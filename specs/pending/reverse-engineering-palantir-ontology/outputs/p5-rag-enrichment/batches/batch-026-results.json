@@ -1,0 +1,603 @@
+[
+  {
+    "url": "https://blog.palantir.com/levels-9be772098942",
+    "title": "Leveling Up Your Company: A lexicon for digital transformation success",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform for data integration, ontology modeling, and operational decision-making that manages complexity by integrating data and systems in a robust, repeatable, and secure way."
+      },
+      {
+        "type": "Pattern",
+        "name": "Five Levels of Enterprise Autonomy",
+        "description": "Palantir's framework for evaluating digital transformation maturity, progressing from data lake ingestion (Level 0) through data integration, semantic modeling, operational decisioning, to full enterprise autonomy (Level 4)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The semantic layer in Foundry that transforms raw tables and rows into understandable real-world objects and relationships, enabling non-technical users to interact with data in business terms."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Representation of a real-world entity within the Ontology, converting raw database rows into meaningful business objects that operators can understand and act upon."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Integration",
+        "description": "The foundational pattern of breaking down interdepartmental silos, connecting to source systems, and making previously-hidden data queryable in a central place as the first step in digital transformation."
+      },
+      {
+        "type": "Pattern",
+        "name": "Operational Decision Support",
+        "description": "Pattern of using integrated data and ontology models to support and optimize the thousands of daily operational decisions that drive business outcomes, rather than producing static analyses."
+      },
+      {
+        "type": "UseCase",
+        "name": "Customer Churn Prevention",
+        "description": "Use case demonstrating the difference between predicting churn and preventing it by optimizing every customer touchpoint using integrated data across the customer lifecycle."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Lake",
+        "description": "Level 0 of enterprise autonomy where data is queryable in a central place but remains inaccessible to non-technical users and insufficient for solving operational problems."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Data Transformation Pipeline",
+        "description": "The process of cleaning up and transforming raw data from source systems into a useful format suitable for ontology modeling and operational use."
+      },
+      {
+        "type": "Pattern",
+        "name": "Enablement Layer",
+        "description": "The application-building layer of Foundry that allows people to interact with ontology objects and drive real-world outcomes through purpose-built operational applications."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      },
+      {
+        "source": "Five Levels of Enterprise Autonomy",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Data Integration",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Customer Churn Prevention",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Enablement Layer",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Data Transformation Pipeline",
+        "relationship": "DEFINED_BY",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "Digital transformation follows a maturity model from raw data lakes (Level 0) through semantic ontology modeling to full enterprise autonomy, with operational improvements at every stage.",
+      "The Ontology is the critical inflection point that transforms raw tables and rows into real-world objects understandable by non-technical operators, bridging the gap between data infrastructure and business value.",
+      "Effective data-driven decision-making requires optimizing the full universe of daily operational decisions (e.g., every customer touchpoint) rather than focusing on single predictive models like churn prediction.",
+      "Data integration — breaking down silos and connecting source systems — is the foundational prerequisite before ontology modeling or operational decisioning can deliver value.",
+      "Foundry's architecture spans five layers: data syncing, data transformation, ontology modeling, cause-and-effect modeling, and application enablement."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/net-zero-is-a-data-integration-problem-1255a8853d38",
+    "title": "Net Zero is a Data Integration Problem: How Palantir enables data-driven decarbonization",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform used for integrating disparate operational data sources to enable granular carbon emissions tracking and data-driven decarbonization pathways."
+      },
+      {
+        "type": "UseCase",
+        "name": "Net Zero Decarbonization",
+        "description": "Use case where organizations use Foundry to track carbon emissions at a granular operational level, link emissions to day-to-day decisions, and build credible decarbonization pathways."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Integration",
+        "description": "Core Palantir pattern of connecting disparate data sources to create a unified operational view, applied here to link emissions data back to the specific processes and decisions that caused them."
+      },
+      {
+        "type": "Pattern",
+        "name": "Granular Emissions Tracking",
+        "description": "Pattern of tracking emissions at the level of individual operations and decisions rather than aggregate carbon calculator estimates, enabling actionable decarbonization."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The semantic data model that enables mapping carbon metrics to real-world operational entities like shipping routes, supply chains, and facility operations."
+      },
+      {
+        "type": "UseCase",
+        "name": "Shipping Route Carbon Optimization",
+        "description": "Use case where shipping planners visualize carbon metrics of routes to develop robust low-carbon products and identify emissions optimizations."
+      },
+      {
+        "type": "Pattern",
+        "name": "Operational Decision Linking",
+        "description": "Pattern of connecting high-level metrics (like net zero targets) directly to the specific day-to-day operational decisions that determine whether those targets are achievable."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Carbon Coefficient Mapping",
+        "description": "Technical approach of mapping activity quantities to carbon coefficients at a granular level, moving beyond simple aggregate calculations to process-level emissions attribution."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Net Zero Decarbonization",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Data Integration",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Shipping Route Carbon Optimization",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Granular Emissions Tracking",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Carbon Coefficient Mapping",
+        "relationship": "DEFINED_BY",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "Net zero is fundamentally a data integration problem: organizations need to track emissions at the granular operational level and link them to day-to-day decisions, not just set aggregate targets.",
+      "Carbon calculators produce low-fidelity aggregate estimates that cannot be traced back to the processes that caused emissions, making them insufficient for building actionable decarbonization pathways.",
+      "Foundry's ontology enables mapping carbon metrics to real-world operational entities (shipping routes, supply chains, facilities), making emissions visible to the operators whose decisions affect them.",
+      "Effective decarbonization requires exposing emissions data directly to operational decision-makers (e.g., shipping planners) rather than keeping it siloed in sustainability reporting."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/product-design-at-palantir-q-a-with-the-team-e93a82e9c74",
+    "title": "Product Design at Palantir: Q&A with the team",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Gotham",
+        "description": "Palantir's intelligence analysis platform used for national security and counterterrorism, featuring geospatial analysis tools for translating large-scale datasets into human-readable map-based information."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data integration and operational platform used across commercial and government customers for data-driven decision-making workflows."
+      },
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's continuous delivery and deployment platform that manages software delivery across environments."
+      },
+      {
+        "type": "Pattern",
+        "name": "Product Design Workflow",
+        "description": "Palantir's design approach where Product Designers work alongside Product Managers and Engineers to define product vision, user experiences, and concept primitives across Gotham, Foundry, and Apollo platforms."
+      },
+      {
+        "type": "UseCase",
+        "name": "Vaccine Distribution",
+        "description": "Use case where Palantir's platforms were used to support COVID-19 vaccine distribution operations."
+      },
+      {
+        "type": "UseCase",
+        "name": "Counterterrorism",
+        "description": "Use case where Palantir's Gotham platform supports counterterrorism intelligence analysis and operations."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Geospatial Analysis Tool",
+        "description": "A tool on the Gotham platform for translating large-scale datasets into human-readable information displayed on maps, used for spatial analysis of intelligence data."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Security-First Design",
+        "description": "Palantir's design philosophy that security considerations are embedded into product design from the outset, particularly for mission-critical workflows in national security contexts."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Gotham",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Apollo"
+      },
+      {
+        "source": "Foundry",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Apollo"
+      },
+      {
+        "source": "Geospatial Analysis Tool",
+        "relationship": "PART_OF",
+        "target": "Gotham"
+      },
+      {
+        "source": "Vaccine Distribution",
+        "relationship": "DEMONSTRATES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Counterterrorism",
+        "relationship": "DEMONSTRATES",
+        "target": "Gotham"
+      },
+      {
+        "source": "Security-First Design",
+        "relationship": "SECURES",
+        "target": "Gotham"
+      }
+    ],
+    "keyInsights": [
+      "Palantir has three core platforms — Gotham (intelligence/defense), Foundry (commercial/government operations), and Apollo (continuous delivery) — each with dedicated product design teams.",
+      "Product Designers at Palantir function as strategic partners alongside Product Managers and Engineers, creating vision designs and concept primitives that guide product direction.",
+      "Gotham's geospatial analysis tools translate large-scale datasets into human-readable map-based information, a core capability for intelligence analysis workflows.",
+      "Palantir's Forward Deployed Software Engineers provide field insights that drive product development, creating a feedback loop between customer deployments and platform evolution."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/products-with-purpose-foundry-archetypes-27a8538df12a",
+    "title": "Products with Purpose: Foundry — Archetypes",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that allows customers to manage data, create ontology models representing their organization, and operationalize data to drive real-world decisions through customizable widgets, modules, UI, and configurations."
+      },
+      {
+        "type": "Product",
+        "name": "Archetypes",
+        "description": "A Foundry product that provides workflow templates deployable from configuration, enabling rapid deployment of common operational patterns like COVID-19 tracking for facilities, people, and supply chains."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The semantic layer in Foundry that makes data understandable by representing it in terms of real-world objects rather than tables and rows, enabling operators to interact with meaningful business entities."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Syncing",
+        "description": "The pattern of reading data from customer source systems into Foundry as the first layer of the platform's data infrastructure."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Transformation",
+        "description": "The pattern of cleaning up and transforming raw data into a useful format as a prerequisite for ontology modeling within Foundry."
+      },
+      {
+        "type": "Pattern",
+        "name": "Cause-and-Effect Modeling",
+        "description": "The pattern of managing models that represent cause and effect relationships between ontology entities, enabling predictive and operational reasoning."
+      },
+      {
+        "type": "Pattern",
+        "name": "Workflow Templates",
+        "description": "Reusable configuration-driven templates (Archetypes) that encode common operational workflows for rapid deployment across customers with similar problems."
+      },
+      {
+        "type": "UseCase",
+        "name": "COVID-19 Impact Tracking",
+        "description": "Use case where government and commercial organizations used Foundry Archetypes to track COVID-19 impact on facilities, people, and supply chains in real time."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Configuration-Driven Deployment",
+        "description": "Technical approach where Archetypes are deployed from configuration rather than custom code, enabling rapid standup of operational workflows."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Archetypes",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Workflow Templates",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "COVID-19 Impact Tracking",
+        "relationship": "DEMONSTRATES",
+        "target": "Archetypes"
+      },
+      {
+        "source": "Data Syncing",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Data Transformation",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Cause-and-Effect Modeling",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Configuration-Driven Deployment",
+        "relationship": "DEFINED_BY",
+        "target": "Archetypes"
+      }
+    ],
+    "keyInsights": [
+      "Foundry's architecture has five distinct infrastructure layers: data syncing, data transformation, ontology modeling, cause-and-effect modeling, and application enablement.",
+      "The Ontology layer is explicitly defined as transforming tables and rows into real-world objects that operators can understand and act upon, confirming its role as the semantic bridge between raw data and business meaning.",
+      "Archetypes represent a productization pattern where common operational workflows are packaged as configuration-driven templates for rapid deployment across customers with similar problems.",
+      "Foundry's Forward Deployed Software Engineers create a feedback loop from field deployments back to product development, directly driving new product creation like Archetypes.",
+      "Foundry is designed to change how customers actually operate rather than producing static analyses — emphasizing operational outcomes over analytical reports."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/requirements-for-ai-in-production-in-insurance-underwriting-04f7c1eed13d",
+    "title": "Requirements for AI in Production in Insurance Underwriting",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's AI Platform used for deploying LLMs in production for insurance underwriting workflows, with built-in governance, orchestration, and human-in-the-loop oversight capabilities."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform providing the data integration, ontology, and governance infrastructure required for deploying AI in regulated industries like insurance."
+      },
+      {
+        "type": "UseCase",
+        "name": "Insurance Underwriting AI",
+        "description": "Use case deploying LLMs across the underwriting lifecycle: data extraction from submissions, research due diligence, exception alerting, risk assessment, and communication drafting."
+      },
+      {
+        "type": "Pattern",
+        "name": "Human-in-the-Loop AI",
+        "description": "Pattern requiring human oversight at critical decision points in AI-assisted workflows, ensuring AI augments rather than replaces human judgment in regulated processes like insurance underwriting."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "AI Governance Framework",
+        "description": "Governance structures for controlling AI deployment at scale in regulated industries, ensuring explainability, traceability, and auditability of AI-based decisions per NAIC requirements."
+      },
+      {
+        "type": "Pattern",
+        "name": "AI Explainability",
+        "description": "Pattern requiring AI results to be interpretable and understandable, with clear traceability from AI outputs back to source data and reasoning steps."
+      },
+      {
+        "type": "Pattern",
+        "name": "AI Integration with Business Systems",
+        "description": "Pattern of deeply integrating AI capabilities with existing business systems and operational processes rather than deploying AI as standalone tools."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "LLM Data Extraction",
+        "description": "Technical capability of using LLMs to rapidly extract relevant fields from unstructured insurance submissions, PDFs, loss runs, and broker emails."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Exception Alerting",
+        "description": "AI-driven capability to automatically detect anomalies or exceptions in underwriting submissions and generate alerts for human underwriters to review."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "NAIC AI Compliance",
+        "description": "National Association of Insurance Commissioners bulletin requiring insurers to adopt governance frameworks and risk management protocols ensuring AI systems do not result in unfair practices."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The semantic data model that enables mapping AI research outputs and extracted data to internal historical records and existing policyholder information."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "AIP",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Insurance Underwriting AI",
+        "relationship": "DEMONSTRATES",
+        "target": "AIP"
+      },
+      {
+        "source": "AI Governance Framework",
+        "relationship": "SECURES",
+        "target": "AIP"
+      },
+      {
+        "source": "NAIC AI Compliance",
+        "relationship": "SECURES",
+        "target": "AIP"
+      },
+      {
+        "source": "Human-in-the-Loop AI",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "AI Explainability",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "LLM Data Extraction",
+        "relationship": "DEFINED_BY",
+        "target": "AIP"
+      },
+      {
+        "source": "Exception Alerting",
+        "relationship": "DEFINED_BY",
+        "target": "AIP"
+      },
+      {
+        "source": "Insurance Underwriting AI",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "Deploying AI in regulated industries like insurance requires three core properties: understandability (interpretable results), integration (with existing business systems), and governance/security (controlled at scale).",
+      "LLMs can be deployed across the full underwriting lifecycle — data extraction, research due diligence, exception alerting, risk assessment, and communication drafting — but each step requires human-in-the-loop oversight.",
+      "AI governance is evolving from a regulatory burden into a strategic competitive advantage for insurers who master explainability, traceability, and auditability capabilities early.",
+      "The NAIC bulletin on AI use by insurers (adopted by 21 jurisdictions as of January 2025) sets expectations for governance frameworks preventing unfair practices from AI systems.",
+      "Effective AI deployment requires deep integration with the ontology and existing business systems rather than standalone AI tools, ensuring AI outputs are contextualized within the operational workflow."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/tips-on-finding-great-jobs-da9d62524726",
+    "title": "Tips on finding great jobs",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Palantir",
+        "description": "Technology company that employs Software Engineers and Forward Deployed Software Engineers, with offices in multiple locations and a culture that values diverse backgrounds and experiences."
+      },
+      {
+        "type": "Pattern",
+        "name": "Forward Deployed Software Engineering",
+        "description": "Palantir's engineering role model where engineers are embedded directly with customers to solve real-world problems, distinct from traditional product development engineering roles."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Forward Deployed Software Engineering",
+        "relationship": "ENABLES",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Palantir distinguishes between Software Engineers (product development) and Forward Deployed Software Engineers (embedded with customers), creating a feedback loop between field experience and platform evolution.",
+      "Palantir's hiring values diverse backgrounds beyond traditional tech experience, looking at the breadth of a candidate's problem-solving abilities.",
+      "The Forward Deployed Software Engineering model is a core organizational pattern that directly drives product development by surfacing real-world customer needs."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/understanding-roi-with-palantir-foundry-51cc53d77511",
+    "title": "Understanding ROI with Palantir Foundry",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform used internally and by customers for real-time financial visibility, integrating data from expense management, billing, payroll, revenue, and task-specific tools into a unified operational view."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Integration",
+        "description": "Core pattern of connecting disparate financial databases (expense tools, billing management, Google Ads, AWS billing, payroll, revenue) into a unified data model for real-time ROI measurement."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The unified semantic model that resolves impedance mismatches between different financial tools' data models, allowing organizational views that match actual business structure rather than being dictated by tool limitations."
+      },
+      {
+        "type": "UseCase",
+        "name": "Real-Time ROI Measurement",
+        "description": "Use case where leaders get a real-time view of project investments and their performance, replacing weeks-long manual processes with instant data-driven decision-making."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Financial Data Access Control",
+        "description": "Security challenge of ensuring accuracy and appropriate access to financial data, where mistakes can have market-moving implications, requiring careful technological controls for dissemination."
+      },
+      {
+        "type": "Pattern",
+        "name": "Organisational Data Model Unification",
+        "description": "Pattern of creating a holistic data model that matches the actual organizational structure rather than being constrained by the fragmented views imposed by individual financial tools."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Cross-System Data Reconciliation",
+        "description": "Technical challenge of marrying expenses to other metrics across different systems (travel, payroll, revenue) that have distinct data models and organizational vantage points."
+      },
+      {
+        "type": "Pattern",
+        "name": "Decentralized Decision-Making",
+        "description": "Pattern of diffusing financial decision-making authority across the organization by providing appropriate real-time data access, replacing rigid top-down spending controls."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Real-Time ROI Measurement",
+        "relationship": "DEMONSTRATES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Data Integration",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Financial Data Access Control",
+        "relationship": "SECURES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Organisational Data Model Unification",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Cross-System Data Reconciliation",
+        "relationship": "DEFINED_BY",
+        "target": "Ontology"
+      },
+      {
+        "source": "Real-Time ROI Measurement",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "Financial ROI measurement is fundamentally a data integration problem: financial data is spread across databases that do not communicate, each with distinct data models and organizational vantage points.",
+      "Standard organizational views are fragmented by the tools used to manage them, forcing organizations to alter their structure to match tool limitations rather than business reality — the ontology resolves this impedance mismatch.",
+      "Financial data sensitivity creates a technological challenge where ensuring accuracy and appropriate access controls is critical, as mistakes can have market-moving implications.",
+      "Foundry enables a shift from rigid top-down spending controls to decentralized decision-making by providing real-time financial visibility to appropriate stakeholders.",
+      "Palantir uses Foundry internally for its own financial operations, demonstrating the platform's capability by dogfooding it for real-time ROI measurement across projects."
+    ]
+  }
+]

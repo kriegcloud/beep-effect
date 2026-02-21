@@ -1,0 +1,1354 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/v2/ontologies-v2-resources/ontology-object-sets/aggregate-object-set",
+    "title": "Aggregate Object Set - API Reference - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "A collection of objects in the Ontology that can be defined, filtered, and operated on as a unit. Object sets are the primary input for aggregation and query operations."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Aggregation",
+        "description": "An operation that computes summary statistics (count, min, max, sum, average) over properties of objects within an ObjectSet. Supports grouping by property values including range and exact grouping."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "A typed attribute on an object type that holds data values. Properties are the target of aggregation functions and groupBy clauses."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "AggregateObjectSetRequestV2",
+        "description": "V2 API request body for aggregating objects. Contains an objectSet definition, a list of AggregationV2 functions, optional groupBy clauses, and an accuracy setting (REQUIRE_ACCURATE or ALLOW_APPROXIMATE)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "AggregateObjectsResponseV2",
+        "description": "V2 API response for object set aggregation. Returns data as a list of response items each containing metrics (name/value pairs) and group keys, plus accuracy and optional compute usage."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "AggregationV2",
+        "description": "Individual aggregation function specification in the V2 API. Specifies a field (property), a name for the result metric, and a type (min, max, avg, sum, count)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "AggregationGroupByV2",
+        "description": "Grouping specification for aggregations. Supports 'range' type with startValue/endValue and 'exact' type for property-based grouping of aggregation results."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth Scope api:ontologies-read",
+        "description": "OAuth2 operation scope required for third-party applications to read ontology data through the aggregate endpoint and other read operations."
+      },
+      {
+        "type": "Product",
+        "name": "API V2",
+        "description": "Version 2 of the Palantir REST API providing enhanced ontology operations including aggregation, object set manipulation, and query capabilities."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "The semantic type definition for objects in the Ontology, specifying name, properties, and behavior. Referenced in aggregation via the 'base' objectSet type."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology Branch",
+        "description": "An experimental feature allowing objects to be aggregated from a specific branch of the Ontology rather than the default branch."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Aggregation",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Aggregation",
+        "relationship": "OPERATES_ON",
+        "target": "Property"
+      },
+      {
+        "source": "ObjectSet",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "AggregateObjectSetRequestV2",
+        "relationship": "EXAMPLE_OF",
+        "target": "Aggregation"
+      },
+      {
+        "source": "AggregateObjectsResponseV2",
+        "relationship": "EXAMPLE_OF",
+        "target": "Aggregation"
+      },
+      {
+        "source": "AggregationV2",
+        "relationship": "DEFINED_BY",
+        "target": "Aggregation"
+      },
+      {
+        "source": "OAuth Scope api:ontologies-read",
+        "relationship": "SECURES",
+        "target": "Aggregation"
+      },
+      {
+        "source": "Aggregation",
+        "relationship": "EXPOSED_BY",
+        "target": "API V2"
+      },
+      {
+        "source": "AggregationGroupByV2",
+        "relationship": "REFERENCES",
+        "target": "Property"
+      }
+    ],
+    "keyInsights": [
+      "The V2 aggregation API supports five aggregation functions: count, min, max, sum, and average, applied to object properties within an ObjectSet.",
+      "Aggregation results can be grouped by property values using either 'range' grouping (with start/end values) or 'exact' grouping for discrete property values.",
+      "The API provides an accuracy toggle (REQUIRE_ACCURATE vs ALLOW_APPROXIMATE) allowing clients to trade precision for performance in large-scale aggregations.",
+      "Compute usage tracking is available as an opt-in feature for OSDK applications, measuring query cost in compute-seconds.",
+      "The aggregation endpoint supports experimental Ontology branches and transactions, allowing aggregation against non-default data states.",
+      "The objectSet definition in the request uses a union type, supporting multiple ways to define the set of objects to aggregate (e.g., 'base' type specifying an object type directly)."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/ontology-resources/queries/query-basics",
+    "title": "Query basics - API Reference - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Query Type",
+        "description": "A named logic definition in the Ontology that can be executed to compute results. Query types are created using Query Functions and represent reusable computational units."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "A code-backed logic unit in the Ontology. Query Functions are a specific category used to create Query Types that can be invoked through the API."
+      },
+      {
+        "type": "Product",
+        "name": "API Gateway",
+        "description": "The Palantir API gateway that exposes ontology operations including query execution, parameter passing, and result handling for external consumption."
+      },
+      {
+        "type": "Product",
+        "name": "API V1",
+        "description": "Version 1 of the Palantir REST API. The query basics documentation is part of the V1 API reference."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The central semantic layer in Palantir Foundry that organizes data into typed objects, relationships, and executable logic including query types."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Query Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      },
+      {
+        "source": "Function",
+        "relationship": "ENABLES",
+        "target": "Query Type"
+      },
+      {
+        "source": "Query Type",
+        "relationship": "EXPOSED_BY",
+        "target": "API Gateway"
+      },
+      {
+        "source": "Query Type",
+        "relationship": "EXPOSED_BY",
+        "target": "API V1"
+      }
+    ],
+    "keyInsights": [
+      "Query Types are the Ontology's mechanism for encapsulating executable logic that can be invoked through the API, separating computation definition from execution.",
+      "Query Types are created using Query Functions, establishing a link between the Functions framework and the Query API surface.",
+      "The Query API supports parameter passing and result handling, enabling parameterized computation over ontology data."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontologies/query-compute-usage",
+    "title": "Ontologies - Usage - Ontology query compute - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "The semantic representation of an entity in the Ontology, defining its name and properties. Distinguished from the object set which contains the actual object instances."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "The collection of actual object instances corresponding to an object type. The size corresponds to the number of dataset rows plus objects created/deleted by actions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Query Type",
+        "description": "A category of operations executed against object sets in the Ontology, including filters, aggregations, Search Arounds, and writeback operations. Each requires compute to execute."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Storage V1 (Phonograph)",
+        "description": "First-generation object storage using distributed indices in a horizontally scalable cluster. Uses index traversal and pruning to evaluate up to 1000x fewer records. Measures compute via 'hits' (physical record evaluations)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Storage V2 (OSv2)",
+        "description": "Enhanced object storage with an optimized indexing format for high-speed queries. Measures compute differently from V1 with its own cost model."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Filter",
+        "description": "A query type that considers a full object set and applies filtering criteria to produce a smaller output set."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Aggregation",
+        "description": "A query type that takes an input object set and runs an aggregating function (sum, avg, etc.) on a property for all objects in the set."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Search Around",
+        "description": "A query type that takes an incoming object set and runs a secondary filter on another object set based on a property of the incoming set, traversing relationships."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Compute-Seconds",
+        "description": "The unit of measurement for Ontology query compute usage. Includes a fixed minimum overhead plus additional scaling compute based on query complexity."
+      },
+      {
+        "type": "Product",
+        "name": "Object Explorer",
+        "description": "Foundry application for exploring and querying objects in the Ontology."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application-building framework for operational users that can execute Ontology queries."
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Foundry application that executes Ontology queries for data exploration and analysis."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data backend platform that maps file-based data to organization-centric objects and serves high-speed queries across multi-modal storage backends."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "CONTAINS",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Query Type",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Filter",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Aggregation",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Search Around",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Object Storage V1 (Phonograph)",
+        "relationship": "DEFINED_BY",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Object Storage V2 (OSv2)",
+        "relationship": "DEFINED_BY",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Compute-Seconds",
+        "relationship": "DEFINED_BY",
+        "target": "Query Type"
+      },
+      { "source": "ObjectSet", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Query Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Explorer"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology distinguishes between Object Types (semantic definitions) and Object Sets (actual object instances), with object set size determined by dataset rows plus action-created/deleted objects.",
+      "Four core query types exist: Filters (reduce sets), Aggregations (compute statistics), Search Arounds (traverse relationships), and Writeback Operations (modify property values).",
+      "Object Storage V1 (Phonograph) uses distributed indices with a pruning mechanism that can evaluate up to 1000x fewer records than a full scan, measuring compute via 'hits'.",
+      "Object Storage V2 (OSv2) is an enhanced indexing format optimized by Palantir for high-speed queries with a different cost model than V1.",
+      "The Ontology stores data in multi-modal storage backends that can be flexibly queried in a single request, abstracting away the underlying storage complexity.",
+      "Query compute is measured in compute-seconds, consisting of a fixed minimum overhead plus scaling compute based on query complexity.",
+      "Seven Foundry applications consume Ontology queries: Object Explorer, Workshop, Quiver, Slate, Vertex, Foundry Rules, Foundry Machinery, and Object APIs (OPIs)."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/time-series/sensor-object-end-to-end-ontology",
+    "title": "Time series - Sensor object types use case - Create sensor object types with Ontology Manager - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Sensor Object Type",
+        "description": "A specialized object type pattern for representing sensors that hold time series data. Sensor objects are linked to parent/root objects (e.g., Flight Sensor linked to Flight) providing per-object time series data flexibility."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A typed entity definition in the Ontology. In the sensor pattern, there is a root object type (e.g., Flight) and a sensor object type (e.g., Flight Sensor) linked together."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "A typed relationship between two object types with defined cardinality. In the sensor pattern, a many-to-one link connects sensor objects to their root object using a foreign key."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Time Series Property",
+        "description": "A special property type on an object that references time series data. Can be set as the default time series property for automatic display in Quiver. Configured via the Capabilities tab in Ontology Manager."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "An attribute on an object type. In the sensor pattern, properties include a primary key (unique_sensor_flight_id), a title property, and a foreign key (flight_id) for linking."
+      },
+      {
+        "type": "Pattern",
+        "name": "Sensor Object Pattern",
+        "description": "An architectural pattern where sensor objects hold time series data and are linked to parent/root objects via many-to-one relationships. Provides flexibility for per-object time series data versus direct time series properties on root objects."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry tool for creating and configuring object types, properties, link types, and capabilities including time series properties."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry tool for building data pipelines including time series syncs that feed data into sensor object type time series properties."
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Foundry application that automatically displays default time series properties configured on object types."
+      },
+      {
+        "type": "UseCase",
+        "name": "IoT Sensor Monitoring",
+        "description": "Use case where sensor objects (e.g., flight sensors) hold time series readings and are linked to physical entities (e.g., flights) for monitoring and analysis."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Sensor Object Type",
+        "relationship": "CONNECTS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Sensor Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Time Series Property"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "CONNECTS",
+        "target": "Sensor Object Type"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "CONNECTS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Sensor Object Pattern",
+        "relationship": "ENABLES",
+        "target": "Sensor Object Type"
+      },
+      {
+        "source": "IoT Sensor Monitoring",
+        "relationship": "DEMONSTRATES",
+        "target": "Sensor Object Pattern"
+      },
+      {
+        "source": "Sensor Object Type",
+        "relationship": "PART_OF",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Time Series Property",
+        "relationship": "EXPOSED_BY",
+        "target": "Quiver"
+      },
+      {
+        "source": "Time Series Property",
+        "relationship": "PART_OF",
+        "target": "Pipeline Builder"
+      }
+    ],
+    "keyInsights": [
+      "The Sensor Object Pattern separates time series data into dedicated sensor objects linked to root objects, providing per-object granularity versus attaching time series directly to root objects.",
+      "Link types between sensor and root objects use many-to-one cardinality with foreign key mapping (e.g., flight_id on sensor maps to primary key on flight).",
+      "Time series properties are configured via the Capabilities tab in Ontology Manager and require a time series sync from Pipeline Builder as the data source.",
+      "A default time series property can be set on a sensor object type so it automatically appears in Quiver for exploration.",
+      "The sensor object type toggle in the time series configuration section enables special sensor-related behavior and link configuration.",
+      "Primary keys, title properties, and foreign keys are all configured during object type creation, establishing the structural foundation for linking."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/value-types-versions",
+    "title": "Object and link types - Value types - Value type versions - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Value Type",
+        "description": "A semantic type definition in the Ontology that adds meaning and constraints on top of base types. Value types are versioned to handle breaking and non-breaking edits to their definitions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Value Type Version",
+        "description": "A specific version of a value type consisting of metadata (name, description, apiName) and constraints (validation rules). New versions are created when constraints change."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Value Type Metadata",
+        "description": "The mutable portion of a value type version including name, description, and apiName. Can be changed at any time without creating a new version."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Value Type Constraints",
+        "description": "The immutable validation rules of a value type version. Updating constraints creates a new version. The base type metadata is also immutable once set."
+      },
+      {
+        "type": "Pattern",
+        "name": "Value Type Versioning",
+        "description": "A versioning pattern for value types where metadata is mutable but constraints are immutable. Breaking changes to constraints should trigger deprecation and creation of a new value type rather than a new version."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "An attribute on an object type that can be typed with a value type. Properties are consumers of value types and receive automatic updates when non-breaking version changes propagate."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Value Type",
+        "relationship": "CONTAINS",
+        "target": "Value Type Version"
+      },
+      {
+        "source": "Value Type Version",
+        "relationship": "DEFINED_BY",
+        "target": "Value Type Constraints"
+      },
+      {
+        "source": "Value Type Version",
+        "relationship": "DEFINED_BY",
+        "target": "Value Type Metadata"
+      },
+      {
+        "source": "Value Type Versioning",
+        "relationship": "ENABLES",
+        "target": "Value Type"
+      },
+      {
+        "source": "Property",
+        "relationship": "REFERENCES",
+        "target": "Value Type"
+      },
+      {
+        "source": "Value Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "Value types have two distinct mutable surfaces: metadata (name, description, apiName) which can change freely, and constraints (validation rules) which are immutable per version.",
+      "Non-breaking constraint changes create a new version that automatically propagates to all consumers across the Ontology.",
+      "Breaking constraint changes on value types with existing consumers should be handled by deprecating the current value type and creating an entirely new one to avoid runtime errors and data inconsistencies.",
+      "The base type metadata (the underlying primitive type) is immutable once set, ensuring type safety across versions.",
+      "Value types without consumers can have their constraints changed freely, as there are no downstream dependencies to break."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontologies/shared-ontologies",
+    "title": "Ontologies - Shared ontologies - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Ontology",
+        "description": "A special kind of ontology that allows multiple organizations to collaborate on shared workflows. Lives under a dedicated shared space and enables resources from multiple organizations to be used together."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "A private ontology belonging to a single organization containing resources from that organization alone. Contrasted with shared ontologies which span multiple organizations."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Space",
+        "description": "A dedicated collaboration area created for cross-organization workflows. A shared ontology is automatically created when a new shared space is created."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Organization Markings",
+        "description": "Security markings associated with organizations that are applied to shared ontologies. The shared ontology holds the same organization markings as its shared space."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Role Grants",
+        "description": "Permission grants applied to shared spaces and their associated shared ontologies, controlling what actions different roles can perform."
+      },
+      {
+        "type": "Pattern",
+        "name": "Cross-Organization Collaboration",
+        "description": "An architectural pattern enabling multiple organizations to securely collaborate on shared workflows using shared ontologies and shared spaces with proper security controls."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Shared Ontology",
+        "relationship": "EXTENDS",
+        "target": "Ontology"
+      },
+      {
+        "source": "Shared Ontology",
+        "relationship": "PART_OF",
+        "target": "Shared Space"
+      },
+      {
+        "source": "Organization Markings",
+        "relationship": "SECURES",
+        "target": "Shared Ontology"
+      },
+      {
+        "source": "Role Grants",
+        "relationship": "SECURES",
+        "target": "Shared Ontology"
+      },
+      {
+        "source": "Cross-Organization Collaboration",
+        "relationship": "ENABLES",
+        "target": "Shared Ontology"
+      },
+      {
+        "source": "Shared Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Cross-Organization Collaboration"
+      }
+    ],
+    "keyInsights": [
+      "Shared ontologies are automatically created when a shared space is created, inheriting the shared space's organization markings and role grants.",
+      "A private ontology contains resources from a single organization, while a shared ontology enables cross-organization resource usage within workflows.",
+      "Security for shared ontologies is derived from the shared space, ensuring consistent access controls across the collaborative environment.",
+      "The shared ontology pattern enables multi-organization collaboration while maintaining security boundaries through markings and role grants."
+    ]
+  },
+  {
+    "url": "https://unit8.com/resources/palantir-foundry-101-2/",
+    "title": "Palantir Foundry 101 - Unit8",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's operational platform consisting of a data layer and an operational layer. Encapsulates data processing, analytics, BI, and ML needs for technical and non-technical users."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Dataset",
+        "description": "Foundry's most common data abstraction. Datasets have a unique creation path (immutable provenance) ensuring traceable data lineage. Created by uploading files, importing from external systems, or transforming existing datasets."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Foundry's semantic layer enabling business users to make data-driven decisions. Maps technical datasets to business-meaningful objects and relationships."
+      },
+      {
+        "type": "Product",
+        "name": "Contour",
+        "description": "Foundry's interactive data analysis tool similar to Jupyter Notebooks. Allows quick data exploration with board-level cells, branching analysis, and output dataset creation."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry's data application creator for building operational applications. Referenced as one of the key services in the platform."
+      },
+      {
+        "type": "Product",
+        "name": "Data Lineage",
+        "description": "Foundry service for tracking the history and provenance of data through transformation pipelines."
+      },
+      {
+        "type": "Product",
+        "name": "Code Repositories",
+        "description": "Foundry's production-grade data transformation service using PySpark or Spark SQL code. Backed by Git repositories, accepting inputs and writing to a single output."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Dataset Immutable Provenance",
+        "description": "A constraint where each dataset has a unique creation path that cannot be modified using different upstream transformations. Ensures complete traceability of how any dataset was created."
+      },
+      {
+        "type": "Pattern",
+        "name": "Two-Layer Architecture",
+        "description": "Foundry's architectural pattern consisting of a data layer (ingestion, transformation, storage) and an operational layer (applications, ontology, decision-making)."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Dataset", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Ontology", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Contour", "relationship": "BUILT_ON", "target": "Foundry" },
+      { "source": "Workshop", "relationship": "BUILT_ON", "target": "Foundry" },
+      {
+        "source": "Data Lineage",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Code Repositories",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Two-Layer Architecture",
+        "relationship": "ENABLES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "OPERATES_ON",
+        "target": "Dataset"
+      },
+      {
+        "source": "Dataset Immutable Provenance",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      }
+    ],
+    "keyInsights": [
+      "Foundry is structured as two distinct layers: a data layer (ingestion, transformation, storage) and an operational layer (applications, ontology, decision-making).",
+      "Datasets in Foundry have immutable provenance — each dataset has a unique creation path that cannot be modified with different upstream transformations, ensuring full traceability.",
+      "The Ontology serves as the bridge between technical data (datasets) and business-meaningful concepts, enabling non-technical users to make data-driven decisions.",
+      "Foundry uses Spark as its runtime engine for data transformations, accessible through Code Repositories (production-grade PySpark/SQL) and Contour (interactive analysis).",
+      "Contour provides Jupyter Notebook-like interactive data exploration with board-level cells, branching, and the ability to save analysis outputs as new datasets.",
+      "All Foundry services share datasets as a common language, with each service speaking to the same underlying data abstractions."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/geospatial/ontology",
+    "title": "Geospatial and geotemporal - Use geospatial data in the Ontology - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Geopoint Property",
+        "description": "A property type for point geometries specified as latitude/longitude strings (WGS 84 CRS) or Geohash strings. Objects with geopoint properties are indexed for geospatial search."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Geoshape Property",
+        "description": "A property type for polygon and line geometries specified as GeoJSON Geometry strings. Supports LineString, Polygon, MultiLineString, MultiPolygon, MultiPoint, and Point types. Must comply with RFC 7946 and WGS 84 coordinates."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "A typed attribute on an object type. Geospatial property types (geopoint, geoshape) are special property types that enable spatial indexing and search."
+      },
+      {
+        "type": "Product",
+        "name": "Map",
+        "description": "Foundry application providing immersive geospatial analysis and investigation capabilities including time series overlay, link analysis, and simulations."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application-building framework that includes a robust map widget for geospatial visualization of ontology objects."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry tool that has superseded the geospatial-tools library for loading, transforming, and wielding geospatial data."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "GeoJSON Geometry",
+        "description": "The wire format for geoshape properties. Must be a valid GeoJSON Geometry (not Feature/FeatureCollection/GeometryCollection), use WGS 84 coordinates, and follow RFC 7946 including right-hand winding order for polygons."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Geospatial Search Index",
+        "description": "Automatic indexing applied to objects with geopoint or geoshape properties enabling spatial queries and filtering."
+      },
+      {
+        "type": "UseCase",
+        "name": "Geospatial Analysis",
+        "description": "Use case for visualizing, exploring, and analyzing geospatial data in the Ontology using Map, Workshop, Slate, Quiver, Object Explorer, and Contour applications."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Geopoint Property",
+        "relationship": "EXTENDS",
+        "target": "Property"
+      },
+      {
+        "source": "Geoshape Property",
+        "relationship": "EXTENDS",
+        "target": "Property"
+      },
+      {
+        "source": "Geoshape Property",
+        "relationship": "DEFINED_BY",
+        "target": "GeoJSON Geometry"
+      },
+      {
+        "source": "Geopoint Property",
+        "relationship": "EXPOSED_BY",
+        "target": "Map"
+      },
+      {
+        "source": "Geoshape Property",
+        "relationship": "EXPOSED_BY",
+        "target": "Map"
+      },
+      {
+        "source": "Geopoint Property",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Geospatial Analysis",
+        "relationship": "DEMONSTRATES",
+        "target": "Geopoint Property"
+      },
+      {
+        "source": "Geospatial Analysis",
+        "relationship": "DEMONSTRATES",
+        "target": "Geoshape Property"
+      },
+      {
+        "source": "Pipeline Builder",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Map"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology supports two geospatial property types: geopoint (for points as lat/lon or Geohash) and geoshape (for lines and polygons as GeoJSON).",
+      "Objects with geopoint or geoshape properties are automatically indexed for geospatial search, enabling spatial queries without additional configuration.",
+      "Geoshape properties must contain valid GeoJSON Geometry strings compliant with RFC 7946, using WGS 84 coordinates and proper winding order for polygons.",
+      "Pipeline Builder has superseded the legacy geospatial-tools library as the recommended approach for loading and transforming geospatial data.",
+      "Six Foundry applications support geospatial capabilities: Map (primary), Workshop, Slate, Quiver, Object Explorer, and Contour.",
+      "Geopoint supports two input formats: direct latitude/longitude coordinates and Geohash strings (which are converted to points using the bottom-left corner of the Geohash rectangle)."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-in-ontology",
+    "title": "Media sets (unstructured data) - Using media in the Ontology - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Media Reference Property",
+        "description": "A special property type on object types that references media items in a media set. Enables efficient display of media in Ontology-based applications with optimizations like faster previews and geospatial tiling."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Media Set",
+        "description": "A collection of unstructured media files (images, documents, audio) that can be referenced by ontology objects through media reference properties."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "A typed attribute on an object type. Media reference is a specialized property type that bridges unstructured media with structured ontology objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A typed entity definition that can have media reference properties in its Capabilities tab to associate unstructured media data."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application that provides optimized interactive previews for media reference properties on objects."
+      },
+      {
+        "type": "Product",
+        "name": "Object Explorer",
+        "description": "Foundry application that provides optimized previews for media reference properties."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "The Ontology SDK that provides media capabilities for building applications with Foundry as the backend."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Media Operations",
+        "description": "Operations available on media reference properties via Functions on Objects, including: reading raw media items, OCR on documents, text extraction, audio transcription, and reading metadata."
+      },
+      {
+        "type": "Pattern",
+        "name": "Unstructured Data Ontologization",
+        "description": "Pattern of bridging unstructured media data (images, documents, audio) with structured Ontology objects through media reference properties, enabling search, analysis, and application integration."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Media Reference Property",
+        "relationship": "EXTENDS",
+        "target": "Property"
+      },
+      {
+        "source": "Media Reference Property",
+        "relationship": "REFERENCES",
+        "target": "Media Set"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Media Reference Property"
+      },
+      {
+        "source": "Media Reference Property",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Media Reference Property",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Explorer"
+      },
+      {
+        "source": "Media Reference Property",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Media Operations",
+        "relationship": "DEFINED_BY",
+        "target": "Media Reference Property"
+      },
+      {
+        "source": "Unstructured Data Ontologization",
+        "relationship": "ENABLES",
+        "target": "Media Reference Property"
+      }
+    ],
+    "keyInsights": [
+      "Media reference properties bridge unstructured media data with structured Ontology objects, enabling media display in Ontology-based applications.",
+      "Media reference properties support programmatic operations via Functions on Objects: raw reading, OCR, text extraction, audio transcription, and metadata reading.",
+      "Media files uploaded in action forms are only committed to the backing media set upon successful form submission, preventing orphaned files from failed submissions.",
+      "Media reference lists are not supported as a property type — only single media references per property.",
+      "Multiple media sets backing a single media reference property are strongly discouraged as media uploads in actions are not fully supported in that configuration.",
+      "The OSDK exposes media capabilities for building external applications that leverage media stored in Foundry."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/unsupported-types",
+    "title": "Ontology SDK - OSDK references - Unsupported types for OSDK - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "The Ontology SDK that generates client-side code for TypeScript, Python, and Java packages representing object types, action types, and functions from the Ontology. Has type system limitations across language targets."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A typed entity definition in the Ontology. OSDK generates code for object types but skips unsupported property types during code generation."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "A typed action definition in the Ontology. OSDK cannot create packages if action types use unsupported parameter types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "A code-backed logic unit in the Ontology. OSDK fails to generate packages if functions use unsupported input or output types."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK Unsupported Property Types",
+        "description": "Property types not supported by OSDK code generation. TypeScript: Cipher, Marking, Vectors. Python adds: Media, Struct. Java adds: TimeSeries."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK Unsupported Parameter Types",
+        "description": "Action parameter types not supported. Python: ObjectSet, Marking, MarkingList. Java: Struct, Interface."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK Unsupported Function Types",
+        "description": "Function input/output types not supported across SDKs. Common unsupported types include: Principal, User, Notification, OntologyEdit, ClassificationMarking, GeoShape, TimeSeries, TwoDimensionalAggregation."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Cipher",
+        "description": "An encrypted property type in the Ontology that is unsupported by all OSDK language targets (TypeScript, Python, Java)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Marking",
+        "description": "A security classification property type in the Ontology that is unsupported by TypeScript and Python OSDK targets."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Struct",
+        "description": "A complex structured property type in the Ontology. Unsupported in Python and Java OSDK property generation, though supported in TypeScript."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "An Ontology concept for polymorphic type abstractions. Unsupported as an action parameter type in the Java OSDK."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OSDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Type"
+      },
+      {
+        "source": "OSDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Action Type"
+      },
+      { "source": "OSDK", "relationship": "EXPOSED_BY", "target": "Function" },
+      {
+        "source": "OSDK Unsupported Property Types",
+        "relationship": "DEFINED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "OSDK Unsupported Parameter Types",
+        "relationship": "DEFINED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "OSDK Unsupported Function Types",
+        "relationship": "DEFINED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Cipher"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Marking"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Struct"
+      }
+    ],
+    "keyInsights": [
+      "OSDK code generation handles unsupported types differently: unsupported properties are silently skipped with a log error, while unsupported action/function types cause complete package generation failure.",
+      "Cipher is universally unsupported across all three OSDK language targets (TypeScript, Python, Java), reflecting the security sensitivity of encrypted properties.",
+      "TypeScript OSDK has the broadest type support, with only Cipher, Marking, and Vectors unsupported for properties. Python and Java have significantly more limitations.",
+      "The Python OSDK has the most unsupported function types, lacking support for ObjectSet, GeoShape, TimeSeries, TwoDimensionalAggregation, and many others as both inputs and outputs.",
+      "Action types with OAuth 2.0 webhook authentication are unsupported across all SDKs because users cannot authorize outbound applications through the SDK without first going through Foundry.",
+      "The type system gaps reveal the Ontology's internal richness — types like OntologyEdit, Principal, ModelGraph, and MandatoryControl exist internally but are not yet exposed through generated SDKs."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-connection/source-exploration",
+    "title": "Data Connection - Sources - Source Exploration - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry service for connecting external data systems to Foundry. Provides source exploration capabilities for browsing and discovering available data before setting up syncs."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Source",
+        "description": "An external data system connected to Foundry through Data Connection. Sources can contain tables, views, and files that can be synced into Foundry datasets."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Sync",
+        "description": "Instructions defining how and when data from an external source is brought into Foundry. Created after exploring and selecting data from a source."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Source Exploration Graph",
+        "description": "A visual graph interface for exploring table-based data sources showing tables, views, and relationships between them. Highlights foreign keys and column lists when selecting related tables."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Discovery Before Sync",
+        "description": "Pattern of exploring external source data (tables, views, files) via the Explore page before configuring syncs, allowing users to preview data and understand relationships."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that receives data from external sources via Data Connection syncs."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Data Connection",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Source",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Sync",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Source Exploration Graph",
+        "relationship": "DEFINED_BY",
+        "target": "Source"
+      },
+      {
+        "source": "Data Discovery Before Sync",
+        "relationship": "ENABLES",
+        "target": "Sync"
+      },
+      { "source": "Sync", "relationship": "OPERATES_ON", "target": "Source" }
+    ],
+    "keyInsights": [
+      "Data Connection's source exploration provides two modes: a graph interface for table-based data (showing relationships via foreign keys) and a directory browser for file-based data.",
+      "The table exploration graph automatically displays relationships between tables by highlighting foreign keys when selecting related tables.",
+      "Syncs can be created directly from the exploration graph by right-clicking on a table, streamlining the discovery-to-ingestion workflow.",
+      "File-based source exploration supports filtering to control which files get imported, allowing selective ingestion from directories.",
+      "The graph view is not always available for table-based sources — for example, REST API models may lack clear relations between objects."
+    ]
+  },
+  {
+    "url": "https://news.ycombinator.com/item?id=35967273",
+    "title": "Palantir Foundry's dataset version control, a diff-based Git for data - Hacker News",
+    "extractedEntities": [
+      {
+        "type": "TechnicalDetail",
+        "name": "Dataset Version Control",
+        "description": "Foundry's diff-based version control system for datasets, storing changes as separate diffs in the backing filesystem. Particularly useful for append-only immutable datasets like system logs or sensor readings."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Dataset",
+        "description": "Foundry's core data abstraction with built-in version control. Each diff is stored in a separate folder (e.g., datasetA/diff1, datasetA/diff2) in the backing filesystem."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Dataset Diff Storage",
+        "description": "Implementation detail where each dataset diff is stored in a separate folder in the backing filesystem. The whole dataset is represented by the union of all diff folders (datasetA/*)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "ACID Guarantees",
+        "description": "Transactional guarantees provided by Foundry's dataset version control system, tied to the versioning and sandboxing features of the platform."
+      },
+      {
+        "type": "Pattern",
+        "name": "Diff-Based Data Versioning",
+        "description": "Architectural pattern where dataset changes are stored as incremental diffs rather than full snapshots, analogous to Git but for tabular data."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that includes a built-in dataset version control system with diff-based storage, versioning, and sandboxing features."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Dataset Version Control",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset"
+      },
+      {
+        "source": "Dataset Diff Storage",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset Version Control"
+      },
+      {
+        "source": "ACID Guarantees",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset Version Control"
+      },
+      {
+        "source": "Diff-Based Data Versioning",
+        "relationship": "ENABLES",
+        "target": "Dataset"
+      },
+      {
+        "source": "Dataset Version Control",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Foundry's dataset version control stores diffs in separate folders in the backing filesystem (datasetA/diff1, datasetA/diff2), with the full dataset represented by their union.",
+      "The diff-based approach is particularly optimized for append-only immutable datasets like system logs and sensor readings, which are among the largest and fastest-growing datasets.",
+      "Delete operations in the version control are handled logically rather than physically — the stored diffs may not reflect the actual current dataset state.",
+      "Exported datasets from Foundry lose their versioning and sandboxing features, creating a form of platform lock-in tied to ACID guarantees.",
+      "The versioning system provides sandboxing capabilities in addition to version tracking, enabling isolated data experimentation."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-lineage/explore-lineage",
+    "title": "Data Lineage - Graphs - Explore data lineage - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Lineage",
+        "description": "Foundry application for understanding data provenance by exploring data pipelines as directed graphs. Supports searching for resources, expanding upstream/downstream dependencies, and previewing data."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Dataset",
+        "description": "A data resource in Foundry that can be explored in Data Lineage graphs. Datasets have parents (upstream dependencies) and descendants (downstream consumers)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "An Ontology resource that can be added to and explored in Data Lineage graphs alongside datasets."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Lineage Graph",
+        "description": "A directed graph visualization showing the relationships between data resources. Supports expanding nodes to reveal direct parents, multi-level expansion, and finding paths between nodes."
+      },
+      {
+        "type": "Pattern",
+        "name": "Lineage Exploration",
+        "description": "Pattern of understanding data provenance by expanding upstream dependencies (to raw data) and downstream descendants, finding common ancestors, and previewing data at each node."
+      },
+      {
+        "type": "Product",
+        "name": "Code Workbook",
+        "description": "Foundry tool whose code can be viewed directly from Data Lineage to understand how a dataset was created."
+      },
+      {
+        "type": "Product",
+        "name": "Code Repositories",
+        "description": "Foundry tool whose original code can be viewed and modified from Data Lineage."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Data Lineage",
+        "relationship": "OPERATES_ON",
+        "target": "Dataset"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Lineage Graph",
+        "relationship": "DEFINED_BY",
+        "target": "Data Lineage"
+      },
+      {
+        "source": "Lineage Exploration",
+        "relationship": "ENABLES",
+        "target": "Data Lineage"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Code Workbook"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Code Repositories"
+      }
+    ],
+    "keyInsights": [
+      "Data Lineage supports both datasets and object types as resources in the lineage graph, bridging the raw data and Ontology layers.",
+      "The graph supports multi-level expansion with configurable depth, including full expansion to raw data sources or final descendants.",
+      "Performance is a consideration — adding too many nodes simultaneously can degrade graph performance, so node counts should be managed.",
+      "Data Lineage integrates with Code Workbook and Code Repositories, allowing users to view the transformation code that created any dataset directly from the lineage graph.",
+      "The 'find relation between nodes' feature can discover all intermediate nodes or common ancestors/descendants between two selected resources."
+    ]
+  },
+  {
+    "url": "https://learn.palantir.com/introduction-to-data-lineage",
+    "title": "Introduction to Data Lineage - Palantir Learn",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Lineage",
+        "description": "Foundry application for visualizing, customizing, and navigating data pipelines. Supports pipeline visualization, automatic node coloring, and schedule management."
+      },
+      {
+        "type": "Product",
+        "name": "Palantir Learn",
+        "description": "Palantir's educational platform offering courses and tracks for learning Foundry capabilities."
+      },
+      {
+        "type": "Pattern",
+        "name": "Pipeline Visualization",
+        "description": "Pattern of visualizing data transformation pipelines as graphs with customizable node coloring, layout, and the ability to save and share visualizations."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform whose data pipelines can be explored and managed through the Data Lineage application."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Data Lineage",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Pipeline Visualization",
+        "relationship": "ENABLES",
+        "target": "Data Lineage"
+      },
+      {
+        "source": "Palantir Learn",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Data Lineage provides three core capabilities: finding and discovering tables, sharing pipeline knowledge with teams, and maintaining holistic views of data pipelines.",
+      "Pipeline visualizations support automatic node coloring options for visual differentiation of pipeline components.",
+      "Data Lineage includes schedule management capabilities, allowing users to manage data pipeline build schedules directly from the lineage view.",
+      "Saved pipeline visualizations can be shared with teams, enabling collaborative data pipeline understanding."
+    ]
+  },
+  {
+    "url": "https://medium.com/@adam-casey/rest-data-connections-in-palantir-foundry-dfc3fe91594c",
+    "title": "REST Data Connections in Palantir Foundry - Medium",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry service for connecting external systems like REST APIs and databases. Supports Direct Connections (public APIs) and Agent-Based Sources (secure/on-prem systems)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Source",
+        "description": "An external system Foundry can interact with through Data Connection. Two types: Direct Connections for public APIs and Agent-Based Sources for secure/on-prem systems."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Sync",
+        "description": "Instructions for how and when to bring external data into Foundry. Can be scheduled or triggered on-demand via webhooks."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Webhook",
+        "description": "An on-demand data fetch mechanism in Data Connection. Configured with HTTP method, path with template parameters, and output mapping. Can be triggered by Action Types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Schema definition representing a real-world entity in the Ontology. In the REST pattern, object types are created to represent API response structures (e.g., weather response)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "A typed action that can trigger webhooks in Data Connection, passing input parameters and writing responses into objects. Links webhook invocation with object creation."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Network Egress Policy",
+        "description": "Security policy required in Foundry to allow outbound HTTP requests to external APIs. Must be explicitly configured per domain since Foundry is locked down by default."
+      },
+      {
+        "type": "Pattern",
+        "name": "Webhook-Driven Data Integration",
+        "description": "Pattern where a Workshop button triggers an Action Type, which invokes a Data Connection webhook with dynamic parameters, fetches external API data, and writes the response to an Object Type."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application where buttons can trigger Action Types that invoke webhooks, enabling user-driven external data fetching."
+      },
+      {
+        "type": "UseCase",
+        "name": "Real-Time Weather Integration",
+        "description": "Use case demonstrating webhook-driven integration with Open-Meteo weather API, fetching forecasts on demand via Workshop button clicks with dynamic latitude/longitude parameters."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Webhook",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Webhook"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Webhook-Driven Data Integration",
+        "relationship": "ENABLES",
+        "target": "Webhook"
+      },
+      {
+        "source": "Real-Time Weather Integration",
+        "relationship": "DEMONSTRATES",
+        "target": "Webhook-Driven Data Integration"
+      },
+      {
+        "source": "Real-Time Weather Integration",
+        "relationship": "DEMONSTRATES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Network Egress Policy",
+        "relationship": "SECURES",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Workshop",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Action Type"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Data Connection supports two source types: Direct Connections for publicly accessible APIs and Agent-Based Sources for secure or on-premises systems.",
+      "Webhooks enable on-demand data fetching as an alternative to scheduled syncs, supporting template parameters (e.g., {{latitude}}) that are dynamically substituted at invocation time.",
+      "Foundry is locked down by default for security — explicit Network Egress Policies must be created to allow outbound HTTP requests to external API domains.",
+      "The webhook-to-action-to-object pipeline connects Workshop UI actions through Action Types to Data Connection webhooks, writing API responses into typed Object Types.",
+      "Action Types serve as the bridge between user interaction (Workshop button clicks) and external data fetching (webhook invocation), passing dynamic parameters like coordinates.",
+      "Webhook response output can be manually configured by extracting specific keys from the API response, allowing selective data mapping to object properties."
+    ]
+  }
+]

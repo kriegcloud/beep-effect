@@ -1,0 +1,278 @@
+{
+  "totalReposAnalyzed": 17,
+  "timestamp": "2026-02-20",
+  "tiers": {
+    "tier1-high": [
+      "osdk-ts",
+      "foundry-platform-typescript",
+      "ontology-starter-react-app",
+      "defense-sdk-examples",
+      "palantir-mcp",
+      "aip-community-registry"
+    ],
+    "tier2-medium": [
+      "conjure",
+      "conjure-typescript",
+      "conjure-typescript-runtime",
+      "conjure-typescript-example",
+      "terraform-provider-palantir-foundry",
+      "typescript-compute-module",
+      "pack"
+    ],
+    "tier3-lower": [
+      "blueprint",
+      "workshop-iframe-custom-widget",
+      "hadoop-crypto",
+      "metric-schema"
+    ]
+  },
+  "conceptCoverage": {
+    "Object Types": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "ontology-starter-react-app",
+        "defense-sdk-examples",
+        "aip-community-registry",
+        "conjure",
+        "conjure-typescript"
+      ],
+      "totalEvidence": 7
+    },
+    "Properties": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "ontology-starter-react-app",
+        "aip-community-registry",
+        "conjure",
+        "conjure-typescript"
+      ],
+      "totalEvidence": 6
+    },
+    "Link Types": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "defense-sdk-examples",
+        "aip-community-registry",
+        "conjure"
+      ],
+      "totalEvidence": 5
+    },
+    "Action Types": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "defense-sdk-examples",
+        "aip-community-registry",
+        "conjure",
+        "conjure-typescript"
+      ],
+      "totalEvidence": 6
+    },
+    "Ontology Functions": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "aip-community-registry",
+        "conjure"
+      ],
+      "totalEvidence": 4
+    },
+    "Access Controls": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "ontology-starter-react-app",
+        "defense-sdk-examples",
+        "aip-community-registry",
+        "palantir-mcp",
+        "conjure",
+        "terraform-provider-palantir-foundry"
+      ],
+      "totalEvidence": 8
+    },
+    "Data Integration": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "ontology-starter-react-app",
+        "defense-sdk-examples",
+        "aip-community-registry",
+        "palantir-mcp",
+        "conjure",
+        "conjure-typescript",
+        "typescript-compute-module"
+      ],
+      "totalEvidence": 9
+    },
+    "AI/LLM Integration": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "aip-community-registry",
+        "palantir-mcp"
+      ],
+      "totalEvidence": 4
+    },
+    "Interfaces": {
+      "reposWithEvidence": [
+        "osdk-ts",
+        "foundry-platform-typescript",
+        "defense-sdk-examples",
+        "aip-community-registry",
+        "conjure",
+        "conjure-typescript"
+      ],
+      "totalEvidence": 6
+    }
+  },
+  "repoRelevanceRanking": [
+    {
+      "repo": "osdk-ts",
+      "relevance": "critical",
+      "conceptsFound": 9,
+      "reason": "The canonical TypeScript Ontology SDK monorepo (~70+ packages). Contains the authoritative type system for all ontology concepts: ObjectTypeDefinition, InterfaceDefinition, ActionDefinition, QueryDefinition, PropertyDef, LinkTypes, WhereClause, PropertySecurity, WirePropertyTypes (22 types), ObjectSet query builder, Osdk.Instance runtime type, and vector/nearestNeighbors search. Code-generation-first architecture produces type-safe SDK from OntologyFullMetadata. Deepest evidence of every single ontology concept."
+    },
+    {
+      "repo": "foundry-platform-typescript",
+      "relevance": "critical",
+      "conceptsFound": 9,
+      "reason": "Auto-generated REST API bindings for the entire Foundry platform (~45 packages). Contains 600+ type definitions covering the full wire protocol: ObjectTypeV2, PropertyV2, LinkTypeSideV2, ActionTypeV2 with 13 ActionLogicRule variants, QueryTypeV2, InterfaceType, OntologyFullMetadata, ObjectSet (15 variants), PropertySecurity, plus admin/connectivity/datasets/aipagents/languagemodels APIs. The definitive source for Foundry REST API surface."
+    },
+    {
+      "repo": "aip-community-registry",
+      "relevance": "critical",
+      "conceptsFound": 9,
+      "reason": "28 community projects demonstrating real-world OSDK usage patterns: Object Type querying with filtering/pagination/aggregation, Action invocation with $returnEdits, link traversal, media handling, derived properties, Compute Modules, Workshop widgets, platform governance, AIP/LLM integration, and Marketplace package distribution. The richest source of practical ontology interaction patterns."
+    },
+    {
+      "repo": "defense-sdk-examples",
+      "relevance": "high",
+      "conceptsFound": 8,
+      "reason": "Official JADC2 defense applications demonstrating the Defense Ontology's 70+ interfaces across 6 warfighting domains. Shows interface-as-API-abstraction pattern, OSDK client usage with asyncIter/fetchOneWithErrors, Gotham API exploration (Geotime, Maps, Target Workbench), and the full OAuth scope model (14 scopes). Critical for understanding interface-centric ontology architecture."
+    },
+    {
+      "repo": "palantir-mcp",
+      "relevance": "high",
+      "conceptsFound": 3,
+      "reason": "MCP bridge between AI assistants and Foundry Ontology. Demonstrates Foundry authentication patterns (Multipass API, Authoring API, interactive browser OAuth), NPM registry proxy for Foundry artifacts, and the MCP server spawning architecture. Key for AI/LLM integration understanding, though actual MCP tools are in closed-source @palantir/mcp."
+    },
+    {
+      "repo": "ontology-starter-react-app",
+      "relevance": "high",
+      "conceptsFound": 4,
+      "reason": "Minimal starter template showing the complete OSDK flow: OAuth2 public client auth, FoundryClient initialization, namespace-based object querying (client.ontology.objects.Country.page()), Result type error handling, and generated SDK tarball distribution. Essential for understanding the developer onboarding path."
+    },
+    {
+      "repo": "conjure",
+      "relevance": "high",
+      "conceptsFound": 8,
+      "reason": "The foundational IDL and wire protocol underlying all Palantir APIs. Defines the type system (primitives, containers, objects, enums, unions, aliases), service endpoints, structured errors, auth definitions, and the RID pattern. While not Ontology-specific, it is the infrastructure layer that Ontology APIs are built upon. The Conjure IR is consumed by all code generators."
+    },
+    {
+      "repo": "terraform-provider-palantir-foundry",
+      "relevance": "medium",
+      "conceptsFound": 2,
+      "reason": "Terraform provider for Foundry administrative resources: enrollments, organizations, groups, markings, spaces, projects. Deep access control model with role assignments, marking-based security, and organization scoping. Contains OpenAPI spec with ontology endpoints (not used by provider). Key for understanding Foundry's administrative hierarchy and RBAC model."
+    },
+    {
+      "repo": "conjure-typescript",
+      "relevance": "medium",
+      "conceptsFound": 5,
+      "reason": "TypeScript code generator from Conjure IR. Produces interfaces, discriminated unions with visitor pattern, typed service clients, branded type aliases, and structured errors. Understanding this generator is essential for comprehending how all Palantir TypeScript API clients are produced."
+    },
+    {
+      "repo": "conjure-typescript-runtime",
+      "relevance": "medium",
+      "conceptsFound": 0,
+      "reason": "Runtime HTTP client (conjure-client npm package) used by all Conjure-generated TypeScript services. Provides IHttpApiBridge, FetchBridge, ConjureError, RetryingFetch, and IConjureResult. No direct ontology concepts but essential transport layer for all Ontology API calls."
+    },
+    {
+      "repo": "typescript-compute-module",
+      "relevance": "medium",
+      "conceptsFound": 2,
+      "reason": "Server-side compute module SDK for Foundry. Demonstrates Functions/Pipelines dual execution modes, TypeBox-to-Foundry schema conversion, resource alias resolution, source credentials, and Foundry service discovery (Stream Proxy, API Gateway, MIO). Key for understanding server-side ontology function execution."
+    },
+    {
+      "repo": "pack",
+      "relevance": "medium",
+      "conceptsFound": 2,
+      "reason": "Collaborative document framework for Foundry with OSDK integration. Contains ObjectRef type bridging documents to Ontology objects, Yjs CRDT-based real-time sync, and schema-first code generation. ALPHA-state but shows the direction of document-centric ontology interaction."
+    },
+    {
+      "repo": "conjure-typescript-example",
+      "relevance": "low",
+      "conceptsFound": 1,
+      "reason": "Small recipe frontend demonstrating Conjure-generated service client consumption. Shows DefaultHttpApiBridge instantiation, union type discrimination, and Conjure types as Redux state. Useful for understanding the Conjure consumer pattern but minimal ontology content."
+    },
+    {
+      "repo": "workshop-iframe-custom-widget",
+      "relevance": "low",
+      "conceptsFound": 2,
+      "reason": "React plugin for Workshop iframe custom widgets. Contains OntologyObject type, ObjectSetLocators, temporaryObjectSetRid for OSDK v2+, and bidirectional Workshop variable binding. Narrow but important for understanding Workshop-to-OSDK object set exchange."
+    },
+    {
+      "repo": "blueprint",
+      "relevance": "minimal",
+      "conceptsFound": 0,
+      "reason": "General-purpose React UI component library with no ontology functionality. Only tangential connection is icon tags containing 'ontology' keyword for relationship icons (one-to-one, one-to-many, etc.)."
+    },
+    {
+      "repo": "hadoop-crypto",
+      "relevance": "minimal",
+      "conceptsFound": 0,
+      "reason": "Client-side encryption library for Hadoop FileSystems. Pure infrastructure library with zero connection to Foundry Ontology, OSDK, or any Palantir platform concepts. Useful only as context for Foundry's data-at-rest encryption patterns."
+    },
+    {
+      "repo": "metric-schema",
+      "relevance": "minimal",
+      "conceptsFound": 0,
+      "reason": "Gradle-based metric definition and code generation toolchain. Uses Conjure for schema definition but is purely operational telemetry tooling with zero ontology relevance."
+    }
+  ],
+  "architecturePatterns": [
+    "Code-generation-first: OSDK generator reads OntologyFullMetadata wire protocol and produces strongly-typed TypeScript files per object type, action, query, and interface with namespace-scoped types",
+    "Phantom type metadata via __DefinitionMetadata: All definition interfaces carry compile-time metadata enabling rich type inference without runtime overhead",
+    "Callable client pattern: Client is a function overloaded by definition type -- ObjectTypeDefinition returns ObjectSet, ActionDefinition returns action invoker, QueryDefinition returns query invoker",
+    "Wire type mapping system: Three parallel mapping interfaces translate between Foundry wire types and TypeScript types with separate read/write/create paths",
+    "ObjectSet as query builder: Fluent API with where(), aggregate(), union/intersect/subtract, pivotTo, withProperties, nearestNeighbors, and fetchPage/asyncIter",
+    "Interface-as-API abstraction: Abstract interfaces serve as primary API contracts, enabling polymorphic querying across object types (70+ interfaces in Defense Ontology)",
+    "OpenAPI-IR-to-TypeScript code generation: Platform SDK packages auto-generated from OpenAPI IR with compact method encoding and namespace-per-package organization",
+    "Conjure IDL pipeline: Two-stage compilation (YAML -> JSON IR -> language-specific code) with forward-compatible wire format and self-describing schema",
+    "Discriminated union types throughout: All polymorphic types use 'type' discriminant field (ObjectSet: 15 variants, ActionLogicRule: 13 variants, ObjectPropertyType: 25+ variants)",
+    "LooselyBrandedString pattern: Nominal typing for API identifiers via string & { __LOOSE_BRAND?: T } -- type safety without runtime cost",
+    "Result type error handling: API calls return Result<T, E> rather than throwing, with ErrorVisitor pattern for exhaustive type-safe error handling",
+    "OAuth2 authentication model: Public client (browser SPAs), confidential client (server-side), and service user (client_credentials) flows via Foundry Multipass",
+    "Marking-based security: PropertySecurity with conjunctive/disjunctive marking sets for property-level access control, plus container-level markings",
+    "Marketplace package distribution: Projects packaged as .zip bundles containing Ontology definitions, backing datasets, Actions, Functions, and OSDK frontends",
+    "Compute Module dual execution: Functions mode (request/response query polling) and Pipelines mode (batch processing with resource aliases and build tokens)",
+    "Real-time subscriptions via WebSocket: ObjectSet.subscribe() provides change notifications using WebSocket + RxJS/CometD reactive streaming",
+    "Terraform IaC for Foundry admin: Declarative management of enrollments, organizations, groups, markings, spaces, projects with diff-based updates",
+    "Workshop iframe bridge: Bidirectional postMessage communication with typed variable bindings, async value state machine, and objectSet exchange via temporaryObjectSetRid",
+    "CRDT-based collaborative documents: Yjs-powered real-time document sync with ObjectRef types bridging documents to Ontology objects",
+    "Resource Identifier (RID) pattern: Globally unique ri.service.instance.type.locator format for cross-service resource references",
+    "Monorepo with workspace protocol: pnpm workspaces, turbo/nx build orchestration, changesets for versioning, catalog system for dependency management",
+    "Version-bound checking: VersionBound<V> and SatisfiesSemver types enforce generated SDK/client version compatibility at compile time",
+    "Optimistic action updates with undo: Patch local cache via $updateInternalValues before applyAction, capture previous values for rollback on failure",
+    "Polymorphic type conversion via $as: Osdk.Instance.$as enables safe conversion between object types and interfaces with automatic property name remapping",
+    "Signal forwarding and process spawning: MCP wrapper validates prerequisites, authenticates, then spawns real server from private NPM registry with signal forwarding"
+  ],
+  "keyInsights": [
+    "The Ontology type system has 22 base wire property types (string, datetime, double, boolean, integer, timestamp, short, long, float, decimal, byte, marking, mediaReference, numericTimeseries, stringTimeseries, sensorTimeseries, attachment, geopoint, geoshape, geotimeSeriesReference, vector) plus struct types -- all mapped through three parallel type conversion interfaces (wire-to-client, client-to-wire, wire-to-create)",
+    "Interfaces are the primary API abstraction layer: the Defense Ontology organizes 70+ interfaces across 6 warfighting domains, and the OSDK supports polymorphic conversion between object types and interfaces via $as with automatic property name remapping through interfaceMap/inverseInterfaceMap",
+    "Actions are modeled as rich typed operations with 13 ActionLogicRule variants (createObject, modifyObject, deleteObject, createLink, deleteLink, createInterface, modifyInterface, createOrModifyObject v1/v2, function, batchedFunction, createInterfaceLink, deleteInterfaceLink) and support sync/async/batch execution with $returnEdits and $validateOnly options",
+    "ObjectSet is a composable query algebra with 15 variants (base, filter, union, intersect, subtract, searchAround, static, reference, interfaceBase, asType, nearestNeighbors, methodInput, withProperties, interfaceLinkSearchAround, asBaseObjectTypes) supporting filtering, aggregation, link traversal, vector search, and real-time subscriptions",
+    "Access control is multi-layered: OAuth2 scopes per endpoint, marking-based property-level security (conjunctive/disjunctive marking sets), organization-scoped visibility, role-based assignments (enrollment/organization/project/marking levels), and fine-grained permission-denied error types per operation",
+    "The entire Foundry API surface is built on Conjure (Palantir's IDL) which provides the wire protocol, type system, code generation pipeline, and forward-compatible serialization format -- understanding Conjure is prerequisite to understanding any Foundry API",
+    "OntologyFullMetadata is the central wire type that powers code generation: it contains all objectTypes, actionTypes, queryTypes, interfaceTypes, sharedPropertyTypes, and valueTypes for an entire ontology in a single request, enabling the OSDK generator to produce a complete type-safe SDK package",
+    "AI/LLM integration has three vectors: (1) foundry.aipagents for AIP Agent sessions with tool calls and RAG context, (2) foundry.languagemodels for direct Anthropic Messages and OpenAI Embeddings APIs, (3) palantir-mcp for MCP bridge to AI assistants -- but actual MCP tools are closed-source",
+    "The OSDK follows a code-generation-first approach where users define their ontology in Foundry, then the generator produces strongly-typed TypeScript interfaces for every object type, action, query, and interface -- enabling fully type-safe CRUD operations, filtering, aggregations, and link traversal",
+    "Compute Modules provide server-side extensibility with two modes: Functions (long-running query handlers with TypeBox schemas) and Pipelines (batch processing with resource aliases), both using Foundry service discovery for Stream Proxy, API Gateway, and MIO endpoints",
+    "Vector search is a first-class capability via the 'vector' wire property type and ObjectSet.nearestNeighbors() method, enabling semantic similarity search with configurable numNeighbors and relevance-ordered results with $score annotations",
+    "The Foundry administrative hierarchy follows: Enrollment -> Organization -> Space -> Project, with Markings and Groups as cross-cutting access control primitives, all manageable via Terraform IaC or the Admin API",
+    "Real-time data change notifications use ObjectSet.subscribe() over WebSocket connections (isomorphic-ws) with RxJS for reactive stream processing, plus CometD/Bayeux protocol for collaborative document sync in PACK",
+    "The aip-community-registry demonstrates that Marketplace packages are the distribution mechanism for ontology applications, containing Ontology definitions, backing datasets, Actions, Functions, and optional OSDK-powered React frontends as .zip bundles installed through a 4-stage process"
+  ]
+}

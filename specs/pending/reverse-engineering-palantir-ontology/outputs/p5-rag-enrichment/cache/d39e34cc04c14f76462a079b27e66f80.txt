@@ -1,0 +1,156 @@
+Security glossary • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Security & governance Security glossary 
+
+ Security glossary
+
+Below are all the security terms you'll want to familiarize yourself with.
+
+ Access: Indicates whether a user is able to know of a resource’s existence. If a user has access, they can receive various capabilities to use the resource via Roles. If a user does not have access, they will not know the existence of the resource.
+ See: Resource, Role 
+
+ Access requirements: The unique security requirements that determine which users may access a Project or resource. These requirements consist of Organizations and/or Markings. If a user meets the access requirements for a Project or resource, then the user is allowed to see the existence of that Project or resource and can be granted a Role on it.
+ See: Organization, Marking, Role 
+
+ Attribute: A type of structured information about a user, such as their name, email, or job title.
+
+ Credential collector: Systems responsible for collecting the credentials of a user, which are then validated by the authentication source. The main type of collector is SAML.
+
+ Default Roles (on the platform): There are four Roles that come with the Foundry platform: Owner, Editor, Viewer, and Discoverer. Role administrators can choose to customize these Roles or create completely new ones based on these defaults. Role definitions can also specify which Roles can grant other Roles on the same resource, creating a hierarchy of Roles.
+ See: Role 
+
+ Default Role (on a Project): The default Role on a Project defines the Role automatically granted to all users who satisfy the access requirements. If a Project has no default Role, users will be able to see the Project’s name and description and request Project access, but will not be able to discover the Project contents. To encourage collaboration and discovery, Project creation uses a default Role of Viewer, unless otherwise specified.
+ See: Role, Project 
+
+ Discretionary controls: Expand the overall capabilities a user has on top of their access and are granted via Roles. Discretionary controls are additive, meaning that discretionary controls can only add permissions for a user and cannot restrict permissions for a user. Discretionary controls can be granted to users through data sharing workflows: for instance, creating a report and sharing it with a colleague grants her view permissions on the report.
+
+ Expand access: Expand access refers to any change in the access requirements on a resource such that the audience that can potentially access that resource is expanded. In the case of Markings, the removal of any Marking is an expand access event. In the case of Organizations, expanding access can occur by either (1) adding additional Organizations when at least one is applied, or (2) removing the only Organization applied.
+ See: Access requirements, Organization, Marking 
+
+ Group: A set of users and/or other groups. A group may be internal, meaning defined in Foundry, or external, meaning defined by an external identity provider (like Active Directory) or user manager. Internal groups may contain external groups and users.
+ See: Identity provider, User manager 
+
+ Identity provider: A system that gives applications the ability to validate users or services as they log in, and also provides information on users, groups, and attributes. An Identity Provider (IdP) is a source for user and group information and attributes. IdPs give applications the ability to validate users or services as they log in, and understand information about these users.
+ See: Attribute, User, Group 
+
+ Inheritance/inherited permissions: Access requirements applied at the Project level are inherited by other files and folders within the Project. Similarly, Roles granted at the Project level will be granted on all resources in the Project via inheritance.
+ See: Role 
+
+ Mandatory controls: An all-or-nothing access restriction. With mandatory controls in place, regardless of a user's Role, a user cannot access a resource in any way unless the user satisfies the resource’s mandatory controls. These controls take the form of Organizations and Markings. For example, if a colleague shares a report and the dataset backing the report was marked with a top-secret Marking, access to the report is not granted unless the user is cleared for top-secret level data.
+ See: Role, Organization, Marking 
+
+ Marking: An access requirement applied to resources that restricts access in an all-or-nothing fashion. In order to meet access requirements, a user must be a member of all Markings applied on the resource. Markings are a mandatory control.
+ See: Access requirement, Resource, Mandatory controls 
+
+ Marking category: A collection of Markings. The visibility of Marking categories can be restricted to certain Organizations, and can be visible or hidden. Visible categories are discoverable by anyone who is a member or guest member of the required Organizations. Hidden categories are only discoverable by users from the required Organizations who are explicitly granted permissions on the category or on the category’s Markings.
+ See: Marking, Organization 
+
+ Space (previously known as Namespace): A higher-order grouping of Projects where uniform settings can be defined, such as a file system or usage tracking account.
+ See: Project 
+
+ Organization: An access requirement applied to Projects that enforces strict silos between groups of users and resources. Every user will be a member of exactly one Organization. In order to meet access requirements, users must be a member of one Organization applied to a Project. Organizations are a mandatory control.
+ See: Access requirement, Resource, Mandatory controls 
+
+ Organization discoverability: How users from one Organization view other Organizations, and vice versa. Discoverability across Organizations is configurable; an Organization’s users, groups, and/or resources can be made discoverable or hidden.
+ See: Organization 
+
+ Permission: A set of capabilities granted to a user or group that allows them to perform certain tasks in the platform or on resources.
+ See: Roles, Marking, Resource 
+
+ Project: A Project is a collaborative space that organizes people and resources for a particular purpose. Projects are the primary security boundary in Foundry and represent a collection of shared work. Users in a Project have approximately uniform access to its contents (specific access may vary depending on discretionary controls), meaning access requirements and Roles should be applied at the Project level.
+ See: Resource, Access requirements 
+
+ Realm: An authentication source in Foundry. The realm of each user can be seen in Platform Settings.
+ See: User 
+
+ Reference: A link to a resource that causes the resource to be included within the scope of a Project. References are typically used to include datasets from outside the current Project when building a data pipeline.
+ See: Project 
+
+ Resource: Anything uniquely identifiable within the Foundry platform, such as Projects, folders, analyses, and datasets. Resources are secured with access requirements and permissions.
+ See: Project, Roles 
+
+ Restricted view: A special kind of dataset where granular access to the data within the file is controlled based on defined rules. These rules are based on user attributes and will hide or reveal rows of the dataset based on the user’s level of access.
+ See: Attribute, User 
+
+ Role: A collection of permissions that define the specific workflows that a user can perform on a given resource. Roles are a discretionary control and are generally granted at the Project level to provide uniform capabilities on all resources within the Project’s scope.
+ See: Workflow, Resource, Discretionary controls 
+
+ Tag: Structured metadata that can be applied to resources for categorization and discovery. Tags are organized into categories, the visibility of which can be restricted to one or more Organizations. Tags can be a helpful construct, but tags do not add or imply security in any way.
+
+ User: An individual who has been authenticated and has access to Foundry. A user is defined by an external Identity Provider (e.g. an Active Directory system).
+ See: Realm 
+
+ User manager: An optional Foundry module used to add custom logic to the login flow, typically to assign user groups and attributes during login. For example, the user manager can allow specific users to log in while disallowing logins for all other users. The simplest user managers are synchronous, meaning Foundry will reach out to the service synchronously (at the same time) during login with no user interaction. Asynchronous user managers (AUMs) will redirect to a server which can display a page and support user interaction (such as acknowledging an end-user license agreement) before allowing the login to proceed.
+ See: User 
+
+ Workflow: Sets of permissions required to perform a specific user action that should be granted together in a single Role.
+ See: Role 
+
+ ← 
+ PREVIOUS Shared security responsibility model 
+
+ NEXT Platform security / Getting started / Securing a data foundation 
+ →

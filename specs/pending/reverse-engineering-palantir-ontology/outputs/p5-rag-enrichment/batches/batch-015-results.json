@@ -1,0 +1,1289 @@
+[
+  {
+    "url": "https://blog.palantir.com/palantir-developers-learn-to-build-in-palantir-foundry-83bcf0c4a861",
+    "title": "Palantir Developers: Learn to build in Palantir Foundry",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core platform designed to be intuitive and accessible for both technical and non-technical users across an organization"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application that simplifies app building for developers and operational users"
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Foundry tool that helps developers overlay millions of sensor data points in seconds for geospatial and time series analysis"
+      },
+      {
+        "type": "Product",
+        "name": "Palantir Developers Channel",
+        "description": "Video channel launched as a hub for developer support, tutorials, and walkthroughs of Foundry features"
+      },
+      {
+        "type": "Product",
+        "name": "Stack Overflow",
+        "description": "External Q&A platform adopted by Palantir for developer engagement and community support for Foundry"
+      },
+      {
+        "type": "Pattern",
+        "name": "Developer Community Engagement",
+        "description": "Pattern of engaging with developers through Stack Overflow, video tutorials, and reference projects to accelerate platform adoption"
+      },
+      {
+        "type": "UseCase",
+        "name": "Foundry Reference Project",
+        "description": "Template project used in developer tutorials and walkthroughs to demonstrate Foundry capabilities"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Workshop", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Quiver", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Palantir Developers Channel",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      {
+        "source": "Foundry Reference Project",
+        "relationship": "DEMONSTRATES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Developer Community Engagement",
+        "relationship": "ENABLES",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Palantir aims to make Foundry accessible beyond data scientists and engineers to non-technical roles like sales, product development, and recruiting",
+      "Stack Overflow became an organic community hub for Foundry developer questions, which Palantir later formalized as a core engagement channel",
+      "Workshop and Quiver were co-created with customer developers, illustrating Palantir's embedded development model where customers shape product features"
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/supercharging-your-bi-analytics-f360c0791935",
+    "title": "Palantir Foundry: Supercharge Your BI & Analytics",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform providing best-in-class data integration and ontology capabilities that enrich and extend existing BI and analytics tooling"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Common data layer sitting on top of integrated digital artifacts, formulating a digital twin of real-world business entities with multi-modal storage support"
+      },
+      {
+        "type": "Pattern",
+        "name": "Digital Twin",
+        "description": "Pattern of using the Ontology to create a digital representation of real-world things that constitute a business, such as plants, customers, and transactions"
+      },
+      {
+        "type": "Pattern",
+        "name": "Decision Orchestration",
+        "description": "Pattern where the Ontology orchestrates the flow of data, models, and actions across heterogeneous tooling and systems for continuous learning"
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Analytical suite allowing users to plot, transform, and analyze massive-scale time series data and objects"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application enabling non-technical users to build interactive decision-making applications"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Foundry Connectors",
+        "description": "Integration mechanisms including REST APIs, ODBC/JDBC drivers, Python/R SDKs, and out-of-the-box connectors for Power BI and Tableau"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Unified Security and Governance",
+        "description": "Foundry's integrated security, lineage, and governance model from source to application with per-artifact permissions and retention policies"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology element that captures the kinetics between objects and orchestrates real-world change through enterprise systems"
+      },
+      {
+        "type": "Pattern",
+        "name": "Connected Operations",
+        "description": "Pattern of creating full-fidelity feedback loops between data, analytics, and operational workflows rather than a linear assembly-line approach"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Ontology", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Quiver", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Workshop", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Digital Twin"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Decision Orchestration"
+      },
+      {
+        "source": "Foundry Connectors",
+        "relationship": "EXAMPLE_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Unified Security and Governance",
+        "relationship": "SECURES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Connected Operations",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "Foundry's Ontology acts as a common data layer with multi-modal storage supporting diverse functionality from search to time series analysis to geospatial visualization",
+      "Foundry provides automatic data lineage tracing from raw data all the way to applications, eliminating manual pipeline documentation",
+      "The Ontology enables read-write capabilities in workflows, creating feedback loops for continuous learning rather than one-directional data consumption",
+      "Security governance in Foundry can be applied at multiple granularities: individual datasets, rows within datasets, folders, projects, and more",
+      "Foundry integrates with existing BI tools (Power BI, Tableau) through REST APIs, ODBC/JDBC drivers, and language-specific SDKs"
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/the-ontology-operating-at-optimum-complexity-as-simply-as-possible-39f4a9724fdf",
+    "title": "The Ontology: Operating at optimum complexity — as simply as possible",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Foundational element of the modern software stack that transforms digital assets into a dynamic, actionable foundation powering intelligent operations"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology elements that digitally represent real-world entities, relationships, and events constituting a business"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Ontology elements representing connections between real-world entities, events, and processes"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology elements capturing kinetics between objects and orchestrating real-world change through enterprise systems"
+      },
+      {
+        "type": "Pattern",
+        "name": "Optimum Complexity",
+        "description": "Principle that technology should empower businesses to understand, achieve, and sustain the right level of complexity as simply as possible"
+      },
+      {
+        "type": "Pattern",
+        "name": "Digital Twin",
+        "description": "Concept of creating a digital representation of business entities, distinct from traditional process models or capability maps by focusing on stable elements"
+      },
+      {
+        "type": "Pattern",
+        "name": "Feedback Loop",
+        "description": "Pattern where actions triggered by insights feed information back into the system, capturing on-the-ground truth from insight to impact"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir platform whose key differentiator is the Ontology, enabling organizations to connect data, analytics, and operational systems"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      },
+      { "source": "Ontology", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Digital Twin"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Feedback Loop"
+      },
+      {
+        "source": "Optimum Complexity",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "CONNECTS",
+        "target": "Link Type"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology is positioned as an entirely new category of software, not merely a data model or integration layer",
+      "Traditional digital twin models fail because they fix variable elements and miss stable ones; the Ontology inverts this by building around the most stable elements of the business",
+      "The three core Ontology primitives are Objects (entities), Relations (connections), and Actions (kinetics/change orchestration)",
+      "Data and analytics are meaningless without connectivity to real-world action — the Ontology's core value proposition is bridging insight to operational impact",
+      "Organizations must embrace complexity rather than avoid it, and the Ontology provides the means to manage that complexity at the right level"
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/the-ontology-resilience-in-crisis-7833bb5e15e7",
+    "title": "The Ontology: Resilience in crisis",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Software system enabling collaboration across entire organizations that transforms digital assets into a dynamic, actionable representation of the business"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology elements digitally representing real-world entities, relationships, and events such as transformers, substations, customers, and field crews"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Ontology elements representing connections between real-world entities, events, and processes"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology elements capturing kinetics between objects, which can be mapped from existing processes or models"
+      },
+      {
+        "type": "Pattern",
+        "name": "Ontology Hydration",
+        "description": "Process of continuously synchronizing data and models into human-centric objects within the Ontology from diverse source systems"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir platform whose key differentiator is the Ontology, enabling organizational resilience in crisis scenarios"
+      },
+      {
+        "type": "UseCase",
+        "name": "Utility Grid Management",
+        "description": "Use case where the Ontology models transformers, substations, customers, and field crews for emergency wildfire response"
+      },
+      {
+        "type": "UseCase",
+        "name": "Refugee Relief Operations",
+        "description": "Use case where the Ontology powered support for refugee relief across Europe amid the war in Ukraine"
+      },
+      {
+        "type": "UseCase",
+        "name": "Healthcare Waiting List Management",
+        "description": "Use case at Chelsea and Westminster Hospital NHS Foundation Trust for elective waiting list management"
+      },
+      {
+        "type": "UseCase",
+        "name": "Energy Optimization",
+        "description": "Use case for power utilization optimization in manufacturing and wastewater treatment amid rising energy prices"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "PART_OF",
+        "target": "Ontology"
+      },
+      { "source": "Ontology", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Ontology Hydration"
+      },
+      {
+        "source": "Utility Grid Management",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Refugee Relief Operations",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Healthcare Waiting List Management",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Energy Optimization",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology is explicitly not a pre-defined data model but a software system that enables collaboration, analogous to a language with pre-defined rules for constructing complex structures",
+      "Ontology 'hydration' is the process of continuously synchronizing data and models from ERP, CRM, IoT, GIS, and other systems into human-centric objects",
+      "Enterprise software failed organizations in critical moments because linear approaches (data gathering, golden tables, models, visualization) proved rigid and unadaptable in crisis",
+      "The Ontology converts technical artifacts (rows, columns, queries) into business-meaningful objects (transformers, substations, customers) enabling non-technical users to act on data",
+      "Crisis scenarios (wildfires, pandemics, wars, supply chain shocks) expose the failure of rigid enterprise software, which the Ontology's adaptable model addresses"
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/user-centered-machine-learning-for-visual-search-348f4eb696a1",
+    "title": "User-Centered Machine Learning for Visual Search",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "UCML",
+        "description": "User-Centered Machine Learning platform enabling end users to rapidly adapt cutting-edge Computer Vision capabilities to specific missions based on their feedback"
+      },
+      {
+        "type": "Product",
+        "name": "UCML for Visual Search",
+        "description": "Extension of UCML that allows analysts to detect any object in any image in real-time using foundational visual-language models, without data labeling or model training"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Foundational metadata system that enriches visual search detections with data modalities and object metadata to create a picture of what, where, and when"
+      },
+      {
+        "type": "Pattern",
+        "name": "Visual Search Query Pipeline",
+        "description": "Pattern where users indicate pixels via bounding box, optionally provide text prompts, and vision-language models extract features to identify similar pixels across images"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Vision-Language Models",
+        "description": "Foundational models that extract unique features from user-indicated pixels and text to identify similar objects across image sets"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Zero-Shot Object Detection",
+        "description": "Capability to generate object detection for any object of interest from as little as one example, without pre-trained models for that object class"
+      },
+      {
+        "type": "Pattern",
+        "name": "Ontology Fusion",
+        "description": "Pattern of fusing visual search detections with additional data modalities and foundational metadata from the Ontology for enriched analysis"
+      },
+      {
+        "type": "UseCase",
+        "name": "Conflict Imagery Analysis",
+        "description": "Use case where analysts detect new infrastructure like bridges for armored vehicles or communications equipment as they emerge during conflicts"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "UCML for Visual Search",
+        "relationship": "BUILT_ON",
+        "target": "UCML"
+      },
+      {
+        "source": "UCML for Visual Search",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Ontology"
+      },
+      {
+        "source": "UCML for Visual Search",
+        "relationship": "USES_PATTERN",
+        "target": "Visual Search Query Pipeline"
+      },
+      {
+        "source": "Ontology Fusion",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Vision-Language Models",
+        "relationship": "EXAMPLE_OF",
+        "target": "UCML for Visual Search"
+      },
+      {
+        "source": "Zero-Shot Object Detection",
+        "relationship": "EXAMPLE_OF",
+        "target": "UCML for Visual Search"
+      },
+      {
+        "source": "Conflict Imagery Analysis",
+        "relationship": "DEMONSTRATES",
+        "target": "UCML for Visual Search"
+      }
+    ],
+    "keyInsights": [
+      "UCML for Visual Search enables zero-shot object detection from as little as one example, eliminating the need for data labeling, model training, or dedicated detectors",
+      "Visual search queries can be used interactively, bulk-run on imagery archives, or deployed on image feeds for continuous monitoring and alerting",
+      "The Palantir Ontology enriches visual search detections by fusing them with additional data modalities and metadata, creating context about what, where, and when",
+      "The system combines pixel-based visual features with optional free-text prompts to leverage vision-language models for more specific detection",
+      "The approach addresses the critical military/intelligence need for real-time adaptation to new object types during active conflicts without waiting for traditional ML pipelines"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/side-effects-overview",
+    "title": "Action types - Side effects - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology element designed to support the full range of decision-making processes within an organization, using rules to define object modifications"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Side Effect",
+        "description": "Additional capability of action types that enables sending data out of Foundry to integrate with existing organizational processes, triggered after primary action rules execute"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Notification",
+        "description": "Side effect type that allows flexible configuration of how users should be notified when an action is applied, including email notifications"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Webhook",
+        "description": "Side effect type enabling connections to systems outside Foundry in a highly flexible way, including REST API calls and ERP system integration"
+      },
+      {
+        "type": "Pattern",
+        "name": "Decision Orchestration",
+        "description": "Pattern where Foundry integrates with external source-of-truth systems to support existing business processes through action type side effects"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform whose action types support side effects for integration with external systems beyond Ontology edits"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Side Effect",
+        "relationship": "PART_OF",
+        "target": "Action Type"
+      },
+      {
+        "source": "Notification",
+        "relationship": "PART_OF",
+        "target": "Side Effect"
+      },
+      {
+        "source": "Webhook",
+        "relationship": "PART_OF",
+        "target": "Side Effect"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "USES_PATTERN",
+        "target": "Decision Orchestration"
+      },
+      { "source": "Webhook", "relationship": "EXPOSED_BY", "target": "Foundry" }
+    ],
+    "keyInsights": [
+      "Action type side effects are triggered after primary action rules execute, maintaining a clear separation between Ontology modifications and external integrations",
+      "The two main side effect types are Notifications (user alerting within Foundry, including email) and Webhooks (external system integration via REST APIs and ERP connections)",
+      "The 'decision orchestration' pattern arises when an external system (not Foundry) is the source of truth, and side effects enable Foundry to integrate with and write to those systems",
+      "Side effects enable Foundry's Ontology to serve as a coordination layer even when it is not the system of record"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/struct-shared-properties",
+    "title": "Object and link types - Structs - Structs and shared properties - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Struct",
+        "description": "Composite property type in the Ontology that groups multiple fields into a single structured value, usable by both local and shared property types"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property",
+        "description": "Reusable property type definition that can be shared across multiple object types, enabling consistent metadata and field definitions across the Ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Local property type on an object type that can optionally be backed by a shared property type for metadata inheritance"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology element whose properties can use struct types backed by shared property definitions"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application for creating, configuring, and managing ontology elements including shared properties and struct types"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Struct Field RID",
+        "description": "Resource identifier for struct fields that is preserved when converting local struct properties to shared property-backed types, even as metadata is inherited"
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Struct", "relationship": "PART_OF", "target": "Property" },
+      {
+        "source": "Shared Property",
+        "relationship": "EXTENDS",
+        "target": "Property"
+      },
+      {
+        "source": "Property",
+        "relationship": "PART_OF",
+        "target": "Object Type"
+      },
+      {
+        "source": "Struct",
+        "relationship": "IMPLEMENTS",
+        "target": "Shared Property"
+      },
+      {
+        "source": "Ontology Manager",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry"
+      },
+      {
+        "source": "Struct Field RID",
+        "relationship": "DEFINED_BY",
+        "target": "Struct"
+      }
+    ],
+    "keyInsights": [
+      "Struct properties can be used by both local and shared property types, enabling complex composite types to be reused across multiple object types",
+      "When promoting a local struct property to a shared property type, struct fields must be re-mapped but retain their original RIDs while inheriting shared metadata",
+      "New struct fields added after assigning a shared property type must be added to the shared property type first, then mapped to datasource columns for all local struct properties backed by it",
+      "The promotion workflow (local to shared) preserves backward compatibility by keeping original struct field RIDs intact"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/metadata-typeclasses",
+    "title": "Object and link types - Metadata - Type classes - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Type Class",
+        "description": "Additional metadata applied to properties, link types, and action types that defines behavior interpreted by user applications interacting with the Ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Capability",
+        "description": "New configuration mechanism in Ontology Manager replacing type classes, providing a dedicated page for configuring features historically defined as type classes"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Hubble Type Class",
+        "description": "Category of type classes consumed by Object Explorer that affect property rendering including media URLs, icons, thumbnails, and endorsement status"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Timeseries Type Class",
+        "description": "Category of type classes consumed by Quiver for time series data visualization and analysis"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Analyzer Type Class",
+        "description": "Special type class that affects indexing behavior rather than rendering, distinct from other type classes that only provide presentation metadata"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Render Hint",
+        "description": "Type class metadata that controls how property values are displayed in Object Views, such as media rendering, icon display, and endorsement status"
+      },
+      {
+        "type": "Product",
+        "name": "Object Explorer",
+        "description": "Foundry application that consumes hubble type classes for rendering object properties in views and search results"
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Foundry application that consumes timeseries type classes for time series data display"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application where type classes are configured and are being migrated to a new Capabilities page"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Type Class",
+        "relationship": "PART_OF",
+        "target": "Property"
+      },
+      {
+        "source": "Type Class",
+        "relationship": "PART_OF",
+        "target": "Link Type"
+      },
+      {
+        "source": "Type Class",
+        "relationship": "PART_OF",
+        "target": "Action Type"
+      },
+      {
+        "source": "Capability",
+        "relationship": "EXTENDS",
+        "target": "Type Class"
+      },
+      {
+        "source": "Hubble Type Class",
+        "relationship": "DEFINED_BY",
+        "target": "Object Explorer"
+      },
+      {
+        "source": "Timeseries Type Class",
+        "relationship": "DEFINED_BY",
+        "target": "Quiver"
+      },
+      {
+        "source": "Analyzer Type Class",
+        "relationship": "DEFINED_BY",
+        "target": "Type Class"
+      },
+      {
+        "source": "Type Class",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      }
+    ],
+    "keyInsights": [
+      "Type classes are being migrated from a string-based Kind/Name system to a dedicated Capabilities page in Ontology Manager, indicating an evolution in ontology metadata management",
+      "The analyzer type class is unique among type classes in that it affects indexing behavior rather than just presentation/rendering metadata",
+      "Many type classes are deprecated, showing the Ontology system's evolution from tag-based metadata to first-class configuration primitives",
+      "Type classes create a contract between ontology definitions and consuming applications (Object Explorer, Quiver), decoupling data modeling from presentation",
+      "Hubble type classes control property rendering in Object Views including media URLs, icons, thumbnails, editability, and endorsement status"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/required-properties",
+    "title": "Object and link types - Properties - Required properties - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Required Property",
+        "description": "Object type property that must have a value, validated during data indexing and action execution to reject null values and optionally empty arrays"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attribute of an object type that can be configured as required to enforce data quality constraints"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Storage V2",
+        "description": "Second-generation object storage backend required for required property support, representing the modern storage layer"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology element whose properties can be configured with required constraints for data quality enforcement"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology element whose edits are validated against required property constraints at apply time, failing if null or empty values are written"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Required Property Validation",
+        "description": "Validation occurs during indexing into Object Storage (not during ontology modification), and at action apply time, with specific behavior for empty arrays and multi-datasource scenarios"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Multi-Datasource Null Behavior",
+        "description": "When an object type has multiple backing datasources, null values may appear in required properties if a record exists in some datasources but is absent from the one supplying the required property"
+      },
+      {
+        "type": "Pattern",
+        "name": "Mandatory Control Property",
+        "description": "Pattern of using required properties that allow empty arrays for control properties that must never be null but can legitimately have no items"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Required Property",
+        "relationship": "EXTENDS",
+        "target": "Property"
+      },
+      {
+        "source": "Required Property",
+        "relationship": "PART_OF",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Storage V2",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Required Property Validation",
+        "relationship": "DEFINED_BY",
+        "target": "Required Property"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Required Property"
+      },
+      {
+        "source": "Multi-Datasource Null Behavior",
+        "relationship": "EXAMPLE_OF",
+        "target": "Required Property"
+      },
+      {
+        "source": "Mandatory Control Property",
+        "relationship": "ENABLES",
+        "target": "Required Property"
+      }
+    ],
+    "keyInsights": [
+      "Required properties are only supported by Object Storage V2, indicating an ongoing migration from legacy storage to newer object storage backends",
+      "Validation timing is critical: the ontology modification itself succeeds even if backing data contains nulls; validation only fails during indexing into Object Storage",
+      "Actions automatically write empty arrays to mapped-but-unset parameters, which interacts subtly with required property enforcement and the 'allow empty arrays' configuration",
+      "Multi-datasource object types can have surprising null values in required properties when a record is missing from the datasource that supplies the required property",
+      "The 'allow empty arrays' option enables the mandatory control property pattern where a property must exist but can legitimately be empty"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/type-groups",
+    "title": "Object and link types - Object type groups - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type Group",
+        "description": "Classification primitive that helps users search and explore their ontology by labeling and categorizing object types, replacing the legacy tag-based grouping system"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology element that can belong to multiple groups for organizational classification"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application where groups are created, managed, searched, and filtered via a dedicated Groups menu in the sidebar"
+      },
+      {
+        "type": "Product",
+        "name": "Object Explorer",
+        "description": "Foundry application whose home page displays groups to help users discover and navigate object types"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Legacy Group Migration",
+        "description": "Migration from tag-based legacy groups to first-class ontology primitives as of May 2024, with automatic migration for most groups and manual migration required for partially visible groups"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Group Permissions",
+        "description": "Access control mechanism where viewing object type groups requires viewer permission on the containing project, with all groups discoverable to any ontology viewer"
+      },
+      {
+        "type": "Pattern",
+        "name": "Ontology Classification",
+        "description": "Pattern of using groups as labels on object types to improve searchability, discoverability, and organizational structure of large ontologies"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type Group",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type Group",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Object Type Group",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Explorer"
+      },
+      {
+        "source": "Group Permissions",
+        "relationship": "SECURES",
+        "target": "Object Type Group"
+      },
+      {
+        "source": "Object Type Group",
+        "relationship": "USES_PATTERN",
+        "target": "Ontology Classification"
+      },
+      {
+        "source": "Legacy Group Migration",
+        "relationship": "EXAMPLE_OF",
+        "target": "Object Type Group"
+      }
+    ],
+    "keyInsights": [
+      "Object type groups replaced the legacy tag-based grouping system as of May 2024, becoming a first-class ontology primitive rather than metadata on object types",
+      "Groups are now discoverable to any user who can view the ontology, aligning group visibility with other ontology primitives for transparency in governance",
+      "Object types can belong to multiple groups, providing flexible multi-dimensional classification for large ontologies",
+      "Legacy groups that were not fully visible to all users required manual migration by ontology owners, with hidden groups stored as type class metadata for backward compatibility",
+      "Groups serve both organizational (classification) and operational (search, filtering, Object Explorer home page) purposes"
+    ]
+  },
+  {
+    "url": "https://blog.pvmit.com/pvm-blog/palantir-ontology",
+    "title": "Understanding the Palantir Ontology - PVM Blog",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Heart of all Palantir platforms serving as a framework to bring order and structure to complex datasets, integrating diverse data points into a unified system"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Data entity defined in the Ontology with attributes and relationships to other entities"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attribute of an entity within the Ontology's hierarchical data model"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationship definition between data entities within the Ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Operational element in the Ontology enabling decision-making and action on data"
+      },
+      {
+        "type": "Pattern",
+        "name": "Hierarchical Data Model",
+        "description": "Pattern where the Ontology defines entities, attributes, and relationships in a hierarchical structure providing a common language across roles"
+      },
+      {
+        "type": "Pattern",
+        "name": "Unified Data Model",
+        "description": "Pattern of creating a standardized, structured way to link diverse datasets from fragmented, siloed sources for mission-critical environments"
+      },
+      {
+        "type": "UseCase",
+        "name": "Public Sector Data Integration",
+        "description": "Use case where government teams integrate fragmented, siloed data from countless sources for national security, public safety, and disaster response"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "CONNECTS",
+        "target": "Link Type"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Hierarchical Data Model"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Unified Data Model"
+      },
+      {
+        "source": "Public Sector Data Integration",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology provides a common language ensuring consistency and accessibility regardless of technical expertise, serving data scientists and decision-makers alike",
+      "The Ontology is positioned as the heart of all Palantir platforms (not just Foundry), serving as the unifying framework across the entire product ecosystem",
+      "Public sector teams face uniquely challenging data integration problems with fragmented, siloed data where mission success depends on rapid, informed action",
+      "The Ontology's value is in surfacing relevant information and connecting dots between datasets, making analysis intuitive rather than requiring technical query skills"
+    ]
+  },
+  {
+    "url": "https://community.palantir.com/t/polymorphic-interface-with-unique-primary-keys-best-practice/3617",
+    "title": "Polymorphic Interface with Unique Primary Keys - Best Practice?",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology abstraction enabling polymorphic modeling where multiple object types share common properties like task_id, status, and priority through interface implementation"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Concrete Ontology type (e.g., Incident, Case, Problem) that implements an interface to share common properties"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationship mechanism used to connect objects via interface-level references through toInterfaceRid for polymorphic linking"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Primary Key",
+        "description": "Unique identifier for object instances enforced locally per object type, not globally across the Ontology"
+      },
+      {
+        "type": "Pattern",
+        "name": "Interface Polymorphism",
+        "description": "Pattern of using a shared interface (e.g., Task) across multiple object types to enable polymorphic references and links from other object types like SLA"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "toInterfaceRid",
+        "description": "Mechanism for creating polymorphic references through interface RIDs, enabling a single link type (e.g., from SLA) to reference any implementing object type"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Local Primary Key Enforcement",
+        "description": "Foundry enforces primary key uniqueness only within a single object type, meaning the same key value can exist across multiple implementing types, breaking interface-level uniqueness assumptions"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "IMPLEMENTS",
+        "target": "Interface"
+      },
+      {
+        "source": "Interface",
+        "relationship": "USES_PATTERN",
+        "target": "Interface Polymorphism"
+      },
+      {
+        "source": "Primary Key",
+        "relationship": "PART_OF",
+        "target": "Object Type"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "REFERENCES",
+        "target": "Interface"
+      },
+      {
+        "source": "toInterfaceRid",
+        "relationship": "DEFINED_BY",
+        "target": "Interface"
+      },
+      {
+        "source": "Local Primary Key Enforcement",
+        "relationship": "DEFINED_BY",
+        "target": "Primary Key"
+      }
+    ],
+    "keyInsights": [
+      "Foundry enforces primary key uniqueness only locally per object type, not globally across implementing types, which creates a challenge for interface-level polymorphic references",
+      "The toInterfaceRid mechanism enables polymorphic linking from a single object type (e.g., SLA) to any object type implementing a shared interface (e.g., Task)",
+      "The community-reported challenge of global uniqueness across interface implementations suggests this is an unresolved design tension in Ontology's polymorphism model",
+      "Real-world polymorphic modeling (Incident, Case, Problem sharing a Task interface) requires careful primary key design to avoid collisions across implementing types"
+    ]
+  },
+  {
+    "url": "https://community.palantir.com/t/introducing-object-type-groups-in-the-ontology/343",
+    "title": "Introducing object type groups in the Ontology",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type Group",
+        "description": "Fully-featured Ontology primitive replacing legacy tag-based groups, allowing builders to classify object types for improved searchability and legibility of complex ontologies"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology element that can be classified with groups for organizational purposes"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application with a new Groups menu in the left-hand navigation bar for viewing, modifying, searching, and filtering object type groups"
+      },
+      {
+        "type": "Product",
+        "name": "Object Explorer",
+        "description": "Foundry application whose Overview page uses groups to categorize object types for user discovery"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application that previously displayed legacy groups, which were hidden for non-migrated groups after May 2024"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Legacy Group Migration",
+        "description": "Migration process from tag-based groups to first-class ontology primitives, with automatic migration for most groups and manual Upgrade Assistant intervention for partially visible groups"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Group Visibility",
+        "description": "All groups are now discoverable to any user that can view the Ontology, aligning with other ontology primitives for governance transparency"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type Group",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type Group",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Object Type Group",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Explorer"
+      },
+      {
+        "source": "Group Visibility",
+        "relationship": "SECURES",
+        "target": "Object Type Group"
+      },
+      {
+        "source": "Legacy Group Migration",
+        "relationship": "EXAMPLE_OF",
+        "target": "Object Type Group"
+      }
+    ],
+    "keyInsights": [
+      "Object type groups graduated from tag-based metadata to a fully-featured Ontology primitive, reflecting Palantir's pattern of promoting successful patterns into first-class features",
+      "The visibility change (all groups discoverable to ontology viewers) represents a deliberate governance design decision favoring transparency over restrictive access control",
+      "Legacy groups that could not be safely auto-migrated were hidden from operational applications but preserved as type class metadata for backward compatibility",
+      "Community question about including many-to-many links in groups suggests users want organizational primitives beyond just object type classification"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/ontology-resources/object-types/list-object-types",
+    "title": "List Object Types - API Reference - Palantir",
+    "extractedEntities": [
+      {
+        "type": "TechnicalDetail",
+        "name": "List Object Types API V1",
+        "description": "REST API endpoint (GET /api/v1/ontologies/{ontologyRid}/objectTypes) that returns paginated object type definitions with metadata including API names, properties, primary keys, and descriptions"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology element returned by the API with apiName, description, primaryKey array, properties map, and RID"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Object type attribute represented in API responses with a baseType field indicating the data type (String, Integer, Date, etc.)"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Primary Key",
+        "description": "Array of property names uniquely identifying instances of an object type, represented as a string array in V1 API responses"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Ontology RID",
+        "description": "Unique Resource Identifier for an Ontology instance, used as a path parameter for API access and discoverable via the List Ontologies endpoint"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Type RID",
+        "description": "Unique resource identifier for an object type (e.g., ri.ontology.main.object-type.401ac022-89eb-4591-8b7e-0a912b9efb44)"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth Scope api:ontologies-read",
+        "description": "Required OAuth2 operation scope for third-party applications accessing the List Object Types endpoint"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Pagination Token",
+        "description": "Token-based pagination mechanism using pageToken and nextPageToken fields with configurable page sizes defaulting to 500"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "List Object Types API V1",
+        "relationship": "EXAMPLE_OF",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Primary Key",
+        "relationship": "PART_OF",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type RID",
+        "relationship": "DEFINED_BY",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology RID",
+        "relationship": "DEFINED_BY",
+        "target": "Ontology"
+      },
+      {
+        "source": "OAuth Scope api:ontologies-read",
+        "relationship": "SECURES",
+        "target": "List Object Types API V1"
+      },
+      {
+        "source": "List Object Types API V1",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "V1 API represents object type properties with a simple baseType string (Integer, String, Date) while the property map is keyed by property API names",
+      "Primary keys are represented as string arrays in V1 (supporting composite keys), with each entry being a property API name",
+      "Object types have unique RIDs following the pattern ri.ontology.main.object-type.{uuid}, providing stable identifiers independent of API names",
+      "The API uses token-based pagination with a default page size of 500 and guarantees at least one result per page when more results are available",
+      "Third-party OAuth2 applications need the api:ontologies-read scope, indicating a granular permission model for API access"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/ontologies-v2-resources/object-types/get-object-type",
+    "title": "Get Object Type - API Reference - Palantir",
+    "extractedEntities": [
+      {
+        "type": "TechnicalDetail",
+        "name": "Get Object Type API V2",
+        "description": "REST API endpoint (GET /api/v2/ontologies/{ontology}/objectTypes/{objectType}) that retrieves a specific object type by API name with enhanced metadata including display names, status, visibility, and icon"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology element with V2 API representation including apiName, displayName, pluralDisplayName, status, description, primaryKey, titleProperty, visibility, icon, properties map, and RID"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Type Status",
+        "description": "Enum representing the release status of an object type with values: ACTIVE, ENDORSED, EXPERIMENTAL, DEPRECATED"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Type Visibility",
+        "description": "Enum representing suggested visibility of an object type with values: NORMAL, PROMINENT, HIDDEN"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property V2",
+        "description": "Enhanced property representation in V2 API using a structured dataType object with a type field instead of V1's flat baseType string"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Title Property",
+        "description": "Designated property on an object type that serves as the display title, a V2-specific metadata field not present in V1"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Blueprint Icon",
+        "description": "Union type for object type icons, currently consisting only of BlueprintIcon with potential for future icon types"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Branch Parameter",
+        "description": "Experimental V2 API feature allowing object type definitions to be loaded from a specific Foundry branch rather than the default branch"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth Scope api:ontologies-read",
+        "description": "Required OAuth2 operation scope for third-party applications accessing the Get Object Type V2 endpoint"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Get Object Type API V2",
+        "relationship": "EXAMPLE_OF",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property V2"
+      },
+      {
+        "source": "Object Type Status",
+        "relationship": "DEFINED_BY",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type Visibility",
+        "relationship": "DEFINED_BY",
+        "target": "Object Type"
+      },
+      {
+        "source": "Title Property",
+        "relationship": "PART_OF",
+        "target": "Object Type"
+      },
+      {
+        "source": "Branch Parameter",
+        "relationship": "DEFINED_BY",
+        "target": "Get Object Type API V2"
+      },
+      {
+        "source": "OAuth Scope api:ontologies-read",
+        "relationship": "SECURES",
+        "target": "Get Object Type API V2"
+      },
+      {
+        "source": "Get Object Type API V2",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "V2 API introduces significant metadata enhancements over V1: displayName, pluralDisplayName, status enum (ACTIVE/ENDORSED/EXPERIMENTAL/DEPRECATED), visibility enum (NORMAL/PROMINENT/HIDDEN), titleProperty, and icon",
+      "V2 represents properties with a structured dataType object containing a type field, replacing V1's flat baseType string for richer type information",
+      "The primaryKey field changed from an array of strings in V1 to a single string in V2, suggesting V2 may have simplified composite key representation",
+      "The status enum (ACTIVE, ENDORSED, EXPERIMENTAL, DEPRECATED) provides a lifecycle model for object types, enabling governance of ontology evolution",
+      "Experimental branch support in V2 allows loading ontology definitions from non-default branches, suggesting versioned ontology development workflows"
+    ]
+  }
+]

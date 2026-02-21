@@ -1,0 +1,400 @@
+Platform overview • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Getting started Platform overview Overview 
+
+ Platform overview
+
+Palantir AIP powers real-time, AI-driven decision-making in the most critical commercial and government contexts around the world. From public health ↗ to battery production ↗ , organizations depend on Palantir to safely, securely, and effectively leverage AI in their enterprises — and drive operational results ↗ .
+
+In short, Palantir AIP connects generative AI to operations. Together with Foundry - Palantir's data operations platform - and Apollo - Palantir's mission control for autonomous software deployment, AIP is part of an AI Mesh that can deliver the full gamut of AI-driven products, from LLM-powered web applications to mobile applications using vision-language models to edge applications that embed localized AI. We call this entire set of capabilities, functionality, and tooling the Palantir platform .
+
+While many factors contribute to achieving and scaling operational impact with the Palantir platform — including AIP Bootcamps ↗ , where customers are hands-on-keyboard and achieving outcomes with AI in a matter of hours — the key differentiator is a software architecture which revolves around the Palantir Ontology .
+
+Palantir Learning portal
+
+Learn important platform concepts in the "Introduction to Foundry & AIP for Enterprise Organizations" course on learn.palantir.com ↗ , or read on below.
+
+ The Ontology
+
+The Ontology is designed to represent the decisions in an enterprise, not simply the data. Every organization in the world is faced with the challenge of how to execute the best possible decisions, often in real-time, while contending with internal and external conditions that are constantly in flux.
+
+The complexity of these decision processes is reflected in the Ontology, which facilitates deep, two-way interoperability with existing enterprise systems. The Ontology automatically integrates the relevant data, logic and action components into a modern, AI-accessible computing environment. This unlocks the rapid development of operational applications with AI teaming, in addition to conventional business intelligence and analytical workflows.
+
+ Decision components
+
+Every decision can be broken down into data , logic , and actions .
+
+ Data: What are the relevant facts or truth about the world and our operations that form the context for this decision?
+
+ Logic: What organizational or business rules act as guardrails for this decision? What are the probabilities of certain outcomes under different assumptions? What have we done in previous, similar situations and what have the outcomes been? What are the inputs from our forecasting and optimization models?
+
+ Actions: What are the "kinetics" or effects of this decision - that is, how does the decision manifest in the world? How do we reduce or collapse the steps between taking a decision in AIP and affecting an outcome in a production setting?
+
+In the Palantir platform, all of these components are designed to facilitate AI teaming patterns to unlock the full potential of your operators, analysts, and subject-matter experts.
+
+Suggested reading
+
+To learn more about how these decision components interact to guide workflow development, refer to the documentation on distilling functional requirements as part of the use case lifecycle , or find examples of industry-specific end-to-end workflows in the AIP Now showcase ↗ .
+
+ Data
+
+The Ontology integrates data as objects and links in order to make the real-world complexity of operations understandable for both humans and AI. This unlocks the ability to build Human + AI teaming workflows.
+
+The Ontology natively supports a wide range of data types as well as a number of extended primitives, such as semantic search for unlocking unstructured data, media references for working with images and video, and value types for embedding additional constraints and context into data. These are the data building blocks for AI workflow development, described further in the Logic and Actions sections below.
+
+This data model powers out-of-the-box applications for exploring structured, unstructured, geospatial, temporal, simulated, and other data modalities. These baseline tools are enriched with the context-aware AIP Assist to dramatically shorten the time-to-value when exploring and analyzing data in the platform.
+
+In addition to application building and analytics, modeling data in the Ontology automatically creates a robust API gateway and Ontology Software Developer Kit (OSDK) to serve as an “operational bus” for connectivity throughout the enterprise.
+
+ Data connectivity
+
+Data rarely comes packaged in the clean, correct, and well-shaped formats needed to accurately and reliably present truth to decision makers. To that end, the Palantir platform provides an extensible, multimodal data connection and integration framework that works with enterprise data systems out-of-the-box.
+
+ Pipeline Builder puts the power of LLM data transformation into a point-and-click package, making it easy to use the latest LLMs to power pipeline-based transforms such as classification, sentiment analysis, summarization, entity extraction, or translation. This sets the stage for automatically creating "proposals" in the Ontology for operators to review and approve, without the lag of always running a live request to a model. (Note that, as discussed in the Logic section below, these two approaches to interacting with models are highly complementary.)
+
+In addition, AIP Assist in Pipeline Builder and Code Repositories accelerates data engineering with an AI partner that not only has access to Palantir documentation and repositories of generic code snippets, but also is deeply integrated into the platform frontend and can suggest next actions or relevant tutorials.
+
+ Logic
+
+If data defines the context for our decisions, logic encapsulates the reasoning and analysis that enriches this context, enabling Human+AI teams to make better decisions. This can be provided as additional context in the form of model outputs and visualizations presented within an operational application, or baked directly into the mechanics of an Action.
+
+Given this broad definition, the ability to define and execute logic shows up throughout the platform; for example, let us consider models , business logic , and templated analyses and reports .
+
+ Models
+
+ Generative AI, LLMs, forecasts, optimizers, etc. 
+
+Models like LLMs or forecasts take parameters and provide an output to serve as context for the decision at hand. In a cycle familiar to data scientists, these models often undergo an iterative process of training and refinement; however, using these models as operational workflows in production can be a challenge. Palantir's modeling capabilities can facilitate operational deployment of models.
+
+In the Palantir platform, the full lifecycle of a model is captured as a modeling objective and the logic of the model itself is abstracted with a model adapter . This approach means whether you train in the platform , bring your own container , or upload a pre-trained model , models of all varieties can be bound to the Ontology through Functions for live interaction embedded in operational apps, or configured for batch deployment and scheduled for execution in a data pipeline.
+
+Specifically for generative AI, Palantir's Language Model Service provides a unified interface for multi-modal interactivity while abstracting the specific model and provider implementation details, making it simple to develop across the landscape of commercially-available LLMs. To further improve outcomes, Palantir's Evaluations tool enables you to benchmark LLM performance over time and between models to monitor drift and make changes with confidence.
+
+ Business logic
+
+ Business rules, process mapping, semantic search 
+
+Where modeling approaches take a "bottom-up" approach to training on data, business logic generally goes "top-down" based on the explicit or implicit rules that govern an operational domain. These may live on an external system, to which Palantir can connect directly with External Functions and Webhooks for live interactions in operational workflows, or through External Transforms for pipeline connectivity. Business logic may also be authored directly within the Palantir platform using Rules and Pipeline Builder for logic in data pipelines, and Automate and Functions for logic that will be executed live.
+
+ Templated analyses and reports
+
+ Object views, analysis templates, generated reports 
+
+Logic does not live only in data science models or as hard-coded business rules; analysts often capture and collect high-value logic in one-off investigations, analyses, or reports. In the Palantir platform, you can build analyses and dashboards with point-and-click analysis tools like Contour and Quiver , and notebooks like Code Workspaces . The semantics of the Ontology data model make it easy to template these analytical products and reuse them, whether embedded in Object Views or Workshop applications , or presented as stand-alone dashboards . These object views, templated analyses, and dashboards can be plugged into operational apps to provide at-a-glance insights to guide decision-making, while providing avenues for further ad-hoc exploration.
+
+Taken together, these three facets of logic - models, business logic, and templated analyses and reports - provide a toolkit or palette from which users can mix-and-match to provide decision makers with all of the context needed at the critical moment.
+
+ Actions
+
+For any decision to have an impact, the decision must propagate into the world. This is where Actions define the "verbs" of the enterprise - the things that are done - and control how human operators or AI agents can ensure that their decision persists, either within the Ontology data model or through interaction with external systems . In addition, capturing decision outcomes in the Ontology allows users to pair a particular decision with observations of the results in future data. This enables feedback loops that put future decisions in the context of past choices and can be used to retrain or fine-tune models, or simply support operators with a clearer picture of the past.
+
+The atomic unit for representing these "kinetics" in the Ontology is an Action , which provides specific, granular control for changing or creating data, as well as for orchestrating changes in external systems. Basic actions are simple to define with a point-and-click form configuration interface. Actions of arbitrary complexity can be specified with Function-backed Actions and the Ontology Edits Typescript API . Actions are also available to package within the Ontology Software Development Kit (OSDK) and within the platform API so that custom application development and existing third-party tools can easily and securely write back to the Ontology.
+
+ Permissions for each Action determine which user or agent, under what conditions, is able to execute the action laying the foundation at the lowest level for secure, auditable, and transparent control.
+
+In complex, tightly-coupled environments, such as a supply chain or a manufacturing floor, a small change can cause cascading effects with unexpected or unintended outcomes. The Scenario primitive allows users to project these consequences by making changes to a branch of the ontology, effectively creating a sandbox universe in which forecasts, business process models, and other analyses can be made on top of (and downstream of) the potential change. The Vertex application specializes in this kind of process visualization and scenario testing; the Workshop application builder natively supports scenarios for developing operational applications that incorporate “What if...” workflows.
+
+These primitives create an environment for safe development of Human+AI teams operating in production workflows. The granular permissions and access control from Actions provide a "control plane" in which agents are sandboxed with specific limitations on the data and tools they can wield. In most patterns, rather than directly make changes, AI agents create proposals either synchronously through direct integration with AIP Logic functions integrated into Workshop, or asynchronously through Automate or the Use LLM node in Pipeline Builder. The resulting proposal can then be surfaced to an operator for refinement, feedback, and a resulting decision. This proposal-based pattern, in addition to reinforcing the “human in the loop” paradigm, also generates valuable metadata that enables a positive cycle where the Agent can learn and evolve with continuous feedback.
+
+ What’s next?
+
+The best way to experience the power of AIP is to start building. Read the getting started guide for more information, or - if you have access to the platform - just ask AIP Assist where to start based on your intended goals.
+
+Palantir Learning portal
+
+To jumpstart building your first end-to-end sample workflow, navigate to learn.palantir.com ↗ .
+
+For details on how various platform decision components interact to guide workflow development, refer to the discussion about distilling functional requirements in the discussion of use case development , or find examples of industry-specific end-to-end workflows in the AIP Now showcase ↗ .
+
+Additionally, you can learn more about how AIP is built and how it integrates with existing investments across your organization:
+
+ Architecture 
+
+ Interoperability 
+
+ Development lifecycle 
+
+ Platform capabilities
+
+The remainder of the documentation is organized as a collection of platform capabilities . Summaries of each can be found below:
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Data connectivity & integration
+
+Palantir provides an extensible, multimodal data connection framework that connects to enterprise data systems out-of-the-box and provides:
+
+In-place, zero-copy access to existing data lakes and platforms;
+
+An auto-scaling, Kubernetes-based build system for data that works across batch and streaming pipelines;
+
+Integrated pipeline scheduling and orchestration;
+
+Native health checks for all data flows; and
+
+Comprehensive security functionality that spans role-, classification-, and purpose-based access controls.
+
+Suggested reading
+
+Learn more with these resources:
+
+ Overview: Data connectivity & integration 
+
+ Connecting to data 
+
+ Virtual Tables 
+
+ What is a data pipeline? 
+
+ Health checks 
+
+ Securing a data foundation 
+
+ Model connectivity & development
+
+Palantir offers an integrated, end-to-end environment for model development (e.g., in Python and R); flexible integration of external models built using industry-standard toolsets; governed paths to production for all developed or integrated models; and a “mission control” for continuous evaluation of deployed models. The architectural goal is to provide a connection path for all business logic and modeling in the enterprise, regardless of where the given asset was trained, tested, and/or hosted.
+
+Suggested reading
+
+Learn more with these resources:
+
+ Overview: Model connectivity & enablement 
+
+ Model development 
+
+ Integrating external models 
+
+ Evaluating models 
+
+ Models in the Ontology 
+
+ Ontology building
+
+As mentioned above, to create a comprehensive decision-centric model of the enterprise, the Ontology integrates:
+
+ Data , as objects and links ;
+
+ Logic , as models and functions ; and
+
+ Actions , as platform actions .
+
+These building blocks of the Ontology make the real-world complexity of operations understandable to both operators and AI, unlocking the ability to build hybrid human-AI workflows. Additional capabilities include:
+
+Structured mechanisms for capturing data from end users back into the semantic foundation;
+
+Out-of-the-box applications for exploring the Ontology in structured, unstructured, geospatial, temporal, simulated, and other paradigms; and
+
+The Ontology Software Developer Kit (OSDK) for leveraging the Ontology as an “operational bus” throughout all parts of the enterprise.
+
+Suggested reading
+
+Learn more with these resources:
+
+ Overview: Ontology building 
+
+ Why create an Ontology? 
+
+ Ontology and AIP Logic 
+
+ Models in the Ontology 
+
+ Ontology-aware applications 
+
+ System graphs and simulations 
+
+ Ontology SDK 
+
+ Use case development
+
+Palantir's application development framework enables enterprises to build operational workflows and develop use cases that leverage user actions, alerting, and other end-user frontline functions in collaboration with tool-wielding, data-aware AIP Agents.
+
+Use case development capabilities include:
+
+Integration with AIP Logic for building custom workflow agents;
+
+AI-assisted, low-code / no-code application building that automates security enforcement and the management of underlying storage and compute as well as data and model bindings;
+
+An application development framework with live preview; and
+
+APIs, webhooks, and other interfaces that allow for full-spectrum integration with the enterprise.
+
+Suggested reading
+
+Learn more with these resources:
+
+ Overview: Use case development 
+
+ Creating operational applications 
+
+ Connecting analytics to operations 
+
+ Low-code and no-code application building 
+
+ Integrating with existing systems 
+
+ Analytics
+
+The platform provides analytical capabilities for every type of user, whether they can code or not. Capabilities include both point-and-click and code-based tools that enable table-based analysis, top-down visual analysis, geospatial analysis, time series analysis, scenario simulation, and more.
+
+Palantir's Analytics suite goes beyond conventional “read-only” paradigms to write data back into the Ontology, producing valuable new insights within unified security, lineage, and governance models.
+
+The platform also interoperates with common modeling environments (supporting native usage of JupyterLab® and RStudio® Workbench with Code Workspaces ) and business intelligence platforms (including dedicated connectors for Tableau® and PowerBI®).
+
+Suggested reading
+
+Learn more with these resources:
+
+ Overview: Analytics 
+
+ Types of analysis 
+
+ Code-based analysis 
+
+ Time series analysis 
+
+ Product delivery
+
+The Palantir platform provides DevOps tooling to package, deploy, and maintain data products built in the platform. These product delivery capabilities include a packaging interface to create "products" consisting of collections of platform resources (pipelines, Ontologies, applications, models, etc.); a Marketplace storefront for product discovery and installation; and the ability to manage product installations with automatic upgrades, maintenance windows, and more.
+
+Suggested reading
+
+Learn more with these resources:
+
+ Overview: Product delivery 
+
+ Core concepts 
+
+ Finding and installing products in Marketplace 
+
+ Creating products 
+
+ Security & governance
+
+The Palantir platform features a comprehensive, best-in-class security model that propagates across the entire platform and, by default, remains with information wherever it travels. Capabilities include:
+
+ Encryption of all data , both in transit and at rest;
+
+Authentication and identity protection controls;
+
+Authorization controls that can blend role-, marking-, and purpose-driven paradigms;
+
+Robust security audit logging ; and
+
+Highly extensible information governance, management, and privacy controls .
+
+Suggested reading
+
+Learn more with these resources:
+
+ Overview: Security & governance 
+
+ Enterprise security 
+
+ Audit logging 
+
+ Privacy controls 
+
+ Management & enablement
+
+Platform administrators have access to a robust set of tools for managing the Palantir platform. The core applications for platform management are:
+
+ Control Panel 
+
+ Resource Management 
+
+ Upgrade Assistant 
+
+Platform administrators and program managers also have access to resources to facilitate user enablement, such as AIP Assist . These resources are described in the management & enablement documentation .
+
+Suggested reading
+
+Learn more with these resources:
+
+ Overview: Management & enablement 
+
+ Enrollments and organizations 
+
+ Authentication 
+
+ Retention 
+
+ ← 
+ PREVIOUS Getting help / HTTP errors 
+
+ NEXT Architecture 
+ →

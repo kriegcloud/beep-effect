@@ -1,0 +1,141 @@
+Hardware Selection and Logistics (Passwordless Authentication Series, #1)
+Palantir
+Follow
+9 min read
+·
+Nov 18, 2022
+
+11
+
+Press enter or click to view image in full size
+
+Editor’s Note: This is the first in a series that shares insights from our journey enforcing FIDO2 authentication via hardware authenticators (YubiKeys) across all of Palantir. While Palantir has enforced mandatory strong multi-factor authentication for well over a decade, hardware-backed authentication using FIDO2 represents the strongest form of modern authentication available.
+
+Threat Model
+
+Palantir has a unique threat model that places strong security at the core of every major initiative. We are routinely targeted by sophisticated and persistent adversaries in advanced phishing campaigns to harvest credentials, introduce malicious code to our information systems, and to socially engineer our users.
+
+In 2012, we implemented mandatory, strong multi-factor authentication across our entire company. In 2015, we expanded these security initiatives to all of our cloud-hosted customers. These controls, while extremely effective at fighting commodity attacks, proved to have weaknesses that could still be exploited. Over the last several years, we have observed an uptick in attacks using techniques like evilginx2, phishing secondary factor codes (e.g., time-based one-time passwords), and phishing of app-based authenticators for access.
+
+Palantir’s network defense philosophy embraces zero-trust, defense-in-depth, and assume breach mentalities. We strongly believe in hardened, well-defined network boundaries that constrain the ability to operate for our adversaries. Unlike most zero-trust implementations, we do not allow connectivity to the vast majority of our corporate resources from the general Internet, instead requiring our devices to first connect to our network via a full-tunnel virtual private network (VPN). We also believe that our adversaries will find beachheads into these networks, and therefore design our security controls to assume all devices are potentially hostile or compromised.
+
+The combination of strong network boundaries, zero-trust philosophies, and mandatory multi-factor authentication have proved to be incredibly effective at stopping account takeover, phishing, and unauthorized access.
+
+However, our threat model necessitated that we implement a solution to the greatest extent possible via commercially available hardware and software in order to:
+
+Eliminate the risks associated with weak, compromised, leaked, or reused credentials for user accounts.
+Eliminate the risks associated with phishing, social engineering, and interception of primary (passwords) and secondary authentication material (e.g., one-time passwords, app-based authenticators, etc.).
+Ensure that all users are physically present at their device for each authentication event via an unspoofable attestation mechanism.
+Resist supply chain attacks of malicious, subverted, or otherwise modified authenticators.
+Ensure alignment with the most rigorous compliance and governance demands, including using devices with FIPS 140–2 validated cryptography.
+Minimize our reliance on middleware, software agents, or wizzbang SAAS vendors.
+(Optionally) Enable hardware-backed cryptographic signing for security-sensitive operations (e.g., software commit signing.)
+(Optionally) Enable hardware-backed authentication for other protocols (e.g., SSH).
+(Optionally) Use a single platform for authentication across all supported platforms (e.g., Windows, MacOS, mobile) to simplify logistics, user experience, and education.
+
+In this post, we discuss our threat model, platform and YubiKey selection, self-service portal, timelines, communications, and statistics.
+
+Fast Identity Online 2
+
+We decided to adopt the Fast Identity Online 2 (FIDO2) standard for our next-generation authentication platform. FIDO2 combines two exceptional security standards (WebAuthn and CTAP) to provide an incredibly strong and user-friendly authentication experience.
+
+Under the hood, FIDO2 creates unique cryptographic key material for each website and domain it’s enrolled in. This cryptographic material is stored in hardware and cannot be exported. To unlock access to the cryptographic material to perform an operation, a challenge or gesture is performed — such as a biometric scan or entering a PIN. Because the credential material never leaves the device and is bound to a specific domain, it cannot be phished by a malicious website or disclosed by a socially engineered victim.
+
+Press enter or click to view image in full size
+
+Adoption of the FIDO2 standard is widespread and has tremendous industry traction, making it a safe long-term bet for this project.
+
+From this point on, through the rest of the series, we’ll be using the terms FIDO2 and passwordless interchangeably.
+
+Hardware Authenticator Selection
+
+With FIDO2, there are two types of authenticators: platform authenticators and roaming authenticators.
+
+Platform authenticators, also known as internal authenticators, are natively implemented in a device, such as a laptop or mobile phone. Platform authenticators generally have hardware-backed security elements and may use a knowledge or biometric-based challenge to unlock the cryptographic material stored on them.
+
+Roaming authenticators, also known as external authenticators, are hardware devices that can be inserted into a device to provide FIDO2 authentication. Roaming authentications generally have hardware-backed security elements and typically use a knowledge-based challenge to unlock the cryptographic material stored on them.
+
+At Palantir, we allow our users to select the platform that best works for their productivity. Therefore, we do not have a homogenous fleet of devices and operating systems. While all of these devices have secure, modern, and compatible platform authenticators, we decided to only support roaming authenticators for our initial rollout.
+
+We made this decision for several reasons:
+
+Some of our device platforms lacked enterprise-level internal authenticator integration and support, which would have delayed our timeline for completion of this project.
+Internal authenticators oftentimes allow export or syncing of the keys between devices, which presents security risk with the tradeoff of availability.
+A significant percentage of our users operate from client sites where they may use other devices as part of their work. Roaming authenticators give them flexibility to operate from some of these locations where other devices may not be permitted.
+Using a single external authenticator platform would streamline logistics, user education, and ensure a uniform experience across all platforms and use cases.
+We did not want to use a platform that allowed for self-service recovery or synchronization of authenticators (e.g., passkeys).
+
+Once we decided to use an external authenticator, we looked at available options in the market. Our need for supply chain assurance, FIPS 140–2 validated cryptography, native FIDO2 support, and ability to meet logistic demands for a global workforce led us to the YubiKey 5 FIPS series.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+The YubiKey 5 FIPS keys met all Palantir requirements. Each key natively supported the FIDO2 authentication protocol, met our compliance requirements (FIPS 140–2), were manufactured in the United States, provided strong attestation functionality, and could enable our optional code-signing use cases. Additionally, YubiKeys have a capacitance feature that requires physically touching the key to authorize an operation, helping us achieve our user presence requirement.
+
+Press enter or click to view image in full size
+Self-Service Ordering Portal
+
+With several thousand employees distributed across the globe, we needed a self-service procurement and ordering option. To facilitate this, we enrolled in the YubiEnterprise program, which allowed for API-driven YubiKey ordering and global delivery.
+
+We built our own portal service to enable self-service ordering for users, providing several critical functions:
+
+Users could self-service order new keys without speaking to a centralized operations team, increasing velocity of key distribution.
+Keys could be ordered and shipped to wherever our users physically worked (e.g., an office, a client site, a remote location, or their home). Delivery and supply chain logistics would be handled by Yubico directly, saving us time and energy.
+Users could select a YubiKey form factor, enabling our users to order what they needed for their own specific workflows, including ordering backup keys.
+Press enter or click to view image in full size
+
+Once an order was placed in the portal, it was dispatched to Yubico for processing and handling. The portal would reflect the order for the user, including the form factor, mailing address, order data, and shipping information.
+
+Press enter or click to view image in full size
+
+The vast majority of YubiKeys deployed at Palantir were ordered and shipped via the self-service portal without human intervention — almost 6,000 keys since inception.
+
+In addition to the self-service portal, we stocked pools of each form factor of YubiKey in all of our major offices. In the event that someone critically needed a key before enforcement or needed to replace a lost or broken key, they could easily acquire one in-person.
+
+YubiKey Enrollment
+
+Once users received a YubiKey, either by the portal or in an office, they needed a way to perform self-service provisioning and enrollment. To prevent users from enrolling unauthorized FIDO2 authenticators, we additionally deployed AAGUID restrictions in AzureAD (more on this in the Technical Controls, Rollout Plan, and Edge Cases blog post). Devices which presented an AAGUID and associated certificate material that were not on the approved list were rejected from enrollment.
+
+Our users landed in one of two categories:
+
+Developers that need the ability to perform GPG-based commit signing for source code development and authentication via FIDO2.
+Non-developers that only needed a YubiKey for FIDO2 authentication.
+
+For users who only needed to enroll their key as a FIDO2 authenticator, the vast majority of the steps were documented in our internal knowledge base. These steps included:
+
+Navigating to https://www.yubico.com/genuine and performing a validation check for their key(s).
+Configuring the key locally using the YubiKey Manager application (or CLI). This included disabling unused interfaces (e.g., OTP, FIDO U2F, PIV, OATH) and configuring a FIDO2 PIN.
+Navigating to our identity provider, Azure Active Directory (AzureAD), and completing a FIDO2 enrollment with their account.
+Following internally curated documentation for testing the FIDO2 authentication workflow.
+
+Aside from FIDO2 authentication, we also leveraged our YubiKeys to implement mandatory GPG-based commit signing for source code development. This use case is out-of-scope of this blog post but will be explored in a future post.
+
+Fleet Tracking and Timelines
+
+Enforcing passwordless authentication for thousands of globally distributed employees and contractors on multiple operating systems proved to be quite challenging. Further compounding the issue was the lack of a first-class passwordless enforcement mechanism in our identity provider, Azure AD, until October of 2022. Despite these challenges, from start to finish, this project took approximately 16 months to complete.
+
+Press enter or click to view image in full size
+
+To track the success of this project, we used our own analytics platform, Palantir Foundry, as our command and control system. Raw authentication data was ingested from AzureAD, correlated, and enriched with other relevant authentication systems and datasets. We then removed the known edge cases (e.g., applications or use cases where passwordless is not technically feasible) and presented several dashboards for consumption:
+
+A user-centric dashboard where individuals could view their rolling 30-day authentication behavior. This highlighted the percentage of FIDO2 authentication they performed relative to other mechanisms.
+A team-led centric dashboard where team leads could view the aggregate enrollment and authentication behavior for their team-members.
+
+Aside from the dashboards, Foundry proved instrumental for ensuring a seamless rollout. Each day, data review surfaced users who had not enrolled YubiKeys, had platform-specific issues, or had workflows which didn’t quite work with FIDO2. This information was shared across a tiger team of security, technical support, and evangelism personnel within the platform, and users could be contacted proactively and have their issues resolved in advance of enforcement deadlines.
+
+We were also able to build automated detection workflows off of this data in Foundry to message our end users when we detected usage of password-based authentication on their accounts. We messaged users using a just-in-time bot soon after they authenticated via a non-FIDO2 method and daily endpoint notifications to help redirect workflows. This was paramount in enabling our team to have more targeted communications to the offending users — as opposed to relying solely on broad emails to the company.
+
+The end result of this data analysis and decision-making process was self-evident at the final enforcement milestone. Once we enabled enforcement of FIDO2 authentication for all users, we encountered minimal preventable lockouts of users, and our technical support team reported no major flareup or surge of issues.
+
+Conclusion
+
+We started our journey to replace passwords back in 2015 with a sojourn into X509 PIV (smart card) authentication. Over the last seven years, the creation and adoption of the FIDO2 standard has made the dream of killing passwords technically feasible. That said, while industry guidance simply suggests ‘Enforce FIDO2,’ it was perhaps one of the most difficult projects our team has embarked on. Between immature platform features, unsupported applications, edge cases, and logistics, this required a massive effort spanning dozens of teams. Additionally, each and every Palantir employee and contractor had to make personal behavioral changes to their workflows and day-to-day usage of our information systems. While the security benefits are massive, it was not without cost, expense, and energy.
+
+In our next post in this series, we cover our enforcement implementation for FIDO2 authentication at Palantir, rollout strategies, and edge cases.
+
+Authors
+
+Chris Dunn and Dane Stuckey, Palantir Information Security (PalSec)

@@ -1,0 +1,135 @@
+RoboSlack: A Java library for planet-scale messaging with Slack
+Palantir
+Follow
+5 min read
+·
+Jul 17, 2017
+
+85
+
+Press enter or click to view image in full size
+
+RoboSlack is a Java library for Slack’s HTTP API. Initially developed by Palantir’s operations team for internal use, RoboSlack has since gained widespread adoption across business and product teams, and now powers use cases ranging from issue triage to system monitoring. RoboSlack is available on Github and we’re excited to see its journey continue outside Palantir.
+
+Introduction
+
+RoboSlack is a Java8 implementation of a pragmatic subset of Slack’s HTTP API, designed to express the most common Slack use cases through a simple, fluent API:
+
+WebHookToken token = WebHookToken.fromString("<token>");
+MessageRequest message = MessageRequest.builder()
+  .text("Hello, Slack!")
+  .username("roboslack")
+  .channel("#your-channel")
+  .build();
+ResponseCode response =
+  SlackWebHookService.with(token).sendMessage(message);
+
+Under the hood, RoboSlack issues the corresponding HTTP request:
+
+POST https://hooks.slack.com/services/<token>
+{
+  "text": "Hello, Slack!",
+  "username": "roboslack",
+  "channel": "#your-channel"
+}
+
+About a year ago, the need for something like RoboSlack became very apparent at Palantir. At the time, our team was working on a way to auto-triage support tickets to engineers. We soon learned that some tickets needed a notification channel that was more attention-grabbing than JIRA emails, but less jarring than a PagerDuty alert. Slack fit the bill because of its context-aware notification schema, individual-vs-channel interaction model, and simple message delivery guarantee. We began to build the underpinnings of RoboSlack as a mere submodule of our support ticket triager. However, while investigating the Slack Incoming Webhook API documentation and throwing ideas around with some of our business development teams, it dawned on us that we could easily extract the Slack module and turn it into a reusable Slack library that would simultaneously meet our needs and establish a useful building block for the rest of Palantir’s software developers. Thus, RoboSlack was born.
+
+Use cases
+
+RoboSlack supports messages with headers, images, fields, footers, and all of the colors of the hex rainbow. We found that RoboSlack code is very readable and reusable across different projects, which often share a MessageRequest setup as a recipe or as part of a style guide to follow within an app's ecosystem. Here are some possible applications for RoboSlack:
+
+Share Google Maps screenshot and deep links:
+
+Press enter or click to view image in full size
+Source code: https://gist.github.com/elektron9/d029c433e4014c7f3fffcd0d882cc20f
+
+Message customers about items in your online store:
+
+Source code: https://gist.github.com/elektron9/d0e7509b34acdbbf01db0b5d224cc440
+
+Use Slack as a logger for high-priority events:
+
+Press enter or click to view image in full size
+Source code: https://gist.github.com/elektron9/6b7ce6e6d4000519d12d3c6cb5efb47e
+Behind the scenes
+
+Now that you have some ideas about how and when to use RoboSlack, let’s take a closer look at some of the API and implementation details.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Authentication
+RoboSlack uses Slack’s Incoming Webhook API to send messages. Using a WebHookToken (usually provided in the form https://hooks.slack.com/TXXXXX/BXXXXX/XXXXXXXXXX or TXXXXX/BXXXXX/XXXXXXXXXX), a client can send messages using the SlackWebHookService. The WebHookToken should be treated like a secret, since it acts as the client's authentication token and default submission target (user or channel) when sending messages. Because it uses the Webhook API, RoboSlack does not support Core API operations like buttons and other advanced Slack interactions at this time.
+
+Error propagation
+Assuming the application or client using RoboSlack to send messages has network access and is able to access the WebHookToken URL (ie. https://hooks.slack.com/TXXXXX/BXXXXX/XXXXXXXXXX), every MessageRequest is guaranteed to be processed by Slack and delivered to the corresponding channel or user when sent. The returned ResponseCode is a human-readable encapsulation of any error codes Slack encountered while processing your message. Examples include: channel_is_archived, action_prohibited, channel_not_found, and user_not_found.
+
+Every MessageRequest sent will either return a ResponseCode containing metadata from the submission to the SlackWebHookService or throw a RuntimeException if there was a problem outside of Slack. For example, if there is a network connectivity problem, you might end up seeing:
+
+java.lang.IllegalStateException: Could not connect to any of the following servers:[https://hooks.slack.com/services/]. Please check that the URIs are correct and servers are accessible.
+
+MessageRequests Builder API
+The MessageRequest class represents a simplified model of the core Incoming Webhook and chat.postMessage API. We chose to implement a Builder pattern for all MessageRequests since it's a close analog for how Slack users tend to compose their thoughts via text. Slack messages are generally composed as their authors flow from idea to idea, from start to finish, by appending text and special Slack Markdown in order to complete a thought. The Builder pattern, which allows us to logically compose MessageRequests by appending new content to the end of existing content, follows this idea and gives us the flexibility to create and then modify MessageRequests “in-flight” before they are finally sent to a Slack channel or user:
+
+MessageRequest.Builder message = MessageRequest.builder()
+  .username("roboslack")                
+  .iconEmoji("smile")
+  .text("Hello, Slack!");
+if (someCondition) {
+  message.attachment(Attachment.builder()
+    .fallback("text")
+    .pretext("pretext")
+    .build());
+}
+slackWebHookService.sendMessage(message.build());
+
+In this way, MessageRequests take on the role of individual “thoughts” in code, which are simple to debug if you don't like what you see in your Slack channel after the fact.
+
+The Underlying HTTP Call
+Using the example above, RoboSlack translates the MessageRequest into an HTTP POST call:
+
+POST https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+{
+  "text": "Hello, Slack!", 
+  "icon_emoji": ":smile:",
+  "username": "roboslack",
+  "attachments": [
+    {
+      "fallback": "text",
+      "pretext": "pretext"
+    }
+  ]
+}
+
+Slack Markdown as Decorators
+Checking MessageRequests for validity is simple in terms of the JSON message structure: any valid Java MessageRequest (as constructed through the Builders exemplified above) gives rise to a valid Slack API call. However, the text and attachment fields may contain Slack Markdown that is subject to additional syntax rules, such as nesting of asterisk symbols for bold or italicized font. In order to help users avoid malformed Markdown (e.g., a stray asterisk), RoboSlack provides simple Decorators for standard formatting actions. This mechanism guarantees well-formed Markdown and makes message formatting code easier to read:
+
+// Either use free-form Markdown in text, ...
+MessageRequest message = MessageRequest.builder()
+  .username("roboslack")                
+  .iconEmoji("smile")
+  .text("Free-form *bold text* and `code snippets`");
+                
+// ... or use decorators.
+MessageRequest message = MessageRequest.builder()
+  .username("roboslack")                
+  .iconEmoji("smile")
+  .text(String.format("Free-form %s and %s",
+      SlackMarkdown.BOLD.decorate("bold text"),
+      SlackMarkdown.PREFORMAT.decorate("code snippets")
+  ));
+
+Further, we prevent Markdown in plaintext-only fields by running each field through a regular expression check implemented as an Immutables library @Value.Check annotation and thus ensure that MessageRequests contain valid Markdown in allowed fields before we pass them to the Slack API.
+
+Conclusion
+
+We hope you enjoyed this quick tour of RoboSlack and look forward to your creative applications of this library. In the meantime, Slack’s APIs continue to evolve, so there is always work to do to keep RoboSlack up to date. We encourage contributions from the open source community — submit a pull request and come see the results of your work in the RoboSlack Slack Team!
+
+Authors
+
+Adil B.
+Cody M.

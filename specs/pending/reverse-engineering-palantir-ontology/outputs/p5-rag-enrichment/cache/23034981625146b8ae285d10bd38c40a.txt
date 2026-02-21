@@ -1,0 +1,146 @@
+Renaming and Deep Directory Hierarchies in Git
+Palantir
+Follow
+10 min read
+·
+Sep 16, 2019
+
+201
+
+1
+
+At Palantir, one of our repositories has a large number of files (on par with the linux kernel) and has deep directory hierarchies due to primarily containing Java code. Refactoring workflows in such large repositories, including renaming of top-level directories, serve as a useful stress-test case for Git’s on-the-fly rename handling… showing multiple places where it came up short.
+
+This blog post explains the what, why, and how of a number of improvements that we have contributed to Git in this area over the last two years. The most important contribution was directory rename detection, i.e., the implementation of the misleadingly simple idea that new files added on one side of history should be moved together with other files from the same directory when the other side of history renames that directory.
+
+Press enter or click to view image in full size
+Weakness in numbers
+
+In one particular case, attempting to cherry-pick a single commit that changed a handful of files brought up several problems. The setup is roughly as follows:
+
+Base version: a huge number of files and directories, but of note there is a directory named olddir/ with several Java files
+Our commit: adds a new file, olddir/FileH.java, and modifies several of the other files in olddir/
+Upstream: renames olddir/ -> newdir/ and modifies some of the files in that directory, plus edits to many other files yielding a large overall diff.
+
+When we cherry-pick this, we saw the following:
+
+$ git cherry-pick $COMMIT
+error: could not apply $COMMIT... Commit summary
+hint: after resolving the conflicts, mark the corrected paths
+hint: with ’git add <paths>’ or ’git rm <paths>’
+hint: and commit the result with ’git commit’
+$ git status
+...
+Changes to be committed:
+  new file: olddir/FileH.java
+Unmerged paths:
+  deleted by us: olddir/FileA.java
+  deleted by us: olddir/FileB.java
+  deleted by us: olddir/FileC.java
+  deleted by us: olddir/FileD.java
+  deleted by us: olddir/FileE.java
+  deleted by us: olddir/FileF.java
+  deleted by us: olddir/FileG.java
+
+There are multiple problems here. The most prevalent in the output above is perhaps the confusing “deleted by us” lines. To understand these, note that if we don’t detect a rename, such as olddir/FileA.java -> newdir/FileA.java, then it instead looks like olddir/FileA.java was deleted and some unrelated newdir/FileA.java was added (even if the new file happens to have very similar content). If one side deletes a file, and the other modified it, then you get a modify/delete conflict, and it results in output like above. This forces the user to manually merge olddir/FileA.java and newdir/FileA.java, which users often do without knowledge of how to access the "base" version; this tends to be an error prone process for users that can easily result in the accidental omission of some code changes from either side.
+
+The next set of problems are not necessarily obvious from the output above, but become obvious to users who want to know what Git is doing and get it to detect the renames:
+
+Despite taking a very long time, no updates were given about progress towards cherry-picking.
+No notification was provided that rename detection was aborted due to merge.renameLimit being too low.
+Even if the user guessed to increase merge.renameLimit, this configuration would be ignored if it is above an arbitrary, hard-coded 32767 threshold.
+
+After we fixed these issues (including having a little fun working the phrase “ought to be enough for anybody” into a commit message), the output is much better:
+
+$ git -c merge.renameLimit=50000 cherry-pick $COMMIT
+Performing inexact rename detection:  100% (2836767183/2836767183), done.
+error: could not apply $COMMIT... Commit summary
+hint: after resolving the conflicts, mark the corrected paths
+hint: with ’git add <paths>’ or ’git rm <paths>’
+hint: and commit the result with ’git commit’
+$ git status
+...
+Changes to be committed:
+  new file: olddir/FileH.java
+  modified: newdir/FileA.java
+  modified: newdir/FileC.java
+  modified: newdir/FileD.java
+  modified: newdir/FileE.java
+  modified: newdir/FileF.java
+Unmerged paths:
+  both modified: newdir/FileB.java
+  both modified: newdir/FileG.java
+
+In this case, we have several improvements:
+
+If the user left off the merge.renameLimit setting, they'd get a message saying that rename detection was skipped due to too many renames with a suggestion of what to set merge.renameLimit too.
+The setting isn’t ignored when it’s bigger than 32767.
+Progress output is provided as rename detection runs
+Most files have cleanly merged changes from both sides of history
+The user can look at newdir/FileB.java and newdir/FileG.java to see where there were conflicts and fix them up, while all the changes that merged cleanly in those files have been handled for the user.
+The real kicker: directory rename detection
+
+In the above example, FileH.java is still a problem; it's in the wrong directory. The upstream side of history didn't rename olddir/FileH.java to newdir/FileH.java because olddir/FileH.java didn't exist. So, if you only look at files in isolation, then leaving FileH.java in olddir/ is reasonable. However, if your build system only builds sources in certain directories, or if FileH.java was meant to go with other files in the directory it was added to, then the problem is somewhere between annoying and bug-inducing. We would rather Git detected the directory rename and moved FileH.java under newdir/ with the files it was placed next to.
+
+Noticing that files are sometimes added to a directory that the other side renames and using that information to move the new files is the simple idea behind directory rename detection. It's easy to explain, but trying to implement it was rather more involved. It may be easier to give an idea of the scope based on the number of unintended areas we also had to address. Collateral fixes included: unnecessary recompilation problems affecting Linus, memory leaks, overwriting of dirty files involved in a (regular, non-directory) rename, a split-index issue, a case-insensitive file system problem, a submodule issue, a sparse checkout issue for VFS-for-Git users, and several others. The directory rename detection work also re-sparked discussion of rewriting the default merge backend and launched some preparatory work towards that end.
+
+This work became part of git-2.18.0 with some updates in subsequent versions. It helped people using merge or cherry-pick, but since am constructs fake trees which do not resemble the source directories and feeds these to the merge machinery, directory rename detection cannot be used with git-am. Unfortunately, rebase had three separate backends which were triggered with different sets of options, and the default one was based on am. Consolidating to one backend that could handle directory rename detection would be nice, but naturally the different backends had different capabilities and had inconsistencies in areas of overlapping capability. So, we kick-started an ongoing effort to iron out these inconsistencies in rebase, including some work that was spun off as a GSoC project. One of the three rebase backends has now been deleted, but for now folks wanting directory rename detection for their rebases will need to include either the -m or -i options.
+
+That’s lots of details; what are the basics that will help me?
+
+Four things:
+
+Git now has better progress and warning messages surrounding rename detection, both in cases involving regular renames and directory renames. You get these automatically.
+Directory rename detection works for merge and cherry-pick; it will only work with rebase if you specify -m or -i (or an option that implies one of these two).
+There is a merge.directoryRenames config setting, which you may want to consider setting to true.
+There are some rules about when directory rename detection applies.
+Okay, what is merge.directoryRenames and what are the applicability rules?
+
+The merge.directoryRenames config setting was introduced in git-2.22.0 and defaults to conflict. This means that if a directory rename is detected, affected files will be marked as conflicted. You can set this option to true to just have such files moved to the new directory.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+A couple basic rules exist to limit when directory rename detection applies, to avoid conflict possibilities that cannot be represented in the index or which might be too complex for users to try to understand and resolve. These rules are:
+
+If a given directory still exists on both sides of a merge, we do not consider the directory to have been renamed (thus, renaming a directory in one commit, then in another commit making a new directory with the old name and putting a few files in it will prevent directory rename detection from seeing your directory rename).
+If a subset of to-be-renamed files have a file or directory in the way (or would be in the way of each other), directory rename detection is “turned off” for those specific sub-paths with a report of the conflict being shown to the user.
+If the other side of history did a directory rename to a path that your side of history renamed away, then that particular rename from the other side of history is ignored for any implicit directory renames (though the user is given a warning).
+Those rules suggest things could get crazy. What are some crazy cases?
+
+It is perhaps easiest to start with the simple cases and work our way up. The simplest case:
+
+When all of x/a, x/b and x/c have moved to z/a, z/b and z/c, it is likely that x/d added in the meantime would also want to move to z/d by taking the hint that the entire directory ‘x/’ moved to ‘z/’.
+
+More interesting possibilities exist, though, such as:
+
+One side of history renames x/ -> z/, but also renames all files within that directory. For example, x/a -> z/alpha, x/b -> z/bravo, etc. The x/ -> z/ rename should still be detected.
+Not all files in a directory being renamed to the same location; i.e. perhaps most the files in ‘x’ are now found under ‘z’, but a few are found under ‘w’. We should still detect the x/ -> z/ rename.
+One side renames all the files in x/ to be in z/. The other adds a new file to x/ but also renames all other files in x/ to be in z/. Unlike the normal directory rename case, here the side that added the new file to x/ knew about renaming paths from x/ to z/ but still elected to keep the new file in x/.
+A directory being renamed, which also contained a subdirectory that was renamed to some entirely different location…and perhaps the inner directory itself contained inner directories that were renamed to yet other locations. Any new files in an old directory should be moved to a new destination based on the nearest containing directory rename. (For example, with x -> z, x/m -> y/n, x/m/r -> w/p/q, let’s say a new file was added named x/m/r/whataboutme on the side of history that didn’t do the directory renames. The correct location for the file after merging is w/p/q/whataboutme, not z/m/r/whataboutme or y/n/r/whataboutme.)
+One side of history renames x/ -> z/, and the other renames w/e -> x/e, causing the need for the merge to do a transitive rename so that w/e ends up at z/e.
+One side of history renames x/ -> z/ and renames w/d -> z/d; the other side of history renames v/d -> x/d. This should result in a rename/rename conflict with both w/d and v/d ending up colliding at z/d.
+One side of history merges two directories into one of them. For example, both x/ and z/ existed, but one side moved all files under x/ to now be under z/. This should be detected as an x/ -> z/ directory rename.
+One side of history renames x/ -> z/, one side renames y/ -> z/ (possibly different sides of history but could also be the same side). Both directory renames should be detected, with new files added under either x/ or y/ on the unrenamed side showing up in z/ after a merge.
+Okay, so there are interesting cases… but what about the crazy ones?
+
+I’m getting there…
+
+One side renames x/ -> z/. The other side of history adds two new files, x/somefile and z/somefile. While this looks like an add/add conflict, note that the same side added both files — so how do you represent conflicts with conflict markers when merging these files? (For more fun, adjust the setup so the side that renames x/ -> z/ also adds z/somefile, giving us three files that end up at z/somefile — an add/add/add conflict. How do you represent that with conflict markers?)
+Instead of merging just two directories to one, merging N directories to 1. I.e., one side moves all files/directories under any of the directories y/, x/, w/, v/, or u/ to all be under z/. That should result in a directory rename detection of y/ -> z/, x/ -> z/, w/ -> z/, etc. But what if the side that didn’t rename the directories added a new file to each of the old directories with a common filename (e.g. y/somefile, x/somefile, w/somefile, etc.), making it look like an N-way collision?
+Start with two directory hierarchies, x/ and y/, and have each side move one of the directories into the other. That is, one side renames y/ -> x/y/, and the other side renames x/ -> y/x/ .
+Our side of history renames z/a -> y/a, the other side of history renames y/ -> x/, we rename x/ -> w/, the other side renames w/ -> v/, etc. In which directory should the file ‘a’ end up? What if there is a conflicting file (or directory) named ‘a’ in one of the intermediate directories (or perhaps more than one intermediate directory with a file named ‘a’)?
+Wait, I got lost on some of those examples!
+
+No worries, see t6043-merge-rename-directories.sh which covers all these tests and many others. For each, it has a more precise English description of the setup and expectation, followed by shell commands to set up a repository into that state and verify that the merge will in fact produce the expected results.
+
+What’s the takeaway?
+
+We hope we’ve made life a little easier for those who want to rename many files and even directories as part of refactoring codebases both large and small, so that Git provides more intuitive and friendly results when merging, cherry-picking, or (sometimes) rebasing. In the future we hope to continue making git rebase more consistent, to significantly improve rename detection performance from the merge machinery, and to provide a variety of other Git improvements.
+
+Author
+
+Elijah N.

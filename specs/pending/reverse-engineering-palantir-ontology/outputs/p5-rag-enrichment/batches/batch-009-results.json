@@ -1,0 +1,1587 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-indexing/funnel-streaming-pipelines",
+    "title": "Indexing - Funnel Streaming Pipelines - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Funnel Streaming Pipeline",
+        "description": "Low-latency streaming data indexing pipeline that uses Foundry streams as input datasources to index data into the Ontology via OSv2, enabling sub-15-second Ontology availability for streaming data."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology concept representing a category of real-world entities. Streaming object types have specific limitations including no user edits and no multi-datasource support."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attribute of an Object Type. Streaming object types are limited to 250 properties maximum and 1MB record size."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Defines relationships between Object Types. Stream datasources can be configured for many-to-many link types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Storage V2",
+        "description": "Second-generation object storage system (OSv2) that supports both batch and low-latency streaming data indexing into the Ontology using a most-recent-update-wins strategy."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Streaming Object Type",
+        "description": "A specialized Object Type backed by a stream datasource. Has limitations: no user edits, no multi-datasource support, no live refresh outside Workshop."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry tool for building data transformation pipelines, used to configure streaming object types and stream datasources."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application for configuring Object Types, their datasources, properties, and link types including stream input datasources."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry frontend application that uniquely supports live data refresh for streaming object types, unlike other Foundry frontends."
+      },
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry application for integrating external data streams into Foundry for use as input datasources."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Most Recent Update Wins Strategy",
+        "description": "OSv2 streaming conflict resolution strategy where every stream is treated as a changelog stream and the latest update overwrites previous state."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Record Limits",
+        "description": "Streaming object types enforce a 1MB maximum record size and 250 maximum properties per object type."
+      },
+      {
+        "type": "Pattern",
+        "name": "Changelog Stream Pattern",
+        "description": "Streaming pattern where events are treated as a changelog with most-recent-update-wins semantics. Requires ordered input to guarantee correctness."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Funnel Streaming Pipeline",
+        "relationship": "PART_OF",
+        "target": "Object Storage V2"
+      },
+      {
+        "source": "Funnel Streaming Pipeline",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Streaming Object Type",
+        "relationship": "EXTENDS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Funnel Streaming Pipeline",
+        "relationship": "EXPOSED_BY",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Funnel Streaming Pipeline",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Streaming Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Streaming Object Type",
+        "relationship": "USES_PATTERN",
+        "target": "Changelog Stream Pattern"
+      },
+      {
+        "source": "Funnel Streaming Pipeline",
+        "relationship": "DEFINED_BY",
+        "target": "Most Recent Update Wins Strategy"
+      },
+      {
+        "source": "Workshop",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Object Storage V2"
+      }
+    ],
+    "keyInsights": [
+      "OSv2 streaming uses a most-recent-update-wins strategy treating all streams as changelog streams, meaning out-of-order events result in incorrect Ontology data.",
+      "Streaming object types have significant limitations: no user edits, no multi-datasource object types (MDOs), and no live data refresh outside Workshop.",
+      "Sub-15-second Ontology availability is achievable for streaming data by bypassing batch infrastructure entirely.",
+      "Streaming object types are limited to 250 properties and 1MB record size, requiring smaller ontology models for larger records.",
+      "Workshop is the only Foundry frontend that supports live data refresh for streaming object types; all other applications require manual refresh.",
+      "Stream datasources can also be configured for many-to-many link types, not just object types."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-connection/export-overview",
+    "title": "Data Connection - Exports - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry application that supports bidirectional data flow, including exporting datasets and streams from Foundry to external systems like data warehouses and data lakes."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Table Export",
+        "description": "Export type that writes Foundry dataset rows to external tables using INSERT statements or API calls, supporting both snapshot and incremental modes."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Streaming Export",
+        "description": "Export type that sends Foundry streaming data to external streaming platforms in real-time."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "File Export",
+        "description": "Export type that sends Foundry files to external storage systems like Amazon S3."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Markings",
+        "description": "Security classifications applied to data. Exports require explicit configuration of which Markings are allowed to be exported to each source, enforced by the Information Security Officer role."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Information Security Officer",
+        "description": "A default Foundry role that must enable exports per source and configure which Markings and Organizations may be exported."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Organizations",
+        "description": "Organizational security boundary in Foundry. Data with specific Organization markings must have those Organizations explicitly allowed for export."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Snapshot Export Mode",
+        "description": "Export mode that exports the complete state of a dataset at a point in time to the external system."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Incremental Export Mode",
+        "description": "Export mode that exports only new or changed data since the last export to the external system."
+      },
+      {
+        "type": "Pattern",
+        "name": "Bidirectional Data Integration",
+        "description": "Pattern where Foundry both imports data from and exports data to external systems, enabling Foundry to serve as a data processing hub within a broader data platform."
+      },
+      {
+        "type": "UseCase",
+        "name": "ML Inference Export",
+        "description": "Exporting machine learning inference results from Foundry batch deployments to external systems for operationalizing ML projects across the organization."
+      },
+      {
+        "type": "UseCase",
+        "name": "Operational Data Writeback",
+        "description": "Writing operational data captured from end users in the Ontology to external systems for analysis outside Foundry."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Table Export",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Streaming Export",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "File Export",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Markings",
+        "relationship": "SECURES",
+        "target": "Table Export"
+      },
+      {
+        "source": "Markings",
+        "relationship": "SECURES",
+        "target": "Streaming Export"
+      },
+      {
+        "source": "Markings",
+        "relationship": "SECURES",
+        "target": "File Export"
+      },
+      {
+        "source": "Information Security Officer",
+        "relationship": "SECURES",
+        "target": "Table Export"
+      },
+      {
+        "source": "Bidirectional Data Integration",
+        "relationship": "ENABLES",
+        "target": "Table Export"
+      },
+      {
+        "source": "ML Inference Export",
+        "relationship": "DEMONSTRATES",
+        "target": "Table Export"
+      },
+      {
+        "source": "Operational Data Writeback",
+        "relationship": "DEMONSTRATES",
+        "target": "Table Export"
+      }
+    ],
+    "keyInsights": [
+      "Data Connection exports enforce security through Markings: every exportable Marking and Organization must be explicitly allowed per source by an Information Security Officer.",
+      "Three export types exist: table exports (row-level INSERT/API), streaming exports (real-time), and file exports (bulk file transfer), each supported by different source types.",
+      "Exports support both snapshot (full state) and incremental (delta only) modes, with the choice depending on the source type capabilities.",
+      "As of June 2025, exports with no new data are marked as success instead of failure, a behavioral change that may impact dependent workflows.",
+      "Legacy export tasks are being replaced by updated file, streaming, and table export capabilities, with legacy tasks no longer recommended.",
+      "Export credentials must have write access on the target external system (e.g., s3:PutObject for S3 destinations)."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-edits/materializations",
+    "title": "Object Edits and Materializations - Materializations - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Materialization",
+        "description": "A persistent Foundry dataset that captures the latest state of each object by combining data from input datasources and user edits. Renamed from 'writeback dataset' in the OSv1-to-OSv2 transition. Optional in OSv2."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Writeback Dataset",
+        "description": "OSv1 (Phonograph) equivalent of materializations. Required in OSv1 to enable user edits on object types or many-to-many link types with join tables."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity. In OSv2, user edits can be enabled without materializations by toggling the Edits configuration in Ontology Manager."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Mechanism through which user edits are applied to objects in the Ontology."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attribute of an Object Type. OSv2 allows materializing only a subset of properties from an object type."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Storage V1",
+        "description": "First-generation object storage (Phonograph) where writeback datasets were required for user edits. Uses scheduled builds for data freshness."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Storage V2",
+        "description": "Second-generation object storage where materializations are optional and supports automatic propagation of user edits with few-minutes latency."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application for managing object type configurations including the Datasources and Materializations tabs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Automatic Edit Propagation",
+        "description": "OSv2 feature that automatically propagates user edits to materialized datasets with a latency of a few minutes, incurring additional compute cost."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Materialized Object Dataset",
+        "description": "A dataset type created from materializations that contains the latest state of objects combining input datasources and user edits."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Restricted View",
+        "description": "A type of materialization output that provides a restricted view of object data with various configurations."
+      },
+      {
+        "type": "UseCase",
+        "name": "Downstream Pipeline Integration",
+        "description": "Building downstream Foundry pipelines that require the latest state of each object including user edits via materialized datasets."
+      },
+      {
+        "type": "UseCase",
+        "name": "Bulk Ontology Download",
+        "description": "Enabling downloads of Ontology data containing the latest state of all objects for an object type via materialized datasets."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Materialization",
+        "relationship": "PART_OF",
+        "target": "Object Storage V2"
+      },
+      {
+        "source": "Writeback Dataset",
+        "relationship": "PART_OF",
+        "target": "Object Storage V1"
+      },
+      {
+        "source": "Materialization",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Materialization",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Materialization",
+        "relationship": "DEFINED_BY",
+        "target": "Automatic Edit Propagation"
+      },
+      {
+        "source": "Materialization",
+        "relationship": "REFERENCES",
+        "target": "Property"
+      },
+      {
+        "source": "Downstream Pipeline Integration",
+        "relationship": "DEMONSTRATES",
+        "target": "Materialization"
+      },
+      {
+        "source": "Bulk Ontology Download",
+        "relationship": "DEMONSTRATES",
+        "target": "Materialization"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "CONNECTS",
+        "target": "Materialization"
+      }
+    ],
+    "keyInsights": [
+      "Materializations (formerly writeback datasets) are optional in OSv2, a major simplification from OSv1 where they were required to enable user edits.",
+      "OSv2 supports automatic propagation of user edits to materialized datasets with a few-minutes latency, replacing OSv1's manual build scheduling approach.",
+      "Multiple materialized datasets can be created per object type in OSv2, each materializing only a subset of properties.",
+      "Two main use cases drive materialization creation: downstream pipeline integration needing latest object state, and bulk Ontology data downloads.",
+      "Edit history preservation is a separate concern during OSv1-to-OSv2 migration and incurs additional compute costs.",
+      "OSv2 materialized datasets update automatically and cannot be built manually from Dataset Preview, unlike OSv1 writeback datasets which relied on manual schedules."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/architecture-center/interoperability",
+    "title": "Architecture Center - Interoperability - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data platform built on open data standards, storing data in original formats (CSV, Iceberg, Parquet) and accessible through standard interfaces (REST, JDBC, S3-compatible)."
+      },
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's Artificial Intelligence Platform designed to interoperate with data, logic, AI, workflow, and security systems."
+      },
+      {
+        "type": "Product",
+        "name": "Multimodal Data Plane",
+        "description": "MMDP - infrastructure enabling integration with enterprise data platforms including Virtual Tables for avoiding data duplication and fully orchestrated pushdown compute."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry application that can seamlessly work with existing compute investments via MMDP pushdown compute."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology SDK enabling programmatic access to Ontology elements through REST APIs and JSON-driven authoring paradigms."
+      },
+      {
+        "type": "Product",
+        "name": "Platform SDK",
+        "description": "SDK providing access to dataset metadata and all metadata accessible across Foundry."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Virtual Tables",
+        "description": "Framework for leveraging existing data assets within external data platforms (Databricks, Snowflake, BigQuery) without data duplication."
+      },
+      {
+        "type": "Pattern",
+        "name": "Semantic Interoperability",
+        "description": "Pattern where the Ontology pushes beyond traditional semantic definitions to include granular definitions for objects, links, actions, and functions accessible through REST APIs."
+      },
+      {
+        "type": "Pattern",
+        "name": "Open Data Standards",
+        "description": "Architectural pattern where all data is stored in original format and transformed data is accessible in open formats like Apache Iceberg and Apache Parquet by default."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Pushdown Compute",
+        "description": "MMDP capability where compute is pushed down to existing external data platforms rather than moving data into Foundry."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "S3-Compatible Access",
+        "description": "Standard interface for accessing Foundry data through S3-compatible protocols."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "JDBC Access",
+        "description": "Standard interface for accessing Foundry data through JDBC connections."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Virtual Tables",
+        "relationship": "PART_OF",
+        "target": "Multimodal Data Plane"
+      },
+      {
+        "source": "Multimodal Data Plane",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Open Data Standards",
+        "relationship": "ENABLES",
+        "target": "Virtual Tables"
+      },
+      {
+        "source": "Foundry",
+        "relationship": "INTEGRATES_WITH",
+        "target": "AIP"
+      },
+      {
+        "source": "Pipeline Builder",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Multimodal Data Plane"
+      },
+      { "source": "OSDK", "relationship": "BUILT_ON", "target": "Foundry" },
+      {
+        "source": "Platform SDK",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Semantic Interoperability",
+        "relationship": "ENABLES",
+        "target": "Virtual Tables"
+      },
+      {
+        "source": "Virtual Tables",
+        "relationship": "DEFINED_BY",
+        "target": "Pushdown Compute"
+      }
+    ],
+    "keyInsights": [
+      "Foundry is built on open data standards: all data stored in original format (CSV, Iceberg, Parquet) and accessible through REST, JDBC, and S3-compatible interfaces.",
+      "The Multimodal Data Plane (MMDP) enables zero-copy integration with external platforms like Databricks, Snowflake, and BigQuery through Virtual Tables.",
+      "Pushdown compute allows Pipeline Builder to execute transformations on external compute infrastructure rather than requiring data movement into Foundry.",
+      "The Ontology provides semantic interoperability through REST APIs and JSON-driven authoring, enabling bidirectional synchronization with external semantic modeling tools.",
+      "Four interoperability dimensions exist: data (open formats), metadata (catalogs and lineage), semantic (Ontology APIs), and operational (workflow orchestration).",
+      "All Ontology elements are accessible programmatically through REST APIs, enabling deep integration with external enterprise systems."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-integration/streaming-guide",
+    "title": "Resource Guides - Streaming - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry application supporting streaming syncs from external streaming platforms into Foundry streaming datasets via agent architecture."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry tool used to transform live streaming data, producing streaming dataset outputs usable in real time throughout Foundry."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform supporting end-to-end streaming workflows from ingestion through transformation to Ontology integration."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Foundry Stream",
+        "description": "Streaming dataset type in Foundry that enables low-latency, high-throughput data flow for real-time decision-making."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Stream Proxy",
+        "description": "Mechanism for pushing records from an external stream directly into a Foundry stream, as an alternative to pull-based Data Connection syncs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Sync",
+        "description": "Data Connection capability that pulls records from external streaming platforms into Foundry using unidirectional connections via the agent architecture."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Stream Push",
+        "description": "Alternative ingestion method where records are pushed directly from external sources into a Foundry stream via the stream proxy."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Flink in Foundry",
+        "description": "Apache Flink-based streaming compute engine used by Foundry for processing streaming data transformations."
+      },
+      {
+        "type": "Pattern",
+        "name": "End-to-End Streaming Workflow",
+        "description": "Complete streaming pattern from data source connection through transformation and monitoring to Ontology integration."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Keys",
+        "description": "Key concepts for partitioning and ordering streaming data within Foundry streaming pipelines."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Stateful Transforms",
+        "description": "Streaming transformation capability that maintains state across streaming records for complex event processing."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Foundry Stream",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Stream Proxy",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Foundry Stream",
+        "relationship": "EXPOSED_BY",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Foundry Stream",
+        "relationship": "EXPOSED_BY",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Foundry Stream",
+        "relationship": "DEFINED_BY",
+        "target": "Flink in Foundry"
+      },
+      {
+        "source": "End-to-End Streaming Workflow",
+        "relationship": "ENABLES",
+        "target": "Foundry Stream"
+      },
+      {
+        "source": "Foundry Stream",
+        "relationship": "USES_PATTERN",
+        "target": "End-to-End Streaming Workflow"
+      },
+      {
+        "source": "Foundry Stream",
+        "relationship": "DEFINED_BY",
+        "target": "Streaming Keys"
+      },
+      {
+        "source": "Foundry Stream",
+        "relationship": "DEFINED_BY",
+        "target": "Streaming Stateful Transforms"
+      }
+    ],
+    "keyInsights": [
+      "Foundry supports two streaming ingestion methods: pull-based via Data Connection agent architecture, and push-based via the stream proxy.",
+      "Foundry connects to a wide range of streaming platforms including Apache Kafka, Amazon Kinesis, Amazon SQS/SNS, Google Pub/Sub, IBM MQ, RabbitMQ, MQTT, and Solace.",
+      "Pipeline Builder transforms streaming data outputs into streaming datasets usable in real time throughout Foundry, including Ontology integration.",
+      "The end-to-end streaming workflow follows five phases: core concepts, overview/architecture, data source connection, transformation, and monitoring.",
+      "Apache Flink is the underlying streaming compute engine in Foundry, supporting stateful transforms and streaming keys for complex event processing.",
+      "Streaming profiles and compute usage management are important operational considerations for production streaming deployments."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/code-repositories/overview",
+    "title": "Code Repositories - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Code Repositories",
+        "description": "Foundry's web-based IDE providing Git version control, code review via pull requests, IntelliSense, code linting, and Ontology-aware autocomplete for writing production-ready code."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Transforms Repository",
+        "description": "Code Repository type for authoring data transformation logic in Python, Java, or SQL, with features for previewing and debugging transforms."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Functions Repository",
+        "description": "Code Repository type for writing low-latency business logic in TypeScript or Python with native Ontology access and Ontology-aware autocomplete."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Business logic executable with low latency in operational contexts, written in TypeScript or Python with native Ontology data access."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity. Functions Repositories provide autocomplete based on Ontology data types."
+      },
+      {
+        "type": "Product",
+        "name": "VS Code Workspaces",
+        "description": "Alternative IDE option using VS Code with the Palantir extension for editing and managing Foundry code."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Ontology-Aware Autocomplete",
+        "description": "Code Repositories feature that provides IntelliSense autocomplete based on Ontology data types when authoring Functions."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Functions Preview",
+        "description": "Code Repositories feature enabling authors to preview Functions while writing them, providing immediate feedback on function behavior."
+      },
+      {
+        "type": "Pattern",
+        "name": "Code-First Ontology Development",
+        "description": "Pattern where business logic and data transformations are authored in code with full IDE support, version control, and code review workflows."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Code Repositories",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Transforms Repository",
+        "relationship": "PART_OF",
+        "target": "Code Repositories"
+      },
+      {
+        "source": "Functions Repository",
+        "relationship": "PART_OF",
+        "target": "Code Repositories"
+      },
+      {
+        "source": "Function",
+        "relationship": "EXPOSED_BY",
+        "target": "Functions Repository"
+      },
+      {
+        "source": "Functions Repository",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Function",
+        "relationship": "DEFINED_BY",
+        "target": "Ontology-Aware Autocomplete"
+      },
+      {
+        "source": "Code-First Ontology Development",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "Code Repositories",
+        "relationship": "INTEGRATES_WITH",
+        "target": "VS Code Workspaces"
+      }
+    ],
+    "keyInsights": [
+      "Code Repositories supports three repository types: Transforms (Python/Java/SQL data transformations), Functions (TypeScript/Python business logic), and Model development.",
+      "Functions Repositories provide native Ontology data access with autocomplete based on Ontology data types, enabling type-safe business logic development.",
+      "All common Git workflows (branching, committing, tagging, pull requests) are supported through the web UI with configurable permissions.",
+      "Functions can be written in TypeScript or Python and execute with low latency in operational contexts with full Ontology access.",
+      "VS Code with the Palantir extension provides an alternative local IDE experience to the web-based Code Repositories."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-backend/object-storage-v2-breaking-changes",
+    "title": "Overview and Getting Started - Breaking Changes Between OSv1 and OSv2 - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Object Storage V1",
+        "description": "Legacy object storage system (Phonograph) with a large API surface area exposing low-level database functionality directly. Being replaced by OSv2."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Storage V2",
+        "description": "New object storage architecture that syncs objects through the Object Data Funnel service into specialized object databases for improved scale, performance, flexibility, and security."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Data Funnel",
+        "description": "OSv2 service that syncs objects into specialized object databases, replacing OSv1's monolithic database approach."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity. OSv2 enforces stricter data restrictions on primary keys and properties compared to OSv1."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attribute of an Object Type. OSv2 enforces data restrictions on property values that were not enforced in OSv1."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "OSv2 requires all user edits to go through Actions, replacing direct OSv1 edit API calls."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Defines relationships between Object Types. OSv1 required writeback datasets for many-to-many link types with join tables."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Materialization",
+        "description": "OSv2 term for what was called 'writeback dataset' in OSv1. Optional in OSv2 whereas writeback datasets were required in OSv1."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Log",
+        "description": "Object type that captures how Actions affect objects, providing an alternative to full edit history tracking in OSv2."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSv1 to OSv2 Migration",
+        "description": "Migration process from Phonograph to OSv2 requiring addressing permanent breaking changes including Actions-only edits, data restrictions, and optional materializations."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Edit History Preservation",
+        "description": "Optional OSv2 migration feature to include full edit history from OSv1, incurring additional compute and storage costs."
+      },
+      {
+        "type": "Pattern",
+        "name": "Specialized Object Databases",
+        "description": "OSv2 architecture pattern where different specialized databases handle specific use cases, replacing OSv1's monolithic approach."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Storage V2",
+        "relationship": "EXTENDS",
+        "target": "Object Storage V1"
+      },
+      {
+        "source": "Object Data Funnel",
+        "relationship": "PART_OF",
+        "target": "Object Storage V2"
+      },
+      {
+        "source": "Materialization",
+        "relationship": "PART_OF",
+        "target": "Object Storage V2"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Action Log",
+        "relationship": "REFERENCES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Object Storage V2",
+        "relationship": "USES_PATTERN",
+        "target": "Specialized Object Databases"
+      },
+      {
+        "source": "Object Storage V2",
+        "relationship": "DEFINED_BY",
+        "target": "OSv1 to OSv2 Migration"
+      },
+      {
+        "source": "Object Storage V2",
+        "relationship": "DEFINED_BY",
+        "target": "Edit History Preservation"
+      }
+    ],
+    "keyInsights": [
+      "OSv2 is a fundamental architectural shift from OSv1's monolithic database to specialized object databases synced via the Object Data Funnel service.",
+      "All user edits in OSv2 must go through Actions; direct OSv1 edit API calls must be refactored before migration.",
+      "Writeback datasets are renamed to materializations in OSv2 and become optional, whereas they were required in OSv1.",
+      "Edit history preservation during migration is optional and incurs additional compute costs; without it, full OSv1 edit history is permanently lost.",
+      "OSv2 enforces stricter data restrictions on primary keys and properties that were not present in OSv1, requiring data quality remediation before migration.",
+      "Action Logs provide an alternative mechanism to track how Actions affect objects, partially replacing the edit history capability.",
+      "The migration involves two categories of breaking changes: specialized databases lacking some OSv1 functionality, and refactoring of consolidated OSv1 queries."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/iceberg/managed-virtual",
+    "title": "Iceberg Tables - Managed vs Virtual Iceberg Tables - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Managed Iceberg Table",
+        "description": "Iceberg table managed by Foundry's Iceberg catalog, supporting additional functionality like guided frontends for maintenance operations."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Virtual Iceberg Table",
+        "description": "Virtual table using external storage and an external Iceberg catalog (Unity, Glue, or Polaris) without data copying between external and Foundry storage."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry Iceberg Catalog",
+        "description": "Foundry's implementation of the Iceberg REST catalog that manages Iceberg tables and enables guided frontend configurations."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform supporting both managed and virtual Iceberg tables natively with most core features."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Bring-Your-Own-Bucket Storage",
+        "description": "Storage option for managed Iceberg tables where customers use their own AWS or Azure storage buckets. In Beta."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Foundry Managed Storage",
+        "description": "Storage option where Foundry manages the storage for Iceberg tables. In Beta, AWS only."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "External Iceberg Catalog",
+        "description": "Third-party Iceberg catalog integration (Unity, Glue, Polaris) used for virtual Iceberg tables."
+      },
+      {
+        "type": "Pattern",
+        "name": "Zero-Copy Data Integration",
+        "description": "Pattern where virtual tables reference external data in place without copying it into Foundry storage, avoiding data duplication."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Managed Iceberg Table",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Virtual Iceberg Table",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Managed Iceberg Table",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry Iceberg Catalog"
+      },
+      {
+        "source": "Virtual Iceberg Table",
+        "relationship": "DEFINED_BY",
+        "target": "External Iceberg Catalog"
+      },
+      {
+        "source": "Managed Iceberg Table",
+        "relationship": "DEFINED_BY",
+        "target": "Bring-Your-Own-Bucket Storage"
+      },
+      {
+        "source": "Zero-Copy Data Integration",
+        "relationship": "ENABLES",
+        "target": "Virtual Iceberg Table"
+      }
+    ],
+    "keyInsights": [
+      "Foundry supports two Iceberg table types: managed (Foundry's catalog) and virtual (external catalog like Unity, Glue, or Polaris).",
+      "Virtual Iceberg tables enable zero-copy integration with no data duplication between external storage and Foundry.",
+      "Managed Iceberg tables offer additional Foundry functionality like guided frontends for maintenance operations through the Iceberg REST catalog.",
+      "Three storage configurations exist: bring-your-own-bucket (AWS/Azure), Foundry-managed storage (AWS only), and external virtual tables, all currently in Beta.",
+      "Both managed and virtual Iceberg tables work natively with most core Foundry features."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/agent-studio/core-concepts",
+    "title": "AIP Agent Studio - Core concepts - Palantir Docs",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "AIP Agent Studio",
+        "description": "Palantir tool for creating interactive AIP Agents equipped with enterprise-specific information and tools, supporting retrieval-augmented generation and function publication."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "AIP Agent",
+        "description": "Interactive assistant created in Agent Studio, equipped with enterprise-specific information (Ontology, documents, custom functions) and tools for completing tasks."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Retrieval Context",
+        "description": "Information dynamically retrieved in response to each user message from configured data sources, included alongside the user's message to the LLM."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Application State",
+        "description": "Application variables within prompts (formerly known as parameters) that customize and control LLM behavior, allowing dynamic input based on task requirements."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology concept enabling agents to be published as Functions for use anywhere in the platform where Functions can be executed."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Tool",
+        "description": "External functionality or API that an LLM can use within an agent to perform specific actions or retrieve information beyond its base capabilities."
+      },
+      {
+        "type": "Pattern",
+        "name": "Retrieval-Augmented Generation",
+        "description": "RAG pattern that leverages external data sources to dynamically provide LLMs with relevant information, enhancing responses with current and contextually appropriate data."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Vector Embeddings",
+        "description": "Numerical representations of text capturing semantic meaning, used to compare and retrieve similar text efficiently for agent retrieval context."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Context Window",
+        "description": "The amount of text (tokens) an LLM can process at once, including system prompt, conversation history, retrieval context, application state, and tools."
+      },
+      {
+        "type": "Pattern",
+        "name": "Agents as Functions",
+        "description": "Pattern where agents are published as Functions enabling use in AIP Evals, Automate workflows, and Code Repositories."
+      },
+      {
+        "type": "Product",
+        "name": "AIP Evals",
+        "description": "Palantir tool for testing and evaluating LLM-based functions and agents."
+      },
+      {
+        "type": "Product",
+        "name": "Automate",
+        "description": "Palantir tool for automating agent workflows using published agent Functions."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "AIP Agent",
+        "relationship": "PART_OF",
+        "target": "AIP Agent Studio"
+      },
+      {
+        "source": "AIP Agent",
+        "relationship": "USES_PATTERN",
+        "target": "Retrieval-Augmented Generation"
+      },
+      {
+        "source": "Retrieval Context",
+        "relationship": "PART_OF",
+        "target": "AIP Agent"
+      },
+      {
+        "source": "Application State",
+        "relationship": "PART_OF",
+        "target": "AIP Agent"
+      },
+      { "source": "Tool", "relationship": "PART_OF", "target": "AIP Agent" },
+      {
+        "source": "AIP Agent",
+        "relationship": "IMPLEMENTS",
+        "target": "Function"
+      },
+      {
+        "source": "Agents as Functions",
+        "relationship": "ENABLES",
+        "target": "AIP Agent"
+      },
+      {
+        "source": "Retrieval-Augmented Generation",
+        "relationship": "ENABLES",
+        "target": "Retrieval Context"
+      },
+      {
+        "source": "AIP Agent",
+        "relationship": "EXPOSED_BY",
+        "target": "AIP Evals"
+      },
+      {
+        "source": "AIP Agent",
+        "relationship": "EXPOSED_BY",
+        "target": "Automate"
+      },
+      {
+        "source": "Retrieval Context",
+        "relationship": "DEFINED_BY",
+        "target": "Vector Embeddings"
+      }
+    ],
+    "keyInsights": [
+      "AIP Agents combine three types of context: retrieval context (dynamic per-message), application state (configurable variables), and tools (external APIs/functions).",
+      "Retrieval-augmented generation (RAG) in Agent Studio dynamically fetches relevant content from configured data sources for each user message before sending to the LLM.",
+      "Agents can be published as Functions, enabling reuse across the platform in AIP Evals, Automate workflows, and Code Repositories.",
+      "Vector embeddings provide the semantic similarity foundation for agent retrieval context, enabling efficient text comparison and retrieval.",
+      "The context window includes system prompt, conversation history, retrieval context, application state, and tools; exceeding it forces a new session.",
+      "Instructions, tool descriptions, and variable descriptions are compiled into the raw system prompt, teaching the LLM how to complete tasks."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip/supported-llms",
+    "title": "Supported LLMs - Palantir Docs",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's AI Platform that is model-agnostic, supporting a diverse selection of LLMs from multiple providers including xAI, OpenAI, Anthropic, Meta, Google, and Mistral."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "LLM Model Families",
+        "description": "Groupings of related LLM models (e.g., GPT-4 family, Claude family) that enrollment administrators enable or disable through Control Panel."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Model Enablement Interface",
+        "description": "Control Panel interface where enrollment administrators manage model states (enabled, disabled, disallowed) and accept legal requirements."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Text Embedding Models",
+        "description": "Specialized models for converting text to vector representations, including ada embedding, text-embedding-3-large/small, and Snowflake Arctic Embed."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Georestriction",
+        "description": "Security mechanism that limits LLM availability based on geographic restrictions applied to specific enrollments."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Model Legal Acknowledgment",
+        "description": "Legal requirement where enrollment administrators must accept provider terms of use before certain models can be enabled."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Tokens Per Minute",
+        "description": "TPM - capacity management metric for controlling LLM usage throughput on an enrollment."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Requests Per Minute",
+        "description": "RPM - capacity management metric for controlling LLM request rate on an enrollment."
+      },
+      {
+        "type": "Product",
+        "name": "Control Panel",
+        "description": "Foundry administration interface where enrollment administrators manage model enablement, capacity, and legal acknowledgments."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "AIP",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Control Panel"
+      },
+      {
+        "source": "Georestriction",
+        "relationship": "SECURES",
+        "target": "AIP Agent"
+      },
+      {
+        "source": "Model Legal Acknowledgment",
+        "relationship": "SECURES",
+        "target": "AIP Agent"
+      },
+      {
+        "source": "LLM Model Families",
+        "relationship": "PART_OF",
+        "target": "AIP"
+      },
+      {
+        "source": "Text Embedding Models",
+        "relationship": "PART_OF",
+        "target": "AIP"
+      },
+      {
+        "source": "LLM Model Families",
+        "relationship": "EXPOSED_BY",
+        "target": "Control Panel"
+      },
+      {
+        "source": "LLM Model Families",
+        "relationship": "DEFINED_BY",
+        "target": "Tokens Per Minute"
+      },
+      {
+        "source": "LLM Model Families",
+        "relationship": "DEFINED_BY",
+        "target": "Requests Per Minute"
+      }
+    ],
+    "keyInsights": [
+      "AIP is model-agnostic, supporting models from xAI (Grok), OpenAI (GPT), Anthropic (Claude), Meta (Llama), Google (Gemini), and Mistral across multiple model sizes.",
+      "LLM availability per enrollment depends on three prerequisites: Palantir integration, legal acknowledgment by administrators, and AIP enablement on the enrollment.",
+      "Capacity management uses TPM (tokens per minute) and RPM (requests per minute) metrics to control LLM usage across enrollments.",
+      "Text embedding models (ada, text-embedding-3, Snowflake Arctic Embed) are available alongside LLMs for vector-based workflows like semantic search.",
+      "Georestriction and legal acknowledgment serve as security gates controlling which models are available on which enrollments.",
+      "Model states follow a three-tier system: enabled (available), disabled (awaiting legal acknowledgment), and disallowed (not permitted)."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/aip/aip-features",
+    "title": "AIP features - Palantir Docs",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "AIP Logic",
+        "description": "No-code development environment for creating, testing, and deploying AI-powered functions with point-and-click LLM usage backed by Ontology data."
+      },
+      {
+        "type": "Product",
+        "name": "AIP Agent Studio",
+        "description": "Tool for creating interactive agents leveraging enterprise Ontology data and tools to complete tasks and achieve goals."
+      },
+      {
+        "type": "Product",
+        "name": "AIP Evals",
+        "description": "Foundation for stable, reliable AIP workflows providing systematic testing, debugging, and evaluation of LLM-based functions and prompts."
+      },
+      {
+        "type": "Product",
+        "name": "AIP Threads",
+        "description": "Easy-to-use LLM interaction tool requiring no technical setup for document analysis and agent interaction via drag-and-drop."
+      },
+      {
+        "type": "Product",
+        "name": "AIP Assist",
+        "description": "LLM-powered support tool providing real-time natural language assistance for navigating the Palantir platform."
+      },
+      {
+        "type": "Product",
+        "name": "Palantir MCP",
+        "description": "Tool enabling external AI IDEs and agents to connect to the Palantir platform for Ontology context and Foundry tool access."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Application builder with AIP-accelerated capabilities for building LLM-powered operational workflows."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Data pipeline tool with AIP LLM node for embedding AI capabilities into data transformation pipelines."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology concept. LLMs are available in Functions, Transforms, and Jupyter notebooks via Code Workspaces."
+      },
+      {
+        "type": "Pattern",
+        "name": "LLM-Backed Ontology Workflow",
+        "description": "Pattern where LLMs are integrated into Ontology-driven workflows for automation, data processing, and agent-based interactions."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "AIP Logic", "relationship": "PART_OF", "target": "AIP" },
+      {
+        "source": "AIP Agent Studio",
+        "relationship": "PART_OF",
+        "target": "AIP"
+      },
+      { "source": "AIP Evals", "relationship": "PART_OF", "target": "AIP" },
+      { "source": "AIP Threads", "relationship": "PART_OF", "target": "AIP" },
+      { "source": "AIP Assist", "relationship": "PART_OF", "target": "AIP" },
+      { "source": "Palantir MCP", "relationship": "PART_OF", "target": "AIP" },
+      {
+        "source": "AIP Logic",
+        "relationship": "OPERATES_ON",
+        "target": "Function"
+      },
+      {
+        "source": "LLM-Backed Ontology Workflow",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "AIP Agent Studio",
+        "relationship": "INTEGRATES_WITH",
+        "target": "AIP Evals"
+      },
+      {
+        "source": "Palantir MCP",
+        "relationship": "INTEGRATES_WITH",
+        "target": "AIP"
+      }
+    ],
+    "keyInsights": [
+      "AIP features span six core applications: AIP Logic (no-code functions), Agent Studio (agents), Evals (testing), Threads (ad-hoc analysis), Assist (platform help), and MCP (external IDE integration).",
+      "AIP Logic provides a no-code environment for creating AI-powered functions backed by Ontology data, while AIP Agent Studio handles interactive agent creation.",
+      "Palantir MCP enables external AI IDEs and agents to connect to the platform, gaining Ontology context and access to Foundry tools.",
+      "LLMs are available across the development toolchain including Functions, Transforms, Jupyter notebooks, Pipeline Builder, and Workshop.",
+      "AIP Evals is positioned as the foundation for production-ready AI workflows, enabling systematic testing and model comparison.",
+      "AIP Threads offers the lowest barrier to entry for LLM interaction with drag-and-drop document analysis requiring no technical setup."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/platform-overview/aip-capabilities",
+    "title": "Platform overview - AIP capabilities - Palantir Docs",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's Artificial Intelligence Platform providing governed LLM access, LLM-driven functions, agent management, evaluation suites, and automation across enterprise processes."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data platform upon which AIP is layered, providing the data integration, Ontology, and application layers."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology-driven business logic that can be powered by LLMs and other forms of generative AI through AIP."
+      },
+      {
+        "type": "Pattern",
+        "name": "Ontology-Driven AI",
+        "description": "Pattern where AIP transforms the development toolchain by enabling LLMs and generative AI to power ontology-driven functions and agents."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "AI Data Governance",
+        "description": "Robust data governance and security mechanisms that AIP provides while deploying, managing, and scaling LLMs."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "AIP", "relationship": "BUILT_ON", "target": "Foundry" },
+      { "source": "Function", "relationship": "PART_OF", "target": "AIP" },
+      {
+        "source": "Ontology-Driven AI",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "AI Data Governance",
+        "relationship": "SECURES",
+        "target": "Function"
+      },
+      {
+        "source": "AIP",
+        "relationship": "USES_PATTERN",
+        "target": "Ontology-Driven AI"
+      }
+    ],
+    "keyInsights": [
+      "AIP sits on top of Foundry as the AI layer, transforming the development toolchain to enable LLMs to power ontology-driven functions and agents.",
+      "AIP capabilities include governed LLM access, LLM-driven function building, agent creation and management, evaluation suites, and enterprise process automation.",
+      "AIP ensures robust data governance and security while streamlining the deployment, management, and scalability of LLMs.",
+      "AIP feature availability is subject to change and may differ between customers, indicating an evolving platform."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/evaluating-generative-ai-a-field-manual-0cdaf574a9e1",
+    "title": "A Palantir Manual for Evaluating Generative AI - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "AIP Evals",
+        "description": "Palantir tool for testing generative AI systems, enabling organizations to empirically validate improvements and confidently deploy AI solutions in production."
+      },
+      {
+        "type": "Pattern",
+        "name": "AI Testing and Evaluation",
+        "description": "Systematic methodology for testing generative AI covering ground-truth evaluation data, LLM-as-a-Judge evaluators, perturbation testing, and continuous improvement workflows."
+      },
+      {
+        "type": "Pattern",
+        "name": "LLM-as-a-Judge",
+        "description": "Advanced evaluation technique where an LLM evaluates the outputs of another LLM, useful for assessing generative AI quality at scale."
+      },
+      {
+        "type": "Pattern",
+        "name": "Perturbation Testing",
+        "description": "Advanced evaluation technique that tests AI system robustness by introducing controlled variations in inputs to measure output stability."
+      },
+      {
+        "type": "Pattern",
+        "name": "End-to-End Workflow Evaluation",
+        "description": "Macro-level evaluation approach assessing entire operational workflows where AI is embedded, focusing on business outcomes like throughput or delay reduction."
+      },
+      {
+        "type": "Pattern",
+        "name": "Testable AI Task Decomposition",
+        "description": "Micro-level evaluation approach breaking complex multi-step workflows into smaller components (e.g., document retrieval vs. question answering) for precise evaluation."
+      },
+      {
+        "type": "UseCase",
+        "name": "Document Retrieval Evaluation",
+        "description": "Evaluating the retrieval component of RAG systems separately from the question-answering component for more precise AI assessment."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Ground Truth Evaluation Data",
+        "description": "Reference datasets with known correct answers used as the baseline for evaluating generative AI system outputs."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "AI Testing and Evaluation",
+        "relationship": "ENABLES",
+        "target": "AIP Agent"
+      },
+      {
+        "source": "LLM-as-a-Judge",
+        "relationship": "ENABLES",
+        "target": "AIP Agent"
+      },
+      {
+        "source": "Perturbation Testing",
+        "relationship": "ENABLES",
+        "target": "AIP Agent"
+      },
+      {
+        "source": "End-to-End Workflow Evaluation",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "Testable AI Task Decomposition",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "Document Retrieval Evaluation",
+        "relationship": "DEMONSTRATES",
+        "target": "Retrieval Context"
+      },
+      {
+        "source": "AIP Evals",
+        "relationship": "USES_PATTERN",
+        "target": "AI Testing and Evaluation"
+      }
+    ],
+    "keyInsights": [
+      "Effective AI T&E requires decomposing complex workflows into testable components (macro end-to-end and micro task-level) rather than treating AI as monolithic chat.",
+      "LLM-as-a-Judge and perturbation testing are advanced evaluation techniques that complement basic ground-truth evaluation for production AI systems.",
+      "The common pitfall of framing LLM usage as 'chat' is counterproductive for evaluation; instead, specific workflows like summarization, translation, and information retrieval must be tested independently.",
+      "Ground-truth evaluation data remains a fundamental building block even as more advanced techniques like LLM-as-a-Judge become available.",
+      "AI T&E shares significant commonality with continuous improvement workflows in modern software engineering (debuggers, version control, IDEs)."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/from-prototype-to-production-engineering-responsible-ai-3-ea18818cd222",
+    "title": "Palantir AIP | Testing & Evaluating AI Systems - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "AIP Evals",
+        "description": "Palantir's tool for rigorous testing and evaluation of generative AI systems, handling non-determinism, debugging specific inputs, and iterating on prompts and model parameters."
+      },
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's AI Platform providing tools for generating audit trails, explanations, and model decision evaluations."
+      },
+      {
+        "type": "Pattern",
+        "name": "Prototype to Production AI",
+        "description": "Methodology for transitioning AI prototypes to reliable production systems through rigorous testing, evaluation, and iterative improvement."
+      },
+      {
+        "type": "Pattern",
+        "name": "Responsible AI Engineering",
+        "description": "Engineering discipline focused on building safe, reliable, and trustworthy AI systems through systematic T&E and governance."
+      },
+      {
+        "type": "Pattern",
+        "name": "Prompt Engineering Iteration",
+        "description": "Iterative workflow where specific test case failures are used to improve AI systems through prompt engineering, data augmentation, and tool handoffs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "AI Audit Trail",
+        "description": "Capability for generating audit trails of AI decisions, supporting governance and accountability in production AI systems."
+      },
+      {
+        "type": "UseCase",
+        "name": "Inventory Entity Resolution",
+        "description": "Real-world operational use case where generative AI resolves inventory entity matching in mission-critical settings."
+      },
+      {
+        "type": "UseCase",
+        "name": "Infection Risk Alerting",
+        "description": "Real-world operational use case where generative AI powers infection risk detection and alerting systems."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "AIP Evals", "relationship": "PART_OF", "target": "AIP" },
+      {
+        "source": "Prototype to Production AI",
+        "relationship": "ENABLES",
+        "target": "AIP Agent"
+      },
+      {
+        "source": "AIP Evals",
+        "relationship": "USES_PATTERN",
+        "target": "Responsible AI Engineering"
+      },
+      {
+        "source": "Prompt Engineering Iteration",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "Inventory Entity Resolution",
+        "relationship": "DEMONSTRATES",
+        "target": "Function"
+      },
+      {
+        "source": "Infection Risk Alerting",
+        "relationship": "DEMONSTRATES",
+        "target": "Function"
+      },
+      {
+        "source": "AIP Evals",
+        "relationship": "DEFINED_BY",
+        "target": "AI Audit Trail"
+      }
+    ],
+    "keyInsights": [
+      "Rigorous T&E is positioned as essential for transitioning AI prototypes to production, not merely a compliance checkbox.",
+      "Generative AI T&E differs from traditional ML T&E by enabling prompt engineering iteration on specific failures rather than only aggregate metric evaluation.",
+      "AIP Evals handles the unique challenges of generative AI: non-determinism, input-specific debugging, and efficient prompt/parameter iteration.",
+      "Building organizational trust in AI systems through robust T&E is a prerequisite for scaling AI use across the enterprise.",
+      "Real-world mission-critical use cases like inventory entity resolution and infection risk alerting demonstrate the practical value of Palantir's AI T&E approach."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/using-palantir-provided-models-to-create-a-semantic-search-workflow",
+    "title": "Semantic search - Use Palantir-provided models - Palantir Docs",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Vector Property",
+        "description": "Object Type property that stores vector embeddings, enabling KNN-based semantic search over objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "KNN Object Set",
+        "description": "Object set type that performs K-nearest-neighbors search over objects with embedding properties, returning the top K semantically similar objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity that can be configured with vector type properties for semantic search workflows."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Custom business logic that can implement semantic search with ordered results and additional filtering beyond the no-code KNN object set."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry tool used to embed text as vectors using the Text to Embeddings expression with Palantir-provided models."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Application builder where semantic search workflows can be configured using KNN object sets, AIP Agent widgets, or custom function-backed search."
+      },
+      {
+        "type": "Product",
+        "name": "AIP Logic",
+        "description": "Tool where custom semantic search functions can be used alongside Workshop."
+      },
+      {
+        "type": "Product",
+        "name": "AIP Agent Studio",
+        "description": "Tool for enabling AIP Agents to perform semantic search across objects via Ontology context or semantic search tools."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Text to Embeddings Expression",
+        "description": "Pipeline Builder expression that converts text strings to vector embeddings using Palantir-provided models like text-embedding-ada-002."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "KNN Search Configuration",
+        "description": "Configuration for K-nearest-neighbors search including K-value (1-100), query string variable, and embedding property selection."
+      },
+      {
+        "type": "Pattern",
+        "name": "Semantic Search Workflow",
+        "description": "End-to-end pattern from generating embeddings via Pipeline Builder, storing as vector properties, to performing KNN searches in Workshop or via Functions."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Vector Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "Object Type"
+      },
+      {
+        "source": "KNN Object Set",
+        "relationship": "OPERATES_ON",
+        "target": "Vector Property"
+      },
+      {
+        "source": "Semantic Search Workflow",
+        "relationship": "ENABLES",
+        "target": "KNN Object Set"
+      },
+      {
+        "source": "KNN Object Set",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Vector Property",
+        "relationship": "DEFINED_BY",
+        "target": "Text to Embeddings Expression"
+      },
+      {
+        "source": "Text to Embeddings Expression",
+        "relationship": "PART_OF",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "Vector Property"
+      },
+      {
+        "source": "KNN Object Set",
+        "relationship": "DEFINED_BY",
+        "target": "KNN Search Configuration"
+      },
+      {
+        "source": "Semantic Search Workflow",
+        "relationship": "ENABLES",
+        "target": "Function"
+      }
+    ],
+    "keyInsights": [
+      "Semantic search in Foundry follows a three-step pattern: generate embeddings in Pipeline Builder, store as vector properties on an object type, then search via KNN object sets or custom Functions.",
+      "Three approaches exist for semantic search: no-code KNN object set in Workshop, no-code AIP Agent with Ontology search tool, and code-based custom Functions for advanced control.",
+      "The KNN object set has a limitation: it cannot sort results by relevancy. Custom Functions are needed for ordered results.",
+      "Pipeline Builder's Text to Embeddings expression converts strings to vectors using models like text-embedding-ada-002, making embedding generation a no-code operation.",
+      "KNN search supports K-values between 1-100, configurable via Workshop string selector widgets for interactive search experiences.",
+      "AIP Agents can be configured with Ontology semantic search tools for natural language-driven semantic search without code."
+    ]
+  }
+]

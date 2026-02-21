@@ -1,0 +1,129 @@
+Overview • Dev toolchain • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Developer toolchain Overview 
+
+ Developer toolchain
+
+The Palantir platform comes with a set of developer tools that enable you to build on top of the Ontology and unlock value with new workflows, applications, and functionality. With Palantir's developer toolchain, you can access the full power of the Ontology directly from your development environment.
+
+In addition to the data connection and application building tools described elsewhere, the Palantir developer toolchain provides:
+
+ Core APIs and SDKs that open up the Ontology to your applications.
+
+ Development environments and developer-centric functionality to accelerate your workflows.
+
+ Palantir MCP to enable AI IDEs and AI agents to use Palantir context and take action throughout Foundry.
+
+ Compute modules to containerize your code and scale your deployments.
+
+ Core APIs and SDKs
+
+Central to Palantir's developer offerings are the APIs and SDKs that open up the platform and allow you to build applications that integrate directly with the Palantir platform and your Ontology data.
+
+ Ontology SDK (OSDK)
+
+The Ontology SDK (OSDK) enables developers to generate SDKs from their ontologies in Python, Java, and TypeScript. OSDK lets you access object types, apply actions to update data in the Ontology, call functions, and run AIP Logic functions for AIP-enabled enrollments. The in-platform Developer Console includes Ontology-specific documentation for the entities chosen for your application. Applications use the OAuth flow as a public or confidential client to access the data.
+
+ APIs
+
+Palantir's APIs support users building on the Palantir platform by enabling programmatic management of platform access and the data backing your Ontology. Information on Palantir APIs can be found in the API documentation , as well as in-platform in the Developer Console.
+
+Available Palantir APIs include:
+
+ Datasets 
+
+ Users 
+
+ Groups 
+
+ Builds [Beta]
+
+ Schedules [Beta]
+
+Beta platform SDKs are also available for Python ↗ and Typescript ↗ . These are usable alongside Ontology SDKs with the same Palantir platform clients, but require a Developer Console application that is not bound to an Ontology. Documentation for these beta SDKs is forthcoming; for now, early adopters can use the READMEs in each repository to get started.
+
+ Platform SDKs
+
+Palantir's Python SDK ↗ is publicly available and will be expanded to include new APIs as they become available; the TypeScript SDK is in development.
+
+ Developer environments and functionality
+
+In addition to development tools focused on data connection such as Pipeline Builder and Code Repositories , Code Workspaces allows you to use familiar IDEs like VS Code while building on top of the Palantir platform. VS Code workspaces are integrated with Developer Console, allowing you to rapidly build React applications . You can create a VS Code workspace from the in-platform Developer Console.
+
+Palantir's developer-focused functionality aims to accelerate the process of building on the platform. Features like Foundry Branching help create a safe, streamlined environment for development of end-to-end workflows.
+
+ Palantir MCP
+
+ Palantir MCP is an implementation of the Model Context Protocol ↗ that allows AI IDEs and AI agents to autonomously build end-to-end applications in the Palantir platform - from data integration through ontology configuration and application development. In addition, you can use Palantir MCP to allow external AI systems to query documentation, metadata, and data, as well as perform high-level tasks on the platform. Developers can use Palantir MCP to automate auxiliary tasks while they stay focused on the system they are building.
+
+ Compute Modules
+
+The Compute Modules feature enables you to deploy interactive containers on the Palantir platform, allowing you to bring in your existing code base (regardless of language) and run it inside the platform. With Compute Modules, for example, you could bring a third-party machine learning model into the platform and integrate it into your workflow.
+
+For more information about Compute Modules, you can watch this official Build with AIP: Compute Modules video and reference the documentation .
+
+ NEXT Foundry APIs and SDKs / Ontology SDK / Overview 
+ →

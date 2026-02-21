@@ -1,0 +1,159 @@
+palantir
+
+ / 
+
+ witchcraft-api 
+
+ Public 
+
+ Notifications
+ You must be signed in to change notification settings 
+
+ Fork
+ 7 
+
+ Star
+ 10 
+
+ Common APIs and Conjure definitions for witchcraft projects
+
+License
+
+ Apache-2.0 license
+
+ 10 
+ stars
+
+ 7 
+ forks
+
+ Branches 
+
+ Tags 
+
+ Activity 
+
+ Star
+
+ Notifications
+ You must be signed in to change notification settings 
+
+palantir/witchcraft-api
+
+   develop 
+
+ Branches 
+ Tags 
+
+ Go to file 
+
+ Code 
+
+ Open more actions menu 
+
+Folders and files
+
+ Name Name 
+ Last commit message 
+
+ Last commit date 
+
+Latest commit
+
+History
+
+ 1,131 Commits 
+
+ 1,131 Commits 
+
+ .baseline 
+
+ .baseline 
+
+ .circleci 
+
+ .circleci 
+
+ .github 
+
+ .github 
+
+ .palantir 
+
+ .palantir 
+
+ changelog 
+
+ changelog 
+
+ gradle 
+
+ gradle 
+
+ witchcraft-health-api 
+
+ witchcraft-health-api 
+
+ witchcraft-logging-api 
+
+ witchcraft-logging-api 
+
+ .bulldozer.yml 
+
+ .bulldozer.yml 
+
+ .changelog.yml 
+
+ .changelog.yml 
+
+ .excavator.yml 
+
+ .excavator.yml 
+
+ .gitignore 
+
+ .gitignore 
+
+ LICENSE 
+
+ LICENSE 
+
+ README.md 
+
+ README.md 
+
+ build.gradle 
+
+ build.gradle 
+
+ gradle.properties 
+
+ gradle.properties 
+
+ gradlew 
+
+ gradlew 
+
+ gradlew.bat 
+
+ gradlew.bat 
+
+ settings.gradle 
+
+ settings.gradle 
+
+ versions.lock 
+
+ versions.lock 
+
+ versions.props 
+
+ versions.props 
+
+ View all files 
+
+Repository files navigation
+
+witchcraft-api
+
+This repository contains the Conjure definitions for the witchcraft health and logging APIs.

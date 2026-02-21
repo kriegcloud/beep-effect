@@ -1,0 +1,176 @@
+Top highlight
+
+Building Software for a Zero Trust World
+Palantir
+Follow
+13 min read
+·
+Apr 19, 2023
+
+58
+
+2
+
+Press enter or click to view image in full size
+
+Since our founding in 2003, Palantir has worked with governments — as well as commercial clients across some of the most secure and highly regulated industries — to deliver value from their most sensitive data holdings. In doing so, we have pioneered many of the security concepts and practices that have come to be known as Zero Trust.
+
+Today, security remains the cornerstone of our product development, company culture, and internal operations. It is a key differentiator for our software, which provides best-in-class security and governance to enable our customers to make confident and data-driven operational decisions.
+
+What is Zero Trust?
+
+In a world of fast-evolving cybersecurity threats, we believe that trust should never be implicitly granted. Instead, it should be continuously evaluated and proven across all aspects of applications and infrastructure. This principle — coined “Zero Trust” — is an evolution and synthesis of longstanding security concepts, including ‘defense-in-depth’ and ‘least privilege’.
+
+A Zero Trust architecture is an enterprise security framework that uses contextual information about identities and resources to inform and enable policies that are dynamically enforced across the entire enterprise or institution.
+
+Palantir’s approach to Zero Trust has been led by the same philosophy guiding the definitions and examples in the US Government’s Department of Defense’s (DOD) Zero Trust Reference Architecture. The DOD Reference Architecture identifies five core tenets of the Zero Trust philosophy, paraphrased below:
+
+Assume a hostile environment: Treat users, devices, and networks as untrusted.
+Presume breach: Operate and defend resources with the assumption that adversaries already have a presence in your environment.
+Never trust, always verify: Deny access by default. Ensure every device, user, application, and data flow are authenticated and authorized.
+Scrutinize explicitly: All resources should be accessed in a secure manner using multiple factors to derive confidence levels. Access to resources is conditional and changes can be made dynamically based on confidence and context.
+Apply unified analytics: Data, applications, assets, and services should be monitored with unified analytics, including behavioral analytics. Every transaction should be logged for analysis and audit.
+
+Using these five core tenets as a foundation, we can start to view Zero Trust in an architectural sense by considering two key components defined in NIST Special Publication 800–207:
+
+Policy Decision Point (PDP): which inputs contextual information into a trust algorithm to render a decision about access to a resource, and;
+Policy Enforcement Point (PEP): which enables and disables access to a group of resources based on a decision from the PDP.
+
+An implementation example of a Policy Decision Point is Azure Active Directory leveraging the “Conditional Access” feature. Applications and Infrastructure can leverage the context provided by the Policy Decision Point in their implementation of Policy Enforcement Point(s). Our software platforms have multiple Policy Enforcement Points between application components and also in the hosting infrastructure; we will dive deeper into the specifics around these in this post.
+
+The third major architectural concept organizations can use to describe their Zero Trust approach — and use as a guide to mature their implementation — is Implicit Trust Zones.
+
+Implicit Trust Zones
+
+Implicit Trust Zones describe the collections of secured resources that exist between a PDP and PEP, as well as those areas in-between PEP’s when multiple Enforcement Points exist.
+
+Carefully defining Implicit Trust Zones can lead organizations towards iterative improvements in their Zero Trust strategy. They can achieve this by aiming to shrink the trust zones; making fewer resources accessible without re-evaluation. In other words, companies can aim to reduce the scope of resources that exist in-between PEP’s, and in doing this, they move closer toward the aspirational goal of having every interaction inside their systems scrutinized for contextual information.
+
+Press enter or click to view image in full size
+
+Here’s an example that drives this point home taken from NIST SP 800–27:
+
+“Consider the passenger screening model in an airport. All passengers pass through the airport security checkpoint (PDP/PEP) to access the boarding gates. The passengers, airport employees, aircraft crew, etc., mill about in the terminal area, and all the individuals are considered trusted. In this model, the implicit trust zone is the boarding area.”
+
+Zero Trust at Palantir
+Palantir Corporate Security
+
+Over the past 24 months, we’ve significantly matured the Zero Trust architecture across our own corporate environment in our efforts to safeguard Palantir itself, including our software development process. Given the critical role of supply chain security in any organization’s holistic security posture, we believe that governments and commercial enterprises should evaluate their corporate Zero Trust investments and maturity of their suppliers and service providers.
+
+The Department of Defense’s Zero Trust Strategy highlights Automated Dynamic Policies, something we use every day in our corporate environment, as an advanced-level Zero Trust capability. We’re heavy users of Microsoft Azure Active Directory Conditional Access as a Policy Decision Point (PDP). We specifically leverage Conditional Access capabilities that provide us with guarantees about the devices from which authentication requests originate and we disallow authentication from other devices. We are able to consume signal regarding the software packages and security updates on each device and can ensure that compliance settings are in place.
+
+Azure Active Directory as a Zero Trust Policy Decision Point allows us to ensure that the originating networks and geographic locations are acceptable for the application that a user is requesting to access, including at the privilege level they need. Downstream, many applications are gated behind proxy services which implement Policy Enforcement Points and allow for continual evaluation of the requests being made to the service.
+
+We also operate our corporate environment with universal multifactor authentication — achieving passwordless authentication using YubiKey Series 5 FIPS 140–2 cryptographic tokens to further enhance the level of trust we can put into our authentication function. You can read more about our journey to passwordless authentication here.
+
+Securing Our Customers
+
+At Palantir, we are deeply committed to the security of our customers. While we are always improving our corporate security as we respond to developments in technology capabilities and learn of new adversary techniques, the bulk of our investment in Zero Trust is currently focused on our customers’ networks and their data (referred to as ‘production’ environments for the remainder of this post).
+
+Palantir’s software, as well as our production hosting infrastructure, is designed to be both secure in isolation and to integrate seamlessly with the customer’s enterprise network and identity infrastructure. No single tool, solution, or service provider — including Palantir — can transform an organization’s posture to Zero Trust. But Palantir’s software includes many capabilities that contribute to a Zero Trust architecture by supporting each of the seven pillars identified in the DOD Zero Trust Strategy:
+
+User
+Device
+Application & Workload
+Data
+Network & Environment
+Automation & Orchestration
+Visibility & Analytics
+
+In the remainder of this section, we will describe in more detail how Palantir’s approach to Zero Trust works to support each of the above pillars for our customers.
+
+Users and Devices
+
+The User and Device pillars of the DoD Zero Trust Strategy center on authentication and authorization of users and devices. Palantir has prioritized a Zero Trust design for each of these facets.
+
+Authentication
+
+Palantir software treats all requests, regardless of what network or device they originate from, as untrusted until they are explicitly authenticated. Our software development teams leverage Continuous Integration (CI) to ensure that attempts to add new unauthenticated endpoints are flagged and rejected until resolved. Changes to hosting infrastructure take a similar approach. Palantir infrastructure is defined as code and changes pass through CI checks to ensure that specific conditions are not introduced as the result of each change. We use commercial cloud and infrastructure scanning products as a backstop, which alert incident response teams if unauthenticated resources or misconfigurations are detected in any production environment.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+We evaluated and designed for multiple authentication scenarios in our Zero Trust architecture and developed a roadmap for maturing each of them. The primary scenarios are:
+
+Many of our customers choose to provide their own Zero Trust Policy Decision and Enforcement Points. These are often part of an enterprise Identity Provider (IDP) or Identity, Credential, and Access Management (ICAM) solution, but can extend to include the Zero Trust capabilities in solutions such as ZScaler, Microsoft’s Azure Application Proxy, and Cloudflare’s Zero Trust Network Access (ZTNA).
+Some customers choose to rely on infrastructure managed by our teams for similar capabilities. We take responsibility for the IDP role, leveraging its capabilities as a Zero Trust Policy Decision Point.
+We also have administration and support responsibilities for our hosting infrastructure and have designed a Zero Trust approach for authentication in this scenario.
+
+To provide additional detail on how this works in practice, we can provide an expanded illustration of the last scenario.
+
+The Identity Provider (IDP) Palantir selected for administrator authentication to production systems is an Azure Active Directory GCC high level tenant operating in passwordless mode. We leverage YubiKey Series 5 FIPS 140–2 cryptographic devices as the only supported method for Palantir staff to authenticate with the intent to perform an administrative task in a ‘production’ environment. The IDP serves as a PDP and validates a list of conditions before providing a token that can be consumed at PEPs in the application and hosting infrastructure. Some of the conditions we evaluate are:
+
+That the device from where the authentication request originates is known and registered to our tenant;
+That the device has the latest security updates applied and hosts no software packages deemed inappropriate for the level of access being requested to a production environment;
+That the user and the device are operating from a network or geographic location deemed acceptable for the application or infrastructure components they are trying to access;
+That the device is deemed ‘healthy’ from a security standpoint. At a high level, this means that the device does not have any outstanding alerts or detections in our incident response platform.
+Authorization
+
+Once we know with confidence who is requesting access, we need to continuously evaluate what they should have access to. Traditional authorization is the process of comparing the user identity and the requested resource to the set of resources that user is permitted to access. In the Zero Trust model, we extend this decision to include some of the attributes provided by the Policy Decision Point that were mentioned above.
+
+Consider a traditional access control list (ACL) that indicates whether a user has access to a resource. To align to our Zero Trust strategy, we also have to consider whether the user should have access from the network they are currently operating from. We have to be sure that her trainings and compliance acknowledgements are up to date. The additional signals are consumed by the Policy Enforcement Point role in the application and provide a significant enhancement to a traditional ACL.
+
+In addition to the tools provided out of the box by Microsoft, a key enhancement we’ve implemented is the use of custom worker jobs and functions to provide our Policy Decision Point additional contextual information that can be included in the tokens received by the applications and infrastructure. We obtain this context from our compliance services that pull data about employees from multiple systems to enrich the information available to our Zero Trust infrastructure.
+
+This additional context includes factors like:
+
+Whether the user’s citizenship matches the requirements for the environment they are attempting to work with;
+Whether their tenure in the infrastructure team meets a specific threshold;
+Whether the team lead has vouched for an individual as being a member with a genuine need for access.
+
+This additional context is included in the token passed from the Policy Decision Point in the Azure GCC High tenant down to the Palantir application Policy Enforcement Points that will ultimately allow or disallow access.
+
+After authentication, any changes to the context of a user will lead to a straightforward, and mostly transparent, re-verification at the Policy Decision Point. A common example is when a change is identified in the source network of the client. This could be as benign as the user roaming between their travelling hotspot and a WiFi network, but could also be an indication of token theft and attempted re-use. In either case, the request will need to be reprocessed at the Policy Enforcement Point. Failure to reverify the request would then invalidate the token.
+
+To make our Zero Trust architecture more adaptable, we have designed a modular Policy Enforcement Point that can be “plugged in” between Implicit Trust Zones. As our overall product architecture matures, new features are added, trust boundaries are redefined, and instances can be relocated to suit these evolving needs. In its current implementation, our modular PEP is designed to identify state changes, such as when a new IP address is detected for a previously approved client who is traversing a Policy Decision Point, or when a high level of privilege is required for the administrative actions being attempted. In both cases, the request is transparently routed back via the Policy Enforcement Point for re-evaluation.
+
+Application & Workload
+
+Palantir employs a company-wide Software Development Life Cycle (SDLC) that governs the software development process of our product with the goal of producing high quality software, while minimizing processing errors and security vulnerabilities. The SDLC is an iterative process, based on Agile Methodology, which focuses on adaptable development and ensures customer satisfaction by integrating feedback at multiple points during development. The Palantir SDLC encompasses:
+
+Collaborative roadmap planning and stringent design review process;
+Automated testing and validation to realize Continuous Integration (CI) during development;
+Tiered approach to governance checks to ensure software is secure and correct prior to deployment;
+Automated deployment, update, and recall of software via Palantir Apollo, Palantir’s autonomous deployment platform;
+Continuous monitoring of performance, stability, and security.
+
+An essential element of the Application & Workload pillar is monitoring the Zero Trust architecture for vulnerabilities that are introduced or discovered as an inevitable part of the software development process. Palantir’s full-time Application Security team maintains a comprehensive vulnerability management program for the identification and remediation of vulnerabilities. Palantir has also developed the Container Vulnerability Scanner (CVS), which provides deep detection and visibility into potential vulnerabilities in Palantir’s software. In conjunction with Palantir Apollo, this enables automated remediation actions for many classes of vulnerabilities.
+
+Data
+
+Palantir supports the Data pillar by ensuring customer data remains encrypted at rest and in transit, and enabling customer data governance with data labeling, tagging, and access control.
+
+Our software implements a mandatory encryption principle for data in transit. All network connections enforce TLS encryption (1.2+) using a configurable list of strong cryptographic algorithms. Even if the network connections that trusted users make pass through a hostile environment — e.g. such as the public internet — this application-layer encryption keeps data private. Palantir also implements a mandatory encryption principle for data at rest. This is a way of applying the principle of “presume breach” — even if an adversary had physical access to the servers and hard drives ultimately storing data, they would not be able to steal information.
+
+Palantir software also implements a data-centric security model that enables granular data labeling, tagging, and access control. The flexible security model includes both Mandatory Access Controls (MAC) and Discretionary Access Controls (DAC), which can be used to configure Attribute-Based Access Control (ABAC) and Role-Based Access Control (RBAC) to safeguard data based on customer requirements. The Palantir Platform maintains the association of data labels, tags, and access control policies with information objects in storage, in process, and in transmission. Access control policies are fine-grained and can be applied at the project (folder), dataset (table), object (row), or property (cell) level. This access control model moves Policy Enforcement Points inside the application to shrink the Implicit Trust Zone around secured data to the smallest possible size.
+
+Network & Environment
+
+We support the Network & Environment pillar by implementing micro-segmentation with firewalls at the host, container, and network level. Micro-segmentation shrinks the size of the Implicit Trust Zones around each secured resource. All network traffic to and from our software must comply with a series of network security controls that assume a hostile environment and scrutinize all traffic. All incoming requests to internet-facing services are inspected by a web application firewall (WAF), which protects against OWASP Top 10 and similar attacks, implements platform-specific protections, mitigates denial-of-service (DoS) attempts, and denies unauthorized connections.
+
+Visibility & Analytics
+
+The Zero Trust paradigm emphasizes that a static approach to security is inadequate to address adaptive, real-world threats. As such, a key component of Zero Trust architecture is to implement dynamic inspection, continuously evaluating the effectiveness of current policies and configurations, and updating them as threats evolve.
+
+Palantir’s Zero Trust architecture includes a suite of dynamic and automated tools to detect and mitigate malicious activity, including web application firewalls (WAF), network intrusion detection systems (NIDS), host-based intrusion detection systems (HIDS), cloud security posture management (CSPM), a policy-enforcing service mesh, and firewalls at the host, container, and network level. The alerting and telemetry from all of these tools is fed into a security information and event management (SIEM) system which provides global visibility over the architecture to Palantir’s Information Security team, enabling them to prevent, detect, mitigate, and respond to threats in real time.
+
+Automation & Orchestration
+
+Palantir implements Automation & Orchestration throughout our Zero Trust architecture, including leveraging signal provided by the Policy Decision Points in both authorization and inspection tasks as requests move between Implicit Trust Zones. Palantir’s Information Security team also includes a dedicated Security Operations Center (SOC) and Incident Response capability. We also pair our SIEM with a security orchestration, automation, and response (SOAR) system, which enables the Information Security team to quickly respond using automated playbooks and API-driven actions when a security event occurs.
+
+Beyond Zero Trust
+
+Palantir is continuously looking for innovative ways to extend the Zero Trust paradigm, even if that requires radically re-thinking our infrastructure. As an example, the principle that we must “presume breach” was a significant motivating factor in our development of Rubix — Palantir’s Kubernetes-based cloud-native compute architecture. The high-investment, high-reward decision to run Rubix on ephemeral infrastructure means that even in case of a breach, an attacker would face an uphill battle to maintain any foothold — especially when combined with strict egress restrictions. Ephemeral infrastructure means that every host is regularly destroyed and re-built from a trusted image, so even the most clever malware could not persist on a host past the point that it is destroyed.
+
+We also plan to make further significant investment in our Zero Trust Policy Decision Point over the next twelve months, and will aim for performance optimizations that will allow us to further narrow the implicit trust zones within each network and application.
+
+Our support for and integration with third-party Zero Trust components brought in by customers has always been a top priority and we will continue to learn from our partners who bring new technologies to the table.
+
+Conclusion
+
+In short, Zero Trust acknowledges a hostile cyber environment in which threat actors will not be deterred or defeated by a static strategy or singular hardened perimeter. Dynamic and pervasive safeguards are required to meet the challenge, and at Palantir, we have built our business around that principle since our inception.
+
+Zero Trust principles, including authentication, context aware authorization, and inspection remain top of mind for our development teams. Across dozens of industries, and in cooperation with our customers’ own cybersecurity and enterprise architecture teams, we are helping build Zero Trust architectures that safeguard the most protected data in the world.

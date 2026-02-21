@@ -1,0 +1,1567 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/api-objects-links",
+    "title": "Functions - Functions on objects - Objects and links - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "TypeScript-based logic that interacts with Ontology objects and links, enabling programmatic access to properties, link traversals, and search-around operations"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A core Ontology entity whose properties are converted to fields on a generated TypeScript interface, accessible via dot notation in Functions"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "A characteristic of an object type, converted to a TypeScript field that may return undefined if no concrete value is set"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "A relationship between object types converted to fields on TypeScript interfaces, supporting 1-to-1, 1-to-many, and many-to-many cardinalities"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "A lazy collection of objects that can be traversed via links without loading individual object instances into memory"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SingleLink",
+        "description": "Generated TypeScript type for the '1' side of a link, providing get() and getAsync() methods to retrieve the linked object"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "MultiLink",
+        "description": "Generated TypeScript type for the 'many' side of a link, providing all() and allAsync() methods to retrieve an array of linked objects"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Search Around",
+        "description": "APIs generated on ObjectSets when links are created, enabling navigation from one object set to linked object sets without loading individual objects"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "ReadOnlyArray",
+        "description": "Immutable array type used for array properties and link traversal results, requiring explicit copy to modify"
+      },
+      {
+        "type": "Pattern",
+        "name": "Lazy Link Traversal",
+        "description": "Pattern of traversing links as ObjectSets to avoid loading linked object instances into memory, improving performance for large datasets"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core platform that hosts the Ontology and generates TypeScript APIs for object types and their links"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "CONNECTS",
+        "target": "Link Type"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "DEFINED_BY",
+        "target": "SingleLink"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "DEFINED_BY",
+        "target": "MultiLink"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "ObjectSet",
+        "relationship": "USES_PATTERN",
+        "target": "Lazy Link Traversal"
+      },
+      {
+        "source": "Search Around",
+        "relationship": "EXAMPLE_OF",
+        "target": "ObjectSet"
+      },
+      { "source": "Function", "relationship": "PART_OF", "target": "Foundry" }
+    ],
+    "keyInsights": [
+      "Object type properties are code-generated into TypeScript interfaces with dot-notation access, and may return undefined requiring explicit null handling",
+      "Array properties use ReadOnlyArray to enforce immutability semantics -- modifications require creating a copy first",
+      "Link traversal supports both eager loading (get/all methods) and lazy ObjectSet-based traversal via Search Around APIs to avoid memory overhead",
+      "Search Around APIs are automatically generated when links are created in the Ontology, enabling ObjectSet-to-ObjectSet navigation",
+      "Link types support three cardinalities: 1-to-1, 1-to-many, and many-to-many, each with different generated TypeScript types (SingleLink vs MultiLink)"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/models",
+    "title": "Models in the Ontology - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Model",
+        "description": "A machine learning or AI model integrated into the Ontology, deployed for live inference and mapped to Ontology concepts for interpretability and reuse"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity whose properties can serve as inputs and outputs for ML models, enabling interpretable modeling results"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "A collection of objects that can be passed as input to ML models for batch or live inference"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attributes of object types used by models as input features or output targets, making ML results interpretable as real-world concepts like forecasts or classifications"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Wrapper logic published around a deployed model to orchestrate complex inference and expose it to end-user applications"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform providing the data foundation, model evaluation tools, and deployment capabilities for operationalizing AI/ML"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "End-user application where deployed model functions can be consumed for live inference"
+      },
+      {
+        "type": "Product",
+        "name": "Vertex",
+        "description": "End-user application for consuming deployed model functions alongside Workshop"
+      },
+      {
+        "type": "Pattern",
+        "name": "Digital Twin",
+        "description": "Pattern where the Ontology becomes a single source of truth for both data and logic, enabling enterprise-wide simulation of future changes using ML models"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Direct Model Deployment",
+        "description": "Configuration that deploys a model for live inference, making it callable via wrapper functions in the Ontology"
+      },
+      {
+        "type": "UseCase",
+        "name": "Batch Inference",
+        "description": "Using a model in Code Repositories to produce datasets that back Ontology objects, as opposed to live inference"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Model",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Model",
+        "relationship": "OPERATES_ON",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Function",
+        "relationship": "OPERATES_ON",
+        "target": "Model"
+      },
+      { "source": "Model", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Model", "relationship": "EXPOSED_BY", "target": "Workshop" },
+      { "source": "Model", "relationship": "EXPOSED_BY", "target": "Vertex" },
+      {
+        "source": "Model",
+        "relationship": "USES_PATTERN",
+        "target": "Digital Twin"
+      },
+      {
+        "source": "Batch Inference",
+        "relationship": "DEMONSTRATES",
+        "target": "Model"
+      },
+      {
+        "source": "Direct Model Deployment",
+        "relationship": "EXAMPLE_OF",
+        "target": "Model"
+      }
+    ],
+    "keyInsights": [
+      "Models are integrated into the Ontology by mapping their inputs/outputs to object type properties, making ML results interpretable as real-world concepts like forecasts, estimates, or classifications",
+      "The end-to-end ML operationalization workflow is: create model, configure deployment, publish wrapper function, consume in user-facing applications",
+      "Modeling efforts achieve economies of scale because forecasts and predictions produced for one use case can immediately serve subsequent use cases through the shared Ontology",
+      "The Ontology becomes a digital twin encoding both data and organizational logic/expectations, enabling enterprise-wide simulation and future-state prediction",
+      "Models can operate in two modes: live inference (via direct model deployment + functions) and batch inference (via Code Repositories backing object type datasets)"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/derived-properties",
+    "title": "Derived properties - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Derived Property",
+        "description": "A property calculated at runtime based on other properties or links, including aggregations on linked objects, available for filtering, sorting, and aggregation within the same request"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "A stored characteristic of an object type that can serve as the basis for derived property calculations"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationship between object types used by derived properties to access and aggregate values from linked objects"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity on which derived properties are defined, with support currently limited to OSv2-indexed types"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "withProperties Operation",
+        "description": "TypeScript OSDK operation for requesting derived properties, available in @osdk/client 2.2.0-beta.x or later"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Linked Property Aggregation",
+        "description": "Type of derived property that aggregates or selects values from 1:1 or 1:N linked objects at runtime"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Column Math",
+        "description": "Type of derived property that combines multiple properties of the same object using mathematical expressions"
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology SDK providing TypeScript client for accessing derived properties via the withProperties operation"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Derived Property Security",
+        "description": "Security model where derived properties use the security of all objects involved in the calculation, never exposing information a user could not otherwise see"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Derived Property",
+        "relationship": "EXTENDS",
+        "target": "Property"
+      },
+      {
+        "source": "Derived Property",
+        "relationship": "REFERENCES",
+        "target": "Link Type"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Derived Property"
+      },
+      {
+        "source": "Derived Property",
+        "relationship": "DEFINED_BY",
+        "target": "withProperties Operation"
+      },
+      {
+        "source": "Derived Property",
+        "relationship": "DEFINED_BY",
+        "target": "Linked Property Aggregation"
+      },
+      {
+        "source": "Derived Property",
+        "relationship": "DEFINED_BY",
+        "target": "Column Math"
+      },
+      {
+        "source": "Derived Property",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Derived Property Security",
+        "relationship": "SECURES",
+        "target": "Derived Property"
+      }
+    ],
+    "keyInsights": [
+      "Derived properties are computed at runtime (not stored) and can be based on other properties, link traversals, or aggregations on linked objects",
+      "Two main types of derived properties exist: linked property/aggregation (from 1:1 or 1:N links) and column math (combining multiple properties on the same object)",
+      "Derived properties inherit the security model of all objects involved in their calculation, ensuring no information leakage",
+      "Currently a beta feature with limitations: no OSv1 support, no text search, no struct properties in OSDK queries (workaround: use $select to exclude structs)",
+      "Derived properties can chain into further operations -- once computed they can be used for additional filtering, sorting, or aggregation within the same request"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/metadata-statuses",
+    "title": "Object and link types - Metadata - Statuses - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Status",
+        "description": "Metadata indicating the developmental state of an Ontology resource: active, experimental, deprecated, example, or endorsed (object types only)"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity that supports all status values including the special endorsed status, with cascading status changes to child properties"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Characteristic of an object type whose status can be automatically cascaded when the parent object type's status changes"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationship between object types that carries its own developmental status metadata"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology resource for defining data modification operations that carries developmental status metadata"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology abstraction mechanism that carries developmental status metadata"
+      },
+      {
+        "type": "Pattern",
+        "name": "Resource Lifecycle",
+        "description": "Pattern for managing Ontology resources through developmental stages: experimental to active to deprecated, with endorsed as a higher trust level"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Ontology Owner Role",
+        "description": "Role required to directly apply the endorsed status to an object type; other users must submit proposals for owner approval"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Endorsed Status",
+        "description": "Beta status for object types only, signifying a core trusted resource vetted by ontology owners, with automatic visibility set to prominent and protections on API name changes"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Deprecated Status Metadata",
+        "description": "Additional metadata on deprecated resources including deprecation reason, expected deletion deadline, and replacement resource reference"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Status"
+      },
+      {
+        "source": "Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "Status"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Status"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Status"
+      },
+      {
+        "source": "Interface",
+        "relationship": "HAS_PROPERTY",
+        "target": "Status"
+      },
+      {
+        "source": "Status",
+        "relationship": "USES_PATTERN",
+        "target": "Resource Lifecycle"
+      },
+      {
+        "source": "Ontology Owner Role",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Endorsed Status",
+        "relationship": "EXAMPLE_OF",
+        "target": "Status"
+      }
+    ],
+    "keyInsights": [
+      "Every Ontology resource (object types, properties, link types, actions, interfaces) has a developmental status that communicates its readiness for production use",
+      "Five status values exist: active (in production), experimental (under development), deprecated (slated for deletion), example (notional/training), and endorsed (core trusted resource, object types only)",
+      "Status changes cascade: changing an object type from active to experimental automatically marks all its properties as experimental",
+      "Endorsed status is restricted to object types and requires the Ontology Owner role to apply directly; other users must submit proposals",
+      "Deprecated resources carry rich metadata: deprecation reason, expected deletion deadline, and a reference to the replacement resource",
+      "Endorsed status automatically sets visibility to prominent, increasing discoverability, and inherits the same operational protections as active status (e.g., deletion restrictions)"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/metadata-render-hints",
+    "title": "Object and link types - Metadata - Render hints - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Render Hint",
+        "description": "Metadata on Ontology properties that communicates usage information to Object Storage and user applications, controlling indexing, display, and interaction behavior"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Characteristic of an object type to which render hints are applied, controlling how the property is indexed and displayed"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity whose properties carry render hints, with some hints requiring a full reindex to take effect"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Sortable Render Hint",
+        "description": "Enables sorting on a property in applications like timelines and charts; adds a raw index and requires reindex"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Searchable Render Hint",
+        "description": "Enables filtering and aggregation on a property; prerequisite for low-cardinality filtering; adds raw index and requires reindex"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Selectable Render Hint",
+        "description": "Enables aggregation on string properties; adds raw index and requires reindex"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Visibility Render Hint",
+        "description": "Controls display prominence of a property in applications: prominent (shown first), normal, or hidden"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Low Cardinality Render Hint",
+        "description": "Indicates few possible values for a property, enabling specific filter widgets; requires the Searchable hint and adds raw index"
+      },
+      {
+        "type": "Product",
+        "name": "Object Storage V1 (Phonograph)",
+        "description": "Legacy object storage system that uses render hints to optimize indexing behavior and column storage"
+      },
+      {
+        "type": "Product",
+        "name": "Object Explorer",
+        "description": "User application that uses render hints to determine property display, filtering, and sorting capabilities"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Property",
+        "relationship": "HAS_PROPERTY",
+        "target": "Render Hint"
+      },
+      {
+        "source": "Render Hint",
+        "relationship": "PART_OF",
+        "target": "Object Storage V1 (Phonograph)"
+      },
+      {
+        "source": "Sortable Render Hint",
+        "relationship": "EXAMPLE_OF",
+        "target": "Render Hint"
+      },
+      {
+        "source": "Searchable Render Hint",
+        "relationship": "EXAMPLE_OF",
+        "target": "Render Hint"
+      },
+      {
+        "source": "Selectable Render Hint",
+        "relationship": "EXAMPLE_OF",
+        "target": "Render Hint"
+      },
+      {
+        "source": "Visibility Render Hint",
+        "relationship": "EXAMPLE_OF",
+        "target": "Render Hint"
+      },
+      {
+        "source": "Render Hint",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Explorer"
+      },
+      {
+        "source": "Low Cardinality Render Hint",
+        "relationship": "REFERENCES",
+        "target": "Searchable Render Hint"
+      }
+    ],
+    "keyInsights": [
+      "Render hints are a metadata system that bridges Ontology property definitions and their storage/display behavior in applications and Object Storage",
+      "Some render hints add raw indexes in Object Storage V1, causing two columns to be counted per property -- deselecting them improves reindex performance",
+      "Render hints fall into two categories: those applied immediately when saved, and those requiring a full reindex of the backing datasource to take effect",
+      "The Searchable hint is a prerequisite for Low Cardinality, creating a dependency chain between render hints",
+      "Visibility render hint controls prominence in applications: prominent properties appear first, hidden properties are not shown at all, normal is the default",
+      "Render hints like Identifier optimize reindex performance by indicating that numerical keys do not need number formatting or range filtering"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/create-object-type",
+    "title": "Object and link types - Object types - Create an object type - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity created via a guided helper in Ontology Manager, requiring metadata, backing datasource, property mappings, and key configuration"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Primary Key",
+        "description": "Unique identifier property required for every object type, ensuring each object instance is uniquely identifiable"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Title Key",
+        "description": "Required property designating the human-readable display name for objects of a type, shown in user applications"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Backing Datasource",
+        "description": "A Foundry dataset or external source that provides the underlying data for an object type; a single datasource can only back one object type"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attribute of an object type, automatically mapped from backing datasource columns or manually configured"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "API Name",
+        "description": "Programmatic identifier for an object type used in code, assignable after creation and distinct from the display name"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Type Groups",
+        "description": "Categorization mechanism for organizing object types within the Ontology, making it easier to filter and find relevant types"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application providing the guided helper interface for creating, configuring, and managing object types and their metadata"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform hosting datasets that serve as backing datasources for object types"
+      },
+      {
+        "type": "Pattern",
+        "name": "Guided Object Creation",
+        "description": "Step-by-step wizard pattern for creating object types: choose datasource, set metadata, create properties, configure keys, generate actions, save"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Primary Key"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Title Key"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "REFERENCES",
+        "target": "Backing Datasource"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "API Name"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "USES_PATTERN",
+        "target": "Guided Object Creation"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "CONTAINS",
+        "target": "Object Type Groups"
+      }
+    ],
+    "keyInsights": [
+      "Every object type requires at minimum a primary key (unique identifier) and a title key (human-readable display name)",
+      "A single Foundry datasource can only back one object type, enforcing a 1:1 mapping between backing data and object type definitions",
+      "Backing datasources cannot contain MapType or StructType columns, constraining the data shapes that can directly back object types",
+      "When a backing datasource is selected, its columns are automatically mapped to properties, but any can be discarded during the configuration step",
+      "Object types can be created without an existing datasource -- an empty dataset is generated at a chosen location for permissions management",
+      "The guided creation workflow follows a fixed sequence: datasource selection, metadata, properties, key configuration, action generation, save location, and commit"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/object-type-metadata",
+    "title": "Object and link types - Object types - Metadata reference - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity represented by comprehensive metadata including ID, RID, icon, display names, description, groups, API name, visibility, status, index status, and writeback configuration"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Type ID",
+        "description": "Unique human-readable identifier used to reference objects of a type in application configuration, e.g., 'employee'"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Type RID",
+        "description": "Automatically generated unique resource identifier for every Foundry resource, referenced in error messages across the platform"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "API Name",
+        "description": "Programmatic name used when referring to the object type in code, distinct from the display name"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Visibility",
+        "description": "Metadata controlling how prominently an object type is displayed in applications: prominent (shown first), normal (default), or hidden (not shown)"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Index Status",
+        "description": "Status of the last reindex of the object type and its backing datasources: success, failed, or not started"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Writeback Configuration",
+        "description": "Metadata indicating whether the object type has a writeback dataset and whether end-user edits are enabled or disabled"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Status",
+        "description": "Developmental state metadata: active, experimental, or deprecated, with experimental as the default for new object types"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Characteristics of an object type that form part of its full metadata specification"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "Object Type ID"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "Object Type RID"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "API Name"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "Visibility"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "Index Status"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "Writeback Configuration"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Status"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      }
+    ],
+    "keyInsights": [
+      "Object types have a dual identity system: a human-readable ID (e.g., 'employee') for configuration and an auto-generated RID for platform-level error messages and references",
+      "Visibility is a three-level system (prominent, normal, hidden) that controls discoverability in user applications, separate from the developmental status",
+      "New object types default to experimental status, requiring explicit promotion to active for production use",
+      "Writeback configuration is a distinct metadata field that controls whether end users can edit objects of a type, independent of the object type's datasource",
+      "API name is the programmatic identifier distinct from the display name, enabling code-stable references even when display names change"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-edits/how-edits-applied",
+    "title": "Object edits and materializations - How user edits are applied - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology mechanism for applying data modifications to objects, links, or object sets, triggering immediate index updates and periodic persistent storage flushes"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Writeback",
+        "description": "Mechanism for persisting user edits from object databases into Foundry datasets, enabling the most up-to-date object state to be read"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity whose instances can be edited through Actions, with version control ensuring transactional consistency"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attributes of objects that can be modified through Action-based edits, subject to version control"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Funnel Service",
+        "description": "Service that receives modification instructions from Actions, stores them in an offset-tracked queue supporting simultaneous edits"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Storage V2",
+        "description": "Object storage system that tracks Funnel offsets for object types and many-to-many link types, applying edits to live indexed data with read-after-write consistency"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Schema Migration Framework",
+        "description": "Object Storage V2 capability for migrating user edits, including a 'drop all edits' instruction to reset objects to their input datasource state"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Entity Version Control",
+        "description": "Mechanism ensuring transactional consistency when applying Actions by checking version consistency of both object type definitions and object instances"
+      },
+      {
+        "type": "Pattern",
+        "name": "Optimistic Concurrency",
+        "description": "Pattern where front-end consumers pass object version on Action submission, and the server applies the Action only if versions match, using compare-and-swap"
+      },
+      {
+        "type": "Product",
+        "name": "Object Storage V1 (Phonograph)",
+        "description": "Legacy object storage without schema migration support, where removing writeback dataset configuration deletes all existing user edits"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Materialization",
+        "description": "Process of periodically flushing in-memory edits from the object database index to persistent Foundry datasets via the Funnel service"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Property"
+      },
+      {
+        "source": "Writeback",
+        "relationship": "REFERENCES",
+        "target": "Materialization"
+      },
+      {
+        "source": "Object Storage V2",
+        "relationship": "REFERENCES",
+        "target": "Funnel Service"
+      },
+      {
+        "source": "Entity Version Control",
+        "relationship": "EXAMPLE_OF",
+        "target": "Action Type"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "USES_PATTERN",
+        "target": "Optimistic Concurrency"
+      },
+      {
+        "source": "Schema Migration Framework",
+        "relationship": "EXAMPLE_OF",
+        "target": "Object Storage V2"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "When an Action is applied, edits are immediately applied to the object database index and periodically flushed to persistent Foundry datasets via the Funnel service",
+      "Object Storage V2 guarantees read-after-write consistency: any object read occurring after a user modification will contain the user edits",
+      "There is no mechanism to undo a single user edit -- corrections require additional user edits or object recreation",
+      "Object Storage V2 provides a schema migration framework with a 'drop all edits' instruction for resetting to input datasource state, useful for transitioning from testing to production",
+      "Version control uses optimistic concurrency: the front-end passes the object version seen by the user, and the server uses compare-and-swap to ensure the Action applies to the correct version",
+      "Object Storage V1 (Phonograph) and V2 have different version control behaviors, with V2 providing more robust transactional guarantees"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontologies/ontologies-overview",
+    "title": "Ontologies - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Top-level artifact that stores ontological resources (object types, link types, action types, interfaces, shared properties, groups), mapped 1:1 with a space"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology resource representing a real-world entity, contained within an ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Ontology resource defining relationships between object types, contained within an ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology resource defining data modification operations, contained within an ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology resource for abstraction and polymorphism, contained within an ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property",
+        "description": "Ontology resource enabling property definitions to be reused across multiple object types within an ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type Group",
+        "description": "Organizational unit for categorizing object types within an ontology"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Space",
+        "description": "Foundry organizational unit mapped 1:1 with an ontology; when a space is created, a corresponding ontology is simultaneously created with the same organization markings"
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Organization Markings",
+        "description": "Security mechanism controlling which organizations can access ontological entities; private ontologies belong to one organization, shared ontologies span multiple"
+      },
+      {
+        "type": "Pattern",
+        "name": "Shared Ontology",
+        "description": "Pattern where an ontology is shared among multiple organizations, enabling safe cross-organization data and workflow sharing"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Link Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Action Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Interface"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Shared Property"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Object Type Group"
+      },
+      { "source": "Ontology", "relationship": "CONNECTS", "target": "Space" },
+      {
+        "source": "Organization Markings",
+        "relationship": "SECURES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Shared Ontology"
+      }
+    ],
+    "keyInsights": [
+      "An ontology is the top-level container for all Ontology resources: object types, link types, action types, interfaces, shared properties, and object type groups",
+      "Ontologies are mapped 1:1 with spaces -- creating a new space automatically creates a corresponding ontology with the same organization markings",
+      "Ontologies can be either private (single organization) or shared (multiple organizations), enabling controlled cross-organization collaboration",
+      "Shared ontologies inherit the markings of shared spaces, ensuring that only users of specified organizations can access ontological entities",
+      "Shared properties are an explicit Ontology resource type, enabling property definitions to be reused across multiple object types"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/foundry-branching/overview",
+    "title": "Foundry Branching - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry Branching",
+        "description": "Platform capability for developing and testing end-to-end workflows (code, data pipelines, Ontology, Workshop) in isolation on a branch without disrupting production"
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry application for building data pipelines, supported by Foundry Branching for isolated development"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "User-facing application builder supported by Foundry Branching, with some non-Workshop elements (e.g., Quiver dashboards) not modifiable on branches"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Core platform providing the branching infrastructure and merge capabilities across multiple application types"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology Proposal",
+        "description": "Mechanism within Foundry Branching for proposing, reviewing, and merging Ontology changes from a development branch to production"
+      },
+      {
+        "type": "Pattern",
+        "name": "Branch Isolation",
+        "description": "Pattern of making changes to transforms, pipelines, Ontology, and applications on a single branch, testing end-to-end, then merging with a single click"
+      },
+      {
+        "type": "Pattern",
+        "name": "Release Management",
+        "description": "Complementary pattern to branching for managing multiple versions of resources across distinct environments (dev, staging, production)"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology resource whose execution can be run on branches without writing back edits to Main"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Branch Retention Policy",
+        "description": "Configuration for automatically closing stagnant branches, as branches are intended to be short-lived to avoid conflicts and reduce costs"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Foundry Branching",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Foundry Branching",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Foundry Branching",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Workshop"
+      },
+      {
+        "source": "Ontology Proposal",
+        "relationship": "PART_OF",
+        "target": "Foundry Branching"
+      },
+      {
+        "source": "Foundry Branching",
+        "relationship": "USES_PATTERN",
+        "target": "Branch Isolation"
+      },
+      {
+        "source": "Branch Isolation",
+        "relationship": "ENABLES",
+        "target": "Ontology Proposal"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry Branching"
+      },
+      {
+        "source": "Branch Retention Policy",
+        "relationship": "EXAMPLE_OF",
+        "target": "Foundry Branching"
+      }
+    ],
+    "keyInsights": [
+      "Foundry Branching provides a unified experience for making changes across code repositories, Pipeline Builder, the Ontology, and Workshop on a single branch",
+      "Actions can be run on branches without writing back edits to Main, enabling safe testing of data modification workflows",
+      "Branches are intended to be short-lived and small to avoid conflicts, with retention policies to automatically close stagnant branches",
+      "Modifying large object types on a branch can incur significant additional compute and storage costs",
+      "Foundry Branching and release management are complementary: branching for development/testing isolation, release management for managing versions across environments",
+      "A review process with per-resource approval policies ensures changes are finalized and approved before merging into the Main branch"
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/why-ontology",
+    "title": "Why create an Ontology? - Palantir",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Shared source of truth for decision-making and decision capture across an organization, abstracting away technical concepts to present data in standard business terms"
+      },
+      {
+        "type": "Pattern",
+        "name": "Connectivity at Scale",
+        "description": "Pattern where the Ontology enables users to discover data across the organization and view local decisions in a global context, providing a single source of truth"
+      },
+      {
+        "type": "Pattern",
+        "name": "Interpretability",
+        "description": "Pattern where the Ontology abstracts away technical concepts (datasets, joins, code) allowing non-technical decision makers to engage with data in standard terms"
+      },
+      {
+        "type": "Pattern",
+        "name": "Economies of Scale",
+        "description": "Pattern where new information modeled into the Ontology becomes immediately available to all use cases, reducing duplicated effort and reinvention"
+      },
+      {
+        "type": "Pattern",
+        "name": "Decision Capture",
+        "description": "Pattern where the Ontology is used not only to read data but also to write data back and capture decisions made by users"
+      },
+      {
+        "type": "UseCase",
+        "name": "Energy Well Management",
+        "description": "An energy company using the Ontology to create a shared view of well health across petroleum engineers, integrity engineers, and management staff"
+      },
+      {
+        "type": "UseCase",
+        "name": "Aircraft Sensor Monitoring",
+        "description": "Manufacturing customer using the Ontology to make aircraft sensor monitoring data accessible to designers without requiring knowledge of tables or joins"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform providing Ontology-aware applications for analysis, workflow development, and decision capture"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Connectivity at Scale"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Interpretability"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Economies of Scale"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Decision Capture"
+      },
+      {
+        "source": "Energy Well Management",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Aircraft Sensor Monitoring",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      { "source": "Ontology", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Connectivity at Scale",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology provides five key organizational benefits: connectivity at scale, interpretability, economies of scale, decision capture, and powering operational AI/ML",
+      "The Ontology goes beyond a data catalog by defining a shared language that abstracts away technical concepts like datasets and joins for non-technical users",
+      "The Ontology is bidirectional: used not only to read data but to write back and capture decisions, making it an active decision-making system",
+      "Operating from standard data lakes leads to unmanageable complexity over time, while the Ontology provides a well-defined system that scales with data growth",
+      "The Ontology enables cross-functional collaboration by providing a common language, eliminating lengthy reconciliation processes to confirm everyone sees the same data"
+    ]
+  },
+  {
+    "url": "https://pythonebasta.medium.com/understanding-palantirs-ontology-semantic-kinetic-and-dynamic-layers-explained-c1c25b39ea3c",
+    "title": "Understanding Palantir's Ontology: Semantic, Kinetic, and Dynamic Layers Explained",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Semantic Layer",
+        "description": "Core ontology layer defining the conceptual model: what entities exist, how they relate, and what properties they have -- answering 'what are the things that matter'"
+      },
+      {
+        "type": "Pattern",
+        "name": "Kinetic Layer",
+        "description": "Ontology layer connecting the conceptual model to actual data sources via ETL pipelines, enabling traceable and auditable data lineage from source to insight"
+      },
+      {
+        "type": "Pattern",
+        "name": "Dynamic Layer",
+        "description": "Ontology layer introducing behavior through business rules, access control, lifecycle management, and workflow enforcement"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Entities defined in the semantic layer representing real-world concepts like Person, Vehicle, Transaction, Organization"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attributes defined in the semantic layer such as name, timestamp, representing characteristics of entities"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationships defined in the semantic layer connecting entities, e.g., Person owns Vehicle"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Part of the kinetic layer operationalizing the ontology model with data feeds and executable functions"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Part of the kinetic layer enabling complex logic and data orchestration around the ontology model"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform where engineers build the kinetic layer and end users interact through the dynamic layer"
+      },
+      {
+        "type": "Product",
+        "name": "Gotham",
+        "description": "Palantir platform that also uses the ontology concept with semantic, kinetic, and dynamic layers"
+      },
+      {
+        "type": "Pattern",
+        "name": "Three-Layer Ontology Architecture",
+        "description": "Architectural pattern organizing the ontology into semantic (conceptual model), kinetic (data connection), and dynamic (behavior/rules) layers"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Three-Layer Ontology Architecture",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Semantic Layer",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Semantic Layer",
+        "relationship": "ENABLES",
+        "target": "Property"
+      },
+      {
+        "source": "Semantic Layer",
+        "relationship": "ENABLES",
+        "target": "Link Type"
+      },
+      {
+        "source": "Kinetic Layer",
+        "relationship": "ENABLES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Kinetic Layer",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "PART_OF",
+        "target": "Gotham"
+      },
+      {
+        "source": "Three-Layer Ontology Architecture",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      }
+    ],
+    "keyInsights": [
+      "The Palantir Ontology is organized into three distinct layers: semantic (what exists), kinetic (connecting to real data), and dynamic (business rules and behavior)",
+      "The semantic layer defines entities, relationships, and properties as a shared language that reconciles fragmented data concepts across sources",
+      "The kinetic layer maps raw data (SQL tables, CSVs, APIs) to ontological entities via ETL pipelines with traceable data lineage",
+      "The dynamic layer introduces active behavior: business rules, access control, and lifecycle management (e.g., Suspect to Investigated to Cleared)",
+      "Different roles interact with different layers: analysts use semantic, engineers build kinetic, end users interact through dynamic",
+      "The layered approach enables the ontology to be not just a passive model but an active, adaptive system"
+    ]
+  },
+  {
+    "url": "https://medium.com/@jimmywanggenai/palantir-foundry-ontology-3a83714bc9a7",
+    "title": "Palantir Foundry: Ontology - Jimmy Wang - Medium",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Structured semantic layer in Foundry that organizes and connects data, providing a consistent framework of objects, attributes, and relationships"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Entity definition in the Ontology representing real-world concepts like Customer, Order, or Machine, with typed attributes and relationships"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attributes assigned to object types such as numeric, text, or categorical data (e.g., Customer Name, Order Date)"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationships between object types representing interactions or dependencies, supporting One-to-Many and Many-to-Many cardinalities"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Part of the Action Framework for performing operations on objects such as updating order status or assigning tasks"
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry tool for creating object types, adding attributes, and setting relationships"
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Application platform for filtering and visualizing objects based on their Ontology attributes and relationships"
+      },
+      {
+        "type": "UseCase",
+        "name": "Order-Customer-Product Model",
+        "description": "Example ontology with Order, Customer, and Product object types linked via One-to-Many and Many-to-Many relationships through Order Line Items"
+      },
+      {
+        "type": "Pattern",
+        "name": "Ontology Construction Workflow",
+        "description": "Four-step pattern: define object types, add attributes, set relationships, map data from raw datasets through pipelines"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "CONNECTS",
+        "target": "Link Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Order-Customer-Product Model",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Order-Customer-Product Model",
+        "relationship": "DEMONSTRATES",
+        "target": "Link Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Ontology Construction Workflow"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology construction follows a four-step process: define object types, add attributes (properties), set relationships (links), and map raw data through pipelines",
+      "Link types support multiple cardinalities: Order to Customer is One-to-Many, Order to Product is Many-to-Many via Order Line Items as a join table",
+      "Once built, the Ontology feeds three major downstream applications: Workshop (visualization), Action Framework (operations), and AI Models (ML workflows)",
+      "Raw datasets from diverse sources (databases, logs, APIs, CSVs) are mapped to Ontology object types through data pipelines, creating a unified knowledge system",
+      "The Ontology serves as a shared language for datasets, pipelines, and applications, enabling consistent downstream analysis"
+    ]
+  },
+  {
+    "url": "https://dorians.medium.com/foundational-ontologies-in-palantir-foundry-a774dd996e3c",
+    "title": "Foundational Ontologies in Palantir Foundry - Dorian Smiley - Medium",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Foundational Ontology",
+        "description": "Design pattern for creating base ontology structures that can be extended for specific use cases, serving as reusable foundations for enterprise knowledge modeling"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Structured, machine-processable format encapsulating human knowledge about domain relationships, functioning as a form of artificial intelligence through knowledge graphs"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core entity in the ontology representing real-world concepts, defined through data modeling processes that uncover hidden relationships"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Attributes of ontological entities encoding characteristics of real-world objects"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Semantic relationships between entities that mirror the complex web of connections within real-world datasets"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property",
+        "description": "Reusable property definitions that can be shared across multiple object types in a foundational ontology"
+      },
+      {
+        "type": "Pattern",
+        "name": "Knowledge Graph",
+        "description": "Graph-based data model underlying the ontology that enables AI systems to make inferences, recognize patterns, and predict outcomes"
+      },
+      {
+        "type": "Pattern",
+        "name": "Ontology Extensibility",
+        "description": "Design principle where foundational ontologies provide base patterns that can be extended and specialized for specific use cases"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir platform where foundational ontologies are built and extended for enterprise use cases"
+      },
+      {
+        "type": "UseCase",
+        "name": "Predictive System State",
+        "description": "Using foundational ontologies to predict future system states based on encoded relationships between entities"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Foundational Ontology",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "CONNECTS",
+        "target": "Link Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Knowledge Graph"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Ontology Extensibility"
+      },
+      { "source": "Ontology", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Predictive System State",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Foundational Ontology",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Ontologies are themselves a form of artificial intelligence, encapsulating human knowledge into structured, machine-processable formats that enable inference and pattern recognition",
+      "Foundational ontologies serve as reusable base patterns that can be extended for specific use cases, preventing each modeling project from starting from scratch",
+      "The ontology design process involves: problem definition, data collection, preparation/cleaning, analysis (clustering, association rules, decision trees), and interpretation of results",
+      "Knowledge graphs underlying ontologies bridge the gap between raw data and meaningful insights by encoding both entities and semantic relationships",
+      "Ontologies enable AI agents to understand context, preferences, and nuances by providing a scaffold of human knowledge that aligns with human reasoning",
+      "The foundational ontology pattern reduces bias in logical models by continuously validating them against data-derived relationships"
+    ]
+  },
+  {
+    "url": "https://medium.com/business-friendly-data-modeling/palantirs-ontology-kimball-s-star-schema-and-model-driven-data-engineering-a-comparative-view-8b175464c42a",
+    "title": "Palantir's Ontology, Kimball's Star Schema, and Model-Driven Data Engineering: A Comparative View",
+    "extractedEntities": [
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "Highly normalized, business-oriented abstraction layer in Foundry that models data as business objects with relationships as first-class citizens"
+      },
+      {
+        "type": "Pattern",
+        "name": "Business Object Modeling",
+        "description": "Pattern where data is modeled around real-world business entities (Customer, Account, Contract, Product, Event) rather than dimensional facts and measures"
+      },
+      {
+        "type": "Pattern",
+        "name": "Star Schema",
+        "description": "Kimball's dimensional modeling approach organizing data into denormalized facts and dimensions optimized for reporting, contrasted with the Ontology's normalized approach"
+      },
+      {
+        "type": "Pattern",
+        "name": "Normalization",
+        "description": "Data modeling principle where the Ontology uses highly normalized structures compared to the denormalized star schema approach"
+      },
+      {
+        "type": "Pattern",
+        "name": "Model-Driven Data Engineering",
+        "description": "Alternative approach combining business semantics and history preservation (like ontology) with pragmatic usability and performance (like dimensional modeling)"
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Bi-temporal SCD2",
+        "description": "Slowly Changing Dimension Type 2 with bitemporal tracking, used in model-driven approaches for historization that bridges ontology and dimensional modeling"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Business objects in the Ontology such as Customer, Account, Contract, Product, Event that serve as the central modeling unit"
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationships between business objects treated as first-class citizens in the Ontology, unlike foreign keys in traditional data modeling"
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Platform providing the Ontology as its central semantic layer for business-oriented data modeling"
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Business Object Modeling"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "USES_PATTERN",
+        "target": "Normalization"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology",
+        "relationship": "CONTAINS",
+        "target": "Link Type"
+      },
+      { "source": "Ontology", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Model-Driven Data Engineering",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Business Object Modeling",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Palantir's Ontology is a highly normalized approach compared to Kimball's denormalized star schema, trading reporting performance for semantic richness",
+      "In the Ontology, relationships between business objects are first-class citizens rather than foreign keys, enabling richer graph-like data navigation",
+      "The Ontology centers on business objects (Customer, Account, Contract) while star schema centers on facts and dimensions, representing fundamentally different modeling philosophies",
+      "A model-driven data engineering approach can bridge the gap by combining the ontology's business semantics with dimensional modeling's pragmatic performance",
+      "The Ontology's normalized structure aligns data around business concepts rather than query patterns, making it more adaptable to changing analytical needs"
+    ]
+  }
+]

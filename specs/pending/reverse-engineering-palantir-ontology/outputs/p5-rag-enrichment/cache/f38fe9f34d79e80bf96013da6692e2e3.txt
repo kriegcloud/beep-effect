@@ -1,0 +1,77 @@
+Products with Purpose: Foundry — Archetypes
+Palantir
+Follow
+6 min read
+·
+Oct 5, 2021
+
+15
+
+Press enter or click to view image in full size
+
+Julien is a Software Engineer at Palantir, currently working on one of the products within our Foundry platform. We sat down with Julien to learn more about the product and his own journey at Palantir.
+
+Hi Julien, thanks for joining us today. Could you tell us a little bit about who you are and what you do at Palantir?
+
+Sure! I’m Julien, my pronouns are he/him, and I am currently a Software Engineer working on Foundry in our London office. I joined Palantir in 2017, and during these last four years, I have worked as a developer on different products across the Foundry platform, in product management, and as a Forward Deployed Software Engineer embedded with customers. (Editor’s note: You can learn more about the difference between our Software Engineer, or Dev, roles and our Forward Deployed Software Engineer roles in this prior blog post.)
+
+What brought you to Palantir?
+
+Before Palantir, I had varied experiences both as a software engineer and as a strategy consultant. As a software engineer, I enjoyed the technical and productized approach to solving problems, and as a consultant, I valued seeing the impact I could have on broad real-world problems. Palantir was the best of what had excited me in both, providing me the ability to work on problems that have a real-world impact, while creating scalable technical solutions that could help our products profoundly improve operations for multiple customers.
+
+You work on one of our flagship platforms, Foundry. Can you tell us a little bit about the platform?
+
+At a high level, Foundry is a platform that allows our customers to manage their own data, create models that represent their organization, and operationalize data to actually help drive decisions. The goal is not to have a shiny analysis that remains on a shelf in a deck; Foundry actually changes how our customers operate and helps them make decisions in the real world, where the situation may be constantly evolving.
+
+Foundry can be adapted for a wide variety of customers and use cases, because the widgets, modules, UI, and configurations can all be customized. Foundry provides the infrastructure to easily build the logic, models, and apps that power operational outcomes at different levels of an organization. This infrastructure includes:
+
+Data syncing: How do you read data from the customer’s system?
+Data transformation: How do you clean up and transform that data to a useful format?
+Ontology: How do you make that data understandable, so you’re not just talking in terms of tables and rows, but in terms of real-world objects that those tables and rows actually represent?
+Modeling: How do you manage the models that represent the cause and effect relationship between those entities?
+Enablement: How do you build apps so that people can actually interact with those objects and drive real-world outcomes?
+
+This is a high-level overview of what Foundry does right now, but Foundry is constantly evolving to provide more value for our customers. Because of our operating model, our Forward Deployed Software Engineers are able to give the Product Development team direction about insights and trends they’re seeing first-hand in the field. This direction drives a lot of our product work within Foundry, and it’s actually how the product I’m currently working on came into existence.
+
+Can you tell us more about the product you’re currently working on?
+
+In early 2020, we noticed that many of our customers, government and commercial alike, were experiencing similar problems — namely, how to track the impact of COVID-19 on their facilities, people, or supply chains. Our customers needed to be able to understand and measure the impact the pandemic was having on their business in real time. So we created a product called Archetypes, which provides workflow templates that can be deployed from a configuration wizard in minutes and drive real-world outcomes for these organizations.
+
+Press enter or click to view image in full size
+Foundry Archetypes Homepage
+
+As one example, manufacturers can use Archetypes to view, understand, and resolve disruptions to their supply chains. Whether you’re manufacturing chemicals or cars, managing supply-chain disruptions share certain commonalities. At the same time, every industry and every organization has its own unique constraints and context, whether that’s the nature of a disruption or the means to resolve it. So the goal of Archetypes is not to write a cookie-cutter solution, but to harness high-level patterns to provide tools that allow our customers to get to value faster.
+
+Press enter or click to view image in full size
+Foundry Archetypes for Supply Chain Use
+What are some of the challenges you’ve faced engineering products like Archetypes?
+
+Some of the technical complexity relates to what I just mentioned: figuring out how organizations can harness both the benefits of an out-of-the-box offering and the customization they need to represent their own unique organization. Defining the APIs that allow the right level of flexibility and reusability is a hard technical problem.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+We also have to figure out how to make Archetypes play nicely with other Foundry products, from an app builder to an analysis tool to a map. That means we need to add a layer of templatization to our frontend products, so they can work across chemicals or cars (to return to our prior supply-chain example). And all backend services need to integrate with a framework to allow out-of-the-box offerings, without reinventing a new solution for each service.
+
+And even once you’ve figured out how to build an Archetype that addresses all these challenges, you need to improve that offering over time. We need to release upgrades, recall releases, upgrade customers, aggregate usage statistics in a privacy-protective way, and more.
+
+What is it like to work on the Foundry team?
+
+In order for us to build and deploy quickly and efficiently, the Foundry product organization is structured as a flat organization composed of small dev teams, typically around three to six people. This means each team member gets to play a significant role in defining the team’s strategic direction and technical architecture. To streamline internal collaboration, these teams are then organized into groups that work on closely related components of the Foundry platform.
+
+Another thing I appreciate about working on the Foundry team is that we get to work closely with our users, whether that’s our internal users like Forward Deployed Software Engineers or external users like customers. This means our engineers are able to identify, advocate for, and implement the necessary innovations to tackle the evolving problems our customers face. Personally, I’ve found this element of our work very energizing — it ensures our work is always anchored in real-world value and impact.
+
+You’ve done a variety of things during your time at Palantir. How have you thought about your growth?
+
+Growth at Palantir is often non-linear, and we tend to think about growth not in terms of climbing rungs on a ladder but in terms of impact. Maximizing your impact could involve taking on additional responsibility within your team, transferring to a new project, or even taking on an entirely different role. Right now, for example, I am a Dev Lead for my team, but also hold some responsibilities that would traditionally fall on a Product Manager. That means I spend my time writing code, but also organizing the team, mentoring other engineers, holding the engineering bar, and exploring what we should build next from the needs of our business — and how we can build it.
+
+What would you tell someone considering whether to join Palantir today?
+
+Ultimately, the reason I’m still at Palantir is because our culture optimizes for the best outcome while being cognizant of what expertise each engineer brings to the table. Every employee is given immense responsibility and opportunity to make an impact on our products and our customers.
+
+Early in my career at Palantir, it felt scary to be making decisions that would have such an impact so recently after I had joined, or to voice opinions that might significantly influence product direction. But at the end of the day, it’s incredibly rewarding to have direct access to such critical problems, and you have access to a lot of support structures to help you grow and make the best decisions, like mentors (in or outside of your team), engineering reviews with senior engineers from across the org, and more. And it’s exciting to see that Foundry and Archetypes are driving successful outcomes for our customers, whether that’s empowering them to make better decisions in minutes during the height of the pandemic last year, or getting anti-money laundering workflows up and running in days.
+
+To learn more about open roles at Palantir and apply, visit our website.

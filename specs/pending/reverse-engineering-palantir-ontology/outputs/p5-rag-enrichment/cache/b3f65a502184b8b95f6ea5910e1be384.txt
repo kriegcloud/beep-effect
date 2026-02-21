@@ -1,0 +1,75 @@
+Top highlight
+
+Palantir Apollo: Powering SaaS where no SaaS has gone before
+Palantir
+Follow
+6 min read
+·
+Sep 29, 2020
+
+419
+
+2
+
+Editor’s note: Since the original publication of this post in September 2020, Palantir has unveiled a new suite of products available within Palantir Apollo. The Apollo Platform’s new capabilities enable software companies and in-house engineering teams to adopt any combination of Apollo’s full-stack autonomous deployment functionality. To learn more, visit our Apollo webpage.
+
+Press enter or click to view image in full size
+
+At Palantir, our approach to software has undergone a radical transformation in the past few years. When we first launched Gotham in 2008, cloud computing was in its infancy, and most enterprise software was still installed on customer-owned hardware. This was especially true in the large governmental organizations that used Gotham, where our software ran on-premises and upgrades were relatively infrequent and manual.
+
+Press enter or click to view image in full size
+Palantir software circa 2008: installed on-premises in heterogeneous environments; often air-gapped/classified networks.
+
+Government and Enterprise use Foundry on public cloud for mission critical operations.
+
+When we built Foundry in 2016, the software world looked a lot different, so instead of replicating what we did with Gotham, we took a new approach: we built Foundry as a cloud-native SaaS with a microservice architecture. Our customers embraced the SaaS model much faster than we expected, and it has since come to dominate our business. In the past two years, every new Commercial customer has opted for our SaaS platform. And the same can be said for the US Government, where since receiving FedRAMP Moderate and DoD IL-5 authorization — the highest SaaS authorization, used for Mission-Critical and National Security Systems — our public-cloud SaaS has been used by nearly all new customers for their unclassified work.
+
+However, what makes our two user-facing SaaS platforms — Gotham and Foundry — truly unique is what is under the hood. Both of these platforms stand on the shoulders of a continuous delivery system we call Palantir Apollo. Apollo has been so critical to our success, we consider it to be our third platform. It not only unlocked our transformation to SaaS platforms, but has allowed us to go beyond just SaaS. With Apollo, our SaaS platforms run seamlessly in places where no SaaS has gone before.
+
+Press enter or click to view image in full size
+We initially built Apollo to power Foundry’s public cloud SaaS infrastructure.
+
+Most enterprise SaaS companies only run in the public cloud, and often only use a single cloud provider. But this wasn’t enough for our customers. Some of our government customers require their software to run in purpose-built government or classified clouds that live separately from standard public cloud infrastructure. Others need to use our software in extreme disconnected environments, from submarines to drones. We asked ourselves, how do we build a SaaS that works for all of our customers? That’s where Apollo comes in.
+
+In the past, we’ve written about the value of Apollo for our developers. In this post, we’ll discuss the value of Apollo for our customers.
+
+What is Palantir Apollo?
+
+Palantir Apollo is a continuous delivery system that powers our software platforms. Apollo was conceived alongside Foundry, initially built as the automation and delivery infrastructure for our public-cloud SaaS. However, given our roots in classified and on-prem environments, we knew that a traditional SaaS based on a single public cloud provider wouldn’t work everywhere. We needed unified tooling to bring the same SaaS platform to all of our customers, regardless of environment constraints. So we built Apollo to run as its own standalone platform — independent, decoupled from Foundry, running as a layer that sits between our applications and the underlying infrastructure.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Today, Apollo brings the same SaaS-style management to all of our platforms. It runs nearly everywhere that our software is deployed — cloud, on-prem, and classified networks — and has transformed the way that our software scales. Apollo orchestrates updates across heterogeneous deployment targets, unlocking fleet-wide autonomous management that has been a step-change in the efficiency of our operations.
+
+Press enter or click to view image in full size
+Because we built Apollo as a standalone platform, we’ve since extended it to power both Foundry and Gotham. Apollo automatically delivers platform upgrades without any user downtime or human intervention, regardless of environment.
+
+Apollo manages and safely deploys our Gotham and Foundry platforms. Each platform is made up of hundreds of individual services, each owned by a development team that writes and releases product features independently. This approach allows us to roll out updates across services asynchronously, increasing feature velocity. However, this type of microservice architecture traditionally makes the deployment of the software more complex. Apollo is the brain that automates this complexity away. It is configured to decide what to upgrade, when to do it, and how. It monitors developer releases, resolves dependencies, and deploys new versions.
+
+Apollo does this automatically in a way that obviates the need for user downtime or human intervention. It performs safe deploys with staged blue-green upgrades, and observes the roll-out process. If it notices an emergent issue, it begins a roll-back process, notifies the relevant development team, and avoids an outage. If successful, it moves on to the next service, and repeats — continuously delivering incremental, automatic updates for the fleet over 41,000 times a week.
+
+Press enter or click to view image in full size
+Apollo enables the monitoring of an entire fleet from a single pane of glass.
+
+Apollo performs this same automation for not just our SaaS, but also connected on-premises appliances, removing operating environment as a constraint. In fact, that’s one of the main reasons we built it. From Day 1, we’ve worked with customers in the most secure and highly regulated industries, operated in the world’s most logistically challenging environments, and built software capable of handling our customer’s most sensitive data. The experience of solving for the most technically challenging environment first, rather than adding it on later, is what led us to build Apollo as a foundation for software that can be written once and run anywhere.
+
+Apollo has allowed us to extend our platforms across cloud regions to meet our customers’ data residency requirements, and across cloud providers to run a multi-cloud SaaS. It has allowed us to extend our platforms on-premises to connected hardware appliances and edge devices. And it has done so without adding significant overhead or requiring specialized workflows: our software developers write code, Apollo deploys it, and our centralized operations team can monitor the whole fleet from a single pane of glass. In other words, Apollo has enabled Palantir to bring our SaaS — and the SaaS economics that come with it — to environments where no SaaS has gone before.
+
+Press enter or click to view image in full size
+Customers receive the latest platform upgrades automatically through Apollo and without any disruption to operations.
+Why is Palantir Apollo critical for our customers?
+Press enter or click to view image in full size
+
+At Palantir, we don’t take any software deployment scenario for granted. Our software engineers don’t know if their products will be deployed as part of our standard SaaS platform, serving web-scale traffic from the public cloud, or in Afghanistan, running on a ruggedized server rack in the back of a Humvee. Because Apollo removes the environment as a constraint, engineers can focus on velocity and application code. They write code once that works for all customers. This is in stark contrast to other software companies, where engineers write code that targets a specific environment and must engineer specialized products for each new deployment scenario they face. Ultimately, this approach brings more capabilities to our customers, faster.
+
+This technology brings our SaaS and all its benefits to organizations who have never used SaaS before. Not only can we fully embrace modern development practices like devops, continuous delivery, containerization, auto-scaling, and automated upgrades — the core components of a SaaS solution — but we do so without traditional constraints of only supporting a single public cloud provider. We run our software in a homogenous way across heterogeneous environments, powered by Apollo. Apollo is the platform that makes it possible to bring a unified SaaS to our entire customer base.
+
+Authors
+
+Akshay Krishnaswamy leads Enterprise Architecture for Palantir’s Commercial business.
+Clark Minor leads Palantir’s platform infrastructure and cloud strategy.
+Rob Fink is the founding engineer of the Palantir Foundry data platform.

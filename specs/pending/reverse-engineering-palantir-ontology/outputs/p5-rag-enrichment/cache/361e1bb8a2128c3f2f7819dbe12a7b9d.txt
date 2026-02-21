@@ -1,0 +1,392 @@
+Popular repositories
+
+ Loading 
+
+ blueprint
+ blueprint 
+ Public 
+
+ A React-based UI toolkit for the web
+
+ TypeScript 
+
+ 21.5k
+
+ 2.2k
+
+ tslint
+ tslint 
+ Public archive 
+
+ 🚦 An extensible linter for the TypeScript language
+
+ TypeScript 
+
+ 5.9k
+
+ 879
+
+ plottable
+ plottable 
+ Public 
+
+ 📊 A library of modular chart components built on D3
+
+ TypeScript 
+
+ 3.1k
+
+ 232
+
+ python-language-server
+ python-language-server 
+ Public 
+
+ An implementation of the Language Server Protocol for Python
+
+ Python 
+
+ 2.7k
+
+ 289
+
+ windows-event-forwarding
+ windows-event-forwarding 
+ Public 
+
+ A repository for using windows event forwarding for incident detection and response
+
+ Roff 
+
+ 1.3k
+
+ 282
+
+ pyspark-style-guide
+ pyspark-style-guide 
+ Public 
+
+ This is a guide to PySpark code style presenting common situations and the associated best practices based on the most frequent recurring topics across the PySpark repos we've encountered.
+
+ Python 
+
+ 1.2k
+
+ 159
+
+ Repositories
+
+ --> 
+
+ Loading 
+
+ Type 
+
+ All 
+
+ Public 
+
+ Sources 
+
+ Forks 
+
+ Archived 
+
+ Mirrors 
+
+ Templates 
+
+ Language 
+
+ All 
+
+ CoffeeScript 
+
+ CSS 
+
+ Go 
+
+ Groovy 
+
+ HCL 
+
+ Java 
+
+ JavaScript 
+
+ PowerShell 
+
+ Python 
+
+ R 
+
+ Roff 
+
+ Ruby 
+
+ Rust 
+
+ Scala 
+
+ Shell 
+
+ Swift 
+
+ TypeScript 
+
+ Sort 
+
+ Last updated 
+
+ Name 
+
+ Stars 
+
+ Showing 10 of 265 repositories 
+
+ blueprint 
+
+ Public
+
+ A React-based UI toolkit for the web
+
+ palantir/blueprint’s past year of commit activity 
+
+ TypeScript 
+
+ 21,498 
+
+ Apache-2.0
+
+ 2,247 
+
+ 753 
+ (300 issues need help) 
+
+ 138 
+
+ Updated Feb 20, 2026 
+
+ conjure-java 
+
+ Public
+
+ Conjure generator for Java clients and servers
+
+ palantir/conjure-java’s past year of commit activity 
+
+ Java 
+
+ 33 
+
+ Apache-2.0
+
+ 46 
+
+ 42 
+
+ 11 
+
+ Updated Feb 20, 2026 
+
+ goethe 
+
+ Public
+
+ Java code-formatter for https://github.com/square/javapoet 
+
+ palantir/goethe’s past year of commit activity 
+
+ Java 
+
+ 5 
+
+ Apache-2.0
+
+ 1 
+
+ 0 
+
+ 3 
+
+ Updated Feb 20, 2026 
+
+ palantir-java-format 
+
+ Public
+
+ A modern, lambda-friendly, 120 character Java formatter.
+
+ palantir/palantir-java-format’s past year of commit activity 
+
+ Java 
+
+ 757 
+
+ Apache-2.0
+
+ 78 
+
+ 101 
+
+ 33 
+
+ Updated Feb 20, 2026 
+
+ foundry-athena-query-federation-connector 
+
+ Public
+
+ An implementation of the Amazon Athena Query Federation SDK for Palantir Foundry
+
+ palantir/foundry-athena-query-federation-connector’s past year of commit activity 
+
+ Java 
+
+ 12 
+
+ Apache-2.0
+
+ 6 
+
+ 1 
+
+ 3 
+
+ Updated Feb 20, 2026 
+
+ suppressible-error-prone 
+
+ Public
+
+ Setting up Error Prone so checks can be rolled out without blocking upgrades by suppressing failures
+
+ palantir/suppressible-error-prone’s past year of commit activity 
+
+ Java 
+
+ 2 
+
+ Apache-2.0
+
+ 1 
+
+ 3 
+
+ 8 
+
+ Updated Feb 20, 2026 
+
+ osdk-ts 
+
+ Public
+
+ Typescript related OSDK libraries
+
+ palantir/osdk-ts’s past year of commit activity 
+
+ TypeScript 
+
+ 45 
+
+ 42 
+
+ 60 
+
+ 125 
+
+ Updated Feb 20, 2026 
+
+ gradle-docker 
+
+ Public
+
+ a Gradle plugin for orchestrating docker builds and pushes.
+
+ palantir/gradle-docker’s past year of commit activity 
+
+ Groovy 
+
+ 758 
+
+ Apache-2.0
+
+ 163 
+
+ 116 
+
+ 9 
+
+ Updated Feb 20, 2026 
+
+ terraform-provider-palantir-foundry 
+
+ Public
+
+ Terraform Provider for Palantir Foundry
+
+ palantir/terraform-provider-palantir-foundry’s past year of commit activity 
+
+ Go 
+
+ 13 
+
+ 5 
+
+ 1 
+
+ 1 
+
+ Updated Feb 20, 2026 
+
+ gradle-plugin-testing 
+
+ Public
+
+ Gradle plugin and helpers to assist with writing tests for gradle plugins
+
+ palantir/gradle-plugin-testing’s past year of commit activity 
+
+ Java 
+
+ 4 
+
+ Apache-2.0
+
+ 2 
+
+ 0 
+
+ 9 
+
+ Updated Feb 20, 2026 
+
+ View all repositories 
+
+People
+
+ View all 
+
+Top languages
+
+ Java 
+
+ Go 
+
+ TypeScript 
+
+ JavaScript 
+
+ Python 
+
+Most used topics
+
+ octo-correct-managed
+
+ golang
+
+ java
+
+ typescript
+
+ gradle

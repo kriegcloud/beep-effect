@@ -1,0 +1,2138 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/overview",
+    "title": "Overview - Ontology - Palantir",
+    "summary": "The Palantir Ontology is an operational layer that sits on top of digital assets (datasets, virtual tables, models) and connects them to real-world counterparts. It serves as a digital twin containing semantic elements (objects, properties, links) and kinetic elements (actions, functions, dynamic security). The Ontology maps data to meaningful business concepts rather than raw tables and columns.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Defines the Ontology as operational layer connecting data to real-world entities",
+      "Introduces semantic vs kinetic distinction in Ontology elements",
+      "Core reference for all Ontology primitives and their relationships"
+    ],
+    "tags": [
+      "ontology",
+      "overview",
+      "digital-twin",
+      "semantic-layer",
+      "foundry"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Function",
+      "Digital Twin"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+    "title": "Core concepts - Palantir",
+    "summary": "Defines the fundamental building blocks of the Ontology: object types (schema definition of real-world entities), properties (characteristics), link types (relationships), and action types (mutations). An object type is analogous to a dataset, an object to a row, and a property to a column. The Ontology creates a complete picture by mapping datasets and models to these primitives.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Formal definitions of all core Ontology primitives",
+      "Analogies between Ontology concepts and traditional data structures",
+      "Explains how datasets map to Ontology types"
+    ],
+    "tags": [
+      "core-concepts",
+      "object-type",
+      "property",
+      "link-type",
+      "action-type",
+      "definitions"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Object Set"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/object-types-overview",
+    "title": "Object and link types - Object types - Overview - Palantir",
+    "summary": "An object type is the schema definition of a real-world entity or event. An object instance refers to a single instance of an object type corresponding to a single real-world entity. To create objects, organizations add backing datasources to the object type and connect their enterprise data into the Ontology. Properties define characteristics, and shared properties allow consistent modeling across types.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Detailed definition of Object Type as schema for real-world entities",
+      "Relationship between object types and backing datasources",
+      "Introduction of shared properties concept"
+    ],
+    "tags": [
+      "object-type",
+      "schema",
+      "backing-datasource",
+      "properties",
+      "shared-properties"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Shared Property",
+      "Backing Datasource"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/properties-overview",
+    "title": "Object and link types - Properties - Overview - Palantir",
+    "summary": "A property of an object type is the schema definition of a characteristic of a real-world entity or event. Properties are analogous to columns in a dataset, and property values are analogous to fields. Properties have metadata including base type, render hints, visibility settings, title key (display name), and primary key (unique identifier).",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Formal property definition with dataset/column analogy",
+      "Property metadata: base type, render hints, visibility, keys",
+      "Distinction between title key and primary key"
+    ],
+    "tags": [
+      "property",
+      "base-type",
+      "render-hints",
+      "visibility",
+      "primary-key",
+      "title-key"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Property",
+      "Base Type",
+      "Primary Key",
+      "Title Key",
+      "Render Hints"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/base-types",
+    "title": "Object and link types - Properties - Base types - Palantir",
+    "summary": "Documents the available property base types in the Ontology including standard types (string, boolean, integer, etc.) and specialized types like Timestamp, Geohash/Geopoint, Geoshape, Attachment, and Time Series. The base type determines the set of operations available in user applications and affects indexing behavior.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Complete reference of available property base types",
+      "Specialized types: geospatial, time series, attachments",
+      "Base type determines available operations in applications"
+    ],
+    "tags": [
+      "base-type",
+      "property-types",
+      "timestamp",
+      "geohash",
+      "geoshape",
+      "attachment",
+      "time-series"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Property",
+      "Base Type",
+      "Geoshape",
+      "Attachment",
+      "Time Series"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/type-reference",
+    "title": "Object and link types - Types reference - Palantir",
+    "summary": "Comprehensive type reference for all Ontology types including object types, link types, properties, interfaces, and their metadata. Serves as the canonical reference for how types are defined, their relationships, and their API representations.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Complete type system reference for all Ontology primitives",
+      "API representations of types",
+      "Type relationships and composition rules"
+    ],
+    "tags": [
+      "type-reference",
+      "object-type",
+      "link-type",
+      "property",
+      "interface",
+      "api"
+    ],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Link Type",
+      "Property",
+      "Interface",
+      "Type System"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/link-types-overview",
+    "title": "Object and link types - Link types - Overview - Palantir",
+    "summary": "A link type is the schema definition of a relationship between two object types. Supports cardinalities: one-to-one, one-to-many, many-to-one, and many-to-many. Foreign keys define one-to-one/many-to-one links, while many-to-many requires a separate datasource containing link combinations. Each side of a link type has its own display name.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Link type cardinality options and their semantics",
+      "Foreign key vs datasource-backed link implementation",
+      "Link type metadata including bidirectional display names"
+    ],
+    "tags": [
+      "link-type",
+      "relationship",
+      "cardinality",
+      "foreign-key",
+      "many-to-many"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Link Type",
+      "Cardinality",
+      "Foreign Key",
+      "Object Type",
+      "Relationship"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/create-link-type",
+    "title": "Object and link types - Link types - Create a link type - Palantir",
+    "summary": "Step-by-step guide for creating link types in the Ontology Manager. Covers selecting the two object types to link, choosing cardinality, configuring foreign key relationships for one-to-one/many-to-one links, and selecting datasources for many-to-many links.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Practical guide for creating link types",
+      "Configuration differences by cardinality type",
+      "Foreign key and datasource selection process"
+    ],
+    "tags": [
+      "link-type",
+      "create",
+      "configuration",
+      "ontology-manager",
+      "tutorial"
+    ],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Link Type",
+      "Cardinality",
+      "Foreign Key",
+      "Ontology Manager"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/overview",
+    "title": "Action types - Overview - Palantir",
+    "summary": "An action type defines a set of changes or edits to objects, property values, and links that a user can take at once. Changes are committed atomically to the Ontology and reflected across all applications. Action types include rules (Ontology edits), parameters (user inputs), submission criteria (validation), and side effects (notifications, webhooks).",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Action types as atomic mutation definitions",
+      "Composition of actions: rules, parameters, submission criteria, side effects",
+      "Actions as the kinetic layer of the Ontology"
+    ],
+    "tags": [
+      "action-type",
+      "mutation",
+      "rules",
+      "parameters",
+      "side-effects",
+      "writeback"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Action Type",
+      "Rules",
+      "Parameters",
+      "Side Effects",
+      "Submission Criteria"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/rules",
+    "title": "Action types - Rules - Palantir",
+    "summary": "Rules define the logic of an action type, transforming parameters into Ontology edits or effects. Ontology rules include create object, modify object, delete object, add/remove links, and function rules. Function rules reference Ontology edit functions and preclude other rules since function code handles everything. Rules can also operate on interfaces for polymorphic actions.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Detailed rule types: create, modify, delete objects and links",
+      "Function rules as code-based alternatives to declarative rules",
+      "Interface-based rules for polymorphic operations"
+    ],
+    "tags": [
+      "action-type",
+      "rules",
+      "create-object",
+      "modify-object",
+      "delete-object",
+      "function-rule"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Action Type",
+      "Rules",
+      "Function Rule",
+      "Interface",
+      "Ontology Edit"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/parameter-overview",
+    "title": "Action types - Parameters - Overview - Palantir",
+    "summary": "Action type parameters define the user inputs required when taking an action. Parameters can reference object types, properties, and other Ontology elements. Each rule property is mapped to a parameter value by default, and parameter dropdowns can be filtered to restrict available options.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Parameter system for user-facing action inputs",
+      "Mapping between parameters and rule properties",
+      "Dropdown filtering for parameter values"
+    ],
+    "tags": [
+      "action-type",
+      "parameters",
+      "user-input",
+      "dropdown",
+      "filtering"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Action Type", "Parameters", "Rules", "Object Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/submission-criteria",
+    "title": "Action types - Submission criteria - Palantir",
+    "summary": "Submission criteria define validation rules that determine whether an action request is VALID or INVALID. Validation evaluates parameters and criteria but does not check existing objects or data in Foundry for performance reasons (e.g., uniqueness of primary key is not checked at validation time).",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Validation system for action submissions",
+      "Performance trade-offs in validation (no object existence checks)",
+      "VALID/INVALID response structure"
+    ],
+    "tags": ["action-type", "validation", "submission-criteria", "rules"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Action Type", "Submission Criteria", "Validation"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/function-actions-overview",
+    "title": "Action types - Function-backed actions - Overview - Palantir",
+    "summary": "Function-backed actions use code (TypeScript/Python functions) to define action logic instead of declarative rules. When a function rule is present, no other rule may be configured since function code alone handles everything. This provides maximum flexibility for complex business logic in mutations.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Function-backed actions as alternative to declarative rules",
+      "Exclusive nature of function rules (replaces all other rules)",
+      "Code-based approach for complex action logic"
+    ],
+    "tags": [
+      "action-type",
+      "function-backed",
+      "typescript",
+      "code-logic",
+      "mutations"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Action Type",
+      "Function",
+      "Function Rule",
+      "TypeScript"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/actions-on-interfaces",
+    "title": "Action types - Actions on interfaces - Palantir",
+    "summary": "Actions can operate on interfaces for polymorphic behavior. Interface-based rules include: create object(s) of interface, modify object(s) of interface, and delete object(s) of interface. This allows a single action type to work across any object type implementing a given interface.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Polymorphic action types via interfaces",
+      "Create/modify/delete operations on interface implementations",
+      "Interface as abstraction layer for action types"
+    ],
+    "tags": [
+      "action-type",
+      "interface",
+      "polymorphism",
+      "create",
+      "modify",
+      "delete"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Action Type",
+      "Interface",
+      "Polymorphism",
+      "Object Type"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/side-effects-overview",
+    "title": "Action types - Side effects - Overview - Palantir",
+    "summary": "Action types support side effects beyond Ontology edits: notifications allow flexible user notification when an action is applied, and webhooks connect to systems outside Foundry including REST APIs and ERP systems. Side effects are triggered after the primary action rules execute.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Notification and webhook side effects",
+      "Integration with external systems via webhooks",
+      "Side effects as extensions to action rules"
+    ],
+    "tags": [
+      "action-type",
+      "side-effects",
+      "notifications",
+      "webhooks",
+      "integration"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Action Type",
+      "Side Effects",
+      "Webhooks",
+      "Notifications"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/interfaces/interface-overview",
+    "title": "Interfaces - Overview - Palantir",
+    "summary": "An interface is an Ontology type describing the shape and capabilities of object types, enabling polymorphism. Interfaces are composed of shared properties, link type constraints, and metadata. Unlike concrete object types, interfaces are abstract (no backing datasets, cannot be instantiated directly). Multiple object types can implement an interface, and interfaces can extend other interfaces.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Interface definition as abstract shape descriptor",
+      "Composition: shared properties + link type constraints + metadata",
+      "Key distinction: concrete object types vs abstract interfaces"
+    ],
+    "tags": [
+      "interface",
+      "polymorphism",
+      "abstract",
+      "shared-properties",
+      "link-constraints"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Interface",
+      "Shared Property",
+      "Link Type Constraint",
+      "Object Type",
+      "Polymorphism"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/interfaces/implement-interface",
+    "title": "Interfaces - Implement an interface - Palantir",
+    "summary": "Describes how object types implement interfaces, analogous to implementing interfaces in programming languages. Implementation requires mapping shared properties to object type properties and satisfying link type constraints. Allows application code to interact with any implementing objects through the interface definition as an API layer.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Implementation mechanics: property mapping, constraint satisfaction",
+      "Interface as API layer for applications",
+      "Programming language interface analogy"
+    ],
+    "tags": [
+      "interface",
+      "implementation",
+      "property-mapping",
+      "api-layer",
+      "object-type"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Interface",
+      "Object Type",
+      "Implementation",
+      "Shared Property"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/interfaces/create-interface",
+    "title": "Interfaces - Create an interface - Palantir",
+    "summary": "Guide for creating interfaces in the Ontology Manager, including defining shared properties, configuring link type constraints, and setting metadata. Covers the process of building abstract type definitions that multiple object types can implement.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Step-by-step interface creation process",
+      "Configuration of shared properties and link constraints",
+      "Ontology Manager interface creation workflow"
+    ],
+    "tags": ["interface", "create", "ontology-manager", "configuration"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Interface",
+      "Shared Property",
+      "Link Type Constraint",
+      "Ontology Manager"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/interfaces/extend-interface",
+    "title": "Interfaces - Extend an interface - Palantir",
+    "summary": "Interfaces support inheritance: you can extend an interface to create a child interface that inherits properties of the parent, then add new specific properties to the child. This enables hierarchical type modeling similar to class inheritance in OOP.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Interface inheritance/extension mechanism",
+      "Child interfaces inherit parent shared properties",
+      "Hierarchical type modeling capability"
+    ],
+    "tags": [
+      "interface",
+      "inheritance",
+      "extension",
+      "hierarchy",
+      "child-interface"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Interface",
+      "Inheritance",
+      "Extension",
+      "Shared Property"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/interfaces/interface-link-types-overview",
+    "title": "Interfaces - Interface link types - Palantir",
+    "summary": "Link type constraints define parameters for interface link types. Constraints specify: link target type (interface or object type), target entity, cardinality (ONE or MANY), and whether the link is required. All implementing object types must have a link satisfying these constraints if the link is required.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Interface link type constraint system",
+      "Cardinality options: ONE (1:1) and MANY (1:N)",
+      "Required vs optional link constraints on implementing types"
+    ],
+    "tags": [
+      "interface",
+      "link-type",
+      "constraints",
+      "cardinality",
+      "required"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Interface",
+      "Link Type Constraint",
+      "Cardinality",
+      "Object Type"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/shared-property-overview",
+    "title": "Object and link types - Shared properties - Overview - Palantir",
+    "summary": "A shared property is a property that can be used on multiple object types, enabling consistent data modeling and centralized metadata management. When associated with a shared property, direct edits to inherited metadata are disabled on the object type. Shared properties are foundational to interfaces.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Shared property definition and purpose",
+      "Centralized metadata management across object types",
+      "Relationship between shared properties and interfaces"
+    ],
+    "tags": [
+      "shared-property",
+      "consistency",
+      "metadata",
+      "reuse",
+      "interface"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Shared Property",
+      "Property",
+      "Interface",
+      "Object Type",
+      "Metadata"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/use-shared-property",
+    "title": "Object and link types - Shared properties - Use shared properties on object types - Palantir",
+    "summary": "When using a shared property on an object type, the property ID and API name remain unchanged to avoid breaking downstream workflows. While associated with a shared property, direct edits to metadata inherited from the shared property are disabled on the object type.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Backward compatibility when adopting shared properties",
+      "Metadata inheritance and edit restrictions",
+      "Practical usage patterns for shared properties"
+    ],
+    "tags": [
+      "shared-property",
+      "usage",
+      "backward-compatibility",
+      "metadata-inheritance"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Shared Property",
+      "Property",
+      "Object Type",
+      "API Name"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/value-types-overview",
+    "title": "Object and link types - Value types - Overview - Palantir",
+    "summary": "Value types are semantic wrappers around field types that include metadata and constraints, enhancing type safety and expressiveness. They capture domain-specific meaning (e.g., 'email' value type with regex constraint). Value types are scoped to a space and can be reused across object types and pipelines within that space.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Value types as semantic wrappers with constraints",
+      "Domain-specific validation (e.g., email regex)",
+      "Space-scoped reuse across object types and pipelines"
+    ],
+    "tags": [
+      "value-type",
+      "semantic",
+      "constraints",
+      "validation",
+      "type-safety"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Value Type",
+      "Property",
+      "Constraint",
+      "Validation",
+      "Type Safety"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/value-type-constraints",
+    "title": "Object and link types - Value types - Value type constraints - Palantir",
+    "summary": "Documents the constraint system for value types, including regex patterns, range constraints, and other validation rules that enforce data quality. Constraints defined on a value type are automatically applied wherever that value type is used.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Constraint types available for value types",
+      "Automatic constraint propagation to all uses",
+      "Data quality enforcement via type system"
+    ],
+    "tags": [
+      "value-type",
+      "constraints",
+      "regex",
+      "validation",
+      "data-quality"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Value Type",
+      "Constraint",
+      "Validation",
+      "Data Quality"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/structs-overview",
+    "title": "Object and link types - Structs - Overview - Palantir",
+    "summary": "A struct is an Ontology property base type allowing schema-based properties with multiple fields. Struct properties are created from struct type dataset columns. Nested structs are not supported. Structs are supported across Ontology Manager, Actions, Pipeline Builder, Workshop, and the OSDK.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Struct as composite property type with multiple fields",
+      "No nested struct support (flat only)",
+      "Cross-application support for struct types"
+    ],
+    "tags": ["struct", "composite-type", "fields", "schema", "property-type"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Struct", "Property", "Base Type", "Composite Type"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/struct-shared-properties",
+    "title": "Object and link types - Structs - Structs and shared properties - Palantir",
+    "summary": "Struct properties can be used by both local and shared property types. This enables complex composite types to be shared and reused across multiple object types through the shared property mechanism.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Struct compatibility with shared properties",
+      "Reuse of complex composite types across object types"
+    ],
+    "tags": ["struct", "shared-property", "composite-type", "reuse"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Struct", "Shared Property", "Property", "Object Type"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-views/overview",
+    "title": "Object Views - Overview - Palantir",
+    "summary": "Object Views are customizable, reusable representations of object data serving as a central hub for all information related to an object. Two types exist: Full Object Views (comprehensive overview) and Panel Object Views (focused on critical data for specific workflows). Views include property data, object links, and related applications.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Object Views as reusable data representations",
+      "Full vs Panel Object View distinction",
+      "Views compose property data, links, and applications"
+    ],
+    "tags": ["object-views", "full-view", "panel-view", "visualization", "ui"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Views",
+      "Full Object View",
+      "Panel Object View",
+      "Object Type"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/api-object-sets",
+    "title": "Functions - Functions on objects - Object sets - Palantir",
+    "summary": "An object set represents an unordered collection of objects of a single type. Functions APIs support filtering (phrase, phrasePrefix, matchAllTokens), ordering (orderByRelevance), and retrieval (take, takeAsync). Filtering only works on properties with the Searchable render hint enabled. Supports Search Arounds to traverse link types.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "ObjectSet as unordered collection of single-type objects",
+      "Filter methods: phrase, phrasePrefix, matchAllTokens, fuzzyMatchAllTokens",
+      "Searchable render hint required for filtering/ordering/aggregation"
+    ],
+    "tags": [
+      "object-set",
+      "filtering",
+      "search",
+      "aggregation",
+      "search-around",
+      "functions"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "ObjectSet",
+      "Filtering",
+      "Search Around",
+      "Aggregation",
+      "Functions"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/overview",
+    "title": "Functions - Overview - Palantir",
+    "summary": "A function is code-based logic that takes input parameters and returns output, natively integrated with the Ontology. Functions can take objects and object sets as input, read property values, and be used across action types and applications. Queries are read-only subsets of functions exposed through the API gateway with no side effects.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Functions as code-based Ontology logic",
+      "Native integration with objects and object sets",
+      "Query functions as read-only subset of functions"
+    ],
+    "tags": [
+      "functions",
+      "queries",
+      "code-logic",
+      "ontology-integration",
+      "read-only"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Function",
+      "Query",
+      "ObjectSet",
+      "Action Type",
+      "API Gateway"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/query-functions",
+    "title": "Functions - Publish and call query functions through API gateway - Palantir",
+    "summary": "Query types represent logic that can be run in the Ontology, created using Query Functions. Queries are read-only, cannot have side effects, and can be exposed through the API gateway for external consumption. Queries can be searched and managed in Ontology Manager.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Query functions as API gateway-exposed read logic",
+      "Read-only constraint (no side effects)",
+      "Management through Ontology Manager"
+    ],
+    "tags": ["query-function", "api-gateway", "read-only", "ontology-manager"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Query", "Function", "API Gateway", "Ontology Manager"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/typescript-v2-ontology-edits",
+    "title": "Functions - TypeScript v2 - Ontology edits - Palantir",
+    "summary": "TypeScript v2 functions can perform Ontology edits using the Edits type and createEditBatch from @osdk/functions. Functions must explicitly declare edited entities. Edits include Object and Link types. Struct properties can be edited using TypeScript interfaces matching struct fields. Function-backed Actions provide permissions and metadata.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "TypeScript v2 edit API: Edits type, createEditBatch",
+      "Explicit declaration of edited entities",
+      "Struct property editing via TypeScript interfaces"
+    ],
+    "tags": ["typescript", "ontology-edits", "function", "edit-batch", "osdk"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Function",
+      "Ontology Edit",
+      "TypeScript",
+      "Action Type",
+      "OSDK"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/api-objects-links",
+    "title": "Functions - Functions on objects - Objects and links - Palantir",
+    "summary": "Describes how functions interact with objects and links in the Ontology. Properties of each object type are converted to fields on generated TypeScript interfaces. Links can be traversed as ObjectSets to avoid loading linked objects into memory. Search Around APIs are generated for linked object sets.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "TypeScript interface generation for object types",
+      "Link traversal via ObjectSet (lazy loading)",
+      "Search Around API generation for links"
+    ],
+    "tags": [
+      "functions",
+      "objects",
+      "links",
+      "search-around",
+      "typescript",
+      "lazy-loading"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Function",
+      "Object Type",
+      "Link Type",
+      "ObjectSet",
+      "Search Around"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/overview",
+    "title": "Ontology SDK - Overview - Palantir",
+    "summary": "OSDKs are specialized generated libraries providing intuitive interfaces for the Ontology. Supports NPM (TypeScript), Pip/Conda (Python), Maven (Java), and OpenAPI. Generated types and functions are based on the relevant Ontology subset. Enables accelerated development with ergonomic access to Ontology APIs for reading and writing.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "OSDK as generated type-safe library per Ontology",
+      "Multi-language support: TypeScript, Python, Java, OpenAPI",
+      "Subset-based generation for relevant Ontology entities"
+    ],
+    "tags": [
+      "osdk",
+      "code-generation",
+      "typescript",
+      "python",
+      "java",
+      "type-safe"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "OSDK",
+      "Code Generation",
+      "Object Type",
+      "TypeScript",
+      "API"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://github.com/palantir/osdk-ts",
+    "title": "GitHub - palantir/osdk-ts: Typescript related OSDK libraries",
+    "summary": "Official open-source TypeScript OSDK repository. OSDK 2.0 scales linearly with Ontology shape/metadata rather than full Ontology size (unlike 1.x). Contains generated code for object types, actions, and queries. Properties are converted to TypeScript interface fields using API names from the Ontology.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Open source TypeScript OSDK implementation",
+      "OSDK 2.0 vs 1.x scaling differences",
+      "Generated TypeScript interfaces from Ontology types"
+    ],
+    "tags": ["osdk", "typescript", "open-source", "github", "code-generation"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": ["OSDK", "TypeScript", "Object Type", "Code Generation"],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/models",
+    "title": "Models in the Ontology - Palantir",
+    "summary": "Describes how machine learning and AI models integrate with the Ontology. Models can take objects and object sets as input, read property values, and produce outputs that feed back into the Ontology. Modeling efforts build on each other over time, reducing duplicated work across use cases.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "ML/AI model integration with Ontology primitives",
+      "Models as consumers and producers of Ontology data",
+      "Compounding value of shared modeling efforts"
+    ],
+    "tags": ["models", "machine-learning", "ai", "ontology-integration"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Model",
+      "Object Type",
+      "ObjectSet",
+      "Property",
+      "Function"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/derived-properties",
+    "title": "Derived properties - Palantir",
+    "summary": "Derived properties are calculated at runtime based on other properties or links. Types include linked property/aggregation (from 1:1 or 1:N links) and column math (combining multiple properties). Computed in real time, they may impact module loading times. Currently a beta feature with expanding capabilities.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Runtime-computed properties from other properties or links",
+      "Two types: linked property/aggregation and column math",
+      "Performance implications of real-time computation"
+    ],
+    "tags": [
+      "derived-property",
+      "computed",
+      "runtime",
+      "aggregation",
+      "column-math"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Derived Property",
+      "Property",
+      "Link Type",
+      "Aggregation"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/metadata-statuses",
+    "title": "Object and link types - Metadata - Statuses - Palantir",
+    "summary": "Every Ontology resource has a developmental status: active, experimental, deprecated, or example. Object types also support 'endorsed' status (beta) for core trusted resources. Status changes cascade: changing an object type from active to experimental marks all its properties experimental too.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Lifecycle status system: active, experimental, deprecated, example, endorsed",
+      "Status cascade from object type to child properties",
+      "Endorsed status for vetted core object types"
+    ],
+    "tags": [
+      "metadata",
+      "status",
+      "lifecycle",
+      "active",
+      "deprecated",
+      "endorsed"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Metadata",
+      "Status",
+      "Object Type",
+      "Property",
+      "Lifecycle"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/metadata-typeclasses",
+    "title": "Object and link types - Metadata - Type classes - Palantir",
+    "summary": "Type classes define additional metadata for properties, link types, and action types, interpreted by user applications. They affect rendering, indexing, and application behavior. Configuration is moving to a Capabilities page in Ontology Manager. Analyzer type class affects indexing behavior specifically.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Type classes as extensible metadata for Ontology types",
+      "Impact on rendering and indexing behavior",
+      "Migration from type classes to Capabilities page"
+    ],
+    "tags": ["type-class", "metadata", "capabilities", "rendering", "indexing"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Type Class",
+      "Metadata",
+      "Property",
+      "Render Hints",
+      "Capabilities"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/metadata-render-hints",
+    "title": "Object and link types - Metadata - Render hints - Palantir",
+    "summary": "Render hints communicate information about Ontology property usage to Object Storage and user applications. Examples include sortable (enables sorting), searchable (enables filtering/aggregation), and visibility (controls display prominence). Some render hints require reindexing to take effect, affecting performance.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Render hints as metadata controlling application behavior",
+      "Searchable hint required for filtering/ordering/aggregation",
+      "Performance implications: some hints require reindexing"
+    ],
+    "tags": [
+      "render-hints",
+      "searchable",
+      "sortable",
+      "visibility",
+      "indexing",
+      "metadata"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Render Hints",
+      "Property",
+      "Searchable",
+      "Visibility",
+      "Indexing"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/required-properties",
+    "title": "Object and link types - Properties - Required properties - Palantir",
+    "summary": "Required properties are only supported by Object Storage V2. Can be configured to allow empty arrays (rejects null but accepts empty arrays). Useful for mandatory control properties that must always have a value. Enforces data quality at the schema level.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Required property support only in Object Storage V2",
+      "Configuration for empty array allowance",
+      "Schema-level data quality enforcement"
+    ],
+    "tags": [
+      "required-property",
+      "osv2",
+      "data-quality",
+      "mandatory",
+      "null-handling"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Required Property",
+      "Property",
+      "Object Storage V2",
+      "Data Quality"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/type-groups",
+    "title": "Object and link types - Object type groups - Palantir",
+    "summary": "Object type groups are classification primitives helping users search and explore their ontology. Groups are labels created and managed in Ontology Manager by ontology owners/editors. Object types can belong to multiple groups, providing organizational structure for large ontologies.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Groups as organizational labels for object types",
+      "Multi-group membership for object types",
+      "Discovery and navigation aid for large ontologies"
+    ],
+    "tags": [
+      "object-type-groups",
+      "classification",
+      "organization",
+      "discovery",
+      "ontology-manager"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type Group",
+      "Object Type",
+      "Ontology Manager",
+      "Classification"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/create-object-type",
+    "title": "Object and link types - Object types - Create an object type - Palantir",
+    "summary": "Step-by-step guide for creating object types including metadata (display name, ID, description), backing datasource selection, property mapping, and key configuration. Primary way is via guided helper. All object types must have a title key and unique primary key. A single datasource can only back one object type.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Object type creation workflow in Ontology Manager",
+      "Required elements: title key, primary key, backing datasource",
+      "Single datasource per object type constraint"
+    ],
+    "tags": [
+      "create-object-type",
+      "ontology-manager",
+      "primary-key",
+      "title-key",
+      "backing-datasource"
+    ],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Primary Key",
+      "Title Key",
+      "Backing Datasource",
+      "Ontology Manager"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/object-type-metadata",
+    "title": "Object and link types - Object types - Metadata reference - Palantir",
+    "summary": "Reference for object type metadata including display name, plural display name, description, ID, icon, color, groups, and status. Documents all configurable metadata fields that define how an object type appears and behaves across the platform.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Complete object type metadata field reference",
+      "Display configuration: name, icon, color",
+      "ID and status metadata"
+    ],
+    "tags": [
+      "object-type",
+      "metadata",
+      "display-name",
+      "icon",
+      "description",
+      "id"
+    ],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Metadata",
+      "Display Name",
+      "ID",
+      "Status"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/architecture-center/ontology-system",
+    "title": "The Ontology system - Palantir",
+    "summary": "Architectural overview of the Ontology as a multimodal system with dozens of components, grouped into Language (semantic types, kinetic actions, logic), Engine (read/write architecture), and Toolchain. The Engine provides SQL queries, real-time subscriptions, atomic transactions, batch mutations, and streaming.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Three-part architecture: Language, Engine, Toolchain",
+      "Engine capabilities: SQL, real-time, transactions, batch, streaming",
+      "Multimodal system with dozens of underlying components"
+    ],
+    "tags": [
+      "architecture",
+      "language",
+      "engine",
+      "toolchain",
+      "system-design"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Architecture",
+      "Language",
+      "Engine",
+      "Toolchain",
+      "Ontology System"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-backend/overview",
+    "title": "Overview and getting started - Overview - Palantir",
+    "summary": "The Ontology backend manages datasource feeding, schema definitions, querying/searching/aggregating objects, and orchestration of writes. Object Set Service (OSS) serves reads with filtering, aggregating, and loading. Object Storage V2 supports higher-scale Search Arounds (100K+ objects) and accurate aggregations via Spark-based query layer.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Backend responsibilities: datasource management, querying, write orchestration",
+      "Object Set Service (OSS) as query layer",
+      "Object Storage V2 Spark-based query execution"
+    ],
+    "tags": [
+      "backend",
+      "object-storage",
+      "oss",
+      "querying",
+      "aggregation",
+      "spark"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Storage V2",
+      "Object Set Service",
+      "Querying",
+      "Aggregation",
+      "Backend"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-edits/how-edits-applied",
+    "title": "Object edits and materializations - How user edits are applied - Palantir",
+    "summary": "When an Action is applied, edits are immediately applied to the index in object databases and periodically flushed to persistent storage as Foundry datasets. Transactionality guarantees avoid data correctness issues. Writeback datasets read edits and reflect the most up-to-date object state.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Action application flow: immediate index update, periodic flush",
+      "Transactionality guarantees for data correctness",
+      "Writeback datasets as persistent edit storage"
+    ],
+    "tags": ["edits", "writeback", "transaction", "materialization", "action"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Action Type",
+      "Writeback",
+      "Transaction",
+      "Materialization",
+      "Object Storage"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontologies/ontologies-overview",
+    "title": "Ontologies - Overview - Palantir",
+    "summary": "An ontology stores ontological resources including object types, link types, action types, and interfaces. Ontologies can be private (single organization) or shared (multiple organizations). Mapped 1:1 with a space. When a new space is created, a corresponding ontology is simultaneously created.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Ontology as container for all ontological resources",
+      "Private vs shared ontology scoping",
+      "1:1 mapping between ontology and space"
+    ],
+    "tags": [
+      "ontology",
+      "space",
+      "organization",
+      "shared-ontology",
+      "container"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Ontology",
+      "Space",
+      "Organization",
+      "Object Type",
+      "Link Type"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontologies/ontologies-proposals",
+    "title": "Ontologies - Proposals - Palantir",
+    "summary": "Ontology proposals allow making changes on a branch, based on the main version of the Ontology. Every modified entity becomes a separate Task in the proposal for review. Changes are reviewed and approved before merging into the main Ontology. Supports creation, modification, and deletion of ontological resources.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Branch-based change management for Ontology modifications",
+      "Task-based review of individual entity changes",
+      "Approval workflow before merging to main Ontology"
+    ],
+    "tags": [
+      "proposals",
+      "branching",
+      "review",
+      "change-management",
+      "workflow"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Ontology Proposal",
+      "Branching",
+      "Change Management",
+      "Review"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/foundry-branching/overview",
+    "title": "Foundry Branching - Overview - Palantir",
+    "summary": "Foundry Branching enables developing and testing end-to-end workflows (code, data pipelines, Ontology) in isolation without disrupting production. Provides unified experience for modifications across multiple applications on a single branch. Branches are intended to be short-lived and small to avoid conflicts.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Unified branching across code, pipelines, and Ontology",
+      "Non-disruptive development and testing",
+      "Best practice: short-lived, small branches"
+    ],
+    "tags": [
+      "branching",
+      "development",
+      "testing",
+      "isolation",
+      "production-safety"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Foundry Branching",
+      "Ontology Proposal",
+      "Development Workflow"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-manager/overview",
+    "title": "Ontology Manager - Overview - Palantir",
+    "summary": "Ontology Manager is the primary tool for building and maintaining the Ontology, from creating object types and action types to connecting data. Accessed via Workspace sidebar or URL. Supports guided step-by-step creation with metadata, backing datasource, property mappings, and key configuration.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Primary management tool for all Ontology configuration",
+      "Guided creation workflow for object types",
+      "Central hub for Ontology maintenance"
+    ],
+    "tags": ["ontology-manager", "management", "configuration", "ui-tool"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Ontology Manager",
+      "Object Type",
+      "Action Type",
+      "Configuration"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/why-ontology",
+    "title": "Why create an Ontology? - Palantir",
+    "summary": "Explains the strategic value of building an Ontology: shared source of truth for decision-making, data discovery, viewing local decisions in global context. Goes beyond data cataloging to define a robust foundation for end-user workflows with rich metadata and granular security.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Strategic value proposition of the Ontology",
+      "Beyond data cataloging: workflows, metadata, security",
+      "Shared source of truth across organization"
+    ],
+    "tags": [
+      "why-ontology",
+      "value-proposition",
+      "decision-making",
+      "data-discovery"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Ontology",
+      "Decision Making",
+      "Data Discovery",
+      "Security"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/platforms/ontology/",
+    "title": "Palantir Ontology",
+    "summary": "Marketing/overview page for the Palantir Ontology platform. Presents the Ontology as mapping data to real-world objects (parts, machines, SKUs, patients, flights, oil wells) with relationships and business logic. All downstream applications read from and write to the same Ontology instead of scattered silos.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "High-level positioning of Ontology as unified data layer",
+      "Real-world entity examples across industries",
+      "Single source of truth for all applications"
+    ],
+    "tags": [
+      "platform",
+      "overview",
+      "marketing",
+      "unified-layer",
+      "real-world-entities"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": ["Ontology", "Object Type", "Digital Twin", "Platform"],
+    "quality": 3
+  },
+  {
+    "url": "https://blog.palantir.com/ontology-oriented-software-development-68d7353fdb12",
+    "title": "Ontology-Oriented Software Development - Palantir Blog",
+    "summary": "Introduces ontology-oriented development as a new paradigm where programmers abstract away internal implementation details and interact with business concepts. The OSDK provides a toolkit for building APIs in the language of the business. Aligns business users and engineers around business representation rather than underlying components.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Ontology-oriented development paradigm definition",
+      "OSDK as business-language API toolkit",
+      "Alignment of business users and engineers"
+    ],
+    "tags": [
+      "ontology-oriented",
+      "development-paradigm",
+      "osdk",
+      "business-language",
+      "abstraction"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "2024-01-24",
+    "relatedConcepts": [
+      "Ontology-Oriented Development",
+      "OSDK",
+      "Abstraction",
+      "Business Logic"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/ontology-finding-meaning-in-data-palantir-rfx-blog-series-1-399bd1a5971b",
+    "title": "Ontology: Finding meaning in data - Palantir Blog",
+    "summary": "Foundational blog post explaining what Palantir means by 'ontology'. Data does not have inherent meaning; meaning is layered onto data by users. An ontology maps data to meaningful semantic concepts. Defines the nouns, verbs, and adjectives of an organization (e.g., Accounts, Transactions, Financial Products for a bank).",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Philosophical foundation: meaning vs raw data",
+      "Ontology as mapping from data to semantic concepts",
+      "Nouns, verbs, adjectives metaphor for organizations"
+    ],
+    "tags": [
+      "ontology",
+      "meaning",
+      "semantics",
+      "philosophy",
+      "blog",
+      "rfx-series"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "2023-04-14",
+    "relatedConcepts": [
+      "Ontology",
+      "Semantics",
+      "Data Modeling",
+      "Business Concepts"
+    ],
+    "quality": 5
+  },
+  {
+    "url": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72",
+    "title": "Connecting AI to Decisions with the Palantir Ontology - Palantir Blog",
+    "summary": "The Ontology brings together data, logic, and action into a decision-centric model. Every decision comprises data (information), logic (evaluation), and action (execution). The Ontology integrates these into a scalable, dynamic foundation. LLMs and AIP agents can query and reason over the Ontology using natural language.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Decision-centric model: data + logic + action",
+      "AI/LLM integration with Ontology via natural language",
+      "Ontology as foundation for human + AI decision-making"
+    ],
+    "tags": ["ai", "decisions", "aip", "llm", "data-logic-action"],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "AIP",
+      "Decision Making",
+      "LLM",
+      "Action Type",
+      "Function"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.palantir.com/building-with-palantir-aip-the-ontology-software-development-kit-823fe5ac7aae",
+    "title": "Building with Palantir AIP: The Ontology Software Development Kit - Palantir Blog",
+    "summary": "Details how the OSDK enables building external applications backed by the Foundry Ontology. The OSDK generates type-safe code from Ontology definitions, allowing developers to interact with business objects directly. Supports querying, filtering, and writing back to the Ontology from external applications.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "OSDK for external application development",
+      "Type-safe code generation from Ontology definitions",
+      "Query, filter, and writeback capabilities"
+    ],
+    "tags": [
+      "osdk",
+      "aip",
+      "external-applications",
+      "type-safe",
+      "code-generation"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "OSDK",
+      "AIP",
+      "Code Generation",
+      "Type Safety",
+      "External Application"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://pythonebasta.medium.com/understanding-palantirs-ontology-semantic-kinetic-and-dynamic-layers-explained-c1c25b39ea3c",
+    "title": "Understanding Palantir's Ontology: Semantic, Kinetic, and Dynamic Layers Explained",
+    "summary": "Third-party analysis breaking down the three Ontology layers. Semantic layer defines the conceptual model (entities, relationships, properties). Kinetic layer operationalizes the model with data feeds, action types, and functions. Dynamic layer introduces business rules, access control, and lifecycle management.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Three-layer model: semantic, kinetic, dynamic",
+      "Clear delineation of each layer's responsibilities",
+      "Third-party perspective on Ontology architecture"
+    ],
+    "tags": [
+      "semantic-layer",
+      "kinetic-layer",
+      "dynamic-layer",
+      "architecture",
+      "analysis"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Semantic Layer",
+      "Kinetic Layer",
+      "Dynamic Layer",
+      "Architecture"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://medium.com/@jimmywanggenai/palantir-foundry-ontology-3a83714bc9a7",
+    "title": "Palantir Foundry: Ontology - Jimmy Wang - Medium",
+    "summary": "Third-party tutorial-style overview of the Palantir Foundry Ontology covering core concepts, object types, properties, link types, and action types. Provides an accessible introduction to Ontology fundamentals from a practitioner's perspective.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Practitioner's perspective on Ontology fundamentals",
+      "Accessible introduction to core concepts",
+      "Third-party tutorial content"
+    ],
+    "tags": [
+      "tutorial",
+      "medium",
+      "introduction",
+      "practitioner",
+      "third-party"
+    ],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Ontology",
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://dorians.medium.com/foundational-ontologies-in-palantir-foundry-a774dd996e3c",
+    "title": "Foundational Ontologies in Palantir Foundry - Dorian Smiley - Medium",
+    "summary": "Explores the concept of foundational ontologies in Palantir Foundry, discussing how to design base ontology patterns that can be extended for specific use cases. Covers ontology design patterns and best practices for building reusable foundations.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Foundational ontology design patterns",
+      "Reusable base ontology concepts",
+      "Best practices for ontology extensibility"
+    ],
+    "tags": [
+      "foundational-ontology",
+      "design-patterns",
+      "best-practices",
+      "extensibility"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Ontology Design",
+      "Patterns",
+      "Extensibility",
+      "Best Practices"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://medium.com/business-friendly-data-modeling/palantirs-ontology-kimball-s-star-schema-and-model-driven-data-engineering-a-comparative-view-8b175464c42a",
+    "title": "Palantir's Ontology, Kimball's Star Schema, and Model-Driven Data Engineering: A Comparative View",
+    "summary": "Comparative analysis of Palantir's Ontology approach against traditional data modeling paradigms like Kimball's star schema. Palantir's Ontology is described as a highly normalized, business-oriented abstraction layer that models data as business objects with relationships as first-class citizens.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Comparison with traditional data modeling approaches",
+      "Ontology as normalized business-oriented abstraction",
+      "Relationships as first-class citizens"
+    ],
+    "tags": [
+      "comparison",
+      "star-schema",
+      "kimball",
+      "data-modeling",
+      "abstraction"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Data Modeling",
+      "Star Schema",
+      "Normalization",
+      "Business Objects"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://blog.pvmit.com/pvm-blog/palantir-ontology",
+    "title": "Understanding the Palantir Ontology - PVM Blog",
+    "summary": "Third-party educational resource providing an accessible overview of the Palantir Ontology concept, its components, and how it creates a unified data model for enterprises. Covers the digital twin concept and how the Ontology bridges data and decision-making.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Accessible third-party Ontology overview",
+      "Digital twin and unified data model concepts",
+      "Bridge between data and decision-making"
+    ],
+    "tags": [
+      "overview",
+      "third-party",
+      "digital-twin",
+      "unified-model",
+      "education"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Ontology",
+      "Digital Twin",
+      "Unified Data Model",
+      "Decision Making"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://community.palantir.com/t/ontology-and-pipeline-design-principles/5481",
+    "title": "Ontology and Pipeline Design Principles - Palantir Developer Community",
+    "summary": "Community discussion on design principles for Ontology and data pipeline architecture. Covers best practices for structuring object types, managing data flow into the Ontology, and ensuring scalable, maintainable Ontology designs.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Community-sourced design principles",
+      "Pipeline-to-Ontology design guidance",
+      "Scalability and maintainability best practices"
+    ],
+    "tags": [
+      "design-principles",
+      "pipeline",
+      "community",
+      "best-practices",
+      "scalability"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Design Principles",
+      "Pipeline",
+      "Scalability",
+      "Best Practices"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://community.palantir.com/t/polymorphic-interface-with-unique-primary-keys-best-practice/3617",
+    "title": "Polymorphic Interface with Unique Primary Keys - Best Practice? - Palantir Developer Community",
+    "summary": "Community discussion about best practices for implementing polymorphic interfaces when object types have unique primary key requirements. Explores practical challenges of interface-based polymorphism in Ontology design.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Practical interface polymorphism challenges",
+      "Primary key uniqueness across interface implementations",
+      "Community-sourced best practice discussion"
+    ],
+    "tags": [
+      "interface",
+      "polymorphism",
+      "primary-key",
+      "best-practice",
+      "community"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Interface",
+      "Polymorphism",
+      "Primary Key",
+      "Best Practices"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://community.palantir.com/t/introducing-object-type-groups-in-the-ontology/343",
+    "title": "Introducing object type groups in the Ontology - Palantir Developer Community",
+    "summary": "Announcement and discussion of object type groups feature for organizing and categorizing object types within the Ontology. Groups help users navigate large ontologies and discover relevant object types more efficiently.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Object type groups feature introduction",
+      "Organizational and discovery benefits",
+      "Large ontology management"
+    ],
+    "tags": [
+      "object-type-groups",
+      "organization",
+      "discovery",
+      "feature-announcement"
+    ],
+    "source": "web-search",
+    "contentType": "article",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type Group",
+      "Object Type",
+      "Organization",
+      "Discovery"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://learn.palantir.com/deep-dive-creating-your-first-ontology",
+    "title": "Deep Dive: Creating Your First Ontology - Palantir Learn",
+    "summary": "Official Palantir training course (60-90 minutes) providing hands-on guidance for building a first Ontology. Covers creating object types, defining properties, setting up link types, and configuring action types through guided exercises.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Official hands-on training course",
+      "End-to-end Ontology creation workflow",
+      "Covers all core primitives: objects, properties, links, actions"
+    ],
+    "tags": ["training", "tutorial", "hands-on", "getting-started", "official"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Training"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/ontology-resources/object-types/list-object-types",
+    "title": "List Object Types - API Reference - Palantir",
+    "summary": "API reference for listing object types in an Ontology. Returns object type definitions with metadata including display names, property schemas, primary keys, and descriptions. Part of the Ontology Resources API.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "REST API for enumerating object types",
+      "Object type definition structure in API responses",
+      "Property schemas and metadata in API format"
+    ],
+    "tags": ["api", "list-object-types", "rest", "object-type-definition"],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": ["API", "Object Type", "REST API", "Schema"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/ontologies-v2-resources/object-types/get-object-type",
+    "title": "Get Object Type - API Reference - Palantir",
+    "summary": "V2 API reference for retrieving a specific object type definition by its API name. Returns property map, display names, primary key, description, and other metadata. Demonstrates the API representation of object type schemas.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "V2 API for individual object type retrieval",
+      "API name-based lookup",
+      "Complete object type schema in response"
+    ],
+    "tags": ["api-v2", "get-object-type", "schema", "api-name"],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": ["API V2", "Object Type", "Schema", "API Name"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/v2/ontologies-v2-resources/ontology-object-sets/aggregate-object-set",
+    "title": "Aggregate Object Set - API Reference - Palantir",
+    "summary": "V2 API for aggregating objects in an ObjectSet. Supports aggregation functions: count, min, max, sum, average. Takes an input object set definition and runs aggregating functions on specified properties. Requires api:ontologies-read OAuth scope.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "ObjectSet aggregation API",
+      "Aggregation functions: count, min, max, sum, avg",
+      "OAuth scope requirements"
+    ],
+    "tags": ["api-v2", "aggregation", "object-set", "count", "sum", "average"],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": ["ObjectSet", "Aggregation", "API V2", "Count", "Sum"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/ontology-resources/queries/query-basics",
+    "title": "Query basics - API Reference - Palantir",
+    "summary": "API reference for query fundamentals in the Ontology. A query type represents logic that can be run in the Ontology. Covers query execution, parameter passing, and result handling through the API gateway.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Query API fundamentals",
+      "Query type definition and execution",
+      "API gateway integration for queries"
+    ],
+    "tags": ["api", "query", "query-type", "api-gateway", "basics"],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": ["Query", "API Gateway", "Function", "API"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontologies/query-compute-usage",
+    "title": "Ontologies - Usage - Ontology query compute - Palantir",
+    "summary": "The Ontology is a data backend that maps file-based data to organization-centric objects and serves high-speed queries for exploration, analysis, operational editing, scenario analysis, and more. Data is stored in multi-modal storage backends that can be flexibly queried in a single request.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Ontology as high-speed query backend",
+      "Multi-modal storage backends",
+      "Flexible single-request querying across backends"
+    ],
+    "tags": ["query-compute", "performance", "multi-modal-storage", "backend"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Query Compute",
+      "Object Storage",
+      "Performance",
+      "Multi-Modal Storage"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/time-series/sensor-object-end-to-end-ontology",
+    "title": "Time series - Sensor object types use case - Create sensor object types with Ontology Manager - Palantir",
+    "summary": "Guide for creating sensor object types in the Ontology, a pattern where sensor objects hold time series data linked to parent/root objects. Provides flexibility for per-object time series data. Covers two approaches: direct time series properties (TSPs) on objects vs linked sensor object types.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Sensor object type pattern for time series data",
+      "Two time series approaches: direct TSP vs linked sensors",
+      "Per-object time series flexibility"
+    ],
+    "tags": ["time-series", "sensor", "object-type", "pattern", "iot"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Time Series",
+      "Sensor Object Type",
+      "Object Type",
+      "Link Type"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/mandatory-control-properties",
+    "title": "Object and link types - Properties - Mandatory control properties - Palantir",
+    "summary": "Mandatory control properties are system-level properties that must always have values and cannot be null. They can be configured to allow empty arrays. These properties ensure critical metadata is always present on object instances.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Mandatory control properties as system-enforced fields",
+      "Non-nullable constraint",
+      "Empty array allowance configuration"
+    ],
+    "tags": [
+      "mandatory-property",
+      "control-property",
+      "non-nullable",
+      "system-property"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Mandatory Control Property",
+      "Required Property",
+      "Property",
+      "Data Quality"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/value-types-versions",
+    "title": "Object and link types - Value types - Value type versions - Palantir",
+    "summary": "Value types support versioning to manage evolution of semantic type definitions over time. Versions allow updating constraints, metadata, and behavior while maintaining backward compatibility with existing property definitions.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Value type versioning mechanism",
+      "Evolution of semantic type definitions",
+      "Backward compatibility management"
+    ],
+    "tags": ["value-type", "versioning", "evolution", "backward-compatibility"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Value Type", "Versioning", "Backward Compatibility"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontologies/shared-ontologies",
+    "title": "Ontologies - Shared ontologies - Palantir",
+    "summary": "A shared ontology enables resources from multiple organizations to be used in a workflow, whereas a private ontology contains resources from a single organization. Shared ontologies allow safe cross-organization collaboration on data and workflows.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Cross-organization ontology sharing",
+      "Shared vs private ontology distinction",
+      "Multi-organization workflow enablement"
+    ],
+    "tags": [
+      "shared-ontology",
+      "multi-organization",
+      "collaboration",
+      "workflow"
+    ],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Shared Ontology",
+      "Organization",
+      "Collaboration",
+      "Workflow"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://unit8.com/resources/palantir-foundry-101-2/",
+    "title": "Palantir Foundry 101 - Unit8",
+    "summary": "Third-party introductory guide to Palantir Foundry covering the platform's core components including the Ontology. Provides an outside perspective on how Foundry's data integration, transformation, and Ontology layers work together for enterprise use cases.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Third-party introduction to Foundry and Ontology",
+      "Platform component integration overview",
+      "Enterprise use case perspective"
+    ],
+    "tags": ["introduction", "foundry-101", "third-party", "enterprise"],
+    "source": "web-search",
+    "contentType": "tutorial",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Foundry",
+      "Ontology",
+      "Data Integration",
+      "Enterprise"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-permissioning/multi-datasource-objects",
+    "title": "Object permissioning - Multi-datasource object types (MDOs) - Palantir",
+    "summary": "Multi-datasource object types (MDOs) are backed by multiple datasources. Only column-wise MDOs are supported (not row-wise). A specific property must come from one datasource only, except the primary key which must exist in every datasource for joining. Only datasets or restricted views can be used.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Multi-datasource object type pattern",
+      "Column-wise composition constraint",
+      "Primary key as join key across datasources"
+    ],
+    "tags": ["multi-datasource", "mdo", "column-wise", "primary-key", "join"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Multi-Datasource Object Type",
+      "Backing Datasource",
+      "Primary Key",
+      "Column-Wise"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/action-types/action-log",
+    "title": "Action types - Action log - Palantir",
+    "summary": "The Action Log provides audit trail for all actions taken in the Ontology, tracking who made what changes and when. Supports accountability and compliance requirements by maintaining a complete history of Ontology modifications.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Audit trail for Ontology actions",
+      "Change tracking: who, what, when",
+      "Compliance and accountability support"
+    ],
+    "tags": ["action-log", "audit", "compliance", "tracking", "history"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": ["Action Log", "Action Type", "Audit", "Compliance"],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/geospatial/ontology",
+    "title": "Geospatial and geotemporal - Use geospatial data in the Ontology - Palantir",
+    "summary": "Guide for integrating geospatial data into the Ontology using geopoint and geoshape property types. Supports point, line, and polygon geometries. Objects can have georectified images attached with bounds. Integrates with Map application for visualization.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Geospatial property types: geopoint, geoshape",
+      "Point, line, polygon geometry support",
+      "Georectified image attachment capability"
+    ],
+    "tags": ["geospatial", "geopoint", "geoshape", "map", "geometry"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Geospatial",
+      "Geopoint",
+      "Geoshape",
+      "Property",
+      "Map"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/media-sets-advanced-formats/media-in-ontology",
+    "title": "Media sets (unstructured data) - Using media in the Ontology - Palantir",
+    "summary": "Media reference object properties allow efficient display of media in Ontology-based applications. Provides optimizations like faster previews in Workshop/Object Explorer and tiling for geospatial imagery in Map. Bridges unstructured media data with structured Ontology objects.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Media reference properties for unstructured data",
+      "Application-level optimizations for media display",
+      "Integration of unstructured media with Ontology objects"
+    ],
+    "tags": ["media", "unstructured-data", "media-reference", "visualization"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Media Set",
+      "Property",
+      "Unstructured Data",
+      "Object Type"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://github.com/palantir/foundry-platform-python",
+    "title": "GitHub - palantir/foundry-platform-python: The official Python SDK for the Foundry API",
+    "summary": "Official Python SDK for interacting with the Foundry API, including Ontology operations. Provides programmatic access to object types, properties, links, actions, and queries from Python applications.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Official Python SDK for Foundry/Ontology API",
+      "Programmatic access to all Ontology operations",
+      "Open source reference implementation"
+    ],
+    "tags": ["python", "sdk", "foundry-api", "open-source", "github"],
+    "source": "web-search",
+    "contentType": "code-example",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Python SDK",
+      "API",
+      "Object Type",
+      "Action Type",
+      "Query"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/unsupported-types",
+    "title": "Ontology SDK - OSDK references - Unsupported types for OSDK - Palantir",
+    "summary": "Documents which Ontology types are not yet supported by the OSDK, providing insight into the type system boundaries. Helps understand which Ontology primitives can and cannot be accessed through generated SDK code.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "OSDK type support limitations",
+      "Understanding type system boundaries",
+      "Gap analysis for SDK coverage"
+    ],
+    "tags": ["osdk", "unsupported-types", "limitations", "type-system"],
+    "source": "web-search",
+    "contentType": "documentation",
+    "datePublished": "",
+    "relatedConcepts": [
+      "OSDK",
+      "Type System",
+      "Unsupported Types",
+      "Limitations"
+    ],
+    "quality": 3
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/property-metadata",
+    "title": "Object and link types - Properties - Metadata reference - Palantir",
+    "summary": "Complete reference for property metadata fields including base type, render hints, visibility, searchable flag, sortable flag, and other configuration options. Documents all configurable aspects of property definitions in the Ontology.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Complete property metadata field reference",
+      "All configurable property attributes",
+      "Render hints, visibility, searchable configuration"
+    ],
+    "tags": [
+      "property",
+      "metadata",
+      "render-hints",
+      "searchable",
+      "sortable",
+      "reference"
+    ],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Property",
+      "Metadata",
+      "Render Hints",
+      "Searchable",
+      "Sortable"
+    ],
+    "quality": 4
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/link-type-metadata",
+    "title": "Object and link types - Link types - Metadata reference - Palantir",
+    "summary": "Reference for link type metadata including ID, display names (bidirectional), cardinality, and other configuration. Each side of a link type has its own display name. The link type ID is used for referencing in application configuration.",
+    "category": "ontology-core",
+    "relevantParts": [
+      "Complete link type metadata reference",
+      "Bidirectional display name system",
+      "Link type ID for application referencing"
+    ],
+    "tags": [
+      "link-type",
+      "metadata",
+      "display-name",
+      "cardinality",
+      "id",
+      "reference"
+    ],
+    "source": "web-search",
+    "contentType": "api-reference",
+    "datePublished": "",
+    "relatedConcepts": [
+      "Link Type",
+      "Metadata",
+      "Display Name",
+      "Cardinality",
+      "ID"
+    ],
+    "quality": 4
+  }
+]

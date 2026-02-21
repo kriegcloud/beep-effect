@@ -1,0 +1,137 @@
+Beyond Founder Mode: Mission Mode
+Why ‘Founder Mode’ Misses the Power of Choosing Missions That Matter
+Palantir
+Follow
+10 min read
+·
+Oct 17, 2025
+
+35
+
+2
+
+Press enter or click to view image in full size
+
+Editor’s Note: In this blog post, Noam Perski reflects on his 15 years at Palantir and why “Mission Mode” — organizing companies around customer missions rather than founder involvement — is key to tackling problems that truly matter.
+
+Silicon Valley agrees that conventional management wisdom is destructive for growing startups. Paul Graham’s 2024 essay “Founder Mode” correctly diagnosed the disease — founders being “gaslit” into becoming distant executives as their company scales — but prescribed the wrong cure.
+
+Graham missed that the industry has fundamentally changed. Defense tech funding hit $38 billion through mid-2025. The FDA approved 223 AI-enabled medical devices in 2023, up from just six in 2015. AI is now central to the critical infrastructure and systems that keep our world running. When your software enables healthcare professionals to administer life-saving medical care, supports the decisions that protect soldiers on the battlefield, or helps keep the power grid running, founder involvement isn’t enough. You need every team member operating with founder-level intensity — not because the founder is watching, but because the mission demands it.
+
+At Palantir, we’ve been doing this for two decades. I call it “Mission Mode.”
+
+Having spent nearly 15 years at Palantir, I’ve witnessed how this approach enables us to tackle some of the world’s most complex problems while avoiding the pitfalls Graham describes. Mission mode isn’t about founders versus managers — it’s organizing your entire company around the missions that actually matter — building institutional capabilities that ensure everyone brings that same urgency to work with real consequences.
+
+The Difference Between Founder Mode and Mission Mode
+
+Founder mode, as Graham describes it, emerges from founders who refuse to be “gaslit” into running their companies like traditional managers, instead maintaining hands-on involvement and direct engagement across organizational levels. This is certainly better than the alternative of detached management for companies that require hardcore execution on crazy timescales, but I believe it doesn’t go far enough.
+
+Mission mode starts with a fundamentally different question: What is the most important work our customers are doing, and how do we organize ourselves to maximize their success? At Palantir, this has meant building the company around the mission-critical work of intelligence analysts, emergency responders, medical researchers, manufacturing engineers, and countless others whose decisions have real-world consequences.
+
+This orientation has profound implications for how we structure teams, deploy resources, and make strategic decisions. It’s not just about a founder staying involved — it’s about the entire organization maintaining relentless focus on outcomes that matter.
+
+Chewing Glass for the Mission
+
+One of the most distinctive aspects of mission mode is the willingness to “chew glass” — to take on the hardest, most thankless work because it’s what the mission requires. Traditional companies often optimize for ease of execution or profitability. Mission-driven companies optimize for impact, even when it’s painful.
+
+At Palantir, this has meant:
+
+Building software that works on bare bones edge nodes in austere environments with connectivity that drops out when you most need it
+Spending months embedded with customers to understand problems that can’t be solved from a conference room
+Iterating on solutions until they work in the real world, not just in demos
+Taking on problems that other companies consider “too hard” or “not scalable”
+
+But here’s what’s crucial: you can’t mandate this kind of commitment. It has to come from people who genuinely care about the outcomes. When we screen for it in interviews, the only way to find it is to look for evidence of where it emerged naturally in people’s backstory, where mission-driven individuals encountered problems they believed must be solved.
+
+This drove us to generate novel approaches like Forward Deployed Engineering (FDE). Originally called “Echos” and “Deltas” (borrowing from the military alphabet to create monikers that roughly map to better-at-talking-to-humans and better-at-talking-to-machines archetypes of engineers), these engineers embed directly with customer teams and at the same time serve as an extension of the core product engineering teams to build things to solve problems. We pioneered this unique position, embedding talented engineers directly with our customers to tackle their most pressing challenges head-on.
+
+The FDE concept emerged not from some grand strategic vision, but from the practical reality that you cannot build software for complex, mission-critical use cases without deeply understanding the operational context. It required us to fundamentally rethink what it means to be a software company.
+
+Mission-Driven People, Not Just Processes
+
+Mission mode only works when it resonates at the individual level. Palantir hasn’t just built mission-focused systems — we’ve attracted people who are personally invested in the missions we serve. This isn’t corporate cheerleading; it’s about fundamental alignment between personal values and company purpose.
+
+Our workforce includes an unusual concentration of veterans who’ve seen firsthand what happens when critical systems fail. We have employees who lived through 9/11, the London bombings, or other moments where better intelligence and coordination could have saved lives. They don’t work on counterterrorism tools as an abstract exercise, but know viscerally why this work matters.
+
+This personal connection to mission changes everything. When an engineer stays up all night debugging code for a hospital system, it’s not because of a sprint deadline — it’s because they understand that real patients depend on that system working. When our FDEs embed with first responders, they bring not just technical expertise but genuine commitment to the mission of saving lives.
+
+Back in 2017 when my hometown of Stockholm was hit by a terror attack around the corner from our office, my daughter called me, she first asked me if I was safe, then she asked if we were working on the response. Being able to say that we were, and feel that I was not a bystander but in the fight, was so deeply motivating. I carry it with me to this day.
+
+At Palantir, it’s about more than equity packages or career ladders (though those exist). It’s about being part of something that genuinely matters. The people who succeed here are those who find meaning in the mission itself, and when those people find each other there are no limits to what they can accomplish.
+
+Novel Approaches Born from Mission Focus
+
+Mission mode has consistently pushed us toward novel approaches that would be difficult to justify under traditional business logic. The FDE model is just one example. Others include:
+
+Foundry & AIP’s Ontology: Rather than building yet another analytics tool, we created a dynamic decision-centric system that models the real-world entities, relationships, actions, and logic that our customers care about. Beyond letting people make and orchestrate decisions based on the most relevant information from across the entirety of the enterprise, it has become the best scaffolding for bringing AI to bear on the core operations of businesses as diverse as hospitals, manufacturers and financial institutions. This wasn’t the easiest path to market, but it was what the mission required.
+
+Gotham’s Investigative Approach: Instead of building surveillance software, we built tools that help analysts follow leads and connect dots while maintaining strict access controls and audit trails. This approach required us to deeply understand intelligence workflows and legal frameworks, derived from our core founding principle that ensuring the safety and security of the populace can never come at the expense of undermining civil liberties. All of the privacy-protective capabilities built into Palantir’s software platforms enable our clients to secure personal and institutional integrity and achieve operational outcomes. These fundamentals are what allowed Gotham to transform into our broader Defense offering, which now powers Maven Smart System (MSS), the system powering decision-making at the US Combatant Commands, NATO, and Allies.
+
+Apollo’s Delivery of “Write Once, Run Anywhere:” When customers are running mission-critical operations, you can’t have deployment failures or extended downtime, and you don’t get the luxury of running things in a pristine commercial cloud environment of your choosing. So we built infrastructure that enables continuous delivery without compromising reliability, and allows for deployment in all of the hyperscalers, in datacenters, at sea and in humvees, all while not slowing down our software development. We built infrastructure for true “write once, run everywhere” because we had no choice.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Each of these innovations required significant upfront investment and patience. They weren’t obvious solutions, and they certainly weren’t the easiest paths to building a scalable SaaS business. But they were what the mission demanded.
+
+Staying Innovative Long After Most Companies Stagnate
+
+One of Graham’s key observations is that founder mode enables companies to “keep running” even as they scale, while manager mode often leads to stagnation. Mission mode goes a step further: it provides a renewable source of innovation energy.
+
+Because we’re constantly embedded with customers facing evolving challenges, we never run out of important problems to solve. Our product roadmap isn’t driven by competitive analysis or market research surveys — it’s driven by the urgent needs of people doing critical work.
+
+This has enabled Palantir to keep innovating well beyond the typical startup lifecycle:
+
+After a decade building primarily for government customers, we successfully expanded into commercial markets
+We’ve continuously evolved our platforms to not only incorporate AI, but harness it at every level of the stack
+We’ve maintained our technical edge even as we’ve scaled to thousands of employees and billions in revenue
+
+The key insight is that mission mode creates a virtuous cycle: deep customer relationships lead to better products, which lead to stronger customer relationships, which lead to more interesting problems to solve.
+
+The Power of Constraints in the Age of AI
+
+Hiring is the opiate of the startup world: it feels like progress but often masks deeper problems. If you can’t throw bodies at a problem, you’re forced to tackle the hard engineering challenges, build the scalable systems, and create the institutional knowledge that becomes your lasting competitive advantage. The easy path of adding headcount inevitably leads to the entropy of large organizations. The hard path of maintaining headcount constraints builds compounding value.
+
+Instead of joining the headcount arms race, we’ve taken a radically different approach. Palantir’s revenue grew 48% year over year and 88% over two years in the second quarter of 2025, while growing headcount by less than 5% in the same period. Meanwhile, our “Rule of 40” score (which measures revenue growth plus profitability) reached 94% in the second quarter of 2025, obliterating industry benchmarks. We are growing very fast, very profitably, and using AI in every corner of the building to do it.
+
+This isn’t about being cheap. It’s about recognizing that constraints force you to build what actually matters.
+
+The Scalability Question
+
+Critics might argue that mission mode doesn’t scale, that you can’t embed engineers with every customer or maintain that level of intimacy as you grow. But this misunderstands what scaling means in a mission-driven organization.
+
+The real scaling challenge for a “mission mode” company isn’t operational — it’s cultural. As you grow, how do you maintain the density of mission-driven individuals? How do you avoid diluting the culture with people who are just there for a paycheck? This is where the power of constraints becomes essential. By deliberately constraining headcount, we’re forced to be extraordinarily selective: every hire has to be mission-aligned because we can’t afford passengers. But this same constraint also forces us to find other levers for scale: better tools, more scalable architectures, AI augmentation, and institutional knowledge that multiplies the impact of each individual.
+
+The constraint isn’t a limitation — it’s what ensures both cultural integrity and technical innovation. It’s about building institutional capabilities that enable the entire organization to maintain mission focus even as it grows.
+
+This includes:
+
+Product development processes that prioritize real-world outcomes over feature counts, forced by tight planning cycles and deep responsibility in the product org to directly support the features they ship, without the ability to hand them off to some removed maintenance or support function.
+Organizational structures that keep teams close to customer problems, this means that each customer project (“Impl” in Palantir parlance) is the primary organizational unit, all of them aggregating into very big and broad structures that defy any attempt to “manage.”
+Cultural practices that celebrate mission impact over internal metrics. This started at Palantir with “Beer Sync,” a Friday afternoon all hands where Karp & co would focus on mission wins and product progress instead of deal metrics. It carries on today in all of our internal storytelling.
+Leadership relentlessly paring back bureaucracy and middle management layers when they inevitably manifest.
+
+At Palantir, we’ve scaled from dozens to thousands of employees while maintaining our mission orientation. It’s harder than scaling traditional businesses, but it’s also more sustainable because our competitive advantage is continuously refreshed by our customer relationships.
+
+Why This Matters Beyond Palantir
+
+The debate between founder mode and manager mode reflects a deeper tension in technology companies: How do you maintain entrepreneurial agility while building organizational capability? Mission mode offers a third way that transcends this false choice.
+
+By organizing around customer missions rather than internal structures, you can maintain the urgency and focus of a startup while building the institutional knowledge and operational excellence of a mature organization. You’re not choosing between founder control and professional management; you’re choosing to let customer needs drive organizational decisions.
+
+This approach is particularly relevant as software increasingly impacts critical systems across society. When you’re building healthcare software, financial infrastructure, or autonomous vehicles, the stakes are too high for products that work well in demonstrations but fail in production.
+
+The Path Forward
+
+Graham concludes his essay by noting that “founders have achieved [success] against a headwind of bad advice” and imagining what they might accomplish with better guidance. I’d extend this observation: imagine what technology companies could achieve if they organized themselves around the missions that matter most to society.
+
+This doesn’t mean every company should adopt Palantir’s specific approaches. Mission mode will look different for a consumer internet company than for an enterprise software company, different for a hardware company than for an agentic AI startup. But the core principle remains: organize everything around the outcomes your customers desperately need, and be willing to do whatever it takes to deliver those outcomes.
+
+Ultimately, mission mode is as much about the people you attract as the systems you build. Companies that want to adopt this approach need to ask themselves: What kind of person would find deep, personal meaning in our mission? How do we find them, recognize them, and create an environment where they can do their life’s work? Without mission-driven people, “mission mode” is just another empty management framework.
+
+The technology industry has incredible power to solve important problems. But realizing that potential requires more than brilliant founders or professional managers. It requires companies that are genuinely organized around mission success, that are willing to chew glass when necessary, and that never lose sight of why their work matters.
+
+After 15 years at Palantir, I’m more convinced than ever that mission mode is the only sustainable way to build technology that truly matters.

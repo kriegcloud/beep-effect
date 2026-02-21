@@ -1,0 +1,288 @@
+{
+  "project": "reverse-engineering-palantir-ontology",
+  "lastUpdated": "2026-02-20",
+  "phases": {
+    "p1-schema-design": {
+      "status": "complete",
+      "outputs": {
+        "kg-schema-design.md": "outputs/p1-schema-design/kg-schema-design.md",
+        "research-kg-best-practices.md": "outputs/p1-schema-design/research-kg-best-practices.md",
+        "research-graphiti-internals.md": "outputs/p1-schema-design/research-graphiti-internals.md",
+        "research-palantir-concepts.md": "outputs/p1-schema-design/research-palantir-concepts.md"
+      }
+    },
+    "p2-web-research": {
+      "status": "complete",
+      "outputs": {
+        "ontology-core.json": "outputs/p2-web-research/ontology-core.json",
+        "data-integration.json": "outputs/p2-web-research/data-integration.json",
+        "ai-llm.json": "outputs/p2-web-research/ai-llm.json",
+        "security.json": "outputs/p2-web-research/security.json",
+        "architecture.json": "outputs/p2-web-research/architecture.json",
+        "master.json": "outputs/p2-web-research/master.json"
+      },
+      "stats": {
+        "rawEntries": {
+          "ontology-core": 83,
+          "data-integration": 80,
+          "ai-llm": 66,
+          "security": 68,
+          "architecture": 74,
+          "total": 371
+        },
+        "duplicatesRemoved": 54,
+        "uniqueEntries": {
+          "ontology-core": 83,
+          "data-integration": 67,
+          "ai-llm": 59,
+          "security": 57,
+          "architecture": 51,
+          "total": 317
+        },
+        "qualityDistribution": {
+          "5-excellent": 77,
+          "4-good": 146,
+          "3-moderate": 93,
+          "2-minimal": 1
+        }
+      }
+    },
+    "p3-blog-enrichment": {
+      "status": "complete",
+      "outputs": {
+        "blog-entries.json": "outputs/p3-blog-enrichment/blog-entries.json",
+        "fetch-log.json": "outputs/p3-blog-enrichment/fetch-log.json",
+        "raw-extractions.json": "outputs/p3-blog-enrichment/raw-extractions.json",
+        "master.json (updated)": "outputs/p2-web-research/master.json"
+      },
+      "stats": {
+        "urlsAttempted": 126,
+        "fetchSuccesses": 126,
+        "fetchErrors": 0,
+        "fetchSuccessRate": "100%",
+        "newEntriesAdded": 102,
+        "existingEntriesMerged": 24,
+        "masterTotalAfterMerge": 419,
+        "categoryDistribution": {
+          "architecture": 42,
+          "ai-llm": 26,
+          "security": 23,
+          "case-study": 11,
+          "engineering-culture": 8,
+          "ontology-core": 8,
+          "data-integration": 8
+        },
+        "qualityDistribution": {
+          "5-excellent": 2,
+          "4-good": 23,
+          "3-moderate": 82,
+          "2-tangential": 19
+        }
+      },
+      "method": "Playwright headless Chromium (Medium blocks curl/HTTP with 403)",
+      "source": "resources/blog-posts-articles-and-resources.md",
+      "skippedUrls": [
+        "http://blog.palantir.com/tagged/agentic-runtime (index page)",
+        "https://blog.palantir.com (homepage)",
+        "https://blog.palantir.com/all?orderBy=earliest (archive page)"
+      ]
+    },
+    "p4a-docs-scraper": {
+      "status": "complete",
+      "outputs": {
+        "docs-entries.json": "outputs/p4a-docs-scraper/docs-entries.json",
+        "docs-scraper-log.json": "outputs/p4a-docs-scraper/docs-scraper-log.json",
+        "master.json (updated)": "outputs/p2-web-research/master.json"
+      },
+      "stats": {
+        "totalSitemapUrls": 5000,
+        "filteredUrls": 4401,
+        "samplesFetched": 54,
+        "newEntriesAddedToMaster": 4191,
+        "duplicatesSkipped": 210,
+        "masterTotalAfterMerge": 4610,
+        "categoryDistribution": {
+          "general": 1867,
+          "architecture": 1065,
+          "data-integration": 843,
+          "ontology-core": 335,
+          "ai-llm": 190,
+          "security": 101
+        }
+      },
+      "method": "Sitemap XML fetch + WebFetch sampling (docs are SSR, no browser needed)",
+      "source": "https://www.palantir.com/docs/sitemap.xml"
+    },
+    "p4b-repo-analysis": {
+      "status": "complete",
+      "outputs": {
+        "osdk-ts.json": "outputs/p4b-repo-analysis/osdk-ts.json",
+        "foundry-platform-typescript.json": "outputs/p4b-repo-analysis/foundry-platform-typescript.json",
+        "ontology-starter-react-app.json": "outputs/p4b-repo-analysis/ontology-starter-react-app.json",
+        "defense-sdk-examples.json": "outputs/p4b-repo-analysis/defense-sdk-examples.json",
+        "palantir-mcp.json": "outputs/p4b-repo-analysis/palantir-mcp.json",
+        "aip-community-registry.json": "outputs/p4b-repo-analysis/aip-community-registry.json",
+        "conjure.json": "outputs/p4b-repo-analysis/conjure.json",
+        "conjure-typescript.json": "outputs/p4b-repo-analysis/conjure-typescript.json",
+        "conjure-typescript-runtime.json": "outputs/p4b-repo-analysis/conjure-typescript-runtime.json",
+        "conjure-typescript-example.json": "outputs/p4b-repo-analysis/conjure-typescript-example.json",
+        "terraform-provider-palantir-foundry.json": "outputs/p4b-repo-analysis/terraform-provider-palantir-foundry.json",
+        "typescript-compute-module.json": "outputs/p4b-repo-analysis/typescript-compute-module.json",
+        "pack.json": "outputs/p4b-repo-analysis/pack.json",
+        "blueprint.json": "outputs/p4b-repo-analysis/blueprint.json",
+        "workshop-iframe-custom-widget.json": "outputs/p4b-repo-analysis/workshop-iframe-custom-widget.json",
+        "hadoop-crypto.json": "outputs/p4b-repo-analysis/hadoop-crypto.json",
+        "metric-schema.json": "outputs/p4b-repo-analysis/metric-schema.json",
+        "summary.json": "outputs/p4b-repo-analysis/summary.json"
+      },
+      "stats": {
+        "totalReposAnalyzed": 17,
+        "tier1High": 6,
+        "tier2Medium": 7,
+        "tier3Lower": 4,
+        "reposWithAllNineConcepts": [
+          "osdk-ts",
+          "foundry-platform-typescript",
+          "aip-community-registry"
+        ],
+        "reposWithZeroOntologyRelevance": [
+          "blueprint",
+          "hadoop-crypto",
+          "metric-schema"
+        ],
+        "topFindings": [
+          "osdk-ts: 22 base wire property types, phantom metadata, ObjectSet fluent query builder",
+          "foundry-platform-typescript: 600+ type definitions, 15-variant ObjectSet algebra, 13 action logic rules",
+          "aip-community-registry: 28 real-world projects demonstrating all 9 concepts",
+          "defense-sdk-examples: 70+ Defense Ontology interface names across 6 warfighting domains",
+          "conjure: Foundational IDL and wire protocol layer under all Ontology APIs"
+        ]
+      },
+      "method": "18 parallel agents analyzing local git subtrees in .repos/palantir/"
+    },
+    "p5-rag-enrichment": {
+      "status": "complete",
+      "outputs": {
+        "enriched-web.json": "outputs/p5-rag-enrichment/enriched-web.json",
+        "extraction-log.json": "outputs/p5-rag-enrichment/extraction-log.json",
+        "fetch-log.json": "outputs/p5-rag-enrichment/fetch-log.json",
+        "cache/": "outputs/p5-rag-enrichment/cache/ (419 cached page text files)"
+      },
+      "stats": {
+        "eligibleEntries": 419,
+        "entriesExtracted": 397,
+        "entriesSkipped": 22,
+        "contentFetched": 418,
+        "contentFetchFailed": 1,
+        "totalEntitiesExtracted": 3393,
+        "totalRelationshipsExtracted": 2798,
+        "totalInsightsExtracted": 1945,
+        "avgEntitiesPerEntry": 8.5,
+        "avgRelationshipsPerEntry": 7.0,
+        "avgInsightsPerEntry": 4.9,
+        "entityTypeDistribution": {
+          "OntologyConcept": 842,
+          "Product": 762,
+          "TechnicalDetail": 646,
+          "Pattern": 524,
+          "SecurityConcept": 473,
+          "UseCase": 146
+        },
+        "topRelationshipTypes": {
+          "ENABLES": 438,
+          "PART_OF": 431,
+          "SECURES": 356,
+          "DEFINED_BY": 356,
+          "EXPOSED_BY": 175,
+          "DEMONSTRATES": 170,
+          "OPERATES_ON": 133,
+          "INTEGRATES_WITH": 130,
+          "EXAMPLE_OF": 110,
+          "USES_PATTERN": 107
+        }
+      },
+      "method": "27 parallel Claude Code agents processing 15 entries each, content fetched via HTTP (278 pages) + Playwright (141 Medium/blog pages)",
+      "pipeline": [
+        "1. Content fetching: Node.js script with native fetch + Playwright headless Chromium",
+        "2. Batch preparation: 397 entries split into 27 batches of 15",
+        "3. Extraction: 27 parallel agents with structured KG schema prompts",
+        "4. Merge: Combined batch results into enriched-web.json"
+      ],
+      "skippedEntries": "22 entries skipped (landing pages, login walls, empty content < 200 chars)"
+    },
+    "p6-graph-pipeline": {
+      "status": "complete",
+      "outputs": {
+        "construct-graph.py": "outputs/p6-graph-pipeline/construct-graph.py",
+        "ingestion-log.json": "outputs/p6-graph-pipeline/ingestion-log.json",
+        "graph-stats.json": "outputs/p6-graph-pipeline/graph-stats.json"
+      },
+      "stats": {
+        "totalEpisodesSubmitted": 416,
+        "submissionErrors": 0,
+        "submissionSuccessRate": "100%",
+        "batches": {
+          "seed": 2,
+          "batch1HighQuality": 230,
+          "batch2MediumQuality": 167,
+          "batch3RepoAnalysis": 17
+        },
+        "graphVerification": {
+          "all9CoreConceptsPresent": true,
+          "coreConceptsFound": [
+            "Object Type",
+            "Property",
+            "Shared Property Type",
+            "Link Type",
+            "Action Type",
+            "Roles",
+            "Functions",
+            "Interfaces",
+            "Object Views"
+          ],
+          "additionalConceptsFound": [
+            "ObjectSet",
+            "Value Types",
+            "Derived Properties",
+            "Compute Modules",
+            "AIP Agents",
+            "Branching"
+          ],
+          "productsFound": [
+            "Foundry",
+            "AIP",
+            "OSDK",
+            "Workshop",
+            "Compute Modules",
+            "@osdk/foundry-sdk-generator",
+            "foundry-platform-typescript",
+            "OpenAPI"
+          ],
+          "securityConceptsFound": [
+            "PBAC",
+            "Purpose-Based Access Control",
+            "Markings",
+            "Classifications",
+            "Cipher",
+            "Ontology Governance",
+            "Confidential OAuth Client"
+          ],
+          "relationshipTypesObserved": [
+            "HAS_CORE_CONCEPT",
+            "IS_TYPED_ATTRIBUTE_OF",
+            "DEFINES_RELATIONSHIP_BETWEEN",
+            "CONTROLS_ACCESS_TO",
+            "SECURES",
+            "PROVIDES_ENCRYPTION_FOR",
+            "APPLIES_TO",
+            "INCLUDES",
+            "DOCUMENTED_IN"
+          ]
+        },
+        "processingNote": "Graphiti processes episodes asynchronously via LLM (~35-52s each). All 416 episodes submitted successfully; background processing completes over ~2 hours."
+      },
+      "method": "Python script calling Graphiti MCP via HTTP JSON-RPC 2.0 (Streamable HTTP transport)",
+      "groupId": "palantir-ontology"
+    }
+  }
+}

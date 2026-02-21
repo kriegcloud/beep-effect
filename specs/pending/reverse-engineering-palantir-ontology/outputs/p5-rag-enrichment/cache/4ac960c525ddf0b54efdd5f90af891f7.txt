@@ -1,0 +1,138 @@
+Compute modules • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Developer toolchain Compute modules Overview 
+
+ Compute modules
+
+Application access
+
+To enable compute modules, contact your platform administrator to modify application access in Control Panel. 
+
+You can also view this documentation in the platform within the Compute Modules application for an efficient developer experience.
+
+Compute modules enable you to deploy interactive containers on the Palantir platform, allowing you to bring in your existing code base (regardless of language) and run this code inside the platform. Specifically, you can run serverless Docker images as compute modules in the Palantir platform and horizontally scale them up or down based on load in your frontend applications, such as Workshop and Slate .
+
+ Get started with compute modules
+
+Start developing with our compute modules quick start guides:
+
+ Call custom containers or models from Workshop modules or Slate applications: Write a container function that can be queried from Workshop or Slate. Review the documentation on building a compute module-backed function to get started using Palantir's TypeScript or Python SDKs.
+
+ Sync data into Foundry using custom containers: Write a container that can be used to add data from custom sources into streams, datasets, or media sets. Review the documentation on building a compute module-backed pipeline to get started using Palantir's TypeScript or Python SDKs.
+
+ [Advanced] Integrate with any language by writing a custom client: To integrate a container in a language without using the dedicated SDKs, you can write a custom client implementing the compute module client specification.
+
+ Use cases for compute modules
+
+Compute modules give you new ways to interact with your own code or third-party code in the platform, enabling use cases such as:
+
+ Container-backed functions: Author container functions that can be queried from applications such as Workshop or Slate.
+
+ Container-based data integration: Connect to arbitrary data sources and ingest data into streams, datasets, or media sets.
+
+ Host custom models: Host custom or open-source models and query them interactively from Foundry applications.
+
+ Why use compute modules?
+
+There are several key advantages provided by compute modules:
+
+ Integrate existing code bases: If you have business-critical code that would be risky or expensive to rewrite in Foundry, you can containerize the code into a Docker image and run it as a compute module.
+
+ Use any programming language: Run any code that can be containerized, regardless of language. This means you are not limited by the languages Foundry supports natively.
+
+ Dynamic and predictive horizontal scaling: If you expect to serve a varying number of requests, compute modules can ensure higher availability by scaling the number of available replicas up or down based on current and historic load.
+
+ External and in-platform connections: Write custom logic leveraging Palantir products. For example, you can read and write data or media sets, or connect to external systems.
+
+Note that compute modules may not be appropriate in all circumstances. We do not recommended using compute modules for the following:
+
+ Dynamic vertical scaling: If you expect to have a single request vary dramatically in size, for instance from 1MB to 100GB, and want to support dynamic vertical scaling, compute modules may perform poorly "out of the box", as the amount of resources allocated is static and defined manually. It is possible to create differently provisioned tiers of the same compute module and multiplex between them, but that solution may be more complicated and cumbersome.
+
+ Replacing existing features supported natively by Foundry: Compute modules can theoretically be used to build any desired feature. However, by virtue of being very generalized and powerful, this may come at the cost of having a more complicated solution.
+
+ Architecture
+
+Each compute module consists of a number of replicas. The number of replicas changes as the request volume changes.
+
+Each replica contains the same set of one or many isolated containers. One container serves as the entry point, and it must implement a client that forever polls for events to process. The other containers can contain anything.
+
+By default, there are few guardrails for setting up a many-container compute module. One suggested method is to have them communicate using standard networking protocols; another suggestion is to use shared volume mounts. Containers in the same replica can communicate via those methods (and more), but containers cannot communicate across replicas, and you should not rely on any state they may accrue.
+
+To get started, review the guide for building a compute module in the Palantir platform .
+
+ Next steps
+
+ Compute module security: Learn about compute module security and different execution modes .
+
+ Build a compute module-backed function: Create a compute module with functions to use natively across the platform.
+
+ Build a pipeline compute module: Create a pipeline compute module that takes input resources and produces output resources.
+
+ ← 
+ PREVIOUS Developer Console / How-to guides / Host an application on Foundry 
+
+ NEXT Getting started 
+ →

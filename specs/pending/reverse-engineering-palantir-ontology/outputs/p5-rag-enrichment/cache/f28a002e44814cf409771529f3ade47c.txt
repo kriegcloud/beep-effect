@@ -1,0 +1,73 @@
+Data Connection: The first step in data integration (Palantir RFx Blog Series, #2)
+Every data ecosystem requires data integration, and the first step is establishing secure, timely, and reliable data connections to source systems.
+Palantir
+Follow
+9 min read
+·
+Oct 17, 2022
+
+108
+
+Press enter or click to view image in full size
+
+Editor’s note: This is the second post in the Palantir RFx Blog Series, which explores how organizations can better craft RFIs and RFPs to evaluate digital transformation software. Each post focuses on one key capability area within a data ecosystem, with the goal of helping companies ask the right questions to better assess technology.
+
+Introduction to Data Integration
+
+Over the past two decades, data integration has become a term of art as enterprises build increasingly complex data ecosystems. The term itself can take on different meanings in different contexts, but generally refers to the range of capabilities needed to aggregate and transport data from multiple sources into a single “integrated” environment. As the volume, diversity, velocity, dynamism, and all-around complexity of data systems have expanded over time, data integration has become a critical part of virtually every data platform Request for Proposal (RFP).
+
+Most large organizations have complex, fragmented data environments comprised of many legacy systems that have operated over years or even decades. Each of these systems models the world in its own way, usually according to the purpose for which they were initially designed, and often in ways that are incompatible with one another. At its core, data integration is the process of transforming these raw, distributed data sources into a coherent form that can be more effectively leveraged by the enterprise. This process involves many sets of capabilities, summarized below:
+
+Press enter or click to view image in full size
+
+Data integration has always been a critical component of Palantir’s work. It is, however, too large a topic to be covered in a single post. As a result, this post covers various aspects of the data integration process across multiple posts. In this post, focus is on data connection, which is the first step of the data integration process.
+
+What is a Data Connection?
+
+The process of integrating data can be thought of as a “transformation pipeline” in which a series of incremental changes are applied to raw data to make it operational for a data ecosystem. This multi-faceted process requires many different capability sets to be applied to those raw data inputs as they are harmonized, secured, and transported into a new system. Data connections are the first step of this process. Data from source systems need to be identified, located, and approved for access — a process that may seem simple and straightforward but often consumes weeks and months of precious implementation time.
+
+A data connection is a utility that can copy, move, or virtualize data from a source system to the pipeline environment of the new data ecosystem on a persistent basis. Given the diversity of data types and hosting environments, effective data connections must have the flexibility to accommodate a variety of different factors, such as source type (structured, unstructured, semi-structured, batch, streaming, etc.), frequency of update (one-time, specified intervals, ad hoc, triggered, etc.), data volume, and governance policies (security, retention, purpose specification, etc.). Data connections also have to account for the possibility of uncertain connectivity to the underlying source system and be able to recover when the source system comes back online.
+
+Data connections can be established in multiple ways. Many sources can be synced via direct, secure egress pipelines via a secure network path. Where a direct connection might represent a security or policy concern, data connections to data systems may utilize a data connection agent or service to be deployed into source systems. This agent can track the relevant source data to be integrated, encrypt it, and push it to the desired destination(s). This agent, which typically resides within the enterprise’s network, executes queries defined in the data connection user interface to securely sync data to the new system. The agent must also allow the controller of the source system to determine the terms under which the data is copied, moved, or virtualized, which allows for data policies to effectively travel with data even after it leaves the source system:
+
+Press enter or click to view image in full size
+
+Finally, the data connection is also the mechanism through which data can be returned or written back to source systems, as illustrated in the “Writeback” feature in the diagram above. Oftentimes, organizations require two-way communication between different systems, as data is pulled from source systems and eventually pushed back to those systems in some updated or transformed state. Data connections provide a means for these roundtrips or for the augmentation of source systems to ensure that all components of a data ecosystem achieve a data representation that is eventually consistent. Writebacks also frequently occur at the ontology level, where ontology objects and their properties can be modified based on user-initiated decisions or changes to the data.
+
+Why Does it Matter?
+
+A data ecosystem is only as good as the quality of data within it. End users need confidence that all data within the system is timely and correct. If a data connection is unreliable, and the data flowing from source systems is corrupted, incomplete, or out-of-date, end users will refuse to use the system or, worse, make decisions based on bad information. For an organization to reap the many benefits of a unified data ecosystem, the data connections must be secure, reliable, and consistent.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Building data connections carries high opportunity costs. The process of establishing a data connection potentially represents one of the most time- and labor-intensive parts of building a data ecosystem. Every data source has its own personality, differing in format, structure, schema, volume, update cadence, etc. The source systems may also reside in different environments such as internal networks, cloud-based services, or a publicly-accessible internet. Without a holistic data connection framework, it is not uncommon for data engineers to spend months establishing stable connections to these source systems, especially those for which no data connection has previously been developed. Engineering resources spent building data connections are engineering resources not spent on other important functions downstream, like application building, ML model development, and analytical workflows.
+
+Data connection technologies are difficult to evaluate and differentiate against one another. Organizations commonly assess data connection capabilities by determining a list of data source types and assessing whether a technology solution can accommodate them. While seemingly straight-forward, this approach leaves out many of the challenges associated with building a true data connection. It is not sufficient to simply provision a JDBC driver or REST API to establish robust data connections. Data connection solutions vary significantly along several dimensions, including: set-up time, technical skills required, the nature of the UI/UX, the flexibility and optionality for custom data connection development, and whether data connection logic can be reused for other incoming pipelines. As a result, it is important to be very specific about not just the data sources that need to be integrated but also the specific manner (i.e. how quickly, by whom, with which checks, with which security markings, etc.) those data sources are to be brought into the data ecosystem.
+
+Key Data Connection Requirements
+
+As discussed above, data integration is a broad category of capabilities and it would be impractical to list all or most of the necessary requirements here. As such, we focus on select key requirements related to data connections.
+
+The solution must include standardized data connectors to facilitate large-scale data transfers efficiently and securely. The solution must also support standard interfaces (JDBC, REST, etc.). Integrating core data sources efficiently and reliably is one of the primary functions of a data ecosystem. It is important to understand how a solution connects to specific systems, and how quickly and reliably this process can take place. We suggest listing the source systems to be integrated, as well as key characteristics (format, volume, hosting, etc.), which will allow vendors to be more specific about how they will establish connections to those systems.
+
+The solution must provide a flexible framework for building data connections to accommodate potential/future data sources, including structured (e.g. Parquet), semi-structured (e.g. XML, JSON), and unstructured (e.g. MOV, PDF) data types. Because organizations’ needs are always evolving, they must consider both existing and future/potential data sources. As such, any scalable data system must be data agnostic, as it is virtually impossible to predict the exact data sources and systems that will need to be incorporated at a future date. Ideally, the system would have standardized pipelines to connect with hundreds of data types and systems, and mechanisms to efficiently connect to new kinds of systems.
+
+The solution must provide multiple transaction types for data ingestion, including snapshot transactions, append transactions, and update transactions. Organizations must be able to specify the exact manner and frequency with which data will be updated in the system. Given the unique and often divergent characteristics of every source system, organizations need the flexibility to define the exact parameters that govern how those those systems are synchronized. It’s also important for these controls to be easy to implement, as many data ecosystems can only offer this granularity with heavy development time and multiple handoffs for custom code.
+
+The solution must enable both technical and non-technical users to import new data sources. Traditionally, only technical users and data scientists could build data integration pipelines. This created a natural separation between the teams building data pipelines and those who leverage the data downstream, leading to miscommunication between teams and the possibility of wasted effort. Organizations can achieve massive efficiency gains by choosing a solution that allows business users to perform core data connection tasks themselves based on an accessible and intuitive user interface, while also offering tools for more technical users to perform custom data connections where appropriate.
+
+The solution must support bi-directional data movement — i.e., it must be able to read data from source systems and push data back into those systems as write-backs. Even the most effective data ecosystems exist within a broader technical ecosystem. Individual platforms need to be able to pull data from source systems and push data back to those systems back to systems of record/action. For action-centric workflows, data connections should also support the re-integration of information regarding operational decisions; actions and decisions made downstream should be captured and written back to source systems in their modified forms.
+
+The solution must enable data connections to streaming data sources (Kafka, TIBCO EMS, etc.). Data connections must be able to ingest, enrich, and transform streaming data as it arrives in the pipeline environment. Real-time data streams have become critical to many organizations’ operational and decision-making processes. Modern data ecosystems need to accommodate streamed sources, which present multiple technical obstacles given their volume and structure. An effective data ecosystem should bring together these streaming sources along with traditional “batch-processed” data sources, allowing users to interact with streamed sources like they do any other data source in the system. This requires highly-differentiated capabilities related to data ingestion, transformation, and end-user consumption.
+
+The solution must accommodate the data security configurations from source systems. Security controls must be automatically inherited from parent datasets, so that security policies “follow the data” as the data is used, transformed, and modified downstream. Defining and enforcing access controls is a critical component to any trustworthy data ecosystem. Manual propagation of these security controls leads to wasted time and enforcement errors, as organizations are forced to manage and keep track of access control policies for every version of every dataset. This becomes extremely costly when dealing with sensitive data sources, such as those with PII. As data pipelines scale to thousands of data sources and intermediate data transformations, the system needs an automatic and dynamic mechanism to enforce a consistent security model across all downstream resources.
+
+The solution must enable health checks and alerts on data connections, including pre-built checks for potential issues regarding dataset status, delays, batch sizes, and schema changes. It should also be possible to create customized checks for arbitrarily-defined data connection issues. For a data ecosystem to be effective, the data within it must be secure, accessible, and correct. Proper data health checks address the need for correctness, offering telemetry for administrators to understand the performance of all data connections and the tooling needed to correct any identified issues.
+
+Conclusion
+
+Data integration is one of the foundational features of a data ecosystem, and the first step of data integration is establishing secure, timely, and reliable data connections to source systems. The best data connection technologies move beyond static utilities for copying data to accommodate a diversity of source systems, provide granular controls to specify how the data is transferred, and allow many kinds of users to set them up. By democratizing and streamlining the data connection process, organizations can spend less time setting up data syncs and more time working on the business problems the system was designed to solve.

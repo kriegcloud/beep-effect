@@ -1,0 +1,128 @@
+Palantir Apollo Orchestration: Constraint-Based Continuous Deployment For Modern Architectures
+Palantir
+Follow
+8 min read
+·
+Jun 23, 2022
+
+12
+
+1
+
+Press enter or click to view image in full size
+
+Editor’s note: This blog post is the second in a series about Palantir Apollo, following publication of Why Traditional Approaches to Continuous Deployment Don’t Work Today.
+
+Introduction
+
+Over the last 20 years, the software industry has focused on improving developer efficiency through various means:
+
+experimenting with different organizational designs (smaller, independent development teams, DevOps, platform engineering)
+adopting new project management approaches (Agile)
+adopting new software architectures (service-oriented, micro-service, and server-less)
+
+However, the rapid changes in how we build software and structure engineering teams has dramatically outpaced the tooling meant to facilitate these activities. While using platforms like Kubernetes may simplify deploying independent workloads, it does not help ensure those workloads are compatible with one another. As we move towards smaller, composable units, some popular continuous deployment platforms struggle to manage the complexities inherent in updating interdependent components in a distributed system when each component evolves independently. The inability of these continuous deployment platforms to manage inter-service dependencies means organizations can’t actually ship services independently. Instead, they “continuously deploy” a distributed monolith, not realizing any of the velocity gains afforded by modern software development techniques.
+
+We designed Apollo to address the unique complexities of modern architectures and enable efficient independent software development. A core element of Apollo’s approach to managing this complexity is the Apollo Orchestration Engine. This component enables deployment constraints to be encoded within software, as well as rules for when changes occur in the environment in which the software is running. It then ensures these constraints are satisfied when applying changes to managed software installations. This allows for true continuous deployment of the components of a distributed system, without sacrificing stability.
+
+In this post, we’ll discuss how the Apollo Orchestration Engine works, and how we solved some of the problems inherent in continuous deployment of service oriented architectures.
+
+The Apollo Orchestration Engine
+
+The Apollo orchestration engine is responsible for progressing an environment’s current state towards Apollo’s target state for the environment. This is similar to the Kubernetes operator design pattern which has become popular in recent years, with a crucial addition — the ability to recognize a distributed system’s interdependencies and constraints, and validate those constraints while performing work. Apollo applies this design pattern to manage the continuous deployment of many software installations spanning different environments, providing three inputs to its orchestration engine’s control loop:
+
+deployable software releases, sourced from the Apollo Catalog
+declared state for environments held in an Environment Configuration Store
+current (or “reported”) state provided by Apollo agents running within Apollo-managed environments
+Press enter or click to view image in full size
+
+Guaranteeing that the process of aligning current state with target state will not impact the availability of the software or violate the expectations of software or operators is critical. To that end, we designed Apollo’s orchestration engine to accept constraints defined by both software and environments, and only recommend steps towards the target state that satisfy all constraints.
+
+This design automates the process of solving within the provided constraints, ensuring the process is repeatable. Separately, developers and operators can leverage their domain expertise to define the appropriate constraints for the orchestration engine to apply. While Apollo also offers the ability to declare rules for when change occurs in environments, the rest of this post will focus solely on developers encoding constraints in their software, and the Apollo Orchestration Engine’s application of those constraints.
+
+Encoding Deployment Constraints in Software
+
+When building just one component of a larger architecture, developers make implicit assumptions about the surrounding pieces of the distributed system. Leaving these expectations as implicit requires humans to manually guarantee them at deployment time. Apollo enables these expectations to be explicitly encoded within software instead; this way, developers can encode these expectations once and leave the deployment process to Apollo, reclaiming time to focus on building product.
+
+When encoding software expectations, developers declare constraints alongside their code in a set of metadata known as a manifest. This manifest is provided to Apollo’s registry for deployable software, the Apollo Catalog, during product release registration. Once in the catalog, this information is available to the rest of the Apollo Hub — including its orchestration engine. The orchestration engine then applies these constraints when determining the safety of performing a given software update.
+
+Critically, Apollo reduces the need for humans to manually guarantee their software’s expectations. Below, we’ll walk through two types of constraints — how they’re declared, how Apollo honors them throughout the continuous deployment process, and the safety they provide software developers.
+
+Example: Service Dependency Constraints
+
+A modern software architecture’s functionality arises from communication between its components. In turn, this communication depends on API contracts between components. Handling the complexity of these interdependencies compelled us to build support for cross-service dependency constraints early in Apollo’s development. This investment has drastically reduced the human effort involved in feature rollout and deprecated API removal at Palantir.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Imagine we are developing a new feature in service foo which depends on some new API in a separately developed service bar. Our feature will only work if it’s deployed alongside a version of bar which satisfies this new dependency. We recognize the need to declare this cross-service dependency when merging our feature, and include this constraint in our service’s manifest:
+
+service-dependencies:
+- product-name: bar
+  minimum-version: 1.1.0
+  maximum-version: 1.x.x
+
+This service dependency is included in the manifest we publish to the Apollo Catalog upon tagging a new release (let’s say 1.1.0) of foo. Observing this new release, the Apollo orchestration engine considers upgrading an existing installation of foo in an environment with the following reported state:
+
+- service-name: foo
+  version: 1.0.0
+  configuration-overrides:
+    log-level: debug
+- service-name: bar
+  version: 1.0.0
+  configuration-overrides: {}
+
+Apollo considers the feasibility of upgrading the reported installation of foo from 1.0.0 to 1.1.0. Upon loading the foo 1.0.0 release’s declared constraints, however, it realizes that the current bar installation’s version violates the new foorelease’s cross-service dependency constraint. In this case, Apollo will wait to recommend upgrading to our new release until bar has upgraded to a version which satisfies this constraint.
+
+Apollo applies service dependency constraints “both ways.” Imagine the owners of bar releasing a 2.0.0 version which removes support for endpoints deprecated in 1.x versions - Apollo would refuse to deploy this release without first upgrading to a release of foo which either (1) updates its service dependency’s accepted version range or (2) removes the dependency entirely.
+
+Without support for declaring cross-service dependency constraints, other continuous deployment solutions typically require human investment to ensure a new feature lands in the same monolithic release train as its dependencies. If an organization forgoes this manual effort, it can lead to production outages and time-intensive manual remediation. Apollo relieves developers of this manual coordination while also eliminating the human error inherent in such efforts.
+
+Example: Schema Migration Constraints
+
+Services responsible for reading and writing data to persistent stores adhere to database schemas when performing these reads and writes. Over time, feature work or performance improvement efforts may compel code owners to change a service’s schema. Getting a schema migration wrong poses significant risk, potentially causing irreversible data corruption and extended production outages. We recognized that, as components in a service-oriented architecture evolved over time, ensuring safe schema migrations in an automated manner would be critical. We thus determined to build Apollo support for schema migration constraints, and achieved this by introducing two points of interaction for developers:
+
+declaring supported schema versions in a release’s manifest at publish time
+serving the current and target schema versions of a service running in production, to be included in the service’s reported state
+
+Let’s imagine we want our service foo to complete a schema migration from V1 to V2 over multiple releases with different ranges of supported schema versions:
+
+Press enter or click to view image in full size
+1.1.0 supports reading only the V1 schema version. 1.2.0 and 1.3.0 can read both V1 and V2. 1.3.0additionally migrates all persisted data to V2. 1.4.0 drops support for the now-obsolete V1 schema.
+
+This approach’s correctness depends on the continuous deployment platform waiting to deploy the 1.4.0 release until the schema migration from V1 to V2 completes. We’ll declare these schema migration constraints by including the supported schema version range in our manifest for each release:
+
+# 1.2.0 manifest
+schema-migrations: [V1, V2]
+# 1.3.0
+schema-migrations: [V1, V2]
+# 1.4.0
+schema-migrations: [V2]
+
+Our additional responsibility as the developers of foo is to report the current schema version to Apollo agents upon request, which will include this information when reporting state to the Apollo Hub. Apollo expects a service’s current schema version to be incremented only upon successful completion of a migration - for us, this will happen when our 1.3.0 release has completed its schema migration to V2.
+
+Apollo Orchestration Logic for Schema Migrations
+
+Let’s now consider Apollo’s use of this information when determining when to recommend foo service upgrades. Applying a schema migration constraint is the same as asking:
+
+Does the target release’s supported schema version range contain the current schema version reported for the foo installation?
+
+Critically, Apollo’s schema constraints result in two guarantees:
+
+foo is guaranteed to upgrade to a version capable of performing the migration (1.3.0 in this example) before it can upgrade further.
+Once upgraded to 1.3.0, foo must report the migration has completed successfully before Apollo will consider upgrading foo to later versions.
+
+Schema constraint application ensures safe rollbacks as well — imagine we find a gnarly bug in our 1.3.0 and 1.4.0releases, and we find it necessary to roll back to our last known-good version, 1.2.0. Apollo’s application of schema version constraints will validate that 1.2.0 supports reading the current schema version (now V2) before rolling back. Apollo discounts rolling back further than 1.2.0 for the same reason, as 1.2.0 is the oldest version which supports reading data written using schema V2.
+
+Absent of Apollo constraint application, schema migrations force engineers to babysit production installations and manually gate upgrades on migration completion. Even worse, incorrectly applied schema migrations can cause data corruption. Such production outages erode customer trust, creating the potential for irreversible reputational harm. Apollo considerably mitigates the risk of such catastrophes by enabling developers to inform its orchestration engine of safe upgrade and rollback paths where schema migrations are concerned.
+
+Summary
+
+Modern software development’s focus on building discrete, composable units defers a large amount of complexity until time of deployment, and conventional continuous deployment approaches fail to handle this complexity. Battle-tested within Palantir, Apollo’s ability to understand and apply constraints declared by developers and other stakeholders when performing environment updates can help engineering organizations achieve stability and velocity without intensive human investment. This frees up engineers to focus on what they do best — building.
+
+Interested in Apollo for your organization? Learn more and book an Apollo demo on our website.
+
+Interested in helping build the Apollo platform and other mission-critical software at Palantir? Head to our careers page to learn more.

@@ -1,0 +1,1326 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/python-osdk",
+    "title": "Ontology SDK - Python OSDK - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Python OSDK",
+        "description": "Python SDK for accessing Ontology objects, performing filtering, aggregations, and executing actions programmatically from Python environments."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology Software Development Kit providing type-safe, code-generated client libraries for interacting with the Ontology data model across multiple languages."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Foundry tool for generating Ontology-specific SDK documentation and managing developer configurations."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity representing a real-world concept (e.g., Restaurant) with typed properties, a primary key, and queryable through SDK clients."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Typed attribute of an Object Type (e.g., restaurantId: String, numberOfReviews: Integer) exposed through the SDK as fields on returned objects."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Primary Key",
+        "description": "A designated Property that uniquely identifies each object instance within an Object Type, used for single-object lookups."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "A queryable collection of objects of a given Object Type, supporting filtering, ordering, pagination, and aggregation operations."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology concept representing executable operations that can modify objects, invoked through SDK apply methods with typed parameters."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Storage V2",
+        "description": "Backend storage technology for Object Types that supports unlimited result sets, unlike the legacy Phonograph backend which limits to 10,000 results."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Phonograph",
+        "description": "Legacy object storage backend with a 10,000 result limit per query, superseded by Object Storage V2."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Page Token Pagination",
+        "description": "SDK pagination mechanism using nextPageToken for iterating through large result sets with configurable page sizes up to 10,000."
+      },
+      {
+        "type": "Pattern",
+        "name": "Code-Generated SDK",
+        "description": "Pattern where SDK client code is auto-generated from Ontology schema definitions, providing type-safe access to Object Types, Properties, and Actions."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Aggregation API",
+        "description": "SDK capability to compute aggregate values (count, min, max, sum, avg, approximateDistinct) over ObjectSets with optional groupBy clauses."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Python OSDK", "relationship": "PART_OF", "target": "OSDK" },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Python OSDK"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Property"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "HAS_PROPERTY",
+        "target": "Primary Key"
+      },
+      {
+        "source": "ObjectSet",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Python OSDK"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "Object Storage V2"
+      },
+      {
+        "source": "Code-Generated SDK",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Aggregation API",
+        "relationship": "EXAMPLE_OF",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Python OSDK",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Python OSDK provides programmatic access to the full Ontology data model including objects, filtering, aggregations, and action execution.",
+      "Object Storage V2 removes the 10,000 result limit that existed with the legacy Phonograph backend, enabling unlimited queries.",
+      "SDK documentation can be auto-generated specific to a customer's Ontology via Developer Console, providing tailored code examples.",
+      "Pagination uses a page token pattern with configurable page sizes up to 10,000 objects per page.",
+      "The SDK exposes aggregation operations (count, min, max, sum, avg, approximateDistinct) with groupBy support over ObjectSets.",
+      "Object responses include a __rid (resource identifier) and __primaryKey alongside all typed properties."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-lineage/explore-artifacts",
+    "title": "Data Lineage - Graphs - Explore artifacts and ontology entities - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Lineage",
+        "description": "Foundry tool for visualizing and exploring the dependency graph between datasets, artifacts, and Ontology entities, showing how data flows through the platform."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity that can be traced back to its source datasets through Data Lineage, showing which datasets back which Object Types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Relationship definition between Object Types, visualizable within the Data Lineage graph to understand connections between datasets and Ontology structures."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application for configuring Object Types, accessible directly from Data Lineage when viewing an Object Type's configuration."
+      },
+      {
+        "type": "Product",
+        "name": "Contour",
+        "description": "Foundry visualization tool whose outputs appear as related artifacts in Data Lineage graphs."
+      },
+      {
+        "type": "Product",
+        "name": "Slate",
+        "description": "Foundry application builder whose applications appear as related artifacts in Data Lineage graphs."
+      },
+      {
+        "type": "Pattern",
+        "name": "Data Provenance Tracking",
+        "description": "Pattern of tracing Ontology entities back through their lineage to source datasets, enabling understanding of how business objects are derived from raw data."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Related Artifacts Panel",
+        "description": "Data Lineage UI component that shows Foundry resources (visualizations, applications) related to a selected dataset."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Data Lineage"
+      },
+      {
+        "source": "Link Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Data Lineage"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Ontology Manager"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Contour"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Slate"
+      },
+      {
+        "source": "Data Provenance Tracking",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Data Lineage",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Data Lineage bridges the gap between raw datasets and Ontology entities, showing which datasets back which Object Types.",
+      "Object Types can be discovered from datasets via the View Node Properties panel, and their configuration accessed directly in Ontology Manager.",
+      "Link Types between Object Types can be visualized within the lineage graph, showing how Ontology relationships connect to underlying data.",
+      "Data Lineage serves as a cross-cutting navigation tool connecting datasets to Contour visualizations, Slate applications, and Ontology entities.",
+      "Users can search for and add Object Types to lineage graphs to understand connections between datasets and business-level Ontology constructs."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/code-repositories/create-transforms",
+    "title": "Code Repositories - Transforms - Create Transforms - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Code Repositories",
+        "description": "Foundry tool for authoring data transformation logic using Python, Java, or SQL, with a wizard-driven file template system for bootstrapping transforms."
+      },
+      {
+        "type": "Pattern",
+        "name": "Transform",
+        "description": "Core Foundry data processing unit that takes one or more input datasets/models and produces a single output, encapsulating computational logic and resource declarations."
+      },
+      {
+        "type": "Pattern",
+        "name": "Lightweight Transform",
+        "description": "Single-node transform type recommended for datasets under 10 million rows, running on a single compute node without distributed processing overhead."
+      },
+      {
+        "type": "Pattern",
+        "name": "Spark Transform",
+        "description": "Distributed transform type leveraging Apache Spark for datasets exceeding 10 million rows, providing parallel computation across multiple nodes."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data integration and analytics platform providing the execution environment for transforms, pipelines, and Ontology management."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Transform Template Wizard",
+        "description": "Code Repositories UI feature that bootstraps transform files from templates with live preview, input/output configuration, and automatic validation."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Code Repositories",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Transform",
+        "relationship": "USES_PATTERN",
+        "target": "Lightweight Transform"
+      },
+      {
+        "source": "Transform",
+        "relationship": "USES_PATTERN",
+        "target": "Spark Transform"
+      },
+      {
+        "source": "Code Repositories",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      {
+        "source": "Transform Template Wizard",
+        "relationship": "EXAMPLE_OF",
+        "target": "Transform"
+      }
+    ],
+    "keyInsights": [
+      "Transforms are the fundamental building blocks of Foundry data processing, consuming input datasets and producing output datasets.",
+      "Two transform types exist: Lightweight (single-node, <10M rows) and Spark (distributed, >10M rows), chosen based on data scale.",
+      "Code Repositories provides a template wizard with live preview and automatic validation for bootstrapping transforms.",
+      "Input and output resources must reside within the same Foundry project as the repository, enforcing project-level isolation.",
+      "Templates automatically configure required dependencies and backing libraries when generating transform files."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/transforms-python/transforms",
+    "title": "Python - Basic transforms - Transforms - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Transform",
+        "description": "Core Foundry data processing building block consisting of decorators (inputs/outputs/config), a function signature, and compute logic that defines how data flows from inputs to outputs."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry Transforms",
+        "description": "The foundry_transforms Python library providing the @transform decorator, Input/Output classes, and compute engine abstractions for defining data pipelines."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Transform Decorator",
+        "description": "Python decorator (@transform.using) that declares inputs and outputs for a transform function, connecting it to Foundry's orchestration layer."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Polars Compute Engine",
+        "description": "Single-node DataFrame engine known for performance and stability, available as an alternative to pandas for lightweight transforms."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Pandas Compute Engine",
+        "description": "Widely adopted single-node DataFrame engine available for lightweight transforms in Foundry."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "DuckDB Compute Engine",
+        "description": "SQL-based compute engine available within Foundry transforms, enabling SQL queries directly on input datasets."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Spark Compute Engine",
+        "description": "Distributed multi-node compute engine for large-scale data processing in Foundry transforms."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry tool that registers transforms into Pipelines, providing a visual interface for pipeline composition."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Transform",
+        "relationship": "DEFINED_BY",
+        "target": "Transform Decorator"
+      },
+      {
+        "source": "Foundry Transforms",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Transform",
+        "relationship": "DEFINED_BY",
+        "target": "Polars Compute Engine"
+      },
+      {
+        "source": "Transform",
+        "relationship": "DEFINED_BY",
+        "target": "Pandas Compute Engine"
+      },
+      {
+        "source": "Transform",
+        "relationship": "DEFINED_BY",
+        "target": "DuckDB Compute Engine"
+      },
+      {
+        "source": "Transform",
+        "relationship": "DEFINED_BY",
+        "target": "Spark Compute Engine"
+      },
+      {
+        "source": "Foundry Transforms",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Pipeline Builder"
+      }
+    ],
+    "keyInsights": [
+      "Every Foundry transform has three components: decorators (declare I/O), function signature (matches declared I/O), and compute logic (actual processing).",
+      "Four compute engines are available: Polars, pandas, and DuckDB for single-node (lightweight) transforms, and Spark for distributed multi-node transforms.",
+      "Transforms default to single-node execution; Spark must be explicitly chosen for distributed processing of large datasets.",
+      "Transforms support multiple inputs and multiple outputs, enabling complex pipeline topologies beyond simple one-to-one mappings.",
+      "Polars is recommended over pandas for lightweight transforms due to superior performance and stability."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/data-connection/external-transforms",
+    "title": "Data Connection - External Transforms - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "External Transform",
+        "description": "Transform variant that enables connections to external systems from Python transforms repositories, used for batch sync, export, and media sync workflows when standard Data Connection sources are insufficient."
+      },
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry service managing connections to external systems, providing source types, authentication, and egress policies for data integration."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Egress Policy",
+        "description": "Data Connection security mechanism controlling which external domains a transform can access, requiring explicit allowlisting of target URLs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "External Systems Sidebar",
+        "description": "Code Repositories UI panel for creating and configuring Data Connection sources directly from within a transforms repository."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Source Credentials",
+        "description": "Secure credential management system within Data Connection that stores and injects authentication tokens/secrets into external transform execution contexts."
+      },
+      {
+        "type": "Pattern",
+        "name": "Virtual Table",
+        "description": "Pattern for accessing data from external systems that remain outside Foundry, where transforms reach out to the external system at query time."
+      },
+      {
+        "type": "Product",
+        "name": "Code Repositories",
+        "description": "Foundry development environment for writing Python transforms that can import and interact with Data Connection sources."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "External Transform",
+        "relationship": "USES_PATTERN",
+        "target": "Transform"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Source Credentials",
+        "relationship": "SECURES",
+        "target": "External Transform"
+      },
+      {
+        "source": "Egress Policy",
+        "relationship": "SECURES",
+        "target": "External Transform"
+      },
+      {
+        "source": "External Transform",
+        "relationship": "EXPOSED_BY",
+        "target": "Code Repositories"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Code Repositories"
+      },
+      {
+        "source": "Virtual Table",
+        "relationship": "USES_PATTERN",
+        "target": "External Transform"
+      }
+    ],
+    "keyInsights": [
+      "External transforms extend standard Foundry transforms by allowing outbound connections to external REST APIs, databases, and other systems.",
+      "Data Connection sources can be directly imported into Code Repositories, superseding the older credentials-based legacy approach.",
+      "Egress policies provide security boundaries controlling which external domains a transform can reach, requiring explicit allowlisting.",
+      "External transforms support three primary workflows: batch sync (ingest), export (push out), and media sync (file transfer).",
+      "Virtual tables are a special case of external transforms where data remains in the external system and is queried on demand rather than copied into Foundry.",
+      "Authentication is managed through Data Connection source credentials, keeping secrets out of transform code."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/code-examples/incremental-transforms-transforms",
+    "title": "Code Examples - Incremental Transforms - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Incremental Transform",
+        "description": "Transform pattern that processes only new or changed data since the last pipeline run, avoiding full recomputation and enabling efficient processing of growing datasets."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Incremental Decorator",
+        "description": "Python decorator (@incremental) that wraps transform compute functions to enable incremental processing semantics, tracking which data has been previously processed."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "IncrementalTransformInput",
+        "description": "Specialized input type in incremental transforms providing access to only the new/changed data since the last run, with methods for reading current and previous state."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "IncrementalTransformOutput",
+        "description": "Specialized output type supporting set_mode('modify') for appending incremental results rather than overwriting the entire output dataset."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SNAPSHOT Transaction",
+        "description": "Dataset transaction type representing a full recomputation where all data is replaced, contrasting with incremental APPEND transactions."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "APPEND Transaction",
+        "description": "Dataset transaction type where only new data is added to an existing dataset, enabling incremental processing semantics."
+      },
+      {
+        "type": "Pattern",
+        "name": "Incremental Aggregation",
+        "description": "Pattern for computing aggregations incrementally by maintaining running totals and updating only with new data, avoiding full dataset scans."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Incremental Transform",
+        "relationship": "USES_PATTERN",
+        "target": "Transform"
+      },
+      {
+        "source": "Incremental Transform",
+        "relationship": "DEFINED_BY",
+        "target": "Incremental Decorator"
+      },
+      {
+        "source": "Incremental Decorator",
+        "relationship": "EXAMPLE_OF",
+        "target": "IncrementalTransformInput"
+      },
+      {
+        "source": "Incremental Decorator",
+        "relationship": "EXAMPLE_OF",
+        "target": "IncrementalTransformOutput"
+      },
+      {
+        "source": "Incremental Transform",
+        "relationship": "DEFINED_BY",
+        "target": "APPEND Transaction"
+      },
+      {
+        "source": "Incremental Aggregation",
+        "relationship": "ENABLES",
+        "target": "Incremental Transform"
+      }
+    ],
+    "keyInsights": [
+      "Incremental transforms use the @incremental decorator to process only new data, checking ctx.is_incremental to branch between full and incremental logic.",
+      "Output.set_mode('modify') enables appending incremental results rather than overwriting, preserving previously computed data.",
+      "Incremental transforms must handle SNAPSHOT transactions gracefully, falling back to full recomputation when inputs are fully replaced.",
+      "Incremental aggregation patterns maintain running state and update only with new records, enabling efficient aggregation over growing datasets.",
+      "External API data can be fetched incrementally by tracking last-processed dates and page tokens across runs."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/general/overview/introduction",
+    "title": "Introduction - API Reference - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry API",
+        "description": "RESTful HTTP API for programmatic interaction with the Foundry platform, using OAuth 2.0 authentication and JSON request/response payloads."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data platform providing data integration, analytics, Ontology management, AI services, workflow services, and software delivery capabilities."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth 2.0",
+        "description": "Authentication protocol used by the Foundry API, requiring OAuth tokens for all API requests."
+      },
+      {
+        "type": "Product",
+        "name": "Platform SDKs",
+        "description": "Language-specific client libraries that simplify interaction with the Foundry API, generated from the API specification for supported programming languages."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Foundry API V2",
+        "description": "Version 2.0 of the Foundry REST API, the current recommended version for building applications on top of Palantir products."
+      },
+      {
+        "type": "Pattern",
+        "name": "Ontology-Centric Architecture",
+        "description": "Foundry's core architectural pattern where the Ontology serves as the model of data, AI, and workflows, connecting Data Services, AI Services, Workflow Services, Security, and Software Delivery."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Foundry API",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "OAuth 2.0",
+        "relationship": "SECURES",
+        "target": "Foundry API"
+      },
+      {
+        "source": "Platform SDKs",
+        "relationship": "BUILT_ON",
+        "target": "Foundry API"
+      },
+      {
+        "source": "Foundry API",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry"
+      },
+      {
+        "source": "Ontology-Centric Architecture",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Foundry API V2",
+        "relationship": "EXAMPLE_OF",
+        "target": "Foundry API"
+      }
+    ],
+    "keyInsights": [
+      "The Foundry API is a REST API using OAuth 2.0 for authentication, with JSON as the standard request/response format.",
+      "The Ontology sits at the center of Foundry's architecture, serving as the unified model connecting Data Services, AI Services, Workflow Services, Security, and Software Delivery.",
+      "Platform SDKs are available for supported languages to simplify API interactions, abstracting away raw HTTP calls.",
+      "API V2 is the current recommended version, with V1 still available for backward compatibility.",
+      "Data Connection exports are recommended over direct API calls for bulk data export use cases."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/available-connectors/rest-apis",
+    "title": "Available Connectors - REST APIs - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "REST API Source",
+        "description": "Data Connection source type enabling interactive HTTP requests to external REST endpoints from Foundry applications via Actions and Webhooks."
+      },
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry service managing connections to external systems, providing source types for syncs, exports, and interactive API calls."
+      },
+      {
+        "type": "Pattern",
+        "name": "Webhook Integration",
+        "description": "Pattern for connecting Foundry applications (e.g., Workshop buttons) to external REST endpoints via Action-triggered HTTP calls through the REST API source."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "REST API Authentication",
+        "description": "Authentication options for REST API sources including None, Basic, Bearer Token, and API Key, configured per-domain in Data Connection."
+      },
+      {
+        "type": "Pattern",
+        "name": "External Transform REST Pattern",
+        "description": "Pattern of using external transforms in Code Repositories to implement custom sync and export logic against REST APIs, replacing legacy magritte-rest-v2 source type."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Agent Egress Policy",
+        "description": "Security mechanism allowing external transforms to access REST API sources inaccessible over the public internet by routing through a Foundry worker agent."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OAuth Client Credentials Grant",
+        "description": "OAuth flow used by external transforms for server-to-server authentication with REST APIs, using client_id and certificate credentials."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application builder whose buttons can trigger Webhook calls to REST API sources, enabling user-initiated external system interactions."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "REST API Source",
+        "relationship": "PART_OF",
+        "target": "Data Connection"
+      },
+      {
+        "source": "Webhook Integration",
+        "relationship": "ENABLES",
+        "target": "Action Type"
+      },
+      {
+        "source": "REST API Authentication",
+        "relationship": "SECURES",
+        "target": "REST API Source"
+      },
+      {
+        "source": "Agent Egress Policy",
+        "relationship": "SECURES",
+        "target": "External Transform REST Pattern"
+      },
+      {
+        "source": "Workshop",
+        "relationship": "INTEGRATES_WITH",
+        "target": "REST API Source"
+      },
+      {
+        "source": "External Transform REST Pattern",
+        "relationship": "USES_PATTERN",
+        "target": "External Transform"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "OAuth Client Credentials Grant",
+        "relationship": "EXAMPLE_OF",
+        "target": "REST API Authentication"
+      }
+    ],
+    "keyInsights": [
+      "REST API sources in Data Connection are specifically for interactive HTTP requests via Webhooks/Actions, not for batch syncs or exports.",
+      "Syncs and exports to REST APIs should use external transforms in Code Repositories, not the REST API source type directly.",
+      "The legacy magritte-rest-v2 source type is deprecated in favor of the new REST API source for Webhooks and external transforms for syncs/exports.",
+      "Authentication options include None, Basic, Bearer Token, and API Key, with API Keys passable as query params or headers.",
+      "Workshop applications can trigger REST API calls via button-driven Webhook Actions, connecting UIs to external system workflows.",
+      "Agent-based workers enable external transforms to reach REST APIs on private networks not accessible over the public internet."
+    ]
+  },
+  {
+    "url": "https://medium.com/@joshua_a/the-technical-anatomy-of-palantirs-foundry-platform-an-in-depth-analysis-d9cf6c275bba",
+    "title": "The Technical Anatomy of Palantir's Foundry Platform: An In-Depth Analysis - Medium",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's modular data platform built on a service mesh of hundreds of distinct microservices, providing data integration, analytics, Ontology management, and operational workflows."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Service Mesh Architecture",
+        "description": "Foundry's modular architecture consisting of hundreds of distinct microservices operating in highly-available, redundant configurations with zero-downtime upgrades."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Rubix Engine",
+        "description": "Foundry's auto-scaling engine that manages scaling across core services and the compute mesh using a containerization paradigm."
+      },
+      {
+        "type": "Pattern",
+        "name": "Ontology Semantic Model",
+        "description": "Foundry's structured semantic model that bridges raw data and end users by weaving data and models into a comprehensive business representation."
+      },
+      {
+        "type": "Pattern",
+        "name": "Zero-Downtime Upgrade",
+        "description": "Foundry deployment pattern enabled by granular monitoring strategies that inform upgrade deployment and rollback procedures without service interruption."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Multi-Storage Architecture",
+        "description": "Foundry's approach of deploying various storage technologies at different architectural tiers and selecting appropriate runtimes for different workloads."
+      },
+      {
+        "type": "Product",
+        "name": "Contour",
+        "description": "Foundry analytics and visualization tool for exploring and analyzing data."
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Foundry tool for time-series analysis and dashboarding."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Foundry",
+        "relationship": "DEFINED_BY",
+        "target": "Service Mesh Architecture"
+      },
+      {
+        "source": "Foundry",
+        "relationship": "DEFINED_BY",
+        "target": "Rubix Engine"
+      },
+      {
+        "source": "Ontology Semantic Model",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Foundry",
+        "relationship": "DEFINED_BY",
+        "target": "Multi-Storage Architecture"
+      },
+      { "source": "Contour", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Quiver", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Zero-Downtime Upgrade",
+        "relationship": "ENABLES",
+        "target": "Service Mesh Architecture"
+      }
+    ],
+    "keyInsights": [
+      "Foundry's architecture is a service mesh of hundreds of microservices, each running in highly-available, redundant configurations.",
+      "The Rubix engine provides auto-scaling across both core Foundry services and the compute mesh using containerization.",
+      "Foundry is storage-agnostic, deploying different storage technologies at different architectural tiers rather than committing to a single paradigm.",
+      "The Ontology serves as a structured semantic model bridging raw data and business users, enabling the capture and integration of data back into the semantic foundation.",
+      "Security and data lineage are enforced consistently across every tier of the platform architecture.",
+      "Foundry supports Python, SQL, Java, TypeScript, JavaScript, and R across different paradigms (transforms, ML workflows, frontend applications)."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/building-pipelines/streaming-overview",
+    "title": "Building Pipelines - Streaming Pipelines - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Streaming Pipeline",
+        "description": "Continuously-running Foundry pipeline that processes data as it arrives with very low latency, making data accessible in the Ontology in under 15 seconds on average."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity that can be updated in near real-time via streaming pipelines, making streaming data immediately accessible for analysis."
+      },
+      {
+        "type": "Product",
+        "name": "Quiver",
+        "description": "Foundry time-series analysis application that can display streaming data accessible through the Ontology."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry Rules",
+        "description": "Foundry application for defining and executing rules against streaming data, enabling automated decision-making on real-time information."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry visual tool for creating and managing streaming transforms within streaming pipelines."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Row Size Limit",
+        "description": "Technical constraint of 1MB maximum per individual row in streaming pipelines to ensure low-latency data transfers."
+      },
+      {
+        "type": "Pattern",
+        "name": "Stateful Stream Processing",
+        "description": "Streaming pattern using windows or aggregations that maintain state, requiring careful design when changing stream logic to avoid state corruption."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Streaming Pipeline",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Quiver"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry Rules"
+      },
+      {
+        "source": "Streaming Pipeline",
+        "relationship": "EXPOSED_BY",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Streaming Pipeline",
+        "relationship": "DEFINED_BY",
+        "target": "Streaming Row Size Limit"
+      },
+      {
+        "source": "Stateful Stream Processing",
+        "relationship": "USES_PATTERN",
+        "target": "Streaming Pipeline"
+      }
+    ],
+    "keyInsights": [
+      "Streaming pipelines enable sub-15-second data availability in the Ontology, making real-time operational decisions possible.",
+      "Streaming compute runs continuously, resulting in higher compute costs compared to batch or incremental pipelines.",
+      "A 1MB per-row size constraint exists for streaming data to maintain low-latency transfer guarantees.",
+      "Stateful operations (windows, aggregations) require careful design consideration when modifying stream logic to prevent state corruption.",
+      "Streaming data flows through to the Ontology and becomes immediately available in analysis tools like Quiver and Foundry Rules."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/health-checks/overview",
+    "title": "Health Checks - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Data Health",
+        "description": "Foundry service for monitoring and alerting on common issues across datasets, schedules, and tables using customizable health checks."
+      },
+      {
+        "type": "Product",
+        "name": "Data Lineage",
+        "description": "Foundry tool that integrates with Data Health to color datasets by their health check status and display health information in the lineage graph."
+      },
+      {
+        "type": "Pattern",
+        "name": "Health Check",
+        "description": "Monitoring rule applied to Foundry resources (datasets, schedules, tables) that detects issues related to status, time, size, content, and schema."
+      },
+      {
+        "type": "Product",
+        "name": "Dataset Preview",
+        "description": "Foundry application for viewing dataset content that includes a Health tab for managing health checks on individual datasets and tables."
+      },
+      {
+        "type": "Pattern",
+        "name": "Monitoring View",
+        "description": "Scalable monitoring approach for covering many similar resources automatically, complementing individual health checks when coverage needs to scale."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Health Check Alerting",
+        "description": "Notification system supporting Foundry Notifications, emails, PagerDuty, Slack, and arbitrary REST webhooks for health check alerts."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Data Health",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Data Health",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Data Lineage"
+      },
+      {
+        "source": "Health Check",
+        "relationship": "EXPOSED_BY",
+        "target": "Data Health"
+      },
+      {
+        "source": "Health Check",
+        "relationship": "EXPOSED_BY",
+        "target": "Dataset Preview"
+      },
+      {
+        "source": "Monitoring View",
+        "relationship": "USES_PATTERN",
+        "target": "Health Check"
+      },
+      {
+        "source": "Health Check Alerting",
+        "relationship": "EXAMPLE_OF",
+        "target": "Health Check"
+      }
+    ],
+    "keyInsights": [
+      "Data Health monitors five categories of issues: dataset status, time, size, content, and schema, using customizable check rules.",
+      "Health checks can be created for datasets, schedules, and tables, and can also be defined programmatically through code.",
+      "Alerting integrates with Foundry Notifications, email, PagerDuty, Slack, and arbitrary REST webhooks for flexible notification delivery.",
+      "Data Lineage visualizes health check status by coloring datasets in the lineage graph, providing at-a-glance pipeline health overview.",
+      "Monitoring Views provide a scalable alternative to individual health checks when many similar resources need consistent monitoring coverage."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/building-pipelines/pipeline-types",
+    "title": "Building Pipelines - Types of Pipelines - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Batch Pipeline",
+        "description": "Pipeline type that fully recomputes every dataset on each run, offering low complexity but high latency and compute cost, with low resilience to data scale changes."
+      },
+      {
+        "type": "Pattern",
+        "name": "Incremental Pipeline",
+        "description": "Pipeline type that processes only new/changed data since the last run, offering low latency and compute cost with medium complexity and high resilience to data scale."
+      },
+      {
+        "type": "Pattern",
+        "name": "Streaming Pipeline",
+        "description": "Continuously-running pipeline that processes data as it arrives, offering very low latency but high complexity and compute cost with high resilience to data scale."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform providing three pipeline types with different latency, complexity, cost, and scale resilience tradeoffs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SNAPSHOT Transaction",
+        "description": "Dataset transaction type used by batch pipelines where all data is fully replaced on each run."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "APPEND Transaction",
+        "description": "Dataset transaction type used by incremental pipelines where only new data is added to existing datasets."
+      },
+      {
+        "type": "Pattern",
+        "name": "Pipeline Progression Pattern",
+        "description": "Recommended approach of starting with batch pipelines for validation, then extending to incremental as scale demands, keeping streaming for real-time requirements."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Batch Pipeline",
+        "relationship": "USES_PATTERN",
+        "target": "Transform"
+      },
+      {
+        "source": "Incremental Pipeline",
+        "relationship": "USES_PATTERN",
+        "target": "Incremental Transform"
+      },
+      {
+        "source": "Streaming Pipeline",
+        "relationship": "USES_PATTERN",
+        "target": "Streaming Pipeline"
+      },
+      {
+        "source": "Batch Pipeline",
+        "relationship": "DEFINED_BY",
+        "target": "SNAPSHOT Transaction"
+      },
+      {
+        "source": "Incremental Pipeline",
+        "relationship": "DEFINED_BY",
+        "target": "APPEND Transaction"
+      },
+      {
+        "source": "Pipeline Progression Pattern",
+        "relationship": "ENABLES",
+        "target": "Batch Pipeline"
+      },
+      {
+        "source": "Pipeline Progression Pattern",
+        "relationship": "ENABLES",
+        "target": "Incremental Pipeline"
+      }
+    ],
+    "keyInsights": [
+      "Three pipeline types exist with clear tradeoff dimensions: batch (simple/expensive), incremental (moderate/efficient), streaming (complex/real-time).",
+      "Batch pipelines should be the starting point for pipeline development, with incremental extension as data scale validates the use case.",
+      "Incremental pipelines offer the best balance of latency (minutes) and compute cost for growing datasets, but require understanding of transactions.",
+      "Streaming pipelines provide the lowest latency (seconds) but carry the highest complexity and continuous compute costs.",
+      "Python or Java are recommended for batch pipelines that may need future incremental support, as SQL does not support incremental computation.",
+      "Foundry also offers 'faster' variants of batch and incremental pipelines that sacrifice some expression support for improved performance."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/building-pipelines/incremental-overview",
+    "title": "Building Pipelines - Incremental Pipelines - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Incremental Pipeline",
+        "description": "Pipeline architecture that processes only new or changed data since the last run, enabling minutes-level latency while minimizing compute costs compared to full recomputation."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Dataset Transaction Model",
+        "description": "Foundry's data versioning system using APPEND and SNAPSHOT transactions to track how datasets change over time, fundamental to incremental processing."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "APPEND Transaction",
+        "description": "Transaction type that adds new data to an existing dataset without modifying previous data, enabling incremental pipelines to process only the delta."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SNAPSHOT Transaction",
+        "description": "Transaction type that fully replaces dataset contents, requiring incremental pipelines to gracefully fall back to full recomputation."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Spark File Partitioning",
+        "description": "Technical concern for long-running incremental pipelines where many APPEND transactions create numerous small files, requiring understanding of Spark's file handling for performance."
+      },
+      {
+        "type": "Product",
+        "name": "Pipeline Builder",
+        "description": "Foundry visual tool that supports creating incremental pipeline configurations."
+      },
+      {
+        "type": "Product",
+        "name": "Data Connection",
+        "description": "Foundry service that provides incremental sync capabilities for bringing data into Foundry incrementally."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Incremental Pipeline",
+        "relationship": "DEFINED_BY",
+        "target": "Dataset Transaction Model"
+      },
+      {
+        "source": "Dataset Transaction Model",
+        "relationship": "CONTAINS",
+        "target": "APPEND Transaction"
+      },
+      {
+        "source": "Dataset Transaction Model",
+        "relationship": "CONTAINS",
+        "target": "SNAPSHOT Transaction"
+      },
+      {
+        "source": "Incremental Pipeline",
+        "relationship": "EXPOSED_BY",
+        "target": "Pipeline Builder"
+      },
+      {
+        "source": "Incremental Pipeline",
+        "relationship": "DEFINED_BY",
+        "target": "Spark File Partitioning"
+      },
+      {
+        "source": "Data Connection",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Incremental Pipeline"
+      }
+    ],
+    "keyInsights": [
+      "Incremental pipelines require deep understanding of Foundry's transaction model (APPEND vs SNAPSHOT) to implement correctly.",
+      "Transform logic must be resilient to unexpected SNAPSHOT transactions on inputs, gracefully falling back to full recomputation.",
+      "Long-running incremental pipelines accumulate many small files from APPEND transactions, requiring Spark partitioning management for sustained performance.",
+      "Incremental syncs in Data Connection are the first step in building an end-to-end incremental pipeline.",
+      "Unit testing is strongly recommended before production deployment to validate behavior under both incremental and snapshot scenarios."
+    ]
+  },
+  {
+    "url": "https://medium.com/d-one/a-practical-guide-to-using-the-incremental-decorator-in-foundry-d29a1ba2264f",
+    "title": "A Practical Guide to Using the @incremental Decorator in Foundry - Medium",
+    "extractedEntities": [
+      {
+        "type": "TechnicalDetail",
+        "name": "Incremental Decorator",
+        "description": "Python decorator (@incremental()) that wraps a transform's compute function to enable incremental computation, providing IncrementalTransformInput and IncrementalTransformOutput types."
+      },
+      {
+        "type": "Pattern",
+        "name": "Incremental Transform",
+        "description": "Transform pattern that processes only changed data by detecting APPEND transactions and applying delta logic, with fallback to full recomputation on SNAPSHOT transactions."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Transform Decorator",
+        "description": "Core Python decorator (@transform) that defines inputs and outputs for a computation, connecting transform logic to Foundry's orchestration layer."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "IncrementalTransformInput",
+        "description": "Specialized input type provided by the @incremental decorator that gives access to only the changed data since the last build run."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "IncrementalTransformOutput",
+        "description": "Specialized output type provided by the @incremental decorator supporting modify mode for appending results rather than full replacement."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SNAPSHOT Build",
+        "description": "Build mode where the entire dataset is processed from scratch, contrasting with incremental builds that only process new data."
+      },
+      {
+        "type": "UseCase",
+        "name": "Financial Transaction Processing",
+        "description": "Use case where incremental transforms process daily new transactions from a large historical dataset, avoiding full recomputation of millions of rows."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Incremental Decorator",
+        "relationship": "EXAMPLE_OF",
+        "target": "Incremental Transform"
+      },
+      {
+        "source": "Incremental Transform",
+        "relationship": "USES_PATTERN",
+        "target": "Transform"
+      },
+      {
+        "source": "Incremental Decorator",
+        "relationship": "EXAMPLE_OF",
+        "target": "IncrementalTransformInput"
+      },
+      {
+        "source": "Incremental Decorator",
+        "relationship": "EXAMPLE_OF",
+        "target": "IncrementalTransformOutput"
+      },
+      {
+        "source": "Financial Transaction Processing",
+        "relationship": "DEMONSTRATES",
+        "target": "Incremental Transform"
+      },
+      {
+        "source": "Incremental Transform",
+        "relationship": "DEFINED_BY",
+        "target": "SNAPSHOT Build"
+      }
+    ],
+    "keyInsights": [
+      "The @incremental decorator changes input/output types to IncrementalTransformInput/IncrementalTransformOutput, providing delta-only data access.",
+      "Incremental transforms must handle both incremental (APPEND) and snapshot (full recompute) scenarios in the same code path.",
+      "The ctx.is_incremental flag allows branching logic between incremental and snapshot processing within a single transform function.",
+      "Financial transaction processing is a canonical use case where incremental transforms avoid reprocessing millions of historical rows daily.",
+      "The transform decorator remains the foundation; @incremental wraps it to add incremental semantics without changing the core transform pattern."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-indexing/funnel-batch-pipelines",
+    "title": "Indexing - Funnel Batch Pipelines - Palantir",
+    "extractedEntities": [
+      {
+        "type": "TechnicalDetail",
+        "name": "Funnel Batch Pipeline",
+        "description": "Internal Foundry job pipeline that orchestrates efficient indexing of data from datasources and user edits into Object Storage V2 through a four-stage process."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Changelog Stage",
+        "description": "First stage of Funnel batch pipeline that computes data differences for all datasources when new data arrives, creating intermediate changelog datasets with APPEND transactions."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Merge Changes Stage",
+        "description": "Second stage that joins changelog datasets and user edits by primary key to merge all changes into a unified dataset."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Indexing Stage",
+        "description": "Third stage that converts merged change rows into format compatible with configured object databases (e.g., OSv2 index files)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Hydration Stage",
+        "description": "Final stage where object databases prepare indexed data for querying by downloading index files to search node disks, enabling the Object Type to be queried."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Storage V2",
+        "description": "Foundry's canonical object database that stores indexed Object Type data, receiving updates through Funnel batch pipeline hydration."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity whose data is indexed into OSv2 by Funnel batch pipelines, combining datasource data and user edits."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Primary Key",
+        "description": "Property used by the Merge Changes stage to join changelog datasets and user edits, ensuring all changes for the same object are consolidated."
+      },
+      {
+        "type": "Pattern",
+        "name": "Live Pipeline",
+        "description": "Funnel pipeline variant that runs whenever datasources update and every six hours for user edit persistence, keeping object types current in production."
+      },
+      {
+        "type": "Pattern",
+        "name": "Replacement Pipeline",
+        "description": "Funnel pipeline variant that performs full reindexing when schema changes require it, rebuilding the entire object database."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology concept that generates user edits which are merged into Funnel pipelines, with edits applied immediately to indexes and persisted every six hours."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "Foundry application that displays hydration progress and manages Object Type configurations affected by Funnel pipelines."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Funnel Batch Pipeline",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Funnel Batch Pipeline",
+        "relationship": "CONTAINS",
+        "target": "Changelog Stage"
+      },
+      {
+        "source": "Funnel Batch Pipeline",
+        "relationship": "CONTAINS",
+        "target": "Merge Changes Stage"
+      },
+      {
+        "source": "Funnel Batch Pipeline",
+        "relationship": "CONTAINS",
+        "target": "Indexing Stage"
+      },
+      {
+        "source": "Funnel Batch Pipeline",
+        "relationship": "CONTAINS",
+        "target": "Hydration Stage"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "DEFINED_BY",
+        "target": "Object Storage V2"
+      },
+      {
+        "source": "Merge Changes Stage",
+        "relationship": "REFERENCES",
+        "target": "Primary Key"
+      },
+      {
+        "source": "Live Pipeline",
+        "relationship": "USES_PATTERN",
+        "target": "Funnel Batch Pipeline"
+      },
+      {
+        "source": "Replacement Pipeline",
+        "relationship": "USES_PATTERN",
+        "target": "Funnel Batch Pipeline"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "OPERATES_ON",
+        "target": "Merge Changes Stage"
+      }
+    ],
+    "keyInsights": [
+      "Funnel batch pipelines are a four-stage internal process: Changelog, Merge Changes, Indexing, and Hydration, orchestrating data flow from datasources to OSv2.",
+      "User edits from Actions are merged with datasource changes by primary key, applied immediately to indexes but persisted to Foundry datasets every six hours.",
+      "Live pipelines run on datasource updates and every six hours for user edit persistence; replacement pipelines run for schema changes requiring full reindexing.",
+      "Hydration is the final step where OSv2 search nodes download index files to disk, making the Object Type queryable; progress is visible in Ontology Manager.",
+      "All intermediate datasets (changelog, merged, index) are owned and controlled by Funnel and not accessible to users.",
+      "The changelog stage uses incremental computation semantics with APPEND transactions to efficiently capture only data differences."
+    ]
+  }
+]

@@ -1,0 +1,44 @@
+From Human-Defined to Software-Defined Data Integration — Part II, Data Discovery
+Palantir
+Follow
+3 min read
+·
+Oct 25, 2021
+
+30
+
+Editor’s note: This is the second in a four-part series of posts exploring the origins, capabilities and impact of Palantir’s Software-Defined Data Integration. Find part one here, and stay tuned for posts three and four.
+
+Over the past few years, much thought has been dedicated to the “commoditization of data.” For good reason, too; in the Information Age, data is the single most valuable resource available to any organization — whether public, private or non-profit. However, data can quickly turn from commodity to avalanche.
+
+Unlike any physical commodity, the volume of data worldwide is increasing at an almost exponential rate. It’s estimated that the amount of data created in the next 3 years will eclipse the amount created in the past 30 years combined. And with technologies like Edge AI, IoT and data streaming burgeoning, the pace is only increasing.
+
+Press enter or click to view image in full size
+
+The issue facing most modern enterprises is not necessarily producing, housing, or cataloguing this influx of data, but rather finding it and operationalizing it against critical issues. Time and again, we’ve seen partners work around the clock to pinpoint their most pressing business problems only to realize they don’t have a structure in place to surface the data needed to address those problems.
+
+They know they have it, somewhere, but they can’t find it when they need it most.
+
+The onus then falls on IT to manually search for and assemble the datasets needed into a cohesive report. But, by the time that’s done, the time to act has passed and there’s a new problem that needs addressing. For example, a partner’s IT organization was describing an end-to-end supply chain integration project they were undertaking. It took almost a full month just to gather the list of tables needed to construct the ‘golden table’ representing the semantics of sales orders.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Over the course of countless similar projects, we saw that this experience was not exceptional; in fact, it was the norm. We needed a ‘Rosetta Stone’ of sorts to decipher and preview data sources, helping end-users rapidly surface insights across vast data landscapes.
+
+“Discovery is the journey; insight is the destination.” — Gary Hamel
+
+With this intent in mind, we set out to build Palantir Foundry’s software-defined data discovery tooling with an extensible knowledge framework, utilizing source system metadata to reveal content in an intuitive and interactive manner. This was the key to automation and scalability — use the metadata already residing within common source systems (such as ERP and CRM) to inform how to transform the data. This metadata contains important information about the data and how it’s structured, so users can quickly understand what they’re looking at and pull the information they need.
+
+But ‘seeing’ the data using metadata-defined transformation was only half of the battle; the other half was knowing what datasets and source systems to use in the first place. For instance, if I want to run an end-to-end cost-of-goods workflow for my supply chain, how do I know what sources I need? That’s why we encoded SDDI with workflow-specific, opinionated data exploration. If desired, SDDI can automatically surface and group (based on years of data integration expertise) the distributed datasets necessary for a specified workflow. Of course, groupings can be dynamically modified before any integration or analysis.
+
+With SDDI, business decision-makers and data teams alike have a common platform to explore source systems and locate the data they need to address urgent business problems. The platform is point-and-click, abstracting away technical barriers and empowering users to shift their attention from “where’s the data?” to “how can I use this insight to optimize my operations?”
+
+Not only does SDDI allow users to surface the right data easily, but it also encourages them to integrate from first principles, using the most granular sources and avoiding preprocessed or aggregated data. Starting with the most fundamental, granular data paves the way for the richest, most flexible application layer atop this data foundation.
+
+The third part of our series will explore just that: how does SDDI automate the existing automation of pipeline building to power downstream applications? Then, in part four, we’ll go through some impact studies to showcase how our partners are unlocking unprecedented value at pace with SDDI.
+
+Looking to learn more about SDDI? Download the new whitepaper.

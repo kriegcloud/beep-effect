@@ -1,0 +1,314 @@
+Palantir Foundry and Artificial Intelligence
+ Platform (AIP) is a powerful data integration, data modeling, low code development, and
+ analytics platform that can be deployed on Oracle Cloud
+ Infrastructure (OCI). Palantir's industry leading technology can be beneficial to a
+ variety of customer segments including government and defense, finance and banking,
+ healthcare, life sciences, telecommunications, energy and utilities, and manufacturing. You
+ can use this powerful set of curated and integrated tools to turn complex data into
+ actionable insights. 
+
+Palantir Foundry and AIP is a software-as-a-service (SaaS) offering that
+ runs on OCI. The sizing, installation, and integration activities are all highly bespoke
+ and traditionally accomplished in cooperation with the Palantir customer deployment
+ teams. The architecture described here is for informational and advanced planning
+ purposes only. To go through the process of implementing Foundry and AIP, reach out to
+ and work directly with your Palantir account team.
+
+Architecture
+
+This architecture provides a technical overview of Foundry from a functional
+ and a deployment-oriented perspective. 
+
+The following image is a functional view of Foundry and AIP on OCI.
+
+ Description of the illustration palantir-foundry-aip-functional-view.png 
+ palantir-foundry-aip-functional-view-oracle.zip 
+
+In the middle of the diagram, we see Palantir Foundry and AIP and its key
+ components like data integration, ontology, decisions, modeling, analytics, application
+ building, and core services running within an OCI tenancy and leveraging core OCI
+ capabilities like flexible compute, instance pools, OCI Object Storage , OCI Identity and Access Management , Oracle Key Management Cloud
+ Service , flexible load balancer-as-a-service, and others.
+
+Customer data is ingested into Foundry from a variety of data sources using
+ Palantir’s standard data integration patterns, whether those be public data sources
+ (public APIs, 3rd party SaaS), private sources running in OCI such as MySQL HeatWave or
+ Oracle Autonomous Database, or private sources running in on-premises networks or in
+ other clouds through Palantir’s on-premises agent.
+
+Some aspects depicted in the architecture are tailored solutions which are
+ not productized features of Foundry, and which rely on custom implementations of OCI
+ services within a customer's own tenancy to work in conjunction with Foundry. For more
+ details, see the "Considerations" section of this document. 
+
+The following image is a deployment-oriented view of Foundry and AIP on
+ OCI. 
+ Description of the illustration palantir-foundry-aip-technical-view.png 
+
+ palantir-foundry-aip-technical-view-oracle.zip 
+
+Foundry on OCI takes advantage of OCI’s high availability constructs of
+ multiple availability domains (ADs) within a region (where applicable) as well as
+ multiple fault domains (FDs) inside of each AD. 
+
+All public internet data sources from public API and other cloud service
+ provider (CSP) object storage flows to and from the public subnet through internet
+ gateways with transport layer encryption while the private subnets leverage OCI service
+ gateways to communicate privately with OCI Object Storage and other OCI platform services. Instances in the private subnet also leverage NAT
+ gateways to communicate with any Palantir shared services external to OCI; these include
+ Palantir's management plane and observability and management platform named Apollo.
+ Customers may also choose to leverage OCI FastConnect instead of, or in addition to, Site-to-Site VPNs to integrate their on-premises
+ systems with their Palantir tenancy.
+
+ This architecture supports the following OCI components:
+
+ Tenancy 
+A tenancy is a
+ secure and isolated partition that Oracle sets up
+ within Oracle Cloud when you sign up for Oracle Cloud
+ Infrastructure . You can create, organize, and administer your
+ resources in Oracle Cloud within your tenancy. A
+ tenancy is synonymous with a company or
+ organization. Usually, a company will have a
+ single tenancy and reflect its organizational
+ structure within that tenancy. A single tenancy is
+ usually associated with a single subscription, and
+ a single subscription usually only has one
+ tenancy.
+
+ Region 
+An Oracle Cloud
+ Infrastructure region is a localized geographic area that
+ contains one or more data centers, called
+ availability domains. Regions are independent of
+ other regions, and vast distances can separate
+ them (across countries or even
+ continents).
+
+ Availability domain 
+Availability domains are standalone, independent data centers within a region. The physical resources in each availability domain are isolated from the resources in the other availability domains, which provides fault tolerance. Availability domains don’t share infrastructure such as power or cooling, or the internal availability domain network. So, a failure at one availability domain shouldn't affect the other availability domains in the region.
+
+ Fault domain 
+A fault
+ domain is a grouping of hardware and
+ infrastructure within an availability domain. Each
+ availability domain has three fault domains with
+ independent power and hardware. When you
+ distribute resources across multiple fault
+ domains, your applications can tolerate physical
+ server failure, system maintenance, and power
+ failures inside a fault domain.
+
+ Virtual cloud network
+ (VCN) and subnet 
+A VCN is a customizable,
+ software-defined network that you set up in an Oracle Cloud
+ Infrastructure region. Like traditional data center networks,
+ VCNs give you control over your network
+ environment. A VCN can have multiple
+ non-overlapping CIDR blocks that you can change
+ after you create the VCN. You can segment a VCN
+ into subnets, which can be scoped to a region or
+ to an availability domain. Each subnet consists of
+ a contiguous range of addresses that don't overlap
+ with the other subnets in the VCN. You can change
+ the size of a subnet after creation. A subnet can
+ be public or private. 
+
+ Security list 
+For each
+ subnet, you can create security rules that specify
+ the source, destination, and type of traffic that
+ must be allowed in and out of the subnet.
+
+ Site-to-Site VPN 
+Site-to-Site VPN
+ provides IPSec VPN connectivity between your
+ on-premises network and VCNs in Oracle Cloud
+ Infrastructure . The IPSec protocol suite encrypts IP traffic
+ before the packets are transferred from the source
+ to the destination and decrypts the traffic when
+ it arrives.
+
+ FastConnect 
+ Oracle Cloud
+ Infrastructure FastConnect provides an easy way to create a dedicated,
+ private connection between your data center and
+ Oracle Cloud
+ Infrastructure . FastConnect provides higher-bandwidth options
+ and a more reliable networking experience when
+ compared with internet-based connections.
+
+ Internet
+ gateway 
+The internet gateway
+ allows traffic between the public subnets in a VCN
+ and the public internet.
+
+ Network
+ address translation (NAT) gateway 
+A
+ NAT gateway enables private resources in a VCN to
+ access hosts on the internet, without exposing
+ those resources to incoming internet
+ connections.
+
+ Service
+ gateway 
+The service gateway
+ provides access from a VCN to other services, such
+ as Oracle Cloud
+ Infrastructure Object Storage . The traffic from the VCN to the Oracle service
+ travels over the Oracle network fabric and does
+ not traverse the internet.
+
+ Compute 
+With
+ Oracle Cloud Infrastructure
+ Compute , you can provision and manage compute hosts in
+ the cloud. You can launch compute instances with
+ shapes that meet your resource requirements
+ for CPU, memory, network bandwidth, and storage.
+ After creating a compute instance, you can access
+ it securely, restart it, attach and detach
+ volumes, and terminate it when you no longer need
+ it.
+
+ Object storage 
+
+ Oracle Cloud
+ Infrastructure Object Storage provides quick access to large
+ amounts of structured and unstructured data of any
+ content type, including database backups, analytic
+ data, and rich content such as images and videos.
+ You can safely and securely store and then
+ retrieve data directly from the internet or from
+ within the cloud platform. You can scale storage
+ without experiencing any degradation in
+ performance or service reliability. Use standard
+ storage for "hot" storage that you need to access
+ quickly, immediately, and frequently. Use archive
+ storage for "cold" storage that you retain for
+ long periods of time and seldom or rarely
+ access.
+
+The following are Palantir components:
+
+ Data Integration Services 
+Foundry provides a highly
+ configurable set of data connectivity and integration tools that extend far
+ beyond typical extract-transform-load (ETL) or extract-load-transform (ELT)
+ solutions. Foundry is designed to reduce the cost of data integration over time
+ through a rich suite of capabilities that act as a force multiplier for data
+ teams.
+
+ Ontology 
+The Palantir Ontology is an operational layer for the
+ organization. The Ontology sits on top of the digital assets integrated into the
+ Palantir platform (datasets and models) and connects them to their real-world
+ counterparts, ranging from physical assets like plants, equipment, and products
+ to concepts like customer orders or financial transactions. In many settings,
+ the Ontology serves as a digital twin of the organization, containing both the
+ semantic elements (objects, properties, links) and kinetic elements (actions,
+ functions, dynamic security) needed to enable use cases of all types.
+
+ Palantir Management Plane 
+The management plane is an external
+ Palantir controller that securely orchestrates the operations of multiple
+ customer environments.
+
+ Apollo Upgrade and Telemetry 
+
+Apollo is a continuous delivery and orchestration platform developed by Palantir.
+ It is designed to automate the deployment, scaling, and maintenance of complex
+ software applications across a variety of environments, including cloud,
+ on-premises, and edge devices. Apollo enables companies to deploy their software
+ securely and reliably, managing the operational challenges associated with
+ running critical applications at scale.
+
+ Audit security information and event management (SIEM )
+
+Audit logs from all Palantir services are first written to disk and
+ then archived to an OCI Object Storage bucket within 24 hours of being written. Access to these buckets is
+ aggressively restricted. Palantir customers have the option to enable audit
+ infrastructure that will export audit logs from the archive to a
+ per-organization dataset for analysis within Foundry or a downstream
+ SIEM.
+
+Recommendations
+
+ Each Foundry deployment is installed in its own
+ tenancy and lands inside a virtual cloud network with two subnets, one public and one
+ private. The private subnet hosts the Foundry and AIP control plane (CP) and
+ the data plane (DP) running inside an OCI instance pool to facilitate scaling the number of
+ nodes up and down per workload demands. 
+
+As the consumer of a software-as-a-service (SaaS) application running atop
+ OCI and managed by Palantir, you are not required to worry about individual OCI
+ constructs like VCNs, subnets, security lists, network security groups, or gateways.
+ Whether your Palantir implementation is in your tenancy or in Palantir's tenancy,
+ Palantir engineers apply OCI best practices to ensure optimal use of OCI resources for
+ the Foundry and Artificial Intelligence Platform.
+
+Considerations
+
+When planning to run Palantir with OCI, consider the following. 
+
+ OCI Tenancy 
+Palantir is certified to run in OCI in a
+ single-tenant capacity, either within a customer's tenancy or on behalf of a
+ customer inside Palantir's own OCI tenancy. 
+
+ Subnets 
+The public subnet will host up to three Foundry egress routers
+ bound to reserved OCI public IPs and load balancer instances which front
+ Kubernetes ‘Service’ types. 
+
+ Deployment 
+Palantir Foundry and Artificial
+ Intelligence Platform is not self-deployable. Please work with your Oracle and
+ Palantir account teams to provision an environment for your use.
+
+ Custom Implementations 
+Some aspects of the architecture are
+ forward-looking and not currently implemented. They rely on custom
+ implementations of OCI services within your own tenancy to work in conjunction
+ with Foundry. Your Palantir and Oracle account teams can assist you with the
+ following: 
+
+ Unified Integration 
+ Oracle Integration has a catalog of over one hundred adapters for a diverse set of 3rd
+ party and Oracle applications. Plugging Foundry into this ecosystem with
+ a native adapter will allow customers with existing Oracle Integration flows to include Foundry in their orchestrations as well as enable
+ Palantir to quickly and easily ingest data from the broader Oracle
+ application ecosystem including Oracle Fusion, E-Business Suite, Oracle
+ Property Management (Opera), and Oracle Health (Cerner).
+
+ Reports and Analytics 
+While Palantir
+ customers already have access to reports and visualizations within
+ Foundry, some customers may choose to integrate data from Foundry into
+ broader organizational reports and dashboards. For this type of use
+ case, consider integrating Foundry with Oracle Analytics Cloud.
+
+ Machine Learning and AI 
+Foundry comes with
+ tools for machine learning (ML) model building and deployment. For
+ customers invested or interested in Oracle AI and ML tools like Data
+ Science or Data Catalog, an integration between the two modeling suites
+ could be advantageous.
+
+Explore More
+
+Learn more about Oracle Cloud Infrastructure and Palantir.
+
+ Oracle Cloud
+ Infrastructure Documentation 
+
+ Palantir
+ Documentation 
+
+Acknowledgments
+
+ Author : Ed Shnekendorf, Distinguished Cloud Architect,
+ Oracle Cloud Infrastructure

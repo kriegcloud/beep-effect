@@ -1,0 +1,72 @@
+Top highlight
+
+From Human-Defined to Software-Defined Data Integration — Part III, Data Pipelines
+Palantir
+Follow
+4 min read
+·
+Nov 8, 2021
+
+51
+
+Editor’s note: This is the third in a four-part series of posts exploring the origins, capabilities and impact of Palantir’s Software-Defined Data Integration. Explore part one and part two, and stay tuned for the series finale.
+
+The phrase “data pipelining” might conjure mental images of supreme efficiency and organization: a neat grid of interlacing infrastructure seamlessly transporting packages of zeros and ones. Far afield from the mudslinging mess of pipelining oil, you might think.
+
+Just the contrary, writing data pipelines (like building real pipelines) is slow, messy and expensive. Data engineers must be highly knowledgable not only in the practice of pipeline development, but also the intricacies of the source systems they are connecting. For the most complex data landscapes, this amounts to engineers needing to understand the relationships between tens (or hundreds) of source systems, design ways to harmonize distinct schemas and models, and constantly adapt their pipelines in response to changes in said schemas, or changing needs of end-users.
+
+In other words, a colossal undertaking; and one that too often results in a patchwork of unmanageable pipelines that are (a.) expensive in both time and money to upkeep, (b.) inaccessible to non-technical users, and (c.) maintained by tribal knowledge and continuous support from large teams, who could be better deployed elsewhere.
+
+At Palantir, we saw this problem stymie crucial business objectives at companies of all sizes, and across all industries. Even with the best-in-class data integration capabilities of Palantir Foundry, the work of assembling production-ready pipelines required a huge amount of manual effort, expert knowledge, and continued maintenance.
+
+Software-Defined Data Integration was the answer.
+
+Press enter or click to view image in full size
+
+The previous post in this series explored SDDI’s innovative approach for processing source metadata across systems and how this facilitates end-user exploration of data before integration. SDDI pairs this capability with a modularized pipeline generation product, a suite of data harmonization tools, and an intuitive user interface for easy deployment and maintenance.
+
+Together, these offerings enable users of Foundry SDDI to take advantage of intelligent automation that all but removes the need for data pipelining, unblocking projects in days that may have previously taken years and simplifying their maintenance to a control panel UI.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Let’s break it down:
+
+Pipeline Generation
+
+SDDI generates complete, efficient pipelines out-of-the-box. It intelligently reads the shape of data and change data capture artifacts to adapt pipeline generation to the specifications of the source systems, all while administering frequent data health and data accuracy checks. The finished pipelines ship with source-specific cleaning logic and honor the locale settings of the source system.
+
+Metadata Inference
+
+Using our approaches to source metadata inference across the entire data landscape connected to Foundry, SDDI learns from the shape of the source data and adapts the dynamic pipeline generation to that shape. Rather than being prescriptive, it seamlessly adapts to business-specific customizations to the data landscape, without expensive additional maintenance or intervention.
+
+Data Harmonization
+
+Using the same inference methods, SDDI can determine or recommend matches between datasets across different source systems, such as Oracle NetSuite, SAP S/4HANA, or Salesforce Sales Cloud. Users simply confirm or reject SDDI’s recommendations for resolving entities, enabling a simple, scalable way to combine hundreds of disparate sources into a single semantic layer.
+
+Business Knowledge
+
+SDDI is encoded with more than a decade of data integration expertise across industries, workflows, and end-users. We’ve codified these learnings into the platform itself, meaning users can select from a collection of common use cases such as Inventory Management or Value Chain Visibility to be automatically prepared and configured. These rules are source agnostic and SDDI provides intelligent mapping recommendations to make it easy to enable this business logic, no matter the underlying data.
+
+“Each problem that I solved became a rule, which served afterwards to solve other problems.” — Rene Descartes
+
+Encoded Learning
+
+Not only does SDDI come with encoded knowledge, but it enables continuous customization and feedback by providing a framework for users to catalogue their own business logic. This allows users to solidify tribal organizational knowledge as product, compounding returns over time. SDDI intelligently leverages this to continuously improve and deliver pipelines tailored to the specific organization’s needs.
+
+Press enter or click to view image in full size
+In data lakes or warehouses, you often find tables in the form shown under ‘Raw data’; at best, they’re a cryptic puzzle; at worst, they make it impossible for teams to make data-driven decisions.
+User-Friendly Interface
+
+The entire offering is driven by a simple user interface, meaning users of all technical abilities can collaborate and co-develop. While specific plugin points are designed for more complex development as needed, the whole pipeline can be managed in a few clicks. Selecting what data to process, tuning performance and resource usage, adjusting parameters to modify the behavior of the pipeline, and much more can all be done using point-and-click dynamics.
+
+Conclusion
+
+The process to go from lakes or warehouses of raw, unprocessed data to data-informed decision-making can be extraordinarily complicated, and costly. However, with Palantir’s Software-Defined Data Integration, most of this overhead is automated away — empowering organizations to focus instead on modeling their data, testing scenarios and making informed decisions based on accurate, real-time data.
+
+In part four of this series, we’ll showcase how our partners are unlocking unprecedented value at pace with SDDI.
+
+Looking to learn more about SDDI? Download the new whitepaper.

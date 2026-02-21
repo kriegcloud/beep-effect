@@ -1,0 +1,76 @@
+Top highlight
+
+A Day in the Life of a Palantir Forward Deployed Software Engineer
+Palantir
+Follow
+7 min read
+·
+Nov 2, 2020
+
+333
+
+5
+
+Brian is a Forward Deployed Software Engineer (FDSE) at Palantir, currently focused on delivering data integration solutions to a US Department of Defense customer. We sat down with Brian to learn about the FDSE role and his day-to-day life at Palantir.
+
+Press enter or click to view image in full size
+You’re a Forward Deployed Software Engineer. What is that?
+
+A Forward Deployed Software Engineer (FDSE), or “Delta,” is a software engineer who embeds directly with our customers to configure Palantir’s existing software platforms to solve their toughest problems. While a traditional software engineer, or “Dev,” focuses on creating a single capability that can be used for many customers, FDSEs focus on enabling many capabilities for a single customer. We are deployed across many industries and problem domains, so the breadth of projects we tackle is large and always evolving. Since joining Palantir, I’ve had the chance to work across cyber, healthcare, and defense.
+
+Iterating closely with customers across these various industries requires a unique and broad skillset, ranging from software development to data engineering to customer engagement and creative problem-solving. I need to address questions like: “What products are we deploying for this use-case? Why are we deploying them? How will we spin-up workflows that utilize these products to address the customer’s specific needs?” As FDSEs, not only do we need to be able to answer those questions, but we actually implement the solution in collaboration with end-users.
+
+Is an FDSE similar to a consultant?
+
+No, not really. I think one of the things that differentiates us from consultants is how technically creative we can be while also delivering solutions quickly. In the hands of an FDSE, Palantir’s products, Foundry and Gotham, are ready-built playgrounds that empower us to be flexible and efficient in how we solve problems. Unlike consultants, we can pull most of the pieces together out-of-the-box, meaning we don’t need to reinvent the wheel for each customer and spend years creating a patchwork solution. Instead, we can focus on composing the right architecture of features or whipping up a new secret sauce to supercharge users. This way, I’m always creating software that makes my customers more uniquely able to do their jobs.
+
+Why did you choose this role vs. a traditional software engineer role?
+
+I chose to be a Forward Deployed Software Engineer because of the rapid cycle between creating solutions and seeing them in action. The instant feedback of iterating hand-in-hand with a customer means you can create something very impactful in a very short amount of time. For example, I recently worked on one of our COVID-19 response initiatives, which required meaningful solutions to be deployed and operational within days. Seeing first-hand the positive impact our software had on the decisions our clients were making was incredibly inspiring.
+
+I also like the unique mix of autonomy and unpredictability in the role. I’m given the opportunity to work on projects that interest me, and those projects always throw unique challenges my way; I’m constantly learning and adapting. For instance, despite having no prior exposure to the cyber space, upon joining Palantir I was immediately thrust into a large cyber project. To get up to speed, I needed to learn the ins-and-outs of Foundry’s cyber offering and discover the particular technical challenges facing the customer, all while gaining general cyber expertise. Talk about drinking from a fire hose!
+
+To meet the challenge, I leveraged mentors and the members of my team, spent a lot of time talking to customers (who know the subject matter best), and did some independent exploration. Now, although I’m not working on a cyber project anymore, I still frequently contribute to cyber initiatives across the company because of my newfound experience and interest.
+
+Do you still incorporate tenets of traditional software engineering in your day-to-day work?
+
+Absolutely. We support incredibly sensitive and important work at Palantir, and we must deploy software that works. The only way that happens is by applying rigorous software engineering principles in the field. Along with many other FDSEs, I often engage in engineering reviews, code reviews, deployability optimization, maintenance and monitoring of production systems, and other practices designed to help us deliver on this promise.
+
+FDSEs also have the key responsibility of sharing technical expertise from the field back to our business development and product development teams. While FDSEs typically configure software for a particular customer, we often find that our configuration solutions could prove beneficial for many other customers. In fact, some of our most valuable product additions originated in the field through this process!
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+By sharing the products and workflows we configure, we ensure that other FDSEs understand what already exists in the platform and give them license to compound on our work. For me, this means that after spending time working on cyber-related projects, I’ve been able to share my experience and information about the solutions I configured with new teams spinning up cyber work across the company. We now start from a baseline product that is more tailored and hardened to support effective cyber workflows.
+
+What’s a typical “day in the life” for you?
+
+These days, I work remotely full-time due to COVID-19, and I’ve gotten pretty used to the commute from my bed to my desk. I am currently working on a project for one of our U.S. Department of Defense customers, where I’m creating new functionality on top of our Gotham platform. Typically, a chunk of my day is spent designing, writing and testing workflows. Another portion is spent configuring Gotham to unlock new functionality within the platform. This could involve configuring new data models or working on stability improvements and upgrades. I also reserve some time each day for comms, emails, meetings and stand-ups. I generally try to limit the amount of time I spend in meetings by asking myself “Does this discussion have to be a meeting? And do I have to be there?” Most people at the company take a similar approach, and it leads to a situation where every meeting I attend ends up being a productive use of my time. The remainder of my day is spent on a variety of tasks: learning about other deployments, meeting new co-workers, or working on miscellaneous shared projects.
+
+Our team has done a great job of adapting to keep a healthy work-life balance since the COVID-19 outbreak began. We’re encouraged to take time off and make use of flexible schedules. Daily videoconference stand-ups often end in yoga or other physical activities designed to break up the day and get some blood pumping. Most days, I try to supplement this by going for a run or playing basketball.
+
+What are some of the technical challenges you encounter?
+
+Every FDSE tackles technical challenges on a day-to-day basis, though they can vary a lot depending on what project you are working on! Here are some examples of technical problems I’ve worked through during my time at Palantir:
+
+How do I build, scale and maintain a terabyte-scale data pipeline feeding a mission-critical operational workflow?
+How do I configure our platforms to support specific data and workflow access controls for our customer based on unique regulatory and compliance requirements? Does my solution encourage self-sufficient collaboration and discovery within the platform, unlocking additional value for the client? Is my solution flexible? Will it be resilient to modified access control requirements in the future?
+How do I design, build, test, deploy and maintain a unique workflow to allow a particular non-technical customer to visualize and interact with high-noise data? How can I generalize this feature to fold it into the base platform, so that other FDSEs and clients can benefit from my work?
+How do I investigate a production software outage, identify a root cause of the issue, deploy a fix, and monitor the stack for stability while coordinating communication between product teams, our deployment team, and the customer?
+
+This list is not exhaustive — I’ve encountered a variety of interesting and compelling challenges during my time here. The common denominator among all of these issues is that I was able to solve them on ambitious timelines by leveraging my existing expertise, Palantir’s tribal knowledge, and ingenuity.
+
+What’s the most challenging aspect of your role?
+
+Directing focus is challenging at times. Given the ever-changing landscape of our products’ capabilities and our clients’ needs, we are blessed with a near-infinite number of problems to be solved. I need to consistently identify the most valuable thing to be working on, regardless of my expertise or comfort level with the subject matter, and execute against it. This diligence is not easy to maintain, but has contributed hugely to my growth as an engineer.
+
+To wrap things up, what advice do you have for future software engineers?
+
+From a technical perspective, my advice is to learn to work with systems, architectures, and codebases you are not familiar with. I joined Palantir with a hardware engineering background; I had never worked with many common software tools like Spark or paradigms like micro-service architectures. I quickly realized that a base understanding of our platform, which is built on top of dozens of open source tools and Palantir-specific microservices, was critical. Even now, when configuring new features on my current project, I spend time reviewing, understanding and testing existing systems and code that I have never previously touched.
+
+More generally, find a mentor and invest in a relationship with them. Having someone in your corner who you can turn to for guidance or ask for help in navigating your career is invaluable. I have had a handful of fantastic mentors in my time at Palantir. Palantir does a good job of connecting you with an experienced Lead and mentors outside of your deployment team. Building solid relationships with them has meant that I have people to turn to for guidance, whether I am navigating team and customer dynamics, making a technical decision, or deciding on my next project.
+
+To learn more about open roles at Palantir and apply, visit our website.

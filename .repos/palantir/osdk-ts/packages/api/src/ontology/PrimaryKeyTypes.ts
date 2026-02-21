@@ -22,4 +22,4 @@ export type PrimaryKeyTypes =
   | "timestamp"
   | "short"
   | "long"
-  | "byte";
+  | "byte"

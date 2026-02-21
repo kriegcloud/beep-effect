@@ -1,0 +1,498 @@
+{
+  "repo": "palantir/conjure-typescript-runtime",
+  "repoUrl": "https://github.com/palantir/conjure-typescript-runtime",
+  "summary": "A lightweight, Promise-based HTTP client runtime library for browser environments that serves as the RPC transport layer for Conjure-generated TypeScript service clients. Published as the 'conjure-client' npm package, it wraps the Fetch API with Bearer token authentication, structured error handling (ConjureError with typed error categories), configurable retry with exponential backoff, user-agent tracking via a custom Fetch-User-Agent header, and content-type-aware request/response serialization supporting JSON, binary streams, multipart form data, URL-encoded forms, and plain text. The library defines the IHttpApiBridge interface that all Conjure-generated service classes depend on, making it the universal adapter between generated client code and actual HTTP transport.",
+  "ontologyConcepts": [],
+  "apiSurface": [
+    {
+      "name": "IHttpApiBridge",
+      "kind": "interface",
+      "signature": "interface IHttpApiBridge { callEndpoint<T>(parameters: IHttpEndpointOptions): Promise<T>; call<T>(serviceName, endpointName, method, endpointPath, data?, headers?, queryArguments?, pathArguments?, requestMediaType?, responseMediaType?): Promise<T>; }",
+      "description": "Core bridge interface that all Conjure-generated TypeScript service classes depend on. Defines two methods: callEndpoint (takes an options object) and call (takes positional parameters to reduce code size in generated clients). Every generated service constructor accepts an IHttpApiBridge and delegates all HTTP calls through it.",
+      "sourceFile": "packages/conjure-client/src/httpApiBridge.ts"
+    },
+    {
+      "name": "IHttpEndpointOptions",
+      "kind": "interface",
+      "signature": "interface IHttpEndpointOptions { serviceName?: string; endpointPath: string; endpointName?: string; headers?: Record<string, string|number|boolean|undefined|null>; method: string; requestMediaType?: MediaType; responseMediaType?: MediaType; pathArguments: any[]; queryArguments: any; data?: any; binaryAsStream?: boolean; }",
+      "description": "Configuration object for a single HTTP endpoint call. Contains the endpoint path template with {param} placeholders, HTTP method, path/query arguments for interpolation, request/response media types, optional headers, and body data. The serviceName and endpointName fields are metadata for logging only and do not affect the network request.",
+      "sourceFile": "packages/conjure-client/src/httpApiBridge.ts"
+    },
+    {
+      "name": "MediaType",
+      "kind": "enum",
+      "signature": "enum MediaType { APPLICATION_JSON = 'application/json', APPLICATION_OCTET_STREAM = 'application/octet-stream', APPLICATION_X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded', MULTIPART_FORM_DATA = 'multipart/form-data', TEXT_PLAIN = 'text/plain' }",
+      "description": "Enumeration of supported MIME types for request and response content negotiation. JSON is the default for both request and response when not specified. Octet-stream triggers binary handling (ReadableStream or Blob). Multipart form data omits the Content-Type header so the browser sets the form boundary automatically.",
+      "sourceFile": "packages/conjure-client/src/httpApiBridge.ts"
+    },
+    {
+      "name": "FetchBridge",
+      "kind": "class",
+      "signature": "class FetchBridge implements IHttpApiBridge",
+      "description": "The primary implementation of IHttpApiBridge, also exported as DefaultHttpApiBridge. Wraps the Fetch API to make HTTP requests with Bearer token auth, user-agent tracking, content-type-aware serialization/deserialization, and binary stream support. Constructor accepts baseUrl (string or supplier), userAgent (single or array of IUserAgent/suppliers), optional token (string, sync supplier, or async supplier), and optional custom fetch function.",
+      "sourceFile": "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+    },
+    {
+      "name": "IFetchBridgeParams",
+      "kind": "interface",
+      "signature": "interface IFetchBridgeParams { baseUrl: string | Supplier<string>; userAgent: IUserAgent | ReadonlyArray<IUserAgent | Supplier<IUserAgent | IUserAgent[]>>; token?: string | Supplier<string> | Supplier<Promise<string>>; fetch?: FetchFunction; }",
+      "description": "Configuration for FetchBridge construction. baseUrl and token support both static values and supplier functions for dynamic resolution. userAgent supports single agents, arrays, and supplier functions that return agents or arrays of agents. An optional custom fetch function can replace the global fetch for testing or Node.js usage.",
+      "sourceFile": "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+    },
+    {
+      "name": "ConjureError",
+      "kind": "class",
+      "signature": "class ConjureError<E> { readonly type: ConjureErrorType; readonly originalError?: any; readonly status?: number; readonly body?: string | E; }",
+      "description": "Typed error class wrapping all HTTP failures with categorized error types. Contains the error category (Network, Parse, Status, Other), the original error object, HTTP status code (when available), and the response body (when available). Provides toString() for structured JSON serialization of error details.",
+      "sourceFile": "packages/conjure-client/src/errors/error.ts"
+    },
+    {
+      "name": "ConjureErrorType",
+      "kind": "enum",
+      "signature": "enum ConjureErrorType { Network = 'NETWORK', Other = 'OTHER', Parse = 'PARSE', Status = 'STATUS' }",
+      "description": "Categorizes ConjureError instances: NETWORK for fetch TypeError (DNS, connectivity), PARSE for JSON parsing failures on response bodies, STATUS for non-ok HTTP responses (4xx/5xx), and OTHER for uncategorized errors. This classification enables callers to handle different failure modes distinctly.",
+      "sourceFile": "packages/conjure-client/src/errors/error.ts"
+    },
+    {
+      "name": "isConjureError",
+      "kind": "function",
+      "signature": "function isConjureError(error: unknown): error is ConjureError<unknown>",
+      "description": "Type guard for ConjureError that works across different module instances by checking both instanceof and constructor name on the prototype chain. Handles null/undefined safely.",
+      "sourceFile": "packages/conjure-client/src/errors/error.ts"
+    },
+    {
+      "name": "RetryingFetch",
+      "kind": "class",
+      "signature": "class RetryingFetch { constructor(delegate: FetchFunction, backoffStrategy: BackoffStrategy); get fetch(): FetchFunction; }",
+      "description": "Decorates a FetchFunction with retry logic. Retries only on HTTP 429 (Too Many Requests) and 503 (Service Unavailable) responses. Honors the Retry-After response header (max 60 seconds) when present, otherwise falls back to the configured BackoffStrategy. Does not retry on other error status codes or network errors.",
+      "sourceFile": "packages/conjure-client/src/fetchBridge/retryingFetch.ts"
+    },
+    {
+      "name": "exponentialBackoff",
+      "kind": "function",
+      "signature": "function exponentialBackoff(maxNumRetries: number, backoffSlotSizeMs: number): BackoffStrategy",
+      "description": "Creates an exponential backoff with full jitter strategy. For the c-th retry, randomly selects a delay from [0, backoffSlotSizeMs * 2^c). Returns undefined when maxNumRetries is reached to signal stop.",
+      "sourceFile": "packages/conjure-client/src/fetchBridge/retryingFetch.ts"
+    },
+    {
+      "name": "BackoffStrategy",
+      "kind": "type",
+      "signature": "type BackoffStrategy = (attempt: number) => number | undefined",
+      "description": "Function type for retry backoff strategies. Receives the zero-based attempt number and returns milliseconds to wait, or undefined to stop retrying.",
+      "sourceFile": "packages/conjure-client/src/fetchBridge/retryingFetch.ts"
+    },
+    {
+      "name": "IConjureResult",
+      "kind": "type",
+      "signature": "type IConjureResult<T, E> = IConjureSuccess<T> | IConjureFailure<E>",
+      "description": "Discriminated union result type for Conjure operations. IConjureSuccess has status 'success' with a result field. IConjureFailure has status 'failure' with a ConjureError field. Enables explicit success/failure handling without try/catch.",
+      "sourceFile": "packages/conjure-client/src/types/result.ts"
+    },
+    {
+      "name": "IUserAgent",
+      "kind": "interface",
+      "signature": "interface IUserAgent { productName: string; productVersion: string; comments?: string[]; }",
+      "description": "User agent descriptor following RFC 7231 format. Serialized as 'productName/productVersion (comment1; comment2)' and sent via the custom Fetch-User-Agent header. The conjure-typescript-runtime library automatically appends its own user agent to every request.",
+      "sourceFile": "packages/conjure-client/src/userAgent.ts"
+    },
+    {
+      "name": "FetchFunction",
+      "kind": "type",
+      "signature": "type FetchFunction = (url: string | Request, init?: RequestInit) => Promise<IFetchResponse>",
+      "description": "Type alias for a fetch-compatible function. Allows injecting custom fetch implementations (e.g., node-fetch with stream adapters, or RetryingFetch) into FetchBridge.",
+      "sourceFile": "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+    },
+    {
+      "name": "IFetchResponse",
+      "kind": "interface",
+      "signature": "interface IFetchResponse extends IFetchBody { readonly body: ReadableStream<Uint8Array> | null; readonly headers: Headers; readonly ok: boolean; readonly status: number; }",
+      "description": "Minimal abstraction of the Fetch API Response interface. Extends IFetchBody (json(), text(), blob() methods) with status, ok flag, headers, and optional ReadableStream body. Allows substitution of non-standard fetch implementations.",
+      "sourceFile": "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+    },
+    {
+      "name": "blobToReadableStream",
+      "kind": "function",
+      "signature": "function blobToReadableStream(blobPromise: Promise<Blob>): Promise<ReadableStream<Uint8Array>>",
+      "description": "Adapter that converts a Blob response to a ReadableStream for environments that do not support response.body. Uses native blob.stream() when MODERN env is set, otherwise uses a FileReader-based polyfill or the web-streams-polyfill ponyfill.",
+      "sourceFile": "packages/conjure-client/src/fetchBridge/blobReadableStreamAdapter.ts"
+    }
+  ],
+  "architecturePatterns": [
+    {
+      "pattern": "Bridge Pattern (IHttpApiBridge)",
+      "description": "The IHttpApiBridge interface decouples generated Conjure service clients from HTTP transport details. Generated service classes accept an IHttpApiBridge in their constructor and delegate all network calls through it. This allows different transport implementations (FetchBridge, RetryingFetch-wrapped bridges, custom bridges) to be swapped without changing generated code.",
+      "examples": [
+        "packages/conjure-client/src/httpApiBridge.ts",
+        "packages/conjure-client/src/fetchBridge/__tests__/conjureService.ts"
+      ]
+    },
+    {
+      "pattern": "Decorator Pattern (RetryingFetch)",
+      "description": "RetryingFetch wraps any FetchFunction with retry-on-429/503 behavior, implementing the same FetchFunction interface. It can be composed with FetchBridge by passing retryingFetch.fetch as the custom fetch parameter, creating a transparent retry layer.",
+      "examples": ["packages/conjure-client/src/fetchBridge/retryingFetch.ts"]
+    },
+    {
+      "pattern": "Supplier Functions for Dynamic Configuration",
+      "description": "Configuration values (baseUrl, token, userAgent) accept both static values and zero-argument supplier functions. The token supplier can even return a Promise for async token resolution. This enables dynamic token refresh, multi-tenant base URL routing, and per-request user agent updates without recreating the bridge.",
+      "examples": ["packages/conjure-client/src/fetchBridge/fetchBridge.ts"]
+    },
+    {
+      "pattern": "Bearer Token Authentication",
+      "description": "Authentication is handled via Bearer token in the Authorization header. The token is resolved at request time (supporting sync/async suppliers for token refresh). If no token is provided, the Authorization header is omitted entirely. Credentials mode is set to 'same-origin' for cookie-based session fallback.",
+      "examples": ["packages/conjure-client/src/fetchBridge/fetchBridge.ts"]
+    },
+    {
+      "pattern": "Content-Type Dispatch for Serialization",
+      "description": "Request body serialization and response deserialization are dispatched based on MediaType. JSON bodies use JSON.stringify/json(), binary uses passthrough/blob(), form-encoded uses query string encoding, multipart omits Content-Type for browser boundary injection. Response parsing checks Content-Type header to choose json(), blob(), or text() deserialization.",
+      "examples": ["packages/conjure-client/src/fetchBridge/fetchBridge.ts"]
+    },
+    {
+      "pattern": "URL Template Interpolation",
+      "description": "Endpoint paths use {param} placeholders that are sequentially replaced with URL-encoded path arguments. Query parameters are separately appended as an encoded query string. This matches the Conjure wire specification for parameterized endpoint paths.",
+      "examples": ["packages/conjure-client/src/fetchBridge/fetchBridge.ts"]
+    },
+    {
+      "pattern": "Structured Error Classification",
+      "description": "All errors are wrapped in ConjureError with a ConjureErrorType discriminant. TypeError from fetch becomes NETWORK, JSON parse failures become PARSE, non-ok HTTP responses become STATUS (preserving status code and response body), and all others become OTHER. The isConjureError type guard works across module boundaries.",
+      "examples": [
+        "packages/conjure-client/src/errors/error.ts",
+        "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+      ]
+    },
+    {
+      "pattern": "Exponential Backoff with Full Jitter",
+      "description": "Retry delays use the 'exponential backoff with full jitter' algorithm: for attempt c, delay is randomly chosen from [0, slotSize * 2^c). This reduces thundering herd effects. The Retry-After header takes precedence when present (capped at 60 seconds). Only HTTP 429 and 503 responses trigger retries.",
+      "examples": ["packages/conjure-client/src/fetchBridge/retryingFetch.ts"]
+    },
+    {
+      "pattern": "Custom Fetch-User-Agent Header",
+      "description": "Instead of overriding the standard User-Agent header (restricted by browsers), the library sends a custom 'Fetch-User-Agent' header formatted per RFC 7231 (productName/productVersion with optional comments). The conjure-typescript-runtime version is always appended. This enables server-side request attribution in Palantir service logs.",
+      "examples": [
+        "packages/conjure-client/src/userAgent.ts",
+        "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+      ]
+    },
+    {
+      "pattern": "Binary Streaming with Polyfill Fallback",
+      "description": "Binary responses (octet-stream, images, PDFs, Office docs, etc.) are returned as ReadableStream<Uint8Array> when binaryAsStream is true. If response.body is null (older browsers), falls back to a Blob-to-ReadableStream adapter using FileReader or the web-streams-polyfill ponyfill. Modern builds use native blob.stream().",
+      "examples": [
+        "packages/conjure-client/src/fetchBridge/blobReadableStreamAdapter.ts",
+        "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+      ]
+    },
+    {
+      "pattern": "Compact Call API for Code Size Reduction",
+      "description": "The IHttpApiBridge.call() method accepts positional parameters instead of an options object, reducing the total code size of generated clients by eliminating repeated field name strings. Generated code can choose either callEndpoint (readable) or call (compact) based on optimization preferences.",
+      "examples": [
+        "packages/conjure-client/src/httpApiBridge.ts",
+        "packages/conjure-client/src/fetchBridge/__tests__/conjureService.ts"
+      ]
+    }
+  ],
+  "typeDefinitions": [
+    {
+      "name": "IHttpEndpointOptions",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "serviceName",
+          "type": "string | undefined",
+          "description": "Conjure service name for logging; does not affect the HTTP request"
+        },
+        {
+          "name": "endpointPath",
+          "type": "string",
+          "description": "Path template with {param} placeholders, e.g. '/foo/{param1}/bar'"
+        },
+        {
+          "name": "endpointName",
+          "type": "string | undefined",
+          "description": "Conjure endpoint name for logging; does not affect the HTTP request"
+        },
+        {
+          "name": "headers",
+          "type": "Record<string, string | number | boolean | undefined | null> | undefined",
+          "description": "Additional HTTP headers; null/undefined values are filtered out, others are stringified"
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "description": "HTTP method (GET, POST, PUT, DELETE, etc.)"
+        },
+        {
+          "name": "requestMediaType",
+          "type": "MediaType | undefined",
+          "description": "MIME type of outgoing request body; defaults to application/json"
+        },
+        {
+          "name": "responseMediaType",
+          "type": "MediaType | undefined",
+          "description": "Expected MIME type of server response; defaults to application/json; sets Accept header"
+        },
+        {
+          "name": "pathArguments",
+          "type": "any[]",
+          "description": "Values sequentially interpolated into {param} placeholders in endpointPath, URL-encoded"
+        },
+        {
+          "name": "queryArguments",
+          "type": "Record<string, any>",
+          "description": "Key-value pairs appended as URL query string; arrays produce repeated keys; null values omitted"
+        },
+        {
+          "name": "data",
+          "type": "any | undefined",
+          "description": "Request body data; serialization depends on requestMediaType"
+        },
+        {
+          "name": "binaryAsStream",
+          "type": "boolean | undefined",
+          "description": "When true, binary responses return ReadableStream<Uint8Array> instead of Blob"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/httpApiBridge.ts"
+    },
+    {
+      "name": "ConjureError<E>",
+      "kind": "class",
+      "fields": [
+        {
+          "name": "type",
+          "type": "ConjureErrorType",
+          "description": "Error category: NETWORK, PARSE, STATUS, or OTHER"
+        },
+        {
+          "name": "originalError",
+          "type": "any | undefined",
+          "description": "The original caught error, if any"
+        },
+        {
+          "name": "status",
+          "type": "number | undefined",
+          "description": "HTTP status code, present for STATUS and PARSE errors"
+        },
+        {
+          "name": "body",
+          "type": "string | E | undefined",
+          "description": "Response body for STATUS errors; typed parameter E allows callers to specify expected error body shape"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/errors/error.ts"
+    },
+    {
+      "name": "IConjureSuccess<T>",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "status",
+          "type": "'success'",
+          "description": "Discriminant literal for success case"
+        },
+        {
+          "name": "result",
+          "type": "T",
+          "description": "The successful operation result"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/types/result.ts"
+    },
+    {
+      "name": "IConjureFailure<E>",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "status",
+          "type": "'failure'",
+          "description": "Discriminant literal for failure case"
+        },
+        {
+          "name": "error",
+          "type": "ConjureError<E>",
+          "description": "The typed Conjure error"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/types/result.ts"
+    },
+    {
+      "name": "IUserAgent",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "productName",
+          "type": "string",
+          "description": "Product name component of the user agent string"
+        },
+        {
+          "name": "productVersion",
+          "type": "string",
+          "description": "Product version component"
+        },
+        {
+          "name": "comments",
+          "type": "string[] | undefined",
+          "description": "RFC 7231 comment metadata; allowed characters: a-zA-Z0-9.-:_/ and space; joined with semicolons in parentheses"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/userAgent.ts"
+    },
+    {
+      "name": "IFetchBridgeParams",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "baseUrl",
+          "type": "string | Supplier<string>",
+          "description": "Base URL for all requests; supports dynamic resolution via supplier function"
+        },
+        {
+          "name": "userAgent",
+          "type": "IUserAgent | ReadonlyArray<IUserAgent | Supplier<IUserAgent | IUserAgent[]>>",
+          "description": "User agent(s) sent via Fetch-User-Agent header; supports static, array, and supplier patterns"
+        },
+        {
+          "name": "token",
+          "type": "string | Supplier<string> | Supplier<Promise<string>> | undefined",
+          "description": "Bearer token for Authorization header; supports static, sync supplier, and async supplier for token refresh"
+        },
+        {
+          "name": "fetch",
+          "type": "FetchFunction | undefined",
+          "description": "Optional custom fetch implementation; defaults to global fetch if not provided"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+    },
+    {
+      "name": "IFetchResponse",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "body",
+          "type": "ReadableStream<Uint8Array> | null",
+          "description": "Response body as a readable stream; null in older browsers"
+        },
+        {
+          "name": "headers",
+          "type": "Headers",
+          "description": "Response headers"
+        },
+        {
+          "name": "ok",
+          "type": "boolean",
+          "description": "True if status is in 200-299 range"
+        },
+        {
+          "name": "status",
+          "type": "number",
+          "description": "HTTP status code"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/fetchBridge/fetchBridge.ts"
+    },
+    {
+      "name": "MediaType",
+      "kind": "enum",
+      "fields": [
+        {
+          "name": "APPLICATION_JSON",
+          "type": "'application/json'",
+          "description": "JSON content type; default for both request and response"
+        },
+        {
+          "name": "APPLICATION_OCTET_STREAM",
+          "type": "'application/octet-stream'",
+          "description": "Binary content type; triggers stream/blob handling"
+        },
+        {
+          "name": "APPLICATION_X_WWW_FORM_URLENCODED",
+          "type": "'application/x-www-form-urlencoded'",
+          "description": "URL-encoded form data"
+        },
+        {
+          "name": "MULTIPART_FORM_DATA",
+          "type": "'multipart/form-data'",
+          "description": "Multipart form data; Content-Type header omitted to let browser set boundary"
+        },
+        {
+          "name": "TEXT_PLAIN",
+          "type": "'text/plain'",
+          "description": "Plain text; objects are rejected"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/httpApiBridge.ts"
+    },
+    {
+      "name": "ConjureErrorType",
+      "kind": "enum",
+      "fields": [
+        {
+          "name": "Network",
+          "type": "'NETWORK'",
+          "description": "fetch TypeError indicating DNS/connectivity/CORS failure"
+        },
+        {
+          "name": "Other",
+          "type": "'OTHER'",
+          "description": "Uncategorized errors"
+        },
+        {
+          "name": "Parse",
+          "type": "'PARSE'",
+          "description": "Response body parsing failure (e.g. invalid JSON)"
+        },
+        {
+          "name": "Status",
+          "type": "'STATUS'",
+          "description": "Non-ok HTTP status (4xx/5xx); body and status code preserved"
+        }
+      ],
+      "sourceFile": "packages/conjure-client/src/errors/error.ts"
+    }
+  ],
+  "dependencies": {
+    "runtime": {
+      "web-streams-polyfill": "^3.2.1"
+    },
+    "dev": {
+      "@blueprintjs/tslint-config": "^1.8.0",
+      "@rollup/plugin-replace": "5.0.2",
+      "@rollup/plugin-typescript": "^11.0.0",
+      "chai": "^4.2.0",
+      "es6-shim": "^0.35.5",
+      "express": "^4.16.4",
+      "fetch-mock": "^5.13.1",
+      "jest": "^24.9.0",
+      "karma": "^6.4.0",
+      "karma-chrome-launcher": "^3.1.1",
+      "karma-typescript": "^5.5.3",
+      "mocha": "^5.2.0",
+      "node-fetch": "^2.6.0",
+      "rollup": "^3.18.0",
+      "ts-jest": "^24.1.0",
+      "tslint": "^5.15.0",
+      "typescript": "^4.9.5"
+    },
+    "peerDependencies": {},
+    "palantirEcosystem": {
+      "conjure-typescript": "5.1.0",
+      "conjure-verification-server": "0.19.0"
+    }
+  },
+  "tags": [
+    "conjure-runtime",
+    "http-client",
+    "fetch-api",
+    "rpc-transport",
+    "bearer-auth",
+    "retry-logic",
+    "exponential-backoff",
+    "content-negotiation",
+    "binary-streaming",
+    "error-handling",
+    "browser-library",
+    "code-generation-runtime",
+    "bridge-pattern",
+    "user-agent-tracking",
+    "conjure-client"
+  ]
+}

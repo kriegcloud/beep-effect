@@ -1,0 +1,308 @@
+osquery Across the Enterprise
+Palantir
+Follow
+15 min read
+·
+Nov 13, 2017
+
+700
+
+2
+
+Press enter or click to view image in full size
+
+Every effective Incident Response team needs the ability to “ask a question” to a single or multiple hosts in the fleet and receive timely and accurate answers. Incident detection and response across thousands of hosts requires a deep understanding of actions and behavior across users, applications, and devices. While endpoint detection and protection tools can provide some lift out-of-the-box, deep insight and analysis of security-relevant events is crucial to detecting advanced threats. Palantir currently maintains an osquery deployment across Windows, Mac, and Linux systems to answer these questions.
+
+osquery is an open-source tool originally developed at Facebook that exposes operating system configuration data in the form of relational database tables. By issuing SQL-like queries against these tables, users can collect valuable data about the current state of the system as well as changes applied to it over time.
+
+The goal of this blog post is twofold: first, to provide configuration guidance for a multi-platform osquery deployment, and second to describe our open-source set of osquery configurations: https://github.com/palantir/osquery-configuration. The GitHub project provides the necessary building blocks and serves as a useful reference for organizations to rapidly evaluate and deploy osquery to a production environment. Our configuration represents a baseline security standard that can deliver immediate security outcomes for detection and response when used in conjunction with a centralized logging platform.
+
+In 2017, several notable public events occurred which necessitated rapid response and deep introspection of endpoint and application configuration:
+
+The public release of tools that allowed unskilled adversaries to exploit a previously unknown vulnerability in Windows systems
+A handful of Chrome extensions were hijacked to serve malicious code
+A release of CCleaner.exe was packaged with a malicious backdoor
+Multiple RCE vulnerabilities were discovered in dnsmasq; a widely and commonly used application
+
+Each of these incidents required the capability to ask a series of “questions” to the entirety of a fleet in order to identify impacted systems.
+
+Case study: dnsmasq vulnerabilities
+
+After Google’s security team published their blog detailing the numerous vulnerabilities with dnsmasq, our InfoSec team spun up an effort to remove dnsmasq wherever it was installed and upgrade dnsmasq to the patched version wherever it was still required. To make the situation more complex, some development teams were using a dnsmasq Docker image as part of their development workflow, so identifying dnsmasq installations would not be as simple as searching through installed programs. To ensure we were able to thoroughly inventory every host with any form of dnsmasq installed, we used four separate queries:
+
+Find dnsmasq installed via Homebrew or MacPorts by enumerating related launchd plist:
+SELECT * FROM launchd WHERE name LIKE '%dnsmasq%';
+Find running Docker containers with dnsmasq in the name:
+SELECT name FROM docker_containers WHERE name LIKE '%dnsmasq%';
+Discover hosts that are have dnsmasq listening on localhost port 53:
+SELECT DISTINCT(processes.name), process_open_sockets.local_port FROM processes JOIN process_open_sockets USING (pid) WHERE local_port=53 AND processes.name='dnsmasq';
+Find users who installed dnsmasq via Homebrew:
+SELECT * FROM homebrew_packages WHERE name='dnsmasq';
+
+This approach is much more thorough than simply enumerating installed packages on a host. Before we began, we already had two of these queries in place, and adding the two additional dnsmasq-specific queries only took a matter of minutes. Within 24 hours, we had a comprehensive list of hosts that had dnsmasq installed and could target them for removal/updates.
+
+osquery fundamentals
+Tables
+
+osquery collects and aggregates a system’s log and status information in a collection of pre-defined tables. Users can interrogate the system state with SQL queries against these tables. Queries are issued either through osqueryi, an interactive SQL environment, or osqueryd, a long-lived daemon for execution of repeated, scheduled queries.
+
+Here’s a sample query for the host name and CPU type of a given system:
+
+$ osqueryi
+osquery> SELECT hostname, cpu_type from system_info;
++---------------+----------+
+| hostname      | cpu_type |
++---------------+----------+
+| mycomputer    | x86_64   |
++---------------+----------+
+
+The list of available tables can be explored using the .tables command:
+
+osquery> .tables
+  => acpi_tables
+  => ad_config
+  => alf
+  => alf_exceptions
+  => alf_explicit_auths
+  <snip>
+
+Each table has a specified and https://osquery.io/schema/ schema, which identifies the available columns, column types, and descriptive details The schema of a table can be viewed using the .schema command:
+
+osquery> .schema os_version;
+CREATE TABLE os_version(
+`name` TEXT,
+ `version` TEXT,
+`major` INTEGER,
+`minor` INTEGER,
+`patch` INTEGER,
+`build` TEXT,
+`platform` TEXT,
+`platform_like` TEXT,
+`codename` TEXT
+);
+
+In addition to simple single-table queries, osquery can aggregate and correlate information across multiple tables, for example using the SQL JOIN command:
+
+osquery> SELECT hash.md5, path, file.filename, file.uid, file.gid 
+         FROM hash 
+         JOIN file USING (path) 
+         WHERE path='/bin/ls';
++---------------------------------+---------+----------+-----+-----+
+| md5                             | path    | filename | uid | gid |
++---------------------------------+---------+----------+-----+-----+
+| 528722ae3e3e6087b453560e8d025f76| /bin/ls | ls       | 0   | 0   |
++---------------------------------+---------+----------+-----+-----+
+Event-based tables
+
+The contents of standard tables as described above are populated when a query executes against the table. This model makes it hard to monitor system properties continually. For example, maintaining a list of running processes over time would require a user to schedule a query of the form SELECT * FROM processes at short intervals. Even then, short-lived processes might fall through the cracks.
+
+Event-based tables address this shortcoming by collecting and storing events in near real-time. These tables ensure that events which occurr between the defined query interval are collected in the table and purged based on a user-defined expiration option. Any osquery table that ends with _events is an event-based table, for example file_events, hardware_events, and user_events. The event expiration semantics is described in the osquery documentation.
+
+Queries and logging
+
+osqueryd is the daemonized version of osqueryi, and is used for running scheduled queries. In a standard configuration, you provide osqueryd with a configuration file containing a list of queries together with a schedule. Resultant events are then logged to the filesystem. Here is an example configuration file:
+
+Press enter or click to view image in full size
+
+osquery supports three different ways of logging events depending on the desired functionality. These logging types are:
+
+Differential: Initial results are cached and future queries will only report changes since the last query.
+Differential (ignore removals): Same as differential except that only additions to the table will be reported
+Snapshot: Query results are not cached and each query will report the current state at the time of the query.
+Differential queries
+
+The default logging method for osquery is differential and results from these queries are written to osqueryd.results.log. Differential queries are ideal for understanding when an event has occurred and what changed. For example, the following scheduled query determines the version of the currently installed operating system:
+
+Sample Configuration Query:
+"os_version": {
+  "query": "SELECT name, version FROM os_version;",
+  "interval": 86400,
+  "description": "Record the version of the OS when an upgrade occurs"
+  }
+Sample Query Results:
+{    
+   action: removed   
+   calendarTime: Wed Jan 1 12:30:00 2017 UTC    
+   columns:    {       
+     name: Microsoft Windows 7 Enterprise       
+     version: 6.1.7601    
+  }    
+   hostIdentifier: sample-hostname    
+   name: os_version       
+}
+----------------------------------------------
+{    
+   action: added    
+   calendarTime: Wed Jan 1 12:30:00 2017 UTC    
+   columns:    {       
+     name: Microsoft Windows 10 Enterprise       
+     version: 10.0.14393    
+  }    
+   hostIdentifier: sample-hostname    
+   name: os_version       
+}
+
+The first time this query runs it will record the current operating system version because it has no prior data from the os_versions table to compare the results against. Even though this query is scheduled to run every 86400 seconds (24 hours), it will only generate an event when the operating system name or version changes. When an upgrade occurs, two log events will be generated: the old operating system version will be logged with the action field set to “removed” and the new version with the action field set to “added”.
+
+This differential query is useful for determining when a specific host upgraded their operating system and to what version, but does not provide as much utility in determining the operating system version for a given point in time. If your osquery logs are centralized, you may have to search far back in time through the logs to find the most recent operating system version upgrade event for each host in order to determine which operating system each host is currently running.
+
+Snapshot queries
+
+Snapshot queries describe the state of a table at a specific point in time. Results from these queries are written to a separate log file: osqueryd.snapshots.log. Enabling snapshots on a query will return the full contents of a table every time the query runs, regardless of whether or not the results have changed over time. For example, the following scheduled query determines the version of the currently installed operating system:
+
+Sample Configuration Query:
+"os_version_snapshot": {
+  "query": "SELECT name, version FROM os_version;",
+  "interval": 86400,
+  "description": "Record the currently installed OS version",
+  "snapshot": true
+  }
+  
+Sample Query Result:
+{    
+   action: snapshot    
+   calendarTime: Wed Jan 1 12:30:00 2017 UTC     
+   hostIdentifier: sample-hostname    
+   name: os_version_snapshot    
+   snapshot:[       
+    {        
+       name: Microsoft Windows 10 Enterprise    
+       version: 10.0.14393    
+    }    
+   ]       
+}
+
+With snapshots, the operating system name and version is recorded every 86400 seconds (24 hours). Because the results of this query are recorded daily, searching for the current version of the operating system for a host only requires a search against the last 24 hours worth of snapshot logs. At any given time, you can query the last 24 hours of snapshot logs in your centralized logging platform for results from this query and view an up-to-date dataset containing the operating system name and version for your host(s).
+
+Query packs
+
+Query packs are collections of pre-defined queries that often fit into a common category. Some of these packs, such as the osx-attacks pack, come packaged with the osquery project packs. As part of this blog post, we are releasing new query packs that we have developed over the past year. Packs like unwanted-chrome-extensions have been merged into the core osquery project and additional queries are being contributed to the windows-attack pack. Today, our GitHub repository contains the following query packs:
+
+security-tooling-checks: Generate events when endpoint security tool(s) are found to not be running on a host
+windows-application-security: Log the value of sensitive registry keys on Windows that could disable security controls if modified
+windows-compliance: Log the value of registry keys related to core operating system functions like error reporting, logging, and updates
+windows-registry-monitoring: Ensure sensitive registry keys exist and validate that their current values match expected values. Any events triggered by these queries require follow up investigation.
+
+Some of the queries in these packs are tailored to our environment, but we hope that people are able to use them as a reference when building out their own configurations.
+
+Auditing process and socket events
+
+One of the more powerful capabilities of osquery is the support for native auditing of all processes and socket events on Linux using the kernel’s audit framework. A common misconception is that osquery auditing requires auditd to be installed. However, the documentation states:
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Auditing does NOT require any audit configuration or auditd; actually, auditd should not be running if using osquery’s process auditing. This creates a bit of confusion since audit, auditd, and libaudit are ambiguous — osquery only uses the audit features in the kernel.
+
+At a high level, auditing works as follows:
+
+osquery auditing mode is enabled via the —nodisable_audit and
+-audit_allow_config=true flags
+Audit rules are automatically configured by osquery and can be viewed using the auditctl utility
+osqueryd consumes audit events generated by the kernel audit subsystem via the audit netlink socket
+Incoming events are populated into event-based tables for consumption
+
+At the time of writing, osquery only requires 3 different syscall audit rules to be enabled for both process and network auditing: execve for process events, and bind & connect for socket events. When process and socket auditing is enabled, results will populate into the process_events and socket_events tables respectively. A quick overview of what these events look like in osqueryi is as follows. (Note: ensure osqueryd is not running while enabling audit mode in osqueryi.)
+
+# osqueryctl stop
+# osqueryi --nodisable_audit --nodisable_events --audit_allow_config=true --audit_persist=true --audit_allow_sockets --logger_plugin=filesystem --events_expiry=1
+osquery> select pid, path, cmdline, auid from process_events;
++-------+-----------------+-------------------------+------------+
+| pid   | path            | cmdline                 | auid       | 
++-------+-----------------+-------------------------+------------+
+| 23548 | /usr/bin/id     | id                      | 500        |
+| 23557 | /usr/bin/whoami | whoami                  | 500        |
+| 23586 | /usr/bin/curl   | curl https://google.com | 500        |
++-------+-----------------+-------------------------+------------+
+osquery> select action, pid, path, remote_address, remote_port from socket_events;
++---------+-------+---------------+----------------+-------------+
+| action  | pid   | path          | remote_address | remote_port |      
++---------+-------+---------------+----------------+-------------+
+| connect | 23586 | /usr/bin/curl | 8.8.8.8        | 53          |
+| connect | 23586 | /usr/bin/curl | 172.217.6.78   | 443         |
++---------+-------+---------------+----------------+-------------+
+Reducing logging volume
+
+Consider using the following methods to reduce the overall volume of logs generated by osquery in audit mode:
+
+Cherry pick the columns desired for process and socket events. Shrinking each individual process and socket event by excluding certain columns helps reduce the total amount of data recorded without sacrificing utility.
+Filter out process events generated by other monitoring tools that generate a large volume of events.
+Filter out high-volume process events by creating path and cmdline filters for entries that provide little or no security or forensic value (i.e. date, tr, head).
+Filter out socket events where the remote_address column contains localhost, RFC3927, and loopback addresses.
+
+See our server configuration for examples.
+
+Auditing performance considerations
+
+At Palantir, we process approximately 1.6 billion events from osquery in production each day. It is important to understand that osquery auditing can result in performance degradation on systems. In our early testing, we encountered a few different scenarios where systems that were under high load started to lock up and effectively ground to a halt. After substantial debugging and analysis, most issues were identified and resulted in one of three root causes:
+
+Rsyslog can completely lock up in certain cases on versions older than 8.26
+Old kernel versions are missing patches for audit to prevent lockups
+The Linux kernel audit code is not always robust
+
+Thanks to the rapid response in implementing fixes by the osquery development team, substantial performance gains were implemented between versions 2.5.0 and 2.8.0. Having process and network audit logs from sensitive hosts provides an invaluable source of information for incident response and a great foundation for writing host-based detection rules.
+
+Deployment overview
+
+While planning our deployment to corporate Linux servers, we made the decision to manage our osquery configuration data using a Git repository. CircleCI is connected to the repository to ensure the configurations are valid and well-formed. After the initial checks have passed, we push the new changes to a selection of non-critical staging servers. After the configuration changes have been validated and we ensure that no performance regressions have occurred, we then push the updated configuration to production servers using a configuration management tool.
+
+Press enter or click to view image in full size
+Managing osquery endpoints with fleet
+
+While planning the deployment of osquery to our employees’ workstations, we recognized that one of the primary challenges we had to address was how to offload osquery logs from the hosts’ filesystems into our centralized logging platform. Around the same time that we were looking for solutions to this problem, Kolide began offering a free and open source product called Fleet. Fleet is a server that allows users to manage a fleet of osquery agents that can natively connect to it via osquery’s built in TLS client capabilities. Instead of having to manage configuration files and forward logs on each endpoint, osquery daemons that are connected to Fleet via TLS can be configured to receive their configuration from the Fleet server and in turn forward the resulting osquery logs. Some advantages of this model are:
+
+Fleet provides a single place where you can view all of your currently enrolled osquery agents
+We can run ad-hoc queries against the entire fleet at any given time
+Queries become active as soon as they are added to a pack
+
+This is certainly not an exhaustive list of Fleet’s features, but those areas provided the most lift and benefit for our specific deployment scenario.
+
+osquery on Windows
+
+osquery on Windows provides powerful introspection into the registry, WMI, and many other areas that were previously difficult to monitor with a single tool. Instead of attempting to replace existing endpoint security tooling, it serves as the perfect lightweight companion to provide visibility into areas of the operating system that are often ignored by other solutions.
+
+Registry monitoring
+
+While many tools exist to generate events when registry keys are modified, few of them allow you to customize the keys that you want to monitor and, more importantly, check whether or not the key(s) even exist on the host. While configuring monitoring, we quickly realized that it’s not enough to simply report on changes to keys; it’s also important to ensure the keys that you are attempting to monitor exist to begin with. When monitoring the registry, there are essentially two different scenarios we want to be on the lookout for:
+
+A registry key is set by our organization to a specific value and we want to know if that value changes.
+- Example: The HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit\ProcessCreationIncludeCmdLine_Enabled registry key should always be set to 1 to enable command-line auditing. We would like to know if that key ever has a value that is not equal to 1.
+- However, it is not enough to monitor changes to the key. We would also like to know if there is ever a point in time where the key does not exist on a host. That would indicate that it never got created (misconfiguration) or was deleted at some point (possible attacker activity).
+A registry key that does not exist by default, but gets created by an attacker.
+- Example: The key: HKLM\System\CurrentControlSet\Control\CrashControl\SendAlert does not exist by default in Windows. However, if it is created and set to a value of zero, it can suppress crash notifications from making it into the Windows system event log. Attackers or malware will sometime create this key to lower the likelihood of being caught.
+- We can create a query to notify us if we ever discover that this key exists or gets created on a host
+
+osquery’s registry table allows us to see the entire fleet’s registry values at any given point in time via snapshot queries. These registry snapshots make outlier analysis absolutely trivial. Additionally, the registry table is also flexible enough for a user to be able to check for the existence or non-existence of a key before attempting to check its value.
+
+Autoruns — “Malware can hide, but it must run.”
+
+Microsoft refers to these items as Autostart Extensibility Points, or ASEPs. These are the items in the Windows operating system that run automatically without intentionally being started by a user. They include drivers, codecs, registry keys, and many other areas of the operating system, and are an extremely common way for malware to establish persistence on a host. The autoexec table contains a collection of registry keys, services, scheduled tasks and other artifacts to assist you in identifying and cataloging all ASEPs on a system. Unfortunately, there are currently ASEPs that exist in Windows that osquery cannot yet query such as codecs, shell extensions, etc. The autoexec table is a great starting point, but isn't quite comprehensive for enumerating all Windows ASEPs yet.
+
+If you're looking for a way to programmatically catalog and log ASEPs using Sysinternals Autoruns, take a moment to check out AutorunsToWinEventLog - a small script we wrote specifically for this purpose.
+
+Enabling threat hunting
+
+One feature of a mature information security organization is the ability to proactively search through network and configuration data with the goal of identifying events or misconfigurations that would be indicative of malicious activity. This process is commonly referred to as “threat hunting” and generally a prerequisite for performing a quality “hunt” is having a high degree of visibility and introspection into your network and endpoints. osquery is invaluable for generating some of the datasets that allow you to answer questions that were previously difficult to answer due to the challenge of obtaining the datasets required to answer them. Consider how difficult it would be to gather the following datasets across hundreds or thousands of hosts without osquery:
+
+The names and SHA256 hashes for active MacOS kernel extensions that are signed by an authority other than Apple
+Every installed crontab entry for each user of every MacOS and Linux-based system
+All plists loaded in launchd that are marked as active and start an application located under the /Users/ directory on MacOS hosts
+The hostnames of all hosts that have had a USB device with a specific serial number plugged in at some point in time
+
+Another effective strategy is to use osquery for basic outlier analysis. For example, in production environments with rare manual configuration, it is expected that hosts are fairly homogeneous and have the same set of crontab entries and kernel modules installed. By collecting this data from production hosts, it’s simple to use a centralized logging platform filter out the crontab entries and kernel modules that appear on the majority of hosts. The remaining outliers can be examined to determine why they exist in an environment that is otherwise homogeneous. This example is somewhat over-simplified for brevity, but basic outlier analysis can be extremely powerful for identifying malicious persistence items across different operating systems.
+
+When a tool exists that enables and simplifies data gathering to this degree, imagination starts to become the limiting factor when hunting for badness. For further ideas and hunt inspiration, use the Mitre ATT&CK Matrix to help scope hunting criteria. Hunts that conclude by identifying misconfigurations rather than malicious activity should not be considered a failure: remediating those misconfigurations may prevent or limit future breaches!
+
+Further reading and acknowledgements
+
+We would like to extend thanks to the core developers and third-party contributors of the osquery project for their contributions to the InfoSec community.
+
+https://osquery.io/community/
+https://blog.kolide.com/monitoring-macos-hosts-with-osquery-ba5dcc83122d
+https://blog.trailofbits.com/2017/10/10/tracking-a-stolen-code-signing-certificate-with-osquery/
+
+Authors
+Chris L.

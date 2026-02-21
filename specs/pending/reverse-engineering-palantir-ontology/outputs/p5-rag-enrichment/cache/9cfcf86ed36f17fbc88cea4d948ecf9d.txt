@@ -1,0 +1,79 @@
+Training Track - Frontend & OSDK Developer 
+
+ Courses
+
+ Tracks
+
+ Community
+
+ Sign In 
+
+We are actively investing in and evolving this Training Track and the in-platform Training App! If you have any feedback on either of these, please reach out to training-feedback@palantir.com 
+
+Training Track
+
+Frontend & OSDK Developer
+
+Overview
+
+Frontend & OSDK Developers leverage the Ontology Software Development Kit (Ontology SDK) to get the full power of the Ontology directly in whatever custom frontend or backend they&rsquo;re developing. By treating Foundry as a backend, these users can leverage the Ontology's robust ability to perform high-scale queries and Foundry writeback alongside granular governance controls to accelerate the process of securely developing applications. You can generate the Ontology SDK with Developer Console, a new portal for creating and managing applications using Palantir APIs. You can also use Developer Console to optionally host your custom React frontends, as well. This training track will enable you to learn the core concepts of Ontology and gain hands-on experience building a custom React application hosted in Foundry that can read and write data from the Ontology using OSDK.
+
+Starting from Scratch?
+
+Use the resources below for an introduction to core Frontend & OSDK Developer concepts.
+
+ course 
+
+Speedrun: Your first End-to-End Workflow
+
+Build your first end-to-end workflow in under 60 minutes
+
+ Step 1 
+
+ course 
+
+Deep Dive: Creating your first Ontology
+
+Learn how to build in Ontology, create new objects, establish object relationships and use visualization tools to uncover insights in your Ontology.
+
+ Step 2 
+
+ example 
+
+Getting Started with Ontology SDK (OSDK)
+
+Learn how to create your very own To Do application utilizing the power of the Ontology Software Development Kit (OSDK).
+
+ Step 3 
+
+Advanced Content
+
+Coming soon!
+
+Additional Resources
+
+ docs 
+
+Ontology SDK Overview
+
+The Ontology Software Development Kit (SDK) allows you to access the full power of the Ontology directly from your development environment.
+
+ video 
+
+Palantir Developers YouTube: The Ontology SDK
+
+How to deploy the Ontology Software Development Kit (OSDK) to generate a custom SDK for your business and build AI-powered applications
+
+Partner-Provided Material
+
+ video 
+
+Ontologize: Speedrun Your First End-to-End Workflow
+
+In this tutorial, we cover the Speedrun: Your First End-to-End Workflow lesson.
+
+ video 
+
+Ontologize: Deep Dive Your first Ontology
+
+In this tutorial, we cover the Deep Dive: Build your first Ontology lesson

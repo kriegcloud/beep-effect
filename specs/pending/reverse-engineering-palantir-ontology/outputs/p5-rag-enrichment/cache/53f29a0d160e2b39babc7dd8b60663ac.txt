@@ -1,0 +1,51 @@
+Introducing object type groups in the Ontology - Inside the Product - Palantir Developer Community 
+
+ Introducing object type groups in the Ontology 
+
+ Inside the Product 
+
+ ontology-management 
+
+ krandoing 
+
+ June 5, 2024, 6:18am
+
+ 1 
+
+ Introducing object type groups in the Ontology 
+
+Rather than tagging objects directly, builders can now utilize a fully-featured Ontology primitive called groups to classify object types. Groups make it easier to search for objects and improve the legibility of complex ontologies.
+
+ New group features
+
+Group metadata can now be modified from the new Groups menu, accessible from the left-hand navigation bar in Ontology Manager. In addition, all groups will now be discoverable to any user that can view the Ontology . This change aligns group visibility with other Ontology primitives to increase clarity and transparency in governance.
+
+ otg1 2550×1545 257 KB 
+
+ View and modify object type groups from the Ontology Manager 
+
+Groups can be added or removed as part of object type configuration in Ontology Manager. Groups are also searchable and filterable in Ontology Manager, and are used in the Object Explorer Overview page to categorize object types.
+
+ otg2 2550×1355 342 KB 
+
+ Add groups as part of object type configuration 
+
+ Legacy groups
+
+Some legacy groups were not eligible for automatic migration. In these cases, Ontology owners were notified via an Upgrade Assistant intervention that manual action was necessary.
+
+As of May 22 2024, legacy groups that could not be safely migrated were hidden from operational users across all applications such as Workshop and Object Explorer. To provide backward compatibility, the names of legacy groups remain stored as type class metadata on object types.
+
+Ontology owners may continue to manually migrate these hidden, legacy groups using Ontology Manager. To do this, navigate to the Ontology Configuration menu in the bottom left corner and select Approve all Groups for migration .
+
+ otg3 1632×1210 160 KB 
+
+ Some legacy groups require manual migration to unlock new features 
+
+ pwest-northslope 
+
+ April 30, 2025, 9:50pm
+
+ 2 
+
+Is it possible to include many<>many links in an ontology group?

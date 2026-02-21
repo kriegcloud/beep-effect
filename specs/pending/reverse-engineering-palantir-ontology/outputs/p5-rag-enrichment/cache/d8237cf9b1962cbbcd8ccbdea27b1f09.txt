@@ -1,0 +1,84 @@
+Slate • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Use case development Slate Overview 
+
+ Slate
+
+ Slate enables application developers (builders) to construct dynamic and responsive applications with a custom design using a drag-and-drop interface, reducing development time and cost. With minimal coding skills, developers can quickly create operational applications, interactive dashboards and custom landing pages with a custom style.
+
+Customize the style of your application using CSS, giving you the ability to create a unique experience for your users that aligns with your corporate identity or lets you experiment with new designs. With Slate, everything you see can be changed, from the background color of the canvas to the font and border radius of a button.
+
+With Slate, builders can also build applications accessible to the public Internet without the need to configure servers, DNS, or authentication, allowing individuals without Foundry accounts to upload/submit data into Foundry, subject to validation logic and other safety measures.
+
+Seamlessly leverage the Ontology , using object data, functions and Actions along with data from sources external to Foundry (for example, databases and APIs).
+
+If you're new to Slate, start by familiarizing yourself with the interface and learning about managing Slate applications .
+
+ ← 
+ PREVIOUS Workshop / Mobile / Widget: Current Location Manager 
+
+ NEXT Navigation 
+ →

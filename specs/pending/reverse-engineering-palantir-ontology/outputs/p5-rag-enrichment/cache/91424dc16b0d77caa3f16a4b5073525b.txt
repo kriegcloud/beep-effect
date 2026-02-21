@@ -1,0 +1,138 @@
+Object and link types • Properties • Metadata reference • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Object and link types Properties Metadata reference 
+
+ Metadata reference
+
+A property is represented in the Ontology by the following metadata:
+
+ ID: A unique identifier of the property, primarily used to reference the property when configuring an application. For example, start-date may be the ID of the start date property.
+
+ Display name: The name shown to anyone accessing property values for this property in user applications. For example, the display name for the start date property may be Start date .
+
+ Description: Explanatory text about the property that anyone can read in user applications. For example, the description of the start date property may be The day the employee began new hire training .
+
+ RID: An automatically generated unique identifier for every resource in Foundry. A property’s RID will be referenced in error messages across the platform.
+
+ Status: A signal to users and other Ontology builders about where in the development process the property stands. It can be active , experimental , or deprecated . By default, the start date property will have status experimental . Read more about statuses .
+
+ API name: The name used when referring to the property programmatically in code. For example, the API name of the start date property may be startDate . Read more about API names .
+
+ Keys: An indication of whether the property is the object type’s title key or primary key.
+
+The title key is the property that acts as a display name for objects of this type. For example, setting the full name property as the title key of the Employee object type will use the values of that property, such as the notional employees “Melissa Chang” and “Diego Rodriguez” as the display names for each respective Employee object.
+
+The primary key is the property that acts as a unique identifier for each instance of an object type, meaning that each row in the backing datasources must have a different value for this property. For example, the value of the employee number property may be used to identify “Melissa Chang” as a unique employee within the organization.
+
+ Base type: Indicates the type of values for this property and determines the set of operations available in user applications. For example, the start date property will have base type date . User applications will allow you to configure a timeline widget with this property.
+
+ Value formatting: Depending on the base type of the property, numeric formatting, date and time formatting, user ID and resource ID formatting are available to apply to the property, transforming its raw values into more readable versions in user applications. Read more about value formatting .
+
+ Conditional formatting: Rules set on a property that dictate how that property value will render (e.g coloring, alignment, etc.) in user facing applications. For example, you may set a rule on the full name property that colors its values green if the value of the start date property was less than 2 weeks ago, in order to indicate a new hire in user applications. Read more about conditional formatting .
+
+ Type classes: Additional metadata that are interpreted by user applications. Read more about type classes .
+
+ Render hints: Indications to user applications about how to render the property that may be different than most properties of the same base type. Many render hints can be used to impact the performance of reindexes of the object type the property is defined on. For example, if you don’t expect any users to search or sort on the start date property in user applications, you can deselect the searchable and sortable render hints and improve the reindex performance of the Employee object type. Read more about render hints .
+
+ Visibility: An indication to user applications for how prominently to display the property. A prominent property will lead applications to show this property first to users. A hidden property will not appear in user applications. By default, the start date property will have visibility normal .
+
+ Learn more about creating and configuring properties in the Ontology and about validation requirements for property metadata. 
+
+ Property base types with limited support
+
+Some property base types have limited support. These types are indicated with the Limited support tag which is visible in the property base type picker.
+
+ byte :
+
+Properties of this type cannot be used within action types.
+
+ decimal :
+
+Properties of this type cannot be used within action types as the precision cannot be guaranteed when updating this data type due to the conversion between JSON and Java.
+
+This type is also not supported in Object Storage V2.
+
+ float :
+
+Properties of this type cannot be used within action types.
+
+ short :
+
+Properties of this type cannot be used within action types.
+
+ vector :
+
+Vectors can only be queried by KNN .
+
+The max vector dimension is 2048.
+
+For more information on the limitations of property base types in action types, see the documentation on supported property types .
+
+ ← 
+ PREVIOUS Add conditional formatting 
+
+ NEXT Edit-only properties 
+ →

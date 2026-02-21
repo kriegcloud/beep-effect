@@ -1,0 +1,2151 @@
+palantir
+
+ / 
+
+ foundry-platform-python 
+
+ Public 
+
+ Notifications
+ You must be signed in to change notification settings 
+
+ Fork
+ 30 
+
+ Star
+ 129 
+
+ The official Python SDK for the Foundry API
+
+ www.palantir.com/docs/foundry/api 
+
+License
+
+ Apache-2.0 license
+
+ 129 
+ stars
+
+ 30 
+ forks
+
+ Branches 
+
+ Tags 
+
+ Activity 
+
+ Star
+
+ Notifications
+ You must be signed in to change notification settings 
+
+palantir/foundry-platform-python
+
+   develop 
+
+ Branches 
+ Tags 
+
+ Go to file 
+
+ Code 
+
+ Open more actions menu 
+
+Folders and files
+
+ Name Name 
+ Last commit message 
+
+ Last commit date 
+
+Latest commit
+
+History
+
+ 448 Commits 
+
+ 448 Commits 
+
+ .circleci 
+
+ .circleci 
+
+ .github 
+
+ .github 
+
+ assets/ docs_examples 
+
+ assets/ docs_examples 
+
+ changelog 
+
+ changelog 
+
+ docs-snippets-npm 
+
+ docs-snippets-npm 
+
+ docs 
+
+ docs 
+
+ foundry_sdk 
+
+ foundry_sdk 
+
+ scripts 
+
+ scripts 
+
+ tests 
+
+ tests 
+
+ .bulldozer.yml 
+
+ .bulldozer.yml 
+
+ .changelog.yml 
+
+ .changelog.yml 
+
+ .excavator.yml 
+
+ .excavator.yml 
+
+ .gitignore 
+
+ .gitignore 
+
+ LICENSE 
+
+ LICENSE 
+
+ Makefile 
+
+ Makefile 
+
+ README.md 
+
+ README.md 
+
+ config.json 
+
+ config.json 
+
+ pyproject.toml 
+
+ pyproject.toml 
+
+ tox.ini 
+
+ tox.ini 
+
+ View all files 
+
+Repository files navigation
+
+Foundry Platform SDK
+
+The Foundry Platform SDK is a Python SDK built on top of the Foundry API.
+Review Foundry API documentation for more details.
+
+ Note
+
+This Python package is automatically generated based on the Foundry API specification.
+
+Gotham Platform SDK vs. Foundry Platform SDK vs. Ontology SDK
+
+Palantir provides two platform APIs for interacting with the Gotham and Foundry platforms. Each has a corresponding Software Development Kit (SDK). There is also the OSDK for interacting with Foundry ontologies. Make sure to choose the correct SDK for your use case. As a general rule of thumb, any applications which leverage the Ontology should use the Ontology SDK over the Foundry platform SDK for a superior development experience.
+
+ Important
+
+Make sure to understand the difference between the Foundry, Gotham, and Ontology SDKs. Review this section before continuing with the installation of this library.
+
+Ontology SDK
+
+The Ontology SDK allows you to access the full power of the Ontology directly from your development environment. You can generate the Ontology SDK using the Developer Console, a portal for creating and managing applications using Palantir APIs. Review the Ontology SDK documentation for more information.
+
+Foundry Platform SDK
+
+The Foundry Platform Software Development Kit (SDK) is generated from the Foundry API specification
+file. The intention of this SDK is to encompass endpoints related to interacting
+with the Foundry platform itself. Although there are Ontology services included by this SDK, this SDK surfaces endpoints
+for interacting with Ontological resources such as object types, link types, and action types. In contrast, the OSDK allows you to interact with objects, links and Actions (for example, querying your objects, applying an action).
+
+Gotham Platform SDK
+
+The Gotham Platform Software Development Kit (SDK) is generated from the Gotham API specification
+file. The intention of this SDK is to encompass endpoints related to interacting
+with the Gotham platform itself. This includes Gotham apps and data, such as Gaia, Target Workbench, and geotemporal data.
+
+Installation
+
+You can install the Python package using pip :
+
+pip install foundry-platform-sdk 
+
+API Versioning
+
+Every endpoint of the Foundry API is versioned using a version number that appears in the URL. For example,
+v1 endpoints look like this:
+
+ https://<hostname>/api/v1/...
+
+This SDK exposes several clients, one for each major version of the API. The latest major version of the
+SDK is v2 and is exposed using the FoundryClient located in the
+ foundry_sdk package.
+
+ from foundry_sdk import FoundryClient 
+
+For other major versions, you must import that specific client from a submodule. For example, to
+import the v2 client from a sub-module you would import it like this:
+
+ from foundry_sdk . v2 import FoundryClient 
+
+More information about how the API is versioned can be found here .
+
+Authorization and client initalization
+
+There are two options for authorizing the SDK.
+
+User token
+
+ Warning
+
+User tokens are associated with your personal user account and must not be used in
+production applications or committed to shared or public code repositories. We recommend
+you store test API tokens as environment variables during development. For authorizing
+production applications, you should register an OAuth2 application (see
+ OAuth2 Client below for more details).
+
+You can pass in a user token as an arguments when initializing the UserTokenAuth :
+
+ import foundry_sdk 
+
+ client = foundry_sdk . FoundryClient (
+ auth = foundry_sdk . UserTokenAuth ( os . environ [ "BEARER_TOKEN" ]),
+ hostname = "example.palantirfoundry.com" ,
+) 
+
+For convenience, the auth and hostname can also be set using environmental or context variables.
+The auth and hostname parameters are set (in order of precedence) by:
+
+The parameters passed to the FoundryClient constructor
+
+Context variables FOUNDRY_TOKEN and FOUNDRY_HOSTNAME 
+
+Environment variables FOUNDRY_TOKEN and FOUNDRY_HOSTNAME 
+
+The FOUNDRY_TOKEN is a string of an users Bearer token, which will create a UserTokenAuth for the auth parameter.
+
+ import foundry_sdk 
+
+ # The SDK will initialize the following context or environment variables when auth and hostname are not provided: 
+ # FOUNDRY_TOKEN 
+ # FOUNDRY_HOSTNAME 
+ client = foundry_sdk . FoundryClient ()
+` 
+
+OAuth2 Client
+
+OAuth2 clients are the recommended way to connect to Foundry in production applications. Currently, this SDK
+natively supports the client credentials grant flow .
+The token obtained by this grant can be used to access resources on behalf of the created service user. To use this
+authentication method, you will first need to register a third-party application in Foundry by following the guide on third-party application registration .
+
+To use the confidential client functionality, you first need to construct a
+ ConfidentialClientAuth object. As these service user tokens have a short
+lifespan (one hour), we automatically retry all operations one time if a 401 
+(Unauthorized) error is thrown after refreshing the token.
+
+ import foundry_sdk 
+
+ auth = foundry_sdk . ConfidentialClientAuth (
+ client_id = os . environ [ "CLIENT_ID" ],
+ client_secret = os . environ [ "CLIENT_SECRET" ],
+ scopes = [...], # optional list of scopes 
+) 
+
+ Important
+
+Make sure to select the appropriate scopes when initializating the ConfidentialClientAuth . You can find the relevant scopes
+in the endpoint documentation .
+
+After creating the ConfidentialClientAuth object, pass it in to the FoundryClient ,
+
+ import foundry_sdk 
+
+ client = foundry_sdk . FoundryClient ( auth = auth , hostname = "example.palantirfoundry.com" ) 
+
+ Tip
+
+If you want to use the ConfidentialClientAuth class independently of the FoundryClient , you can
+use the get_token() method to get the token. You will have to provide a hostname when
+instantiating the ConfidentialClientAuth object, for example
+ ConfidentialClientAuth(..., hostname="example.palantirfoundry.com") .
+
+Quickstart
+
+Follow the installation procedure and determine which authentication method is
+best suited for your instance before following this example. For simplicity, the UserTokenAuth class will be used for demonstration
+purposes.
+
+ from foundry_sdk import FoundryClient 
+ import foundry_sdk 
+ from pprint import pprint 
+
+ client = FoundryClient ( auth = foundry_sdk . UserTokenAuth (...), hostname = "example.palantirfoundry.com" )
+
+ # DatasetRid 
+ dataset_rid = None 
+ # BranchName 
+ name = "master" 
+ # Optional[TransactionRid] | The most recent OPEN or COMMITTED transaction on the branch. This will never be an ABORTED transaction. 
+ transaction_rid = "ri.foundry.main.transaction.0a0207cb-26b7-415b-bc80-66a3aa3933f4" 
+
+ try :
+ api_response = client . datasets . Dataset . Branch . create (
+ dataset_rid , name = name , transaction_rid = transaction_rid 
+ )
+ print ( "The create response: \n " )
+ pprint ( api_response )
+ except foundry_sdk . PalantirRPCException as e :
+ print ( "HTTP error when calling Branch.create: %s \n " % e ) 
+
+Want to learn more about this Foundry SDK library? Review the following sections.
+
+↳ Error handling : Learn more about HTTP & data validation error handling
+
+↳ Pagination : Learn how to work with paginated endpoints in the SDK
+
+↳ Streaming : Learn how to stream binary data from Foundry
+
+↳ Data Frames : Learn how to work with tabular data using data frame libraries
+
+↳ Static type analysis : Learn about the static type analysis capabilities of this library
+
+↳ HTTP Session Configuration : Learn how to configure the HTTP session.
+
+Error handling
+
+Data validation
+
+The SDK employs Pydantic for runtime validation
+of arguments. In the example below, we are passing in a number to transaction_rid 
+which should actually be a string type:
+
+ client . datasets . Dataset . Branch . create (
+ dataset_rid , 
+ name = name , 
+ transaction_rid = 123 ) 
+
+If you did this, you would receive an error that looks something like:
+
+ pydantic_core . _pydantic_core . ValidationError : 1 validation error for create 
+ transaction_rid 
+ Input should be a valid string [ type = string_type , input_value = 123 , input_type = int ]
+ For further information visit https : // errors . pydantic . dev / 2.5 / v / string_type 
+
+To handle these errors, you can catch pydantic.ValidationError . To learn more, see
+the Pydantic error documentation .
+
+ Tip
+
+Pydantic works with static type checkers such as
+ pyright for an improved developer
+experience. See Static Type Analysis below for more information.
+
+HTTP exceptions
+
+Each operation includes a list of possible exceptions that can be thrown which can be thrown by the server, all of which inherit from PalantirRPCException . For example, an operation that interacts with dataset branches might throw a BranchNotFound error, which is defined as follows:
+
+ class BranchNotFoundParameters ( typing_extensions . TypedDict ):
+ """The requested branch could not be found, or the client token does not have access to it.""" 
+
+ __pydantic_config__ = { "extra" : "allow" } # type: ignore 
+
+ datasetRid : datasets_models . DatasetRid 
+ branchName : datasets_models . BranchName 
+
+ @ dataclass 
+ class BranchNotFound ( errors . NotFoundError ):
+ name : typing . Literal [ "BranchNotFound" ]
+ parameters : BranchNotFoundParameters 
+ error_instance_id : str 
+
+As a user, you can catch this exception and handle it accordingly.
+
+ from foundry_sdk . v1 . datasets . errors import BranchNotFound 
+
+ try :
+ response = client . datasets . Dataset . get ( dataset_rid )
+ ...
+ except BranchNotFound as e :
+ print ( "Resource not found" , e . parameters [...]) 
+
+You can refer to the method documentation to see which exceptions can be thrown. It is also possible to
+catch a generic subclass of PalantirRPCException such as BadRequestError or NotFoundError .
+
+ Status Code 
+ Error Class 
+
+ 400 
+ BadRequestError 
+
+ 401 
+ UnauthorizedError 
+
+ 403 
+ PermissionDeniedError 
+
+ 404 
+ NotFoundError 
+
+ 413 
+ RequestEntityTooLargeError 
+
+ 422 
+ UnprocessableEntityError 
+
+ >=500,<600 
+ InternalServerError 
+
+ Other 
+ PalantirRPCException 
+
+ from foundry_sdk import PalantirRPCException 
+ from foundry_sdk import NotFoundError 
+
+ try :
+ api_response = client . datasets . Dataset . get ( dataset_rid )
+ ...
+ except NotFoundError as e :
+ print ( "Resource not found" , e )
+ except PalantirRPCException as e :
+ print ( "Another HTTP exception occurred" , e ) 
+
+All RPC exceptions will have the following properties. See the Foundry API docs for details about the Foundry error information.
+
+ Property 
+ Type 
+ Description 
+
+ name 
+ str 
+ The Palantir error name. See the Foundry API docs . 
+
+ error_instance_id 
+ str 
+ The Palantir error instance ID. See the Foundry API docs . 
+
+ parameters 
+ Dict[str, Any] 
+ The Palantir error parameters. See the Foundry API docs . 
+
+ error_code 
+ str 
+ The Palantir error code. See the Foundry API docs . 
+
+ error_description 
+ str 
+ The Palantir error description. See the Foundry API docs . 
+
+Other exceptions
+
+There are a handful of other exception classes that could be thrown when instantiating or using a client.
+
+ ErrorClass 
+ Thrown Directly 
+ Description 
+
+ NotAuthenticated 
+ Yes 
+ You used either ConfidentialClientAuth or PublicClientAuth to make an API call without going through the OAuth process first. 
+
+ ConnectionError 
+ Yes 
+ An issue occurred when connecting to the server. This also catches ProxyError . 
+
+ ProxyError 
+ Yes 
+ An issue occurred when connecting to or authenticating with a proxy server. 
+
+ TimeoutError 
+ No 
+ The request timed out. This catches both ConnectTimeout , ReadTimeout and WriteTimeout . 
+
+ ConnectTimeout 
+ Yes 
+ The request timed out when attempting to connect to the server. 
+
+ ReadTimeout 
+ Yes 
+ The server did not send any data in the allotted amount of time. 
+
+ WriteTimeout 
+ Yes 
+ There was a timeout when writing data to the server. 
+
+ StreamConsumedError 
+ Yes 
+ The content of the given stream has already been consumed. 
+
+ RequestEntityTooLargeError 
+ Yes 
+ The request entity is too large. 
+
+ ConflictError 
+ Yes 
+ There was a conflict with another request. 
+
+ RateLimitError 
+ Yes 
+ The request was rate limited. Reduce your request rate and retry your request shortly. 
+
+ ServiceUnavailable 
+ Yes 
+ The service is temporarily unavailable. Retry your request shortly. 
+
+ SDKInternalError 
+ Yes 
+ An unexpected issue occurred and should be reported. 
+
+Pagination
+
+When calling any iterator endpoints, we return a ResourceIterator class designed to simplify the process of working
+with paginated API endpoints. This class provides a convenient way to fetch, iterate over, and manage pages
+of data, while handling the underlying pagination logic.
+
+To iterate over all items, you can simply create a ResourceIterator instance and use it in a for loop, like this:
+
+ for item in client . datasets . Dataset . Branch . list ( dataset_rid ):
+ print ( item )
+
+ # Or, you can collect all the items in a list 
+ results = list ( client . datasets . Dataset . Branch . list ( dataset_rid )) 
+
+This will automatically fetch and iterate through all the pages of data from the specified API endpoint. For more granular control, you can manually fetch each page using the next_page_token .
+
+ next_page_token : Optional [ str ] = None 
+ while True :
+ page = client . datasets . Dataset . Branch . list (
+ dataset_rid , page_size = page_size , page_token = next_page_token 
+ )
+ for branch in page . data :
+ print ( branch )
+
+ if page . next_page_token is None :
+ break 
+
+ next_page_token = page . next_page_token 
+
+Asynchronous Pagination (Beta)
+
+ Warning
+
+The asynchronous client is in beta and may change in future releases.
+
+When using the AsyncFoundryClient client, pagination works similar to the synchronous client
+but you need to use async for to iterate over the results. Here's an example:
+
+ async for item in client . datasets . Dataset . Branch . list ( dataset_rid ):
+ print ( item )
+
+ # Or, you can collect all the items in a list 
+ results = [ item async for item in client . datasets . Dataset . Branch . list ( dataset_rid )] 
+
+For more control over asynchronous pagination, you can manually handle the pagination
+tokens and use the with_raw_response utility to fetch each page.
+
+ next_page_token : Optional [ str ] = None 
+ while True :
+ response = await client . client . datasets . Dataset . Branch . with_raw_response . list (
+ dataset_rid , page_token = next_page_token 
+ )
+
+ page = response . decode ()
+ for item in page . data :
+ print ( item )
+
+ if page . next_page_token is None :
+ break 
+
+ next_page_token = page . next_page_token 
+
+Asynchronous Client (Beta)
+
+ Warning
+
+The asynchronous client is in beta and may change in future releases.
+
+This SDK supports creating an asynchronous client, just import and instantiate the
+ AsyncFoundryClient instead of the FoundryClient .
+
+ from foundry import AsyncFoundryClient 
+ import foundry 
+ import asyncio 
+ from pprint import pprint 
+
+ async def main ():
+ client = AsyncFoundryClient (...)
+ response = await client . datasets . Dataset . Branch . create ( dataset_rid , name = name , transaction_rid = transaction_rid )
+ pprint ( response )
+
+ if __name__ == "__main__" :
+ asyncio . run ( main ()) 
+
+When using asynchronous clients, you'll just need to use the await keyword when calling APIs. Otherwise, the behaviour
+between the FoundryClient and AsyncFoundryClient is nearly identical.
+
+Streaming
+
+This SDK supports streaming binary data using a separate streaming client accessible under
+ with_streaming_response on each Resource. To ensure the stream is closed, you need to use a context
+manager when making a request with this client.
+
+ # Non-streaming response 
+ with open ( "result.png" , "wb" ) as f :
+ f . write ( client . admin . User . profile_picture ( user_id ))
+
+ # Streaming response 
+ with open ( "result.png" , "wb" ) as f :
+ with client . admin . User . with_streaming_response . profile_picture ( user_id ) as response :
+ for chunk in response . iter_bytes ():
+ f . write ( chunk ) 
+
+Data Frames
+
+This SDK supports working with tabular data using popular Python data frame libraries. When an API endpoint returns data in Arrow IPC format, the response is wrapped in an TableResponse class that provides methods to convert to various data frame formats:
+
+ to_pyarrow() : Converts to a PyArrow Table
+
+ to_pandas() : Converts to a Pandas DataFrame
+
+ to_polars() : Converts to a Polars DataFrame
+
+ to_duckdb() : Converts to a DuckDB relation
+
+This allows you to seamlessly work with Foundry tabular data using your preferred data analysis library.
+
+Example: Working with Data Frames
+
+ # Read tabular data in Arrow format 
+ table_data = client . datasets . Dataset . read_table ( dataset_rid , format = format , branch_name = branch_name , columns = columns , end_transaction_rid = end_transaction_rid , row_limit = row_limit , start_transaction_rid = start_transaction_rid )
+
+ # Convert to pandas DataFrame for data analysis 
+ pandas_df = table_data . to_pandas ()
+
+ # Perform data analysis operations 
+ summary = pandas_df . describe ()
+ filtered_data = pandas_df [ pandas_df [ "value" ] > 100 ]
+
+ # Or use Polars for high-performance data operations 
+ import polars as pl 
+ polars_df = table_data . to_polars ()
+ result = polars_df . filter ( pl . col ( "value" ) > 100 ). group_by ( "category" ). agg ( pl . sum ( "amount" ))
+
+ # Or use DuckDB for SQL-based analysis 
+ import duckdb 
+ duckdb_relation = table_data . to_duckdb ()
+ result = duckdb_relation . query ( "SELECT category, SUM(amount) FROM duckdb_relation WHERE value > 100 GROUP BY category" ) 
+
+You can inclue the extra dependencies using:
+
+ # For pyarrow support 
+pip install foundry-platform-sdk[pyarrow]
+
+ # For pandas support 
+pip install foundry-platform-sdk[pandas]
+
+ # For polars support 
+pip install foundry-platform-sdk[polars]
+
+ # For duckdb support 
+pip install foundry-platform-sdk[duckdb] 
+
+If you attempt to use a conversion method without the required dependency installed, the SDK will provide a helpful error message with installation instructions.
+
+Static type analysis
+
+Hashable Models
+
+All model objects in the SDK can be used as dictionary keys or set members. This provides several benefits:
+
+ # Example: Using models as dictionary keys 
+ from foundry_sdk import FoundryClient 
+
+ client = FoundryClient (...)
+ file1 = client . datasets . Dataset . File . get ( dataset_rid = "ri.foundry.main.dataset.123" , file_path = "/data.csv" )
+ file2 = client . datasets . Dataset . File . get ( dataset_rid = "ri.foundry.main.dataset.123" , file_path = "/data.csv" )
+
+ # Models with the same content are equal and have the same hash 
+ assert file1 == file2 
+ assert hash ( file1 ) == hash ( file2 )
+
+ # Use models as dictionary keys 
+ file_metadata = {}
+ file_metadata [ file1 ] = { "last_modified" : "2024-08-09" }
+
+ # Can look up using any equivalent object 
+ assert file_metadata [ file2 ] == { "last_modified" : "2024-08-09" } 
+
+ Note: Models remain mutable for backward compatibility. If you modify a model after using it as a dictionary key,
+the system will issue a warning and the model's hash value will be reset. Although allowed, mutating models and using
+their hash values is not recommended as it can lead to unexpected behavior when using them in dictionaries or sets.
+
+This library uses Pydantic for creating and validating data models which you will see in the
+method definitions (see Documentation for Models below for a full list of models).
+All request parameters and responses with nested fields are typed using a Pydantic
+ BaseModel class. For example, here is how
+ Group.search method is defined in the Admin namespace:
+
+ @ pydantic . validate_call 
+ @ handle_unexpected 
+ def search (
+ self ,
+ * ,
+ where : GroupSearchFilter ,
+ page_size : Optional [ PageSize ] = None ,
+ page_token : Optional [ PageToken ] = None ,
+ preview : Optional [ PreviewMode ] = None ,
+ request_timeout : Optional [ Annotated [ int , pydantic . Field ( gt = 0 )]] = None ,
+ ) -> SearchGroupsResponse :
+ ... 
+
+ import foundry_sdk 
+ from foundry_sdk . v2 . admin . models import GroupSearchFilter 
+
+ client = foundry_sdk . FoundryClient (...)
+
+ result = client . admin . Group . search ( where = GroupSearchFilter ( type = "queryString" , value = "John Doe" ))
+ print ( result . data ) 
+
+If you are using a static type checker (for example, mypy , pyright ), you
+get static type analysis for the arguments you provide to the function and with the response. For example, if you pass an int 
+to name but name expects a string or if you try to access branchName on the returned Branch object (the
+property is actually called name ), you will get the following errors:
+
+ branch = client . datasets . Dataset . Branch . create (
+ "ri.foundry.main.dataset.abc" ,
+ # ERROR: "Literal[123]" is incompatible with "BranchName" 
+ name = 123 ,
+)
+ # ERROR: Cannot access member "branchName" for type "Branch" 
+ print ( branch . branchName ) 
+
+HTTP Session Configuration
+
+You can configure various parts of the HTTP session using the Config class.
+
+ from foundry_sdk import Config 
+ from foundry_sdk import UserTokenAuth 
+ from foundry_sdk import FoundryClient 
+
+ client = FoundryClient (
+ auth = UserTokenAuth (...),
+ hostname = "example.palantirfoundry.com" ,
+ config = Config (
+ # Set the default headers for every request 
+ default_headers = { "Foo" : "Bar" },
+ # Default to a 60 second timeout 
+ timeout = 60 ,
+ # Create a proxy for the https protocol 
+ proxies = { "https" : "https://10.10.1.10:1080" },
+ ),
+) 
+
+The full list of options can be found below.
+
+ default_headers (dict[str, str]): HTTP headers to include with all requests.
+
+ proxies (dict["http" | "https", str]): Proxies to use for HTTP and HTTPS requests.
+
+ timeout (int | float): The default timeout for all requests in seconds.
+
+ verify (bool | str): SSL verification, can be a boolean or a path to a CA bundle. Defaults to True .
+
+ default_params (dict[str, Any]): URL query parameters to include with all requests.
+
+ scheme ("http" | "https"): URL scheme to use ('http' or 'https'). Defaults to 'https'.
+
+SSL Certificate Verification
+
+In addition to the Config class, the SSL certificate file used for verification can be set using
+the following environment variables (in order of precedence):
+
+ REQUESTS_CA_BUNDLE 
+
+ SSL_CERT_FILE 
+
+The SDK will only check for the presence of these environment variables if the verify option is set to
+ True (the default value). If verify is set to False, the environment variables will be ignored.
+
+ Important
+
+If you are using an HTTPS proxy server, the verify value will be passed to the proxy's
+SSL context as well.
+
+Common errors
+
+This section will document any user-related errors with information on how you may be able to resolve them.
+
+ApiFeaturePreviewUsageOnly
+
+This error indicates you are trying to use an endpoint in public preview and have not set preview=True when
+calling the endpoint. Before doing so, note that this endpoint is
+in preview state and breaking changes may occur at any time.
+
+During the first phase of an endpoint's lifecycle, it may be in Public Preview 
+state. This indicates that the endpoint is in development and is not intended for
+production use.
+
+Input should have timezone info
+
+ # Example error 
+ pydantic_core . _pydantic_core . ValidationError : 1 validation error for Model 
+ datetype 
+ Input should have timezone info [ type = timezone_aware , input_value = datetime . datetime ( 2025 , 2 , 5 , 20 , 57 , 57 , 511182 ), input_type = datetime ] 
+
+This error indicates that you are passing a datetime object without timezone information to an
+endpoint that requires it. To resolve this error, you should pass in a datetime object with timezone
+information. For example, you can use the timezone class in the datetime package:
+
+ from datetime import datetime 
+ from datetime import timezone 
+
+ datetime_with_tz = datetime ( 2025 , 2 , 5 , 20 , 57 , 57 , 511182 , tzinfo = timezone . utc ) 
+
+Documentation for V2 API endpoints
+
+ Namespace 
+ Resource 
+ Operation 
+ HTTP request 
+
+ Admin 
+ AuthenticationProvider 
+ get 
+ GET /v2/admin/enrollments/{enrollmentRid}/authenticationProviders/{authenticationProviderRid} 
+
+ Admin 
+ AuthenticationProvider 
+ list 
+ GET /v2/admin/enrollments/{enrollmentRid}/authenticationProviders 
+
+ Admin 
+ AuthenticationProvider 
+ preregister_group 
+ POST /v2/admin/enrollments/{enrollmentRid}/authenticationProviders/{authenticationProviderRid}/preregisterGroup 
+
+ Admin 
+ AuthenticationProvider 
+ preregister_user 
+ POST /v2/admin/enrollments/{enrollmentRid}/authenticationProviders/{authenticationProviderRid}/preregisterUser 
+
+ Admin 
+ Group 
+ create 
+ POST /v2/admin/groups 
+
+ Admin 
+ Group 
+ delete 
+ DELETE /v2/admin/groups/{groupId} 
+
+ Admin 
+ Group 
+ get 
+ GET /v2/admin/groups/{groupId} 
+
+ Admin 
+ Group 
+ get_batch 
+ POST /v2/admin/groups/getBatch 
+
+ Admin 
+ Group 
+ list 
+ GET /v2/admin/groups 
+
+ Admin 
+ Group 
+ search 
+ POST /v2/admin/groups/search 
+
+ Admin 
+ GroupMember 
+ add 
+ POST /v2/admin/groups/{groupId}/groupMembers/add 
+
+ Admin 
+ GroupMember 
+ list 
+ GET /v2/admin/groups/{groupId}/groupMembers 
+
+ Admin 
+ GroupMember 
+ remove 
+ POST /v2/admin/groups/{groupId}/groupMembers/remove 
+
+ Admin 
+ GroupMembership 
+ list 
+ GET /v2/admin/users/{userId}/groupMemberships 
+
+ Admin 
+ GroupMembershipExpirationPolicy 
+ get 
+ GET /v2/admin/groups/{groupId}/membershipExpirationPolicy 
+
+ Admin 
+ GroupMembershipExpirationPolicy 
+ replace 
+ PUT /v2/admin/groups/{groupId}/membershipExpirationPolicy 
+
+ Admin 
+ GroupProviderInfo 
+ get 
+ GET /v2/admin/groups/{groupId}/providerInfo 
+
+ Admin 
+ GroupProviderInfo 
+ replace 
+ PUT /v2/admin/groups/{groupId}/providerInfo 
+
+ Admin 
+ Marking 
+ create 
+ POST /v2/admin/markings 
+
+ Admin 
+ Marking 
+ get 
+ GET /v2/admin/markings/{markingId} 
+
+ Admin 
+ Marking 
+ get_batch 
+ POST /v2/admin/markings/getBatch 
+
+ Admin 
+ Marking 
+ list 
+ GET /v2/admin/markings 
+
+ Admin 
+ Marking 
+ replace 
+ PUT /v2/admin/markings/{markingId} 
+
+ Admin 
+ MarkingCategory 
+ get 
+ GET /v2/admin/markingCategories/{markingCategoryId} 
+
+ Admin 
+ MarkingCategory 
+ list 
+ GET /v2/admin/markingCategories 
+
+ Admin 
+ MarkingMember 
+ add 
+ POST /v2/admin/markings/{markingId}/markingMembers/add 
+
+ Admin 
+ MarkingMember 
+ list 
+ GET /v2/admin/markings/{markingId}/markingMembers 
+
+ Admin 
+ MarkingMember 
+ remove 
+ POST /v2/admin/markings/{markingId}/markingMembers/remove 
+
+ Admin 
+ MarkingRoleAssignment 
+ add 
+ POST /v2/admin/markings/{markingId}/roleAssignments/add 
+
+ Admin 
+ MarkingRoleAssignment 
+ list 
+ GET /v2/admin/markings/{markingId}/roleAssignments 
+
+ Admin 
+ MarkingRoleAssignment 
+ remove 
+ POST /v2/admin/markings/{markingId}/roleAssignments/remove 
+
+ Admin 
+ Organization 
+ get 
+ GET /v2/admin/organizations/{organizationRid} 
+
+ Admin 
+ Organization 
+ list_available_roles 
+ GET /v2/admin/organizations/{organizationRid}/listAvailableRoles 
+
+ Admin 
+ Organization 
+ replace 
+ PUT /v2/admin/organizations/{organizationRid} 
+
+ Admin 
+ OrganizationRoleAssignment 
+ add 
+ POST /v2/admin/organizations/{organizationRid}/roleAssignments/add 
+
+ Admin 
+ OrganizationRoleAssignment 
+ list 
+ GET /v2/admin/organizations/{organizationRid}/roleAssignments 
+
+ Admin 
+ OrganizationRoleAssignment 
+ remove 
+ POST /v2/admin/organizations/{organizationRid}/roleAssignments/remove 
+
+ Admin 
+ User 
+ delete 
+ DELETE /v2/admin/users/{userId} 
+
+ Admin 
+ User 
+ get 
+ GET /v2/admin/users/{userId} 
+
+ Admin 
+ User 
+ get_batch 
+ POST /v2/admin/users/getBatch 
+
+ Admin 
+ User 
+ get_current 
+ GET /v2/admin/users/getCurrent 
+
+ Admin 
+ User 
+ get_markings 
+ GET /v2/admin/users/{userId}/getMarkings 
+
+ Admin 
+ User 
+ list 
+ GET /v2/admin/users 
+
+ Admin 
+ User 
+ profile_picture 
+ GET /v2/admin/users/{userId}/profilePicture 
+
+ Admin 
+ User 
+ revoke_all_tokens 
+ POST /v2/admin/users/{userId}/revokeAllTokens 
+
+ Admin 
+ User 
+ search 
+ POST /v2/admin/users/search 
+
+ Admin 
+ UserProviderInfo 
+ get 
+ GET /v2/admin/users/{userId}/providerInfo 
+
+ Admin 
+ UserProviderInfo 
+ replace 
+ PUT /v2/admin/users/{userId}/providerInfo 
+
+ AipAgents 
+ Agent 
+ all_sessions 
+ GET /v2/aipAgents/agents/allSessions 
+
+ AipAgents 
+ Agent 
+ get 
+ GET /v2/aipAgents/agents/{agentRid} 
+
+ AipAgents 
+ AgentVersion 
+ get 
+ GET /v2/aipAgents/agents/{agentRid}/agentVersions/{agentVersionString} 
+
+ AipAgents 
+ AgentVersion 
+ list 
+ GET /v2/aipAgents/agents/{agentRid}/agentVersions 
+
+ AipAgents 
+ Content 
+ get 
+ GET /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid}/content 
+
+ AipAgents 
+ Session 
+ blocking_continue 
+ POST /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid}/blockingContinue 
+
+ AipAgents 
+ Session 
+ cancel 
+ POST /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid}/cancel 
+
+ AipAgents 
+ Session 
+ create 
+ POST /v2/aipAgents/agents/{agentRid}/sessions 
+
+ AipAgents 
+ Session 
+ delete 
+ DELETE /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid} 
+
+ AipAgents 
+ Session 
+ get 
+ GET /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid} 
+
+ AipAgents 
+ Session 
+ list 
+ GET /v2/aipAgents/agents/{agentRid}/sessions 
+
+ AipAgents 
+ Session 
+ rag_context 
+ PUT /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid}/ragContext 
+
+ AipAgents 
+ Session 
+ streaming_continue 
+ POST /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid}/streamingContinue 
+
+ AipAgents 
+ Session 
+ update_title 
+ PUT /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid}/updateTitle 
+
+ AipAgents 
+ SessionTrace 
+ get 
+ GET /v2/aipAgents/agents/{agentRid}/sessions/{sessionRid}/sessionTraces/{sessionTraceId} 
+
+ Audit 
+ LogFile 
+ content 
+ GET /v2/audit/organizations/{organizationRid}/logFiles/{logFileId}/content 
+
+ Audit 
+ LogFile 
+ list 
+ GET /v2/audit/organizations/{organizationRid}/logFiles 
+
+ Connectivity 
+ Connection 
+ create 
+ POST /v2/connectivity/connections 
+
+ Connectivity 
+ Connection 
+ get 
+ GET /v2/connectivity/connections/{connectionRid} 
+
+ Connectivity 
+ Connection 
+ get_configuration 
+ GET /v2/connectivity/connections/{connectionRid}/getConfiguration 
+
+ Connectivity 
+ Connection 
+ get_configuration_batch 
+ POST /v2/connectivity/connections/getConfigurationBatch 
+
+ Connectivity 
+ Connection 
+ update_export_settings 
+ POST /v2/connectivity/connections/{connectionRid}/updateExportSettings 
+
+ Connectivity 
+ Connection 
+ update_secrets 
+ POST /v2/connectivity/connections/{connectionRid}/updateSecrets 
+
+ Connectivity 
+ Connection 
+ upload_custom_jdbc_drivers 
+ POST /v2/connectivity/connections/{connectionRid}/uploadCustomJdbcDrivers 
+
+ Connectivity 
+ FileImport 
+ create 
+ POST /v2/connectivity/connections/{connectionRid}/fileImports 
+
+ Connectivity 
+ FileImport 
+ delete 
+ DELETE /v2/connectivity/connections/{connectionRid}/fileImports/{fileImportRid} 
+
+ Connectivity 
+ FileImport 
+ execute 
+ POST /v2/connectivity/connections/{connectionRid}/fileImports/{fileImportRid}/execute 
+
+ Connectivity 
+ FileImport 
+ get 
+ GET /v2/connectivity/connections/{connectionRid}/fileImports/{fileImportRid} 
+
+ Connectivity 
+ FileImport 
+ list 
+ GET /v2/connectivity/connections/{connectionRid}/fileImports 
+
+ Connectivity 
+ FileImport 
+ replace 
+ PUT /v2/connectivity/connections/{connectionRid}/fileImports/{fileImportRid} 
+
+ Connectivity 
+ TableImport 
+ create 
+ POST /v2/connectivity/connections/{connectionRid}/tableImports 
+
+ Connectivity 
+ TableImport 
+ delete 
+ DELETE /v2/connectivity/connections/{connectionRid}/tableImports/{tableImportRid} 
+
+ Connectivity 
+ TableImport 
+ execute 
+ POST /v2/connectivity/connections/{connectionRid}/tableImports/{tableImportRid}/execute 
+
+ Connectivity 
+ TableImport 
+ get 
+ GET /v2/connectivity/connections/{connectionRid}/tableImports/{tableImportRid} 
+
+ Connectivity 
+ TableImport 
+ list 
+ GET /v2/connectivity/connections/{connectionRid}/tableImports 
+
+ Connectivity 
+ TableImport 
+ replace 
+ PUT /v2/connectivity/connections/{connectionRid}/tableImports/{tableImportRid} 
+
+ Connectivity 
+ VirtualTable 
+ create 
+ POST /v2/connectivity/connections/{connectionRid}/virtualTables 
+
+ DataHealth 
+ Check 
+ create 
+ POST /v2/dataHealth/checks 
+
+ DataHealth 
+ Check 
+ delete 
+ DELETE /v2/dataHealth/checks/{checkRid} 
+
+ DataHealth 
+ Check 
+ get 
+ GET /v2/dataHealth/checks/{checkRid} 
+
+ DataHealth 
+ Check 
+ replace 
+ PUT /v2/dataHealth/checks/{checkRid} 
+
+ DataHealth 
+ CheckReport 
+ get 
+ GET /v2/dataHealth/checks/{checkRid}/checkReports/{checkReportRid} 
+
+ DataHealth 
+ CheckReport 
+ get_latest 
+ GET /v2/dataHealth/checks/{checkRid}/checkReports/getLatest 
+
+ Datasets 
+ Branch 
+ create 
+ POST /v2/datasets/{datasetRid}/branches 
+
+ Datasets 
+ Branch 
+ delete 
+ DELETE /v2/datasets/{datasetRid}/branches/{branchName} 
+
+ Datasets 
+ Branch 
+ get 
+ GET /v2/datasets/{datasetRid}/branches/{branchName} 
+
+ Datasets 
+ Branch 
+ list 
+ GET /v2/datasets/{datasetRid}/branches 
+
+ Datasets 
+ Branch 
+ transactions 
+ GET /v2/datasets/{datasetRid}/branches/{branchName}/transactions 
+
+ Datasets 
+ Dataset 
+ create 
+ POST /v2/datasets 
+
+ Datasets 
+ Dataset 
+ get 
+ GET /v2/datasets/{datasetRid} 
+
+ Datasets 
+ Dataset 
+ get_health_check_reports 
+ GET /v2/datasets/{datasetRid}/getHealthCheckReports 
+
+ Datasets 
+ Dataset 
+ get_health_checks 
+ GET /v2/datasets/{datasetRid}/getHealthChecks 
+
+ Datasets 
+ Dataset 
+ get_schedules 
+ GET /v2/datasets/{datasetRid}/getSchedules 
+
+ Datasets 
+ Dataset 
+ get_schema 
+ GET /v2/datasets/{datasetRid}/getSchema 
+
+ Datasets 
+ Dataset 
+ get_schema_batch 
+ POST /v2/datasets/getSchemaBatch 
+
+ Datasets 
+ Dataset 
+ jobs 
+ POST /v2/datasets/{datasetRid}/jobs 
+
+ Datasets 
+ Dataset 
+ put_schema 
+ PUT /v2/datasets/{datasetRid}/putSchema 
+
+ Datasets 
+ Dataset 
+ read_table 
+ GET /v2/datasets/{datasetRid}/readTable 
+
+ Datasets 
+ Dataset 
+ transactions 
+ GET /v2/datasets/{datasetRid}/transactions 
+
+ Datasets 
+ File 
+ content 
+ GET /v2/datasets/{datasetRid}/files/{filePath}/content 
+
+ Datasets 
+ File 
+ delete 
+ DELETE /v2/datasets/{datasetRid}/files/{filePath} 
+
+ Datasets 
+ File 
+ get 
+ GET /v2/datasets/{datasetRid}/files/{filePath} 
+
+ Datasets 
+ File 
+ list 
+ GET /v2/datasets/{datasetRid}/files 
+
+ Datasets 
+ File 
+ upload 
+ POST /v2/datasets/{datasetRid}/files/{filePath}/upload 
+
+ Datasets 
+ Transaction 
+ abort 
+ POST /v2/datasets/{datasetRid}/transactions/{transactionRid}/abort 
+
+ Datasets 
+ Transaction 
+ commit 
+ POST /v2/datasets/{datasetRid}/transactions/{transactionRid}/commit 
+
+ Datasets 
+ Transaction 
+ create 
+ POST /v2/datasets/{datasetRid}/transactions 
+
+ Datasets 
+ Transaction 
+ get 
+ GET /v2/datasets/{datasetRid}/transactions/{transactionRid} 
+
+ Datasets 
+ View 
+ add_backing_datasets 
+ POST /v2/datasets/views/{viewDatasetRid}/addBackingDatasets 
+
+ Datasets 
+ View 
+ add_primary_key 
+ POST /v2/datasets/views/{viewDatasetRid}/addPrimaryKey 
+
+ Datasets 
+ View 
+ create 
+ POST /v2/datasets/views 
+
+ Datasets 
+ View 
+ get 
+ GET /v2/datasets/views/{viewDatasetRid} 
+
+ Datasets 
+ View 
+ remove_backing_datasets 
+ POST /v2/datasets/views/{viewDatasetRid}/removeBackingDatasets 
+
+ Datasets 
+ View 
+ replace_backing_datasets 
+ PUT /v2/datasets/views/{viewDatasetRid}/replaceBackingDatasets 
+
+ Filesystem 
+ Folder 
+ children 
+ GET /v2/filesystem/folders/{folderRid}/children 
+
+ Filesystem 
+ Folder 
+ create 
+ POST /v2/filesystem/folders 
+
+ Filesystem 
+ Folder 
+ get 
+ GET /v2/filesystem/folders/{folderRid} 
+
+ Filesystem 
+ Folder 
+ get_batch 
+ POST /v2/filesystem/folders/getBatch 
+
+ Filesystem 
+ Project 
+ add_organizations 
+ POST /v2/filesystem/projects/{projectRid}/addOrganizations 
+
+ Filesystem 
+ Project 
+ create 
+ POST /v2/filesystem/projects/create 
+
+ Filesystem 
+ Project 
+ create_from_template 
+ POST /v2/filesystem/projects/createFromTemplate 
+
+ Filesystem 
+ Project 
+ get 
+ GET /v2/filesystem/projects/{projectRid} 
+
+ Filesystem 
+ Project 
+ organizations 
+ GET /v2/filesystem/projects/{projectRid}/organizations 
+
+ Filesystem 
+ Project 
+ remove_organizations 
+ POST /v2/filesystem/projects/{projectRid}/removeOrganizations 
+
+ Filesystem 
+ Resource 
+ add_markings 
+ POST /v2/filesystem/resources/{resourceRid}/addMarkings 
+
+ Filesystem 
+ Resource 
+ delete 
+ DELETE /v2/filesystem/resources/{resourceRid} 
+
+ Filesystem 
+ Resource 
+ get 
+ GET /v2/filesystem/resources/{resourceRid} 
+
+ Filesystem 
+ Resource 
+ get_access_requirements 
+ GET /v2/filesystem/resources/{resourceRid}/getAccessRequirements 
+
+ Filesystem 
+ Resource 
+ get_batch 
+ POST /v2/filesystem/resources/getBatch 
+
+ Filesystem 
+ Resource 
+ get_by_path 
+ GET /v2/filesystem/resources/getByPath 
+
+ Filesystem 
+ Resource 
+ get_by_path_batch 
+ POST /v2/filesystem/resources/getByPathBatch 
+
+ Filesystem 
+ Resource 
+ markings 
+ GET /v2/filesystem/resources/{resourceRid}/markings 
+
+ Filesystem 
+ Resource 
+ permanently_delete 
+ POST /v2/filesystem/resources/{resourceRid}/permanentlyDelete 
+
+ Filesystem 
+ Resource 
+ remove_markings 
+ POST /v2/filesystem/resources/{resourceRid}/removeMarkings 
+
+ Filesystem 
+ Resource 
+ restore 
+ POST /v2/filesystem/resources/{resourceRid}/restore 
+
+ Filesystem 
+ ResourceRole 
+ add 
+ POST /v2/filesystem/resources/{resourceRid}/roles/add 
+
+ Filesystem 
+ ResourceRole 
+ list 
+ GET /v2/filesystem/resources/{resourceRid}/roles 
+
+ Filesystem 
+ ResourceRole 
+ remove 
+ POST /v2/filesystem/resources/{resourceRid}/roles/remove 
+
+ Filesystem 
+ Space 
+ list 
+ GET /v2/filesystem/spaces 
+
+ MediaSets 
+ MediaSet 
+ abort 
+ POST /v2/mediasets/{mediaSetRid}/transactions/{transactionId}/abort 
+
+ MediaSets 
+ MediaSet 
+ commit 
+ POST /v2/mediasets/{mediaSetRid}/transactions/{transactionId}/commit 
+
+ MediaSets 
+ MediaSet 
+ create 
+ POST /v2/mediasets/{mediaSetRid}/transactions 
+
+ MediaSets 
+ MediaSet 
+ get_rid_by_path 
+ GET /v2/mediasets/{mediaSetRid}/items/getRidByPath 
+
+ MediaSets 
+ MediaSet 
+ info 
+ GET /v2/mediasets/{mediaSetRid}/items/{mediaItemRid} 
+
+ MediaSets 
+ MediaSet 
+ metadata 
+ GET /v2/mediasets/{mediaSetRid}/items/{mediaItemRid}/metadata 
+
+ MediaSets 
+ MediaSet 
+ read 
+ GET /v2/mediasets/{mediaSetRid}/items/{mediaItemRid}/content 
+
+ MediaSets 
+ MediaSet 
+ read_original 
+ GET /v2/mediasets/{mediaSetRid}/items/{mediaItemRid}/original 
+
+ MediaSets 
+ MediaSet 
+ reference 
+ GET /v2/mediasets/{mediaSetRid}/items/{mediaItemRid}/reference 
+
+ MediaSets 
+ MediaSet 
+ upload 
+ POST /v2/mediasets/{mediaSetRid}/items 
+
+ MediaSets 
+ MediaSet 
+ upload_media 
+ PUT /v2/mediasets/media/upload 
+
+ Ontologies 
+ Action 
+ apply 
+ POST /v2/ontologies/{ontology}/actions/{action}/apply 
+
+ Ontologies 
+ Action 
+ apply_batch 
+ POST /v2/ontologies/{ontology}/actions/{action}/applyBatch 
+
+ Ontologies 
+ ActionType 
+ get 
+ GET /v2/ontologies/{ontology}/actionTypes/{actionType} 
+
+ Ontologies 
+ ActionType 
+ get_by_rid 
+ GET /v2/ontologies/{ontology}/actionTypes/byRid/{actionTypeRid} 
+
+ Ontologies 
+ ActionType 
+ list 
+ GET /v2/ontologies/{ontology}/actionTypes 
+
+ Ontologies 
+ Attachment 
+ get 
+ GET /v2/ontologies/attachments/{attachmentRid} 
+
+ Ontologies 
+ Attachment 
+ read 
+ GET /v2/ontologies/attachments/{attachmentRid}/content 
+
+ Ontologies 
+ Attachment 
+ upload 
+ POST /v2/ontologies/attachments/upload 
+
+ Ontologies 
+ AttachmentProperty 
+ get_attachment 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/attachments/{property} 
+
+ Ontologies 
+ AttachmentProperty 
+ get_attachment_by_rid 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/attachments/{property}/{attachmentRid} 
+
+ Ontologies 
+ AttachmentProperty 
+ read_attachment 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/attachments/{property}/content 
+
+ Ontologies 
+ AttachmentProperty 
+ read_attachment_by_rid 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/attachments/{property}/{attachmentRid}/content 
+
+ Ontologies 
+ CipherTextProperty 
+ decrypt 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/ciphertexts/{property}/decrypt 
+
+ Ontologies 
+ LinkedObject 
+ get_linked_object 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/links/{linkType}/{linkedObjectPrimaryKey} 
+
+ Ontologies 
+ LinkedObject 
+ list_linked_objects 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/links/{linkType} 
+
+ Ontologies 
+ MediaReferenceProperty 
+ get_media_content 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/media/{property}/content 
+
+ Ontologies 
+ MediaReferenceProperty 
+ upload 
+ POST /v2/ontologies/{ontology}/objectTypes/{objectType}/media/{property}/upload 
+
+ Ontologies 
+ ObjectType 
+ get 
+ GET /v2/ontologies/{ontology}/objectTypes/{objectType} 
+
+ Ontologies 
+ ObjectType 
+ get_outgoing_link_type 
+ GET /v2/ontologies/{ontology}/objectTypes/{objectType}/outgoingLinkTypes/{linkType} 
+
+ Ontologies 
+ ObjectType 
+ list 
+ GET /v2/ontologies/{ontology}/objectTypes 
+
+ Ontologies 
+ ObjectType 
+ list_outgoing_link_types 
+ GET /v2/ontologies/{ontology}/objectTypes/{objectType}/outgoingLinkTypes 
+
+ Ontologies 
+ Ontology 
+ get 
+ GET /v2/ontologies/{ontology} 
+
+ Ontologies 
+ Ontology 
+ get_full_metadata 
+ GET /v2/ontologies/{ontology}/fullMetadata 
+
+ Ontologies 
+ Ontology 
+ list 
+ GET /v2/ontologies 
+
+ Ontologies 
+ OntologyInterface 
+ get 
+ GET /v2/ontologies/{ontology}/interfaceTypes/{interfaceType} 
+
+ Ontologies 
+ OntologyInterface 
+ list 
+ GET /v2/ontologies/{ontology}/interfaceTypes 
+
+ Ontologies 
+ OntologyObject 
+ aggregate 
+ POST /v2/ontologies/{ontology}/objects/{objectType}/aggregate 
+
+ Ontologies 
+ OntologyObject 
+ get 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey} 
+
+ Ontologies 
+ OntologyObject 
+ list 
+ GET /v2/ontologies/{ontology}/objects/{objectType} 
+
+ Ontologies 
+ OntologyObject 
+ search 
+ POST /v2/ontologies/{ontology}/objects/{objectType}/search 
+
+ Ontologies 
+ OntologyObjectSet 
+ aggregate 
+ POST /v2/ontologies/{ontology}/objectSets/aggregate 
+
+ Ontologies 
+ OntologyObjectSet 
+ create_temporary 
+ POST /v2/ontologies/{ontology}/objectSets/createTemporary 
+
+ Ontologies 
+ OntologyObjectSet 
+ load 
+ POST /v2/ontologies/{ontology}/objectSets/loadObjects 
+
+ Ontologies 
+ OntologyObjectSet 
+ load_multiple_object_types 
+ POST /v2/ontologies/{ontology}/objectSets/loadObjectsMultipleObjectTypes 
+
+ Ontologies 
+ OntologyObjectSet 
+ load_objects_or_interfaces 
+ POST /v2/ontologies/{ontology}/objectSets/loadObjectsOrInterfaces 
+
+ Ontologies 
+ OntologyValueType 
+ get 
+ GET /v2/ontologies/{ontology}/valueTypes/{valueType} 
+
+ Ontologies 
+ OntologyValueType 
+ list 
+ GET /v2/ontologies/{ontology}/valueTypes 
+
+ Ontologies 
+ Query 
+ execute 
+ POST /v2/ontologies/{ontology}/queries/{queryApiName}/execute 
+
+ Ontologies 
+ QueryType 
+ get 
+ GET /v2/ontologies/{ontology}/queryTypes/{queryApiName} 
+
+ Ontologies 
+ QueryType 
+ list 
+ GET /v2/ontologies/{ontology}/queryTypes 
+
+ Ontologies 
+ TimeSeriesPropertyV2 
+ get_first_point 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/timeseries/{property}/firstPoint 
+
+ Ontologies 
+ TimeSeriesPropertyV2 
+ get_last_point 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/timeseries/{property}/lastPoint 
+
+ Ontologies 
+ TimeSeriesPropertyV2 
+ stream_points 
+ POST /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/timeseries/{property}/streamPoints 
+
+ Ontologies 
+ TimeSeriesValueBankProperty 
+ get_latest_value 
+ GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/timeseries/{propertyName}/latestValue 
+
+ Ontologies 
+ TimeSeriesValueBankProperty 
+ stream_values 
+ POST /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/timeseries/{property}/streamValues 
+
+ Orchestration 
+ Build 
+ cancel 
+ POST /v2/orchestration/builds/{buildRid}/cancel 
+
+ Orchestration 
+ Build 
+ create 
+ POST /v2/orchestration/builds/create 
+
+ Orchestration 
+ Build 
+ get 
+ GET /v2/orchestration/builds/{buildRid} 
+
+ Orchestration 
+ Build 
+ get_batch 
+ POST /v2/orchestration/builds/getBatch 
+
+ Orchestration 
+ Build 
+ jobs 
+ GET /v2/orchestration/builds/{buildRid}/jobs 
+
+ Orchestration 
+ Job 
+ get 
+ GET /v2/orchestration/jobs/{jobRid} 
+
+ Orchestration 
+ Job 
+ get_batch 
+ POST /v2/orchestration/jobs/getBatch 
+
+ Orchestration 
+ Schedule 
+ create 
+ POST /v2/orchestration/schedules 
+
+ Orchestration 
+ Schedule 
+ delete 
+ DELETE /v2/orchestration/schedules/{scheduleRid} 
+
+ Orchestration 
+ Schedule 
+ get 
+ GET /v2/orchestration/schedules/{scheduleRid} 
+
+ Orchestration 
+ Schedule 
+ get_affected_resources 
+ POST /v2/orchestration/schedules/{scheduleRid}/getAffectedResources 
+
+ Orchestration 
+ Schedule 
+ get_batch 
+ POST /v2/orchestration/schedules/getBatch 
+
+ Orchestration 
+ Schedule 
+ pause 
+ POST /v2/orchestration/schedules/{scheduleRid}/pause 
+
+ Orchestration 
+ Schedule 
+ replace 
+ PUT /v2/orchestration/schedules/{scheduleRid} 
+
+ Orchestration 
+ Schedule 
+ run 
+ POST /v2/orchestration/schedules/{scheduleRid}/run 
+
+ Orchestration 
+ Schedule 
+ runs 
+ GET /v2/orchestration/schedules/{scheduleRid}/runs 
+
+ Orchestration 
+ Schedule 
+ unpause 
+ POST /v2/orchestration/schedules/{scheduleRid}/unpause 
+
+ Orchestration 
+ ScheduleVersion 
+ get 
+ GET /v2/orchestration/scheduleVersions/{scheduleVersionRid} 
+
+ Orchestration 
+ ScheduleVersion 
+ schedule 
+ GET /v2/orchestration/scheduleVersions/{scheduleVersionRid}/schedule 
+
+ SqlQueries 
+ SqlQuery 
+ cancel 
+ POST /v2/sqlQueries/{sqlQueryId}/cancel 
+
+ SqlQueries 
+ SqlQuery 
+ execute 
+ POST /v2/sqlQueries/execute 
+
+ SqlQueries 
+ SqlQuery 
+ get_results 
+ GET /v2/sqlQueries/{sqlQueryId}/getResults 
+
+ SqlQueries 
+ SqlQuery 
+ get_status 
+ GET /v2/sqlQueries/{sqlQueryId}/getStatus 
+
+ Streams 
+ Dataset 
+ create 
+ POST /v2/streams/datasets/create 
+
+ Streams 
+ Stream 
+ create 
+ POST /v2/streams/datasets/{datasetRid}/streams 
+
+ Streams 
+ Stream 
+ get 
+ GET /v2/streams/datasets/{datasetRid}/streams/{streamBranchName} 
+
+ Streams 
+ Stream 
+ publish_binary_record 
+ POST /v2/highScale/streams/datasets/{datasetRid}/streams/{streamBranchName}/publishBinaryRecord 
+
+ Streams 
+ Stream 
+ publish_record 
+ POST /v2/highScale/streams/datasets/{datasetRid}/streams/{streamBranchName}/publishRecord 
+
+ Streams 
+ Stream 
+ publish_records 
+ POST /v2/highScale/streams/datasets/{datasetRid}/streams/{streamBranchName}/publishRecords 
+
+ Streams 
+ Stream 
+ reset 
+ POST /v2/streams/datasets/{datasetRid}/streams/{streamBranchName}/reset 
+
+ ThirdPartyApplications 
+ Version 
+ delete 
+ DELETE /v2/thirdPartyApplications/{thirdPartyApplicationRid}/website/versions/{versionVersion} 
+
+ ThirdPartyApplications 
+ Version 
+ get 
+ GET /v2/thirdPartyApplications/{thirdPartyApplicationRid}/website/versions/{versionVersion} 
+
+ ThirdPartyApplications 
+ Version 
+ list 
+ GET /v2/thirdPartyApplications/{thirdPartyApplicationRid}/website/versions 
+
+ ThirdPartyApplications 
+ Version 
+ upload 
+ POST /v2/thirdPartyApplications/{thirdPartyApplicationRid}/website/versions/upload 
+
+ ThirdPartyApplications 
+ Website 
+ deploy 
+ POST /v2/thirdPartyApplications/{thirdPartyApplicationRid}/website/deploy 
+
+ ThirdPartyApplications 
+ Website 
+ get 
+ GET /v2/thirdPartyApplications/{thirdPartyApplicationRid}/website 
+
+ ThirdPartyApplications 
+ Website 
+ undeploy 
+ POST /v2/thirdPartyApplications/{thirdPartyApplicationRid}/website/undeploy 
+
+Documentation for V1 API endpoints
+
+ Namespace 
+ Resource 
+ Operation 
+ HTTP request 
+
+ Datasets 
+ Branch 
+ create 
+ POST /v1/datasets/{datasetRid}/branches 
+
+ Datasets 
+ Branch 
+ delete 
+ DELETE /v1/datasets/{datasetRid}/branches/{branchId} 
+
+ Datasets 
+ Branch 
+ get 
+ GET /v1/datasets/{datasetRid}/branches/{branchId} 
+
+ Datasets 
+ Branch 
+ list 
+ GET /v1/datasets/{datasetRid}/branches 
+
+ Datasets 
+ Dataset 
+ create 
+ POST /v1/datasets 
+
+ Datasets 
+ Dataset 
+ get 
+ GET /v1/datasets/{datasetRid} 
+
+ Datasets 
+ Dataset 
+ read 
+ GET /v1/datasets/{datasetRid}/readTable 
+
+ Datasets 
+ File 
+ delete 
+ DELETE /v1/datasets/{datasetRid}/files/{filePath} 
+
+ Datasets 
+ File 
+ get 
+ GET /v1/datasets/{datasetRid}/files/{filePath} 
+
+ Datasets 
+ File 
+ list 
+ GET /v1/datasets/{datasetRid}/files 
+
+ Datasets 
+ File 
+ read 
+ GET /v1/datasets/{datasetRid}/files/{filePath}/content 
+
+ Datasets 
+ File 
+ upload 
+ POST /v1/datasets/{datasetRid}/files:upload 
+
+ Datasets 
+ Transaction 
+ abort 
+ POST /v1/datasets/{datasetRid}/transactions/{transactionRid}/abort 
+
+ Datasets 
+ Transaction 
+ commit 
+ POST /v1/datasets/{datasetRid}/transactions/{transactionRid}/commit 
+
+ Datasets 
+ Transaction 
+ create 
+ POST /v1/datasets/{datasetRid}/transactions 
+
+ Datasets 
+ Transaction 
+ get 
+ GET /v1/datasets/{datasetRid}/transactions/{transactionRid} 
+
+ Ontologies 
+ Action 
+ apply 
+ POST /v1/ontologies/{ontologyRid}/actions/{actionType}/apply 
+
+ Ontologies 
+ Action 
+ apply_batch 
+ POST /v1/ontologies/{ontologyRid}/actions/{actionType}/applyBatch 
+
+ Ontologies 
+ Action 
+ validate 
+ POST /v1/ontologies/{ontologyRid}/actions/{actionType}/validate 
+
+ Ontologies 
+ ActionType 
+ get 
+ GET /v1/ontologies/{ontologyRid}/actionTypes/{actionTypeApiName} 
+
+ Ontologies 
+ ActionType 
+ list 
+ GET /v1/ontologies/{ontologyRid}/actionTypes 
+
+ Ontologies 
+ Attachment 
+ get 
+ GET /v1/attachments/{attachmentRid} 
+
+ Ontologies 
+ Attachment 
+ read 
+ GET /v1/attachments/{attachmentRid}/content 
+
+ Ontologies
