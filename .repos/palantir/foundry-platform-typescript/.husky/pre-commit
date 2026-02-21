@@ -1,2 +1,0 @@
-
-TERM=dumb npx lint-staged

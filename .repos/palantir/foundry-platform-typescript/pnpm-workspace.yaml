@@ -1,6 +1,0 @@
-packages:
-  - "packages/*"
-  - "examples/*"
-  - "examples-extra/*"
-  - "examples-extra/basic/*"
-  - "tests/*"

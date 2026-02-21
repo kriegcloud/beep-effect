@@ -1,5 +1,0 @@
-type: feature
-feature:
-  description: Add Conjure endpoints result types
-  links:
-  - https://github.com/palantir/conjure-typescript-runtime/pull/182

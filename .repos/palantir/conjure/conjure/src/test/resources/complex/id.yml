@@ -1,6 +1,0 @@
-types:
-  definitions:
-    default-package: test.api
-    objects:
-      SimpleId:
-        alias: uuid

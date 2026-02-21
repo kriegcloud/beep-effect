@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Change documented error types in JSDoc to reference the actual generated error types by Conjure
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/299

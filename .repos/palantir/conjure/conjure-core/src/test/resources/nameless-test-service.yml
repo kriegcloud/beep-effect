@@ -1,7 +1,0 @@
-services:
-  NamelessTestService:
-    package: test.api
-
-    endpoints:
-      get:
-        http: GET /get

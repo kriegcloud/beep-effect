@@ -1,5 +1,0 @@
-type: feature
-feature:
-  description: Generate metric name methods for all metrics.
-  links:
-  - https://github.com/palantir/metric-schema/pull/1007

@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Generated metric utilities require safe tag values
-  links:
-  - https://github.com/palantir/metric-schema/pull/731

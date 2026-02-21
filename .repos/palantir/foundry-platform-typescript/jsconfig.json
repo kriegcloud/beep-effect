@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
-    "skipLibCheck": true
-  },
-  "include": [".monorepolint.config.mjs"]
-}

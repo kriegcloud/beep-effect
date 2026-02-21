@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Generate more lenient enums.
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/170

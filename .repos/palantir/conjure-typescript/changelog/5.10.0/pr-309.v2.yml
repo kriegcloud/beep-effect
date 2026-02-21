@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Eliminate `ImportsVisitor`
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/309

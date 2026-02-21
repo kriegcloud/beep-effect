@@ -46,7 +46,11 @@
       "@beep/utils": ["./packages/common/utils/src/index.ts"],
       "@beep/utils/*": ["./packages/common/utils/src/*.ts"],
       "@beep/groking-effect-v4": ["./groking-effect-v4/src/index.ts"],
-      "@beep/groking-effect-v4/*": ["./groking-effect-v4/src/*.ts"]
+      "@beep/groking-effect-v4/*": ["./groking-effect-v4/src/*.ts"],
+      "@beep/identity": ["./packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["./packages/common/identity/src/*.ts"],
+      "@beep/schema": ["./packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["./packages/common/schema/src/*.ts"]
     },
     "plugins": [
       {

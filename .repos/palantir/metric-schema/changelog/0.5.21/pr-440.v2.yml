@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Allow colons in tag constant values
-  links:
-  - https://github.com/palantir/metric-schema/pull/440

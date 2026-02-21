@@ -1,6 +1,0 @@
-type: improvement
-improvement:
-  description: Open Office XML formats are now returned as binary through the fetch
-    bridge
-  links:
-  - https://github.com/palantir/conjure-typescript-runtime/pull/187

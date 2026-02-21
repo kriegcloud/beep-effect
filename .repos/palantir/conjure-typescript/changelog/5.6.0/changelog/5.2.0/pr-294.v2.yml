@@ -1,5 +1,0 @@
-type: feature
-feature:
-  description: Generate JSDoc for declared thrown errors
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/294

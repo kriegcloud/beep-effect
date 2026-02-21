@@ -1,7 +1,0 @@
-@use "@blueprintjs/core/lib/scss/variables.scss" as bp;
-
-.my-component {
-  padding: bp.$pt-grid-size;
-  margin: bp.$pt-grid-size * 2;
-  width: 1.5 * bp.$pt-grid-size;
-}

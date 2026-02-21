@@ -26,6 +26,12 @@
     },
     {
       "path": "tooling/repo-utils"
+    },
+    {
+      "path": "packages/common/identity"
+    },
+    {
+      "path": "packages/common/schema"
     }
   ]
 }

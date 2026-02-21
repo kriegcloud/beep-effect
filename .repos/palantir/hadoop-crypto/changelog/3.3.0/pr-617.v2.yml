@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Bump hadoop dependencies to 3.3.4
-  links:
-  - https://github.com/palantir/hadoop-crypto/pull/617

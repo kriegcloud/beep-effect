@@ -1,3 +1,0 @@
-platform[[:space:]]governance[[:space:]]app[[:space:]]marketplace[[:space:]]package.mkt.zip filter=lfs diff=lfs merge=lfs -text
-platform-gov-app.mkt.zip filter=lfs diff=lfs merge=lfs -text
-Platform-governance-app.mkt.zip filter=lfs diff=lfs merge=lfs -text

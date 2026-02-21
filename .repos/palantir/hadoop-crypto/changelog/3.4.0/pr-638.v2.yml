@@ -1,6 +1,0 @@
-type: improvement
-improvement:
-  description: PathConvertingFileSystem renames paths without creating new FileStatus
-    objects.
-  links:
-  - https://github.com/palantir/hadoop-crypto/pull/638

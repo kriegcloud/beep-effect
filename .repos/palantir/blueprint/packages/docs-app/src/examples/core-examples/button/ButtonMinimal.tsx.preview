@@ -1,3 +1,0 @@
-<Button text="Minimal" minimal={true} />
-<Button text="Primary" minimal={true} intent="primary" />
-<Button text="Disabled" minimal={true} disabled={true} />

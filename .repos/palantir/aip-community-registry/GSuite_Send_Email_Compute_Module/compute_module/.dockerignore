@@ -1,7 +1,0 @@
-# .dockerignore
-service_account.json
-node_modules/
-tmp/
-package-lock.json
-*.log
-.DS_Store

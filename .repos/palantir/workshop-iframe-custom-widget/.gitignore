@@ -1,6 +1,0 @@
-node_modules
-build
-.DS_Store
-
-# Do not commit tarball files
-*.tgz

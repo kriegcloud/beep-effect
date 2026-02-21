@@ -1,5 +1,0 @@
-commitish
-CRDT
-webapi
-nodir
-indexeddb

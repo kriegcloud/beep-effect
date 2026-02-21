@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Reduce byte[] allocations during reads via ApacheCtrDecryptingSeekableInput
-  links:
-  - https://github.com/palantir/hadoop-crypto/pull/561

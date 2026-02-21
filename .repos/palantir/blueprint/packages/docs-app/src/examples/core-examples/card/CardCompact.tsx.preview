@@ -1,2 +1,0 @@
-<Card>This card has default padding.</Card>
-<Card compact={true}>This card is more compact.</Card>

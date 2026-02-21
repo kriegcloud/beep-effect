@@ -1,8 +1,0 @@
-node_modules/
-generated/
-lib/
-dist/
-/site/
-pnpm-lock.yaml
-changelog/
-.claude/

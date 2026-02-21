@@ -1,5 +1,0 @@
-<EditableText
-    placeholder="Click to edit..."
-    onConfirm={handleConfirm}
-    onCancel={handleCancel}
-/>

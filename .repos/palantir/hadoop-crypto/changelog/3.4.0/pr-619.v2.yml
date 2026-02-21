@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Use CircleCI template
-  links:
-  - https://github.com/palantir/hadoop-crypto/pull/619

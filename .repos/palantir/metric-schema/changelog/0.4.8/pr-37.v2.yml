@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Mark all tasks as cacheable
-  links:
-  - https://github.com/palantir/metric-schema/pull/37

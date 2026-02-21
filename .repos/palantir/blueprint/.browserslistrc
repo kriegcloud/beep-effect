@@ -1,4 +1,0 @@
-# Browsers that Blueprint supports.
-# Every autoprefixer run in this repo will use this file for config.
-# Test queries at http://browserl.ist/
-last 2 versions, not dead, > 0.2%

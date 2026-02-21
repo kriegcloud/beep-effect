@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Upgrade typescript/webpack versions
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/184

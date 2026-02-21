@@ -1,3 +1,0 @@
-<Tooltip content="This button is disabled">
-    <AnchorButton disabled={true}>Disabled</AnchorButton>
-</Tooltip>

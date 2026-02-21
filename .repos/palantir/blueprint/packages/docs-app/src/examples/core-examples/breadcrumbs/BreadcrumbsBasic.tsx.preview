@@ -1,8 +1,0 @@
-<Breadcrumbs
-    items={[
-        { text: "Blueprint" },
-        { text: "Docs" },
-        { text: "Components" },
-        { text: "Breadcrumbs" },
-    ]}
-/>

@@ -1,4 +1,0 @@
-# Use versions.props so that excavator can automatically keep our version up to date
-com.fasterxml.jackson.core:jackson-databind = 2.13.2.1
-com.palantir.conjure.verification:* = 0.19.0
-com.palantir.conjure:conjure = 4.14.1

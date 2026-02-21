@@ -1,9 +1,0 @@
-/* Level 1 tokens */
-@import "./tokens/base.css";
-
-/* Level 2 tokens */
-@import "./tokens/button.css";
-@import "./tokens/checkbox.css";
-@import "./tokens/dialog.css";
-@import "./tokens/draggable.css";
-@import "./tokens/table.css";

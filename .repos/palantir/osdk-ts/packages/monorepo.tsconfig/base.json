@@ -1,7 +1,0 @@
-{
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "./base-4.9.json",
-  "compilerOptions": {
-    "isolatedDeclarations": true
-  }
-}

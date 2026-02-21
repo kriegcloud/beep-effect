@@ -1,3 +1,0 @@
-<Button icon="tick" />
-<Button icon={<TickIcon />} />
-<InputGroup rightElement={<Button />} />

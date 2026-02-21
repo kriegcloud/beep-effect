@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Endpoints are documented as incubating if included in tags
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/150

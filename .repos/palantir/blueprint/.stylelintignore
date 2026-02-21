@@ -1,8 +1,0 @@
-.sass-cache
-node_modules
-build
-dist
-/docs
-generated
-coverage
-__tests__/__fixtures__

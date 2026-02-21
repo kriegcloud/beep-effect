@@ -1,5 +1,0 @@
-version: 3
-options:
-  repo_type: YARN
-  # For a minor release, release manually
-  only_increment_patch_version: true

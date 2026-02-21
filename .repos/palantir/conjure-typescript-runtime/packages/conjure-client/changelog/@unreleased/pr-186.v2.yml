@@ -1,5 +1,0 @@
-type: feature
-feature:
-  description: Conjure User-Agents supports arbitrary comment data
-  links:
-  - https://github.com/palantir/conjure-typescript-runtime/pull/186

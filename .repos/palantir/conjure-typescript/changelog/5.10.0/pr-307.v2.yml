@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Refactor utility functions
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/307

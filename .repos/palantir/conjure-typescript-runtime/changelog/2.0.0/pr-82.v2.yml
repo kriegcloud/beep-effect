@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Add ability to read binary response as readablestreams
-  links:
-    - https://github.com/palantir/conjure-typescript-runtime/pull/82

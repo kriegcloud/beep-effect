@@ -1,6 +1,0 @@
-type: fix
-fix:
-  description: Windows batch script runs conjure typescript correctly now, by adding
-    the script path.
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/97

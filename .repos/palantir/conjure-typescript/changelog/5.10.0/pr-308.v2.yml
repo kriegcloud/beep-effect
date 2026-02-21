@@ -1,5 +1,0 @@
-type: improvement
-improvement:
-  description: Eliminate `TsReturnTypeVisitor` and `TsArgumentTypeVisitor`
-  links:
-  - https://github.com/palantir/conjure-typescript/pull/308
