@@ -176,25 +176,25 @@ Deploy 3 parallel research agents to study KG schema design approaches, Graphiti
 
 ```bash
 # 1. Verify output directory exists
-ls -la specs/pending/reverse-engineering-palantir-ontology/outputs/p1-schema-design/
+ls -la specs/pending/reverse-engineering-palantir-for-beep-effect-ontology/outputs/p1-schema-design/
 
 # 2. Verify all 3 research documents were produced
-test -f specs/pending/reverse-engineering-palantir-ontology/outputs/p1-schema-design/research-kg-best-practices.md && echo "OK" || echo "MISSING"
-test -f specs/pending/reverse-engineering-palantir-ontology/outputs/p1-schema-design/research-graphiti-internals.md && echo "OK" || echo "MISSING"
-test -f specs/pending/reverse-engineering-palantir-ontology/outputs/p1-schema-design/research-palantir-concepts.md && echo "OK" || echo "MISSING"
+test -f specs/pending/reverse-engineering-palantir-for-beep-effect-ontology/outputs/p1-schema-design/research-kg-best-practices.md && echo "OK" || echo "MISSING"
+test -f specs/pending/reverse-engineering-palantir-for-beep-effect-ontology/outputs/p1-schema-design/research-graphiti-internals.md && echo "OK" || echo "MISSING"
+test -f specs/pending/reverse-engineering-palantir-for-beep-effect-ontology/outputs/p1-schema-design/research-palantir-concepts.md && echo "OK" || echo "MISSING"
 
 # 3. Verify final schema design exists
-test -f specs/pending/reverse-engineering-palantir-ontology/outputs/p1-schema-design/kg-schema-design.md && echo "OK" || echo "MISSING"
+test -f specs/pending/reverse-engineering-palantir-for-beep-effect-ontology/outputs/p1-schema-design/kg-schema-design.md && echo "OK" || echo "MISSING"
 
 # 4. Verify schema covers all 9 concepts
 grep -c "Object Type\|Property\|Shared Property\|Link Type\|Action Type\|Roles\|Functions\|Interfaces\|Object Views" \
-  specs/pending/reverse-engineering-palantir-ontology/outputs/p1-schema-design/kg-schema-design.md
+  specs/pending/reverse-engineering-palantir-for-beep-effect-ontology/outputs/p1-schema-design/kg-schema-design.md
 
 # 5. Verify Graphiti is operational
 curl -sf http://localhost:8000/health && echo "Graphiti OK" || echo "Graphiti DOWN"
 
 # 6. Verify group_id strategy is documented
-grep -c "palantir-ontology" specs/pending/reverse-engineering-palantir-ontology/outputs/p1-schema-design/kg-schema-design.md
+grep -c "palantir-ontology" specs/pending/reverse-engineering-palantir-for-beep-effect-ontology/outputs/p1-schema-design/kg-schema-design.md
 ```
 
 ## Known Issues & Gotchas
