@@ -1,13 +1,14 @@
 #!/usr/bin/env node
+
 /**
  * Merges all batch extraction results into enriched-web.json.
  * Also joins extraction data back onto the original master.json entries
  * and produces extraction-log.json with statistics.
  */
 
-import { readFileSync, writeFileSync, readdirSync, existsSync } from "fs";
-import { join } from "path";
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 const SPEC = "/home/elpresidank/YeeBois/projects/beep-effect2/specs/pending/reverse-engineering-palantir-ontology";
 const BATCH_DIR = join(SPEC, "outputs/p5-rag-enrichment/batches");
@@ -68,11 +69,9 @@ const extractionLog = [];
 
 for (const entry of eligible) {
   const extraction = allExtractions.get(entry.url);
-  const cachePath = join(CACHE_DIR, urlToHash(entry.url) + ".txt");
+  const cachePath = join(CACHE_DIR, `${urlToHash(entry.url)}.txt`);
   const hasCachedContent = existsSync(cachePath);
-  const contentLength = hasCachedContent
-    ? readFileSync(cachePath, "utf-8").length
-    : 0;
+  const contentLength = hasCachedContent ? readFileSync(cachePath, "utf-8").length : 0;
 
   if (extraction) {
     // Merge original entry with extraction data
@@ -133,15 +132,13 @@ const stats = {
   totalEntities,
   totalRelationships,
   totalInsights,
-  avgEntitiesPerEntry: Math.round(
-    totalEntities / Math.max(1, extractionLog.filter((l) => l.status === "extracted").length) * 10
-  ) / 10,
-  avgRelationshipsPerEntry: Math.round(
-    totalRelationships / Math.max(1, extractionLog.filter((l) => l.status === "extracted").length) * 10
-  ) / 10,
-  avgInsightsPerEntry: Math.round(
-    totalInsights / Math.max(1, extractionLog.filter((l) => l.status === "extracted").length) * 10
-  ) / 10,
+  avgEntitiesPerEntry:
+    Math.round((totalEntities / Math.max(1, extractionLog.filter((l) => l.status === "extracted").length)) * 10) / 10,
+  avgRelationshipsPerEntry:
+    Math.round((totalRelationships / Math.max(1, extractionLog.filter((l) => l.status === "extracted").length)) * 10) /
+    10,
+  avgInsightsPerEntry:
+    Math.round((totalInsights / Math.max(1, extractionLog.filter((l) => l.status === "extracted").length)) * 10) / 10,
   entityTypeDistribution: entityTypes,
   relationshipTypeDistribution: relationshipTypes,
 };
@@ -150,14 +147,8 @@ console.log("\n=== Statistics ===");
 console.log(JSON.stringify(stats, null, 2));
 
 // 6. Write outputs
-writeFileSync(
-  join(OUTPUT_DIR, "enriched-web.json"),
-  JSON.stringify(enrichedEntries, null, 2)
-);
+writeFileSync(join(OUTPUT_DIR, "enriched-web.json"), JSON.stringify(enrichedEntries, null, 2));
 console.log(`\nWrote enriched-web.json (${enrichedEntries.length} entries)`);
 
-writeFileSync(
-  join(OUTPUT_DIR, "extraction-log.json"),
-  JSON.stringify({ stats, entries: extractionLog }, null, 2)
-);
+writeFileSync(join(OUTPUT_DIR, "extraction-log.json"), JSON.stringify({ stats, entries: extractionLog }, null, 2));
 console.log(`Wrote extraction-log.json`);

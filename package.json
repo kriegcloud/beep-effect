@@ -23,6 +23,7 @@
     "beep:topo-sort": "bun run beep topo-sort",
     "beep:codegen": "bun run beep codegen",
     "beep:create-package": "bun run beep create-package",
+    "beep:config-sync": "bun run beep tsconfig-sync",
     "clean": "node scripts/clean.mjs",
     "build": "bunx turbo run build",
     "changeset": "changeset",
@@ -92,6 +93,7 @@
     "vite-tsconfig-paths": "catalog:"
   },
   "catalog": {
+    "i18next": "^25.8.13",
     "@babel/cli": "^7.28.6",
     "@babel/core": "^7.29.0",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",

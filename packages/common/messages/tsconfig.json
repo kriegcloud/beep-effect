@@ -6,10 +6,5 @@
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src"
-  },
-  "references": [
-    {
-      "path": "../types/tsconfig.json"
-    }
-  ]
+  }
 }

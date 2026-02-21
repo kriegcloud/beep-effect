@@ -10,6 +10,12 @@
       "path": "groking-effect-v4"
     },
     {
+      "path": "packages/common/identity"
+    },
+    {
+      "path": "packages/common/schema"
+    },
+    {
       "path": "packages/common/types"
     },
     {
@@ -28,10 +34,7 @@
       "path": "tooling/repo-utils"
     },
     {
-      "path": "packages/common/identity"
-    },
-    {
-      "path": "packages/common/schema"
+      "path": "packages/common/messages"
     }
   ]
 }

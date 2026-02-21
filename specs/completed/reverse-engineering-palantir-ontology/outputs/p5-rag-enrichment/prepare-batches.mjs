@@ -1,12 +1,13 @@
 #!/usr/bin/env node
+
 /**
  * Prepares self-contained batch files for agent extraction.
  * Each batch contains entries + their cached content, ready for an agent to process.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
-import { createHash } from "crypto";
-import { join } from "path";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 const SPEC = "/home/elpresidank/YeeBois/projects/beep-effect2/specs/pending/reverse-engineering-palantir-ontology";
 const CACHE_DIR = join(SPEC, "outputs/p5-rag-enrichment/cache");
@@ -25,7 +26,7 @@ const eligible = master.filter((e) => e.quality >= 2);
 
 // Filter to entries with substantial cached content
 const entries = eligible.filter((e) => {
-  const p = join(CACHE_DIR, urlToHash(e.url) + ".txt");
+  const p = join(CACHE_DIR, `${urlToHash(e.url)}.txt`);
   if (!existsSync(p)) return false;
   const content = readFileSync(p, "utf-8");
   return content.length > 200;
@@ -47,10 +48,10 @@ console.log(`Batches of ${BATCH_SIZE}: ${batches.length}`);
 // Write each batch as a self-contained JSON
 batches.forEach((batch, idx) => {
   const batchData = batch.map((entry) => {
-    const cachePath = join(CACHE_DIR, urlToHash(entry.url) + ".txt");
+    const cachePath = join(CACHE_DIR, `${urlToHash(entry.url)}.txt`);
     let content = readFileSync(cachePath, "utf-8");
     if (content.length > MAX_CONTENT_CHARS) {
-      content = content.slice(0, MAX_CONTENT_CHARS) + "\n[...truncated]";
+      content = `${content.slice(0, MAX_CONTENT_CHARS)}\n[...truncated]`;
     }
     return {
       url: entry.url,
@@ -73,10 +74,10 @@ batches.forEach((batch, idx) => {
 
 // Also write a sample batch (first 10 high-quality entries) for testing
 const sampleData = entries.slice(0, 10).map((entry) => {
-  const cachePath = join(CACHE_DIR, urlToHash(entry.url) + ".txt");
+  const cachePath = join(CACHE_DIR, `${urlToHash(entry.url)}.txt`);
   let content = readFileSync(cachePath, "utf-8");
   if (content.length > MAX_CONTENT_CHARS) {
-    content = content.slice(0, MAX_CONTENT_CHARS) + "\n[...truncated]";
+    content = `${content.slice(0, MAX_CONTENT_CHARS)}\n[...truncated]`;
   }
   return {
     url: entry.url,

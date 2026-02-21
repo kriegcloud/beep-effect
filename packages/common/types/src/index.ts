@@ -6,6 +6,12 @@
 
 /**
  * @since 0.0.0
- * @category constants
+ * @category namespace
  */
-export const VERSION = "0.0.0" as const;
+export type * as TString from "./TString.types.js";
+
+/**
+ * @since 0.0.0
+ * @category namespace
+ */
+export type * as TUnsafe from "./TUnsafe.types.js";

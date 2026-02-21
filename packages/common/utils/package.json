@@ -25,6 +25,7 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/types": "workspace:^",
     "@types/node": "catalog:",
     "@effect/vitest": "catalog:"
   },

@@ -6,7 +6,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "codegen": "echo 'no codegen needed'",
+    "codegen": "effect-utils codegen",
     "build": "tsc -b tsconfig.json && bun run babel",
     "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -19,6 +19,7 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/types": "workspace:^",
     "@types/node": "catalog:",
     "@effect/vitest": "catalog:"
   },

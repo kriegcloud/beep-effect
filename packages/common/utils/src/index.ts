@@ -4,6 +4,8 @@
  * @since 0.0.0
  */
 
+export * from "./structGet.js";
+
 /**
  * @since 0.0.0
  * @category constants

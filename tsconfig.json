@@ -50,7 +50,9 @@
       "@beep/identity": ["./packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["./packages/common/identity/src/*.ts"],
       "@beep/schema": ["./packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["./packages/common/schema/src/*.ts"]
+      "@beep/schema/*": ["./packages/common/schema/src/*.ts"],
+      "@beep/messages": ["./packages/common/messages/src/index.ts"],
+      "@beep/messages/*": ["./packages/common/messages/src/*.ts"]
     },
     "plugins": [
       {

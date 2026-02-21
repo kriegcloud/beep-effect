@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * P5 Content Fetcher — Fetches page content for all eligible entries.
  * - Uses Playwright for Medium/blog domains (they block standard HTTP)
@@ -7,11 +8,11 @@
  * - Produces fetch-log.json with status per entry
  */
 
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { createHash } from "crypto";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CACHE_DIR = join(__dirname, "cache");
@@ -28,9 +29,7 @@ const PLAYWRIGHT_DOMAINS = [
 const needsPlaywright = (url) => {
   try {
     const hostname = new URL(url).hostname;
-    return PLAYWRIGHT_DOMAINS.some(
-      (d) => hostname === d || hostname.endsWith(d)
-    );
+    return PLAYWRIGHT_DOMAINS.some((d) => hostname === d || hostname.endsWith(d));
   } catch {
     return false;
   }
@@ -118,8 +117,7 @@ function htmlToText(html) {
 
 async function fetchWithPlaywright(browser, url) {
   const context = await browser.newContext({
-    userAgent:
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   });
   const page = await context.newPage();
   try {
@@ -131,17 +129,13 @@ async function fetchWithPlaywright(browser, url) {
     const text = await page.evaluate(() => {
       // Medium article body
       const article =
-        document.querySelector("article") ||
-        document.querySelector('[role="main"]') ||
-        document.querySelector("main");
+        document.querySelector("article") || document.querySelector('[role="main"]') || document.querySelector("main");
       if (article) {
         return article.innerText;
       }
       // Fallback: get body text minus nav/header/footer
       const body = document.body.cloneNode(true);
-      body
-        .querySelectorAll("nav, header, footer, script, style, [role=navigation]")
-        .forEach((el) => el.remove());
+      body.querySelectorAll("nav, header, footer, script, style, [role=navigation]").forEach((el) => el.remove());
       return body.innerText;
     });
 
@@ -176,13 +170,11 @@ async function main() {
 
   // Phase 1: HTTP fetches
   console.log("\n--- Phase 1: HTTP fetching ---");
-  let httpOk = 0,
-    httpFail = 0;
+  let httpOk = 0;
+  let httpFail = 0;
   for (let i = 0; i < httpUncached.length; i++) {
     const entry = httpUncached[i];
-    process.stdout.write(
-      `  [${i + 1}/${httpUncached.length}] ${entry.url.slice(0, 80)}...`
-    );
+    process.stdout.write(`  [${i + 1}/${httpUncached.length}] ${entry.url.slice(0, 80)}...`);
     const result = await fetchWithHTTP(entry.url);
     if (result.ok) {
       writeFileSync(cachePath(entry.url), result.content, "utf-8");
@@ -207,13 +199,11 @@ async function main() {
   if (pwUncached.length > 0) {
     console.log("\n--- Phase 2: Playwright fetching ---");
     const browser = await chromium.launch({ headless: true });
-    let pwOk = 0,
-      pwFail = 0;
+    let pwOk = 0;
+    let pwFail = 0;
     for (let i = 0; i < pwUncached.length; i++) {
       const entry = pwUncached[i];
-      process.stdout.write(
-        `  [${i + 1}/${pwUncached.length}] ${entry.url.slice(0, 80)}...`
-      );
+      process.stdout.write(`  [${i + 1}/${pwUncached.length}] ${entry.url.slice(0, 80)}...`);
       const result = await fetchWithPlaywright(browser, entry.url);
       if (result.ok && result.content.length > 100) {
         writeFileSync(cachePath(entry.url), result.content, "utf-8");

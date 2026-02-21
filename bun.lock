@@ -65,6 +65,42 @@
         "typescript": "catalog:",
       },
     },
+    "packages/common/identity": {
+      "name": "@beep/identity",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/common/messages": {
+      "name": "@beep/messages",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+        "i18next": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/common/schema": {
+      "name": "@beep/schema",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/common/types": {
       "name": "@beep/types",
       "version": "0.0.0",
@@ -83,6 +119,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -192,6 +229,7 @@
     "effect": "^4.0.0-beta.9",
     "glob": "^13.0.6",
     "handlebars": "^4.7.8",
+    "i18next": "^25.8.13",
     "jscodeshift": "^17.3.0",
     "jsonc-parser": "^3.3.1",
     "lefthook": "^2.1.1",
@@ -294,11 +332,17 @@
 
     "@beep/groking-effect-v4": ["@beep/groking-effect-v4@workspace:groking-effect-v4"],
 
+    "@beep/identity": ["@beep/identity@workspace:packages/common/identity"],
+
+    "@beep/messages": ["@beep/messages@workspace:packages/common/messages"],
+
     "@beep/repo-cli": ["@beep/repo-cli@workspace:tooling/cli"],
 
     "@beep/repo-utils": ["@beep/repo-utils@workspace:tooling/repo-utils"],
 
     "@beep/root": ["@beep/root@root:", {}],
+
+    "@beep/schema": ["@beep/schema@workspace:packages/common/schema"],
 
     "@beep/types": ["@beep/types@workspace:packages/common/types"],
 
@@ -1093,6 +1137,8 @@
     "human-id": ["human-id@4.1.3", "", { "bin": { "human-id": "dist/cli.js" } }, "sha512-tsYlhAYpjCKa//8rXZ9DqKEawhPoSytweBC2eNvcaDK+57RZLHGqNs3PZTQO6yekLFSuvA6AlnAfrw1uBvtb+Q=="],
 
     "human-signals": ["human-signals@2.1.0", "", {}, "sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw=="],
+
+    "i18next": ["i18next@25.8.13", "", { "dependencies": { "@babel/runtime": "^7.28.4" }, "peerDependencies": { "typescript": "^5" }, "optionalPeers": ["typescript"] }, "sha512-E0vzjBY1yM+nsFrtgkjLhST2NBkirkvOVoQa0MSldhsuZ3jUge7ZNpuwG0Cfc74zwo5ZwRzg3uOgT+McBn32iA=="],
 
     "iconv-lite": ["iconv-lite@0.7.2", "", { "dependencies": { "safer-buffer": ">= 2.1.2 < 3.0.0" } }, "sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw=="],
 
