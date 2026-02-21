@@ -49,7 +49,9 @@
       "@beep/schema": ["./packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["./packages/common/schema/src/*.ts"],
       "@beep/messages": ["./packages/common/messages/src/index.ts"],
-      "@beep/messages/*": ["./packages/common/messages/src/*.ts"]
+      "@beep/messages/*": ["./packages/common/messages/src/*.ts"],
+      "@beep/ontology": ["./packages/common/ontology/src/index.ts"],
+      "@beep/ontology/*": ["./packages/common/ontology/src/*.ts"]
     },
     "plugins": [
       {

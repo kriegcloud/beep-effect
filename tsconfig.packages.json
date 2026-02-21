@@ -32,6 +32,9 @@
     },
     {
       "path": "packages/common/messages"
+    },
+    {
+      "path": "packages/common/ontology"
     }
   ]
 }
