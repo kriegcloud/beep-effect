@@ -155,9 +155,13 @@ export type IdentityAnnotationResult<Value extends string, Identifier extends st
  * @category models
  */
 export interface IdentityComposer<Value extends string> {
+  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): IdentityString<`${Value}/${string}`>;
   readonly value: IdentityString<Value>;
   readonly identifier: IdentityString<Value>;
   compose<const Next extends TString.NonEmpty>(
+    segment: ModuleSegmentValue<Next>
+  ): IdentityComposer<`${Value}/${ModuleSegmentValue<Next>}`>;
+  create<const Next extends TString.NonEmpty>(
     segment: ModuleSegmentValue<Next>
   ): IdentityComposer<`${Value}/${ModuleSegmentValue<Next>}`>;
   make<const Next extends TString.NonEmpty>(
@@ -303,15 +307,53 @@ const createBaseIdentity = <const Base extends TString.NonEmpty>(base: Normalize
 
 const createComposer = <const Value extends string>(value: Value): IdentityComposer<Value> => {
   const identityValue = toIdentityString(value);
+  const composeNext = <const Next extends TString.NonEmpty>(
+    segment: ModuleSegmentValue<Next>
+  ): IdentityComposer<`${Value}/${ModuleSegmentValue<Next>}`> => {
+    const next = validateModuleSegment(segment);
+    const composed = `${value}/${next}` as `${Value}/${ModuleSegmentValue<Next>}`;
+    return createComposer(composed);
+  };
 
-  return {
+  const annotations = <SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
+    identifier: SegmentValue<Next>,
+    extras?: undefined | SchemaAnnotationExtras<SchemaType>
+  ) => {
+    const next = validateSegment(identifier);
+    const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+    const annotation = {
+      schemaId: toIdentitySymbol(composed),
+      identifier: next,
+      title: toTitle(next),
+    } as IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>;
+
+    if (extras === undefined) {
+      return annotation as IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+    }
+
+    return {
+      ...annotation,
+      ...extras,
+    } as IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+  };
+
+  const tag = ((strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>) => {
+    if (values.length > 0) {
+      throw new Error("Identity template tags do not allow interpolations.");
+    }
+    if (strings.length !== 1) {
+      throw new Error("Identity template tags must use a single literal segment.");
+    }
+    const segment = validateModuleSegment(strings[0] as TString.NonEmpty);
+    const composed = `${value}/${segment}` as `${Value}/${string}`;
+    return toIdentityString(composed);
+  }) as unknown as IdentityComposer<Value>;
+
+  return Object.assign(tag, {
     value: identityValue,
     identifier: identityValue,
-    compose: <const Next extends TString.NonEmpty>(segment: ModuleSegmentValue<Next>) => {
-      const next = validateModuleSegment(segment);
-      const composed = `${value}/${next}` as `${Value}/${ModuleSegmentValue<Next>}`;
-      return createComposer(composed);
-    },
+    compose: composeNext,
+    create: composeNext,
     make: <const Next extends TString.NonEmpty>(segment: SegmentValue<Next>) => {
       const next = validateSegment(segment);
       const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
@@ -319,28 +361,8 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
     },
     string: () => identityValue,
     symbol: () => toIdentitySymbol(value),
-    annotate: <SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
-      identifier: SegmentValue<Next>,
-      extras?: undefined | SchemaAnnotationExtras<SchemaType>
-    ) => {
-      const next = validateSegment(identifier);
-      const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
-      const annotation = {
-        schemaId: toIdentitySymbol(composed),
-        identifier: next,
-        title: toTitle(next),
-      } as IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>;
-
-      if (extras === undefined) {
-        return annotation as IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
-      }
-
-      return {
-        ...annotation,
-        ...extras,
-      } as IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
-    },
-  };
+    annotate: annotations,
+  });
 };
 
 /**

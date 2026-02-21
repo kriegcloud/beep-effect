@@ -18,8 +18,7 @@
     "./tooling/*/test/**/*.json",
     "./tooling/*/dtslint/**/*.ts",
     "./apps/*/test/**/*.ts",
-    "./apps/*/test/**/*.json",
-    "./groking-effect-v4/src/**/*.ts"
+    "./apps/*/test/**/*.json"
   ],
   "exclude": ["./tooling/*/test/fixtures/**/*.ts"],
   "compilerOptions": {
@@ -45,8 +44,6 @@
       "@beep/types/*": ["./packages/common/types/src/*.ts"],
       "@beep/utils": ["./packages/common/utils/src/index.ts"],
       "@beep/utils/*": ["./packages/common/utils/src/*.ts"],
-      "@beep/groking-effect-v4": ["./groking-effect-v4/src/index.ts"],
-      "@beep/groking-effect-v4/*": ["./groking-effect-v4/src/*.ts"],
       "@beep/identity": ["./packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["./packages/common/identity/src/*.ts"],
       "@beep/schema": ["./packages/common/schema/src/index.ts"],

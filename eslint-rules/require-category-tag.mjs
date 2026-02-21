@@ -66,6 +66,8 @@ const getNodeName = (node) => {
 const getCandidateComments = (sourceCode, node) => {
   /** @type {Array<import("estree").Comment>} */
   const out = [];
+  const getJSDocComment =
+    typeof sourceCode.getJSDocComment === "function" ? sourceCode.getJSDocComment.bind(sourceCode) : null;
 
   if (node === null || typeof node !== "object") {
     return out;
@@ -84,7 +86,7 @@ const getCandidateComments = (sourceCode, node) => {
       current
     );
 
-    const jsDoc = sourceCode.getJSDocComment(astNode);
+    const jsDoc = getJSDocComment?.(astNode);
     if (jsDoc !== null && jsDoc !== undefined) {
       out.push(jsDoc);
     }

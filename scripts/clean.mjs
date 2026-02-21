@@ -8,7 +8,7 @@ function findDirs(base) {
     .map((dirent) => Path.join(base, dirent.name));
 }
 
-const dirs = [".", ...findDirs("packages"), ...findDirs("tooling"), ...findDirs("apps"), "groking-effect-v4"];
+const dirs = [".", ...findDirs("packages"), ...findDirs("tooling"), ...findDirs("apps")];
 
 dirs.forEach((pkg) => {
   const files = [".tsbuildinfo", "tsconfig.tsbuildinfo", "docs", "build", "dist", "coverage"];

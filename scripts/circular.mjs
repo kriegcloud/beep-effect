@@ -28,7 +28,7 @@ function findTsFiles(dirs) {
   return files;
 }
 
-const dirs = ["packages", "tooling", "apps", "groking-effect-v4/src"];
+const dirs = ["packages", "tooling", "apps"];
 
 const files = findTsFiles(dirs);
 

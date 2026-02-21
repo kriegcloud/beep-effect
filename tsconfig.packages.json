@@ -7,9 +7,6 @@
   "include": [],
   "references": [
     {
-      "path": "groking-effect-v4"
-    },
-    {
       "path": "packages/common/identity"
     },
     {

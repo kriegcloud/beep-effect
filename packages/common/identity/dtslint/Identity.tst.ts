@@ -1,3 +1,4 @@
+import { ServiceMap } from "effect";
 import { describe, expect, it } from "tstyche";
 import type {
   IdentityAnnotationResult,
@@ -14,17 +15,19 @@ describe("Identity", () => {
     const $BeepId = make("beep").$BeepId;
     const $SchemaId = $BeepId.compose("schema");
     const tenantId = $SchemaId.compose("entities").make("Tenant");
+    const serviceId = $SchemaId`TenantService`;
 
     expect($BeepId).type.toBeAssignableTo<IdentityComposer<"@beep">>();
     expect($SchemaId).type.toBeAssignableTo<IdentityComposer<"@beep/schema">>();
     expect(tenantId).type.toBe<IdentityString<"@beep/schema/entities/Tenant">>();
+    expect(serviceId).type.toBe<IdentityString<`@beep/schema/${string}`>>();
     expect($SchemaId.string()).type.toBe<IdentityString<"@beep/schema">>();
     expect($SchemaId.symbol()).type.toBe<IdentitySymbol<"@beep/schema">>();
   });
 
-  it("preserves literal types for annotations", () => {
+  it("preserves literal types for annotate", () => {
     const $SchemaId = make("beep").$BeepId.compose("schema");
-    const annotation = $SchemaId.annotations("Tenant", {
+    const annotation = $SchemaId.annotate("Tenant", {
       default: { version: 1 as const },
       description: "Tenant schema",
     });
@@ -41,6 +44,19 @@ describe("Identity", () => {
     expect(fromAt.string()).type.toBe<IdentityString<"@beep/schema">>();
   });
 
+  it("supports create + ServiceMap.Service class keys", () => {
+    const $BeepId = make("beep").$BeepId;
+    const $I = $BeepId.create("module");
+
+    interface FsUtilsShape {
+      readonly cwd: () => string;
+    }
+
+    class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`MyService`) {}
+
+    expect(FsUtils.key).type.toBe<IdentityString<`@beep/module/${string}`>>();
+  });
+
   it("enforces segment invariants at compile time", () => {
     expect<SegmentValue<"schema">>().type.toBe<"schema">();
     expect<SegmentValue<"/schema">>().type.toBe<never>();
@@ -51,6 +67,7 @@ describe("Identity", () => {
 
   it("rejects invalid compose and make arguments at compile time", () => {
     const $BeepId = make("beep").$BeepId;
+    const $I = $BeepId.create("module");
 
     // @ts-expect-error not assignable to parameter of type 'never'
     $BeepId.compose("1schema");
@@ -58,5 +75,6 @@ describe("Identity", () => {
     $BeepId.make("/bad");
     // @ts-expect-error not assignable to parameter of type 'never'
     $BeepId.make("bad/");
+    expect($I`1bad`).type.toBe<IdentityString<`@beep/module/${string}`>>();
   });
 });

@@ -16,6 +16,13 @@ describe("@beep/identity", () => {
     expect(entityId).toBe("@beep/schema/entities/Tenant");
   });
 
+  it("supports create and template tags", () => {
+    const $BeepId = make("beep").$BeepId;
+    const $I = $BeepId.create("module");
+
+    expect($I`MyService`).toBe("@beep/module/MyService");
+  });
+
   it("creates schema annotate and merges extras", () => {
     const $SchemaId = make("beep").$BeepId.compose("schema");
     const annotation = $SchemaId.annotate("Tenant", {
@@ -39,5 +46,12 @@ describe("@beep/identity", () => {
     expect(() => make("-bad")).toThrowError(
       "Identity bases must use alphanumeric, hyphen, or underscore characters and start/end with alphanumeric."
     );
+  });
+
+  it("rejects interpolations in identity template tags", () => {
+    const $I = make("beep").$BeepId.create("module");
+    expect(
+      () => ($I as unknown as (s: TemplateStringsArray, ...v: ReadonlyArray<unknown>) => unknown)`My${"Svc"}`
+    ).toThrowError("Identity template tags do not allow interpolations.");
   });
 });
