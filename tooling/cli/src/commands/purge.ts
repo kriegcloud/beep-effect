@@ -19,7 +19,16 @@ import { Command, Flag } from "effect/unstable/cli";
  * @since 0.0.0
  * @category constants
  */
-const WORKSPACE_ARTIFACTS = [".tsbuildinfo", "build", "dist", "docs", ".next", "coverage", ".turbo", "node_modules"] as const;
+const WORKSPACE_ARTIFACTS = [
+  ".tsbuildinfo",
+  "build",
+  "dist",
+  "docs",
+  ".next",
+  "coverage",
+  ".turbo",
+  "node_modules",
+] as const;
 
 /**
  * Root-level artifacts always purged.
@@ -27,7 +36,7 @@ const WORKSPACE_ARTIFACTS = [".tsbuildinfo", "build", "dist", "docs", ".next", "
  * @since 0.0.0
  * @category constants
  */
-const ROOT_ARTIFACTS = ["node_modules", ".turbo"] as const;
+const ROOT_ARTIFACTS = ["node_modules", ".turbo", "docs"] as const;
 
 /**
  * Optional root lock artifact purged with `--lock` / `-l`.

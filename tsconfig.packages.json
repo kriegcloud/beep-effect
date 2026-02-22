@@ -35,6 +35,9 @@
     },
     {
       "path": "packages/common/ontology"
+    },
+    {
+      "path": "packages/common/data"
     }
   ]
 }

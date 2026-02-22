@@ -80,7 +80,7 @@ interface TemplateContext {
     "provenance": true,
     "exports": {
       "./package.json": "./package.json",
-      ".": "./dist/index.js",
+      ".": "./dist/index.ts",
       "./*": "./dist/*.js",
       "./internal/*": null
     }

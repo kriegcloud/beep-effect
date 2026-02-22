@@ -152,7 +152,7 @@ export type PackageJson = Schema.Schema.Type<typeof PackageJson>
 import * as Effect from "effect/Effect"
 import * as FileSystem from "@effect/platform/FileSystem"
 import * as Path from "@effect/platform/Path"
-import { NoSuchFileError } from "./errors/index.js"
+import { NoSuchFileError } from "./errors/index.ts"
 
 export const findRepoRoot = (startPath?: string): Effect.Effect<
   string,

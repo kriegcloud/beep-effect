@@ -138,7 +138,7 @@ Dependency source: `embedding-pipeline-design.md`, `mcp-api-design.md`, `docgen-
     },
     "exports": {
       "./package.json": "./package.json",
-      ".": "./dist/index.js",
+      ".": "./dist/index.ts",
       "./*": "./dist/*.js",
       "./extractor/*": null,
       "./indexer/*": null,
@@ -247,15 +247,15 @@ export * from "./errors.js"
 /** @since 0.0.0 */
 export * from "./IndexedSymbol.js"
 /** @since 0.0.0 */
-export * from "./extractor/index.js"
+export * from "./extractor/index.ts"
 /** @since 0.0.0 */
-export * from "./indexer/index.js"
+export * from "./indexer/index.ts"
 /** @since 0.0.0 */
-export * from "./search/index.js"
+export * from "./search/index.ts"
 /** @since 0.0.0 */
-export * from "./mcp/index.js"
+export * from "./mcp/index.ts"
 /** @since 0.0.0 */
-export * from "./hooks/index.js"
+export * from "./hooks/index.ts"
 ```
 
 `src/bin.ts` is the executable entry and launches MCP server layer.

@@ -703,7 +703,7 @@ Add to `.mcp.json` at project root:
     "codebase-search": {
       "type": "stdio",
       "command": "node",
-      "args": ["./tools/mcp-codebase-search/dist/index.js"],
+      "args": ["./tools/mcp-codebase-search/dist/index.ts"],
       "env": {
         "CODEBASE_ROOT": ".",
         "INDEX_PATH": ".code-index",
@@ -803,7 +803,7 @@ if (results.length > 0) {
 #!/usr/bin/env node
 // Inject project-level context at session start
 
-import { getProjectOverview } from "../src/index.js";
+import { getProjectOverview } from "../src/index.ts";
 
 const overview = await getProjectOverview();
 console.log([

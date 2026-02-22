@@ -149,7 +149,7 @@ export * as AnotherModule from "./AnotherModule.ts"
 {
   "publishConfig": {
     "exports": {
-      ".": "./dist/index.js",
+      ".": "./dist/index.ts",
       "./*": "./dist/*.js",
       "./internal/*": null
     }

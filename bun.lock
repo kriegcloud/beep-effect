@@ -52,6 +52,17 @@
         "vite-tsconfig-paths": "catalog:",
       },
     },
+    "packages/common/data": {
+      "name": "@beep/data",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/common/identity": {
       "name": "@beep/identity",
       "version": "0.0.0",
@@ -294,6 +305,8 @@
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
     "@beep/codebase-search": ["@beep/codebase-search@workspace:tooling/codebase-search"],
+
+    "@beep/data": ["@beep/data@workspace:packages/common/data"],
 
     "@beep/identity": ["@beep/identity@workspace:packages/common/identity"],
 

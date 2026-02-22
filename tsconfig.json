@@ -51,7 +51,9 @@
       "@beep/messages": ["./packages/common/messages/src/index.ts"],
       "@beep/messages/*": ["./packages/common/messages/src/*.ts"],
       "@beep/ontology": ["./packages/common/ontology/src/index.ts"],
-      "@beep/ontology/*": ["./packages/common/ontology/src/*.ts"]
+      "@beep/ontology/*": ["./packages/common/ontology/src/*.ts"],
+      "@beep/data": ["./packages/common/data/src/index.ts"],
+      "@beep/data/*": ["./packages/common/data/src/*.ts"]
     },
     "plugins": [
       {

@@ -19,7 +19,7 @@ describe("PackageJson schema", () => {
         license: "MIT",
         private: true,
         type: "module",
-        main: "dist/index.js",
+        main: "dist/index.ts",
         module: "dist/index.mjs",
         types: "dist/index.d.ts",
         scripts: {
