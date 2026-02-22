@@ -1,6 +1,7 @@
-import { dual } from "effect/Function";
+import { coerceUnsafe, dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 
 type Depth = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 type PreviousDepth = {
@@ -114,7 +115,7 @@ type PathLookup = { readonly found: false } | { readonly found: true; readonly v
 
 const hasOwn = Object.prototype.hasOwnProperty;
 
-const normalizePath = (path: PathInput): ReadonlyArray<string> => (typeof path === "string" ? path.split(".") : path);
+const normalizePath = (path: PathInput): ReadonlyArray<string> => (P.isString(path) ? Str.split(path, ".") : path);
 
 const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
   const parts = normalizePath(path);
@@ -136,7 +137,7 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
       return { found: false };
     }
 
-    const record = current as Record<string, unknown>;
+    const record = coerceUnsafe<unknown, Record<string, unknown>>(current);
     if (!hasOwn.call(record, part)) {
       return { found: false };
     }
@@ -151,14 +152,14 @@ const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
  * Retrieves a value from a struct by a path.
  *
  * Supports a dual API:
- * - Data-last: `structGet("attributes.name")(self)`
- * - Data-first: `structGet(self, "attributes.name")`
- * - Tuple paths: `structGet(["attributes", "name"] as const)(self)`
+ * - Data-last: `dotGet("attributes.name")(self)`
+ * - Data-first: `dotGet(self, "attributes.name")`
+ * - Tuple paths: `dotGet(["attributes", "name"] as const)(self)`
  *
  * @since 0.0.0
  * @category getters
  */
-export const structGet: {
+export const dotGet: {
   <const P extends string>(path: P): <S extends object>(self: StructForPath<S, P>) => StructValueForPath<S, P>;
   <const P extends ReadonlyArray<string>>(
     path: P
@@ -186,7 +187,7 @@ export const structGet: {
  * @since 0.0.0
  * @category getters
  */
-export const structGetOption: {
+export const dotGetOption: {
   <const P extends string>(
     path: P
   ): <S extends object>(self: StructForPath<S, P>) => O.Option<StructValueForPath<S, P>>;

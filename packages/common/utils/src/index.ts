@@ -4,7 +4,7 @@
  * @since 0.0.0
  */
 
-export * from "./structGet.js";
+export * from "./Struct.js";
 
 /**
  * @since 0.0.0
