@@ -6,10 +6,6 @@
     "**/vitest.*.ts", // All vitest config files across all packages
     "./syncpack.config.ts",
     "./knip.config.ts",
-    "./packages/*/test/**/*.ts",
-    "./packages/*/test/**/*.json",
-    "./packages/*/dtslint/**/*.ts",
-    "./packages/*/benchmark/**/*.ts",
     "./packages/*/*/test/**/*.ts",
     "./packages/*/*/test/**/*.json",
     "./packages/*/*/dtslint/**/*.ts",
@@ -20,7 +16,7 @@
     "./apps/*/test/**/*.ts",
     "./apps/*/test/**/*.json"
   ],
-  "exclude": ["./tooling/*/test/fixtures/**/*.ts"],
+  "exclude": ["./tooling/*/test/fixtures/**/*.ts", "./**/dtslint/**/*.tst.*"],
   "compilerOptions": {
     "tsBuildInfoFile": "./dist/tsconfig.root.tsbuildinfo",
     "rootDir": ".",
