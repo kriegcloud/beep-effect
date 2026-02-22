@@ -25,7 +25,8 @@
       "!!**/build",
       "!!**/bun.lock",
       "!!**/dist",
-      "!.repos"
+      "!.repos",
+      "!specs"
     ]
   },
   "json": {

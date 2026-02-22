@@ -1,0 +1,317 @@
+[
+  {
+    "name": "Effect v4 Migration: Cause flattened from recursive tree to flat array",
+    "episode_body": "Title: Migration: Cause flattened from recursive tree to flat array\nCategory: migration\nSource: cause.md\n\nChange: Cause<E> changed from a recursive tree with six variants (Empty | Fail<E> | Die | Interrupt | Sequential<E> | Parallel<E>) to a flat wrapper around an array of Failure values. Only three failure variants remain: Fail, Die, and Interrupt. Empty, Sequential, and Parallel variants were removed.\n\nv3 Pattern:\ninterface Cause<E> with variants: Empty | Fail<E> | Die | Interrupt | Sequential<E> | Parallel<E>\nPattern matching via cause._tag on all six variants with recursive traversal of left/right for Sequential/Parallel.\n\nv4 Pattern:\ninterface Cause<E> { readonly failures: ReadonlyArray<Failure<E>> }\ntype Failure<E> = Fail<E> | Die | Interrupt\nIterate over cause.failures array, switch on failure._tag for Fail/Die/Interrupt only.\n\nReason: The recursive tree structure was complex to traverse and reason about. A flat array is simpler and eliminates the need for recursive pattern matching.\n\nAffected Modules: Cause",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Cause type guards renamed to failure-level guards",
+    "episode_body": "Title: Migration: Cause type guards renamed to failure-level guards\nCategory: migration\nSource: cause.md\n\nChange: v3 cause-level type guards (isFailType, isDieType, isInterruptType, isEmptyType) replaced by failure-level guards that operate on individual Failure values.\n\nv3 Pattern:\nCause.isEmptyType(cause)\nCause.isFailType(cause)\nCause.isDieType(cause)\nCause.isInterruptType(cause)\nCause.isSequentialType(cause)\nCause.isParallelType(cause)\n\nv4 Pattern:\ncause.failures.length === 0 (replaces isEmptyType)\nCause.failureIsFail(failure)\nCause.failureIsDie(failure)\nCause.failureIsInterrupt(failure)\nisSequentialType and isParallelType are removed entirely.\n\nReason: Guards now operate on individual Failure values from the flat array rather than on the Cause tree structure.\n\nAffected Modules: Cause",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Cause-level predicates renamed (isFailure, isDie, isInterrupted)",
+    "episode_body": "Title: Migration: Cause-level predicates renamed (isFailure, isDie, isInterrupted)\nCategory: migration\nSource: cause.md\n\nChange: Cause-level predicates that check whether any failure of a given kind exists have been renamed.\n\nv3 Pattern:\nCause.isFailure(cause)\nCause.isDie(cause)\nCause.isInterrupted(cause)\nCause.isInterruptedOnly(cause)\n\nv4 Pattern:\nCause.hasFail(cause)\nCause.hasDie(cause)\nCause.hasInterrupt(cause)\nCause.isInterruptedOnly(cause) (unchanged)\n\nReason: Renamed for clarity - \"has\" prefix better communicates that the predicate checks for the existence of a failure type in the array.\n\nAffected Modules: Cause",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Cause.sequential and Cause.parallel replaced by Cause.merge",
+    "episode_body": "Title: Migration: Cause.sequential and Cause.parallel replaced by Cause.merge\nCategory: migration\nSource: cause.md\n\nChange: Cause.sequential(left, right) and Cause.parallel(left, right) constructors both replaced by Cause.merge(left, right), which concatenates the failures arrays.\n\nv3 Pattern:\nCause.sequential(left, right)\nCause.parallel(left, right)\n\nv4 Pattern:\nCause.merge(left, right)\n\nReason: The distinction between sequential and parallel composition is no longer represented in the flattened data structure. Both just concatenate failure arrays.\n\nAffected Modules: Cause",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: New Cause constructors (fromFailures, failureFail, failureDie, failureInterrupt)",
+    "episode_body": "Title: Migration: New Cause constructors (fromFailures, failureFail, failureDie, failureInterrupt)\nCategory: migration\nSource: cause.md\n\nChange: New constructors added for working with the flattened Cause structure.\n\nv3 Pattern:\nNo equivalent - constructed causes via Cause.fail, Cause.die, Cause.interrupt, Cause.sequential, Cause.parallel.\n\nv4 Pattern:\nCause.fromFailures(failures) - construct a Cause from an array of Failure values.\nCause.failureFail(error) - construct a Fail Failure value.\nCause.failureDie(defect) - construct a Die Failure value.\nCause.failureInterrupt(fiberId) - construct an Interrupt Failure value.\n\nReason: These constructors support building causes from the new flat Failure array structure.\n\nAffected Modules: Cause",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Cause.annotate and Cause.filter* functions added",
+    "episode_body": "Title: Migration: Cause.annotate and Cause.filter* functions added\nCategory: migration\nSource: cause.md\n\nChange: New utility functions added to Cause module.\n\nv3 Pattern:\nNo direct equivalent.\n\nv4 Pattern:\nCause.annotate(annotations) - attach annotations to a Cause.\nCause.filterError(cause) - extract Fail failure types using the Filter module.\nCause.filterDefect(cause) - extract Die failure types using the Filter module.\nCause.filterInterrupt(cause) - extract Interrupt failure types using the Filter module.\n\nReason: Provides structured filtering and annotation capabilities for the new flat cause structure.\n\nAffected Modules: Cause, Filter",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.catchAll renamed to Effect.catch",
+    "episode_body": "Title: Migration: Effect.catchAll renamed to Effect.catch\nCategory: migration\nSource: error-handling.md\n\nChange: Effect.catchAll renamed to Effect.catch. The general pattern is catchAll* shortened to catch*.\n\nv3 Pattern:\nEffect.fail(\"error\").pipe(Effect.catchAll((error) => Effect.succeed(`recovered: ${error}`)))\n\nv4 Pattern:\nEffect.fail(\"error\").pipe(Effect.catch((error) => Effect.succeed(`recovered: ${error}`)))\n\nReason: Shortened naming convention - catchAll* becomes catch*.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.catchAllCause renamed to Effect.catchCause",
+    "episode_body": "Title: Migration: Effect.catchAllCause renamed to Effect.catchCause\nCategory: migration\nSource: error-handling.md\n\nChange: Effect.catchAllCause renamed to Effect.catchCause.\n\nv3 Pattern:\nEffect.die(\"defect\").pipe(Effect.catchAllCause((cause) => Effect.succeed(\"recovered\")))\n\nv4 Pattern:\nEffect.die(\"defect\").pipe(Effect.catchCause((cause) => Effect.succeed(\"recovered\")))\n\nReason: Shortened naming convention - catchAll* becomes catch*.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.catchAllDefect renamed to Effect.catchDefect",
+    "episode_body": "Title: Migration: Effect.catchAllDefect renamed to Effect.catchDefect\nCategory: migration\nSource: error-handling.md\n\nChange: Effect.catchAllDefect renamed to Effect.catchDefect.\n\nv3 Pattern:\nEffect.catchAllDefect(handler)\n\nv4 Pattern:\nEffect.catchDefect(handler)\n\nReason: Shortened naming convention - catchAll* becomes catch*.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.catchSome renamed to Effect.catchFilter",
+    "episode_body": "Title: Migration: Effect.catchSome renamed to Effect.catchFilter using Filter module\nCategory: migration\nSource: error-handling.md\n\nChange: Effect.catchSome replaced by Effect.catchFilter. Instead of returning Option<Effect>, uses the Filter module.\n\nv3 Pattern:\nimport { Effect, Option } from \"effect\"\nEffect.fail(42).pipe(Effect.catchSome((error) => error === 42 ? Option.some(Effect.succeed(\"caught\")) : Option.none()))\n\nv4 Pattern:\nimport { Effect, Filter } from \"effect\"\nEffect.fail(42).pipe(Effect.catchFilter(Filter.fromPredicate((error: number) => error === 42), (error) => Effect.succeed(\"caught\")))\n\nReason: The catchSome* family is replaced by catchFilter / catchCauseFilter using the Filter module for more composable error filtering.\n\nAffected Modules: Effect, Filter",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.catchSomeCause renamed to Effect.catchCauseFilter",
+    "episode_body": "Title: Migration: Effect.catchSomeCause renamed to Effect.catchCauseFilter\nCategory: migration\nSource: error-handling.md\n\nChange: Effect.catchSomeCause renamed to Effect.catchCauseFilter.\n\nv3 Pattern:\nEffect.catchSomeCause(handler)\n\nv4 Pattern:\nEffect.catchCauseFilter(filter, handler)\n\nReason: Consistent with the catchFilter pattern using the Filter module.\n\nAffected Modules: Effect, Filter",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.catchSomeDefect removed",
+    "episode_body": "Title: Migration: Effect.catchSomeDefect removed\nCategory: migration\nSource: error-handling.md\n\nChange: Effect.catchSomeDefect has been removed in v4 with no direct replacement.\n\nv3 Pattern:\nEffect.catchSomeDefect(handler)\n\nv4 Pattern:\nRemoved. Use Effect.catchDefect with conditional logic, or Effect.catchCauseFilter.\n\nReason: Simplified error handling API surface.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.catchTag and Effect.catchTags unchanged",
+    "episode_body": "Title: Migration: Effect.catchTag and Effect.catchTags unchanged\nCategory: migration\nSource: error-handling.md\n\nChange: Effect.catchTag and Effect.catchTags remain unchanged in v4. Effect.catchIf also unchanged.\n\nv3 Pattern:\nEffect.catchTag(tag, handler)\nEffect.catchTags(cases)\nEffect.catchIf(predicate, handler)\n\nv4 Pattern:\nEffect.catchTag(tag, handler) (unchanged)\nEffect.catchTags(cases) (unchanged)\nEffect.catchIf(predicate, handler) (unchanged)\n\nReason: These APIs were already well-designed and did not need renaming.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: New Effect.catchReason and Effect.catchReasons",
+    "episode_body": "Title: Migration: New Effect.catchReason and Effect.catchReasons for nested error causes\nCategory: migration\nSource: error-handling.md\n\nChange: New error handling combinators for catching specific reasons within tagged errors.\n\nv3 Pattern:\nNo equivalent.\n\nv4 Pattern:\nEffect.catchReason(errorTag, reasonTag, handler) - catches a specific reason within a tagged error without removing the parent error from the error channel. Useful for handling nested error causes (e.g. an AiError with a reason: RateLimitError | QuotaExceededError).\nEffect.catchReasons(errorTag, cases) - like catchReason but handles multiple reason tags at once via an object of handlers.\n\nReason: Enables fine-grained error handling for errors with nested reason/cause fields.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: New Effect.catchEager optimization variant",
+    "episode_body": "Title: Migration: New Effect.catchEager optimization variant\nCategory: migration\nSource: error-handling.md\n\nChange: Effect.catchEager(handler) added as an optimization variant of Effect.catch.\n\nv3 Pattern:\nNo equivalent.\n\nv4 Pattern:\nEffect.catchEager(handler) - evaluates synchronous recovery effects immediately rather than scheduling them.\n\nReason: Performance optimization for synchronous error recovery paths.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Fiber keep-alive built into core runtime",
+    "episode_body": "Title: Migration: Fiber keep-alive built into core runtime\nCategory: migration\nSource: fiber-keep-alive.md\n\nChange: The keep-alive mechanism that prevents Node.js process exit while fibers are suspended is now built into the core Effect runtime. Previously required runMain from @effect/platform-node.\n\nv3 Pattern:\nimport { NodeRuntime } from \"@effect/platform-node\"\nNodeRuntime.runMain(program) // needed to prevent process exit during fiber suspension\n\nv4 Pattern:\nEffect.runPromise(program) // process stays alive automatically while fibers are suspended\n// runMain is still recommended for signal handling, exit codes, and error reporting\n\nReason: In v3, when a fiber suspended (e.g. on Deferred.await) and there was no other event loop work, Node.js would exit. The only workaround was runMain which installed a setInterval timer. v4 builds reference-counted keep-alive into the core runtime.\n\nAffected Modules: Effect, Runtime",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: runMain still recommended for signal handling and exit codes",
+    "episode_body": "Title: Migration: runMain still recommended for signal handling and exit codes\nCategory: migration\nSource: fiber-keep-alive.md\n\nChange: Although keep-alive is now built-in, runMain from platform packages is still the recommended way to run Effect programs.\n\nv3 Pattern:\nimport { NodeRuntime } from \"@effect/platform-node\"\nNodeRuntime.runMain(program)\n\nv4 Pattern:\nrunMain is still recommended because it provides: signal handling (SIGINT/SIGTERM with graceful fiber interruption), exit code management (process.exit(code) on failure), and error reporting (unhandled errors to console).\n\nReason: Keep-alive only solves process lifetime. runMain provides additional production-critical features.\n\nAffected Modules: Runtime",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: FiberRef removed, replaced by ServiceMap.Reference",
+    "episode_body": "Title: Migration: FiberRef removed, replaced by ServiceMap.Reference\nCategory: migration\nSource: fiberref.md\n\nChange: FiberRef, FiberRefs, FiberRefsPatch, and Differ have been removed. Fiber-local state is now handled by ServiceMap.Reference, the same mechanism used for services with default values.\n\nv3 Pattern:\nimport { FiberRef } from \"effect\"\n// FiberRef was a dedicated type for fiber-local mutable state\n\nv4 Pattern:\nimport { ServiceMap } from \"effect\"\n// ServiceMap.Reference replaces FiberRef - same mechanism as services with defaults\n\nReason: Unified the fiber-local state mechanism with the service system. ServiceMap.Reference serves both purposes.\n\nAffected Modules: FiberRef (removed), ServiceMap, References",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Built-in FiberRef values moved to References module",
+    "episode_body": "Title: Migration: Built-in FiberRef values moved to References module\nCategory: migration\nSource: fiberref.md\n\nChange: All built-in FiberRef values are now ServiceMap.Reference values exported from the References module.\n\nv3 Pattern:\nFiberRef.currentConcurrency\nFiberRef.currentLogLevel\nFiberRef.currentMinimumLogLevel\nFiberRef.currentLogAnnotations\nFiberRef.currentLogSpan\nFiberRef.currentScheduler\nFiberRef.currentMaxOpsBeforeYield\nFiberRef.currentTracerEnabled\nFiberRef.unhandledErrorLogLevel\n\nv4 Pattern:\nReferences.CurrentConcurrency\nReferences.CurrentLogLevel\nReferences.MinimumLogLevel\nReferences.CurrentLogAnnotations\nReferences.CurrentLogSpans\nReferences.Scheduler\nReferences.MaxOpsBeforeYield\nReferences.TracerEnabled\nReferences.UnhandledLogLevel\n\nReason: FiberRef replaced by ServiceMap.Reference. Built-in references live in the References module.\n\nAffected Modules: FiberRef (removed), References",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: FiberRef.get replaced by yielding Reference directly",
+    "episode_body": "Title: Migration: FiberRef.get replaced by yielding Reference directly\nCategory: migration\nSource: fiberref.md\n\nChange: Reading fiber-local state changed from FiberRef.get(ref) to yielding the Reference directly via yield*.\n\nv3 Pattern:\nimport { Effect, FiberRef } from \"effect\"\nconst program = Effect.gen(function*() {\n  const level = yield* FiberRef.get(FiberRef.currentLogLevel)\n})\n\nv4 Pattern:\nimport { Effect, References } from \"effect\"\nconst program = Effect.gen(function*() {\n  const level = yield* References.CurrentLogLevel // \"Info\" (default)\n})\n\nReason: References are services - you yield* them directly like any other service, no special get function needed.\n\nAffected Modules: FiberRef (removed), References",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.locally replaced by Effect.provideService for references",
+    "episode_body": "Title: Migration: Effect.locally replaced by Effect.provideService for references\nCategory: migration\nSource: fiberref.md\n\nChange: Scoped FiberRef updates via Effect.locally replaced by Effect.provideService with the reference.\n\nv3 Pattern:\nimport { Effect, FiberRef, LogLevel } from \"effect\"\nconst program = Effect.locally(myEffect, FiberRef.currentLogLevel, LogLevel.Debug)\n\nv4 Pattern:\nimport { Effect, References } from \"effect\"\nconst program = Effect.provideService(myEffect, References.CurrentLogLevel, \"Debug\")\n\nReason: References are services, so providing a value uses the same Effect.provideService mechanism as any other service.\n\nAffected Modules: Effect, References",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: FiberRef.set replaced by Effect.provideService scoping",
+    "episode_body": "Title: Migration: FiberRef.set replaced by Effect.provideService scoping\nCategory: migration\nSource: fiberref.md\n\nChange: FiberRef.set for mutating fiber-local state replaced by Effect.provideService which scopes the value to the provided effect.\n\nv3 Pattern:\nimport { Effect, FiberRef } from \"effect\"\nconst program = Effect.gen(function*() {\n  yield* FiberRef.set(FiberRef.currentConcurrency, 10)\n  // subsequent code sees concurrency = 10\n})\n\nv4 Pattern:\nimport { Effect, References } from \"effect\"\nconst program = Effect.provideService(\n  Effect.gen(function*() {\n    const concurrency = yield* References.CurrentConcurrency\n    console.log(concurrency) // 10\n  }),\n  References.CurrentConcurrency,\n  10\n)\n\nReason: There is no mutable set operation. References are scoped via Effect.provideService, making the scope of the value explicit.\n\nAffected Modules: Effect, References",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.fork renamed to Effect.forkChild",
+    "episode_body": "Title: Migration: Effect.fork renamed to Effect.forkChild\nCategory: migration\nSource: forking.md\n\nChange: Effect.fork renamed to Effect.forkChild for clarity about the parent-child relationship.\n\nv3 Pattern:\nimport { Effect } from \"effect\"\nconst fiber = Effect.fork(myEffect)\n\nv4 Pattern:\nimport { Effect } from \"effect\"\nconst fiber = Effect.forkChild(myEffect)\n\nReason: The name forkChild makes the parent-child fiber relationship explicit.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.forkDaemon renamed to Effect.forkDetach",
+    "episode_body": "Title: Migration: Effect.forkDaemon renamed to Effect.forkDetach\nCategory: migration\nSource: forking.md\n\nChange: Effect.forkDaemon renamed to Effect.forkDetach for clarity.\n\nv3 Pattern:\nimport { Effect } from \"effect\"\nconst fiber = Effect.forkDaemon(myEffect)\n\nv4 Pattern:\nimport { Effect } from \"effect\"\nconst fiber = Effect.forkDetach(myEffect)\n\nReason: The name forkDetach better describes that the fiber is detached from the parent lifecycle.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.forkScoped and Effect.forkIn unchanged",
+    "episode_body": "Title: Migration: Effect.forkScoped and Effect.forkIn unchanged\nCategory: migration\nSource: forking.md\n\nChange: Effect.forkScoped (fork tied to current Scope) and Effect.forkIn (fork in a specific Scope) remain unchanged in v4.\n\nv3 Pattern:\nEffect.forkScoped(myEffect)\nEffect.forkIn(myEffect, scope)\n\nv4 Pattern:\nEffect.forkScoped(myEffect) (unchanged)\nEffect.forkIn(myEffect, scope) (unchanged)\n\nReason: These APIs were already well-named and did not need changes.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.forkAll and Effect.forkWithErrorHandler removed",
+    "episode_body": "Title: Migration: Effect.forkAll and Effect.forkWithErrorHandler removed\nCategory: migration\nSource: forking.md\n\nChange: Effect.forkAll and Effect.forkWithErrorHandler have been removed in v4.\n\nv3 Pattern:\nEffect.forkAll(effects) // fork all effects as child fibers\nEffect.forkWithErrorHandler(effect, handler) // fork with error handler\n\nv4 Pattern:\nFor forkAll: fork effects individually with Effect.forkChild or use higher-level concurrency combinators.\nFor forkWithErrorHandler: observe the fiber's result via Fiber.join or Fiber.await for error handling.\n\nReason: Simplified forking API surface. These utilities can be composed from the remaining primitives.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Fork options object added (startImmediately, uninterruptible)",
+    "episode_body": "Title: Migration: Fork options object added (startImmediately, uninterruptible)\nCategory: migration\nSource: forking.md\n\nChange: All fork variants (forkChild, forkDetach, forkScoped, forkIn) now accept an optional options object.\n\nv3 Pattern:\nNo options available on fork combinators.\n\nv4 Pattern:\nEffect.forkChild(myEffect, { startImmediately: true })\nEffect.forkChild(myEffect, { uninterruptible: true })\nEffect.forkChild(myEffect, { uninterruptible: \"inherit\" })\n// Also works curried:\nmyEffect.pipe(Effect.forkChild({ startImmediately: true }))\n\nOptions:\n- startImmediately: boolean - when true, forked fiber begins executing immediately rather than being deferred\n- uninterruptible: boolean | \"inherit\" - controls whether the forked fiber can be interrupted\n\nReason: Provides fine-grained control over fiber startup behavior without needing separate combinators.\n\nAffected Modules: Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Layer memoization now shared across Effect.provide calls",
+    "episode_body": "Title: Migration: Layer memoization now shared across Effect.provide calls\nCategory: migration\nSource: layer-memoization.md\n\nChange: In v3, each Effect.provide call had its own memoization scope, so overlapping layers would be built multiple times. In v4, the MemoMap is shared between Effect.provide calls by default, so layers are automatically deduplicated.\n\nv3 Pattern:\nconst main = program.pipe(\n  Effect.provide(MyServiceLayer),\n  Effect.provide(MyServiceLayer)\n)\n// v3: \"Building MyService\" logged TWICE - each provide has its own memo map\n\nv4 Pattern:\nconst main = program.pipe(\n  Effect.provide(MyServiceLayer),\n  Effect.provide(MyServiceLayer)\n)\n// v4: \"Building MyService\" logged ONCE - shared memo map deduplicates\n\nReason: Prevents accidental double-building of layers when using multiple Effect.provide calls. This was a common footgun in v3.\n\nAffected Modules: Layer, Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Layer.fresh still available for bypassing memoization",
+    "episode_body": "Title: Migration: Layer.fresh still available for bypassing memoization\nCategory: migration\nSource: layer-memoization.md\n\nChange: Layer.fresh continues to work in v4 for cases where you want a layer built fresh, bypassing the shared cache.\n\nv3 Pattern:\nLayer.fresh(MyServiceLayer) // existed in v3\n\nv4 Pattern:\nLayer.fresh(MyServiceLayer) // still works - always builds with fresh memo map\nEffect.provide(Layer.fresh(MyServiceLayer)) // bypasses shared cache\n\nReason: Some use cases (test isolation, independent resource pools) require fresh layer builds.\n\nAffected Modules: Layer",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: New Effect.provide local option for isolated memoization",
+    "episode_body": "Title: Migration: New Effect.provide local option for isolated memoization\nCategory: migration\nSource: layer-memoization.md\n\nChange: Effect.provide now accepts a { local: true } option to build the provided layer with a local memo map instead of the fiber's shared one.\n\nv3 Pattern:\nNo equivalent - each provide call already had its own memo map.\n\nv4 Pattern:\nEffect.provide(MyServiceLayer, { local: true })\n// Builds layer and all sublayers from scratch, not shared with other provide calls\n\nReason: Provides explicit control for cases like test harnesses where each test should get independent resources, without needing Layer.fresh on every sublayer.\n\nAffected Modules: Effect, Layer",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Runtime<R> type removed, replaced by ServiceMap<R>",
+    "episode_body": "Title: Migration: Runtime<R> type removed, replaced by ServiceMap<R>\nCategory: migration\nSource: runtime.md\n\nChange: The Runtime<R> type that bundled Context<R>, RuntimeFlags, and FiberRefs has been removed. Use ServiceMap<R> instead. Run functions now live directly on Effect.\n\nv3 Pattern:\ninterface Runtime<in R> {\n  readonly context: Context.Context<R>\n  readonly runtimeFlags: RuntimeFlags\n  readonly fiberRefs: FiberRefs\n}\n\nv4 Pattern:\nRuntime<R> no longer exists. Use ServiceMap<R> instead.\nRun functions live directly on Effect.\nThe Runtime module now only contains: Teardown (interface), defaultTeardown, makeRunMain.\n\nReason: Runtime was a complex bundle of concerns. ServiceMap handles the service/context aspect, and RuntimeFlags/FiberRefs are handled differently in v4.\n\nAffected Modules: Runtime (reduced), ServiceMap, Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Context.GenericTag replaced by ServiceMap.Service",
+    "episode_body": "Title: Migration: Context.GenericTag replaced by ServiceMap.Service\nCategory: migration\nSource: services.md\n\nChange: Context.GenericTag<T>(id) replaced by ServiceMap.Service<T>(id) for defining services with function syntax.\n\nv3 Pattern:\nimport { Context } from \"effect\"\ninterface Database { readonly query: (sql: string) => string }\nconst Database = Context.GenericTag<Database>(\"Database\")\n\nv4 Pattern:\nimport { ServiceMap } from \"effect\"\ninterface Database { readonly query: (sql: string) => string }\nconst Database = ServiceMap.Service<Database>(\"Database\")\n\nReason: Context module replaced by ServiceMap. Services are now defined via ServiceMap.Service.\n\nAffected Modules: Context (removed), ServiceMap",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Context.Tag class syntax replaced by ServiceMap.Service class syntax",
+    "episode_body": "Title: Migration: Context.Tag class syntax replaced by ServiceMap.Service class syntax\nCategory: migration\nSource: services.md\n\nChange: Class-based service definition syntax changed. In v3, the identifier string was passed to Context.Tag(id) before type parameters. In v4, type parameters come first via ServiceMap.Service<Self, Shape>() and the identifier is passed to the returned constructor.\n\nv3 Pattern:\nimport { Context } from \"effect\"\nclass Database extends Context.Tag(\"Database\")<Database, {\n  readonly query: (sql: string) => string\n}>() {}\n\nv4 Pattern:\nimport { ServiceMap } from \"effect\"\nclass Database extends ServiceMap.Service<Database, {\n  readonly query: (sql: string) => string\n}>()(\"Database\") {}\n\nReason: Changed argument order - type parameters first, then identifier. This enables better type inference.\n\nAffected Modules: Context (removed), ServiceMap",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.Tag accessors removed, replaced by Service.use",
+    "episode_body": "Title: Migration: Effect.Tag accessors removed, replaced by Service.use and Service.useSync\nCategory: migration\nSource: services.md\n\nChange: v3's Effect.Tag provided proxy access to service methods as static properties (accessors). This is removed in v4. Use Service.use or Service.useSync instead, or prefer yield* in generators.\n\nv3 Pattern:\nclass Notifications extends Effect.Tag(\"Notifications\")<Notifications, {\n  readonly notify: (message: string) => Effect.Effect<void>\n}>() {}\n// Static proxy access\nconst program = Notifications.notify(\"hello\")\n\nv4 Pattern:\nclass Notifications extends ServiceMap.Service<Notifications, {\n  readonly notify: (message: string) => Effect.Effect<void>\n}>()(\"Notifications\") {}\n// use: access the service and call a method in one step\nconst program = Notifications.use((n) => n.notify(\"hello\"))\n// useSync: for pure/synchronous accessors\nconst port = Config.useSync((c) => c.port)\n// Preferred: yield* in generators\nconst program2 = Effect.gen(function*() {\n  const notifications = yield* Notifications\n  yield* notifications.notify(\"hello\")\n})\n\nReason: The proxy approach lost generic type parameters and overloaded signatures. Service.use makes the conversion explicit. yield* is preferred for most cases.\n\nAffected Modules: Effect (Effect.Tag removed), ServiceMap",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect.Service replaced by ServiceMap.Service with make option",
+    "episode_body": "Title: Migration: Effect.Service replaced by ServiceMap.Service with make option\nCategory: migration\nSource: services.md\n\nChange: v3's Effect.Service with effect/dependencies options replaced by ServiceMap.Service with make option. v4 does NOT auto-generate a .Default layer - you must build layers explicitly.\n\nv3 Pattern:\nclass Logger extends Effect.Service<Logger>()(\"Logger\", {\n  effect: Effect.gen(function*() {\n    const config = yield* Config\n    return { log: (msg: string) => Effect.log(`[${config.prefix}] ${msg}`) }\n  }),\n  dependencies: [Config.Default]\n}) {}\n// Logger.Default is auto-generated: Layer<Logger, never, never>\nprogram.pipe(Effect.provide(Logger.Default))\n\nv4 Pattern:\nclass Logger extends ServiceMap.Service<Logger>()(\"Logger\", {\n  make: Effect.gen(function*() {\n    const config = yield* Config\n    return { log: (msg: string) => Effect.log(`[${config.prefix}] ${msg}`) }\n  })\n}) {\n  static layer = Layer.effect(this, this.make).pipe(Layer.provide(Config.layer))\n}\n// Build layer yourself, wire dependencies via Layer.provide\n// Convention: use .layer instead of .Default or .Live\n\nReason: Explicit layer construction makes the dependency graph visible. The dependencies option is removed. v4 convention is .layer instead of .Default/.Live.\n\nAffected Modules: Effect (Effect.Service removed), ServiceMap, Layer",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Context.Reference replaced by ServiceMap.Reference",
+    "episode_body": "Title: Migration: Context.Reference replaced by ServiceMap.Reference\nCategory: migration\nSource: services.md\n\nChange: Context.Reference class-based syntax replaced by ServiceMap.Reference function syntax.\n\nv3 Pattern:\nimport { Context } from \"effect\"\nclass LogLevel extends Context.Reference<LogLevel>()(\"LogLevel\", {\n  defaultValue: () => \"info\" as const\n}) {}\n\nv4 Pattern:\nimport { ServiceMap } from \"effect\"\nconst LogLevel = ServiceMap.Reference<\"info\" | \"warn\" | \"error\">(\"LogLevel\", {\n  defaultValue: () => \"info\" as const\n})\n\nReason: Simplified to function syntax, consistent with ServiceMap.Service.\n\nAffected Modules: Context (removed), ServiceMap",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Context module replaced by ServiceMap module",
+    "episode_body": "Title: Migration: Context module replaced by ServiceMap module (full API mapping)\nCategory: migration\nSource: services.md\n\nChange: The entire Context module is replaced by ServiceMap. All Context operations have ServiceMap equivalents.\n\nv3 Pattern:\nContext.GenericTag<T>(id) -> ServiceMap.Service<T>(id)\nContext.Tag(id)<Self, Shape>() -> ServiceMap.Service<Self, Shape>()(id)\nContext.Reference<Self>()(id, opts) -> ServiceMap.Reference<T>(id, opts)\nContext.make(tag, impl) -> ServiceMap.make(tag, impl)\nContext.get(ctx, tag) -> ServiceMap.get(map, tag)\nContext.add(ctx, tag, impl) -> ServiceMap.add(map, tag, impl)\nContext.mergeAll(...) -> ServiceMap.mergeAll(...)\n\nv4 Pattern:\nAll operations above use ServiceMap instead of Context.\n\nReason: ServiceMap is a typed map from service identifiers to implementations, replacing the Context data structure.\n\nAffected Modules: Context (removed), ServiceMap",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Layer naming convention changed from Default/Live to layer",
+    "episode_body": "Title: Migration: Layer naming convention changed from Default/Live to layer\nCategory: migration\nSource: services.md\n\nChange: v4 adopts the convention of naming layers with lowercase 'layer' instead of v3's 'Default' or 'Live'.\n\nv3 Pattern:\nLogger.Default // or Logger.Live\nConfig.Default\n\nv4 Pattern:\nLogger.layer // primary layer\nLogger.layerTest // test variant\nLogger.layerConfig // config variant\n\nReason: Consistent naming convention. Use 'layer' for the primary layer and descriptive suffixes for variants.\n\nAffected Modules: Layer, ServiceMap",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Effect subtyping replaced by Yieldable trait",
+    "episode_body": "Title: Migration: Effect subtyping replaced by Yieldable trait\nCategory: migration\nSource: yieldable.md\n\nChange: In v3, many types (Ref, Deferred, Fiber, FiberRef, Config, Option, Either, Context.Tag) were structural subtypes of Effect. In v4, this is replaced by the Yieldable trait which allows yield* in generators but does NOT make types assignable to Effect.\n\nv3 Pattern:\n// Types like Ref, Deferred, Fiber were Effect subtypes\n// Could be passed directly to Effect combinators\nEffect.map(Option.some(42), (n) => n + 1) // Option is an Effect subtype\n\nv4 Pattern:\ninterface Yieldable<Self, A, E = never, R = never> {\n  asEffect(): Effect<A, E, R>\n  [Symbol.iterator](): EffectIterator<Self>\n}\n// yield* still works in generators\n// But must use .asEffect() for Effect combinators\nEffect.map(Option.some(42).asEffect(), (n) => n + 1)\n\nReason: v3 subtyping caused subtle bugs - couldn't distinguish \"I have a Ref\" from \"I have an Effect that reads the Ref.\" Passing Ref to Effect.map would silently read the value. Yieldable preserves yield* ergonomics while making Effect conversion explicit.\n\nAffected Modules: Effect, Option, Either, Config, ServiceMap",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Types that implement Yieldable in v4",
+    "episode_body": "Title: Migration: Types that implement Yieldable in v4\nCategory: migration\nSource: yieldable.md\n\nChange: Specific types that implement the Yieldable interface (can be used with yield* but not as Effect directly).\n\nv3 Pattern:\nAll these types extended Effect directly.\n\nv4 Pattern:\nTypes implementing Yieldable:\n- Effect itself\n- Option - yields the value or fails with NoSuchElementError\n- Result - yields the success or fails with the error\n- Config - yields the config value or fails with ConfigError\n- ServiceMap.Service - yields the service from the environment\n\nReason: These types have natural Effect conversions that make sense for yield* usage.\n\nAffected Modules: Effect, Option, Result, Config, ServiceMap",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Ref no longer extends Effect, use Ref.get",
+    "episode_body": "Title: Migration: Ref no longer extends Effect, use Ref.get\nCategory: migration\nSource: yieldable.md\n\nChange: Ref is no longer an Effect subtype and does not implement Yieldable. Use Ref.get(ref) to read the value.\n\nv3 Pattern:\nimport { Effect, Ref } from \"effect\"\nconst program = Effect.gen(function*() {\n  const ref = yield* Ref.make(0)\n  const value = yield* ref // Ref is an Effect<number>\n})\n\nv4 Pattern:\nimport { Effect, Ref } from \"effect\"\nconst program = Effect.gen(function*() {\n  const ref = yield* Ref.make(0)\n  const value = yield* Ref.get(ref) // Must use Ref.get explicitly\n})\n\nReason: Prevents accidentally treating a Ref as an Effect that reads its value. Makes the read operation explicit.\n\nAffected Modules: Ref",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Deferred no longer extends Effect, use Deferred.await",
+    "episode_body": "Title: Migration: Deferred no longer extends Effect, use Deferred.await\nCategory: migration\nSource: yieldable.md\n\nChange: Deferred is no longer an Effect subtype and does not implement Yieldable. Use Deferred.await(deferred) to wait for completion.\n\nv3 Pattern:\nimport { Deferred, Effect } from \"effect\"\nconst program = Effect.gen(function*() {\n  const deferred = yield* Deferred.make<string, never>()\n  const value = yield* deferred // Deferred is an Effect<string>\n})\n\nv4 Pattern:\nimport { Deferred, Effect } from \"effect\"\nconst program = Effect.gen(function*() {\n  const deferred = yield* Deferred.make<string, never>()\n  const value = yield* Deferred.await(deferred) // Must use Deferred.await explicitly\n})\n\nReason: Prevents accidentally awaiting a Deferred when you intended to pass it as a value. Makes the await operation explicit.\n\nAffected Modules: Deferred",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Fiber no longer extends Effect, use Fiber.join",
+    "episode_body": "Title: Migration: Fiber no longer extends Effect, use Fiber.join\nCategory: migration\nSource: yieldable.md\n\nChange: Fiber is no longer an Effect subtype and does not implement Yieldable. Use Fiber.join(fiber) to await the fiber's result.\n\nv3 Pattern:\nimport { Effect, Fiber } from \"effect\"\nconst program = Effect.gen(function*() {\n  const fiber = yield* Effect.fork(task)\n  const result = yield* fiber // Fiber is an Effect<A, E>\n})\n\nv4 Pattern:\nimport { Effect, Fiber } from \"effect\"\nconst program = Effect.gen(function*() {\n  const fiber = yield* Effect.forkChild(task)\n  const result = yield* Fiber.join(fiber) // Must use Fiber.join explicitly\n})\n\nReason: Prevents accidentally joining a Fiber when you intended to pass it as a value. Makes the join operation explicit. Note: also uses forkChild instead of fork.\n\nAffected Modules: Fiber, Effect",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Yieldable types require .asEffect() for Effect combinators",
+    "episode_body": "Title: Migration: Yieldable types require .asEffect() for Effect combinators\nCategory: migration\nSource: yieldable.md\n\nChange: In v4, Yieldable types (Option, Result, Config, etc.) can be used with yield* in generators but must call .asEffect() when passed to Effect combinators like Effect.map, Effect.flatMap, etc.\n\nv3 Pattern:\nimport { Effect, Option } from \"effect\"\n// Option<number> is assignable to Effect<number, NoSuchElementError>\nconst program = Effect.map(Option.some(42), (n) => n + 1)\n\nv4 Pattern:\nimport { Effect, Option } from \"effect\"\n// Option is Yieldable but not Effect - must convert\nconst program = Effect.map(Option.some(42).asEffect(), (n) => n + 1)\n// Or more idiomatically, use a generator:\nconst program2 = Effect.gen(function*() {\n  const n = yield* Option.some(42)\n  return n + 1\n})\n\nReason: Explicit conversion prevents subtle bugs where types were silently treated as Effects. Generators are the idiomatic alternative.\n\nAffected Modules: Effect, Option, Result, Config",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  },
+  {
+    "name": "Effect v4 Migration: Either replaced by Result in Yieldable types",
+    "episode_body": "Title: Migration: Either replaced by Result in Yieldable types\nCategory: migration\nSource: yieldable.md\n\nChange: The yieldable.md migration guide lists 'Result' (not 'Either') as a Yieldable type that yields the success or fails with the error. This indicates Either may have been renamed or replaced by Result in v4.\n\nv3 Pattern:\nEither<A, E> was an Effect subtype in v3.\n\nv4 Pattern:\nResult implements Yieldable - yields the success or fails with the error.\n\nReason: Part of the broader Yieldable refactor. Result is listed as the Yieldable type for success/error values.\n\nAffected Modules: Either (possibly renamed), Result",
+    "source": "text",
+    "source_description": "Effect v4 migration guide",
+    "group_id": "effect-v4"
+  }
+]
