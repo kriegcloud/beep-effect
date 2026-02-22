@@ -205,7 +205,7 @@ const toRootRelative = (packagePath: string): string =>
 
 const singleTargetFallback = (
   target: ConfigUpdateTarget,
-  result: { tsconfigPackages: boolean; tsconfigPaths: boolean }
+  result: { tsconfigPackages: boolean; tsconfigPaths: boolean; tstycheConfig: boolean }
 ) =>
   ({
     targets: [
@@ -216,6 +216,7 @@ const singleTargetFallback = (
     ],
     tsconfigPackages: result.tsconfigPackages,
     tsconfigPaths: result.tsconfigPaths,
+    tstycheConfig: result.tstycheConfig,
   }) satisfies ConfigUpdateBatchResult;
 
 // ── Command ───────────────────────────────────────────────────────────────────
@@ -303,11 +304,13 @@ export const createPackageCommand = Command.make(
       }
 
       const configNeedsBatch = yield* checkConfigNeedsUpdateForTargets(repoRoot, [configTarget]).pipe(
-        Effect.orElseSucceed(() => singleTargetFallback(configTarget, { tsconfigPackages: true, tsconfigPaths: true }))
+        Effect.orElseSucceed(() =>
+          singleTargetFallback(configTarget, { tsconfigPackages: true, tsconfigPaths: true, tstycheConfig: true })
+        )
       );
       const configNeeds = O.getOrElse(
         O.map(A.get(configNeedsBatch.targets, 0), (targetResult) => targetResult.result),
-        () => ({ tsconfigPackages: true, tsconfigPaths: true })
+        () => ({ tsconfigPackages: true, tsconfigPaths: true, tstycheConfig: true })
       );
 
       yield* Console.log(`[dry-run] Root config updates:`);
@@ -316,6 +319,9 @@ export const createPackageCommand = Command.make(
       );
       yield* Console.log(
         `  - tsconfig.json: ${configNeeds.tsconfigPaths ? `Add path aliases @beep/${name}, @beep/${name}/*` : "SKIP (already exists)"}`
+      );
+      yield* Console.log(
+        `  - tstyche.config.json: ${configNeeds.tstycheConfig ? `Add test file match "${packagePath}/dtslint/**/*.tst.*"` : "SKIP (already covered)"}`
       );
       return;
     }
@@ -364,11 +370,13 @@ export const createPackageCommand = Command.make(
     yield* fileGenerationPlanService.executePlan(plan);
 
     const configBatch = yield* updateRootConfigsForTargets(repoRoot, [configTarget]).pipe(
-      Effect.orElseSucceed(() => singleTargetFallback(configTarget, { tsconfigPackages: false, tsconfigPaths: false }))
+      Effect.orElseSucceed(() =>
+        singleTargetFallback(configTarget, { tsconfigPackages: false, tsconfigPaths: false, tstycheConfig: false })
+      )
     );
     const configResults = O.getOrElse(
       O.map(A.get(configBatch.targets, 0), (targetResult) => targetResult.result),
-      () => ({ tsconfigPackages: false, tsconfigPaths: false })
+      () => ({ tsconfigPackages: false, tsconfigPaths: false, tstycheConfig: false })
     );
 
     // ── Print summary ──────────────────────────────────────────────────
@@ -377,13 +385,16 @@ export const createPackageCommand = Command.make(
     for (const file of ALL_FILES) {
       yield* Console.log(`  - ${file}`);
     }
-    if (configResults.tsconfigPackages || configResults.tsconfigPaths) {
+    if (configResults.tsconfigPackages || configResults.tsconfigPaths || configResults.tstycheConfig) {
       yield* Console.log(`\nRoot configs updated:`);
       if (configResults.tsconfigPackages) {
         yield* Console.log(`  - tsconfig.packages.json: Added reference "${packagePath}"`);
       }
       if (configResults.tsconfigPaths) {
         yield* Console.log(`  - tsconfig.json: Added path aliases @beep/${name}`);
+      }
+      if (configResults.tstycheConfig) {
+        yield* Console.log(`  - tstyche.config.json: Added test file match "${packagePath}/dtslint/**/*.tst.*"`);
       }
     }
     yield* Console.log(`\nNext steps:`);

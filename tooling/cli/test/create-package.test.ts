@@ -53,8 +53,10 @@ const withTempPackageBase = Effect.fn(function* (
   // Snapshot root configs before test
   const tsconfigPkgsPath = path.join(repoRoot, "tsconfig.packages.json");
   const tsconfigRootPath = path.join(repoRoot, "tsconfig.json");
+  const tstycheConfigPath = path.join(repoRoot, "tstyche.config.json");
   const tsconfigPkgsSnapshot = yield* fs.readFileString(tsconfigPkgsPath);
   const tsconfigRootSnapshot = yield* fs.readFileString(tsconfigRootPath);
+  const tstycheConfigSnapshot = yield* fs.readFileString(tstycheConfigPath);
 
   try {
     yield* run(args);
@@ -63,6 +65,7 @@ const withTempPackageBase = Effect.fn(function* (
     // Restore configs + cleanup package dir
     yield* fs.writeFileString(tsconfigPkgsPath, tsconfigPkgsSnapshot).pipe(Effect.orElseSucceed(() => void 0));
     yield* fs.writeFileString(tsconfigRootPath, tsconfigRootSnapshot).pipe(Effect.orElseSucceed(() => void 0));
+    yield* fs.writeFileString(tstycheConfigPath, tstycheConfigSnapshot).pipe(Effect.orElseSucceed(() => void 0));
     yield* fs.remove(outputDir, { recursive: true }).pipe(Effect.orElseSucceed(() => void 0));
   }
 });
@@ -490,6 +493,9 @@ describe("create-package command", () => {
           const tsconfigRoot = yield* fs.readFileString(path.join(repoRoot, "tsconfig.json"));
           expect(tsconfigRoot).toContain(`"./packages/common/${pkgName}/src/index.ts"`);
           expect(tsconfigRoot).toContain(`"./packages/common/${pkgName}/src/*.ts"`);
+
+          const tstycheConfig = yield* fs.readFileString(path.join(repoRoot, "tstyche.config.json"));
+          expect(tstycheConfig).toContain(`packages/common/${pkgName}/dtslint/**/*.tst.*`);
         }),
         "packages/common"
       );
@@ -510,8 +516,10 @@ describe("create-package command", () => {
 
           const tsconfigPkgsPath = path.join(repoRoot, "tsconfig.packages.json");
           const tsconfigRootPath = path.join(repoRoot, "tsconfig.json");
+          const tstycheConfigPath = path.join(repoRoot, "tstyche.config.json");
           const tsconfigPkgsSnapshot = yield* fs.readFileString(tsconfigPkgsPath);
           const tsconfigRootSnapshot = yield* fs.readFileString(tsconfigRootPath);
+          const tstycheConfigSnapshot = yield* fs.readFileString(tstycheConfigPath);
 
           try {
             yield* run([
@@ -542,9 +550,12 @@ describe("create-package command", () => {
             ]);
             expect(check.tsconfigPackages).toBe(false);
             expect(check.tsconfigPaths).toBe(false);
-            expect(check.targets.every((entry) => !entry.result.tsconfigPackages && !entry.result.tsconfigPaths)).toBe(
-              true
-            );
+            expect(check.tstycheConfig).toBe(false);
+            expect(
+              check.targets.every(
+                (entry) => !entry.result.tsconfigPackages && !entry.result.tsconfigPaths && !entry.result.tstycheConfig
+              )
+            ).toBe(true);
 
             const rerun = yield* updateRootConfigsForTargets(repoRoot, [
               { packageName: typesName, packagePath: `packages/common/${typesName}` },
@@ -552,9 +563,13 @@ describe("create-package command", () => {
             ]);
             expect(rerun.tsconfigPackages).toBe(false);
             expect(rerun.tsconfigPaths).toBe(false);
+            expect(rerun.tstycheConfig).toBe(false);
           } finally {
             yield* fs.writeFileString(tsconfigPkgsPath, tsconfigPkgsSnapshot).pipe(Effect.orElseSucceed(() => void 0));
             yield* fs.writeFileString(tsconfigRootPath, tsconfigRootSnapshot).pipe(Effect.orElseSucceed(() => void 0));
+            yield* fs
+              .writeFileString(tstycheConfigPath, tstycheConfigSnapshot)
+              .pipe(Effect.orElseSucceed(() => void 0));
             yield* fs.remove(typesDir, { recursive: true, force: true }).pipe(Effect.orElseSucceed(() => void 0));
             yield* fs.remove(utilsDir, { recursive: true, force: true }).pipe(Effect.orElseSucceed(() => void 0));
           }
@@ -744,6 +759,7 @@ describe("create-package command", () => {
           expect(output.some((l) => l.includes("[dry-run] Root config updates:"))).toBe(true);
           expect(output.some((l) => l.includes("tsconfig.packages.json"))).toBe(true);
           expect(output.some((l) => l.includes("tsconfig.json"))).toBe(true);
+          expect(output.some((l) => l.includes("tstyche.config.json"))).toBe(true);
           expect(output.some((l) => l.includes("Add reference"))).toBe(true);
           expect(output.some((l) => l.includes("Add path aliases"))).toBe(true);
         })

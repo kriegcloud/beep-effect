@@ -31,6 +31,7 @@ import * as jsonc from "jsonc-parser";
 export interface ConfigUpdateResult {
   readonly tsconfigPackages: boolean;
   readonly tsconfigPaths: boolean;
+  readonly tstycheConfig: boolean;
 }
 
 /**
@@ -68,6 +69,7 @@ export interface ConfigUpdateBatchResult {
   readonly targets: ReadonlyArray<ConfigUpdateTargetResult>;
   readonly tsconfigPackages: boolean;
   readonly tsconfigPaths: boolean;
+  readonly tstycheConfig: boolean;
 }
 
 // ── Internal helpers ─────────────────────────────────────────────────────────
@@ -102,6 +104,19 @@ const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknow
   if (!isRecord(parsed.compilerOptions)) return {};
   if (!isRecord(parsed.compilerOptions.paths)) return {};
   return parsed.compilerOptions.paths;
+};
+
+const readTestFileMatch = (parsed: Record<string, unknown>): Array<unknown> =>
+  Array.isArray(parsed.testFileMatch) ? [...parsed.testFileMatch] : [];
+
+const isTstycheEntryCovered = (testFileMatch: Array<unknown>, packagePath: string): boolean => {
+  const candidatePattern = `${packagePath}/dtslint/**/*.tst.*`;
+  if (A.some(testFileMatch, (entry) => entry === candidatePattern)) return true;
+  const lastSlash = packagePath.lastIndexOf("/");
+  if (lastSlash < 0) return false;
+  const parentDir = packagePath.substring(0, lastSlash);
+  const parentWildcard = `${parentDir}/*/dtslint/**/*.tst.*`;
+  return A.some(testFileMatch, (entry) => entry === parentWildcard);
 };
 
 const byPackagePathAscending: Order.Order<ConfigUpdateTarget> = Order.mapInput(
@@ -243,6 +258,45 @@ export const updateTsconfigPaths: (
   }
 );
 
+/**
+ * Add a test file match entry to `tstyche.config.json`.
+ *
+ * Idempotent: if the entry already exists or is covered by a parent wildcard
+ * glob, the file is left untouched.
+ *
+ * @param repoRoot - Absolute path to the repository root directory.
+ * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/common/data"`).
+ * @returns `true` when the file was modified, `false` when the entry already existed or was covered.
+ * @depends FileSystem, Path
+ * @since 0.0.0
+ * @category functions
+ */
+export const updateTstycheConfig: (
+  repoRoot: string,
+  packagePath: string
+) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  function* (repoRoot, packagePath) {
+    const path = yield* Path.Path;
+    const filePath = path.join(repoRoot, "tstyche.config.json");
+
+    return yield* modifyFileString(filePath, (content) => {
+      const parsed = parseJsoncObject(content, filePath);
+      const testFileMatch = readTestFileMatch(parsed);
+
+      if (isTstycheEntryCovered(testFileMatch, packagePath)) {
+        return content;
+      }
+
+      const candidatePattern = `${packagePath}/dtslint/**/*.tst.*`;
+      const updated = A.append(testFileMatch, candidatePattern);
+      const edits = jsonc.modify(content, ["testFileMatch"], updated, {
+        formattingOptions: FORMATTING_OPTIONS,
+      });
+      return jsonc.applyEdits(content, edits);
+    });
+  }
+);
+
 const updateRootConfigsForTarget: (
   repoRoot: string,
   target: ConfigUpdateTarget
@@ -250,7 +304,8 @@ const updateRootConfigsForTarget: (
   function* (repoRoot, target) {
     const tsconfigPackages = yield* updateTsconfigPackages(repoRoot, target.packagePath);
     const tsconfigPaths = yield* updateTsconfigPaths(repoRoot, target.packageName, target.packagePath);
-    return { tsconfigPackages, tsconfigPaths };
+    const tstycheConfig = yield* updateTstycheConfig(repoRoot, target.packagePath);
+    return { tsconfigPackages, tsconfigPaths, tstycheConfig };
   }
 );
 
@@ -279,7 +334,14 @@ const checkConfigNeedsUpdateForTarget: (
     const alias = `@beep/${target.packageName}`;
     const tsconfigPaths = !(alias in paths && `${alias}/*` in paths);
 
-    return { tsconfigPackages, tsconfigPaths };
+    const tstycheContent = yield* fs
+      .readFileString(path.join(repoRoot, "tstyche.config.json"))
+      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tstyche.config.json: ${String(e)}` })));
+    const tstycheParsed = parseJsoncObject(tstycheContent, "tstyche.config.json");
+    const testFileMatch = readTestFileMatch(tstycheParsed);
+    const tstycheConfig = !isTstycheEntryCovered(testFileMatch, target.packagePath);
+
+    return { tsconfigPackages, tsconfigPaths, tstycheConfig };
   }
 );
 
@@ -308,8 +370,9 @@ export const updateRootConfigsForTargets: (
 
     return {
       targets: targetResults,
-      tsconfigPackages: targetResults.some(({ result }) => result.tsconfigPackages),
-      tsconfigPaths: targetResults.some(({ result }) => result.tsconfigPaths),
+      tsconfigPackages: A.some(targetResults, ({ result }) => result.tsconfigPackages),
+      tsconfigPaths: A.some(targetResults, ({ result }) => result.tsconfigPaths),
+      tstycheConfig: A.some(targetResults, ({ result }) => result.tstycheConfig),
     } satisfies ConfigUpdateBatchResult;
   }
 );
@@ -339,8 +402,9 @@ export const checkConfigNeedsUpdateForTargets: (
 
     return {
       targets: targetResults,
-      tsconfigPackages: targetResults.some(({ result }) => result.tsconfigPackages),
-      tsconfigPaths: targetResults.some(({ result }) => result.tsconfigPaths),
+      tsconfigPackages: A.some(targetResults, ({ result }) => result.tsconfigPackages),
+      tsconfigPaths: A.some(targetResults, ({ result }) => result.tsconfigPaths),
+      tstycheConfig: A.some(targetResults, ({ result }) => result.tstycheConfig),
     } satisfies ConfigUpdateBatchResult;
   }
 );

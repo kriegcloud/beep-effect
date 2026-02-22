@@ -36,6 +36,7 @@ interface ConfigFixture {
   readonly rootDir: string;
   readonly tsconfigPackagesPath: string;
   readonly tsconfigPath: string;
+  readonly tstycheConfigPath: string;
 }
 
 const createConfigFixture = Effect.fn(function* () {
@@ -45,6 +46,7 @@ const createConfigFixture = Effect.fn(function* () {
   const rootDir = path.join(path.resolve("."), `_test-create-package-config-${uniqueSuffix()}`);
   const tsconfigPackagesPath = path.join(rootDir, "tsconfig.packages.json");
   const tsconfigPath = path.join(rootDir, "tsconfig.json");
+  const tstycheConfigPath = path.join(rootDir, "tstyche.config.json");
 
   yield* fs.makeDirectory(rootDir, { recursive: true });
   yield* fs.writeFileString(
@@ -67,10 +69,24 @@ const createConfigFixture = Effect.fn(function* () {
 }\n`
   );
 
+  yield* fs.writeFileString(
+    tstycheConfigPath,
+    `{
+  "$schema": "https://tstyche.org/schemas/config.json",
+  "testFileMatch": [
+    "packages/*/dtslint/**/*.tst.*",
+    "tooling/*/dtslint/**/*.tst.*",
+    "apps/*/dtslint/**/*.tst.*"
+  ],
+  "tsconfig": "ignore"
+}\n`
+  );
+
   return {
     rootDir,
     tsconfigPackagesPath,
     tsconfigPath,
+    tstycheConfigPath,
   } as const satisfies ConfigFixture;
 });
 
@@ -264,18 +280,25 @@ describe("create-package service contracts", () => {
           const first = yield* updateRootConfigsForTargets(fixture.rootDir, targets);
           expect(first.tsconfigPackages).toBe(true);
           expect(first.tsconfigPaths).toBe(true);
+          expect(first.tstycheConfig).toBe(true);
 
           const second = yield* updateRootConfigsForTargets(fixture.rootDir, [...targets].reverse());
           expect(second.tsconfigPackages).toBe(false);
           expect(second.tsconfigPaths).toBe(false);
+          expect(second.tstycheConfig).toBe(false);
 
           const check = yield* checkConfigNeedsUpdateForTargets(fixture.rootDir, targets);
           expect(check.tsconfigPackages).toBe(false);
           expect(check.tsconfigPaths).toBe(false);
+          expect(check.tstycheConfig).toBe(false);
 
           const tsconfigPackages = yield* fs.readFileString(fixture.tsconfigPackagesPath);
           expect(tsconfigPackages).toContain(`"path": "${targets[0].packagePath}"`);
           expect(tsconfigPackages).toContain(`"path": "${targets[1].packagePath}"`);
+
+          const tstycheConfig = yield* fs.readFileString(fixture.tstycheConfigPath);
+          expect(tstycheConfig).toContain(`packages/common/types/dtslint/**/*.tst.*`);
+          expect(tstycheConfig).toContain(`packages/common/utils/dtslint/**/*.tst.*`);
         } finally {
           yield* cleanupFixture(fixture.rootDir);
         }
