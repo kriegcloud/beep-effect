@@ -54,7 +54,9 @@
       "@beep/shared-env": ["./packages/shared/env/src/index.ts"],
       "@beep/shared-env/*": ["./packages/shared/env/src/*.ts"],
       "@beep/ui": ["./packages/ui/ui/src/index.ts"],
-      "@beep/ui/*": ["./packages/ui/ui/src/*.ts"]
+      "@beep/ui/*": ["./packages/ui/ui/src/*.ts"],
+      "@beep/beep-sync": ["./tooling/beep-sync/src/index.ts"],
+      "@beep/beep-sync/*": ["./tooling/beep-sync/src/*.ts"]
     },
     "plugins": [
       {

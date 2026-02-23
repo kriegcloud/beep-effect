@@ -37,7 +37,13 @@
       "path": "packages/shared/env"
     },
     {
+      "path": "packages/ui/ui"
+    },
+    {
       "path": "scratchpad"
+    },
+    {
+      "path": "tooling/beep-sync"
     },
     {
       "path": "tooling/cli"
@@ -47,9 +53,6 @@
     },
     {
       "path": "tooling/repo-utils"
-    },
-    {
-      "path": "packages/ui/ui"
     }
   ]
 }

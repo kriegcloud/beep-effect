@@ -31,8 +31,9 @@ agents:
 
 skills:
   sources:
-    - .agents/skills
-  include: []
+    - .beep/skills
+  include:
+    - beep-sync
 
 tool_overrides:
   claude: {}

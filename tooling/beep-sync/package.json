@@ -22,10 +22,29 @@
     "./bin": null,
     "./internal/*": null
   },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
+      "./bin": null,
+      "./internal/*": null
+    }
+  },
   "scripts": {
-    "codegen": "echo 'no codegen for @beep/beep-sync scaffold'",
-    "build": "tsc -b tsconfig.json",
-    "build:tsgo": "tsgo -b tsconfig.json",
+    "codegen": "echo 'no codegen needed'",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "tsc -b tsconfig.json",
     "test": "bun run test:unit && bun run test:fixtures && bun run test:integration",
     "test:unit": "bash scripts/test-unit.sh",
@@ -35,15 +54,19 @@
     "poc:preflight": "bash scripts/poc-preflight.sh",
     "agents:audit": "bash scripts/audit-package-agents.sh",
     "agents:scaffold": "bash scripts/scaffold-package-agents.sh",
-    "docgen": "echo 'docgen not enabled for scaffold'",
+    "docgen": "bunx @effect/docgen",
     "lint": "biome check .",
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
+    "@effect/platform-node": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@beep/repo-utils": "workspace:^",
     "effect": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
+    "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
   }
 }

@@ -1,30 +1,47 @@
-# @beep/beep-sync (Scaffold)
+# @beep/beep-sync
 
-Status: scaffold only
+Scaffold for unified AI tooling sync runtime and POC fixtures.
 
-This package scaffolds the runtime layout, CLI entrypoints, and POC fixture tree for
-`beep-sync`. It is not the final implementation.
+## Installation
 
-## Available now
+Private workspace package:
 
-- `tooling/beep-sync/bin/beep-sync` wrapper
-- `tooling/beep-sync/src/bin.ts` scaffold CLI
-- POC fixture directories under `tooling/beep-sync/fixtures/poc-01` .. `poc-06`
-- Basic local scripts:
-  - `test:unit`
-  - `test:fixtures`
-  - `test:integration`
-  - `test:coverage`
-  - `poc:preflight`
-  - `agents:audit`
-  - `agents:scaffold`
+```json
+{
+  "dependencies": {
+    "@beep/beep-sync": "workspace:*"
+  }
+}
+```
 
-## Scaffold behavior
+## Usage
 
-The CLI currently:
+```bash
+bun tooling/beep-sync/bin/beep-sync --help
+```
 
-- validates referenced fixture/input paths exist
-- prints deterministic scaffold output
-- supports command shapes used by POC command templates
+## Development
 
-Replace scaffold behaviors with real parser/adapter/runtime logic during P1-P3.
+```bash
+# Build
+bun run build
+
+# Type check
+bun run check
+
+# Test
+bun run test
+
+# Lint
+bun run lint:fix
+```
+
+## Scaffold Status
+
+- `tooling/beep-sync/bin/beep-sync` wrapper is wired.
+- `tooling/beep-sync/src/bin.ts` and `tooling/beep-sync/src/index.ts` provide scaffold behavior and fixture support.
+- POC fixture directories exist under `tooling/beep-sync/fixtures/poc-01` through `poc-06`.
+
+## License
+
+MIT
