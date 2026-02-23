@@ -151,6 +151,8 @@
     "@effect/platform-bun": "^4.0.0-beta.11",
     "@effect/platform-node": "^4.0.0-beta.11",
     "@effect/platform-node-shared": "^4.0.0-beta.11",
+    "@types/picomatch": "^4.0.2",
+    "picomatch": "^4.0.3",
     "@effect/sql-pg": "^4.0.0-beta.11",
     "@effect/vitest": "^4.0.0-beta.11",
     "@huggingface/transformers": "^3.8.1",

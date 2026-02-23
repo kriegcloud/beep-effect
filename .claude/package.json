@@ -20,10 +20,10 @@
     "effect": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
-    "picomatch": "^4.0.3"
+    "picomatch": "catalog:"
   },
   "devDependencies": {
-    "@types/picomatch": "^4.0.2",
+    "@types/picomatch": "catalog:",
     "@types/node": "catalog:",
     "@types/bun": "catalog:",
     "@effect/vitest": "catalog:",
