@@ -26,7 +26,7 @@ pre-push:
   commands:
 
     quality:
-      run: bun run build && bun run check && bun run test
+      run: op run --env-file=.env -- sh -c 'bun run build && bun run check && bun run test'
 
 post-merge:
   commands:
