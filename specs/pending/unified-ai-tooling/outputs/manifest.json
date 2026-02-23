@@ -1,0 +1,56 @@
+{
+  "project": "unified-ai-tooling",
+  "lastUpdated": "2026-02-23",
+  "phases": {
+    "p0": {
+      "status": "completed",
+      "outputs": {
+        "research": "specs/pending/unified-ai-tooling/outputs/preliminary-research.md",
+        "compatibilityMatrix": "specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md",
+        "canonicalPatternReview": "specs/pending/unified-ai-tooling/outputs/canonical-pattern-review.md",
+        "comprehensiveReview": "specs/pending/unified-ai-tooling/outputs/comprehensive-review.md",
+        "subtreeSynthesis": "specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md",
+        "qualityGatesAndTestStrategy": "specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md",
+        "residualRiskClosure": "specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md",
+        "subtreeAnalyses": {
+          "addMcp": "specs/pending/unified-ai-tooling/outputs/subtree-add-mcp-analysis.md",
+          "agentRules": "specs/pending/unified-ai-tooling/outputs/subtree-agent-rules-analysis.md",
+          "agentSync": "specs/pending/unified-ai-tooling/outputs/subtree-agent-sync-analysis.md",
+          "agnix": "specs/pending/unified-ai-tooling/outputs/subtree-agnix-analysis.md",
+          "aiRulez": "specs/pending/unified-ai-tooling/outputs/subtree-ai-rulez-analysis.md",
+          "claudeSetup": "specs/pending/unified-ai-tooling/outputs/subtree-claude-setup-analysis.md",
+          "lnai": "specs/pending/unified-ai-tooling/outputs/subtree-lnai-analysis.md",
+          "ruler": "specs/pending/unified-ai-tooling/outputs/subtree-ruler-analysis.md",
+          "rulesync": "specs/pending/unified-ai-tooling/outputs/subtree-rulesync-analysis.md"
+        },
+        "onePasswordSetupRunbook": "specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md",
+        "onePasswordEnvTemplate": "specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env",
+        "onePasswordSetupCommands": "specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh"
+      }
+    },
+    "p1": {
+      "status": "pending",
+      "outputs": {
+        "schemaContract": "specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md"
+      }
+    },
+    "p2": {
+      "status": "pending",
+      "outputs": {
+        "adapterDesign": "specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md"
+      }
+    },
+    "p3": {
+      "status": "pending",
+      "outputs": {
+        "runtimeIntegration": "specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md"
+      }
+    },
+    "p4": {
+      "status": "pending",
+      "outputs": {
+        "cutoverPlaybook": "specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md"
+      }
+    }
+  }
+}

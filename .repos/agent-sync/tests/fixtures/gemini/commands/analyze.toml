@@ -1,0 +1,13 @@
+description = "Analyze project structure and provide insights"
+
+prompt = """
+Analyze the project structure and provide insights about:
+- Architecture and design patterns
+- Code organization
+- Potential improvements
+
+Project structure:
+!{tree -L 3 -I 'node_modules|__pycache__|.git'}
+
+Provide specific, actionable recommendations.
+"""

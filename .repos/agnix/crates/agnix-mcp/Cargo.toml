@@ -1,0 +1,28 @@
+[package]
+name = "agnix-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "MCP server for agnix - AI agent config linter"
+keywords = ["mcp", "agent", "linter", "claude", "validation"]
+categories = ["development-tools", "command-line-utilities"]
+
+[[bin]]
+name = "agnix-mcp"
+path = "src/main.rs"
+
+[dependencies]
+agnix-core = { workspace = true }
+agnix-rules = { workspace = true }
+rmcp = { version = "0.16", features = ["server", "macros", "transport-io"] }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tempfile = "3"

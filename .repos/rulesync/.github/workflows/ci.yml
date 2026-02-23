@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: &paths-ignore
+      - "docs/**"
+      - "images/**"
+      - ".devcontainer/**"
+      - "LICENSE"
+      - "CONTRIBUTING.md"
+      - "SECURITY.md"
+  pull_request:
+    branches: [main]
+    paths-ignore: *paths-ignore
+
+permissions:
+  contents: read # Required for checking out code
+
+jobs:
+  quality:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Setup mise
+        uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+        with:
+          experimental: true
+
+      - name: Install dependencies
+        run: pnpm install --ignore-scripts
+
+      - name: Check no files generated
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Error: Files were generated or modified after pnpm install"
+            git status --porcelain
+            exit 1
+          fi
+
+      - name: Run cicheck
+        run: pnpm cicheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Check no uncommitted changes after build
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Error: Uncommitted changes detected after build"
+            git status --porcelain
+            git diff
+            exit 1
+          fi
+
+      - name: Check build artifacts
+        run: |
+          test -f dist/index.js
+          test -f dist/index.cjs
+          test -f dist/index.d.ts
+          test -f dist/index.d.cts

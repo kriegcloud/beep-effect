@@ -1,0 +1,8 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "mkdir": true,
+    "rm": false,
+    "git status": true,
+    "git push": false
+  }
+}

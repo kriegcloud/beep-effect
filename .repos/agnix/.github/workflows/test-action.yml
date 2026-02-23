@@ -1,0 +1,257 @@
+name: Test Action
+
+on:
+  push:
+    branches: [main, feature/*, fix/*]
+    paths:
+      - 'action.yml'
+      - 'scripts/**'
+      - '.github/workflows/test-action.yml'
+  pull_request:
+    paths:
+      - 'action.yml'
+      - 'scripts/**'
+      - '.github/workflows/test-action.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test-action:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
+
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      # Pre-build binary once - all subsequent action calls will use cached build
+      - name: Pre-build binary
+        run: cargo build --release
+
+      - name: Test action (default inputs)
+        id: test-default
+        uses: ./
+        with:
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Verify outputs set and valid
+        shell: bash
+        env:
+          RESULT: ${{ steps.test-default.outputs.result }}
+          ERRORS: ${{ steps.test-default.outputs.errors }}
+          WARNINGS: ${{ steps.test-default.outputs.warnings }}
+        run: |
+          set -euo pipefail
+          echo "Result: ${RESULT}"
+          echo "Errors: ${ERRORS}"
+          echo "Warnings: ${WARNINGS}"
+
+          # Verify result output is set and valid
+          if [ -z "${RESULT}" ]; then
+            echo "Error: result output not set"
+            exit 1
+          fi
+
+          if [ "${RESULT}" != "success" ] && [ "${RESULT}" != "failure" ]; then
+            echo "Error: result must be 'success' or 'failure', got '${RESULT}'"
+            exit 1
+          fi
+
+          # Verify errors and warnings are numeric
+          if ! [[ "${ERRORS}" =~ ^[0-9]+$ ]]; then
+            echo "Error: errors output must be numeric, got '${ERRORS}'"
+            exit 1
+          fi
+
+          if ! [[ "${WARNINGS}" =~ ^[0-9]+$ ]]; then
+            echo "Error: warnings output must be numeric, got '${WARNINGS}'"
+            exit 1
+          fi
+
+      - name: Test action (strict mode)
+        id: test-strict
+        uses: ./
+        with:
+          strict: 'true'
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Test action (target claude-code)
+        id: test-target
+        uses: ./
+        with:
+          target: 'claude-code'
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Test action (target cursor)
+        id: test-cursor
+        uses: ./
+        with:
+          target: 'cursor'
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Test action (JSON output)
+        id: test-json
+        uses: ./
+        with:
+          format: 'json'
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Verify JSON output values
+        shell: bash
+        env:
+          RESULT: ${{ steps.test-json.outputs.result }}
+          ERRORS: ${{ steps.test-json.outputs.errors }}
+        run: |
+          set -euo pipefail
+          # Verify outputs are populated from JSON parsing
+          if [ -z "${RESULT}" ]; then
+            echo "Error: JSON format did not produce result output"
+            exit 1
+          fi
+          echo "JSON format test passed: result=${RESULT}, errors=${ERRORS}"
+
+      - name: Test action (SARIF output)
+        id: test-sarif
+        uses: ./
+        with:
+          format: 'sarif'
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Verify SARIF file created and valid
+        shell: bash
+        env:
+          SARIF_FILE: ${{ steps.test-sarif.outputs.sarif-file }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SARIF_FILE}" ]; then
+            echo "Error: sarif_file output not set"
+            exit 1
+          fi
+
+          if [ ! -f "${SARIF_FILE}" ]; then
+            echo "Error: SARIF file not found: ${SARIF_FILE}"
+            exit 1
+          fi
+
+          # Verify SARIF is valid JSON with expected structure using jq
+          if ! jq -e '.runs and .version' "${SARIF_FILE}" > /dev/null 2>&1; then
+            echo "Error: SARIF file is not valid or missing required fields"
+            exit 1
+          fi
+
+          echo "SARIF file validated: ${SARIF_FILE}"
+
+      - name: Test action (verbose)
+        id: test-verbose
+        uses: ./
+        with:
+          verbose: 'true'
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Test action (custom path)
+        id: test-path
+        uses: ./
+        with:
+          path: './crates'
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Test action (fail on error)
+        id: test-fail-on-error
+        uses: ./
+        continue-on-error: true
+        with:
+          path: './tests/fixtures/invalid/skills/invalid-name'
+          build-from-source: 'true'
+          fail-on-error: 'true'
+
+      - name: Verify fail-on-error behavior
+        if: steps.test-fail-on-error.outcome != 'failure'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Expected fail-on-error to fail, but it did not."
+          exit 1
+
+      - name: Check release availability
+        id: release-check
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          CURL_OPTS=(-sL)
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            CURL_OPTS+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+          fi
+          TAG=$(curl "${CURL_OPTS[@]}" "https://api.github.com/repos/avifenesh/agnix/releases/latest" | jq -r '.tag_name // empty')
+          if [ -n "${TAG}" ]; then
+            echo "available=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "available=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Test action (downloaded binary)
+        id: test-download
+        if: steps.release-check.outputs.available == 'true'
+        uses: ./
+        with:
+          path: './tests/fixtures/valid'
+          build-from-source: 'false'
+          fail-on-error: 'true'
+
+  test-sarif-upload:
+    name: Test SARIF Upload
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
+
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Run agnix with SARIF
+        id: agnix
+        uses: ./
+        with:
+          format: 'sarif'
+          config: '.agnix.toml'
+          build-from-source: 'true'
+          fail-on-error: 'false'
+
+      - name: Upload SARIF to GitHub
+        if: steps.agnix.outputs.sarif-file != ''
+        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v3
+        with:
+          sarif_file: ${{ steps.agnix.outputs.sarif-file }}
+          category: agnix-linting

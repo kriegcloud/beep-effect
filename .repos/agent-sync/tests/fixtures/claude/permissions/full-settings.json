@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls)",
+      "Read(src/*)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Bash(rm *)"
+    ],
+    "ask": [
+      "Bash(git push)"
+    ]
+  },
+  "other_setting": "value"
+}

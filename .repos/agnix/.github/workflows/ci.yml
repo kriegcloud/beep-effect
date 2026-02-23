@@ -1,0 +1,12 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: agent-sh/.github/.github/workflows/ci-rust.yml@main
+    secrets: inherit

@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "setuptools_scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-sync"
+dynamic = ["version"]
+description = "Bidirectional synchronization tool for custom agents and settings between Claude Code and GitHub Copilot."
+readme = "README.md"
+authors = [
+  { name = "Zachery Glass", email = "ZacheryGlass@users.noreply.github.com" },
+]
+license = { text = "Apache-2.0" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "pyyaml>=6.0",
+    "requests>=2.28.0",
+    "beautifulsoup4>=4.11.0",
+    "html2text>=2020.1.16",
+    "tomli>=2.0.0; python_version < '3.11'",
+    "tomli-w>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "requests-mock>=1.11.0",
+    "flake8",
+    "build",
+    "twine",
+]
+
+[project.scripts]
+agent-sync = "cli.main:main"
+
+[tool.setuptools_scm]
+write_to = "core/_version.py"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cli*", "core*", "adapters*", "scripts*"]
+exclude = ["tests*", "build*", "dist*"]

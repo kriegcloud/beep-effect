@@ -1,0 +1,31 @@
+{
+  "name": "agnix-docs-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "npm run build:wasm && docusaurus start",
+    "build": "npm run build:wasm && npm run generate:rules && docusaurus build",
+    "build:wasm": "wasm-pack build ../crates/agnix-wasm --target web --out-dir ../../website/src/wasm --out-name agnix_wasm",
+    "serve": "docusaurus serve",
+    "generate:rules": "python3 ../scripts/generate-docs-rules.py",
+    "version:cut": "docusaurus docs:version"
+  },
+  "overrides": {
+    "minimatch": "^10.2.1"
+  },
+  "dependencies": {
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/lang-markdown": "^6.3.1",
+    "@codemirror/lint": "^6.5.0",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@codemirror/view": "^6.36.0",
+    "@docusaurus/core": "3.9.2",
+    "@docusaurus/preset-classic": "3.9.2",
+    "@easyops-cn/docusaurus-search-local": "0.55.0",
+    "clsx": "2.1.1",
+    "codemirror": "^6.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
