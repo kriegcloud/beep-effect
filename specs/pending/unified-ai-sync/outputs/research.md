@@ -1,407 +1,231 @@
 # Unified AI Tooling Configuration System - Research
 
-> **Date**: 2026-02-22
-> **Status**: Research complete
-> **Scope**: Existing solutions, community signals, standards, and gap analysis for unifying AI coding tool configurations across Claude Code, Codex, Cursor, Windsurf, JetBrains AI, and others.
-
----
+_Date: 2026-02-23_
 
 ## 1. Executive Summary
-
-AI tool config fragmentation is a widely recognized pain point with an active ecosystem of 15+ tools attempting to solve it. **No single solution comprehensively unifies all config dimensions** (rules, MCP servers, skills, commands, hooks, ignore files, memory), but the space is rapidly converging. The [AGENTS.md standard](https://agents.md/) (17.8k stars, Linux Foundation governance) is the closest thing to a universal baseline for instructions, though Claude Code still uses its own `CLAUDE.md`. [Ruler](https://github.com/intellectronica/ruler) (2.5k stars) leads in adoption for CLI-based sync, while [ai-rulez](https://github.com/Goldziher/ai-rulez) offers the most comprehensive feature set. The entire ecosystem is less than 12 months old and consolidation is likely as the Agentic AI Foundation (AAIF) matures.
-
----
+Configuration fragmentation across Claude Code, Codex, Cursor, Windsurf, and JetBrains AI is a real and active problem, and there is now a small but fast-moving ecosystem trying to solve it. The strongest existing tools are useful but partial: some unify instruction files, some unify MCP servers, and some validate configs, but none is a complete, vendor-neutral control plane for rules, commands, hooks, MCP, agents, and skills together. A de facto interoperability baseline is emerging around `AGENTS.md`, now stewarded under the Agentic AI Foundation, but this standard currently covers agent instructions rather than full structured tool configuration. Based on current evidence and your constraints, the recommended path is a project-local `.beep/` source-of-truth with deterministic generation into native tool files, generated files committed to git, no symlink dependence, and a Linux-first implementation.
 
 ## 2. Existing Solutions
 
-### 2.1 CLI Tools for Config Sync
-
-#### Ruler (intellectronica/ruler) - Most Popular
-
-- **URL**: https://github.com/intellectronica/ruler
-- **Stars**: ~2,500 | **Language**: TypeScript | **Install**: `npm i -g @intellectronica/ruler`
-- **Approach**: Centralized `.ruler/` directory with `AGENTS.md` and other `.md` files. `ruler apply` distributes to all native config locations.
-- **Supported agents (11)**: GitHub Copilot, Claude Code, Cursor, Aider, OpenAI Codex CLI, Windsurf, Cline, Firebase, Gemini CLI, Junie, AugmentCode
-- **Config format**: TOML (`ruler.toml`) for tool selection, Markdown files for rules
-- **MCP support**: Yes, distributes MCP configs
-- **Actively maintained**: Yes (v0.3.0+)
-- **Assessment**: Most mature and widely adopted. Good for rules and basic MCP. Doesn't handle skills, commands, or memory. The `.ruler/` convention is Ruler-specific rather than a community standard.
-
-#### ai-rulez (Goldziher/ai-rulez) - Most Feature-Rich
-
-- **URL**: https://github.com/Goldziher/ai-rulez
-- **Stars**: ~89 | **Language**: Go | **Install**: `pip install ai-rulez`
-- **Approach**: YAML config (`ai-rulez.yml`) as single source of truth. Generates native configs for all tools.
-- **Supported tools (12+)**: Claude, Cursor, Windsurf, Copilot, Gemini, Cline, Continue.dev, Amp, Junie, Codex, OpenCode, custom presets
-- **Key features**: 18 preset generators, commands system, 34% context compression, remote includes (pull from git repos), profile system (team configs), built-in MCP server
-- **Assessment**: Most ambitious feature set. Remote includes solve the org-wide config sharing problem. Context compression is unique. Lower adoption than Ruler despite being more capable. Go binary means no Node.js dependency.
-
-#### block/ai-rules (Block Inc.) - Corporate Backed
-
-- **URL**: https://github.com/block/ai-rules
-- **Stars**: ~64 | **Language**: Rust | **Install**: Shell script to `~/.local/bin/ai-rules`
-- **Supported agents (11)**: AMP, Claude Code, Cline, Codex, Copilot, Cursor, Firebender, Gemini, Goose, Kilocode, Roo
-- **Assessment**: Corporate backing from Block (formerly Square). Handles rules, commands, and skills. Rust binary. Newer and less community-adopted but has organizational muscle behind it.
-
-#### LNAI (KrystianJonca/lnai) - Uses `.ai/` Convention
-
-- **URL**: https://github.com/KrystianJonca/lnai | **Website**: https://lnai.sh/
-- **Stars**: ~229 | **Language**: TypeScript | **Install**: npm
-- **Approach**: Defines the `.ai/` directory convention. `lnai init` creates it, `lnai validate` checks errors, `lnai sync` exports to native formats.
-- **Supported (7)**: Claude Code, Codex, Cursor, Gemini CLI, OpenCode, Windsurf, GitHub Copilot
-- **Assessment**: Uses the intuitive `.ai/` convention that matches the desired end state. Good validation step. Doesn't handle MCP, skills, commands, or memory. The convention itself is the most interesting part.
-
-#### rulesync (dyoshikawa/rulesync)
-
-- **URL**: https://github.com/dyoshikawa/rulesync | **Website**: https://rulesync.dyoshikawa.com/
-- **Install**: npm
-- **Approach**: Unified `.rulesync/rules/` directory, import/export commands
-- **Assessment**: Functional but limited scope. Multiple competing implementations dilute adoption (a PHP version also exists at jpcaparas/rulesync).
-
-#### ai-rules-sync (lbb00/ai-rules-sync)
-
-- **URL**: https://github.com/lbb00/ai-rules-sync
-- **Stars**: ~12 | VS Code extension available
-- **Approach**: Syncs rules, skills, commands, subagents across 9+ tools using symbolic links
-- **Unique feature**: Multi-repository support (company standards + team protocols + open-source collections)
-- **Assessment**: Good concept with multi-repo support. Very low adoption.
-
-#### Simpler / Symlink-Based Tools
-
-| Tool | URL | Approach |
-|------|-----|----------|
-| agentlink | https://github.com/martinmose/agentlink | `.agentlink.yaml` -> symlinks |
-| syncai (nxnom) | https://github.com/nxnom/syncai | Single `Rules.md` -> symlinks |
-| syncai (flowmitry) | https://github.com/flowmitry/syncai | JSON config, file watching |
-| agent-sync | https://github.com/ZacheryGlass/agent-sync | Unified config sync |
-| AgentSync (Rust) | https://github.com/dallay/agentsync | `.agents/` dir -> symlinks + MCP |
-
-### 2.2 MCP-Specific Config Management
-
-#### add-mcp (Neon)
-
-- **URL**: https://github.com/neondatabase/add-mcp
-- **What**: `npx add-mcp` installs an MCP server across all coding agents with a single command. Auto-detects installed agents, writes correct config files.
-- **Supports (9)**: Claude Code, Claude Desktop, Codex, Cursor, Gemini CLI, Goose, OpenCode, VS Code, Zed
-- **Assessment**: Excellent for MCP-specific needs. Addresses the "add one MCP server to everything" workflow perfectly. Doesn't handle rules/skills/commands.
-
-#### combine-mcp (nazar256/combine-mcp)
-
-- **URL**: https://github.com/nazar256/combine-mcp
-- **What**: MCP aggregator - single config file for all MCP backends. Each client points to one `combine-mcp` binary that proxies to actual MCP servers.
-- **Assessment**: Elegant architectural approach. Instead of syncing MCP configs, eliminates the need by acting as a single proxy. Each client just points to `combine-mcp`. Solves the MCP dimension completely but nothing else.
-
-#### MCP Linker (milisp/mcp-linker)
-
-- **URL**: https://github.com/milisp/mcp-linker
-- **What**: Tauri GUI app for one-click MCP server installation and cross-tool sync. Built-in marketplace of 600+ curated servers.
-- **Assessment**: GUI-focused, less useful for CLI-centric workflows. Good for initial MCP setup.
-
-### 2.3 Linters and Validators
-
-#### agnix (avifenesh/agnix)
-
-- **URL**: https://github.com/avifenesh/agnix
-- **Stars**: ~52 | **Language**: Rust
-- **What**: Linter for agent config files. 230 rules across 32 categories. Available as VS Code extension, CLI (`npx agnix .`), and plugins for JetBrains, Neovim, Zed.
-- **Assessment**: Complementary to sync tools. Validates that generated configs are correct. The JetBrains plugin makes it one of the few tools touching that ecosystem.
-
-### 2.4 GUI / Web Tools
-
-| Tool | URL | Description |
-|------|-----|-------------|
-| ClaudeMDEditor | https://www.claudemdeditor.com/ | Visual editor for multi-agent rules |
-| sync-conf.dev | https://sync-conf.dev/ | Directory of 100+ community configs. `npx sync-conf install owner/repo` |
-| indx.sh | https://indx.sh/ | Directory of AI coding prompts, MCP servers, and skills |
-
-### 2.5 VS Code Extensions
-
-| Extension | Marketplace Link | Description |
-|-----------|-----------------|-------------|
-| Agent Rules Sync | FireFunGames.agent-rules-sync | Unified editor for AGENTS.md, CLAUDE.md, .cursor/rules/ |
-| AI Rules Sync | zidonglin.ai-rules-sync | Syncs rule files between AI IDEs |
-| AI Rules Syncer | HerrInformatiker.ai-rules-syncer | Syncs workspace AI rules with central git repo |
-| LHI AI Agent Sync | lifehackinnovationsllc.lhi-ai-agent-sync | Cross-environment sync |
-
----
-
-## 3. Standards and Specifications
-
-### 3.1 AGENTS.md (Linux Foundation / AAIF) - THE EMERGENT STANDARD
-
-- **URL**: https://agents.md/ | **GitHub**: https://github.com/agentsmd/agents.md (17.8k stars)
-- **Governance**: Agentic AI Foundation (AAIF) under the Linux Foundation (announced Dec 9, 2025). Platinum members include AWS, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft, OpenAI.
-- **Format**: Standard Markdown in project root. Hierarchical (nearest file in directory tree wins).
-- **Adopted by**: OpenAI Codex, Amp, Jules (Google), Cursor, Windsurf, Kilo Code, Factory, and others.
-- **Critical gap**: Claude Code still uses `CLAUDE.md`, not `AGENTS.md`. Anthropic is an AAIF member but hasn't migrated.
-- **Assessment**: This is the standard that matters. Institutional backing from every major player. The CLAUDE.md/AGENTS.md split is the biggest remaining friction point.
-
-### 3.2 AIRS (AI Editor Rules Standard)
-
-- **URL**: https://www.useairs.dev/ | **GitHub**: https://github.com/nixoid/airs
-- **What**: Company-agnostic standard for rule/instruction format. Markdown files with YAML frontmatter.
-- **Assessment**: Addresses format standardization (how rules are written) rather than location/sync. Competing with AGENTS.md's momentum. Unlikely to win.
-
-### 3.3 AI Coding Agent Rule Specification (AI-Rule-Spec)
-
-- **URL**: https://aicodingrules.org/ | **GitHub**: https://github.com/agent-rules/agent-rules
-- **What**: Unified framework combining YAML structure with Markdown. Proposes a single `.ai-rules` file with hierarchy (user/project/org).
-- **Assessment**: Ambitious but competing against AGENTS.md's Linux Foundation backing. Unlikely to gain critical mass.
-
-### 3.4 Agent Client Protocol (ACP) - JetBrains + Zed
-
-- **URL**: https://www.jetbrains.com/help/ai-assistant/acp.html
-- **What**: Protocol for AI agent interoperability in IDEs (like LSP but for AI agents). JetBrains + Zed collaboration.
-- **Assessment**: Solves agent connectivity (how agents talk to IDEs), not config sync. But relevant because JetBrains is the hardest tool to integrate into any unified config system.
-
----
-
-## 4. Community Signals
-
-### 4.1 Hacker News Threads
-
-| Thread | URL | Signal |
-|--------|-----|--------|
-| LNAI launch | https://news.ycombinator.com/item?id=46868318 | Active discussion on `.ai/` convention |
-| Ruler launch | https://news.ycombinator.com/item?id=44062058 | Strong reception, many sharing similar pain |
-| Ruler follow-up | https://news.ycombinator.com/item?id=44098457 | Continued interest |
-| MCP sync tool | https://news.ycombinator.com/item?id=46926648 | MCP-specific config pain |
-| LynxPrompt | https://news.ycombinator.com/item?id=46397931 | Repo-first AI config generation |
-| Unify AI tools | https://news.ycombinator.com/item?id=44463286 | General unification discussion |
-
-### 4.2 Blog Posts
-
-| Title | URL | Key Insight |
-|-------|-----|-------------|
-| Keep your AGENTS.md in sync | https://kau.sh/blog/agents-md/ | Practical symlink approach |
-| Keeping Claude Code, Codex, and Cursor memory in sync | https://coding-with-ai.dev/posts/sync-claude-code-codex-cursor-memory/ | Three approaches: symlinks, copy scripts, shared file |
-| One Rulebook for All Your AI Coding Tools | Medium (Abhinav Gupta) | Unified rulebooks concept |
-| Aligning Team using Cursor, Claude, etc. | https://www.concret.io/blog/sync-coding-standards-across-cursor-agentforce-vibes-claude-code | Hardlink approach for teams |
-| Stop Treating Agent Intelligence Like a Local Config File | Medium (leeon14) | Argues for portable, shareable agent configs |
-| Agent Rules is the Missing Link | https://lirantal.com/blog/agent-rules-missing-link-ai-powered-development | Liran Tal on agent-rules standard |
-| Keeping MCP Configs in Sync | https://www.mikekawasaki.com/blog/keeping-mcp-configs-in-sync/ | MCP-specific bidirectional sync |
-
-### 4.3 Enterprise Signals
-
-- **Zapier survey**: 76% of enterprises report negative outcomes from disconnected AI tools; 34% say tool sprawl makes training a major challenge; 30% waste money on redundant AI software.
-- **Portkey blog** (https://portkey.ai/blog/ai-tool-sprawl-causes-risks-and-how-teams-can-regain-control/): Documents AI tool sprawl risks at org level.
-
-### 4.4 Vendor Awareness
-
-- **Anthropic**: AAIF member but hasn't migrated Claude Code from `CLAUDE.md` to `AGENTS.md`. No public config interop roadmap.
-- **Cursor**: Added "Include CLAUDE.md" setting, acknowledging the dual-standard problem.
-- **JetBrains + Zed**: Agent Client Protocol (ACP) addresses agent runtime interop but not config.
-- **OpenAI**: Codex explicitly supports AGENTS.md.
-- **Google (Gemini)**: Jules supports AGENTS.md.
-
----
-
-## 5. Resource Index
-
-### Standards
-
-| Resource | URL | Notes |
-|----------|-----|-------|
-| AGENTS.md spec | https://agents.md/ | Linux Foundation standard, 17.8k stars |
-| AGENTS.md GitHub | https://github.com/agentsmd/agents.md | Source repo |
-| AAIF announcement | https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation | Founding members |
-| AIRS standard | https://www.useairs.dev/ | Rule format standard |
-| AI-Rule-Spec | https://aicodingrules.org/ | Alternative rule spec |
-| ACP docs | https://www.jetbrains.com/help/ai-assistant/acp.html | JetBrains agent protocol |
-
-### CLI Tools
-
-| Resource | URL | Notes |
-|----------|-----|-------|
-| Ruler | https://github.com/intellectronica/ruler | 2.5k stars, most adopted |
-| ai-rulez | https://github.com/Goldziher/ai-rulez | Most features, Go binary |
-| block/ai-rules | https://github.com/block/ai-rules | Corporate-backed, Rust |
-| LNAI | https://github.com/KrystianJonca/lnai | `.ai/` convention |
-| add-mcp | https://github.com/neondatabase/add-mcp | MCP server installer |
-| combine-mcp | https://github.com/nazar256/combine-mcp | MCP proxy/aggregator |
-| agnix | https://github.com/avifenesh/agnix | Config linter, 230 rules |
-| rulesync | https://github.com/dyoshikawa/rulesync | Rule sync with import/export |
-| ai-rules-sync | https://github.com/lbb00/ai-rules-sync | Multi-repo support |
-| agentlink | https://github.com/martinmose/agentlink | YAML-based symlinks |
-| agent-sync | https://github.com/ZacheryGlass/agent-sync | Unified sync |
-| AgentSync (Rust) | https://github.com/dallay/agentsync | Rust CLI, `.agents/` dir |
-
-### Blog Posts & Guides
-
-| Resource | URL | Notes |
-|----------|-----|-------|
-| Symlink approach | https://kau.sh/blog/agents-md/ | Practical AGENTS.md sync |
-| Three sync approaches | https://coding-with-ai.dev/posts/sync-claude-code-codex-cursor-memory/ | Symlinks, copy, shared |
-| MCP config sync | https://www.mikekawasaki.com/blog/keeping-mcp-configs-in-sync/ | Bidirectional MCP sync |
-| Agent rules guide | https://lirantal.com/blog/agent-rules-missing-link-ai-powered-development | Agent-rules advocacy |
-
-### Directories & Marketplaces
-
-| Resource | URL | Notes |
-|----------|-----|-------|
-| sync-conf.dev | https://sync-conf.dev/ | 100+ community configs |
-| indx.sh | https://indx.sh/ | AI coding rules directory |
-| ClaudeMDEditor | https://www.claudemdeditor.com/ | Visual rule editor |
-| MCP Linker | https://github.com/milisp/mcp-linker | GUI MCP manager, 600+ servers |
-
----
-
-## 6. Recommendation
-
-A satisfactory unified solution does not exist today. The gap is real and the existing tools each solve a slice of the problem. Here is a concrete, opinionated recommendation for our environment.
-
-### 6.1 Recommended Approach: Composition over Invention
-
-Rather than building a new tool from scratch, compose existing best-in-class tools into an integrated workflow:
-
-```
-AGENTS.md          -> Standard for instructions/rules (adopt the standard)
-Ruler or ai-rulez  -> CLI for syncing rules to tool-native locations
-combine-mcp        -> MCP proxy eliminates MCP config sync entirely
-add-mcp            -> One-time MCP server registration across tools
-agnix              -> Validation layer for generated configs
+### 2.1 Multi-tool config sync projects
+GitHub star/activity snapshots below are from GitHub API on 2026-02-23.
+
+| Project | What it does | Evidence | Honest assessment |
+|---|---|---|---|
+| [Ruler](https://github.com/intellectronica/ruler) | Uses `.ruler/` as a central rules source; distributes to multiple tools; includes MCP propagation. | README states "single source of truth" and `.ruler/` workflow; support table includes Claude, Codex, Cursor, Windsurf. | Strong adoption and momentum (2,478 stars). Good for rules + MCP propagation. Still a tool-specific source format (`.ruler/`), not a neutral `.beep/` standard. |
+| [ai-rulez](https://github.com/Goldziher/ai-rulez) | Uses `.ai-rulez/` + generator model for many tools; includes MCP server functionality and profile/include features. | README describes generating native configs for Claude/Cursor/Windsurf/Codex and MCP support. | Broadest feature surface among reviewed tools (rules + more). Adoption is lower (89 stars), so ecosystem maturity/risk is higher than Ruler. |
+| [LNAI](https://github.com/KrystianJonca/lnai) | Explicit `.ai/` convention with `init`, `validate`, and `sync`. | README: "Define once in `.ai/`, sync everywhere" and tool support list including Claude/Codex/Cursor/Windsurf. | Closest conceptual match to the desired end state, but `.ai/` naming collides with your chosen `.beep/` namespace and scope appears narrower than ai-rulez/agentsync in deeper parity areas. |
+| [rulesync](https://github.com/jpcaparas/rulesync) | Single `rulesync.md` -> generates per-tool instruction files. | README lists generated targets including `CLAUDE.md`, `.cursorrules`, `.windsurfrules`, `AGENTS.md`. | Good if the immediate goal is rule-file deduplication only. Not a full config unification system. |
+| [AgentSync](https://github.com/dallay/agentsync) | `.agents/` source + symlink-driven sync; also maps MCP into agent-specific formats. | README documents single source-of-truth and MCP mapping to `.codex/config.toml`, `.cursor/mcp.json`, etc. | Practical and close to requirements for generated parity. Low adoption (6 stars) and symlink-heavy defaults are a mismatch for your no-symlink constraint. |
+
+### 2.2 MCP-focused unification tools
+
+| Project | What it does | Evidence | Honest assessment |
+|---|---|---|---|
+| [add-mcp](https://github.com/neondatabase/add-mcp) | One command installs MCP servers into multiple agent configs. | README explicitly says "single command" and lists target config paths for Claude/Codex/Cursor/etc. | Excellent for the specific "add one MCP server everywhere" pain point. Does not unify rules/hooks/skills/commands. |
+| [combine-mcp](https://github.com/nazar256/combine-mcp) | Runs as an MCP aggregator/proxy so clients point to one server. | README describes one interface over multiple backend MCP servers and a single shared MCP config file. | Smart architectural workaround for MCP duplication. Solves MCP distribution but not broader multi-tool config drift. |
+
+### 2.3 Validation/linting companion
+
+| Project | What it does | Evidence | Honest assessment |
+|---|---|---|---|
+| [agnix](https://github.com/agent-sh/agnix) | Lints/auto-fixes agent config files across tools. | README: linter with rules for Claude/Codex/Cursor/Copilot/OpenCode + editor integrations. | Not a sync engine, but very useful as a guardrail to catch silent breakage from generated files. |
+
+### 2.4 Dotfile managers and analogous tooling
+
+| Tool | Relevance | Evidence | Honest assessment |
+|---|---|---|---|
+| [Mackup](https://github.com/lra/mackup) | Backs up/restores config locations for many apps, including AI tools. | README includes Claude Code/Codex/Cursor/Windsurf; app configs include `claude-code.cfg` and `codex.cfg` with concrete file paths. | Useful for portability and backup; not a semantic translator between incompatible formats. |
+| [chezmoi](https://www.chezmoi.io/) | General dotfile manager with templating and apply workflows. | Official docs position it as a generic dotfiles manager. | Good substrate for your own templates and generation workflows, but no reviewed first-party "AI config unification" schema/plugin. |
+
+### 2.5 Emerging standards/specs
+
+| Standard | Scope | Evidence | Honest assessment |
+|---|---|---|---|
+| [AGENTS.md](https://agents.md/) | Standard Markdown location/format for agent instructions. | Site describes open format; OpenAI announcement says AGENTS.md was contributed to AAIF under Linux Foundation. | Real momentum and likely long-term baseline for instruction text. Does not cover full structured config (hooks, commands, MCP auth, skills metadata). |
+| [MCP](https://modelcontextprotocol.io/) | Protocol for tool/model context interoperability. | Widely referenced by vendors and tools, including AAIF announcement context. | Critical protocol layer, but not a unified local config schema across coding agents. |
+
+## 3. Community Signals
+
+### 3.1 Developers are explicitly reporting multi-tool config pain
+- [openai/codex#3120 "Per-project config"](https://github.com/openai/codex/issues/3120) (2025-09-03): request highlights friction from global-only `~/.codex/config.toml` workflows.
+- [getsentry/sentry-cli#2739 "Migrate Cursor and Claude rules to AGENTS.md"](https://github.com/getsentry/sentry-cli/issues/2739) (2025-09-11): maintainers discuss moving from mixed rule files to AGENTS.md plus compatibility shims.
+- Cursor forum threads continue to request cross-tool or global rule consistency:
+  - [Support AGENTS.MD](https://forum.cursor.com/t/support-agents-md/133414) (2025-09-14)
+  - [Support global AGENTS.md](https://forum.cursor.com/t/support-global-agents-md/150406) (2026-01-30)
+  - [AGENTS.md and SSH](https://forum.cursor.com/t/agents-md-and-ssh/148475) (2026-01-10), describing multi-machine sync friction.
+
+### 3.2 Reddit/community discussion shows repeated format-fragmentation complaints
+- [r/cursor: "Do cursor rules apply when using Codex or Claude"](https://www.reddit.com/r/cursor/comments/1nc641r/) (2025-09-09)
+- [r/ClaudeAI: "Petition: Claude Code should support AGENTS.md"](https://www.reddit.com/r/ClaudeAI/comments/1q3q9bz/petition_claude_code_should_support_agentsmd/) (2026-01-04)
+- [r/cursor: "Are Agents.md files supported in Cursor?"](https://www.reddit.com/r/cursor/comments/1p036zs/) (2025-11-18)
+
+Note: direct Reddit API retrieval was blocked in this environment; links above were validated via indexed web results.
+
+### 3.3 Ecosystem awareness is broadening (HN + launches)
+- [HN: Ruler launch](https://news.ycombinator.com/item?id=44957623) (2025-08-20)
+- [HN: LNAI launch](https://news.ycombinator.com/item?id=46868318) (2026-02-03)
+- [HN: add-mcp launch](https://news.ycombinator.com/item?id=46966839) (2026-02-10)
+
+This is a strong signal that people are actively building and evaluating interoperability tooling rather than treating this as a niche problem.
+
+### 3.4 Vendor interoperability signals: positive but incomplete
+- OpenAI’s AAIF announcement explicitly frames interoperability as a goal and states AGENTS.md contribution into neutral governance: [OpenAI AAIF announcement](https://openai.com/index/agentic-ai-foundation/).
+- Cursor docs indicate AGENTS.md support and migration away from legacy `.cursorrules`: [Cursor rules docs](https://docs.cursor.com/context/rules).
+- Anthropic’s Claude Code docs still center `CLAUDE.md`/`.claude/rules` memory paths and hierarchy: [Claude Code memory docs](https://docs.anthropic.com/en/docs/claude-code/memory).
+- JetBrains AI Assistant has its own project rule system (`.aiassistant/rules`): [JetBrains project rules docs](https://www.jetbrains.com/help/ai-assistant/configure-project-rules.html).
+
+Interpretation: vendors are converging on instruction portability faster than they are converging on full config portability.
+
+## 4. Resource Index
+
+### 4.1 Official vendor docs (primary)
+- [OpenAI Codex config basics](https://developers.openai.com/codex/config-basic/) - user/project/system config locations and precedence.
+- [OpenAI Codex MCP docs](https://developers.openai.com/codex/mcp/) - MCP config in `config.toml` including project/user scopes.
+- [OpenAI Codex AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md/) - how Codex discovers layered AGENTS files.
+- [OpenAI Codex skills](https://developers.openai.com/codex/skills/) - skills directory locations.
+- [Anthropic Claude Code memory](https://docs.anthropic.com/en/docs/claude-code/memory) - CLAUDE.md + `.claude/rules` + user/project memory locations.
+- [Cursor rules docs](https://docs.cursor.com/context/rules) - project/user rule model and AGENTS interplay.
+- [Windsurf memories/rules docs](https://docs.windsurf.com/windsurf/cascade/memories) - global and workspace rule locations.
+- [JetBrains AI Assistant project rules](https://www.jetbrains.com/help/ai-assistant/configure-project-rules.html) - `.aiassistant/rules` convention.
+
+### 4.2 Unification and sync tools
+- [Ruler](https://github.com/intellectronica/ruler) - high-adoption multi-agent rule/MCP sync.
+- [ai-rulez](https://github.com/Goldziher/ai-rulez) - generator-based multi-tool config system.
+- [LNAI](https://github.com/KrystianJonca/lnai) - `.ai/`-centric validate/sync workflow.
+- [rulesync](https://github.com/jpcaparas/rulesync) - markdown-to-many rule file generator.
+- [AgentSync](https://github.com/dallay/agentsync) - `.agents/` + symlink model, includes MCP mapping.
+- [add-mcp](https://github.com/neondatabase/add-mcp) - MCP installation across multiple agents.
+- [combine-mcp](https://github.com/nazar256/combine-mcp) - MCP aggregator pattern.
+- [agnix](https://github.com/agent-sh/agnix) - config linter/validator.
+
+### 4.3 Standards and governance
+- [AGENTS.md](https://agents.md/) - open instruction file format and compatibility registry.
+- [OpenAI: co-founding AAIF under Linux Foundation](https://openai.com/index/agentic-ai-foundation/) - governance/interoperability context and standard contributions.
+
+### 4.4 Community signal sources
+- [Codex issue: per-project config pain](https://github.com/openai/codex/issues/3120)
+- [Sentry issue: migrate to AGENTS.md](https://github.com/getsentry/sentry-cli/issues/2739)
+- [Cursor forum: Support AGENTS.MD](https://forum.cursor.com/t/support-agents-md/133414)
+- [Cursor forum: Support global AGENTS.md](https://forum.cursor.com/t/support-global-agents-md/150406)
+- [HN: Ruler launch](https://news.ycombinator.com/item?id=44957623)
+- [HN: LNAI launch](https://news.ycombinator.com/item?id=46868318)
+- [HN: add-mcp launch](https://news.ycombinator.com/item?id=46966839)
+
+## 5. Recommendation
+A gap still exists, so a custom but pragmatic implementation is justified.
+
+### 5.1 Locked-in architecture (based on stakeholder decisions)
+- Canonical source: repository-local `.beep/` only (no user-level `~/.ai/` layering).
+- Implementation vehicle: `.beep/` as its own repo workspace/package, with Effect v4 as the core runtime.
+- Compiler model: a local CLI (`beep-sync`) reads canonical config and generates tool-native outputs.
+- Output model: generated files are committed to git and never hand-edited.
+- Compatibility model: generate both `AGENTS.md` and `CLAUDE.md` from the same canonical instructions content.
+
+### 5.2 Canonical schema design (`.beep/config.yaml` + Markdown assets)
+Use YAML for the structured graph and Markdown for long instructions/prompts.
+
+```yaml
+# .beep/config.yaml
+version: 1
+project:
+  linux_only: true
+  commit_generated: true
+
+instructions:
+  base:
+    - .beep/instructions/core.md
+    - .beep/instructions/security.md
+
+commands:
+  - id: test
+    run: bun test
+    cwd: .
+  - id: lint
+    run: bun run lint
+    cwd: .
+
+hooks:
+  pre_sync:
+    - run: bun .beep/bin/beep-sync validate
+  post_sync:
+    - run: bun .beep/bin/beep-sync doctor
+
+mcp_servers:
+  context7:
+    transport: http
+    url: https://mcp.context7.com
+    headers:
+      Authorization:
+        from: onepassword
+        ref: op://engineering/context7/token
+
+outputs:
+  instructions:
+    - target: AGENTS.md
+      source: .beep/instructions/_compiled.md
+    - target: CLAUDE.md
+      source: .beep/instructions/_compiled.md
+
+tool_overrides:
+  codex:
+    config_toml:
+      model: o4-mini
+  cursor:
+    project_rules_dir: .cursor/rules
+    legacy_cursorrules: false
 ```
 
-### 6.2 Canonical Source Directory
+Why YAML here: it is easier for deeply nested cross-tool mappings than TOML and simpler for team review in PRs.
 
-Adopt the `.ai/` convention (as LNAI proposes) or `.ruler/` (as Ruler uses). The structure:
+### 5.3 Sync strategy (decision)
 
-```
-.ai/
-  AGENTS.md              # Primary instructions (THE source of truth)
-  rules/
-    coding-style.md      # Modular rule files
-    testing.md
-    error-handling.md
-  mcp/
-    servers.json         # MCP server definitions (or use combine-mcp)
-  skills/
-    skill-name.md        # Portable skill definitions
-  commands/
-    command-name.md      # Portable command definitions
-  hooks/
-    pre-commit.sh        # Shared hook scripts
-  ignore                 # Shared ignore patterns
-  config.toml            # Sync tool configuration
-```
+| Strategy | Decision | Reason |
+|---|---|---|
+| Symlinks | Rejected | Reported Claude caching issues and unnecessary complexity for your workflow. |
+| Generated files | Adopted | Deterministic, debuggable, and supports schema-to-native transforms safely. |
+| Watcher daemon | Optional later | Nice DX, but not required for initial rollout. |
 
-### 6.3 Sync Strategy: Generated Files (Not Symlinks)
+### 5.4 Trigger mechanism
+- Primary: explicit `beep-sync apply` command.
+- Local guardrail: git hook runs `beep-sync validate` and `beep-sync check`.
+- CI guardrail: same checks in pipeline to prevent drift from landing.
+- Generated outputs are committed, so CI can enforce zero-diff generation.
 
-**Symlinks** are tempting but problematic:
-- Some tools don't follow symlinks correctly
-- Git treats symlinks as files containing the target path (confuses contributors)
-- Windows compatibility issues
-- Can't transform content (e.g., Cursor `.mdc` format differs from plain Markdown)
+### 5.5 Conflict resolution model
+- Keep a strict common core (`instructions`, `commands`, `hooks`, `mcp_servers`, `agents`, `skills`).
+- Allow `tool_overrides.<tool>` for non-portable knobs.
+- Emit warning levels:
+  - Error: invalid canonical schema or unsafe overwrite.
+  - Warning: non-portable field dropped for target tool.
+  - Info: fallback behavior used (for example, adapter shim file generated).
+- Preserve unknown vendor-specific fields in passthrough blocks so migration does not lose information.
 
-**Generated files** (Ruler/ai-rulez approach) are better:
-- Each tool gets exactly its native format
-- Content transformation happens at sync time (e.g., AGENTS.md -> CLAUDE.md with tool-specific sections)
-- Generated files can be `.gitignore`d to avoid repo pollution
-- Clear separation: `.ai/` is source of truth, everything else is derived
+### 5.6 Incremental adoption path (low-risk)
+1. Inventory current config files and classify into portable vs tool-specific.
+2. Start with instructions only, generating `AGENTS.md` and `CLAUDE.md` from one source.
+3. Add MCP sync next (highest pain/ROI), then commands/hooks, then skills/agents.
+4. Run in shadow mode first: generate into `.beep/generated/` and diff against current live files.
+5. Flip to managed mode once diffs are stable; add headers like `# GENERATED - edit .beep/config.yaml`.
+6. Enforce with CI check to prevent manual drift.
 
-**Recommended**: Use generated files with a `.gitignore` entry for all tool-specific dirs:
+### 5.7 Practical compatibility reality
+You cannot fully eliminate root-level compatibility files today because several tools still require specific filenames/locations. The realistic goal is not zero tool files, but zero hand-maintained tool files.
 
-```gitignore
-# AI tool configs (generated from .ai/)
-.claude/
-.cursor/
-.cursorrules
-.windsurfrules
-.github/copilot-instructions.md
-!.ai/
-```
+## 6. Open Questions
 
-### 6.4 Trigger Mechanism
+### 6.1 Resolved Decisions (from stakeholder answers, 2026-02-23)
+1. Generated compatibility files should be committed to git.
+2. One canonical instruction set should drive all tools; `AGENTS.md` and `CLAUDE.md` are generated duplicates.
+3. No user-level global config; project-level config only.
+4. Canonical directory name is `.beep/` (not `.ai/`).
+5. No symlinks in the implementation.
+6. Linux-only support is acceptable for v1.
+7. Initial scope is internal stack first, not day-one OSS generalization.
+8. `.beep/` should be a workspace with dependencies; Effect v4 is the preferred core.
 
-Run sync in these scenarios:
+### 6.2 Remaining Open Questions
+1. 1Password integration mode: use `op` CLI shell-out in v1, or implement 1Password SDK integration from day one?
+2. Full JetBrains parity definition: which JetBrains AI features beyond `.aiassistant/rules` are mandatory for v1 parity?
+3. Internal packaging layout: should the implementation live under `.beep/` directly or as a standard monorepo package (for example `packages/beep-sync`) with `.beep/` as runtime data only?
 
-1. **Manual**: `ai-sync` CLI command (wraps Ruler or ai-rulez)
-2. **Git hook** (lefthook `post-checkout`, `post-merge`): Auto-sync after branch switches and pulls
-3. **Claude Code hook** (`PreToolUse`): Could validate configs before agent operations
-4. **CI check**: `ai-sync --check` in PR validation (ensures `.ai/` and generated files are consistent)
-
-### 6.5 MCP Strategy: combine-mcp as Proxy
-
-Instead of syncing MCP configs across tools, use `combine-mcp` as a single proxy:
-
-```
-All tools -> combine-mcp (single config) -> Individual MCP servers
-```
-
-Each AI tool's MCP config just points to `combine-mcp`. Adding a new MCP server means updating one file. This is architecturally superior to config sync for MCP specifically.
-
-For one-time setup of new MCP servers, use `npx add-mcp` to register `combine-mcp` with each tool.
-
-### 6.6 Handling Tool-Specific Fields
-
-Some config dimensions have no cross-tool equivalent:
-
-| Dimension | Strategy |
-|-----------|----------|
-| Claude Code hooks | Keep in `.claude/` (no equivalent elsewhere) |
-| Claude Code memory | Keep in `.claude/memory/` (tool-specific) |
-| Cursor `.mdc` metadata | Generate from `.ai/rules/*.md` with frontmatter transform |
-| JetBrains ACP | Keep in `.idea/` (no cross-tool equivalent yet) |
-| Windsurf-specific settings | Tool-specific section in `.ai/config.toml` |
-
-**Principle**: The unified `.ai/` directory captures everything that CAN be shared. Tool-specific configs that have no portable equivalent stay in their native locations. The goal is to eliminate duplication, not to force everything into one format.
-
-### 6.7 Adoption Path
-
-**Phase 1 - Evaluate (1 day)**:
-- Install Ruler (`npm i -g @intellectronica/ruler`) and ai-rulez (`pip install ai-rulez`)
-- Test both against the current repo's configs
-- Pick the one that handles our specific tool mix best
-
-**Phase 2 - Centralize Rules (1 day)**:
-- Create `.ai/` (or `.ruler/`) directory
-- Move existing `CLAUDE.md` content into `AGENTS.md` + modular rule files
-- Run sync, verify all tools still work
-- Add `.gitignore` entries for generated files
-
-**Phase 3 - MCP Consolidation (1 day)**:
-- Set up `combine-mcp` as proxy
-- Point all tools' MCP configs to it
-- Use `add-mcp` for initial registration
-
-**Phase 4 - Automation (1 day)**:
-- Add lefthook `post-checkout` / `post-merge` hooks
-- Add CI check for config consistency
-- Optionally add `agnix` linting
-
-**Phase 5 - Team/Org Expansion (ongoing)**:
-- If org-wide standards needed: use ai-rulez's remote includes to pull from a shared company repo
-- Document the `.ai/` convention in team onboarding
-
----
-
-## 7. Open Questions
-
-1. **AGENTS.md timeline for Claude Code**: Will Anthropic migrate Claude Code from `CLAUDE.md` to `AGENTS.md`? As an AAIF member, this seems likely but no timeline has been announced. This is the single biggest friction point.
-
-2. **Ruler vs. ai-rulez**: Ruler has more community adoption (2.5k vs 89 stars). ai-rulez has more features (remote includes, profiles, compression, MCP server). Which wins long-term? The Go vs. TypeScript runtime difference matters for CI.
-
-3. **JetBrains integration**: ACP is a runtime protocol, not a config format. None of the sync tools meaningfully address JetBrains AI configuration. This may remain a gap until JetBrains adopts AGENTS.md or similar.
-
-4. **Memory/context portability**: No tool addresses syncing agent memory (`.claude/memory/`, Graphiti, etc.) across tools. This may not be solvable generically since memory systems are fundamentally different.
-
-5. **Skills/commands semantic portability**: Claude Code skills (`.claude/skills/*.md`) and Cursor rules (`.cursor/rules/*.mdc`) have different semantics even though both are Markdown-ish. Is mechanical sync sufficient or do we need semantic translation?
-
-6. **AAIF convergence timeline**: With AWS, Anthropic, Google, Microsoft, and OpenAI all in the foundation, will AGENTS.md become the One True Standard within 12 months? If so, building custom tooling may be premature.
-
-7. **combine-mcp maturity**: Is combine-mcp production-ready for a multi-tool workflow? What's the latency overhead of proxying all MCP calls through it?
-
----
-
-## Appendix: Comparison Matrix
-
-| Tool | Rules | MCP | Skills | Commands | Ignore | Memory | JetBrains | Stars |
-|------|:-----:|:---:|:------:|:--------:|:------:|:------:|:---------:|------:|
-| **Ruler** | 11 agents | Yes | Partial | Partial | No | No | No | 2,500 |
-| **ai-rulez** | 18 presets | Partial | Yes | Yes | No | No | No | 89 |
-| **block/ai-rules** | 11 agents | Yes | Yes | Yes | No | No | No | 64 |
-| **LNAI** | 7 agents | No | No | No | No | No | No | 229 |
-| **add-mcp** | No | 9 agents | No | No | No | No | No | -- |
-| **combine-mcp** | No | Proxy | No | No | No | No | No | -- |
-| **agnix** (lint) | Validates | Validates | Validates | No | No | No | Plugin | 52 |
-| **Ideal** | All | All | All | All | All | All | All | -- |

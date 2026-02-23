@@ -1,0 +1,39 @@
+{
+  "project": "unified-ai-tooling",
+  "lastUpdated": "2026-02-23",
+  "phases": {
+    "p0": {
+      "status": "completed",
+      "outputs": {
+        "research": "specs/pending/unified-ai-tooling/outputs/preliminary-research.md",
+        "compatibilityMatrix": "specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md",
+        "canonicalPatternReview": "specs/pending/unified-ai-tooling/outputs/canonical-pattern-review.md",
+        "comprehensiveReview": "specs/pending/unified-ai-tooling/outputs/comprehensive-review.md"
+      }
+    },
+    "p1": {
+      "status": "pending",
+      "outputs": {
+        "schemaContract": "specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md"
+      }
+    },
+    "p2": {
+      "status": "pending",
+      "outputs": {
+        "adapterDesign": "specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md"
+      }
+    },
+    "p3": {
+      "status": "pending",
+      "outputs": {
+        "runtimeIntegration": "specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md"
+      }
+    },
+    "p4": {
+      "status": "pending",
+      "outputs": {
+        "cutoverPlaybook": "specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md"
+      }
+    }
+  }
+}
