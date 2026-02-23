@@ -1,0 +1,32 @@
+{
+  "name": "@beep/claude",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Claude Code hooks, patterns, and scripts for beep-effect monorepo",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": ".claude"
+  },
+  "scripts": {
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "dependencies": {
+    "effect": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "picomatch": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/picomatch": "^4.0.2",
+    "@types/node": "catalog:",
+    "@types/bun": "catalog:",
+    "@effect/vitest": "catalog:",
+    "typescript": "catalog:"
+  }
+}
