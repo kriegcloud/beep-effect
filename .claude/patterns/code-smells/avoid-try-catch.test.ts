@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-try-catch",
@@ -10,10 +10,5 @@ testPattern({
     "try{",
     "try  {",
   ],
-  shouldNotMatch: [
-    "Effect.try({ try: () => foo() })",
-    "const retry = 5",
-    "tryPromise",
-    "Effect.tryPromise",
-  ],
-})
+  shouldNotMatch: ["Effect.try({ try: () => foo() })", "const retry = 5", "tryPromise", "Effect.tryPromise"],
+});

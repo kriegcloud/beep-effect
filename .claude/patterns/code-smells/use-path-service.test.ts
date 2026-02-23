@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "use-path-service",
@@ -16,4 +16,4 @@ testPattern({
     "const filePath = '/some/path'",
     "import fs from 'node:fs'",
   ],
-})
+});

@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "yield-in-for-loop",
@@ -16,4 +16,4 @@ testPattern({
     "// for loop with yield*",
     "items.forEach(item => process(item))",
   ],
-})
+});

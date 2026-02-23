@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "effect-run-in-body",
@@ -26,4 +26,4 @@ testPattern({
     "function runSync() {}",
     "function runPromise() {}",
   ],
-})
+});

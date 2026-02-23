@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-direct-json",
@@ -15,4 +15,4 @@ testPattern({
     "const parseJson = Schema.parseJson",
     "import { parseJson } from 'effect/Schema'",
   ],
-})
+});

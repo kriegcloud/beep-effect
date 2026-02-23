@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "use-random-service",
@@ -17,4 +17,4 @@ testPattern({
     "const randomService = Random",
     "yield* Random.nextRange(1, 100)",
   ],
-})
+});

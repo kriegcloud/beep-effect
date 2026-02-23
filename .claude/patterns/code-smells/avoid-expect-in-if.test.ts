@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-expect-in-if",
@@ -10,9 +10,5 @@ testPattern({
     "if (user) { expect(user.active).toBe(true) }",
     "if (obj?.nested) { expect(obj.nested.prop).toEqual('value') }",
   ],
-  shouldNotMatch: [
-    "expect(value).toBeDefined()",
-    "if (value) { console.log(value) }",
-    "const expected = true",
-  ],
-})
+  shouldNotMatch: ["expect(value).toBeDefined()", "if (value) { console.log(value) }", "const expected = true"],
+});

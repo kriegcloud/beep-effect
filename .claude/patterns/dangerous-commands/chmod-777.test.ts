@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "chmod-777",
@@ -22,4 +22,4 @@ testBashPattern({
     "chmod o-w file.txt",
     "chmod 700 private.key",
   ],
-})
+});

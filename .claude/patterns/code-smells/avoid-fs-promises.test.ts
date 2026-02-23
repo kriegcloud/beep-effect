@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-fs-promises",
@@ -15,4 +15,4 @@ testPattern({
     "// import from 'fs/promises'",
     "const path = 'fs/promises/file.txt'",
   ],
-})
+});

@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "force-push",
@@ -25,4 +25,4 @@ testBashPattern({
     "git pull --force",
     "git fetch --force",
   ],
-})
+});

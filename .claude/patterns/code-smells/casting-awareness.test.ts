@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "casting-awareness",
@@ -17,4 +17,4 @@ testPattern({
     "Schema.decode",
     "function isUser(x: unknown): x is User { return true }",
   ],
-})
+});

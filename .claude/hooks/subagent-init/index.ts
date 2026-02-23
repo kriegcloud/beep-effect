@@ -12,143 +12,139 @@
  * @since 1.0.0
  */
 
-import { Effect, Console, Context, Layer, Data, Schema, pipe, Config, Array as Arr } from "effect"
-import { BunContext, BunRuntime } from "@effect/platform-bun"
-import { Command, CommandExecutor } from "@effect/platform"
-import * as fs from "fs"
-import * as path from "path"
-import * as os from "os"
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import { Command, CommandExecutor } from "@effect/platform";
+import { BunContext, BunRuntime } from "@effect/platform-bun";
+import { Array as Arr, Config, Console, Context, Data, Effect, Layer, pipe, Schema } from "effect";
 
 const AgentConfigSchema = Schema.Struct({
   projectDir: Schema.String.pipe(Schema.nonEmptyString()),
-})
+});
 
-type AgentConfigData = Schema.Schema.Type<typeof AgentConfigSchema>
+type AgentConfigData = Schema.Schema.Type<typeof AgentConfigSchema>;
 
 const MiseTask = Schema.Struct({
   name: Schema.String,
   aliases: Schema.Array(Schema.String),
   description: Schema.String,
-})
+});
 
-const MiseTasks = Schema.Array(MiseTask)
+const MiseTasks = Schema.Array(MiseTask);
 
 const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
-  Arr.map(tasks, t => {
-    const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : ""
-    return `${t.name}${aliases}: ${t.description}`
-  }).join("\n")
+  Arr.map(tasks, (t) => {
+    const aliases = t.aliases.length > 0 ? ` (${t.aliases.join(", ")})` : "";
+    return `${t.name}${aliases}: ${t.description}`;
+  }).join("\n");
 
 export class AgentConfigError extends Data.TaggedError("AgentConfigError")<{
-  readonly reason: string
-  readonly cause?: unknown
-}> { }
+  readonly reason: string;
+  readonly cause?: unknown;
+}> {}
 
-export class AgentConfig extends Context.Tag("AgentConfig")<
-  AgentConfig,
-  { readonly projectDir: string }
->() { }
+export class AgentConfig extends Context.Tag("AgentConfig")<AgentConfig, { readonly projectDir: string }>() {}
 
-const ProjectDirConfig = pipe(
-  Config.string("CLAUDE_PROJECT_DIR"),
-  Config.withDefault(".")
-)
+const ProjectDirConfig = pipe(Config.string("CLAUDE_PROJECT_DIR"), Config.withDefault("."));
 
 export const AgentConfigLive = Layer.effect(
   AgentConfig,
   Effect.gen(function* () {
-    const projectDir = yield* ProjectDirConfig
+    const projectDir = yield* ProjectDirConfig;
     const config: AgentConfigData = yield* Schema.decode(AgentConfigSchema)({
       projectDir,
-    }).pipe(
-      Effect.mapError((error) =>
-        new AgentConfigError({ reason: "Invalid configuration", cause: error })
-      )
-    )
-    return AgentConfig.of({ projectDir: config.projectDir })
+    }).pipe(Effect.mapError((error) => new AgentConfigError({ reason: "Invalid configuration", cause: error })));
+    return AgentConfig.of({ projectDir: config.projectDir });
   })
-)
+);
 
-export const AppLive = AgentConfigLive.pipe(
-  Layer.provideMerge(BunContext.layer)
-)
+export const AppLive = AgentConfigLive.pipe(Layer.provideMerge(BunContext.layer));
 
 function listMemories(): string {
-  const vaultPath = path.join(os.homedir(), '.claude', 'memory')
+  const vaultPath = path.join(os.homedir(), ".claude", "memory");
 
   try {
     if (!fs.existsSync(vaultPath)) {
-      return 'No memories found (vault not initialized).'
+      return "No memories found (vault not initialized).";
     }
 
-    const files = fs.readdirSync(vaultPath)
-      .filter(f => f.endsWith('.md'))
-      .slice(0, 10)
+    const files = fs
+      .readdirSync(vaultPath)
+      .filter((f) => f.endsWith(".md"))
+      .slice(0, 10);
 
     if (files.length === 0) {
-      return 'Memory vault exists but is empty.'
+      return "Memory vault exists but is empty.";
     }
 
-    return files.map(f => `  - ${f.replace('.md', '')}`).join('\n')
+    return files.map((f) => `  - ${f.replace(".md", "")}`).join("\n");
   } catch (error) {
-    return 'Error listing memories.'
+    return "Error listing memories.";
   }
 }
 
 const program = Effect.gen(function* () {
-  const config = yield* AgentConfig
-  const commandExecutor = yield* CommandExecutor.CommandExecutor
+  const config = yield* AgentConfig;
+  const commandExecutor = yield* CommandExecutor.CommandExecutor;
 
-  const [moduleSummary, projectVersion, latestCommit, previousCommits, packageScripts, miseTasks] = yield* Effect.all([
-    pipe(
-      Command.make("bun", ".claude/scripts/context-crawler.ts", "--summary"),
-      Command.workingDirectory(config.projectDir),
-      Command.string,
-      Effect.catchAll(() => Effect.succeed("<modules count=\"0\">(unavailable)</modules>")),
-      Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
-    ),
-    pipe(
-      Command.make("bun", "-e", "console.log(require('./package.json').version)"),
-      Command.workingDirectory(config.projectDir),
-      Command.string,
-      Effect.map(v => v.trim()),
-      Effect.catchAll(() => Effect.succeed("unknown")),
-      Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
-    ),
-    pipe(
-      Command.make("git", "show", "HEAD", "--stat", "--format=%h %s%n%n%b"),
-      Command.workingDirectory(config.projectDir),
-      Command.string,
-      Effect.map(s => s.trim()),
-      Effect.catchAll(() => Effect.succeed("")),
-      Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
-    ),
-    pipe(
-      Command.make("git", "log", "--oneline", "-4", "--skip=1"),
-      Command.workingDirectory(config.projectDir),
-      Command.string,
-      Effect.map(s => s.trim()),
-      Effect.catchAll(() => Effect.succeed("")),
-      Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
-    ),
-    pipe(
-      Command.make("bun", "-e", "const p = require('./package.json'); console.log(Object.entries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"),
-      Command.workingDirectory(config.projectDir),
-      Command.string,
-      Effect.map(s => s.trim()),
-      Effect.catchAll(() => Effect.succeed("")),
-      Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
-    ),
-    pipe(
-      Command.make("mise", "tasks", "--json"),
-      Command.workingDirectory(config.projectDir),
-      Command.string,
-      Effect.flatMap(s => Schema.decodeUnknown(MiseTasks)(JSON.parse(s))),
-      Effect.map(formatMiseTasks),
-      Effect.catchAll(() => Effect.succeed("")),
-      Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
-    )
-  ], { concurrency: "unbounded" })
+  const [moduleSummary, projectVersion, latestCommit, previousCommits, packageScripts, miseTasks] = yield* Effect.all(
+    [
+      pipe(
+        Command.make("bun", ".claude/scripts/context-crawler.ts", "--summary"),
+        Command.workingDirectory(config.projectDir),
+        Command.string,
+        Effect.catchAll(() => Effect.succeed('<modules count="0">(unavailable)</modules>')),
+        Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+      ),
+      pipe(
+        Command.make("bun", "-e", "console.log(require('./package.json').version)"),
+        Command.workingDirectory(config.projectDir),
+        Command.string,
+        Effect.map((v) => v.trim()),
+        Effect.catchAll(() => Effect.succeed("unknown")),
+        Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+      ),
+      pipe(
+        Command.make("git", "show", "HEAD", "--stat", "--format=%h %s%n%n%b"),
+        Command.workingDirectory(config.projectDir),
+        Command.string,
+        Effect.map((s) => s.trim()),
+        Effect.catchAll(() => Effect.succeed("")),
+        Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+      ),
+      pipe(
+        Command.make("git", "log", "--oneline", "-4", "--skip=1"),
+        Command.workingDirectory(config.projectDir),
+        Command.string,
+        Effect.map((s) => s.trim()),
+        Effect.catchAll(() => Effect.succeed("")),
+        Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+      ),
+      pipe(
+        Command.make(
+          "bun",
+          "-e",
+          "const p = require('./package.json'); console.log(Object.entries(p.scripts || {}).map(([k,v]) => k + ': ' + v).join('\\n'))"
+        ),
+        Command.workingDirectory(config.projectDir),
+        Command.string,
+        Effect.map((s) => s.trim()),
+        Effect.catchAll(() => Effect.succeed("")),
+        Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+      ),
+      pipe(
+        Command.make("mise", "tasks", "--json"),
+        Command.workingDirectory(config.projectDir),
+        Command.string,
+        Effect.flatMap((s) => Schema.decodeUnknown(MiseTasks)(JSON.parse(s))),
+        Effect.map(formatMiseTasks),
+        Effect.catchAll(() => Effect.succeed("")),
+        Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+      ),
+    ],
+    { concurrency: "unbounded" }
+  );
 
   // Subagent context with strong implementer identity
   const output = `<subagent-context>
@@ -359,10 +355,10 @@ ${miseTasks || "(none)"}
 </available-scripts>
 
 <commands>/modules /module [path] /module-search [pattern]</commands>
-</subagent-context>`
+</subagent-context>`;
 
-  yield* Console.log(output)
-})
+  yield* Console.log(output);
+});
 
 const runnable = pipe(
   program,
@@ -370,6 +366,6 @@ const runnable = pipe(
   Effect.catchTags({
     AgentConfigError: (error) => Console.error(`<error>${error.reason}</error>`),
   })
-)
+);
 
-BunRuntime.runMain(runnable)
+BunRuntime.runMain(runnable);

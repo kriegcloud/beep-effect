@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "git-branch-force-delete",
@@ -21,4 +21,4 @@ testBashPattern({
     "git branch --list",
     "git checkout -D feature",
   ],
-})
+});

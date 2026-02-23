@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "context-tag-extends",
@@ -17,4 +17,4 @@ testPattern({
     "class MyClass extends BaseClass { }",
     "Tag = 'value'",
   ],
-})
+});

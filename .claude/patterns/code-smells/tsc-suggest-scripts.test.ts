@@ -1,16 +1,14 @@
-import { describe, it, expect, beforeAll } from "vitest"
-import { Effect } from "effect"
-import { BunContext } from "@effect/platform-bun"
-import { type PatternDefinition } from "../../patterns/schema"
-import { loadPatterns, findMatches, type HookInput } from "../../hooks/pattern-detector/core"
+import { BunContext } from "@effect/platform-bun";
+import { Effect } from "effect";
+import { beforeAll, describe, expect, it } from "vitest";
+import { findMatches, type HookInput, loadPatterns } from "../../hooks/pattern-detector/core";
+import type { PatternDefinition } from "../../patterns/schema";
 
-let patterns: PatternDefinition[] = []
+let patterns: PatternDefinition[] = [];
 
 beforeAll(async () => {
-  patterns = await Effect.runPromise(
-    loadPatterns.pipe(Effect.provide(BunContext.layer))
-  )
-})
+  patterns = await Effect.runPromise(loadPatterns.pipe(Effect.provide(BunContext.layer)));
+});
 
 describe("tsc-suggest-scripts", () => {
   const shouldMatch = [
@@ -21,7 +19,7 @@ describe("tsc-suggest-scripts", () => {
     "tsc --watch",
     "tsc -p tsconfig.json",
     "tsc --project tsconfig.json",
-  ]
+  ];
 
   const shouldNotMatch = [
     "mise run typecheck",
@@ -29,27 +27,27 @@ describe("tsc-suggest-scripts", () => {
     "npm run typecheck",
     "bun run typecheck",
     "yarn typecheck",
-  ]
+  ];
 
   it.each(shouldMatch)("should match: %s", (command) => {
     const input: HookInput = {
       hook_event_name: "PostToolUse",
       tool_name: "Bash",
-      tool_input: { command }
-    }
-    const matched = findMatches(input, patterns)
-    const hasTag = matched.some(p => p.tag === "tsc-context")
-    expect(hasTag).toBe(true)
-  })
+      tool_input: { command },
+    };
+    const matched = findMatches(input, patterns);
+    const hasTag = matched.some((p) => p.tag === "tsc-context");
+    expect(hasTag).toBe(true);
+  });
 
   it.each(shouldNotMatch)("should NOT match: %s", (command) => {
     const input: HookInput = {
       hook_event_name: "PostToolUse",
       tool_name: "Bash",
-      tool_input: { command }
-    }
-    const matched = findMatches(input, patterns)
-    const hasTag = matched.some(p => p.tag === "tsc-context")
-    expect(hasTag).toBe(false)
-  })
-})
+      tool_input: { command },
+    };
+    const matched = findMatches(input, patterns);
+    const hasTag = matched.some((p) => p.tag === "tsc-context");
+    expect(hasTag).toBe(false);
+  });
+});

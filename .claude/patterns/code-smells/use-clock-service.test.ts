@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "use-clock-service",
@@ -16,4 +16,4 @@ testPattern({
     "yield* Clock.currentTimeMillis",
     "const date = '2024-01-01'",
   ],
-})
+});

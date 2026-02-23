@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-non-null-assertion",
@@ -30,4 +30,4 @@ testPattern({
     'map.get("key")!',
     "result!)",
   ],
-})
+});

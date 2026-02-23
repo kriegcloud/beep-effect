@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-object-type",
@@ -27,4 +27,4 @@ testPattern({
     "Schema.Struct({ id: Schema.Number })",
     "const obj: { name: string }",
   ],
-})
+});

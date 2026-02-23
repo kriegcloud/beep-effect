@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "effect-catchall-default",
@@ -27,4 +27,4 @@ testPattern({
     "catchTag('NotFound', () => createDefaultUser())",
     "Effect.catchAll(() => Effect.gen(function*() { yield* log('error'); return yield* Effect.fail(error) }))",
   ],
-})
+});

@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "expose-secrets",
@@ -26,4 +26,4 @@ testBashPattern({
     "cp .env .env.backup",
     "ls -la",
   ],
-})
+});

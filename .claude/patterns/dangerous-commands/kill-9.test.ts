@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "kill-signal-9",
@@ -22,4 +22,4 @@ testBashPattern({
     "kill -HUP 1234",
     "kill -INT 1234",
   ],
-})
+});

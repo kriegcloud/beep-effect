@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "drop-database",
@@ -25,4 +25,4 @@ testBashPattern({
     "echo 'DROP DATABASE'",
     "grep 'DROP TABLE' log.txt",
   ],
-})
+});

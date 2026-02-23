@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-sync-fs",
@@ -33,4 +33,4 @@ testPattern({
     "// readFileSync is mentioned in comment",
     "const readFileSync = customImplementation",
   ],
-})
+});

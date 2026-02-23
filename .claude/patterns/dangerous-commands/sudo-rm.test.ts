@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "sudo-rm",
@@ -22,4 +22,4 @@ testBashPattern({
     "sudo rmdir empty_dir",
     "sudo systemctl restart service",
   ],
-})
+});

@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "imperative-loops",
@@ -25,4 +25,4 @@ testPattern({
     "pipe(items, Array.map(process))",
     "const perform = () => {}",
   ],
-})
+});

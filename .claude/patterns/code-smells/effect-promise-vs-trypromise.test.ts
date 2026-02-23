@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "effect-promise-vs-trypromise",
@@ -24,4 +24,4 @@ testPattern({
     "yield* someOtherEffect",
     "const p = yield* getPromise()",
   ],
-})
+});

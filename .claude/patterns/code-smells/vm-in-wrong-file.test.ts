@@ -1,4 +1,4 @@
-import { testFilePathPattern } from "../../test/pattern-test-harness"
+import { testFilePathPattern } from "../../test/pattern-test-harness";
 
 testFilePathPattern({
   name: "vm-in-wrong-file",
@@ -18,4 +18,4 @@ testFilePathPattern({
     { code: "interface Component {", filePath: "Component.ts" },
     { code: "const UserService = Context.GenericTag<UserService>()", filePath: "User.ts" },
   ],
-})
+});

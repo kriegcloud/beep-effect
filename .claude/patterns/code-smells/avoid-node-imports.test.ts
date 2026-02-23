@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-node-imports",
@@ -24,4 +24,4 @@ testPattern({
     'const platform = require("@effect/platform")',
     'import { node } from "other-lib"',
   ],
-})
+});

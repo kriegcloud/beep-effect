@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "use-temp-file-scoped",
@@ -19,4 +19,4 @@ testPattern({
     "const osName = 'linux'",
     "const temp = createTempFileScoped()",
   ],
-})
+});

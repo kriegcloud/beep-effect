@@ -1,4 +1,4 @@
-import { testWritePattern } from "../../test/pattern-test-harness"
+import { testWritePattern } from "../../test/pattern-test-harness";
 
 testWritePattern({
   name: "write-env-file",
@@ -13,12 +13,5 @@ testWritePattern({
     "config/.env.test",
     ".env.staging",
   ],
-  shouldNotMatch: [
-    ".env.example",
-    ".env.template",
-    "config.ts",
-    "environment.ts",
-    "src/env/config.ts",
-    "README.md",
-  ],
-})
+  shouldNotMatch: [".env.example", ".env.template", "config.ts", "environment.ts", "src/env/config.ts", "README.md"],
+});

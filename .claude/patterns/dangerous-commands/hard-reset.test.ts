@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "hard-reset",
@@ -24,4 +24,4 @@ testBashPattern({
     "git reset --mixed",
     "git revert --hard",
   ],
-})
+});

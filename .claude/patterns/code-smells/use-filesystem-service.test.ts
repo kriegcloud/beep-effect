@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "use-filesystem-service",
@@ -16,4 +16,4 @@ testPattern({
     "import { readFileString } from '@effect/platform/FileSystem'",
     "import { join } from 'node:path'",
   ],
-})
+});

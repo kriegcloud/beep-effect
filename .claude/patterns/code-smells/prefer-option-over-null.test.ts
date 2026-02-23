@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "prefer-option-over-null",
@@ -28,4 +28,4 @@ testPattern({
     "const value = null",
     "function test(x = null) {}",
   ],
-})
+});

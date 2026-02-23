@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-any",
@@ -16,4 +16,4 @@ testPattern({
     "function hasAnyValue() {}",
     "type AnyValue = string | number",
   ],
-})
+});

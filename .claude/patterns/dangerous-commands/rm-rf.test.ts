@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "rm-rf",
@@ -28,4 +28,4 @@ testBashPattern({
     "rm -f test.txt",
     "rm -r dist",
   ],
-})
+});

@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "git-stash-destroy",
@@ -22,4 +22,4 @@ testBashPattern({
     "git stash save",
     "git stash branch new-branch",
   ],
-})
+});

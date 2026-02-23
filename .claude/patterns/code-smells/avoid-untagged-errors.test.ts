@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-untagged-errors",
@@ -19,4 +19,4 @@ testPattern({
     "Data.TaggedError",
     "const errorCount = 5",
   ],
-})
+});

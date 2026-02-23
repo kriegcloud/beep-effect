@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-ts-ignore",
@@ -11,10 +11,5 @@ testPattern({
     "// @ts-ignore - legacy code",
     "/* @ts-expect-error */",
   ],
-  shouldNotMatch: [
-    "const x = 5",
-    "Effect.try({ try: () => foo() })",
-    "tsconfig.json",
-    "typescript",
-  ],
-})
+  shouldNotMatch: ["const x = 5", "Effect.try({ try: () => foo() })", "tsconfig.json", "typescript"],
+});

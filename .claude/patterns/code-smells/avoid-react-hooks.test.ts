@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "avoid-react-hooks",
@@ -33,4 +33,4 @@ testPattern({
     "const customUseState = () => {}",
     "const useStateManager = createManager()",
   ],
-})
+});

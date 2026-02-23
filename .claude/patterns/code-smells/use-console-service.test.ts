@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness"
+import { testPattern } from "../../test/pattern-test-harness";
 
 testPattern({
   name: "use-console-service",
@@ -18,4 +18,4 @@ testPattern({
     "yield* Console.error('error')",
     "const console = mockConsole",
   ],
-})
+});

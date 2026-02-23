@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness"
+import { testBashPattern } from "../../test/pattern-test-harness";
 
 testBashPattern({
   name: "git-discard-changes",
@@ -20,4 +20,4 @@ testBashPattern({
     "git restore --staged .",
     "git checkout",
   ],
-})
+});
