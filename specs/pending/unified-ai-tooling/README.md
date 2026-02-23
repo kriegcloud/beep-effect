@@ -23,6 +23,8 @@ ACTIVE
 - [Subtree Synthesis](./outputs/subtree-synthesis.md)
 - [Quality Gates and Test Strategy](./outputs/quality-gates-and-test-strategy.md)
 - [Residual Risk Closure](./outputs/residual-risk-closure.md)
+- [POC Execution Pack](./outputs/poc-execution-pack.md)
+- [POC Command Templates](./outputs/poc-command-templates.md)
 - [1Password Setup Runbook](./outputs/onepassword-setup-runbook.md)
 - [1Password Env Template](./outputs/onepassword-env-template.env)
 - [1Password Setup Commands](./outputs/onepassword-op-setup-commands.sh)
@@ -112,6 +114,9 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 | `outputs/subtree-*-analysis.md` | Per-repo deep-dives backing synthesis conclusions |
 | `outputs/quality-gates-and-test-strategy.md` | Hard validation checkpoints, TDD policy, test matrix, and review gates |
 | `outputs/residual-risk-closure.md` | Explicit closure gates for JetBrains prompt-library, Cursor/Windsurf MCP drift, revert validation, and local enforcement before CI rollout |
+| `outputs/poc-execution-pack.md` | Ordered pre-validation POC runbook with pass/fail criteria |
+| `outputs/poc-command-templates.md` | Copy-paste POC command templates |
+| `outputs/poc-0*-*-results.md` | Per-POC evidence docs and signoff records |
 | `outputs/onepassword-setup-runbook.md` | Step-by-step 1Password setup for local and automation readiness |
 | `outputs/onepassword-env-template.env` | Ready-to-use `.env` template with `op://` references and ASCII layout |
 | `outputs/onepassword-op-setup-commands.sh` | Idempotent copy/paste CLI bootstrap using exact `op` commands |
@@ -150,6 +155,7 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 | ADR-022 | Managed `.gitignore` updates use bounded generated blocks for local-only artifacts | Keeps ignore policy deterministic and reversible |
 | ADR-023 | TDD and hard validation checkpoints are mandatory for phase completion (P1-P4; P0 grandfathered) | Prevents underspecified implementation and regression risk |
 | ADR-024 | JetBrains prompt-library v1 supports deterministic bundle artifacts by default; native-file emission is optional and requires fixture proof | Removes undocumented file-path ambiguity while preserving v1 scope |
+| ADR-025 | Implementation kickoff requires six targeted POCs with documented evidence and signoff | De-risks design assumptions before deep build investment |
 
 ## Architecture Overview
 
@@ -213,6 +219,26 @@ Mandatory gates:
 7. Thorough review signoff recorded in each phase output.
 8. Policy applies to P1-P4; P0 is grandfathered.
 9. Residual risk closure tasks in `outputs/residual-risk-closure.md` are treated as mandatory phase gates.
+10. POC-01..POC-06 must be executed and recorded before declaring implementation confidence.
+
+## Pre-Implementation POC Gate
+
+Required runbook:
+- `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
+
+Required result artifacts:
+1. `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
+2. `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+3. `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+4. `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+5. `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+6. `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
+
+Exit condition:
+1. All six results contain a verdict and quality gate evidence.
+2. Required signoff rows are present and non-rejected.
+3. Any failed POC has an approved mitigation and follow-up owner.
 
 ## Complexity and Risk Assessment
 
@@ -256,6 +282,9 @@ bun run beep-sync:test:coverage
 - `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 - `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 - `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
 - `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
 - `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 

@@ -12,6 +12,7 @@ Read:
 5. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
 6. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 7. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+8. `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
 
 ## Your Mission
 
@@ -23,8 +24,9 @@ Read:
 6. Define state metadata contract for hashes, adapter versions, and orphan cleanup inputs.
 7. Define adapter capability descriptor contract to unblock P2.
 8. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
-9. Write output to `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`.
-10. Update `specs/pending/unified-ai-tooling/outputs/manifest.json` P1 status.
+9. Update `outputs/poc-01-canonical-compiler-results.md` with verdict/evidence or blocked reason.
+10. Write output to `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`.
+11. Update `specs/pending/unified-ai-tooling/outputs/manifest.json` P1 status.
 
 ## Critical Constraints
 

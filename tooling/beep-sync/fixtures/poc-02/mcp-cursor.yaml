@@ -1,0 +1,6 @@
+servers:
+  context7:
+    transport: http
+    url: https://mcp.context7.com
+    env_headers:
+      Authorization: CONTEXT7_API_KEY

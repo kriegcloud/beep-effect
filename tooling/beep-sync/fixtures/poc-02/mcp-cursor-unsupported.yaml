@@ -1,0 +1,5 @@
+servers:
+  unsupported:
+    transport: stdio
+    command: foo
+    custom_field_not_supported: true

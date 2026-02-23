@@ -10,6 +10,8 @@ Read first:
 - `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 - `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 - `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
 
 ## Working Memory
 

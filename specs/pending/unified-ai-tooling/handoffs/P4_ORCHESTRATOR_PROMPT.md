@@ -14,6 +14,7 @@ Read in order:
 7. `outputs/subtree-synthesis.md`
 8. `outputs/quality-gates-and-test-strategy.md`
 9. `outputs/residual-risk-closure.md`
+10. `outputs/poc-06-end-to-end-dry-run-results.md`
 
 ## Your Mission
 
@@ -23,9 +24,10 @@ Read in order:
 4. Define orphan-cleanup rollout safeguards and dry-run checkpoints.
 5. Define backup/revert operational runbook for cutover and rollback.
 6. Include temporary local enforcement gates (until CI rollout) in cutover checks.
-7. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
-8. Write `outputs/p4-cutover-playbook.md`.
-9. Update `outputs/manifest.json` for P4.
+7. Update POC-06 result file with verdict/evidence or blocked reason.
+8. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
+9. Write `outputs/p4-cutover-playbook.md`.
+10. Update `outputs/manifest.json` for P4.
 
 ## Critical Constraints
 

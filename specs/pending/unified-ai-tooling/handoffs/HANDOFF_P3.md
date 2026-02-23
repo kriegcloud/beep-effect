@@ -11,6 +11,8 @@ Read first:
 - `outputs/subtree-synthesis.md`
 - `outputs/quality-gates-and-test-strategy.md`
 - `outputs/residual-risk-closure.md`
+- `outputs/poc-04-managed-ownership-revert-results.md`
+- `outputs/poc-05-secret-resolution-results.md`
 
 ## Working Memory
 

@@ -9,6 +9,8 @@ Read first:
 - `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
 - `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 - `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
 
 Budget guidance:
 - Do not design adapter implementation details yet.
@@ -37,6 +39,7 @@ Define canonical `.beep/config.yaml` schema and deterministic compiler contract 
 6. State/manifest contract is explicit (hashes, adapter versioning, orphan-cleanup inputs).
 7. Adapter capability descriptors are defined at schema-contract level for downstream P2 mapping.
 8. P1 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
+9. POC-01 status is updated in `outputs/poc-01-canonical-compiler-results.md` (or blocked reason is documented).
 
 ### Blocking Issues
 
@@ -82,6 +85,9 @@ rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p1-sc
 
 # P1 output must not contain rejected required signoffs
 ! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+
+# POC-01 evidence file must exist and include status header
+rg -n "^# POC-01 Results: Canonical Compiler|^Status:" specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md
 ```
 
 ## Known Issues and Gotchas
