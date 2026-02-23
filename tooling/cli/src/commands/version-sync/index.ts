@@ -19,6 +19,9 @@ import type { VersionSyncMode } from "./types.js";
  *
  * @since 0.0.0
  * @category functions
+ * @param write - Whether `--write` was passed.
+ * @param dryRun - Whether `--dry-run` was passed.
+ * @returns The resolved command execution mode.
  */
 const resolveMode = (write: boolean, dryRun: boolean): VersionSyncMode => {
   if (write && dryRun) return "dry-run";
@@ -50,8 +53,9 @@ export const versionSyncCommand = Command.make(
     bunOnly: Flag.boolean("bun-only").pipe(Flag.withDescription("Only sync Bun versions")),
     nodeOnly: Flag.boolean("node-only").pipe(Flag.withDescription("Only sync Node versions")),
     dockerOnly: Flag.boolean("docker-only").pipe(Flag.withDescription("Only sync Docker image versions")),
+    biomeOnly: Flag.boolean("biome-only").pipe(Flag.withDescription("Only sync Biome schema version")),
   },
-  Effect.fn(function* ({ write, dryRun, skipNetwork, bunOnly, nodeOnly, dockerOnly }) {
+  Effect.fn(function* ({ write, dryRun, skipNetwork, bunOnly, nodeOnly, dockerOnly, biomeOnly }) {
     const mode = resolveMode(write, dryRun);
 
     yield* handleVersionSync({
@@ -60,6 +64,7 @@ export const versionSyncCommand = Command.make(
       bunOnly,
       nodeOnly,
       dockerOnly,
+      biomeOnly,
     }).pipe(
       Effect.catchTag(
         "VersionSyncDriftError",
@@ -86,6 +91,6 @@ export const versionSyncCommand = Command.make(
   })
 ).pipe(
   Command.withDescription(
-    "Detect and fix version drift across .bun-version, package.json, .nvmrc, CI workflows, and docker-compose.yml"
+    "Detect and fix version drift across .bun-version, package.json, .nvmrc, CI workflows, docker-compose.yml, and biome.jsonc"
   )
 );

@@ -14,6 +14,7 @@
     "@opentelemetry/api-logs": "catalog:",
     "@base-ui/react": "catalog:",
     "@beep/schema": "workspace:^",
+    "@beep/ui": "workspace:^",
     "@phosphor-icons/react": "catalog:",
     "@vercel/analytics": "catalog:",
     "@vercel/otel": "catalog:",

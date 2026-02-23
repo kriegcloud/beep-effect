@@ -10,7 +10,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@beep/schema"],
+  transpilePackages: ["@beep/schema", "@beep/ui"],
   logging: {
     incomingRequests: true,
     fetches: {

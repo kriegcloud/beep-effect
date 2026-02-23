@@ -4,9 +4,8 @@ import { CyclicDependencyError, DomainError, NoSuchFileError } from "../../src/e
 
 describe("Error types", () => {
   describe("NoSuchFileError", () => {
-    it.effect(
-      "should create with path and message",
-      Effect.fn(function* () {
+    it.effect("should create with path and message", () =>
+      Effect.sync(() => {
         const error = new NoSuchFileError({
           path: "/some/missing/file.ts",
           message: "File not found",
@@ -29,9 +28,8 @@ describe("Error types", () => {
   });
 
   describe("DomainError", () => {
-    it.effect(
-      "should create with message only",
-      Effect.fn(function* () {
+    it.effect("should create with message only", () =>
+      Effect.sync(() => {
         const error = new DomainError({ message: "Something failed" });
         expect(error._tag).toBe("DomainError");
         expect(error.message).toBe("Something failed");
@@ -39,9 +37,8 @@ describe("Error types", () => {
       })
     );
 
-    it.effect(
-      "should create with message and cause",
-      Effect.fn(function* () {
+    it.effect("should create with message and cause", () =>
+      Effect.sync(() => {
         const underlying = new Error("root cause");
         const error = new DomainError({
           message: "Wrapper error",
@@ -65,9 +62,8 @@ describe("Error types", () => {
   });
 
   describe("CyclicDependencyError", () => {
-    it.effect(
-      "should create with message and cycles",
-      Effect.fn(function* () {
+    it.effect("should create with message and cycles", () =>
+      Effect.sync(() => {
         const error = new CyclicDependencyError({
           message: "Cyclic dependencies detected",
           cycles: [["@beep/a", "@beep/b", "@beep/a"]],
@@ -78,9 +74,8 @@ describe("Error types", () => {
       })
     );
 
-    it.effect(
-      "should support multiple cycles",
-      Effect.fn(function* () {
+    it.effect("should support multiple cycles", () =>
+      Effect.sync(() => {
         const error = new CyclicDependencyError({
           message: "Multiple cycles",
           cycles: [

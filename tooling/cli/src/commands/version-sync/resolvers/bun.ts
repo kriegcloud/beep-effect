@@ -44,14 +44,22 @@ const BunRelease = Schema.Struct({
 const BUN_RELEASE_URL = "https://api.github.com/repos/oven-sh/bun/releases/latest";
 
 /**
+ * Strip the `bun-v` prefix from a GitHub release tag name.
+ *
  * @since 0.0.0
  * @category functions
+ * @param tagName - The GitHub release tag (e.g. `bun-v1.3.9`).
+ * @returns The bare version string.
  */
 const extractBunVersion = (tagName: string): string => tagName.replace(/^bun-v/, "");
 
 /**
+ * Strip the `bun@` prefix from a `packageManager` field value.
+ *
  * @since 0.0.0
  * @category functions
+ * @param value - The packageManager field value (e.g. `bun@1.3.9`).
+ * @returns The bare version string.
  */
 const extractPackageManagerVersion = (value: string): string => value.replace(/^bun@/, "");
 
@@ -150,6 +158,8 @@ const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError
  *
  * @since 0.0.0
  * @category functions
+ * @param state - The resolved Bun version state.
+ * @returns The version category report for Bun.
  */
 export const buildBunReport: (state: BunVersionState) => VersionCategoryReport = (state) => {
   const items: Array<VersionDriftItem> = [];

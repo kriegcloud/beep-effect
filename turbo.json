@@ -49,6 +49,14 @@
       "dependsOn": ["^docgen"],
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["docs/**", "dtslint/**"]
+    },
+    "storybook": {
+      "persistent": true,
+      "cache": false
+    },
+    "build-storybook": {
+      "dependsOn": ["^build"],
+      "outputs": ["storybook-static/**"]
     }
   }
 }

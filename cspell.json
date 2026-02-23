@@ -111,7 +111,9 @@
     "yeet",
     "renovatebot",
     "playwright",
-    "networkidle"
+    "networkidle",
+    "oxlint",
+    "autodocs"
   ],
   "ignorePaths": [
     "bun.lock",

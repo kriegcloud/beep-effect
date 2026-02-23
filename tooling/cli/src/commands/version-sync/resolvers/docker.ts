@@ -339,6 +339,8 @@ const fetchLatestDockerTag: (
  *
  * @since 0.0.0
  * @category functions
+ * @param state - The resolved Docker image state.
+ * @returns The version category report for Docker images.
  */
 export const buildDockerReport: (state: DockerImageState) => VersionCategoryReport = (state) => {
   let items = A.empty<VersionDriftItem>();

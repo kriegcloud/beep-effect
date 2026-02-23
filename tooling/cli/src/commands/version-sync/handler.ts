@@ -14,6 +14,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type { HttpClient } from "effect/unstable/http";
+import { buildBiomeReport, resolveBiomeSchema, updateBiomeSchema } from "./resolvers/biome.js";
 import { type BunVersionState, buildBunReport, resolveBunVersions } from "./resolvers/bun.js";
 import { buildDockerReport, type DockerImageState, resolveDockerImages } from "./resolvers/docker.js";
 import { buildNodeReport, resolveNodeVersions } from "./resolvers/node.js";
@@ -31,7 +32,13 @@ import { replaceNodeVersionWithFile, updateYamlValue } from "./updaters/yaml-fil
  */
 const renderCategoryReport: (report: VersionCategoryReport) => Effect.Effect<void> = Effect.fn(function* (report) {
   const categoryLabel =
-    report.category === "bun" ? "Bun Runtime" : report.category === "node" ? "Node.js Runtime" : "Docker Images";
+    report.category === "bun"
+      ? "Bun Runtime"
+      : report.category === "node"
+        ? "Node.js Runtime"
+        : report.category === "biome"
+          ? "Biome Schema"
+          : "Docker Images";
 
   yield* Console.log(`\n${categoryLabel}:`);
 
@@ -196,6 +203,30 @@ const applyDockerUpdates: (
   }
 );
 
+/**
+ * @since 0.0.0
+ * @category functions
+ */
+const applyBiomeUpdates: (
+  repoRoot: string,
+  report: VersionCategoryReport
+) => Effect.Effect<number, VersionSyncError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  function* (repoRoot, report) {
+    const path = yield* Path.Path;
+    let filesChanged = 0;
+
+    for (const item of report.items) {
+      if (item.file === "biome.jsonc" && item.field === "$schema version") {
+        const filePath = path.join(repoRoot, "biome.jsonc");
+        const changed = yield* updateBiomeSchema(filePath, item.expected);
+        if (changed) filesChanged += 1;
+      }
+    }
+
+    return filesChanged;
+  }
+);
+
 // ── Main handler ────────────────────────────────────────────────────────────
 
 /**
@@ -213,11 +244,12 @@ export const handleVersionSync: (
 > = Effect.fn(function* (options) {
   const repoRoot = yield* findRepoRoot();
 
-  const shouldCheck = (category: "bun" | "node" | "docker"): boolean => {
-    if (!options.bunOnly && !options.nodeOnly && !options.dockerOnly) return true;
+  const shouldCheck = (category: "bun" | "node" | "docker" | "biome"): boolean => {
+    if (!options.bunOnly && !options.nodeOnly && !options.dockerOnly && !options.biomeOnly) return true;
     if (category === "bun") return options.bunOnly;
     if (category === "node") return options.nodeOnly;
     if (category === "docker") return options.dockerOnly;
+    if (category === "biome") return options.biomeOnly;
     return false;
   };
 
@@ -270,6 +302,22 @@ export const handleVersionSync: (
     categories = A.append(categories, buildDockerReport(dockerState));
   }
 
+  // Resolve Biome schema
+  if (shouldCheck("biome")) {
+    const biomeState = yield* resolveBiomeSchema(repoRoot).pipe(
+      Effect.catchTag(
+        "VersionSyncError",
+        Effect.fn(function* (e) {
+          yield* Effect.logWarning(`Biome schema resolution failed: ${e.message}`);
+          return { schemaUrl: "", schemaVersion: O.none<string>(), installedVersion: "" };
+        })
+      )
+    );
+    if (!Str.isEmpty(biomeState.installedVersion)) {
+      categories = A.append(categories, buildBiomeReport(biomeState));
+    }
+  }
+
   const hasDrift = A.some(categories, (c) => c.status !== "ok");
   const report: VersionSyncReport = { categories, hasDrift };
 
@@ -294,6 +342,12 @@ export const handleVersionSync: (
     const dockerReport = A.findFirst(categories, (c) => c.category === "docker");
     if (O.isSome(dockerReport) && A.length(dockerReport.value.items) > 0) {
       const changed = yield* applyDockerUpdates(repoRoot, dockerReport.value);
+      totalChanges += changed;
+    }
+
+    const biomeReport = A.findFirst(categories, (c) => c.category === "biome");
+    if (O.isSome(biomeReport) && A.length(biomeReport.value.items) > 0) {
+      const changed = yield* applyBiomeUpdates(repoRoot, biomeReport.value);
       totalChanges += changed;
     }
 

@@ -107,6 +107,9 @@ export const resolveNodeVersions: (
  *
  * @since 0.0.0
  * @category functions
+ * @param content - The raw YAML content of the workflow file.
+ * @param relativeFile - The relative path to the workflow file.
+ * @returns An array of locations where `node-version` is declared.
  */
 const findNodeVersionLocations = (content: string, relativeFile: string): Array<NodeVersionLocation> => {
   let locations = A.empty<NodeVersionLocation>();
@@ -168,6 +171,8 @@ const findNodeVersionLocations = (content: string, relativeFile: string): Array<
  *
  * @since 0.0.0
  * @category functions
+ * @param state - The resolved Node version state.
+ * @returns The version category report for Node.js.
  */
 export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport = (state) => {
   let items = A.empty<VersionDriftItem>();

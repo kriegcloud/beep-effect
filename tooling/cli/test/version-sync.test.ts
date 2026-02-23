@@ -11,6 +11,7 @@ import { Command } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
 import { ChildProcessSpawner } from "effect/unstable/process";
 import { versionSyncCommand } from "../src/commands/version-sync/index.js";
+import { type BiomeSchemaState, buildBiomeReport } from "../src/commands/version-sync/resolvers/biome.js";
 import { type BunVersionState, buildBunReport } from "../src/commands/version-sync/resolvers/bun.js";
 import { buildDockerReport, type DockerImageState } from "../src/commands/version-sync/resolvers/docker.js";
 import { buildNodeReport, type NodeVersionState } from "../src/commands/version-sync/resolvers/node.js";
@@ -63,8 +64,8 @@ const removeTmpDir = Effect.fn(function* (tmpDir: string) {
 describe("version-sync report builders", () => {
   it.effect(
     "buildBunReport should detect drift when versions mismatch",
-    withTestLayers(
-      Effect.fn(function* () {
+    withTestLayers(() =>
+      Effect.sync(() => {
         const state: BunVersionState = {
           bunVersionFile: "1.3.2",
           packageManagerField: "1.3.9",
@@ -84,8 +85,8 @@ describe("version-sync report builders", () => {
 
   it.effect(
     "buildBunReport should use latest version when available",
-    withTestLayers(
-      Effect.fn(function* () {
+    withTestLayers(() =>
+      Effect.sync(() => {
         const state: BunVersionState = {
           bunVersionFile: "1.3.2",
           packageManagerField: "1.3.9",
@@ -104,8 +105,8 @@ describe("version-sync report builders", () => {
 
   it.effect(
     "buildBunReport should report ok when versions match",
-    withTestLayers(
-      Effect.fn(function* () {
+    withTestLayers(() =>
+      Effect.sync(() => {
         const state: BunVersionState = {
           bunVersionFile: "1.3.9",
           packageManagerField: "1.3.9",
@@ -121,8 +122,8 @@ describe("version-sync report builders", () => {
 
   it.effect(
     "buildNodeReport should detect CI version mismatch",
-    withTestLayers(
-      Effect.fn(function* () {
+    withTestLayers(() =>
+      Effect.sync(() => {
         const state: NodeVersionState = {
           nvmrc: "22",
           workflowLocations: [
@@ -147,8 +148,8 @@ describe("version-sync report builders", () => {
 
   it.effect(
     "buildNodeReport should report ok when CI matches .nvmrc",
-    withTestLayers(
-      Effect.fn(function* () {
+    withTestLayers(() =>
+      Effect.sync(() => {
         const state: NodeVersionState = {
           nvmrc: "22",
           workflowLocations: [
@@ -171,8 +172,8 @@ describe("version-sync report builders", () => {
 
   it.effect(
     "buildDockerReport should detect unpinned images",
-    withTestLayers(
-      Effect.fn(function* () {
+    withTestLayers(() =>
+      Effect.sync(() => {
         const state: DockerImageState = {
           images: [
             {
@@ -197,8 +198,8 @@ describe("version-sync report builders", () => {
 
   it.effect(
     "buildDockerReport should report ok for pinned images with no network",
-    withTestLayers(
-      Effect.fn(function* () {
+    withTestLayers(() =>
+      Effect.sync(() => {
         const state: DockerImageState = {
           images: [
             {
@@ -213,6 +214,50 @@ describe("version-sync report builders", () => {
           ],
         };
         const report = buildDockerReport(state);
+
+        expect(report.status).toBe("ok");
+        expect(A.length(report.items)).toBe(0);
+      })
+    )
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Biome schema report builder tests
+// ---------------------------------------------------------------------------
+
+describe("version-sync biome report builders", () => {
+  it.effect(
+    "buildBiomeReport should detect drift when schema version differs from installed",
+    withTestLayers(() =>
+      Effect.sync(() => {
+        const state: BiomeSchemaState = {
+          schemaUrl: "https://biomejs.dev/schemas/2.3.0/schema.json",
+          schemaVersion: O.some("2.3.0"),
+          installedVersion: "2.4.4",
+        };
+        const report = buildBiomeReport(state);
+
+        expect(report.category).toBe("biome");
+        expect(report.status).toBe("drift");
+        expect(A.length(report.items)).toBe(1);
+        expect(report.items[0].file).toBe("biome.jsonc");
+        expect(report.items[0].current).toBe("2.3.0");
+        expect(report.items[0].expected).toBe("2.4.4");
+      })
+    )
+  );
+
+  it.effect(
+    "buildBiomeReport should report ok when versions match",
+    withTestLayers(() =>
+      Effect.sync(() => {
+        const state: BiomeSchemaState = {
+          schemaUrl: "https://biomejs.dev/schemas/2.4.4/schema.json",
+          schemaVersion: O.some("2.4.4"),
+          installedVersion: "2.4.4",
+        };
+        const report = buildBiomeReport(state);
 
         expect(report.status).toBe("ok");
         expect(A.length(report.items)).toBe(0);

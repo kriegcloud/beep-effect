@@ -74,7 +74,7 @@ export interface VersionDriftItem {
  * @since 0.0.0
  * @category models
  */
-export type VersionCategory = "bun" | "node" | "docker";
+export type VersionCategory = "bun" | "node" | "docker" | "biome";
 
 /**
  * Status of a version category.
@@ -129,4 +129,5 @@ export interface VersionSyncOptions {
   readonly bunOnly: boolean;
   readonly nodeOnly: boolean;
   readonly dockerOnly: boolean;
+  readonly biomeOnly: boolean;
 }

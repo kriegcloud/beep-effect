@@ -47,6 +47,9 @@
     },
     {
       "path": "tooling/repo-utils"
+    },
+    {
+      "path": "packages/ui/ui"
     }
   ]
 }
