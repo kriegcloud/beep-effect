@@ -351,3 +351,4 @@ export const computeTransitiveClosure = (
       })
     );
   });
+// bench

@@ -209,3 +209,4 @@ export const dotGetOption: {
   <S extends object, const P extends StructPath<S>>(self: S, path: P): O.Option<StructPathValue<S, P>>;
   <S extends object, const P extends StructPathTuple<S>>(self: S, path: P): O.Option<StructPathTupleValue<S, P>>;
 };
+// bench

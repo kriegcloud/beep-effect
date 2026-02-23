@@ -90,3 +90,4 @@ export const collectUniqueNpmDependencies: (
 });
 
 const sortHashSet = (set: MutableHashSet.MutableHashSet<string>) => pipe(set, A.fromIterable, A.sort(Order.String));
+// bench

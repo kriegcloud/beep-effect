@@ -55,3 +55,4 @@ describe("@beep/identity", () => {
     ).toThrowError("Identity template tags do not allow interpolations.");
   });
 });
+// bench

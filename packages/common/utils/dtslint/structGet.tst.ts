@@ -43,3 +43,4 @@ describe("dotGet", () => {
     expect(dotGetOption(maybeAttributes, "attributes.name")).type.toBe<Option.Option<string | undefined>>();
   });
 });
+// bench

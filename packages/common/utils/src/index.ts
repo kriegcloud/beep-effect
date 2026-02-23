@@ -11,3 +11,4 @@ export * from "./Struct.js";
  * @category constants
  */
 export const VERSION = "0.0.0" as const;
+// bench
