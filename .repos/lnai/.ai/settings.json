@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": ["Bash(pnpm:*)", "WebSearch", "WebFetch"],
+    "ask": ["Bash(git:*)"],
+    "deny": ["Read(.env)"]
+  },
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}
