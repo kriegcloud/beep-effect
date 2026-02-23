@@ -33,6 +33,7 @@
     "changeset:version": "changeset version",
     "build:tsgo": "tsgo -b tsconfig.packages.json",
     "check": "tsc -p tsconfig.json --noEmit",
+    "check:infra": "tsc -p infra/tsconfig.json --noEmit",
     "check:tsgo": "tsgo -b tsconfig.json",
     "test": "vitest run && tstyche",
     "test:watch": "vitest",

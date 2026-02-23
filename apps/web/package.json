@@ -8,9 +8,14 @@
     "start": "next start",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@effect/atom-react": "catalog:",
+    "@neondatabase/serverless": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/api-logs": "catalog:",
     "@base-ui/react": "catalog:",
@@ -20,11 +25,15 @@
     "@vercel/analytics": "catalog:",
     "@vercel/otel": "catalog:",
     "@vercel/speed-insights": "catalog:",
+    "better-auth": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "resend": "catalog:",
     "tailwind-merge": "catalog:"
   },
   "devDependencies": {
@@ -33,6 +42,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "drizzle-kit": "catalog:",
     "eslint": "catalog:",
     "eslint-config-next": "catalog:",
     "shadcn": "catalog:",

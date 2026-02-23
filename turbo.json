@@ -75,6 +75,15 @@
       "cache": false
     },
 
+    "//#check:infra": {
+      "cache": true,
+      "inputs": [
+        "sst.config.ts",
+        "sst-env.d.ts",
+        "infra/**/*.ts",
+        "infra/tsconfig.json"
+      ]
+    },
     "//#lint:jsdoc": {
       "cache": true,
       "inputs": ["tooling/*/src/**/*.ts", "eslint.config.mjs"]
