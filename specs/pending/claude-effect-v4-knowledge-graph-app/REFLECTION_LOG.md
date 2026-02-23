@@ -63,10 +63,10 @@ Cumulative learnings across all phases of the Effect v4 Knowledge Graph Explorer
    - Less control over rendering and interaction
 
 **Key decisions made:**
-- AD-001: Self-hosted FalkorDB on VPS (not Zep Cloud) — zero re-ingestion, 100% data fidelity, lower cost
+- AD-001: Self-hosted FalkorDB on Railway (not Zep Cloud) — zero re-ingestion, 100% data fidelity, lower cost
 - AD-005: MCP endpoint removed from v1 scope — not needed for core chat+graph goal
 - AD-006: better-auth magic link + Neon PostgreSQL + Resend — proper passwordless auth with free tier services
-- AD-007: Neon PostgreSQL free tier for auth database — Vercel marketplace integration, auto-synced DATABASE_URL
+- AD-007: Neon PostgreSQL free tier for auth database — provisioned via SST IaC, DATABASE_URL set on Vercel by SST
 - AD-008: react-force-graph-2d (not Gaia) — canvas rendering, incremental updates, better performance
 - AD-002-AD-004, AD-009-AD-013: Retained from initial design
 
@@ -76,6 +76,6 @@ Cumulative learnings across all phases of the Effect v4 Knowledge Graph Explorer
 - better-auth magic link provides proper security without over-engineering (Neon free tier = $0)
 - react-force-graph-2d handles incremental graph expansion natively (critical for search-expand UX)
 - MCP endpoint removed to reduce scope — can be added later in ~20 lines if needed
-- Monthly cost: $29-48 (down from $50-65 with original Zep Cloud stack)
+- Monthly cost: $13-30 (down from $50-65 with original Zep Cloud stack)
 
 ---

@@ -1,6 +1,6 @@
 # Effect v4 Knowledge Graph Explorer
 
-> Deploy the existing Effect v4 knowledge graph to a self-hosted FalkorDB VPS and build a production-ready Next.js app with an interactive graph visualization and AI-powered chat interface — all implemented with Effect v4's AI, HTTP, and atom packages.
+> Deploy the existing Effect v4 knowledge graph to Railway (FalkorDB + Graphiti MCP + Caddy auth proxy, provisioned via SST IaC) and build a production-ready Next.js app with an interactive graph visualization and AI-powered chat interface — all implemented with Effect v4's AI, HTTP, and atom packages.
 
 ## Quick Navigation
 
@@ -11,7 +11,7 @@
 
 **Problem:** The Effect v4 knowledge graph exists locally in a FalkorDB/Graphiti Docker setup — useful for developer tooling but invisible to the broader community. People in the Effect Discord and on Twitter frequently ask v4 questions that the graph already answers correctly (preventing hallucination of v3 patterns). There's no way for the community to benefit from this knowledge.
 
-**Solution:** Deploy FalkorDB to a VPS (porting the existing 70MB RDB dump directly), build a Next.js app that lets authenticated users chat with the graph via OpenAI + Effect v4 AI tools, explore it visually with react-force-graph-2d. Access is gated by magic link authentication with an email allowlist.
+**Solution:** Deploy FalkorDB to Railway (porting the existing 70MB RDB dump directly, infrastructure provisioned via SST IaC), build a Next.js app that lets authenticated users chat with the graph via OpenAI + Effect v4 AI tools, explore it visually with react-force-graph-2d. Access is gated by magic link authentication with an email allowlist.
 
 **Why it matters:** This is a proof-of-concept for Effect v4's full-stack capabilities — AI toolkit, HTTP server, atom-based reactive state, Schema-driven contracts — while simultaneously providing the Effect community with a grounded, hallucination-free knowledge assistant for v4 migration.
 
@@ -35,7 +35,7 @@ Vercel (Next.js App Router, Node.js runtime)
   +---> /api/chat              -> Effect v4 AI (LanguageModel + KnowledgeGraphToolkit)
   |       |                       toWebHandler(HttpRouter) wrapping Effect layers
   |       +---> OpenAI API     (gpt-4o-mini, tool-calling)
-  |       +---> Graphiti API   (search_nodes, search_facts on FalkorDB VPS)
+  |       +---> Graphiti API   (search_nodes, search_facts on Railway FalkorDB)
   |
   +---> /api/graph/search      -> Graphiti search passthrough for UI
   |       +---> Graphiti API
@@ -43,16 +43,17 @@ Vercel (Next.js App Router, Node.js runtime)
   +---> /(app)/                -> Combined workspace: graph (left) + chat (right)
 
 
-Railway Project (~$8-10/mo)
+Railway Project (~$8-10/mo) — provisioned via SST IaC (infra/railway.ts)
   |
-  +---> FalkorDB Service (one-click template, persistent volume)
+  +---> FalkorDB Service (falkordb/falkordb:latest, persistent volume)
   |       70MB dump, 2,229 nodes, 9,697 edges
   |
   +---> Graphiti MCP Service (zepai/knowledge-graph-mcp:standalone)
   |       search_nodes, search_memory_facts, get_episodes
   |       Internal: falkordb.railway.internal:6379
   |
-  +---> FastRelay/Caddy Service (auth proxy, X-API-Key enforcement)
+  +---> Caddy Auth Proxy Service (caddy:2-alpine, X-API-Key enforcement)
+  |       Public: https://auth-proxy-production-91fe.up.railway.app
   |       Auto TLS via Railway (Let's Encrypt)
 ```
 
@@ -86,13 +87,13 @@ Railway Project (~$8-10/mo)
 
 | ID | Decision | Rationale |
 |----|----------|-----------|
-| AD-001 | **Self-hosted FalkorDB** on Railway as graph system of record | Zero re-ingestion (port 70MB RDB dump directly); 100% data fidelity; full Cypher query control; Railway has first-class FalkorDB template with auto TLS, built-in monitoring, private networking; ~$8-10/mo; VPS ($4/mo) viable alternative if cost is priority |
+| AD-001 | **Self-hosted FalkorDB** on Railway as graph system of record | Zero re-ingestion (port 70MB RDB dump directly); 100% data fidelity; full Cypher query control; Railway deployed via SST IaC (`infra/railway.ts`) with auto TLS, built-in monitoring, private networking; ~$8-10/mo |
 | AD-002 | **Single shared graph** (`group_id = "effect-v4"`) | No tenant isolation needed; all beta users query the same Effect v4 knowledge; keeps architecture simple |
 | AD-003 | **One reusable `KnowledgeGraphToolkit`** consumed by `/api/chat` | Single source of truth for tool semantics; `Toolkit.make(...)` + `toolkit.toLayer({...})` pattern from Effect v4 AI |
 | AD-004 | **`HttpRouter.toWebHandler`** for all Effect API routes | Converts Effect layers to standard `(Request) => Promise<Response>` for Next.js; module-level singleton caching avoids per-request layer rebuild |
 | ~~AD-005~~ | ~~McpServer.layerHttp~~ | ~~REMOVED — not needed for v1. MCP endpoint can be added later in ~20 lines if IDE integration is desired~~ |
 | AD-006 | **better-auth** with magic link plugin | Passwordless auth via email magic links; Drizzle adapter for Neon PostgreSQL; `nextCookies()` plugin for server actions; allowlist enforced at magic link send time (email never sent to non-allowlisted addresses); Resend free tier for email delivery |
-| AD-007 | **Neon PostgreSQL** (free tier) for auth database | Serverless-native; Vercel marketplace integration auto-syncs `DATABASE_URL`; free tier (0.5GB) is more than sufficient for auth tables; `@neondatabase/serverless` driver |
+| AD-007 | **Neon PostgreSQL** (free tier) for auth database | Serverless-native; provisioned via SST IaC (`infra/database.ts`); `DATABASE_URL` set on Vercel by SST (`infra/web.ts`); free tier (0.5GB) is more than sufficient for auth tables; `@neondatabase/serverless` driver |
 | AD-008 | **`react-force-graph-2d`** for visualization | Canvas-based force-directed graph (not SVG); supports incremental node/link addition without full simulation restart; handles 1000+ nodes smoothly; rich interaction API (zoom, pan, node drag, click, hover); well-documented with 6K+ GitHub stars |
 | AD-009 | **`@effect/atom-react`** for client state (tested APIs only) | Core atoms (`Atom.make`, computed, `Atom.fn`) and React hooks (`useAtomValue`, `useAtom`) have 2,300+ LOC of tests; **avoid `AtomHttpApi`** (zero test coverage, untested); use `Atom.fn` for Effect-backed async mutations instead; pin exact beta version; fallback to `useState`+`useEffect` if blocked (~2hr migration) |
 | AD-010 | **`gpt-4o-mini`** as default model | Lower cost baseline for beta; sufficient for tool-calling + graph-grounded answers; overridable via env var |
@@ -146,7 +147,7 @@ Response: { nodes: GraphNode[], links: GraphLink[] }
 outputs/
   research.md                          # Source-backed research notes
   p0-foundations/                       # Auth, project setup artifacts
-  p1-vps-deployment/                   # FalkorDB VPS setup, verification
+  p1-railway-deployment/               # FalkorDB data migration, verification
   p2-toolkit/                           # Tool definitions, Graphiti service, tests
   p3-chat-api/                         # Chat route, regression tests
   p4-graph-ui-atoms/                   # react-force-graph-2d component integration, atom state
@@ -155,7 +156,7 @@ outputs/
 
 ## Success Criteria
 
-- [ ] Existing Effect v4 graph data (2,229 nodes, 9,697 edges) running on FalkorDB VPS and queryable via Graphiti API
+- [ ] Existing Effect v4 graph data (2,229 nodes, 9,697 edges) running on Railway FalkorDB and queryable via Graphiti API
 - [ ] `/api/chat` implemented with Effect v4 AI `LanguageModel.streamText` + `KnowledgeGraphToolkit` + OpenAI (SSE streaming)
 - [ ] Graph UI renders via `react-force-graph-2d` component with live graph data
 - [ ] better-auth with magic links gates access to approved email allowlist only
@@ -170,7 +171,7 @@ outputs/
 | Phase | Focus | Outputs | Agent(s) | Sessions |
 |-------|-------|---------|----------|----------|
 | P0 | Foundations: Auth + DB + Project Setup | better-auth magic link, Neon PostgreSQL, Drizzle, Resend, project scaffold | 1 implementation agent | 1 |
-| P1 | FalkorDB Railway Deployment + Verification | Railway project provisioned (FalkorDB + Graphiti + auth proxy), RDB dump loaded, verification queries pass | 1 ops agent | 1 |
+| P1 | FalkorDB Data Migration + Verification | Railway already provisioned via SST IaC; RDB dump loaded into FalkorDB, verification queries pass | 1 ops agent | 1 |
 | P2 | KnowledgeGraphToolkit + Graphiti Service | Tool definitions with Schema, Graphiti Effect service, endpoint tests | 1-2 implementation agents | 1-2 |
 | P3 | Chat API Route | Chat handler, OpenAI integration, regression tests | 1 implementation agent | 1 |
 | P4 | Graph UI + Atom Client | react-force-graph-2d component, atom state, graph search page, chat page | 1-2 UI agents | 1-2 |
@@ -181,11 +182,11 @@ outputs/
 | Phase | Done When |
 |-------|-----------|
 | P0 | better-auth magic link auth works locally; email allowlist enforced; magic link sent only to allowlisted emails; auth-gated layout redirects; `bun run check` passes |
-| P1 | FalkorDB running on Railway with ported RDB dump; Graphiti API reachable over HTTPS via auth proxy; 5 verification queries return correct results; latency acceptable (<500ms) |
-| P2 | `KnowledgeGraphToolkit` defines `SearchGraph`, `GetNode`, `GetFacts` tools with Schema parameters; `GraphitiService` calls VPS API; toolkit tests pass |
+| P1 | RDB dump loaded into Railway FalkorDB (infra already deployed via SST); Graphiti API reachable at `https://auth-proxy-production-91fe.up.railway.app`; 5 verification queries return correct results; latency acceptable (<500ms) |
+| P2 | `KnowledgeGraphToolkit` defines `SearchGraph`, `GetNode`, `GetFacts` tools with Schema parameters; `GraphitiService` calls Railway Graphiti API; toolkit tests pass |
 | P3 | `/api/chat` returns grounded answers using toolkit; rejects hallucinated v3 patterns; auth required; regression tests for 5 canonical queries pass |
 | P4 | Graph page renders nodes/edges from Graphiti; click-to-expand shows neighbors; chat page sends/receives messages via atoms; auth-gated layout works |
-| P5 | Vercel deployment working; all env vars configured; Graphiti API health passes; smoke tests cover auth + chat + graph; runbook committed |
+| P5 | Vercel deployment working at `https://beep-dev.vercel.app`; all 10 env vars verified (set by SST IaC); Graphiti API health passes; smoke tests cover auth + chat + graph; runbook committed |
 
 ## Planned File Layout
 
@@ -218,6 +219,7 @@ lib/
     runtime.ts                      # Shared Effect layers (OpenAI, Graphiti, etc.)
     tools.ts                        # KnowledgeGraphToolkit definition
     tool-handlers.ts                # Tool handler implementations (Graphiti queries)
+    chat-handler.ts                 # Chat logic (prompt construction, tool-calling, response formatting)
     mappers.ts                      # Graphiti EntityNode/Edge -> GraphNode/Link
   graphiti/
     client.ts                       # Graphiti API client wrapped as Effect service
@@ -228,8 +230,8 @@ state/
   registry.tsx                      # AtomRegistry provider + runtime setup
 
 components/
-  graph/ForceGraph.tsx               # react-force-graph-2d wrapper with custom rendering
   graph/
+    ForceGraph.tsx                  # react-force-graph-2d wrapper with custom rendering
     GraphPanel.tsx                  # Graph page wrapper with controls
     NodeDetail.tsx                  # Selected node detail panel
   chat/
@@ -242,13 +244,19 @@ components/
 
 ### Railway Deployment Flow (P1)
 
-1. Deploy FalkorDB via [Railway one-click template](https://railway.com/deploy/falkordb)
-2. Load 70MB RDB dump (custom Docker image with baked-in dump or redis-cli replication)
-3. Deploy Graphiti MCP service pointing to `falkordb.railway.internal:6379`
-4. Deploy FastRelay auth proxy in front of Graphiti (X-API-Key enforcement)
-5. Set `GRAPHITI_API_URL` env var pointing to the Railway public URL
-6. Verify with same 5 canonical queries used in local verification
-7. Configure scheduled daily volume backups and monitoring alerts
+> **Infrastructure is already provisioned via SST IaC** (`infra/railway.ts`). The Railway project `beep-{stage}` with 3 services (FalkorDB, Graphiti MCP, Caddy Auth Proxy) was deployed via `op run --env-file=.env -- bunx sst deploy --stage dev`. See `specs/pending/sst-infrastructure/` for full infrastructure documentation.
+
+P1 focuses on **data migration and verification**, not infrastructure setup:
+
+1. Load 70MB RDB dump into FalkorDB's persistent volume (custom Docker image with baked-in dump or redis-cli replication)
+2. Verify graph integrity: 2,229 nodes, 9,697 edges match local baseline
+3. Run 5 canonical verification queries against the deployed Graphiti API
+4. Configure scheduled daily volume backups and monitoring alerts
+
+**Known manual steps** (Railway provider v0.4.4 gaps — see `specs/pending/sst-infrastructure/outputs/p1-railway-provider-gaps.md`):
+- FalkorDB volume: add persistent volume at `/data` via Railway dashboard
+- Auth Proxy domain: generate `*.up.railway.app` domain via Railway dashboard
+- Auth Proxy start command: set custom start command via Railway dashboard
 
 ### Chat Flow (P3)
 
@@ -302,7 +310,7 @@ export const auth = betterAuth({
           throw new Error("Email not authorized")
         }
         await resend.emails.send({
-          from: "Effect v4 KG <noreply@yourdomain.com>",
+          from: "Effect v4 KG <noreply@beep.dev>", // Update domain to match Resend verified sender
           to: email,
           subject: "Sign in to Effect v4 Knowledge Graph",
           html: `<a href="${url}">Click here to sign in</a>`,
@@ -315,31 +323,39 @@ export const auth = betterAuth({
 
 ### Required Environment Variables
 
+All environment variables are set on Vercel by SST IaC (`infra/web.ts`). Secrets are sourced from 1Password via `op run --env-file=.env`. See `infra/secrets.ts` for the single source of truth.
+
 ```
-# Auth (Sensitive)
+# Auth (Sensitive — from 1Password beep-app-core)
 BETTER_AUTH_SECRET=              # 32+ chars, high entropy
-BETTER_AUTH_URL=                 # https://yourapp.vercel.app
+BETTER_AUTH_URL=                 # https://beep-{stage}.vercel.app (per-stage, from 1Password)
 
-# Database (Sensitive, auto-synced by Neon Vercel integration)
-DATABASE_URL=                    # Neon pooled connection string
-DATABASE_URL_UNPOOLED=           # Neon direct connection (migrations only)
+# Database (Sensitive — computed by Neon provider, set by SST IaC)
+DATABASE_URL=                    # Neon pooled connection string (neonProject.connectionUriPooler)
+DATABASE_URL_UNPOOLED=           # Neon direct connection for migrations (neonProject.connectionUri)
 
-# Email (Sensitive)
-RESEND_API_KEY=                  # From resend.com dashboard
+# Email (Sensitive — from 1Password beep-email)
+RESEND_API_KEY=                  # From 1Password (beep-email/EMAIL_RESEND_API_KEY)
 
-# Graph Backend (Sensitive)
-GRAPHITI_API_URL=                # https://graph.yourdomain.com (Graphiti server on VPS)
-GRAPHITI_API_KEY=                # Shared secret for Graphiti API auth
+# Graph Backend (Sensitive — proxy URL hardcoded in infra/railway.ts, API key from 1Password)
+GRAPHITI_API_URL=                # https://auth-proxy-production-91fe.up.railway.app
+GRAPHITI_API_KEY=                # From 1Password (beep-data/GRAPHITI_API_KEY)
 
-# OpenAI (Sensitive)
-OPENAI_API_KEY=                  # For chat completions
+# OpenAI (Sensitive — from 1Password beep-ai)
+OPENAI_API_KEY=                  # From 1Password (beep-ai/AI_OPENAI_API_KEY → mapped to OPENAI_API_KEY)
 
-# Access Control
+# Access Control (Non-sensitive — from 1Password beep-app-core)
 ALLOWED_EMAILS=                  # Comma-separated email allowlist
 
-# Optional
+# Optional (Non-sensitive — static default set by SST IaC)
 OPENAI_MODEL=                    # Default: gpt-4o-mini
 ```
+
+**Vercel env var scoping (set by SST IaC):**
+- Sensitive vars target `production` (prod) or `preview` (non-prod) — NOT `development`
+- Non-sensitive vars target `production` (prod) or `preview` + `development` (non-prod)
+
+**Deploy command:** `op run --env-file=.env -- bunx sst deploy --stage dev`
 
 ## Production Hardening Requirements
 
@@ -458,7 +474,7 @@ Link: { source: string, target: string, [key]: any }
 | Service | Monthly Cost | Notes |
 |---------|-------------|-------|
 | Vercel | $0 (Hobby + Fluid) | Fluid compute gives 300s duration on Hobby; Active CPU pricing only bills during code execution |
-| Railway (FalkorDB + Graphiti) | $8-10 (Hobby plan) | One-click FalkorDB template, auto TLS, built-in monitoring; VPS at $4/mo if cost is priority |
+| Railway (FalkorDB + Graphiti + Auth Proxy) | $8-10 (Hobby plan) | Deployed via SST IaC (`infra/railway.ts`); auto TLS, built-in monitoring, private networking |
 | OpenAI | ~$5-20 | gpt-4o-mini at ~$0.15/M input, $0.60/M output; varies with usage |
 | Neon PostgreSQL | $0 (free tier) | 0.5GB storage, sufficient for auth tables |
 | Resend | $0 (free tier) | 100 emails/day, sufficient for beta magic links |
@@ -505,19 +521,19 @@ Total:              56.5  -> Medium complexity
 
 | Dependency | Type | Status |
 |------------|------|--------|
-| Railway (Hobby plan) | External | Needs setup |
-| OpenAI API key | External | Available |
-| Vercel project (Hobby plan + Fluid compute) | External | Needs setup |
+| Railway (Hobby plan) | External | Deployed via SST IaC (`infra/railway.ts`) |
+| OpenAI API key | External | Available (1Password `beep-ai/AI_OPENAI_API_KEY`) |
+| Vercel project (Hobby plan + Fluid compute) | External | Deployed via SST IaC (`infra/web.ts`) |
 | Effect v4 packages (`effect`, `@effect/ai-openai`, `@effect/atom-react`) | Local | In repo catalog |
 | `.repos/effect-smol` | Local | Cloned |
 | FalkorDB RDB dump (`~/graphiti-mcp/data/dump.rdb`) | Local | Available (70MB) |
-| Graphiti Docker image (`zep/graphiti-mcp`) | External | In use locally |
+| Graphiti Docker image (`zepai/knowledge-graph-mcp`) | External | In use locally |
 | react-force-graph-2d | External | npm install |
 | better-auth | External | npm install |
 | @neondatabase/serverless | External | npm install |
 | drizzle-orm / drizzle-kit | External | npm install |
 | resend | External | npm install |
-| Neon PostgreSQL (free tier) | External | Needs setup (Vercel marketplace) |
+| Neon PostgreSQL (free tier) | External | Deployed via SST IaC (`infra/database.ts`) |
 | Resend (free tier) | External | Needs setup (resend.com) |
 
 ## Open Questions (Resolved)
@@ -526,9 +542,63 @@ Total:              56.5  -> Medium complexity
 2. ~~Do we want a combined graph+chat workspace page?~~ **Yes** — split view with graph left, chat right; chat answers highlight relevant nodes in the graph
 3. ~~Graphiti API auth mechanism?~~ **Simple shared API key** (X-API-Key header) — single-tenant, only Vercel deployment calls it; key stored server-only in env vars; HTTPS provides transport security
 
+## Infrastructure Reference
+
+> **All infrastructure is already provisioned via SST IaC.** See `specs/pending/sst-infrastructure/` for complete documentation and `outputs/infrastructure-state.md` for a quick reference.
+
+### What's Already Deployed
+
+| Component | SST Module | Resource Name | Status |
+|-----------|-----------|---------------|--------|
+| Railway Project | `infra/railway.ts` | `beep-{stage}` | Deployed |
+| FalkorDB Service | `infra/railway.ts` | `falkordb` (`falkordb/falkordb:latest`) | Deployed |
+| Graphiti MCP Service | `infra/railway.ts` | `graphiti-mcp` (`zepai/knowledge-graph-mcp:standalone`) | Deployed |
+| Caddy Auth Proxy | `infra/railway.ts` | `auth-proxy` (`caddy:2-alpine`) | Deployed |
+| Neon PostgreSQL | `infra/database.ts` | `beep-{stage}` (PG 17, `beep_auth` DB, `beep_user` role) | Deployed |
+| Vercel Project | `infra/web.ts` | `beep-{stage}` (Next.js, `apps/web` root) | Deployed |
+| All Vercel Env Vars | `infra/web.ts` | 10 env vars (8 sensitive, 2 non-sensitive) | Set |
+
+### Deploy Command
+
+```bash
+op run --env-file=.env -- bunx sst deploy --stage dev
+```
+
+### Known Manual Steps (Railway Provider v0.4.4 Gaps)
+
+See `specs/pending/sst-infrastructure/outputs/p1-railway-provider-gaps.md` for details.
+
+| Step | Reason | Instructions |
+|------|--------|-------------|
+| FalkorDB volume | Volume creation fails in provider v0.4.4 | Add `/data` mount via Railway dashboard |
+| Auth Proxy domain | ServiceDomain creation returns 400 | Generate `*.up.railway.app` via dashboard |
+| Auth Proxy start command | No `startCommand` field on provider | Set custom start command via dashboard |
+
+### Secret Flow
+
+```
+1Password Vault (beep-dev-secrets)
+  → op run --env-file=.env (resolves op:// references at runtime)
+    → process.env (available to SST during deploy)
+      → infra/secrets.ts (validates and exports plain strings)
+        → infra/railway.ts (Railway service env vars)
+        → infra/web.ts (Vercel project env vars)
+      → infra/database.ts (Neon connection strings computed by provider)
+        → infra/web.ts (DATABASE_URL, DATABASE_URL_UNPOOLED)
+```
+
+### Provider Versions
+
+| Provider | Version |
+|----------|---------|
+| `@sst-provider/railway` | `0.4.4` |
+| `neon` | `0.9.0` |
+| `@pulumiverse/vercel` | `4.6.0` |
+| AWS region | `us-east-1` |
+
 ## Exit Condition
 
 This spec is complete when a follow-up implementation can land all phases with passing checks and a deployed app where authenticated users can:
 - Chat against the Effect v4 knowledge graph with grounded, hallucination-free answers
 - Inspect graph structure visually via force-directed visualization
-- All behind email-allowlist access control deployed on Vercel + FalkorDB VPS
+- All behind email-allowlist access control deployed on Vercel + Railway FalkorDB

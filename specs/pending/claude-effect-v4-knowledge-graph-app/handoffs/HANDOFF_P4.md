@@ -25,7 +25,7 @@ Build the frontend: react-force-graph-2d visualization, chat interface, and atom
 8. `apps/web/src/state/chat.atoms.ts` — Chat conversation atoms
 9. `apps/web/src/state/registry.tsx` — AtomRegistry provider
 10. `apps/web/src/app/(app)/page.tsx` — Combined workspace: graph (left) + chat (right)
-12. `apps/web/src/app/api/graph/search/route.ts` — Graph search passthrough API
+11. `apps/web/src/app/api/graph/search/route.ts` — Graph search passthrough API
 
 ### Success Criteria
 - [ ] react-force-graph-2d component renders nodes/edges from Graphiti search results
@@ -134,7 +134,7 @@ Graphiti Fact.name               -> Link.label
 
 ### From P0-P3
 - Auth working with better-auth magic link + email allowlist
-- FalkorDB VPS deployed and verified
+- Railway FalkorDB deployed and verified (via SST IaC)
 - KnowledgeGraphToolkit defined and tested
 - Chat endpoint at `/api/chat` returning grounded answers
 

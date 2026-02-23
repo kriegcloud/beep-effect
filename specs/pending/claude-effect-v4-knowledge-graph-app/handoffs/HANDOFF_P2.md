@@ -12,7 +12,7 @@
 ## Working Memory (Current Phase)
 
 ### Phase 2 Goal
-Define the `KnowledgeGraphToolkit` with Effect v4 Schema-typed tools and the `GraphitiService` Effect service that calls the FalkorDB VPS. The toolkit will be consumed by the chat route in P3.
+Define the `KnowledgeGraphToolkit` with Effect v4 Schema-typed tools and the `GraphitiService` Effect service that calls the Railway FalkorDB. The toolkit will be consumed by the chat route in P3.
 
 ### Deliverables
 1. `apps/web/src/lib/effect/tools.ts` — Tool definitions (SearchGraph, GetNode, GetFacts)
@@ -77,11 +77,12 @@ class GraphitiService extends ServiceMap.Service<GraphitiService>("@beep/web/Gra
 ) {}
 ```
 
-The `GraphitiService` makes HTTP calls to the Graphiti API on the VPS:
+The `GraphitiService` makes HTTP calls to the Graphiti API via the Caddy auth proxy on Railway:
 ```ts
 // lib/graphiti/client.ts
-// Calls GRAPHITI_API_URL with X-API-Key header
+// Calls GRAPHITI_API_URL (https://auth-proxy-production-91fe.up.railway.app) with X-API-Key header
 // Maps Graphiti MCP tool responses to typed results
+// MCP endpoint: /mcp (no trailing slash — /mcp/ returns 307 redirect)
 ```
 
 ### Key Design Decisions
@@ -95,9 +96,10 @@ The `GraphitiService` makes HTTP calls to the Graphiti API on the VPS:
 
 ### From P0-P1
 - Auth working with email allowlist (better-auth magic link)
-- FalkorDB VPS deployed with 2,229 nodes, 9,697 edges
-- Graphiti API reachable over HTTPS
+- Railway FalkorDB deployed with 2,229 nodes, 9,697 edges (via SST IaC)
+- Graphiti API reachable over HTTPS at `https://auth-proxy-production-91fe.up.railway.app`
 - Verification queries confirmed graph quality
+- All infrastructure provisioned via `op run --env-file=.env -- bunx sst deploy --stage dev`
 
 ## Semantic Memory
 

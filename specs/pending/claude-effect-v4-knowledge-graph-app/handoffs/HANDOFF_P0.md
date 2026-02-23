@@ -66,7 +66,7 @@ export const auth = betterAuth({
           throw new Error("Email not authorized")
         }
         await resend.emails.send({
-          from: "Effect v4 KG <noreply@yourdomain.com>",
+          from: "Effect v4 KG <noreply@beep.dev>", // Update domain to match Resend verified sender
           to: email,
           subject: "Sign in to Effect v4 Knowledge Graph",
           html: `<a href="${url}">Click here to sign in</a>`,
@@ -156,13 +156,16 @@ const asyncAtom = Atom.fn<[string]>()(
 - `resend`
 
 ### Required Environment Variables
+
+> **Infrastructure note:** Neon PostgreSQL is already provisioned via SST IaC (`infra/database.ts`). Connection strings are computed Pulumi outputs set on Vercel by `infra/web.ts`. For local development, get the connection string from the Neon dashboard or SST deploy outputs. All secrets are sourced from 1Password vault `beep-dev-secrets` via `op run --env-file=.env`.
+
 ```
-BETTER_AUTH_SECRET=<32+ random chars>
-BETTER_AUTH_URL=http://localhost:3000
-DATABASE_URL=<neon pooled connection string>
-DATABASE_URL_UNPOOLED=<neon direct connection string, for migrations>
-ALLOWED_EMAILS=user1@example.com,user2@example.com
-RESEND_API_KEY=<from resend.com dashboard>
+BETTER_AUTH_SECRET=<from 1Password: beep-app-core/AUTH_SECRET>
+BETTER_AUTH_URL=http://localhost:3000    # Local dev; production value from 1Password beep-app-core/BETTER_AUTH_URL
+DATABASE_URL=<neon pooled connection string — from SST deploy output or Neon dashboard>
+DATABASE_URL_UNPOOLED=<neon direct connection string — from SST deploy output or Neon dashboard>
+ALLOWED_EMAILS=user1@example.com,user2@example.com    # From 1Password: beep-app-core/APP_ADMINS_EMAILS
+RESEND_API_KEY=<from 1Password: beep-email/EMAIL_RESEND_API_KEY>
 ```
 
 ## Episodic Memory
