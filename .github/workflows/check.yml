@@ -89,6 +89,10 @@ jobs:
       - name: Type check
         run: bun run check
 
+      - name: Check migration drift
+        working-directory: apps/web
+        run: npx drizzle-kit check
+
       - name: Lint
         run: bun run lint
 

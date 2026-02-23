@@ -205,6 +205,7 @@
     "resend": "^6.9.2",
     "shadcn": "^3.8.5",
     "syncpack": "14.0.0-alpha.41",
+    "tsx": "^4.21.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4",
     "ts-morph": "^27.0.2",
