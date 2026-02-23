@@ -13,7 +13,6 @@
     "db:generate:auth": "npx @better-auth/cli@latest generate --output ./src/lib/db/schema.ts --yes",
     "db:migrate": "npx tsx src/lib/db/migrate.ts",
     "db:migrate:check": "drizzle-kit check",
-    "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

@@ -56,23 +56,52 @@ Infrastructure (Neon, Vercel) provisioned by SST IaC in `infra/`.
 
 ## Database Setup
 
-### Generate migration
+> **Updated by P1.5** — The migration pipeline is now fully automated. `drizzle-kit push` has been removed; all schema changes go through the `generate` + `migrate` workflow.
+
+### Migration Pipeline (established in P1.5)
+
+**Schema regeneration** (when auth config changes):
 ```bash
 cd apps/web
-DATABASE_URL_UNPOOLED="<neon-direct-url>" npx drizzle-kit generate
+bun run db:generate:auth   # Regenerates schema.ts via better-auth CLI
+bun run db:generate        # Creates new Drizzle migration SQL file
 ```
 
-### Push schema to Neon
+**Apply migrations**:
 ```bash
 cd apps/web
-DATABASE_URL_UNPOOLED="<neon-direct-url>" npx drizzle-kit push
+op run --env-file=../../.env -- bun run db:migrate
 ```
 
-### Tables created
+**Check for drift** (runs in CI automatically):
+```bash
+cd apps/web
+bun run db:migrate:check   # drizzle-kit check — schema vs migration files
+```
+
+### Migration Files
+- Baseline: `apps/web/drizzle/0000_oval_molly_hayes.sql`
+- Journal: `apps/web/drizzle/meta/_journal.json`
+- Runner: `apps/web/src/lib/db/migrate.ts` (uses `drizzle-orm/neon-http/migrator`)
+
+### Tables in Neon (verified 2026-02-23)
 - `user` — id, name, email (unique), email_verified, image, created_at, updated_at
-- `session` — id, user_id (FK → user), token (unique), expires_at, ip_address, user_agent, timestamps
-- `account` — id, user_id (FK → user), account_id, provider_id, tokens, scope, timestamps
-- `verification` — id, identifier, value, expires_at, timestamps
+- `session` — id, user_id (FK → user, indexed), token (unique), expires_at, ip_address, user_agent, timestamps
+- `account` — id, user_id (FK → user, indexed), account_id, provider_id, tokens, scope, timestamps
+- `verification` — id, identifier (indexed), value, expires_at, timestamps
+- `drizzle.__drizzle_migrations` — migration journal (hash, created_at)
+
+### Indexes (added by better-auth CLI)
+- `session_userId_idx` on `session.user_id`
+- `account_userId_idx` on `account.user_id`
+- `verification_identifier_idx` on `verification.identifier`
+
+### Build Integration
+The `build` script runs migrations before `next build`:
+```
+"build": "npx tsx src/lib/db/migrate.ts && next build --turbopack"
+```
+Vercel deployments automatically apply pending migrations at build time.
 
 ## Auth Flow
 

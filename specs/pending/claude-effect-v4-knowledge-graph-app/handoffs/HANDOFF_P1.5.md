@@ -36,15 +36,15 @@ P0 created the Drizzle schema code but left table creation as a manual step that
 8. `outputs/p1.5-migrations/setup-log.md` — Documentation of migration setup
 
 ### Success Criteria
-- [ ] `schema.ts` regenerated via `npx @better-auth/cli generate` (includes Drizzle relations) — **BLOCKED: needs DATABASE_URL in 1Password**
-- [ ] Auth tables exist in Neon (user, session, account, verification) — **BLOCKED: needs credentials**
-- [x] `apps/web/drizzle/` contains baseline migration SQL files committed to git — `0000_daily_ezekiel_stane.sql`
-- [ ] `__drizzle_migrations` journal table exists in Neon with baseline recorded — **BLOCKED: needs credentials**
-- [x] `bun run db:migrate` applies pending migrations to Neon via `DATABASE_URL_UNPOOLED` — script created at `src/lib/db/migrate.ts`
+- [x] `schema.ts` regenerated via `npx @better-auth/cli generate` (includes Drizzle relations, indexes, $onUpdate)
+- [x] Auth tables exist in Neon (user, session, account, verification) — verified via SQL query
+- [x] `apps/web/drizzle/` contains baseline migration SQL files — `0000_oval_molly_hayes.sql`
+- [x] `__drizzle_migrations` journal table exists in Neon (in `drizzle` schema) with baseline recorded
+- [x] `bun run db:migrate` applies pending migrations to Neon via `DATABASE_URL_UNPOOLED`
 - [x] `bun run db:migrate:check` exits non-zero if schema.ts has changes not captured in migration files — `drizzle-kit check` passes
 - [x] CI (`check.yml`) runs migration drift check — PRs with unapplied schema changes fail
-- [x] Vercel build runs migrations before `next build` (via build command override or custom script)
-- [x] `drizzle-kit push` is removed or demoted to local-dev-only convenience — kept as `db:push` for local dev only
+- [x] Vercel build runs migrations before `next build` (via build command override)
+- [x] `drizzle-kit push` removed — `db:migrate` is the only way to apply schema changes
 
 ### Implementation Notes
 

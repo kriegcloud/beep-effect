@@ -181,7 +181,7 @@ op run --env-file=.env.op.dev -- bunx sst remove --stage dev
 | `sst.config.ts` | SST entry point — app config + dynamic imports from `infra/` |
 | `infra/secrets.ts` | Env var reads with validation (secrets from 1Password via `op run`) |
 | `infra/railway.ts` | Railway project, services (FalkorDB, Graphiti, Proxy), domains |
-| `infra/database.ts` | Neon project (auto-creates defaults), `connectionUri`/`connectionUriPooler` outputs, `sst.Linkable` |
+| `infra/database.ts` | Neon project (auto-creates defaults), `connectionUri`/`connectionUriPooler` outputs, `sst.Linkable`. Auth tables (user, session, account, verification) applied via Drizzle migrations (P1.5). |
 | `infra/web.ts` | Vercel project, env var wiring, domain config |
 | `.env.op.dev` | 1Password `op://` references for dev stage (safe to commit) |
 | `.env.op.production` | 1Password `op://` references for production stage (safe to commit) |

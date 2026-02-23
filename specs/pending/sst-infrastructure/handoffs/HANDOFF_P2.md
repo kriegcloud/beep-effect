@@ -68,6 +68,8 @@ Define the Neon PostgreSQL database in `infra/database.ts` and wire all applicat
    | `beep-app-core` | `APP_ADMINS_EMAILS` | `ALLOWED_EMAILS` |
    | `beep-ai` | `AI_OPENAI_API_KEY` | `OPENAI_API_KEY` |
    | `beep-email` | `EMAIL_RESEND_API_KEY` | `RESEND_API_KEY` |
+   | `beep-data` | `DATABASE_URL` | Neon pooled connection string (added by P1.5) |
+   | `beep-data` | `DATABASE_URL_UNPOOLED` | Neon direct connection string (added by P1.5) |
    | ~~`beep-cloud-aws`~~ | ~~`CLOUD_AWS_ACCESS_KEY_ID`~~ | ~~Not needed — CI uses OIDC~~ |
    | ~~`beep-cloud-aws`~~ | ~~`CLOUD_AWS_SECRET_ACCESS_KEY`~~ | ~~Not needed — CI uses OIDC~~ |
 
