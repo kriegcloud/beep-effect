@@ -50,6 +50,11 @@
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["docs/**", "dtslint/**"]
     },
+    "dev": {
+      "persistent": true,
+      "cache": false,
+      "dependsOn": ["^build"]
+    },
     "storybook": {
       "persistent": true,
       "cache": false
