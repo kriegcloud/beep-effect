@@ -5,7 +5,7 @@
  * @module
  */
 
-import * as O from "effect/Option";
+import type * as O from "effect/Option";
 import * as Schema from "effect/Schema";
 
 // ── Errors ──────────────────────────────────────────────────────────────────

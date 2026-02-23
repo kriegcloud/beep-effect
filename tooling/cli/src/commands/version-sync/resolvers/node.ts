@@ -61,14 +61,10 @@ export const resolveNodeVersions: (
 
     // Read .nvmrc
     const nvmrcPath = path.join(repoRoot, ".nvmrc");
-    const nvmrc = yield* fs
-      .readFileString(nvmrcPath)
-      .pipe(
-        Effect.map(Str.trim),
-        Effect.mapError(
-          (e) => new VersionSyncError({ message: `Failed to read .nvmrc: ${String(e)}`, file: ".nvmrc" })
-        )
-      );
+    const nvmrc = yield* fs.readFileString(nvmrcPath).pipe(
+      Effect.map(Str.trim),
+      Effect.mapError((e) => new VersionSyncError({ message: `Failed to read .nvmrc: ${String(e)}`, file: ".nvmrc" }))
+    );
 
     // Scan workflow files
     const workflowDir = path.join(repoRoot, ".github", "workflows");
@@ -78,9 +74,7 @@ export const resolveNodeVersions: (
       return { nvmrc, workflowLocations: A.empty<NodeVersionLocation>() };
     }
 
-    const entries = yield* fs
-      .readDirectory(workflowDir)
-      .pipe(Effect.orElseSucceed(A.empty<string>));
+    const entries = yield* fs.readDirectory(workflowDir).pipe(Effect.orElseSucceed(A.empty<string>));
 
     const ymlFiles = A.filter(entries, (entry) => Str.endsWith(".yml")(entry) || Str.endsWith(".yaml")(entry));
 
@@ -88,17 +82,15 @@ export const resolveNodeVersions: (
 
     for (const ymlFile of ymlFiles) {
       const filePath = path.join(workflowDir, ymlFile);
-      const content = yield* fs
-        .readFileString(filePath)
-        .pipe(
-          Effect.mapError(
-            (e) =>
-              new VersionSyncError({
-                message: `Failed to read workflow file: ${String(e)}`,
-                file: `.github/workflows/${ymlFile}`,
-              })
-          )
-        );
+      const content = yield* fs.readFileString(filePath).pipe(
+        Effect.mapError(
+          (e) =>
+            new VersionSyncError({
+              message: `Failed to read workflow file: ${String(e)}`,
+              file: `.github/workflows/${ymlFile}`,
+            })
+        )
+      );
 
       const found = findNodeVersionLocations(content, `.github/workflows/${ymlFile}`);
       for (const loc of found) {

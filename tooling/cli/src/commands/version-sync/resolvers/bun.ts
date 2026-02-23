@@ -14,9 +14,14 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Schema from "effect/Schema";
 import * as Str from "effect/String";
-import * as jsonc from "jsonc-parser";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
-import { NetworkUnavailableError, type VersionCategoryReport, type VersionDriftItem, VersionSyncError } from "../types.js";
+import * as jsonc from "jsonc-parser";
+import {
+  NetworkUnavailableError,
+  type VersionCategoryReport,
+  type VersionDriftItem,
+  VersionSyncError,
+} from "../types.js";
 
 // ── GitHub API schema ───────────────────────────────────────────────────────
 
@@ -73,54 +78,49 @@ export interface BunVersionState {
 export const resolveBunVersions: (
   repoRoot: string,
   skipNetwork: boolean
-) => Effect.Effect<
-  BunVersionState,
-  VersionSyncError,
-  FileSystem.FileSystem | Path.Path | HttpClient.HttpClient
-> = Effect.fn(function* (repoRoot, skipNetwork) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+) => Effect.Effect<BunVersionState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient> =
+  Effect.fn(function* (repoRoot, skipNetwork) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
 
-  // Read .bun-version
-  const bunVersionPath = path.join(repoRoot, ".bun-version");
-  const bunVersionFile = yield* fs
-    .readFileString(bunVersionPath)
-    .pipe(
+    // Read .bun-version
+    const bunVersionPath = path.join(repoRoot, ".bun-version");
+    const bunVersionFile = yield* fs.readFileString(bunVersionPath).pipe(
       Effect.map(Str.trim),
       Effect.mapError(
         (e) => new VersionSyncError({ message: `Failed to read .bun-version: ${String(e)}`, file: ".bun-version" })
       )
     );
 
-  // Read package.json packageManager field
-  const pkgJsonPath = path.join(repoRoot, "package.json");
-  const pkgJsonContent = yield* fs
-    .readFileString(pkgJsonPath)
-    .pipe(
-      Effect.mapError(
-        (e) => new VersionSyncError({ message: `Failed to read package.json: ${String(e)}`, file: "package.json" })
-      )
-    );
+    // Read package.json packageManager field
+    const pkgJsonPath = path.join(repoRoot, "package.json");
+    const pkgJsonContent = yield* fs
+      .readFileString(pkgJsonPath)
+      .pipe(
+        Effect.mapError(
+          (e) => new VersionSyncError({ message: `Failed to read package.json: ${String(e)}`, file: "package.json" })
+        )
+      );
 
-  const parseErrors: Array<jsonc.ParseError> = [];
-  const pkgJson = jsonc.parse(pkgJsonContent, parseErrors);
-  if (parseErrors.length > 0 || typeof pkgJson !== "object" || pkgJson === null) {
-    return yield* new VersionSyncError({ message: "Failed to parse package.json", file: "package.json" });
-  }
-  const rawPm = typeof pkgJson.packageManager === "string" ? pkgJson.packageManager : "";
-  const packageManagerField = extractPackageManagerVersion(rawPm);
+    const parseErrors: Array<jsonc.ParseError> = [];
+    const pkgJson = jsonc.parse(pkgJsonContent, parseErrors);
+    if (parseErrors.length > 0 || typeof pkgJson !== "object" || pkgJson === null) {
+      return yield* new VersionSyncError({ message: "Failed to parse package.json", file: "package.json" });
+    }
+    const rawPm = typeof pkgJson.packageManager === "string" ? pkgJson.packageManager : "";
+    const packageManagerField = extractPackageManagerVersion(rawPm);
 
-  // Optionally fetch latest
-  let latest: O.Option<string> = O.none();
-  if (!skipNetwork) {
-    latest = yield* fetchLatestBunVersion().pipe(
-      Effect.map(O.some),
-      Effect.orElseSucceed(() => O.none<string>())
-    );
-  }
+    // Optionally fetch latest
+    let latest: O.Option<string> = O.none();
+    if (!skipNetwork) {
+      latest = yield* fetchLatestBunVersion().pipe(
+        Effect.map(O.some),
+        Effect.orElseSucceed(() => O.none<string>())
+      );
+    }
 
-  return { bunVersionFile, packageManagerField, latest };
-});
+    return { bunVersionFile, packageManagerField, latest };
+  });
 
 /**
  * Fetch the latest stable Bun release version from GitHub.
@@ -128,28 +128,22 @@ export const resolveBunVersions: (
  * @since 0.0.0
  * @category functions
  */
-const fetchLatestBunVersion: () => Effect.Effect<
-  string,
-  NetworkUnavailableError,
-  HttpClient.HttpClient
-> = Effect.fn(function* () {
-  const client = yield* HttpClient.HttpClient;
-  const response = yield* client
-    .get(BUN_RELEASE_URL, { headers: { "User-Agent": "beep-cli/0.0.0", Accept: "application/vnd.github+json" } })
-    .pipe(
-      Effect.mapError(
-        (e) => new NetworkUnavailableError({ message: `GitHub API request failed: ${String(e)}` })
-      )
-    );
-  const body = yield* HttpClientResponse
-    .schemaBodyJson(BunRelease)(response)
-    .pipe(
+const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError, HttpClient.HttpClient> = Effect.fn(
+  function* () {
+    const client = yield* HttpClient.HttpClient;
+    const response = yield* client
+      .get(BUN_RELEASE_URL, { headers: { "User-Agent": "beep-cli/0.0.0", Accept: "application/vnd.github+json" } })
+      .pipe(
+        Effect.mapError((e) => new NetworkUnavailableError({ message: `GitHub API request failed: ${String(e)}` }))
+      );
+    const body = yield* HttpClientResponse.schemaBodyJson(BunRelease)(response).pipe(
       Effect.mapError(
         (e) => new NetworkUnavailableError({ message: `Failed to parse GitHub API response: ${String(e)}` })
       )
     );
-  return extractBunVersion(body.tag_name);
-});
+    return extractBunVersion(body.tag_name);
+  }
+);
 
 /**
  * Build the Bun category report from resolved state.

@@ -6,22 +6,17 @@
  */
 
 import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
-import { FileSystem, Path } from "effect";
+import { type FileSystem, Path } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { HttpClient } from "effect/unstable/http";
+import type { HttpClient } from "effect/unstable/http";
 import { type BunVersionState, buildBunReport, resolveBunVersions } from "./resolvers/bun.js";
 import { buildDockerReport, type DockerImageState, resolveDockerImages } from "./resolvers/docker.js";
 import { buildNodeReport, resolveNodeVersions } from "./resolvers/node.js";
-import type {
-  VersionCategoryReport,
-  VersionSyncMode,
-  VersionSyncOptions,
-  VersionSyncReport,
-} from "./types.js";
-import { VersionSyncDriftError, VersionSyncError } from "./types.js";
+import type { VersionCategoryReport, VersionSyncMode, VersionSyncOptions, VersionSyncReport } from "./types.js";
+import { VersionSyncDriftError, type VersionSyncError } from "./types.js";
 import { updatePackageManagerField } from "./updaters/package-json.js";
 import { updatePlainTextFile } from "./updaters/plain-text.js";
 import { replaceNodeVersionWithFile, updateYamlValue } from "./updaters/yaml-file.js";
@@ -34,11 +29,7 @@ import { replaceNodeVersionWithFile, updateYamlValue } from "./updaters/yaml-fil
  */
 const renderCategoryReport: (report: VersionCategoryReport) => Effect.Effect<void> = Effect.fn(function* (report) {
   const categoryLabel =
-    report.category === "bun"
-      ? "Bun Runtime"
-      : report.category === "node"
-        ? "Node.js Runtime"
-        : "Docker Images";
+    report.category === "bun" ? "Bun Runtime" : report.category === "node" ? "Node.js Runtime" : "Docker Images";
 
   yield* Console.log(`\n${categoryLabel}:`);
 

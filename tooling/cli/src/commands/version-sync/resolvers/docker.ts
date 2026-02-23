@@ -13,9 +13,14 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Schema from "effect/Schema";
-import { parseDocument } from "yaml";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
-import { NetworkUnavailableError, type VersionCategoryReport, type VersionDriftItem, VersionSyncError } from "../types.js";
+import { parseDocument } from "yaml";
+import {
+  NetworkUnavailableError,
+  type VersionCategoryReport,
+  type VersionDriftItem,
+  VersionSyncError,
+} from "../types.js";
 
 // ── Docker Hub API ──────────────────────────────────────────────────────────
 
@@ -69,7 +74,7 @@ const SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)$/;
 const parseSemver = (tag: string): O.Option<readonly [number, number, number]> => {
   const match = tag.match(SEMVER_PATTERN);
   if (match === null) return O.none();
-  return O.some([parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3], 10)] as const);
+  return O.some([Number.parseInt(match[1], 10), Number.parseInt(match[2], 10), Number.parseInt(match[3], 10)] as const);
 };
 
 const semverCompare = (a: readonly [number, number, number], b: readonly [number, number, number]): number => {
@@ -155,7 +160,11 @@ const findLatestForPgvector = (tags: ReadonlyArray<string>, currentTag: string):
     if (versionMatch !== null) {
       candidates.push({
         tag,
-        version: [parseInt(versionMatch[1], 10), parseInt(versionMatch[2], 10), parseInt(versionMatch[3], 10)],
+        version: [
+          Number.parseInt(versionMatch[1], 10),
+          Number.parseInt(versionMatch[2], 10),
+          Number.parseInt(versionMatch[3], 10),
+        ],
       });
     }
   }
@@ -195,24 +204,19 @@ const findLatestSemver = (tags: ReadonlyArray<string>): O.Option<string> => {
 export const resolveDockerImages: (
   repoRoot: string,
   skipNetwork: boolean
-) => Effect.Effect<
-  DockerImageState,
-  VersionSyncError,
-  FileSystem.FileSystem | Path.Path | HttpClient.HttpClient
-> = Effect.fn(function* (repoRoot, skipNetwork) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+) => Effect.Effect<DockerImageState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient> =
+  Effect.fn(function* (repoRoot, skipNetwork) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
 
-  const composePath = path.join(repoRoot, "docker-compose.yml");
-  const composeExists = yield* fs.exists(composePath).pipe(Effect.orElseSucceed(() => false));
+    const composePath = path.join(repoRoot, "docker-compose.yml");
+    const composeExists = yield* fs.exists(composePath).pipe(Effect.orElseSucceed(() => false));
 
-  if (!composeExists) {
-    return { images: A.empty() };
-  }
+    if (!composeExists) {
+      return { images: A.empty() };
+    }
 
-  const content = yield* fs
-    .readFileString(composePath)
-    .pipe(
+    const content = yield* fs.readFileString(composePath).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({
@@ -222,46 +226,46 @@ export const resolveDockerImages: (
       )
     );
 
-  const doc = parseDocument(content);
-  const root = doc.toJSON();
+    const doc = parseDocument(content);
+    const root = doc.toJSON();
 
-  if (typeof root !== "object" || root === null || !("services" in root)) {
-    return { images: A.empty() };
-  }
-
-  const services = root.services;
-  if (typeof services !== "object" || services === null) {
-    return { images: A.empty() };
-  }
-
-  const images: Array<DockerImageRef & { readonly latest: O.Option<string> }> = [];
-
-  for (const serviceName of Object.keys(services)) {
-    const service = services[serviceName];
-    if (typeof service !== "object" || service === null || !("image" in service)) {
-      continue;
+    if (typeof root !== "object" || root === null || !("services" in root)) {
+      return { images: A.empty() };
     }
 
-    const imageStr = String(service.image);
-    const yamlPath = ["services", serviceName, "image"] as const;
-    const ref = parseImageRef(serviceName, imageStr, yamlPath);
-
-    if (skipNetwork) {
-      images.push({ ...ref, latest: O.none() });
-      continue;
+    const services = root.services;
+    if (typeof services !== "object" || services === null) {
+      return { images: A.empty() };
     }
 
-    // Fetch latest tag from Docker Hub
-    const latest = yield* fetchLatestDockerTag(ref).pipe(
-      Effect.map(O.some),
-      Effect.orElseSucceed(() => O.none<string>())
-    );
+    const images: Array<DockerImageRef & { readonly latest: O.Option<string> }> = [];
 
-    images.push({ ...ref, latest });
-  }
+    for (const serviceName of Object.keys(services)) {
+      const service = services[serviceName];
+      if (typeof service !== "object" || service === null || !("image" in service)) {
+        continue;
+      }
 
-  return { images };
-});
+      const imageStr = String(service.image);
+      const yamlPath = ["services", serviceName, "image"] as const;
+      const ref = parseImageRef(serviceName, imageStr, yamlPath);
+
+      if (skipNetwork) {
+        images.push({ ...ref, latest: O.none() });
+        continue;
+      }
+
+      // Fetch latest tag from Docker Hub
+      const latest = yield* fetchLatestDockerTag(ref).pipe(
+        Effect.map(O.some),
+        Effect.orElseSucceed(() => O.none<string>())
+      );
+
+      images.push({ ...ref, latest });
+    }
+
+    return { images };
+  });
 
 /**
  * Fetch the latest appropriate tag for a Docker image from Docker Hub.
@@ -279,20 +283,19 @@ const fetchLatestDockerTag: (
     .get(url, { headers: { "User-Agent": "beep-cli/0.0.0" } })
     .pipe(
       Effect.mapError(
-        (e) => new NetworkUnavailableError({ message: `Docker Hub API request failed for ${ref.repository}: ${String(e)}` })
+        (e) =>
+          new NetworkUnavailableError({ message: `Docker Hub API request failed for ${ref.repository}: ${String(e)}` })
       )
     );
 
-  const body = yield* HttpClientResponse
-    .schemaBodyJson(DockerTagsResponse)(response)
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new NetworkUnavailableError({
-            message: `Failed to parse Docker Hub response for ${ref.repository}: ${String(e)}`,
-          })
-      )
-    );
+  const body = yield* HttpClientResponse.schemaBodyJson(DockerTagsResponse)(response).pipe(
+    Effect.mapError(
+      (e) =>
+        new NetworkUnavailableError({
+          message: `Failed to parse Docker Hub response for ${ref.repository}: ${String(e)}`,
+        })
+    )
+  );
 
   const tagNames = A.map(body.results, (r) => r.name);
 

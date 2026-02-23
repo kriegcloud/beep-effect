@@ -25,5 +25,12 @@ import { versionSyncCommand } from "./version-sync/index.js";
  */
 export const rootCommand = Command.make("beep-cli").pipe(
   Command.withDescription("CLI tool for managing beep-effect monorepo packages"),
-  Command.withSubcommands([topoSortCommand, createPackageCommand, codegenCommand, purgeCommand, tsconfigSyncCommand, versionSyncCommand])
+  Command.withSubcommands([
+    topoSortCommand,
+    createPackageCommand,
+    codegenCommand,
+    purgeCommand,
+    tsconfigSyncCommand,
+    versionSyncCommand,
+  ])
 );
