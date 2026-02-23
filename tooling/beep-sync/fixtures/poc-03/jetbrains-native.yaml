@@ -1,0 +1,7 @@
+jetbrains:
+  prompt_library:
+    mode: native_file
+    prompts:
+      - id: refactor
+        title: Refactor Assistant
+        prompt_file: .beep/prompts/refactor.md

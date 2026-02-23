@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "memory": {
+      "env": {
+        "API_TOKEN": "WINDSURF_MCP_TOKEN"
+      },
+      "transport": "sse",
+      "url": "https://example.com/mcp/sse"
+    }
+  }
+}

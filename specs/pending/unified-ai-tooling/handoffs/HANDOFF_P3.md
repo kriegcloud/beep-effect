@@ -11,6 +11,8 @@ Read first:
 - `outputs/subtree-synthesis.md`
 - `outputs/quality-gates-and-test-strategy.md`
 - `outputs/residual-risk-closure.md`
+- `outputs/poc-04-managed-ownership-revert-results.md`
+- `outputs/poc-05-secret-resolution-results.md`
 
 ## Working Memory
 
@@ -35,6 +37,7 @@ Define runtime behavior for `beep-sync` commands, secret resolution lifecycle, a
 8. Diagnostics contract is explicit (structured output + strict mode).
 9. P3 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
 10. Managed-target-only `revert` integration scenarios are fully specified and testable.
+11. POC-04/05 verified contracts are preserved; remaining real-auth success evidence follow-up is explicitly closed or tracked.
 
 ### Blocking Issues
 
@@ -80,3 +83,4 @@ rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p3-ru
 - Differentiate "hooks/CI deferred" from "workflow undefined".
 - Keep cleanup and revert semantics deterministic and auditable.
 - `revert` scope is managed targets only in v1.
+- Preserve POC-05 fail-hard and redaction guarantees while adding real-auth success evidence.

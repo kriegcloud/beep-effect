@@ -60,8 +60,8 @@ Managed generation policy includes these committed outputs:
 ## Diagnostics and Strictness
 
 1. All adapters emit structured diagnostics (`error`, `warning`, `info`) with target path and field.
-2. Lossy conversion and unsupported-field drops are warnings by default.
-3. `--strict` upgrades configured warning classes to errors.
+2. Lossy conversion and unsupported-field drops are warnings by default (`W_UNSUPPORTED_FIELD` baseline).
+3. `--strict` upgrades configured warning classes to errors and blocks output emission.
 4. Required secret resolution failures are always errors (independent of strict mode).
 
 ## MCP Capability Map Contract
@@ -72,10 +72,39 @@ Managed generation policy includes these committed outputs:
 4. Tool-specific naming differences are normalized in adapters (for example snake_case vs camelCase).
 5. Capability-map fixtures are mandatory for Cursor and Windsurf due higher doc drift risk.
 
+## POC-Verified Baseline (2026-02-23)
+
+### MCP field baseline (from POC-02)
+
+| Tool | Supported MCP Fields (fixture-proven) | Unsupported Field Handling |
+|---|---|---|
+| Codex | `transport`, `command`, `args`, `url`, `env`, `env_headers` | warn by default, fail in `--strict` |
+| Cursor | `transport`, `url`, `env_headers`, `env` | warn by default, fail in `--strict` |
+| Windsurf | `transport`, `url`, `env` | warn by default, fail in `--strict` |
+
+### JetBrains prompt-library baseline (from POC-03)
+
+1. `bundle_only` remains default mode.
+2. Bundle artifacts are deterministic and fixture-backed:
+   - `.aiassistant/prompt-library/prompts.md`
+   - `.aiassistant/prompt-library/prompts.json`
+   - `.aiassistant/prompt-library/IMPORT_INSTRUCTIONS.md`
+3. `native_file` remains optional and probe-based, with deterministic metadata contract:
+   - `nativeProbe.enabled`
+   - `nativeProbe.path`
+   - `nativeProbe.roundTripDeterministic`
+
+### Operational baseline (from POC-04 and POC-06)
+
+1. `revert` is managed-target-only and idempotent on second run.
+2. No-arg `validate`, `apply --dry-run`, `check`, `doctor` contracts are deterministic.
+3. Dry-run flow is no-churn against managed baseline snapshots.
+
 ## Open Implementation Notes
 
-1. Cursor MCP exact field parity should be verified against runtime fixtures due dynamic docs.
-2. JetBrains prompt-library direct native-file emission requires stable-path fixture proofing; fallback default is bundle artifacts.
+1. Cursor/Windsurf MCP baseline is frozen by current fixtures; add fields only with new fixture proof.
+2. JetBrains direct native-file emission remains optional until official stable native path/format is documented.
+3. Real authenticated secret-resolution success-path evidence (desktop + service-account) remains open and tracked in residual-risk closure.
 
 ## Source Pointers
 

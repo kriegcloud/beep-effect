@@ -23,6 +23,8 @@ Applicability note:
 |---|---|---|
 | Schema validity | Canonical config schema validates known-good fixtures and rejects known-bad fixtures | Test output + fixture list in P1 output |
 | Determinism | Same source produces byte-identical targets and unchanged files are skipped | Determinism test results in P2/P3 outputs |
+| Command determinism | No-arg `validate`, `apply --dry-run`, `check`, `doctor` produce stable repeated outputs | Repeat-run diffs with zero output in P3 evidence |
+| Dry-run no-churn | Dry-run command flow does not mutate managed baselines or manifests | Pre/post checksum evidence in P3 integration output |
 | Drift detection | `check` detects stale managed files and metadata mismatch | CLI integration test in P3 output |
 | Capability safety | Unsupported fields produce deterministic warnings/errors | Adapter fixture tests in P2 output |
 | Secret safety | Required unresolved secrets fail hard with redacted logs | CLI integration tests in P3 output |
@@ -68,6 +70,8 @@ Applicability note:
 
 1. CLI integration tests:
    - `validate`, `apply`, `check`, `doctor`
+   - no-arg repeated-run determinism for `validate`, `apply --dry-run`, `check`, `doctor`
+   - dry-run no-churn checksum assertions on managed baselines
    - exit-code matrix (success, warning, hard-failure)
 2. Secret lifecycle tests:
    - desktop-auth path
@@ -167,3 +171,13 @@ Signoff rules:
 3. A phase cannot be marked complete if any required signoff row is missing or `rejected`.
 
 Phase status in `outputs/manifest.json` must not be moved to completed without that evidence section.
+
+## 7. Locked POC Baseline (2026-02-23)
+
+1. POC-01 passed: deterministic canonical parse/normalize/hash behavior is fixture-backed.
+2. POC-02 passed: Codex/Cursor/Windsurf MCP capability map behavior is fixture-backed with strict/non-strict diagnostics.
+3. POC-03 passed: JetBrains prompt-library `bundle_only` default and `native_file` probe envelope are deterministic and fixture-backed.
+4. POC-04 passed: managed-target-only revert semantics and idempotent second revert are validated.
+5. POC-05 passed: fail-hard required-secret behavior, optional-secret warn policy, and redaction behavior are validated.
+6. POC-06 passed: no-arg command determinism and dry-run no-churn behavior are validated.
+7. Open follow-up: capture real successful desktop and service-account secret resolution command evidence when valid auth is available.

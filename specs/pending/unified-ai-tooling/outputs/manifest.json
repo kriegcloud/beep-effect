@@ -12,6 +12,16 @@
         "subtreeSynthesis": "specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md",
         "qualityGatesAndTestStrategy": "specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md",
         "residualRiskClosure": "specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md",
+        "pocExecutionPack": "specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md",
+        "pocCommandTemplates": "specs/pending/unified-ai-tooling/outputs/poc-command-templates.md",
+        "pocResults": {
+          "poc01CanonicalCompiler": "specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md",
+          "poc02McpCapability": "specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md",
+          "poc03JetBrainsPromptLibrary": "specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md",
+          "poc04ManagedOwnershipRevert": "specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md",
+          "poc05SecretResolution": "specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md",
+          "poc06EndToEndDryRun": "specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md"
+        },
         "subtreeAnalyses": {
           "addMcp": "specs/pending/unified-ai-tooling/outputs/subtree-add-mcp-analysis.md",
           "agentRules": "specs/pending/unified-ai-tooling/outputs/subtree-agent-rules-analysis.md",
@@ -26,6 +36,27 @@
         "onePasswordSetupRunbook": "specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md",
         "onePasswordEnvTemplate": "specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env",
         "onePasswordSetupCommands": "specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh"
+      },
+      "pocGate": {
+        "status": "completed_with_followup",
+        "completedAt": "2026-02-23",
+        "decision": "go",
+        "results": {
+          "poc01CanonicalCompiler": "passed",
+          "poc02McpCapability": "passed",
+          "poc03JetBrainsPromptLibrary": "passed",
+          "poc04ManagedOwnershipRevert": "passed",
+          "poc05SecretResolution": "passed_with_followup",
+          "poc06EndToEndDryRun": "passed"
+        },
+        "followUps": [
+          {
+            "id": "poc05-real-auth-success-evidence",
+            "status": "open",
+            "phaseOwner": "p3",
+            "summary": "Capture successful desktop and service-account secret-resolution runs with valid 1Password auth."
+          }
+        ]
       }
     },
     "p1": {

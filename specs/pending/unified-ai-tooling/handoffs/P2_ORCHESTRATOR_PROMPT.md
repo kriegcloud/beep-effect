@@ -13,6 +13,8 @@ Required read order:
 6. `outputs/subtree-synthesis.md`
 7. `outputs/quality-gates-and-test-strategy.md`
 8. `outputs/residual-risk-closure.md`
+9. `outputs/poc-02-mcp-capability-results.md`
+10. `outputs/poc-03-jetbrains-prompt-library-results.md`
 
 ## Your Mission
 
@@ -24,9 +26,10 @@ Required read order:
 6. Define MCP capability matrix per tool with transform/drop/error rules.
 7. Define managed marker strategy per target type (header vs sidecar metadata).
 8. Lock JetBrains prompt-library mode contract (`bundle_only` default; `native_file` only with fixture proof).
-9. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
-10. Write `outputs/p2-adapter-design.md`.
-11. Update `outputs/manifest.json` for P2.
+9. Treat POC-02 and POC-03 artifacts as locked baselines; any divergence requires explicit rationale.
+10. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
+11. Write `outputs/p2-adapter-design.md`.
+12. Update `outputs/manifest.json` for P2.
 
 ## Critical Constraints
 
