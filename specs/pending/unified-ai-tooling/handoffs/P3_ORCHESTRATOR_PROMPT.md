@@ -28,7 +28,7 @@ Read in order:
 7. Define backup/revert command semantics.
 8. Define structured diagnostics output and strict-mode behavior.
 9. Define and test managed-target-only `revert` scenarios from the residual-risk closure contract.
-10. Update POC result files for managed ownership/revert and secret resolution with verdict/evidence or blocked reason.
+10. Preserve POC-04/05 validated behavior and explicitly close or track the remaining real-auth success-evidence follow-up.
 11. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
 12. Write `outputs/p3-runtime-integration.md`.
 13. Update `outputs/manifest.json` for P3.

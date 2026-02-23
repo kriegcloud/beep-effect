@@ -24,7 +24,7 @@ Read:
 6. Define state metadata contract for hashes, adapter versions, and orphan cleanup inputs.
 7. Define adapter capability descriptor contract to unblock P2.
 8. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
-9. Update `outputs/poc-01-canonical-compiler-results.md` with verdict/evidence or blocked reason.
+9. Treat POC-01..POC-06 result artifacts as locked baseline inputs; only update them if a POC is intentionally re-run with new evidence.
 10. Write output to `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`.
 11. Update `specs/pending/unified-ai-tooling/outputs/manifest.json` P1 status.
 

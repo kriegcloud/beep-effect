@@ -26,7 +26,7 @@ Required read order:
 6. Define MCP capability matrix per tool with transform/drop/error rules.
 7. Define managed marker strategy per target type (header vs sidecar metadata).
 8. Lock JetBrains prompt-library mode contract (`bundle_only` default; `native_file` only with fixture proof).
-9. Update POC result files for MCP capability and JetBrains prompt-library with verdict/evidence or blocked reason.
+9. Treat POC-02 and POC-03 artifacts as locked baselines; any divergence requires explicit rationale.
 10. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
 11. Write `outputs/p2-adapter-design.md`.
 12. Update `outputs/manifest.json` for P2.

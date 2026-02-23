@@ -24,7 +24,7 @@ Read in order:
 4. Define orphan-cleanup rollout safeguards and dry-run checkpoints.
 5. Define backup/revert operational runbook for cutover and rollback.
 6. Include temporary local enforcement gates (until CI rollout) in cutover checks.
-7. Update POC-06 result file with verdict/evidence or blocked reason.
+7. Preserve POC-06 deterministic command/no-churn invariants in migration validation checkpoints.
 8. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
 9. Write `outputs/p4-cutover-playbook.md`.
 10. Update `outputs/manifest.json` for P4.

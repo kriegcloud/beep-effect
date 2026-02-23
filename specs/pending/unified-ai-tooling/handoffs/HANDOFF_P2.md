@@ -36,6 +36,7 @@ Define per-tool adapter contracts mapping normalized canonical data to native ta
 8. P2 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
 9. JetBrains prompt-library v1 mode contract (`bundle_only` default, `native_file` optional with fixture proof) is explicit.
 10. Cursor/Windsurf MCP capability baseline is frozen with fixture references.
+11. POC-02 and POC-03 outputs are treated as locked baseline contracts unless explicitly re-run.
 
 ### Blocking Issues
 
@@ -78,3 +79,4 @@ rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p2-ad
 - Cursor docs are partly dynamic; rely on explicit adapter fixtures for schema certainty.
 - Avoid merge-in-place semantics for managed files.
 - Keep warning classes deterministic; no silent field drops.
+- Do not regress or silently reinterpret POC-02/03 contracts; call out any intentional divergence explicitly.
