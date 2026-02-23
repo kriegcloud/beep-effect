@@ -41,6 +41,12 @@
     },
     {
       "path": "tooling/repo-utils"
+    },
+    {
+      "path": "packages/shared/domain"
+    },
+    {
+      "path": "packages/shared/env"
     }
   ]
 }

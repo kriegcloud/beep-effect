@@ -5,7 +5,9 @@
     "packages/common/schema/dtslint/**/*.tst.*",
     "packages/common/data/dtslint/**/*.tst.*",
     "tooling/*/dtslint/**/*.tst.*",
-    "apps/*/dtslint/**/*.tst.*"
+    "apps/*/dtslint/**/*.tst.*",
+    "packages/shared/domain/dtslint/**/*.tst.*",
+    "packages/shared/env/dtslint/**/*.tst.*"
   ],
   "tsconfig": "ignore"
 }

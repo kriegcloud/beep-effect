@@ -186,6 +186,24 @@ describe("create-package command", () => {
         })
       )
     );
+
+    it.effect(
+      "should dry-run with --dir-name override",
+      withTestLayers(
+        Effect.fn(function* () {
+          yield* run(["shared-domain", "--parent-dir", "packages/shared", "--dir-name", "domain", "--dry-run"]);
+
+          const logs = yield* TestConsole.logLines;
+          const output = logs.map(String);
+
+          expect(output).toContain("[dry-run] Would create package @beep/domain (type: library)");
+          expect(output.some((l) => l.includes('overridden from package name "domain"'))).toBe(true);
+          expect(output.some((l) => l.includes("/packages/shared/domain"))).toBe(true);
+          expect(output.some((l) => l.includes('"path": "packages/shared/domain"'))).toBe(true);
+          expect(output.some((l) => l.includes("@beep/domain"))).toBe(true);
+        })
+      )
+    );
   });
 
   // ── File generation tests ────────────────────────────────────────────────
@@ -459,6 +477,37 @@ describe("create-package command", () => {
       );
     });
 
+    it.effect("should create package with --dir-name override", () => {
+      const pkgName = `_test-dirname-${Date.now()}`;
+      const dirName = `_test-dir-${Date.now()}`;
+      return withTempPackage(
+        dirName,
+        [pkgName, "--parent-dir", "packages/common", "--dir-name", dirName],
+        Effect.fn(function* (outputDir) {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const repoRoot = yield* findRepoRoot();
+
+          // Package name should be the npm name, not the dir name
+          const pkgContent = yield* fs.readFileString(path.join(outputDir, "package.json"));
+          const pkg = yield* decodeJson<GeneratedPackageJson>(pkgContent);
+          expect(pkg.name).toBe(`@beep/${pkgName}`);
+          expect(pkg.repository.directory).toBe(`packages/common/${dirName}`);
+          expect(pkg.homepage).toContain(`packages/common/${dirName}`);
+
+          // Root configs should use the npm package name for aliases
+          const tsconfigRoot = yield* fs.readFileString(path.join(repoRoot, "tsconfig.json"));
+          expect(tsconfigRoot).toContain(`"@beep/${pkgName}"`);
+          expect(tsconfigRoot).toContain(`./packages/common/${dirName}/src/index.ts`);
+
+          // tsconfig.packages.json should reference the directory path
+          const tsconfigPkgs = yield* fs.readFileString(path.join(repoRoot, "tsconfig.packages.json"));
+          expect(tsconfigPkgs).toContain(`packages/common/${dirName}`);
+        }),
+        "packages/common"
+      );
+    });
+
     it.effect("should generate depth-aware templates under nested parent dir", () => {
       const pkgName = `_test-common-${Date.now()}`;
       return withTempPackage(
@@ -726,6 +775,19 @@ describe("create-package command", () => {
           // Contains spaces
           const r3 = yield* Effect.exit(run(["has spaces", "--dry-run"]));
           expect(r3._tag).toBe("Failure");
+        })
+      )
+    );
+
+    it.effect(
+      "should reject invalid --dir-name values",
+      withTestLayers(
+        Effect.fn(function* () {
+          const r1 = yield* Effect.exit(run(["goodname", "--dir-name", "Bad-Name", "--dry-run"]));
+          expect(r1._tag).toBe("Failure");
+
+          const r2 = yield* Effect.exit(run(["goodname", "--dir-name", "123start", "--dry-run"]));
+          expect(r2._tag).toBe("Failure");
         })
       )
     );
