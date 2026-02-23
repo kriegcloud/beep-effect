@@ -5,8 +5,6 @@ node_modules/
 tmp/
 dist/
 build/
-scratchpad/*
-!scratchpad/tsconfig.json
 .direnv/
 .idea/
 .playwright-mcp
