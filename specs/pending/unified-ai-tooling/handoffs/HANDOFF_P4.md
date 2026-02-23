@@ -21,8 +21,8 @@ Produce migration and cutover playbook for moving from scattered manual configs 
 
 ### Deliverables
 
-- `specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md`
-- Updated `specs/completed/unified-ai-tooling/outputs/manifest.json`
+- `specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md`
+- Updated `specs/pending/unified-ai-tooling/outputs/manifest.json`
 
 ### Success Criteria
 
@@ -59,17 +59,17 @@ Produce migration and cutover playbook for moving from scattered manual configs 
 ## Verification Steps
 
 ```bash
-cat specs/completed/unified-ai-tooling/outputs/manifest.json | jq .
+cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .
 
-rg -n "^## Quality Gate Evidence" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md
+rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
 
-rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md
+rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
 
-rg -n "^\\| Design/Architecture \\|" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md
-rg -n "^\\| Security/Secrets \\|" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md
-rg -n "^\\| Migration/Operations \\|" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md
+rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
+rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
+rg -n "^\\| Migration/Operations \\|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
 
-! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md
+! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
 ```
 
 ## Known Issues and Gotchas

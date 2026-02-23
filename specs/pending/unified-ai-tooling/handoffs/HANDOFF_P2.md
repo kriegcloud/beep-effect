@@ -3,15 +3,15 @@
 ## Context Budget
 
 Read first:
-- `specs/completed/unified-ai-tooling/README.md`
-- `specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md` (required prerequisite)
-- `specs/completed/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
-- `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
-- `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
-- `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-- `specs/completed/unified-ai-tooling/outputs/residual-risk-closure.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+- `specs/pending/unified-ai-tooling/README.md`
+- `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md` (required prerequisite)
+- `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
+- `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
+- `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
+- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
 
 ## Working Memory
 
@@ -21,8 +21,8 @@ Define per-tool adapter contracts mapping normalized canonical data to native ta
 
 ### Deliverables
 
-- `specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md`
-- Updated `specs/completed/unified-ai-tooling/outputs/manifest.json`
+- `specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md`
+- Updated `specs/pending/unified-ai-tooling/outputs/manifest.json`
 
 ### Success Criteria
 
@@ -62,16 +62,16 @@ Define per-tool adapter contracts mapping normalized canonical data to native ta
 ## Verification Steps
 
 ```bash
-cat specs/completed/unified-ai-tooling/outputs/manifest.json | jq .
+cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .
 
-rg -n "^## Quality Gate Evidence" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md
+rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
 
-rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md
+rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
 
-rg -n "^\\| Design/Architecture \\|" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md
-rg -n "^\\| Security/Secrets \\|" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md
+rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
+rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
 
-! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md
+! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
 ```
 
 ## Known Issues and Gotchas

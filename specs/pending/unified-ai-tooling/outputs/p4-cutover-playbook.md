@@ -9,16 +9,16 @@ This playbook defines the migration and cutover procedure from manually maintain
 
 Locked inputs:
 
-1. `specs/completed/unified-ai-tooling/README.md`
-2. `specs/completed/unified-ai-tooling/handoffs/HANDOFF_P4.md`
-3. `specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md`
-4. `specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md`
-5. `specs/completed/unified-ai-tooling/outputs/p3-runtime-integration.md`
-6. `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
-7. `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
-8. `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-9. `specs/completed/unified-ai-tooling/outputs/residual-risk-closure.md`
-10. `specs/completed/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
+1. `specs/pending/unified-ai-tooling/README.md`
+2. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P4.md`
+3. `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`
+4. `specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md`
+5. `specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md`
+6. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
+7. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
+8. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+9. `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
+10. `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
 
 Locked constraints preserved in this cutover:
 
@@ -280,16 +280,16 @@ P4 is complete when all are true:
 ### Test Suites Executed
 
 1. `bun run beep-sync:gates` (pass)
-2. `cat specs/completed/unified-ai-tooling/outputs/manifest.json | jq .` (pass)
-3. `rg -n "^## Quality Gate Evidence" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
-4. `rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
-5. `rg -n "^### (Pre-Cutover Checklist|Cutover Checklist|Post-Cutover Checklist)$" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
-6. `rg -n "managed targets only|managed-target-only|E_CLEANUP_OUT_OF_SCOPE|E_REVERT_UNMANAGED_TARGET" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
+2. `cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .` (pass)
+3. `rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
+4. `rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
+5. `rg -n "^### (Pre-Cutover Checklist|Cutover Checklist|Post-Cutover Checklist)$" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
+6. `rg -n "managed targets only|managed-target-only|E_CLEANUP_OUT_OF_SCOPE|E_REVERT_UNMANAGED_TARGET" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
 7. `rg -n "beep-sync(-|:)gates" .github/workflows/check.yml lefthook.yml package.json` (pass)
-8. `rg -n "^\| Design/Architecture \|" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
-9. `rg -n "^\| Security/Secrets \|" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
-10. `rg -n "^\| Migration/Operations \|" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
-11. `! rg -n "\|[^|]*\|[^|]*\|[^|]*\| rejected \|" specs/completed/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
+8. `rg -n "^\| Design/Architecture \|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
+9. `rg -n "^\| Security/Secrets \|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
+10. `rg -n "^\| Migration/Operations \|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
+11. `! rg -n "\|[^|]*\|[^|]*\|[^|]*\| rejected \|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md` (pass)
 12. `jq '{ok,source,required,optional,redaction,diagnostics}' /tmp/poc05-desktop-success.json` (pass: `ok=true`, `source=desktop`, `valuesExposed=false`)
 13. `jq '{ok,source,required,optional,redaction,diagnostics}' /tmp/poc05-service-success.json` (pass: `ok=true`, `source=service_account`, `valuesExposed=false`)
 
@@ -300,9 +300,9 @@ P4 is complete when all are true:
    - `tooling/beep-sync/fixtures/poc-05/*`
    - `tooling/beep-sync/fixtures/poc-06/*`
 2. Phase contract artifacts:
-   - `specs/completed/unified-ai-tooling/outputs/p3-runtime-integration.md`
-   - `specs/completed/unified-ai-tooling/outputs/residual-risk-closure.md`
-   - `specs/completed/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
+   - `specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md`
+   - `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
+   - `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
 
 ### TDD Evidence
 

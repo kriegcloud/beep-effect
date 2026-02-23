@@ -34,15 +34,15 @@ Overall decision:
 ## 4. Artifacts
 
 Master command templates:
-- `specs/completed/unified-ai-tooling/outputs/poc-command-templates.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
 
 POC result stubs:
-- `specs/completed/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
 
 ## 5. Shared Rules
 

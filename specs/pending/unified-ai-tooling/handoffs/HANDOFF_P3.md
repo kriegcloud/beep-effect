@@ -22,8 +22,8 @@ Define runtime behavior for `beep-sync` commands, secret resolution lifecycle, a
 
 ### Deliverables
 
-- `specs/completed/unified-ai-tooling/outputs/p3-runtime-integration.md`
-- Updated `specs/completed/unified-ai-tooling/outputs/manifest.json`
+- `specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md`
+- Updated `specs/pending/unified-ai-tooling/outputs/manifest.json`
 
 ### Success Criteria
 
@@ -65,16 +65,16 @@ Define runtime behavior for `beep-sync` commands, secret resolution lifecycle, a
 ## Verification Steps
 
 ```bash
-cat specs/completed/unified-ai-tooling/outputs/manifest.json | jq .
+cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .
 
-rg -n "^## Quality Gate Evidence" specs/completed/unified-ai-tooling/outputs/p3-runtime-integration.md
+rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
 
-rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/completed/unified-ai-tooling/outputs/p3-runtime-integration.md
+rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
 
-rg -n "^\\| Design/Architecture \\|" specs/completed/unified-ai-tooling/outputs/p3-runtime-integration.md
-rg -n "^\\| Security/Secrets \\|" specs/completed/unified-ai-tooling/outputs/p3-runtime-integration.md
+rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
+rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
 
-! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/completed/unified-ai-tooling/outputs/p3-runtime-integration.md
+! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
 ```
 
 ## Known Issues and Gotchas

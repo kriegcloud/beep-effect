@@ -29,6 +29,10 @@ ACTIVE
 - [Handoffs Index](./handoffs/README.md)
 - [P1 Handoff](./handoffs/HANDOFF_P1.md)
 - [P1 Orchestrator Prompt](./handoffs/P1_ORCHESTRATOR_PROMPT.md)
+- [P5 Handoff](./handoffs/HANDOFF_P5.md)
+- [P5 Orchestrator Prompt](./handoffs/P5_ORCHESTRATOR_PROMPT.md)
+- [P6 Handoff](./handoffs/HANDOFF_P6.md)
+- [P6 Orchestrator Prompt](./handoffs/P6_ORCHESTRATOR_PROMPT.md)
 - [Outputs Manifest](./outputs/manifest.json)
 
 ## Purpose
@@ -119,8 +123,10 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 | `outputs/p2-adapter-design.md`               | Per-tool adapter mapping design                                                                                                            |
 | `outputs/p3-runtime-integration.md`          | CLI/runtime/secrets/operational contract                                                                                                   |
 | `outputs/p4-cutover-playbook.md`             | Migration and cutover plan                                                                                                                 |
-| `handoffs/HANDOFF_P1..P4.md`                 | Execution context for each phase                                                                                                           |
-| `handoffs/P1..P4_ORCHESTRATOR_PROMPT.md`     | Copy-paste starter prompts                                                                                                                 |
+| `outputs/p5-runtime-implementation.md`       | Runtime implementation evidence for real command behavior (non-scaffold)                                                                   |
+| `outputs/p6-final-verification.md`           | Final cross-agent sync verification and completion evidence                                                                                |
+| `handoffs/HANDOFF_P1..P6.md`                 | Execution context for each phase                                                                                                           |
+| `handoffs/P1..P6_ORCHESTRATOR_PROMPT.md`     | Copy-paste starter prompts                                                                                                                 |
 
 ## Architecture Decision Records
 
@@ -184,10 +190,16 @@ managed targets (committed)
 | Phase | Name                                  | Status       | Description                                                        |
 |-------|---------------------------------------|--------------|--------------------------------------------------------------------|
 | P0    | Research + Constraint Freeze + Review | **Complete** | Canonical scaffold + research + unknown closure                    |
-| P1    | Schema + Compiler Contract            | Pending      | Canonical config schema, merge/precedence, deterministic model     |
-| P2    | Adapter Design                        | Pending      | Tool-specific output contracts and mapping semantics               |
-| P3    | Runtime Integration                   | Pending      | CLI contract, secret lifecycle, AGENTS freshness workflow contract |
-| P4    | Migration + Cutover                   | Pending      | Rollout sequence, rollback, and operational handoff                |
+| P1    | Schema + Compiler Contract            | Complete     | Canonical config schema, merge/precedence, deterministic model     |
+| P2    | Adapter Design                        | Complete     | Tool-specific output contracts and mapping semantics               |
+| P3    | Runtime Integration                   | Complete     | CLI contract, secret lifecycle, AGENTS freshness workflow contract |
+| P4    | Migration + Cutover                   | Complete     | Rollout sequence, rollback, and operational handoff                |
+| P5    | Runtime Implementation + Skill Sync   | Pending      | Implement real `beep-sync` behavior and `.beep` skill distribution |
+| P6    | Final Verification + Completion       | Pending      | End-to-end proof, rollback rehearsal, and completion signoff       |
+
+## Reopen Trigger (2026-02-23)
+
+This spec was moved back to `specs/pending/` after verification showed `tooling/beep-sync` still in scaffold mode and not yet delivering full `.beep` source-of-truth behavior across agent skill/config targets.
 
 ## Phase Completion Requirements
 
@@ -197,11 +209,13 @@ managed targets (committed)
 | P2    | Each tool has explicit target map + field mapping + unsupported-field handling + golden fixture matrix + capability-map test plan                         |
 | P3    | Runtime command contract and required-secret failure behavior are fully specified + CLI integration tests + state/cleanup/revert test plan                |
 | P4    | Migration playbook covers inventory, shadow mode, managed cutover, rollback + rollback rehearsal and cutover validation checkpoints                       |
+| P5    | Runtime implementation replaces scaffold behavior (`validate/apply/check/doctor/revert`) + skills sync from `.beep` to managed targets + quality evidence |
+| P6    | Deterministic no-churn validation, rollback rehearsal, managed-boundary verification, and final quality signoff matrix                                    |
 
 ## Hard Quality Gates
 
 Gate source:
-- `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 
 Mandatory gates:
 1. TDD-first evidence for runtime code changes.
@@ -247,17 +261,17 @@ bun run beep-sync:test:coverage
 
 ## Key Files
 
-- `specs/completed/unified-ai-tooling/README.md`
-- `specs/completed/unified-ai-tooling/QUICK_START.md`
-- `specs/completed/unified-ai-tooling/REFLECTION_LOG.md`
-- `specs/completed/unified-ai-tooling/outputs/preliminary-research.md`
-- `specs/completed/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
-- `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
-- `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
-- `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-- `specs/completed/unified-ai-tooling/outputs/residual-risk-closure.md`
-- `specs/completed/unified-ai-tooling/handoffs/HANDOFF_P1.md`
-- `specs/completed/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+- `specs/pending/unified-ai-tooling/README.md`
+- `specs/pending/unified-ai-tooling/QUICK_START.md`
+- `specs/pending/unified-ai-tooling/REFLECTION_LOG.md`
+- `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
+- `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
+- `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
+- `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
+- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
+- `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
+- `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 
 ## Related Specs
 

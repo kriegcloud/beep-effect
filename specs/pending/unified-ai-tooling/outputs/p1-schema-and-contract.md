@@ -591,13 +591,13 @@ P1 is complete when all are true:
 
 ### Test Suites Executed
 
-1. `cat specs/completed/unified-ai-tooling/outputs/manifest.json | jq .` (pass)
-2. `rg -n "^## Quality Gate Evidence" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
-3. `rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
-4. `rg -n "^\\| Design/Architecture \\|" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
-5. `rg -n "^\\| Security/Secrets \\|" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
-6. `! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
-7. `rg -n "^Status: passed$" specs/completed/unified-ai-tooling/outputs/poc-0*-*-results.md` (pass)
+1. `cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .` (pass)
+2. `rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
+3. `rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
+4. `rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
+5. `rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
+6. `! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md` (pass)
+7. `rg -n "^Status: passed$" specs/pending/unified-ai-tooling/outputs/poc-0*-*-results.md` (pass)
 
 ### Fixture Sets Used
 
@@ -609,12 +609,12 @@ P1 is complete when all are true:
    - `tooling/beep-sync/fixtures/poc-05/*`
    - `tooling/beep-sync/fixtures/poc-06/*`
 2. Phase contract artifacts:
-   - `specs/completed/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
-   - `specs/completed/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
-   - `specs/completed/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
-   - `specs/completed/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
-   - `specs/completed/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
-   - `specs/completed/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
+   - `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
+   - `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+   - `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+   - `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+   - `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+   - `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
 
 ### TDD Evidence
 

@@ -166,10 +166,10 @@ Primary sources:
 - Windsurf MCP docs: https://docs.windsurf.com/windsurf/cascade/mcp
 
 Supporting local docs:
-- `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
-- `specs/completed/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
-- `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
-- `specs/completed/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+- `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
+- `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
+- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
