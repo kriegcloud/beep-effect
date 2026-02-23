@@ -1,6 +1,6 @@
 /**
  * Integration tests that exercise @beep/repo-utils against the real
- * beep-effect2 monorepo on disk.
+ * beep-effect3 monorepo on disk.
  *
  * These are intentionally loose assertions: they verify structural
  * invariants (non-empty results, expected keys) without hard-coding
@@ -25,10 +25,10 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
   // ── findRepoRoot ─────────────────────────────────────────────────────
   describe("findRepoRoot", () => {
     it.effect(
-      "should find the beep-effect2 root directory",
+      "should find the beep-effect root directory",
       Effect.fn(function* () {
         const root = yield* findRepoRoot();
-        expect(root).toMatch(/beep-effect2$/);
+        expect(root).toMatch(/beep-effect\d*$/);
         // The root must contain the monorepo's root package.json
         expect(root.endsWith("/")).toBe(false);
       })
