@@ -1,13 +1,28 @@
 # POC Execution Pack (.beep)
 
 Date: 2026-02-23
-Status: ready to execute
+Status: completed (go with follow-up)
 
 ## 1. Purpose
 
 Run targeted pre-validation POCs before committing to full implementation, so design assumptions are validated with concrete fixtures and command evidence.
 
-## 2. POC Order (Mandatory)
+## 2. Execution Outcome (2026-02-23)
+
+| POC | Verdict | Summary |
+|---|---|---|
+| POC-01 Canonical Compiler | passed | Deterministic parse/normalize/hash behavior fixture-backed. |
+| POC-02 MCP Capability Maps | passed | Codex/Cursor/Windsurf capability map and strict/non-strict diagnostics validated. |
+| POC-03 JetBrains Prompt Library | passed | `bundle_only` default + optional `native_file` probe envelope validated. |
+| POC-04 Managed Ownership + Revert | passed | Managed-target-only revert contract validated, including idempotent second revert. |
+| POC-05 Secret Resolution | passed | Required fail-hard, optional warn policy, and redaction behavior validated; real auth success-path evidence is still open follow-up. |
+| POC-06 End-to-End Dry Run | passed | `validate/apply --dry-run/check/doctor` no-arg determinism and no-churn behavior validated. |
+
+Overall decision:
+1. GO for phase execution.
+2. Track follow-up `poc05-real-auth-success-evidence` in P3 runtime evidence.
+
+## 3. POC Order (Executed)
 
 1. POC-01: Canonical Compiler
 2. POC-02: MCP Capability Maps
@@ -16,7 +31,7 @@ Run targeted pre-validation POCs before committing to full implementation, so de
 5. POC-05: Secret Resolution
 6. POC-06: End-to-End Dry Run
 
-## 3. Artifacts
+## 4. Artifacts
 
 Master command templates:
 - `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
@@ -29,7 +44,7 @@ POC result stubs:
 - `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
 - `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
 
-## 4. Shared Rules
+## 5. Shared Rules
 
 1. Every POC must include actual command outputs or explicit blocked reason.
 2. Every POC must include fixture set references.
@@ -37,7 +52,7 @@ POC result stubs:
 4. No POC may be marked passed with missing required signoff rows.
 5. If a POC fails, record decision and mitigation before continuing.
 
-## 5. POC Goals and Pass Criteria
+## 6. POC Goals and Pass Criteria
 
 ### POC-01 Canonical Compiler
 
@@ -102,7 +117,7 @@ Minimum pass criteria:
 2. Dry-run output is deterministic.
 3. No unbounded churn in generated targets.
 
-## 6. Go/No-Go Criteria
+## 7. Go/No-Go Criteria
 
 Go:
 1. POC-01..POC-06 all pass.
@@ -113,3 +128,7 @@ No-Go:
 1. Any mandatory pass criterion fails without mitigation.
 2. Any required signoff row is missing or rejected.
 3. Managed-target boundary or secret redaction guarantees are not demonstrated.
+
+Recorded decision (2026-02-23):
+1. Go criteria satisfied.
+2. Follow-up retained for real authenticated 1Password success-path evidence in POC-05 domain.
