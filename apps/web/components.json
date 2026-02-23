@@ -14,10 +14,10 @@
   "rtl": false,
   "aliases": {
     "components": "@beep/web/components",
-    "utils": "@beep/web/lib/utils",
-    "ui": "@beep/web/components/ui",
-    "lib": "@beep/web/lib",
-    "hooks": "@beep/web/hooks"
+    "utils": "@beep/ui/lib/utils",
+    "ui": "@beep/ui/components/ui",
+    "lib": "@beep/ui/lib",
+    "hooks": "@beep/ui/hooks"
   },
   "registries": {}
 }

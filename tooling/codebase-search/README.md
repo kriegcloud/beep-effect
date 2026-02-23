@@ -1,6 +1,7 @@
 # @beep/codebase-search
 
 Semantic codebase search for the beep monorepo, built with:
+
 - TypeScript AST extraction (`ts-morph` + `doctrine`)
 - Hybrid retrieval (LanceDB vector + BM25 keyword)
 - MCP tools (`search_codebase`, `find_related`, `browse_symbols`, `reindex`)
@@ -18,6 +19,7 @@ bun run build
 ```
 
 Build outputs:
+
 - `tooling/codebase-search/dist/bin.js`
 - `tooling/codebase-search/dist/hooks/session-start-entry.js`
 - `tooling/codebase-search/dist/hooks/prompt-submit-entry.js`
@@ -70,38 +72,47 @@ Add to `.claude/settings.json`:
 ## MCP Tools
 
 ### `search_codebase`
+
 Primary hybrid search.
 
 Inputs:
+
 - `query: string` (required)
 - `kind?: string`
 - `package?: string`
 - `limit?: number` (`1-20`, default `5`)
 
 ### `find_related`
+
 Relation traversal from a known symbol.
 
 Inputs:
+
 - `symbolId: string` (required)
 - `relation?: "imports" | "imported-by" | "same-module" | "similar" | "provides" | "depends-on"`
 - `limit?: number` (`1-10`, default `5`)
 
 ### `browse_symbols`
+
 Hierarchical browsing.
 
 Inputs:
+
 - `package?: string`
 - `module?: string`
 - `kind?: string`
 
 ### `reindex`
+
 Index refresh.
 
 Inputs:
+
 - `mode?: "incremental" | "full"`
 - `package?: string` (supported with `mode="incremental"` only)
 
 `INDEX_PATH` note:
+
 - If you customize `INDEX_PATH` for MCP, use the same `INDEX_PATH` for hook commands so hooks and MCP read/write the same index directory.
 
 ## Index Layout
@@ -109,6 +120,7 @@ Inputs:
 Default index root: `.code-index/`
 
 Expected files:
+
 - `index-meta.json`
 - `file-hashes.json`
 - `bm25-index.json`

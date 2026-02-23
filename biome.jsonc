@@ -5,29 +5,31 @@
     "includes": [
       "**",
       "!.agents",
-      "repo-docs",
-      "!**/*.css",
+      "!.repos",
+      "!specs",
       "!**/.tsup",
       "!**/.turbo",
-      "!!**/public",
-      "!!**/build",
-      "!!**/.next",
+      "!**/public",
+      "!**/build",
+      "!**/.next",
       "!.tsbuildinfo",
       "!**/__snapshots__",
       "!./package.json",
-      "!!**/vendor",
-      "!!**/certificates",
-      "!!**/generated",
-      "!!**/node_modules",
-      "!!**/out",
-      "!!**/*.gen.*",
-      "!!**/.cache",
-      "!!**/build",
-      "!!**/bun.lock",
-      "!!**/dist",
-      "!.repos",
-      "!specs"
+      "!**/vendor",
+      "!**/certificates",
+      "!**/generated",
+      "!**/node_modules",
+      "!**/out",
+      "!**/*.gen.*",
+      "!**/.cache",
+      "!**/bun.lock",
+      "!**/dist"
     ]
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
   },
   "json": {
     "formatter": {

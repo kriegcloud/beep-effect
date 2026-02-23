@@ -148,7 +148,7 @@ The legacy utils package provides **industrial-grade monorepo tooling** with:
 ```typescript
 {
   dependencies: {
-    workspace: HashSet<string>,  // e.g., "@beep/shared-domain"
+    workspace: HashSet<string>,  // e.g., "@beep/domain"
     npm: HashSet<string>          // e.g., "effect", "lodash"
   },
   devDependencies: {
@@ -185,7 +185,7 @@ The legacy utils package provides **industrial-grade monorepo tooling** with:
 ```typescript
 HashMap {
   "@beep/root" => { dependencies, devDependencies, peerDependencies },
-  "@beep/shared-domain" => { dependencies, devDependencies, peerDependencies },
+  "@beep/domain" => { dependencies, devDependencies, peerDependencies },
   "@beep/iam-domain" => { dependencies, devDependencies, peerDependencies },
   // ... for all workspaces
 }
@@ -275,7 +275,7 @@ HashMap {
 ```typescript
 HashMap {
   "@beep/root" => ["tsconfig.json", "tsconfig.base.jsonc"],
-  "@beep/shared-domain" => ["tsconfig.json", "tsconfig.build.json"],
+  "@beep/domain" => ["tsconfig.json", "tsconfig.build.json"],
   // ... for all workspaces
 }
 ```
