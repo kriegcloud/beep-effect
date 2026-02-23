@@ -293,12 +293,14 @@ export const createPackageCommand = Command.make(
     // ── Determine output directory ─────────────────────────────────────
     const outputDir = path.join(repoRoot, packagePath);
 
-    // ── Check if directory already exists ──────────────────────────────
-    const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
-    if (alreadyExists) {
-      return yield* new DomainError({
-        message: `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`,
-      });
+    // ── Check if directory already exists (skip for dry-run) ───────────
+    if (!dryRun) {
+      const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+      if (alreadyExists) {
+        return yield* new DomainError({
+          message: `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`,
+        });
+      }
     }
 
     const configTarget: ConfigUpdateTarget = {

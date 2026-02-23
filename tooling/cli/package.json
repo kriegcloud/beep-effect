@@ -62,7 +62,8 @@
     "effect": "catalog:",
     "@effect/platform-node": "catalog:",
     "handlebars": "catalog:",
-    "jsonc-parser": "catalog:"
+    "jsonc-parser": "catalog:",
+    "yaml": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

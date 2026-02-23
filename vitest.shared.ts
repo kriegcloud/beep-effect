@@ -31,7 +31,7 @@ const config: ViteUserConfig = {
     include: ["test/**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",
-      reporter: ["html"],
+      reporter: ["text", "html", "lcov", "json-summary"],
       reportsDirectory: "coverage",
       exclude: [
         "node_modules/",

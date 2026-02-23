@@ -3,7 +3,8 @@ pre-commit:
   commands:
     biome:
       glob: "*.{ts,tsx,js,jsx,json,jsonc,css,md}"
-      run: bunx biome check --write {staged_files} && git add {staged_files}
+      run: bunx biome check --write {staged_files}
+      stage_fixed: true
     jsdoc:
       glob: "tooling/*/src/**/*.ts"
       exclude: "tooling/*/src/internal/**|tooling/_test-*/src/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
@@ -16,3 +17,8 @@ pre-push:
       run: npx turbo build && tsc -p tsconfig.json --noEmit
     test:
       run: npx vitest run
+
+post-merge:
+  commands:
+    version-sync-check:
+      run: bun run beep version-sync --skip-network

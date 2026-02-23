@@ -204,6 +204,7 @@
         "effect": "catalog:",
         "handlebars": "catalog:",
         "jsonc-parser": "catalog:",
+        "yaml": "catalog:",
       },
       "devDependencies": {
         "@effect/vitest": "catalog:",
@@ -334,6 +335,7 @@
     "typescript": "^5.9.3",
     "vite-tsconfig-paths": "^6.1.1",
     "wink-bm25-text-search": "^3.1.2",
+    "yaml": "^2.8.2",
   },
   "packages": {
     "@1password/sdk": ["@1password/sdk@0.4.1-beta.1", "", { "dependencies": { "@1password/sdk-core": "0.4.1-beta.1" } }, "sha512-QWY6eIIEs9at6kAFbgjZ1vVxg7ygp/MwXJ6/BoBdPkqIk8vfulXu4pjDsVQ87HhddJAD5LVGBXSbQIa+svI3bA=="],

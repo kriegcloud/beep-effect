@@ -5,7 +5,6 @@
   "include": [
     "**/vitest.*.ts", // All vitest config files across all packages
     "./syncpack.config.ts",
-    "./knip.config.ts",
     "./packages/*/*/test/**/*.ts",
     "./packages/*/*/test/**/*.json",
     "./packages/*/*/dtslint/**/*.ts",

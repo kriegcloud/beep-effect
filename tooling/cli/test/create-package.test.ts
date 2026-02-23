@@ -191,16 +191,16 @@ describe("create-package command", () => {
       "should dry-run with --dir-name override",
       withTestLayers(
         Effect.fn(function* () {
-          yield* run(["shared-domain", "--parent-dir", "packages/shared", "--dir-name", "domain", "--dry-run"]);
+          yield* run(["my-custom-svc", "--parent-dir", "packages/shared", "--dir-name", "custom-svc", "--dry-run"]);
 
           const logs = yield* TestConsole.logLines;
           const output = logs.map(String);
 
-          expect(output).toContain("[dry-run] Would create package @beep/domain (type: library)");
-          expect(output.some((l) => l.includes('overridden from package name "domain"'))).toBe(true);
-          expect(output.some((l) => l.includes("/packages/shared/domain"))).toBe(true);
-          expect(output.some((l) => l.includes('"path": "packages/shared/domain"'))).toBe(true);
-          expect(output.some((l) => l.includes("@beep/domain"))).toBe(true);
+          expect(output).toContain("[dry-run] Would create package @beep/my-custom-svc (type: library)");
+          expect(output.some((l) => l.includes('overridden from package name "my-custom-svc"'))).toBe(true);
+          expect(output.some((l) => l.includes("/packages/shared/custom-svc"))).toBe(true);
+          expect(output.some((l) => l.includes('"path": "packages/shared/custom-svc"'))).toBe(true);
+          expect(output.some((l) => l.includes("@beep/my-custom-svc"))).toBe(true);
         })
       )
     );
