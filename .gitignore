@@ -56,3 +56,7 @@ storybook-static/
 
 # Local code-index cache only (MCP + Codex config are beep-sync managed/committed)
 .code-index/
+
+# SST
+.sst/
+sst-env.d.ts

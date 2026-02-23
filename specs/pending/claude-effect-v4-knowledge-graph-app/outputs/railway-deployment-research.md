@@ -1,5 +1,7 @@
 # Railway Deployment Research: Graphiti MCP + FalkorDB
 
+> **UPDATE (2026-02-23):** Railway infrastructure has been deployed via SST IaC (`infra/railway.ts`). The migration path described in Section 6 has been superseded by the SST-based deployment. See `specs/pending/sst-infrastructure/` for the actual implementation and `specs/pending/sst-infrastructure/outputs/p1-railway-provider-gaps.md` for known provider limitations. The research below remains valid for understanding Railway's capabilities and pricing.
+
 Research into production hardening and Docker best practices for deploying the Graphiti MCP server + FalkorDB stack to Railway (railway.app).
 
 ---
@@ -14,7 +16,7 @@ Railway uses a **project-based** architecture where each project contains multip
 |---|---|
 | `falkordb` (falkordb/falkordb:latest) | Railway Service 1 - one-click FalkorDB template |
 | `graphiti-mcp` (zepai/knowledge-graph-mcp:standalone) | Railway Service 2 - Docker image reference |
-| Caddy reverse proxy | **Not needed** - Railway provides automatic TLS |
+| Caddy reverse proxy | Railway Service 3 - `caddy:2-alpine` auth proxy (X-API-Key enforcement) |
 
 ### Key Capabilities
 
@@ -157,11 +159,11 @@ Railway provides **automatic TLS** for all public domains:
 
 The standard `zepai/knowledge-graph-mcp` image has no built-in API key auth. Options:
 
-1. **FastRelay template**: Deploy as a Railway service in front of Graphiti. Provides Bearer token auth, rate limiting (100 req/min default), and SSRF protection out of the box.
-2. **Caddy reverse proxy template**: Configurable auth headers and rate limiting.
-3. **Private networking only**: Keep Graphiti on private network, only accessible from within the Railway project. Requires a public-facing proxy service.
+1. ~~**FastRelay template**~~: Not used — Caddy was chosen instead.
+2. **Caddy reverse proxy (`caddy:2-alpine`)**: Deployed as Railway service. Validates X-API-Key header via Caddyfile, reverse-proxies to `graphiti-mcp.railway.internal:8000`. Rate limit configurable via `RATE_LIMIT` env var (default: 100).
+3. **Private networking**: FalkorDB + Graphiti MCP stay on private network. Only the Caddy auth proxy is publicly exposed.
 
-**Recommendation**: Use FastRelay or Caddy as a Railway service for API key enforcement.
+**Actual implementation**: Caddy auth proxy deployed via SST IaC (`infra/railway.ts`). Public URL: `https://auth-proxy-production-91fe.up.railway.app`. Caddyfile content managed as `CADDYFILE` env var. Start command set manually via Railway dashboard (provider gap).
 
 ### Rate Limiting
 
@@ -189,7 +191,39 @@ Railway services run **continuously by default** (no sleep). "Serverless" mode (
 
 ## 6. Migration Path
 
-### Step 1: FalkorDB
+> **SUPERSEDED:** The manual migration path below has been replaced by SST IaC deployment. Use the following command to deploy all Railway services:
+>
+> ```bash
+> op run --env-file=.env -- bunx sst deploy --stage dev
+> ```
+>
+> See `infra/railway.ts` for the Railway infrastructure definition and `specs/pending/sst-infrastructure/outputs/p1-railway-provider-gaps.md` for known manual steps still required.
+
+### Actual Deployment (via SST IaC)
+
+**Deploy command:** `op run --env-file=.env -- bunx sst deploy --stage dev`
+
+**What SST provisions automatically:**
+1. Railway project `beep-{stage}` with 3 services (FalkorDB, Graphiti MCP, Caddy Auth Proxy)
+2. All environment variables on each service (passwords, API keys, Caddyfile content)
+3. Private networking between services (Railway platform feature)
+
+**Manual steps still required (Railway provider v0.4.4 gaps):**
+1. FalkorDB: Add persistent volume at `/data` via Railway dashboard
+2. Auth Proxy: Generate `*.up.railway.app` domain via Railway dashboard
+3. Auth Proxy: Set custom start command via Railway dashboard
+4. Load RDB dump into FalkorDB volume (data migration, not infra)
+
+**Deployed outputs (dev stage):**
+- Railway Project ID: `52b18c0a-dfab-4335-aae6-f1b998f891c4`
+- Auth Proxy URL: `https://auth-proxy-production-91fe.up.railway.app`
+
+### Original Manual Steps (for reference only)
+
+<details>
+<summary>Click to expand original manual migration path</summary>
+
+#### Step 1: FalkorDB
 
 1. Deploy via [Railway one-click template](https://railway.com/deploy/falkordb)
 2. Note `FALKORDB_PASSWORD` and `FALKORDB_PRIVATE_URL`
@@ -197,7 +231,7 @@ Railway services run **continuously by default** (no sleep). "Serverless" mode (
 4. Load RDB dump (custom Docker image with baked-in dump, or redis-cli replication)
 5. Verify: `GRAPH.LIST`, `GRAPH.QUERY effect_v4 "MATCH (n) RETURN count(n)"`
 
-### Step 2: Graphiti MCP
+#### Step 2: Graphiti MCP
 
 1. Create new service, point to `zepai/knowledge-graph-mcp:standalone`
 2. Set env vars:
@@ -208,24 +242,26 @@ Railway services run **continuously by default** (no sleep). "Serverless" mode (
 3. Set health check: `/health`
 4. Set restart policy: "Always"
 
-### Step 3: Auth Proxy
+#### Step 3: Auth Proxy
 
-1. Deploy FastRelay or Caddy as third service
+1. Deploy Caddy (`caddy:2-alpine`) as third service
 2. Configure proxy to `graphiti-mcp.railway.internal:8000`
-3. Enable Bearer token auth
+3. Enable X-API-Key header auth via Caddyfile
 4. Expose only the proxy publicly
 
-### Step 4: Verification
+#### Step 4: Verification
 
 1. Test MCP endpoint via public URL
 2. Run search_nodes, search_memory_facts, get_episodes
 3. Set up monitoring alerts (CPU > 80%, RAM > 80%)
 4. Configure scheduled daily volume backups
 
-### Step 5: Client Configuration
+#### Step 5: Client Configuration
 
 1. Update `GRAPHITI_API_URL` in Vercel to point at Railway public URL
-2. Set `GRAPHITI_API_KEY` to the Bearer token configured in the proxy
+2. Set `GRAPHITI_API_KEY` to the X-API-Key value configured in the proxy
+
+</details>
 
 ---
 

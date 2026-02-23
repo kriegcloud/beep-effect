@@ -12,24 +12,29 @@
 ## Working Memory (Current Phase)
 
 ### Phase 1 Goal
-Deploy the existing FalkorDB graph database to Railway by porting the 70MB RDB dump, run the Graphiti MCP server alongside it with private networking, configure an auth proxy for API key enforcement, then verify the deployed graph produces correct results for canonical queries.
+Load the 70MB RDB dump into the already-deployed FalkorDB Railway service and verify the deployed graph produces correct results for canonical queries.
 
-**Key insight:** No re-ingestion required. The local FalkorDB dump contains the fully-built graph (2,229 nodes, 9,697 edges) that already passed 95% verification. Railway has a first-class FalkorDB template with auto TLS and built-in monitoring.
+> **Infrastructure is already provisioned.** The Railway project `beep-{stage}` with 3 services (FalkorDB, Graphiti MCP, Caddy Auth Proxy) was deployed via SST IaC (`infra/railway.ts`). See `specs/pending/sst-infrastructure/` for full infrastructure documentation. P1 focuses on **data migration and verification only**.
+
+**Key insight:** No re-ingestion required. The local FalkorDB dump contains the fully-built graph (2,229 nodes, 9,697 edges) that already passed 95% verification. The Railway services are already running with correct environment variables and private networking configured.
 
 ### Deliverables
-1. Railway project with FalkorDB service (one-click template + persistent volume)
-2. Graphiti MCP service connected via private networking
-3. FastRelay/Caddy auth proxy service (X-API-Key enforcement)
-4. RDB dump loaded and verified on Railway
-5. `outputs/p1-railway-deployment/deployment-log.md` — Setup steps, URLs, env vars
-6. `outputs/p1-railway-deployment/verification-report.md` — Query results compared to local baseline
+1. RDB dump loaded into FalkorDB's persistent volume on Railway
+2. Graph integrity verified (node/edge counts match local baseline)
+3. Canonical verification queries pass against the deployed Graphiti API
+4. `outputs/p1-railway-deployment/deployment-log.md` — Data loading steps, URLs
+5. `outputs/p1-railway-deployment/verification-report.md` — Query results compared to local baseline
+
+### Prerequisites (Already Done)
+- [x] Railway project `beep-dev` running (Hobby plan, ~$8-10/mo) — deployed via SST IaC
+- [x] FalkorDB service running (`falkordb/falkordb:latest`) with persistent volume at `/data`
+- [x] Graphiti MCP service running and connected to FalkorDB via `falkordb.railway.internal:6379`
+- [x] Caddy auth proxy (`caddy:2-alpine`) with X-API-Key enforcement protecting Graphiti endpoint
+- [x] Auth proxy public URL: `https://auth-proxy-production-91fe.up.railway.app`
+- [x] All environment variables set on Railway services via SST IaC
+- [x] Manual steps completed: FalkorDB volume, auth proxy domain, auth proxy start command
 
 ### Success Criteria
-- [ ] Railway project running (Hobby plan, ~$8-10/mo)
-- [ ] FalkorDB service running with ported RDB dump (70MB) on persistent volume
-- [ ] Graphiti MCP service running and connected to FalkorDB via `falkordb.railway.internal:6379`
-- [ ] Auth proxy (FastRelay/Caddy) with auto TLS protecting Graphiti endpoint
-- [ ] API authentication (X-API-Key header) protecting Graphiti endpoint
 - [ ] Verification queries return relevant results matching local baseline:
   - "How do I create a tagged service in Effect v4?" -> ServiceMap.Service (NOT Context.GenericTag)
   - "How do I catch errors?" -> Effect.catch (NOT Effect.catchAll)
@@ -41,45 +46,35 @@ Deploy the existing FalkorDB graph database to Railway by porting the 70MB RDB d
 
 ### Implementation Notes
 
-**Railway project setup:**
+> **All Railway services are already deployed via SST IaC.** The only remaining P1 work is loading the RDB dump and verifying the graph.
 
-1. **FalkorDB:** Deploy via [Railway one-click template](https://railway.com/deploy/falkordb)
-   - Auto-provisions container, persistent volume at `/data`, connection credentials
-   - Note: `FALKORDB_PASSWORD`, `FALKORDB_PRIVATE_URL` from service variables
-   - Set restart policy: "Always"
-   - Resource limits: 1 GB RAM, 1 vCPU
+**Deployed infrastructure (from SST — no action needed):**
 
-2. **RDB dump loading:**
-   ```bash
-   # Option A: Custom Docker image with baked-in dump
-   FROM falkordb/falkordb:latest
-   COPY dump.rdb /data/dump.rdb
+| Service | Image | Internal URL | Public URL |
+|---------|-------|-------------|------------|
+| FalkorDB | `falkordb/falkordb:latest` | `falkordb.railway.internal:6379` | N/A (private) |
+| Graphiti MCP | `zepai/knowledge-graph-mcp:standalone` | `graphiti-mcp.railway.internal:8000` | N/A (private) |
+| Caddy Auth Proxy | `caddy:2-alpine` | `auth-proxy.railway.internal:80` | `https://auth-proxy-production-91fe.up.railway.app` |
 
-   # Option B: Redis CLI replication from local
-   redis-cli -u $RAILWAY_FALKORDB_PUBLIC_URL --pipe < local-dump.rdb
-   ```
+**Environment variables (already set by SST IaC — see `infra/railway.ts`):**
+- FalkorDB: `FALKORDB_PASSWORD`
+- Graphiti MCP: `FALKORDB_URI`, `OPENAI_API_KEY`, `GRAPHITI_GROUP_ID=effect-v4`, `PORT=8000`, `SEMAPHORE_LIMIT=5`
+- Auth Proxy: `BACKEND_URL`, `API_KEY`, `RATE_LIMIT=100`, `CADDYFILE`, `PORT=80`
 
-3. **Graphiti MCP:** Create new service with Docker image `zepai/knowledge-graph-mcp:standalone`
-   - Environment variables:
-     - `FALKORDB_URI=redis://default:${FALKORDB_PASSWORD}@falkordb.railway.internal:6379`
-     - `OPENAI_API_KEY=${OPENAI_API_KEY}`
-     - `GRAPHITI_GROUP_ID=effect-v4`
-     - `PORT=8000`
-     - `SEMAPHORE_LIMIT=5`
-   - Health check path: `/health`
-   - Restart policy: "Always"
-   - Resource limits: 512 MB RAM, 0.5 vCPU
+**RDB dump loading:**
+```bash
+# Option A: Custom Docker image with baked-in dump
+FROM falkordb/falkordb:latest
+COPY dump.rdb /data/dump.rdb
 
-4. **Auth proxy:** Deploy FastRelay or Caddy as third service
-   - Proxies to `graphiti-mcp.railway.internal:8000`
-   - Enforces X-API-Key header authentication
-   - Only this service exposed publicly (FalkorDB + Graphiti stay on private network)
-   - Railway provides automatic TLS on public domain
+# Option B: Redis CLI replication from local
+redis-cli -u $RAILWAY_FALKORDB_PUBLIC_URL --pipe < local-dump.rdb
+```
 
 **Verification script (run from local or CI):**
 ```bash
-BASE_URL=https://graph.yourdomain.com
-API_KEY=<shared-secret>
+BASE_URL=https://auth-proxy-production-91fe.up.railway.app
+API_KEY=<from 1Password: beep-data/GRAPHITI_API_KEY>
 
 # Verify graph node count
 curl -s -H "X-API-Key: $API_KEY" $BASE_URL/mcp \
@@ -106,17 +101,15 @@ done
 - **100% data fidelity:** Exact same graph that passed 95% verification locally
 - **Full control:** Cypher queries, custom indexes, no vendor API limitations
 - **Cost:** ~$8-10/mo (Railway Hobby) vs $25/mo (Zep Cloud Flex)
-- **Managed infrastructure:** Railway provides auto TLS, monitoring, backups, restart policies
+- **IaC-managed infrastructure:** Deployed via SST (`infra/railway.ts`); Railway provides auto TLS, monitoring, restart policies
 - **Private networking:** FalkorDB + Graphiti communicate internally (WireGuard encrypted)
 
-### Why Railway Over VPS
-- One-click FalkorDB template eliminates Docker/systemd/firewall setup
-- Built-in observability (logs, metrics, alerts) saves hours of Grafana/Prometheus configuration
-- Automatic TLS removes Caddy/certbot maintenance
-- Scheduled volume backups via checkbox (vs manual cron scripts)
-- $4-6/mo premium over Hetzner VPS pays for itself in saved maintenance time
-
-See: `outputs/railway-deployment-research.md` for full comparison
+### Infrastructure Reference
+- SST infrastructure spec: `specs/pending/sst-infrastructure/`
+- Railway IaC module: `infra/railway.ts`
+- Railway provider gaps: `specs/pending/sst-infrastructure/outputs/p1-railway-provider-gaps.md`
+- Deploy command: `op run --env-file=.env -- bunx sst deploy --stage dev`
+- Railway deployment research: `outputs/railway-deployment-research.md`
 
 ## Episodic Memory
 

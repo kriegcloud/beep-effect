@@ -1,7 +1,7 @@
 # P1 — Railway Services
 
 **Date:** 2026-02-23
-**Status:** PENDING
+**Status:** COMPLETE
 **Depends on:** P0 (SST initialized, providers installed)
 
 ---
@@ -20,14 +20,14 @@ Define the complete Railway infrastructure in `infra/railway.ts`: one Railway pr
 
 ### Success Criteria
 
-- [ ] Railway project created with name `beep-effect2-{stage}`
-- [ ] FalkorDB service running from `falkordb/falkordb:latest` with persistent volume at `/data`
-- [ ] Graphiti MCP service running from `zepai/knowledge-graph-mcp:standalone` with port 8000
-- [ ] Auth Proxy service running (FastRelay or Caddy image) with public domain
-- [ ] FalkorDB password set as Railway variable
-- [ ] Graphiti MCP connected to FalkorDB via Railway private networking (`falkordb.railway.internal:6379`)
-- [ ] Auth Proxy connected to Graphiti MCP via private networking
-- [ ] `bunx sst deploy --stage dev` completes without errors
+- [x] Railway project created with name `beep-{stage}` (actual: `beep-dev`)
+- [x] FalkorDB service running from `falkordb/falkordb:latest` (volume added manually — Gap 1)
+- [x] Graphiti MCP service running from `zepai/knowledge-graph-mcp:standalone` with port 8000
+- [x] Auth Proxy service running Caddy with public domain (domain generated manually — Gap 2)
+- [x] FalkorDB password set as Railway variable
+- [x] Graphiti MCP connected to FalkorDB via Railway private networking (`falkordb.railway.internal:6379`)
+- [x] Auth Proxy connected to Graphiti MCP via private networking
+- [x] `bunx sst deploy --stage dev` completes without errors (manual steps required post-deploy)
 
 ### Blocking Issues
 
@@ -235,6 +235,52 @@ Define the complete Railway infrastructure in `infra/railway.ts`: one Railway pr
 
 ## Episodic Memory (Previous Context)
 
+### P1 Actual Outcomes (2026-02-23)
+
+**Deployed services (all online and verified):**
+
+- **Railway project:** `beep-dev` (ID exported as `railwayProjectId`)
+- **FalkorDB:** `falkordb/falkordb:latest` on `falkordb.railway.internal:6379`
+- **Graphiti MCP:** `zepai/knowledge-graph-mcp:standalone` on `graphiti-mcp.railway.internal:8000`
+- **Auth Proxy:** `caddy:2-alpine` on `auth-proxy-production-91fe.up.railway.app`
+
+**Public proxy URL:** `https://auth-proxy-production-91fe.up.railway.app`
+
+**End-to-end verified:**
+- No API key → 401 Unauthorized
+- Wrong API key → 401 Unauthorized
+- Valid API key + MCP headers → 200 (Graphiti Agent Memory v1.21.0 SSE response)
+
+**Files created/modified:**
+- `infra/secrets.ts` — reads `FALKORDB_PASSWORD`, `AI_OPENAI_API_KEY`, `GRAPHITI_API_KEY` from `process.env`
+- `infra/railway.ts` — Railway project, 3 services, env vars, Caddyfile content
+- `sst.config.ts` — imports railway module, returns `railwayProjectId`
+- `outputs/p1-railway-provider-gaps.md` — 4 documented provider gaps
+
+**Manual steps performed after IaC deploy:**
+1. FalkorDB volume: added `/data` mount via Railway dashboard (Gap 1)
+2. Auth Proxy domain: generated `*.up.railway.app` via Railway dashboard (Gap 2)
+3. Auth Proxy start command: set custom start command via Railway dashboard (Gap 3)
+
+**What already exists for P2:**
+- `infra/secrets.ts` already exports 3 Railway/Graph secrets (plain strings via `process.env`)
+- `.env` already has `op://` references for all secrets (vault: `beep-dev-secrets`)
+- The env var for OpenAI API key is `AI_OPENAI_API_KEY` (NOT `OPENAI_API_KEY`) — matches 1Password field name in `beep-ai` item
+
+### Lessons Learned
+
+1. **`encodeURIComponent` for passwords in Redis URIs.** FalkorDB password contains `+`, `/`, `=` from base64 encoding. These break Redis URI parsing. The `FALKORDB_URI` in `infra/railway.ts` uses `encodeURIComponent(falkordbPassword)` before interpolation.
+
+2. **`PORT` env var required for multi-EXPOSE Docker images.** Caddy's `caddy:2-alpine` EXPOSEs ports 80, 443, and 2019. Railway needs `PORT=80` to know which port to route public traffic to. Without it, Railway's edge proxy returns 502 with `x-railway-fallback: true` header.
+
+3. **`op run --env-file=.env` is the deploy command.** The existing `.env` file already has `op://` references for all secrets. No need for separate `.env.op.dev` files — the existing `.env` serves this purpose.
+
+4. **FalkorDB may go offline after SST redeploys.** An SST deploy that updates a service's config can cause Railway to create a new deployment while removing the previous one. FalkorDB required a manual "Deploy the image" click in the Railway dashboard after one such redeploy.
+
+5. **`proxyUrl` is NOT exported from `railway.ts`.** Only `railwayProjectId` is exported. The auth proxy URL (`auth-proxy-production-91fe.up.railway.app`) was generated manually via dashboard (Gap 2), so it can't be a Pulumi Output. For P3, either hardcode the URL or add it as an env var/constant.
+
+6. **Railway start command does NOT persist via IaC.** The TF provider has no `startCommand` field. After each fresh `sst deploy`, the start command must be re-set via the Railway dashboard. However, it does persist across Railway redeployments within the same service instance.
+
 ### P0 Outcomes
 
 - SST initialized at monorepo root
@@ -287,6 +333,8 @@ SEMAPHORE_LIMIT=5
 BACKEND_URL=http://graphiti-mcp.railway.internal:8000
 API_KEY=<shared-secret-for-X-API-Key-header>
 RATE_LIMIT=100
+CADDYFILE=<generated-caddyfile-content>
+PORT=80
 ```
 
 ---
@@ -344,20 +392,24 @@ curl -s -H "X-API-Key: <graphiti-api-key>" \
 
 5. **FalkorDB RDB dump loading.** The existing 70MB RDB dump needs to be loaded into FalkorDB's volume. This is NOT an IaC concern — it's a data migration step handled in the Knowledge Graph App Spec's P1. The IaC only provisions the empty volume.
 
-6. **Auth Proxy configuration.** The Caddy/FastRelay image needs a configuration file (Caddyfile or config.json) that implements X-API-Key enforcement and reverse proxying. This config may need to be baked into a custom Docker image or mounted via Railway's environment. This is an application concern, not an IaC concern — but the IaC must pass the correct env vars.
+6. **Auth Proxy configuration (RESOLVED).** Caddy is configured via the `CADDYFILE` env var (managed by IaC) + a custom start command (set manually via dashboard — Gap 3). The start command writes `$CADDYFILE` to disk at container start: `sh -c 'printf "%s" "$CADDYFILE" > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'`. Caddy `{$VAR}` syntax handles env var interpolation within the Caddyfile (not JS template literals).
+
+7. **`PORT=80` required for Caddy (RESOLVED).** Docker image `caddy:2-alpine` EXPOSEs 80, 443, and 2019 (admin). Railway can't determine which port to route public traffic to. Set `PORT=80` in `ProxyVars` to disambiguate. Without this, Railway returns 502 with `x-railway-fallback: true` header.
+
+8. **FalkorDB redeploy after SST updates.** SST redeploys that update service config can cause FalkorDB's active deployment to be replaced with no new deployment auto-starting. If FalkorDB shows "No active deployment" after an SST deploy, click "Deploy the image falkordb/falkordb:latest" in the Railway dashboard.
 
 ---
 
 ## Success Criteria Checklist
 
-- [ ] `infra/railway.ts` defines Railway project, 3 services, env vars, and proxy domain
-- [ ] FalkorDB service uses `sourceImage: "falkordb/falkordb:latest"`
-- [ ] Graphiti MCP service uses `sourceImage: "zepai/knowledge-graph-mcp:standalone"`
-- [ ] Auth Proxy service has a public `ServiceDomain`
-- [ ] FalkorDB password sourced from 1Password (`op://beep-dev-secrets/beep-data/FALKORDB_PASSWORD`)
-- [ ] Graphiti MCP connects to FalkorDB via `falkordb.railway.internal:6379`
-- [ ] Auth Proxy connects to Graphiti MCP via `graphiti-mcp.railway.internal:8000`
-- [ ] `sst.config.ts` imports `infra/railway.ts` and returns `proxyUrl` output
-- [ ] `bunx sst deploy --stage dev` completes without errors
-- [ ] Railway dashboard shows project with 3 services and correct env vars
-- [ ] `outputs/p1-railway-provider-gaps.md` created if any manual steps were needed
+- [x] `infra/railway.ts` defines Railway project, 3 services, env vars (domain manual — Gap 2)
+- [x] FalkorDB service uses `sourceImage: "falkordb/falkordb:latest"`
+- [x] Graphiti MCP service uses `sourceImage: "zepai/knowledge-graph-mcp:standalone"`
+- [x] Auth Proxy service has public domain (generated manually — `auth-proxy-production-91fe.up.railway.app`)
+- [x] FalkorDB password sourced from 1Password (`op://beep-dev-secrets/beep-data/FALKORDB_PASSWORD`)
+- [x] Graphiti MCP connects to FalkorDB via `falkordb.railway.internal:6379`
+- [x] Auth Proxy connects to Graphiti MCP via `graphiti-mcp.railway.internal:8000`
+- [x] `sst.config.ts` imports `infra/railway.ts` and returns `railwayProjectId` output
+- [x] `bunx sst deploy --stage dev` completes without errors
+- [x] Railway dashboard shows project with 3 services and correct env vars
+- [x] `outputs/p1-railway-provider-gaps.md` created with 4 documented gaps

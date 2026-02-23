@@ -116,9 +116,11 @@ const ChatResponse = S.Struct({
 
 ### From P0-P2
 - Auth + better-auth magic link working with email allowlist
-- FalkorDB VPS deployed and verified
+- Railway FalkorDB deployed and verified (via SST IaC — `infra/railway.ts`)
+- Graphiti API at `https://auth-proxy-production-91fe.up.railway.app` (Caddy auth proxy with X-API-Key)
 - KnowledgeGraphToolkit defined with SearchGraph, GetNode, GetFacts
 - Shared runtime layers available
+- All env vars set on Vercel by SST IaC (`infra/web.ts`)
 
 ## Semantic Memory
 

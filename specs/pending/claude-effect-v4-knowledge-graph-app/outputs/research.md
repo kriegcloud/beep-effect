@@ -325,7 +325,7 @@ export const auth = betterAuth({
           throw new Error("Email not authorized")
         }
         await resend.emails.send({
-          from: "Effect v4 KG <noreply@yourdomain.com>",
+          from: "Effect v4 KG <noreply@beep.dev>", // Update domain to match Resend verified sender
           to: email,
           subject: "Sign in to Effect v4 Knowledge Graph",
           html: `<a href="${url}">Click here to sign in</a>`,

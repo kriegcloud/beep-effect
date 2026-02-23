@@ -12,21 +12,23 @@
 ## Working Memory (Current Phase)
 
 ### Phase 5 Goal
-Deploy the complete application to Vercel, wire all production environment variables, run smoke tests, and produce a production runbook.
+Verify the Vercel deployment (already provisioned via SST IaC), confirm all environment variables are set correctly, run smoke tests, and produce a production runbook.
+
+> **Infrastructure is already provisioned.** The Vercel project `beep-{stage}`, all 10 environment variables, Railway services, and Neon database were deployed via `op run --env-file=.env -- bunx sst deploy --stage dev`. See `specs/pending/sst-infrastructure/` for full infrastructure documentation.
 
 ### Deliverables
-1. Vercel project configured with all env vars
-2. FalkorDB VPS verified for production traffic (from P1)
+1. Verify Vercel project env vars are correctly set (already provisioned by SST IaC — `infra/web.ts`)
+2. Railway FalkorDB verified for production traffic (from P1)
 3. `apps/web/vercel.json` or `next.config.ts` adjustments for Node runtime routes
 4. `outputs/p5-deployment/smoke-test-results.md` — Results of end-to-end smoke tests
 5. `outputs/p5-deployment/runbook.md` — Production runbook (failure handling, rollback, cost monitoring)
 6. `outputs/p5-deployment/env-contract.md` — Complete environment variable documentation
 
 ### Success Criteria
-- [ ] Vercel preview deployment accessible at a preview URL
-- [ ] All env vars configured in Vercel dashboard (marked Sensitive where needed)
-- [ ] FalkorDB VPS operational and reachable from Vercel
-- [ ] Graphiti API health check passes from Vercel deployment
+- [ ] Vercel deployment accessible at `https://beep-dev.vercel.app` (or stage-specific URL)
+- [ ] All 10 env vars verified on Vercel project (set by SST IaC — `infra/web.ts`)
+- [ ] Railway FalkorDB operational and reachable from Vercel via auth proxy
+- [ ] Graphiti API health check passes from Vercel deployment (`https://auth-proxy-production-91fe.up.railway.app`)
 - [ ] Smoke tests pass:
   - Auth: magic link sign-in with allowlisted email, reject non-allowlisted
   - Chat: POST /api/chat returns grounded answer
@@ -46,37 +48,46 @@ export const runtime = "nodejs"
 export const maxDuration = 60 // seconds, for streaming tool-calling workloads (Fluid compute: 300s max on Hobby)
 ```
 
-**Vercel environment variables:**
+**Vercel environment variables (already set by SST IaC — `infra/web.ts`):**
+
+> All env vars are provisioned by `op run --env-file=.env -- bunx sst deploy --stage dev`. Do NOT set them manually in the Vercel dashboard. To update a value, update it in 1Password and re-run the deploy command.
+
 ```
-# Auth (Sensitive)
-BETTER_AUTH_SECRET=<32+ chars, high entropy>
-BETTER_AUTH_URL=https://yourapp.vercel.app
+# Auth (Sensitive — from 1Password beep-app-core, targets: preview only for non-prod)
+BETTER_AUTH_SECRET=<from 1Password: AUTH_SECRET>
+BETTER_AUTH_URL=<from 1Password: BETTER_AUTH_URL — e.g., https://beep-dev.vercel.app>
 
-# Database (Sensitive, auto-synced by Neon Vercel integration)
-DATABASE_URL=<neon pooled connection string>
-DATABASE_URL_UNPOOLED=<neon direct connection for migrations>
+# Database (Sensitive — computed by Neon provider, NOT from Neon Vercel marketplace)
+DATABASE_URL=<neonProject.connectionUriPooler — pooled connection for app runtime>
+DATABASE_URL_UNPOOLED=<neonProject.connectionUri — direct connection for Drizzle migrations>
 
-# Email (Sensitive)
-RESEND_API_KEY=<from resend.com dashboard>
+# Email (Sensitive — from 1Password beep-email)
+RESEND_API_KEY=<from 1Password: EMAIL_RESEND_API_KEY>
 
-# Graph Backend (Sensitive)
-GRAPHITI_API_URL=https://graph.yourdomain.com
-GRAPHITI_API_KEY=<shared secret>
+# Graph Backend (Sensitive — proxy URL from infra/railway.ts, API key from 1Password beep-data)
+GRAPHITI_API_URL=https://auth-proxy-production-91fe.up.railway.app
+GRAPHITI_API_KEY=<from 1Password: GRAPHITI_API_KEY>
 
-# OpenAI (Sensitive)
-OPENAI_API_KEY=<production key>
+# OpenAI (Sensitive — from 1Password beep-ai, mapped from AI_OPENAI_API_KEY to OPENAI_API_KEY)
+OPENAI_API_KEY=<from 1Password: AI_OPENAI_API_KEY>
 
-# Access Control
-ALLOWED_EMAILS=<comma-separated list>
+# Access Control (Non-sensitive — from 1Password beep-app-core, targets: preview + development)
+ALLOWED_EMAILS=<from 1Password: APP_ADMINS_EMAILS>
 
-# Optional
+# Optional (Non-sensitive — static default, targets: preview + development)
 OPENAI_MODEL=gpt-4o-mini
 ```
+
+**Env var scoping (Vercel restriction):**
+- Sensitive vars CANNOT target `development` (local `vercel dev`) — only `preview` (non-prod) or `production` (prod)
+- Non-sensitive vars target `preview` + `development` (non-prod) or `production` (prod)
+- This is enforced automatically by SST IaC in `infra/web.ts`
 
 **Smoke test script:**
 ```bash
 # Run after deployment
-BASE_URL=https://effect-v4-kg.vercel.app
+BASE_URL=https://beep-dev.vercel.app
+GRAPHITI_API_URL=https://auth-proxy-production-91fe.up.railway.app
 
 # 1. Auth: sign-in page loads
 curl -s -o /dev/null -w "%{http_code}" $BASE_URL/sign-in  # expect 200
@@ -84,8 +95,8 @@ curl -s -o /dev/null -w "%{http_code}" $BASE_URL/sign-in  # expect 200
 # 2. API: unauthenticated request rejected
 curl -s -o /dev/null -w "%{http_code}" -X POST $BASE_URL/api/chat  # expect 401
 
-# 3. Graphiti health (direct VPS check)
-curl -s -o /dev/null -w "%{http_code}" -H "X-API-Key: $GRAPHITI_API_KEY" $GRAPHITI_API_URL/health  # expect 200
+# 3. Graphiti health (via Caddy auth proxy on Railway)
+curl -s -o /dev/null -w "%{http_code}" -H "X-API-Key: $GRAPHITI_API_KEY" $GRAPHITI_API_URL/mcp  # expect 200
 
 # 4. Graph: search returns data
 # ... with session cookie
@@ -100,34 +111,37 @@ curl -s -o /dev/null -w "%{http_code}" -H "X-API-Key: $GRAPHITI_API_KEY" $GRAPHI
 - [ ] Session cookie secure + httpOnly
 - [ ] CORS configured for production domain only
 - [ ] Error responses don't leak stack traces
-- [ ] FalkorDB VPS firewall: only Caddy ports (80, 443) exposed
+- [ ] Railway FalkorDB: only Caddy auth proxy is publicly exposed (FalkorDB + Graphiti on private network)
 
 **Runbook sections:**
-1. Deployment procedure (Vercel push)
-2. VPS maintenance (Docker updates, FalkorDB backups)
-3. Environment variable rotation
+1. Deployment procedure:
+   - App: Git push to trigger Vercel auto-deploy
+   - Infrastructure: `op run --env-file=.env -- bunx sst deploy --stage dev`
+2. Railway maintenance (FalkorDB backups, service health checks)
+3. Environment variable rotation (update in 1Password, re-run SST deploy)
 4. Failure modes and recovery:
-   - FalkorDB VPS down -> show "graph temporarily unavailable" message
+   - Railway FalkorDB down -> show "graph temporarily unavailable" message; check Railway dashboard
    - Graphiti API failure -> retry with backoff, then error message
    - OpenAI API failure -> retry with backoff, then error message
+   - FalkorDB "No active deployment" after SST redeploy -> click "Deploy the image" in Railway dashboard
 5. Cost monitoring:
    - OpenAI usage dashboard
    - Vercel function invocations
-   - VPS resource utilization (CPU, memory, disk)
+   - Railway resource utilization (built-in metrics dashboard)
 6. Rollback procedure (Vercel instant rollback)
-7. Adding/removing users from allowlist (update env var, redeploy)
-8. FalkorDB backup procedure (RDB dump export)
+7. Adding/removing users from allowlist (update `APP_ADMINS_EMAILS` in 1Password, re-run SST deploy)
+8. FalkorDB backup procedure (Railway built-in volume backups + manual RDB dump export)
 
 ### Cost Projections (v1 Beta)
 
 | Service | Monthly Cost | Notes |
 |---------|-------------|-------|
 | Vercel | $0 (Hobby + Fluid) | Fluid compute: 300s duration on Hobby; Active CPU pricing |
-| FalkorDB VPS | $4-8 (Hetzner CX22) | 2 vCPU, 4GB RAM; FalkorDB + Graphiti + Caddy |
+| Railway (FalkorDB + Graphiti + Auth Proxy) | $8-10 (Hobby plan) | Deployed via SST IaC; 3 services, private networking |
 | Neon PostgreSQL | $0 (free tier) | Auth tables only |
 | Resend | $0 (free tier) | 100 emails/day |
 | OpenAI | ~$5-20 | gpt-4o-mini at ~$0.15/M input, $0.60/M output; varies with usage |
-| **Total** | **$9-28/month** | |
+| **Total** | **$13-30/month** | |
 
 ## Episodic Memory
 
@@ -140,13 +154,14 @@ curl -s -o /dev/null -w "%{http_code}" -H "X-API-Key: $GRAPHITI_API_KEY" $GRAPHI
 
 ### Vercel Deployment
 - Node.js runtime for AI/tool-calling routes (not Edge)
-- `maxDuration` up to 60s on Pro plan (10s on Hobby for serverless)
+- `maxDuration` up to 300s on Hobby with Fluid compute (up to 800s on Pro)
 - Module-level handler singleton prevents cold-start rebuild
 
-### Sensitive Env Vars
-- Mark as "Sensitive" in Vercel dashboard = write-only (no readback)
-- Required Sensitive: BETTER_AUTH_SECRET, DATABASE_URL, RESEND_API_KEY, GRAPHITI_API_KEY, GRAPHITI_API_URL, OPENAI_API_KEY
+### Sensitive Env Vars (set by SST IaC — infra/web.ts)
+- Sensitive vars are marked `sensitive: true` in SST IaC (write-only after creation in Vercel)
+- Sensitive: BETTER_AUTH_SECRET, BETTER_AUTH_URL, DATABASE_URL, DATABASE_URL_UNPOOLED, RESEND_API_KEY, GRAPHITI_API_KEY, GRAPHITI_API_URL, OPENAI_API_KEY
 - Non-Sensitive: ALLOWED_EMAILS, OPENAI_MODEL
+- Sensitive vars CANNOT target `development` — only `preview` (non-prod) or `production` (prod)
 
 ## Procedural Memory
 
