@@ -71,16 +71,15 @@
       "inputs": ["tooling/*/src/**/*.ts", "eslint.config.mjs"]
     },
     "//#lint:typos": {
-      "cache": true,
-      "inputs": ["**/*.{ts,tsx,js,jsx,md,json}", "_typos.toml"]
+      "cache": false
     },
     "//#lint:spell": {
       "cache": true,
-      "inputs": ["**/*.{ts,tsx,md}", "cspell.json"]
+      "inputs": ["$TURBO_DEFAULT$", "cspell.json"]
     },
     "//#lint:markdown": {
       "cache": true,
-      "inputs": ["**/*.md", ".markdownlint-cli2.jsonc"]
+      "inputs": ["$TURBO_DEFAULT$", ".markdownlint-cli2.jsonc"]
     },
     "//#lint:circular": {
       "cache": true,
@@ -91,12 +90,10 @@
       ]
     },
     "//#lint:repo": {
-      "cache": true,
-      "inputs": ["**/package.json"]
+      "cache": false
     },
     "//#lint:ox": {
-      "cache": true,
-      "inputs": ["**/*.{ts,tsx,js,jsx}"]
+      "cache": false
     },
     "//#lint:versions": {
       "cache": false

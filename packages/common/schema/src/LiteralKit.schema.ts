@@ -253,3 +253,4 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
     $match,
   }) as LiteralKit<L>;
 }
+// bench

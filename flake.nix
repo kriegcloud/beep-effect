@@ -18,9 +18,6 @@
             bun
             nodejs_22
 
-            # Build tools
-            turbo
-
             # Quality tools
             typos
             gitleaks

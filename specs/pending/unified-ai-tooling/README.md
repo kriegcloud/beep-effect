@@ -23,8 +23,6 @@ ACTIVE
 - [Subtree Synthesis](./outputs/subtree-synthesis.md)
 - [Quality Gates and Test Strategy](./outputs/quality-gates-and-test-strategy.md)
 - [Residual Risk Closure](./outputs/residual-risk-closure.md)
-- [POC Execution Pack](./outputs/poc-execution-pack.md)
-- [POC Command Templates](./outputs/poc-command-templates.md)
 - [1Password Setup Runbook](./outputs/onepassword-setup-runbook.md)
 - [1Password Env Template](./outputs/onepassword-env-template.env)
 - [1Password Setup Commands](./outputs/onepassword-op-setup-commands.sh)
@@ -101,63 +99,57 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 - [ ] TDD-first workflow is defined and enforced in phase contracts.
 - [ ] Phase outputs include explicit quality-gate evidence (tests + reviews).
 - [ ] Coverage and fixture expectations are explicit for runtime implementation.
-- [x] POC-01..POC-06 are executed with pass verdicts and required signoff evidence.
-- [ ] Real authenticated success-path evidence is captured for both 1Password desktop and service-account secret resolution modes.
 
 ## Required Outputs
 
-| Artifact | Purpose |
-|----------|---------|
-| `outputs/preliminary-research.md` | Source-backed baseline + decision-closing research |
-| `outputs/tooling-compatibility-matrix.md` | Tool-by-tool targets and constraints |
-| `outputs/canonical-pattern-review.md` | Structure audit against completed-spec conventions |
-| `outputs/comprehensive-review.md` | Unknowns and pre-execution decision review |
-| `outputs/subtree-synthesis.md` | Consolidated design patterns from local subtree prior art |
-| `outputs/subtree-*-analysis.md` | Per-repo deep-dives backing synthesis conclusions |
-| `outputs/quality-gates-and-test-strategy.md` | Hard validation checkpoints, TDD policy, test matrix, and review gates |
-| `outputs/residual-risk-closure.md` | Explicit closure gates for JetBrains prompt-library, Cursor/Windsurf MCP drift, revert validation, and local enforcement before CI rollout |
-| `outputs/poc-execution-pack.md` | Ordered pre-validation POC runbook with pass/fail criteria |
-| `outputs/poc-command-templates.md` | Copy-paste POC command templates |
-| `outputs/poc-0*-*-results.md` | Per-POC evidence docs and signoff records |
-| `outputs/onepassword-setup-runbook.md` | Step-by-step 1Password setup for local and automation readiness |
-| `outputs/onepassword-env-template.env` | Ready-to-use `.env` template with `op://` references and ASCII layout |
-| `outputs/onepassword-op-setup-commands.sh` | Idempotent copy/paste CLI bootstrap using exact `op` commands |
-| `outputs/p1-schema-and-contract.md` | Canonical schema and compiler contract |
-| `outputs/p2-adapter-design.md` | Per-tool adapter mapping design |
-| `outputs/p3-runtime-integration.md` | CLI/runtime/secrets/operational contract |
-| `outputs/p4-cutover-playbook.md` | Migration and cutover plan |
-| `handoffs/HANDOFF_P1..P4.md` | Execution context for each phase |
-| `handoffs/P1..P4_ORCHESTRATOR_PROMPT.md` | Copy-paste starter prompts |
+| Artifact                                     | Purpose                                                                                                                                    |
+|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| `outputs/preliminary-research.md`            | Source-backed baseline + decision-closing research                                                                                         |
+| `outputs/tooling-compatibility-matrix.md`    | Tool-by-tool targets and constraints                                                                                                       |
+| `outputs/canonical-pattern-review.md`        | Structure audit against completed-spec conventions                                                                                         |
+| `outputs/comprehensive-review.md`            | Unknowns and pre-execution decision review                                                                                                 |
+| `outputs/subtree-synthesis.md`               | Consolidated design patterns from local subtree prior art                                                                                  |
+| `outputs/subtree-*-analysis.md`              | Per-repo deep-dives backing synthesis conclusions                                                                                          |
+| `outputs/quality-gates-and-test-strategy.md` | Hard validation checkpoints, TDD policy, test matrix, and review gates                                                                     |
+| `outputs/residual-risk-closure.md`           | Explicit closure gates for JetBrains prompt-library, Cursor/Windsurf MCP drift, revert validation, and local enforcement before CI rollout |
+| `outputs/onepassword-setup-runbook.md`       | Step-by-step 1Password setup for local and automation readiness                                                                            |
+| `outputs/onepassword-env-template.env`       | Ready-to-use `.env` template with `op://` references and ASCII layout                                                                      |
+| `outputs/onepassword-op-setup-commands.sh`   | Idempotent copy/paste CLI bootstrap using exact `op` commands                                                                              |
+| `outputs/p1-schema-and-contract.md`          | Canonical schema and compiler contract                                                                                                     |
+| `outputs/p2-adapter-design.md`               | Per-tool adapter mapping design                                                                                                            |
+| `outputs/p3-runtime-integration.md`          | CLI/runtime/secrets/operational contract                                                                                                   |
+| `outputs/p4-cutover-playbook.md`             | Migration and cutover plan                                                                                                                 |
+| `handoffs/HANDOFF_P1..P4.md`                 | Execution context for each phase                                                                                                           |
+| `handoffs/P1..P4_ORCHESTRATOR_PROMPT.md`     | Copy-paste starter prompts                                                                                                                 |
 
 ## Architecture Decision Records
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| ADR-001 | Canonical namespace is `.beep/` | Avoid collisions with existing `.ai` ecosystem tools |
-| ADR-002 | Generated outputs are committed to git | Deterministic auditability and reproducible onboarding |
-| ADR-003 | No symlink strategy in v1 | Avoid known caching/path-resolution issues |
-| ADR-004 | One instruction source generates both `AGENTS.md` and `CLAUDE.md` | Cross-tool parity with minimum bloat |
-| ADR-005 | Project-scoped config only | Keep v1 deterministic and explicit |
-| ADR-006 | Linux-only support in v1 | Matches current operating environment |
-| ADR-007 | Effect v4 implementation core | Aligns with repo architecture choices |
-| ADR-008 | `.codex/` and `.mcp.json` are committed (unignored) | Matches desired generated-files policy |
-| ADR-009 | Secrets are stored as references; required resolution failures are fatal | Prevent silent runtime misconfiguration |
-| ADR-010 | 1Password auth policy is hybrid: desktop auth for local interactive runs, service-account auth for automation/non-interactive runs; required unresolved secrets are fatal | Balances local DX and automation reliability while preserving strict secret guarantees |
-| ADR-011 | Runtime code lives in `tooling/beep-sync`; `.beep/` is config/data only | Fits current workspace globs and monorepo tooling layout |
-| ADR-012 | Skills are first-class in canonical model and adapters | Explicit user requirement for full skill parity |
-| ADR-013 | Managed targets use full-file rewrite semantics | Deterministic output beats partial merge ambiguity |
-| ADR-014 | JSON managed-file tracking uses sidecar metadata, not inline markers | Preserve strict JSON validity |
-| ADR-015 | AGENTS freshness workflow is mandatory at design level; automatic hook wiring is deferred in this branch | Keeps behavior requirement while respecting branch constraints |
-| ADR-016 | Generate and manage `AGENTS.md` for every workspace package | Explicit user requirement and consistency objective |
-| ADR-017 | JetBrains prompt-library artifacts are in v1 scope | Explicit user requirement for deeper JetBrains parity |
-| ADR-018 | Adapter architecture is registry/capability-map based | Scales targets without N^2 converter complexity |
-| ADR-019 | Managed outputs are hash-aware with skip-write and orphan cleanup via state metadata | Minimizes git churn and stale generated artifacts |
-| ADR-020 | Backup/revert lifecycle is mandatory in v1 and scoped to managed targets | Enables one-session rollback during migration or bad emits while avoiding unmanaged-file deletion risk |
-| ADR-021 | Diagnostics include structured warnings + strict mode gates | Prevents silent lossy conversions and hidden unsupported fields |
-| ADR-022 | Managed `.gitignore` updates use bounded generated blocks for local-only artifacts | Keeps ignore policy deterministic and reversible |
-| ADR-023 | TDD and hard validation checkpoints are mandatory for phase completion (P1-P4; P0 grandfathered) | Prevents underspecified implementation and regression risk |
-| ADR-024 | JetBrains prompt-library v1 supports deterministic bundle artifacts by default; native-file emission is optional and requires fixture proof | Removes undocumented file-path ambiguity while preserving v1 scope |
-| ADR-025 | Implementation kickoff requires six targeted POCs with documented evidence and signoff | De-risks design assumptions before deep build investment |
+| ID      | Decision                                                                                                                                                                  | Rationale                                                                                              |
+|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| ADR-001 | Canonical namespace is `.beep/`                                                                                                                                           | Avoid collisions with existing `.ai` ecosystem tools                                                   |
+| ADR-002 | Generated outputs are committed to git                                                                                                                                    | Deterministic auditability and reproducible onboarding                                                 |
+| ADR-003 | No symlink strategy in v1                                                                                                                                                 | Avoid known caching/path-resolution issues                                                             |
+| ADR-004 | One instruction source generates both `AGENTS.md` and `CLAUDE.md`                                                                                                         | Cross-tool parity with minimum bloat                                                                   |
+| ADR-005 | Project-scoped config only                                                                                                                                                | Keep v1 deterministic and explicit                                                                     |
+| ADR-006 | Linux-only support in v1                                                                                                                                                  | Matches current operating environment                                                                  |
+| ADR-007 | Effect v4 implementation core                                                                                                                                             | Aligns with repo architecture choices                                                                  |
+| ADR-008 | `.codex/` and `.mcp.json` are committed (unignored)                                                                                                                       | Matches desired generated-files policy                                                                 |
+| ADR-009 | Secrets are stored as references; required resolution failures are fatal                                                                                                  | Prevent silent runtime misconfiguration                                                                |
+| ADR-010 | 1Password auth policy is hybrid: desktop auth for local interactive runs, service-account auth for automation/non-interactive runs; required unresolved secrets are fatal | Balances local DX and automation reliability while preserving strict secret guarantees                 |
+| ADR-011 | Runtime code lives in `tooling/beep-sync`; `.beep/` is config/data only                                                                                                   | Fits current workspace globs and monorepo tooling layout                                               |
+| ADR-012 | Skills are first-class in canonical model and adapters                                                                                                                    | Explicit user requirement for full skill parity                                                        |
+| ADR-013 | Managed targets use full-file rewrite semantics                                                                                                                           | Deterministic output beats partial merge ambiguity                                                     |
+| ADR-014 | JSON managed-file tracking uses sidecar metadata, not inline markers                                                                                                      | Preserve strict JSON validity                                                                          |
+| ADR-015 | AGENTS freshness workflow is mandatory at design level; automatic hook wiring is deferred in this branch                                                                  | Keeps behavior requirement while respecting branch constraints                                         |
+| ADR-016 | Generate and manage `AGENTS.md` for every workspace package                                                                                                               | Explicit user requirement and consistency objective                                                    |
+| ADR-017 | JetBrains prompt-library artifacts are in v1 scope                                                                                                                        | Explicit user requirement for deeper JetBrains parity                                                  |
+| ADR-018 | Adapter architecture is registry/capability-map based                                                                                                                     | Scales targets without N^2 converter complexity                                                        |
+| ADR-019 | Managed outputs are hash-aware with skip-write and orphan cleanup via state metadata                                                                                      | Minimizes git churn and stale generated artifacts                                                      |
+| ADR-020 | Backup/revert lifecycle is mandatory in v1 and scoped to managed targets                                                                                                  | Enables one-session rollback during migration or bad emits while avoiding unmanaged-file deletion risk |
+| ADR-021 | Diagnostics include structured warnings + strict mode gates                                                                                                               | Prevents silent lossy conversions and hidden unsupported fields                                        |
+| ADR-022 | Managed `.gitignore` updates use bounded generated blocks for local-only artifacts                                                                                        | Keeps ignore policy deterministic and reversible                                                       |
+| ADR-023 | TDD and hard validation checkpoints are mandatory for phase completion (P1-P4; P0 grandfathered)                                                                          | Prevents underspecified implementation and regression risk                                             |
+| ADR-024 | JetBrains prompt-library v1 supports deterministic bundle artifacts by default; native-file emission is optional and requires fixture proof                               | Removes undocumented file-path ambiguity while preserving v1 scope                                     |
 
 ## Architecture Overview
 
@@ -189,22 +181,22 @@ managed targets (committed)
 
 ## Phase Overview
 
-| Phase | Name | Status | Description |
-|-------|------|--------|-------------|
-| P0 | Research + Constraint Freeze + Review | **Complete** | Canonical scaffold + research + unknown closure |
-| P1 | Schema + Compiler Contract | Pending | Canonical config schema, merge/precedence, deterministic model |
-| P2 | Adapter Design | Pending | Tool-specific output contracts and mapping semantics |
-| P3 | Runtime Integration | Pending | CLI contract, secret lifecycle, AGENTS freshness workflow contract |
-| P4 | Migration + Cutover | Pending | Rollout sequence, rollback, and operational handoff |
+| Phase | Name                                  | Status       | Description                                                        |
+|-------|---------------------------------------|--------------|--------------------------------------------------------------------|
+| P0    | Research + Constraint Freeze + Review | **Complete** | Canonical scaffold + research + unknown closure                    |
+| P1    | Schema + Compiler Contract            | Pending      | Canonical config schema, merge/precedence, deterministic model     |
+| P2    | Adapter Design                        | Pending      | Tool-specific output contracts and mapping semantics               |
+| P3    | Runtime Integration                   | Pending      | CLI contract, secret lifecycle, AGENTS freshness workflow contract |
+| P4    | Migration + Cutover                   | Pending      | Rollout sequence, rollback, and operational handoff                |
 
 ## Phase Completion Requirements
 
-| Phase | Required Exit Evidence |
-|-------|------------------------|
-| P1 | Schema covers instructions/commands/hooks/MCP/agents/skills/overrides + ownership semantics + parser/normalizer unit test plan + schema negative fixtures |
-| P2 | Each tool has explicit target map + field mapping + unsupported-field handling + golden fixture matrix + capability-map test plan |
-| P3 | Runtime command contract and required-secret failure behavior are fully specified + CLI integration tests + state/cleanup/revert test plan |
-| P4 | Migration playbook covers inventory, shadow mode, managed cutover, rollback + rollback rehearsal and cutover validation checkpoints |
+| Phase | Required Exit Evidence                                                                                                                                    |
+|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| P1    | Schema covers instructions/commands/hooks/MCP/agents/skills/overrides + ownership semantics + parser/normalizer unit test plan + schema negative fixtures |
+| P2    | Each tool has explicit target map + field mapping + unsupported-field handling + golden fixture matrix + capability-map test plan                         |
+| P3    | Runtime command contract and required-secret failure behavior are fully specified + CLI integration tests + state/cleanup/revert test plan                |
+| P4    | Migration playbook covers inventory, shadow mode, managed cutover, rollback + rollback rehearsal and cutover validation checkpoints                       |
 
 ## Hard Quality Gates
 
@@ -221,42 +213,13 @@ Mandatory gates:
 7. Thorough review signoff recorded in each phase output.
 8. Policy applies to P1-P4; P0 is grandfathered.
 9. Residual risk closure tasks in `outputs/residual-risk-closure.md` are treated as mandatory phase gates.
-10. POC-01..POC-06 must be executed and recorded before declaring implementation confidence (completed on 2026-02-23).
-
-## Pre-Implementation POC Gate
-
-Required runbook:
-- `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
-
-Required result artifacts:
-1. `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
-2. `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
-3. `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
-4. `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
-5. `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
-6. `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
-
-Exit condition:
-1. All six results contain a verdict and quality gate evidence.
-2. Required signoff rows are present and non-rejected.
-3. Any failed POC has an approved mitigation and follow-up owner.
-
-Current gate status (2026-02-23):
-1. POC-01 Canonical Compiler: passed.
-2. POC-02 MCP Capability Maps: passed.
-3. POC-03 JetBrains Prompt Library: passed.
-4. POC-04 Managed Ownership + Revert: passed.
-5. POC-05 Secret Resolution: passed (with follow-up for real authenticated success-path evidence).
-6. POC-06 End-to-End Dry Run: passed.
-7. Overall decision: GO for phase execution with one tracked follow-up (`poc05-real-auth-success-evidence`).
 
 ## Complexity and Risk Assessment
 
 - Complexity: medium-high due heterogenous tool formats.
-- Highest remaining integration risk: full adapter parity expansion beyond currently proven POC capability surfaces.
+- Highest integration risk: exact JetBrains parity beyond project rules + MCP.
 - Secondary risk: Cursor/Windsurf MCP schema drift and capability mismatch.
-- Secondary risk: secret-resolution coupling to local auth state (real authenticated success-path evidence still pending).
+- Secondary risk: secret-resolution coupling to local auth state.
 - Mitigation: strict adapter boundaries, capability maps, sidecar metadata, deterministic fixtures, explicit fatal error paths, strict-mode diagnostics.
 
 ## Dependencies
@@ -293,9 +256,6 @@ bun run beep-sync:test:coverage
 - `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 - `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 - `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
 - `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
 - `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 

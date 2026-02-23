@@ -32,3 +32,4 @@ export {
    */
   NoSuchFileError,
 } from "./NoSuchFileError.js";
+// bench
