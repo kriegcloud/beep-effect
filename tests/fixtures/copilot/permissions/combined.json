@@ -1,0 +1,16 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "mkdir": true,
+    "/^git (status|diff)$/": true,
+    "rm": false,
+    "/dangerous/": false
+  },
+  "chat.tools.urls.autoApprove": {
+    "https://*.github.com/*": true,
+    "https://untrusted.com": false,
+    "https://api.example.com/*": {
+      "approveRequest": true,
+      "approveResponse": false
+    }
+  }
+}

@@ -1,0 +1,17 @@
+description = "Generate documentation for code files"
+
+prompt = """
+Generate comprehensive documentation for the following code:
+
+@{{{args}}}
+
+Include:
+1. Overview and purpose
+2. Function/class descriptions
+3. Parameter and return value documentation
+4. Usage examples
+
+Format the documentation appropriately for the language.
+
+{{args}}
+"""

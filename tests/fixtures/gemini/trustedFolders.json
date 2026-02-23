@@ -1,0 +1,14 @@
+{
+  "/home/user/projects/my-app": {
+    "trusted": true,
+    "timestamp": "2024-01-15T10:30:00Z"
+  },
+  "/home/user/projects/client-project": {
+    "trusted": true,
+    "timestamp": "2024-01-20T14:15:00Z"
+  },
+  "/home/user/experiments": {
+    "trusted": false,
+    "timestamp": "2024-01-22T09:00:00Z"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "/^git (status|show\\b.*)$/": true,
+    "/^npm run (test|lint)$/": true,
+    "/dangerous/": false,
+    "/^rm -rf/": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "mkdir": true,
+    "/^git (status|diff)$/": true,
+    "npm install": false,
+    "/^docker/": false,
+    "ls": true,
+    "/^curl/": false
+  }
+}

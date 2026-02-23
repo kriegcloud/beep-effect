@@ -1,0 +1,15 @@
+description = "Review code changes"
+
+prompt = """
+Review the following code changes and provide detailed feedback:
+
+!{git diff}
+
+Focus on:
+- Code quality and best practices
+- Potential bugs or issues
+- Performance considerations
+- Security concerns
+
+{{args}}
+"""

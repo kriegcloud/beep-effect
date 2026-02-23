@@ -1,0 +1,8 @@
+{
+  "chat.tools.urls.autoApprove": {
+    "https://www.example.com": false,
+    "https://*.contoso.com/*": true,
+    "https://api.github.com/*": true,
+    "https://untrusted.com": false
+  }
+}
