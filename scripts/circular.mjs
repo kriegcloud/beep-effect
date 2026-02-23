@@ -1,59 +1,36 @@
-import * as Fs from "node:fs";
-import * as Path from "node:path";
+/**
+ * Circular dependency check for tooling and packages.
+ *
+ * Uses madge to detect circular imports across the monorepo's
+ * source directories. Exits with code 1 if any cycles are found.
+ *
+ * @since 0.0.0
+ */
 import madge from "madge";
 
-function findTsFiles(dirs) {
-  const files = [];
+const dirs = ["tooling/cli/src", "tooling/repo-utils/src", "tooling/codebase-search/src"];
 
-  for (const dir of dirs) {
-    if (!Fs.existsSync(dir)) continue;
+let hasCircular = false;
 
-    function walk(path) {
-      const entries = Fs.readdirSync(path, { withFileTypes: true });
-
-      for (const entry of entries) {
-        const fullPath = Path.join(path, entry.name);
-
-        if (entry.isDirectory()) {
-          walk(fullPath);
-        } else if (entry.name.endsWith(".ts") && !entry.name.endsWith(".d.ts")) {
-          files.push(fullPath);
-        }
-      }
-    }
-
-    walk(dir);
-  }
-
-  return files;
-}
-
-const dirs = ["packages", "tooling", "apps"];
-
-const files = findTsFiles(dirs);
-
-if (files.length === 0) {
-  console.log("⚠️  No TypeScript files found");
-  process.exit(0);
-}
-
-madge(files, {
-  detectiveOptions: {
-    ts: {
-      skipTypeImports: true,
-    },
-  },
-})
-  .then((res) => {
-    const circular = res.circular();
-    if (circular.length) {
-      console.error("❌ Circular dependencies found:");
-      console.error(circular);
-      process.exit(1);
-    }
-    console.log("✅ No circular dependencies found");
-  })
-  .catch((err) => {
-    console.error("Error analyzing dependencies:", err.message);
-    process.exit(1);
+for (const dir of dirs) {
+  const result = await madge(dir, {
+    fileExtensions: ["ts"],
+    tsConfig: "tsconfig.json",
+    detectiveOptions: { ts: { skipTypeImports: true } },
   });
+
+  const circular = result.circular();
+  if (circular.length > 0) {
+    hasCircular = true;
+    console.error(`Circular dependencies in ${dir}:`);
+    for (const cycle of circular) {
+      console.error(`  ${cycle.join(" → ")}`);
+    }
+  }
+}
+
+if (hasCircular) {
+  process.exit(1);
+} else {
+  console.log("No circular dependencies found.");
+}

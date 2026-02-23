@@ -12,6 +12,7 @@ import { FileSystem, Path } from "effect";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import type { VersionCategoryReport, VersionDriftItem } from "../types.js";
@@ -44,7 +45,7 @@ const BIOME_SCHEMA_SUFFIX = "/schema.json";
 const extractSchemaVersion = (schemaUrl: string): O.Option<string> => {
   if (!Str.startsWith(BIOME_SCHEMA_PREFIX)(schemaUrl)) return O.none();
   if (!Str.endsWith(BIOME_SCHEMA_SUFFIX)(schemaUrl)) return O.none();
-  const version = schemaUrl.slice(BIOME_SCHEMA_PREFIX.length, -BIOME_SCHEMA_SUFFIX.length);
+  const version = Str.slice(BIOME_SCHEMA_PREFIX.length, -BIOME_SCHEMA_SUFFIX.length)(schemaUrl);
   return Str.isEmpty(version) ? O.none() : O.some(version);
 };
 
@@ -56,7 +57,7 @@ const extractSchemaVersion = (schemaUrl: string): O.Option<string> => {
  * @param version - The version specifier (e.g. `^2.4.4`).
  * @returns The bare version string without range prefix.
  */
-const stripVersionPrefix = (version: string): string => version.replace(/^[~^>=<]+/, "");
+const stripVersionPrefix = Str.replace(/^[~^>=<]+/, "");
 
 /**
  * Build a schema URL from a version string.
@@ -105,9 +106,9 @@ export const resolveBiomeSchema: (
         )
       );
 
-    const biomeParseErrors: Array<jsonc.ParseError> = [];
+    const biomeParseErrors = A.empty<jsonc.ParseError>();
     const biomeJson = jsonc.parse(biomeContent, biomeParseErrors);
-    if (A.length(biomeParseErrors) > 0 || typeof biomeJson !== "object" || biomeJson === null) {
+    if (A.length(biomeParseErrors) > 0 || !P.isObject(biomeJson) || P.isNull(biomeJson)) {
       return yield* new VersionSyncError({ message: "Failed to parse biome.jsonc", file: "biome.jsonc" });
     }
 
@@ -124,7 +125,7 @@ export const resolveBiomeSchema: (
         )
       );
 
-    const pkgParseErrors: Array<jsonc.ParseError> = [];
+    const pkgParseErrors = A.empty<jsonc.ParseError>();
     const pkgJson = jsonc.parse(pkgJsonContent, pkgParseErrors);
     if (A.length(pkgParseErrors) > 0 || typeof pkgJson !== "object" || pkgJson === null) {
       return yield* new VersionSyncError({ message: "Failed to parse package.json", file: "package.json" });
@@ -135,12 +136,11 @@ export const resolveBiomeSchema: (
     const devDeps =
       typeof pkgJson.devDependencies === "object" && pkgJson.devDependencies !== null ? pkgJson.devDependencies : {};
 
-    const rawVersion: string =
-      typeof catalog["@biomejs/biome"] === "string"
-        ? catalog["@biomejs/biome"]
-        : typeof devDeps["@biomejs/biome"] === "string"
-          ? devDeps["@biomejs/biome"]
-          : "";
+    const rawVersion: string = Str.isString(catalog["@biomejs/biome"])
+      ? catalog["@biomejs/biome"]
+      : Str.isString(devDeps["@biomejs/biome"])
+        ? devDeps["@biomejs/biome"]
+        : "";
 
     const installedVersion = stripVersionPrefix(rawVersion);
 
@@ -157,7 +157,7 @@ export const resolveBiomeSchema: (
  * @returns The version category report for the Biome schema.
  */
 export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryReport = (state) => {
-  const items: Array<VersionDriftItem> = [];
+  const items = A.empty<VersionDriftItem>();
 
   if (Str.isEmpty(state.installedVersion)) {
     return {

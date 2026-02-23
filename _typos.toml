@@ -35,7 +35,7 @@ extend-exclude = [
   "dist/**",
   "coverage/**",
   ".next/**",
-  "storybook-static/**",
+  "**/storybook-static/**",
   "specs/**",
   "THOUGHTS.md",
   "**/internal/data/**",

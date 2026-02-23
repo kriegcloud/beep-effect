@@ -1,7 +1,7 @@
 # Shared UI Package (`@beep/ui`)
 
 ## Status
-PENDING
+COMPLETED
 
 ## Owner
 @elpresidank
@@ -309,23 +309,31 @@ cd packages/ui/ui && bunx shadcn add card --dry-run
 ```
 
 ## Success Criteria
-- [ ] `@beep/ui` package exists at `packages/ui/ui`
-- [ ] `package.json` has correct exports, dependencies, and peer dependencies
-- [ ] `components.json` configured for shared component generation
-- [ ] Theme tokens extracted to `src/styles/globals.css`
-- [ ] `cn()` utility lives in `src/lib/utils.ts`
-- [ ] Button component moved to `src/components/ui/button.tsx`
-- [ ] `apps/web` imports components and theme from `@beep/ui`
-- [ ] `apps/web` builds successfully with shared imports
-- [ ] `apps/web/components.json` aliases updated to point to `@beep/ui`
-- [ ] `apps/web/next.config.ts` includes `@beep/ui` in `transpilePackages`
-- [ ] Tailwind content scanning via `@source` covers UI package
-- [ ] Storybook 10 configured with `@storybook/react-vite` framework
-- [ ] Storybook addons: docs, a11y, themes
-- [ ] Button story renders correctly in Storybook
-- [ ] Storybook tasks added to `turbo.json`
-- [ ] All Storybook deps in root catalog
-- [ ] Full repo verification commands pass (build, check, test, lint)
+- [x] `@beep/ui` package exists at `packages/ui/ui`
+- [x] `package.json` has correct exports, dependencies, and peer dependencies
+- [x] `components.json` configured for shared component generation
+- [x] Theme tokens extracted to `src/styles/globals.css`
+- [x] `cn()` utility lives in `src/lib/utils.ts`
+- [x] Button component moved to `src/components/ui/button.tsx`
+- [x] `apps/web` imports components and theme from `@beep/ui`
+- [x] `apps/web` builds successfully with shared imports
+- [x] `apps/web/components.json` aliases updated to point to `@beep/ui`
+- [x] `apps/web/next.config.ts` includes `@beep/ui` in `transpilePackages`
+- [x] Tailwind content scanning via `@source` covers UI package
+- [x] Storybook 10 configured with `@storybook/react-vite` framework
+- [x] Storybook addons: docs, a11y, themes, **vitest** (added beyond original scope)
+- [x] Button story renders correctly in Storybook
+- [x] Storybook tasks added to `turbo.json`
+- [x] All Storybook deps in root catalog
+- [x] Full repo verification commands pass (build, check, test, lint)
+
+### Bonus (beyond original scope)
+- [x] `@storybook/addon-vitest` for component testing in real browser (Playwright)
+- [x] Interaction tests with `play` functions on Button stories (Default + ClickInteraction)
+- [x] Lost Pixel visual regression testing with 9 baseline screenshots
+- [x] Dedicated `vitest.storybook.config.ts` for browser-based Storybook tests
+- [x] `test:storybook`, `test:visual`, `test:visual:update` scripts + Turbo tasks
+- [x] Dark/light theme toggle in Storybook with CSS overrides for docs pages
 
 ## Open Questions
 1. Should the package be at `packages/ui/ui` or `packages/ui`?

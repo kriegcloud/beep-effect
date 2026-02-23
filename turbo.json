@@ -57,6 +57,49 @@
     "build-storybook": {
       "dependsOn": ["^build"],
       "outputs": ["storybook-static/**"]
+    },
+    "test:storybook": {
+      "cache": false
+    },
+    "test:visual": {
+      "dependsOn": ["build-storybook"],
+      "cache": false
+    },
+
+    "//#lint:jsdoc": {
+      "cache": true,
+      "inputs": ["tooling/*/src/**/*.ts", "eslint.config.mjs"]
+    },
+    "//#lint:typos": {
+      "cache": true,
+      "inputs": ["**/*.{ts,tsx,js,jsx,md,json}", "_typos.toml"]
+    },
+    "//#lint:spell": {
+      "cache": true,
+      "inputs": ["**/*.{ts,tsx,md}", "cspell.json"]
+    },
+    "//#lint:markdown": {
+      "cache": true,
+      "inputs": ["**/*.md", ".markdownlint-cli2.jsonc"]
+    },
+    "//#lint:circular": {
+      "cache": true,
+      "inputs": [
+        "tooling/*/src/**/*.ts",
+        "packages/*/src/**/*.ts",
+        "scripts/circular.mjs"
+      ]
+    },
+    "//#lint:repo": {
+      "cache": true,
+      "inputs": ["**/package.json"]
+    },
+    "//#lint:ox": {
+      "cache": true,
+      "inputs": ["**/*.{ts,tsx,js,jsx}"]
+    },
+    "//#lint:versions": {
+      "cache": false
     }
   }
 }

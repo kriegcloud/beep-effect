@@ -5,7 +5,8 @@
     "includes": [
       "**",
       "!.agents",
-      "repo-docs",
+      "!.repos",
+      "!specs",
       "!**/.tsup",
       "!**/.turbo",
       "!**/public",
@@ -22,9 +23,7 @@
       "!**/*.gen.*",
       "!**/.cache",
       "!**/bun.lock",
-      "!**/dist",
-      "!.repos",
-      "!specs"
+      "!**/dist"
     ]
   },
   "css": {

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, fn, userEvent, within } from "storybook/test";
 import { Button } from "./button.js";
 
 const meta = {
@@ -15,6 +16,9 @@ const meta = {
       options: ["default", "xs", "sm", "lg", "icon", "icon-xs", "icon-sm", "icon-lg"],
     },
   },
+  args: {
+    onClick: fn(),
+  },
 } satisfies Meta<typeof Button>;
 
 export default meta;
@@ -23,6 +27,13 @@ type Story = StoryObj<typeof meta>;
 /** @since 0.0.0 */
 export const Default: Story = {
   args: { children: "Button" },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole("button");
+    await expect(button).toBeVisible();
+    await userEvent.click(button);
+    await expect(args.onClick).toHaveBeenCalledOnce();
+  },
 };
 
 /** @since 0.0.0 */
@@ -58,4 +69,17 @@ export const Small: Story = {
 /** @since 0.0.0 */
 export const Large: Story = {
   args: { children: "Large", size: "lg" },
+};
+
+/** @since 0.0.0 */
+export const ClickInteraction: Story = {
+  args: { children: "Click Me" },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole("button");
+    await expect(button).toHaveTextContent("Click Me");
+    await userEvent.click(button);
+    await userEvent.click(button);
+    await expect(args.onClick).toHaveBeenCalledTimes(2);
+  },
 };

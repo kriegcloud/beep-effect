@@ -11,7 +11,12 @@
     "check": "tsc -b tsconfig.json",
     "test": "vitest",
     "coverage": "vitest --coverage",
-    "docgen": "bunx @effect/docgen"
+    "docgen": "bunx @effect/docgen",
+    "lint": "biome check src/ .storybook/",
+    "lint:fix": "biome check src/ .storybook/ --write",
+    "test:storybook": "vitest --config vitest.storybook.config.ts",
+    "test:visual": "bun run build-storybook && npx lost-pixel",
+    "test:visual:update": "bun run build-storybook && npx lost-pixel update"
   },
   "dependencies": {
     "@base-ui/react": "catalog:",
@@ -29,6 +34,9 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "shadcn": "catalog:",
+    "@storybook/addon-vitest": "catalog:",
+    "@vitest/browser": "catalog:",
+    "lost-pixel": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:"

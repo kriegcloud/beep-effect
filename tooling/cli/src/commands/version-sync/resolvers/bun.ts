@@ -51,7 +51,7 @@ const BUN_RELEASE_URL = "https://api.github.com/repos/oven-sh/bun/releases/lates
  * @param tagName - The GitHub release tag (e.g. `bun-v1.3.9`).
  * @returns The bare version string.
  */
-const extractBunVersion = (tagName: string): string => tagName.replace(/^bun-v/, "");
+const extractBunVersion = Str.replace(/^bun-v/, "");
 
 /**
  * Strip the `bun@` prefix from a `packageManager` field value.
@@ -61,7 +61,7 @@ const extractBunVersion = (tagName: string): string => tagName.replace(/^bun-v/,
  * @param value - The packageManager field value (e.g. `bun@1.3.9`).
  * @returns The bare version string.
  */
-const extractPackageManagerVersion = (value: string): string => value.replace(/^bun@/, "");
+const extractPackageManagerVersion = Str.replace(/^bun@/, "");
 
 // ── Public API ──────────────────────────────────────────────────────────────
 

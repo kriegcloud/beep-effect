@@ -46,6 +46,13 @@ e2e/.auth/
 playwright-report/
 test-results/
 
+# Storybook build output
+storybook-static/
+
+# Lost Pixel
+.lostpixel/current/
+.lostpixel/difference/
+
 # Claude plugin state files (ralph-wiggum loop state)
 .claude/ralph-loop.local.md
 

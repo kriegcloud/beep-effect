@@ -491,6 +491,8 @@ const generatePackageJson: (
         "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
         babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
         check: "tsc -b tsconfig.json",
+        lint: "biome check .",
+        "lint:fix": "biome check . --write",
         test: "vitest",
         coverage: "vitest --coverage",
         docgen: "bunx @effect/docgen",

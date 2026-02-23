@@ -348,7 +348,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
 
   for (const img of state.images) {
     const isUnpinnedTag = img.tag === "latest";
-    const isMajorOnly = !img.tag.includes(".") && img.tag !== "latest";
+    const isMajorOnly = /^\d+$/.test(img.tag);
 
     if (isUnpinnedTag) {
       hasUnpinned = true;
