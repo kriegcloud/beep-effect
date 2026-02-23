@@ -166,6 +166,28 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/shared/domain": {
+      "name": "@beep/shared-domain",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/shared/env": {
+      "name": "@beep/shared-env",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "scratchpad": {
       "name": "scratchpad",
       "version": "0.0.0",
@@ -407,6 +429,10 @@
     "@beep/root": ["@beep/root@root:", {}],
 
     "@beep/schema": ["@beep/schema@workspace:packages/common/schema"],
+
+    "@beep/shared-domain": ["@beep/shared-domain@workspace:packages/shared/domain"],
+
+    "@beep/shared-env": ["@beep/shared-env@workspace:packages/shared/env"],
 
     "@beep/types": ["@beep/types@workspace:packages/common/types"],
 
