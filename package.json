@@ -38,7 +38,7 @@
     "test:types": "tstyche",
     "test:e2e": "playwright test",
     "coverage": "vitest --coverage",
-    "lint": "bunx turbo run lint lint:jsdoc lint:typos lint:spell lint:markdown lint:circular lint:repo lint:ox lint:versions docgen",
+    "lint": "bunx turbo run lint lint:jsdoc lint:spell lint:markdown lint:circular lint:versions && bun run lint:typos && bun run lint:repo && bun run lint:ox",
     "lint:versions": "bun run beep version-sync --skip-network",
     "lint:fix": "bunx turbo run lint:fix",
     "lint:jsdoc": "eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' 'tooling/*/src/**/*.ts'",

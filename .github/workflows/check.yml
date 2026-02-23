@@ -91,14 +91,11 @@ jobs:
       - name: Lint
         run: bun run lint
 
+      - name: Docgen
+        run: bun run docgen
+
       - name: Test
         run: bun run test
-
-      - name: Spell check
-        run: bun run lint:spell
-
-      - name: Markdown lint
-        run: bun run lint:markdown
 
       - name: Syncpack lint
         run: bunx syncpack lint
