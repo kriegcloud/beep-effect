@@ -158,7 +158,7 @@ Use workspace protocol for internal packages:
 
 Don't create `index.ts` files that re-export everything:
 
-```typescript
+```typescript nocheck
 // BAD: packages/ui/src/index.ts
 export * from './button';
 export * from './card';
