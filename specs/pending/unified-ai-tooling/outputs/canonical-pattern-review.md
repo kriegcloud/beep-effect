@@ -23,6 +23,7 @@ Compared against completed-spec conventions used in this repo (for example `spec
 | Research + comprehensive review outputs | Yes | `outputs/preliminary-research.md`, `outputs/comprehensive-review.md` |
 | Prior-art synthesis from local subtree mirrors | Yes | `outputs/subtree-synthesis.md` + `outputs/subtree-*-analysis.md` |
 | Explicit quality-gates/test strategy artifact | Yes | `outputs/quality-gates-and-test-strategy.md` |
+| Explicit residual-risk closure artifact | Yes | `outputs/residual-risk-closure.md` |
 
 ## Gaps Found
 

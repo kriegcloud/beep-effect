@@ -13,6 +13,7 @@ Read in order:
 6. `outputs/comprehensive-review.md`
 7. `outputs/subtree-synthesis.md`
 8. `outputs/quality-gates-and-test-strategy.md`
+9. `outputs/residual-risk-closure.md`
 
 ## Your Mission
 
@@ -24,9 +25,10 @@ Read in order:
 6. Define state/manifest lifecycle (atomic writes, orphan cleanup, versioning).
 7. Define backup/revert command semantics.
 8. Define structured diagnostics output and strict-mode behavior.
-9. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
-10. Write `outputs/p3-runtime-integration.md`.
-11. Update `outputs/manifest.json` for P3.
+9. Define and test managed-target-only `revert` scenarios from the residual-risk closure contract.
+10. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
+11. Write `outputs/p3-runtime-integration.md`.
+12. Update `outputs/manifest.json` for P3.
 
 ## Critical Constraints
 

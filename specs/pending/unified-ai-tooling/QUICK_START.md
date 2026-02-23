@@ -18,11 +18,12 @@ Next phase is **P1: Schema + Compiler Contract**.
 4. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
 5. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 6. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-7. `specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
-8. `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
-9. `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
-10. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
-11. `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+7. `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
+8. `specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
+9. `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
+10. `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
+11. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
+12. `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 
 ## Phase Handoff Files
 

@@ -9,6 +9,7 @@ Read first:
 - `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
 - `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 - `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
 
 ## Working Memory
 
@@ -31,10 +32,12 @@ Define per-tool adapter contracts mapping normalized canonical data to native ta
 6. MCP capability matrix is explicit for each adapter (supported, transformed, dropped-with-warning, error).
 7. Managed marker strategy is explicit per output class (header vs sidecar metadata).
 8. P2 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
+9. JetBrains prompt-library v1 mode contract (`bundle_only` default, `native_file` optional with fixture proof) is explicit.
+10. Cursor/Windsurf MCP capability baseline is frozen with fixture references.
 
 ### Blocking Issues
 
-- If exact JetBrains prompt-library file integration remains undocumented, define a deterministic interim mapping contract and capture an explicit follow-up task rather than de-scoping v1 parity.
+- If exact JetBrains prompt-library native file integration remains undocumented, default to the locked `bundle_only` mode and continue (do not block phase completion).
 
 ### Key Constraints
 
@@ -62,7 +65,10 @@ rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p2-ad
 
 rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
 
-rg -n "Design/Architecture|Security/Secrets" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
+rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
+rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
+
+! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
 ```
 
 ## Known Issues and Gotchas

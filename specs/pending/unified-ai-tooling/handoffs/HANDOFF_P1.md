@@ -76,8 +76,12 @@ rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p1-sc
 # P1 output must carry all required quality-gate subsections
 rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
 
-# P1 output must include required review signoff rows
-rg -n "Design/Architecture|Security/Secrets" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+# P1 output must include required review signoff rows as table entries
+rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+
+# P1 output must not contain rejected required signoffs
+! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
 ```
 
 ## Known Issues and Gotchas

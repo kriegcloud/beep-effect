@@ -90,11 +90,15 @@ The spec is execution-ready with a clear implementation path. Product-level unkn
 5. Revert scope closure
 - Decision: `revert` is mandatory in v1 and scoped to managed targets only.
 
-## Remaining Validation Targets (Not Decision Blockers)
+## Residual Risk Closure Gates
 
-1. Verify JetBrains prompt-library file targets using local fixture experiments.
-2. Freeze Cursor/Windsurf MCP capability maps from fixture-based golden tests.
-3. Validate managed-target-only `revert` behavior using fixture-driven integration tests.
+The following are now bounded gates with explicit pass criteria in:
+- `outputs/residual-risk-closure.md`
+
+1. JetBrains prompt-library target closure via deterministic bundle contract plus fixture rules.
+2. Cursor/Windsurf MCP capability freeze via golden fixtures.
+3. Managed-target-only `revert` validation via integration scenarios.
+4. Local enforcement bundle until CI/hook rollout is merged.
 
 ## Recommendation
 

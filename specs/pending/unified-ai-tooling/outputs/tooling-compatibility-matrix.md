@@ -14,7 +14,7 @@ Canonical source is `.beep/` (project-only). Adapters generate committed, determ
 | OpenAI Codex | `AGENTS.md` + nested `AGENTS.md` | `.codex/config.toml` | `.codex/config.toml` (`[mcp_servers.*]`) | Codex skills/agents mapped from canonical model | `.codex/` is committed (unignored) |
 | Cursor | `AGENTS.md` and/or `.cursor/rules/*` | `.cursor/*` | `.cursor/mcp.json` (adapter-defined exact schema) | cursor-specific agent/rules rendering via overrides | Dynamic docs: keep adapter schema tests strict |
 | Windsurf | `AGENTS.md` and/or Windsurf rules output | `.windsurf/*` | Windsurf MCP JSON target (adapter-defined) | skills/agents rendered via canonical model | Supports env interpolation for MCP config |
-| JetBrains AI Assistant | `.aiassistant/rules/*.md` | project-level JetBrains AI artifacts via overrides | JetBrains project-level MCP JSON/settings artifacts | JetBrains prompt-library artifacts in v1; indexing artifacts via overrides | Full parity target includes rules + MCP + prompt-library in v1 |
+| JetBrains AI Assistant | `.aiassistant/rules/*.md` | project-level JetBrains AI artifacts via overrides | JetBrains project-level MCP JSON/settings artifacts | JetBrains prompt-library bundle artifacts in v1 by default; indexing artifacts via overrides | Default mode is deterministic bundle output; native-file mode only with fixture proof |
 
 ## Committed Managed Targets
 
@@ -75,9 +75,10 @@ Managed generation policy includes these committed outputs:
 ## Open Implementation Notes
 
 1. Cursor MCP exact field parity should be verified against runtime fixtures due dynamic docs.
-2. JetBrains prompt-library file-level integration requires adapter fixture proofing.
+2. JetBrains prompt-library direct native-file emission requires stable-path fixture proofing; fallback default is bundle artifacts.
 
 ## Source Pointers
 
 - `outputs/preliminary-research.md`
 - `outputs/subtree-synthesis.md`
+- `outputs/residual-risk-closure.md`

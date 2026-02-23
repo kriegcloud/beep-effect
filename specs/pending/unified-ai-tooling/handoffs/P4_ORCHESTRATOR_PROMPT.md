@@ -13,6 +13,7 @@ Read in order:
 6. `outputs/comprehensive-review.md`
 7. `outputs/subtree-synthesis.md`
 8. `outputs/quality-gates-and-test-strategy.md`
+9. `outputs/residual-risk-closure.md`
 
 ## Your Mission
 
@@ -21,9 +22,10 @@ Read in order:
 3. Define AGENTS freshness rollout and rollback playbooks.
 4. Define orphan-cleanup rollout safeguards and dry-run checkpoints.
 5. Define backup/revert operational runbook for cutover and rollback.
-6. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
-7. Write `outputs/p4-cutover-playbook.md`.
-8. Update `outputs/manifest.json` for P4.
+6. Include temporary local enforcement gates (until CI rollout) in cutover checks.
+7. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
+8. Write `outputs/p4-cutover-playbook.md`.
+9. Update `outputs/manifest.json` for P4.
 
 ## Critical Constraints
 

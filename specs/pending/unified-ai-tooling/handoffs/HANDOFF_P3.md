@@ -10,6 +10,7 @@ Read first:
 - `outputs/comprehensive-review.md`
 - `outputs/subtree-synthesis.md`
 - `outputs/quality-gates-and-test-strategy.md`
+- `outputs/residual-risk-closure.md`
 
 ## Working Memory
 
@@ -33,6 +34,7 @@ Define runtime behavior for `beep-sync` commands, secret resolution lifecycle, a
 7. Backup/revert operational contract is explicit.
 8. Diagnostics contract is explicit (structured output + strict mode).
 9. P3 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
+10. Managed-target-only `revert` integration scenarios are fully specified and testable.
 
 ### Blocking Issues
 
@@ -66,7 +68,10 @@ rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p3-ru
 
 rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
 
-rg -n "Design/Architecture|Security/Secrets" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
+rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
+rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
+
+! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
 ```
 
 ## Known Issues and Gotchas

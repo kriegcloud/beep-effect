@@ -11,6 +11,7 @@ Read order for any phase:
 1. `../README.md`
 2. `../outputs/subtree-synthesis.md`
 3. `../outputs/quality-gates-and-test-strategy.md`
-4. Relevant prior phase outputs
-5. Current `HANDOFF_Px.md`
-6. Current `Px_ORCHESTRATOR_PROMPT.md`
+4. `../outputs/residual-risk-closure.md`
+5. Relevant prior phase outputs
+6. Current `HANDOFF_Px.md`
+7. Current `Px_ORCHESTRATOR_PROMPT.md`

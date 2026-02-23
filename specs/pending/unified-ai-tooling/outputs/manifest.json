@@ -11,6 +11,7 @@
         "comprehensiveReview": "specs/pending/unified-ai-tooling/outputs/comprehensive-review.md",
         "subtreeSynthesis": "specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md",
         "qualityGatesAndTestStrategy": "specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md",
+        "residualRiskClosure": "specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md",
         "subtreeAnalyses": {
           "addMcp": "specs/pending/unified-ai-tooling/outputs/subtree-add-mcp-analysis.md",
           "agentRules": "specs/pending/unified-ai-tooling/outputs/subtree-agent-rules-analysis.md",

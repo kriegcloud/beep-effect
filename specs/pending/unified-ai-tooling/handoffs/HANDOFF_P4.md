@@ -10,6 +10,7 @@ Read first:
 - `outputs/comprehensive-review.md`
 - `outputs/subtree-synthesis.md`
 - `outputs/quality-gates-and-test-strategy.md`
+- `outputs/residual-risk-closure.md`
 
 ## Working Memory
 
@@ -32,6 +33,7 @@ Produce migration and cutover playbook for moving from scattered manual configs 
 6. Orphan-cleanup rollout and safeguards are explicit.
 7. Backup checkpoints and revert command usage are part of cutover procedure.
 8. P4 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
+9. Local enforcement bundle requirements are reflected in migration/cutover gating until CI rollout lands.
 
 ### Blocking Issues
 
@@ -62,7 +64,11 @@ rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p4-cu
 
 rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
 
-rg -n "Design/Architecture|Security/Secrets|Migration/Operations" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
+rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
+rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
+rg -n "^\\| Migration/Operations \\|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
+
+! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md
 ```
 
 ## Known Issues and Gotchas
