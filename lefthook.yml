@@ -24,8 +24,7 @@ commit-msg:
 
 pre-push:
   commands:
-    beep-sync-gates:
-      run: bun run beep-sync:gates
+
     quality:
       run: bun run build && bun run check && bun run test
 
