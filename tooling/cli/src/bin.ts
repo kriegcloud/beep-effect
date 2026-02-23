@@ -13,6 +13,7 @@ import { NodeChildProcessSpawner, NodeFileSystem, NodePath, NodeTerminal } from 
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { Command } from "effect/unstable/cli";
+import { FetchHttpClient } from "effect/unstable/http";
 import { rootCommand } from "./commands/root.js";
 
 /**
@@ -38,7 +39,9 @@ const BaseLayers = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, NodeTerm
  * @category layers
  * @internal
  */
-const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer, FsUtilsLive).pipe(Layer.provideMerge(BaseLayers));
+const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer, FetchHttpClient.layer, FsUtilsLive).pipe(
+  Layer.provideMerge(BaseLayers)
+);
 
 /**
  * Top-level CLI program effect produced by running the root command tree

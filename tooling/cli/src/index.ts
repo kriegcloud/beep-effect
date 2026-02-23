@@ -89,3 +89,16 @@ export {
    */
   tsconfigSyncCommand,
 } from "./commands/tsconfig-sync.js";
+/**
+ * Version sync command for detecting and fixing version drift.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Version sync command for detecting and fixing version drift.
+   *
+   * @since 0.0.0
+   */
+  versionSyncCommand,
+} from "./commands/version-sync/index.js";

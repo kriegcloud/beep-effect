@@ -242,6 +242,7 @@ const convertSearchResults = (
 export const Bm25WriterLive: (indexPath: string) => Layer.Layer<Bm25Writer, IndexingError> = (indexPath: string) =>
   Layer.effect(
     Bm25Writer,
+    // oxlint-disable-next-line require-yield -- outer generator builds service; inner methods yield
     Effect.gen(function* () {
       let state = createState();
 

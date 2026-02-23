@@ -240,11 +240,17 @@ export const createPackageCommand = Command.make(
       Flag.withDescription("Optional output parent directory relative to repo root (e.g. packages/common)"),
       Flag.withDefault("")
     ),
+    dirName: Flag.string("dir-name").pipe(
+      Flag.withDescription(
+        "Override folder name (defaults to package name). E.g. --dir-name domain for packages/shared/domain"
+      ),
+      Flag.withDefault("")
+    ),
     description: Flag.string("description").pipe(Flag.withDescription("Package description"), Flag.withDefault("")),
     dryRun: Flag.boolean("dry-run").pipe(Flag.withDescription("Preview changes without writing files")),
   },
   Effect.fn(function* (config) {
-    const { name, type, parentDir: parentDirOverride, description, dryRun } = config;
+    const { name, type, parentDir: parentDirOverride, dirName: dirNameOverride, description, dryRun } = config;
 
     // ── Validate type ──────────────────────────────────────────────────
     if (P.not(isValidPackageType)(type)) {
@@ -261,6 +267,14 @@ export const createPackageCommand = Command.make(
       });
     }
 
+    // ── Resolve directory name ─────────────────────────────────────────
+    const dirName = Str.isNonEmpty(dirNameOverride) ? dirNameOverride : name;
+    if (Str.isNonEmpty(dirNameOverride) && !PackageNamePattern.test(dirName)) {
+      return yield* new DomainError({
+        message: `Invalid dir name "${dirName}". Must start with a lowercase letter or underscore, contain only [a-z0-9._-].`,
+      });
+    }
+
     // ── Resolve parent directory ───────────────────────────────────────
     const defaultParentDir = type === "app" ? "apps" : "tooling";
     const parentDir = Str.isNonEmpty(parentDirOverride) ? parentDirOverride : defaultParentDir;
@@ -269,7 +283,7 @@ export const createPackageCommand = Command.make(
         message: `Invalid parent dir "${parentDir}". Use a repo-relative path like "tooling", "apps", or "packages/common".`,
       });
     }
-    const packagePath = `${parentDir}/${name}`;
+    const packagePath = `${parentDir}/${dirName}`;
 
     // ── Resolve services ───────────────────────────────────────────────
     const fs = yield* FileSystem.FileSystem;
@@ -281,12 +295,14 @@ export const createPackageCommand = Command.make(
     // ── Determine output directory ─────────────────────────────────────
     const outputDir = path.join(repoRoot, packagePath);
 
-    // ── Check if directory already exists ──────────────────────────────
-    const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
-    if (alreadyExists) {
-      return yield* new DomainError({
-        message: `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`,
-      });
+    // ── Check if directory already exists (skip for dry-run) ───────────
+    if (!dryRun) {
+      const alreadyExists = yield* fs.exists(outputDir).pipe(Effect.orElseSucceed(() => false));
+      if (alreadyExists) {
+        return yield* new DomainError({
+          message: `Directory already exists: ${outputDir}\nRemove it first or choose a different package name.`,
+        });
+      }
     }
 
     const configTarget: ConfigUpdateTarget = {
@@ -297,6 +313,9 @@ export const createPackageCommand = Command.make(
     // ── Dry-run: preview output and root config updates ────────────────
     if (dryRun) {
       yield* Console.log(`[dry-run] Would create package @beep/${name} (type: ${type})`);
+      if (dirName !== name) {
+        yield* Console.log(`[dry-run] Directory name: ${dirName} (overridden from package name "${name}")`);
+      }
       yield* Console.log(`[dry-run] Directory: ${outputDir}`);
       yield* Console.log(`[dry-run] Files:`);
       for (const file of ALL_FILES) {
@@ -472,6 +491,8 @@ const generatePackageJson: (
         "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
         babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
         check: "tsc -b tsconfig.json",
+        lint: "biome check .",
+        "lint:fix": "biome check . --write",
         test: "vitest",
         coverage: "vitest --coverage",
         docgen: "bunx @effect/docgen",

@@ -12,7 +12,7 @@ Semantic codebase search with vector embeddings, BM25 keyword search, and MCP se
 
 The package follows a pipeline architecture: **extract** symbols from TypeScript AST, **index** them into vector (LanceDB) and keyword (BM25) stores, then **search** using hybrid Reciprocal Rank Fusion. Results are exposed via MCP tools and Claude Code hooks.
 
-```
+```text
 TypeScript files
   -> FileScanner (AST parsing)
   -> JsDocExtractor + EffectPatternDetector

@@ -80,7 +80,12 @@ export const buildRepoDependencyIndex: (
     // Process each workspace package.json
     for (const [name, dir] of workspaces) {
       const pkgPath = `${dir}/package.json`;
-      const rawPkg = yield* fsUtils.readJson(pkgPath);
+      const rawPkg = yield* fsUtils
+        .readJson(pkgPath)
+        .pipe(Effect.catchTag("NoSuchFileError", () => Effect.succeed(null)));
+      if (rawPkg === null) {
+        continue;
+      }
       const pkg = yield* decodePackageJsonEffect(rawPkg).pipe(
         Effect.mapError(
           (error) =>

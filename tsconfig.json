@@ -5,7 +5,6 @@
   "include": [
     "**/vitest.*.ts", // All vitest config files across all packages
     "./syncpack.config.ts",
-    "./knip.config.ts",
     "./packages/*/*/test/**/*.ts",
     "./packages/*/*/test/**/*.json",
     "./packages/*/*/dtslint/**/*.ts",
@@ -49,7 +48,13 @@
       "@beep/ontology": ["./packages/common/ontology/src/index.ts"],
       "@beep/ontology/*": ["./packages/common/ontology/src/*.ts"],
       "@beep/data": ["./packages/common/data/src/index.ts"],
-      "@beep/data/*": ["./packages/common/data/src/*.ts"]
+      "@beep/data/*": ["./packages/common/data/src/*.ts"],
+      "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/*": ["./packages/shared/domain/src/*.ts"],
+      "@beep/shared-env": ["./packages/shared/env/src/index.ts"],
+      "@beep/shared-env/*": ["./packages/shared/env/src/*.ts"],
+      "@beep/ui": ["./packages/ui/ui/src/index.ts"],
+      "@beep/ui/*": ["./packages/ui/ui/src/*.ts"]
     },
     "plugins": [
       {

@@ -1,5 +1,5 @@
 import { LiteralKit } from "@beep/schema/LiteralKit.schema";
-import { Button } from "@beep/web/components/ui/button";
+import { Button } from "@beep/ui/components/ui/button";
 import { RocketLaunchIcon } from "@phosphor-icons/react/ssr";
 
 const Status = LiteralKit(["todo", "doing", "done"] as const);

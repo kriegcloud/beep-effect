@@ -115,16 +115,14 @@ layer(EmbeddingServiceMock)("EmbeddingService (Mock)", (it) => {
   // ---------------------------------------------------------------------------
 
   describe("constants", () => {
-    it.effect(
-      "EMBEDDING_DIMENSIONS is 768",
-      Effect.fn(function* () {
+    it.effect("EMBEDDING_DIMENSIONS is 768", () =>
+      Effect.sync(() => {
         expect(EMBEDDING_DIMENSIONS).toBe(768);
       })
     );
 
-    it.effect(
-      "DEFAULT_BATCH_SIZE is 32",
-      Effect.fn(function* () {
+    it.effect("DEFAULT_BATCH_SIZE is 32", () =>
+      Effect.sync(() => {
         expect(DEFAULT_BATCH_SIZE).toBe(32);
       })
     );
