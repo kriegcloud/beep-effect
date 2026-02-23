@@ -1,0 +1,18 @@
+{
+  "chat.tools.urls.autoApprove": {
+    "https://www.example.com": false,
+    "https://*.contoso.com/*": true,
+    "https://example.com/api/*": {
+      "approveRequest": true,
+      "approveResponse": false
+    },
+    "https://github.com/*": {
+      "approveRequest": true,
+      "approveResponse": true
+    },
+    "https://malicious.com": {
+      "approveRequest": false,
+      "approveResponse": false
+    }
+  }
+}

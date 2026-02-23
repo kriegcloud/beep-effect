@@ -1,0 +1,15 @@
+description = "Create a git commit with AI-generated message"
+
+prompt = """
+Review the current git status and staged changes.
+
+Git Status:
+!{git status}
+
+Staged Changes:
+!{git diff --staged}
+
+Create a conventional commit message based on these changes.
+
+{{args}}
+"""
