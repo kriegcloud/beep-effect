@@ -1,0 +1,48 @@
+# Rust
+/target/
+**/*.rs.bk
+*.bak
+*.pdb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+/test-output/
+/fixtures/
+
+# Coverage
+lcov*.info
+*.profraw
+*.profdata
+
+# Build artifacts
+dist/
+*.wasm
+.intellijPlatform/
+
+# Temporary docs
+IMPLEMENTATION-NEXT-STEPS.md
+STATUS.md
+
+.claude/settings.local.json
+.claude/tasks.json
+.claude/state/*
+.claude/workflow-status.json
+.claude/plan.md
+.claude-workflow-status.json
+.workflow-status.json
+
+# Plugin state
+.agnix/state/
+
+agent-knowledge/
+nul

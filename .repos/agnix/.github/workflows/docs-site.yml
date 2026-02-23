@@ -1,0 +1,98 @@
+name: Docs Website
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - 'knowledge-base/rules.json'
+      - 'scripts/generate-docs-rules.py'
+      - '.github/workflows/docs-site.yml'
+      - 'crates/agnix-cli/tests/docs_website_parity.rs'
+      - 'crates/agnix-wasm/**'
+      - 'crates/agnix-core/**'
+      - 'crates/agnix-rules/**'
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - 'knowledge-base/rules.json'
+      - 'scripts/generate-docs-rules.py'
+      - '.github/workflows/docs-site.yml'
+      - 'crates/agnix-cli/tests/docs_website_parity.rs'
+      - 'crates/agnix-wasm/**'
+      - 'crates/agnix-core/**'
+      - 'crates/agnix-rules/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: docs-site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build docs site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Lint workflow files
+        uses: rhysd/actionlint@0933c147c9d6587653d45fdcb4c497c57a65f9af # v1.7.10
+        with:
+          args: .github/workflows/docs-site.yml
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'website/package-lock.json'
+      - uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@2723513a70062521fb56e5df87a04967751efd2f # v2.68.4
+        with:
+          tool: wasm-pack@0.13.1
+      - name: Install website dependencies
+        run: npm --prefix website ci
+      - name: Generate rule docs and build site
+        run: npm --prefix website run build
+      - name: Run docs parity test
+        run: cargo test -p agnix-cli --test docs_website_parity
+      - name: Upload site artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+        with:
+          path: website/build
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+        with:
+          enablement: true
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
