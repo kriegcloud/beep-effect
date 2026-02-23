@@ -39,6 +39,7 @@
     "version-sync": "bun run beep version-sync",
     "purge": "bun run beep purge",
     "clean": "node scripts/clean.mjs",
+    "dev": "bunx turbo run dev",
     "build": "bunx turbo run build",
     "changeset": "changeset",
     "changeset:status": "changeset status",
