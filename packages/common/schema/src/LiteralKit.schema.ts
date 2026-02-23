@@ -224,7 +224,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  * Status.is.number1(42);     // false
  * Status.is.hello("hello");  // true
  *
- * const result = Status.$match(value, {
+ * const result = Status.$match(Status.Enum.number1, {
  *   number1: (v) => `got ${v}`,
  *   bigint20n: (v) => `got ${v}`,
  *   true: (v) => `got ${v}`,

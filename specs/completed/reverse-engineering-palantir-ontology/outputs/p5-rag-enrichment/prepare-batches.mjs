@@ -9,7 +9,8 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const SPEC = "/home/elpresidank/YeeBois/projects/beep-effect2/specs/pending/reverse-engineering-palantir-for-beep-effect-ontology";
+const SPEC =
+  "/home/elpresidank/YeeBois/projects/beep-effect2/specs/pending/reverse-engineering-palantir-for-beep-effect-ontology";
 const CACHE_DIR = join(SPEC, "outputs/p5-rag-enrichment/cache");
 const BATCH_DIR = join(SPEC, "outputs/p5-rag-enrichment/batches");
 const MASTER_PATH = join(SPEC, "outputs/p2-web-research/master.json");

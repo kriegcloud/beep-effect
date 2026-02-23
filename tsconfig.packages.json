@@ -7,7 +7,19 @@
   "include": [],
   "references": [
     {
+      "path": "apps/web"
+    },
+    {
+      "path": "packages/common/data"
+    },
+    {
       "path": "packages/common/identity"
+    },
+    {
+      "path": "packages/common/messages"
+    },
+    {
+      "path": "packages/common/ontology"
     },
     {
       "path": "packages/common/schema"
@@ -29,15 +41,6 @@
     },
     {
       "path": "tooling/repo-utils"
-    },
-    {
-      "path": "packages/common/messages"
-    },
-    {
-      "path": "packages/common/ontology"
-    },
-    {
-      "path": "packages/common/data"
     }
   ]
 }

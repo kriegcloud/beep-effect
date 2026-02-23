@@ -572,7 +572,7 @@ describe("tsconfig-sync command", () => {
   );
 
   it("is registered under the root command tree", () => {
-    const subcommandNames = rootCommand.subcommands.map((command) => command.name);
+    const subcommandNames = rootCommand.subcommands.flatMap((group) => group.commands.map((command) => command.name));
     expect(subcommandNames).toContain("tsconfig-sync");
   });
 });
