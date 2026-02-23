@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "./dist-types",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["bun-types", "@types/react"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "hooks/**/*.ts",
+    "scripts/**/*.ts",
+    "skills/**/*.ts",
+    "patterns/**/*.ts",
+    "test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "hooks/node_modules"
+  ]
+}

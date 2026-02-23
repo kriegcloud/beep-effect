@@ -1,0 +1,412 @@
+# Error Catalog: Testing + Runtime
+# Generated: 2026-02-04
+# Categories: testing, runtime
+
+version: "1.0"
+errors:
+  # ============================================================================
+  # TESTING ERRORS (TEST_001 - TEST_006)
+  # ============================================================================
+
+  - id: TEST_001
+    pattern: "import\\s*\\{\\s*test\\s*\\}\\s*from\\s*['\"]bun:test['\"]"
+    category: testing
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Using bun:test directly instead of @beep/testkit for Effect tests
+    diagnosis: |
+      Check for imports from "bun:test" combined with Effect.runPromise or
+      Effect.runSync calls. The testkit provides Effect-aware runners that handle
+      runtime management, error formatting, and TestContext injection.
+    fix_steps:
+      - Replace "bun:test" import with @beep/testkit imports
+      - Replace test() with effect() for standard Effect tests
+      - Replace manual Effect.runPromise with testkit runner semantics
+      - Remove explicit Effect.provide(TestContext.TestContext) if using effect()
+    example:
+      error: "Using bun:test with Effect.runPromise loses test services and error formatting"
+      before: |
+        import { test } from "bun:test";
+        import * as Effect from "effect/Effect";
+
+        test("creates user", async () => {
+          await Effect.gen(function* () {
+            const result = yield* createUser({ name: "Test" });
+            expect(result.id).toBeDefined();
+          }).pipe(Effect.provide(TestLayer), Effect.runPromise);
+        });
+      after: |
+        import * as Effect from "effect/Effect";
+        import { effect, strictEqual } from "@beep/testkit";
+
+        effect("creates user", () =>
+          Effect.gen(function* () {
+            const result = yield* createUser({ name: "Test" });
+            strictEqual(typeof result.id, "string");
+          }).pipe(Effect.provide(TestLayer))
+        );
+
+  - id: TEST_002
+    pattern: "from\\s*['\"]\\.\\.[\\/]"
+    category: testing
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Using relative imports in test files instead of path aliases
+    diagnosis: |
+      Test files should use @beep/* path aliases for imports from source files.
+      Relative imports like "../src/UserService" are fragile and break when
+      refactoring directory structure.
+    fix_steps:
+      - Identify the package name from package.json
+      - Replace relative import with @beep/{package-name}/{module-path}
+      - Verify import resolves correctly with bun run check
+    example:
+      error: "Cannot find module '../src/services/UserService'"
+      before: |
+        // test/services/UserService.test.ts
+        import { UserService } from "../src/services/UserService";
+        import { UserRepo } from "../../src/repos/UserRepo";
+      after: |
+        // test/services/UserService.test.ts
+        import { UserService } from "@beep/iam-server/services/UserService";
+        import { UserRepo } from "@beep/iam-server/repos/UserRepo";
+
+  - id: TEST_003
+    pattern: "optionalField:\\s*undefined"
+    category: testing
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Using undefined for Option fields in test mocks instead of O.none()
+    diagnosis: |
+      When creating mock data for Effect models that use Option<T> fields, you must
+      use O.none() instead of undefined. Effect's Option type is a tagged union,
+      not JavaScript's undefined.
+    fix_steps:
+      - Import O from "effect/Option"
+      - Replace undefined with O.none() for absent optional values
+      - Replace direct values with O.some(value) for present optional values
+    example:
+      error: "Type 'undefined' is not assignable to type 'Option<string>'"
+      before: |
+        import * as Effect from "effect/Effect";
+
+        const mockMember = {
+          id: "member__123",
+          userId: "user__456",
+          nickname: undefined,  // Wrong for Option<string>
+          avatarUrl: undefined,
+        };
+      after: |
+        import * as Effect from "effect/Effect";
+        import * as O from "effect/Option";
+
+        const mockMember = {
+          id: "member__123",
+          userId: "user__456",
+          nickname: O.none(),
+          avatarUrl: O.none(),
+        };
+
+  - id: TEST_004
+    pattern: "layer\\([^,]+\\)\\(['\"]"
+    category: testing
+    severity: warning
+    fix_type: safe
+    remediation: trivial
+    description: Missing timeout configuration for layer-based database tests
+    diagnosis: |
+      Database integration tests often exceed the default test timeout. The layer()
+      runner accepts an options object with timeout parameter. Without explicit
+      timeout, tests may fail intermittently on slower CI runners.
+    fix_steps:
+      - Add { timeout: Duration.seconds(N) } as second argument to layer()
+      - Use 30-60 seconds for typical database operations
+      - Use longer timeouts for migration or seeding tests
+    example:
+      error: "Test timeout exceeded (default 5000ms)"
+      before: |
+        import { layer } from "@beep/testkit";
+
+        layer(TestDbLayer)("database operations", (it) => {
+          it.effect("creates entity", () =>
+            Effect.gen(function* () {
+              const repo = yield* EntityRepo;
+              yield* repo.create({ name: "Test" });
+            })
+          );
+        });
+      after: |
+        import * as Duration from "effect/Duration";
+        import { layer } from "@beep/testkit";
+
+        layer(TestDbLayer, { timeout: Duration.seconds(60) })("database operations", (it) => {
+          it.effect("creates entity", () =>
+            Effect.gen(function* () {
+              const repo = yield* EntityRepo;
+              yield* repo.create({ name: "Test" });
+            })
+          );
+        });
+
+  - id: TEST_005
+    pattern: "yield\\*\\s+Effect\\.sleep|Effect\\.timeout|Effect\\.delay"
+    category: testing
+    severity: warning
+    fix_type: unsafe
+    remediation: major
+    description: Time-dependent Effect without TestClock advancement
+    diagnosis: |
+      Effects that use sleep, timeout, or delay will hang indefinitely in tests
+      using the effect() runner because TestClock doesn't advance automatically.
+      You must fork the time-dependent operation and use TestClock.adjust().
+    fix_steps:
+      - Fork the time-dependent Effect using Effect.fork
+      - Use TestClock.adjust() to advance virtual time
+      - Join the fiber to get the result
+      - Consider if test actually needs timing or can be restructured
+    example:
+      error: "Test hangs indefinitely waiting for Effect.sleep to complete"
+      before: |
+        import * as Effect from "effect/Effect";
+        import * as Duration from "effect/Duration";
+        import { effect, strictEqual } from "@beep/testkit";
+
+        effect("waits for delay", () =>
+          Effect.gen(function* () {
+            yield* Effect.sleep(Duration.seconds(5));  // Hangs forever!
+            const result = yield* computeResult();
+            strictEqual(result, "done");
+          })
+        );
+      after: |
+        import * as Effect from "effect/Effect";
+        import * as Duration from "effect/Duration";
+        import * as Fiber from "effect/Fiber";
+        import * as TestClock from "effect/TestClock";
+        import { effect, strictEqual } from "@beep/testkit";
+
+        effect("waits for delay", () =>
+          Effect.gen(function* () {
+            const fiber = yield* Effect.fork(
+              Effect.gen(function* () {
+                yield* Effect.sleep(Duration.seconds(5));
+                return yield* computeResult();
+              })
+            );
+            yield* TestClock.adjust(Duration.seconds(5));
+            const result = yield* Fiber.join(fiber);
+            strictEqual(result, "done");
+          })
+        );
+
+  - id: TEST_006
+    pattern: "src/.*\\.test\\.ts"
+    category: testing
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Test file located in src directory instead of test directory
+    diagnosis: |
+      Test files must be placed in the ./test directory, mirroring the ./src
+      structure. Inline tests pollute the source tree and may be bundled into
+      production builds.
+    fix_steps:
+      - Create corresponding directory structure under ./test
+      - Move test file from src/ to test/
+      - Update any relative imports to use path aliases
+      - Verify test still runs with bun run test
+    example:
+      error: "Test files should not be in src/ directory"
+      before: |
+        packages/iam/server/
+        ├── src/
+        │   ├── services/
+        │   │   ├── MemberService.ts
+        │   │   └── MemberService.test.ts  # Wrong location!
+        │   └── repos/
+        │       └── MemberRepo.ts
+      after: |
+        packages/iam/server/
+        ├── src/
+        │   ├── services/
+        │   │   └── MemberService.ts
+        │   └── repos/
+        │       └── MemberRepo.ts
+        └── test/
+            └── services/
+                └── MemberService.test.ts  # Correct location
+
+  # ============================================================================
+  # RUNTIME ERRORS (RT_001 - RT_005)
+  # ============================================================================
+
+  - id: RT_001
+    pattern: "Stream\\.fromAsyncIterable\\([^,]+\\)"
+    category: runtime
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Stream.fromAsyncIterable called without error handler argument
+    diagnosis: |
+      Stream.fromAsyncIterable requires a second argument that maps unknown errors
+      to a typed error. Without this, the stream cannot properly handle errors
+      from the async iterator.
+    fix_steps:
+      - Add error mapping function as second argument
+      - Create appropriate TaggedError class for the stream errors
+      - Map unknown cause to your typed error
+    example:
+      error: "Expected 2 arguments, but got 1"
+      before: |
+        import * as Stream from "effect/Stream";
+
+        const processItems = (items: AsyncIterable<Item>) =>
+          Stream.fromAsyncIterable(items);  // Missing error handler!
+      after: |
+        import * as Stream from "effect/Stream";
+        import * as S from "effect/Schema";
+
+        class StreamError extends S.TaggedError<StreamError>()("StreamError", {
+          cause: S.Unknown,
+        }) {}
+
+        const processItems = (items: AsyncIterable<Item>) =>
+          Stream.fromAsyncIterable(
+            items,
+            (cause) => new StreamError({ cause })
+          );
+
+  - id: RT_002
+    pattern: "const\\s+\\w+:\\s*Array<[^>]+>\\s*=\\s*yield\\*\\s+Stream\\.runCollect"
+    category: runtime
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Stream.runCollect returns Chunk, not Array
+    diagnosis: |
+      Stream.runCollect returns a Chunk<T>, not an Array<T>. Chunk is Effect's
+      immutable array type. To convert to Array, use A.fromIterable().
+    fix_steps:
+      - Change variable type annotation from Array<T> to Chunk<T>
+      - Or remove type annotation and convert result using A.fromIterable()
+      - Import A from "effect/Array"
+    example:
+      error: "Type 'Chunk<Item>' is not assignable to type 'Item[]'"
+      before: |
+        import * as Stream from "effect/Stream";
+
+        const items: Array<Item> = yield* Stream.runCollect(itemStream);
+      after: |
+        import * as Stream from "effect/Stream";
+        import * as A from "effect/Array";
+
+        const chunk = yield* Stream.runCollect(itemStream);
+        const items = A.fromIterable(chunk);
+
+  - id: RT_003
+    pattern: "MutableHashSet\\.forEach"
+    category: runtime
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: MutableHashSet.forEach method does not exist
+    diagnosis: |
+      Effect's MutableHashSet does not have a forEach method. MutableHashSet is
+      iterable, so use native for...of loop instead. This is an acceptable
+      exception to the "no native methods" rule.
+    fix_steps:
+      - Replace MutableHashSet.forEach with for...of loop
+      - Use native iteration since MutableHashSet implements Iterable
+    example:
+      error: "Property 'forEach' does not exist on type 'typeof MutableHashSet'"
+      before: |
+        import * as MutableHashSet from "effect/MutableHashSet";
+
+        const visited = MutableHashSet.make<string>();
+        MutableHashSet.add(visited, "item1");
+        MutableHashSet.add(visited, "item2");
+
+        MutableHashSet.forEach(visited, (item) => {
+          console.log(item);
+        });
+      after: |
+        import * as MutableHashSet from "effect/MutableHashSet";
+
+        const visited = MutableHashSet.make<string>();
+        MutableHashSet.add(visited, "item1");
+        MutableHashSet.add(visited, "item2");
+
+        for (const item of visited) {
+          console.log(item);
+        }
+
+  - id: RT_004
+    pattern: "Effect\\.runSync\\("
+    category: runtime
+    severity: warning
+    fix_type: unsafe
+    remediation: major
+    description: Effect.runSync can block the event loop or throw on async effects
+    diagnosis: |
+      Effect.runSync executes synchronously and will throw if the Effect is
+      asynchronous. In production code, prefer Layer-based composition. In tests,
+      use @beep/testkit runners instead.
+    fix_steps:
+      - For production code, compose via Layers and run at program boundary
+      - For tests, use effect(), scoped(), or layer() from @beep/testkit
+      - If truly synchronous and unavoidable, document why runSync is necessary
+    example:
+      error: "Cannot synchronously run effect that performs async operations"
+      before: |
+        import * as Effect from "effect/Effect";
+
+        const config = Effect.runSync(
+          Effect.gen(function* () {
+            const env = yield* loadEnv();  // Might be async!
+            return parseConfig(env);
+          })
+        );
+      after: |
+        import * as Effect from "effect/Effect";
+        import * as Layer from "effect/Layer";
+
+        // Define as Layer for composition
+        const ConfigLive = Layer.effect(
+          Config,
+          Effect.gen(function* () {
+            const env = yield* loadEnv();
+            return parseConfig(env);
+          })
+        );
+
+        // Provide at program boundary via Layer composition
+        const program = mainEffect.pipe(Effect.provide(ConfigLive));
+
+  - id: RT_005
+    pattern: "yield\\*\\s+\\w+\\s*(?!\\.)(?!\\[)"
+    category: runtime
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Attempting to yield* a service Tag without accessing service
+    diagnosis: |
+      When a module exports both a namespace and a service Tag with the same name,
+      you need to access the inner Tag. Common pattern with LanguageModel and
+      similar Effect services that use namespace + Tag pattern.
+    fix_steps:
+      - Check if the imported name is a namespace containing a Tag
+      - Use ModuleName.ModuleName pattern to access the Tag
+      - Verify the service interface matches expected type
+    example:
+      error: "Service not found - cannot yield namespace, must yield Tag"
+      before: |
+        import { LanguageModel } from "@effect/ai";
+
+        const model = yield* LanguageModel;  // Wrong - LanguageModel is namespace!
+      after: |
+        import { LanguageModel } from "@effect/ai";
+
+        const model = yield* LanguageModel.LanguageModel;  // Correct - first is namespace, second is Tag

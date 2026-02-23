@@ -1,0 +1,104 @@
+"use client";
+
+import { IS_CHROME } from "@lexical/utils";
+import * as S from "effect/Schema";
+import {
+  type DOMConversionMap,
+  type DOMConversionOutput,
+  type DOMExportOutput,
+  type EditorConfig,
+  ElementNode,
+  type LexicalEditor,
+  type LexicalNode,
+  type SerializedElementNode,
+} from "lexical";
+import { $isCollapsibleContainerNode } from "./CollapsibleContainerNode";
+import { domOnBeforeMatch, setDomHiddenUntilFound } from "./CollapsibleUtils";
+
+type SerializedCollapsibleContentNode = SerializedElementNode;
+
+export function $convertCollapsibleContentElement(_: HTMLElement): DOMConversionOutput | null {
+  const node = $createCollapsibleContentNode();
+  return {
+    node,
+  };
+}
+
+export class CollapsibleContentNode extends ElementNode {
+  static override getType(): string {
+    return "collapsible-content";
+  }
+
+  static override clone(node: CollapsibleContentNode): CollapsibleContentNode {
+    return new CollapsibleContentNode(node.__key);
+  }
+
+  override createDOM(_: EditorConfig, editor: LexicalEditor): HTMLElement {
+    const dom = document.createElement("div");
+    dom.classList.add("Collapsible__content");
+    if (IS_CHROME) {
+      editor.getEditorState().read(() => {
+        const containerNode = this.getParentOrThrow();
+        if (!$isCollapsibleContainerNode(containerNode)) {
+          return;
+        }
+        if (!containerNode.__open) {
+          setDomHiddenUntilFound(dom);
+        }
+      });
+      domOnBeforeMatch(dom, () => {
+        editor.update(() => {
+          const containerNode = this.getParentOrThrow().getLatest();
+          if (!$isCollapsibleContainerNode(containerNode)) {
+            return;
+          }
+          if (!containerNode.__open) {
+            containerNode.toggleOpen();
+          }
+        });
+      });
+    }
+    return dom;
+  }
+
+  override updateDOM(_prevNode: this, _dom: HTMLElement): boolean {
+    return false;
+  }
+
+  static override importDOM(): DOMConversionMap | null {
+    return {
+      div: (domNode: HTMLElement) => {
+        if (!domNode.hasAttribute("data-lexical-collapsible-content")) {
+          return null;
+        }
+        return {
+          conversion: $convertCollapsibleContentElement,
+          priority: 2,
+        };
+      },
+    };
+  }
+
+  override exportDOM(): DOMExportOutput {
+    const element = document.createElement("div");
+    element.classList.add("Collapsible__content");
+    element.setAttribute("data-lexical-collapsible-content", "true");
+    return { element };
+  }
+
+  static override importJSON(serializedNode: SerializedCollapsibleContentNode): CollapsibleContentNode {
+    return $createCollapsibleContentNode().updateFromJSON(serializedNode);
+  }
+
+  override isShadowRoot(): boolean {
+    return true;
+  }
+}
+
+export function $createCollapsibleContentNode(): CollapsibleContentNode {
+  return new CollapsibleContentNode();
+}
+
+export function $isCollapsibleContentNode(node: LexicalNode | null | undefined): node is CollapsibleContentNode {
+  return S.is(S.instanceOf(CollapsibleContentNode))(node);
+}

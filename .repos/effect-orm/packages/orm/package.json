@@ -1,0 +1,42 @@
+{
+  "name": "@beep/effect-orm",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "An ORM for @effect/sql Model",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kriegcloud/effect-orm.git",
+    "directory": "packages/orm"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:"
+  },
+  "devDependencies": {
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@types/node": "catalog:",
+    "mutative": "catalog:"
+  },
+  "scripts": {
+    "codegen": "build-utils prepare-v2",
+    "build": "tsc -b tsconfig.json",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "lint": "biome check src test",
+    "lint:fix": "biome check --write src test",
+    "clean": "rm -rf build dist .tsbuildinfo"
+  }
+}

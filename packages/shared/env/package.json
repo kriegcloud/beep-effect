@@ -1,0 +1,117 @@
+{
+  "name": "@beep/shared-env",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Type-safe environment configuration loaders for client and server contexts",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/env",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/shared/env"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsgo --noEmit -p tsconfig.json",
+    "test": "bun test",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "coverage": "bun test --coverage",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "@beep/schema": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@effect-aws/client-s3": "catalog:",
+    "@effect-aws/s3": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@mui/material": "catalog:",
+    "@react-email/components": "catalog:",
+    "@react-email/render": "catalog:",
+    "@rocicorp/zero": "catalog:",
+    "clsx": "catalog:",
+    "drizzle-orm": "catalog:",
+    "drizzle-zero": "catalog:",
+    "effect": "catalog:",
+    "mutative": "catalog:",
+    "pg-connection-string": "catalog:",
+    "pg-types": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "resend": "catalog:",
+    "sql-formatter": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tailwindcss-animate": "catalog:",
+    "tw-animate-css": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/schema": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@effect/docgen": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@mui/material": "catalog:",
+    "@react-email/components": "catalog:",
+    "@react-email/render": "catalog:",
+    "@rocicorp/zero": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "@types/pg-cursor": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "clsx": "catalog:",
+    "drizzle-orm": "catalog:",
+    "drizzle-zero": "catalog:",
+    "effect": "catalog:",
+    "mutative": "catalog:",
+    "pg-connection-string": "catalog:",
+    "pg-cursor": "catalog:",
+    "pg-types": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "resend": "catalog:",
+    "sql-formatter": "catalog:",
+    "tailwind-merge": "catalog:",
+    "tailwindcss": "catalog:",
+    "tailwindcss-animate": "catalog:",
+    "testcontainers": "catalog:",
+    "tw-animate-css": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+tasks:
+  - init: npm install -g bun && bun install && bun run build
+github:
+  prebuilds:
+    addCheck: true
+vscode:
+  extensions:
+    - dbaeumer.vscode-eslint
