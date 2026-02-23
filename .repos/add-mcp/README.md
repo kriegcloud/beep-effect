@@ -1,0 +1,179 @@
+# add-mcp
+
+Add MCP servers to your favorite coding agents with a single command.
+
+Supports **Claude Code**, **Codex**, **Cursor**, **OpenCode**, **VSCode** and [5 more](#supported-agents).
+
+## Install an MCP Server
+
+```bash
+npx add-mcp url | package name [options]
+```
+
+Example installing the Context7 MCP server:
+
+```bash
+npx add-mcp https://mcp.context7.com/mcp
+```
+
+### Usage Examples
+
+```bash
+# Remote MCP server (streamable HTTP)
+npx add-mcp https://mcp.example.com/mcp
+
+# Remote MCP server (SSE transport)
+npx add-mcp https://mcp.example.com/sse --transport sse
+
+# Remote MCP server with auth header
+npx add-mcp https://mcp.example.com/mcp --header "Authorization: Bearer $TOKEN"
+
+# npm package (runs via npx)
+npx add-mcp @modelcontextprotocol/server-postgres
+
+# Non-interactive installation to all detected agents in the project directory
+npx add-mcp https://mcp.example.com/mcp -y
+
+# Non-interactive installation to the global Claude Code config
+npx add-mcp https://mcp.example.com/mcp -g -a claude-code -y
+
+# Full command with arguments
+npx add-mcp "npx -y @org/mcp-server --flag value"
+
+# Node.js script
+npx add-mcp "node /path/to/server.js --port 3000"
+
+# Install for Cursor and Claude Code
+npx add-mcp https://mcp.example.com/mcp -a cursor -a claude-code
+
+# Install with custom server name
+npx add-mcp @modelcontextprotocol/server-postgres --name postgres
+
+# Install to all supported agents
+npx add-mcp mcp-server-github --all
+
+# Install to all agents, globally, without prompts
+npx add-mcp mcp-server-github --all -g -y
+
+# Add generated config files to .gitignore
+npx add-mcp https://mcp.example.com/mcp -a cursor -y --gitignore
+```
+
+### Options
+
+| Option                   | Description                                                              |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `-g, --global`           | Install to user directory instead of project                             |
+| `-a, --agent <agent>`    | Target specific agents (e.g., `cursor`, `claude-code`). Can be repeated. |
+| `-t, --transport <type>` | Transport type for remote servers: `http` (default), `sse`               |
+| `--type <type>`          | Alias for `--transport`                                                  |
+| `--header <header>`      | HTTP header for remote servers (repeatable, `Key: Value`)                |
+| `-n, --name <name>`      | Server name (auto-inferred if not provided)                              |
+| `-y, --yes`              | Skip all confirmation prompts                                            |
+| `--all`                  | Install to all agents                                                    |
+| `--gitignore`            | Add generated config files to `.gitignore`                               |
+
+### Additional Commands
+
+Besides the implicit add command, `add-mcp` also supports the following commands:
+
+| Command       | Description                                                  |
+| ------------- | ------------------------------------------------------------ |
+| `list-agents` | List all supported coding agents with scope (project/global) |
+
+```bash
+# List all supported agents
+npx add-mcp list-agents
+```
+
+### Installation Scope
+
+| Scope       | Flag      | Location                | Use Case                                      |
+| ----------- | --------- | ----------------------- | --------------------------------------------- |
+| **Project** | (default) | `.cursor/mcp.json` etc. | Committed with your project, shared with team |
+| **Global**  | `-g`      | `~/.cursor/mcp.json`    | Available across all projects                 |
+
+### Smart Detection
+
+The CLI automatically detects agents based on your environment:
+
+**Default (project mode):**
+
+- Detects project-level config files (`.cursor/`, `.vscode/`, `.mcp.json`, etc.)
+- Selects detected agents (have project config in the current directory) by default
+- Shows detected agents plus all other supported agents for selection
+
+**With `-g` (global mode):**
+
+- Detects all globally-installed agents (including Claude Desktop, Codex, Zed)
+- Selects detected agents by default
+- Shows detected agents plus all other supported agents for selection
+
+**No agents detected:**
+
+- Interactive mode: Defaults to the last selection and shows all agents for selection
+- With `--yes`: Installs to all project-capable agents (project mode) or all global-capable agents (global mode)
+
+## Transport Types
+
+`add-mcp` supports all three transport types: HTTP, SSE, and stdio. Some agents require `type` option to be set to specify the transport type. You can use the `--type` or `--transport` option to specify the transport type:
+
+| Transport | Flag               | Description                                           |
+| --------- | ------------------ | ----------------------------------------------------- |
+| **HTTP**  | `--transport http` | Streamable HTTP (default)                             |
+| **SSE**   | `--transport sse`  | Server-Sent Events (deprecated by MCP but still used) |
+
+Local servers (npm packages, commands) always use **stdio** transport.
+
+Note that some agents like Cursor and opencode do not require the `type` information to be set.
+
+## HTTP Headers
+
+Use `--header` to pass custom headers for remote servers. The flag can be repeated.
+Header support is available for remote installs across all supported agents.
+
+## Supported Agents
+
+MCP servers can be installed to any of these agents:
+
+| Agent              | `--agent`            | Project Path            | Global Path                                                       |
+| ------------------ | -------------------- | ----------------------- | ----------------------------------------------------------------- |
+| Claude Code        | `claude-code`        | `.mcp.json`             | `~/.claude.json`                                                  |
+| Claude Desktop     | `claude-desktop`     | -                       | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Codex              | `codex`              | `.codex/config.toml`    | `~/.codex/config.toml`                                            |
+| Cursor             | `cursor`             | `.cursor/mcp.json`      | `~/.cursor/mcp.json`                                              |
+| Gemini CLI         | `gemini-cli`         | `.gemini/settings.json` | `~/.gemini/settings.json`                                         |
+| Goose              | `goose`              | `.goose/config.yaml`    | `~/.config/goose/config.yaml`                                     |
+| GitHub Copilot CLI | `github-copilot-cli` | `.vscode/mcp.json`      | `~/.copilot/mcp-config.json`                                      |
+| OpenCode           | `opencode`           | `opencode.json`         | `~/.config/opencode/opencode.json`                                |
+| VS Code            | `vscode`             | `.vscode/mcp.json`      | `~/Library/Application Support/Code/User/mcp.json`                |
+| Zed                | `zed`                | `.zed/settings.json`    | `~/Library/Application Support/Zed/settings.json`                 |
+
+**Aliases:** `gemini` → `gemini-cli`, `github-copilot` → `vscode`
+
+The CLI uses smart detection to find agents in your project directory and globally installed agents. See [Smart Detection](#smart-detection) for details.
+
+## What are MCP Servers?
+
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/) servers extend your coding agent's capabilities by providing tools, resources, and context. MCP servers can:
+
+- Integrate with external services (Notion, Linear, GitHub, etc.)
+- Connect to databases (PostgreSQL, MySQL, etc.)
+- Provide file system access
+- Offer specialized tools for your workflow
+
+## Troubleshooting
+
+### Server not loading
+
+- Verify the server URL is correct and accessible
+- Check the agent's MCP configuration file for syntax errors
+- Ensure the server name doesn't conflict with existing servers
+
+### Permission errors
+
+Ensure you have write access to the target configuration directory.
+
+## License
+
+Apache 2.0
