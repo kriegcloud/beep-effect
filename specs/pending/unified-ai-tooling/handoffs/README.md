@@ -6,6 +6,8 @@
 | P2 | `HANDOFF_P2.md` | `P2_ORCHESTRATOR_PROMPT.md` |
 | P3 | `HANDOFF_P3.md` | `P3_ORCHESTRATOR_PROMPT.md` |
 | P4 | `HANDOFF_P4.md` | `P4_ORCHESTRATOR_PROMPT.md` |
+| P5 | `HANDOFF_P5.md` | `P5_ORCHESTRATOR_PROMPT.md` |
+| P6 | `HANDOFF_P6.md` | `P6_ORCHESTRATOR_PROMPT.md` |
 
 Read order for any phase:
 1. `../README.md`

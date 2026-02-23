@@ -3,6 +3,7 @@ pre-commit:
   commands:
     biome:
       glob: "*.{ts,tsx,js,jsx,json,jsonc,css,md}"
+      exclude: ".beep/**"
       run: bunx biome check --write {staged_files}
       stage_fixed: true
     jsdoc:
@@ -13,6 +14,7 @@ pre-commit:
       run: gitleaks protect --staged --verbose
     typos:
       glob: "*.{ts,tsx,js,jsx,md,json}"
+      exclude: ".beep/**"
       run: typos {staged_files}
 
 commit-msg:
@@ -22,6 +24,8 @@ commit-msg:
 
 pre-push:
   commands:
+    beep-sync-gates:
+      run: bun run beep-sync:gates
     quality:
       run: bun run build && bun run check && bun run test
 

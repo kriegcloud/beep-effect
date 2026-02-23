@@ -9,9 +9,7 @@
       }
     ],
     "instructions": {
-      "base": [
-        ".beep/instructions/core.md"
-      ]
+      "base": [".beep/instructions/core.md"]
     },
     "mcp_servers": {
       "context7": {

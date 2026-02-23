@@ -1,28 +1,54 @@
-import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   copyFileSync,
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   rmdirSync,
   rmSync,
   statSync,
-  writeFileSync
+  writeFileSync,
 } from "node:fs";
 import { dirname, extname, resolve } from "node:path";
+import { jsonStringifyPretty } from "@beep/repo-utils";
+import * as A from "effect/Array";
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
+import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import YAML from "yaml";
 
+/**
+ * @since 0.0.0
+ */
 export const scaffoldVersion = "0.0.0-scaffold";
 
-export type Severity = "error" | "warning";
+/**
+ * @since 0.0.0
+ */
+export type Severity = Data.TaggedEnum<{
+  error: {};
+  warning: {};
+}>;
+const Severity = Data.taggedEnum<Severity>();
+type SeverityTag = Severity["_tag"];
 
+/**
+ * @since 0.0.0
+ */
 export type Diagnostic = {
   code: string;
   message: string;
   path: string;
-  severity: Severity;
+  severity: SeverityTag;
 };
 
 type CanonicalCommand = {
@@ -38,6 +64,9 @@ type CanonicalMcpServer = {
   args?: string[];
 };
 
+/**
+ * @since 0.0.0
+ */
 export type CanonicalConfig = {
   version: number;
   instructions: {
@@ -47,13 +76,28 @@ export type CanonicalConfig = {
   mcp_servers: Record<string, CanonicalMcpServer>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type NormalizedEnvelope = {
   version: 1;
   hash: string;
   config: CanonicalConfig;
 };
 
-export type McpTool = "codex" | "cursor" | "windsurf";
+/**
+ * @since 0.0.0
+ */
+export type McpTool = Data.TaggedEnum<{
+  codex: {};
+  cursor: {};
+  windsurf: {};
+}>;
+const McpTool = Data.taggedEnum<McpTool>();
+/**
+ * @since 0.0.0
+ */
+export type McpToolTag = McpTool["_tag"];
 
 type McpServer = Record<string, unknown>;
 
@@ -61,13 +105,24 @@ type McpFixture = {
   servers: Record<string, McpServer>;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type McpGenerationResult = {
   output: string;
   warnings: string[];
-  capabilityMap: Record<McpTool, string[]>;
+  capabilityMap: Record<McpToolTag, string[]>;
 };
 
-export type JetbrainsPromptMode = "bundle_only" | "native_file";
+/**
+ * @since 0.0.0
+ */
+export type JetbrainsPromptMode = Data.TaggedEnum<{
+  bundle_only: {};
+  native_file: {};
+}>;
+const JetbrainsPromptMode = Data.taggedEnum<JetbrainsPromptMode>();
+type JetbrainsPromptModeTag = JetbrainsPromptMode["_tag"];
 
 type JetbrainsPrompt = {
   id: string;
@@ -80,15 +135,21 @@ type JetbrainsPromptLibraryFixture = {
   prompts: JetbrainsPrompt[];
 };
 
+/**
+ * @since 0.0.0
+ */
 export type JetbrainsArtifact = {
   path: string;
   content: string;
   sha256: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type JetbrainsPromptLibraryEnvelope = {
   tool: "jetbrains";
-  mode: JetbrainsPromptMode;
+  mode: JetbrainsPromptModeTag;
   warnings: string[];
   artifacts: JetbrainsArtifact[];
   bundleHash: string;
@@ -99,15 +160,38 @@ export type JetbrainsPromptLibraryEnvelope = {
   };
 };
 
-type Poc04State = {
-  version: 1;
-  managedFile: string;
-  backupFile: string;
-  managedHash: string;
-  unmanagedFile: string;
-  unmanagedHashAtApply: string | null;
-  lastAction: "apply";
-};
+class Poc04ApplyAction extends Data.TaggedClass("apply")<{}> {}
+class Poc04CheckAction extends Data.TaggedClass("check")<{}> {}
+class Poc04RevertAction extends Data.TaggedClass("revert")<{}> {}
+
+const Poc04Action = {
+  apply: Poc04ApplyAction,
+  check: Poc04CheckAction,
+  revert: Poc04RevertAction,
+} as const;
+
+type Poc04Action =
+  | InstanceType<typeof Poc04ApplyAction>
+  | InstanceType<typeof Poc04CheckAction>
+  | InstanceType<typeof Poc04RevertAction>;
+type Poc04ActionTag = Poc04Action["_tag"];
+
+const poc04ApplyTag = new Poc04Action.apply()._tag;
+const poc04CheckTag = new Poc04Action.check()._tag;
+const poc04RevertTag = new Poc04Action.revert()._tag;
+
+class Poc04State extends S.Class<Poc04State>("@beep/beep-sync/Poc04State")({
+  version: S.Literal(1),
+  managedFile: S.String,
+  backupFile: S.String,
+  managedHash: S.String,
+  unmanagedFile: S.String,
+  unmanagedHashAtApply: S.NullOr(S.String),
+  lastAction: S.Literal(poc04ApplyTag),
+}) {}
+
+const Poc04StateFromJson = S.fromJsonString(Poc04State);
+const JsonStringFromJson = S.fromJsonString(S.String);
 
 type Poc04Plan = {
   fixturePath: string;
@@ -120,9 +204,12 @@ type Poc04Plan = {
   generatedContent: string;
 };
 
+/**
+ * @since 0.0.0
+ */
 export type Poc04OperationResult = {
   ok: boolean;
-  action: "apply" | "check" | "revert";
+  action: Poc04ActionTag;
   dryRun: boolean;
   changed: boolean;
   managedFile: string;
@@ -142,11 +229,20 @@ type SecretFixture = {
   optionalPolicy: "warn";
 };
 
-type SecretResolverMode = "mock" | "desktop" | "service_account";
+type SecretResolverMode = Data.TaggedEnum<{
+  mock: {};
+  desktop: {};
+  service_account: {};
+}>;
+const SecretResolverMode = Data.taggedEnum<SecretResolverMode>();
+type SecretResolverModeTag = SecretResolverMode["_tag"];
 
+/**
+ * @since 0.0.0
+ */
 export type SecretResolutionResult = {
   ok: boolean;
-  source: SecretResolverMode;
+  source: SecretResolverModeTag;
   optionalPolicy: "warn";
   required: {
     resolved: string[];
@@ -162,54 +258,81 @@ export type SecretResolutionResult = {
   };
 };
 
+const byString = Order.String;
+
+const isIntegerNumber = (value: unknown): value is number => P.isNumber(value) && Number.isInteger(value);
+
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+  return P.isObject(value);
+}
+
+function sortedRecordKeys<V>(record: Record<string, V>): ReadonlyArray<string> {
+  return A.sort(R.keys(record), byString);
 }
 
 function toSortedUniqueStrings(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-
-  const result = new Set<string>();
-  for (const item of value) {
-    if (typeof item === "string") {
-      result.add(item);
-    }
+  if (!A.isArray(value)) {
+    return A.empty<string>();
   }
-  return Array.from(result);
+
+  return pipe(value, A.filter(P.isString), A.dedupe, A.sort(byString));
 }
 
 function stableSortDeep(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    return value.map((entry) => stableSortDeep(entry));
+  if (A.isArray(value)) {
+    return A.map(value, stableSortDeep);
   }
 
   if (!isRecord(value)) {
     return value;
   }
 
-  const sorted = Object.keys(value)
-    .sort()
-    .reduce<Record<string, unknown>>((acc, key) => {
-      acc[key] = stableSortDeep(value[key]);
-      return acc;
-    }, {});
-
-  return sorted;
+  return R.fromEntries(
+    pipe(
+      sortedRecordKeys(value),
+      A.map((key) => [key, stableSortDeep(value[key])] as const)
+    )
+  );
 }
 
 function stableJson(value: unknown): string {
-  return `${JSON.stringify(stableSortDeep(value), null, 2)}\n`;
+  const encoded = Effect.runSync(Effect.orDie(jsonStringifyPretty(stableSortDeep(value))));
+  return Str.endsWith("\n")(encoded) ? encoded : `${encoded}\n`;
 }
 
 function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
+const diagnosticOrder = Order.make<Diagnostic>((self, that) => {
+  const byPath = byString(self.path, that.path);
+  if (byPath !== 0) {
+    return byPath;
+  }
+  return byString(self.code, that.code);
+});
+
+const canonicalCommandOrder = Order.make<CanonicalCommand>((self, that) => {
+  const byId = byString(self.id, that.id);
+  if (byId !== 0) {
+    return byId;
+  }
+
+  const byRun = byString(self.run, that.run);
+  if (byRun !== 0) {
+    return byRun;
+  }
+
+  return byString(
+    O.getOrElse(O.fromNullishOr(self.cwd), () => ""),
+    O.getOrElse(O.fromNullishOr(that.cwd), () => "")
+  );
+});
+
+const jetbrainsPromptOrder = Order.make<JetbrainsPrompt>((self, that) => byString(self.id, that.id));
+
 function sortDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
-  return diagnostics.sort((a, b) => {
-    if (a.path !== b.path) return a.path.localeCompare(b.path);
-    return a.code.localeCompare(b.code);
-  });
+  return A.sort(diagnostics, diagnosticOrder);
 }
 
 function readYamlFile(pathValue: string): unknown {
@@ -217,29 +340,35 @@ function readYamlFile(pathValue: string): unknown {
   return YAML.parse(text);
 }
 
+/**
+ * @since 0.0.0
+ */
 export function readYamlDocument(pathValue: string): unknown {
   return readYamlFile(pathValue);
 }
 
+/**
+ * @since 0.0.0
+ */
 export function validateCanonicalConfig(input: unknown): Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
+  const diagnostics = A.empty<Diagnostic>();
 
   if (!isRecord(input)) {
     diagnostics.push({
       code: "E_ROOT_TYPE",
       message: "Root value must be an object mapping.",
       path: "$",
-      severity: "error"
+      severity: Severity.error()._tag,
     });
     return diagnostics;
   }
 
-  if (typeof input.version !== "number" || !Number.isInteger(input.version)) {
+  if (!isIntegerNumber(input.version)) {
     diagnostics.push({
       code: "E_VERSION_TYPE",
       message: "`version` must be an integer number.",
       path: "version",
-      severity: "error"
+      severity: Severity.error()._tag,
     });
   }
 
@@ -250,15 +379,15 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
         code: "E_INSTRUCTIONS_TYPE",
         message: "`instructions` must be an object.",
         path: "instructions",
-        severity: "error"
+        severity: Severity.error()._tag,
       });
     } else if (instructions.base !== undefined) {
-      if (!Array.isArray(instructions.base) || instructions.base.some((item) => typeof item !== "string")) {
+      if (!A.isArray(instructions.base) || A.some(instructions.base, (item) => !P.isString(item))) {
         diagnostics.push({
           code: "E_INSTRUCTIONS_BASE_TYPE",
           message: "`instructions.base` must be an array of strings.",
           path: "instructions.base",
-          severity: "error"
+          severity: Severity.error()._tag,
         });
       }
     }
@@ -266,12 +395,12 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
 
   const commands = input.commands;
   if (commands !== undefined) {
-    if (!Array.isArray(commands)) {
+    if (!A.isArray(commands)) {
       diagnostics.push({
         code: "E_COMMANDS_TYPE",
         message: "`commands` must be an array.",
         path: "commands",
-        severity: "error"
+        severity: Severity.error()._tag,
       });
     } else {
       for (let i = 0; i < commands.length; i++) {
@@ -281,35 +410,35 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_COMMAND_ENTRY_TYPE",
             message: "Each command must be an object.",
             path: `commands[${i}]`,
-            severity: "error"
+            severity: Severity.error()._tag,
           });
           continue;
         }
 
-        if (typeof entry.id !== "string" || entry.id.length === 0) {
+        if (!P.isString(entry.id) || Str.length(entry.id) === 0) {
           diagnostics.push({
             code: "E_COMMAND_ID_TYPE",
             message: "`commands[*].id` must be a non-empty string.",
             path: `commands[${i}].id`,
-            severity: "error"
+            severity: Severity.error()._tag,
           });
         }
 
-        if (typeof entry.run !== "string" || entry.run.length === 0) {
+        if (!P.isString(entry.run) || Str.length(entry.run) === 0) {
           diagnostics.push({
             code: "E_COMMAND_RUN_TYPE",
             message: "`commands[*].run` must be a non-empty string.",
             path: `commands[${i}].run`,
-            severity: "error"
+            severity: Severity.error()._tag,
           });
         }
 
-        if (entry.cwd !== undefined && typeof entry.cwd !== "string") {
+        if (!P.isUndefined(entry.cwd) && !P.isString(entry.cwd)) {
           diagnostics.push({
             code: "E_COMMAND_CWD_TYPE",
             message: "`commands[*].cwd` must be a string when provided.",
             path: `commands[${i}].cwd`,
-            severity: "error"
+            severity: Severity.error()._tag,
           });
         }
       }
@@ -323,56 +452,56 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
         code: "E_MCP_SERVERS_TYPE",
         message: "`mcp_servers` must be an object map.",
         path: "mcp_servers",
-        severity: "error"
+        severity: Severity.error()._tag,
       });
     } else {
-      for (const [name, rawServer] of Object.entries(mcpServers)) {
+      for (const [name, rawServer] of R.toEntries(mcpServers)) {
         const basePath = `mcp_servers.${name}`;
         if (!isRecord(rawServer)) {
           diagnostics.push({
             code: "E_MCP_SERVER_ENTRY_TYPE",
             message: "Each MCP server entry must be an object.",
             path: basePath,
-            severity: "error"
+            severity: Severity.error()._tag,
           });
           continue;
         }
 
-        if (typeof rawServer.transport !== "string" || rawServer.transport.length === 0) {
+        if (!P.isString(rawServer.transport) || Str.length(rawServer.transport) === 0) {
           diagnostics.push({
             code: "E_MCP_TRANSPORT_TYPE",
             message: "`transport` must be a non-empty string.",
             path: `${basePath}.transport`,
-            severity: "error"
+            severity: Severity.error()._tag,
           });
         }
 
-        if (rawServer.url !== undefined && typeof rawServer.url !== "string") {
+        if (!P.isUndefined(rawServer.url) && !P.isString(rawServer.url)) {
           diagnostics.push({
             code: "E_MCP_URL_TYPE",
             message: "`url` must be a string when provided.",
             path: `${basePath}.url`,
-            severity: "error"
+            severity: Severity.error()._tag,
           });
         }
 
-        if (rawServer.command !== undefined && typeof rawServer.command !== "string") {
+        if (!P.isUndefined(rawServer.command) && !P.isString(rawServer.command)) {
           diagnostics.push({
             code: "E_MCP_COMMAND_TYPE",
             message: "`command` must be a string when provided.",
             path: `${basePath}.command`,
-            severity: "error"
+            severity: Severity.error()._tag,
           });
         }
 
         if (rawServer.args !== undefined) {
           const args = rawServer.args;
-          if (!Array.isArray(args) || args.some((arg) => typeof arg !== "string")) {
+          if (!A.isArray(args) || A.some(args, (arg) => !P.isString(arg))) {
             diagnostics.push({
               code: "E_MCP_ARGS_TYPE",
               message: "`args` must be an array of strings when provided.",
               path: `${basePath}.args`,
-              severity: "error"
+              severity: Severity.error()._tag,
             });
           }
         }
@@ -383,50 +512,49 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
   return sortDiagnostics(diagnostics);
 }
 
+/**
+ * @since 0.0.0
+ */
 export function normalizeCanonicalConfig(input: unknown): CanonicalConfig {
   const config = isRecord(input) ? input : {};
   const rawInstructions = isRecord(config.instructions) ? config.instructions : {};
-  const rawCommands = Array.isArray(config.commands) ? config.commands : [];
+  const rawCommands = A.isArray(config.commands) ? config.commands : A.empty<unknown>();
   const rawMcpServers = isRecord(config.mcp_servers) ? config.mcp_servers : {};
 
-  const commands: CanonicalCommand[] = [];
+  const commands = A.empty<CanonicalCommand>();
   for (const entry of rawCommands) {
     if (!isRecord(entry)) continue;
-    if (typeof entry.id !== "string" || entry.id.length === 0) continue;
-    if (typeof entry.run !== "string" || entry.run.length === 0) continue;
+    if (!P.isString(entry.id) || Str.length(entry.id) === 0) continue;
+    if (!P.isString(entry.run) || Str.length(entry.run) === 0) continue;
 
     const command: CanonicalCommand = { id: entry.id, run: entry.run };
-    if (typeof entry.cwd === "string") {
+    if (P.isString(entry.cwd)) {
       command.cwd = entry.cwd;
     }
     commands.push(command);
   }
 
-  commands.sort((a, b) => {
-    if (a.id !== b.id) return a.id.localeCompare(b.id);
-    if (a.run !== b.run) return a.run.localeCompare(b.run);
-    return (a.cwd ?? "").localeCompare(b.cwd ?? "");
-  });
+  const sortedCommands = A.sort(commands, canonicalCommandOrder);
 
-  const mcpServers: Record<string, CanonicalMcpServer> = {};
-  for (const serverName of Object.keys(rawMcpServers).sort()) {
+  const mcpServers = R.empty<string, CanonicalMcpServer>();
+  for (const serverName of sortedRecordKeys(rawMcpServers)) {
     const rawServer = rawMcpServers[serverName];
     if (!isRecord(rawServer)) continue;
-    if (typeof rawServer.transport !== "string" || rawServer.transport.length === 0) continue;
+    if (!P.isString(rawServer.transport) || Str.length(rawServer.transport) === 0) continue;
 
     const normalizedServer: CanonicalMcpServer = {
-      transport: rawServer.transport
+      transport: rawServer.transport,
     };
 
-    if (typeof rawServer.url === "string") {
+    if (P.isString(rawServer.url)) {
       normalizedServer.url = rawServer.url;
     }
-    if (typeof rawServer.command === "string") {
+    if (P.isString(rawServer.command)) {
       normalizedServer.command = rawServer.command;
     }
-    if (Array.isArray(rawServer.args)) {
-      const args = rawServer.args.filter((item): item is string => typeof item === "string");
-      if (args.length > 0) {
+    if (A.isArray(rawServer.args)) {
+      const args = A.filter(rawServer.args, P.isString);
+      if (A.isArrayNonEmpty(args)) {
         normalizedServer.args = args;
       }
     }
@@ -435,97 +563,107 @@ export function normalizeCanonicalConfig(input: unknown): CanonicalConfig {
   }
 
   return {
-    version: typeof config.version === "number" && Number.isInteger(config.version) ? config.version : 1,
+    version: isIntegerNumber(config.version) ? config.version : 1,
     instructions: {
-      base: toSortedUniqueStrings(rawInstructions.base)
+      base: toSortedUniqueStrings(rawInstructions.base),
     },
-    commands,
-    mcp_servers: mcpServers
+    commands: sortedCommands,
+    mcp_servers: mcpServers,
   };
 }
 
+/**
+ * @since 0.0.0
+ */
 export function normalizeCanonicalEnvelope(input: unknown): NormalizedEnvelope {
   const config = stableSortDeep(normalizeCanonicalConfig(input)) as CanonicalConfig;
   const hash = sha256(stableJson(config));
   return {
     version: 1,
     hash,
-    config
+    config,
   };
 }
 
+const isYamlExtension = (extension: string): boolean => extension === ".yaml" || extension === ".yml";
+
+const collectYamlFilesFromPath = (pathValue: string): ReadonlyArray<string> => {
+  const stat = statSync(pathValue);
+  if (stat.isFile()) {
+    return isYamlExtension(Str.toLowerCase(extname(pathValue))) ? A.make(pathValue) : A.empty<string>();
+  }
+
+  const entries = readdirSync(pathValue, { withFileTypes: true });
+  return pipe(
+    entries,
+    A.flatMap((entry) => {
+      const next = resolve(pathValue, entry.name);
+      if (entry.isDirectory()) {
+        return collectYamlFilesFromPath(next);
+      }
+
+      return isYamlExtension(Str.toLowerCase(extname(entry.name))) ? A.make(next) : A.empty<string>();
+    })
+  );
+};
+
+/**
+ * @since 0.0.0
+ */
 export function collectYamlFiles(pathValue: string): string[] {
   const absolutePath = resolve(pathValue);
-  const stat = statSync(absolutePath);
-  if (stat.isFile()) {
-    const extension = extname(absolutePath).toLowerCase();
-    if (extension === ".yaml" || extension === ".yml") {
-      return [absolutePath];
-    }
-    return [];
-  }
-
-  const files: string[] = [];
-  const stack = [absolutePath];
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (!current) continue;
-
-    const entries = readdirSync(current, { withFileTypes: true });
-    for (const entry of entries) {
-      const next = resolve(current, entry.name);
-      if (entry.isDirectory()) {
-        stack.push(next);
-        continue;
-      }
-      const extension = extname(entry.name).toLowerCase();
-      if (extension === ".yaml" || extension === ".yml") {
-        files.push(next);
-      }
-    }
-  }
-
-  files.sort((a, b) => a.localeCompare(b));
-  return files;
+  return A.sort(collectYamlFilesFromPath(absolutePath), byString);
 }
 
+/**
+ * @since 0.0.0
+ */
 export function validateCanonicalFile(filePath: string): { diagnostics: Diagnostic[]; data: unknown } {
-  try {
-    const data = readYamlFile(filePath);
-    return {
-      diagnostics: validateCanonicalConfig(data),
-      data
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      diagnostics: [
-        {
-          code: "E_YAML_PARSE",
-          message,
-          path: "$",
-          severity: "error"
-        }
-      ],
-      data: null
-    };
-  }
+  return Effect.runSync(
+    Effect.try({
+      try: () => readYamlFile(filePath),
+      catch: (error) => (P.isError(error) ? error.message : String(error)),
+    }).pipe(
+      Effect.match({
+        onFailure: (message) => ({
+          diagnostics: [
+            {
+              code: "E_YAML_PARSE",
+              message,
+              path: "$",
+              severity: Severity.error()._tag,
+            },
+          ],
+          data: null,
+        }),
+        onSuccess: (data) => ({
+          diagnostics: validateCanonicalConfig(data),
+          data,
+        }),
+      })
+    )
+  );
 }
 
+/**
+ * @since 0.0.0
+ */
 export function formatDiagnostics(diagnostics: Diagnostic[]): string {
-  if (diagnostics.length === 0) {
+  if (A.isArrayEmpty(diagnostics)) {
     return "no diagnostics";
   }
 
-  return diagnostics
-    .map((diag) => `[${diag.severity}] ${diag.code} ${diag.path} - ${diag.message}`)
-    .join("\n");
+  return pipe(
+    diagnostics,
+    A.map((diag) => `[${diag.severity}] ${diag.code} ${diag.path} - ${diag.message}`),
+    A.join("\n")
+  );
 }
 
-const MCP_CAPABILITY_MAP: Record<McpTool, string[]> = {
+const MCP_CAPABILITY_MAP: Record<McpToolTag, string[]> = {
   codex: ["transport", "command", "args", "url", "env", "env_headers"],
   cursor: ["transport", "url", "env_headers", "env"],
-  windsurf: ["transport", "url", "env"]
+  windsurf: ["transport", "url", "env"],
 };
 
 function normalizeMcpFixture(input: unknown): McpFixture {
@@ -533,8 +671,8 @@ function normalizeMcpFixture(input: unknown): McpFixture {
     return { servers: {} };
   }
 
-  const servers: Record<string, McpServer> = {};
-  for (const serverName of Object.keys(input.servers).sort()) {
+  const servers = R.empty<string, McpServer>();
+  for (const serverName of sortedRecordKeys(input.servers)) {
     const raw = input.servers[serverName];
     if (isRecord(raw)) {
       servers[serverName] = raw;
@@ -545,82 +683,84 @@ function normalizeMcpFixture(input: unknown): McpFixture {
 }
 
 function toTomlString(value: string): string {
-  return JSON.stringify(value);
+  return S.encodeSync(JsonStringFromJson)(value);
 }
 
 function mapToStableRecord(value: unknown): Record<string, string> | undefined {
   if (!isRecord(value)) return undefined;
 
-  const out: Record<string, string> = {};
-  for (const key of Object.keys(value).sort()) {
+  const out = R.empty<string, string>();
+  for (const key of sortedRecordKeys(value)) {
     const raw = value[key];
-    if (typeof raw === "string") {
+    if (P.isString(raw)) {
       out[key] = raw;
     }
   }
-  return Object.keys(out).length > 0 ? out : undefined;
+  return R.isEmptyRecord(out) ? undefined : out;
 }
 
 function toSortedStringArray(value: unknown): string[] | undefined {
-  if (!Array.isArray(value)) return undefined;
-  const strings = value.filter((entry): entry is string => typeof entry === "string");
-  return strings.length > 0 ? strings : undefined;
+  if (!A.isArray(value)) return undefined;
+  const strings = A.filter(value, P.isString);
+  return A.isArrayEmpty(strings) ? undefined : strings;
 }
 
 function buildCodexToml(servers: Record<string, McpServer>): string {
-  const lines: string[] = [];
-  for (const serverName of Object.keys(servers).sort()) {
+  const lines = A.empty<string>();
+  for (const serverName of sortedRecordKeys(servers)) {
     const server = servers[serverName];
     lines.push(`[mcp_servers.${serverName}]`);
 
-    if (typeof server.transport === "string") {
+    if (P.isString(server.transport)) {
       lines.push(`transport = ${toTomlString(server.transport)}`);
     }
-    if (typeof server.command === "string") {
+    if (P.isString(server.command)) {
       lines.push(`command = ${toTomlString(server.command)}`);
     }
 
     const args = toSortedStringArray(server.args);
     if (args) {
-      lines.push(`args = [${args.map((item) => toTomlString(item)).join(", ")}]`);
+      lines.push(`args = [${pipe(args, A.map(toTomlString), A.join(", "))}]`);
     }
 
-    if (typeof server.url === "string") {
+    if (P.isString(server.url)) {
       lines.push(`url = ${toTomlString(server.url)}`);
     }
 
     const env = mapToStableRecord(server.env);
     if (env) {
-      const values = Object.keys(env)
-        .sort()
-        .map((key) => `${key} = ${toTomlString(env[key])}`)
-        .join(", ");
+      const values = pipe(
+        sortedRecordKeys(env),
+        A.map((key) => `${key} = ${toTomlString(env[key])}`),
+        A.join(", ")
+      );
       lines.push(`env = { ${values} }`);
     }
 
     const headers = mapToStableRecord(server.env_headers);
     if (headers) {
-      const values = Object.keys(headers)
-        .sort()
-        .map((key) => `${key} = ${toTomlString(headers[key])}`)
-        .join(", ");
+      const values = pipe(
+        sortedRecordKeys(headers),
+        A.map((key) => `${key} = ${toTomlString(headers[key])}`),
+        A.join(", ")
+      );
       lines.push(`env_headers = { ${values} }`);
     }
 
     lines.push("");
   }
 
-  return `${lines.join("\n").trimEnd()}\n`;
+  return `${Str.trimEnd(A.join(lines, "\n"))}\n`;
 }
 
 function buildCursorJson(servers: Record<string, McpServer>): string {
-  const mapped: Record<string, Record<string, unknown>> = {};
-  for (const serverName of Object.keys(servers).sort()) {
+  const mapped = R.empty<string, Record<string, unknown>>();
+  for (const serverName of sortedRecordKeys(servers)) {
     const server = servers[serverName];
-    const out: Record<string, unknown> = {};
+    const out = R.empty<string, unknown>();
 
-    if (typeof server.transport === "string") out.transport = server.transport;
-    if (typeof server.url === "string") out.url = server.url;
+    if (P.isString(server.transport)) out.transport = server.transport;
+    if (P.isString(server.url)) out.url = server.url;
 
     const headers = mapToStableRecord(server.env_headers);
     if (headers) out.env_headers = headers;
@@ -632,18 +772,18 @@ function buildCursorJson(servers: Record<string, McpServer>): string {
   }
 
   return stableJson({
-    mcpServers: mapped
+    mcpServers: mapped,
   });
 }
 
 function buildWindsurfJson(servers: Record<string, McpServer>): string {
-  const mapped: Record<string, Record<string, unknown>> = {};
-  for (const serverName of Object.keys(servers).sort()) {
+  const mapped = R.empty<string, Record<string, unknown>>();
+  for (const serverName of sortedRecordKeys(servers)) {
     const server = servers[serverName];
-    const out: Record<string, unknown> = {};
+    const out = R.empty<string, unknown>();
 
-    if (typeof server.transport === "string") out.transport = server.transport;
-    if (typeof server.url === "string") out.url = server.url;
+    if (P.isString(server.transport)) out.transport = server.transport;
+    if (P.isString(server.url)) out.url = server.url;
 
     const env = mapToStableRecord(server.env);
     if (env) out.env = env;
@@ -652,63 +792,76 @@ function buildWindsurfJson(servers: Record<string, McpServer>): string {
   }
 
   return stableJson({
-    servers: mapped
+    servers: mapped,
   });
 }
 
+/**
+ * @since 0.0.0
+ */
+export function parseMcpTool(value: string): O.Option<McpTool> {
+  switch (value) {
+    case "codex":
+      return O.some(McpTool.codex());
+    case "cursor":
+      return O.some(McpTool.cursor());
+    case "windsurf":
+      return O.some(McpTool.windsurf());
+    default:
+      return O.none();
+  }
+}
+
+/**
+ * @since 0.0.0
+ */
 export function generateMcpForTool(tool: McpTool, input: unknown): McpGenerationResult {
   const normalized = normalizeMcpFixture(input);
-  const allowed = new Set(MCP_CAPABILITY_MAP[tool]);
-  const warnings: string[] = [];
+  const toolTag = tool._tag;
+  const allowed = HashSet.fromIterable(MCP_CAPABILITY_MAP[toolTag]);
+  const warnings = A.empty<string>();
 
-  for (const serverName of Object.keys(normalized.servers).sort()) {
+  for (const serverName of sortedRecordKeys(normalized.servers)) {
     const server = normalized.servers[serverName];
-    for (const key of Object.keys(server).sort()) {
-      if (!allowed.has(key)) {
+    for (const key of sortedRecordKeys(server)) {
+      if (!HashSet.has(allowed, key)) {
         warnings.push(
-          `W_UNSUPPORTED_FIELD servers.${serverName}.${key} is not supported by ${tool}; dropped during generation.`
+          `W_UNSUPPORTED_FIELD servers.${serverName}.${key} is not supported by ${toolTag}; dropped during generation.`
         );
       }
     }
   }
 
-  const filteredServers: Record<string, McpServer> = {};
-  for (const serverName of Object.keys(normalized.servers).sort()) {
+  const filteredServers = R.empty<string, McpServer>();
+  for (const serverName of sortedRecordKeys(normalized.servers)) {
     const source = normalized.servers[serverName];
-    const filtered: McpServer = {};
+    const filtered = R.empty<string, unknown>();
 
-    for (const key of Object.keys(source).sort()) {
-      if (allowed.has(key)) {
+    for (const key of sortedRecordKeys(source)) {
+      if (HashSet.has(allowed, key)) {
         filtered[key] = source[key];
       }
     }
     filteredServers[serverName] = filtered;
   }
 
-  let output = "";
-  switch (tool) {
-    case "codex":
-      output = buildCodexToml(filteredServers);
-      break;
-    case "cursor":
-      output = buildCursorJson(filteredServers);
-      break;
-    case "windsurf":
-      output = buildWindsurfJson(filteredServers);
-      break;
-  }
+  const output = McpTool.$match(tool, {
+    codex: () => buildCodexToml(filteredServers),
+    cursor: () => buildCursorJson(filteredServers),
+    windsurf: () => buildWindsurfJson(filteredServers),
+  });
 
   return {
     output,
     warnings,
-    capabilityMap: MCP_CAPABILITY_MAP
+    capabilityMap: MCP_CAPABILITY_MAP,
   };
 }
 
 function normalizeJetbrainsPromptLibrary(input: unknown): JetbrainsPromptLibraryFixture {
   const fallback: JetbrainsPromptLibraryFixture = {
-    mode: "bundle_only",
-    prompts: []
+    mode: JetbrainsPromptMode.bundle_only(),
+    prompts: [],
   };
 
   if (!isRecord(input)) {
@@ -722,36 +875,36 @@ function normalizeJetbrainsPromptLibrary(input: unknown): JetbrainsPromptLibrary
   }
 
   const modeRaw = promptLibrary.mode;
-  const mode: JetbrainsPromptMode = modeRaw === "native_file" ? "native_file" : "bundle_only";
+  const mode = modeRaw === "native_file" ? JetbrainsPromptMode.native_file() : JetbrainsPromptMode.bundle_only();
 
-  const promptsRaw = Array.isArray(promptLibrary.prompts) ? promptLibrary.prompts : [];
-  const prompts: JetbrainsPrompt[] = [];
+  const promptsRaw = A.isArray(promptLibrary.prompts) ? promptLibrary.prompts : A.empty<unknown>();
+  const prompts = A.empty<JetbrainsPrompt>();
   for (const entry of promptsRaw) {
     if (!isRecord(entry)) continue;
-    if (typeof entry.id !== "string" || entry.id.length === 0) continue;
-    if (typeof entry.title !== "string" || entry.title.length === 0) continue;
-    if (typeof entry.prompt_file !== "string" || entry.prompt_file.length === 0) continue;
+    if (!P.isString(entry.id) || Str.length(entry.id) === 0) continue;
+    if (!P.isString(entry.title) || Str.length(entry.title) === 0) continue;
+    if (!P.isString(entry.prompt_file) || Str.length(entry.prompt_file) === 0) continue;
 
     prompts.push({
       id: entry.id,
       title: entry.title,
-      prompt_file: entry.prompt_file
+      prompt_file: entry.prompt_file,
     });
   }
 
-  prompts.sort((a, b) => a.id.localeCompare(b.id));
+  const sortedPrompts = A.sort(prompts, jetbrainsPromptOrder);
   return {
     mode,
-    prompts
+    prompts: sortedPrompts,
   };
 }
 
 function renderJetbrainsPromptsMarkdown(mode: JetbrainsPromptMode, prompts: JetbrainsPrompt[]): string {
-  const lines: string[] = [];
+  const lines = A.empty<string>();
   lines.push("# Prompt Bundle");
   lines.push("");
 
-  if (prompts.length === 0) {
+  if (A.isArrayEmpty(prompts)) {
     lines.push("- (no prompts defined)");
   } else {
     for (const prompt of prompts) {
@@ -760,69 +913,67 @@ function renderJetbrainsPromptsMarkdown(mode: JetbrainsPromptMode, prompts: Jetb
   }
 
   lines.push("");
-  lines.push(`_mode: ${mode}_`);
-  lines.push("");
-  return `${lines.join("\n")}\n`;
+  lines.push(`_mode: ${mode._tag}_`);
+  return `${A.join(lines, "\n")}\n`;
 }
 
 function renderJetbrainsImportInstructions(mode: JetbrainsPromptMode): string {
-  const lines: string[] = [];
+  const lines = A.empty<string>();
   lines.push("# JetBrains Prompt Library Import");
   lines.push("");
   lines.push("1. Treat this directory as managed output from `beep-sync`.");
   lines.push("2. Import prompts from `prompts.md` via JetBrains Prompt Library UI.");
   lines.push("3. Keep `prompts.json` as deterministic machine-readable sidecar.");
 
-  if (mode === "native_file") {
+  if (mode._tag === "native_file") {
     lines.push("4. Native-file probe enabled: target `.aiassistant/prompt-library/prompts.json`.");
   }
 
   lines.push("");
   lines.push("Do not hand-edit generated artifacts.");
-  lines.push("");
-  return `${lines.join("\n")}\n`;
+  return `${A.join(lines, "\n")}\n`;
 }
 
-export function generateJetbrainsPromptLibrary(
-  input: unknown,
-  modeOverride?: string
-): JetbrainsPromptLibraryEnvelope {
+/**
+ * @since 0.0.0
+ */
+export function generateJetbrainsPromptLibrary(input: unknown, modeOverride?: string): JetbrainsPromptLibraryEnvelope {
   const normalized = normalizeJetbrainsPromptLibrary(input);
-  const warnings: string[] = [];
+  const warnings = A.empty<string>();
 
   let mode: JetbrainsPromptMode = normalized.mode;
   if (modeOverride !== undefined) {
     if (modeOverride === "bundle_only" || modeOverride === "native_file") {
-      mode = modeOverride;
+      mode = modeOverride === "native_file" ? JetbrainsPromptMode.native_file() : JetbrainsPromptMode.bundle_only();
     } else {
       warnings.push(
-        `W_UNSUPPORTED_MODE Requested mode "${modeOverride}" is unsupported; falling back to "${mode}".`
+        `W_UNSUPPORTED_MODE Requested mode "${modeOverride}" is unsupported; falling back to "${mode._tag}".`
       );
     }
   }
 
   const promptsPayload = {
     version: 1,
-    mode,
-    prompts: normalized.prompts
+    mode: mode._tag,
+    prompts: normalized.prompts,
   };
 
   const artifacts: JetbrainsArtifact[] = [
     {
       path: ".aiassistant/prompt-library/prompts.md",
       content: renderJetbrainsPromptsMarkdown(mode, normalized.prompts),
-      sha256: ""
+      sha256: "",
     },
     {
       path: ".aiassistant/prompt-library/prompts.json",
       content: stableJson(promptsPayload),
-      sha256: ""
+      sha256: "",
     },
     {
       path: ".aiassistant/prompt-library/IMPORT_INSTRUCTIONS.md",
       content: renderJetbrainsImportInstructions(mode),
-      sha256: ""
-    }
+      sha256: "",
+    },
   ];
 
   for (const artifact of artifacts) {
@@ -831,24 +982,24 @@ export function generateJetbrainsPromptLibrary(
 
   const bundleHash = sha256(
     stableJson(
-      artifacts.map((artifact) => ({
+      A.map(artifacts, (artifact) => ({
         path: artifact.path,
-        sha256: artifact.sha256
+        sha256: artifact.sha256,
       }))
     )
   );
 
   return {
     tool: "jetbrains",
-    mode,
+    mode: mode._tag,
     warnings,
     artifacts,
     bundleHash,
     nativeProbe: {
-      enabled: mode === "native_file",
-      path: mode === "native_file" ? ".aiassistant/prompt-library/prompts.json" : null,
-      roundTripDeterministic: true
-    }
+      enabled: mode._tag === "native_file",
+      path: mode._tag === "native_file" ? ".aiassistant/prompt-library/prompts.json" : null,
+      roundTripDeterministic: true,
+    },
   };
 }
 
@@ -857,18 +1008,19 @@ function parsePoc04Fixture(fixturePath: string): Poc04Plan {
   const root = isRecord(fixtureData) ? fixtureData : {};
   const workspaceRoot = resolve(dirname(fixturePath), "workspace");
 
-  const managedTargetsRaw = Array.isArray(root.managed_targets) ? root.managed_targets : [];
-  const managedTargets = managedTargetsRaw
-    .map((entry) => {
-      if (!isRecord(entry)) return null;
+  const managedTargetsRaw = A.isArray(root.managed_targets) ? root.managed_targets : A.empty<unknown>();
+  const managedTargets = pipe(
+    managedTargetsRaw,
+    A.reduce(A.empty<string>(), (acc, entry) => {
+      if (!isRecord(entry)) return acc;
       const pathValue = entry.path;
-      if (typeof pathValue !== "string" || pathValue.length === 0) return null;
-      return pathValue;
-    })
-    .filter((value): value is string => value !== null)
-    .sort((a, b) => a.localeCompare(b));
+      if (!P.isString(pathValue) || Str.length(pathValue) === 0) return acc;
+      return A.append(acc, pathValue);
+    }),
+    A.sort(byString)
+  );
 
-  const statePathRaw = typeof root.state_path === "string" ? root.state_path : ".beep/managed-files.json";
+  const statePathRaw = P.isString(root.state_path) ? root.state_path : ".beep/managed-files.json";
 
   const managedFile = resolve(workspaceRoot, "managed-target.txt");
   const unmanagedFile = resolve(workspaceRoot, "unmanaged-note.txt");
@@ -879,7 +1031,7 @@ function parsePoc04Fixture(fixturePath: string): Poc04Plan {
   for (const target of managedTargets) {
     lines.push(`- ${target}`);
   }
-  const generatedContent = `${lines.join("\n")}\n`;
+  const generatedContent = `${A.join(lines, "\n")}\n`;
 
   return {
     fixturePath: resolve(fixturePath),
@@ -889,7 +1041,7 @@ function parsePoc04Fixture(fixturePath: string): Poc04Plan {
     backupFile,
     stateFile,
     managedTargets,
-    generatedContent
+    generatedContent,
   };
 }
 
@@ -910,38 +1062,28 @@ function writePoc04State(pathValue: string, state: Poc04State): void {
 
 function readPoc04State(pathValue: string): Poc04State | null {
   if (!existsSync(pathValue)) return null;
-  try {
-    const parsed = JSON.parse(readFileSync(pathValue, "utf8")) as unknown;
-    if (!isRecord(parsed)) return null;
-    if (parsed.version !== 1) return null;
-    if (
-      typeof parsed.managedFile !== "string" ||
-      typeof parsed.backupFile !== "string" ||
-      typeof parsed.managedHash !== "string" ||
-      typeof parsed.unmanagedFile !== "string" ||
-      (parsed.unmanagedHashAtApply !== null && typeof parsed.unmanagedHashAtApply !== "string")
-    ) {
-      return null;
-    }
-    if (parsed.lastAction !== "apply") return null;
 
-    return {
-      version: 1,
-      managedFile: parsed.managedFile,
-      backupFile: parsed.backupFile,
-      managedHash: parsed.managedHash,
-      unmanagedFile: parsed.unmanagedFile,
-      unmanagedHashAtApply: parsed.unmanagedHashAtApply,
-      lastAction: "apply"
-    };
-  } catch {
-    return null;
-  }
+  return Effect.runSync(
+    Effect.try({
+      try: () => readFileSync(pathValue, "utf8"),
+      catch: () => null,
+    }).pipe(
+      Effect.flatMap((stateText) => {
+        if (stateText === null) {
+          return Effect.succeed(null);
+        }
+        return S.decodeUnknownEffect(Poc04StateFromJson)(stateText).pipe(Effect.orElseSucceed(() => null));
+      })
+    )
+  );
 }
 
+/**
+ * @since 0.0.0
+ */
 export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
-  const messages: string[] = [];
+  const messages = A.empty<string>();
 
   const beforeManaged = readTextOrNull(plan.managedFile);
   const beforeUnmanaged = readTextOrNull(plan.unmanagedFile);
@@ -955,13 +1097,13 @@ export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04Operat
     );
     return {
       ok: true,
-      action: "apply",
+      action: poc04ApplyTag,
       dryRun: true,
       changed,
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages
+      messages,
     };
   }
 
@@ -972,45 +1114,48 @@ export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04Operat
   }
 
   writeFileSync(plan.managedFile, plan.generatedContent, "utf8");
-  const state: Poc04State = {
+  const state = new Poc04State({
     version: 1,
     managedFile: plan.managedFile,
     backupFile: plan.backupFile,
     managedHash: sha256(plan.generatedContent),
     unmanagedFile: plan.unmanagedFile,
     unmanagedHashAtApply: hashTextOrNull(beforeUnmanaged),
-    lastAction: "apply"
-  };
+    lastAction: poc04ApplyTag,
+  });
   writePoc04State(plan.stateFile, state);
   messages.push("managed content written");
   messages.push("state updated");
 
   return {
     ok: true,
-    action: "apply",
+    action: poc04ApplyTag,
     dryRun: false,
     changed: beforeManaged !== plan.generatedContent,
     managedFile: plan.managedFile,
     unmanagedFile: plan.unmanagedFile,
     stateFile: plan.stateFile,
-    messages
+    messages,
   };
 }
 
+/**
+ * @since 0.0.0
+ */
 export function runPoc04Check(fixturePath: string): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
-  const messages: string[] = [];
+  const messages = A.empty<string>();
   const state = readPoc04State(plan.stateFile);
   if (!state) {
     return {
       ok: false,
-      action: "check",
+      action: poc04CheckTag,
       dryRun: false,
       changed: false,
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["state file missing or invalid"]
+      messages: ["state file missing or invalid"],
     };
   }
 
@@ -1018,13 +1163,13 @@ export function runPoc04Check(fixturePath: string): Poc04OperationResult {
   if (managedContent === null) {
     return {
       ok: false,
-      action: "check",
+      action: poc04CheckTag,
       dryRun: false,
       changed: false,
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["managed file is missing"]
+      messages: ["managed file is missing"],
     };
   }
 
@@ -1032,13 +1177,13 @@ export function runPoc04Check(fixturePath: string): Poc04OperationResult {
   if (managedHash !== state.managedHash || managedContent !== plan.generatedContent) {
     return {
       ok: false,
-      action: "check",
+      action: poc04CheckTag,
       dryRun: false,
       changed: false,
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["managed file drift detected"]
+      messages: ["managed file drift detected"],
     };
   }
 
@@ -1047,26 +1192,26 @@ export function runPoc04Check(fixturePath: string): Poc04OperationResult {
   if (state.unmanagedHashAtApply !== unmanagedHash) {
     return {
       ok: false,
-      action: "check",
+      action: poc04CheckTag,
       dryRun: false,
       changed: false,
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["unmanaged file hash changed since apply"]
+      messages: ["unmanaged file hash changed since apply"],
     };
   }
 
   messages.push("managed state is consistent");
   return {
     ok: true,
-    action: "check",
+    action: poc04CheckTag,
     dryRun: false,
     changed: false,
     managedFile: plan.managedFile,
     unmanagedFile: plan.unmanagedFile,
     stateFile: plan.stateFile,
-    messages
+    messages,
   };
 }
 
@@ -1080,20 +1225,23 @@ function removeIfEmpty(pathValue: string): void {
   }
 }
 
+/**
+ * @since 0.0.0
+ */
 export function runPoc04Revert(fixturePath: string): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
-  const messages: string[] = [];
+  const messages = A.empty<string>();
   const state = readPoc04State(plan.stateFile);
   if (!state) {
     return {
       ok: true,
-      action: "revert",
+      action: poc04RevertTag,
       dryRun: false,
       changed: false,
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["no managed state present; revert is idempotent no-op"]
+      messages: ["no managed state present; revert is idempotent no-op"],
     };
   }
 
@@ -1122,13 +1270,13 @@ export function runPoc04Revert(fixturePath: string): Poc04OperationResult {
 
   return {
     ok: true,
-    action: "revert",
+    action: poc04RevertTag,
     dryRun: false,
     changed,
     managedFile: plan.managedFile,
     unmanagedFile: plan.unmanagedFile,
     stateFile: plan.stateFile,
-    messages
+    messages,
   };
 }
 
@@ -1136,7 +1284,7 @@ function parseSecretFixture(input: unknown): SecretFixture {
   const fallback: SecretFixture = {
     required: [],
     optional: [],
-    optionalPolicy: "warn"
+    optionalPolicy: "warn",
   };
   if (!isRecord(input) || !isRecord(input.secrets)) return fallback;
 
@@ -1144,28 +1292,30 @@ function parseSecretFixture(input: unknown): SecretFixture {
   const optionalPolicy = secrets.optional_policy === "warn" ? "warn" : "warn";
 
   function parseRefs(value: unknown): SecretRef[] {
-    if (!Array.isArray(value)) return [];
-    const refs: SecretRef[] = [];
+    if (!A.isArray(value)) return A.empty<SecretRef>();
+    const refs = A.empty<SecretRef>();
     for (const entry of value) {
       if (!isRecord(entry)) continue;
-      if (typeof entry.id !== "string" || entry.id.length === 0) continue;
-      if (typeof entry.ref !== "string" || entry.ref.length === 0) continue;
+      if (!P.isString(entry.id) || Str.length(entry.id) === 0) continue;
+      if (!P.isString(entry.ref) || Str.length(entry.ref) === 0) continue;
       refs.push({ id: entry.id, ref: entry.ref });
     }
-    refs.sort((a, b) => a.id.localeCompare(b.id));
-    return refs;
+    return A.sort(
+      refs,
+      Order.make<SecretRef>((self, that) => byString(self.id, that.id))
+    );
   }
 
   return {
     required: parseRefs(secrets.required),
     optional: parseRefs(secrets.optional),
-    optionalPolicy
+    optionalPolicy,
   };
 }
 
 function resolveSecretRef(ref: string, mode: SecretResolverMode): { ok: boolean; diagnostic?: string } {
-  if (mode === "mock") {
-    if (ref.includes("DOES_NOT_EXIST") || ref.includes("/missing/")) {
+  if (mode._tag === "mock") {
+    if (Str.includes("DOES_NOT_EXIST")(ref) || Str.includes("/missing/")(ref)) {
       return { ok: false, diagnostic: "E_SECRET_MISSING mock resolver marked ref as missing." };
     }
     return { ok: true };
@@ -1173,21 +1323,25 @@ function resolveSecretRef(ref: string, mode: SecretResolverMode): { ok: boolean;
 
   const read = spawnSync("op", ["read", ref], {
     encoding: "utf8",
-    timeout: 8_000
+    timeout: 8_000,
   });
 
   if (read.status === 0) {
     return { ok: true };
   }
 
-  const stderr = `${read.stderr ?? ""}`.toLowerCase();
-  if (stderr.includes("not signed in")) {
+  const stderr = Str.toLowerCase(`${read.stderr ?? ""}`);
+  if (Str.includes("not signed in")(stderr)) {
     return { ok: false, diagnostic: "E_SECRET_AUTH desktop auth is not signed in." };
   }
-  if (stderr.includes("service account") || stderr.includes("token")) {
+  if (Str.includes("service account")(stderr) || Str.includes("token")(stderr)) {
     return { ok: false, diagnostic: "E_SECRET_AUTH service account token is missing or invalid." };
   }
-  if (stderr.includes("isn't an item") || stderr.includes("not found") || stderr.includes("does not exist")) {
+  if (
+    Str.includes("isn't an item")(stderr) ||
+    Str.includes("not found")(stderr) ||
+    Str.includes("does not exist")(stderr)
+  ) {
     return { ok: false, diagnostic: "E_SECRET_MISSING secret reference not found." };
   }
 
@@ -1197,40 +1351,43 @@ function resolveSecretRef(ref: string, mode: SecretResolverMode): { ok: boolean;
 function detectSecretResolverMode(): SecretResolverMode {
   const forced = process.env.BEEP_SYNC_SECRET_MODE;
   if (forced === "mock") {
-    return "mock";
+    return SecretResolverMode.mock();
   }
 
-  if (typeof process.env.OP_SERVICE_ACCOUNT_TOKEN === "string" && process.env.OP_SERVICE_ACCOUNT_TOKEN.length > 0) {
-    return "service_account";
+  if (P.isString(process.env.OP_SERVICE_ACCOUNT_TOKEN) && Str.length(process.env.OP_SERVICE_ACCOUNT_TOKEN) > 0) {
+    return SecretResolverMode.service_account();
   }
-  return "desktop";
+  return SecretResolverMode.desktop();
 }
 
 function ensureDesktopAuthIfNeeded(mode: SecretResolverMode): string | null {
-  if (mode !== "desktop") return null;
+  if (mode._tag !== "desktop") return null;
   const whoami = spawnSync("op", ["whoami"], {
     encoding: "utf8",
-    timeout: 5_000
+    timeout: 5_000,
   });
   if (whoami.status === 0) return null;
   return "E_SECRET_AUTH desktop auth unavailable (`op whoami` failed).";
 }
 
+/**
+ * @since 0.0.0
+ */
 export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolutionResult {
   const fixtureData = readYamlDocument(fixturePath);
   const fixture = parseSecretFixture(fixtureData);
   const source = detectSecretResolverMode();
-  const diagnostics: string[] = [];
+  const diagnostics = A.empty<string>();
 
   const desktopAuthError = ensureDesktopAuthIfNeeded(source);
   if (desktopAuthError) {
     diagnostics.push(desktopAuthError);
   }
 
-  const requiredResolved: string[] = [];
-  const requiredMissing: string[] = [];
-  const optionalResolved: string[] = [];
-  const optionalMissing: string[] = [];
+  const requiredResolved = A.empty<string>();
+  const requiredMissing = A.empty<string>();
+  const optionalResolved = A.empty<string>();
+  const optionalMissing = A.empty<string>();
 
   function resolveGroup(items: SecretRef[], missing: string[], resolved: string[]): void {
     for (const item of items) {
@@ -1256,27 +1413,27 @@ export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolu
 
   if (optionalMissing.length > 0) {
     diagnostics.push(
-      `W_OPTIONAL_SECRET_MISSING optional missing ids: ${optionalMissing.join(", ")} (policy=${fixture.optionalPolicy}).`
+      `W_OPTIONAL_SECRET_MISSING optional missing ids: ${A.join(optionalMissing, ", ")} (policy=${fixture.optionalPolicy}).`
     );
   }
 
-  const uniqueDiagnostics = Array.from(new Set(diagnostics)).sort((a, b) => a.localeCompare(b));
+  const uniqueDiagnostics = pipe(diagnostics, A.dedupe, A.sort(byString));
 
   return {
     ok: requiredMissing.length === 0,
-    source,
+    source: source._tag,
     optionalPolicy: fixture.optionalPolicy,
     required: {
-      resolved: requiredResolved.sort((a, b) => a.localeCompare(b)),
-      missing: requiredMissing.sort((a, b) => a.localeCompare(b))
+      resolved: A.sort(requiredResolved, byString),
+      missing: A.sort(requiredMissing, byString),
     },
     optional: {
-      resolved: optionalResolved.sort((a, b) => a.localeCompare(b)),
-      missing: optionalMissing.sort((a, b) => a.localeCompare(b))
+      resolved: A.sort(optionalResolved, byString),
+      missing: A.sort(optionalMissing, byString),
     },
     diagnostics: uniqueDiagnostics,
     redaction: {
-      valuesExposed: false
-    }
+      valuesExposed: false,
+    },
   };
 }

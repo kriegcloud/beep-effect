@@ -15,7 +15,7 @@
       "persistent": false,
       "cache": true,
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!.beep/**"],
       "outputs": [
         "dist/**",
         "build/**",
@@ -33,21 +33,21 @@
     "lint": {
       "cache": true,
       "dependsOn": ["^lint"],
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "lint:fix": {
       "cache": true,
       "dependsOn": ["^lint:fix"],
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "check": {
       "dependsOn": ["^build", "^check"],
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "docgen": {
       "cache": true,
       "dependsOn": ["^docgen"],
-      "inputs": ["$TURBO_DEFAULT$"],
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"],
       "outputs": ["docs/**", "dtslint/**"]
     },
     "dev": {
@@ -80,11 +80,11 @@
     },
     "//#lint:spell": {
       "cache": true,
-      "inputs": ["$TURBO_DEFAULT$", "cspell.json"]
+      "inputs": ["$TURBO_DEFAULT$", "cspell.json", "!.beep/**"]
     },
     "//#lint:markdown": {
       "cache": true,
-      "inputs": ["$TURBO_DEFAULT$", ".markdownlint-cli2.jsonc"]
+      "inputs": ["$TURBO_DEFAULT$", ".markdownlint-cli2.jsonc", "!.beep/**"]
     },
     "//#lint:circular": {
       "cache": true,

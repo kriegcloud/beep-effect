@@ -1,6 +1,9 @@
 {
   "project": "unified-ai-tooling",
+  "status": "reopened",
   "lastUpdated": "2026-02-23",
+  "reopenedAt": "2026-02-23",
+  "reopenReason": "Runtime verification showed tooling/beep-sync remained scaffold-only and did not yet provide full .beep-managed sync behavior.",
   "phases": {
     "p0": {
       "status": "completed",
@@ -38,7 +41,7 @@
         "onePasswordSetupCommands": "specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh"
       },
       "pocGate": {
-        "status": "completed_with_followup",
+        "status": "completed",
         "completedAt": "2026-02-23",
         "decision": "go",
         "results": {
@@ -46,41 +49,49 @@
           "poc02McpCapability": "passed",
           "poc03JetBrainsPromptLibrary": "passed",
           "poc04ManagedOwnershipRevert": "passed",
-          "poc05SecretResolution": "passed_with_followup",
+          "poc05SecretResolution": "passed",
           "poc06EndToEndDryRun": "passed"
-        },
-        "followUps": [
-          {
-            "id": "poc05-real-auth-success-evidence",
-            "status": "open",
-            "phaseOwner": "p3",
-            "summary": "Capture successful desktop and service-account secret-resolution runs with valid 1Password auth."
-          }
-        ]
+        }
       }
     },
     "p1": {
-      "status": "pending",
+      "status": "completed",
+      "completedAt": "2026-02-23",
       "outputs": {
         "schemaContract": "specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md"
       }
     },
     "p2": {
-      "status": "pending",
+      "status": "completed",
+      "completedAt": "2026-02-23",
       "outputs": {
         "adapterDesign": "specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md"
       }
     },
     "p3": {
-      "status": "pending",
+      "status": "completed",
+      "completedAt": "2026-02-23",
       "outputs": {
         "runtimeIntegration": "specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md"
       }
     },
     "p4": {
-      "status": "pending",
+      "status": "completed",
+      "completedAt": "2026-02-23",
       "outputs": {
         "cutoverPlaybook": "specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md"
+      }
+    },
+    "p5": {
+      "status": "pending",
+      "outputs": {
+        "runtimeImplementation": "specs/pending/unified-ai-tooling/outputs/p5-runtime-implementation.md"
+      }
+    },
+    "p6": {
+      "status": "pending",
+      "outputs": {
+        "finalVerification": "specs/pending/unified-ai-tooling/outputs/p6-final-verification.md"
       }
     }
   }
