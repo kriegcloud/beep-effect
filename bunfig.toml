@@ -3,6 +3,7 @@
 linker = "hoisted"
 strict-peer-dependencies = true
 saveTextLockfile = true
+minimumReleaseAge = 259200
 
 
 [install.scopes."@buf"]
