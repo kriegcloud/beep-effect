@@ -1,24 +1,25 @@
 ---
 path: tooling/beep-sync
-summary: Scaffold for unified AI tooling sync runtime and POC fixtures
+summary: Unified AI tooling sync runtime and deterministic POC fixture harness
 tags: [effect]
 ---
 
 # @beep/beep-sync
 
-Scaffold for unified AI tooling sync runtime and POC fixtures.
+Unified AI tooling sync runtime and deterministic POC fixture harness.
 
 ## Architecture
 
-The package currently provides a scaffold CLI and fixture-driven helper functions
-while runtime contracts are being completed in subsequent phases.
+The package provides runtime command handlers for canonical `.beep` workflows and
+retains fixture-driven commands for locked compatibility POCs.
 
 ## Core Modules
 
 | Module | Purpose |
 |--------|---------|
 | `src/bin.ts` | CLI argument parsing and command dispatch |
-| `src/index.ts` | Fixture loading, normalization helpers, and scaffold operations |
+| `src/index.ts` | Fixture loading, normalization helpers, and runtime exports |
+| `src/runtime.ts` | Runtime compile/apply/check/doctor/revert engine |
 
 ## Dependencies
 

@@ -1,6 +1,6 @@
 # beep-sync POC Fixtures
 
-These fixtures support pre-implementation POCs:
+These fixtures support locked runtime compatibility POCs:
 
 - `poc-01`: canonical parser/normalizer
 - `poc-02`: MCP capability mapping
@@ -9,4 +9,4 @@ These fixtures support pre-implementation POCs:
 - `poc-05`: secret resolution behavior
 - `poc-06`: end-to-end dry-run smoke
 
-All files are scaffold inputs and expected placeholders.
+These fixtures remain deterministic compatibility baselines for runtime tests.

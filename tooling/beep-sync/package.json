@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "license": "MIT",
-  "description": "Scaffold for unified AI tooling sync runtime and POC fixtures",
+  "description": "Unified AI tooling sync runtime and deterministic fixture harness",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/beep-sync",
   "repository": {
     "type": "git",

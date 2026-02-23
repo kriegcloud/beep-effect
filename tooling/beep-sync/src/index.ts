@@ -29,7 +29,7 @@ import YAML from "yaml";
 /**
  * @since 0.0.0
  */
-export const scaffoldVersion = "0.0.0-scaffold";
+export const scaffoldVersion = "0.1.0";
 
 /**
  * @since 0.0.0
@@ -1437,3 +1437,14 @@ export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolu
     },
   };
 }
+
+export {
+  type RuntimeDiagnostic,
+  type RuntimeResult,
+  runRuntimeApply,
+  runRuntimeCheck,
+  runRuntimeDoctor,
+  runRuntimeRevert,
+  runRuntimeValidate,
+  runtimeVersion,
+} from "./runtime.js";

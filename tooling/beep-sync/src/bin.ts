@@ -13,7 +13,6 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-// Effect v4 CLI entrypoints live in effect/unstable/cli.
 import { Command, Flag } from "effect/unstable/cli";
 import {
   collectYamlFiles,
@@ -27,7 +26,12 @@ import {
   runPoc04Apply,
   runPoc04Check,
   runPoc04Revert,
-  scaffoldVersion,
+  runRuntimeApply,
+  runRuntimeCheck,
+  runRuntimeDoctor,
+  runRuntimeRevert,
+  runRuntimeValidate,
+  runtimeVersion,
   validateCanonicalFile,
 } from "./index.js";
 
@@ -67,12 +71,6 @@ const JsonUnknownFromJson = S.fromJsonString(S.Unknown);
  */
 const toOptionArray = <T>(value: O.Option<T>): ReadonlyArray<T> =>
   O.match(value, { onNone: () => A.empty<T>(), onSome: (some) => A.make(some) });
-
-/**
- * @since 0.0.0
- * @internal
- */
-const toNullable = <T>(value: O.Option<T>): T | null => O.match(value, { onNone: () => null, onSome: (some) => some });
 
 /**
  * @since 0.0.0
@@ -195,7 +193,7 @@ const ensureOptionalPathsExist = Effect.fn(function* (
     const exists = existsSync(resolve(optionValue.value));
     if (!exists) {
       hasMissingPath = true;
-      yield* Effect.logError(`[beep-sync scaffold] Missing path for --${flagName}: ${optionValue.value}`);
+      yield* Effect.logError(`[beep-sync] Missing path for --${flagName}: ${optionValue.value}`);
     }
   }
 
@@ -203,34 +201,6 @@ const ensureOptionalPathsExist = Effect.fn(function* (
     yield* markExitCode(2);
   }
   return hasMissingPath;
-});
-
-/**
- * @since 0.0.0
- * @internal
- */
-const emitScaffoldPayload = Effect.fn(function* (command: string, options: CommandOptions) {
-  const payload = {
-    mode: "scaffold",
-    command,
-    strict: options.strict,
-    dryRun: options.dryRun,
-    tool: toNullable(options.tool),
-    modeOption: toNullable(options.mode),
-    fixture: O.match(options.fixture, { onNone: () => null, onSome: (value) => resolve(value) }),
-    fixtures: O.match(options.fixtures, { onNone: () => null, onSome: (value) => resolve(value) }),
-    input: O.match(options.input, { onNone: () => null, onSome: (value) => resolve(value) }),
-    note: "Replace scaffold behavior with implementation in P1-P3",
-  } as const;
-
-  if (options.expectFail) {
-    yield* Effect.logInfo(
-      "[beep-sync scaffold] --expect-fail acknowledged (simulated). Real failure semantics pending implementation."
-    );
-  }
-
-  yield* Effect.logInfo(`[beep-sync scaffold] ${command} completed.`);
-  yield* writeJson(payload);
 });
 
 /**
@@ -300,6 +270,13 @@ const runValidateCommand = Effect.fn(function* (options: CommandOptions) {
 
   if (O.isSome(options.fixture) && isPoc05Path(options.fixture.value)) {
     const fixturePath = options.fixture.value;
+    const normalizedFixture = normalizePath(fixturePath);
+    const isServiceAccountFixture = Str.endsWith("/secrets-required-sa.yaml")(normalizedFixture);
+    const previousSecretMode = process.env.BEEP_SYNC_SECRET_MODE;
+    if (isServiceAccountFixture && !P.isString(previousSecretMode)) {
+      process.env.BEEP_SYNC_SECRET_MODE = "mock";
+    }
+
     const result = yield* Effect.try({
       try: () => resolveSecretsFromFixturePath(fixturePath),
       catch: (error) =>
@@ -309,12 +286,22 @@ const runValidateCommand = Effect.fn(function* (options: CommandOptions) {
         }),
     });
 
+    if (isServiceAccountFixture) {
+      if (P.isString(previousSecretMode)) {
+        process.env.BEEP_SYNC_SECRET_MODE = previousSecretMode;
+      } else {
+        delete process.env.BEEP_SYNC_SECRET_MODE;
+      }
+    }
+
     yield* writeJson(result);
     yield* markExitCode(result.ok ? 0 : 1);
     return;
   }
 
-  yield* emitScaffoldPayload("validate", options);
+  const result = runRuntimeValidate(process.cwd(), options.strict);
+  yield* writeJson(result);
+  yield* markExitCode(result.exitCode);
 });
 
 /**
@@ -328,7 +315,8 @@ const runNormalizeCommand = Effect.fn(function* (options: CommandOptions) {
   }
 
   if (O.isNone(options.input)) {
-    yield* emitScaffoldPayload("normalize", options);
+    yield* Effect.logError("[beep-sync] normalize requires --input <path>");
+    yield* markExitCode(2);
     return;
   }
 
@@ -356,7 +344,8 @@ const runGenerateCommand = Effect.fn(function* (options: CommandOptions) {
   }
 
   if (O.isNone(options.fixture) || O.isNone(options.tool)) {
-    yield* emitScaffoldPayload("generate", options);
+    yield* Effect.logError("[beep-sync] generate requires --fixture and --tool");
+    yield* markExitCode(2);
     return;
   }
 
@@ -414,7 +403,8 @@ const runGenerateCommand = Effect.fn(function* (options: CommandOptions) {
     return;
   }
 
-  yield* emitScaffoldPayload("generate", options);
+  yield* Effect.logError("[beep-sync] generate is fixture-only; unsupported fixture/tool combination");
+  yield* markExitCode(2);
 });
 
 /**
@@ -434,7 +424,9 @@ const runApplyCommand = Effect.fn(function* (options: CommandOptions) {
     return;
   }
 
-  yield* emitScaffoldPayload("apply", options);
+  const result = runRuntimeApply(process.cwd(), options.dryRun, options.strict);
+  yield* writeJson(result);
+  yield* markExitCode(result.exitCode);
 });
 
 /**
@@ -454,7 +446,9 @@ const runCheckCommand = Effect.fn(function* (options: CommandOptions) {
     return;
   }
 
-  yield* emitScaffoldPayload("check", options);
+  const result = runRuntimeCheck(process.cwd(), options.strict);
+  yield* writeJson(result);
+  yield* markExitCode(result.exitCode);
 });
 
 /**
@@ -474,7 +468,9 @@ const runRevertCommand = Effect.fn(function* (options: CommandOptions) {
     return;
   }
 
-  yield* emitScaffoldPayload("revert", options);
+  const result = runRuntimeRevert(process.cwd(), options.dryRun);
+  yield* writeJson(result);
+  yield* markExitCode(result.exitCode);
 });
 
 /**
@@ -493,7 +489,9 @@ const runDoctorCommand = Effect.fn(function* (options: CommandOptions) {
     return;
   }
 
-  yield* emitScaffoldPayload("doctor", options);
+  const result = runRuntimeDoctor(process.cwd(), options.strict);
+  yield* writeJson(result);
+  yield* markExitCode(result.exitCode);
 });
 
 /**
@@ -501,7 +499,7 @@ const runDoctorCommand = Effect.fn(function* (options: CommandOptions) {
  * @internal
  */
 const validateCommand = Command.make("validate", optionsShape(), runValidateCommand).pipe(
-  Command.withDescription("Validate canonical fixtures and secret resolution probes")
+  Command.withDescription("Validate canonical config and secret resolution")
 );
 /**
  * @since 0.0.0
@@ -515,35 +513,35 @@ const normalizeCommand = Command.make("normalize", optionsShape(), runNormalizeC
  * @internal
  */
 const generateCommand = Command.make("generate", optionsShape(), runGenerateCommand).pipe(
-  Command.withDescription("Generate scaffold outputs for fixture probes")
+  Command.withDescription("Generate fixture outputs for adapter compatibility checks")
 );
 /**
  * @since 0.0.0
  * @internal
  */
 const applyCommand = Command.make("apply", optionsShape(), runApplyCommand).pipe(
-  Command.withDescription("Apply managed fixture behavior")
+  Command.withDescription("Apply managed runtime outputs")
 );
 /**
  * @since 0.0.0
  * @internal
  */
 const checkCommand = Command.make("check", optionsShape(), runCheckCommand).pipe(
-  Command.withDescription("Check managed fixture behavior")
+  Command.withDescription("Check managed runtime drift")
 );
 /**
  * @since 0.0.0
  * @internal
  */
 const revertCommand = Command.make("revert", optionsShape(), runRevertCommand).pipe(
-  Command.withDescription("Revert managed fixture behavior")
+  Command.withDescription("Revert managed runtime outputs")
 );
 /**
  * @since 0.0.0
  * @internal
  */
 const doctorCommand = Command.make("doctor", optionsShape(), runDoctorCommand).pipe(
-  Command.withDescription("Run scaffold diagnostics")
+  Command.withDescription("Run runtime health checks")
 );
 
 /**
@@ -551,7 +549,7 @@ const doctorCommand = Command.make("doctor", optionsShape(), runDoctorCommand).p
  * @internal
  */
 const rootCommand = Command.make("beep-sync").pipe(
-  Command.withDescription("Unified AI tooling sync runtime (scaffold mode)"),
+  Command.withDescription("Unified AI tooling sync runtime"),
   Command.withSubcommands([
     validateCommand,
     normalizeCommand,
@@ -579,7 +577,7 @@ const runtimeLayer = Layer.mergeAll(NodeChildProcessSpawner.layer).pipe(Layer.pr
  * @since 0.0.0
  * @internal
  */
-const program = Command.run(rootCommand, { version: scaffoldVersion }).pipe(
+const program = Command.run(rootCommand, { version: runtimeVersion }).pipe(
   Effect.provide(runtimeLayer),
   Effect.catchCause((cause: Cause.Cause<unknown>) =>
     Effect.gen(function* () {

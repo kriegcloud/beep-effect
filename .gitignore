@@ -54,7 +54,5 @@ storybook-static/
 # Claude plugin state files (ralph-wiggum loop state)
 .claude/ralph-loop.local.md
 
-# Local MCP + Codex config (project-scoped, not committed)
-.mcp.json
-.codex/
+# Local code-index cache only (MCP + Codex config are beep-sync managed/committed)
 .code-index/

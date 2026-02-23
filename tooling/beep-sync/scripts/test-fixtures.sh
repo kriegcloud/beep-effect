@@ -13,6 +13,7 @@ required_paths=(
   "$ROOT_DIR/fixtures/poc-03/jetbrains-native.yaml"
   "$ROOT_DIR/fixtures/poc-04/managed.yaml"
   "$ROOT_DIR/fixtures/poc-05/secrets-required.yaml"
+  "$ROOT_DIR/fixtures/poc-05/secrets-required-sa.yaml"
   "$ROOT_DIR/fixtures/poc-05/secrets-missing.yaml"
   "$ROOT_DIR/fixtures/poc-05/secrets-optional.yaml"
   "$ROOT_DIR/fixtures/poc-06/config.yaml"
@@ -20,9 +21,9 @@ required_paths=(
 
 for path in "${required_paths[@]}"; do
   if [[ ! -e "$path" ]]; then
-    printf '%s\n' "[beep-sync scaffold] missing fixture path: $path" >&2
+    printf '%s\n' "[beep-sync] missing fixture path: $path" >&2
     exit 2
   fi
 done
 
-printf '%s\n' "[beep-sync scaffold] test:fixtures passed"
+printf '%s\n' "[beep-sync] test:fixtures passed"
