@@ -1,0 +1,120 @@
+[
+  {
+    "batch": "seed",
+    "total": 1,
+    "succeeded": 0,
+    "failed": 1,
+    "duration_s": 0.0,
+    "errors": [
+      {
+        "index": 0,
+        "name": "Effect v4 Core Concepts Overview",
+        "error": "HTTP Error 400: Bad Request"
+      }
+    ]
+  },
+  {
+    "batch": "seed",
+    "total": 1,
+    "succeeded": 1,
+    "failed": 0,
+    "duration_s": 0.0,
+    "errors": []
+  },
+  {
+    "batch": "modules",
+    "total": 125,
+    "succeeded": 125,
+    "failed": 0,
+    "duration_s": 0.0,
+    "errors": []
+  },
+  {
+    "batch": "migrations",
+    "total": 45,
+    "succeeded": 45,
+    "failed": 0,
+    "duration_s": 0.0,
+    "errors": []
+  },
+  {
+    "batch": "patterns",
+    "total": 7,
+    "succeeded": 7,
+    "failed": 0,
+    "duration_s": 0.0,
+    "errors": []
+  },
+  {
+    "batch": "docs",
+    "total": 21,
+    "succeeded": 21,
+    "failed": 0,
+    "duration_s": 0.0,
+    "errors": []
+  },
+  {
+    "batch": "enrichment",
+    "total": 51,
+    "succeeded": 51,
+    "failed": 0,
+    "duration_s": 0.0,
+    "errors": []
+  },
+  {
+    "batch": "seed",
+    "total": 1,
+    "succeeded": 1,
+    "failed": 0,
+    "duration_s": 0.0,
+    "errors": []
+  },
+  {
+    "batch": "modules",
+    "total": 125,
+    "succeeded": 125,
+    "failed": 0,
+    "duration_s": 252.0,
+    "errors": []
+  },
+  {
+    "batch": "migrations",
+    "total": 45,
+    "succeeded": 45,
+    "failed": 0,
+    "duration_s": 88.8,
+    "errors": []
+  },
+  {
+    "batch": "patterns",
+    "total": 7,
+    "succeeded": 7,
+    "failed": 0,
+    "duration_s": 12.0,
+    "errors": []
+  },
+  {
+    "batch": "docs",
+    "total": 21,
+    "succeeded": 21,
+    "failed": 0,
+    "duration_s": 40.8,
+    "errors": []
+  },
+  {
+    "batch": "enrichment",
+    "total": 51,
+    "succeeded": 51,
+    "failed": 0,
+    "duration_s": 100.7,
+    "errors": []
+  },
+  {
+    "batch": "functions-top20",
+    "total": 1906,
+    "succeeded": 1906,
+    "failed": 0,
+    "duration_s": 3853.7,
+    "errors": []
+  }
+]

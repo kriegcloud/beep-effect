@@ -1,0 +1,81 @@
+{
+  "timestamp": "2026-02-20T23:28:50.040870+00:00",
+  "group_id": "palantir-ontology",
+  "ingestion_summary": {
+    "total_episodes_submitted": 416,
+    "seed_episodes": 2,
+    "batch1_high_quality": 230,
+    "batch2_medium_quality": 167,
+    "batch3_repo_analysis": 17,
+    "submission_errors": 0,
+    "submission_success_rate": "100%"
+  },
+  "processing_summary": {
+    "note": "Graphiti processes episodes asynchronously via LLM (~35-52s each)",
+    "episodes_processed_at_check": 269,
+    "episodes_still_queued": 147,
+    "estimated_remaining_time_minutes": 102.89999999999999
+  },
+  "graph_verification": {
+    "core_concepts_found": [
+      "Object Type",
+      "Property",
+      "Shared Property Type",
+      "Link Type",
+      "Action Type",
+      "Roles/Functions",
+      "Interfaces",
+      "Object Views",
+      "Derived Properties",
+      "ObjectSet",
+      "Value Types",
+      "Compute Modules",
+      "AIP Agents",
+      "Branching"
+    ],
+    "products_found": [
+      "Foundry",
+      "AIP",
+      "OSDK",
+      "Workshop",
+      "Compute Modules",
+      "@osdk/foundry-sdk-generator",
+      "foundry-platform-typescript",
+      "@osdk/create-app",
+      "OpenAPI"
+    ],
+    "security_concepts_found": [
+      "PBAC",
+      "Purpose-Based Access Control",
+      "Markings",
+      "Classifications",
+      "Cipher",
+      "Derived Property Security",
+      "Confidential OAuth Client",
+      "Ontology Governance"
+    ],
+    "relationship_types_observed": [
+      "HAS_CORE_CONCEPT",
+      "IS_TYPED_ATTRIBUTE_OF",
+      "DEFINES_RELATIONSHIP_BETWEEN",
+      "CONTROLS_ACCESS_TO",
+      "MAPS_1_TO_1_WITH",
+      "SECURES",
+      "PROVIDES_ENCRYPTION_FOR",
+      "APPLIES_TO",
+      "INCLUDES",
+      "QUERY_MECHANISM_FOR",
+      "REQUIRES_FOR_ACCESS",
+      "DOCUMENTED_IN",
+      "HAVE_PERMISSION_MODEL",
+      "ENCODES"
+    ],
+    "all_9_core_concepts_present": true
+  },
+  "timing": {
+    "batch1_elapsed_seconds": 471,
+    "batch2_elapsed_seconds": 343,
+    "batch3_elapsed_seconds": 40,
+    "total_submission_seconds": 854
+  }
+}

@@ -20,11 +20,7 @@ Files that affect all task hashes.
 
 ```json
 {
-  "globalDependencies": [
-    "tsconfig.json",
-    ".env",
-    "pnpm-lock.yaml"
-  ]
+  "globalDependencies": ["tsconfig.json", ".env", "pnpm-lock.yaml"]
 }
 ```
 
@@ -54,15 +50,7 @@ Custom cache location. Default: `node_modules/.cache/turbo`.
 
 ## daemon
 
-Background process for faster subsequent runs. Default: `true`.
-
-```json
-{
-  "daemon": false
-}
-```
-
-Disable in CI or when debugging.
+**Deprecated**: The daemon is no longer used for `turbo run` and this option will be removed in version 3.0. The daemon is still used by `turbo watch` and the Turborepo LSP.
 
 ## envMode
 
@@ -176,7 +164,7 @@ Bypass the `packageManager` field requirement. Use for incremental migration.
 
 **Warning**: Unstable lockfiles can cause unpredictable behavior.
 
-## Git Worktree Cache Sharing (Pre-release)
+## Git Worktree Cache Sharing
 
 When working in Git worktrees, Turborepo automatically shares local cache between the main worktree and linked worktrees.
 

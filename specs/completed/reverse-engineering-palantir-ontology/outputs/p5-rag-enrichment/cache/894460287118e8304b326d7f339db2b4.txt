@@ -1,0 +1,349 @@
+palantir
+
+ / 
+
+ osdk-ts 
+
+ Public 
+
+ Notifications
+ You must be signed in to change notification settings 
+
+ Fork
+ 42 
+
+ Star
+ 45 
+
+ Typescript related OSDK libraries
+
+ 45 
+ stars
+
+ 42 
+ forks
+
+ Branches 
+
+ Tags 
+
+ Activity 
+
+ Star
+
+ Notifications
+ You must be signed in to change notification settings 
+
+palantir/osdk-ts
+
+   main 
+
+ Branches 
+ Tags 
+
+ Go to file 
+
+ Code 
+
+ Open more actions menu 
+
+Folders and files
+
+ Name Name 
+ Last commit message 
+
+ Last commit date 
+
+Latest commit
+
+History
+
+ 2,844 Commits 
+
+ 2,844 Commits 
+
+ .changeset 
+
+ .changeset 
+
+ .clinerules 
+
+ .clinerules 
+
+ .github 
+
+ .github 
+
+ .husky 
+
+ .husky 
+
+ .vscode 
+
+ .vscode 
+
+ benchmarks 
+
+ benchmarks 
+
+ dev-docs 
+
+ dev-docs 
+
+ docs 
+
+ docs 
+
+ etc 
+
+ etc 
+
+ examples-extra/ docs_example 
+
+ examples-extra/ docs_example 
+
+ examples 
+
+ examples 
+
+ packages 
+
+ packages 
+
+ scripts 
+
+ scripts 
+
+ tests 
+
+ tests 
+
+ .bulldozer.yml 
+
+ .bulldozer.yml 
+
+ .clineignore 
+
+ .clineignore 
+
+ .envrc.sample 
+
+ .envrc.sample 
+
+ .gitignore 
+
+ .gitignore 
+
+ .lintstagedrc.mjs 
+
+ .lintstagedrc.mjs 
+
+ .monorepolint.config.mjs 
+
+ .monorepolint.config.mjs 
+
+ .node-version 
+
+ .node-version 
+
+ .npmrc 
+
+ .npmrc 
+
+ .nvmrc 
+
+ .nvmrc 
+
+ .pnpmfile.cjs 
+
+ .pnpmfile.cjs 
+
+ CLAUDE.md 
+
+ CLAUDE.md 
+
+ README.md 
+
+ README.md 
+
+ RELEASING.md 
+
+ RELEASING.md 
+
+ babel.config.mjs 
+
+ babel.config.mjs 
+
+ cspell.config.cjs 
+
+ cspell.config.cjs 
+
+ dprint.json 
+
+ dprint.json 
+
+ eslint.config.mjs 
+
+ eslint.config.mjs 
+
+ google-font-mocked-response.js 
+
+ google-font-mocked-response.js 
+
+ jsconfig.json 
+
+ jsconfig.json 
+
+ package.json 
+
+ package.json 
+
+ pnpm-lock.yaml 
+
+ pnpm-lock.yaml 
+
+ pnpm-workspace.yaml 
+
+ pnpm-workspace.yaml 
+
+ turbo.json 
+
+ turbo.json 
+
+ View all files 
+
+Repository files navigation
+
+TypeScript Ontology SDK
+
+A TypeScript library for interacting with Palantir's Ontology.
+
+Documentation
+
+ OSDK TypeScript Documentation 
+
+ Ontology SDK Overview 
+
+ TypeScript OSDK Migration Guide 
+
+Packages
+
+ Package 
+ Version 
+
+ @osdk/client 
+
+ @osdk/api 
+
+ @osdk/foundry-sdk-generator 
+
+ @osdk/oauth 
+
+Getting Started
+
+To get started, visit the developer console application on your Foundry stack or see the documentation above.
+
+Do you only want to hit specific APIs or don't need a generated SDK? Check out the foundry-platform-typescript package, which provides standalone APIs to interact with Foundry directly without the need to generate ontology-specific SDKs.
+
+Frontend quick start with @osdk/create-app
+
+See the instructions on how to get set up quickly with a frontend application in our public documentation. 
+
+Installation
+
+Install the client and auth packages via npm:
+
+npm install @osdk/client
+npm install @osdk/oauth 
+
+Client Overview
+
+Once you have generated an SDK in your Developer Console application, you need to create your token provider via OAuth. This token provider is supplied by creating the auth provider from the @osdk/oauth package. Once you have your token provider set up, you can pass the authentication instance when creating the client.
+
+OAuth Instructions
+
+Public Client
+
+To create a public client, you will need to create an application in the Developer Console app on your Foundry stack. You will need the client ID as well as the base URL of your Foundry stack and a redirect URL that you can configure in Developer Console.
+
+ import { createPublicOauthClient } from "@osdk/oauth" ; 
+
+ const auth = createPublicOauthClient ( 
+ "<YOUR CLIENT ID>" , 
+ "<YOUR FOUNDRY URL>" , 
+ "http://redirect-url" , 
+ ) ; 
+
+For more details, refer to the documentation provided in your Developer Console application.
+
+Confidential Client
+
+To create a confidential client, follow the steps to create a service user in the Developer Console. You will need the client ID, client secret, and the base URL of your Foundry stack.
+
+ import { createConfidentialOauthClient } from "@osdk/oauth" ; 
+
+ const auth = createConfidentialOauthClient ( 
+ "<YOUR CLIENT ID>" , 
+ "<YOUR CLIENT SECRET>" , 
+ "<YOUR FOUNDRY URL>" , 
+ ) ; 
+
+For more details, refer to the public docs or documentation in the Developer Console application.
+
+Creating Your Client
+
+ import { createClient } from "@osdk/client" ; 
+
+ const client = createClient ( 
+ "https://stack.palantir.com" , 
+ "ri.foundry.main" , 
+ auth , // This is the auth that we created above. 
+ ) ; 
+
+For more details, refer to the public docs or documentation in the Developer Console application.
+
+Dev workflow
+
+Fork the repo
+
+Create a branch
+
+ pnpm install 
+
+Add your code
+
+Run all lint rules and tests with pnpm check from root. Run pnpm turbo typecheck to quickly check any issues with your types.
+
+Add a changeset
+
+📘 Note
+ Follow semver rules here. 
+
+Assuming you've run pnpm install , run changeset (or pnpm exec changeset ).
+
+The tool will split things into changed vs unchanged packages (which you may need if you decide to add changeset logs in a future PR for past features)
+
+Select the packages you want the changeset applied to using the arrow keys (up/down) and space-bar to "select" the package.
+
+Press enter to continue.
+
+The CLI will go through a progression of asking you which packages you previously selected need a major bump? Then a minor bump? Patch bumps assumed for remaining packages changed. Arrows and space bar to select. Enter to continue (even if you selected nothing).
+
+Enter a change (or press enter on empty to open your editor.)
+
+Info
+Full docs on the changesets tool can be found at the changesets/changesets github repo .
+
+If you're curious what the final build output might look like you can run pnpm build from root.
+
+Publishing
+
+Install the GitHub CLI 
+
+ gh auth login to authenticate with github.com
+
+ pnpm install 
+
+ ./scripts/createReleasePr.sh 
+
+Once your release PR has been merged, run /scripts/tag-release.sh [COMMIT_SHA] to tag your release.

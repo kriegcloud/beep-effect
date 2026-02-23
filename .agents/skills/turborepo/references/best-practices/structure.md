@@ -86,7 +86,7 @@ Package tasks enable Turborepo to:
 // AVOID unless necessary - sequential, not parallelized, can't filter
 {
   "scripts": {
-    "lint": "eslint apps/todox && eslint apps/server && eslint packages/ui"
+    "lint": "eslint apps/web && eslint apps/api && eslint packages/ui"
   }
 }
 ```
@@ -252,7 +252,7 @@ packages/
 ### Using in Packages
 
 ```js
-// apps/todox/.eslintrc.js
+// apps/web/.eslintrc.js
 module.exports = {
   extends: ["@repo/eslint-config/next"],
 };

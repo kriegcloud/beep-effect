@@ -25,15 +25,15 @@ Use decision trees in SKILL.md to select the relevant reference files.
 
 Based on task type, read from `references/<topic>/`:
 
-| Task                 | Files to Read                                             |
-| -------------------- | --------------------------------------------------------- |
-| Configure turbo.json | `configuration/README.md` + `configuration/tasks.md`      |
-| Debug cache issues   | `caching/gotchas.md`                                      |
-| Set up remote cache  | `caching/remote-cache.md`                                 |
-| Filter packages      | `filtering/README.md` + `filtering/patterns.md`           |
-| Environment problems | `environment/gotchas.md` + `environment/modes.md`         |
-| Set up CI            | `ci/README.md` + `ci/github-actions.md` or `ci/vercel.md` |
-| CLI usage            | `cli/commands.md`                                         |
+| Task                 | Files to Read                                           |
+| -------------------- | ------------------------------------------------------- |
+| Configure turbo.json | `configuration/RULE.md` + `configuration/tasks.md`      |
+| Debug cache issues   | `caching/gotchas.md`                                    |
+| Set up remote cache  | `caching/remote-cache.md`                               |
+| Filter packages      | `filtering/RULE.md` + `filtering/patterns.md`           |
+| Environment problems | `environment/gotchas.md` + `environment/modes.md`       |
+| Set up CI            | `ci/RULE.md` + `ci/github-actions.md` or `ci/vercel.md` |
+| CLI usage            | `cli/commands.md`                                       |
 
 ### Step 4: Execute task
 
@@ -42,7 +42,7 @@ Apply Turborepo-specific patterns from references to complete the user's request
 **CRITICAL - When creating tasks/scripts/pipelines:**
 
 1. **DO NOT create Root Tasks** - Always create package tasks
-2. Add scripts to each relevant package's `package.json` (e.g., `apps/todox/package.json`, `packages/ui/package.json`)
+2. Add scripts to each relevant package's `package.json` (e.g., `apps/web/package.json`, `packages/ui/package.json`)
 3. Register the task in root `turbo.json`
 4. Root `package.json` only contains `turbo run <task>` - never actual task logic
 

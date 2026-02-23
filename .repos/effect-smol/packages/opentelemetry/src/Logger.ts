@@ -5,15 +5,16 @@ import * as Otel from "@opentelemetry/sdk-logs"
 import type { NonEmptyReadonlyArray } from "effect/Array"
 import * as Arr from "effect/Array"
 import * as Clock from "effect/Clock"
-import type { DurationInput } from "effect/Duration"
+import type * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Logger from "effect/Logger"
 import * as LogLevel from "effect/LogLevel"
 import * as Predicate from "effect/Predicate"
+import * as References from "effect/References"
 import * as ServiceMap from "effect/ServiceMap"
 import * as Tracer from "effect/Tracer"
-import { unknownToAttributeValue } from "./internal/attributes.ts"
+import { nanosToHrTime, unknownToAttributeValue } from "./internal/attributes.ts"
 import { Resource } from "./Resource.ts"
 
 /**
@@ -50,22 +51,22 @@ export const make: Effect.Effect<
       attributes.traceId = span.traceId
     }
 
-    // TODO: add back after log spans / annotations
-    // for (const [key, value] of options.annotations) {
-    //   attributes[key] = unknownToAttributeValue(value)
-    // }
-    // const now = options.date.getTime()
-    // for (const span of options.spans) {
-    //   attributes[`logSpan.${span.label}`] = `${now - span.startTime}ms`
-    // }
+    for (const [key, value] of Object.entries(options.fiber.getRef(References.CurrentLogAnnotations))) {
+      attributes[key] = unknownToAttributeValue(value)
+    }
+    const now = options.date.getTime()
+    for (const [label, startTime] of options.fiber.getRef(References.CurrentLogSpans)) {
+      attributes[`logSpan.${label}`] = `${now - startTime}ms`
+    }
 
     const message = Arr.ensure(options.message).map(unknownToAttributeValue)
+    const hrTime = nanosToHrTime(clock.currentTimeNanosUnsafe())
     otelLogger.emit({
       body: message.length === 1 ? message[0] : message,
       severityText: options.logLevel,
       severityNumber: LogLevel.getOrdinal(options.logLevel),
-      timestamp: options.date,
-      observedTimestamp: clock.currentTimeMillisUnsafe(),
+      timestamp: hrTime,
+      observedTimestamp: hrTime,
       attributes
     })
   })
@@ -98,7 +99,7 @@ export const layer = (options: {
 export const layerLoggerProvider = (
   processor: Otel.LogRecordProcessor | NonEmptyReadonlyArray<Otel.LogRecordProcessor>,
   config?: Omit<Otel.LoggerProviderConfig, "resource"> & {
-    readonly shutdownTimeout?: DurationInput | undefined
+    readonly shutdownTimeout?: Duration.Input | undefined
   }
 ): Layer.Layer<OtelLoggerProvider, never, Resource> =>
   Layer.effect(

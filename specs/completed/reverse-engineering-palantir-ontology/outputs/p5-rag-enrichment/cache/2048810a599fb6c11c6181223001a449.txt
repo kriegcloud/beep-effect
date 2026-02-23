@@ -1,0 +1,76 @@
+User-Centered Machine Learning
+A New Paradigm for Computer Vision Workflows
+Palantir
+Follow
+6 min read
+·
+Jan 26, 2024
+
+92
+
+Press enter or click to view image in full size
+
+Massive investments are being made across the DoD to develop and field Machine Learning (ML) based capabilities for intelligence and operational data sources. In particular, the application of Computer Vision (CV) models on top of overhead aerial imagery has become a key focus area for teams looking to better detect and track objects of interest.
+
+Palantir has worked directly with analysts and users of CV object detection and tracking technology for many years. Witnessing the limitations of countless third-party CV models in the wild, we’ve observed the impact on users when imperfect models fall short during a mission.
+
+User-Centered Machine Learning (UCML) is Palantir’s solution to this problem. UCML transforms models from walled-off, isolated entities that are trained and deployed in slow cycles into live, dynamic solutions that users can improve in seconds. In this blog post, we discuss how we built our UCML service, and offer insight into how it can be deployed to not only improve model output, but introduce next generation workflows for augmenting decision-making for any mission.
+
+Computer Vision User Adoption Challenges
+Press enter or click to view image in full size
+Press enter or click to view image in full size
+Figure 1. Example object detection and tracking models on top of satellite EO imagery (left) and Full Motion Video (FMV) feeds (right). The satellite object detection models in this example identify vehicles (green dots) and ships (red rectangles). The FMV models are tracking vehicles (white dots). All images above are included for demonstration purposes only, and display Palantir and/or notional models. Copyright © Satellogic 2024 for EO satellite imagery.
+
+When CV models are perfectly accurate, they can significantly enhance productivity of imagery analysts. For example, reliably knowing the location of every type of military vehicle, vessel and aircraft on every satellite image at image acquisition time (Figure 1), allows analysts to immediately extract the intelligence information they need to enable timely strategic decisions and actions.
+
+Palantir has deployed several first and countless third-party CV models in the wild. As we’ve observed analysts using them, we’ve learned that the vast majority of users don’t fully rely on these models to perform their daily missions, choosing instead to use them as assistive aids that complement their daily workflows. This adoption reticence is the consequence of two distinct challenges:
+
+CV models are rarely perfectly accurate. In realistic deployment conditions, the observed accuracy of object detection and tracking models is usually in the range of 60%-80%. Imagery analysts must continuously evaluate the output of the models — they can’t blindly trust them in mission critical settings. Analysts know this inaccuracy will continue to persist for a variety of reasons, such as: insufficient training data diversity, challenging or rare classes of interest, training data labeling inaccuracies, large numbers of significantly different biomes, and gaps between training data and operational data.
+CV user workflows are static. In most workflows, users are presented with a set of static, noisy detections or tracks that appear as bounding boxes on top of images. Lacking the ability to interact with these detections, they can’t provide feedback to the model and refine its output as needed on the fly within the context of the mission. This dramatically limits a user’s ability and incentive to leverage model output to perform mission tasks.
+
+The real need isn’t for a perfect model that will never fail, but for a way for models to improve in real time based on user feedback when they do fail. At Palantir, we knew building this capability meant fundamentally redefining analyst workflows to more accurately represent the world as they experience it. By empowering users to react to, and engage with, models in real time, they could begin to tailor their responses to accurate frontline realities, enabling upstream and downstream parties to make informed decisions to arrive at more potent outcomes.
+
+Introducing Palantir’s User-Centered ML (UCML) Service
+
+Making this service available to the frontlines required Palantir to rethink how we build ML workflows and the underlying technology. We had to ensure that users had the ability to interact directly with both the input and the output of the ML models to help improve their outputs in real-time.
+
+We call this new type of service “User-Centered ML” (UCML) as it puts the users and analysts in control of the model, instead of treating them as consumers of the models’ static output.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+With UCML, users are able to look at an image with an incomplete set of CV model detections, annotate a few objects, and in a few short clicks, receive improved detections based on their input. Witnessing the experience UCML makes possible, we’re confident this technology will be critical in powering new experiences across applications ranging from traditional object detection and tracking to data labeling and visual search applications.
+
+Below, a notional example shows how UCML interacts with Satellite EO imagery (Figure 2). The model initially detects several vehicles in the image, but fails to detect a number of others. Analysts can directly interact with the output of the model and the input image to provide feedback. In this instance, the user identifies a single missing vehicle in the image and submits this feedback. Palantir’s UCML service is able to absorb this feedback and re-process the input image in real-time to generate an updated and improved set of detections where most of the small vehicles are now successfully detected.
+
+Figure 2. All images above are included for demonstration purposes only, and display Palantir and/or notional models.
+
+Analysts can choose any detection generated by the object detection models initially and indicate whether it’s a true or false positive, as well as indicate missing detections as shown in Figure 2. The UCML model is then able to consider this feedback from the user and refine its detection output further by either detecting more of the object the user cares about and/or by eliminating false positives.
+
+Every time the user provides feedback to the model, whether in the form of a missed detection or a false or true positive, the UCML service stores these feedback points as image templates. These image templates can be aggregated across multiple analysts over time on a specific region of interest or across multiple regions of interest. Analysts can always retrieve and leverage these historical templates to allow the UCML service to automatically improve its detections on new imagery in real-time. By unlocking the ability for analysts to leverage novel context from the entire business decision loop, it fundamentally changes the way decisions can be made across the fleet.
+
+How UCML Works
+
+The diagram below shows how the User-Centered ML technology works. There are 3 fundamental components: the baseline detector, a custom template matching deep learning model, and a fusion module.
+
+Press enter or click to view image in full size
+Figure 3. High level overview depicting how User Centered ML improves model outputs in real time.
+
+The baseline detector can be any object detection model trained on top of the type of imagery we are interested in analyzing. As the user interacts with the output of the baseline detector model and/or the input image, the provided feedback is used into two distinct ways.
+
+First, the positive and negative examples indicated are used to compute similarity against each individual detection our baseline detector initially generated. Based on the similarity scores, initial detections are properly re-scored, allowing us to either suppress detections similar to the identified false positives or display detections similar to the accurate user examples that were previously suppressed.
+
+Second, the user provided positive examples become the input into a custom template matching deep learning model, which is trained to detect similar objects of interest in the input image. The updated baseline detections and the new detections from the template matching model are then combined to provide a new set of detections to the user. As the user provides additional feedback, this process is applied repeatedly, continuing to improve detection results.
+
+UCML enables a completely new experience for analysts by putting them in control of the model within the context of the specific mission and imagery they are working with. By unlocking the ability for models deployed anywhere to become interactive, dynamic solutions, the UCML service represents a fundamental shift to existing ML-based workflows, and is critical to realizing the true potential of ML technology in mission critical operations.
+
+To express interest or learn more, reach out to us at ucml@palantir.com.
+
+Authors
+
+Dimitrios Lymperopoulos, Head of Machine Learning, Palantir
+
+Ben Radford, Product Manager, Palantir

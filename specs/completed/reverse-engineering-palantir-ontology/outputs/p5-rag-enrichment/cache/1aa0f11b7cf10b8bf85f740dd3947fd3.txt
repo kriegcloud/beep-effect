@@ -1,0 +1,90 @@
+Object and link types • Link types • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Object and link types Link types Overview 
+
+ Link types
+
+A link type is the schema definition of a relationship between two object types. A link refers to a single instance of that relationship between two objects in the same Ontology.
+
+For example, in the Ontology Manager, you may create a link type between the Employee object type and the Company object type that defines the relationship between Employee and Employer . A link refers to a single instance of the Employee → Employer link type, like the relationship between the notional employee “Melissa Chang” and her employer, “Acme, Inc.”
+
+Similarly, in the Ontology Manager, you may create a link type between the Flight object type and the Aircraft object type that defines the relationship between Scheduled Flight and Assigned Aircraft . A link refers to a single instance of the Scheduled Flight → Assigned Aircraft link type, like the relationship between “JFK → SFO 24-02-2021” and its assigned aircraft “Boeing 737-123”.
+
+Links can also exist between two objects of the same type. A link type Direct Report ↔ Manager can be defined between the Employee object type and itself.
+
+Note that links between object types across different Ontologies is not supported. In this case, you may prefer to leverage a shared Ontology.
+
+The concepts underpinning the Ontology have analogous concepts in the structure of a dataset. The definition of a link type in the Ontology is analogous to that of a join between two datasets, while the definition of a link is analogous to that of a row joined with the fields of the same row in another dataset. For example, you can join the Employee dataset with the Company dataset to explore the relationship between Employees and their Employers . In the joined dataset, a single row that joins “Melissa Chang” with her employer “Acme, Inc.” represents a link.
+
+Rather than being an abstract data model, the Foundry Ontology maps each ontological concept to an organization's actual data, enabling this data asset to power real-world applications. Links are created and displayed in user applications by adding backing datasources to the object types referred to in the link type in the Ontology Manager. In the case of link types where object types are related with a many-to-many cardinality, datasources back the link types themselves. To create links of type Employee → Employer , an organization will add backing datasources to the Employee and Company object types and connect their employee directory and other enterprise data into the Ontology.
+
+Get started by learning how to create a new link type .
+
+ ← 
+ PREVIOUS Shared properties / Metadata reference 
+
+ NEXT Create a link type 
+ →

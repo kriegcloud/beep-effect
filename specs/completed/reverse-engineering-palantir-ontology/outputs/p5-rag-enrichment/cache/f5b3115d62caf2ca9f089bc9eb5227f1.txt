@@ -1,0 +1,70 @@
+Announcing Open Source for Palantir Government Web Services
+Palantir
+Follow
+4 min read
+·
+Oct 25, 2023
+
+23
+
+3
+
+Press enter or click to view image in full size
+
+Editor’s note: This is a follow-up post to The Technical Annex: Announcing Palantir Government Web Services (GWS), which previewed some of our upcoming open source offerings for GWS. Over the next few months, we’ll be sharing our most compelling open source tooling to accelerate builders in the defense tech ecosystem. First up: Policy Bot for compliant change management.
+
+Why Open Source?
+
+The bar for software supporting warfighters is high. The expectation is that software should be always available, everywhere, across 100,000+ heterogeneous environments, from beefy classified data centers to Replicator robots, from cloud to edge. Building, deploying, and sustaining the infrastructure and applications to turn these expectations into reality is a job for the entirety of the defense tech ecosystem. To contribute to this mission, we’ll be open sourcing two categories of capability:
+
+General utilities that get defense tech companies to scale faster, from building secure software applications to streamlining the operation of complex software with a zero-configuration application server.
+Technologies that continue to reduce lock-in and lower customer switching costs. The government should always be able to adopt the best solution while maintaining the ability to operate the infrastructure and access their data without paying a license should they choose to walk away.
+
+Over the past twenty years, Palantir has made massive contributions to open source. Spark did not initially support Kubernetes. We contributed code to facilitate compatibility so Spark could autoscale and the full value of the cloud could be realized. And we have over 220 open source GitHub repositories. These repos represent more than just a list of features — in aggregate, they are transformational building blocks for companies to better serve the warfighter. The first of these building blocks we want to highlight is Policy Bot for compliant change management.
+
+Policy Bot
+
+For companies serving our nation’s most critical institutions, strict compliance is a non-negotiable. At the same time, providing software solutions at speed is paramount. Policy Bot is an open sourced GitHub app that enforces approval policies on pull requests, removing the bottlenecking on specific reviewers to make software development compliant, without sacrificing speed.
+
+Palantir uses Policy Bot to develop software in line with the government’s DevSecOps best practices and as part of our change management process for compliance with FedRAMP, IL5, and IL6. Specifically, Policy Bot enables fulfilling the following controls required for these certifications while retaining a fast release cadence:
+
+CM-3 — Configuration Change Control
+CM-3(1) — Automated Documentation, Notification, and Prohibition of Changes
+SA-10 — Developer Configuration Management
+
+Policy Bot has multiple corporate contributors outside of Palantir. We hope First Breakfast companies find it helpful in continuously delivering impact at scale for their customers.
+
+Technical Details
+
+One of the basic requirements of any compliance regime is that any change, whether to software or to infrastructure, requires review before moving to production. Given that Palantir follows infrastructure-as-code practices, this process almost always takes the form of a code review.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Requiring code reviews sounds like a simple problem to solve, but as we surveyed development teams with different workflows, the requirements became more nuanced. For example:
+
+Changes targeting specific branches, like a staging branch, do not require review.
+Certain types of changes may need additional approval from Information Security or Legal teams.
+Certain types of changes, like to documentation, are pre-approved and do not need review.
+When configuration for multiple environments is centralized in a single repository, developers should be able to change their respective environments (identified for instance by sub folders within the repository) with peer approval, without blocking on approval from a DevOps team member.
+
+Failure to automate any of these conditions can slow developers down, forcing them to seek out and interrupt others for approval and needlessly delaying changes. When teams are geographically distributed or busy with other work, it could take days to get a change merged.
+
+We initially looked to GitHub’s existing tooling for a solution, but there wasn’t anything granular enough to meet our constraints. Instead, we built our own approval tool that integrated with GitHub.
+
+Policy Bot defines approval conditions by combining multiple rules with logical and/or operators. Each rule has predicates that determine when it applies. For instance, the following policy approves a pull request if a member of the DevOps team approves or if the pull request only changes test files:
+
+Press enter or click to view image in full size
+
+Other supported predicates allow users to express rules concerning the author of the pull request, the target branch, and the contributors.
+
+Policies are defined in a YAML file in each repository, making them subject to the same approval conditions as regular code. While policies are designed to be human-readable, understanding the state of each rule for a certain pull request can be challenging. That’s why Policy Bot also provides a UI showing the status of all rules:
+
+Press enter or click to view image in full size
+
+Policy Bot shows us that often only minor adjustments are needed to remove significant barriers to productivity. Users can continue to use tools they are familiar with and the DevSecOps teams can focus on actual problems instead of rebuilding existing functionality.
+
+Palantir’s software development continues to be greatly aided by open source offerings, and we in turn remain committed to contributing to the open source community. As we formalize the tools we’re making freely available to the defense tech ecosystem, we encourage you to try them out and share feedback with us at forge@palantir.com.

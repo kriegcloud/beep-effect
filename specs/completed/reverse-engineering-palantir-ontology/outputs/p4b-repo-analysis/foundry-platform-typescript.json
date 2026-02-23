@@ -1,0 +1,478 @@
+{
+  "repo": "foundry-platform-typescript",
+  "repoUrl": "https://github.com/palantir/foundry-platform-typescript",
+  "summary": "Auto-generated TypeScript SDK bindings for the Palantir Foundry and Gotham REST APIs, published as @osdk/foundry.{namespace} packages on NPM. The monorepo contains ~45 packages organized by API namespace (ontologies, admin, datasets, connectivity, aipagents, languagemodels, etc.), each generated from OpenAPI IR specifications via a custom platform-sdk-generator tool. The SDK uses a thin shared networking layer (foundryPlatformFetch) that wraps platform API calls with URL templating, query/body/header serialization, and OAuth2 client authentication. The ontologies namespace is the largest and most complex, containing 600+ type definitions covering the full Ontology data model including Object Types, Properties, Link Types, Actions, Queries, Interfaces, ObjectSets, and real-time subscriptions.",
+  "ontologyConcepts": [
+    {
+      "concept": "Object Types",
+      "evidence": "ObjectType/ObjectTypeV2 interfaces define the schema for ontology entities with apiName, primaryKey, properties (Record<PropertyApiName, PropertyV2>), rid, displayName, status, visibility, icon, titleProperty, and pluralDisplayName. ObjectTypeFullMetadata extends this with linkTypes, implementsInterfaces, implementsInterfaces2, and sharedPropertyTypeMapping. Full CRUD API: list, get, getFullMetadata, getEditsHistory, listOutgoingLinkTypes, getOutgoingLinkType.",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/_components.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/ObjectTypeV2.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/OntologyObjectV2.ts"
+      ]
+    },
+    {
+      "concept": "Properties",
+      "evidence": "PropertyV2 defines property metadata with description, displayName, dataType (ObjectPropertyType union), rid, status (Active/Deprecated/Experimental/Example), visibility, valueTypeApiName, valueFormatting, and typeClasses. ObjectPropertyType is a large discriminated union covering string, boolean, integer, long, double, decimal, date, timestamp, byte, short, float, geopoint, geoshape, array, set, map, struct, attachment, timeseries, marking, cipherText, vector, mediaReference, and geotimeSeriesReference. Properties support security markings (PropertySecurity with conjunctive/disjunctive marking sets) and formatting rules.",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/_components.ts"
+      ]
+    },
+    {
+      "concept": "Link Types",
+      "evidence": "LinkTypeSideV2 defines link relationships with apiName, displayName, status, objectTypeApiName (target), cardinality (ONE|MANY), foreignKeyPropertyApiName, and linkTypeRid. Links are directional - accessed as outgoing link types from an object type. LinkedObjectV2 API provides listLinkedObjects and getLinkedObject to traverse links. ObjectSet loadLinks endpoint enables bulk link loading. InterfaceLinkType extends this pattern for interface-level links with rid, cardinality, required flag, and linkedEntityApiName.",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/_components.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/ObjectTypeV2.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/LinkedObjectV2.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/OntologyObjectSet.ts"
+      ]
+    },
+    {
+      "concept": "Action Types",
+      "evidence": "ActionTypeV2 defines executable operations with apiName, parameters (Record<ParameterId, ActionParameterV2>), operations (LogicRule[]), rid, status, displayName, description, and toolDescription. ActionLogicRule is a discriminated union of 13 edit types: createObject, modifyObject, deleteObject, createLink, deleteLink, createInterface, modifyInterface, createOrModifyObject (v1/v2), function, batchedFunction, createInterfaceLink, deleteInterfaceLink. ActionParameterV2 supports 18+ data types including object references, interface objects, objectSets, structs. API supports apply (sync), applyAsync, applyBatch, applyWithOverrides, and validate.",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/_components.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/Action.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/ActionTypeV2.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/ActionTypeFullMetadata.ts"
+      ]
+    },
+    {
+      "concept": "Ontology Functions (Queries)",
+      "evidence": "QueryTypeV2 defines server-side functions with apiName, parameters (Record<ParameterId, QueryParameterV2>), output (QueryDataType), rid, version. QueryDataType is a discriminated union covering date, struct, set, string, double, integer, long, array, boolean, attachment, float, timestamp, objectSet, union, object, byte, decimal, short, marking. Queries are executed via POST /v2/ontologies/{ontology}/queries/{queryApiName}/execute with version pinning. Functions package (foundry.functions) provides additional Query and ValueType APIs with streaming support.",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/_components.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/Query.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/QueryType.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.functions/src/index.ts"
+      ]
+    },
+    {
+      "concept": "Access Controls",
+      "evidence": "Multi-layered security model: (1) OAuth2 scopes per endpoint (api:ontologies-read, api:ontologies-write), (2) Marking-based access via PropertySecurity with conjunctive/disjunctive marking summaries per property value and container, (3) Admin API (foundry.admin) for managing Users, Groups, Roles, Organizations, Markings, MarkingCategories, MarkingMembers, MarkingRoleAssignments, Enrollments, AuthenticationProviders. MarkingCategoryType discriminates marking categories. GroupMemberConstraint validates action parameters against group membership. Detailed permission-denied error types per operation (EditObjectPermissionDenied, ViewObjectPermissionDenied, etc.).",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/_components.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.admin/src/index.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/_errors.ts"
+      ]
+    },
+    {
+      "concept": "Data Integration",
+      "evidence": "Connectivity package (foundry.connectivity) provides full data integration APIs: Connections (JDBC, REST, S3, SMB, Snowflake, Databricks, etc. with authentication modes), FileImports, TableImports (with incremental state tracking), VirtualTables (BigQuery, Delta, Glue, Iceberg, Snowflake, Unity, Files). Datasets package (foundry.datasets) provides Dataset, Branch, Transaction, File, View, and Schema management APIs. OntologyTransaction API enables direct ontology edits via postEdits on transaction IDs. ObjectSet streaming subscriptions (ObjectSetStreamSubscribeRequest) support real-time data feeds.",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.connectivity/src/index.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.datasets/src/index.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/OntologyTransaction.ts"
+      ]
+    },
+    {
+      "concept": "AI/LLM Integration",
+      "evidence": "Two packages for AI: (1) foundry.aipagents provides AIP Agent management with Agents, AgentVersions, Sessions (create, continue blocking/streaming, cancel), Contents, SessionTraces. Sessions support tool calls (ToolCall, ToolCallInput, ToolCallOutput), object context (ObjectContext), and RAG context (AgentSessionRagContextResponse, FunctionRetrievedContext). (2) foundry.languagemodels provides direct LLM access with Anthropic Messages API (AnthropicMessagesRequest/Response with full content types, tool use, thinking, citations, cache control) and OpenAI Embeddings API (OpenAiEmbeddingsRequest/Response).",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.aipagents/src/index.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.languagemodels/src/index.ts"
+      ]
+    },
+    {
+      "concept": "Interfaces",
+      "evidence": "InterfaceType defines abstract schemas that ObjectTypes can implement: rid, apiName, displayName, description, properties/allProperties (shared property types), propertiesV2/allPropertiesV2 (interface property types), extendsInterfaces/allExtendsInterfaces (inheritance), implementedByObjectTypes, links/allLinks (InterfaceLinkType). ObjectTypeFullMetadata tracks which interfaces are implemented via implementsInterfaces2 (Record<InterfaceTypeApiName, ObjectTypeInterfaceImplementation>) and sharedPropertyTypeMapping. API supports list, get, listObjectsForInterface, search, aggregate, listOutgoingInterfaceLinkTypes, getOutgoingInterfaceLinkType, listInterfaceLinkedObjects.",
+      "files": [
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/_components.ts",
+        "https://github.com/palantir/foundry-platform-typescript/blob/main/packages/foundry.ontologies/src/public/OntologyInterface.ts"
+      ]
+    }
+  ],
+  "apiSurface": [
+    {
+      "name": "OntologiesV2.list",
+      "type": "function",
+      "description": "Lists all ontologies visible to the current user (GET /v2/ontologies)"
+    },
+    {
+      "name": "OntologiesV2.get",
+      "type": "function",
+      "description": "Gets a specific ontology by API name or RID (GET /v2/ontologies/{ontology})"
+    },
+    {
+      "name": "OntologiesV2.getFullMetadata",
+      "type": "function",
+      "description": "Gets full ontology metadata including all object types, action types, query types, interfaces, shared properties, and value types in one request (GET /v2/ontologies/{ontology}/fullMetadata)"
+    },
+    {
+      "name": "OntologiesV2.loadMetadata",
+      "type": "function",
+      "description": "Loads ontology metadata for specific requested entity types (POST /v2/ontologies/{ontology}/metadata)"
+    },
+    {
+      "name": "ObjectTypesV2.list",
+      "type": "function",
+      "description": "Lists all object types in an ontology with pagination (GET /v2/ontologies/{ontology}/objectTypes)"
+    },
+    {
+      "name": "ObjectTypesV2.get",
+      "type": "function",
+      "description": "Gets a specific object type by API name (GET /v2/ontologies/{ontology}/objectTypes/{objectType})"
+    },
+    {
+      "name": "ObjectTypesV2.getFullMetadata",
+      "type": "function",
+      "description": "Gets full object type metadata including link types, implemented interfaces, and property mappings (GET /v2/ontologies/{ontology}/objectTypes/{objectType}/fullMetadata)"
+    },
+    {
+      "name": "ObjectTypesV2.getEditsHistory",
+      "type": "function",
+      "description": "Returns edit history (additions, modifications, deletions) for objects of a type (POST /v2/ontologies/{ontology}/objectTypes/{objectType}/editsHistory)"
+    },
+    {
+      "name": "ObjectTypesV2.listOutgoingLinkTypes",
+      "type": "function",
+      "description": "Lists outgoing link types for an object type (GET /v2/ontologies/{ontology}/objectTypes/{objectType}/outgoingLinkTypes)"
+    },
+    {
+      "name": "ObjectTypesV2.getOutgoingLinkType",
+      "type": "function",
+      "description": "Gets a specific outgoing link type (GET /v2/ontologies/{ontology}/objectTypes/{objectType}/outgoingLinkTypes/{linkType})"
+    },
+    {
+      "name": "OntologyObjectsV2.list",
+      "type": "function",
+      "description": "Lists objects of a given type with field selection, ordering, and pagination (GET /v2/ontologies/{ontology}/objects/{objectType})"
+    },
+    {
+      "name": "OntologyObjectsV2.get",
+      "type": "function",
+      "description": "Gets a specific object by primary key (GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey})"
+    },
+    {
+      "name": "OntologyObjectsV2.count",
+      "type": "function",
+      "description": "Returns count of objects of a given type (POST /v2/ontologies/{ontology}/objects/{objectType}/count)"
+    },
+    {
+      "name": "OntologyObjectsV2.search",
+      "type": "function",
+      "description": "Searches objects with structured queries (lt, gt, eq, isNull, contains, and, or, not, startsWith, containsAllTerms, etc.) (POST /v2/ontologies/{ontology}/objects/{objectType}/search)"
+    },
+    {
+      "name": "OntologyObjectsV2.aggregate",
+      "type": "function",
+      "description": "Performs aggregation functions (avg, min, max, sum, count, approximateDistinct, exactDistinct, approximatePercentile) on object fields (POST /v2/ontologies/{ontology}/objects/{objectType}/aggregate)"
+    },
+    {
+      "name": "LinkedObjectsV2.listLinkedObjects",
+      "type": "function",
+      "description": "Lists linked objects for a specific object and link type (GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/links/{linkType})"
+    },
+    {
+      "name": "LinkedObjectsV2.getLinkedObject",
+      "type": "function",
+      "description": "Gets a specific linked object by primary key (GET /v2/ontologies/{ontology}/objects/{objectType}/{primaryKey}/links/{linkType}/{linkedObjectPrimaryKey})"
+    },
+    {
+      "name": "Actions.apply",
+      "type": "function",
+      "description": "Applies an action synchronously with parameters (POST /v2/ontologies/{ontology}/actions/{action}/apply). Requires api:ontologies-read + api:ontologies-write scopes."
+    },
+    {
+      "name": "Actions.applyAsync",
+      "type": "function",
+      "description": "Applies an action asynchronously (POST /v2/ontologies/{ontology}/actions/{action}/applyAsync)"
+    },
+    {
+      "name": "Actions.applyBatch",
+      "type": "function",
+      "description": "Applies up to 20 actions of the same type in a batch (POST /v2/ontologies/{ontology}/actions/{action}/applyBatch)"
+    },
+    {
+      "name": "Actions.applyWithOverrides",
+      "type": "function",
+      "description": "Applies action with UniqueIdentifier and CurrentTime parameter overrides (POST /v2/ontologies/{ontology}/actions/{action}/applyWithOverrides)"
+    },
+    {
+      "name": "ActionTypesV2.list",
+      "type": "function",
+      "description": "Lists action types for an ontology (GET /v2/ontologies/{ontology}/actionTypes)"
+    },
+    {
+      "name": "ActionTypesV2.get",
+      "type": "function",
+      "description": "Gets action type by API name (GET /v2/ontologies/{ontology}/actionTypes/{actionType})"
+    },
+    {
+      "name": "ActionTypesV2.getByRid",
+      "type": "function",
+      "description": "Gets action type by RID (GET /v2/ontologies/{ontology}/actionTypes/byRid/{actionTypeRid})"
+    },
+    {
+      "name": "ActionTypesFullMetadata.list",
+      "type": "function",
+      "description": "Lists action types with full logic rule metadata, filtered by object type API names (GET /v2/ontologies/{ontology}/actionTypesFullMetadata)"
+    },
+    {
+      "name": "ActionTypesFullMetadata.get",
+      "type": "function",
+      "description": "Gets full metadata for an action type including logic rules (GET /v2/ontologies/{ontology}/actionTypes/{actionType}/fullMetadata)"
+    },
+    {
+      "name": "Queries.execute",
+      "type": "function",
+      "description": "Executes a query/function with parameters and optional version pinning (POST /v2/ontologies/{ontology}/queries/{queryApiName}/execute)"
+    },
+    {
+      "name": "QueryTypes.list",
+      "type": "function",
+      "description": "Lists query types for an ontology (GET /v2/ontologies/{ontology}/queryTypes)"
+    },
+    {
+      "name": "QueryTypes.get",
+      "type": "function",
+      "description": "Gets a query type by API name (GET /v2/ontologies/{ontology}/queryTypes/{queryApiName})"
+    },
+    {
+      "name": "OntologyInterfaces.list",
+      "type": "function",
+      "description": "Lists interface types for an ontology (GET /v2/ontologies/{ontology}/interfaceTypes)"
+    },
+    {
+      "name": "OntologyInterfaces.get",
+      "type": "function",
+      "description": "Gets a specific interface type (GET /v2/ontologies/{ontology}/interfaceTypes/{interfaceType})"
+    },
+    {
+      "name": "OntologyInterfaces.listObjectsForInterface",
+      "type": "function",
+      "description": "Lists objects implementing a given interface (GET /v2/ontologies/{ontology}/interfaces/{interfaceType})"
+    },
+    {
+      "name": "OntologyInterfaces.search",
+      "type": "function",
+      "description": "Searches objects via interface shared properties (POST /v2/ontologies/{ontology}/interfaces/{interfaceType}/search)"
+    },
+    {
+      "name": "OntologyInterfaces.aggregate",
+      "type": "function",
+      "description": "Aggregates objects via interface shared properties (POST /v2/ontologies/{ontology}/interfaces/{interfaceType}/aggregate)"
+    },
+    {
+      "name": "OntologyInterfaces.listOutgoingInterfaceLinkTypes",
+      "type": "function",
+      "description": "Lists outgoing interface link types (GET /v2/ontologies/{ontology}/interfaceTypes/{interfaceType}/outgoingLinkTypes)"
+    },
+    {
+      "name": "OntologyInterfaces.listInterfaceLinkedObjects",
+      "type": "function",
+      "description": "Lists linked objects traversing interface link types (GET /v2/ontologies/{ontology}/interfaces/{interfaceType}/{objectType}/{primaryKey}/links/{interfaceLinkType})"
+    },
+    {
+      "name": "OntologyObjectSets.load",
+      "type": "function",
+      "description": "Loads objects from an ObjectSet definition (POST /v2/ontologies/{ontology}/objectSets/loadObjects)"
+    },
+    {
+      "name": "OntologyObjectSets.loadMultipleObjectTypes",
+      "type": "function",
+      "description": "Loads objects from ObjectSet with multiple object type/interface scoping (POST /v2/ontologies/{ontology}/objectSets/loadObjectsMultipleObjectTypes)"
+    },
+    {
+      "name": "OntologyObjectSets.loadObjectsOrInterfaces",
+      "type": "function",
+      "description": "Loads objects viewed as interfaces or object types (POST /v2/ontologies/{ontology}/objectSets/loadObjectsOrInterfaces)"
+    },
+    {
+      "name": "OntologyObjectSets.aggregate",
+      "type": "function",
+      "description": "Aggregates objects in an ObjectSet (POST /v2/ontologies/{ontology}/objectSets/aggregate)"
+    },
+    {
+      "name": "OntologyObjectSets.loadLinks",
+      "type": "function",
+      "description": "Bulk loads links from an ObjectSet definition (POST /v2/ontologies/{ontology}/objectSets/loadLinks)"
+    },
+    {
+      "name": "OntologyObjectSets.createTemporary",
+      "type": "function",
+      "description": "Creates a temporary ObjectSet that expires after one hour (POST /v2/ontologies/{ontology}/objectSets/createTemporary)"
+    },
+    {
+      "name": "OntologyObjectSets.get",
+      "type": "function",
+      "description": "Gets an ObjectSet definition by RID (GET /v2/ontologies/{ontology}/objectSets/{objectSetRid})"
+    },
+    {
+      "name": "OntologyValueTypes.list",
+      "type": "function",
+      "description": "Lists value types for an ontology (GET /v2/ontologies/{ontology}/valueTypes)"
+    },
+    {
+      "name": "OntologyValueTypes.get",
+      "type": "function",
+      "description": "Gets a specific value type (GET /v2/ontologies/{ontology}/valueTypes/{valueType})"
+    },
+    {
+      "name": "OntologyTransactions.postEdits",
+      "type": "function",
+      "description": "Applies ordered edits to an ontology transaction (POST /v2/ontologies/{ontology}/transactions/{transactionId}/edits)"
+    },
+    {
+      "name": "foundryPlatformFetch",
+      "type": "function",
+      "description": "Core networking function that dispatches all API calls. Handles URL templating, HTTP method selection, body/query/header serialization, and error mapping to PalantirApiError."
+    },
+    {
+      "name": "createPlatformClient",
+      "type": "function",
+      "description": "Creates a standalone platform SDK client from stack URL and auth. From @osdk/client package (not in this repo)."
+    },
+    {
+      "name": "createPublicOauthClient",
+      "type": "function",
+      "description": "Creates OAuth2 public client for authentication. From @osdk/oauth package (not in this repo)."
+    }
+  ],
+  "architecturePatterns": [
+    "OpenAPI-IR-to-TypeScript code generation: All SDK packages are auto-generated from OpenAPI intermediate representation using a custom platform-sdk-generator (scripts/getOpenApiIr.sh + scripts/generatePlatformSdk.sh). The generator produces _components.ts (types), _errors.ts (error types), and public/ API modules per namespace.",
+    "Compact method encoding: API methods are encoded as tuples [httpMethod, urlTemplate, flags?, contentType?, responseContentType?] where httpMethod is a numeric index (0=GET, 1=POST, etc.) and flags is a bitmask (1=hasBody, 2=hasQueryParams, 4=hasHeaderParams). URL parameters use {0}, {1} positional placeholders resolved by consuming args in order.",
+    "Namespace-per-package monorepo: Each Foundry API namespace becomes its own NPM package (@osdk/foundry.{namespace}) with a uniform structure: _components.ts for all type definitions, _errors.ts for error types, public/*.ts for API modules, and index.ts re-exporting everything. The @osdk/foundry umbrella re-exports all namespaces.",
+    "Dual client compatibility: All API functions accept both SharedClient (v2) and OldSharedClient (v1) via union types, enabling backward-compatible client evolution. The shared.net.platformapi layer resolves the correct clientContext via symbol-based protocol (symbolClientContext).",
+    "Discriminated union types throughout: All polymorphic types use TypeScript discriminated unions with a 'type' discriminant field. This applies to ObjectSet (15 variants), ActionLogicRule (13 variants), ActionParameterType (18 variants), QueryDataType, ObjectPropertyType, SearchJsonQueryV2, ValueTypeConstraint, and many more.",
+    "LooselyBrandedString pattern: Nominal typing for API identifiers (ObjectTypeApiName, PropertyApiName, OntologyRid, etc.) uses a LooselyBrandedString<T> = string & { __LOOSE_BRAND?: T } pattern that provides type safety without runtime cost while remaining assignable from plain strings.",
+    "Separation of Foundry vs Gotham platforms: getNamespacePlatform() maps each API namespace to 'foundry', 'gotham', or 'both', controlling which umbrella package (@osdk/foundry vs @osdk/gotham) includes each namespace. Core is shared between both platforms."
+  ],
+  "typeDefinitions": [
+    {
+      "name": "ObjectTypeV2",
+      "definition": "interface { apiName: ObjectTypeApiName; displayName: DisplayName; status: ReleaseStatus; description?: string; pluralDisplayName: string; icon: Icon; primaryKey: PropertyApiName; properties: Record<PropertyApiName, PropertyV2>; rid: ObjectTypeRid; titleProperty: PropertyApiName; visibility?: ObjectTypeVisibility }",
+      "purpose": "Defines the schema for an Ontology object type with its properties, primary key, display metadata, and release status"
+    },
+    {
+      "name": "ObjectTypeFullMetadata",
+      "definition": "interface { objectType: ObjectTypeV2; linkTypes: Array<LinkTypeSideV2>; implementsInterfaces: Array<InterfaceTypeApiName>; implementsInterfaces2: Record<InterfaceTypeApiName, ObjectTypeInterfaceImplementation>; sharedPropertyTypeMapping: Record<SharedPropertyTypeApiName, PropertyApiName> }",
+      "purpose": "Complete metadata for an object type including link types, interface implementations, and shared property mappings"
+    },
+    {
+      "name": "PropertyV2",
+      "definition": "interface { description?: string; displayName?: DisplayName; dataType: ObjectPropertyType; rid: PropertyTypeRid; status?: PropertyTypeStatus; visibility?: PropertyTypeVisibility; valueTypeApiName?: ValueTypeApiName; valueFormatting?: PropertyValueFormattingRule; typeClasses: Array<TypeClass> }",
+      "purpose": "Defines a property on an object type with its data type, formatting rules, value type reference, and visibility"
+    },
+    {
+      "name": "LinkTypeSideV2",
+      "definition": "interface { apiName: LinkTypeApiName; displayName: DisplayName; status: ReleaseStatus; objectTypeApiName: ObjectTypeApiName; cardinality: 'ONE' | 'MANY'; foreignKeyPropertyApiName?: PropertyApiName; linkTypeRid: LinkTypeRid }",
+      "purpose": "Defines one side of a link relationship between object types with cardinality and optional foreign key"
+    },
+    {
+      "name": "ActionTypeV2",
+      "definition": "interface { apiName: ActionTypeApiName; description?: string; displayName?: DisplayName; status: ReleaseStatus; parameters: Record<ParameterId, ActionParameterV2>; rid: ActionTypeRid; operations: Array<LogicRule>; toolDescription?: string }",
+      "purpose": "Defines an action type with its parameters, logic rules, and optional tool description for AI agents"
+    },
+    {
+      "name": "ActionTypeFullMetadata",
+      "definition": "interface { actionType: ActionTypeV2; fullLogicRules: Array<ActionLogicRule> }",
+      "purpose": "Full action type metadata including detailed logic rules (13 discriminated union variants for CRUD operations)"
+    },
+    {
+      "name": "InterfaceType",
+      "definition": "interface { rid: InterfaceTypeRid; apiName: InterfaceTypeApiName; displayName: DisplayName; description?: string; properties: Record<SharedPropertyTypeApiName, InterfaceSharedPropertyType>; allProperties: ...; propertiesV2: Record<InterfacePropertyApiName, InterfacePropertyType>; allPropertiesV2: ...; extendsInterfaces: Array<InterfaceTypeApiName>; allExtendsInterfaces: ...; implementedByObjectTypes: Array<ObjectTypeApiName>; links: Record<InterfaceLinkTypeApiName, InterfaceLinkType>; allLinks: ... }",
+      "purpose": "Defines an abstract interface that object types can implement, with inherited properties, links, and extension hierarchy"
+    },
+    {
+      "name": "InterfaceLinkType",
+      "definition": "interface { rid: InterfaceLinkTypeRid; apiName: InterfaceLinkTypeApiName; displayName: DisplayName; description?: string; linkedEntityApiName: InterfaceLinkTypeLinkedEntityApiName; cardinality: InterfaceLinkTypeCardinality; required: boolean }",
+      "purpose": "Defines a link type at the interface level with cardinality and required constraints"
+    },
+    {
+      "name": "QueryTypeV2",
+      "definition": "interface { apiName: QueryApiName; description?: string; displayName?: DisplayName; parameters: Record<ParameterId, QueryParameterV2>; output: QueryDataType; rid: FunctionRid; version: FunctionVersion }",
+      "purpose": "Defines a server-side query/function with typed parameters and output"
+    },
+    {
+      "name": "OntologyFullMetadata",
+      "definition": "interface { ontology: OntologyV2; objectTypes: Record<ObjectTypeApiName, ObjectTypeFullMetadata>; actionTypes: Record<ActionTypeApiName, ActionTypeV2>; queryTypes: Record<VersionedQueryTypeApiName, QueryTypeV2>; interfaceTypes: Record<InterfaceTypeApiName, InterfaceType>; sharedPropertyTypes: Record<SharedPropertyTypeApiName, SharedPropertyType>; branch?: BranchMetadata; valueTypes: Record<ValueTypeApiName, OntologyValueType> }",
+      "purpose": "Complete ontology metadata dump containing all entity types - designed for OSDK workflows to fetch everything in one request"
+    },
+    {
+      "name": "OntologyV2",
+      "definition": "interface { apiName: OntologyApiName; displayName: DisplayName; description: string; rid: OntologyRid }",
+      "purpose": "Top-level ontology container with API name and resource identifier"
+    },
+    {
+      "name": "OntologyObjectV2",
+      "definition": "type = Record<PropertyApiName, PropertyValue>",
+      "purpose": "Runtime representation of an ontology object instance as a property name to value map"
+    },
+    {
+      "name": "ObjectSet",
+      "definition": "type = { type: 'base' } & ObjectSetBaseType | { type: 'filter' } & ObjectSetFilterType | { type: 'union' } & ObjectSetUnionType | { type: 'intersect' } & ObjectSetIntersectionType | { type: 'subtract' } & ObjectSetSubtractType | { type: 'searchAround' } & ObjectSetSearchAroundType | { type: 'static' } & ObjectSetStaticType | { type: 'reference' } & ObjectSetReferenceType | { type: 'interfaceBase' } | { type: 'asType' } | { type: 'nearestNeighbors' } | { type: 'methodInput' } | { type: 'withProperties' } | { type: 'interfaceLinkSearchAround' } | { type: 'asBaseObjectTypes' }",
+      "purpose": "Composable object set algebra with 15 variants for filtering, set operations, link traversal, type casting, and vector search"
+    },
+    {
+      "name": "ActionLogicRule",
+      "definition": "type = { type: 'createObject' } | { type: 'modifyObject' } | { type: 'deleteObject' } | { type: 'createLink' } | { type: 'deleteLink' } | { type: 'createInterface' } | { type: 'modifyInterface' } | { type: 'createOrModifyObject' } | { type: 'createOrModifyObjectV2' } | { type: 'function' } | { type: 'batchedFunction' } | { type: 'createInterfaceLink' } | { type: 'deleteInterfaceLink' }",
+      "purpose": "Discriminated union of 13 action edit operation types describing what an action does when executed"
+    },
+    {
+      "name": "PropertySecurity",
+      "definition": "type = { type: 'propertyMarkingSummary' } & PropertyMarkingSummary | { type: 'unsupportedPolicy' } & UnsupportedPolicy | { type: 'errorComputingSecurity' } & ErrorComputingSecurity",
+      "purpose": "Security policy on individual property values using conjunctive/disjunctive marking sets"
+    },
+    {
+      "name": "OntologyValueType",
+      "definition": "interface { apiName: ValueTypeApiName; displayName: DisplayName; description?: string; rid: ValueTypeRid; status?: ValueTypeStatus; fieldType: ValueTypeFieldType; version: string; constraints: Array<ValueTypeConstraint> }",
+      "purpose": "Custom reusable value types with field type definitions and validation constraints"
+    },
+    {
+      "name": "FoundryPlatformMethod<F>",
+      "definition": "type = [method: number, path: string, flags?: number, contentType?: string, responseContentType?: string] & { __funcBrand?: F }",
+      "purpose": "Compact tuple encoding for API endpoint metadata - HTTP method, URL template, and flags bitmask for body/query/header params"
+    },
+    {
+      "name": "LooselyBrandedString<T>",
+      "definition": "type = string & { __LOOSE_BRAND?: T }",
+      "purpose": "Nominal typing pattern for API identifiers that is assignable from plain strings but provides type-level distinction"
+    },
+    {
+      "name": "ObjectSetStreamSubscribeRequest",
+      "definition": "interface { objectSet: ObjectSet; propertySet: Array<SelectedPropertyApiName>; referenceSet: Array<SelectedPropertyApiName>; objectLoadingResponseOptions?: ObjectLoadingResponseOptions }",
+      "purpose": "Real-time subscription to object set changes via streaming"
+    }
+  ],
+  "dependencies": [
+    "@osdk/shared.client",
+    "@osdk/shared.client2",
+    "@osdk/shared.net.platformapi",
+    "@osdk/shared.net.errors",
+    "@osdk/foundry.core",
+    "@osdk/foundry.geo",
+    "@osdk/foundry.geojson",
+    "@osdk/client (external - createClient, createPlatformClient)",
+    "@osdk/oauth (external - createPublicOauthClient)",
+    "typescript",
+    "tsup",
+    "vitest",
+    "turbo",
+    "@changesets/cli"
+  ],
+  "tags": [
+    "palantir-foundry",
+    "platform-sdk",
+    "typescript-client",
+    "auto-generated",
+    "openapi",
+    "ontology-api",
+    "object-types",
+    "action-types",
+    "query-types",
+    "interface-types",
+    "link-types",
+    "object-sets",
+    "oauth2",
+    "marking-based-security",
+    "real-time-subscriptions",
+    "data-integration",
+    "aip-agents",
+    "language-models",
+    "monorepo",
+    "pnpm-workspace"
+  ]
+}

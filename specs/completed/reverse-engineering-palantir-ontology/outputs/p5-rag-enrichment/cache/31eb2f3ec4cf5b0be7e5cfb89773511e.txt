@@ -1,0 +1,124 @@
+Introduction to Data Lineage 
+
+ Courses
+
+ Tracks
+
+ Community
+
+ Sign In 
+
+ There was an issue with saving this content. Please try again. 
+ There was an issue with removing this item from your saved content. Please try again. 
+
+Introduction to Data Lineage
+
+Visualize, customize and navigate Foundry data pipelines
+
+ Register
+
+ Already registered?
+
+ Sign In 
+
+ Cancel 
+
+ Apply 
+
+rate limit
+
+Code not recognized.
+
+ Activate
+
+About this course
+
+We are sunsetting this course and will no longer be updating its content; we recognize that some of the material in this course, including screenshots and references to training resources, may now be out of date. We are replacing legacy courses with a series of Speedruns and Deepdives displayed on the learn.palantir.com home page. We've found that this new approach is much more intuitive, effective, and enjoyable for users. This course will remain accessible throughout 2024 for referential purposes while we further develop new content. If you have any questions, please reach out to training-feedback@palantir.com . 
+
+This course will walk you through the fundamentals of exploring data assets through Foundry's Data Lineage application.
+
+Learning Objectives 
+
+In this course, you will learn how to:
+
+easily find and discover tables
+
+share pipeline knowledge with your team
+
+have a holistic view of your team&rsquo;s data pipelines within the Foundry ecosystem
+
+Curriculum 
+
+ Access data lineage
+
+ Navigate to Data Lineage 
+
+ Previewing data in Data Lineage 
+
+ Exploring passenger data 
+
+ Arrange and visualize a pipeline
+
+ Clear your Data Lineage graph 
+
+ Build the lineage for the flight alerts dataset 
+
+ Graph Visualization 
+
+ Automatic Node Coloring Options 
+
+ Saving your Pipeline Visualization 
+
+ Manage your pipeline
+
+ Managing Coloring & Builds 
+
+ Share your outcome 
+
+ Managing Schedules 
+
+ About this course 
+
+We are sunsetting this course and will no longer be updating its content; we recognize that some of the material in this course, including screenshots and references to training resources, may now be out of date. We are replacing legacy courses with a series of Speedruns and Deepdives displayed on the learn.palantir.com home page. We've found that this new approach is much more intuitive, effective, and enjoyable for users. This course will remain accessible throughout 2024 for referential purposes while we further develop new content. If you have any questions, please reach out to training-feedback@palantir.com . 
+
+This course will walk you through the fundamentals of exploring data assets through Foundry's Data Lineage application.
+
+Learning Objectives 
+
+In this course, you will learn how to:
+
+easily find and discover tables
+
+share pipeline knowledge with your team
+
+have a holistic view of your team&rsquo;s data pipelines within the Foundry ecosystem
+
+ Curriculum 
+
+ Access data lineage
+
+ Navigate to Data Lineage 
+
+ Previewing data in Data Lineage 
+
+ Exploring passenger data 
+
+ Arrange and visualize a pipeline
+
+ Clear your Data Lineage graph 
+
+ Build the lineage for the flight alerts dataset 
+
+ Graph Visualization 
+
+ Automatic Node Coloring Options 
+
+ Saving your Pipeline Visualization 
+
+ Manage your pipeline
+
+ Managing Coloring & Builds 
+
+ Share your outcome 
+
+ Managing Schedules

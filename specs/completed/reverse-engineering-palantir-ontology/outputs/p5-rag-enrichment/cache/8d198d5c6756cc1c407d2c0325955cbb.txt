@@ -1,0 +1,78 @@
+Authentication • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Management & enablement Authentication Overview 
+
+ Authentication
+
+Access to Foundry is managed by one or more identity providers that give Foundry the ability to validate users. The identity providers provide Foundry with information about users, attributes, and groups. Foundry can integrate seamlessly with your existing identity provider, allowing full end-to-end access administration and management via your existing system.
+
+Use the Authentication tab in Control Panel to set up & manage identity provider integrations. Integration via SAML 2.0 or OpenID Connect 1.0 (OIDC) is supported.
+
+ ← 
+ PREVIOUS Enrollments and organizations / Retention policies 
+
+ NEXT SAML / Getting started 
+ →

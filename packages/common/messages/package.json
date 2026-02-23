@@ -1,0 +1,56 @@
+{
+  "name": "@beep/messages",
+  "version": "0.0.0",
+  "description": "A library for managing user messages",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "echo 'no codegen needed'",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen"
+  },
+  "dependencies": {
+    "effect": "catalog:",
+    "i18next": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@effect/vitest": "catalog:"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/messages"
+  },
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/messages",
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
+  }
+}

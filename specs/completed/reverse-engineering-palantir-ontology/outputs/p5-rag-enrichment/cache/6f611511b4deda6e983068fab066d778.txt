@@ -1,0 +1,112 @@
+Functions • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Functions Overview 
+
+ Functions
+
+ Functions enable code authors to write logic that can be executed quickly in operational contexts, such as dashboards and applications designed to empower decision-making processes. This logic is executed on the server side in an isolated environment.
+
+Notably, functions include first-class support for authoring logic based on the Ontology. This includes support for reading the properties of various object types, traversing links, and flexibly making Ontology edits.
+
+Common use cases for functions include:
+
+Returning object sets or variable values for use in Workshop .
+
+Displaying transformed values in a derived table column using Workshop's function-backed columns .
+
+Aggregating object type values to display as Workshop charts .
+
+Expressing a complex edit to the Ontology that updates many objects through a function backed action .
+
+Running logic in the backend to return information to be displayed in the frontend in Slate .
+
+Computing custom metrics or aggregations for display in Quiver .
+
+Querying external systems to enrich objects in the Ontology through external functions .
+
+Using Python functions as a sidecar container in Pipeline Builder .
+
+The languages supported by functions are TypeScript ↗ and Python ↗ .
+
+For more information on feature support by language and choosing a language or language version, refer to the language feature support specifications .
+
+To get started using functions in Foundry, we recommend the following tutorials:
+
+ Getting started with TypeScript v1 functions 
+
+ Getting started with TypeScript v2 functions 
+
+ Getting started with Python functions 
+
+Palantir Learning portal
+
+Try our "Speedrun: Your first Ontology function" course ↗ on learn.palantir.com.
+
+ ← 
+ PREVIOUS Action types / Add action types to a Marketplace product 
+
+ NEXT Feature support by language 
+ →

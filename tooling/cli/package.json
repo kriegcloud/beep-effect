@@ -2,102 +2,70 @@
   "name": "@beep/repo-cli",
   "version": "0.0.0",
   "type": "module",
+  "private": true,
   "license": "MIT",
-  "description": "A cli tool for the repo",
-  "homepage": "https://github.com/kriegcloud/beep-effect",
+  "description": "CLI tool for creating and managing packages in the beep-effect monorepo following Effect v4 standards",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/cli",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "tooling/cli"
   },
+  "sideEffects": [],
+  "bin": {
+    "beep-cli": "./src/bin.ts"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./commands/*": null,
+    "./internal/*": null,
+    "./bin": null
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map",
+    "dist/commands/create-package/templates/**/*.hbs"
+  ],
   "publishConfig": {
     "access": "public",
     "provenance": true,
-    "directory": "dist",
-    "linkDirectory": false
-  },
-  "exports": {
-    ".": "./src/index.ts",
-    "./package.json": "./package.json",
-    "./*": "./src/*.ts"
+    "bin": {
+      "beep-cli": "./dist/bin.js"
+    },
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
+      "./commands/*": null,
+      "./internal/*": null,
+      "./bin": null
+    }
   },
   "scripts": {
-    "build": "tsc -b tsconfig.build.json",
-    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
-    "check": "tsgo --noEmit -p tsconfig.json",
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write",
-    "test": "bun test",
-    "coverage": "bun test --coverage",
-    "lint:circular": "bunx madge -c .",
-    "dotenvx": "dotenvx run -f ../../.env --",
-    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute.ts",
-    "gen:secrets": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/generate-env-secrets.ts",
-    "bootstrap": "tsx ./src/bootstrap.ts",
-    "generate-public-paths": "bun run dotenvx -- bunx tsx src/generate-asset-paths.ts",
-    "gen:locales": "bun run dotenvx -- bunx tsx src/generate-locales.ts",
-    "iconify": "bunx dotenvx run -f ../../.env -- bun run ./src/iconify/index.ts",
-    "purge": "bun src/purge.ts",
-    "docs:lint": "bunx tsx ./src/run-docs-lint.ts",
-    "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
+    "codegen": "echo 'codegen will be implemented by this package'",
+    "build": "tsc -b tsconfig.json && bun run babel && node scripts/copy-create-package-templates.mjs",
+    "build:tsgo": "tsgo -b tsconfig.json && bun run babel && node scripts/copy-create-package-templates.mjs",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen"
   },
   "dependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/tooling-utils": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@effect/ai": "catalog:",
-    "@effect/ai-anthropic": "catalog:",
-    "@effect/cli": "catalog:",
-    "@effect/cluster": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/platform-bun": "catalog:",
-    "@effect/workflow": "catalog:",
-    "@jsquash/avif": "catalog:",
-    "@jsquash/jpeg": "catalog:",
-    "@jsquash/jxl": "catalog:",
-    "@jsquash/png": "catalog:",
-    "@jsquash/webp": "catalog:",
+    "@beep/repo-utils": "workspace:*",
     "effect": "catalog:",
-    "glob": "catalog:",
+    "@effect/platform-node": "catalog:",
     "handlebars": "catalog:",
-    "jsonc-parser": "catalog:",
-    "picocolors": "catalog:",
-    "postal-mime": "catalog:",
-    "ts-morph": "catalog:",
-    "typescript": "catalog:"
+    "jsonc-parser": "catalog:"
   },
   "devDependencies": {
-    "@beep/testkit": "workspace:^",
-    "@beep/tooling-utils": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@effect/cli": "catalog:",
-    "@effect/cluster": "catalog:",
-    "@effect/platform": "catalog:",
-    "@effect/platform-bun": "catalog:",
-    "@effect/workflow": "catalog:",
-    "@jsquash/avif": "catalog:",
-    "@jsquash/jpeg": "catalog:",
-    "@jsquash/jxl": "catalog:",
-    "@jsquash/png": "catalog:",
-    "@jsquash/webp": "catalog:",
-    "@total-typescript/ts-reset": "catalog:",
-    "effect": "catalog:",
-    "glob": "catalog:",
-    "picocolors": "catalog:",
-    "ts-morph": "catalog:",
-    "typescript": "catalog:"
-  },
-  "effect": {
-    "generateExports": {
-      "include": [
-        "**/*.ts"
-      ]
-    },
-    "generateIndex": {
-      "include": [
-        "**/*.ts"
-      ]
-    }
+    "@types/node": "catalog:",
+    "@effect/vitest": "catalog:"
   }
 }

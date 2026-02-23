@@ -1,0 +1,126 @@
+AIP Agent Studio • Core concepts • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ AI Platform (AIP) AIP Agent Studio Core concepts 
+
+ Core concepts
+
+The following core concepts are essential to understanding and getting the most out of AIP Agent Studio. You can learn more about applying these concepts in the Getting started tutorial.
+
+ AIP Agents
+
+AIP Agents are interactive assistants equipped with enterprise-specific information and tools.
+
+ Application state
+
+The application state , previously known as parameters , are application variables within prompts that customize and control the LLM's behavior. They allow for dynamic input and can be adjusted based on the task requirements.
+
+ Instructions and descriptions
+
+Instructions, tool descriptions, and variable descriptions are compiled into the raw system prompt for the LLM. This teaches the LLM how to complete a task using the available context.
+
+For the instructions, begin with the most important information, such as an overview of the task. Follow this with the necessary data and guidance on using the application state and tools .
+
+For each tool and variable description, provide the LLM with concrete steps on how and when to use that specific piece of context. Keep in mind that an LLM only has access to the information you explicitly provide.
+
+ Retrieval-augmented generation (RAG)
+
+Retrieval-augmented generation leverages external data sources to provide the LLM with relevant information dynamically. This method enhances the LLM's responses by ensuring they are based on the most current and contextually appropriate data.
+
+ Retrieval context
+
+Retrieval context refers to the specific information retrieved in response to each message, which is used to generate a response. The process is as follows:
+
+User sends a new message.
+
+Based on the user's message, fetch relevant content from configured data sources.
+
+Include the relevant content along with the user's message to the LLM.
+
+For more details, review the retrieval context documentation.
+
+ Tools
+
+ Tools are external functionalities or APIs that the LLM can use to perform specific actions or retrieve information beyond its base capabilities.
+
+For more details, review the tools documentation.
+
+ Vector embeddings
+
+Embeddings are numerical representations of text that capture semantic meaning. They are used to compare and retrieve similar pieces of text efficiently. In AIP Agent Studio, embeddings help identify relevant documents and context to provide accurate responses.
+
+ Context window
+
+The context window refers to the amount of text (usually measured in tokens) that an LLM can process at one time. In AIP Agent Studio, the context window includes the system prompt, conversation history, and the information injected to assist the LLM (including retrieval context, application state, and tools). Exceeding the context window will result in an error, prompting users to create a new session to continue their interaction.
+
+ Agents as Functions
+
+Agents can be published as Functions , which allows them to be used anywhere in the platform where Functions can be executed. For example, builders can publish AIP Agents as Functions to evaluate them in AIP Evals , to automate agent workflows with Automate , or to use agents in Code Repositories . For more information, refer to the agents as Functions documentation.
+
+ ← 
+ PREVIOUS Overview 
+
+ NEXT Getting started 
+ →

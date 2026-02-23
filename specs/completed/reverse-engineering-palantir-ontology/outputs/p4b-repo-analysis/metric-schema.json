@@ -1,0 +1,142 @@
+{
+  "repo": "palantir/metric-schema",
+  "repoUrl": "https://github.com/palantir/metric-schema",
+  "summary": "An opinionated Gradle-based toolchain for defining, documenting, and code-generating JVM application metrics. Developers author metric definitions in YAML (namespaces, metric types, tags), and the tool generates type-safe Java accessor classes backed by Palantir Tritium (Dropwizard Metrics wrapper). The schema is defined via Conjure and compiled into Conjure-generated Java objects. Produces markdown documentation and embeds metric-schema JSON in JARs. This is purely an operational telemetry/instrumentation library with zero connection to the Palantir Ontology, Foundry platform, or OSDK.",
+  "ontologyConcepts": [],
+  "apiSurface": [
+    {
+      "name": "MetricSchema (Conjure type)",
+      "description": "Top-level schema object with namespaces (map<string, MetricNamespace>) and options (map<string, string> for javaPackage, javaVisibility).",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "MetricNamespace (Conjure type)",
+      "description": "A logical grouping of metrics sharing a name prefix. Contains shortName, docs, tags (list<TagDefinition>), and metrics (map<string, MetricDefinition>).",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "MetricDefinition (Conjure type)",
+      "description": "Single metric declaration with type (MetricType enum), tags (set<string>), tagDefinitions (list<TagDefinition>), and docs.",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "MetricType (Conjure enum)",
+      "description": "Enum of supported metric types mapping to Dropwizard Metrics: COUNTER, GAUGE, METER, TIMER, HISTOGRAM.",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "TagDefinition (Conjure type)",
+      "description": "Defines a metric tag with name (string), optional docs, and optional constrained values (set<TagValue>).",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "TagValue (Conjure type)",
+      "description": "A predefined tag value with value (string) and optional docs.",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "JavaGenerator",
+      "description": "Entry point for code generation. Parses metric YAML files and generates typed Java utility classes per namespace using JavaPoet, with staged builders for multi-tag metrics.",
+      "sourceFile": "metric-schema-java/src/main/java/com/palantir/metric/schema/JavaGenerator.java"
+    },
+    {
+      "name": "Gradle Plugin (com.palantir.metric-schema)",
+      "description": "Gradle plugin providing generateMetrics and generateMetricsMarkdown tasks. Locates YAML definitions in src/main/metrics and produces Java sources and documentation.",
+      "sourceFile": "gradle-metric-schema/src/main/java/com/palantir/metric/schema/gradle/MetricSchemaPlugin.java"
+    }
+  ],
+  "architecturePatterns": [
+    {
+      "pattern": "Conjure-defined schema with code generation",
+      "description": "The metric schema types (MetricSchema, MetricNamespace, MetricDefinition, etc.) are defined in a Conjure YAML file and auto-generated into Java objects. This is the same Conjure IDL used across Palantir's service ecosystem but applied here to a build-time tool, not a runtime API.",
+      "relevance": "low"
+    },
+    {
+      "pattern": "YAML DSL to typed Java code generation",
+      "description": "Users author metrics in a simple YAML DSL (src/main/metrics/*.yml) and the Gradle plugin generates type-safe Java utility classes with staged builders, enforcing compile-time correctness for tag ordering and metric names.",
+      "relevance": "low"
+    },
+    {
+      "pattern": "Staged builder pattern for tag safety",
+      "description": "When metrics have multiple tags, the generator produces staged builders (one interface per tag) so tag values cannot be confused or reordered. This is a design decision to prevent silent data errors.",
+      "relevance": "low"
+    },
+    {
+      "pattern": "JAR-embedded metric manifest",
+      "description": "All metric definitions are embedded in the output JAR as metric-schema/metrics.json, enabling runtime discovery and tooling integration without additional configuration.",
+      "relevance": "low"
+    }
+  ],
+  "typeDefinitions": [
+    {
+      "name": "MetricSchema",
+      "kind": "conjure-object",
+      "description": "Root schema: namespaces (map<string, MetricNamespace>) + options (map<string, string>).",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "MetricNamespace",
+      "kind": "conjure-object",
+      "description": "Namespace containing shortName, docs, tags, and metrics map.",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "MetricDefinition",
+      "kind": "conjure-object",
+      "description": "Individual metric: type (enum), tags, tagDefinitions, docs.",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "MetricType",
+      "kind": "conjure-enum",
+      "description": "COUNTER | GAUGE | METER | TIMER | HISTOGRAM (maps to Dropwizard/Tritium types).",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "TagDefinition",
+      "kind": "conjure-object",
+      "description": "Tag with name, optional docs, and optional constrained value set.",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "TagValue",
+      "kind": "conjure-object",
+      "description": "Predefined tag value with string value and optional docs.",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    },
+    {
+      "name": "Documentation",
+      "kind": "conjure-alias",
+      "description": "Alias for string. Markdown syntax supported.",
+      "sourceFile": "metric-schema-api/src/main/conjure/metric-schema-api.yml"
+    }
+  ],
+  "dependencies": {
+    "palantirInternal": [
+      "com.palantir.tritium (Dropwizard Metrics wrapper - tagged metric registry)",
+      "com.palantir.conjure.java (Conjure Java code generation and serialization)",
+      "com.palantir.safe-logging (safe-logging preconditions)",
+      "com.palantir.goethe (Java source code formatting)",
+      "com.palantir.gradle.conjure (Gradle Conjure plugin)"
+    ],
+    "external": [
+      "com.squareup:javapoet (Java source code generation)",
+      "com.fasterxml.jackson (JSON/YAML serialization)",
+      "com.google.guava (collections utilities)",
+      "org.immutables (immutable value types)",
+      "com.atlassian.commonmark (Markdown parsing for docs generation)"
+    ]
+  },
+  "tags": [
+    "metrics",
+    "telemetry",
+    "code-generation",
+    "gradle-plugin",
+    "conjure",
+    "dropwizard-metrics",
+    "tritium",
+    "java",
+    "build-tooling",
+    "no-ontology-relevance"
+  ]
+}

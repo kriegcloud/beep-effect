@@ -1,0 +1,67 @@
+On dataset versioning in Palantir Foundry
+Robert Fink
+Follow
+7 min read
+·
+Nov 14, 2019
+
+107
+
+2
+
+Press enter or click to view image in full size
+
+If you have visited Palantir’s website recently, you have learned that our platforms let organizations “manage data like software engineers manage code”. Collaboration tools like Git play a major role in the software engineering tool chain: Git commits establish code versions and Git branches isolate developers and features into their own sandboxes. In this blog post, we are going to explore why dataset versioning and sandboxing are critical to collaborative data engineering, in full analogy the importance of Git workflows for software engineers.
+
+Press enter or click to view image in full size
+Branches (sorry). Photo taken from Pixabay, thank you!
+
+The starting point of our discussion is a simple request that we frequently get from our customers: “can we export our datasets from Palantir Foundry to our existing data lake or S3 bucket?“ While this is of course possible, it is important to understand that such exported datasets lack precisely those versioning and sandboxing features that make Foundry a great tool for collaborative data engineering. We will see through the Git analogy that the (counter-factual) absence of these features can easily lead to software bugs in the software engineering case, or data inconsistencies in the data engineering case.
+
+Collaborative software engineering
+
+Today, any non-trivial software code base is hosted in a source management system, for instance Git. In a nutshell, Git provides to developers a versioned file system with virtual sandboxes: different Git commits correspond to different versions of the code base (i.e., the source code files), and Git branches allow developers to implement their features or bug fixes without interfering with other developers’ work.
+
+Now, in analogy to the “export Foundry datasets to S3” request mentioned above, let’s consider what it would mean to export a Git repository to a standard file system without Git functionality. For instance, we could run a periodic script (maybe triggered by a Continuous Integration workflow or by a Git hook) that checks out the latest commit on the master branch and then copies its source code files to some other directory, say /home/rfink/git-export/.
+
+It is immediately clear that such an exported Git repository cannot support branching workflows, simply because a standard file system does not support branching. More subtly, the exported repository suffers from write/write conflicts in case multiple users try to modify files concurrently. For instance, if two instances of the export script were to perform two concurrent exports w.r.t. two different commits, then the export directory will likely represent a non-deterministic combination of the two code versions. The exported repository is thus strictly a single-user environment as far as write workflows are concerned.
+
+Maybe most surprisingly, the exported code directory does not even represent the source code faithfully for read-only workflows: if a user tries to compile the source code while the export script is running (and thus while the exported snapshot of the source code is being updated), then the compiler will likely see an inconsistent mixture of multiple code versions. In other words, the export is not atomic. In best case the compiler will fail (maybe with a syntax error), but in a much worse case the compiler may succeed but produce an incorrect program (say with a race condition that vaporizes money) as a result of compiling semantically incompatible source code files.
+
+In order to use the exported directory safely, we need to synchronize all access with a read-write lock, in particular preventing concurrent access of one writer with one or more readers or writers. (Multiple concurrent readers are OK as long as there is no concurrent writer.) File systems typically don’t provide such locking mechanisms across files and directories, and thus the exported code directory isn’t actually all that useful compared to the Git repository. It is then not very surprising that standard code export mechanisms, for instance Java source JARs exported to artifact repositories (e.g., JCenter), store immutable artifacts: they get exported and written once, named uniquely by commit hash, and then won’t ever change again. This is one way to implement a read/write lock ...
+
+Collaborative data engineering
+
+Now let’s turn our attention to data engineering workflows and apply what we learned above. Just like Git versions code, Foundry versions data: Foundry datasets (and thus all files contained in such datasets) are versioned and support branching as a sandboxing mechanism. This means that Foundry datasets are safe for concurrent access: since each dataset version is immutable (just like Git commits are immutable), different users can read a dataset at a particular fixed version while some other user updates the same dataset; the changes performed by that user (e.g., adding or removing data, changing the schema, etc.) are stored as a new version¹ and thus don’t interfere with the read workflows of other users. Different users can even write to the dataset concurrently if they each write to their own branch.
+
+Get Robert Fink’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+The versioning and branching functionality is particularly important for data pipelines. A data pipeline is a sequence of data transformation steps that turn some input datasets into one or more refined/filtered/enriched derived datasets. Since the output datasets are versioned, we can safely schedule such transformations jobs to update datasets across the data platform without risk of data corruption.
+
+Now, what does it mean to “export a Foundry dataset to S3”? Well, just like Git repositories can be exported to a plain file system, Foundry datasets can of course be exported to an S3 bucket. (In fact, behind the scenes Foundry datasets are typically already stored in an S3 bucket, just like Git repositories are usually already stored in a file system.) However, by exporting a dataset from a versioned file system (Foundry) to an non-versioned file system (S3²), the exported dataset suffers from the same anomalies we described above in the case of Git:
+
+We need to ensure that only a single export job is running at a time, or else we risk that different export jobs clobber each other. (Fortunately, Foundry’s Build system enforces this constraint out-of-the-box.)
+Readers of the exported dataset need to ensure that they read a consistent export snapshot. If they read the dataset while an export job is updating it, then they risk observing inconsistent data. Just like in the case of Git and compilers, in best case the observed snapshot is syntactically invalid (which the reader can observe), but in worst case the dataset is syntactically valid yet semantically inconsistent. Then there is not even a way for the readers to know that they have read incorrect data.
+
+Just like in the source code case, we can solve the concurrency problem by exporting immutable snapshots of the dataset, for instance into timestamped directories in the S3 bucket. Alternatively, we could write an atomic LOCK file whose existence tells consumers that the directory is not currently safe to read. Both approaches require the reader to understand and observe the mechanism: in the first case, the reader needs to continually update its source folder reference to the latest available timestamp (i.e., it is no longer a simple, “flat” export), in the second case, the reader would have to observe the LOCK file when reading³.
+
+A more sensible approach is to use Foundry’s Hadoop FileSystem implementation in lieu of the standard Hadoop one, and then interact with S3 or Hadoop-backed Foundry datasets directly. Our FileSystem implementation is a drop-in replacement for the standard Hadoop JAR that provides transparent versioning and branching support⁴ and additionally avoids the latency and storage cost of maintaining export copies of datasets. Note that this is exactly the same approach that Azure and AWS took with their respective Hadoop FileSystem implementations that serve data stored in their block storage backends as “virtual” Hadoop files and folders; in other words, from a programming and API perspective reading or writing Foundry datasets through the Foundry FileSystem implementation is equivalent to reading or writing S3-backed datasets through the S3 FileSystem implementation.
+
+Conclusion
+
+Foundry’s data management layer enables collaborative data engineering workflows by extending software engineering best practices such as code versioning and sandboxing to data and code; we call this concept co-versioning of data and code. Large-scale data platforms based on Foundry like Skywise power the collaboration on data assets, data models, business logic, and data-driven applications between more than 10,000 data engineers and analysts. If you would like to learn more or contribute to our journey, please reach out to us!
+
+Authors
+
+Mark and Robert are the founding engineers of the Palantir Foundry data platform.
+
+Footnotes
+
+¹ To avoid excessive storage cost, Foundry stores a mixture of snapshots and diffs, just like Git. This is particularly useful for append-only datasets of immutable records such as system logs or sensor readings which are often among the largest (and fastest-growing) datasets our customers use. Our versioning scheme has no storage overhead for such datasets: behind the scenes we effectively store each diff in a separate folder in the backing file system (e.g., datasetA/diff1, datasetA/diff2, …) so that the whole dataset is simply represented by datasetA/*. (It’s a bit more complicated than this because users can selectively delete files from those diffs, but you get the idea of zero storage overhead for this case.)
+² While S3 supports per-object versioning, a dataset typically comprises multiple files (e.g., Parquet files). Atomic versioning of a whole S3-backed Hadoop subdirectory is not supported by S3.
+³ The devil is in the details though … how would a reader monitor the continuous non-existence of this LOCK file for the duration of the read?
+⁴ In addition to versioning and branching, our implementation also provides client-side/end-to-end encryption.

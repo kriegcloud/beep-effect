@@ -1,0 +1,68 @@
+Deploying Full Spectrum AI in Days: How AIP Bootcamps Work
+Palantir
+Follow
+7 min read
+·
+Oct 12, 2023
+
+113
+
+1
+
+Press enter or click to view image in full size
+Press enter or click to view image in full size
+
+Palantir Artificial Intelligence Platform (AIP) enables new and existing customers to dramatically accelerate high-value AI use cases. To meet the intense requirements of the moment, we have introduced AIP Bootcamps. In these immersive, hands-on-keyboard sessions, participants can expect to go from zero to use case in just one to five days.
+
+The results speak for themselves. Our partners have been able to solve problems that they have been struggling with for years in a matter of days. They are able to build their own intuition and skillset to be able to independently identify and execute on AIP use cases in subsequent weeks. AIP Bootcamps are also fun for all involved, as winning tends to be.
+
+We have a growing backlog of AIP Bootcamps due to the overwhelming demand. In order to make the most of the time we do have together, I wanted to share some early learnings about why our partners are finding these sessions to be so effective.
+
+Press enter or click to view image in full size
+Why It Works
+
+No barriers to entry. AIP comes fully integrated and interoperable; it’s enterprise-grade software that’s equipped to handle your most sensitive data and primed for your fingertips. AI use cases require a thoughtful blending of stochastic foundation models, calculus-driven enterprise data and tools, and expert feedback loops. AIP Bootcamp participants spend 100% of their time engineering value, not assembling parts.
+
+Learn to fish, eat a fish. An AIP Bootcamp isn’t about abstract learning or using pre-baked apps. Bootcamps enable participants to tackle their real use cases today while developing the intuition and skills to build independently moving forward. Plan to do both.
+
+Move from chat to automation. Molded by initial experiences with GPT-4, many start with the mental model of a chat-style experience. But AIP Bootcamp participants very quickly realize that the non-algorithmic compute potential of the AI revolution reaches far beyond chat. When participants build with prompts derived from real world events translated through the Ontology — not only user input — they become exceptionally creative and ambitious. At AIP Bootcamps, they’re developing intelligence that automates processes and provides intelligent primitives for feature-rich business applications.
+
+Make your AI your own. Our customers have substantial intellectual property locked in unstructured data repositories and the minds of their talented employees. AIP allows them to immediately incorporate expert-driven feedback loops with applications that meet the experts where they are as they execute their work. This tight coupling allows them to immediately create unique intellectual property and competitive advantage in their own AI, from their most valuable assets, on day one.
+
+Define your AI architecture empirically. Many of the discussions at AIP Bootcamps center around building mental models for AI itself. How many LLMs should we use? When should we use commercial providers? When can we use open source? When should we fine tune? How far can we get with prompt engineering? How do I effectively integrate AI with other enterprise assets like data, models, and automations? How do we structure effective learning loops to make AI more valuable over time? Of course, it depends on the use case. The correct technical approach that balances time, cost, efficacy, control, and improvement over time has to be empirical, not theological. And the best way to learn is to follow the shortest possible path to getting initial use cases into production while maintaining technical optionality. We’re seeing customers discover and redefine target architectures based on their empirical experiences of getting those initial use cases up and running.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Any industry, any function. AIP is driving value from the shop floor to the boardroom. At AIPCon earlier this month, I walked through 50+ examples of how organizations have deployed AIP to drive bottom line impact across virtually every function in dozens of industries in a few short months. The use cases are as compelling as they are diverse. Bootcamps are not just for PhDs or computer scientists.
+
+Press enter or click to view image in full size
+
+To bring these concepts to life, I wanted to share a few example AIP use cases that we’ve seen from our customers, many of which were developed at AIP Bootcamps:
+
+Dynamic Scheduling. Deploy AIP to optimize complex scheduling of cross-functional activities. AIP is helping optimize flight adjustments, train routing, and healthcare provider schedules.
+Underwriting. Transform commercial underwriting processes with AIP by streamlining human review, seamlessly integrating with underwriting guidelines, and integrating with live views of portfolio risk.
+Sales and Marketing. Leverage AIP for lead triage, context-aware targeted marketing, order management, and next best action workflows.
+Procurement. AIP can identify cost saving opportunities, decompose cost drivers, automate negotiation strategies, and optimize procurement cycles. Palantir itself is using AIP to manage contracts and integrate knowledge seamlessly into operations.
+Supply Chain. AIP can transform supply chain management across diverse industries by continuously synthesizing the state of complex networks and allowing organizations to manage supply chain disruptions by processing inbound signals, identifying potential remediations, and suggesting automated fixes.
+Systems Consolidation and Harmonization. AIP gives IT departments the technical leverage to finally master enterprise system and data entropy. Applications include master data management, material and customer harmonization, and disparate ERP stack integration.
+Customer Service. AIP not only provides AI-driven support for customer service agents, but also allows frontline users to wield the entirety of the enterprise data landscape, including contracts, product usage, and customer information. AIP also seamlessly captures expert feedback to create an experience that improves every day.
+Infrastructure Projects and Management. AIP helps companies delivering major infrastructure projects reduce delays and accelerate delivery by extending continuous integration and delivery (CI/CD) principles into the physical world. AIP integrates design, engineering, and operating assets into a synthesized dependency model.
+Quality and Claims Management. AIP parses, categorizes, and connects claims and defects from warranty claims to insurance claims to machine defects. The system allows for rapid triage, root cause, and remediation efforts.
+Front Line Engineers & Operators. Put AIP in the hands of front-line engineers and technicians to help streamline workflows, diagnose issues, and optimize repairs out in the field.
+Hospital Operations. AIP can be applied to hospital operations, from predictive nurse staffing to patient bed placement.
+
+Hear from our customers about how AIP is driving impact in their organizations and reach out to your Palantir rep as soon as possible to reserve your AIP Bootcamp slot.
+
+J.D. Power (AIPCon June 2023 Keynote)
+Jacobs (AIPCon June 2023 Keynote)
+Eaton (AIPCon September 2023 Keynote)
+HCA Healthcare (AIPCon September 2023 Keynote)
+Komatsu (AIPCon September 2023 Master Class)
+CAZ Investments (Press Release)
+Press enter or click to view image in full size
+
+This post contains forward-looking statements within the meaning of Section 27A of the Securities Act of 1933, as amended, and Section 21E of the Securities Exchange Act of 1934, as amended. These statements may relate to, but are not limited to, Palantir’s expectations regarding our product development, distribution, and pricing, expected benefits of and applications for our software platforms, business strategy and plans (including strategy and plans relating to our Artificial Intelligence Platform (“AIP”), sales and marketing efforts, partnerships, and customers), investments in our business, market trends and market size, expectations regarding any current or potential customers, partnerships, or other business relationships or initiatives, opportunities (including growth opportunities), and positioning, as well as assumptions relating to the foregoing. Forward-looking statements are inherently subject to risks and uncertainties, some of which cannot be predicted or quantified. Limited AIP trial access available now. Forward-looking statements are based on information available at the time those statements are made and were based on current expectations as well as the beliefs and assumptions of management as of that time with respect to future events. These statements are subject to risks and uncertainties, many of which involve factors or circumstances that are beyond our control. These risks and uncertainties include our ability to meet the unique needs of our customer; the failure of our platforms to satisfy our customer or perform as desired; the frequency or severity of any software and implementation errors; our platforms’ reliability; and the timing of the development and release of, and updates to, our products. Additional information regarding these and other risks and uncertainties is included in the filings we make with the Securities and Exchange Commission from time to time. Except as required by law, we do not undertake any obligation to publicly update or revise any forward-looking statement, whether as a result of new information, future developments, or otherwise.

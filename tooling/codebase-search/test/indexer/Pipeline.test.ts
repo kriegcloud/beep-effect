@@ -1,0 +1,652 @@
+import type { PipelineConfig, PipelineStats } from "@beep/codebase-search";
+import {
+  Bm25Writer,
+  Bm25WriterMock,
+  EmbeddingService,
+  EmbeddingServiceMock,
+  LanceDbWriter,
+  LanceDbWriterMock,
+  Pipeline,
+  PipelineLive,
+  PipelineMock,
+} from "@beep/codebase-search";
+import { EmbeddingModelError, IndexingError } from "@beep/codebase-search/errors";
+import { describe, expect, layer } from "@effect/vitest";
+import { Effect, FileSystem, Layer, Path } from "effect";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import { systemError } from "effect/PlatformError";
+
+// ---------------------------------------------------------------------------
+// In-memory filesystem helpers (adapted from FileScanner.test.ts)
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a mock FileSystem + Path layer backed by in-memory Maps.
+ */
+const createMemoryFs = (
+  initialFiles: ReadonlyArray<readonly [string, string]>,
+  options?: {
+    readonly failReadPaths?: ReadonlyArray<string>;
+  }
+): {
+  readonly files: Map<string, string>;
+  readonly layer: Layer.Layer<FileSystem.FileSystem | Path.Path>;
+} => {
+  const files = new Map<string, string>();
+  const dirs = new Set<string>();
+  const failReadPaths = new Set(options?.failReadPaths ?? []);
+
+  pipe(
+    initialFiles,
+    A.forEach(([filePath, content]) => {
+      files.set(filePath, content);
+      const parts = filePath.split("/");
+      for (let i = 1; i < parts.length; i++) {
+        dirs.add(parts.slice(0, i).join("/"));
+      }
+    })
+  );
+
+  const fsLayer = FileSystem.layerNoop({
+    exists: (path: string) => Effect.succeed(files.has(path) || dirs.has(path)),
+    readFileString: (path: string) => {
+      if (failReadPaths.has(path)) {
+        return Effect.fail(
+          systemError({
+            _tag: "NotFound",
+            module: "FileSystem",
+            method: "readFileString",
+            pathOrDescriptor: path,
+            description: `Injected read failure for testing: ${path}`,
+          })
+        );
+      }
+      const content = files.get(path);
+      if (content !== undefined) {
+        return Effect.succeed(content);
+      }
+      return Effect.fail(
+        systemError({
+          _tag: "NotFound",
+          module: "FileSystem",
+          method: "readFileString",
+          pathOrDescriptor: path,
+          description: `File not found: ${path}`,
+        })
+      );
+    },
+    writeFileString: (path: string, content: string) => {
+      files.set(path, content);
+      return Effect.void;
+    },
+    readDirectory: (path: string) => {
+      const entries = A.empty<string>();
+      for (const filePath of files.keys()) {
+        if (filePath.startsWith(`${path}/`)) {
+          const remaining = filePath.slice(path.length + 1);
+          const firstPart = remaining.split("/")[0];
+          if (!entries.includes(firstPart)) {
+            entries.push(firstPart);
+          }
+        }
+      }
+      for (const dirPath of dirs) {
+        if (dirPath.startsWith(`${path}/`)) {
+          const remaining = dirPath.slice(path.length + 1);
+          const firstPart = remaining.split("/")[0];
+          if (!entries.includes(firstPart)) {
+            entries.push(firstPart);
+          }
+        }
+      }
+      return Effect.succeed(entries);
+    },
+    stat: (path: string) => {
+      if (files.has(path)) {
+        return Effect.succeed({
+          type: "File" as const,
+          mtime: new Date(),
+          atime: new Date(),
+          birthtime: new Date(),
+          dev: 0,
+          ino: 0,
+          mode: 0o644,
+          nlink: 1,
+          uid: 0,
+          gid: 0,
+          rdev: 0,
+          size: FileSystem.Size(files.get(path)!.length),
+          blksize: FileSystem.Size(4096),
+          blocks: 1,
+        });
+      }
+      if (dirs.has(path)) {
+        return Effect.succeed({
+          type: "Directory" as const,
+          mtime: new Date(),
+          atime: new Date(),
+          birthtime: new Date(),
+          dev: 0,
+          ino: 0,
+          mode: 0o755,
+          nlink: 2,
+          uid: 0,
+          gid: 0,
+          rdev: 0,
+          size: FileSystem.Size(4096),
+          blksize: FileSystem.Size(4096),
+          blocks: 1,
+        });
+      }
+      return Effect.fail(
+        systemError({
+          _tag: "NotFound",
+          module: "FileSystem",
+          method: "stat",
+          pathOrDescriptor: path,
+          description: `Not found: ${path}`,
+        })
+      );
+    },
+    makeDirectory: (
+      path: string,
+      _options?: {
+        readonly recursive?: boolean | undefined;
+        readonly mode?: number | undefined;
+      }
+    ) => {
+      dirs.add(path);
+      return Effect.void;
+    },
+  });
+
+  const pathLayer = Layer.mock(Path.Path)({
+    [Path.TypeId]: Path.TypeId,
+    join: (...parts: ReadonlyArray<string>) => parts.join("/"),
+    resolve: (...parts: ReadonlyArray<string>) => parts.join("/"),
+    dirname: (p: string) => {
+      const lastSlash = p.lastIndexOf("/");
+      return lastSlash >= 0 ? p.slice(0, lastSlash) : ".";
+    },
+    basename: (p: string) => {
+      const lastSlash = p.lastIndexOf("/");
+      return lastSlash >= 0 ? p.slice(lastSlash + 1) : p;
+    },
+    extname: (p: string) => {
+      const dot = p.lastIndexOf(".");
+      return dot >= 0 ? p.slice(dot) : "";
+    },
+    format: (obj) => [obj.dir, obj.base].filter(Boolean).join("/"),
+    fromFileUrl: (url: URL) => Effect.succeed(url.pathname),
+    isAbsolute: (p: string) => p.startsWith("/"),
+    normalize: (p: string) => p,
+    parse: (p: string) => {
+      const lastSlash = p.lastIndexOf("/");
+      const base = lastSlash >= 0 ? p.slice(lastSlash + 1) : p;
+      const dot = base.lastIndexOf(".");
+      const ext = dot >= 0 ? base.slice(dot) : "";
+      const name = ext ? base.slice(0, -ext.length) : base;
+      const dir = lastSlash >= 0 ? p.slice(0, lastSlash) : "";
+      return {
+        root: p.startsWith("/") ? "/" : "",
+        dir,
+        base,
+        ext,
+        name,
+      };
+    },
+    relative: (_from: string, to: string) => to,
+    toFileUrl: (p: string) => Effect.succeed(new URL(`file://${p}`)),
+    toNamespacedPath: (p: string) => p,
+    sep: "/",
+  });
+
+  return { files, layer: Layer.mergeAll(fsLayer, pathLayer) };
+};
+
+// ---------------------------------------------------------------------------
+// Shared test fixtures
+// ---------------------------------------------------------------------------
+
+/** Minimal valid TypeScript source with an export and JSDoc. */
+const SAMPLE_TS_SOURCE = `
+/**
+ * A simple greeting utility for testing the pipeline.
+ * @since 0.0.0
+ * @category constants
+ */
+export const GREETING = "hello" as const;
+`;
+
+/** Another source file for multi-file tests. */
+const SAMPLE_TS_SOURCE_2 = `
+/**
+ * A numeric constant used for testing pipeline stats.
+ * @since 0.0.0
+ * @category constants
+ */
+export const ANSWER = 42 as const;
+`;
+
+const ROOT = "/root";
+const INDEX_PATH = "/root/.code-index";
+
+const makeConfig = (overrides: Partial<PipelineConfig> = {}): PipelineConfig => ({
+  rootDir: ROOT,
+  indexPath: INDEX_PATH,
+  mode: "full",
+  ...overrides,
+});
+
+// ---------------------------------------------------------------------------
+// Mock Pipeline tests
+// ---------------------------------------------------------------------------
+
+const PipelineMockLayer = Layer.mergeAll(PipelineMock, createMemoryFs([]).layer);
+
+layer(PipelineMockLayer)("Pipeline (Mock)", (it) => {
+  it.effect(
+    "returns PipelineStats with all zero values",
+    Effect.fn(function* () {
+      const pipeline = yield* Pipeline;
+      const stats: PipelineStats = yield* pipeline.run(makeConfig());
+      expect(stats.filesScanned).toBe(0);
+      expect(stats.filesChanged).toBe(0);
+      expect(stats.symbolsIndexed).toBe(0);
+      expect(stats.symbolsRemoved).toBe(0);
+      expect(stats.durationMs).toBe(0);
+    })
+  );
+
+  it.effect(
+    "accepts incremental mode config",
+    Effect.fn(function* () {
+      const pipeline = yield* Pipeline;
+      const stats = yield* pipeline.run(makeConfig({ mode: "incremental" }));
+      expect(stats.filesScanned).toBe(0);
+    })
+  );
+
+  it.effect(
+    "accepts packageFilter config",
+    Effect.fn(function* () {
+      const pipeline = yield* Pipeline;
+      const stats = yield* pipeline.run(makeConfig({ packageFilter: "@beep/cli" }));
+      expect(stats.symbolsIndexed).toBe(0);
+    })
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Live Pipeline tests (with mock services + in-memory filesystem)
+// ---------------------------------------------------------------------------
+
+/** Combined mock layer providing all three indexer services. */
+const MockServicesLayer = Layer.mergeAll(EmbeddingServiceMock, LanceDbWriterMock, Bm25WriterMock);
+
+/** PipelineLive backed by mock indexer services. */
+const TestPipelineLayer = PipelineLive.pipe(Layer.provide(MockServicesLayer));
+
+/** Embedding service mock that always fails, used to verify embedding error mapping. */
+const EmbeddingServiceFailing = Layer.succeed(
+  EmbeddingService,
+  EmbeddingService.of({
+    embed: (_text) =>
+      Effect.fail(
+        new EmbeddingModelError({
+          message: "Injected embed failure",
+          modelName: "test-model",
+        })
+      ),
+    embedBatch: (_texts) =>
+      Effect.fail(
+        new EmbeddingModelError({
+          message: "Injected embedBatch failure",
+          modelName: "test-model",
+        })
+      ),
+  })
+);
+
+/** PipelineLive wired with failing embeddings for failure-path assertions. */
+const FailingEmbeddingPipelineLayer = PipelineLive.pipe(
+  Layer.provide(Layer.mergeAll(EmbeddingServiceFailing, LanceDbWriterMock, Bm25WriterMock))
+);
+
+layer(Layer.mergeAll(TestPipelineLayer, MockServicesLayer))("Pipeline (Live with mocks)", (it) => {
+  describe("full mode", () => {
+    it.effect(
+      "returns correct filesScanned for single file",
+      Effect.fn(function* () {
+        const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
+
+        const pipeline = yield* Pipeline;
+        const stats = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer));
+
+        expect(stats.filesScanned).toBe(1);
+      })
+    );
+
+    it.effect(
+      "returns correct filesChanged count",
+      Effect.fn(function* () {
+        const { layer: fsLayer } = createMemoryFs([
+          [`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE],
+          [`${ROOT}/tooling/cli/src/constants.ts`, SAMPLE_TS_SOURCE_2],
+        ]);
+
+        const pipeline = yield* Pipeline;
+        const stats = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer));
+
+        // In full mode, all files are "added" and thus "changed"
+        expect(stats.filesChanged).toBe(2);
+      })
+    );
+
+    it.effect(
+      "returns symbolsIndexed > 0 for file with exports",
+      Effect.fn(function* () {
+        const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
+
+        const pipeline = yield* Pipeline;
+        const stats = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer));
+
+        expect(stats.symbolsIndexed).toBeGreaterThan(0);
+      })
+    );
+
+    it.effect(
+      "reports durationMs >= 0",
+      Effect.fn(function* () {
+        const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
+
+        const pipeline = yield* Pipeline;
+        const stats = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer));
+
+        expect(stats.durationMs).toBeGreaterThanOrEqual(0);
+      })
+    );
+
+    it.effect(
+      "writes index-meta.json to the index path",
+      Effect.fn(function* () {
+        const memFs = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
+
+        const pipeline = yield* Pipeline;
+        yield* pipe(pipeline.run(makeConfig()), Effect.provide(memFs.layer));
+
+        // Verify the meta file was written
+        const hasMetaFile = memFs.files.has(`${INDEX_PATH}/index-meta.json`);
+        expect(hasMetaFile).toBe(true);
+      })
+    );
+
+    it.effect(
+      "writes file-hashes.json after pipeline run",
+      Effect.fn(function* () {
+        const memFs = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
+
+        const pipeline = yield* Pipeline;
+        yield* pipe(pipeline.run(makeConfig()), Effect.provide(memFs.layer));
+
+        const hasHashesFile = memFs.files.has(`${ROOT}/.code-index/file-hashes.json`);
+        expect(hasHashesFile).toBe(true);
+      })
+    );
+
+    it.effect(
+      "returns symbolsRemoved = 0 in full mode",
+      Effect.fn(function* () {
+        const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
+
+        const pipeline = yield* Pipeline;
+        const stats = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer));
+
+        expect(stats.symbolsRemoved).toBe(0);
+      })
+    );
+  });
+
+  describe("incremental mode", () => {
+    it.effect(
+      "processes only changed files",
+      Effect.fn(function* () {
+        const crypto = require("node:crypto");
+        const unchangedContent = "export const x = 1;";
+        const unchangedHash = crypto.createHash("sha256").update(unchangedContent).digest("hex");
+
+        const storedHashes = JSON.stringify([
+          {
+            filePath: "tooling/cli/src/unchanged.ts",
+            contentHash: unchangedHash,
+          },
+        ]);
+
+        const { layer: fsLayer } = createMemoryFs([
+          [`${ROOT}/tooling/cli/src/unchanged.ts`, unchangedContent],
+          [`${ROOT}/tooling/cli/src/newfile.ts`, SAMPLE_TS_SOURCE],
+          [`${ROOT}/.code-index/file-hashes.json`, storedHashes],
+        ]);
+
+        const pipeline = yield* Pipeline;
+        const stats = yield* pipe(pipeline.run(makeConfig({ mode: "incremental" })), Effect.provide(fsLayer));
+
+        // 2 files scanned total, but only 1 changed (newfile is added)
+        expect(stats.filesScanned).toBe(2);
+        expect(stats.filesChanged).toBe(1);
+      })
+    );
+
+    it.effect(
+      "counts deleted files in symbolsRemoved",
+      Effect.fn(function* () {
+        const memFs = createMemoryFs([
+          [`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE],
+          [`${ROOT}/tooling/cli/src/deleted.ts`, SAMPLE_TS_SOURCE_2],
+        ]);
+
+        const pipeline = yield* Pipeline;
+
+        // Seed index state with both files.
+        yield* pipe(pipeline.run(makeConfig({ mode: "full" })), Effect.provide(memFs.layer));
+
+        // Simulate deleting one source file before incremental run.
+        memFs.files.delete(`${ROOT}/tooling/cli/src/deleted.ts`);
+
+        const stats = yield* pipe(pipeline.run(makeConfig({ mode: "incremental" })), Effect.provide(memFs.layer));
+        expect(stats.symbolsRemoved).toBeGreaterThanOrEqual(1);
+      })
+    );
+  });
+
+  describe("empty project", () => {
+    it.effect(
+      "handles project with no TypeScript files gracefully",
+      Effect.fn(function* () {
+        const { layer: fsLayer } = createMemoryFs([]);
+
+        const pipeline = yield* Pipeline;
+        const stats = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer));
+
+        expect(stats.filesScanned).toBe(0);
+        expect(stats.filesChanged).toBe(0);
+        expect(stats.symbolsIndexed).toBe(0);
+      })
+    );
+  });
+
+  describe("package filter", () => {
+    it.effect(
+      "rejects package filter in full mode",
+      Effect.fn(function* () {
+        const { layer: fsLayer } = createMemoryFs([
+          [`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE],
+          [`${ROOT}/tooling/utils/src/helpers.ts`, SAMPLE_TS_SOURCE_2],
+        ]);
+
+        const pipeline = yield* Pipeline;
+        const error = yield* pipe(
+          pipeline.run(makeConfig({ mode: "full", packageFilter: "@beep/cli" })),
+          Effect.provide(fsLayer),
+          Effect.flip
+        );
+
+        expect(error).toBeInstanceOf(IndexingError);
+        expect(error.phase).toBe("pipeline-config");
+        expect(error.message).toContain("Full reindex with package filter is not supported");
+      })
+    );
+
+    it.effect(
+      "incremental package filter preserves non-target package data in LanceDB and BM25",
+      Effect.fn(function* () {
+        const cliPath = `${ROOT}/tooling/cli/src/index.ts`;
+        const utilsPath = `${ROOT}/tooling/utils/src/index.ts`;
+        const cliV1 = `
+/**
+ * CLI symbol for package filter regression tests.
+ * @since 0.0.0
+ * @category constants
+ */
+export const CliSymbol = "v1";
+`;
+        const utilsV1 = `
+/**
+ * Utils symbol for package filter regression tests.
+ * @since 0.0.0
+ * @category constants
+ */
+export const UtilsSymbol = "v1";
+`;
+        const cliV2 = cliV1.replace('"v1"', '"v2"');
+        const utilsV2 = utilsV1.replace('"v1"', '"v2"');
+
+        const memFs = createMemoryFs([
+          [cliPath, cliV1],
+          [utilsPath, utilsV1],
+        ]);
+
+        const pipeline = yield* Pipeline;
+        const lance = yield* LanceDbWriter;
+        const bm25 = yield* Bm25Writer;
+
+        // Seed index with both packages.
+        yield* pipe(pipeline.run(makeConfig({ mode: "full" })), Effect.provide(memFs.layer));
+
+        // Modify both files, then reindex only @beep/cli.
+        memFs.files.set(cliPath, cliV2);
+        memFs.files.set(utilsPath, utilsV2);
+
+        const stats = yield* pipe(
+          pipeline.run(makeConfig({ mode: "incremental", packageFilter: "@beep/cli" })),
+          Effect.provide(memFs.layer)
+        );
+        expect(stats.filesChanged).toBe(1);
+
+        const rows = yield* lance.list();
+        const rowIds = rows.map((row) => row.id);
+        expect(rowIds.some((id) => id.startsWith("@beep/cli/"))).toBe(true);
+        expect(rowIds.some((id) => id.startsWith("@beep/utils/"))).toBe(true);
+
+        const bm25Ids = yield* bm25.listSymbolIds();
+        expect(bm25Ids.some((id) => id.startsWith("@beep/cli/"))).toBe(true);
+        expect(bm25Ids.some((id) => id.startsWith("@beep/utils/"))).toBe(true);
+      })
+    );
+
+    it.effect(
+      "applies package filter correctly when rootDir is relative",
+      Effect.fn(function* () {
+        const cliPath = "./tooling/cli/src/index.ts";
+        const utilsPath = "./tooling/utils/src/index.ts";
+        const cliV1 = `
+/**
+ * CLI symbol for relative root path tests.
+ * @since 0.0.0
+ * @category constants
+ */
+export const CliRelative = "v1";
+`;
+        const utilsV1 = `
+/**
+ * Utils symbol for relative root path tests.
+ * @since 0.0.0
+ * @category constants
+ */
+export const UtilsRelative = "v1";
+`;
+        const cliV2 = cliV1.replace('"v1"', '"v2"');
+
+        const memFs = createMemoryFs([
+          [cliPath, cliV1],
+          [utilsPath, utilsV1],
+        ]);
+
+        const pipeline = yield* Pipeline;
+        const lance = yield* LanceDbWriter;
+
+        yield* pipe(
+          pipeline.run({
+            rootDir: ".",
+            indexPath: ".code-index",
+            mode: "full",
+          }),
+          Effect.provide(memFs.layer)
+        );
+
+        const fullRows = yield* lance.list();
+        expect(fullRows.some((row) => row.package === "@beep/cli")).toBe(true);
+        expect(fullRows.some((row) => row.package === "@beep/utils")).toBe(true);
+
+        memFs.files.set(cliPath, cliV2);
+
+        const stats = yield* pipe(
+          pipeline.run({
+            rootDir: ".",
+            indexPath: ".code-index",
+            mode: "incremental",
+            packageFilter: "@beep/cli",
+          }),
+          Effect.provide(memFs.layer)
+        );
+
+        expect(stats.filesChanged).toBe(1);
+        expect(stats.symbolsIndexed).toBeGreaterThan(0);
+      })
+    );
+  });
+
+  describe("failure paths", () => {
+    it.effect(
+      "maps file read failures to IndexingError with symbol-extraction phase",
+      Effect.fn(function* () {
+        const sourcePath = `${ROOT}/tooling/cli/src/index.ts`;
+        const { layer: fsLayer } = createMemoryFs([[sourcePath, SAMPLE_TS_SOURCE]], {
+          failReadPaths: [sourcePath],
+        });
+
+        const pipeline = yield* Pipeline;
+        const error = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer), Effect.flip);
+
+        expect(error).toBeInstanceOf(IndexingError);
+        expect(error.phase).toBe("symbol-extraction");
+      })
+    );
+  });
+});
+
+layer(FailingEmbeddingPipelineLayer)("Pipeline (Live with failing embeddings)", (it) => {
+  it.effect(
+    "maps embedBatch failures to IndexingError with embedding phase",
+    Effect.fn(function* () {
+      const { layer: fsLayer } = createMemoryFs([[`${ROOT}/tooling/cli/src/index.ts`, SAMPLE_TS_SOURCE]]);
+      const pipeline = yield* Pipeline;
+
+      const error = yield* pipe(pipeline.run(makeConfig()), Effect.provide(fsLayer), Effect.flip);
+
+      expect(error).toBeInstanceOf(IndexingError);
+      expect(error.phase).toBe("embedding");
+    })
+  );
+});

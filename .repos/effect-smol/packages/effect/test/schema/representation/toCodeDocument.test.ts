@@ -199,9 +199,9 @@ describe("toCodeDocument", () => {
       )
     })
 
-    it("CauseFailure(String, Number)", () => {
-      assertSchema({ schema: Schema.CauseFailure(Schema.String, Schema.Number) }, {
-        codes: makeCode("Schema.CauseFailure(String_, Number_)", "Cause.Failure<String_, Number_>"),
+    it("CauseReason(String, Number)", () => {
+      assertSchema({ schema: Schema.CauseReason(Schema.String, Schema.Number) }, {
+        codes: makeCode("Schema.CauseReason(String_, Number_)", "Cause.Failure<String_, Number_>"),
         references: {
           nonRecursives: [
             {
@@ -1685,6 +1685,30 @@ describe("toCodeDocument", () => {
           }
         }
       )
+    })
+  })
+
+  describe("HashMap", () => {
+    it("HashMap(String, Number)", () => {
+      assertSchema({ schema: Schema.HashMap(Schema.String, Schema.Number) }, {
+        codes: makeCode(
+          `Schema.HashMap(String_, Number_)`,
+          "HashMap.HashMap<String_, Number_>"
+        ),
+        references: {
+          nonRecursives: [
+            {
+              $ref: "String_",
+              code: makeCode(`Schema.String`, "string")
+            },
+            {
+              $ref: "Number_",
+              code: makeCode(`Schema.Number`, "number")
+            }
+          ]
+        },
+        artifacts: [{ _tag: "Import", importDeclaration: `import * as HashMap from "effect/HashMap"` }]
+      })
     })
   })
 

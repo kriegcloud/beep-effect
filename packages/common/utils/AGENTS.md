@@ -1,97 +1,35 @@
-# AGENTS.md — `@beep/utils`
+# @beep/utils Agent Guide
 
-## Purpose & Scope
-- Pure, deterministic runtime helpers shared across slices (string normalization, record transforms, guards, factories).
-- NEVER introduce I/O, platform APIs, or side-effectful behavior; these utilities MUST run identically in Node, Bun, or the browser.
-- Complements `@beep/types` (compile-time) and `@beep/invariant` (assertions) by providing Effect-friendly building blocks.
+## Purpose & Fit
+- Shared runtime utilities for beep
 
-## Module Map (see `src/`)
-- `array-buffer-to-blob.ts` / `array-buffer-to-uint8-array.ts` / `uint8-array-to-array-buffer.ts` — binary data conversions.
-- `autosuggest-highlight/` — text highlighting utilities for search/autocomplete UIs.
-- `browser-apis.ts` — browser-specific utility wrappers.
-- `coerce.ts` — type coercion utilities.
-- `const.ts` — literal-aware helpers (`constLiteral`).
-- `data/` — immutable data manipulation built atop Effect APIs:
-  - `ArrayUtils` — array operations (`orderBy`, `collect`, etc.)
-  - `ModelUtils` — Effect SQL model helpers
-  - `ObjectUtils` — deep merge, clone, omit operations
-  - `RecordUtils` — record transformations (`reverseRecord`, `recordStringValues`)
-  - `StrUtils` — string normalization, name initials, nested value access
-  - `StructUtils` — struct operations for Effect schemas
-  - `TupleUtils` — tuple and mapped enum utilities
-- `dedent/` — template literal dedentation.
-- `deep-remove-null.ts` — null removal from nested structures.
-- `equality/` — deep equality checks.
-- `factories/` (`enum.factory.ts`) — pure factories for enum derivation.
-- `format-time.ts` — time formatting helpers (e.g., `fToNow`).
-- `getters/` — safe property accessors (`getAt`) returning fallback values.
-- `guards/` — type-narrowing predicates (`isUnsafeProperty`, `isNonEmptyRecord`).
-- `lazy.ts` — lazy value and schema initialization helpers.
-- `md5/` — MD5 hashing utilities for file integrity (parallel processing support).
-- `merge-defined.ts` — merge utilities that skip undefined values.
-- `mut.utils.ts` — mutation escape hatches kept pure via `mutative`.
-- `noOps.ts` — canonical `noOp`, `nullOp`, `nullOpE` helpers required across the repo.
-- `nullable.ts` — nullable type utilities and guards.
-- `object/path.ts` — nested object path utilities (`getPath`).
-- `random-hex-string.ts` — random hex string generation.
-- `remove-accents/` — diacritic removal utilities.
-- `shallow.ts` — shallow equality comparison for arrays, objects, and values.
-- `sqids.ts` — Sqids encoder/decoder utilities.
-- `stringify.ts` — safe JSON stringification helpers.
-- `struct/` — struct merge and field extraction utilities.
-- `sync.utils.ts` — sync status types for adapter patterns.
-- `tag.ts` — dual-signature type guards for tagged unions (`tagPropIs`).
-- `thunk.ts` — thunk utilities for lazy evaluation.
-- `timing/` — debounce and throttle helpers.
-- `topo-sort/` — topological sort implementation.
-- `transformations/` — higher-level transforms (`enumFromStringArray`, `valuesFromEnum`).
-- `url.ts` — URL parsing and validation utilities.
+## Surface Map
+| Module | Key exports | Notes |
+| --- | --- | --- |
+| `src/index.ts` | `VERSION` | Package entry point |
 
 ## Usage Snapshots
-- `packages/common/schema/src/primitives/locales/currency-code-value.ts` uses `RecordUtils.recordKeys` to derive literal unions from currency maps.
-- `packages/ui/ui/src/layouts/simple/layout.tsx` merges layout config via `RecordUtils.merge` before rendering.
-- Various schema modules throughout the codebase use `RecordUtils.recordStringValues` to extract literal values from const objects.
-- String utilities like `StrUtils.normalizeString` and `StrUtils.getNameInitials` are used across UI components for consistent text handling.
+(Add usage examples as the package grows)
 
 ## Authoring Guardrails
-- Pure functions only; NEVER use clocks, randomness, global state, or environment checks.
-- ALWAYS namespace Effect imports (`import * as A from "effect/Array"`, etc.) and route every collection/string operation through those utilities—native `.map`, `.split`, etc. are BANNED.
-- Keep helpers domain-neutral; if logic references business concepts (IAM, files, etc.) it belongs in the owning slice.
-- Prefer returning `Option`/`Either` (via Effect helpers) to throwing; reserve `@beep/invariant` for true programming errors and mirror existing patterns (e.g., `enumFromStringArray`).
-- Reuse `noOp`/`nullOp`/`nullOpE` instead of ad-hoc placeholders.
+- **Effect-first imports**: ALWAYS use namespace imports (`import * as Effect from "effect/Effect"`). NEVER use native Array/String helpers.
+- **Tagged errors**: Use `S.TaggedErrorClass` for all error types.
+- **Schema-based JSON**: Use `Schema.decodeUnknownEffect`/`Schema.encodeUnknownEffect` instead of `JSON.parse`/`JSON.stringify`.
+- **Effect.fn**: Use `Effect.fn` for all functions returning Effects.
 
 ## Quick Recipes
 ```ts
-import { RecordUtils, StrUtils } from "@beep/utils";
-import * as F from "effect/Function";
-import * as Str from "effect/String";
-
-// Normalize user-facing strings before comparison
-const normalized = StrUtils.normalizeString("Café de Flore");
-const slug = F.pipe(normalized, Str.replace(/ /g, "-"));
-
-// Gather literal values for schema kits
-const mimeTypes = RecordUtils.recordStringValues({
-  json: "application/json",
-  zip: "application/zip",
-} as const);
-
-// Safe deep access (returns undefined when not present)
-const primaryProduct = StrUtils.getNestedValue(
-  { items: [{ product: { name: "Widget" } }] },
-  "items.[0].product.name"
-);
+import { VERSION } from "@beep/utils"
 ```
 
 ## Verifications
-- `bun run test --filter=@beep/utils` for Vitest/Bun test suites (pure runtime behavior).
-- `bun run lint --filter=@beep/utils` / `bun run lint:fix --filter=@beep/utils` to satisfy Biome + circular checks.
-- `bun run check --filter=@beep/utils` to ensure TypeScript config stays aligned.
-- `bun run coverage --filter=@beep/utils` generates coverage reports.
+- `bunx turbo run test --filter=@beep/utils`
+- `bunx turbo run lint --filter=@beep/utils`
+- `bunx turbo run check --filter=@beep/utils`
 
 ## Contributor Checklist
-- [ ] Implementation stays pure (no timers, I/O, platform APIs).
-- [ ] Effect namespace imports + `F.pipe` are used instead of native array/string helpers.
-- [ ] Reused existing helpers (`noOp`, `nullOpE`, guards) instead of duplicating logic.
-- [ ] Added or updated Vitest coverage when introducing new branches.
-- [ ] Documented new helpers with JSDoc and, when relevant, cross-linked to `@beep/types` or `@beep/invariant`.
+- [ ] All new exports have `/** @since 0.0.0 */` JSDoc annotations
+- [ ] Tests added/updated for new functionality
+- [ ] `bun run check` passes
+- [ ] `bun run test` passes
+- [ ] `bun run lint` passes

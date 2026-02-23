@@ -1,0 +1,68 @@
+Palantir + SpecterOps Partnership
+Palantir
+Follow
+6 min read
+·
+Nov 5, 2018
+
+62
+
+Press enter or click to view image in full size
+
+At Palantir, we’re passionate about building software that solves real-world problems. Our software has been used to stop terrorist attacks, develop new medicines, gain an edge in global financial markets, combat child trafficking, and more. For each of these critical use-cases, we must protect our products from abuse, ensure our customers’ data is secure, and ultimately raise the cost of attack for our adversaries — no matter where they may operate.
+
+The information security program at Palantir has three core objectives that drive all energy:
+
+Make Palantir safer.
+Make our customers safer.
+Make the world safer.
+
+Our ability to drive meaningful progress in these objectives is directly linked to our understanding and knowledge of adversaries that would wish us harm. It was this drive for deep adversary knowledge and emulation capabilities that led us to build a close and long-lasting relationship with SpecterOps. As leaders in red team operations, offensive and defensive research, and tool development, SpecterOps proved to be formidable adversaries when deployed in our environment. As the maturity of our defensive controls, alerts and capabilities increased, SpecterOps identified new opportunities for offensive tradecraft, evasion techniques, and bypasses.
+
+Over time, the Palantir InfoSec team grew close and developed a deep and mutual respect for the research, open-source projects, and continual innovation brought to the table by SpecterOps. We are very excited to announce a formal partnership with SpecterOps to fuel Palantir’s information security program. Most notably, this partnership stands as a mutual commitment to deep collaboration that ultimately will further the core objectives of the Palantir InfoSec team. Some details of this commitment are as follows.
+
+Commitment to making Palantir safer
+
+Ever since our initial engagement, SpecterOps have been instrumental in accelerating and improving Palantir’s information security posture. Our relationship initially focused on adversarial red team operations against our corporate and cloud infrastructure. As the red team engagements became more advanced, we were forced to level-up our security controls and detection capabilities. Our network defenders rapidly adopted defensive tooling and techniques pioneered by SpecterOps (e.g., PowerForensics, BloodHound, Active Directory research, etc.). In turn, the red team invested in more stealthy and effective techniques and tooling (e.g., development of Empire, transition to C# tooling, etc.) Through this continuous cycle of innovation, research, and testing, our security program grew tremendously.
+
+We are confident that our continued adversarial assessments with SpecterOps will not only make Palantir safer, but will also substantively contribute to the defense of our customers and the broader community.
+
+Commitment to making our customers safer
+
+Beyond just Palantir’s corporate network, our InfoSec team is responsible for safeguarding Palantir’s products, our customers’ data, and our various hosting environments. SpecterOps has been crucial to these efforts by engaging in long-term red team operations. Most notably, red team operators have been routinely deployed into mock customer environments to assess security controls and detection capabilities. In many cases, this was an assessment of the ability to persist or break out of constrained execution environments or perform lateral movement between isolated networks and infrastructure.
+
+Most notably, all of the techniques developed by SpecterOps were shared with the broader community. Not a single technique that was discovered, pioneered, or refined during these mock engagements were kept secret, allowing network defenders and product engineers to continually improve themselves — and better protect our customers. This dedication to transparency not only allowed us to build robust security controls, but ultimately fed back to the open-source community through publications and presentations (see below).
+
+Commitment to making the world safer
+
+Starting with our first open-source projects (Windows Event Forwarding for Network Defense, osquery Across the Enterprise, Alerting and Detection Strategy Framework, Enterprise Security with HashiStack), our team has embraced a commitment to making the world safer as part of our core mission. Our adversaries don’t target just Palantir and if we can make their lives more difficult when attacking other organizations, we should. Internally, we have embraced a concept of ‘open-source first’ where each project starts with the question “Why can’t we open-source this?” It is our hope and intent that our contributions to the community will increase in frequency, depth, and value — especially with our joint partnership with SpecterOps.
+
+Examples
+
+As an example of how we have worked together and how SpecterOps has forced our team to innovate, I’ll present insights from two recent adversarial assessments. In both of these operations, our network defenses were subverted and attacked. As a result, our network defenders were forced to develop new security controls and alerting/detection strategies to counteract the red team operators. Ultimately this led to improvements in security posture, reduction of risk, and generation of knowledge that we are planning to open-source soon beyond our Alerting and Detection Strategy Framework.
+
+macOS tradecraft
+
+When we initially engaged SpecterOps to conduct red team operations against our large macOS workstation fleet, there were few publicly-available macOS post-exploitation tools. Rather than relying upon a relatively incomplete set of tools, they completely refactored what was PowerShell Empire to also support macOS Python-based agents. With their new macOS tooling, we were provided with not only variants on existing attack classes upon which we could strengthen current detections, but they also developed and delivered new tradecraft that we would not have anticipated. We benefited greatly from the effort SpecterOps put into delivering value in our macOS environment and we are proud that we were able to serve as their incubator for furthering their already extensive tradecraft. SpecterOps has since also expanded their macOS threat hunting expertise that we look forward to benefiting from.
+
+Windows tradecraft
+
+In addition to macOS workstations, Palantir also maintains a large Active Directory domain comprised of Windows servers and workstations. Within that environment, initially, our adversaries migrated from traditional Windows PE file formats and adopted PowerShell-based tradecraft, such as Empire and Cobalt Strike. On earlier versions of PowerShell, logging and telemetry were not mature, allowing adversaries to execute arbitrary payloads in a stealthy manner. This all changed in June of 2015 when Microsoft published their blog post “Powershell ❤ the Blue Team” and released PowerShell v5. Inclusive in this update were strong security controls and telemetry sources (e.g., PowerShell scriptblock logging, transcription logging, AMSI, etc.) that made PowerShell-based tradecraft risky for attackers. We immediately deployed PowerShell v5 across the fleet, removed v2 where present, and set up alerts for version regressions.
+
+SpecterOps operators were initially set back as their tooling relied heavily on PowerShell and the changes in v5 made it substantially more noisy to conduct operations. This setback did not last long however, as they quickly retooled and developed Unmanaged Powershell, a technique for instantiating PowerShell execution in an arbitrary process. Additionally, SpecterOps began using reflection, local group policy edits, and other techniques to subvert and tamper with PowerShell logging entirely. This ultimately led to research and implementation of System Access Control Lists (SACLs) to identify workstation compromise and alerting/detection strategies identifying unusual PowerShell host processes.
+
+SpecterOps, eventually finding the PowerShell environment actively hostile to their operations in our environment, developed and implemented C# based tooling as part of their GhostPack project. Witnessing SpecterOps diversify and innovate their tradecraft in response to our implementation of updated security controls has benefited us greatly by reinforcing that detection engineering will always be a process and not an end-state.
+
+Lastly, we’ve grown to appreciate the security research developed and articulated by SpecterOps researchers. For example, their work on subverting Windows Defender Application Control (a.k.a. Device Guard) and code signing has forced us to more formally consider what is deemed trustworthy in our diverse environments. Establishing a baseline of trust also permits the development of more specific and aggressive detections beyond those offered by vendors.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+We’re excited to continue our journey with SpecterOps in making Palantir, our customers, and the community a safer place to live in. Palantir silently powers the world’s most important institutions. If you’re passionate about information security and defending missions that matter, we’re hiring across our security team in multiple disciplines. We’d love to talk more.
+
+Authors
+
+Dane S.

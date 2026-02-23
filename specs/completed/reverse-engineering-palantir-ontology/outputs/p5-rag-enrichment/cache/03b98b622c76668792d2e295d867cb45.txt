@@ -1,0 +1,148 @@
+How Palantir Meets IL6 Security Requirements with Apollo
+Palantir
+Follow
+10 min read
+·
+Feb 28, 2023
+
+13
+
+Press enter or click to view image in full size
+
+Editor’s Note: In this blog post, Palantir’s Apollo & USG Tech teams pair up to describe how we deploy Palantir Apollo as the foundation of our Impact Level 6 (IL6) product offering.
+
+Building secure software requires robust delivery and management processes, with the ability to quickly detect and fix issues, discover new vulnerabilities, and deploy patches. This is especially difficult when services are run in restricted, air-gapped environments or remote locations, and was the main reason we built Palantir Apollo.
+
+With Apollo, we are able to patch, update, or make changes to a service in 3.5 minutes on average and have significantly reduced the time required to remediate production issues, from hours to under 5 minutes.
+
+For 20 years, Palantir has worked alongside partners in the defense and intelligence spaces. We have encoded our learnings for managing software in national security contexts. In October 2022, Palantir received an Impact Level 6 (IL6) provisional authorization (PA) from the Defense Information Systems Agency (DISA) for our federal cloud service offering.
+
+IL6 accreditation is a powerful endorsement, recognizing that Palantir has met DISA’s rigorous security and compliance standards and making it easier for US Government entities to use Palantir products for some of their most sensitive work.
+
+The road to IL6 accreditation can be challenging and costly. In this blog post, we share how we designed a consistent, cross-network deployment model using Palantir Apollo’s built-in features and controls in order to satisfy the requirements for operating in IL6 environments.
+
+What are FedRAMP, IL5, and IL6?
+
+With the rise of cloud computing in the government, DISA defined the operating standards for software providers seeking to offer their services in government cloud environments. These standards are meant to ensure that providers demonstrate best practices when securing the sensitive work happening in their products.
+
+DISA’s standards are based on a framework that measures risk in a provider’s holistic cloud offering. Providers must demonstrate both their products and their operating strategy are deployed with safety controls aligned to various levels of data sensitivity. In general, more controls mean less risk in a provider’s offering, making it eligible to handle data at higher sensitivity levels.
+
+Impact Levels (ILs) are defined in DISA’s Cloud Computing SRG as Department of Defense (DoD)-developed categories for leveraging cloud computing based on the “potential impact should the confidentiality or the integrity of the information be compromised.” There are currently four defined ILs (2, 4, 5, and 6), with IL6 being the highest and the only IL covering potentially classified data that “could be expected to have a serious adverse effect on organizational operations” (the SRG is available for download as a .zip from here).
+
+Defining these standards allows DISA to enable a “Do Once, Use Many” approach to software accreditation that was pioneered with the FedRAMP program. For commercial providers, IL6 authorization means government agencies can fast track use of their services in place of having to run lengthy and bespoke audit and accreditation processes. The DoD maintains a Cloud Service Catalog that lists offerings that have already been granted PAs, making it easy for potential user groups to pick vetted products.
+
+NIST and the Risk Management Framework
+
+The DoD bases its security evaluations on the National Institute of Standards and Technology’s (NIST) Risk Management Framework (RMF), which outlines a generic process used widely across the US Government to evaluate IT systems.
+
+The RMF provides guidance for identifying which security controls exist in a system so that the RMF user can assess the system and determine if it meets the users’ needs, like the set of requirements DISA established for IL6.
+
+Controls are descriptive and focus on whole system characteristics, including those of the organization that created and operates the system. For example, the Remote Access (AC-17) control is defined as:
+
+The organization:
+a. Establishes and documents usage restrictions, configuration/connection requirements, and implementation guidance for each type of remote access allowed; and
+b. Authorizes remote access to the information system prior to allowing such connections.
+
+Because of how controls are defined, a primary aspect of the IL6 authorization process is demonstrating how a system behaves to match control descriptions.
+
+Demonstrating NIST Controls with Apollo
+
+Apollo was designed with many of the NIST controls in mind, which made it easier for us to assemble and demonstrate an IL6-eligible offering using Apollo’s out-of-the box features.
+
+Below we share how Apollo allows us to address six of the twenty NIST Control Families (categories of risk management controls) that are major themes in the hundreds of controls adopted as IL6 requirements.
+
+System and Services Acquisition (SA) and Supply Chain Risk Management (SR)
+
+The System and Services Acquisition (SA) family and related Supply Chain Risk Management (SR) family (created in Revision 5 of the RMF guidelines) cover the controls and processes that verify the integrity of the components of a system. These measures ensure that component parts have been vetted and evaluated, and that the system has safeguards in place as it inevitably evolves, including if a new component is added or a version is upgraded.
+
+In a software context, modern applications are now composed of hundreds of individual software libraries, many of which come from the open source community. Securing a system’s software supply chain requires knowing when new vulnerabilities are found in code that’s running in the system, which happens nearly every day.
+
+Apollo helped us address SA and SR controls because it has container vulnerability scanning built directly into it.
+
+Press enter or click to view image in full size
+The security scan status appears for each Release on the Product page for an open-source distribution of Redis
+
+When a new Product Release becomes available, Apollo automatically scans the Release to see if it’s subject to any of the vulnerabilities in public security catalogs, like MITRE’s Common Vulnerabilities and Exposure’s (CVE) List.
+
+If Apollo finds that a Release has known vulnerabilities, it alerts the team at Palantir responsible for developing the Product in order to make sure a team member updates the code to patch the issue. Additionally, our information security teams use vulnerability severity to define criteria for what can be deployed while still keeping our system within IL6 requirements.
+
+Press enter or click to view image in full size
+An Apollo scan of an open-source distribution of Redi shows active CVEs
+
+Scanning for these weak spots in our system is now an automatic part of Apollo and a crucial element in making sure our IL6 services remain secure. Without it, mapping newly discovered security findings to where they’re used in a software platform is an arduous, manual process that’s intractable as the complexity of a platform grows, and would make it difficult or impossible to accurately estimate the security of a system’s components.
+
+Configuration Management (CM)
+
+The Configuration Management (CM) group covers the safety controls that exist in the system for validating and applying changes to production environments.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+CM controls include the existence of review and approval steps when changing configuration, as well as the ability within the system for administrators to assign approval authority to different users based on what kind of change is proposed.
+
+Apollo maintains a YML-based configuration file for each individual microservice within its configuration management service. Any proposed configuration change creates a Change Request (CR), which then has to be reviewed by the owner of the product or environment.
+
+Changes within our IL6 environments are sent to Palantir’s centralized team of operations personnel, Baseline, which verifies that the Change won’t cause disruptions and approves the new configuration to be applied by Apollo. In development and testing environments, Product teams are responsible for approving changes. Because each service has its own configuration, it’s possible to fine-tune an approval flow for whatever’s most appropriate for an individual product or environment.
+
+Press enter or click to view image in full size
+An example Change Request to remove a Product from an Environment
+
+Apollo also builds compliance standards directly into the Change Request process. When a change is proposed within a FedRAMP environment, the reviewer is guided through FedRAMP-specific considerations with optional actions based on what’s being changed.
+
+A history of changes is saved and made available for each service, where you can see who approved a CR and when, which also addresses Audit and Accountability (AU) controls.
+
+When a change is made, Apollo first validates it and then applies it during configured maintenance windows, which helps to avoid the human error that’s common in managing service configuration, like introducing an untested typo that interrupts production services. This added stability has made our systems easier to manage and, consequentially, easier to keep secure.
+
+Incident Response (IR)
+
+The Incident Response (IR) control family pertains to how effectively an organization can respond to incidents in their software, including when its system comes under attack from bad actors.
+
+A crucial aspect to meeting IR goals is being able to quickly patch a system, quarantine only the affected parts of the system, and restore services as quickly as is safely possible.
+
+A major feature that Apollo brings to our response process is the ability to quickly ship code updates across network lines. If a product owner needs to patch a service, they simply need to make a code change. From there, a release is generated, and Apollo prepares an export for IL6 that is applied automatically once it’s transferred by our Network Operations Center (NOC) team according to IL6 security protocols. Apollo performs the upgrade without intervention, which removes expensive coordination steps between the product owner and the NOC.
+
+Press enter or click to view image in full size
+How Apollo works across network lines to an air-gapped deployment
+
+Additionally, Apollo allows us to save Templates of our Environments that contain configuration that is separate from the infrastructure itself. This has made it easy for us to take a “cattle, not pets” approach to underlying infrastructure. With secrets and other configuration decoupled from the Kubernetes cluster or VMs that run the services, we can easily reapply them onto new infrastructure should an incident ever pop up, making it simple to isolate and replace nodes of a service.
+
+Press enter or click to view image in full size
+Templates make it easy to manage Environments that all use the same baseline
+Contingency Planning (CP)
+
+Contingency Planning (CP) controls demonstrate preparedness should service instability arise that would otherwise interrupt services. This includes the human component of training personnel to respond appropriately, as well as automatic controls that kick in when problems are detected.
+
+We address the CP family by using Apollo’s in-platform monitoring and alerting, which allows product or environment owners to define alerting thresholds based on an open standard metric types, including Prometheus’s metrics format.
+
+Press enter or click to view image in full size
+Monitors configured for all of the Products in an Environment make it easy to track the health of software components
+
+Apollo monitors our IL6 services and routes alerts to members of our NOC team through an embedded alert inbox. Alerts are automatically linked to relevant service logging and any associated Apollo activity, which has drastically sped up the remediation process when services or infrastructure experience unexpected issues. The NOC is able to address alerts by following runbooks prepared for and linked to within alerts. When needed, alerts are triaged to teams that own the product for more input.
+
+Because we’ve standardized our monitors in Apollo, we’ve been able to create straightforward protocols and processes for responding to incidents, which means we are able to action contingency plans quicker and ensure our systems remain secure.
+
+Access Control (AC)
+
+The Access Control (AC) control family describes the measures in a system for managing accounts and ensuring accounts are only given the appropriate levels of permissions to perform actions in the system.
+
+Robustly addressing AC controls includes having a flexible system where individual actions can be granted based on what a user needs to be able to do within a specific context.
+
+In Apollo, every action and API has an associated role, which can be assigned to individual users or Apollo Teams, which are managed within Apollo and can be mirrored from an SSO provider.
+
+Roles necessary to operating environments (e.g. approving the installation of a new component) are granted to our Baseline team, and are restricted as needed to a smaller group of environment owners based on an environment’s compliance requirements. Team management is reserved for administrators, and roles that include product lifecycle actions (e.g. recalling a product release) are given to development teams.
+
+Press enter or click to view image in full size
+Products and Environments have configurable ownership that ensures the right team is monitoring their resources
+
+Having a single system to divide responsibilities by functional areas means that our access control system is consistent and easy to understand. Further, being able to be granularly assign roles to perform different actions makes it possible to meet the principle of least privilege system access that underpins AC controls.
+
+Conclusion
+
+The bar to operate with IL6 information is rightfully a high one. We know obtaining IL6 authorization can feel like a long process — however, we believe this should not prevent the best technology from being available to the US Government. It’s with that belief that we built Apollo, which became the foundation for how we deploy to all of our highly secure and regulated environments, including FedRAMP, IL5, and IL6.
+
+Additionally, we recently started a new program, FedStart, where we partner with organizations just starting their accreditation journey to bring their technology to these environments. If you’re interested in working together, reach out to us at fedstart@palantir.com for more information.
+
+Get in touch if you want to learn more about how Apollo can help you deploy to any kind of air-gapped environment, and check out the Apollo Content Hub for white papers and other case studies.

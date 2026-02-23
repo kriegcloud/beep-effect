@@ -1,145 +1,62 @@
 /**
- * @fileoverview Topological sort command for workspace packages
+ * Topological sort command - outputs workspace packages in dependency order.
  *
- * Outputs all internal `@beep/*` packages in topological order, with packages
- * that have fewer dependencies listed first. This ordering ensures that when
- * processing packages sequentially, all dependencies are processed before
- * their dependents.
- *
- * Uses Kahn's algorithm to detect cycles and produce a valid topological ordering.
- *
- * @module @beep/tooling-cli/commands/topo-sort
- * @since 0.1.0
- * @category Commands
- *
- * @example
- * ```bash
- * bun run repo-cli topo-sort
- * # Output:
- * # @beep/types
- * # @beep/invariant
- * # @beep/identity
- * # @beep/utils
- * # @beep/schema
- * # ...
- * ```
+ * @since 0.0.0
+ * @module
  */
 
-import {
-  buildRepoDependencyIndex,
-  type CyclicDependencyError,
-  type RepoDepMapValue,
-  topologicalSort,
-  type WorkspacePkgKey,
-} from "@beep/tooling-utils";
-import * as CliCommand from "@effect/cli/Command";
-import * as A from "effect/Array";
+import { buildRepoDependencyIndex, findRepoRoot, topologicalSort } from "@beep/repo-utils";
+import { HashMap, HashSet, Struct } from "effect";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as HashMap from "effect/HashMap";
-import * as HashSet from "effect/HashSet";
-import type * as S from "effect/Schema";
-import color from "picocolors";
-import { CircularDependencyError } from "./errors.js";
+import { Command } from "effect/unstable/cli";
 
 /**
- * Builds an adjacency list from the dependency index.
+ * CLI command that builds the workspace dependency graph and prints package names
+ * in topological order (leaf dependencies first, dependents last).
  *
- * Creates a mapping from each package to the set of internal packages it depends on.
- * Excludes the synthetic `@beep/root` package.
- *
- * @since 0.1.0
- * @category Utils
+ * @since 0.0.0
+ * @category commands
  */
-const buildAdjacencyList = Effect.gen(function* () {
-  const depIndex = yield* buildRepoDependencyIndex;
+export const topoSortCommand = Command.make(
+  "topo-sort",
+  {},
+  Effect.fn(function* () {
+    const rootDir = yield* findRepoRoot();
+    const depIndex = yield* buildRepoDependencyIndex(rootDir);
 
-  type WorkspacePkgKeyT = S.Schema.Type<typeof WorkspacePkgKey>;
-  type RepoDepMapValueT = S.Schema.Type<typeof RepoDepMapValue>;
+    // Build adjacency list: each package maps to its workspace dependencies
+    let adjacencyList = HashMap.empty<string, HashSet.HashSet<string>>();
 
-  let adjacency = HashMap.empty<string, HashSet.HashSet<string>>();
+    for (const [name, workspaceDeps] of depIndex) {
+      const deps = workspaceDeps.workspace.dependencies;
+      const devDeps = workspaceDeps.workspace.devDependencies;
 
-  yield* Effect.forEach(
-    F.pipe(HashMap.entries(depIndex) as Iterable<readonly [WorkspacePkgKeyT, RepoDepMapValueT]>, A.fromIterable),
-    ([pkg, deps]) =>
-      Effect.sync(() => {
-        // Skip synthetic root package
-        if (pkg === "@beep/root") {
-          return;
+      let depSet = HashSet.empty<string>();
+      for (const depName of Struct.keys(deps)) {
+        depSet = HashSet.add(depSet, depName);
+      }
+      for (const depName of Struct.keys(devDeps)) {
+        depSet = HashSet.add(depSet, depName);
+      }
+
+      adjacencyList = HashMap.set(adjacencyList, name, depSet);
+    }
+
+    const sorted = yield* Effect.catchTag(
+      topologicalSort(adjacencyList),
+      "CyclicDependencyError",
+      Effect.fn(function* (err) {
+        yield* Console.error(`Error: Cyclic dependencies detected`);
+        for (const cycle of err.cycles) {
+          yield* Console.error(`  ${cycle.join(" -> ")}`);
         }
-
-        // Combine workspace dependencies from prod, dev, and peer
-        const workspaceDeps = F.pipe(
-          deps.dependencies.workspace,
-          HashSet.union(deps.devDependencies.workspace),
-          HashSet.union(deps.peerDependencies.workspace)
-        );
-
-        adjacency = HashMap.set(adjacency, pkg, workspaceDeps as HashSet.HashSet<string>);
-      }),
-    { discard: true }
-  );
-
-  return adjacency;
-});
-
-/**
- * Handler for the topo-sort command.
- *
- * @since 0.1.0
- * @category Handlers
- */
-const handleTopoSortCommand = Effect.gen(function* () {
-  yield* Console.log(color.cyan("Analyzing workspace dependencies..."));
-
-  const adjacencyList = yield* buildAdjacencyList;
-
-  const sorted = yield* F.pipe(
-    topologicalSort(adjacencyList),
-    Effect.catchTag("CyclicDependencyError", (err: CyclicDependencyError) =>
-      Effect.gen(function* () {
-        yield* Console.log(color.red("\nError: Circular dependency detected\n"));
-        yield* Console.log(color.yellow("The following packages form a dependency cycle:"));
-        yield* Effect.forEach(err.packages, (pkg) => Console.log(color.yellow(`  - ${pkg}`)), {
-          discard: true,
-        });
-        const cycles = A.fromIterable(err.cycles);
-        if (A.isNonEmptyArray(cycles)) {
-          yield* Console.log(color.yellow("\nDetected cycles:"));
-          yield* Effect.forEach(
-            cycles,
-            (cycle) => Console.log(color.yellow(`  ${A.join(A.fromIterable(cycle), " → ")}`)),
-            { discard: true }
-          );
-        }
-        yield* Console.log(
-          color.yellow("\nUnable to determine topological order. Please resolve the circular dependency.")
-        );
-        return yield* Effect.fail(new CircularDependencyError({}));
+        return yield* err;
       })
-    )
-  );
+    );
 
-  yield* Console.log(color.green(`\nFound ${A.length(sorted)} packages in topological order:\n`));
-
-  yield* Effect.forEach(sorted, (pkg) => Console.log(pkg), { discard: true });
-});
-
-/**
- * CLI command that outputs workspace packages in topological order.
- *
- * Packages with fewer dependencies appear first, ensuring that when processing
- * packages sequentially, all dependencies are handled before their dependents.
- *
- * @example
- * ```bash
- * bun run repo-cli topo-sort
- * ```
- *
- * @since 0.1.0
- * @category Commands
- */
-export const topoSortCommand = CliCommand.make("topo-sort", {}, () => handleTopoSortCommand).pipe(
-  CliCommand.withDescription("Output packages in topological order (least dependencies first).")
-);
+    yield* Effect.forEach(sorted, (packageName) => Console.log(packageName), {
+      discard: true,
+    });
+  })
+).pipe(Command.withDescription("Output workspace packages in topological dependency order"));

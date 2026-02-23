@@ -1,18 +1,9 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
-  "extends": "../tsconfig.base.jsonc",
-  "include": ["**/*.ts"],
+  "extends": "../tsconfig.base.json",
+  "include": ["."],
   "compilerOptions": {
-    "noEmit": true,
-    "declaration": false,
-    "declarationMap": false,
-    "composite": false,
-    "incremental": false,
-    "plugins": [
-      {
-        "name": "@effect/language-service",
-        "namespaceImportPackages": []
-      }
-    ]
+    "types": ["node", "bun"],
+    "noEmit": true
   }
 }

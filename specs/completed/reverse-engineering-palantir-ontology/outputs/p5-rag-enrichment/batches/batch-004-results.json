@@ -1,0 +1,1490 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-permissioning/object-security-policies",
+    "title": "Object permissioning - Object security policies - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Object Security Policy",
+        "description": "Security policy that controls visibility of object instances (row-level security) independently of backing data source permissions. Users must pass the object security policy to view any object instance."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Property Security Policy",
+        "description": "Security policy that controls visibility of specific property values (column-level security). Identical to object security policies except they apply only to a selection of properties."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cell-Level Security",
+        "description": "The combination of object security policies (row-level) and property security policies (column-level) that achieves cell-level permissions. A user must pass both policies to view a specific property value on a specific object instance."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Row-Level Security",
+        "description": "Security achieved through object security policies that control which object instances a user can see, independent of backing data source permissions."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Column-Level Security",
+        "description": "Security achieved through property security policies that control which property values a user can see, showing null for guarded properties when the user lacks the required policy."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Mandatory Control Property",
+        "description": "A property on an object type that contains markings (e.g., VIP marking) that must be satisfied by a user to access that specific object instance. Used in granular policies for row-level access."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Granular Policy",
+        "description": "A fine-grained access control policy within object security policies that limits access based on mandatory control properties, enabling per-object-instance access decisions."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Marking",
+        "description": "A mandatory access control mechanism (e.g., PII, VIP) that can be applied to projects and resources. Users must hold the required markings to access protected content."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A schema definition in the Foundry Ontology representing a class of real-world entities with defined properties, links, and security policies."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "A named attribute on an object type that holds a value for each object instance. Individual properties can be independently secured via property security policies."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data integration and analytics platform that hosts the Ontology and its security controls."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Security Policy",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Property Security Policy",
+        "relationship": "SECURES",
+        "target": "Property"
+      },
+      {
+        "source": "Cell-Level Security",
+        "relationship": "USES_PATTERN",
+        "target": "Object Security Policy"
+      },
+      {
+        "source": "Cell-Level Security",
+        "relationship": "USES_PATTERN",
+        "target": "Property Security Policy"
+      },
+      {
+        "source": "Granular Policy",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Mandatory Control Property",
+        "relationship": "DEFINED_BY",
+        "target": "Property"
+      },
+      {
+        "source": "Marking",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Security Policy",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Object security policies decouple object-level permissions from backing datasource permissions, meaning users do not need Viewer access on the underlying dataset to see object instances.",
+      "Row-level, column-level, and cell-level security are layered: object security policies provide row-level, property security policies provide column-level, and their combination achieves cell-level granularity.",
+      "When a user fails a property security policy but passes the object security policy, they see null values instead of being denied the entire object instance.",
+      "Granular policies use mandatory control properties to encode per-row access requirements (e.g., a column of markings), enabling dynamic row-level security without separate ACLs per object.",
+      "Object security policies override data source permissions, allowing organizations to stop inheriting sensitive markings (like PII/VIP) from the backing dataset while still controlling access at the ontology layer."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/security/projects-and-roles",
+    "title": "Concepts - Projects and roles - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Project",
+        "description": "The primary security boundary in Foundry that organizes users, files, and folders for a particular purpose. Projects enforce security boundaries and serve as collaborative spaces where work and its output coexist."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Role",
+        "description": "A set of operations that can be granted on resources and their children within Foundry. Roles define what users can do (Viewer, Editor, Owner, Discoverer) on Project contents."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Discretionary Access Control",
+        "description": "Access control model in Foundry managed through Projects and Roles, where resource owners grant varying levels of access to users and groups."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Reference",
+        "description": "A mechanism that allows work in one Project to reference and build upon work in other Projects, enabling cross-Project data reuse while respecting security boundaries."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Role Set",
+        "description": "A collection of roles applied at the space level that defines the available permissions within that space. Custom roles can be created within role sets."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Discoverer Role",
+        "description": "A minimal role in Foundry that allows a user to see that a Project exists and request additional access, without granting content visibility."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A schema definition in the Foundry Ontology that is governed by Project-level and role-based permissions."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform where Projects and Roles form the foundation of discretionary access control."
+      },
+      {
+        "type": "Pattern",
+        "name": "Group-Based Permission Management",
+        "description": "Recommended pattern of granting roles to groups rather than individual users at the Project level, reducing clutter and enabling uniform access management."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Role", "relationship": "SECURES", "target": "Object Type" },
+      { "source": "Project", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Discretionary Access Control",
+        "relationship": "USES_PATTERN",
+        "target": "Role"
+      },
+      {
+        "source": "Discretionary Access Control",
+        "relationship": "USES_PATTERN",
+        "target": "Project"
+      },
+      { "source": "Role Set", "relationship": "CONTAINS", "target": "Role" },
+      {
+        "source": "Reference",
+        "relationship": "CONNECTS",
+        "target": "Project"
+      },
+      {
+        "source": "Group-Based Permission Management",
+        "relationship": "ENABLES",
+        "target": "Project"
+      }
+    ],
+    "keyInsights": [
+      "Projects are both the primary organizational unit and the primary security boundary in Foundry — work and its output must live in the same Project.",
+      "Roles are inherited: Project-level role grants propagate to all contents within the Project, providing uniform access without per-resource configuration.",
+      "Cross-Project data reuse requires References, enforcing that security boundaries are explicitly bridged rather than implicitly bypassed.",
+      "Foundry recommends group-based permission management at the Project level rather than individual user grants for maintainability.",
+      "The Discoverer role enables a zero-knowledge discoverability model where users can see that a Project exists and request access without seeing any content.",
+      "Custom roles can be created within Role Sets at the space level, allowing organizations to tailor permission granularity beyond the built-in Viewer/Editor/Owner roles."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/security/audit-logs-overview",
+    "title": "Security auditing - Audit logs - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Audit Log",
+        "description": "A comprehensive, append-only record of every action taken in Foundry capturing who (identity), what (action type/category), when (timestamp), and where (resource/system). Used for threat detection, incident investigation, and compliance."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Audit.3 Schema",
+        "description": "The new and recommended audit log schema that provides low-latency delivery (~15 minutes), improved structure, and is available via API for SIEM integration or export to Foundry."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Audit.2 Schema",
+        "description": "The legacy audit log schema being migrated away from in favor of audit.3. Existing analyses should be transitioned to audit.3."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "SIEM Integration",
+        "description": "Integration mechanism for delivering Foundry audit logs to external Security Information and Event Management solutions for security monitoring and analysis."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Audit Log Category",
+        "description": "Classification of audit log entries by action type, enabling category-based query patterns for security analysis."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that generates comprehensive audit logs for all user and service account actions."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Audit Delivery Method",
+        "description": "Flexible mechanisms for delivering audit logs including API-based delivery for SIEM integration and export to Foundry for in-platform analysis."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology concept representing a type of action that is captured and categorized in audit logs."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Audit Log",
+        "relationship": "SECURES",
+        "target": "Action Type"
+      },
+      { "source": "Audit Log", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Audit.3 Schema",
+        "relationship": "DEFINED_BY",
+        "target": "Audit Log"
+      },
+      {
+        "source": "Audit.2 Schema",
+        "relationship": "DEFINED_BY",
+        "target": "Audit Log"
+      },
+      {
+        "source": "SIEM Integration",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry"
+      },
+      {
+        "source": "Audit Log Category",
+        "relationship": "OPERATES_ON",
+        "target": "Action Type"
+      }
+    ],
+    "keyInsights": [
+      "Foundry audit logs are append-only infrastructure, ensuring integrity and non-repudiation for compliance and security investigations.",
+      "Audit.3 schema delivers logs within ~15 minutes of event occurrence, a significant improvement over the legacy audit.2 schema for timely threat detection.",
+      "Audit logs capture identity (user/session/service account), action (type and intent), timestamp, and resource context — the four pillars of security investigation.",
+      "Audit log contents are themselves considered sensitive (containing PII like names and email addresses) and should be restricted to qualified security personnel.",
+      "Foundry can serve as its own lightweight SIEM when a dedicated external SIEM is unavailable, enabling in-platform security monitoring workflows."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/security/orgs-and-spaces",
+    "title": "Concepts - Organizations and spaces - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Organization",
+        "description": "A mandatory access control that enforces strict silos between groups of users and resources. Every user belongs to exactly one organization but can be a guest member of multiple organizations. Organizations are inherited via file hierarchy and direct dependencies."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Space",
+        "description": "A high-level container of projects with one common ontology, restricted by an organization or set of organizations. Formerly called 'namespace'. Most organizations need only a single space."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Mandatory Access Control",
+        "description": "Access control model where restrictions are enforced by the system (not discretionary). Organizations and markings are both mandatory access controls in Foundry."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cross-Organization Collaboration",
+        "description": "Mechanism enabling data sharing and collaboration between users from different organizations through dedicated multi-organization spaces with defined governance terms."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cross-Organization Discoverability",
+        "description": "Configurable rules that control whether users can see names, users, and groups of organizations outside their own, managed by platform administrators."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Guest Membership",
+        "description": "A mechanism allowing a user who belongs to one organization to access resources in another organization without changing their primary organization membership."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity that exists within a space and is governed by the organization restrictions applied to that space."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that implements organizations and spaces for multitenancy and data isolation."
+      },
+      {
+        "type": "Product",
+        "name": "Control Panel",
+        "description": "Foundry administration tool used to manage organization permissions, create new organizations, and configure cross-organization collaboration."
+      },
+      {
+        "type": "Pattern",
+        "name": "Multitenancy via Organizations",
+        "description": "Architectural pattern using organizations and spaces to achieve strict data isolation between tenants while enabling controlled collaboration through guest membership and multi-organization spaces."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Organization",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Space",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Organization",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      { "source": "Space", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Cross-Organization Collaboration",
+        "relationship": "USES_PATTERN",
+        "target": "Space"
+      },
+      {
+        "source": "Multitenancy via Organizations",
+        "relationship": "ENABLES",
+        "target": "Organization"
+      },
+      {
+        "source": "Control Panel",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      {
+        "source": "Guest Membership",
+        "relationship": "CONNECTS",
+        "target": "Organization"
+      }
+    ],
+    "keyInsights": [
+      "Organizations are mandatory access controls (not discretionary), meaning they are system-enforced silos that cannot be bypassed by resource owners unlike role-based Project permissions.",
+      "Every user belongs to exactly one organization but can guest-access multiple others, maintaining a clear primary affiliation while enabling cross-organizational collaboration.",
+      "Spaces are the bridge between organizations and the ontology — each space has one common ontology and is restricted by one or more organizations.",
+      "Organizations differ from markings in scope: organizations protect spaces, ontologies, projects, users, groups, tag categories, and collections, while markings can only be applied to projects and resources.",
+      "The file path structure in Foundry reflects the space hierarchy: space/project/sub-folder/my-file, making organizational boundaries visible in the resource path.",
+      "Multi-organization spaces are the recommended approach for external collaboration, providing a dedicated isolated area rather than granting broad cross-organization access."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/platform-security-third-party/writing-oauth2-clients",
+    "title": "Third-party applications - Writing OAuth2 clients for Foundry - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth2 Authorization Code Grant",
+        "description": "OAuth2 flow that allows third-party applications to act on behalf of existing Foundry users. Users explicitly grant the client access to requested permissions. Supports PKCE for public clients."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth2 Client Credentials Grant",
+        "description": "OAuth2 flow for machine-to-machine authentication where the third-party application acts as a service user rather than on behalf of a human user."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "PKCE",
+        "description": "Proof Key for Code Exchange — a security extension for OAuth2 using code_verifier and code_challenge (SHA256 + Base64-URL). Required for public clients, recommended for confidential clients."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Refresh Token Rotation",
+        "description": "Security mechanism where refresh tokens are rotated on each use, and reuse detection invalidates all tokens from the grant. Inactive tokens expire after 30 days."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "OAuth2 Scope",
+        "description": "Permission boundaries in Foundry's OAuth2 implementation that define what resources and operations a third-party application can access on behalf of a user."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Authorization Endpoint",
+        "description": "The Foundry endpoint that initiates the OAuth2 authorization flow, accepting parameters like response_type, client_id, redirect_uri, scope, state, and PKCE challenge."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Token Endpoint",
+        "description": "The Foundry endpoint that exchanges authorization codes for access tokens and refresh tokens, and handles token refresh requests."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that implements OAuth2 authorization server for third-party application integration."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Third-Party Application Registration",
+        "description": "Process of registering an application in Foundry to obtain a client ID and configure OAuth2 settings before using OAuth2 flows."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Service User",
+        "description": "A non-human identity used with the Client Credentials grant for machine-to-machine authentication with Foundry."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OAuth2 Authorization Code Grant",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "OAuth2 Client Credentials Grant",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "PKCE",
+        "relationship": "SECURES",
+        "target": "OAuth2 Authorization Code Grant"
+      },
+      {
+        "source": "Refresh Token Rotation",
+        "relationship": "SECURES",
+        "target": "OAuth2 Authorization Code Grant"
+      },
+      {
+        "source": "Authorization Endpoint",
+        "relationship": "DEFINED_BY",
+        "target": "OAuth2 Authorization Code Grant"
+      },
+      {
+        "source": "Token Endpoint",
+        "relationship": "DEFINED_BY",
+        "target": "OAuth2 Authorization Code Grant"
+      },
+      {
+        "source": "Service User",
+        "relationship": "USES_PATTERN",
+        "target": "OAuth2 Client Credentials Grant"
+      },
+      {
+        "source": "Third-Party Application Registration",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "Foundry supports two OAuth2 grant types: Authorization Code (user-context with PKCE) and Client Credentials (service user for machine-to-machine), covering both interactive and automated integration scenarios.",
+      "Refresh tokens rotate on every use with reuse detection — if a refresh token is used twice, all tokens from that grant are invalidated, providing strong protection against token theft.",
+      "PKCE is required for public clients (native apps, SPAs) and recommended for confidential clients (server-based), using SHA256 + Base64-URL encoding for the code challenge.",
+      "Inactive refresh tokens expire after 30 days, enforcing a maximum idle session duration for third-party applications.",
+      "Foundry's OAuth2 scopes can be restricted to a limited set of resources or grant access to all resources a user can access, providing flexible permission boundaries for third-party apps."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/security/requesting-justification-for-sensitive-actions",
+    "title": "Getting started - Requesting justification for sensitive actions - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Checkpoint",
+        "description": "A governance mechanism that interrupts users with justification prompts before they can perform sensitive actions. Checkpoints enforce accountability by requiring users to provide a reason before proceeding."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Checkpoint Type",
+        "description": "A classification of sensitive actions that can trigger checkpoint justification prompts. Each type of action has a corresponding checkpoint type."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Justification Prompt",
+        "description": "The user-facing interface presented by a checkpoint, which can require acknowledgment, free-text response, dropdown selection, or reauthentication before allowing a sensitive action."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Checkpoint Configuration",
+        "description": "Settings that define the parameters and conditions of a justification prompt, including what triggers it and what type of justification is required."
+      },
+      {
+        "type": "Product",
+        "name": "Checkpoints Application",
+        "description": "Foundry application for configuring, previewing, and managing checkpoint configurations that enforce justification requirements for sensitive actions."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that provides the Checkpoints governance mechanism for sensitive action justification."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology concept representing a type of action that can be governed by checkpoint justification requirements."
+      },
+      {
+        "type": "Pattern",
+        "name": "Break-the-Glass",
+        "description": "Security pattern where checkpoints require explicit justification before performing sensitive actions, creating an auditable record of why access was needed."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Checkpoint",
+        "relationship": "SECURES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Checkpoint",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Checkpoint Type",
+        "relationship": "OPERATES_ON",
+        "target": "Action Type"
+      },
+      {
+        "source": "Justification Prompt",
+        "relationship": "DEFINED_BY",
+        "target": "Checkpoint Configuration"
+      },
+      {
+        "source": "Checkpoints Application",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Break-the-Glass",
+        "relationship": "ENABLES",
+        "target": "Checkpoint"
+      }
+    ],
+    "keyInsights": [
+      "Checkpoints are a governance mechanism, not an access control — they allow the action but require justification, creating accountability rather than blocking access entirely.",
+      "Four justification types are supported: acknowledgment (confirm awareness), free-text (explain reasoning), dropdown selection (choose predefined reason), and reauthentication (prove identity).",
+      "Checkpoint configurations are manageable through a dedicated Checkpoints Application with preview capabilities, allowing administrators to test the user experience before deployment.",
+      "Justification records are preserved for audit purposes, creating a chain of accountability linking sensitive actions to the reasons they were performed."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/cipher/overview",
+    "title": "Cipher - Overview - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Cipher",
+        "description": "Foundry's data obfuscation service that uses cryptographic operations (encryption, decryption, hashing) to protect sensitive data. Provides an additional privacy layer on top of Foundry's storage and network encryption."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cipher Channel",
+        "description": "Management construct that reliably manages cryptographic algorithms and keys used by Cipher for encryption, decryption, and hashing operations."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Cipher License",
+        "description": "Permission and workflow control for applying cryptographic operations. Licenses allow users to control who can apply operations and to which workflows (e.g., bulk encrypt columns, decrypt individual values)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "AES-GCM-SIV Encryption",
+        "description": "Probabilistic encryption algorithm supported by Cipher for encrypting data where different ciphertexts are produced for the same plaintext."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "AES-SIV Encryption",
+        "description": "Deterministic encryption algorithm supported by Cipher where the same plaintext always produces the same ciphertext, enabling equality comparisons on encrypted data."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SHA-256/512 Hashing with Pepper",
+        "description": "One-way hashing supported by Cipher using SHA-256 or SHA-512 with a pepper value, providing irreversible data obfuscation."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Visual Obfuscation",
+        "description": "Cipher capability for obfuscating image data, extending cryptographic protection beyond text/numeric data to visual content."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Ontology attribute whose values can be protected by Cipher operations (encryption, hashing, obfuscation) at the column level."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that hosts Cipher as an additional privacy layer on top of storage and network encryption."
+      },
+      {
+        "type": "Product",
+        "name": "Object Explorer",
+        "description": "Foundry application where Cipher licenses can enable decryption of individual values for authorized users."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Cipher", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Cipher Channel",
+        "relationship": "PART_OF",
+        "target": "Cipher"
+      },
+      {
+        "source": "Cipher License",
+        "relationship": "PART_OF",
+        "target": "Cipher"
+      },
+      { "source": "Cipher", "relationship": "SECURES", "target": "Property" },
+      {
+        "source": "AES-GCM-SIV Encryption",
+        "relationship": "DEFINED_BY",
+        "target": "Cipher Channel"
+      },
+      {
+        "source": "AES-SIV Encryption",
+        "relationship": "DEFINED_BY",
+        "target": "Cipher Channel"
+      },
+      {
+        "source": "SHA-256/512 Hashing with Pepper",
+        "relationship": "DEFINED_BY",
+        "target": "Cipher Channel"
+      },
+      {
+        "source": "Cipher License",
+        "relationship": "SECURES",
+        "target": "Property"
+      },
+      {
+        "source": "Object Explorer",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Cipher"
+      }
+    ],
+    "keyInsights": [
+      "Cipher provides application-layer encryption on top of Foundry's infrastructure-level encryption (storage and network), creating defense-in-depth for sensitive data like PII and PHI.",
+      "Cipher separates key management (Channels) from permission management (Licenses), enabling independent governance of cryptographic material and operational access.",
+      "Both probabilistic (AES-GCM-SIV) and deterministic (AES-SIV) encryption are supported, allowing tradeoffs between security strength and queryability on encrypted data.",
+      "Cipher is designed for non-technical users — Licenses enable users without specialized cryptography knowledge to deploy privacy-enhancing tools in legible and reliable ways.",
+      "Visual obfuscation extends Cipher beyond structured data to image-based data, covering use cases like face redaction or document anonymization."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-permissioning/overview",
+    "title": "Object permissioning - Overview - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Object Permissioning",
+        "description": "The security framework for the Foundry Ontology providing granular, robust, and flexible controls for all ontology entities. Security is built into the Ontology itself so application builders need not separately account for security."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Ontology Resource Permission",
+        "description": "Permissions on ontology schema-level resources (object types, link types, action types) that control access to the schema definitions themselves, not the underlying data values."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Object and Link Permission",
+        "description": "Permissions on the actual data in the Ontology — the primary key values and property values of object instances and link instances."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "An ontology resource defining the schema (display name, property names, property data types, description) for a class of objects. Governed by ontology resource permissions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "An ontology resource defining connections between object types. Governed by ontology resource permissions alongside object types and action types."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "An ontology resource defining mutations that can be performed on the ontology. Governed by ontology resource permissions."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform whose Ontology has built-in two-level authorization: schema-level (ontology resources) and data-level (objects and links)."
+      },
+      {
+        "type": "Pattern",
+        "name": "Embedded Security",
+        "description": "Architectural pattern where security is built into the Ontology itself rather than being bolted on at the application layer, meaning application builders inherit security controls automatically."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Permissioning",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Permissioning",
+        "relationship": "SECURES",
+        "target": "Link Type"
+      },
+      {
+        "source": "Object Permissioning",
+        "relationship": "SECURES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Ontology Resource Permission",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object and Link Permission",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Object Permissioning",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Embedded Security",
+        "relationship": "ENABLES",
+        "target": "Object Permissioning"
+      }
+    ],
+    "keyInsights": [
+      "Foundry's Ontology has a two-level authorization structure: schema-level (ontology resources like object types, link types, action types) and data-level (actual object instances and link instances with their values).",
+      "Object types, link types, and action types are ontology resources — their schema definitions (names, property types, descriptions) are permissioned separately from the actual data values.",
+      "Security is embedded in the Ontology itself, meaning application builders do not need to implement separate security logic — all applications consuming the Ontology automatically inherit its security controls.",
+      "The distinction between schema (ontology resources) and data (objects and links) means a user could have access to know an object type exists but not see any of its instances, or vice versa."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/assets/xrfr7uokpv1b/6pey1VnYHULqeggNbPKqP0/9f577de3e3dfb9fc031bd75dc7526517/Palantir_Privacy_and_Governance_Whitepaper__1_.pdf",
+    "title": "Palantir Privacy and Governance Whitepaper",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Purpose-Based Access Control",
+        "description": "Access control model where data access is governed by the stated purpose for which it is being accessed, rather than just identity or role. A key governance principle in Palantir's architecture."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Data Lineage Tracking",
+        "description": "Governance capability that tracks the provenance and transformation history of data throughout the platform, enabling auditability and compliance."
+      },
+      {
+        "type": "Product",
+        "name": "Cipher",
+        "description": "Foundry's encryption and data obfuscation service providing an additional privacy layer for sensitive data like PII and PHI."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Checkpoint",
+        "description": "Governance mechanism requiring users to provide justification before performing sensitive actions, creating accountability records."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform with comprehensive privacy and governance architecture including purpose-based access, lineage, encryption, and justification mechanisms."
+      },
+      {
+        "type": "Pattern",
+        "name": "Privacy by Design",
+        "description": "Architectural philosophy where privacy and governance controls are embedded throughout the platform rather than added as afterthoughts. Palantir positions security investments as competitive advantages."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity governed by the comprehensive privacy and governance framework including purpose-based access, lineage, and encryption."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Ontology attribute that can be individually governed by privacy controls such as Cipher encryption and property security policies."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology entity subject to checkpoint justification requirements and audit logging as part of the governance framework."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Governance Framework",
+        "description": "The overarching system of controls in Foundry comprising purpose-based access, data lineage, encryption (Cipher), justification (Checkpoints), and audit logging."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Purpose-Based Access Control",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Data Lineage Tracking",
+        "relationship": "SECURES",
+        "target": "Property"
+      },
+      {
+        "source": "Governance Framework",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Privacy by Design",
+        "relationship": "ENABLES",
+        "target": "Governance Framework"
+      },
+      {
+        "source": "Cipher",
+        "relationship": "PART_OF",
+        "target": "Governance Framework"
+      },
+      {
+        "source": "Checkpoint",
+        "relationship": "PART_OF",
+        "target": "Governance Framework"
+      },
+      {
+        "source": "Purpose-Based Access Control",
+        "relationship": "PART_OF",
+        "target": "Governance Framework"
+      },
+      {
+        "source": "Data Lineage Tracking",
+        "relationship": "PART_OF",
+        "target": "Governance Framework"
+      }
+    ],
+    "keyInsights": [
+      "Palantir's governance framework spans five pillars: purpose-based access control, data lineage tracking, Cipher encryption, Checkpoint justification, and comprehensive audit logging.",
+      "Purpose-based access control (PBAC) goes beyond role-based access by requiring a stated purpose for data access, enabling governance that aligns with regulatory requirements like GDPR.",
+      "Data lineage tracking provides full provenance and transformation history, enabling organizations to understand how data flows and is used across the platform.",
+      "Palantir positions security and governance investments as competitive advantages for customer success rather than compliance overhead.",
+      "The privacy architecture is designed for defense-in-depth with overlapping controls at infrastructure, platform, ontology, and application layers."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/conjure",
+    "title": "palantir/conjure - Strongly typed HTTP/JSON APIs for browsers and microservices",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Conjure",
+        "description": "Palantir's open-source toolchain for defining HTTP/JSON APIs once in human-readable YAML and generating type-safe client/server interfaces in multiple languages (Java, TypeScript, Python, Rust, Go). Battle-tested across hundreds of Palantir microservice repositories."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Conjure IR",
+        "description": "JSON-based intermediate representation that Conjure compiles API definitions into. Self-hosting format (defined as Conjure data types) consumed by language-specific code generators."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Conjure YAML Definition",
+        "description": "Human-readable YAML format used by service authors to define API data types and service endpoints. Compiled to Conjure IR by the Conjure compiler."
+      },
+      {
+        "type": "Product",
+        "name": "conjure-java",
+        "description": "Conjure generator for Java that produces server stubs (JAX-RS/Jersey compatible) and client interfaces with Jackson serialization."
+      },
+      {
+        "type": "Product",
+        "name": "conjure-typescript",
+        "description": "Conjure generator for TypeScript that produces type-safe client bindings for browser and Node.js applications."
+      },
+      {
+        "type": "Product",
+        "name": "conjure-python",
+        "description": "Conjure generator for Python that produces type-safe client bindings."
+      },
+      {
+        "type": "Product",
+        "name": "gradle-conjure",
+        "description": "Gradle build tool plugin that orchestrates the Conjure compiler and generators for seamless integration into build workflows."
+      },
+      {
+        "type": "Pattern",
+        "name": "API-First Design",
+        "description": "Design pattern where APIs are defined declaratively before implementation, with client and server code generated from the definition, ensuring consistency across languages."
+      },
+      {
+        "type": "Pattern",
+        "name": "Intermediate Representation Compilation",
+        "description": "Pattern of compiling a human-readable definition into a machine-readable IR that is consumed by multiple language-specific code generators, enabling cross-language consistency."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "RFC002",
+        "description": "Conjure specification that defines how all code generators behave as CLIs, ensuring consistent behavior across the generator ecosystem."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Conjure", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Conjure IR",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure"
+      },
+      {
+        "source": "Conjure YAML Definition",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure"
+      },
+      {
+        "source": "conjure-java",
+        "relationship": "BUILT_ON",
+        "target": "Conjure"
+      },
+      {
+        "source": "conjure-typescript",
+        "relationship": "BUILT_ON",
+        "target": "Conjure"
+      },
+      {
+        "source": "conjure-python",
+        "relationship": "BUILT_ON",
+        "target": "Conjure"
+      },
+      {
+        "source": "API-First Design",
+        "relationship": "ENABLES",
+        "target": "Conjure"
+      },
+      {
+        "source": "Intermediate Representation Compilation",
+        "relationship": "ENABLES",
+        "target": "Conjure IR"
+      },
+      {
+        "source": "gradle-conjure",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Conjure"
+      }
+    ],
+    "keyInsights": [
+      "Conjure uses a two-stage compilation: human-readable YAML is compiled to a JSON-based IR, which is then consumed by language-specific generators — the IR is self-hosting (defined as Conjure types itself).",
+      "Conjure is deliberately more restrictive than Swagger/OpenREST, supporting only a subset of HTTP patterns to enforce consistency across Palantir's hundreds of microservice repositories.",
+      "The Conjure wire format dictates parameter encoding: primitive types as HTTP header/path/query parameters, complex objects as JSON body payload.",
+      "Conjure provides the RPC infrastructure for both internal Palantir services and third-party applications, from Java/Go/Python backends to TypeScript browser applications.",
+      "All Conjure generators conform to RFC002, a specification ensuring consistent CLI behavior across the generator ecosystem, enabling uniform build tool orchestration."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/foundry-platform-typescript",
+    "title": "GitHub - palantir/foundry-platform-typescript: The official TypeScript library for the Foundry API",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry Platform TypeScript SDK",
+        "description": "Official TypeScript library providing bindings for the Foundry and Gotham Platform APIs. Packages published as @osdk/foundry.{namespace} and @osdk/gotham.{namespace} on NPM."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology Software Development Kit — language-agnostic SDK for interacting with the Foundry Ontology. Supports TypeScript (NPM), Python (Pip/Conda), Java (Maven), and OpenAPI for other languages."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Foundry application where third-party applications are registered to obtain client IDs and configure OAuth2 settings for OSDK-based applications."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Platform Client",
+        "description": "SDK client created via createPlatformClient() that is not tied to a specific ontology and can be used across different ontologies on a Foundry stack."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Ontology Client",
+        "description": "SDK client created via createClient() that is tied to a specific ontology RID, used for Ontology SDK operations alongside Platform SDK calls."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "@osdk/foundry Namespace Packages",
+        "description": "NPM packages organized by API namespace (e.g., @osdk/foundry.admin) that can be installed individually or as a single @osdk/foundry bundle."
+      },
+      {
+        "type": "Product",
+        "name": "Gotham",
+        "description": "Palantir product with select APIs exposed through the Platform TypeScript SDK as @osdk/gotham.{namespace} packages."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity accessible through the OSDK TypeScript SDK for querying and manipulation."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology entity that can be invoked through the OSDK TypeScript SDK."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology entity callable through the OSDK TypeScript SDK for custom business logic."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Foundry Platform TypeScript SDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry"
+      },
+      { "source": "OSDK", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Platform Client",
+        "relationship": "DEFINED_BY",
+        "target": "Foundry Platform TypeScript SDK"
+      },
+      {
+        "source": "Ontology Client",
+        "relationship": "DEFINED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Developer Console",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry Platform TypeScript SDK"
+      },
+      {
+        "source": "Foundry Platform TypeScript SDK",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Gotham"
+      },
+      {
+        "source": "Foundry Platform TypeScript SDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Type"
+      },
+      {
+        "source": "Foundry Platform TypeScript SDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Action Type"
+      }
+    ],
+    "keyInsights": [
+      "The Platform TypeScript SDK provides two client types: a platform client (ontology-agnostic, cross-ontology) and an ontology client (tied to a specific ontology RID), serving different integration patterns.",
+      "SDK packages are organized by API namespace (@osdk/foundry.{namespace}) enabling granular dependency management — install only the API surfaces you need.",
+      "The OSDK is language-agnostic with official support for TypeScript, Python, Java, and OpenAPI specs for any other language.",
+      "Authentication requires a Developer Console application registration to obtain a client ID, using the same OAuth2 infrastructure as other third-party applications.",
+      "The SDK covers both Foundry and Gotham APIs, indicating a unified developer experience across Palantir's product lines."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/introducing-conjure-palantirs-toolchain-for-http-json-apis-2175ec172d32",
+    "title": "Introducing Conjure, Palantir's toolchain for HTTP/JSON APIs - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Conjure",
+        "description": "Palantir's API definition toolchain that compiles declarative YAML definitions into language-specific client and server bindings via a JSON intermediate representation. Originally planned as a stepping-stone to gRPC but became valued for its own design constraints."
+      },
+      {
+        "type": "Pattern",
+        "name": "Restricted API Design Language",
+        "description": "Conjure's deliberate philosophy of supporting only a restricted subset of HTTP/JSON patterns to enforce consistency, focus, and clarity across all API definitions — in contrast to more permissive tools like Swagger."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Conjure Wire Format",
+        "description": "Specification for encoding messages between clients and servers: primitives as HTTP header/path/query parameters, complex objects as JSON body payload in HTTP requests and responses."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Conjure Type System",
+        "description": "Expressive type system supporting enums, union types, maps, lists, sets, and custom objects for modeling API domains."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Conjure IR (Self-Hosting)",
+        "description": "The intermediate representation format is defined as Conjure data types itself, enabling bootstrapped deserialization in target languages before code generation."
+      },
+      {
+        "type": "Pattern",
+        "name": "Backwards Compatibility Preservation",
+        "description": "Design principle in Conjure that helps preserve backwards compatibility — old clients can communicate with new servers, enabling incremental API evolution."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform whose internal and third-party APIs are defined using Conjure."
+      },
+      {
+        "type": "UseCase",
+        "name": "FlightSearch API Example",
+        "description": "Example Conjure API definition demonstrating data types (Connection, SearchResult) and service endpoints for a flight search service."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Conjure", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Restricted API Design Language",
+        "relationship": "ENABLES",
+        "target": "Conjure"
+      },
+      {
+        "source": "Conjure Wire Format",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure"
+      },
+      {
+        "source": "Conjure Type System",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure"
+      },
+      {
+        "source": "Backwards Compatibility Preservation",
+        "relationship": "ENABLES",
+        "target": "Conjure"
+      },
+      {
+        "source": "FlightSearch API Example",
+        "relationship": "DEMONSTRATES",
+        "target": "Conjure"
+      },
+      {
+        "source": "Conjure IR (Self-Hosting)",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure"
+      }
+    ],
+    "keyInsights": [
+      "Conjure was originally planned as a stepping-stone to gRPC, but Palantir learned to value the constraints it imposed on API design and chose to keep it as the primary API toolchain.",
+      "The restricted API design philosophy is Conjure's key differentiator from Swagger/OpenREST — by limiting what can be expressed, it forces consistency across hundreds of API definitions.",
+      "Conjure's IR is self-hosting: it is defined as Conjure types, meaning generators can deserialize API definitions into native ASTs 'for free' after bootstrapping.",
+      "Conjure drives engineering velocity through simplicity rather than sophistication, enabling cross-team and cross-language collaboration at scale.",
+      "The wire format strictly separates primitive parameters (header/path/query) from complex objects (JSON body), creating a clean and predictable HTTP contract."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/compute-modules/overview",
+    "title": "Compute modules - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Compute Module",
+        "description": "Foundry capability for deploying interactive containerized workloads (Docker images) on the Palantir platform with dynamic horizontal scaling. Supports any programming language and enables container-backed functions, data integration, and model hosting."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology concept that can be implemented as a container-backed function via Compute Modules, callable from Workshop or Slate applications."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Container-Backed Function",
+        "description": "A function implemented inside a Docker container that is registered with an API name following the pattern com.<namespace>.computemodules.<MyApiName> and can be queried from Workshop or Slate."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Compute Module API Name Pattern",
+        "description": "The naming convention for compute module functions: com.<namespace>.computemodules.<MyApiName>, used to register and reference container-backed functions."
+      },
+      {
+        "type": "Pattern",
+        "name": "Dynamic Horizontal Scaling",
+        "description": "Compute modules automatically scale the number of replicas up or down based on current and historic request load, providing predictive scaling for varying workloads."
+      },
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry application builder that can query container-backed functions deployed as Compute Modules."
+      },
+      {
+        "type": "Product",
+        "name": "Slate",
+        "description": "Foundry application builder that can query container-backed functions deployed as Compute Modules."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform hosting Compute Modules for serverless containerized workloads."
+      },
+      {
+        "type": "UseCase",
+        "name": "Container-Based Data Integration",
+        "description": "Use case where Compute Modules connect to arbitrary data sources and ingest data into Foundry streams, datasets, or media sets."
+      },
+      {
+        "type": "UseCase",
+        "name": "Custom Model Hosting",
+        "description": "Use case where Compute Modules host custom or open-source ML models and serve them interactively from Foundry applications."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Compute Module",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Container-Backed Function",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      {
+        "source": "Compute Module",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Workshop"
+      },
+      {
+        "source": "Compute Module",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Slate"
+      },
+      {
+        "source": "Dynamic Horizontal Scaling",
+        "relationship": "ENABLES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Container-Based Data Integration",
+        "relationship": "DEMONSTRATES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Custom Model Hosting",
+        "relationship": "DEMONSTRATES",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Container-Backed Function",
+        "relationship": "EXAMPLE_OF",
+        "target": "Function"
+      }
+    ],
+    "keyInsights": [
+      "Compute Modules enable any programming language to run on the Palantir platform by containerizing code as Docker images, removing the language restrictions of native Foundry compute.",
+      "Container-backed functions bridge the gap between external code and the Ontology — containers are registered with API names and become callable from Workshop and Slate like native Foundry functions.",
+      "Dynamic horizontal scaling is both reactive (current load) and predictive (historic load patterns), differentiating it from simple autoscaling.",
+      "Compute Modules are not suitable for workloads requiring dynamic vertical scaling (e.g., single requests varying from 1MB to 100GB), which is an important limitation to understand.",
+      "Three primary use cases: container-backed functions for interactive queries, container-based data integration for ingestion, and custom model hosting for ML inference."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/workshop/overview",
+    "title": "Workshop - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Foundry's no-code/low-code application builder that enables creation of interactive, high-quality applications for operational users. Uses the Object layer as its primary building block with a unified design system."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "The primary building block for Workshop applications — all data in Workshop is read from the Object Data Layer."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "Connections between object types that Workshop application creators can leverage as rich data relationships."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology entity leveraged by Workshop for writeback to object data, enabling operational workflows."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology entity leveraged by Workshop for executing business logic on object data."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Workshop Widget",
+        "description": "UI component in Workshop that follows a unified design system. Supports no-code, low-code, and code-based (custom) variants."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Workshop Events System",
+        "description": "Sophisticated interactivity mechanism that enables dynamic, interactive applications beyond typical dashboard tools."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Workshop Layout",
+        "description": "High-quality layout system for arranging widgets in Workshop applications."
+      },
+      {
+        "type": "Pattern",
+        "name": "Inbox Alert and Task Management",
+        "description": "Common Workshop application pattern used to enable operational users to triage, prioritize, and complete tasks such as categorizing warranty claims or investigating alerts."
+      },
+      {
+        "type": "Pattern",
+        "name": "Common Operational Picture",
+        "description": "Workshop application pattern for big-screen views displaying maps, statistics, charts, and drill-down capabilities. Used for shared situational awareness across organizations."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's platform that Workshop builds applications on, treating Foundry as the backend."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Workshop", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Workshop",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "Workshop",
+        "relationship": "OPERATES_ON",
+        "target": "Link Type"
+      },
+      {
+        "source": "Workshop",
+        "relationship": "OPERATES_ON",
+        "target": "Action Type"
+      },
+      {
+        "source": "Workshop",
+        "relationship": "OPERATES_ON",
+        "target": "Function"
+      },
+      {
+        "source": "Inbox Alert and Task Management",
+        "relationship": "ENABLES",
+        "target": "Workshop"
+      },
+      {
+        "source": "Common Operational Picture",
+        "relationship": "ENABLES",
+        "target": "Workshop"
+      },
+      {
+        "source": "Workshop Widget",
+        "relationship": "DEFINED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Workshop Events System",
+        "relationship": "DEFINED_BY",
+        "target": "Workshop"
+      }
+    ],
+    "keyInsights": [
+      "Workshop uses the Object layer as its primary building block — all data comes from the Object Data Layer, making the Ontology the single source of truth for application data.",
+      "Workshop follows three principles: Object data (Ontology as building block), Consistent design (unified design system), and Interactivity (beyond typical dashboards).",
+      "Actions provide writeback to object data and Functions provide business logic, creating a clean separation between read (Object layer), write (Actions), and compute (Functions) in Workshop.",
+      "Workshop aims to match the quality of custom React applications while being accessible to no-code builders, positioning it between dashboard tools and full custom development.",
+      "Common patterns (Inbox, COP) suggest Workshop is optimized for operational use cases — task management, situational awareness, and decision support rather than pure analytics."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/overview",
+    "title": "OSDK React applications - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "OSDK React Application",
+        "description": "Custom React application powered by the Ontology SDK (OSDK) and built through Developer Console. Provides fully customizable UIs that treat Foundry as their backend for queries, edits, and governance."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Foundry application that enables creation, development, and deployment of OSDK-powered React applications and manages third-party application registration."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Language-agnostic Ontology Software Development Kit supporting TypeScript (NPM), Python (Pip/Conda), Java (Maven), and OpenAPI for other languages."
+      },
+      {
+        "type": "Product",
+        "name": "VS Code Workspace",
+        "description": "In-platform code editing environment recommended for OSDK React application development within Foundry."
+      },
+      {
+        "type": "Product",
+        "name": "Code Workspace",
+        "description": "Foundry's integrated development environment supporting code editing and development workflows for OSDK applications."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity queryable through the OSDK from React applications."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology entity invocable through the OSDK from React applications for write operations."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology entity callable through the OSDK from React applications for business logic."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology concept accessible through the OSDK for polymorphic data access in React applications."
+      },
+      {
+        "type": "Pattern",
+        "name": "Foundry as Backend",
+        "description": "Architectural pattern where custom React applications treat Foundry as their backend, leveraging the Ontology for queries, Actions for writes, and built-in governance for security."
+      },
+      {
+        "type": "UseCase",
+        "name": "OSDK To-Do Application",
+        "description": "Step-by-step tutorial demonstrating how to build a to-do application using OSDK, covering environment setup through production deployment."
+      },
+      {
+        "type": "UseCase",
+        "name": "AIP Logic from OSDK",
+        "description": "Tutorial showing how AIP Logic functions can be called from React or Python applications via OSDK, demonstrating that AIP Logic is not locked inside Foundry."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OSDK React Application",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Developer Console",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "OSDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Object Type"
+      },
+      {
+        "source": "OSDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Action Type"
+      },
+      { "source": "OSDK", "relationship": "EXPOSED_BY", "target": "Function" },
+      { "source": "OSDK", "relationship": "EXPOSED_BY", "target": "Interface" },
+      {
+        "source": "Foundry as Backend",
+        "relationship": "ENABLES",
+        "target": "OSDK React Application"
+      },
+      {
+        "source": "OSDK To-Do Application",
+        "relationship": "DEMONSTRATES",
+        "target": "OSDK"
+      },
+      {
+        "source": "AIP Logic from OSDK",
+        "relationship": "DEMONSTRATES",
+        "target": "Function"
+      },
+      {
+        "source": "VS Code Workspace",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Developer Console"
+      }
+    ],
+    "keyInsights": [
+      "OSDK React applications treat Foundry as a complete backend — queries, writes (Actions), business logic (Functions), and governance are all handled by the platform.",
+      "The OSDK is language-agnostic across TypeScript, Python, Java, and OpenAPI, but React is the primary frontend framework with dedicated in-platform development tooling.",
+      "Custom Workshop widgets can be created using OSDK React apps embedded via the Iframe widget, bridging the gap between no-code Workshop and full custom development.",
+      "AIP Logic is accessible from outside Foundry via OSDK, enabling external applications to leverage AI-powered functions defined in the platform.",
+      "Developer Console manages the full lifecycle: application registration, OAuth2 configuration, development environment (VS Code), and deployment — all within the platform."
+    ]
+  }
+]

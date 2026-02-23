@@ -1,0 +1,88 @@
+Designing for Deletion (Palantir Explained, #6)
+Tactics for building an effective framework
+Palantir
+Follow
+7 min read
+·
+Mar 2, 2022
+
+75
+
+1
+
+Press enter or click to view image in full size
+
+Editor’s note: This is the sixth post in Palantir Explained, a series that explores a range of topics, including our approach to privacy, security, AI/ML safety, and more. Previous posts explored our business model, purpose-based access controls, anonymization, trust in data, and our unique approach to Privacy & Civil Liberties (PCL) engineering.
+
+As individuals become increasingly concerned with how, where, and for what purpose their personal data is stored, deletion has emerged as a central theme within the data protection discourse. Although privacy laws typically include provisions on necessity, purpose limitation, data minimization and, in the case of the EU General Data Protection Regulation (GDPR), the “right to be forgotten,” many organizations struggle to translate regulatory and normative expectations into practice.
+
+In this blog post, we explain what deletion is, why it matters, and what challenges it poses for organizations looking to define and construct a world-class framework for data protection. We offer recommendations based on Palantir’s work with some of the world’s most trusted institutions, as well as insights into how we help customers design and implement effective deletion processes. For more information about how we work with our partners to build deletion frameworks, read our full white paper, available here.
+
+What Deletion Means
+
+Deletion is the process of making data less accessible in a system over time. The term process is important here. Deletion typically happens in stages. First, front-end user access is removed. Then, as soon as an organization has verified which data is eligible, deletion of qualifying data can begin. The organization must then wait for the deletion process to complete, which can take time, depending on the deletion process chosen. At the same time, organizations must design a technical and organizational process able to accommodate human and machine error along the way. This requires organizations to ensure deletion remains reversible for a certain predefined period of time.
+
+“Hard deletion,” or making data irreversibly inaccessible, is the end goal of the process. As long as the deletion process can still reasonably be reversed, the data counts as “soft deleted” instead. Given that such accessibility requirements vary, there is no one-size-fits-all approach to deletion. How “deleted” data needs to be in practice depends on the context of processing, as well as the sensitivity at hand. Often, it is neither technically possible nor operationally feasible to hard delete data all at once. Understanding what data an organization holds, how it’s structured, and how it’s processed in accordance with specific regulatory requirements is a complex task. Ultimately, what matters most has less to do with the deletion process than ensuring the result: when data is deleted, it must no longer be possible to process it.
+
+Why Deletion Matters
+
+Deletion is an important aspect of data minimization and storage limitation, which are core principles in most data protection frameworks. Many data protection laws specifically outline the responsibility of controllers to limit the processing of personal data to that which is necessary and proportional to achieve a legitimate processing purpose. These laws also afford individuals, often referred to as “data subjects”, with certain deletion rights. A notable example of this kind of law is found in the GDPR, where data subjects have the right to request the erasure of personal data.
+
+Deletion also plays an important role in auditing and accountability. It’s in an organization’s best interest to be able to consistently monitor and report what needs to be deleted, by whom, and at what cadence. When working with our partners, we recommend they establish a clear understanding of what these expectations are as early as possible to ensure the deletion process is structured to meet these demands.
+
+Disjointed or incomplete deletion practices not only expose an organization to the risk of serious legal and financial consequences, but can also jeopardize trust with other businesses, stakeholders, and the general public. In certain cases, storing data longer than necessary can have lasting and devastating consequences for individuals, as the mere presence of someone’s data in a system can have significant legal effects.
+
+Questions to Ask When Creating or Evaluating Your Deletion Processes
+
+When considering how to structure or amend your own deletion processes, we recommend first working through the following regulatory, logistical, and technical questions to ensure a holistic evaluation.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Regulatory considerations:
+
+What are the regulatory frameworks surrounding the data? Does deletion unilaterally apply to the entire datasource or solely certain properties thereof? Do different rules apply to data being processed in different jurisdictions?
+Could there be cases where ad-hoc entries could be exempt from deletion due to exceptions? Does some data need to be archived instead?
+How can we capture metadata about deletion and provide a proof of concept to demonstrate relevant regulatory requirements, e.g., data subject deletion requests, can be met?
+
+Logistical planning for deletion at ingestion:
+
+To minimize sensitive data handling and reduce risk exposure, what datasets need to be ingested to begin with? Is the data ingested incrementally or wholesale?
+How are the datasets structured? Are they joined with any other data sources? If so, what regulatory and data handling requirements apply to those data sources?
+Will ad hoc deletion requests affect the integrity of the core dataset? If so, how will subdataset level deletion be organized? How should downstream datasets be configured to take future deletions into consideration?
+
+Technical implementation:
+
+Does the deletion require manual user approval, or should it be automated based on a given propriety (e.g., temporal requirement for data retention based on ingestion date)?
+If the deletion is manual, which metadata needs to be captured to identify what (e.g., retention date) and who (e.g., ad hoc request) triggered the deletion, and if the deletion was successfully completed in practice?
+Often, this requires defining which teams/roles will be responsible for data deletion and how reporting ought to be conducted.
+Is the deletion purpose to prevent users from being able to access the information (soft delete) or does it need to be wiped from the source system entirely (hard delete)?
+What steps can be taken to make the process replicable and future proof?
+Case study — What Deletion Looks Like in (Hypothetical) Practice
+
+To illustrate the deletion process in action, let’s consider a notional example of a standard implementation project that Palantir could work on with a partner. Let’s assume that our partner here is a large European business in the financial industry. This customer needs to process personal data in accordance with the requirements of the GDPR, and therefore must be able to regularly delete personal data in both a streamlined and ad hoc fashion, to accommodate both normal deletion procedures as well as individual “right to be forgotten” (RTBF) requests. Note that the data not only needs to be removed from source systems, but deletion must also propagate to systems downstream.
+
+To ensure our partner can meet deletion requirements in practice, we agree to pursue a multi-stage approach building in both automation and human review strategies into the core workflow. The success of this approach relies on striking the right balance between the two: using automation contributes to ensuring the consistency and completeness of deletion, while human review and approvals adds appropriate checks and balances throughout.
+
+The stages are as follows:
+
+Triage RTBF requests with eligibility logic for each application. Deletion requests are processed based on rules and/or restrictions with handling data. For instance, some data may not be deleted due to a legal hold, or other account information could not be deleted if it was active.
+Locate and review impacted data for deletion. This step is critical for facilitating the review and data owner approval of all data that will be affected by the deletion process in their respective data systems. For complex pipelines, this means ensuring that the impact of deletion on any data upstream and/or downstream is analyzed and approved by the relevant subject matter experts before the data can be removed.
+Orchestrate the write-back to core source systems as soon as all the reviews are completed. Note that this requires connection to all the source systems with carefully tailored write permissions. Relevant scripts are then automated to sequentially conduct deletions throughout source systems and thus fully remove any artifacts still referencing the yet-to-be-deleted data.
+Enable continuous monitoring of existing data by conducting regular searches on the tables with data deleted to flag if any data re-enters the system. This may occur for many reasons, such as if the deletion was not successful, or if other source systems still contain the content that was supposed to be deleted.
+Document RTBF requests and subsequent deletion processes. This can then be used to provide regulators and auditors with the opportunity to review the effectiveness of deletion processes across the platform.
+Conclusion
+
+Defining and implementing the right deletion framework isn’t simple. For many organizations working across complex jurisdictions, deleting data consistently and completely often requires far more than a five stage process. However, defining and implementing a deletion framework enables organizations to reduce their overall risk exposure and to continuously review and improve upon existing procedures, thus ensuring any lessons learnt are fed back into the process by design. At Palantir, we’re dedicated to collaborating with our customers across industries to help define the right models for supporting thorough, compliant deletion processes.
+
+Whether working in Foundry or Gotham, Palantir is proud to provide our customers with cutting-edge tools that enable them to comply with applicable data protection obligations and become established privacy leaders in their industries. To learn more about how Palantir helps customers transform their business and meet their data protection requirements, please reach out to us at media@palantir.com.
+
+If you find these blog posts inspiring and would like to join us in solving the challenges described, have a look at the opportunities we have available — we’d love to hear from you.
+
+Authors
+
+Paula Cipierre, EU Privacy and Public Policy Lead
+Annabelle Larose, Technical Program Manager, Privacy & Civil Liberties Engineering, Palantir

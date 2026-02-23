@@ -1,0 +1,287 @@
+Technical Controls, Rollout & Edge Cases (Passwordless Authentication Series, #2)
+Palantir
+Follow
+21 min read
+·
+Dec 1, 2022
+
+5
+
+1
+
+Press enter or click to view image in full size
+
+Editor’s Note: This is the second post in the Passwordless Authentication Series, which shares insights from our journey on enforcing FIDO2 authentication via hardware authenticators (YubiKeys) across all of Palantir. While Palantir has enforced mandatory strong multi-factor authentication for well over a decade, hardware-backed authentication using FIDO2 represents the strongest form of modern authentication available.
+
+Azure Active Directory
+
+At Palantir, we use Azure Active Directory (Azure AD, or AAD) as our identity provider (IdP) to back all authentication. Azure AD is Microsoft’s cloud-based identity offering and runs within a dedicated Azure tenant that user’s control.
+
+In this post, we explore how to roll out a secure FIDO2 implementation at an organizational level and provide guidance on each of the services required for you to accomplish this at your organization, including conditional access policies (CAPs), Azure AD Multi-Factor Authentication (MFA), combined security information registration, AAGUID key restrictions, and authentication strengths.
+
+Configuring Your Azure Tenant
+
+(Disclaimer: While this post aims to teach you how to set up and roll out FIDO2 at your organization, it should not be considered guidance on how to harden your Azure AD tenant. Azure AD is an extremely complicated system and providing instruction on securing it would require a blog series all its own.)
+
+Enable FIDO2
+
+There are multiple elements you’ll need to set up first in your Azure tenant. To begin, check and make sure your tenant is enabled for the combined security information registration feature. This enrolls all of your users in an updated MFA registration process, which is a requirement for enrolling a FIDO2 key later.
+
+Azure Active Directory > User settings > Manage user feature settings
+
+Press enter or click to view image in full size
+
+Next, you’ll need to enable FIDO2 keys in your Azure tenant. This feature provides users the ability to register and use a FIDO2 key with their Azure AD identity. You’ll want to set Enable to Yes here and target the users you want this policy to apply to.
+
+Azure Active Directory > Security > Authentication Methods > Policies > FIDO2 Security Key
+
+Press enter or click to view image in full size
+Enforce FIDO2 AAGUIDs and Key Restriction Policies
+
+The Authenticator Attestation Global Unique Identifier (AAGUID) is a 128-bit identifier that indicates the authenticator type and manufacturer. The AAGUID is globally unique and should be identical across a specific vendor’s authenticators of the same make and model. It’s worth noting that a vendor’s authenticators with the same capabilities and firmware can share the same AAGUID, even if their model or form-factor is different.
+
+What makes these really helpful for us is that we can configure Azure to either allow or disallow authenticators based on their AAGUID. This gives us quite a bit of control around what authenticators we want to allow within our environment. Yubico keeps an up-to-date list of the different AAGUIDs assigned to their devices on their website. As highlighted in our previous blog post, we restrict users to a FIPS-validated YubiKey 5 series authenticator, and therefore apply an allowist model in which we only allowed YubiKeys containing the specific AAGUID of this authenticator to be used at Palantir.
+
+We also suggest that you enforce key attestation for all FIDO2 devices being registered with your users. Enforce attestation is a security control that you can implement if you need assurances that the FIDO2 device being used by your users is a valid authentication product and not an adversary attempting to compromise a user’s account. Below, we offer a brief overview of how key attestation on YubiKey’s works with regards to the WebAuthn protocol; however, if you want a deep dive on the topic, we’d suggest taking a look at the W3C whitepaper.
+
+WebAuthn Authenticator Attestation:
+
+The YubiKey is manufactured at the factory with a hard coded, non-immutable X.509 attestation certificate that has been signed by Yubico’s root CA.
+When the user attempts to register their YubiKey with Azure, a direct attestation is requested. A direct attestation tells the client that a valid attestation statement is needed before Azure will accept the public key credentials that are created by the authenticator.
+Both the public key credentials and attestation object is sent from the authenticator to Azure. The attestation object contains a signature that is created using the private key of attestation certificate that we covered in step 1. There’s also information within the attestation object such as the attestation statement and the authenticator’s AAGUID, make, and model.
+Azure AD will then verify the attestation statement by using Yubico’s publicly available U2F device attestation certificate authority. This creates a chain of trust that the attestation certificate being used from the device was indeed generated by Yubico.
+Once Azure AD verifies that the attestation statement is valid, it will then store the public key credential, the public key of the attestation certificate, and the contents of the attestation object in a local database. Azure will use this information to verify all future FIDO2 authentication requests from the user.
+
+Setting the Enforce attestation setting to Yes has the net effect of Azure AD always requiring that the FIDO2 key credentials being used for authentication are signed with the private key of the attestation certificate it has stored in its database from the original registration process. This provides an assurance that the device is a valid authenticator and is not being spoofed from a different device.
+
+Azure Active Directory > Security > Authentication Methods > Policies > FIDO2 Security Key > Configure
+
+Press enter or click to view image in full size
+
+Example of an error message when attempting to register or use an authenticator that contains an AAGUID that’s not on the approved list:
+
+Press enter or click to view image in full size
+Enable Azure AD Multi-Factor Authentication
+
+Next, you’ll need to check your Azure tenant’s Azure Multi-Factor Authentication (MFA) settings. Having Azure MFA enabled and enforced is a requirement to setup FIDO2, as Microsoft requires your account to be enrolled in MFA before they’ll allow you to register a FIDO2 key.
+
+This feature also allows us to use passwordless authentication via Microsoft Authenticator, which is essential for mobile devices. We talk more about this in the edge cases section.
+
+Enabling Azure MFA on the Azure tenant is split into two separate steps. First, enable the Microsoft authenticator policy, as dictated below. Once complete, you can use an Azure CAP to require all users to register Microsoft Authenticator with their accounts. We show you how to do this in the next section that covers CAPs in more detail.
+
+Azure Active Directory > Security > Authentication Methods > Policies > Microsoft Authenticator Settings
+
+Press enter or click to view image in full size
+Configure Authentication Strengths
+
+Authentication Strengths is an Azure feature that allows admins to create policies that specify which combination of authentication methods are permitted for logins to applications. It’s through these policies that you can further specify which specific passwordless methods you want to be allowed for authentication. First, let’s define the authentication policy, and then in the next section we’ll use CAPs to apply this policy to all users.
+
+There are a handful of pre-defined authentication strengths policies that you could use here; however, we recommend you create your own policy, as Microsoft could choose to change these templates at any time. To begin, create a new authentication strengths policy.
+
+Azure Active Directory > Security > Authentication Methods > Authentication Strengths
+
+Press enter or click to view image in full size
+
+This will bring up a menu that allows you to begin configuring your new authentication strength policy. There are a lot of options here and what works for you will depend on your organization’s security requirements. For this policy specifically, we’ve restricted authentication to FIDO2, Windows Hello For Business (WHFB), and Temporary Access Pass (TAP) codes (We’ll talk more about TAP codes in part 3 of this series).
+
+Azure Active Directory > Security > Authentication Methods > Authentication Strengths > New authentication strength
+
+Press enter or click to view image in full size
+Configure Conditional Access Policies
+
+Conditional access policies (CAPs) are the glue that binds together all of the security controls we’ve created up to this point. These policies act as the enforcement mechanism for authentication requirements within your Azure tenant, and will trigger when specific conditions (that you define) are met. Below, we discuss two policies that can be leveraged to enforce FIDO2 authentication across your Azure tenant.
+
+The first policy is fairly straight forward: Require Azure MFA for all users. As described earlier, having users enrolled in Azure MFA is a requirement to register a FIDO2 device later. This policy requires that all users in your Azure tenant must register with Microsoft Authenticator and use it when authenticating to applications. If the user has not registered with Microsoft Authenticator, they will be required to do so on their next successful authentication.
+
+It’s worth noting that once you have the next CAP enabled (Require FIDO2 Authentication), this CAP essentially only requires users to register with Microsoft Authenticator if they haven’t already. This is because FIDO2 meets Azure’s MFA authentication requirement, as defined in this policy. This prevents the user from being double challenged with a MFA push to their Microsoft Authenticator app on top of a FIDO2 authentication.
+
+Azure AD Conditional Access > Policies > New Policy
+
+Press enter or click to view image in full size
+
+The second policy will force users to use passwordless for authentication: Require FIDO2 Authentication. This policy is more complicated than the first so let’s break it down by section to explain what each part does.
+
+(Warning: This policy will block all authentication that doesn’t use an approved method in your authentication strength policy — in this example, FIDO2, WHFB, and TAP codes)
+
+You should start with the specific users that you want to roll out FIDO2 enforcement to but for the purposes of the example below, let’s assume you’re going for full enforcement on all users. You’ll also need to decide if you want your policy to apply to external users and guests in your Azure tenant, which would require external organizations to meet these strong FIDO2 authentication requirements. If you don’t, then you’ll need to exclude them.
+
+Azure AD Conditional Access > Policies > New Policy > Users or workload identities
+
+Press enter or click to view image in full size
+Press enter or click to view image in full size
+
+The cloud apps or actions menu covers the applications that this policy will apply to. We suggest you apply to all apps and selectively exclude the ones that you don’t want to enforce FIDO2 authentication on.
+
+Azure AD Conditional Access > Policies > New Policy > Cloud apps or actions
+
+Next, let’s define the conditions that need to be met in order for this policy to be applied. At the time of writing, mobile devices (e.g., iOS, Android) do not support FIDO2 authentication, so we’ll need to exclude these platforms from the policy.
+
+Azure AD Conditional Access > Policies > New Policy > Conditions > Device platforms
+
+Press enter or click to view image in full size
+Press enter or click to view image in full size
+
+The final condition we need to define focuses on client apps. Client apps refer to the medium in which users access applications in your organization. For example, if you opened the Google Chrome browser to access your Microsoft Outlook account, that authentication client would be tagged as a browser-based authentication. However, if you instead used the Microsoft Outlook app that’s installed directly on your client device, then that authentication would be tagged as a desktop client-based authentication. At the time of writing, many Microsoft desktop clients (also known as thick apps) do not broadly support FIDO2. As a result, we need to exclude desktop clients from our policy by selectively choosing to only apply this policy to browser-based authentication.
+
+Azure AD Conditional Access > Policies > New Policy > Conditions > Client apps
+
+Press enter or click to view image in full size
+
+Lastly, we need to choose the access controls to apply to authentications that trigger this policy, based on the conditions we’ve defined above. This is where we’ll select the authentication strength policy that we created earlier, “Require Yubikey.” Once you’re done, we encourage running this policy in report-only mode to check that it’s functioning properly before turning on enforcement.
+
+Azure AD Conditional Access > Policies > New Policy > Access Controls > Grant
+
+Press enter or click to view image in full size
+
+Azure AD Conditional Access > Policies > New Policy > Conditions > Enable Policy
+
+We’ve now covered all of the basic Azure tenant components that are required for FIDO2 authentication. We’ve also outlined two different CAPs that can be used to require Azure MFA registrations and enforce FIDO2 authentication. In the next section, we share how we rolled out these CAPs and enforced YubiKey’s for authentication across Palantir.
+
+Rolling Out YubiKeys
+
+In the first blog post in our Passwordless Authentication Series, we shared in great detail what led us to choose our YubiKey form-factor, the steps we took to build a self-service portal for our users, and how we monitored FIDO2 usage across Palantir during the rollout. Though we used Palantir Foundry for our efforts, our aim for this post is to provide broadly accessible guidance for all organizations embarking on this journey, and therefore focus primarily on native Azure tools for monitoring FIDO2 user enrollments and usage.
+
+Configuring YubiKeys
+
+Out of the box, YubiKeys have a number of applications enabled, such as one-time passwords (OTP), FIDO U2F, Personal Identity Verification (PIV), and others. While highly functional, leaving unnecessary modules enabled can increase complexity around authenticator configuration, and overall can have a negative impact on the user experience. As a result, we explicitly disable all applets aside from FIDO2 and OpenPGP.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Applet management can occur via graphical user interface (GUI) or command-line interface (CLI). An advantage to using the CLI is that you can develop scripts that automatically provision your keys, which significantly decreases the number of manual steps that your users will need to make after receiving their YubiKey versus relying on the GUI for configuration.
+
+To begin configuring your YubiKey, you’ll need to install the YubiKey Manager software from Yubico’s website. Once installed, the GUI (YubiKey Manager) or CLI (ykman) can be used. For the purposes of this blog, we will solely use the graphical interface.
+
+Press enter or click to view image in full size
+
+The available modules can be interrogated via the Interfaces menu. Modules can be enabled or disabled by selecting them within this panel.
+
+Press enter or click to view image in full size
+
+To ensure each YubiKey meets strong two-factor authentication requirements, it is necessary for users to configure a FIDO2 PIN. This can be done from the Applications menu.
+
+Press enter or click to view image in full size
+
+This PIN is actually a passphrase and can be long, complex, and consist of alphanumeric and symbol characters. As this PIN will unlock the credential material stored on the YubiKey, it is critical to educate your users on the importance of good PIN creation habits:
+
+Your FIDO2 pin should be unique and not shared with any other account or service.
+Your FIDO2 pin should be long (8+ characters).
+Your FIDO2 pin should not be shared with anyone else.
+Loss of the FIDO2 PIN will prevent you from authenticating. It is important to remember your PIN.
+
+The FIDO2 PIN is unique to the FIDO2 module; usage of other modules (e.g., OpenPGP) may have their own unique PINs associated with them.
+
+The YubiKey is designed to resist brute-force attacks against the FIDO2 PIN. If the FIDO2 PIN is entered incorrectly three times in a row, the key will need to be reinserted before it will accept additional PIN attempts. Additionally, the FIDO2 module will automatically wipe the resident credential material after eight failed attempts, requiring the user to reset the YubiKey and re-register the authenticator with all of their accounts. Account provisioning and recovery will be covered in a follow-on blog post.
+
+Monitoring with Azure
+
+Azure offers many tools for dissecting user logs to determine what type of authentication was used for any login event. You can also leverage some of the different APIs to programmatically pull information about who hasn’t registered a FIDO2 device within your Azure tenant. Together, these two data points are critical in determining business impact of FIDO2 authentication enforcement during your rollout.
+
+For determining FIDO2 usage, you have a couple of options. If you’re already using your own SIEM for ingesting Azure AD logs, then you can leverage that to look for the properties.authenticationDetails{}.authenticationMethodfield in the Azure AD sign-in events. This will show you the authentication type that was used by the user for sign-in. During our rollout, we leveraged that information not only to instruct us on the adoption rate of FIDO2 within Palantir but also to configure bot automation in our chat service as a reminder tool. The bot directly pinged users who logged in with a password where a YubiKey would have been eligible, reminding them to use their YubiKey and that their password would no longer work in the future.
+
+If you don’t already have a SIEM that’s ingesting your Azure sign-in logs, you can instead then with a couple of extra steps ship the logs to an Azure Log Analytics workspace. You’ll need to create the workspace first but, once created, you’ll be able to use it as a destination for your sign-in log exports.
+
+Azure AD > Sign-in Logs > Export Data Settings
+
+Press enter or click to view image in full size
+
+Once you have the export setting configured, you can jump into your log analytics workspace and write a query to pull users login method activity. Azure log analytics uses Kusto Query Language (KQL).
+
+There’s also a pre-configured graph within the Azure Portal that shows you FIDO2 usage information. We found this somewhat less helpful versus directly querying sign-in logs as you can’t filter down by the type of user (e.g,. employee vs. service account) and breaking down usage by individual user is not trivial.
+
+Azure AD > Security > Activity > Usage
+
+Press enter or click to view image in full size
+Monitoring Registered MFA Devices
+
+Another really important piece of information to know during rollout is which users do and do not have a YubiKey registered. Having this data gives you a great starting point to selectively message people that still need to perform the registration versus mass emailing your entire organization.
+
+Similar to usage data, there’s a pre-configured graph for this within the Azure Portal.
+
+Azure AD > Security > Activity > Registration
+
+Press enter or click to view image in full size
+
+While the graph above can be a good starting point, it lacks the ability to break down each user’s registered MFA device, which is critical to a successful FIDO2 rollout. In order to find this information, you’ll need to leverage the Azure Graph API. We leveraged this open-source script for collecting this data within our own tenant (kudos to the folks in the admindroid-community for putting this script together). It’s incredibly powerful, with multiple options for usage, and conveniently outputs the data into an excel file for you. We specifically only cared about pulling the MFA status of each user within our tenant, which also outputs the authentication methods assigned to the user. We then used this data to filter out anyone that didn’t have a FIDO2 device enrolled with their account and were able to follow up with those users directly.
+
+Registering a YubiKey in Azure
+
+For accounts in Azure, you’ll have to register the YubiKey by navigating to https://aka.ms/mfasetup and signing in. This will take you to your account security settings page, where you can complete the FIDO2 registration. We’re not going to go into detail on adding a YubiKey to your account since there’s great documentation already on Microsoft’s website.
+
+Our Rollout
+
+Now that you have your Azure tenant configured, your YubiKeys deployed, monitoring in place to detect FIDO2 usage, and have instructed users on how to configure the YubiKey and setup the PIN, you’re ready to begin enforcement.
+
+User education, documentation, and communication were key to the adoption of FIDO2 at Palantir, which allowed us to move quickly through the enforcement stages to full company passwordless enforcement. Prior to enforcement, our teams conducted an education campaign that included trainings Palantirians could attend, ran pro-active alerting on endpoints, set up bot reminders through our chat application to remind colleagues to use their YubiKeys at all opportunities, provided step-by-step guides that could be followed by all levels of technical competency, and communicated regularly with the company.
+
+FIDO2 enforcement at Palantir was completed as a staged rollout. We thoughtfully selected the groups that we wanted to expand FIDO2 enforcement to, and simply expanded the “Require FIDO2 Authentication” CAP that we created earlier in this blog to these users.
+
+All in all, our rollout took about nine weeks from start to finish, with strategic gaps that allowed users time to adjust and surface any issues. We began by enforcing FIDO2 on our Infosec team in order to detect the common workflows that didn’t support FIDO2, and to quickly iterate and close any gaps that were surfaced.
+
+After we let the enforcement bake for a couple of weeks, we then moved forward to our technology operations team. This may be your Information Technology group or a similar team within your organization. These folks are not only technical but are also on the front lines, interfacing with users on a day-to-day basis, and therefore have a solid understanding of what to expect with a workflow breaking rollout like enforcing passwordless authentication.
+
+Once our IT and InfoSec teams were enrolled, we rolled out FIDO2 enforcement to our opt-in Canary program, a group where employees volunteer to be early adopters and testers of rollouts. These volunteers not only tend to have some of our most complicated workflows but are also excellent partners in sharing feedback in order to ensure a smooth experience for the rest of the company as we proceeded forward.
+
+Finally, we expanded to our product teams, closely followed by our internal development teams, and then rounded out the company with our business operations teams. Throughout this nine-week staged approach, we were able to uncover edge cases and make the experience smoother for each subsequent group.
+
+Press enter or click to view image in full size
+Edge Cases
+
+FIDO2 is still a relatively new technology and the industry is scrambling to catch up. As a result, there are many workflows that, as of the time of writing, simply are not compatible with FIDO2 passwordless authentication. In this section, we cover some common edge cases we encountered while becoming a fully passwordless organization. We also offer some workarounds to help keep you moving forward in your own FIDO2 rollout.
+
+Virtual Desktops
+
+Many organizations run and operate a form of virtual desktop infrastructure for various reasons. These may come in the form of local virtualized infrastructure (e.g., Parallels, VMware, and Hyper-V) or hosted infrastructure (e.g., Azure Virtual Desktop, AWS Workspaces, etc.)
+
+Regardless of the type of virtual desktop infrastructure you run, it is necessary to perform testing to ensure the infrastructure supports FIDO2 authentication and passthrough from the local device. If FIDO2 passthrough is not supported, you may need to get creative on how you’ll exclude this infrastructure from your FIDO2 policy, as any users leveraging this technology will not be able to authenticate to your internal resources. It’s worth noting here that we were able to leverage the device exclusion feature of our CAPs to exclude our VDI infrastructure from FIDO2, as these systems are all hybrid Azure AD joined.
+
+The good news is that software vendors in this sector have taken note that FIDO2 adoption is amping up across many organizations and are moving quickly to ensure FIDO2 passthrough is compatible across different platforms. For instance, Microsoft Remote Desktop Protocol (RDP) now supports FIDO2 security key redirection on modern Windows server/client pairs. As of this writing, we’re still waiting on this support for MacOS and Linux devices.
+
+Local Device Authentication
+
+Local device authentication does not yet reliably support FIDO2 authentication.
+
+Mobile devices (e.g., iOS and Android) still rely on a local authenticator, such as a PIN or biometric unlock mechanism. This is generally not a major concern for the enterprise, as Microsoft Intune can ensure devices adhere to strong security requirements. Additionally, many users bring their own devices, which may preclude requiring usage a company-issued hardware authenticator to unlock it.
+
+Windows devices do support FIDO2 for local authentication but is extremely unreliable in a hybrid Active Directory — Azure AD environment. Authentication to the client requires line-of-sight to domain controllers, which may not be available if devices are off network. Additionally, cached tokens may expire when a device is off network, leading to a confusing user experience when attempting to login to their device via FIDO2. In our environment, Windows users are advised to use a ‘Windows Hello PIN’ for local authentication. Native Azure AD deployments, without Active Directory, should be able to seamlessly authenticate to Windows devices via FIDO2 authenticators.
+
+Similar to what we saw with virtual desktops infrastructure, MacOS devices do not support FIDO2 for local authentication. It is unclear when, or if at all, Apple will support this. Apple may choose to force passkeys, or another implementation, that may or may not support FIDO2 for authentication. Additionally, Filevault 2 (full-disk encryption) does not support FIDO2 at this time.
+
+Desktop Applications
+
+Currently, one of the large drawbacks to FIDO2 is the lack of support, especially with desktop applications, also known as thick apps. We’ve seen varied success on desktop application support across different operating system platforms, with the most FIDO2 compatibility in Windows 11, and the least in MacOS.
+
+This is a major sticking point for most organizations and there is no silver bullet. Until a software vendor enables support for FIDO2 authentication, such as redirecting to a native web browser, you will have to make the choice of excluding the app from your CAP or denying access.
+
+By designing your CAPS to exclude these thick apps for FIDO2 authentication, you’ll have already addressed most of the concerns here. (For a reminder on how to exclude these via the Client Apps setting, review the above Require FIDO2 Authentication CAP in the Configure Conditional Access Policies section.) However, even after excluding non-browser client apps from your FIDO2 CAP, you’ll still run into some apps using technologies, such as embedded browsers (e.g., webview), that don’t support FIDO2 but are observed by Azure as a browser sign-in. This then triggers the FIDO2 authentication requirement and breaks authentication through the application’s thick client.
+
+We should note that using this manner of exclusion can have significant security implications. The benefit of FIDO2 authentication (e.g., killing passwords) is reduced when users still perform authentication without their security keys. The strongest mitigation here, if these applications must be excluded from your CAP, is requiring zero trust security features in Azure AD, such as device health and compliance.
+
+If you’d like to better understand which of your apps may be impacted by FIDO2 requirements prior to rollout and testing, The WebAuthn Wall of Shame is a great place to start. This site is intended to call out vendors that do not currently support passwordless authentication in an attempt to push them towards where the industry is moving.
+
+Mobile Devices
+
+Azure AD does not yet have full support for FIDO2 authentication for mobile devices (e.g., Android, iOS). This is problematic for several reasons.
+
+First, this is a major barrier to achieving the security objectives of passwordless authentication. Mobile users are still susceptible to phishing, credential theft, and other identity-based attacks.
+Second, Azure AD mobile device detections can be trivially spoofed. A malicious attacker on their own machine could spoof the user agent strings and device client hints for a mobile device. This, in turn, could cause Azure AD to potentially treat the device as a mobile client, thus excluding it from the CAP that enforces FIDO2 authentication.
+Lastly, this fragments the user experience and introduces confusion. Users are told to “forget” their password except for the edge cases where they need to enter them. This slows the rollout velocity and requires additional training and support from technical staff.
+
+If you’re using Azure AD as your IdP, we encourage you to instruct your users to leverage the passwordless sign-in with Microsoft Authenticator feature where possible on mobile devices. This acts similarly to a YubiKey, except now the user’s phone acts as the passwordless device. Upon login, the user is prompted to enter a two-digit number that’s displayed on their screen into their Microsoft Authenticator app. Once the number has been verified by Azure AD, the login is successful and the user is permitted to continue. The passwordless sign-in feature is automatically enabled when we configured the Microsoft Authenticator policy in the beginning of this post.
+
+You can also investigate deploying NFC-enabled FIDO2 devices instead of the FIPS compliant versions that we had to use due to reasons we discussed in the last blog post. FIDO2 NFC is something that’s supported on mobile devices today and could be leveraged to remove this edge case entirely.
+
+It cannot be understated how critical it is to implement additional CAPs which leverage zero trust security features in Azure AD. All devices authenticating should be registered in Azure AD, meet a security bar for attestation and health, and unknown or unhealthy devices should fail authentication. This control is crucial for addressing the risks of account takeover and other identity-based attacks created by uneven enforcement of FIDO2 authentication.
+
+Conclusion
+
+There’s a lot of preparation that goes into replacing traditional password-based authentication. FIDO2 is still in the very early days of adoption; as such, there are many edge cases you’ll need to account for when conducting your own assessment of the technology and how you want to implement it at your organization. Having monitoring in place with a rollout plan before we started was critical for our success in this undertaking. While the configuration seems tedious, and rolling it out will cause friction and disruptions, we strongly believe that FIDO2 was the largest investment Palantir could make for the security of its customers and users.
+
+In our next post in the Passwordless Authentication Series, we’ll talk about how we handle lost YubiKeys and provide an overview on our user training with some lessons learned and guidance based on this entire endeavor.
+
+Authors
+
+Chris Dunn, Dane Stuckey, and Kimmy Richardson, Palantir Information Security (PalSec)

@@ -1,4 +1,4 @@
-import { DateTime, Duration, Option, Redacted, Result, Schema } from "effect"
+import { BigDecimal, DateTime, Duration, HashMap, Option, Redacted, Result, Schema } from "effect"
 import { describe, it } from "vitest"
 import { strictEqual } from "../utils/assert.ts"
 
@@ -264,7 +264,7 @@ describe("toFormatter", () => {
 
   describe("suspend", () => {
     it("Tuple", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.Tuple([
         Schema.Number,
         Schema.NullOr(Rec)
@@ -275,14 +275,14 @@ describe("toFormatter", () => {
     })
 
     it("Array", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema: any = Schema.Array(Schema.Union([Schema.String, Rec]))
       const format = Schema.toFormatter(schema)
       strictEqual(format(["a"]), `["a"]`)
     })
 
     it("Struct", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.Struct({
         a: Schema.String,
         as: Schema.Array(Rec)
@@ -295,14 +295,14 @@ describe("toFormatter", () => {
     })
 
     it("Record", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.Record(Schema.String, Rec)
       const format = Schema.toFormatter(schema)
       strictEqual(format({ a: { a: { a: {} } } }), `{ "a": { "a": { "a": {} } } }`)
     })
 
     it("optional", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema: any = Schema.Struct({
         a: Schema.optional(Rec)
       })
@@ -311,7 +311,7 @@ describe("toFormatter", () => {
     })
 
     it("Array + Array", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema: any = Schema.Struct({
         a: Schema.Array(Rec),
         b: Schema.Array(Rec)
@@ -327,7 +327,7 @@ describe("toFormatter", () => {
     })
 
     it("optional + Array", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema: any = Schema.Struct({
         a: Schema.optional(Rec),
         b: Schema.Array(Rec)
@@ -373,7 +373,7 @@ describe("toFormatter", () => {
     })
 
     it("Option", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.Struct({
         a: Schema.String,
         as: Schema.Option(Rec)
@@ -386,7 +386,7 @@ describe("toFormatter", () => {
     })
 
     it("ReadonlySet", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.ReadonlySet(Rec)
       const format = Schema.toFormatter(schema)
       strictEqual(format(new Set()), `ReadonlySet(0) {}`)
@@ -394,13 +394,24 @@ describe("toFormatter", () => {
     })
 
     it("ReadonlyMap", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.ReadonlyMap(Schema.String, Rec)
       const format = Schema.toFormatter(schema)
       strictEqual(format(new Map()), `ReadonlyMap(0) {}`)
       strictEqual(
         format(new Map([["a", new Map([["b", new Map()]])]])),
         `ReadonlyMap(1) { "a" => ReadonlyMap(1) { "b" => ReadonlyMap(0) {} } }`
+      )
+    })
+
+    it("HashMap", () => {
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
+      const schema = Schema.HashMap(Schema.String, Rec)
+      const format = Schema.toFormatter(schema)
+      strictEqual(format(HashMap.empty()), `HashMap(0) {}`)
+      strictEqual(
+        format(HashMap.make(["a", HashMap.make(["b", HashMap.empty()])])),
+        `HashMap(1) { "a" => HashMap(1) { "b" => HashMap(0) {} } }`
       )
     })
   })
@@ -439,6 +450,12 @@ describe("toFormatter", () => {
     strictEqual(format(new Map([["a", Option.none()]])), `ReadonlyMap(1) { "a" => none() }`)
   })
 
+  it("HashMap(String, Option(Number))", () => {
+    const format = Schema.toFormatter(Schema.HashMap(Schema.String, Schema.Option(Schema.Number)))
+    strictEqual(format(HashMap.make(["a", Option.some(1)])), `HashMap(1) { "a" => some(1) }`)
+    strictEqual(format(HashMap.make(["a", Option.none()])), `HashMap(1) { "a" => none() }`)
+  })
+
   describe("Redacted", () => {
     it("Redacted(String)", () => {
       const format = Schema.toFormatter(Schema.Redacted(Schema.String))
@@ -459,9 +476,38 @@ describe("toFormatter", () => {
     strictEqual(format(Duration.negativeInfinity), "-Infinity")
   })
 
+  it("BigDecimal", () => {
+    const format = Schema.toFormatter(Schema.BigDecimal)
+    strictEqual(format(BigDecimal.fromStringUnsafe("123.45")), "123.45")
+    strictEqual(format(BigDecimal.fromStringUnsafe("-5")), "-5")
+    strictEqual(format(BigDecimal.fromStringUnsafe("0")), "0")
+  })
+
   it("DateTimeUtc", () => {
     const format = Schema.toFormatter(Schema.DateTimeUtc)
     strictEqual(format(DateTime.makeUnsafe("2021-01-01T00:00:00.000Z")), "DateTime.Utc(2021-01-01T00:00:00.000Z)")
+  })
+
+  it("TimeZoneOffset", () => {
+    const format = Schema.toFormatter(Schema.TimeZoneOffset)
+    strictEqual(format(DateTime.zoneMakeOffset(3 * 60 * 60 * 1000)), "+03:00")
+  })
+
+  it("TimeZoneNamed", () => {
+    const format = Schema.toFormatter(Schema.TimeZoneNamed)
+    strictEqual(format(DateTime.zoneMakeNamedUnsafe("Europe/London")), "Europe/London")
+  })
+
+  it("TimeZone", () => {
+    const format = Schema.toFormatter(Schema.TimeZone)
+    strictEqual(format(DateTime.zoneMakeOffset(3 * 60 * 60 * 1000)), "+03:00")
+    strictEqual(format(DateTime.zoneMakeNamedUnsafe("Europe/London")), "Europe/London")
+  })
+
+  it("DateTimeZoned", () => {
+    const format = Schema.toFormatter(Schema.DateTimeZoned)
+    const zoned = DateTime.makeZonedUnsafe("2024-01-01T00:00:00.000Z", { timeZone: "Europe/London" })
+    strictEqual(format(zoned), DateTime.formatIsoZoned(zoned))
   })
 
   it("custom class", () => {

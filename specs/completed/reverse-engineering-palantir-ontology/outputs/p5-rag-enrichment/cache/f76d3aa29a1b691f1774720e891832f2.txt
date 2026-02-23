@@ -1,0 +1,374 @@
+Managing and Automating Browser Extensions at Scale
+Workstation Security Policies as Code
+Palantir
+Follow
+14 min read
+·
+Nov 23, 2022
+
+4
+
+1
+
+Editor’s Note: In this blog post, Chad and Tyler from our Information Security (InfoSec) team discuss the evolution of Palantir’s approach to managing browser extensions across the enterprise and walk through how this low-friction process works today.
+
+Press enter or click to view image in full size
+Browser Extensions: an Ever-Evolving Threat
+
+Web browsers are the primary interface for many sensitive business tasks; they are so commonplace that it can be easy to overlook security risks associated with them. Almost every user of web browsers utilizes browser extensions as well. Familiar extensions include password managers, which can populate credentials on a user’s behalf, and ad blockers, which can prevent certain content (i.e., ads) from loading according to a rules list. Helpful as they may seem, browser extensions pose potentially disastrous risks to both individuals and enterprises.
+
+There are two significant unresolved issues regarding extensions:
+
+Browser extensions introduce outsized risk if uncontrolled and unmonitored. By design, extensions are software that run inside a browser session, interacting with that session according to the permissions they have been granted. While the intended functions of most browser extensions benefit users, the permissions required to perform these functions are powerful, opening the door to potential abuse. Like any software, additional functionality requires additional code, leading to a larger attack surface and increased likelihood of vulnerabilities.
+
+This means it is trivially easy for malicious extensions to collect sensitive information about users, monitor keystrokes and file uploads, rewrite page content for nefarious purposes, or otherwise abuse the ability to see and manipulate web traffic. Even extensions that start out benign can become malicious: it’s common for moderately popular extensions to be transferred or sold to other parties, where an existing target audience is one software update away from instantaneous and broad distribution.
+It is difficult to manage browser extensions across the enterprise. By default, users can install any browser extensions they wish, whether from a web store or other origin, without much insight into the permissions the extension requests and the risks it poses. Obviously, this is a significant concern for any organization, but managing what extensions should or should not be permitted can be a complex and resource-intensive process, particularly when there are multiple operating systems and/or browsers across endpoints.
+
+As an example, Google makes administration of extensions relatively simple in an admin dashboard — assuming the organization has Google Workspace accounts for their users and exclusively uses Chrome, which is not the case for the vast majority of organizations. Microsoft Edge and Mozilla Firefox rely exclusively on security policies deployed to workstations directly, meaning that any changes to which extensions are allowed or denied is restricted to domain administrators managing manual updates based on nothing but extension IDs — an effort highly susceptible to human error.
+
+In the absence of lower friction options, it’s no surprise that organizations concerned about the risk posed by browser extensions tend to end up blocking them outright rather than attempting to keep up with the administrative overhead seemingly required.
+How Palantir Implemented Low-Friction Browser Extension Management
+Moving from denylist to allowlist
+
+Palantir had historically maintained a denylist of known bad extensions, sourced largely from security industry news stories and other advisories. For a time, this seemed like the only viable option, as migrating to a deny-by-default model would break a material number of established user workflows unless we were willing to devote a significant amount of administrative overhead to manually maintaining independent allowlists for Edge, Chrome, Firefox in both Group Policy (for Windows endpoints) and Jamf plists (for macOS endpoints).
+
+Even so, we began investigating the extensions already present across the fleet. We turned to our osquery dataset, which contained a table for installed browser extensions for all three browsers on both operating systems. After running a quick query and rank-ordering the installations, it was easy to see which extensions were common and which were one-offs. There were a few surprises in the data: hundreds of unique extensions only installed on one or two workstations, extensions that had been pulled from the web store years earlier but were still enabled, and one employee who had more than 40 extensions installed (when asked, they were completely unaware of most of them).
+
+In addition to these surprises, this investigation revealed a few key takeaways:
+
+As many users had signed into Chrome using their personal Google account, they had been syncing extensions (and other settings) between personal and work computers. This meant that if malware on an employee’s home computer had forcibly installed an extension in that browser, it would automatically show up on their work computer, effectively perpetuating the malware onto the corporate network. While we had disabled the Chrome profile sync function much earlier, we were dismayed to learn that anything that had been brought in before the sync was cut off was still present.
+In Chromium browsers (Chrome and Edge), an extension removed from the relevant web store is not necessarily removed or disabled in browsers where it is already installed. Sometimes, if an extension is removed for malicious behavior, it will be disabled in the browser with a message indicating as such, but most of the time extensions are taken down without comment from Google or Microsoft. Firefox will actually remove any extension from the browser that is no longer available from the original installation source.
+Most employees actively relied on three or four extensions — almost anyone with more than that either wasn’t aware of them or didn’t use them as part of their job.
+
+With our osquery metrics in hand, we curated an initial allowlist of acceptable extensions based on criteria such as number of unique installations, advertised function, and utility in an enterprise setting. We then turned our attention to the question of how to efficiently maintain this list over time.
+
+Defining the allowlist as code: crafting a user-driven process
+
+We realized early in the process that we would probably never be able to set an extension allowlist in stone: users frequently identify new extensions that enable critical business processes, and previously-approved extensions may need to be banned quickly if there is suspected abuse.
+
+We decided the best way to declare a single source of truth while giving our employees the ability to request changes was to define it as code in an internal GitHub code repository. In this repo, we crafted a relatively simple json file for each of the three web browsers, along these lines:
+
+[
+    {
+      "ExtensionDescription": "Approved Password manager",
+      "ExtensionId": "dppgmdbiimibapkepcbdbmkaabgiofem",
+      "ExtensionName": "1Password – Password Manager",
+      "ExtensionType": "Security"
+    },
+    {
+      "ExtensionDescription": "Another Extension - used by the frontend dev team",
+      "ExtensionId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaam",
+      "ExtensionName": "Another Extension",
+      "ExtensionType": "Productivity"
+    }
+ ]
+
+Ultimately, ExtensionId is the only field that matters to the allowlist (as the allowlist is nothing more than a simple list of extension IDs), but we included the other fields in order to be more human-friendly when parsing the source of truth file.
+
+With this list in place, employees are able to directly open a Pull Request (PR) to update the list; if they’re not comfortable using GitHub, they can submit a ticket to have our team open a PR on their behalf. This not only provides employees with a degree of autonomy and a stake in the process (more on that later), but also allows us time to investigate proposed extensions before making a decision.
+
+Our typical review process involves these general steps:
+
+When a PR is opened, CircleCI automation performs basic checks to ensure the json is formatted correctly, that the entry isn’t duplicated, and that the extension actually exists in the relevant web store. In addition to validating the extension ID, CircleCI will also do a rudimentary comparison of the provided ExtensionName to the name listed in the web store to help surface any misassigned or misleading entries.
+This automated check runs daily (regardless of any open PRs) and sends the team an alert if there are any failures, which indicate an approved extension has been removed from the applicable web store and therefore should be investigated.
+The below code snippet shows the check against the Chrome Web Store — a similar check is applied for Edge, and a simpler one is also applied for Firefox, as that web store has a public API. It includes an exceptions list for any extensions that should not be checked against the Web Store, such as self-published or private/unlisted extensions.
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+steps:
+      - checkout
+      - run:
+          name: Parse JSON file for syntax errors
+          command: cat *.json | jq
+
+      - run:
+          name: Check extensions are not duplicated
+          command: |
+            set +e
+            extensions=$(jq -r ".[] | .ExtensionId" chrome_extensions.json)
+            duplicates=$(echo "$extensions" | sort | uniq -c | sort -nr | grep -v '^ *1 ' | cat)
+            set -e
+            if [[ -n "$duplicates" ]]; then
+              echo "There are duplicate extension ids"
+              echo -n "$duplicates"
+              exit 1
+            fi
+            
+      - run:
+          name: Check all extensions exist
+          command: |
+            extensions=$(jq -r ".[] | .ExtensionId" chrome_extensions.json)
+            rc=0
+            # These extensions are not required to be in the Chrome Web Store
+            exceptions=(space_separated_extensions_list)
+            
+            for extension in $extensions; do
+              if [[ " ${exceptions[@]} " =~ " ${extension} " ]]; then
+                echo "$extension is not required to be in the Chrome Web Store"
+                continue
+              fi
+              extension_name=$(jq ".[] | select(.ExtensionId==\"$extension\").ExtensionName" chrome_extensions.json)
+              detail_url="https://chrome.google.com/webstore/detail/$extension"
+              # Validate that the chrome webstore knows about this extension id
+              http_code=$(curl "$detail_url" -s -o /dev/null -w "%{http_code}")
+              if [[ $http_code -gt 399 ]]; then
+                rc=$((rc+1))
+                echo "Could not validate $extension_name ($extension)"
+                exit $rc
+              fi
+              # Validate that the extension names matches the value in the chrome webstore
+              effective_url=$(curl "$detail_url" -Ls -o /dev/null -w %{url_effective})
+              effective_name=$(echo $effective_url | sed 's#https://chrome.google.com/webstore/detail/##g' | sed "s#/$extension##g")
+              # some postprocessing to make the human readable name match the extension webstore
+              converted_extension_name=$(echo "${extension_name}" | tr '[:upper:]' '[:lower:]' | sed 's/(//g' | sed 's/)//g' | sed 's/ & /-/g' | sed 's/://g' | sed 's/ – /-%E2%80%93-/g' | sed 's/ - /-/g' | sed 's/ /-/g')
+              if ! [[ "$converted_extension_name" =~ "$effective_name" ]]; then
+                echo "${converted_extension_name} does not belong with ${effective_name}"
+              fi
+            done
+            exit $rc
+Once a PR passes these basic checks, we investigate the permissions that the extension requires. While this can be done in a lab environment or by downloading and extracting the manifest, we tend to leverage inspection tools freely available online, such as the excellent CRXcavator from Duo Labs. Tools like this give valuable summaries of requested permissions, external network traffic destinations the extension is expected to have, statistics about the size of the user base, and it even renders the extension source code for application security teams like us to inspect if they have questions.
+We then investigate the privacy policy on the official extension web store page. In the Chrome Web Store, this is called “Privacy Practices”. In the Edge Store, the policy is in the “Terms” section. While this is obviously not a guarantee of extension behavior, we’re on the lookout for any mention of selling data from the browser.
+Next, we perform a quick internet search (OSINT) for indicators of “bad” behavior as a gut check. Over time we’ve found that searching by “extension ID + malware” seems to provide the most value in most search providers, except for Twitter, where “extension name + malware” tends to be more reliable. Sometimes this reveals whole articles about misbehaving software and untrustworthy developers, while other times the indicators can be subtle — this is nothing more than a quick gut check.
+Finally, we consider the productivity benefits / potential positive business impacts against the risks. For example, a utilizing a password manager extension published from a highly reputable vendor outweighs the inconvenience of having to manually copy/paste passwords from a desktop app or web dashboard — or worse yet, not using a password manager at all.
+
+With this process in place, requesting a browser extension often becomes a surprisingly personal undertaking, as the requester needs to have sufficient conviction and be willing to make an argument as to why a certain extension should be allowed. We try to bias towards approval whenever possible, as we value acting as trusted partners rather than gatekeepers. When we do reject a request, we don’t do so unilaterally — we always engage in a conversation about why we believe the risks of a certain extension outweigh the benefits. We also try to suggest alternatives: we’ve found that the actual number of unique use cases is surprisingly small, and it’s likely we’ve already allowed a similar extension with equal or less risk. As long as we can give the requester the outcome they’re seeking, they generally don’t mind how it is actually provided.
+
+What about workstation policy administrators?
+
+At this stage of the process, we were confident that we could adequately support and engage with our end users, but another question remained: how could we make sure our workstation policy administrators were happy as well? We thought requesting that they cross-reference and copy/paste individual extension IDs to the controlling Group Policy and Jamf profile dashboards was too onerous, but at the same time, we couldn’t find examples of automating this type of workflow. Undeterred, we looked to our other corporate infrastructure-as-code for inspiration.
+
+Our breakthrough on this came when we found the PowerShell cmdlet Set-GPRegistryValue. We already knew that in Windows, the allowlist policy for the three browsers was simply a numbered list of registry keys. After significant trial and error, we developed a pipeline around this PowerShell command that automatically deploys a new allowlist to all Windows endpoints within about an hour of the PR being approved and merged, with no human intervention required.
+
+Here’s how it works:
+
+Press enter or click to view image in full size
+
+Step One: Publish to Artifactory
+Once a PR is merged and the json list is updated, CircleCI automatically publishes the new version to our internal Artifactory. An example for Edge is below; Chrome and Firefox are nearly identical.
+
+publish:
+    docker:
+      - image: container.palantir.internal/circle-build/ubuntu
+    steps:
+      - checkout
+      - run:
+          name: Publish extensions
+          command: |
+            curl --fail -u "${USERNAME}:${PASSWORD}" \
+            -X PUT "https://files.palantir.internal/files/extensions/latest/edge_extensions.json" \
+            -T edge_extensions.json
+
+Step Two: Scheduled PowerShell scripts compare and update Group Policy
+We built PowerShell scripts that inspect the json lists published in Artifactory and perform a comparison to the current Group Policies; if there are any differences, these scripts rebuild the relevant list from scratch (this facilitates both additions and removals).
+
+These PowerShell scripts are baked into a Docker image, which is deployed via Hashistack into our Tier-0 (domain controller-equivalent) network, and which run the scripts every five minutes via Scheduled Task. This single-function machine executes the scripts in the context of a group Managed Service Account (gMSA) which has UPDATE permissions for the Group Policy that controls browser policies (and absolutely nothing else). As this worker machine is able to modify a Group Policy that can influence many machines, we handle it with similar security considerations as our actual Domain Controllers and other Tier-0 services.
+
+# Applying Registry w/ PowerShell:
+#   https://docs.microsoft.com/en-us/powershell/module/grouppolicy/set-gpregistryvalue?view=win10-ps
+
+# Limited Scope GPO:
+#    "{YOUR GPO GUID}"
+
+# Allowlist location:
+#    Computer\HKEY_CURRENT_USER\Software\Policies\Google\Chrome\ExtensionInstallAllowlist
+
+# The GPO operates as a simple ordered list of REG_SZ incrementing from one (not zero).
+
+
+$GPO_Id = "{YOUR GPO GUID HERE}"
+$chrome_rules_file = "chrome_extensions.json"
+$extensions_uri = "https://files.palantir.internal/files/extensions/latest/" + $chrome_rules_file
+$RegistryPath = "HKEY_CURRENT_USER\Software\Policies\Google\Chrome\ExtensionInstallAllowlist"
+
+Import-Module GroupPolicy
+
+Write-Host $(Get-Date -Format u) "[info] Chrome Policy Comparison Starting"
+
+function Get-CurrentJSON {
+    Try {
+        (Get-Content -Raw -Path ($chrome_rules_file) | ConvertFrom-Json) | Select -ExpandProperty ExtensionId
+        Write-Host $(Get-Date -Format u) "[info] Retrieved Settings from the JSON input file"
+    } Catch {
+        Write-Host $(Get-Date -Format u) "[warning] Failed to read JSON input file"
+    }
+}
+
+function Get-CurrentGPOExtensions {
+    Try {
+        Get-GPRegistryValue -Id $GPO_Id -Key $RegistryPath | Select -ExpandProperty Value
+        Write-Host $(Get-Date -Format u) "[info] Retrieved group policy settings"
+    } Catch {
+        Write-Host $(Get-Date -Format u) "[warning] Failed to read group policy settings"        
+    }
+}
+
+#DOWNLOAD THE EXTENSIONS FILE FROM ARTIFACTORY
+Invoke-WebRequest -Uri $extensions_uri -OutFile $chrome_rules_file
+$f = get-item $chrome_rules_file
+if ($f.Length -lt 500){
+    Write-Host $(Get-Date -Format u) "[warning] Something is wrong with the JSON download. Exiting."
+    Exit 1
+}
+
+# CHECK IF ANY CHANGES HAVE BEEN MADE,
+# EXIT HERE IF NO CHANGES DETECTED:
+$current_gpo_state = @(Get-CurrentGPOExtensions)
+$current_JSON = @(Get-CurrentJSON)
+$differences = Compare-Object $current_gpo_state $current_JSON
+if ($null -eq $differences){
+    Write-Host $(Get-Date -Format u) "[info] No changes in the JSON. Exiting."
+    Exit 0
+}
+
+#CONTINUE, JSON INPUT IS DIFFERENT THAN GPO
+
+#LAST SAFETY CHECK: Is the current JSON input valid?
+if ($current_JSON.Length -lt 20){
+    Write-Host $(Get-Date -Format u) "[warning] Failed safety check. JSON input invalid. Aborted before making changes."
+    Exit 1
+}
+
+#DROP EXISTING SETTINGS:
+Remove-GPRegistryValue -Id $GPO_Id -Key $RegistryPath
+
+#APPLY THE NEW SETTINGS AS A SINGLE GPO UPDATE:
+Try {
+    Set-GPRegistryValue -Id $GPO_Id -Key $RegistryPath -ValuePrefix 0 -Type String -Value $current_JSON
+    Write-Host $(Get-Date -Format u) "[info] Applied registry changes to GPO $GPO_Id"
+} Catch {
+    Write-Host $(Get-Date -Format u) "[critical] Failed to apply registry changes to GPO $GPO_Id"
+    Write-Host $(Get-Date -Format u) "[critical] Old settings were deleted and new settings have not been applied"
+}
+
+The script for Edge is almost identical. The key difference is the registry path being updated:
+
+$RegistryPath = "HKEY_CURRENT_USER\Software\Policies\Microsoft\Edge\Extension
+
+Step Three: Don’t forget macOS
+While we were thrilled to have a highly functional pipeline for our Windows workstations, we were also aware that the majority of our employees are on macOS and therefore wouldn’t benefit from this automation. In the end, we were able to leverage portions of the Windows pipeline to streamline macOS profile administration, but not automate it outright.
+
+Palantir previously developed a service called Excavator that executes arbitrary scripts against internal GitHub repositories and can open PRs based on the results. Using Excavator, we built a script that would parse the json file from Artifactory and automatically convert any changes into a preformatted plist file for our Jamf Pro administrators to easily apply. The process is ultimately manual, but still streamlined, as they can upload the entire updated plist file at once rather than picking through arrays looking for what has changed.
+
+The script run by Excavator to generate a plist for Edge looks like this:
+
+/bin/env python3
+''' Generate a plist file in the endpoint configuration profile repository. '''
+
+import datetime
+import logging
+import optparse
+import sys
+import os
+import requests
+import jinja2
+import plistlib
+
+BASEPATH = 'https://files.palantir.internal/files/extensions/latest'
+EDGEFILE = 'edge_extensions.json'
+directory = os.path.dirname(os.path.realpath('__file__'))
+file = '/Microsoft Edge/com.microsoft.Edge.plist'
+filedir = directory + file
+
+def render_template(path, extensionids):
+    """ Render the template from the list of extension ids """
+    templateloader = jinja2.FileSystemLoader(searchpath=os.path.dirname(path))
+    templateenv = jinja2.Environment(loader=templateloader, trim_blocks=True, keep_trailing_newline=True)
+    templatefile = os.path.basename(path)
+    template = templateenv.get_template(templatefile)
+    outputtext = template.render(extensionids=extensionids)
+    logging.info("file directory detected as %s", filedir)
+    logging.info("writing file")
+    with open(filedir, 'w') as filewriter:
+        filewriter.write(outputtext)
+
+def test_plist():
+    try:
+        with open(filedir, "rb") as plist:
+            plistlib.load(plist)
+    except:
+        logging.critical("Plist is not valid, aborting: %s")
+        sys.exit(1)
+
+def get_published_file():
+    """ Pull down file from Files"""
+    logging.info("pulling down Edge extension file from Files...")
+    logging.debug(BASEPATH + EDGEFILE)
+    ## try or die
+    try:
+        results = requests.get(BASEPATH + EDGEFILE)
+    except requests.exceptions.RequestException as message:
+        logging.critical("Was unable to get policy: %s", message)
+        sys.exit(1)
+    return results.json()
+
+def parse_args():
+    """Parse the arguments"""
+    parser = optparse.OptionParser()
+    parser.add_option("-v", "--verbose", help="increase logging output",
+                      action="store_true")
+    # pylint: enable=line-too-long
+    parser.description = """
+    Generate new Edge plist file from published policy
+    """
+    (options, args) = parser.parse_args()
+    if options.verbose:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    # pylint: disable=line-too-long
+    logging.basicConfig(level=level,
+                        format='%(asctime)s %(levelname)s %(name)s: %(message)s',
+                        datefmt='%m/%d/%Y %H:%M:%S')
+    # pylint: enable=line-too-long
+    return (options, args[0])
+
+def get_ordered_ids(blob):
+    """ Take json blob and return ordered list """
+    ids = []
+    for extension in blob:
+        ids.append(extension['ExtensionId'])
+    return ids
+
+def main():
+    """ Main function """
+    start = datetime.datetime.utcnow()
+    # options and args
+    (options, path) = parse_args()
+    logging.info("Starting Jamf Pro policy updater: %s", start)
+    edge_blob = get_published_file()
+    ids = get_ordered_ids(edge_blob)
+    render_template(path, ids)
+    test_plist()
+
+if __name__ == '__main__':
+    main()
+
+The script relies on a template file to correctly insert the extension IDs into the existing profile. One of the limitations of this method is that Excavator assumes that only the extension IDs are dynamic, and all other components are relatively static. In our experience this has been true, but there are edge cases we have to account for. An example template plist file is below:
+
+Name: edge_plist.tpl
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>ExtensionInstallAllowlist</key>
+    <array>
+{% for extensionid in extensionids %}
+        <string>{{ extensionid }}</string>
+{% endfor %}
+    </array>
+    <key>ExtensionInstallBlocklist</key>
+    <array>
+        <string>*</string>
+    </array>
+    <key>SyncDisabled</key>
+    <true/>
+</dict>
+</plist>
+
+Jamf Pro has an API that allows for direct interaction and manipulation of existing profile plist configurations, which could theoretically allow automation of the macOS security policies to match the Windows automation, but we have so far been unable to execute that function in a manner safe enough to deploy into production.
+
+Conclusion
+
+Browser extensions provide a useful productivity boost but also add to the list of risks that security teams need to manage. We hope that this provided insight into the Palantir approach to the problem. We realize that the code-repository-driven workflow described above probably can’t be simply dropped in to other organizations without some modification, but we are hopeful that the examples and the context from this post provide a handy starting point.

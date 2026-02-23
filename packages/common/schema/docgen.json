@@ -1,30 +1,20 @@
 {
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "srcDir": "src",
-  "outDir": "docs",
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema/src/",
   "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
-    "module": "ES2024",
-    "target": "ES2024",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "module": "ES2022",
+    "target": "ES2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
     "paths": {
-      "@beep/schema": ["./src/index.ts"],
-      "@beep/schema/*": ["./src/*"],
-      "@beep/types": ["../types/src/index.js"],
-      "@beep/types/*": ["../types/src/*.js"],
-      "@beep/identity": ["../identity/src/index.js"],
-      "@beep/identity/*": ["../identity/src/*.js"],
-      "@beep/invariant": ["../invariant/src/index.js"],
-      "@beep/invariant/*": ["../invariant/src/*.js"],
-      "@beep/utils": ["../utils/src/index.js"],
-      "@beep/utils/*": ["../utils/src/*.js"],
-      "@beep/testkit": ["../../../tooling/testkit/src/index.js"],
-      "@beep/testkit/*": ["../../../tooling/testkit/src/*.js"]
+      "effect": ["../../../packages/effect/src/index.ts"],
+      "@beep/schema": ["../../../packages/common/schema/src/index.ts"]
     }
   }
 }

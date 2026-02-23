@@ -1,0 +1,1254 @@
+[
+  {
+    "url": "https://github.com/palantir/witchcraft-api",
+    "title": "GitHub - palantir/witchcraft-api: Common APIs and Conjure definitions for witchcraft projects",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Witchcraft",
+        "description": "Palantir's Java microservice framework that integrates with Conjure for type-safe service-to-service communication, including URI live-reloading and connection pool reuse."
+      },
+      {
+        "type": "Product",
+        "name": "Conjure",
+        "description": "Palantir's interface definition language and code generation framework for type-safe API definitions shared across services."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "A typed contract between services defined using Conjure IDL, generating client and server bindings for multiple languages."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Conjure Definitions",
+        "description": "Declarative API specifications in Conjure IDL that define service endpoints, data types, and error types for code generation."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Health API",
+        "description": "Witchcraft's standardized health check API defined via Conjure, providing consistent service health reporting across the microservice ecosystem."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Logging API",
+        "description": "Witchcraft's standardized logging API defined via Conjure, enabling structured logging across all microservices."
+      },
+      {
+        "type": "Pattern",
+        "name": "Type-Safe Service Communication",
+        "description": "Pattern where services communicate through Conjure-generated typed interfaces rather than raw HTTP, ensuring compile-time safety across service boundaries."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Witchcraft",
+        "relationship": "BUILT_ON",
+        "target": "Conjure"
+      },
+      {
+        "source": "Conjure Definitions",
+        "relationship": "EXAMPLE_OF",
+        "target": "Interface"
+      },
+      {
+        "source": "Health API",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure Definitions"
+      },
+      {
+        "source": "Logging API",
+        "relationship": "DEFINED_BY",
+        "target": "Conjure Definitions"
+      },
+      {
+        "source": "Type-Safe Service Communication",
+        "relationship": "ENABLES",
+        "target": "Interface"
+      },
+      {
+        "source": "Interface",
+        "relationship": "EXPOSED_BY",
+        "target": "Witchcraft"
+      }
+    ],
+    "keyInsights": [
+      "Witchcraft is Palantir's Java microservice framework that standardizes service communication via Conjure-generated interfaces.",
+      "Health and logging APIs are defined declaratively using Conjure IDL and shared across all Witchcraft-based services.",
+      "Witchcraft provides URI live-reloading and connection pool reuse, enabling dynamic service discovery without restarts.",
+      "The witchcraft-api repository demonstrates Palantir's infrastructure-as-code approach to API contract management."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/dialogue",
+    "title": "GitHub - palantir/dialogue: A client-side RPC library for conjure-java",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Dialogue",
+        "description": "Palantir's open-source client-side HTTP RPC library designed to work with Conjure-defined APIs, providing concurrency limiting, client-side load balancing, retries, and streaming."
+      },
+      {
+        "type": "Product",
+        "name": "Conjure",
+        "description": "Palantir's interface definition language and code generation framework for type-safe API definitions."
+      },
+      {
+        "type": "Product",
+        "name": "Witchcraft",
+        "description": "Palantir's Java microservice framework that provides client creation abstractions on top of Dialogue."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Concurrency Limiter",
+        "description": "AIMD (additive increase multiplicative decrease) concurrency limiter in Dialogue that prevents bursty traffic from overloading upstream servers."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Client-Side Node Selection",
+        "description": "Dialogue's load balancing approach where routing decisions happen in the client, eliminating the need for an L7 proxy and its latency penalty."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Content Decoding",
+        "description": "Dialogue's support for JSON, SMILE, and CBOR content formats by default, with extensible user-defined encodings."
+      },
+      {
+        "type": "Pattern",
+        "name": "Client-Side Load Balancing",
+        "description": "Architectural pattern where service clients make load balancing decisions locally rather than relying on a centralized L7 proxy."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Zipkin Tracing",
+        "description": "Dialogue's built-in distributed tracing using Zipkin-style spans and X-B3-TraceId header propagation."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Conjure-generated service interfaces (blocking and async variants) that Dialogue uses as the basis for type-safe RPC communication."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Dialogue", "relationship": "BUILT_ON", "target": "Conjure" },
+      {
+        "source": "Witchcraft",
+        "relationship": "BUILT_ON",
+        "target": "Dialogue"
+      },
+      {
+        "source": "Concurrency Limiter",
+        "relationship": "EXAMPLE_OF",
+        "target": "Interface"
+      },
+      {
+        "source": "Client-Side Load Balancing",
+        "relationship": "ENABLES",
+        "target": "Interface"
+      },
+      {
+        "source": "Client-Side Node Selection",
+        "relationship": "DEFINED_BY",
+        "target": "Client-Side Load Balancing"
+      },
+      {
+        "source": "Dialogue",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Witchcraft"
+      },
+      {
+        "source": "Zipkin Tracing",
+        "relationship": "EXAMPLE_OF",
+        "target": "Interface"
+      }
+    ],
+    "keyInsights": [
+      "Dialogue is Palantir's HTTP client library that implements client-side load balancing, eliminating the need for L7 proxies.",
+      "Dialogue uses AIMD concurrency limiters and FIFO queuing to handle traffic spikes without overloading upstream servers.",
+      "Conjure generates both blocking (FooServiceBlocking) and async (FooServiceAsync) Java interfaces that Dialogue consumes.",
+      "Dialogue supports live URI reloading without losing concurrency limiter or node selection state.",
+      "Content encoding supports JSON, SMILE, and CBOR natively, with streaming for requests and responses."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/slate/overview",
+    "title": "Slate - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Slate",
+        "description": "Palantir's drag-and-drop application builder that enables developers to construct dynamic and responsive applications with custom CSS styling, JavaScript widgets, and Ontology integration."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data platform that Slate applications integrate with for data, Ontology access, and Action execution."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity representing real-world concepts, accessible from Slate applications as object data sources."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology mechanism for write-back operations, usable from Slate applications to modify data in Foundry."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology functions that Slate applications can invoke to perform computations or transformations on Ontology data."
+      },
+      {
+        "type": "Pattern",
+        "name": "Public Internet Application",
+        "description": "Pattern where Slate applications can be exposed to the public Internet without server, DNS, or authentication configuration, allowing external users to submit data into Foundry."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "CSS Customization",
+        "description": "Slate's ability to customize every visual aspect of applications using CSS, from canvas backgrounds to button fonts and border radii."
+      },
+      {
+        "type": "UseCase",
+        "name": "Operational Application Building",
+        "description": "Using Slate to rapidly create operational applications, interactive dashboards, and custom landing pages with minimal coding."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "Slate", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Slate"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Slate"
+      },
+      { "source": "Function", "relationship": "EXPOSED_BY", "target": "Slate" },
+      {
+        "source": "Operational Application Building",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Operational Application Building",
+        "relationship": "DEMONSTRATES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Public Internet Application",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Slate is a drag-and-drop application builder that can create public-facing applications without server or DNS configuration.",
+      "Slate seamlessly integrates with the Ontology, using object data, Functions, and Actions alongside external data sources.",
+      "Applications built in Slate support full CSS customization for corporate branding and custom design experiences.",
+      "Slate enables non-Foundry users to submit data into Foundry via public Internet applications with validation logic."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir",
+    "title": "Palantir Technologies - GitHub",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Palantir Open Source Ecosystem",
+        "description": "Palantir's GitHub organization with 265+ open-source repositories spanning Java, Go, TypeScript, and Python, including core infrastructure tools."
+      },
+      {
+        "type": "Product",
+        "name": "Blueprint",
+        "description": "Palantir's React-based UI toolkit for the web with 21,500+ stars, providing the component library used across Palantir's front-end applications."
+      },
+      {
+        "type": "Product",
+        "name": "Conjure Java",
+        "description": "Conjure code generator for Java clients and servers, producing type-safe service interfaces from Conjure IDL definitions."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK TypeScript",
+        "description": "Palantir's TypeScript OSDK libraries (osdk-ts) for building front-end and back-end applications against the Ontology."
+      },
+      {
+        "type": "Product",
+        "name": "Terraform Provider Foundry",
+        "description": "Terraform provider for Palantir Foundry, enabling infrastructure-as-code management of Foundry resources."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry Athena Connector",
+        "description": "Implementation of Amazon Athena Query Federation SDK for querying Palantir Foundry data via Athena."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Open Source Licensing",
+        "description": "Palantir uses Apache 2.0 license for Java projects and varies for JavaScript/TypeScript projects, with most tooling being open-source."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OSDK TypeScript",
+        "relationship": "BUILT_ON",
+        "target": "Blueprint"
+      },
+      {
+        "source": "Conjure Java",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Palantir Open Source Ecosystem"
+      },
+      {
+        "source": "Terraform Provider Foundry",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry Athena Connector"
+      },
+      {
+        "source": "OSDK TypeScript",
+        "relationship": "PART_OF",
+        "target": "Palantir Open Source Ecosystem"
+      },
+      {
+        "source": "Blueprint",
+        "relationship": "PART_OF",
+        "target": "Palantir Open Source Ecosystem"
+      }
+    ],
+    "keyInsights": [
+      "Palantir maintains 265+ open-source repositories, with Java being the most common language followed by Go and TypeScript.",
+      "Blueprint (21,500+ stars) is Palantir's most popular open-source project, serving as the standard React UI toolkit.",
+      "The osdk-ts repository contains all TypeScript OSDK libraries for Ontology-connected application development.",
+      "Palantir's open-source ecosystem includes infrastructure tools (Terraform, Gradle plugins), code generation (Conjure), and application frameworks."
+    ]
+  },
+  {
+    "url": "https://docs.oracle.com/en/solutions/palantir-foundry-ai-platform-on-oci/index.html",
+    "title": "Run Palantir Foundry and Artificial Intelligence Platform on OCI",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data integration, data modeling, low-code development, and analytics platform deployable across multiple cloud providers."
+      },
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's Artificial Intelligence Platform, deployed alongside Foundry for AI-powered analytics and decision-making."
+      },
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's management plane and observability platform that monitors and manages Foundry deployments across all environments."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Control Plane",
+        "description": "Foundry's management infrastructure that orchestrates platform operations, running in dedicated subnets separate from the data plane."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Data Plane",
+        "description": "Foundry's compute and storage infrastructure where data processing and analytics workloads execute, isolated from the control plane."
+      },
+      {
+        "type": "Pattern",
+        "name": "Cloud-Agnostic Deployment",
+        "description": "Foundry's ability to deploy on AWS, Azure, GCP, OCI, and hybrid environments with the same software architecture."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Instance Pools",
+        "description": "OCI instance pool construct used by Foundry for horizontal scaling of compute resources across availability domains."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Transport Layer Encryption",
+        "description": "TLS encryption for all public internet data flows to and from Foundry's public subnet through internet gateways."
+      },
+      {
+        "type": "Pattern",
+        "name": "Multi-AD High Availability",
+        "description": "Foundry's deployment pattern using multiple availability domains and fault domains within a region for high availability."
+      }
+    ],
+    "extractedRelationships": [
+      { "source": "AIP", "relationship": "BUILT_ON", "target": "Foundry" },
+      {
+        "source": "Apollo",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      {
+        "source": "Control Plane",
+        "relationship": "DEFINED_BY",
+        "target": "Cloud-Agnostic Deployment"
+      },
+      {
+        "source": "Data Plane",
+        "relationship": "DEFINED_BY",
+        "target": "Cloud-Agnostic Deployment"
+      },
+      {
+        "source": "Transport Layer Encryption",
+        "relationship": "SECURES",
+        "target": "Data Plane"
+      },
+      {
+        "source": "Multi-AD High Availability",
+        "relationship": "ENABLES",
+        "target": "Data Plane"
+      }
+    ],
+    "keyInsights": [
+      "Foundry deploys with a separated control plane and data plane architecture across cloud providers.",
+      "Apollo is Palantir's management plane that provides observability and operational management for all Foundry deployments.",
+      "Foundry is cloud-agnostic, supporting AWS, Azure, GCP, OCI, and hybrid/on-premises deployments.",
+      "Deployments leverage multi-availability-domain and multi-fault-domain architectures for high availability.",
+      "Foundry's key components include data integration, ontology, decisions, modeling, analytics, application building, and core services."
+    ]
+  },
+  {
+    "url": "https://a16z.com/the-palantirization-of-everything/",
+    "title": "The Palantirization of Everything - Andreessen Horowitz",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's opinionated platform for data integration, governance, and operational analytics, described as an operating system for an organization's data."
+      },
+      {
+        "type": "Product",
+        "name": "Gotham",
+        "description": "Palantir's platform for higher-security situations, used alongside Foundry for defense and intelligence applications."
+      },
+      {
+        "type": "Pattern",
+        "name": "Forward-Deployed Engineering",
+        "description": "Palantir's model of embedding engineers (Deltas and Echoes) inside customer organizations for months to build custom workflows on the platform."
+      },
+      {
+        "type": "Pattern",
+        "name": "Outcome-Aligned Contracts",
+        "description": "Palantir's commercial model using multi-year, outcome-driven contracts worth tens of millions annually, blending software, services, and optimization."
+      },
+      {
+        "type": "Pattern",
+        "name": "Opinionated Integrated Platform",
+        "description": "Architectural approach where Palantir products are not loose toolkits but deeply integrated platforms converting fragmented data into real-time decisions."
+      },
+      {
+        "type": "UseCase",
+        "name": "Defense and Intelligence Operations",
+        "description": "Using Foundry and Gotham in mission-critical government environments where regulatory complexity and high stakes are inherent features."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology entity for modeling real-world concepts within Foundry's integrated platform."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Foundry",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Gotham"
+      },
+      {
+        "source": "Forward-Deployed Engineering",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Defense and Intelligence Operations",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Opinionated Integrated Platform",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Outcome-Aligned Contracts",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Palantir's forward-deployed engineers (Deltas and Echoes) embed inside customer organizations to build custom workflows on Foundry.",
+      "Foundry is described as an operating system for organizational data, not a loose toolkit of components.",
+      "Palantir's commercial model uses fixed-fee, outcome-aligned contracts rather than traditional per-seat licensing.",
+      "The Palantir approach simultaneously excels at integrated platform building, embedded engineering, and mission-critical government delivery.",
+      "Most startups copying Palantir's model risk becoming expensive services businesses without compounding competitive advantage."
+    ]
+  },
+  {
+    "url": "https://michaelellerbeck.com/2025/03/17/palantir-foundry-compute-module-for-absolute-beginners/",
+    "title": "Palantir Foundry Compute Module For Absolute Beginners",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Compute Module",
+        "description": "Foundry's containerized workload system that allows developers to run custom Docker containers for data generation, processing, and streaming within the platform."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data platform where compute modules run and produce output to streams and datasets."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Palantir's Ontology SDK used at DevCon for building against the dynamic ontology."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Pipelines Module",
+        "description": "A compute module type that is auto-granted permissions to its input and output resources, simplifying data pipeline setup."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Stream Output",
+        "description": "A streaming data output resource that compute modules write to via the stream-proxy API using bearer token authentication."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Resource Alias Map",
+        "description": "Environment variable (RESOURCE_ALIAS_MAP) providing a JSON mapping of resource aliases to RIDs and branches for compute module I/O."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "BUILD2_TOKEN",
+        "description": "Environment variable containing the bearer token used by compute modules to authenticate API calls to Foundry services."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Stream Proxy API",
+        "description": "Foundry's API endpoint (stream-proxy/api/streams/{rid}/branches/{branch}/jsonRecord) for writing JSON records to streaming resources."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology functions that compute modules can implement for custom data processing and generation logic."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Compute Module",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Pipelines Module",
+        "relationship": "DEFINED_BY",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Stream Output",
+        "relationship": "DEFINED_BY",
+        "target": "Stream Proxy API"
+      },
+      {
+        "source": "Resource Alias Map",
+        "relationship": "DEFINED_BY",
+        "target": "Compute Module"
+      },
+      {
+        "source": "BUILD2_TOKEN",
+        "relationship": "DEFINED_BY",
+        "target": "Compute Module"
+      },
+      {
+        "source": "Compute Module",
+        "relationship": "EXPOSED_BY",
+        "target": "Foundry"
+      },
+      {
+        "source": "Function",
+        "relationship": "EXPOSED_BY",
+        "target": "Compute Module"
+      }
+    ],
+    "keyInsights": [
+      "Compute modules use Docker containers with the foundry-compute-modules Python package for data generation and processing.",
+      "The RESOURCE_ALIAS_MAP environment variable maps human-readable aliases to Foundry resource RIDs and branches.",
+      "Pipelines modules receive auto-granted permissions to their input and output resources, simplifying configuration.",
+      "Data is written to Foundry streams via the stream-proxy API endpoint with bearer token authentication.",
+      "Compute modules support change data capture and configurable throughput settings for streaming outputs."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/custom-widgets/parameters-and-events",
+    "title": "Custom widgets - Parameters and events - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Palantir's application building tool that serves as the host application for custom widgets, managing state and event binding."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "A collection of objects of a specific Object Type, passable as a typed parameter to custom widgets with an associated OSDK object type."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "The Ontology type that defines the schema of objects within an ObjectSet parameter."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Widget Parameter",
+        "description": "Typed input mechanism for custom widgets supporting boolean, date, number, string, timestamp primitives, arrays, and objectSet types, with a limit of 50 per widget."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Widget Event",
+        "description": "Output mechanism enabling custom widgets to communicate back to Workshop, triggering side effects and parameter updates via parameterUpdateIds, limited to 50 per widget."
+      },
+      {
+        "type": "Pattern",
+        "name": "Bidirectional Widget Communication",
+        "description": "Pattern where Workshop passes data to widgets via parameter bindings and widgets update Workshop state by emitting events with parameter update payloads."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Object Set RID",
+        "description": "Resource Identifier format (ri.object-set.main.temporary-object-set.*) used to reference object sets in widget parameter values."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology interface type referenced in the context of custom widget parameter compatibility."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "CamelCase Parameter IDs",
+        "description": "Constraint requiring all widget parameter and event IDs to use camelCase format."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Widget Parameter",
+        "relationship": "EXAMPLE_OF",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "ObjectSet",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      },
+      {
+        "source": "Widget Event",
+        "relationship": "DEFINED_BY",
+        "target": "Bidirectional Widget Communication"
+      },
+      {
+        "source": "Widget Parameter",
+        "relationship": "DEFINED_BY",
+        "target": "Bidirectional Widget Communication"
+      },
+      {
+        "source": "ObjectSet",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Bidirectional Widget Communication",
+        "relationship": "ENABLES",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "Object Set RID",
+        "relationship": "DEFINED_BY",
+        "target": "ObjectSet"
+      }
+    ],
+    "keyInsights": [
+      "Custom widgets communicate with Workshop through a typed parameter and event system, each limited to 50 items.",
+      "Widget parameters support primitive types (boolean, date, number, string, timestamp), arrays, and objectSet types.",
+      "Events use parameterUpdateIds to specify which parameters can be modified when the event fires, enabling two-way state sync.",
+      "Object set parameters require an associated OSDK object type declaration and use RID-based references.",
+      "Struct and object set filter types are currently unsupported as first-class widget parameter types."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/how-to-bootstrapping-server-side-typescript",
+    "title": "Ontology SDK - Bootstrap a new TypeScript application with a service user - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Palantir's Ontology SDK for TypeScript that enables programmatic access to the Ontology from both client-side and server-side applications."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Palantir's application management interface for creating OSDK applications, generating SDK packages, and managing OAuth credentials."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Service User",
+        "description": "An application-level identity automatically created by Developer Console for backend services, enabling Ontology access without end-user authentication."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Confidential OAuth Client",
+        "description": "OAuth client type used for server-side OSDK applications that authenticates using a client secret rather than user-interactive flows."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity types selected during OSDK package generation that define which data the application can query."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology write-back operations selected during OSDK generation that the application can invoke."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "createConfidentialOauthClient",
+        "description": "OSDK function that creates an OAuth client for service user authentication using clientId and clientSecret."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "createClient",
+        "description": "OSDK function that creates the main client instance by combining a Foundry URL, ontology RID, and authentication provider."
+      },
+      {
+        "type": "Pattern",
+        "name": "Backend Service Authentication",
+        "description": "Pattern for headless/server-side applications using service user credentials (client ID + secret) instead of interactive user authentication."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Role",
+        "description": "Permission model where the service user must be granted roles to read object type data and execute action types."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Service User",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Confidential OAuth Client",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "OSDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Developer Console"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Backend Service Authentication",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      { "source": "Role", "relationship": "SECURES", "target": "Action Type" },
+      {
+        "source": "createConfidentialOauthClient",
+        "relationship": "DEFINED_BY",
+        "target": "Confidential OAuth Client"
+      },
+      {
+        "source": "createClient",
+        "relationship": "DEFINED_BY",
+        "target": "OSDK"
+      }
+    ],
+    "keyInsights": [
+      "Server-side OSDK applications use a confidential OAuth client with client ID and secret for service user authentication.",
+      "Developer Console automatically creates a service user when configuring a backend service application type.",
+      "OSDK packages are generated per-application with a fixed set of object types and action types that cannot change ontology after generation.",
+      "The service user must be explicitly granted permissions to read object types and execute action types via roles.",
+      "Client secrets are shown only once during application creation; rotation is possible but breaks existing applications."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/active-directory-as-code-e9666a2e548d",
+    "title": "Active Directory as Code",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Infrastructure as Code",
+        "description": "Palantir's approach to managing all infrastructure including Active Directory through code, using tools like Terraform, Packer, and DSC modules."
+      },
+      {
+        "type": "Product",
+        "name": "Palantir Infrastructure Platform",
+        "description": "Palantir's internal infrastructure platform leveraging IaC practices for AWS deployments, including Active Directory management."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Desired State Configuration",
+        "description": "Microsoft's PowerShell-based configuration management framework used by Palantir to enforce and maintain Active Directory state."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Packer AMI Pipeline",
+        "description": "Layered, immutable image build pipeline using Packer, Jenkins, and AWS CodeBuild to create standardized AD images."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Active Directory Security",
+        "description": "Security infrastructure deployed as code with automated, repeatable configurations integrated into CI/CD pipelines."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Auto Scaling Group Lifecycle Hooks",
+        "description": "AWS ASG hooks used for AD instance lifecycle management during bootstrapping and decommissioning."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Vault Secret Storage",
+        "description": "HashiCorp Vault used to store configuration secrets for AD deployments, separating secrets from infrastructure code."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Infrastructure as Code",
+        "relationship": "ENABLES",
+        "target": "Active Directory Security"
+      },
+      {
+        "source": "Desired State Configuration",
+        "relationship": "DEFINED_BY",
+        "target": "Infrastructure as Code"
+      },
+      {
+        "source": "Packer AMI Pipeline",
+        "relationship": "DEFINED_BY",
+        "target": "Infrastructure as Code"
+      },
+      {
+        "source": "Active Directory Security",
+        "relationship": "SECURES",
+        "target": "Palantir Infrastructure Platform"
+      },
+      {
+        "source": "Vault Secret Storage",
+        "relationship": "SECURES",
+        "target": "Active Directory Security"
+      }
+    ],
+    "keyInsights": [
+      "Palantir manages Active Directory entirely as code using Packer for images, Terraform for infrastructure, and Vault for secrets.",
+      "DSC (Desired State Configuration) modules enforce and auto-correct AD configuration drift at regular intervals.",
+      "AD images use a layered approach with a base Windows image containing security tooling, on which AD-specific configuration is layered.",
+      "The immutable image approach reduces entropy, codifies configuration, and aligns with CI/CD workflows."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/ais-role-in-reimagining-the-classification-system-2d7878c71217",
+    "title": "AI's Role in Reimagining the Classification System",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's Artificial Intelligence Platform proposed for modernizing the US Government classification system with LLM-based document analysis and declassification."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The structured representation of security classification rules translated from guides and policies into machine-actionable tools."
+      },
+      {
+        "type": "Pattern",
+        "name": "Rules into Tools",
+        "description": "Pattern of operationalizing policy documents (security classification guides, FOIA rules, foreign disclosure rules) by encoding them as Ontology constructs for automated processing."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Classification System",
+        "description": "The US Government system for marking documents with security levels, being modernized with AI to address overclassification and manual backlogs."
+      },
+      {
+        "type": "Pattern",
+        "name": "Human-in-the-Loop AI",
+        "description": "AIP's foundational principle where humans make decisions aided by AI at scale, speed, and accuracy, while maintaining oversight and audit capabilities."
+      },
+      {
+        "type": "UseCase",
+        "name": "Declassification Software Engine",
+        "description": "Automated processing of classified record backlogs to identify classification levels and map them to policy guides and prior decisions."
+      },
+      {
+        "type": "UseCase",
+        "name": "FOIA Front Door",
+        "description": "A single interface for citizens to request government records with interconnected back-end identification and retrieval."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "LLM Discrete Controls",
+        "description": "Implementation of specific controls on large language models to achieve classification outcomes while mitigating hallucination risks."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Classification System",
+        "relationship": "SECURES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Rules into Tools",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Declassification Software Engine",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "FOIA Front Door",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology"
+      },
+      {
+        "source": "Human-in-the-Loop AI",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      {
+        "source": "LLM Discrete Controls",
+        "relationship": "DEFINED_BY",
+        "target": "AIP"
+      },
+      {
+        "source": "AIP",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "AIP operationalizes classification rules by translating security guides and FOIA rules into an Ontology, turning rules into tools.",
+      "Human+Machine principles are foundational to AIP, ensuring humans remain decision-makers while AI provides scale and speed.",
+      "Discrete controls on LLMs mitigate hallucination risks while enabling document context analysis at scale.",
+      "AIP enables real-time simulation, inspection, and auditing of classification workflows for accuracy and consistency.",
+      "The classification system modernization demonstrates the Ontology pattern of encoding domain rules as machine-actionable structures."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/alerting-and-detection-strategy-framework-52dc33722df2",
+    "title": "Alerting and Detection Strategy Framework",
+    "extractedEntities": [
+      {
+        "type": "Pattern",
+        "name": "Alerting and Detection Strategy Framework",
+        "description": "Palantir's internal framework for designing, implementing, testing, and managing security alerting strategies with documented sections for goals, blind spots, validation, and response plans."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Incident Response",
+        "description": "Palantir's security team practice of detecting, investigating, and remediating security incidents using structured alerting strategies."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "ADS Template Sections",
+        "description": "Framework sections: Goal, Categorization, Strategy Abstract, Technical Context, Blind Spots and Assumptions, False Positives, Validation, Priority, Response, Additional Resources."
+      },
+      {
+        "type": "Pattern",
+        "name": "Alert Quality Lifecycle",
+        "description": "Process of hypothesis generation, peer review, true-positive testing, production deployment, and ongoing issue tracking for detection strategies."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Alert Validation",
+        "description": "Requirement that all alerting strategies undergo true-positive testing and durability validation before production deployment."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Version-Controlled ADS",
+        "description": "Practice of storing all alert documentation in durable, version-controlled, centralized locations with issue tracking for modifications."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Alerting and Detection Strategy Framework",
+        "relationship": "ENABLES",
+        "target": "Incident Response"
+      },
+      {
+        "source": "Alert Validation",
+        "relationship": "SECURES",
+        "target": "Incident Response"
+      },
+      {
+        "source": "ADS Template Sections",
+        "relationship": "DEFINED_BY",
+        "target": "Alerting and Detection Strategy Framework"
+      },
+      {
+        "source": "Alert Quality Lifecycle",
+        "relationship": "ENABLES",
+        "target": "Incident Response"
+      },
+      {
+        "source": "Version-Controlled ADS",
+        "relationship": "DEFINED_BY",
+        "target": "Alert Quality Lifecycle"
+      }
+    ],
+    "keyInsights": [
+      "Palantir's ADS framework requires documented sections covering goals, blind spots, validation, false positives, and response plans before production deployment.",
+      "All alerts must undergo true-positive testing and peer review as part of a mandatory quality gate.",
+      "Alert documentation is stored in version-controlled repositories with issue tracking for modifications, similar to code review workflows.",
+      "The framework addresses alert fatigue by requiring rigor in hypothesis generation and testing to prevent low-signal alert flooding."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/announcing-open-source-for-palantir-government-web-services-a2dd2f821126",
+    "title": "Announcing Open Source for Palantir Government Web Services",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Palantir Government Web Services",
+        "description": "Palantir's cloud infrastructure offering for defense and government, providing classified and unclassified environments with open-source tooling."
+      },
+      {
+        "type": "Product",
+        "name": "Policy Bot",
+        "description": "Open-source GitHub app that enforces configurable approval policies on pull requests for compliant change management in defense software development."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "FedRAMP Compliance",
+        "description": "Federal security certification that Policy Bot helps fulfill through enforced code review policies for configuration change control."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "IL5/IL6 Compliance",
+        "description": "DoD Impact Level certifications for classified data handling, supported by Policy Bot's enforced change management controls."
+      },
+      {
+        "type": "Pattern",
+        "name": "DevSecOps Change Management",
+        "description": "Government best practice pattern where all software and infrastructure changes require documented, reviewed, and auditable approval before production deployment."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "CM-3 Configuration Change Control",
+        "description": "NIST security control for configuration change management that Policy Bot fulfills through automated approval enforcement."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SA-10 Developer Configuration Management",
+        "description": "NIST security control for developer configuration practices satisfied by Policy Bot's review requirements."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Policy Bot",
+        "relationship": "PART_OF",
+        "target": "Palantir Government Web Services"
+      },
+      {
+        "source": "FedRAMP Compliance",
+        "relationship": "SECURES",
+        "target": "Palantir Government Web Services"
+      },
+      {
+        "source": "IL5/IL6 Compliance",
+        "relationship": "SECURES",
+        "target": "Palantir Government Web Services"
+      },
+      {
+        "source": "DevSecOps Change Management",
+        "relationship": "ENABLES",
+        "target": "Policy Bot"
+      },
+      {
+        "source": "CM-3 Configuration Change Control",
+        "relationship": "DEFINED_BY",
+        "target": "FedRAMP Compliance"
+      },
+      {
+        "source": "SA-10 Developer Configuration Management",
+        "relationship": "DEFINED_BY",
+        "target": "FedRAMP Compliance"
+      }
+    ],
+    "keyInsights": [
+      "Policy Bot enforces configurable approval policies on pull requests, enabling FedRAMP, IL5, and IL6 compliance without sacrificing release speed.",
+      "Palantir has 220+ open-source repositories representing building blocks for defense tech companies serving warfighters.",
+      "GWS open-source tooling falls into two categories: general dev utilities and technologies reducing vendor lock-in.",
+      "Policy Bot supports nuanced workflows including branch-specific rules, team-based approvals, and documentation change exemptions."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/are-you-ready-new-palantir-modules-help-enable-readiness-at-the-worlds-most-critical-institutions-d088caa12725",
+    "title": "Are You Ready? New Palantir modules help enable readiness at the world's most critical institutions",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Palantir for Readiness",
+        "description": "Palantir's module suite providing integrated 360-degree views into personnel, asset, and financial readiness for mission-critical organizations."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's core data platform that powers the readiness modules by integrating 160+ source systems and 30,000+ data tables."
+      },
+      {
+        "type": "UseCase",
+        "name": "Personnel Readiness",
+        "description": "Real-time comprehensive tracking of personnel readiness from organizational aggregate to individual level, including training scheduling, attrition evaluation, and retention planning."
+      },
+      {
+        "type": "UseCase",
+        "name": "Asset Readiness",
+        "description": "Real-time measurement of asset health and availability across entire fleets down to individual components, with alerting, triage, and lifecycle management."
+      },
+      {
+        "type": "UseCase",
+        "name": "Financial Readiness",
+        "description": "Consolidation of budget, financial, and contracting data to track spend progression, identify over/under-spending, and forecast budgets proactively."
+      },
+      {
+        "type": "Pattern",
+        "name": "Digital Twin",
+        "description": "Pattern of building a comprehensive digital representation of an organization's operations and resources by integrating all operational data sources."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Ontology entity types modeling units, billets, equipment, and personnel in the readiness domain."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Palantir for Readiness",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Personnel Readiness",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Asset Readiness",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Financial Readiness",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Digital Twin",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Palantir for Readiness",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "The US Army use case integrated 160+ source systems and 30,000+ tables to build a digital twin of operations covering 65,000+ units, 1M+ billets, and 1.5M+ equipment pieces.",
+      "Readiness modules provide proactive rather than reactive management of personnel, assets, and finances.",
+      "The Ontology enables a unified 360-degree view by connecting siloed source systems into a coherent operational model.",
+      "Real-time alerting and triage capabilities span from fleet-wide overviews down to individual component lifecycle tracking."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/auditing-with-osquery-part-one-introduction-to-the-linux-audit-framework-217967cec406",
+    "title": "Auditing with osquery: Part One — Introduction to the Linux Audit Framework",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Linux Audit Framework",
+        "description": "Kernel-level audit subsystem in Linux (since kernel 2.6) that generates audit events for security-relevant operations like file modifications and system calls."
+      },
+      {
+        "type": "Product",
+        "name": "osquery",
+        "description": "Open-source endpoint security tool that Palantir uses as an audit consumer for Linux audit events, serving as an alternative to auditd."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Audit Rule Types",
+        "description": "Three types of Linux audit rules: control rules (system behavior), file system rules (file/directory watches), and system call rules (syscall logging)."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Process Auditing",
+        "description": "osquery's capability to record process executions by consuming execve syscall audit events from the Linux kernel."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Socket Auditing",
+        "description": "osquery's capability to record network connections by consuming bind and connect syscall audit events."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Audit Consumer",
+        "description": "Userland application (such as osquery or auditd) that processes audit events emitted from the Linux kernel's audit subsystem."
+      },
+      {
+        "type": "Pattern",
+        "name": "Enterprise Endpoint Auditing",
+        "description": "Pattern of deploying osquery at enterprise scale with properly tuned audit configurations to balance security visibility with system performance."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Linux Audit Framework",
+        "relationship": "SECURES",
+        "target": "Process Auditing"
+      },
+      {
+        "source": "Linux Audit Framework",
+        "relationship": "SECURES",
+        "target": "Socket Auditing"
+      },
+      {
+        "source": "Audit Rule Types",
+        "relationship": "DEFINED_BY",
+        "target": "Linux Audit Framework"
+      },
+      {
+        "source": "Audit Consumer",
+        "relationship": "DEFINED_BY",
+        "target": "Linux Audit Framework"
+      },
+      {
+        "source": "Enterprise Endpoint Auditing",
+        "relationship": "ENABLES",
+        "target": "Process Auditing"
+      },
+      {
+        "source": "Enterprise Endpoint Auditing",
+        "relationship": "ENABLES",
+        "target": "Socket Auditing"
+      }
+    ],
+    "keyInsights": [
+      "osquery and auditd serve nearly identical roles as audit consumers, both processing kernel audit events for logging.",
+      "Improperly configured auditing causes performance issues, resource conflicts, and incomplete data that weakens detection.",
+      "Linux audit rules cover three categories: control rules for system behavior, file watches for access monitoring, and syscall rules for execution logging.",
+      "Palantir deploys osquery at enterprise scale, requiring careful tuning of audit configurations to avoid performance degradation."
+    ]
+  }
+]

@@ -1,107 +1,91 @@
 /**
- * @fileoverview Beep repository maintenance CLI entry point
+ * CLI tool for creating and managing packages in the beep-effect monorepo.
  *
- * Provides a unified CLI for repository automation tasks including documentation
- * generation, environment configuration, dependency management, and workspace
- * synchronization. All commands are Effect-based and run with BunRuntime.
+ * ## Mental model
  *
- * @module @beep/tooling-cli
- * @since 0.1.0
- * @category CLI
+ * - **Package creation** - Scaffold new packages following effect-smol patterns
+ * - **Code generation** - Generate barrel files and exports
+ * - **Topological sort** - Output packages in dependency order
  *
- * @example
- * ```typescript
- * import { runRepoCli } from "@beep/tooling-cli"
- *
- * // Generate documentation analysis
- * runRepoCli(["bun", "run", "docgen", "analyze", "-p", "packages/common/schema"])
- *
- * // Configure environment variables interactively
- * runRepoCli(["bun", "run", "env"])
- *
- * // Sync .env across workspaces
- * runRepoCli(["bun", "run", "sync"])
- * ```
+ * @since 0.0.0
+ * @packageDocumentation
  */
-
-import { FsUtilsLive } from "@beep/tooling-utils";
-import * as CliCommand from "@effect/cli/Command";
-import * as BunContext from "@effect/platform-bun/BunContext";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BunTerminal from "@effect/platform-bun/BunTerminal";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import { agentsUsageReportCommand } from "./commands/agents-usage-report/index.js";
-import { agentsValidateCommand } from "./commands/agents-validate.js";
-import { analyzeAgentsCommand } from "./commands/analyze-agents/index.js";
-import { analyzeReadmesCommand } from "./commands/analyze-readmes/index.js";
-import { bootstrapSpecCommand } from "./commands/bootstrap-spec/index.js";
-import { contextFreshnessCommand } from "./commands/context-freshness/index.js";
-import { createSliceCommand } from "./commands/create-slice/index.js";
-import { docgenCommand } from "./commands/docgen.js";
-import { enronCommand } from "./commands/enron/index.js";
-import { envCommand } from "./commands/env.js";
-import { findMissingDocsCommand } from "./commands/find-missing-docs.js";
-import { syncCommand } from "./commands/sync.js";
-import { syncCursorRulesCommand } from "./commands/sync-cursor-rules.js";
-import { topoSortCommand } from "./commands/topo-sort.js";
-import { tsconfigSyncCommand } from "./commands/tsconfig-sync/index.js";
-import { verifyCommand } from "./commands/verify/index.js";
-
-const repoCommand = CliCommand.make("beep").pipe(
-  CliCommand.withDescription("Beep repository maintenance CLI."),
-  CliCommand.withSubcommands([
-    agentsUsageReportCommand,
-    agentsValidateCommand,
-    analyzeAgentsCommand,
-    analyzeReadmesCommand,
-    bootstrapSpecCommand,
-    contextFreshnessCommand,
-    createSliceCommand,
-    docgenCommand,
-    enronCommand,
-    findMissingDocsCommand,
-    envCommand,
-    syncCommand,
-    syncCursorRulesCommand,
-    topoSortCommand,
-    tsconfigSyncCommand,
-    verifyCommand,
-  ])
-);
-
-const runBeepCli = CliCommand.run(repoCommand, {
-  name: "beep",
-  version: "0.1.0",
-});
-
-// FsUtilsLive already includes BunFileSystem.layer and BunPath.layerPosix internally
-const runtimeLayers = Layer.mergeAll(BunContext.layer, BunTerminal.layer, FsUtilsLive);
 
 /**
- * Runs the repository CLI with the provided command-line arguments.
+ * Code generation command for workspace barrels and exports.
  *
- * Bootstraps the beep CLI with all necessary runtime layers (BunContext, BunTerminal, FsUtils)
- * and executes the command specified in the argv array. Supports all subcommands: docgen,
- * env, prune-unused-deps, and sync.
- *
- * @example
- * ```ts
- * import { runRepoCli } from "@beep/repo-cli"
- *
- * // Run docgen analyze command
- * runRepoCli(["bun", "run", "docgen", "analyze", "-p", "packages/common/schema"])
- *
- * // Run env command
- * runRepoCli(["bun", "run", "env"])
- * ```
- *
- * @since 0.1.0
- * @category constructors
+ * @since 0.0.0
  */
-export const runRepoCli = (argv: ReadonlyArray<string>) =>
-  runBeepCli(argv).pipe(Effect.provide(runtimeLayers), BunRuntime.runMain);
-
-if (import.meta.main) {
-  runRepoCli(process.argv);
-}
+export {
+  /**
+   * Code generation command for workspace barrels and exports.
+   *
+   * @since 0.0.0
+   */
+  codegenCommand,
+} from "./commands/codegen.js";
+/**
+ * Package scaffolding command for creating new workspace packages.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Package scaffolding command for creating new workspace packages.
+   *
+   * @since 0.0.0
+   */
+  createPackageCommand,
+} from "./commands/create-package/index.js";
+/**
+ * Purge command for removing root/workspace build artifacts.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Purge command for removing root/workspace build artifacts.
+   *
+   * @since 0.0.0
+   */
+  purgeCommand,
+} from "./commands/purge.js";
+/**
+ * Root CLI command that composes subcommands.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Root CLI command that composes subcommands.
+   *
+   * @since 0.0.0
+   */
+  rootCommand,
+} from "./commands/root.js";
+/**
+ * Dependency topological sort command.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Dependency topological sort command.
+   *
+   * @since 0.0.0
+   */
+  topoSortCommand,
+} from "./commands/topo-sort.js";
+/**
+ * Tsconfig sync command for workspace tsconfig references and root aliases.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Tsconfig sync command for workspace tsconfig references and root aliases.
+   *
+   * @since 0.0.0
+   */
+  tsconfigSyncCommand,
+} from "./commands/tsconfig-sync.js";

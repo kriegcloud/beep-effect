@@ -1,0 +1,278 @@
+Foundry Compute Modules
+Dorian Smiley
+Follow
+8 min read
+·
+Oct 8, 2024
+
+4
+
+The Missing Getting Started Guide for Palantir’s Latest Feature
+
+Press enter or click to view image in full size
+Docker Logo
+Introduction
+
+Foundry Compute Modules is a new offering from Palantir that allows you to build and deploy containerized workloads in Foundry. Developers can use their favorite programming languages and runtimes to fill gaps in Foundry features in a first-party integrated manner. This feature is in beta and will include breaking changes as early adopters provide feedback to Palantir. Sample use cases include:
+
+Job Queues for specialized use cases like optimization problems and simulations.
+Reverse proxies for your service mesh
+Data caching
+Image processing with technologies like ImageMagick
+SSR and PDF generation with technologies like Puppeteer
+
+While Foundry functions can be used for many cases, they can be ill-suited for compute-intensive, long-running stateful processes. While Python functions in Foundry support container-based workloads, you do not have the same level of control over the container itself.
+
+How it Works
+
+Compute modules (CM) use a sidecar container provided by the deployment process in Foundry to poll for function invocations to be handled by your container. If a job is found, you can use the data extracted and passed by the job server to process the event. JSON is used to marshal/unmarshal the job data. If no job is found, the polling continues after a timeout. Below is some sample code extracted from the docs demonstrating this process in Python.
+
+import requests
+import os
+import time
+import logging as log
+import json
+
+log.basicConfig(level=log.INFO)
+
+certPath = os.environ['CONNECTIONS_TO_OTHER_PODS_CA_PATH']
+
+with open(os.environ["MODULE_AUTH_TOKEN"], 'r') as f:
+    moduleAuthToken = f.read()
+
+getJobUri = "https://localhost:8945/interactive-module/api/internal-query/job"
+postResultUri = "https://localhost:8945/interactive-module/api/internal-query/results"
+
+
+# Gets a job from the runtime. Jobs are only present when
+# the status code is 200. If status code 204 is returned try again.
+# This endpoint has long-polling enabled, and may be called without delay.
+def getJobBlocking():
+    while True:
+        response = requests.get(
+                getJobUri,
+                headers={"Module-Auth-Token": moduleAuthToken},
+                verify=certPath)
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 204:
+            log.info("No job found, trying again!")
+
+# Process the query based on type
+def get_result(query_type, query):
+    if query_type == "multiply":
+        return float(query) * 2
+    elif query_type == "divide":
+        return float(query) / 2
+    else:
+        log.info(f"Unknown query type: {query_type}")
+
+
+# Posts job results to the runtime. All jobs received must have a result posted,
+# otherwise new jobs may not be routed to this worker.
+def postResult(jobId, result):
+    response = requests.post(
+            f"{postResultUri}/{jobId}",
+            data=json.dumps(result).encode('utf-8'),
+            headers={"Module-Auth-Token": moduleAuthToken, "Content-Type": "application/octet-stream"},
+            verify=certPath)
+    if response.status_code != 204:
+        log.info(f"Failed to post result: {response.status_code}")
+
+
+# Try forever
+while True:
+    try:
+        job = getJobBlocking()
+        v1 = job["computeModuleJobV1"]
+        job_id = v1['jobId']
+        query_type = v1['queryType']
+        query = v1['query']
+        result = get_result(query_type, query)
+        postResult(job_id, result)
+    except Exception as e:
+        log.info(f"Something failed {str(e)}")
+        time.sleep(1)
+
+You can convert this code to whatever programming language you like and package your container using Docker. While this approach gives you full control over the language and runtime, it removes many Foudnry benefits, such as an integrated git repository, CI/CD workflows, and an integrated security model. Fortunately, Foundry offers an integrated authoring experience using Code Repositories.
+
+Press enter or click to view image in full size
+Integrated Code Repository in Foundry
+
+Below is a complete example that proxies Foundry Dev Tools. Note the use of dataclass and function decorators. The dataclass decorator sets up the structure of the event payload in a typesafe way. You must create a separate data class for each unique method signature. The function decorator controls how your functions are exposed in Foundry.
+
+from dataclasses import dataclass
+from compute_modules.annotations import function
+
+import json
+import logging
+import os
+
+from foundry_dev_tools import Config, FoundryContext, JWTTokenProvider
+from foundry_dev_tools.utils import api_types
+
+with open(os.environ["SOURCE_CREDENTIALS"], "r") as f:
+    credentials = json.load(f)
+
+# just in case we got the key for the secret wrong
+keys_list = list(credentials["FoundryApis"].keys())
+
+logging.basicConfig(level=logging.INFO)
+
+logging.info(f"keys_list keys are: {keys_list}")
+
+# Access a specific secret
+secret = credentials["FoundryApis"]["additionalSecretToken"]
+host = credentials["FoundryApis"]["additionalSecretHost"]
+
+logging.info("'host {0}' is secret '{1}'".format(host, len(secret)))
+
+# This way the configuration files are not read/ignored
+# note: credentials shouldn't be stored directly in your code, this is just an example
+# jwt:
+fdtCtx = FoundryContext(config=Config(), token_provider=JWTTokenProvider(host=f"{host}", jwt=f"{secret}"))
+
+
+@dataclass
+class QueryPayload:
+    query: str
+    branch: str
+
+@dataclass
+class BuildPayload:
+    dataset_rid: api_types.DatasetRid
+    branch: api_types.DatasetBranch
+    force_build: bool
+
+
+@function
+def sql_query(ctx, event: QueryPayload) -> str:
+    df = fdtCtx.foundry_sql_server.query_foundry_sql(
+        query=event.query, branch=event.branch
+    )  # returns pandas dataframe by default, can be changed by setting the return_type parameter
+
+    logging.info(f"sql_query returned {json.dumps(df.to_json())}")
+
+    return json.dumps(df.to_json())
+
+
+@function
+def submit_dataset_build(ctx, event: BuildPayload) -> str:
+    df = fdtCtx.build2.submit_dataset_build(
+        dataset_rid=event.dataset_rid,
+        branch=event.branch,
+        force_build=event.force_build
+    )
+
+    logging.info(f"submit_dataset_build returned {json.dumps(df.to_json())}")
+
+    return json.dumps(df.to_json())
+
+Using this approach, you do not have to worry about managing your own version control and CI/CD process with platforms like GitHub. Foundry will build and deploy your container for you with some caveats described below.
+
+External Connections
+
+You must create and import the data source when deploying your compute module to connect to external sources such as APIs. This is not done at authoring time in Code Repositories or your local repository. Below is a screenshot of the sources block used to attach your data sources when deploying your container.
+
+Press enter or click to view image in full size
+Compute Modules Deplyment Screen
+Secrets
+
+Secrets are managed using Data Source Connections (for now). For example, you can attach secrets such as API keys when you create a REST API source.
+
+Press enter or click to view image in full size
+Secrets Attached to a REST API Source
+
+In this example, we’ve added a secret called Token to the REST API source, which can be retrieved in our compute module (regardless of what authoring environment you choose) as follows:
+
+with open(os.environ["SOURCE_CREDENTIALS"], "r") as f:
+    credentials = json.load(f)
+
+# just in case we got the key for the secret wrong
+keys_list = list(credentials["FoundryApis"].keys())
+
+logging.basicConfig(level=logging.INFO)
+
+logging.info(f"keys_list keys are: {keys_list}")
+
+# Access a specific secret
+secret = credentials["FoundryApis"]["additionalSecretToken"]
+host = credentials["FoundryApis"]["additionalSecretHost"]
+
+In this example, the magic ENV SOURCE_CREDENTIALS is populated by Foundry Compute Modules at runtime. Secrets are found by looking up the connection ID and then the associated key:
+
+# Access a specific secret
+secret = credentials["FoundryApis"]["additionalSecretToken"]
+host = credentials["FoundryApis"]["additionalSecretHost"]
+
+Astute observers will notice the secret's name has been prefixed with additionalSecretThis behavior of the REST API connector is not documented. If you ever have issues locating secrets, you can log the keys like in the code example above.
+
+Get Dorian Smiley’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+To test the loading of secrets, I created a .env file, populated it with my expected JOSN, and manually set the SOURCE_CREDENTIALS var before testing my code. This should give you reasonable certainty your secrets parsing will work once deployed.
+
+Unmarshalling Function Parameters
+
+Foundry automatically unmarshals your function parameters and provides the context parameter as the first param to your function:
+
+@dataclass
+class QueryPayload:
+    query: str
+    branch: str
+
+@function
+def sql_query(ctx, event: QueryPayload) -> str:
+    df = fdtCtx.foundry_sql_server.query_foundry_sql(
+        query=event.query, branch=event.branch
+    )  # returns pandas dataframe by default, can be changed by setting the return_type parameter
+
+    logging.info(f"sql_query returned {json.dumps(df.to_json())}")
+
+    return json.dumps(df.to_json())
+
+The dataclass decorator allows Foundry to figure out how to unmarshal the function parameters to your function. The context parameter isn’t defined with a type definition, and I have not yet inspected it.
+
+Testing and Debugging
+
+I have yet to experiment with a test runner like PyTest when performing local development of Foundry Compute Modules. However, I successfully invoked functions manually by calling them in my app.py file and then removing the invocations before committing changes. To test the loading of secrets, I created a .env file, populated it with my expected JOSN, and manually set the SOURCE_CREDENTIALS var before testing my code. There is currently no ability to provide tests in the code repository or perform live testing of your functions (similar to TypeScript and Python repositories).
+
+Tagging
+
+It’s important to note that the documentation states:
+
+The userImageName field will determine the name of the image this repo produces at build time. If you do not manually bump the tag between builds, the previous version will get overwritten. If this occurs, restart your build to apply your updated code quickly; otherwise, the code will update within the next ~24 hours.
+
+This means you need to remember to bump your tag version number defined in the userImageName attribute of the gradle.properties file:
+
+userImageName = foundry-dev-tools-proxy-100
+
+Be sure your tag name includes only lowercase alphanumeric characters or dashes like in the example, or your build will fail.
+
+Deployment
+
+Foundry Compute modules are not integrated into the Compass UI at the time of this writing. You will need to trigger the setup process manually by copying the base URL below and interpolating your foundry stack URL:
+
+https://<YOUR_STACK_URL>/workspace/data-integration/compute-modules/create
+
+You should then see this modal dialog. Go ahead and save your compute module to your project folder.
+
+Press enter or click to view image in full size
+Create Compute Module Dialog
+Press enter or click to view image in full size
+Execution Model and Configuration Options
+
+You will also need to define which functions you want to expose. Use the functions tab to set up your function and API names. API names are shown in the bottom left and are used in Foundry to call this function. They follow different naming conventions, and you will likely need to correct errors in the auto-generated names manually. Parameters can also be marked nullable if your function accepts optional parameters.
+
+Press enter or click to view image in full size
+
+You can then start your container and use the overview screen to observe the logs and execute your functions. An important note about the logs is that you can view more details by clicking through the Foundry job details. If your container fails to start or you receive abbreviated error reporting, check the job logs for additional information.
+
+Press enter or click to view image in full size
+Overview Screen
+Conclusions
+
+Foundry Compute Modules offer developers the opportunity to extend Foundry's capabilities. Developers can also incorporate existing code bases and use programming languages Foundry does not natively support. While this feature is in beta, it’s important to expect breaking changes. However, it’s also a great time to experiment with use cases and understand the basics. I hope this article helps you on your way!

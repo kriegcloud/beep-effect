@@ -1,0 +1,31 @@
+Member-only story
+
+Palantir’s Ontology, Kimball’s Star Schema, and Model-Driven Data Engineering: A Comparative View
+Jaco van der Laan
+Follow
+4 min read
+·
+Sep 23, 2025
+
+144
+
+4
+
+How Palantir’s Ontology compares to Kimball’s dimensional modeling—and why a model-driven, historization-first architecture offers a more sustainable middle path.
+
+💡 Not a Medium member? You can read this article for free using this friend link.
+
+Summary
+
+Palantir’s Ontology is a highly normalized, business-oriented abstraction layer that aligns data around business objects and relationships. It contrasts with Kimball’s star schema, which organizes data into denormalized facts and dimensions optimized for reporting.
+
+Our model-driven data engineering approach — grounded in historization, bi-temporal SCD2, and metadata-driven views — combines the best of both worlds: business semantics and history preservation (ontology) with pragmatic usability and performance (dimensional modeling).
+
+Press enter or click to view image in full size
+What Palantir’s Ontology Is
+
+Palantir describes its Ontology as the central semantic layer for its Foundry platform:
+
+Data is modeled as business objects (Customer, Account, Contract, Product, Event).
+Relationships between objects are first-class citizens.
+Normalized, graph-like…

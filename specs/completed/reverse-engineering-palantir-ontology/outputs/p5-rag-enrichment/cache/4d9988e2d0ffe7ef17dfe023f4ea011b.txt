@@ -1,0 +1,114 @@
+Data Connection • Listeners • Security • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Data connectivity & integration Data Connection Listeners Security 
+
+ Listener security
+
+Listeners differ from standard Foundry data ingestion, so ensure that you fully understand these security paradigms before enabling your connections.
+
+ Request authorization
+
+Request interfaces for listeners are defined by external systems, so they do not conform to standard Foundry authentication or authorization mechanisms. Instead, listeners implement the security protocols laid out by those external systems, which vary widely.
+
+Palantir makes no guarantees about the suitability or effectiveness of these external system protocols. It is your responsibility as a user to ensure that you understand which guarantees each protocol does or does not provide for the incoming requests and data.
+
+The specific protocols implemented for each listener can be found in the Configuration step of the setup wizard, as well as the external system's documentation.
+
+ Redaction and data security
+
+A minimal set of redactions are sometimes performed on the incoming data. It is important to note that these redaction mechanisms are best effort, and Palantir cannot guarantee that sensitive data (such as tokens) will be fully redacted from request bodies.
+
+It is essential to secure both your listener and the output stream . This includes restricting access to both by placing them in a restricted project, as well as applying markings on the listener when necessary.
+
+ Subdomains
+
+Listeners use dedicated subdomains allowing for granular ingress control, comprehensive governance workflows, and isolation of less secure endpoints from the environment's primary enrollment domains. Learn more about listener subdomains. 
+
+ Endpoint rotation
+
+If the listener's endpoint is compromised, it can be migrated to a new endpoint with zero downtime. Generally, the steps to migrate endpoint usage are as follows:
+
+Generate a new endpoint. You should now have two usable endpoints.
+
+Replace any usage of your old endpoint with the new endpoint.
+
+Delete the old endpoint.
+
+To support this process, listeners provide an endpoint rotation mechanism. To rotate your endpoint, navigate to the Configuration step of your listener's settings and locate the Rotate endpoints option.
+
+When rotating your endpoint, you may choose to set an expiration date for the endpoint for zero-downtime rotations, or to delete it immediately. When an endpoint expires, it will no longer be able to process events.
+
+After setting an expiration for an endpoint, you can extend the expiration if more time is needed to migrate your usage over to the new endpoint.
+
+Once an endpoint is expired, you can no longer modify the expiration date. You must delete the expired endpoint and generate a new one by performing another endpoint rotation.
+
+Note that you can only have one active endpoint at a time. An active endpoint is an endpoint without a set expiration date.
+
+ ← 
+ PREVIOUS Overview 
+
+ NEXT Listener subdomains 
+ →

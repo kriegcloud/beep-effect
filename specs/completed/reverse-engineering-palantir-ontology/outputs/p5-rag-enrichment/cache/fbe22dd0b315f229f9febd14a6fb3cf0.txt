@@ -1,0 +1,80 @@
+Top highlight
+
+1
+
+How we do Agile
+Robert Fink
+Follow
+7 min read
+·
+Nov 20, 2019
+
+558
+
+5
+
+Editor’s note: This is the first of four posts in our blog series “How we do Agile”. Part 1 (this post), Part 2, Part 3, Part 4.
+
+Press enter or click to view image in full size
+I suspect that these ballet dancers are more agile than any of my teams … ?
+
+Coined in 2001 by a group of developers who had long been rethinking the standard approach to building software, the term “Agile” has become a common buzzword in corporate boardrooms. A recurring theme in my conversations with our customers’ CTOs and other leaders is: How does Palantir do Agile? The question reflects their curiosity regarding the success and failure modes of Palantir’s product development model, and often also the desire to adopt some of these models for their own organizations. In this blog post I will sketch (in broad strokes) how Palantir is organized internally, how we develop our products, and in what sense we implement Agile methodology.
+
+In keeping with the intent of its creators, we think of Agile in terms of the principles it invokes rather than in terms of specific processes. In this post, I intentionally won’t elaborate on how we implement concepts like Scrum, stand-ups, or sprint planning. Instead, I discuss the organizational and cultural traits that allow us to innovate: 1/ Trust, autonomy, ownership, motivation, 2/ Feedback loops, 3/ Experimentation, and 4/ Open communication. To me, these traits are really the essence of how and why Agile works for us.
+
+Press enter or click to view image in full size
+
+In the next three posts in the series, fellow Palantirians will share case studies of how the principles of the Agile manifesto are implemented within their teams.
+
+Product development and business development
+
+Let me start by explaining how we are organized internally. Palantir has a simple business model: develop software and ensure it is valuable to our customers. This model gives rise to two core organizations: Product Development (PD) writes software, and Business Development (BD) helps our customers make the best possible use of our platforms and their data.
+
+PD itself is organized in three main groups: one for Gotham, one for Foundry, and one for our deployment infrastructure. Each of these platforms comprise a large number of micro-service-shaped components developed by distinct teams. Teams typically have five-ish members filling a variety of roles: developer, designer, product manager. There is no 1–1 correspondence between roles and humans (i.e., some folks may cover multiple roles) and one of the members is the designated team lead. The development teams are spread out across our main offices in Palo Alto, New York, Washington D.C., Seattle, and London.
+
+BD is organized in two groups by customer segment (private sector and government). Each customer is supported by a Palantir implementation team that deploys our software and helps the customer scope use cases, implement workflows, train users and developers, and implement bespoke functionality. Implementation teams are based at offices around the world and spend much of their time on site at customers’ corporate offices, production facilities, research labs, etc. Depending on the depth and breadth of the customer engagement, headcount of an implementation team can range from one to dozens of Palantirians.
+
+1/ Trust, autonomy, ownership, motivation
+Press enter or click to view image in full size
+We trust our employees from day one: Forward Deployed Software Engineer David, in his first month at Palantir, demoing our work for the Hurricane Sandy relief efforts to Bill Clinton.
+
+We believe in hiring excellent people and put a tremendous amount of trust into those who have joined us. With trust comes autonomy, starting on day one. New joiners are often shocked the first time they’re empowered — or even asked — to solve a complex problem the way they think it should be solved. It’s not that tenured Palantirians aren’t there for guidance and support; however, the baseline is always “try it yourself and ask for help when you need it” rather than “you should do it this way”.
+
+Get Robert Fink’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Yes, this model may at times be locally inefficient (for instance when people spend 1–2 extra cycles solving a problem that someone else has already tackled), but the upside is that even the most junior Palantirians feel empowered to think outside the box, to fix things that appear broken, and ultimately to induce non-linear change in software or commercial trajectory. Palantirians fresh out of college, with minimal professional experience, have played pivotal roles in making customer relationships successful. Trust and autonomy imply ownership, and ownership is one of the main sources of our employees’ motivation and productivity. Or, to quote the Agile manifesto, we should “Build projects around motivated individuals. Give them the environment and support they need, and trust them to get the job done.“
+
+2/ Feedback loops
+
+When asked what Palantir’s ‘secret sauce’ is, I say that it’s the symbiosis between BD’s Forward Deployed Software Engineers who have direct access to users and their problems and PD’s Software Engineers who turn those insights into a product. Even the most motivated software development team struggles when they don’t understand what they’re building or why. Our model relies on BD to articulate the product capabilities our customers need to see transformative value.
+
+The feedback loop between BD and PD has benefits on different time scales. Short term, implementation teams and customer users provide a day-by-day pulse on platform, UX, utility of new features, bugs, etc. In terms of the Agile manifesto, “Business people and developers must work together daily throughout the project.”
+
+Press enter or click to view image in full size
+The very first Foundry architecture diagram, capturing our first-hand experience with data integration as software architecture.
+
+Long-term, BD works with PD to synthesize their field experience into ideas and intuition for entirely new product categories. For example, Palantir Foundry was born out of BD. Its creators turned their experience struggling to implement collaborative data integration for our customers into Foundry’s core features such as branching, provenance, and co-versioning of data and code. The first couple years of Foundry development were driven by a whiteboarding session (see image) that captured the pain points we felt on site with customers as ideas for software architecture.
+
+3/ Experimentation
+
+Amy Edmondson’s research on psychological safety, intentional experimentation, and learning from failure has deeply shaped my understanding of Palantir’s innovation culture. In a nutshell, the argument goes like this: individuals are unlikely to take risks if they feel psychologically unsafe, if they feel that coworkers, leaders, or the organization as a whole punishes negative outcomes. Since innovation is fundamentally about experimentation, and since experiments can fail (by definition), it is critical for organizations that seek innovation to establish a culture of encouraging and rewarding “successful failure”. We seek to make sure we learn from our experiments so that failure is productive.
+
+I want to describe two (of many) concrete mechanisms that we use to promote experimentation and learning from failure. First, we put regular BD and PD operations on hold twice a year in order to celebrate a week-long Hackweek, a company-wide hiatus from regular work in which every employee is encouraged to spend their time on whatever they want. Most Palantirians work on software, others on designing more enjoyable work spaces, some on sustainability efforts, etc.
+
+Second, every major failure is followed by a a postmortem discussion in which we try to identify root causes and brain storm solutions. These discussions are structured similar to Five Whys, although we typically explore multiple paths similar to a fault-tree analysis. We hold Five Whys not only for software bugs or outages, but also for leadership failures (“Person XYZ left the company because they did not feel valued as a contributor”), culture (“Our team event this year was not inclusive for minority group X”), or process (“We had 5 onsite candidates this morning, but only 4 interviewers were scheduled”). Importantly, Five Whys are not a mechanism for attributing individual faults, but to learn as an organization; our Five Whys reports all start with Norm Kerth’s reminder: Regardless of what we discover, we understand and truly believe that everyone did the best job they could, given what they knew at the time, their skills and abilities, the resources available, and the situation at hand.
+
+4/ Open communication
+
+Internally, we disseminate both our success and failure stories broadly and openly. Everyone is encouraged to join our “wins” distribution list in which we celebrate what goes well, and all Five Whys reports are sent to a dedicated and widely read email list. Open and transparent communication is at the heart of our collaboration culture and is particularly important since our PD and BD teams must work together across geographic and time zone boundaries. We are heavy users of digital collaboration tools such as Email, Quip, and Slack. Where possible, we embrace an open-by-default access policy for distribution lists, documents, and discussion groups.
+
+Conclusion
+
+For me, Agile methodology means to observe, to reflect, and to adapt. There’s no one Agile approach that works for every organization or situation and as such it seems foolish to advertise or prescribe one. What I have written above are my reflections on our software development and collaboration culture across the company, and how this culture relates to Agile principles. I hope to inspire some of my readers to adopt them where they make sense.
+
+To summarize, our cultural superpower is decentralized, autonomous decision-making (based on trust), and our product vision is informed foremost by our proximity to our customers’ problems — truths that align to key principles of Agile.
+
+P.S. Since you have made it this far, I do want to end by sharing my favorite tool from the Agile methodology canon: I love the format of “meta” retrospectives in which we don’t enumerate milestones achieved and features implemented and bugs squashed, but rather discuss and reflect on how we function as a team, where we were blocked, by what or who we got motivated or demotivated, etc. My teams hold such meta retrospectives once per week.

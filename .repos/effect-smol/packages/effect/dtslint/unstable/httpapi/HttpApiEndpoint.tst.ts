@@ -1,4 +1,4 @@
-import { Schema } from "effect"
+import { Schema, Struct } from "effect"
 import { HttpApiEndpoint, type HttpApiError, HttpApiSchema } from "effect/unstable/httpapi"
 import { describe, expect, it } from "tstyche"
 
@@ -20,10 +20,20 @@ describe("HttpApiEndpoint", () => {
       expect<T>().type.toBe<Schema.Struct<{ id: Schema.FiniteFromString }>>()
     })
 
-    it("should not accept any other schema", () => {
+    it("should accept a Struct", () => {
+      const endpoint = HttpApiEndpoint.get("a", "/a", {
+        params: Schema.Struct({ a: Schema.FiniteFromString, b: Schema.FiniteFromString })
+      })
+      type T = typeof endpoint["~Params"]
+      expect<T>().type.toBe<
+        Schema.Struct<{ readonly a: Schema.FiniteFromString; readonly b: Schema.FiniteFromString }>
+      >()
+    })
+
+    it("should not accept schema that doesn't encode to Record<string, string | ReadonlyArray<string> | undefined>", () => {
       HttpApiEndpoint.get("a", "/a", {
-        // @ts-expect-error Type 'Struct<{ readonly id: String; }>' is not assignable to type 'ParamsConstraint'.
-        params: Schema.Struct({ id: Schema.String })
+        // @ts-expect-error Type 'Struct<{ readonly id: Number; }>' is not assignable to type 'ParamsConstraint | undefined'.
+        params: Schema.Struct({ id: Schema.Number })
       })
     })
   })
@@ -45,10 +55,29 @@ describe("HttpApiEndpoint", () => {
       expect<T>().type.toBe<Schema.Struct<{ id: Schema.FiniteFromString }>>()
     })
 
-    it("should not accept any other schema", () => {
+    it("should accept a Struct.Record", () => {
+      const endpoint = HttpApiEndpoint.get("a", "/a", {
+        query: Struct.Record(["a", "b"], Schema.FiniteFromString)
+      })
+      type T = typeof endpoint["~Query"]
+      expect<T>().type.toBe<Schema.Struct<Record<"a" | "b", Schema.FiniteFromString>>>()
+      expect<T>().type.toBe<Schema.Struct<{ a: Schema.FiniteFromString; b: Schema.FiniteFromString }>>()
+    })
+
+    it("should accept a Struct", () => {
+      const endpoint = HttpApiEndpoint.get("a", "/a", {
+        query: Schema.Struct({ a: Schema.FiniteFromString, b: Schema.FiniteFromString })
+      })
+      type T = typeof endpoint["~Query"]
+      expect<T>().type.toBe<
+        Schema.Struct<{ readonly a: Schema.FiniteFromString; readonly b: Schema.FiniteFromString }>
+      >()
+    })
+
+    it("should not accept schema that doesn't encode to Record<string, string | ReadonlyArray<string> | undefined>", () => {
       HttpApiEndpoint.get("a", "/a", {
-        // @ts-expect-error Type 'Struct<{ readonly id: String; }>' is not assignable to type 'QuerySchemaConstraint'.
-        query: Schema.Struct({ id: Schema.String })
+        // @ts-expect-error Type 'Struct<{ readonly id: Number; }>' is not assignable to type 'QueryConstraint | undefined'.
+        query: Schema.Struct({ id: Schema.Number })
       })
     })
   })
@@ -70,10 +99,20 @@ describe("HttpApiEndpoint", () => {
       expect<T>().type.toBe<Schema.Struct<{ id: Schema.FiniteFromString }>>()
     })
 
-    it("should not accept any other schema", () => {
+    it("should accept a Struct", () => {
+      const endpoint = HttpApiEndpoint.get("a", "/a", {
+        headers: Schema.Struct({ a: Schema.FiniteFromString, b: Schema.FiniteFromString })
+      })
+      type T = typeof endpoint["~Headers"]
+      expect<T>().type.toBe<
+        Schema.Struct<{ readonly a: Schema.FiniteFromString; readonly b: Schema.FiniteFromString }>
+      >()
+    })
+
+    it("should not accept schema that doesn't encode to Record<string, string | ReadonlyArray<string> | undefined>", () => {
       HttpApiEndpoint.get("a", "/a", {
-        // @ts-expect-error Type 'Struct<{ readonly id: String; }>' is not assignable to type 'HeadersSchemaConstraint'.
-        headers: Schema.Struct({ id: Schema.String })
+        // @ts-expect-error Type 'Struct<{ readonly id: Number; }>' is not assignable to type 'HeadersConstraint | undefined'.
+        headers: Schema.Struct({ id: Schema.Number })
       })
     })
   })

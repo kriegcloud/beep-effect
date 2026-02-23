@@ -1,0 +1,89 @@
+Top highlight
+
+Beyond Anonymization (Palantir Explained, #3)
+Palantir
+Follow
+6 min read
+·
+Mar 11, 2021
+
+267
+
+Press enter or click to view image in full size
+
+Editor’s note: This is the third post in Palantir Explained, a series that explores a range of topics, including our approach to privacy, security, AI/ML safety, and more. Previous posts explored our business model and purpose-based access controls.
+
+The COVID-19 pandemic has reinforced the importance of processing sensitive data securely and at scale. In a world where analyzing data is increasingly necessary to deal with complex challenges, questions are rightly asked about how it is used. Individuals want to know what happens to their information, and those responsible for processing personal data need to understand how they can protect the information in their care.
+
+In this blog post, we explore the extent to which data anonymization can help organizations balance their essential responsibilities, such as vaccine distribution, with protecting privacy. More specifically, we’ll explain what anonymization means, why it’s hard to get right, and how to mitigate the risks of re-identification.
+
+This blog post is part of the Palantir Explained series, which explores a range of topics, including our approach to privacy, security, AI/ML safety, and more. We’ve deliberately kept this blog post short to make it accessible, but if you’d like to learn more about anonymization at a technical level, please consult our white paper on this topic.
+
+Anonymization Versus De-identification, and the Problem of Re-identification
+
+(This section uses a lot of terminology that may be unfamiliar to anyone who isn’t a privacy professional. We’ll define some in line, but Understanding Patient Data provides a useful glossary for those who are curious.)
+
+Anonymization refers to the process of removing identifiable information from datasets so that the people described in the data cannot reasonably be re-identified. Anonymisation is useful because it allows organisations to work with data derived from individuals without putting the privacy of those individuals at risk.
+
+But the challenge with anonymization is that it’s hard to get right, and the consequences of getting it wrong can be serious. To cite a famous example, a graduate student was once able to use ostensibly anonymised hospital data from Massachusetts to send the Governor of Massachusetts his own health records. Failure is common enough that the UK Information Commissioner’s Office calls it out as “a clear risk” for organisations subject to the GDPR.
+
+Since the term “anonymization” may convey a false sense of security by suggesting that data is impossible to re-identify, we recommend that organizations use the term de-identification instead. As with anonymous data, de-identified data has been stripped of names and other direct identifiers like addresses or dates of birth. Unlike anonymised data, de-identified data is subject to the same legal protections as identifiable data. This acknowledges the real risk of re-identification — tracing de-identified or anonymised data back to the individual it describes.
+
+In providing software for customers that handle highly sensitive data — like the US National Institutes of Health’s National COVID Cohort Collaborative (N3C) — we’ve implemented frameworks and technology to help customers reduce re-identification risks. Read on for the questions you can ask and the techniques you can employ to make de-identification effective.
+
+Making Data Less Identifiable
+
+In our experience, re-identification risk should be addressed at two levels: the data itself, and the circumstances in which it’s used.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+First, we’ll consider the data: its sensitivity, its re-identifiability, and what might happen if it’s joined with other data.
+
+Questions to Ask
+How sensitive is the data? There are many ways data could be sensitive: it could contain information on protected characteristics such as health, gender, or ethnicity; or it may be in some other sense intimate, personal, or confidential. A related question to ask is “What would the potential harm to these individuals be if this information were re-identified?”
+How easy is it to re-identify the data? To answer this question, consider how unique the individual data point is, i.e., to how many individuals it could apply. The fewer people to whom it can apply, the higher the risk of re-identification.
+What happens if it’s joined with other data? Consider the other data in your system, now and in the future. Could that data, joined with the de-identified data, result in re-identification? How likely is such a join to occur (in the system or if the data is published elsewhere)? What protections are in place to guard against it?
+Mitigations to Consider
+
+There are several techniques to modify data to prevent re-identification, each with benefits and drawbacks. These techniques — which you can use in combination — include:
+
+Generalization: Reducing the granularity of information (e.g., converting Date of Birth to Age or Age Range).
+Aggregation: Grouping data about individuals together and continuing analysis at the aggregate level.
+Obfuscation: Hiding or disguising identifying data to unauthorized parties, perhaps by masking or encryption.
+Dynamic Minimization: Showing only parts of the data depending on the needs or role of the user.
+Synthetic Data: Producing artificial data that replicates important underlying trends in the original data.
+Technical and Organizational Risk
+
+Next, we’ll assess how the circumstances in which data is used affect the likelihood of re-identification. There are many well-known techniques for reducing the re-identifiability of a static dataset, but our approach aims to calculate risk in a complex, dynamic system — i.e., the world in which people use data to make decisions.
+
+Questions to Ask
+Users: How many users will have access to this data? How will this change over time? Risk grows with each user who gains access. This is particularly important if users might be motivated to try re-identifying the data, perhaps to learn about public figures or people they know.
+Permissions: How much data can users access? What other data can they access (i.e., outside of the platform where they access the de-identified data), and could this be combined with the de-identified data? Do these users have permissions that would allow them to import, export, or transfer the data in unanticipated ways?
+Policies: Are there clear data governance policies in place, and how well does the average user understand them? Does the platform enforce these policies? Can data governance teams monitor and measure compliance?
+Metadata: Are datasets within the platform clearly labelled and described, so that data governance and operational users can quickly understand their sensitivity, intended use, and the applicable policy protections?
+Mitigations to Consider
+
+Data governance teams can implement a range of safeguards to mitigate re-identification risks.
+
+Access Permissions: Ensuring that users only have access to precise subsets of data necessary for their responsibilities. (Click to learn how purpose-based access controls work in our software.)
+Action Permissions: Restricting permissions to conduct potentially sensitive actions, such as importing, exporting, transferring, or combining data to those users who absolutely need to do so.
+Marking Data: Persistently tagging sensitive datasets to clearly indicate their sensitivity, and to restrict actions such as joining them with datasets bearing other markings that may be risky in combination.
+Needs-Based Decryption: Making data encrypted and unreadable by default. Users must enter an acceptable justification in order to decrypt necessary subsets of the data.
+Auditing: Empowering oversight bodies to check and verify compliance with data governance policies around de-identified data, and that no spurious, malicious, or risky actions are undertaken.
+“Inferring” Sensitive Data: Running background checks to infer sensitive data across the system, automatically flagging and locking down sensitive data uploaded accidentally or de-identified insufficiently.
+Testing & Validation: Providing the ability to do validations and “battle-test” anonymized data before it is shared more widely within the system or exported for external use.
+Data Lineage: Leveraging lineage tracking to understand how data is flowing within the system: which users have access to what level of identifiable data, and for what purposes at different stages.
+A Comprehensive Approach
+
+Protecting privacy when using data must be a top priority when developing new technologies. Data-driven research and decision-making can greatly improve health, safety, and more, but these must not come at a disproportionate cost to privacy. Organizations using innovative technologies must act in accordance with the reasonable expectations of the people whose data they process. Regulation and best practices must evolve along with these technologies. This requires constant engagement with civil society, communities, and the individuals concerned. At Palantir we consider protecting data and privacy a continuous process and hold that value as central to our product design.
+
+De-identification is only one tool in the toolkit. In our experience, responsible data processing requires a comprehensive approach. For more information about how we think about data protection in our products, see our post Data Protection in Palantir Foundry.
+
+Authors
+
+Megha Arora, Palantir Privacy & Civil Liberties Engineering Lead
+Paula Kift, Palantir Head of Privacy Partnerships

@@ -2,7 +2,7 @@
  * @since 4.0.0
  */
 import * as Effect from "../../Effect.ts"
-import * as Base64 from "../../encoding/Base64.ts"
+import * as Encoding from "../../Encoding.ts"
 import * as Fiber from "../../Fiber.ts"
 import type { FileSystem } from "../../FileSystem.ts"
 import { identity } from "../../Function.ts"
@@ -328,7 +328,7 @@ export const securityDecode = <Security extends HttpApiSecurity.HttpApiSecurity>
       } as any
       return HttpServerRequest.asEffect().pipe(
         Effect.flatMap((request) =>
-          Base64.decodeString((request.headers.authorization ?? "").slice(basicLen)).asEffect()
+          Encoding.decodeBase64String((request.headers.authorization ?? "").slice(basicLen)).asEffect()
         ),
         Effect.match({
           onFailure: () => empty,
@@ -505,9 +505,9 @@ function handlerToRoute(
   const endpoint = handler.endpoint
   const encodeSuccess = Schema.encodeUnknownEffect(makeSuccessSchema(endpoint))
   const encodeError = Schema.encodeUnknownEffect(makeErrorSchema(endpoint))
-  const decodeParams = UndefinedOr.map(HttpApiEndpoint.getParamsSchema(endpoint), Schema.decodeUnknownEffect)
-  const decodeHeaders = UndefinedOr.map(HttpApiEndpoint.getHeadersSchema(endpoint), Schema.decodeUnknownEffect)
-  const decodeQuery = UndefinedOr.map(HttpApiEndpoint.getQuerySchema(endpoint), Schema.decodeUnknownEffect)
+  const decodeParams = UndefinedOr.map(endpoint.params, Schema.decodeUnknownEffect)
+  const decodeHeaders = UndefinedOr.map(endpoint.headers, Schema.decodeUnknownEffect)
+  const decodeQuery = UndefinedOr.map(endpoint.query, Schema.decodeUnknownEffect)
 
   const shouldParsePayload = endpoint.payload.size > 0 && !handler.isRaw
   const payloadBy = shouldParsePayload ? buildPayloadDecoders(endpoint.payload) : undefined
@@ -549,6 +549,7 @@ function handlerToRoute(
       return Response.isHttpServerResponse(response) ? response : yield* encodeSuccess(response)
     })
   ).pipe(
+    Effect.withErrorReporting,
     Effect.catch((error) => {
       if (Schema.isSchemaError(error)) {
         error = HttpApiSchemaError.fromSchemaError(error)

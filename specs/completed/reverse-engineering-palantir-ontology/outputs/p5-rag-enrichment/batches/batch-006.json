@@ -1,0 +1,358 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/functions/api-objects-links",
+    "title": "Functions - Functions on objects - Objects and links - Palantir",
+    "summary": "Describes how functions interact with objects and links in the Ontology. Properties of each object type are converted to fields on generated TypeScript interfaces. Links can be traversed as ObjectSets to avoid loading linked objects into memory. Search Around APIs are generated for linked object sets.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "functions",
+      "objects",
+      "links",
+      "search-around",
+      "typescript",
+      "lazy-loading"
+    ],
+    "relatedConcepts": [
+      "Function",
+      "Object Type",
+      "Link Type",
+      "ObjectSet",
+      "Search Around"
+    ],
+    "content": "Functions • Functions on objects • Objects and links • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Functions Functions on objects Objects and links \n\n API: Objects and links\n\nEvery object type imported into your project is converted to a TypeScript API so you can easily access and manipulate objects available in Foundry.\n\n Properties\n\n Properties of each object type are converted to fields on the TypeScript interface generated for each object type. The generated field name uses the API Name specified in the ontology.\n\nYou can access the fields for each property with simple dot notation:\n\n Copied! \n\n 1\n const firstName = employee.firstName; \n\nNote that because properties may not have a concrete value set, the returned type when accessing a property value could be undefined . The TypeScript compiler will give an error unless you explicitly handle the undefined case. See this guide for more details on this.\n\n Array properties\n\nArray properties on an object type are converted to ReadOnlyArray types. This is so that the semantics for editing an array property are clear—the only way to modify the values of an array property is to update it with an entirely new array value.\n\nIf you want to manipulate the values of an array property, make a copy of it:\n\n Copied! \n\n 1\n 2\n 3\n 4\n // Copy to a new array\nlet arrayCopy = [...myObject.myArrayProperty];\n// Now you can modify the copied array\narrayCopy.push(newItem); \n\n Link types\n\n Link types between object types are also converted to fields on the TypeScript interface for each object type. To traverse the link, access the field and then call one of the methods used to load the objects. Link type field names are generated using the API Name specified in the ontology.\n\nThe Foundry Ontology supports defining 1-to-1, 1-to-many, and many-to-many link types. When accessing the 1 side of a link, the generated field is of the SingleLink type. You can access the linked object using the get() or getAsync() methods:\n\n Copied! \n\n 1\n const manager = employee.manager.get(); \n\nAs with properties, when you traverse a 1-to-1 or many-to-1 link, the return value may be undefined if there is no linked object. Follow the guide for handling undefined values for these links.\n\nWhen accessing the many side of a link, the generated field is of the MultiLink type. You can access an Array of linked objects using the all() or allAsync() methods. If there are no linked objects, these methods will return an empty Array.\n\n Copied! \n\n 1\n const employees = employee.reports.all(); \n\nTraversing links can be expensive because it requires loading which objects are linked in the backend. For details about how to perform link traversals more efficiently, see this section .\n\nThe array of linked objects returned from calling .all() or .allAsync() is a ReadOnlyArray . If you want to modify the array, make a copy of it first:\n\n Copied! \n\n 1\n let copiedEmployees = [...employee.reports.all()]; \n\nYou can traverse links as an ObjectSet to avoid loading linked object instances in the memory. When links are created in the Ontology, APIs will be generated on an object set of this type to \"search around\" to other linked object sets.\n\n Copied! \n\n 1\n 2\n 3\n 4\n 5\n 6\n 7\n import { ObjectSet, Employee } from \"@foundry/ontology-api\";\n\n// Assume you have an object set available:\n// const employee_id = \"123\";\n// const employeeObjectSet : ObjectSet<Employee> = Objects.search().employee().filter(\n[...truncated]"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/models",
+    "title": "Models in the Ontology - Palantir",
+    "summary": "Describes how machine learning and AI models integrate with the Ontology. Models can take objects and object sets as input, read property values, and produce outputs that feed back into the Ontology. Modeling efforts build on each other over time, reducing duplicated work across use cases.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "models",
+      "machine-learning",
+      "ai",
+      "ontology-integration",
+      "deployment",
+      "modeling-objectives",
+      "properties"
+    ],
+    "relatedConcepts": [
+      "Model",
+      "Object Type",
+      "ObjectSet",
+      "Property",
+      "Function",
+      "Functions"
+    ],
+    "content": "Models in the Ontology • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Models in the Ontology \n\n Models in the Ontology\n\nOrganizations are looking to leverage artificial intelligence (AI) and machine learning (ML) to accelerate and improve decision-making. But the reality of operationalizing AI/ML is complex, and the typical return on investment rarely lives up to expectations.\n\nFoundry provides the key capabilities necessary to bridge this gap: a trustworthy data foundation, tools for evaluating and comparing models against organizational objectives, and functionality for deploying models into user-facing operational workflows. This page focuses on the last step: deploying an evaluated model into production.\n\n End-to-end workflow\n\nAt a high level, these are the end-to-end steps required to operationalize AI/ML in Foundry for live inference with the Ontology:\n\n Create a model in Foundry.\n\nConfigure a direct model deployment .\n\n Publish a simple wrapper function for your model and optionally call it from another function to orchestrate complex logic around your model.\n\nUse that function for live inference in Workshop , Vertex and other end-user facing applications.\n\nOntology Objects can also be backed with datasets that leverage a model for batch inference - learn how to use a model in Code Repositories .\n\n Benefits\n\nJust like mapping datasets to Ontology concepts provides benefits for workflow development and decision-making, mapping models to the Ontology provides a number of benefits:\n\n Interpretability . Because all modeling results are defined in terms of real-world concepts (properties of an object type), end users do not need to understand machine learning in order to use modeling results. Instead, users simply interact with simple concepts such as a forecast , estimate , or classification .\n\n Economies of scale . Instead of each modeling project being a bespoke effort created in service of a specific use case, modeling efforts can build on each other over time. For example, a forecast produced for one use case can immediately be used for subsequent use cases as well, reducing duplicated effort and providing end-user value more quickly over time.\n\n Connectivity at scale . By incorporating ML models, the Ontology becomes a single source of truth for the organization, not just in terms of data, but also in terms of logic . Models encode the organization's expectations for how things may change in the future. In this way, the Ontology becomes a \"digital twin\" for the entire enterprise, which unlocks the ability to simulate changes across the organization in ways that would never be possible with a wide array of disparate modeling efforts.\n\n ← \n PREVIOUS Why create an Ontology? \n\n NEXT Core concepts \n →"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/derived-properties",
+    "title": "Derived properties - Palantir",
+    "summary": "Derived properties are calculated at runtime based on other properties or links. Types include linked property/aggregation (from 1:1 or 1:N links) and column math (combining multiple properties). Computed in real time, they may impact module loading times. Currently a beta feature with expanding capabilities.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "derived-property",
+      "computed",
+      "runtime",
+      "aggregation",
+      "column-math"
+    ],
+    "relatedConcepts": [
+      "Derived Property",
+      "Property",
+      "Link Type",
+      "Aggregation"
+    ],
+    "content": "Derived properties • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Derived properties \n\n Derived properties [Beta]\n\nBeta\n\nDerived properties are in the beta phase of development and may not be available on your enrollment. Functionality may change during active development.\n\nDerived properties are properties that are calculated at runtime based on the values of other properties or links on objects. This includes aggregating on or selecting properties of linked objects. Derived properties are then available for further operations, such as filtering, sorting, or aggregating within the same request. Derived properties use the security of all objects involved in the calculation, so they do not expose information a user would otherwise be unable to see.\n\n Availability\n\nDerived properties are available in the following workflows:\n\n Ontology SDK: Derived properties can be used in the TypeScript OSDK with the withProperties operation, to be returned or used in additional filters, aggregations, or sorts. The TypeScript OSDK must be running the 2.2.0-beta.x version of the @osdk/client package or later. Review the API documentation in Developer Console for more details.\n\n Known limitations\n\nAs a beta feature under active development, derived properties currently have some capability limitations. Many of these capabilities will become available over time as additional functionality is built. Current limitations are listed below:\n\n OSv1 support: Queries with derived properties may not contain any object types indexed using OSv1 .\n\n Text search: Derived properties cannot be used in text search or keyword filters.\n\n Structs in OSDK: Specifically in current versions of the Typescript OSDK, queries with derived properties may not contain any struct property types. You can use a $select operation in Ontology SDK to exclude struct properties.\n\n ← \n PREVIOUS Semantic search / Use custom models to create a semantic search workflow \n\n NEXT Applications / Object Explorer / Overview \n →"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/metadata-statuses",
+    "title": "Object and link types - Metadata - Statuses - Palantir",
+    "summary": "Every Ontology resource has a developmental status: active, experimental, deprecated, or example. Object types also support 'endorsed' status (beta) for core trusted resources. Status changes cascade: changing an object type from active to experimental marks all its properties experimental too.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "metadata",
+      "status",
+      "lifecycle",
+      "active",
+      "deprecated",
+      "endorsed"
+    ],
+    "relatedConcepts": [
+      "Metadata",
+      "Status",
+      "Object Type",
+      "Property",
+      "Lifecycle"
+    ],
+    "content": "Object and link types • Metadata • Statuses • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Object and link types Metadata Statuses \n\n Statuses\n\nEvery object type, property, link type, action, or interface in the Ontology has a status that indicates developmental state. An ontological resource's status can be either active, experimental, deprecated, or example. Status metadata helps Ontology-editing users to know what resources are being actively relied on by user applications. These statuses are viewable in Object Explorer , Object Views , and Workshop to provide more information about which object types are intended for use in user applications.\n\nThe status can take on one of four values:\n\n Available Status Values\n\n Active: Indicates that the resource is actively in use in user-facing applications and major breaking changes will not be made in the Ontology Manager.\n\n Experimental: Indicates that the resource is still under development. Changes may be made that make the experimental item unavailable in user facing applications.\n\n Deprecated: Indicates that the resource will soon be deleted. The deprecated item should not be relied on in user facing applications.\n\nA deprecated resource also has metadata that includes:\n\nA description for why it is being deprecated;\n\nA deadline for when it is expected to be deleted from the system; and\n\nThe resource that is meant to replace the one that is deprecated.\n\n Example: Indicates that the resource has been installed as an example. Example resources are notional and are only suitable for trainings or early-stage, exploratory use. Examples are not intended for use in production workflows.\n\n [Beta] Endorsed (object types only): Indicates that the object type is a core, trusted resource that has been vetted by an ontology owner. Endorsed object types inherit similar protections as active object types for API names.\n\n Endorsed status (object types only)\n\nBeta\n\nThe endorsed status for object types is in beta and may only be available in specific enrollments. Contact your Palantir representative for access.\n\nObject types support a special endorsed status to signify a higher level of trust and official standing within the ontology. This status, represented by a new colored checkmark icon, helps users differentiate core, reusable object types from more use-case-specific or experimental ones.\n\nThe endorsed status provides prominence beyond the standard active status. An object type with this status is meant to be considered a \"core\" resource, held to high standards and managed by a central team. Endorsed object types inherit similar operational protections of the active status, such as restrictions on deletion.\n\nKey characteristics of the endorsed status include:\n\n Scope: The endorsed status applies only to object types. It is not available for properties, link types, action types or interfaces.\n\n Visibility: Setting an object type's status to endorsed will automatically set its visibility to prominent , increasing its discoverability across the platform. Users can optionally move all properties of the object type to active status.\n\n Permissions: \n\nOnly users with the Ontology Owner role on the ontology level can directly apply the endorsed status.\n\nOther users must submit a proposal for review and approval by an Ontology Owner on the ontology level to apply the status.\n\n Operations that are not allowed\n\nGiven that applications rely on onto\n[...truncated]"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/metadata-render-hints",
+    "title": "Object and link types - Metadata - Render hints - Palantir",
+    "summary": "Render hints communicate information about Ontology property usage to Object Storage and user applications. Examples include sortable (enables sorting), searchable (enables filtering/aggregation), and visibility (controls display prominence). Some render hints require reindexing to take effect, affecting performance.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "render-hints",
+      "searchable",
+      "sortable",
+      "visibility",
+      "indexing",
+      "metadata"
+    ],
+    "relatedConcepts": [
+      "Render Hints",
+      "Property",
+      "Searchable",
+      "Visibility",
+      "Indexing"
+    ],
+    "content": "Object and link types • Metadata • Render hints • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Object and link types Metadata Render hints \n\n Render hints\n\nFoundry uses render hints to communicate information about the use of Ontology properties to Object Storage V1 (Phonograph) and user applications in the platform. For example, the sortable render hint on a string property tells applications to allow users to sort on that property, as in a timeline or a chart.\n\nMany render hints are tied to reindex performance for an object type. For instance, you can use render hints to indicate to Object Storage V1 (Phonograph) that a property doesn’t need to be aggregated or sorted in applications, so that Object Storage V1 has less work to do when indexing those properties.\n\nYou can select and deselect render hints in the properties pane of the property editor (see image below).\n\nThe following table shares the Name and Description for each of the available render hints. The table also provides information on two technical aspects of render hints: \"Adds raw index?\" and \"Requires reindex?\" (described below).\n\n Adds raw index? \n\nIn order to apply a render hint that adds a raw index, Object Storage V1 (Phonograph) stores the render hint information by creating another index when storing the backing dataset.\n\nBecause of this additional index, for the property with a render hint applied, two columns will be counted toward the total number of columns indexed into Object Storage V1 (Phonograph).\n\nThis explains why deselecting these render hints improves performance of reindex into Object Storage V1 (Phonograph).\n\n Requires reindex? \n\nSome render hints will be immediately applied in user applications as soon as their selection is saved in the Ontology Manager.\n\nFor other render hints that require a reindex, the object type's backing datasources must be reindexed into Objects Storage V1 (Phonograph) before the changes will be reflected in user applications.\n\nYou can wait for the next triggered reindex or you can manually start the reindex by navigating to the Datasources tab of the object type and selecting the blue Reindex button in the Phonograph pane.\n\n Name Description Adds raw index? Requires reindex? \n\n Disable formatting - Enable if property values should not be formatted in Object Views according to a browser location’s local numerical formatting standards. \n\n Identifier - Enable to improve reindex performance and specify primary keys and foreign keys that have a numerical base type and don’t need to be formatted or treated as numbers. \n    - For example, Object Views won’t format the property values as numbers and Object Explorer won’t enable filtering the keys by a range. \n\n Keywords - Enable to highlight this property in its own section when displaying properties in Object Views. \n\n Long text - Enable if property values contains a large amount of text. \n    - For example, Object Views will display this property’s values in a more readable format. \n\n Low cardinality - Enable to indicate to applications that there are not many possible values for this property. \n    - For example, some Object View widgets will only allow filtering on properties with not many possible values. \n- The Searchable render hint must also be selected along with Low cardinality. yes yes \n\n Selectable - Enable on string properties to allow users to perform aggregations on this property. \n    - For example, t\n[...truncated]"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/create-object-type",
+    "title": "Object and link types - Object types - Create an object type - Palantir",
+    "summary": "Step-by-step guide for creating object types including metadata (display name, ID, description), backing datasource selection, property mapping, and key configuration. Primary way is via guided helper. All object types must have a title key and unique primary key. A single datasource can only back one object type.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "create-object-type",
+      "ontology-manager",
+      "primary-key",
+      "title-key",
+      "backing-datasource"
+    ],
+    "relatedConcepts": [
+      "Object Type",
+      "Primary Key",
+      "Title Key",
+      "Backing Datasource",
+      "Ontology Manager"
+    ],
+    "content": "Object and link types • Object types • Create an object type • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Object and link types Object types Create an object type \n\n Create an object type\n\nThe primary way to create and configure a new object type is with a guided step-by-step helper . The guided helper is the recommended method, but if you exit the helper before completing the object creation process, you can also manually complete the process by specifying the metadata, backing datasource, property mappings, and keys (primary and title) for the new object type.\n\nAfter creating a new object type, you can change the API name from the assigned default.\n\nThis page also contains troubleshooting information on the new object type creation process.\n\n Create a new object type with the helper\n\n Create a new object type \n\n Choose a backing datasource \n\n Object type metadata \n\n Create properties for the object type \n\n Configure the primary key and title key \n\n Generate actions \n\n Save location \n\n Save change to ontology \n\n Create a new object type\n\nTo create a new object type, select the Create your first object type option from the Ontology Manager homepage or choose New > Create object type located on top right on the same page.\n\nThe Create new object type helper will appear.\n\n Choosing a backing datasource\n\nIf you have an existing datasource in Foundry containing data to back the object type then you can select it. This will automatically populate the object type's metadata. It will also map every column of the backing datasource to a property, but you can discard added properties in the Properties step.\n\nWarning\n\nA backing datasource for an object type may not contain MapType or StructType columns.\n\nIf you do not have an existing datasource containing data for the object type, you can choose to continue without an existing datasource and select a location to generate a dataset for permissions. This option is not available if you are using Object Storage v1. As permissions of the objects of a type are determined by the location of their backing datasources, you will be prompted to choose a location to which you want to save an empty dataset.\n\n Object type metadata\n\nIn this step, provide the following information regarding your new object type:\n\n Icon: Select the default icon to customize the icon and color of the object type; this icon and color will be displayed in user applications when a user views an object of this type.\n\n Name: The name shown to anyone accessing an object of this type in user applications.\n\n Plural name: The name shown to anyone accessing multiple objects of this type in user applications.\n\n Description: Explanatory text for anyone accessing the objects of this type in user applications. For example, users searching in Object Explorer will view the description of the object type in their search results.\n\n Groups: Choose whether this object type will be part of any groups. This is a mechanism for organizing your ontology, making it easier to filter for the object types you want to work with later.\n\n Create properties for the object type\n\nIn the third step of the dialog you can customize which properties the object type will have. If you have chosen an existing Foundry datasource, any columns will be mapped automatically, but can be discarded during this step.\n\nEvery object type requires at least one property. This is because object types need a primary k\n[...truncated]"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-link-types/object-type-metadata",
+    "title": "Object and link types - Object types - Metadata reference - Palantir",
+    "summary": "Reference for object type metadata including display name, plural display name, description, ID, icon, color, groups, and status. Documents all configurable metadata fields that define how an object type appears and behaves across the platform.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "object-type",
+      "metadata",
+      "display-name",
+      "icon",
+      "description",
+      "id"
+    ],
+    "relatedConcepts": [
+      "Object Type",
+      "Metadata",
+      "Display Name",
+      "ID",
+      "Status"
+    ],
+    "content": "Object and link types • Object types • Metadata reference • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Object and link types Object types Metadata reference \n\n Metadata reference\n\nAn object type is represented in the Ontology by the following metadata:\n\n ID: A unique identifier of the object type, primarily used to reference objects of this type when configuring an application. For example, employee may be the ID of the Employee object type.\n\n RID: An automatically generated unique identifier for every resource in Foundry. An object type’s RID will be referenced in error messages across the platform.\n\n Icon: A picture and color used as a visual identifier of the object type that will appear in user applications when a user views an object of this type. For example, the person icon may be used to depict the Employee object type.\n\n Display name: The name shown to anyone accessing an object of this type in user applications. For example, the display name for the Employee object type may be Employee .\n\n Plural display name: The name shown to anyone accessing multiple objects of this type in user applications. For example, the plural display name for the Employee object type may be Employees .\n\n Description: Explanatory text about the object type that anyone can read in user applications. For example, the description of the Employee object type may be All full-time and part-time employees of Organization X .\n\n Groups: A group is a label that helps you categorize your object types. For example, the Employee object type may belong to groups HR and Employee 360 .\n\n API name: The name used when referring to the object type programmatically in code. For example, the API name of the Employee object type may be Employee . Read more about API names .\n\n Visibility: An indication to user applications for how prominently to display the object type. A prominent object type will lead applications to show this object type first to users. A hidden object type will not appear in user applications. By default, the Employee object type will have visibility normal .\n\n Status: A signal to users and other Ontology builders about where in the development process the object type stands. It can be active , experimental , or deprecated . By default, the Employee object type will have status experimental . Read more about statuses .\n\n Index status: The status of the last reindex of the object type and its backing datasources. It can be success , failed , or not started . Read more about index statuses .\n\n Writeback: An indication of whether the object type has a writeback dataset generated, and whether allowing end users to make edits to objects of this type is enabled or disabled . Read more about writeback datasets .\n\n Learn more about creating and configuring an object type in the Ontology and about validation requirements for object type metadata. \n\n Learn more about Properties (characteristics of an object type). \n\n ← \n PREVIOUS Create Ontology objects from Gaia \n\n NEXT Properties / Overview \n →"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/object-edits/how-edits-applied",
+    "title": "Object edits and materializations - How user edits are applied - Palantir",
+    "summary": "When an Action is applied, edits are immediately applied to the index in object databases and periodically flushed to persistent storage as Foundry datasets. Transactionality guarantees avoid data correctness issues. Writeback datasets read edits and reflect the most up-to-date object state.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "edits",
+      "writeback",
+      "transaction",
+      "materialization",
+      "action",
+      "user-edits",
+      "actions",
+      "persistence",
+      "object-databases",
+      "lifecycle"
+    ],
+    "relatedConcepts": [
+      "Action Type",
+      "Writeback",
+      "Transaction",
+      "Materialization",
+      "Object Storage",
+      "Object Type",
+      "Property"
+    ],
+    "content": "Object edits and materializations • How user edits are applied • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Object edits and materializations How user edits are applied \n\n How user edits are applied\n\nUser edits can be enabled and disabled using the Edits toggle in the Datasources tab of the Ontology Manager, as shown in the screenshot below.\n\n Edit objects via Actions\n\nThis section describes how the Ontology manages object edits with Actions.\n\nWhen an Action is applied to an object, link, or object set, the data-modification logic is immediately applied to the index in the object databases and periodically flushed into a persistent store in the form of Foundry datasets owned and managed by Funnel. More information can be found in the documentation on persistent storage of user edits .\n\n User edits on live data\n\nWhen an Action is triggered, the Actions service sends a modification instruction to the Funnel service. This instruction is stored in a Funnel-managed queue that has offset tracking to support simultaneous user edits. Object Storage V2 tracks these offsets for any object type and any many-to-many link type with join tables. The offsets are applied to the live indexed data in the object database; if an object read occurring as part of an ontology query happens after a user modification is sent, the object read is guaranteed to contain the user edits.\n\n How to discard/wipe/delete existing user edits\n\nData already containing user edits can only be updated via additional user edits. There is no mechanism to directly undo a single user edit or deletion other than to make additional user edits (for example, object actions) to update the object or to recreate the object.\n\nIn some circumstances, it may be desirable to discard all existing user edits in order to reset the state of all objects to be the same as in the input datasource. For example, you may want to delete all user edits applied during testing of an object type before releasing the object type in production.\n\nObject Storage V2 offers a schema migration framework for migrating user edits. The \"drop all edits\" instruction can be used to discard all existing user edits on an object type. This migration instruction can be applied by clicking the Delete edits button in the Edits section of the Datasources tab in the Ontology Manager.\n\nObject Storage V1 (Phonograph) does not have schema migration support, but removing the writeback dataset configuration from the object type will delete all the existing user edits and can be used as a workaround.\n\n Ontology entity version control\n\nDuring the process of applying an Action, object type definitions and object instances are loaded for various purposes, such as Action validations, Functions , and Action side effects . Object instances may change over the course of applying an Action, so it is important to guarantee transactionality to avoid potential data correctness issues (such as applying the Action to the wrong version of an object).\n\nThe Ontology includes mechanisms for checking version consistency of both object types and object instances, with differing behaviors between Object Storage V1 (Phonograph) and Object Storage V2.\n\n Entity version control between front-end consumers and the Actions server\n\nConsider the following scenario where a user loads the object property value at versions {V1, V2, V3, ...} in an Action form . The front-end consumer application c\n[...truncated]"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontologies/ontologies-overview",
+    "title": "Ontologies - Overview - Palantir",
+    "summary": "An ontology stores ontological resources including object types, link types, action types, and interfaces. Ontologies can be private (single organization) or shared (multiple organizations). Mapped 1:1 with a space. When a new space is created, a corresponding ontology is simultaneously created.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "ontology",
+      "space",
+      "organization",
+      "shared-ontology",
+      "container"
+    ],
+    "relatedConcepts": [
+      "Ontology",
+      "Space",
+      "Organization",
+      "Object Type",
+      "Link Type"
+    ],
+    "content": "Ontologies • Overview • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Ontologies Overview \n\n Ontologies\n\nAn ontology is an artifact which stores ontological resources or entities, including the following:\n\n Object types \n\n Link types \n\n Action types \n\n Interfaces \n\n Shared properties \n\n Object type groups \n\nWe call these resources Ontology resources . An ontology can either be private and assigned to a single organization or shared among multiple organizations. Shared ontologies allow users of different organizations to share data and workflows safely. Grouping entities in ontologies ensures that only users of the specified organizations can access ontological entities.\n\n Relation with spaces\n\nAn ontology is mapped 1:1 with a space . When a new space is created, a corresponding ontology with the same name is simultaneously created with the same organization markings as the space. A private space will map to a private ontology, while a shared space will map to a shared ontology.\n\n ← \n PREVIOUS Ontology-aware applications \n\n NEXT Test changes in the ontology \n →"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/foundry-branching/overview",
+    "title": "Foundry Branching - Overview - Palantir",
+    "summary": "Foundry Branching enables developing and testing end-to-end workflows (code, data pipelines, Ontology) in isolation without disrupting production. Provides unified experience for modifications across multiple applications on a single branch. Branches are intended to be short-lived and small to avoid conflicts.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "branching",
+      "development",
+      "testing",
+      "isolation",
+      "production-safety"
+    ],
+    "relatedConcepts": [
+      "Foundry Branching",
+      "Ontology Proposal",
+      "Development Workflow"
+    ],
+    "content": "Foundry Branching • Overview • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Developer toolchain Foundry Branching Overview \n\n Foundry Branching\n\n Foundry Branching enables you to develop and test comprehensive end-to-end workflows in the Palantir platform that might otherwise be too disruptive or risky for a live production environment.\n\nWhile code repositories , data pipelines and the Ontology support separate branching workflows, Foundry Branching provides a unified experience to make modifications across multiple applications on a single branch, test those changes end-to-end without disrupting the production environment, and merge those changes with a single click.\n\nFoundry Branching is in active development; see the list of supported functionality for more information on available features.\n\n Enable Foundry Branching\n\nAdministrators can enable Foundry Branching within the Application Access section in Control Panel. Foundry Branching is currently available for Pipeline Builder, the Ontology, Workshop, datasets in Code Repositories, and running Actions on a branch.\n\nNote that if your Workshop module contains non-Workshop elements for which Foundry Branching is not available, such as Quiver dashboards, these elements will not be modifiable on a branch.\n\n Example Foundry Branching workflow\n\nYou can make changes to transforms code repositories, Pipeline Builder, the Ontology, and Workshop modules on a single branch. You can also run Actions on branches without writing back edits to Main .\n\nFor instance, take a workflow that consists of a simple pipeline in Pipeline Builder that outputs a dataset used to back an object type. With Foundry Branching, you can make changes to the logic and schema of your output dataset on a branch, see these changes in Ontology Manager on that same branch, and modify the object type definition as a result.\n\nFoundry Branching also supports a review process; developers can add reviewers for different resources depending on each resource's approval policy. Once changes are finalized and approved, they can be deployed into the Main branch. This feature ensures a safe and controlled approach to updating and improving data pipelines, the Ontology, and Workshop applications.\n\n Branch cost and retention\n\nEach branch has associated compute and storage costs, and modifying large object types on a branch can incur significant additional costs. Branch cost insights in Resource Management are currently in progress. Branches are intended to be relatively short-lived, and retention policies are available to automatically close stagnant branches.\n\n Foundry Branching vs. release management\n\nFoundry Branching enables development and testing of workflow changes on a separate branch. This is ideal for managing changes in a development environment, as it allows developers to work in isolation and only merge changes into the Main branch when the feature is complete. Release management is the process of managing multiple versions of resources across distinct environments that serve different purposes.\n\n Release management and Foundry Branching can work together harmoniously. They should not be seen as alternative solutions to the same problem, but rather complementary solutions to different problems.\n\nFor example, you can use release management and Foundry Branching together when developing a large feature that needs to be added to a workflow. Larger features could take a few weeks\n[...truncated]"
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology/why-ontology",
+    "title": "Why create an Ontology? - Palantir",
+    "summary": "Explains the strategic value of building an Ontology: shared source of truth for decision-making, data discovery, viewing local decisions in global context. Goes beyond data cataloging to define a robust foundation for end-user workflows with rich metadata and granular security.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "why-ontology",
+      "value-proposition",
+      "decision-making",
+      "data-discovery"
+    ],
+    "relatedConcepts": [
+      "Ontology",
+      "Decision Making",
+      "Data Discovery",
+      "Security"
+    ],
+    "content": "Why create an Ontology? • Palantir \n\n Search \n\n Palantir \n\n Documentation \n\n Documentation \n\n Apollo \n\n Gotham \n\n Search documentation \n\n Search \n karat \n\n+\n\nK\n\n API Reference ↗ Send feedback \n\n en \n\n en jp kr zh \n\n AB XY \n\n AB XY AB XY AB XY AB XY AB XY AB XY \n\n Capabilities \n\n AI Platform (AIP) \n\n Data connectivity & integration \n\n Model connectivity & development \n\n Ontology building \n\n Developer toolchain \n\n Use case development \n\n Analytics \n\n Product delivery \n\n Security & governance \n\n Management & enablement \n\n Getting started \n\n Architecture center \n\n Platform updates \n\n Announcements \n\n Release notes \n\n Ontology building Why create an Ontology? \n\n Why create an Ontology?\n\nOrganizations can gain several key benefits from building and using an Ontology to organize and leverage their data, as described below:\n\n Connectivity at scale \n\n Interpretability \n\n Economies of scale \n\n Decision capture \n\n Powering operational AI/ML \n\nIn practice, these benefits are realized by using Foundry's Ontology-aware applications which enable rapid analysis, workflow development, and decision capture. Learn more about Ontology-aware applications. \n\n Connectivity at scale\n\nThe Ontology is a shared source of truth for decision-making and decision capture across a large organization.\n\nBy providing a single source of truth, the Ontology enables users to easily discover and understand the data available across their organization as well as view their local decisions in a more global context, providing connectivity at scale. The Ontology is used not only to read data, but also to write data back and capture decisions made by users.\n\nOperating from standard data lakes can lead to unmanageable complexity from an ever-growing number of datasets, dashboards, and applications. Over time, increasing effort is required simply to understand what data assets exist or should be used, while new projects \"reinvent the wheel\" instead of reusing or leveraging existing data assets.\n\nIn contrast, the Ontology provides a well-defined system into which new information is modeled into a common language for the organization. With an Ontology, organizations can make the most of their data as the data asset grows, enabling a digital transformation at scale, while controlling complexity and reducing the difficulty of data management.\n\nExample\n\nAn energy company uses the Ontology to create a shared view of the health and performance of a well across petroleum engineers, well integrity engineers, and well management staff. Instead of building several isolated views on the well’s performance, they share their inputs to the same Ontology well object type, allowing short-term decisions about the well’s management and long-term decisions around the asset’s investment strategy to be generated from the same information and insights.\n\n Interpretability\n\nThe most challenging element of operating as a data-driven organization is deploying the data to the various decision makers across the organization. In particular, many decision makers are not technical users comfortable with code or IT concepts such as datasets or joins.\n\nThe Ontology abstracts away these digital concepts and allows users to engage with data represented in the standard terms they use every day. More importantly, the Ontology provides a shared language across different users and functions, allowing them to collaborate without lengthy reconciliation processes to confirm that everyone is looking at the same information.\n\nExample\n\nAt a manufacturing customer, monitoring data from aircraft sensors was previously inaccessible to both operational users and data scientists due to its scale, complexity, and esoteric format. Today, because of the Ontology modeled on top of the monitoring data, designers can search for parts, see related sensor readings that may signal unexpected or anomalous behavior, and improve future designs without needing to think about tables or joins or going through a complex data preparation \n[...truncated]"
+  },
+  {
+    "url": "https://pythonebasta.medium.com/understanding-palantirs-ontology-semantic-kinetic-and-dynamic-layers-explained-c1c25b39ea3c",
+    "title": "Understanding Palantir's Ontology: Semantic, Kinetic, and Dynamic Layers Explained",
+    "summary": "Third-party analysis breaking down the three Ontology layers. Semantic layer defines the conceptual model (entities, relationships, properties). Kinetic layer operationalizes the model with data feeds, action types, and functions. Dynamic layer introduces business rules, access control, and lifecycle management.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "semantic-layer",
+      "kinetic-layer",
+      "dynamic-layer",
+      "architecture",
+      "analysis",
+      "ontology-architecture",
+      "AI-integration",
+      "ontology"
+    ],
+    "relatedConcepts": [
+      "Semantic Layer",
+      "Kinetic Layer",
+      "Dynamic Layer",
+      "Architecture",
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type",
+      "Functions"
+    ],
+    "content": "Press enter or click to view image in full size\nUnderstanding Palantir’s Ontology: Semantic, Kinetic, and Dynamic Layers Explained\nCristian Caruso\n3 min read\n·\nJun 13, 2025\n\n--\n\n4\n\nIf you’ve worked with Palantir Foundry or Gotham, you’ve likely heard the term ontology used again and again. In Palantir’s world, ontology is not just a buzzword, it’s the foundational concept that brings clarity, structure, and meaning to vast, complex data ecosystems.\n\nBut to truly understand how Palantir turns data into insight and action, you need to grasp the three core layers of the ontology: Semantic, Kinetic, and Dynamic.\n\nLet’s break them down.\n\n🔷 1. The Semantic Layer — What the World Is\n\nThe semantic layer is the core of the ontology. It defines the conceptual model of your domain , what entities exist, how they relate to one another, and what properties they have.\n\nThink of it as answering the question:\n\n“What are the things that matter in our world?”\n\nExamples:\nEntities: Person, Vehicle, Transaction, Organization\nRelationships: A Person owns a Vehicle, a Vehicle is registered with an Organization\nProperties: A Person has a name, a Transaction has a timestamp\n\nThe semantic layer lets you define a shared language across teams and data sources, reconciling fragmented data concepts like “user”, “client”, or “individual” into a unified Person entity.\n\n🔷 2. The Kinetic Layer — Connecting to Reality\n\nWhile the semantic layer defines meaning, the kinetic layer connects that meaning to actual data.\n\nGet Cristian Caruso’s stories in your inbox\n\nJoin Medium for free to get updates from this writer.\n\nSubscribe\n\nThis layer implements the ontology by linking real-world data sources, databases, APIs, files, into the conceptual model.\n\nWhat it does:\nMaps raw data (tables, fields) to ontological entities and relationships\nPowers ETL (Extract-Transform-Load) pipelines\nEnables traceable, auditable data lineage from source to insight\nExample:\nA SQL table tbl_customers with columns like first_name, last_name, id gets mapped to the Person entity\nA CSV containing license plates maps into the Vehicle entity\n\nThe kinetic layer operationalizes your ontology, ensuring it’s fed with up-to-date, accurate information.\n\n🔷 3. The Dynamic Layer — Making It Come Alive\n\nThe dynamic layer introduces behavior to the ontology. This is where business rules, policies, workflows, and permissions live.\n\nWhat it includes:\nBusiness rules (e.g., “A Person can only be assigned a case if they are active”)\nAccess control (e.g., users can only see entities linked to their department)\nLifecycle management (e.g., Suspect → Investigated → Cleared)\n\nThis layer ensures that the ontology is not just a model, but an active system that adapts, governs, and enforces logic across the platform.\n\nPress enter or click to view image in full size\n✅ Why It Matters in Palantir\n\nIn a Palantir environment:\n\nAnalysts work within the semantic model to explore and derive insights\nEngineers build out the kinetic layer to integrate and normalize data\nEnd users interact through apps and dashboards powered by the dynamic layer\n\nThis structure lets you scale understanding and control, across massive datasets and complex operations, without losing clarity.\n\n🎯 Final Thoughts\n\nPalantir’s ontology is more than just a way to organize data, it’s a live, intelligent model of your world. Understanding the semantic, kinetic, and dynamic layers helps you design systems that are not only accurate and aligned, but also adaptive and powerful.\n\nWhether you’re building a single source of truth or an entire digital twin of your operations, this layered approach is what makes Foundry and Gotham uniquely effective."
+  },
+  {
+    "url": "https://medium.com/@jimmywanggenai/palantir-foundry-ontology-3a83714bc9a7",
+    "title": "Palantir Foundry: Ontology - Jimmy Wang - Medium",
+    "summary": "Medium article explaining how raw datasets (databases, logs, APIs, CSVs) are brought into Foundry and mapped to Object Types using the Ontology Manager or SDKs. Covers the process of defining object types with attributes and relationships to transform raw data into a unified knowledge system.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "tutorial",
+      "medium",
+      "introduction",
+      "practitioner",
+      "third-party",
+      "ontology",
+      "object-types",
+      "data-mapping"
+    ],
+    "relatedConcepts": [
+      "Ontology",
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Action Type"
+    ],
+    "content": "Palantir Foundry: Ontology\nJimmy Wang\nFollow\n1 min read\n·\nDec 4, 2024\n\nIn Palantir Foundry, ontology represents the structured, semantic layer that organizes and connects data within the platform. It allows users to define a consistent framework of objects, their attributes, and relationships, creating a shared language for datasets, pipelines, and applications.\n\nBuilding Ontology in Foundry\n\nAn ontology in Foundry starts with defining object types, which are essentially entities like “Customer,” “Order,” or “Machine.” Each object type can have attributes (e.g., “Customer Name” or “Order Date”) and relationships with other object types. These definitions help integrate datasets with a unified schema for downstream analysis and applications.\n\nGet Jimmy Wang’s stories in your inbox\n\nJoin Medium for free to get updates from this writer.\n\nSubscribe\n\nSteps for Creating Ontology:\n\nDefine Object Types: Use Foundry’s Ontology Manager to create object types that represent real-world entities.\nAdd Attributes: Assign properties to each object type, such as numeric, text, or categorical data.\nSet Relationships: Link object types to represent interactions or dependencies.\nMap Data: Connect raw datasets to the ontology through pipelines.\nExample of Ontology Construction\nObject Types:\nOrder (Attributes: Order ID, Date, Total Amount).\nCustomer (Attributes: Customer ID, Name, Email).\nProduct (Attributes: Product ID, Name, Price).\nRelationships:\nOrder relates to Customer (One-to-Many).\nOrder relates to Product (Many-to-Many via Order Line Items).\nUsing Ontology for Downstream Applications\n\nOnce the ontology is built, it can be utilized for:\n\nWorkshop Applications: Filter and visualize objects based on their attributes and relationships.\nAction Framework: Perform actions on objects (e.g., update order status or assign tasks).\nAI Models: Enhance ML workflows by leveraging structured relationships and metadata."
+  },
+  {
+    "url": "https://dorians.medium.com/foundational-ontologies-in-palantir-foundry-a774dd996e3c",
+    "title": "Foundational Ontologies in Palantir Foundry - Dorian Smiley - Medium",
+    "summary": "Explores the concept of foundational ontologies in Palantir Foundry, discussing how to design base ontology patterns that can be extended for specific use cases. Covers ontology design patterns and best practices for building reusable foundations.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "foundational-ontology",
+      "design-patterns",
+      "best-practices",
+      "extensibility",
+      "ontology-design",
+      "patterns",
+      "enterprise",
+      "ontology",
+      "object-types",
+      "relationships"
+    ],
+    "relatedConcepts": [
+      "Ontology Design",
+      "Patterns",
+      "Extensibility",
+      "Best Practices",
+      "Object Type",
+      "Property",
+      "Link Type",
+      "Shared Property"
+    ],
+    "content": "Top highlight\n\nFoundational Ontologies in Palantir Foundry\nDorian Smiley\nFollow\n7 min read\n·\nFeb 24, 2024\n\n45\n\n3\n\nUnlocking the Knowledge Encoded in Data\n\n“Hiding within those mounds of data is the knowledge that could change the life of a patient, or change the world.”\n— Atul Butte\n\nPress enter or click to view image in full size\nThere are Graphs in our Data\n\nIt's often been said there are graphs in your data. Anyone engaged with the Neo4J community has undoubtedly heard this saying at least once. Anyone who works with data long enough will discover these hidden relationships with the right model—for example, realizing a relationship between revenue and weather or finding how social media trends can predict stock market movements. These insights are not just mere coincidences but are based on the intricate web of connections within our datasets. This realization is where the concept of foundational ontologies in platforms like Palantir Foundry comes into play. They serve as the bedrock for uncovering and understanding these complex relationships, enabling organizations to predict the system's future state.\n\nOntologies are in and of themselves a form of artificial intelligence. They encapsulate human knowledge and understanding about the natural world into a structured, machine-processable format. This structured knowledge, especially in knowledge graphs, enables AI systems to exhibit intelligent behaviors, such as those observed in sophisticated recommendation engines. The intelligence of ontologies stems from their ability to model the complex web of relationships within data that mirrors human reasoning, allowing machines to make inferences, recognize patterns, and predict outcomes in a manner that feels remarkably human-like. Through encoding both the entities and the semantic relationships between them, ontologies provide a rich tapestry of information beyond simple data storage, embodying a deep understanding of the domain it represents.\n\nModeling ontologies that accurately reflect their real-world counterparts is a complex process. Uncovering relationships between datasets within a system, such as those in a business environment encompassing structured, semi-structured, and unstructured data, involves a multifaceted approach. Initially, the process begins with a clear definition of the problem or objective, guiding the focus of the analysis. This is followed by meticulous data collection, ensuring that data from various sources and formats are accurately aggregated. The preparation phase is critical, involving cleaning and transforming data to remove inconsistencies and errors, which is crucial for maintaining the accuracy of subsequent analyses. Techniques such as clustering, association rules, decision trees, regression analysis, and time series analysis are then employed to analyze these prepared datasets, allowing for the discovery of hidden patterns and relationships across the data spectrum.\n\nInterpreting results from these analyses is critical to the data modeling process. Understanding the dynamics and interconnections between datasets enables businesses to make informed decisions about how the real world behaves. They can also inform our logical models, often encoded with bias. Applying insights derived from data mining across the data landscape ensures we keep our models balanced with our preconceived notions about the behavior of complex systems.\n\nBy leveraging the encoded relationships and rules within ontologies, AI systems can understand context, preferences, and nuances in a way that aligns with human thought processes, making decisions or recommendations based on a nuanced understanding of complex interdependencies. This capability transforms ontologies into a cornerstone of artificial intelligence, bridging the gap between raw data and meaningful insights by infusing AI with a scaffold of human knowledge.\n\nIntegrating ontologies into AI systems, particularly agents, provides a framework to allow AI to t\n[...truncated]"
+  },
+  {
+    "url": "https://medium.com/business-friendly-data-modeling/palantirs-ontology-kimball-s-star-schema-and-model-driven-data-engineering-a-comparative-view-8b175464c42a",
+    "title": "Palantir's Ontology, Kimball's Star Schema, and Model-Driven Data Engineering: A Comparative View",
+    "summary": "Comparative analysis of Palantir's Ontology approach against traditional data modeling paradigms like Kimball's star schema. Palantir's Ontology is described as a highly normalized, business-oriented abstraction layer that models data as business objects with relationships as first-class citizens.",
+    "category": "ontology-core",
+    "quality": 4,
+    "tags": [
+      "comparison",
+      "star-schema",
+      "kimball",
+      "data-modeling",
+      "abstraction"
+    ],
+    "relatedConcepts": [
+      "Data Modeling",
+      "Star Schema",
+      "Normalization",
+      "Business Objects"
+    ],
+    "content": "Member-only story\n\nPalantir’s Ontology, Kimball’s Star Schema, and Model-Driven Data Engineering: A Comparative View\nJaco van der Laan\nFollow\n4 min read\n·\nSep 23, 2025\n\n144\n\n4\n\nHow Palantir’s Ontology compares to Kimball’s dimensional modeling—and why a model-driven, historization-first architecture offers a more sustainable middle path.\n\n💡 Not a Medium member? You can read this article for free using this friend link.\n\nSummary\n\nPalantir’s Ontology is a highly normalized, business-oriented abstraction layer that aligns data around business objects and relationships. It contrasts with Kimball’s star schema, which organizes data into denormalized facts and dimensions optimized for reporting.\n\nOur model-driven data engineering approach — grounded in historization, bi-temporal SCD2, and metadata-driven views — combines the best of both worlds: business semantics and history preservation (ontology) with pragmatic usability and performance (dimensional modeling).\n\nPress enter or click to view image in full size\nWhat Palantir’s Ontology Is\n\nPalantir describes its Ontology as the central semantic layer for its Foundry platform:\n\nData is modeled as business objects (Customer, Account, Contract, Product, Event).\nRelationships between objects are first-class citizens.\nNormalized, graph-like…"
+  }
+]

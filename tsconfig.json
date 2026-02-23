@@ -1,71 +1,61 @@
 {
-  "extends": "./tsconfig.base.jsonc",
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "references": [{ "path": "tsconfig.packages.json" }],
   "include": [
+    "**/vitest.*.ts", // All vitest config files across all packages
     "./syncpack.config.ts",
-    "./knip.config.ts"
+    "./knip.config.ts",
+    "./packages/*/*/test/**/*.ts",
+    "./packages/*/*/test/**/*.json",
+    "./packages/*/*/dtslint/**/*.ts",
+    "./packages/*/*/benchmark/**/*.ts",
+    "./tooling/*/test/**/*.ts",
+    "./tooling/*/test/**/*.json",
+    "./tooling/*/dtslint/**/*.ts",
+    "./apps/*/test/**/*.ts",
+    "./apps/*/test/**/*.json"
   ],
-  "exclude": [
-    "**/dist/**",
-    "**/build/**",
-    "**/.turbo/**",
-    "**/.next/**",
-    "**/.output/**",
-    "**/.expo/**",
-    "**/node_modules/**",
-    "**/.*/"
-  ],
+  "exclude": ["./tooling/*/test/fixtures/**/*.ts", "./**/dtslint/**/*.tst.*"],
   "compilerOptions": {
-    "disableReferencedProjectLoad": true,
-    "disableSolutionSearching": true
-  },
-  "references": [
-    {
-      "path": "tsconfig.slices/common.json"
+    "tsBuildInfoFile": "./dist/tsconfig.root.tsbuildinfo",
+    "rootDir": ".",
+    "noEmit": true,
+    "erasableSyntaxOnly": false,
+    "resolveJsonModule": true,
+    "types": ["node", "bun"],
+    "paths": {
+      // Path aliases allow loading internal modules in tests and using workspace packages
+      // These will be populated as packages are created
+      "@beep/repo-cli": ["./tooling/cli/src/index.ts"],
+      "@beep/repo-cli/*": ["./tooling/cli/src/*.ts"],
+      "@beep/repo-cli/test/*": ["./tooling/cli/test/*.ts"],
+      "@beep/repo-utils": ["./tooling/repo-utils/src/index.ts"],
+      "@beep/repo-utils/*": ["./tooling/repo-utils/src/*.ts"],
+      "@beep/repo-utils/test/*": ["./tooling/utils/test/*.ts"],
+      "@beep/codebase-search": ["./tooling/codebase-search/src/index.ts"],
+      "@beep/codebase-search/*": ["./tooling/codebase-search/src/*.ts"],
+      "@beep/codebase-search/test/*": ["./tooling/codebase-search/test/*.ts"],
+      "@beep/types": ["./packages/common/types/src/index.ts"],
+      "@beep/types/*": ["./packages/common/types/src/*.ts"],
+      "@beep/utils": ["./packages/common/utils/src/index.ts"],
+      "@beep/utils/*": ["./packages/common/utils/src/*.ts"],
+      "@beep/identity": ["./packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["./packages/common/identity/src/*.ts"],
+      "@beep/schema": ["./packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["./packages/common/schema/src/*.ts"],
+      "@beep/messages": ["./packages/common/messages/src/index.ts"],
+      "@beep/messages/*": ["./packages/common/messages/src/*.ts"],
+      "@beep/ontology": ["./packages/common/ontology/src/index.ts"],
+      "@beep/ontology/*": ["./packages/common/ontology/src/*.ts"],
+      "@beep/data": ["./packages/common/data/src/index.ts"],
+      "@beep/data/*": ["./packages/common/data/src/*.ts"]
     },
-    {
-      "path": "tsconfig.slices/shared.json"
-    },
-    {
-      "path": "tsconfig.slices/core.json"
-    },
-    {
-      "path": "tsconfig.slices/ui.json"
-    },
-    {
-      "path": "tsconfig.slices/iam.json"
-    },
-    {
-      "path": "tsconfig.slices/documents.json"
-    },
-    {
-      "path": "tsconfig.slices/runtime.json"
-    },
-    {
-      "path": "tsconfig.slices/apps.json"
-    },
-    {
-      "path": "tsconfig.slices/internal.json"
-    },
-    {
-      "path": "tsconfig.slices/tooling.json"
-    },
-    {
-      "path": "tsconfig.slices/customization.json"
-    },
-    {
-      "path": "./tsconfig.slices/another-test.json"
-    },
-    {
-      "path": "./tsconfig.slices/comms.json"
-    },
-    {
-      "path": "./tsconfig.slices/calendar.json"
-    },
-    {
-      "path": "./tsconfig.slices/knowledge.json"
-    },
-    {
-      "path": "./tsconfig.slices/integrations.json"
-    }
-  ]
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "namespaceImportPackages": ["@beep/*"]
+      }
+    ]
+  }
 }

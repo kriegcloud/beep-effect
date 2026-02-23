@@ -20,8 +20,9 @@ import * as internalExecutionPlan from "./internal/executionPlan.ts"
 import * as internal from "./internal/stream.ts"
 import { addSpanStackTrace } from "./internal/tracer.ts"
 import * as Iterable from "./Iterable.ts"
+import * as Latch from "./Latch.ts"
 import type * as Layer from "./Layer.ts"
-import type { LogLevel } from "./LogLevel.ts"
+import type { Severity } from "./LogLevel.ts"
 import * as MutableHashMap from "./MutableHashMap.ts"
 import * as MutableList from "./MutableList.ts"
 import * as Option from "./Option.ts"
@@ -471,7 +472,7 @@ export const fromEffectSchedule = <A, E, R, X, AS extends A, ES, RS>(
  * @since 2.0.0
  * @category Constructors
  */
-export const tick = (interval: Duration.DurationInput): Stream<void> =>
+export const tick = (interval: Duration.Input): Stream<void> =>
   fromPull(Effect.sync(() => {
     let first = true
     const effect = Effect.succeed(Arr.of<void>(undefined))
@@ -2166,8 +2167,8 @@ export const tapSink: {
     transformPullBracket(
       self,
       Effect.fnUntraced(function*(pull, _, scope) {
-        const upstreamLatch = Effect.makeLatchUnsafe()
-        const sinkLatch = Effect.makeLatchUnsafe()
+        const upstreamLatch = Latch.makeUnsafe()
+        const sinkLatch = Latch.makeUnsafe()
         let chunk: Arr.NonEmptyReadonlyArray<A> | undefined = undefined
         let causeSink: Cause.Cause<E2> | undefined = undefined
         let sinkDone = false
@@ -2580,11 +2581,11 @@ export const schedule: {
  * @category Rate Limiting
  */
 export const timeout: {
-  (duration: Duration.DurationInput): <A, E, R>(self: Stream<A, E, R>) => Stream<A, E, R>
-  <A, E, R>(self: Stream<A, E, R>, duration: Duration.DurationInput): Stream<A, E, R>
+  (duration: Duration.Input): <A, E, R>(self: Stream<A, E, R>) => Stream<A, E, R>
+  <A, E, R>(self: Stream<A, E, R>, duration: Duration.Input): Stream<A, E, R>
 } = dual(
   2,
-  <A, E, R>(self: Stream<A, E, R>, duration: Duration.DurationInput): Stream<A, E, R> =>
+  <A, E, R>(self: Stream<A, E, R>, duration: Duration.Input): Stream<A, E, R> =>
     transformPull(self, (pull, _scope) =>
       Effect.succeed(Effect.timeoutOrElse(pull, {
         duration,
@@ -3684,7 +3685,7 @@ export const zipLatestAll = <T extends ReadonlyArray<Stream<any, any, any>>>(
   fromChannel(Channel.suspend(() => {
     const latest: Array<any> = []
     const emitted = new Set<number>()
-    const readyLatch = Effect.makeLatchUnsafe()
+    const readyLatch = Latch.makeUnsafe()
     return Channel.mergeAll(
       Channel.fromArray(
         streams.map((s, i) =>
@@ -5424,12 +5425,12 @@ export const orDie = <A, E, R>(self: Stream<A, E, R>): Stream<A, never, R> => fr
  */
 export const ignore: <
   Arg extends Stream<any, any, any> | {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   } | undefined
 >(
   selfOrOptions: Arg,
   options?: {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   } | undefined
 ) => [Arg] extends [Stream<infer A, infer _E, infer R>] ? Stream<A, never, R>
   : <A, E, R>(self: Stream<A, E, R>) => Stream<A, never, R> = dual(
@@ -5437,7 +5438,7 @@ export const ignore: <
     <A, E, R>(
       self: Stream<A, E, R>,
       options?: {
-        readonly log?: boolean | LogLevel | undefined
+        readonly log?: boolean | Severity | undefined
       } | undefined
     ): Stream<A, never, R> => fromChannel(Channel.ignore(self.channel, options))
   )
@@ -5464,19 +5465,19 @@ export const ignore: <
  */
 export const ignoreCause: <
   Arg extends Stream<any, any, any> | {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   } | undefined
 >(
   streamOrOptions: Arg,
   options?: {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   } | undefined
 ) => [Arg] extends [Stream<infer A, infer _E, infer R>] ? Stream<A, never, R>
   : <A, E, R>(self: Stream<A, E, R>) => Stream<A, never, R> = dual(
     (args) => isStream(args[0]),
     <A, E, R>(
       self: Stream<A, E, R>,
-      options?: { readonly log?: boolean | LogLevel | undefined } | undefined
+      options?: { readonly log?: boolean | Severity | undefined } | undefined
     ): Stream<A, never, R> => fromChannel(Channel.ignoreCause(self.channel, options))
   )
 
@@ -7042,22 +7043,22 @@ export const scanEffect: {
  * @category Rate Limiting
  */
 export const debounce: {
-  (duration: Duration.DurationInput): <A, E, R>(self: Stream<A, E, R>) => Stream<A, E, R>
-  <A, E, R>(self: Stream<A, E, R>, duration: Duration.DurationInput): Stream<A, E, R>
+  (duration: Duration.Input): <A, E, R>(self: Stream<A, E, R>) => Stream<A, E, R>
+  <A, E, R>(self: Stream<A, E, R>, duration: Duration.Input): Stream<A, E, R>
 } = dual(
   2,
-  <A, E, R>(self: Stream<A, E, R>, duration: Duration.DurationInput): Stream<A, E, R> =>
+  <A, E, R>(self: Stream<A, E, R>, duration: Duration.Input): Stream<A, E, R> =>
     transformPull(
       self,
       Effect.fnUntraced(function*(pull, scope) {
         const clock = yield* Clock
-        const durationMs = Duration.toMillis(Duration.fromDurationInputUnsafe(duration))
+        const durationMs = Duration.toMillis(Duration.fromInputUnsafe(duration))
         let lastArr: Arr.NonEmptyReadonlyArray<A> | undefined
         let cause: Cause.Cause<Cause.Done | E> | undefined
         let emitAtMs = Infinity
-        const pullLatch = Effect.makeLatchUnsafe()
-        const emitLatch = Effect.makeLatchUnsafe()
-        const endLatch = Effect.makeLatchUnsafe()
+        const pullLatch = Latch.makeUnsafe()
+        const emitLatch = Latch.makeUnsafe()
+        const endLatch = Latch.makeUnsafe()
 
         yield* pull.pipe(
           pullLatch.whenOpen,
@@ -7154,7 +7155,7 @@ export const throttleEffect: {
   <A, E2, R2>(options: {
     readonly cost: (arr: Arr.NonEmptyReadonlyArray<A>) => Effect.Effect<number, E2, R2>
     readonly units: number
-    readonly duration: Duration.DurationInput
+    readonly duration: Duration.Input
     readonly burst?: number | undefined
     readonly strategy?: "enforce" | "shape" | undefined
   }): <E, R>(self: Stream<A, E, R>) => Stream<A, E2 | E, R2 | R>
@@ -7163,7 +7164,7 @@ export const throttleEffect: {
     options: {
       readonly cost: (arr: Arr.NonEmptyReadonlyArray<A>) => Effect.Effect<number, E2, R2>
       readonly units: number
-      readonly duration: Duration.DurationInput
+      readonly duration: Duration.Input
       readonly burst?: number | undefined
       readonly strategy?: "enforce" | "shape" | undefined
     }
@@ -7175,7 +7176,7 @@ export const throttleEffect: {
     options: {
       readonly cost: (arr: Arr.NonEmptyReadonlyArray<A>) => Effect.Effect<number, E2, R2>
       readonly units: number
-      readonly duration: Duration.DurationInput
+      readonly duration: Duration.Input
       readonly burst?: number | undefined
       readonly strategy?: "enforce" | "shape" | undefined
     }
@@ -7192,12 +7193,12 @@ const throttleEnforceEffect = <A, E, R, E2, R2>(
   self: Stream<A, E, R>,
   cost: (arr: Arr.NonEmptyReadonlyArray<A>) => Effect.Effect<number, E2, R2>,
   units: number,
-  duration: Duration.DurationInput,
+  duration: Duration.Input,
   burst: number
 ): Stream<A, E | E2, R | R2> =>
   transformPull(self, (pull) =>
     Effect.clockWith((clock) => {
-      const durationMs = Duration.toMillis(Duration.fromDurationInputUnsafe(duration))
+      const durationMs = Duration.toMillis(Duration.fromInputUnsafe(duration))
       const max = units + burst < 0 ? Number.POSITIVE_INFINITY : units + burst
       let tokens = units
       let timestampMs = clock.currentTimeMillisUnsafe()
@@ -7228,12 +7229,12 @@ const throttleShapeEffect = <A, E, R, E2, R2>(
   self: Stream<A, E, R>,
   cost: (arr: Arr.NonEmptyReadonlyArray<A>) => Effect.Effect<number, E2, R2>,
   units: number,
-  duration: Duration.DurationInput,
+  duration: Duration.Input,
   burst: number
 ): Stream<A, E | E2, R | R2> =>
   transformPull(self, (pull) =>
     Effect.clockWith((clock) => {
-      const durationMs = Duration.toMillis(Duration.fromDurationInputUnsafe(duration))
+      const durationMs = Duration.toMillis(Duration.fromInputUnsafe(duration))
       const max = units + burst < 0 ? Number.POSITIVE_INFINITY : units + burst
       let tokens = units
       let timestampMs = clock.currentTimeMillisUnsafe()
@@ -7310,7 +7311,7 @@ export const throttle: {
   <A>(options: {
     readonly cost: (arr: Arr.NonEmptyReadonlyArray<A>) => number
     readonly units: number
-    readonly duration: Duration.DurationInput
+    readonly duration: Duration.Input
     readonly burst?: number | undefined
     readonly strategy?: "enforce" | "shape" | undefined
   }): <E, R>(self: Stream<A, E, R>) => Stream<A, E, R>
@@ -7319,7 +7320,7 @@ export const throttle: {
     options: {
       readonly cost: (arr: Arr.NonEmptyReadonlyArray<A>) => number
       readonly units: number
-      readonly duration: Duration.DurationInput
+      readonly duration: Duration.Input
       readonly burst?: number | undefined
       readonly strategy?: "enforce" | "shape" | undefined
     }
@@ -7331,7 +7332,7 @@ export const throttle: {
     options: {
       readonly cost: (arr: Arr.NonEmptyReadonlyArray<A>) => number
       readonly units: number
-      readonly duration: Duration.DurationInput
+      readonly duration: Duration.Input
       readonly burst?: number | undefined
       readonly strategy?: "enforce" | "shape" | undefined
     }
@@ -7400,13 +7401,13 @@ export const grouped: {
 export const groupedWithin: {
   (
     chunkSize: number,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): <A, E, R>(self: Stream<A, E, R>) => Stream<Array<A>, E, R>
-  <A, E, R>(self: Stream<A, E, R>, chunkSize: number, duration: Duration.DurationInput): Stream<Array<A>, E, R>
+  <A, E, R>(self: Stream<A, E, R>, chunkSize: number, duration: Duration.Input): Stream<Array<A>, E, R>
 } = dual(3, <A, E, R>(
   self: Stream<A, E, R>,
   chunkSize: number,
-  duration: Duration.DurationInput
+  duration: Duration.Input
 ): Stream<Array<A>, E, R> =>
   aggregateWithin(
     self,
@@ -7450,7 +7451,7 @@ export const groupBy: {
     f: (a: NoInfer<A>) => Effect.Effect<readonly [K, V], E2, R2>,
     options?: {
       readonly bufferSize?: number | undefined
-      readonly idleTimeToLive?: Duration.DurationInput | undefined
+      readonly idleTimeToLive?: Duration.Input | undefined
     }
   ): <E, R>(self: Stream<A, E, R>) => Stream<readonly [K, Stream<V>], E | E2, R | R2>
   <A, E, R, K, V, E2, R2>(
@@ -7458,7 +7459,7 @@ export const groupBy: {
     f: (a: NoInfer<A>) => Effect.Effect<readonly [K, V], E2, R2>,
     options?: {
       readonly bufferSize?: number | undefined
-      readonly idleTimeToLive?: Duration.DurationInput | undefined
+      readonly idleTimeToLive?: Duration.Input | undefined
     }
   ): Stream<readonly [K, Stream<V>], E | E2, R | R2>
 } = dual((args) => isStream(args[0]), <A, E, R, K, V, E2, R2>(
@@ -7466,7 +7467,7 @@ export const groupBy: {
   f: (a: NoInfer<A>) => Effect.Effect<readonly [K, V], E2, R2>,
   options?: {
     readonly bufferSize?: number | undefined
-    readonly idleTimeToLive?: Duration.DurationInput | undefined
+    readonly idleTimeToLive?: Duration.Input | undefined
   }
 ): Stream<readonly [K, Stream<V>], E | E2, R | R2> =>
   groupByImpl(
@@ -7519,7 +7520,7 @@ export const groupByKey: {
     f: (a: NoInfer<A>) => K,
     options?: {
       readonly bufferSize?: number | undefined
-      readonly idleTimeToLive?: Duration.DurationInput | undefined
+      readonly idleTimeToLive?: Duration.Input | undefined
     }
   ): <E, R>(self: Stream<A, E, R>) => Stream<readonly [K, Stream<A>], E, R>
   <A, E, R, K>(
@@ -7527,7 +7528,7 @@ export const groupByKey: {
     f: (a: NoInfer<A>) => K,
     options?: {
       readonly bufferSize?: number | undefined
-      readonly idleTimeToLive?: Duration.DurationInput | undefined
+      readonly idleTimeToLive?: Duration.Input | undefined
     }
   ): Stream<readonly [K, Stream<A>], E, R>
 } = dual((args) => isStream(args[0]), <A, E, R, K>(
@@ -7535,7 +7536,7 @@ export const groupByKey: {
   f: (a: NoInfer<A>) => K,
   options?: {
     readonly bufferSize?: number | undefined
-    readonly idleTimeToLive?: Duration.DurationInput | undefined
+    readonly idleTimeToLive?: Duration.Input | undefined
   }
 ): Stream<readonly [K, Stream<A>], E, R> =>
   suspend(() => {
@@ -7575,7 +7576,7 @@ const groupByImpl = <A, E, R, K, V, E2, R2>(
   ) => Effect.Effect<void, E2, R2>,
   options?: {
     readonly bufferSize?: number | undefined
-    readonly idleTimeToLive?: Duration.DurationInput | undefined
+    readonly idleTimeToLive?: Duration.Input | undefined
   }
 ): Stream<readonly [K, Stream<V>], E | E2, R | R2> =>
   transformPullBracket(
@@ -7824,7 +7825,7 @@ export const aggregateWithin: {
   fromChannel(Channel.fromTransformBracket(Effect.fnUntraced(function*(_upstream, _, scope) {
     const pull = yield* Channel.toPullScoped(self.channel, _)
 
-    const pullLatch = Effect.makeLatchUnsafe(false)
+    const pullLatch = Latch.makeUnsafe(false)
     const scheduleStep = Symbol()
     const buffer = yield* Queue.make<Arr.NonEmptyReadonlyArray<A> | typeof scheduleStep, E | Cause.Done<void>>({
       capacity: 0
@@ -7993,12 +7994,12 @@ export const share: {
     options: {
       readonly capacity: "unbounded"
       readonly replay?: number | undefined
-      readonly idleTimeToLive?: Duration.DurationInput | undefined
+      readonly idleTimeToLive?: Duration.Input | undefined
     } | {
       readonly capacity: number
       readonly strategy?: "sliding" | "dropping" | "suspend" | undefined
       readonly replay?: number | undefined
-      readonly idleTimeToLive?: Duration.DurationInput | undefined
+      readonly idleTimeToLive?: Duration.Input | undefined
     }
   ): <A, E, R>(self: Stream<A, E, R>) => Effect.Effect<Stream<A, E>, never, Scope.Scope | R>
   <A, E, R>(
@@ -8006,12 +8007,12 @@ export const share: {
     options: {
       readonly capacity: "unbounded"
       readonly replay?: number | undefined
-      readonly idleTimeToLive?: Duration.DurationInput | undefined
+      readonly idleTimeToLive?: Duration.Input | undefined
     } | {
       readonly capacity: number
       readonly strategy?: "sliding" | "dropping" | "suspend" | undefined
       readonly replay?: number | undefined
-      readonly idleTimeToLive?: Duration.DurationInput | undefined
+      readonly idleTimeToLive?: Duration.Input | undefined
     }
   ): Effect.Effect<Stream<A, E>, never, Scope.Scope | R>
 } = dual(2, <A, E, R>(
@@ -8019,12 +8020,12 @@ export const share: {
   options: {
     readonly capacity: "unbounded"
     readonly replay?: number | undefined
-    readonly idleTimeToLive?: Duration.DurationInput | undefined
+    readonly idleTimeToLive?: Duration.Input | undefined
   } | {
     readonly capacity: number
     readonly strategy?: "sliding" | "dropping" | "suspend" | undefined
     readonly replay?: number | undefined
-    readonly idleTimeToLive?: Duration.DurationInput | undefined
+    readonly idleTimeToLive?: Duration.Input | undefined
   }
 ): Effect.Effect<Stream<A, E>, never, Scope.Scope | R> =>
   Effect.map(
@@ -10068,7 +10069,7 @@ export const toReadableStreamWith = dual<
   ): ReadableStream<A> => {
     let currentResolve: (() => void) | undefined = undefined
     let fiber: Fiber.Fiber<void, E> | undefined = undefined
-    const latch = Effect.makeLatchUnsafe(false)
+    const latch = Latch.makeUnsafe(false)
 
     return new ReadableStream<A>({
       start(controller) {

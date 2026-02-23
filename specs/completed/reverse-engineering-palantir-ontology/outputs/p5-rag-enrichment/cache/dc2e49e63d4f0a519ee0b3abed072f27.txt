@@ -1,0 +1,123 @@
+Top highlight
+
+Product Design at Palantir: Q&A with the team
+Palantir
+Follow
+8 min read
+·
+May 19, 2022
+
+24
+
+1
+
+Press enter or click to view image in full size
+
+Product Designers are key members of Palantir product teams. We work on Gotham, Foundry, and Apollo platforms alongside Product Managers and Engineers to define product vision and user experiences. Using design as a communication tool, we ensure that all products shipped convey our mission and reflect our exceptional standards. Product Designers are a force multiplier, helping drive massive impact in product direction and business outcomes, from Palantir’s work with vaccine distribution to counterterrorism.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+In this blog post, Product Designers share why they joined Palantir, their day-to-day schedules, advice for potential applicants, and more.
+
+Why did you choose to join Palantir?
+Andy E. (Denver, US)
+
+The initial thing that drew me in from the beginning, and now eight years later, was the huge variety of different types of problems within incredibly important domains, everything from national security to healthcare. I still find myself being surprised and intrigued by problems that Palantir is solving. Besides, Palantirians are incredibly humble, driven, and phenomenal critical thinkers. It has really been amazing and humbling to be able to work alongside my teammates here and I’ve learned so much from them.
+
+Jiyoung O. (Palo Alto, US)
+
+I found Palantir while doing my graduate school thesis on how design can help navigate complex messages, systems, and technologies. I was first attracted by the complex problems that the company deals with and how the products help important institutions use technologies like AI/ML. After watching Palantir’s Gotham and Foundry demo videos and seeing how design contributed to these workflows, I knew Palantir would be a perfect place to apply what I’ve learned!
+
+Charles P. (London, UK)
+
+I joined Palantir because I wanted to serve people that rely on software to perform some of the world’s most critical workflows. I wanted to bring the high UI standards, which consumer-facing products often have, to mission-driven products and, by doing so, transform the way users understand and interact with software in critical moments. And I knew I could do that at Palantir. In addition, I joined early in my design career and was looking for a place with opportunity for mentorship from talented designers, as well as autonomy.
+
+Aashman G. (New York, US)
+
+I was initially drawn to the complexity and breadth of the problems I would be able to solve at Palantir. I enjoy working within a relatively flat structure — the best opinion wins, and you are able to forge your own trajectory in the company regardless of your role. Lastly, I was excited to work with an autonomous and multifaceted group of people every day.
+
+What’s a typical work day like for you on the design team?
+Chanel L. (New York, US)
+
+I’m often designing for a few projects at a time, each at different phases. For projects that are in implementation phase, I stay up-to-date with teams’ priorities and plans so that I can provide feedback and iterate quickly with my developer teammates. For these projects, the design quality is held at a very high bar. Other projects are in much earlier stages and, in these cases, I act as a strategic partner alongside the product managers, tech leads, and other designers to create vision designs and draft concept primitives to guide discussions.
+
+Candice J. (Palo Alto, US)
+
+I’m mainly responsible for our geospatial analysis tool on the Gotham platform, and therefore I often think about translating large scale data sets into human-readable information on a map. A typical day for me is comprised of meetings with my team, including engineers and product managers, design presentations, solo design time on projects big and small, as well as progress documentation.
+
+Andy E.
+
+There’s really no typical day but I would say in general I try to keep my time roughly split into thirds. A third of my time is spent on product development work with our Gotham platform. A second third is spent on new client outreach, and the final third is invested on the Design Team, whether it be mentoring others, planning, or creating growth frameworks for designers. On a typical day, I might help out a designer with a project they’re working on in the morning by providing feedback and ideas, then in the afternoon meet with one of our clients to prototype a concept for a new potential project. There’s a ton of variety and that’s part of what I enjoy. It certainly never gets boring!
+
+Aashman G.
+
+My workdays come in a few flavors, depending on what I’m working on and where the focus of the broader team is at the time. Some days are primarily for meetings — with users, product teams, and engineers — where we talk through issues, whiteboard, and zoom out to identify big picture goals and next steps. Other days are the opposite, which I use to synthesize signals from meeting-heavy days and design on Figma. There are days I find myself switching context between several projects that vary in scope, which is fun because I start to notice the themes among otherwise distinct work streams and products.
+
+Jiyoung O.
+
+I usually start my day revisiting the design files from the day before and send them over for feedback as early as possible. Around 10am, I have my team’s daily stand up where we share our work and discuss any coordination needed. Until early afternoon, there are usually a lot of meetings with various partners (product managers, engineers, designers) to receive feedback on the designs I’m working on, get aligned on the direction of a project, or hand over my designs for implementation. I usually spend the rest of my day for some heads down time to digest what I learned from the meetings and iterate on my designs!
+
+What is the favorite part about designing at Palantir?
+Aashman G.
+
+I’m attracted to the breadth and complexity of the problems I work on and especially love finding similarities between workflows across different verticals and industries. Data is simply a substrate that facilitates decision making and insight generation for any organization or individual, regardless of whether it’s aerospace data, pharmaceutical data, or financial data. Being able to think about data in an abstract way allows me to draw parallels between how people from different walks of life perform very similar tasks.
+
+Candice J.
+
+I love the speed at which we can design, build, and ship. It really shined during recent events happening in the world, where we are able to create important tools to aid those in need. It’s a great feeling seeing the positive impact we’ve made through our products.
+
+Jiyoung O.
+
+The designer’s role at Palantir is not limited to visuals or interactions. Since designers can visualize abstract concepts, we sometimes take part in defining product vision alongside our teammates. Furthermore, designers are user researchers who conduct interviews and gather user feedbacks, and also prototypers who create interactive prototypes to share product vision with clients. I think this wide spectrum of work is my favorite part of being a designer at Palantir.
+
+Chanel L.
+
+Other designers probably mentioned the big ownership we give to designers and the important missions we support — and both are major drives in my work. However, perhaps a less well known aspect of our design team is the people. Designers at Palantir are thoughtful, humble, and collaborative, and I am constantly inspired by their work. And above all, we build strong friendship within the team and I feel lucky to be supported both at and outside of work.
+
+What does growth look like for a Palantir Product Designer?
+Charles P.
+
+The core pillars of growth for designers at Palantir are product ownership, execution, and partnership. Typically, designers take on larger and more complex problems over time. As their scope widens and their expertise deepens, they partner more and more with product leadership to influence the long term vision. That said, growth can take many paths and there is no one size fits all. Growth can also mean pursuing a people leadership role, oriented around growing other designers and fostering a positive culture.
+
+Chanel L.
+
+One of the first things I learned is to have my own preferences for enabling my success and ability to assist others. This self awareness is a necessary skill that I continue to hone. I learn which design process best compliments not only my strengths but also addresses the task at hand, and the guidance and mentorship I need to overcome my weaknesses. In addition to this self awareness, being proactive also helps me define my growth path at Palantir. Self awareness coupled with proactivity has helped not only me but others on my team to sharpen both our design skills and our soft skills.
+
+Candice J.
+
+A growth path at Palantir is not linear or easily predictable for any role, including design. We help level up new grad designers to start but it’s really up to individuals to develop continuously in areas of interests and to broaden their ownership. Due to the open culture and flat org structure, anyone can have great impact regardless of level of experience.
+
+What excites you about the future of Product Design at Palantir?
+Aashman G.
+
+The design team’s footprint has been growing steadily for several years now and I’m excited to see the snowball effect of the various investments we’ve made into the organization so far. I believe that design at Palantir acts as a multiplier, in that certain actions and interventions by designers have an outsized impact on the product, platform, or company culture. This can largely be attributed to the design superpower of being able to visualize and illustrate complexity in an easily digestible fashion.
+
+Charles P.
+
+It may sound cliché but I firmly believe we are only at the beginning. Since I joined three years ago, Foundry transformed from a powerful data integration platform into an end-to-end operational system. We’ve developed many primitives in our long history. Now, they serve as stepping stones towards meaningful engagement with different business sectors. New product development and the opportunity for even closer relationships with the business are what excites me about the future of product design at Palantir.
+
+Candice J.
+
+Many of our previous workflows used to touch one or two of Palantir’s product suite. However, recently we’ve seen a huge expansion of that, where many more products could be used by a single deployment. This means there is more cross collaboration happening between the designers and product teams, and stronger product-driven initiatives and visioning for the future of Palantir.
+
+What advice do you have for prospective Palantir design candidates?
+Jiyoung O.
+
+I hope this can help the candidates understand what we look for when hiring new designers: designers at Palantir are very autonomous, meaning we don’t wait for someone to tell us what to do. We actively find out what the problems are, who to talk to for more context, and how to prioritize design solutions. Secondly, designers here are very well rounded. We do everything from research, synthesis, design, to prototyping. Lastly, Palantir designers are great communicators, often presenting designs with a clear story, and they communicate well across various stakeholders.
+
+Candice J.
+
+I first applied to Palantir as a new grad but didn’t get in and wasn’t sure if I ever would. After gaining a few years of experience, I found out more about myself — what I’m good at and how I wanted to grow. When the opportunity to join Palantir came up again years later, it was a match on both sides, and we’re both happy about the fit. Your career path may not seem clear at the moment but it will eventually all make sense. Keep working on yourself. It’s the best investment you’ll make.
+
+Join us and make a difference
+
+Palantir Designers solve the most complex problems and we have design opportunities that couldn’t be found anywhere else. If you’d like to make a difference, consider joining us:
+
+Product Designer (New York | London | Denver)
+Capture Designer, US Government (Washington DC)
+Product Designer, US Government (Palo Alto | Washington DC)
+Product Designer, New Grad (New York | London)

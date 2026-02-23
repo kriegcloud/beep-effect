@@ -2,6 +2,7 @@
  * @since 4.0.0
  */
 import * as Effect from "../../Effect.ts"
+import * as ErrorReporter from "../../ErrorReporter.ts"
 import type * as FileSystem from "../../FileSystem.ts"
 import { dual } from "../../Function.ts"
 import type * as Inspectable from "../../Inspectable.ts"
@@ -28,7 +29,7 @@ const TypeId = "~effect/http/HttpServerResponse"
  * @since 4.0.0
  * @category models
  */
-export interface HttpServerResponse extends Inspectable.Inspectable, Pipeable {
+export interface HttpServerResponse extends Inspectable.Inspectable, Pipeable, ErrorReporter.Reportable {
   readonly [TypeId]: typeof TypeId
   readonly status: number
   readonly statusText?: string | undefined
@@ -322,7 +323,7 @@ export const formData = (
     statusText: options?.statusText,
     headers: options?.headers && Headers.fromInput(options.headers),
     cookies: options?.cookies,
-    body: Body.makeFormData(body)
+    body: Body.formData(body)
   })
 
 /**
@@ -756,6 +757,7 @@ const Proto: Omit<
 > = {
   ...PipeInspectableProto,
   [TypeId]: TypeId,
+  [ErrorReporter.ignore]: true,
   toJSON(this: HttpServerResponse) {
     return {
       _id: "HttpServerResponse",

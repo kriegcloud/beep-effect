@@ -5,11 +5,12 @@ import type { NonEmptyReadonlyArray } from "../../Array.ts"
 import type * as Cause from "../../Cause.ts"
 import * as Channel from "../../Channel.ts"
 import * as Deferred from "../../Deferred.ts"
-import type { DurationInput } from "../../Duration.ts"
+import type * as Duration from "../../Duration.ts"
 import * as Effect from "../../Effect.ts"
 import * as Exit from "../../Exit.ts"
 import * as FiberSet from "../../FiberSet.ts"
 import { constVoid, dual, flow } from "../../Function.ts"
+import * as Latch from "../../Latch.ts"
 import * as Layer from "../../Layer.ts"
 import * as Predicate from "../../Predicate.ts"
 import * as Pull from "../../Pull.ts"
@@ -417,7 +418,7 @@ export const layerWebSocketConstructorGlobal: Layer.Layer<WebSocketConstructor> 
  */
 export const makeWebSocket = (url: string | Effect.Effect<string>, options?: {
   readonly closeCodeIsError?: ((code: number) => boolean) | undefined
-  readonly openTimeout?: DurationInput | undefined
+  readonly openTimeout?: Duration.Input | undefined
   readonly protocols?: string | Array<string> | undefined
 }): Effect.Effect<Socket, never, WebSocketConstructor> =>
   fromWebSocket(
@@ -438,12 +439,12 @@ export const fromWebSocket = <RO>(
   acquire: Effect.Effect<globalThis.WebSocket, SocketError, RO>,
   options?: {
     readonly closeCodeIsError?: ((code: number) => boolean) | undefined
-    readonly openTimeout?: DurationInput | undefined
+    readonly openTimeout?: Duration.Input | undefined
   } | undefined
 ): Effect.Effect<Socket, never, Exclude<RO, Scope.Scope>> =>
   Effect.withFiber((fiber) => {
     let currentWS: globalThis.WebSocket | undefined
-    const latch = Effect.makeLatchUnsafe(false)
+    const latch = Latch.makeUnsafe(false)
     const acquireContext = fiber.services as ServiceMap.ServiceMap<RO>
     const closeCodeIsError = options?.closeCodeIsError ?? defaultCloseCodeIsError
 
@@ -613,7 +614,7 @@ export const layerWebSocket: (
   url: string | Effect.Effect<string>,
   options?: {
     readonly closeCodeIsError?: ((code: number) => boolean) | undefined
-    readonly openTimeout?: DurationInput | undefined
+    readonly openTimeout?: Duration.Input | undefined
     readonly protocols?: string | Array<string> | undefined
   } | undefined
 ) => Layer.Layer<Socket, never, WebSocketConstructor> = flow(makeWebSocket, Layer.effect(Socket))
@@ -643,7 +644,7 @@ export const fromTransformStream = <R>(acquire: Effect.Effect<InputTransformStre
   readonly closeCodeIsError?: (code: number) => boolean
 }): Effect.Effect<Socket, never, Exclude<R, Scope.Scope>> =>
   Effect.withFiber((fiber) => {
-    const latch = Effect.makeLatchUnsafe(false)
+    const latch = Latch.makeUnsafe(false)
     let currentStream: {
       readonly stream: InputTransformStream
       readonly fiberSet: FiberSet.FiberSet<any, any>

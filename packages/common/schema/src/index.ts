@@ -1,13 +1,17 @@
 /**
- * Namespaced BS aggregate that exposes every schema bundle.
+ * @beep/schema
  *
- * @category Surface
- * @since 0.1.0
- * @example
- * import { BS } from "@beep/schema";
- *
- * const emailSchema = BS.Email;
+ * @since 0.0.0
  */
-import * as SchemaNamespace from "./schema";
 
-export { SchemaNamespace as BS };
+/**
+ * @since 0.0.0
+ * @category constants
+ */
+export const VERSION = "0.0.0" as const;
+
+/**
+ * @since 0.0.0
+ * @category schemas
+ */
+export * from "./LiteralKit.schema.js";

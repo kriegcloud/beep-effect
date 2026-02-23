@@ -1,0 +1,88 @@
+Customer-Centric Transformation at a European Bank
+Palantir
+Follow
+7 min read
+·
+Oct 13, 2022
+
+35
+
+2
+
+Editor’s Note: This is the second post in our blog series about building a customer centric bank. You can read Part 1 here.
+
+Press enter or click to view image in full size
+
+Banking executives have a lot on their to-do list. Adopt AI and machine learning. Personalize service. Govern responsibly. Embrace new business models. It’s clear that digital transformation and customer-centricity rank high on this agenda. But what’s less clear is how to ensure these two parallel ambitions converge.
+
+For over half a decade, Palantir Foundry has helped a major European bank position customer value at the core of its transformation strategy. In this blog post, Timothy Ang interviews Palantir Deployment Strategist Daniel Wheller about what has made this partnership such a lasting success, and the realities which have tested it along the away:
+
+Tim: Let’s start from the very beginning. What was the first problem Palantir was tasked with solving for the bank?
+
+Daniel: The relationship began because the bank was looking to generate new upsell opportunities in its credit department. We recognized that this was fundamentally a challenge of data and its application, so knew we’d be in a great place to help. Although the partnership with the bank quickly expanded in scope and ambition, our work at Palantir often begins with establishing a focused, specific use case like this one. The way we see it: you have to prove the value before you can execute the vision.
+
+Tim: And what was Palantir’s approach to delivering this initial use case?
+
+Daniel: We set out to build a foundational data asset that could give sales and marketing teams a holistic account of each individual customer and their interactions with the bank. This first required the integration of data from across multiple different systems — like CRMs, ERPs, and core banking systems — alongside the configuration of stringent access and governance controls.
+
+Once this robust base layer was set up, we could then introduce the functionalities specific to the bank’s upsell goals, including the advanced analytics and propensity models to fuel campaigns. The resulting data asset — what we at Palantir call ‘the Ontology’ — had therefore gone far beyond a single client view, to collate data, analytics, and the workflows they inform into a common business understanding. Sales and marketing teams were now able to launch new campaigns on a daily basis, and we saw response rates jump by 15% thanks to this greater personalization.
+
+Our team managed to get the transformed upsell solution up and running in weeks, which may have otherwise taken the bank months or years on their own. Given the revenue-generating nature of the use case, in the eyes of the bank, time really was money.
+
+Tim: Before we discuss how the partnership developed, let’s hear more about the solution. Could you tell us more about the types of data and model being integrated into this data asset?
+
+Daniel: A good starting point will be the qualified data stored on the bank’s CRM. This contains the first building blocks of any customer profile — identity, customer satisfaction surveys, purchase history with the bank etc. — without which insights into behaviors and relationships with other entities will be near impossible to ascertain.
+
+CRMs are powerful systems of record when used correctly, but rarely capture all aspects of a customer required to drive personalisation. We need to plug in to the bank’s martech stack. This includes analytics gained from physical and digital channels, like who is clicking on which emails, or calling the contact centre, when, and what about. Together with the CRM, we can begin to make out an impression of how the bank’s and the customer’s actions intersect.
+
+Credit and risk profiles are also fundamental here. After generating more leads through upsell campaigns, the next step is to make sure the bank closes the deal. In our particular context, this meant using the credit and risk data to cut down loan approval times and, importantly, offer a smoother journey for the customer.
+
+This outline may sound simple but the number of disparate systems and scale of data typically involved in servicing a customer is staggering — to date we’ve integrated across over three petabytes from across the bank!
+
+Tim: One year after this initial use case, Palantir was working with the bank on 30 initiatives spanning sales, marketing, compliance, and GDPR management. What allowed the partnership to grow along the route that it did?
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Daniel: The domain-focused Ontology we built with the bank conferred three main advantages:
+
+Lower marginal cost of integration: Thanks to the reusability of data and best-in-class data engineering tools, the time and effort needed to expand the data asset fell with every use case.
+Lower marginal cost of application development: Similarly, building the end-to-end applications to power marketers and relationship managers now took a fraction of the time before.
+Engineered for continuous learning: The bank was now able to capture the actions made by customer-facing users and update the central understanding provided by the Ontology. With time, this feedback loop between decision and data would accelerate learning and optimize processes.
+
+How? It’s really a question of collaboration. Our technology is designed so that data teams and analytics teams can co-create from the same source data. Via the Ontology, these two groups can in turn collaborate with operational teams, such as front office branch managers, relationship managers, or marketing teams putting the upsell offers to work.
+
+The Ontology provided the bank with a semantic representation of data in commonly understood business terms. It packaged data into objects that allowed teams of different technical abilities to speak the same language, as it were.
+
+Importantly, these objects were the building blocks of new use cases. Instead of having to duplicate the data integration work done previously for upsell campaigns, the same customers and interactions can now be used to power cross-sell efforts. The foundation is already there.
+
+Tim: So, this was about more than just the use cases?
+
+Daniel: Absolutely. In both a conceptual and structural sense, the Ontology fundamentally reshaped how the bank deals with and consumes its data. The problem the bank had was one we see time and time again with our partners — heaps of data, impressive applications, but a missing link between the two. How can business users more efficiently and confidently access the data they need to do their jobs?
+
+The Ontology provided that translation layer. The intuitive, business-defined objects replaced the row-and-column interface of SQL queries that historically gatekept customer data from teams across the bank, but with the necessary access controlled still in place. Now, relationship managers are empowered to interact with data on terms they understand, and even run analytics on them using intuitive, point-and-click tooling.
+
+Tim: Can you summarize, then, what makes this transformation customer-centric, rather than a suite of customer-facing applications?
+
+Daniel: From day one, this transformation was engineered towards increasing customer-centricity. It begins with the unified data asset — no customer-first strategy can succeed without a holistic understanding of everyone who banks with them. When done right, this goes far beyond a static 360-degree view of their banking activity. It enables the breaking down of siloed data and operations that scupper the dream of a seamlessly delivered, hyper-personalized customer journey. It tells the bank what service to provide, and through what channel to provide it. Data integration is key.
+
+But so is operational integration. And the move towards operational excellence. How do we connect operations from onboarding through to sales and credit decisioning? How can we make sure the data gathered on the way is being reused to fine-tune our understanding of the customer?
+
+It’s turning the problem in on itself. With our approach, banks can say “we have the contextual understanding of the customer, we can now start to think about what product or service she needs,” versus “I want to sell this product, where are the segments and customers who want it.”
+
+Tim: What obstacles did Palantir encounter in delivering this solution? And how did Palantir work with the bank to overcome them?
+
+Daniel: Like many banks, our partner was hampered by fundamental concerns surrounding data governance and access controls. In other words, there was a reason much of the data was siloed in the first place.
+
+Due to considerations of regulation or functionality, access to data must be clearly defined for each user on the platform, and at an enormous organization like a bank, with thousands of analysts, engineers, and customer servicing agents working together, this can often seem insurmountable.
+
+Such a concern is far from particular to the bank, or indeed the financial industry in general. Responsible, compliant governance practices are often top of mind for our partners across all sectors.
+
+Working in some of the most highly-regulated environments on the planet has critically shaped how we think about data governance. Our software is capable of managing access controls with deep granularity, from dataset and user group permissioning, through to the level of rows, columns and cells. These can be configured as data lands on the platform, automatically propagating downstream as the data asset develops.
+
+This ties back to what we said about reusability. Users from a range of functions can access the same pool of intelligence according to their need and eligibility. Rather than blocking collaboration, our technology fosters it.
+
+Today, this data foundation has grown to support over 200 use cases and serves over 3,000 monthly users. The bank continues to enjoy full autonomy over the software and are completely self-sufficient in their use of it. Nevertheless, the partnership with Palantir endures. Our engineers remain on hand to help the bank reap value from this investment and march closer towards becoming a customer-centric bank. To hear more about this deployment, or our other work across financial services, click here.

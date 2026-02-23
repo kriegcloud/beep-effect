@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/@effect/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts", "src/**/*.test.ts", "src/**/*.spec.ts"],
+  "enforceDescriptions": true,
+  "enforceVersion": true,
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/codebase-search/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ES2022",
+    "target": "ES2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "effect": ["../../packages/effect/src/index.ts"],
+      "@beep/codebase-search": ["../../tooling/codebase-search/src/index.ts"]
+    }
+  }
+}

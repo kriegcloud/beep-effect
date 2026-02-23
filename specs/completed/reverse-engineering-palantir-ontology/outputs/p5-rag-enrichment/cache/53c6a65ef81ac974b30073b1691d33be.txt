@@ -1,0 +1,86 @@
+AIP Logic • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ AI Platform (AIP) AIP Logic Overview 
+
+ AIP Logic
+
+AIP Logic is a no-code development environment for building, testing, and releasing functions powered by LLMs. AIP Logic enables you to build feature-rich AI-powered functions that leverage the Ontology without the complexity typically introduced by development environments and API calls. Using Logic’s intuitive interface, application builders can engineer prompts, test, evaluate and monitor, set up automation, and more.
+
+You can use AIP Logic to automate and support your critical tasks, whether connecting key information from unstructured inputs to your Ontology, resolving scheduling conflicts, optimizing asset performance by finding the best allocation, reacting to disruptions in your supply chain, or more.
+
+Logic functions can also be automated so that Ontology edits can be automatically applied or staged for human review .
+
+AIP Logic provides an intuitive interface to leverage the Ontology and LLMs via a Logic function that takes inputs (like Ontology objects or text strings) and can return an output (objects and/or strings) or make edits to the Ontology. For example, the LLM-powered function below takes input data from an Ontology object and cross-references that data with a customer email to recommend a solution for a given issue based on previous resolutions.
+
+AIP Logic is built on the same rigorous security model that governs the rest of the Palantir platform, including user and function permissions . These platform security controls grant an LLM access only to what is necessary to complete a task.
+
+Learn more about the core concepts of AIP Logic or get started with building a Logic function.
+
+ ← 
+ PREVIOUS AIP Evals / View results in metrics dashboard 
+
+ NEXT Core concepts 
+ →

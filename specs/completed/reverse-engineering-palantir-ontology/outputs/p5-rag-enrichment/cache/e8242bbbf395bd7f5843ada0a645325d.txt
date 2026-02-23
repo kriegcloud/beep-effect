@@ -1,0 +1,89 @@
+AWS Solutions Library
+
+ Industry 
+
+ Cross-Industry 
+
+ Technology 
+
+ Organization Type 
+
+ Browse By 
+
+ More 
+
+ AWS Solutions Library › 
+
+ Guidance 
+
+Guidance for Industrial Data Fabric with Palantir Foundry on AWS
+
+Overview
+
+This Guidance demonstrates how to build an Industrial Data Fabric with Palantir Foundry on AWS. Foundry is a software as a service (SaaS) product that harnesses data from various industrial data sources such as enterprise resource planning (ERP), a manufacturing execution system (MES), and data lakes. The data is rapidly integrated with fully automated pipelines and low-code tools that allow you to train and build machine learning models. You can build or customize manufacturing applications supporting everything from shop floor scheduling to a global operations center. Full-featured web applications provide you with real-time visibility, decision-making tools, and the ability to resolve operational decisions.
+
+How it works
+
+These technical details feature an architecture diagram to illustrate how to effectively use this solution. The architecture diagram shows the key components and their interactions, providing an overview of the architecture's structure and functionality step-by-step.
+
+ Download the architecture diagram PDF 
+
+Well-Architected Pillars
+
+The architecture diagram above is an example of a Solution created with Well-Architected best practices in mind. To be fully Well-Architected, you should follow as many Well-Architected best practices as possible.
+
+ Operational Excellence 
+
+As your operations evolve over time, you can implement changes within this Guidance so that you can establish a continuous cycle of improvement. 
+
+With Amazon CloudWatch , you have system-wide visibility into your cloud resources. Configure CloudWatch alarms so that you can collect, monitor, act, and analyze any breaches in the thresholds you set.
+
+The services in this Guidance can also be deployed across multiple Availability Zones to ensure that your applications can withstand the rare, but possible, event of a complete Availability Zone failure.
+
+ Read the Operational Excellence whitepaper 
+
+ Security 
+
+When deploying this Guidance, all data in transit is encrypted using SSL and data at rest is encrypted using AWS Key Management Service (AWS KMS).
+
+This Guidance also uses a SAML-based authentication and authorization standard for any users. Foundry uses role-based access with auditing enabled when accessing services and machines. 
+
+ Read the Security whitepaper 
+
+ Reliability 
+
+To ensure a highly available network topology, this Guidance uses Amazon S3 to store data. Any applications running on Amazon Elastic Compute Cloud (Amazon EC2) are deployed across three Availability Zones to improve availability and fault tolerance. 
+
+Foundry implements logging for any customer actions and workflows so that you are notified when thresholds are crossed or significant events occur. 
+
+ Read the Reliability whitepaper 
+
+ Performance Efficiency 
+
+This Guidance scales the compute nodes that are needed to perform the task to meet the workload requirements of various traffic and data access patterns. In addition, it uses purpose-built storage services, such as Amazon S3 , that reduces latency, increases throughput, and is highly scalable. 
+
+ Read the Performance Efficiency whitepaper 
+
+ Cost Optimization 
+
+There are various ways this Guidance was designed to reduce cost. Amazon S3 Intelligent-Tiering storage class automates storage cost savings by moving data when patterns change. And, by using Amazon EC2 Instance Savings Plans , you can take advantage of a flexible pricing model that can reduce your on-demand bill in exchange for a one- or three-year hourly spend commitment. 
+
+ Read the Cost Optimization whitepaper 
+
+ Sustainability 
+
+This Guidance uses AWS Auto Scaling to help monitor applications and adjust capacity so that you maintain performance with only the minimum resources required. 
+
+ Read the Sustainability whitepaper 
+
+Disclaimer
+
+The sample code; software libraries; command line tools; proofs of concept; templates; or other related technology (including any of the foregoing that are provided by our personnel) is provided to you as AWS Content under the AWS Customer Agreement, or the relevant written agreement between you and AWS (whichever applies). You should not use this AWS Content in your production accounts, or on production or other critical data. You are responsible for testing, securing, and optimizing the AWS Content, such as sample code, as appropriate for production grade use based on your specific quality control practices and standards. Deploying AWS Content may incur AWS charges for creating or using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.
+
+Did you find what you were looking for today?
+
+Let us know so we can improve the quality of the content on our pages
+
+ Yes 
+
+ No

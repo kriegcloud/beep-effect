@@ -70,7 +70,7 @@ export const PipeInspectableProto = {
     return { ...this }
   },
   toString() {
-    return format(this, { ignoreToString: true })
+    return format(this.toJSON(), { ignoreToString: true, space: 2 })
   },
   [NodeInspectSymbol]() {
     return this.toJSON()
@@ -99,6 +99,14 @@ export const StructuralProto = {
 export const YieldableProto = {
   [Symbol.iterator]() {
     return new SingleShotGen(this) as any
+  }
+}
+
+/** @internal */
+export const YieldableErrorProto = {
+  ...YieldableProto,
+  pipe() {
+    return pipeArguments(this, arguments)
   }
 }
 
@@ -581,13 +589,13 @@ export const YieldableError: new(
       return exitFail(this)
     }
   }
-  Object.assign(YieldableError.prototype, YieldableProto)
+  Object.assign(YieldableError.prototype, YieldableErrorProto)
   return YieldableError as any
 })()
 
 /** @internal */
 export const Error: new<A extends Record<string, any> = {}>(
-  args: Types.Equals<A, {}> extends true ? void : { readonly [P in keyof A]: A[P] }
+  args: Types.VoidIfEmpty<{ readonly [P in keyof A]: A[P] }>
 ) => Cause.YieldableError & Readonly<A> = (function() {
   const plainArgsSymbol = Symbol.for("effect/Data/Error/plainArgs")
   return class Base extends YieldableError {
@@ -611,8 +619,7 @@ export const Error: new<A extends Record<string, any> = {}>(
 export const TaggedError = <Tag extends string>(
   tag: Tag
 ): new<A extends Record<string, any> = {}>(
-  args: Types.Equals<A, {}> extends true ? void
-    : { readonly [P in keyof A as P extends "_tag" ? never : P]: A[P] }
+  args: Types.VoidIfEmpty<{ readonly [P in keyof A as P extends "_tag" ? never : P]: A[P] }>
 ) => Cause.YieldableError & { readonly _tag: Tag } & Readonly<A> => {
   class Base extends Error<{}> {
     readonly _tag = tag

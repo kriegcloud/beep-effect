@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      confirm_publish:
+        description: 'Type PUBLISH to approve publish'
+        required: true
+        default: ""
+        type: string
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-pr:
+    name: Release PR
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Create or update release pull request
+        uses: changesets/action@v1
+        with:
+          version: bun run changeset:version
+          commit: "chore(release): version packages"
+          title: "chore(release): version packages"
+        env:
+          # Auto-provisioned by GitHub Actions; requires permissions above.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    name: Publish (Manual Approval Required)
+    if: github.event_name == 'workflow_dispatch' && inputs.confirm_publish == 'PUBLISH'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      # Configure this environment with required reviewers to enforce approval.
+      name: release-publish
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Publish packages via locked release script
+        run: bun run release
+        env:
+          # Required repository secret: npm automation token with publish access.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

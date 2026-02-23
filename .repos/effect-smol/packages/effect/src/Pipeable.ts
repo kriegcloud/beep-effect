@@ -554,8 +554,39 @@ export const pipeArguments = <A>(self: A, args: IArguments): unknown => {
 /**
  * @since 4.0.0
  */
-export const Class: new() => Pipeable = class {
+export const Prototype: Pipeable = {
   pipe() {
     return pipeArguments(this, arguments)
   }
 }
+
+/**
+ * @since 4.0.0
+ * @category constructors
+ */
+export const Class: new() => Pipeable = (function() {
+  function PipeableBase() {}
+  PipeableBase.prototype = Prototype
+  return PipeableBase as any
+})()
+
+/**
+ * @since 4.0.0
+ * @category models
+ */
+export interface PipeableConstructor {
+  new(...args: ReadonlyArray<any>): Pipeable
+}
+
+/**
+ * @since 4.0.0
+ * @category constructors
+ */
+export const Mixin = <TBase extends new(...args: ReadonlyArray<any>) => any>(
+  klass: TBase
+): TBase & PipeableConstructor =>
+  class extends klass {
+    pipe() {
+      return pipeArguments(this, arguments)
+    }
+  }

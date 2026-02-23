@@ -1,0 +1,86 @@
+Indexing • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Indexing Overview 
+
+ Indexing
+
+In the Ontology, indexing is the process of making tabular or other forms of data in Foundry datasources available for faster data retrieval operations through specialized databases.
+
+This section of documentation describes the indexing process for Object Storage V2, in which indexing is overseen by the Object Data Funnel service ("Funnel"). The Funnel service is responsible for orchestrating Funnel pipelines that create and modify object instances in the Ontology and ensure up-to-date data and metadata.
+
+There are two main types of funnel pipelines, funnel batch pipelines and funnel streaming pipelines , which allow users to adopt one or the other indexing mechanism depending on their datasource landscape, latency and workflow requirements, and cost considerations.
+
+ Learn more about Funnel batch pipelines. 
+
+ Learn more about Funnel streaming pipelines. 
+
+For information about Object Storage V1 (Phonograph) indexing, review the legacy documentation .
+
+ ← 
+ PREVIOUS Object permissioning / Object security policies 
+
+ NEXT Funnel batch pipelines 
+ →

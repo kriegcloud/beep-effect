@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./dist/tsconfig.packages.tsbuildinfo"
+  },
+  "include": [],
+  "references": [
+    {
+      "path": "apps/web"
+    },
+    {
+      "path": "packages/common/data"
+    },
+    {
+      "path": "packages/common/identity"
+    },
+    {
+      "path": "packages/common/messages"
+    },
+    {
+      "path": "packages/common/ontology"
+    },
+    {
+      "path": "packages/common/schema"
+    },
+    {
+      "path": "packages/common/types"
+    },
+    {
+      "path": "packages/common/utils"
+    },
+    {
+      "path": "scratchpad"
+    },
+    {
+      "path": "tooling/cli"
+    },
+    {
+      "path": "tooling/codebase-search"
+    },
+    {
+      "path": "tooling/repo-utils"
+    }
+  ]
+}

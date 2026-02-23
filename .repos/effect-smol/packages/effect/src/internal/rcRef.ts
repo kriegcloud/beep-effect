@@ -6,6 +6,7 @@ import { identity } from "../Function.ts"
 import { pipeArguments } from "../Pipeable.ts"
 import type * as RcRef from "../RcRef.ts"
 import * as Scope from "../Scope.ts"
+import * as Semaphore from "../Semaphore.ts"
 import * as ServiceMap from "../ServiceMap.ts"
 
 const TypeId = "~effect/RcRef"
@@ -47,7 +48,7 @@ class RcRefImpl<A, E> implements RcRef.RcRef<A, E> {
   }
 
   state: State<A> = stateEmpty
-  readonly semaphore = Effect.makeSemaphoreUnsafe(1)
+  readonly semaphore = Semaphore.makeUnsafe(1)
   readonly acquire: Effect.Effect<A, E>
   readonly services: ServiceMap.ServiceMap<never>
   readonly scope: Scope.Scope
@@ -69,7 +70,7 @@ class RcRefImpl<A, E> implements RcRef.RcRef<A, E> {
 /** @internal */
 export const make = <A, E, R>(options: {
   readonly acquire: Effect.Effect<A, E, R>
-  readonly idleTimeToLive?: Duration.DurationInput | undefined
+  readonly idleTimeToLive?: Duration.Input | undefined
 }) =>
   Effect.withFiber<RcRef.RcRef<A, E>, never, R | Scope.Scope>((fiber) => {
     const services = fiber.services as ServiceMap.ServiceMap<R | Scope.Scope>
@@ -78,7 +79,7 @@ export const make = <A, E, R>(options: {
       options.acquire as Effect.Effect<A, E>,
       services,
       scope,
-      options.idleTimeToLive ? Duration.fromDurationInputUnsafe(options.idleTimeToLive) : undefined
+      options.idleTimeToLive ? Duration.fromInputUnsafe(options.idleTimeToLive) : undefined
     )
     return Effect.as(
       Scope.addFinalizerExit(scope, () => {

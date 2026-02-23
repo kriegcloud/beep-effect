@@ -1,0 +1,65 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Effect TypeScript Project",
+    "description": "Functional programming with Effect TypeScript"
+  },
+  "defaults": {
+    "model": "sonnet"
+  },
+  "agents": {
+    "autoInvoke": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(bunx tsc:*)",
+      "Bash(AGENT_ID=\"test-agent\" bun run:*)",
+      "Bash(.claude/scripts/await-mailbox.sh:*)",
+      "Bash(.claude/scripts/request.sh:*)",
+      "Bash(EXIT=$?)",
+      "Bash(echo:*)",
+      "Bash(cat:*)",
+      "Edit(.claude/**/*)",
+      "Write(.claude/**/*)",
+      "Bash(bun add:*)",
+      "SlashCommand(request:*)",
+      "SlashCommand(await-mailbox:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/agent-init.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/skill-suggester.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/agent-init.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [],
+    "Stop": [],
+    "SubagentStop": []
+  }
+}

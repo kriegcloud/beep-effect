@@ -1,0 +1,1465 @@
+[
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-manager/migrate-to-project-based-permissions",
+    "title": "Ontology Manager - Migrate to project-based permissions - Palantir Foundry Documentation",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Project-Based Permissions",
+        "description": "A new permissions model where ontology resources (object types, action types, link types, interfaces, shared properties) are saved within projects and automatically inherit permissions from those projects, replacing ontology roles and datasource-derived permissions."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Ontology Roles",
+        "description": "The legacy permissions model for ontology resources that is being replaced by project-based permissions. Once resources are migrated, they cannot revert to ontology roles."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Datasource-Derived Permissions",
+        "description": "A legacy permissions model where ontology resource permissions were derived from the backing datasource location. Being replaced by project-based permissions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "A core ontology resource that can be saved within projects and inherit project-based permissions. Object and link instance permissions remain dependent on backing datasource location."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "An ontology resource representing kinetic operations that can be migrated to project-based permissions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link Type",
+        "description": "An ontology resource representing relationships between object types that can be migrated to project-based permissions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "An ontology resource defining a contract that object types can implement, migratable to project-based permissions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Shared Property",
+        "description": "An ontology resource representing properties shared across multiple object types, migratable to project-based permissions."
+      },
+      {
+        "type": "Product",
+        "name": "Ontology Manager",
+        "description": "The Foundry tool for managing ontology resources, providing the migration assistant for transitioning to project-based permissions."
+      },
+      {
+        "type": "Pattern",
+        "name": "Permission Inheritance",
+        "description": "Architectural pattern where ontology resources automatically inherit permissions from their parent project, enabling bulk permission management at the project level."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data operations platform where ontology resources and their permissions are managed."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Project-Based Permissions",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Project-Based Permissions",
+        "relationship": "SECURES",
+        "target": "Action Type"
+      },
+      {
+        "source": "Project-Based Permissions",
+        "relationship": "SECURES",
+        "target": "Link Type"
+      },
+      {
+        "source": "Project-Based Permissions",
+        "relationship": "SECURES",
+        "target": "Interface"
+      },
+      {
+        "source": "Project-Based Permissions",
+        "relationship": "SECURES",
+        "target": "Shared Property"
+      },
+      {
+        "source": "Permission Inheritance",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology Manager",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Project-Based Permissions",
+        "relationship": "SECURES",
+        "target": "Ontology Roles"
+      }
+    ],
+    "keyInsights": [
+      "Project-based permissions represent a one-way migration: once an ontology resource is migrated, it cannot revert to ontology roles or datasource-derived permissions.",
+      "Object and link instance permissions remain separate from ontology resource permissions and continue to depend on backing datasource location even after migration.",
+      "Two migration approaches exist: saving ontology resources alongside datasources for consistent permissions, or in a dedicated project for broad discoverability.",
+      "Ontology resource names must conform to Compass conventions (no forward slashes, no duplicates) when migrated to project-based permissions.",
+      "Datasources backing object types must be located in the same space as the ontology, establishing a spatial constraint on the permissions model."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/operational-security-enabling-transparency-collaboration-and-privacy-palantir-rfx-blog-series-28062c37bea6",
+    "title": "Operational Security: Enabling transparency, collaboration, and privacy - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "SecurityConcept",
+        "name": "Purpose-Based Access Control",
+        "description": "Palantir's operational security model (PBAC) that enforces data access based on the purpose for which data is being used, enabling both transparency and privacy by design."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Operational Security",
+        "description": "The category of security controls within a software platform that enforce data security across all user interactions, distinct from corporate security and infrastructure security."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Corporate Security",
+        "description": "Security features addressing vendor trustworthiness, personnel documentation, facility security, and supply chain resilience."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Infrastructure Security",
+        "description": "Security features addressing the underlying software infrastructure through encryption, penetration testing, and network safeguards."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Data Minimization",
+        "description": "A security capability that limits data exposure to only what is necessary for a given purpose, reducing attack surface while enabling collaboration."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Data Retention and Deletion",
+        "description": "Security capability for managing data lifecycle, including retention policies and deletion handling to comply with regulations."
+      },
+      {
+        "type": "Pattern",
+        "name": "Privacy by Design",
+        "description": "Architectural pattern where privacy-protective features are built into products by design rather than added as an afterthought, enabling security to enhance rather than hamper collaboration."
+      },
+      {
+        "type": "Product",
+        "name": "Palantir Platform",
+        "description": "Palantir's overall software platform that embodies the principle that security and transparency are not a zero-sum tradeoff."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Purpose-Based Access Control",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Privacy by Design",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Operational Security",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Data Minimization",
+        "relationship": "SECURES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Purpose-Based Access Control",
+        "relationship": "PART_OF",
+        "target": "Palantir Platform"
+      }
+    ],
+    "keyInsights": [
+      "Palantir was founded on the premise that security and privacy are not a zero-sum tradeoff; software can strengthen both security and civil liberties simultaneously.",
+      "RFP security requirements typically address three categories: corporate security, infrastructure security, and operational security, with operational security being the most differentiating.",
+      "Purpose-based access controls (PBAC) enforce data usage based on the intended purpose, enabling organizations to share data more broadly while maintaining regulatory compliance.",
+      "Data minimization, accountable data usage, and retention/deletion handling collectively increase organizational trust to enable rather than hamper collaboration.",
+      "Many organizations set low bars in RFPs by repeating outdated security standards, missing opportunities to evaluate capabilities that promote collaboration alongside security."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/platform-overview/overview",
+    "title": "Platform overview - Overview - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Palantir AIP",
+        "description": "Palantir's AI platform that powers real-time, AI-driven decision-making by connecting generative AI to operations. Part of the AI Mesh alongside Foundry and Apollo."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's data operations platform that provides the core data infrastructure, compute primitives, and Ontology system for enterprise use."
+      },
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's mission control for autonomous software deployment, the continuous delivery platform that underpins AIP and Foundry."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology",
+        "description": "The core architecture representing enterprise decisions (not just data) by integrating data, logic, and action components into a modern, AI-accessible computing environment."
+      },
+      {
+        "type": "Pattern",
+        "name": "Decision Components",
+        "description": "Foundational pattern decomposing every enterprise decision into three components: data (relevant facts), logic (business rules, models, probabilities), and actions (kinetic effects in the world)."
+      },
+      {
+        "type": "Pattern",
+        "name": "AI Mesh",
+        "description": "The collective architecture of AIP, Foundry, and Apollo that can deliver the full range of AI-driven products from LLM-powered web apps to edge applications with localized AI."
+      },
+      {
+        "type": "Pattern",
+        "name": "AI Teaming",
+        "description": "A design pattern where all Ontology decision components (data, logic, actions) are designed to facilitate collaboration between humans and AI agents."
+      },
+      {
+        "type": "Product",
+        "name": "AIP Bootcamps",
+        "description": "Hands-on sessions where customers achieve outcomes with AI quickly, serving as a key mechanism for driving platform adoption."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action",
+        "description": "The kinetic decision component representing how decisions manifest in the world, including effects and outcomes in production settings."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Logic components within the Ontology that encode business rules, forecasting models, and computational pipelines."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Palantir AIP",
+        "relationship": "BUILT_ON",
+        "target": "Foundry"
+      },
+      {
+        "source": "Apollo",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      {
+        "source": "Palantir AIP",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Apollo"
+      },
+      { "source": "Ontology", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Ontology",
+        "relationship": "PART_OF",
+        "target": "Palantir AIP"
+      },
+      {
+        "source": "Decision Components",
+        "relationship": "ENABLES",
+        "target": "Ontology"
+      },
+      { "source": "AI Teaming", "relationship": "ENABLES", "target": "Action" },
+      {
+        "source": "AI Teaming",
+        "relationship": "ENABLES",
+        "target": "Function"
+      }
+    ],
+    "keyInsights": [
+      "The Ontology is designed to represent enterprise decisions (data, logic, actions), not simply data, making it fundamentally different from traditional data modeling approaches.",
+      "Palantir's platform consists of three interconnected platforms: AIP (generative AI), Foundry (data operations), and Apollo (continuous delivery), collectively forming an 'AI Mesh'.",
+      "The key differentiator of the Palantir platform is its software architecture revolving around the Ontology, which enables deep two-way interoperability with existing enterprise systems.",
+      "Every decision component in the Ontology is designed to facilitate AI teaming patterns, unlocking the potential of operators, analysts, and subject-matter experts working alongside AI.",
+      "The AI Mesh can deliver the full spectrum of AI products: from LLM-powered web applications to mobile apps using vision-language models to edge applications with localized AI."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/architecture-center/overview",
+    "title": "Overview - Architecture center - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Architecture Center",
+        "description": "Palantir's resource providing reference architectures, technical guidance, and best practices for deploying and integrating Foundry and AIP."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Ontology System",
+        "description": "The heart of Palantir's architecture that integrates an enterprise's data, logic, action, and security policies into an intuitive representation wielded by both humans and AI agents."
+      },
+      {
+        "type": "Pattern",
+        "name": "Nouns and Verbs",
+        "description": "Architectural metaphor where objects are 'nouns' (manufacturing plants, customer orders) and actions are 'verbs' (updating purchase orders, running simulations) that together model the operational world."
+      },
+      {
+        "type": "Pattern",
+        "name": "Forward Deployed Engineering",
+        "description": "Palantir's development methodology analogous to backpropagation, where engineering teams work close to customer problems while synthesizing feedback with core engineering teams."
+      },
+      {
+        "type": "Product",
+        "name": "AIP",
+        "description": "Palantir's generative AI platform that together with Foundry consists of 300+ microservices running in a highly available, autoscaling compute mesh."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "The core data operations platform providing Data Services, Logic Services, and Workflow Services atop zero-trust security infrastructure."
+      },
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's continuous delivery platform enabling autonomous software deployment that underpins both AIP and Foundry."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Zero-Trust Security Infrastructure",
+        "description": "Security posture enforced across every platform component, including aggressive node cycling to guard against advanced persistent threats."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "Multimodal Security Controls",
+        "description": "Military-grade security controls that encompass objects, links, actions, functions, and other semantic/kinetic primitives within the Ontology."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object",
+        "description": "The 'nouns' of the Ontology representing core operational concepts like manufacturing plants, production lines, and customer orders."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Link",
+        "description": "Relationships between objects in the Ontology that are also subject to security controls."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology System",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Ontology System",
+        "relationship": "PART_OF",
+        "target": "AIP"
+      },
+      {
+        "source": "Object",
+        "relationship": "PART_OF",
+        "target": "Ontology System"
+      },
+      { "source": "Link", "relationship": "CONNECTS", "target": "Object" },
+      {
+        "source": "Multimodal Security Controls",
+        "relationship": "SECURES",
+        "target": "Object"
+      },
+      {
+        "source": "Multimodal Security Controls",
+        "relationship": "SECURES",
+        "target": "Link"
+      },
+      {
+        "source": "Zero-Trust Security Infrastructure",
+        "relationship": "SECURES",
+        "target": "Ontology System"
+      },
+      {
+        "source": "Nouns and Verbs",
+        "relationship": "ENABLES",
+        "target": "Ontology System"
+      },
+      {
+        "source": "Architecture Center",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "AIP and Foundry collectively consist of 300+ microservices running in a highly available, autoscaling compute mesh atop zero-trust security infrastructure.",
+      "The Ontology system is described as the 'heart' of Palantir's architecture, integrating data, logic, action, and security policies into a single representation usable by humans and AI.",
+      "Military-grade, multimodal security controls encompass all Ontology primitives (objects, links, actions, functions), ensuring both humans and AI agents operate with precision and guardrails.",
+      "Forward Deployed Engineering is Palantir's core methodology: teams get close to problems while working with core engineering to synthesize feedback, analogous to neural network backpropagation.",
+      "Palantir's common architecture (AIP, Foundry, Apollo) functions as an enterprise operating system spanning 50+ verticals from healthcare to shipbuilding to energy production.",
+      "Aggressive node cycling is used as a security measure to guard against advanced persistent threats within the platform infrastructure."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/typescript-osdk-migration",
+    "title": "Ontology SDK - TypeScript OSDK migration guide - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "TypeScript OSDK 2.0",
+        "description": "Major version upgrade of the Ontology SDK for TypeScript that scales linearly with Ontology shape/metadata, supports lazy loading, separates client from generated code, and provides streamlined code generation."
+      },
+      {
+        "type": "Product",
+        "name": "TypeScript OSDK 1.x",
+        "description": "Original version of the TypeScript Ontology SDK that generated full implementations for every Ontology item, scaling with entire Ontology size and closely coupling client to generated code."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK Lazy Loading",
+        "description": "TypeScript OSDK 2.0 feature where applications only require Ontology items when they use them, rather than loading the entire Ontology upfront."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK Code Generation",
+        "description": "The process of generating SDK code from Ontology definitions. OSDK 2.0 scales linearly with Ontology shape/metadata rather than actual Ontology content, significantly improving performance."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK Client Separation",
+        "description": "OSDK 2.0 architectural change that decouples the client library from generated code, enabling rapid hotfixes through library updates without SDK regeneration."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Foundry's in-platform development environment where SDKs are generated, managed, and documented. Provides version picker for accessing 2.0 documentation."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology concept that OSDK generates typed interfaces for, with 2.0 providing lighter-weight metadata-based representations."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology concept that requires OSDK 2.0 for support, not available in 1.x."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Media Set",
+        "description": "Ontology concept for media content that requires OSDK 2.0 for support."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology SDK that provides generated, type-safe access to Foundry Ontology from external applications in Python, Java, and TypeScript."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "TypeScript OSDK 2.0",
+        "relationship": "BUILT_ON",
+        "target": "TypeScript OSDK 1.x"
+      },
+      {
+        "source": "OSDK Lazy Loading",
+        "relationship": "EXAMPLE_OF",
+        "target": "TypeScript OSDK 2.0"
+      },
+      {
+        "source": "OSDK Code Generation",
+        "relationship": "EXAMPLE_OF",
+        "target": "TypeScript OSDK 2.0"
+      },
+      {
+        "source": "OSDK Client Separation",
+        "relationship": "EXAMPLE_OF",
+        "target": "TypeScript OSDK 2.0"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Interface",
+        "relationship": "EXPOSED_BY",
+        "target": "TypeScript OSDK 2.0"
+      },
+      {
+        "source": "Media Set",
+        "relationship": "EXPOSED_BY",
+        "target": "TypeScript OSDK 2.0"
+      },
+      {
+        "source": "TypeScript OSDK 2.0",
+        "relationship": "PART_OF",
+        "target": "Developer Console"
+      }
+    ],
+    "keyInsights": [
+      "OSDK 1.x generated full implementations for every Ontology item, causing it to scale with the entire Ontology size; OSDK 2.0 scales linearly with Ontology shape/metadata instead.",
+      "Client-code separation in OSDK 2.0 enables rapid hotfixes through library dependency updates without requiring SDK regeneration, a major operational improvement.",
+      "New features like interfaces and media sets require OSDK 2.0, making migration necessary for accessing the full Ontology feature set.",
+      "OSDK 2.0 supports lazy loading, meaning applications only load Ontology items when they are actually used, improving application performance.",
+      "Palantir committed to maintaining OSDK 1.x support for at least one year after OSDK 2.0 release, providing a migration window."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk/typescript-subscriptions",
+    "title": "Ontology SDK - Subscribe to Ontology changes with the TypeScript OSDK - Palantir",
+    "extractedEntities": [
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK Subscriptions",
+        "description": "TypeScript OSDK feature (v2.1+) enabling real-time updates when objects in a specified object set are changed, including additions, deletions, and property changes."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": ".subscribe Method",
+        "description": "OSDK method chained onto an object set that accepts lifecycle event handlers (onChange, onSuccessfulSubscription, onOutOfDate, onError) and returns an unsubscribe function."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "onChange Handler",
+        "description": "Subscription event handler triggered when an object is added, updated, or deleted. Provides the object instance and a state enum (ADDED_OR_UPDATED or DELETED)."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "onOutOfDate Handler",
+        "description": "Subscription event handler triggered when the subscription may have missed updates, indicating the consumer should refresh its local data."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "onSuccessfulSubscription Handler",
+        "description": "Subscription event handler triggered when the subscription connection is successfully established."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "ObjectSet",
+        "description": "A collection of objects that can be subscribed to for real-time change notifications, supporting filtering via .where() clauses."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "The Ontology concept representing a type of object (e.g., Country) whose instances can be monitored through subscriptions."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Property",
+        "description": "Individual attributes on objects (e.g., population) that trigger change notifications when modified."
+      },
+      {
+        "type": "Product",
+        "name": "TypeScript OSDK 2.1",
+        "description": "The OSDK version (2.1.x) that introduced the subscriptions feature for real-time Ontology change tracking."
+      },
+      {
+        "type": "Pattern",
+        "name": "Reactive Data Layer",
+        "description": "Pattern where the OSDK provides real-time push-based updates from the Ontology rather than requiring polling, enabling event-driven application architectures."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OSDK Subscriptions",
+        "relationship": "DEFINED_BY",
+        "target": "ObjectSet"
+      },
+      {
+        "source": ".subscribe Method",
+        "relationship": "EXAMPLE_OF",
+        "target": "OSDK Subscriptions"
+      },
+      {
+        "source": "onChange Handler",
+        "relationship": "EXAMPLE_OF",
+        "target": "OSDK Subscriptions"
+      },
+      {
+        "source": "OSDK Subscriptions",
+        "relationship": "OPERATES_ON",
+        "target": "Object Type"
+      },
+      {
+        "source": "OSDK Subscriptions",
+        "relationship": "OPERATES_ON",
+        "target": "Property"
+      },
+      {
+        "source": "OSDK Subscriptions",
+        "relationship": "PART_OF",
+        "target": "TypeScript OSDK 2.1"
+      },
+      {
+        "source": "Reactive Data Layer",
+        "relationship": "ENABLES",
+        "target": "ObjectSet"
+      },
+      {
+        "source": "ObjectSet",
+        "relationship": "CONTAINS",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Subscriptions provide three object states: ADDED_OR_UPDATED (object added to set or property changed) and DELETED (object removed), enabling full lifecycle tracking.",
+      "Object sets constructed using .pivotTo (link traversal) are explicitly not supported for subscriptions, limiting real-time updates to direct object set queries.",
+      "The onOutOfDate handler signals that the subscription may have missed updates, requiring consumers to implement a refresh strategy for data consistency.",
+      "Subscriptions can be filtered using .where() clauses on the object set, narrowing the scope of real-time updates to specific property conditions.",
+      "The properties array parameter in .subscribe allows selecting which property changes trigger notifications, enabling fine-grained update control.",
+      "Subscriptions require OSDK v2.1.x with a matching @osdk/client package version, establishing a version dependency for the feature."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/compute-modules/functions",
+    "title": "Compute modules - Configuration - Functions - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Compute Modules",
+        "description": "Foundry's containerized compute workload system that can run in function execution mode, allowing registration of callable functions with typed inputs and outputs."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "A callable unit within Compute Modules that accepts typed JSON inputs and returns typed outputs, registered with API names following the pattern com.<namespace>.computemodules.<MyApiName>."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Function API Name",
+        "description": "The function locator following the format com.<namespace>.computemodules.<MyApiName> where namespace is lowercase and MyApiName is camelCase. Used to call functions from other Foundry code."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Function Schema Registration",
+        "description": "Process of defining function inputs, outputs, and API names either through the Compute Modules UI or via HTTP POST request. Functions are always registered at version 0.0.0."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Response",
+        "description": "Compute Module capability where function outputs of type Array are streamed as individual JSON elements rather than returned as a single response."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Compute Module Type Mapping",
+        "description": "The mapping between Foundry types (Integer, Boolean, Date, Timestamp, etc.) and their HTTP serialization formats (int, boolean, string, milliseconds since epoch, etc.)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Struct",
+        "description": "A custom composite type in Compute Modules, serialized as JSON with named fields, used for complex function inputs and outputs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Automatic Function Schema Inference",
+        "description": "Compute Modules SDK feature that automatically infers function schemas from code, simplifying the registration process."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "The platform environment where Compute Module functions are registered and called from other code."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Function",
+        "relationship": "PART_OF",
+        "target": "Compute Modules"
+      },
+      {
+        "source": "Function API Name",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      {
+        "source": "Function Schema Registration",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      {
+        "source": "Streaming Response",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      {
+        "source": "Compute Module Type Mapping",
+        "relationship": "DEFINED_BY",
+        "target": "Function"
+      },
+      {
+        "source": "Struct",
+        "relationship": "OPERATES_ON",
+        "target": "Function"
+      },
+      {
+        "source": "Compute Modules",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Automatic Function Schema Inference",
+        "relationship": "EXAMPLE_OF",
+        "target": "Function Schema Registration"
+      }
+    ],
+    "keyInsights": [
+      "Compute Module functions always register at version 0.0.0 and updates overwrite the existing version, meaning there is no function versioning within a compute module.",
+      "Function API names follow a strict convention: com.<namespace>.computemodules.<MyApiName>, and changing the API name breaks all consumer code.",
+      "Timestamps are serialized as milliseconds since epoch over HTTP, while Dates and Decimals are serialized as strings, reflecting careful type-safety decisions.",
+      "Streaming responses serialize Array outputs as individual JSON elements streamed over HTTP, enabling efficient handling of large result sets.",
+      "The Compute Modules SDK can automatically infer function schemas from code, reducing the manual registration burden and ensuring type safety.",
+      "Structs serve as the mechanism for complex composite types in function inputs/outputs, serialized as JSON objects with named fields."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/typescript-compute-module",
+    "title": "GitHub - palantir/typescript-compute-module: Typescript library for writing Compute Modules",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "TypeScript Compute Module SDK",
+        "description": "Open-source Node.js library (@palantir/compute-module) for writing Compute Modules, supporting both Functions mode and Pipelines mode with type-safe schema registration via TypeBox."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "ComputeModule Class",
+        "description": "The main entry point of the TypeScript Compute Module SDK that provides .register() for basic functions and .registerStreaming() for streaming responses."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "TypeBox Schema Integration",
+        "description": "Integration with @sinclair/typebox for defining type-safe function input/output schemas that enable automatic function schema registration at runtime."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Streaming Write API",
+        "description": "The writeable.write(JSON.stringify(element)) pattern for streaming individual elements back to the caller, where each write must produce valid JSON."
+      },
+      {
+        "type": "Pattern",
+        "name": "Functions Mode",
+        "description": "Compute Module execution mode where the module registers named functions that are callable from Foundry, supporting both basic request-response and streaming patterns."
+      },
+      {
+        "type": "Pattern",
+        "name": "Pipelines Mode",
+        "description": "Compute Module execution mode for retrieving aliases and performing data pipeline operations, separate from the Functions mode."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Source Credentials Retrieval",
+        "description": "SDK capability for accessing external source credentials within containerized compute module workloads for authenticated external service access."
+      },
+      {
+        "type": "Product",
+        "name": "Compute Modules",
+        "description": "Palantir's containerized compute workload platform that the TypeScript SDK enables building against."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "TypeScript Compute Module SDK",
+        "relationship": "PART_OF",
+        "target": "Compute Modules"
+      },
+      {
+        "source": "ComputeModule Class",
+        "relationship": "EXAMPLE_OF",
+        "target": "TypeScript Compute Module SDK"
+      },
+      {
+        "source": "TypeBox Schema Integration",
+        "relationship": "DEFINED_BY",
+        "target": "TypeScript Compute Module SDK"
+      },
+      {
+        "source": "Streaming Write API",
+        "relationship": "DEFINED_BY",
+        "target": "TypeScript Compute Module SDK"
+      },
+      {
+        "source": "Functions Mode",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "Pipelines Mode",
+        "relationship": "ENABLES",
+        "target": "Compute Modules"
+      },
+      {
+        "source": "Source Credentials Retrieval",
+        "relationship": "EXAMPLE_OF",
+        "target": "TypeScript Compute Module SDK"
+      }
+    ],
+    "keyInsights": [
+      "The TypeScript Compute Module SDK uses @sinclair/typebox for schema definitions, enabling compile-time type safety while generating runtime schemas for automatic function registration.",
+      "Streaming responses require each write to produce valid JSON individually, even for simple string literals (JSON.stringify is mandatory per element).",
+      "The SDK supports both Functions mode (callable endpoints) and Pipelines mode (data pipeline aliases), representing two distinct compute module execution paradigms.",
+      "A .default() handler can be registered to handle unsupported query names, providing graceful error handling for unknown function calls.",
+      "The SDK provides utilities for service discovery, authentication token management, and external source access within the containerized workload environment."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/python-compute-module",
+    "title": "GitHub - palantir/python-compute-module: Python library for writing Compute Modules",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Python Compute Module SDK",
+        "description": "Open-source Python library (foundry-compute-modules) for building Compute Modules, providing two registration patterns: @function decorator and explicit add_function/add_functions with start_compute_module."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "@function Decorator",
+        "description": "Python annotation pattern for registering compute module functions, supporting streaming=True parameter and automatic function discovery through type inspection."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Automatic Function Discovery",
+        "description": "Python SDK feature that inspects registered functions' input/output types to automatically generate and register function schemas with the Compute Module platform."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Explicit Function Registration",
+        "description": "Alternative pattern using add_function/add_functions plus start_compute_module for registering functions without decorators."
+      },
+      {
+        "type": "Pattern",
+        "name": "Streaming Result Pattern",
+        "description": "Python pattern where functions returning Iterable types with streaming=True stream individual JSON-serializable elements back to the caller."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Foundry Sources Integration",
+        "description": "Optional SDK dependency (foundry-compute-modules[sources]) for accessing external data sources within compute module workloads, providing source secrets and configs via context."
+      },
+      {
+        "type": "Product",
+        "name": "Compute Modules",
+        "description": "Palantir's containerized compute platform that the Python SDK enables building against."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Python Compute Module SDK",
+        "relationship": "PART_OF",
+        "target": "Compute Modules"
+      },
+      {
+        "source": "@function Decorator",
+        "relationship": "EXAMPLE_OF",
+        "target": "Python Compute Module SDK"
+      },
+      {
+        "source": "Automatic Function Discovery",
+        "relationship": "DEFINED_BY",
+        "target": "Python Compute Module SDK"
+      },
+      {
+        "source": "Streaming Result Pattern",
+        "relationship": "ENABLES",
+        "target": "Function"
+      },
+      {
+        "source": "Foundry Sources Integration",
+        "relationship": "DEFINED_BY",
+        "target": "Python Compute Module SDK"
+      },
+      {
+        "source": "Explicit Function Registration",
+        "relationship": "EXAMPLE_OF",
+        "target": "Python Compute Module SDK"
+      }
+    ],
+    "keyInsights": [
+      "The Python SDK provides two function registration patterns: the @function decorator for simple cases and explicit add_function/add_functions for more control.",
+      "Automatic function discovery inspects Python type hints to auto-generate function schemas, reducing manual configuration and ensuring type consistency.",
+      "Streaming is enabled by declaring Iterable return types with streaming=True, requiring elements to be JSON-serializable for HTTP streaming.",
+      "The context parameter provides access to source secrets and configurations, enabling authenticated access to external systems from within compute modules.",
+      "The SDK is incubating and subject to change, indicating active development of the Compute Modules ecosystem."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/app-building/overview",
+    "title": "Overview - App building - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Workshop",
+        "description": "Palantir's flexible, object-oriented application building tool that leverages Ontology semantic primitives (objects, links) and kinetic primitives (Actions, Functions) for no-code, low-code, and code-based widget-driven application development."
+      },
+      {
+        "type": "Product",
+        "name": "Slate",
+        "description": "Palantir's drag-and-drop application builder for creating operational applications and dashboards, supporting full HTML/CSS/JavaScript customization while integrating with the Foundry Ontology."
+      },
+      {
+        "type": "Product",
+        "name": "Workflow Lineage",
+        "description": "Interactive workspace for understanding and managing applications and their underlying processes, providing graph-based provenance views of objects, actions, functions, LLMs, and applications."
+      },
+      {
+        "type": "Product",
+        "name": "Automate",
+        "description": "Palantir's tool for building and triggering rules, conditions, and actions through simple 'if/then' logic blocks with AIP Logic integration."
+      },
+      {
+        "type": "Product",
+        "name": "Solution Designer",
+        "description": "Tool for designing and cataloging workflow sequences using drag-and-drop blocks representing Ontology elements."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "The Ontology SDK enabling creation of custom, bespoke applications on top of the Palantir platform beyond built-in tools."
+      },
+      {
+        "type": "Pattern",
+        "name": "Semantic and Kinetic Primitives",
+        "description": "Workshop's dual-primitive architecture where semantic primitives (objects, links) represent data and kinetic primitives (Actions, Functions) represent operations, woven together in user-driven workflows."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology concept serving as a semantic primitive consumed by application building tools like Workshop and Slate."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Kinetic primitive in the Ontology consumed by Workshop and other application building tools for user-driven workflows."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology concept enabling code-based enrichment that can be embedded within Workshop widgets for complex interactions and data capture."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Foundry's developer environment for building OSDK-powered custom applications."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Function",
+        "relationship": "EXPOSED_BY",
+        "target": "Workshop"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "Slate"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      { "source": "Workshop", "relationship": "PART_OF", "target": "Foundry" },
+      { "source": "Slate", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Workflow Lineage",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      {
+        "source": "Semantic and Kinetic Primitives",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Semantic and Kinetic Primitives",
+        "relationship": "ENABLES",
+        "target": "Action Type"
+      }
+    ],
+    "keyInsights": [
+      "Workshop categorizes Ontology elements into semantic primitives (objects, links for data) and kinetic primitives (Actions, Functions for operations), creating a clear separation of concerns.",
+      "All application building tools in Palantir leverage the same core security, lineage, data, and compute primitives, ensuring consistent governance across all development approaches.",
+      "The platform supports a spectrum from no-code (Workshop widgets) to low-code (Slate drag-and-drop) to full-code (OSDK custom React apps), accommodating different builder skill levels.",
+      "Knowledge compounds across the enterprise because every tool continuously enriches a consistent set of data and model assets contained within the Ontology.",
+      "Workflow Lineage provides graph-based provenance for understanding and debugging workflows, covering objects, actions, functions, LLMs, and applications.",
+      "Functions can be seamlessly embedded within Workshop widgets, enabling complex interactions, cascading processes, and advanced data capture without leaving the no-code environment."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/ontology-sdk-react-applications/advanced-todo-application-architecture",
+    "title": "OSDK React applications - Tutorial: Advanced to-do application - Architecture and configuration",
+    "extractedEntities": [
+      {
+        "type": "UseCase",
+        "name": "Advanced To-Do Application",
+        "description": "A reference React application built with OSDK demonstrating interfaces, polymorphic task types, media content, runtime-derived properties, metadata-driven interfaces, real-time subscriptions, and efficient user data handling."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OsdkProvider Component",
+        "description": "React component from @osdk/react package that provides authentication context and OSDK client configuration to the component tree."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Data Service Hooks",
+        "description": "React hooks pattern (useProjects, useTasks, etc.) that encapsulates OSDK interactions, providing component-specific data access with SWR strategy."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "SWR Data Strategy",
+        "description": "Stale-while-revalidate data management pattern used in OSDK React apps for caching, revalidation, and background updates."
+      },
+      {
+        "type": "Pattern",
+        "name": "Interface Polymorphism",
+        "description": "OSDK pattern where interfaces define contracts that multiple task types implement, enabling polymorphic behavior in the to-do application."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Runtime-Derived Properties",
+        "description": "OSDK feature where property values are computed at runtime rather than stored, enabling dynamic data presentation."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OAuth OSDK Client Configuration",
+        "description": "Authentication setup pattern using OSDK OAuth client with createBrowserRouter, redirect URLs, and environment-specific configuration."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology concept used in the to-do app for defining polymorphic task type contracts."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Media Set",
+        "description": "Ontology concept for managing media content, demonstrated in the to-do application."
+      },
+      {
+        "type": "Product",
+        "name": "Code Workspaces",
+        "description": "Foundry's in-platform development environment (VS Code) for creating applications from curated example templates."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Advanced To-Do Application",
+        "relationship": "DEMONSTRATES",
+        "target": "Interface"
+      },
+      {
+        "source": "Advanced To-Do Application",
+        "relationship": "DEMONSTRATES",
+        "target": "Media Set"
+      },
+      {
+        "source": "Advanced To-Do Application",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "OsdkProvider Component",
+        "relationship": "EXAMPLE_OF",
+        "target": "OSDK"
+      },
+      {
+        "source": "Interface Polymorphism",
+        "relationship": "ENABLES",
+        "target": "Interface"
+      },
+      {
+        "source": "Data Service Hooks",
+        "relationship": "EXAMPLE_OF",
+        "target": "OSDK"
+      },
+      {
+        "source": "Runtime-Derived Properties",
+        "relationship": "DEFINED_BY",
+        "target": "Property"
+      },
+      {
+        "source": "Code Workspaces",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      }
+    ],
+    "keyInsights": [
+      "The advanced to-do app demonstrates six key OSDK features: interface polymorphism, media content, runtime-derived properties, metadata-driven interfaces, real-time subscriptions, and efficient user data handling.",
+      "OsdkProvider from @osdk/react provides the authentication context pattern, wrapping the entire application router for consistent client access.",
+      "Data service hooks encapsulate OSDK interactions following SWR (stale-while-revalidate) strategy, giving each component exactly the data it needs with background updates.",
+      "Environment configuration uses meta tags in index.html for key variables, with separate development and production environment files.",
+      "Code Workspaces provides an in-platform VS Code environment where developers can create applications from curated example templates including the to-do app."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/ontology-starter-react-app",
+    "title": "GitHub - palantir/ontology-starter-react-app: Example starter repo for building React applications on top of a Foundry Ontology",
+    "extractedEntities": [
+      {
+        "type": "UseCase",
+        "name": "Ontology Starter React App",
+        "description": "Official starter repository providing a skeleton React/TypeScript application for building custom frontends on the Ontology SDK, with OAuth integration, CORS configuration, and development patterns."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK NPM Registry",
+        "description": "Application-specific NPM registry in Foundry Developer Console from which generated OSDK packages are installed into external React applications."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK OAuth Client",
+        "description": "Client-facing public OAuth client created in Developer Console for browser-based OSDK authentication, with redirect URL configuration for localhost and production."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK CORS Configuration",
+        "description": "Required CORS policy setup in Control Panel to allow localhost development servers to access Foundry APIs."
+      },
+      {
+        "type": "Product",
+        "name": "Developer Console",
+        "description": "Foundry's developer environment where OSDK applications are created, SDKs are generated, and OAuth clients are configured."
+      },
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "The Ontology SDK that provides generated type-safe access to Foundry Ontology objects and actions from React applications."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "OSDK Client Configuration",
+        "description": "Setup pattern using environment variables (FOUNDRY_CLIENT_ID, FOUNDRY_API_URL, APPLICATION_REDIRECT_URL) for connecting external React apps to Foundry."
+      },
+      {
+        "type": "Pattern",
+        "name": "External OSDK Application Pattern",
+        "description": "Architecture pattern for building React applications outside of Foundry that consume Ontology data via generated OSDK packages with OAuth authentication."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Ontology Starter React App",
+        "relationship": "DEMONSTRATES",
+        "target": "Object Type"
+      },
+      {
+        "source": "Ontology Starter React App",
+        "relationship": "DEMONSTRATES",
+        "target": "Interface"
+      },
+      {
+        "source": "OSDK NPM Registry",
+        "relationship": "PART_OF",
+        "target": "Developer Console"
+      },
+      {
+        "source": "OSDK OAuth Client",
+        "relationship": "DEFINED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "External OSDK Application Pattern",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      },
+      {
+        "source": "OSDK",
+        "relationship": "EXPOSED_BY",
+        "target": "Developer Console"
+      }
+    ],
+    "keyInsights": [
+      "External OSDK applications require three configuration elements: a public OAuth client in Developer Console, CORS policy in Control Panel, and environment variables for API URL and client ID.",
+      "The OSDK uses an application-specific NPM registry, meaning each Foundry application has its own generated package with typed interfaces for its selected Ontology objects.",
+      "A client-facing (public) OAuth client must be selected during application creation; choosing a confidential client prevents browser-based login and cannot be changed afterward.",
+      "The starter app demonstrates the minimum viable architecture: client.ts for OSDK initialization, home.tsx for Ontology data consumption, and auth/callback route for OAuth flow.",
+      "Production deployment requires storing FOUNDRY_CLIENT_ID, FOUNDRY_API_URL, and APPLICATION_REDIRECT_URL in CI/CD secret management."
+    ]
+  },
+  {
+    "url": "https://github.com/palantir/blueprint",
+    "title": "GitHub - palantir/blueprint: A React-based UI toolkit for the web",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Blueprint",
+        "description": "Palantir's open-source React-based UI toolkit optimized for building complex, data-dense desktop web interfaces. Not mobile-first, designed for composition of atomic components into higher-level UIs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Blueprint Core",
+        "description": "Core styles and components package (@blueprintjs/core) providing foundational UI elements for Palantir's application ecosystem."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Blueprint Table",
+        "description": "Scalable and interactive spreadsheet-like table component (@blueprintjs/table) for data-dense interfaces."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Blueprint Select",
+        "description": "Components for selecting items from lists (@blueprintjs/select), a key interaction pattern in Ontology-backed UIs."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Blueprint DateTime",
+        "description": "Components for interacting with dates and times (@blueprintjs/datetime), supporting temporal data in Ontology applications."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Blueprint Icons",
+        "description": "APIs for displaying icons with both SVG and icon font implementations (@blueprintjs/icons)."
+      },
+      {
+        "type": "Pattern",
+        "name": "Atomic Component Composition",
+        "description": "Blueprint's design philosophy where small atomic components (Button, Popover, DateRangePicker) are composed into complex higher-level interfaces rather than providing monolithic widgets."
+      },
+      {
+        "type": "Pattern",
+        "name": "Least-Intrusion Styling",
+        "description": "Blueprint's approach where global styling is limited to typography normalization, avoiding aggressive resets that interfere with third-party CSS."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Blueprint",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      {
+        "source": "Blueprint Core",
+        "relationship": "PART_OF",
+        "target": "Blueprint"
+      },
+      {
+        "source": "Blueprint Table",
+        "relationship": "PART_OF",
+        "target": "Blueprint"
+      },
+      {
+        "source": "Blueprint Select",
+        "relationship": "PART_OF",
+        "target": "Blueprint"
+      },
+      {
+        "source": "Blueprint DateTime",
+        "relationship": "PART_OF",
+        "target": "Blueprint"
+      },
+      {
+        "source": "Atomic Component Composition",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Blueprint is explicitly not mobile-first, optimized specifically for complex, data-dense desktop web interfaces typical of enterprise Ontology applications.",
+      "The toolkit follows an atomic composition philosophy where small, focused components are combined into complex UIs, rather than providing pre-built application-level widgets.",
+      "Blueprint takes a least-intrusion approach to global styling, limiting it to typography normalization to avoid conflicts with other CSS frameworks.",
+      "The monorepo contains 7+ library packages (@blueprintjs/core, table, select, datetime, icons, etc.) plus documentation and build tooling packages.",
+      "Blueprint provides the foundational UI layer that Workshop, Slate, and custom OSDK applications build upon for rendering Ontology data."
+    ]
+  },
+  {
+    "url": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379",
+    "title": "Palantir Apollo: Powering SaaS where no SaaS has gone before - Palantir Blog",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "Apollo",
+        "description": "Palantir's third platform: a continuous delivery system that powers autonomous software deployment across any environment, from public cloud to classified networks to disconnected edge devices like submarines and drones."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "Palantir's cloud-native SaaS data operations platform built in 2016 with microservice architecture, deployed and managed by Apollo."
+      },
+      {
+        "type": "Product",
+        "name": "Gotham",
+        "description": "Palantir's original platform launched in 2008, initially installed on-premises in heterogeneous, often air-gapped/classified environments."
+      },
+      {
+        "type": "Pattern",
+        "name": "Environment-Agnostic Deployment",
+        "description": "Apollo's architectural pattern enabling the same SaaS platform to run seamlessly across public cloud, government clouds, classified environments, and disconnected edge devices."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "FedRAMP Moderate Authorization",
+        "description": "Federal security authorization achieved by Palantir's public cloud SaaS, required for government use."
+      },
+      {
+        "type": "SecurityConcept",
+        "name": "DoD IL-5 Authorization",
+        "description": "The highest SaaS authorization level (Impact Level 5) for Mission-Critical and National Security Systems, achieved by Palantir."
+      },
+      {
+        "type": "Pattern",
+        "name": "Microservice Architecture",
+        "description": "Foundry's cloud-native architectural pattern consisting of hundreds of microservices managed by Apollo's continuous delivery system."
+      },
+      {
+        "type": "UseCase",
+        "name": "Edge Deployment",
+        "description": "Deploying Palantir software to extreme disconnected environments such as submarines, drones, and tactical edge devices via Apollo."
+      },
+      {
+        "type": "Product",
+        "name": "Apollo Platform",
+        "description": "Expanded Apollo offering that enables software companies and in-house engineering teams to adopt any combination of Apollo's full-stack autonomous deployment functionality."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "Apollo",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Foundry"
+      },
+      {
+        "source": "Apollo",
+        "relationship": "INTEGRATES_WITH",
+        "target": "Gotham"
+      },
+      {
+        "source": "Environment-Agnostic Deployment",
+        "relationship": "ENABLES",
+        "target": "Ontology System"
+      },
+      {
+        "source": "FedRAMP Moderate Authorization",
+        "relationship": "SECURES",
+        "target": "Foundry"
+      },
+      {
+        "source": "DoD IL-5 Authorization",
+        "relationship": "SECURES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Microservice Architecture",
+        "relationship": "ENABLES",
+        "target": "Foundry"
+      },
+      {
+        "source": "Apollo Platform",
+        "relationship": "BUILT_ON",
+        "target": "Apollo"
+      },
+      {
+        "source": "Edge Deployment",
+        "relationship": "DEMONSTRATES",
+        "target": "Ontology System"
+      }
+    ],
+    "keyInsights": [
+      "Apollo is considered Palantir's third platform alongside Foundry and Gotham, serving as the continuous delivery infrastructure that makes both SaaS platforms possible.",
+      "Apollo runs as an independent, standalone platform decoupled from Foundry, sitting as a layer between applications and underlying infrastructure.",
+      "Palantir achieved DoD IL-5 (the highest SaaS authorization for Mission-Critical and National Security Systems), enabling all new government customers to use public cloud for unclassified work.",
+      "Apollo enables deployment across the full spectrum of environments: public cloud, government clouds, classified networks, on-premises, and disconnected edge devices (submarines, drones).",
+      "Since 2018, every new commercial customer and nearly all new US government customers opted for the SaaS model, demonstrating Apollo's success in enabling environment-agnostic deployment.",
+      "Apollo was conceived alongside Foundry specifically to solve the challenge of bringing a single SaaS platform to all customers regardless of environment constraints."
+    ]
+  },
+  {
+    "url": "https://www.palantir.com/docs/foundry/api/general/overview/sdks",
+    "title": "Software development kit (SDK) - API Reference - Palantir",
+    "extractedEntities": [
+      {
+        "type": "Product",
+        "name": "OSDK",
+        "description": "Ontology SDK: specialized libraries generated per-enrollment that provide intuitive, typed interfaces for working with Ontology objects and Actions, abstracting away the generic platform APIs."
+      },
+      {
+        "type": "Product",
+        "name": "Platform SDK",
+        "description": "Generic libraries for interacting with all Foundry APIs including the Ontology, available in Python and TypeScript. Suitable for administrative tasks, governance workflows, or cross-enrollment portability."
+      },
+      {
+        "type": "TechnicalDetail",
+        "name": "Per-Enrollment Code Generation",
+        "description": "OSDK generates enrollment-specific code that includes classes matching your Ontology (e.g., an Employee class for an Employee object type), providing a more intuitive interface than generic platform SDKs."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Object Type",
+        "description": "Core Ontology concept that OSDKs generate typed classes for (e.g., Employee object type generates Employee class with methods)."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Action Type",
+        "description": "Ontology concept representing operations that OSDKs provide typed interfaces for executing."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Function",
+        "description": "Ontology concept including AIP Logic functions that OSDKs provide typed access to."
+      },
+      {
+        "type": "OntologyConcept",
+        "name": "Interface",
+        "description": "Ontology concept that OSDKs expose for polymorphic access patterns."
+      },
+      {
+        "type": "Pattern",
+        "name": "SDK Abstraction Layers",
+        "description": "Two-tier SDK architecture where Platform SDKs abstract Foundry APIs and OSDKs provide further abstractions on top of Platform SDKs for Ontology-specific interactions."
+      },
+      {
+        "type": "Product",
+        "name": "Foundry",
+        "description": "The platform whose APIs are accessed through both Platform SDKs and OSDKs."
+      }
+    ],
+    "extractedRelationships": [
+      {
+        "source": "OSDK",
+        "relationship": "BUILT_ON",
+        "target": "Platform SDK"
+      },
+      {
+        "source": "Object Type",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "Action Type",
+        "relationship": "EXPOSED_BY",
+        "target": "OSDK"
+      },
+      { "source": "Function", "relationship": "EXPOSED_BY", "target": "OSDK" },
+      { "source": "Interface", "relationship": "EXPOSED_BY", "target": "OSDK" },
+      {
+        "source": "Platform SDK",
+        "relationship": "PART_OF",
+        "target": "Foundry"
+      },
+      { "source": "OSDK", "relationship": "PART_OF", "target": "Foundry" },
+      {
+        "source": "Per-Enrollment Code Generation",
+        "relationship": "DEFINED_BY",
+        "target": "OSDK"
+      },
+      {
+        "source": "SDK Abstraction Layers",
+        "relationship": "ENABLES",
+        "target": "Object Type"
+      }
+    ],
+    "keyInsights": [
+      "Palantir offers a two-tier SDK architecture: Platform SDKs for generic Foundry API access, and OSDKs for enrollment-specific typed Ontology access built on top of Platform SDKs.",
+      "OSDKs generate enrollment-specific code (e.g., an Employee class for an Employee object type), providing a significantly more intuitive developer experience than generic API wrappers.",
+      "Platform SDKs should be used when not reading/writing Ontology data, automating admin/governance tasks, or building cross-enrollment portable applications.",
+      "OSDKs should be used when building applications that primarily read and write Ontology data, as they provide the most developer-friendly typed interface.",
+      "Platform SDKs are currently available in Python and TypeScript, while OSDKs support Python, Java, and TypeScript."
+    ]
+  }
+]

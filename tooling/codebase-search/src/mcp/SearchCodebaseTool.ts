@@ -1,0 +1,144 @@
+/**
+ * MCP tool definition and handler for `search_codebase`.
+ *
+ * @since 0.0.0
+ * @module
+ */
+
+import { Effect } from "effect";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
+import type { EmbeddingModelError, IndexingError, IndexNotFoundError, SearchTimeoutError } from "../errors.js";
+import { LanceDbWriter, type StoredSymbolRecord } from "../indexer/index.js";
+import { HybridSearch, type HybridSearchConfig } from "../search/index.js";
+import { McpErrorResponseSchema } from "./contracts.js";
+import { type FormattedSearchResult, formatSearchResults, type RawSearchResult } from "./formatters.js";
+
+/**
+ * Handle `search_codebase` invocation.
+ *
+ * @since 0.0.0
+ * @category handlers
+ */
+export const handleSearchCodebase: (params: {
+  readonly query: string;
+  readonly kind?: string | undefined;
+  readonly package?: string | undefined;
+  readonly limit?: number | undefined;
+}) => Effect.Effect<
+  FormattedSearchResult,
+  IndexingError | IndexNotFoundError | EmbeddingModelError | SearchTimeoutError,
+  HybridSearch | LanceDbWriter
+> = Effect.fn(function* (params: {
+  readonly query: string;
+  readonly kind?: string | undefined;
+  readonly package?: string | undefined;
+  readonly limit?: number | undefined;
+}) {
+  const hybridSearch = yield* HybridSearch;
+  const lanceDb = yield* LanceDbWriter;
+
+  const limit = pipe(
+    O.fromNullishOr(params.limit),
+    O.map((value) => Math.max(1, Math.min(20, value))),
+    O.getOrElse(() => 5)
+  );
+
+  // Fetch a wider candidate set when strict filters are present so final
+  // filtering is applied before user-visible truncation.
+  const candidateLimit = params.kind !== undefined || params.package !== undefined ? 20 : limit;
+
+  const config: HybridSearchConfig = {
+    query: params.query,
+    limit: candidateLimit,
+    kind: params.kind,
+    package: params.package,
+  };
+
+  const hybridResults = yield* hybridSearch.search(config);
+  const ids = A.map(hybridResults, (result) => result.symbolId);
+  const symbolRows: ReadonlyArray<StoredSymbolRecord> = A.isReadonlyArrayNonEmpty(ids)
+    ? yield* lanceDb.list({ ids })
+    : A.empty<StoredSymbolRecord>();
+  const rowById = MutableHashMap.empty<string, StoredSymbolRecord>();
+
+  for (const row of symbolRows) {
+    MutableHashMap.set(rowById, row.id, row);
+  }
+
+  const merged: ReadonlyArray<RawSearchResult> = pipe(
+    hybridResults,
+    A.map((result): RawSearchResult => {
+      const row = pipe(MutableHashMap.get(rowById, result.symbolId), O.getOrUndefined);
+      return {
+        symbolId: result.symbolId,
+        score: result.score,
+        vectorRank: result.vectorRank,
+        keywordRank: result.keywordRank,
+        name: row?.name,
+        kind: row?.kind,
+        package: row?.package,
+        module: row?.module,
+        filePath: row?.filePath,
+        startLine: row?.startLine,
+        description: row?.description,
+        signature: row?.signature,
+      };
+    })
+  );
+
+  const filtered = A.filter(merged, (result) => {
+    if (params.kind !== undefined && result.kind !== params.kind) {
+      return false;
+    }
+    return !(params.package !== undefined && result.package !== params.package);
+  });
+
+  const limited = A.take(filtered, limit);
+
+  return formatSearchResults(
+    limited,
+    {
+      kind: params.kind ?? null,
+      package: params.package ?? null,
+    },
+    "hybrid"
+  );
+});
+
+/**
+ * MCP tool: semantic + keyword hybrid search.
+ *
+ * @since 0.0.0
+ * @category tools
+ */
+export const SearchCodebaseTool = Tool.make("search_codebase", {
+  description: "Search for code symbols using hybrid vector and BM25 retrieval.",
+  parameters: S.Struct({
+    query: S.String.annotate({
+      description: "Natural language search query for finding code symbols.",
+    }),
+    kind: S.optionalKey(
+      S.String.annotate({
+        description: "Optional filter by symbol kind (schema, service, layer, error, etc.).",
+      })
+    ),
+    package: S.optionalKey(
+      S.String.annotate({
+        description: "Optional filter by package name (for example, @beep/repo-utils).",
+      })
+    ),
+    limit: S.optionalKey(
+      S.Number.annotate({
+        description: "Maximum number of results (1-20, default 5).",
+      })
+    ),
+  }),
+  success: S.Unknown,
+  failure: McpErrorResponseSchema,
+  dependencies: [HybridSearch, LanceDbWriter],
+});

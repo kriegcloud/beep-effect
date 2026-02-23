@@ -1,0 +1,106 @@
+Object and link types • Link types • Metadata reference • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Object and link types Link types Metadata reference 
+
+ Metadata reference
+
+A link type is represented in the Foundry Ontology by the following metadata:
+
+ ID: A unique identifier of the link type, primarily used to reference links of this type when configuring an application. For example, employee-employer may be the ID of the link type defined between the Employee and Company object types.
+
+ RID: An automatically generated unique identifier for every resource in Foundry. A link type’s RID will be referenced in error messages across the platform.
+
+ Status: A signal to users and other Ontology builders about where in the development process the link type stands. It can be active , experimental , or deprecated . By default, the Employee → Employer link type will have status experimental . Read more about statuses .
+
+ Object types: The object types related through the link type definition. For example, the Employee → Employer link type will refer to the Employee and Company object types.
+
+ Cardinality: Indicates to applications if each object type in the link type has one or many objects. For example, The Employee object type in link type Employee → Employer has cardinality many and the Company object type has cardinality one , since many employees are linked to a single employer. The Employee object types in link type Direct Report ↔ Manager will each have cardinality many if a direct report can have multiple managers and if a manager can have multiple direct reports.
+
+ Key: The properties or columns used to create the links.
+
+In a one-to-one or in a one-to-many cardinality link type, a property of one object type (the foreign key) refers to the primary key property of the other object type. This reference between a foreign key and primary key defines the links between objects. For example, in the Employee → Employer link type, the Employee object type may have an employer ID property (the foreign key) that refers to the company ID property (primary key) of the Company object type.
+
+In a many-to-many cardinality link type, a table containing pairs of primary keys defines the links between two objects. These link types require a join table to be specified, along with mapping these keys that tell applications which columns in the join table refer to the primary keys of which object types in the link type. For example, the join table backing the Direct Report ↔ Manager link type might contain pairs of employee numbers , for which each pair represents a Direct Report ↔ Manager link.
+
+ Display name: The name shown to anyone accessing a link of this type in user applications. Each side of a link type has a display name. A side of a link type represents the link to that object type. For example, In the Employee → Employer link type, the display name for the Employee object type is Employee and the display name for the Company object type is Employer .
+
+ Plural display name: The name shown to anyone accessing a link of this type with many linked object types in user applications. For example, In the Employee → Employer link type, the plural display name for the Employee object type is Employees and there is no plural display name for the Company object type, as there can only be one company per employee.
+
+ API name: The name used when referring to the link type programmatically in code. The API name on a side of a link type can be used to return objects of that type. For example, if the API name on the Employee side of the Employee → Employer link type is employee , then calling Company.employee.get() will return the Employee objects linked to those Company objects. Read more about API names .
+
+ Visibility: An indication to user applications for how prominently to display the side of the link type (referring to links to the object type on that side). A prominent side of a link type will lead applications to show this side of the link type first to users. A hidden side of a link type will not appear in user applications. By default, the Employee and Company sides of the link type will have visibilities normal .
+
+ Type classes: Additional metadata that are interpreted by user applications. Read more about type classes .
+
+ Learn more about creating and configuring a link type in the Ontology and about validation requirements for link type metadata. 
+
+ Learn more about properties (characteristics of an object type). 
+
+ ← 
+ PREVIOUS Edit link types 
+
+ NEXT Allow users to edit objects and links 
+ →

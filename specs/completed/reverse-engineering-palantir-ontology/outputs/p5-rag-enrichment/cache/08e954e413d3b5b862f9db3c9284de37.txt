@@ -1,0 +1,221 @@
+Requirements for AI in Production in Insurance Underwriting
+Palantir
+Follow
+17 min read
+·
+Feb 7, 2025
+
+39
+
+1
+
+Press enter or click to view image in full size
+Introduction
+
+Large language models present both massive opportunities and significant complexities for the insurance industry. Insurers can use AI to increase operational efficiency, improve the accuracy of underwriting decisions, enhance customer experience, and more effectively coordinate with partners. Yet in a heavily-regulated industry like insurance, ensuring objectivity and the appropriate level of human oversight in policy underwriting is legally and ethically crucial, and governing AI at scale requires management and orchestration.​
+​
+Insurers face increasing scrutiny about how they plan to deploy AI — scrutiny that will carry profound legal and financial implications. For example, the National Association of Insurance Commissioners Bulletin on Use of Artificial Intelligence Systems by Insurers states that insurers are expected to adopt practices, such as governance frameworks and risk management protocols, designed to ensure that the use of AI systems does not result in unfair practices. [1] ​
+
+As of January 3, 2025, 21 jurisdictions have now formally adopted this bulletin. Regulatory and law enforcement agencies will carefully examine how insurers use AI to make decisions or support actions that impact consumers. ​
+​
+Through our extensive experience partnering with several major industry institutions grappling with these challenges, we have developed a set of best practices that we believe are crucial for enabling insurance institutions to deploy AI in production in accordance with, and anticipating, the most rigorous legal, regulatory, and ethical considerations.​
+​
+In this blog post, which uses underwriting as an example core insurance business application, we provide an outline of these best practices, organized according to the following core themes: ​
+​
+1. Understandable — AI results must be interpretable and understandable.​
+
+2. Integrated — AI must be deeply integrated with existing business systems and processes.​
+
+3. Governed & Secure — AI must be securely governed and controlled at scale. ​
+
+Insurers seeking to introduce AI must protect themselves by making their AI-based processes explainable, traceable, and auditable. And those that master these capabilities now will turn AI governance from a regulatory burden into a strategic weapon, seizing a decisive competitive edge.​
+
+Deploying AI for Underwriting
+
+AI within underwriting can enable underwriters to make better, faster and more consistent decisions. In addition to helping to reduce operational costs, it can help advance key underwriting KPIs, such as quote-to-bind ratios, gross/net premium, renewal retention, and ultimately, impact the loss ratio. It can enable better risk selection and vetting through improved data extraction and research (e.g., human rights considerations), facilitate fluid communications with partners, increase speed to decision, and support underwriter due diligence. And it can enhance integration with the deal lifecycle, from initial quote to closing.​
+​
+More specifically, insurers can deploy AI within underwriting across the following steps: ​
+
+Data Extraction: LLMs can be used to rapidly extract relevant data from submissions + attachments by detecting relevant fields within unstructured data, PDFs, loss runs, broker emails, etc.​
+
+Research Due Diligence: LLMs can be used as a research assistant, pulling in relevant information for the underwriting decision from internal or external sources. This could be by mapping extracted data to internal historical data (e.g., this submission is linked to an existing policyholder), or by researching across any number of external sources (e.g., this person or company requesting insurance was recently involved in a particular news story). ​
+
+Exception Alerting: LLMs can be used to generate alerts for underwriters by automatically detecting and flagging exceptions to business underwriting standards (either qualitative or quantitative). This can also be used to triage or prioritize the submissions which most adhere to desired type of risk the business wants to underwrite.​
+
+Communication: LLMs can be used facilitate faster communication by generating suggested responses to the broker/agent based on the prior combination of automated flags generated and Human-In-The-Loop interventions.​
+
+Making AI Results Understandable
+Data Transparency & Traceability
+
+For insurance companies using AI on a large scale, it’s crucial to have a clear and detailed understanding of how their data is being used and processed. This means being able to trace the journey of data from its original sources through various AI systems and processes at the most granular level. To do so, insurers must build a full, branched data lineage showing how data has flowed from all source systems and inputs. Such a data tree empowers them to monitor how well each AI tool or process is performing, identify the impact of any changes made to AI systems, and provide complete transparency for audits and regulatory compliance. This capability is vital for several classes of data, including:​
+
+External broker-forwarded email submissions​
+Various types of submission documents​
+Customer demographics​
+Sensitive financial information​
+Publicly available information​
+Historical client and internal information​
+For any individual prompt or agent, detailed information should also be available, including:​ How was a prompt or component tested and promoted through environments?​
+What prompts are being run in which environment at any given time?​
+
+For any individual executable prompt, organizations should be able to identify:​
+
+The version that was running​
+The data used as inputs​
+The parameters used as inputs​
+The logic the LLM employed to make decisions​
+Any API errors encountered during execution​
+Any errors from the LLM in extracting relevant data​
+
+This comprehensive monitoring becomes deeply integrated with evaluations, giving organizations a full sense of ownership over the agents running across their systems, providing insights into performance, and helping to identify where degradation may be occurring.​
+​
+Furthermore, without the ability to conduct thorough analysis of data across versions, branches and history, organizations face a high risk of introducing biases into decision-making, which can include: ​
+
+Historical Data Biases: Historical data can contain and perpetuate biased decision-making in insurance.​
+Biases from Insufficient Obfuscation of Attributes: While removing protected attributes (i.e., race, gender, demographics) from training datasets can help reduce bias, any field might unknowingly act as a proxy for discriminatory practices. Since this cannot be determined a priori, insurers must check for correlations between data within training sets or prompt inputs and protected attributes. This necessitates structured and scheduled statistical analysis at scale to explicitly test for such correlations and ensure fairness.​
+Structured Experimentation and Iterative Improvement
+
+Transitioning to AI-driven solutions in insurance requires a structured approach to experimentation: one that involves rigorous planning and phasing. Any AI underwriting system will typically be highly complex, consisting of hundreds of different prompts and many agents. A structured approach to testing and experimenting with AI systems allows insurers to fine-tune their tools effectively, adapt to new business areas, and ensure all important factors are considered when making changes. ​
+
+Broadly speaking, a platform for structured experimentation should consist of the following steps:​
+
+Conducting In-Depth Data Analysis: Data scientists should perform up-front, comprehensive analysis around the fidelity of training and evaluation data. They should assess data quality, scrutinizing the features used to train and evaluate models, and validate that the data is representative of production-level distributions. ​
+Planning For Data Acquisition and Compliance: Organizations must plan in advance to obtain the necessary approvals, legal or otherwise, to train on a given set of data. ​
+Designing an Iterative Testing Framework: Designing a framework that allows for iterative testing at scale is crucial. Time spent manually manipulating prompts can slow innovation and adoption.​
+Defining Success Criteria Upfront: Since KPIs and success metrics can be subjective, organizations should define the standard of acceptable performance from their workflow early on and encode metrics as part of the evaluation process. They can use existing benchmarks to help inform this standard and develop a clear understanding of how they might use them to measure AI performance.​
+Designing for Reliability
+
+When integrating LLMs into critical business processes like underwriting, organizations must ensure accuracy, consistency, and auditability. Proper LLM orchestration can address these concerns, allowing organizations to assure reproducibility (e.g., get the same output for the same input from the LLM) in scaled statistical tests: ​
+
+Semantic Record-keeping (for Auditing and Analysis): It is essential to capture AI inputs, outputs, and key intermediate steps (e.g., retrievals, reasoning) as they map to business process steps and decisions. This creates an auditable record of how decisions were made, which can be used in human-review applications, as well as analytical validations around determinism, reliability, and more. [2]​
+Version pinning: Organizations should ensure that they can pin specific API versions and use them as separate models. Doing so creates transparency around which version of a model API is in use, and enables rails around the upgrade process (branching, unit testing, test sets, and the like). [3]​
+Default temperature of 0: The temperature for LLMs is set to 0 by default, although it can be overridden by developers. [4]​
+Incremental Computation: Organizations should be able to perform incremental computation with intermediate results materialized. Developers can configure whether small changes in prompts should invalidate existing pre-computations, or whether the prior outputs should continue to be used.​
+Designing for Reliability
+Automatic Corrections: Strong conversational models can adjust their outputs when given conversational feedback. Organizations must implement technical solutions that allow several forms of feedback to be given automatically — for example, malformed outputs, outputs that hallucinate objects, and invalid tool calls result in an automated correction message being sent. Doing so creates a control system around any LLM block that only returns when the required exiting conditions are met. It also improves output-consistency of reasoning processes on fixed inputs as well as across all input instances. [5]​
+Reflection: The output of a given LLM block can be post-processed by a follow-on LLM block that prompts the model to consider a range of factors — such as any failed validations, relevant prior inputs and outputs, and learnings and guidance from human feedback — and re-adjust its outputs. Post-processing improves the output consistency of reasoning processes on fixed inputs and on all input instances. Additionally, human feedback can be used to target specific errors or gaps in the model’s domain knowledge, improving accuracy and reliability.​
+Monitoring: Certain inconsistencies or issues may not be obvious from unit tests at development time, but may only appear when analyzing model outputs in bulk. Organizations must set up monitoring pipelines based on deterministic logic as well as LLMs to surface potential issues.​
+K-LLM: Different models exhibit different levels of consistency and reliability, in different scenarios. It is essential to have a technical setup which is model agnostic, and enables insurers (at their discretion) to use multiple LLMs in tandem to achieve greater reliability.​
+Ensuring AI Is Integrated
+External System Integrations
+
+Insurers introducing LLMs must integrate them with existing business systems to ensure that they are auditable, manageable, and impactful at scale. ​
+​
+Underwriting typically crosses multiple technical systems, including email servers (where submissions typically land), data lakes, transactional policy systems, underwriting workbench systems, and open source and external APIs. To provide meaningful and accurate output, any AI platform must bi-directionally integrate with such systems in a flexible and configurable way. ​
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+On the input side, such integration requires an extensible data connection framework that establishes connections with all types of source systems — structured, unstructured, or semi-structured — and with all key data transfer approaches, such as batch, micro-batch, or streaming. For example, to perform an underwriting analysis, insurers may need to integrate (1) inbound emails from brokers, including all attachments; (2) historical policy and claims information; and (3) live external sources of information. ​
+​
+On the output side, any decisions, transactions or updates undertaken by the AI must write back to systems of record. For example, if the AI system (1) extracts information from submission attachments; (2) generates alerts against underwriting standards; and (3) assigns a prioritization to the new submission, to be operationally useful, it must instantaneously write back such information to multiple systems. Specifically, any changes made to data, property values, or links should be recorded when the LLM takes an Action so that it can be reflected in all user applications.​
+
+Scaling Orchestration
+
+Organizations typically first implement AI underwriting systems within a specific sub-line of business as a Proof of Concept, and then later establish a roadmap for scaling LLMs across their enterprise. As they do so, they must ensure that the orchestration layer itself permits scalability, in the following ways: ​
+
+Scalable compute: An insurer’s underwriting system responds to inbound submissions as they arrive. Submission rates may scale up or down quickly during particular renewal cycles or seasons, and the system must automatically adjust compute resources accordingly. Doing so typically requires an independent, deployable and scalable micro-services architecture, with the ability to manage containerized applications. This architecture allows for dynamic and fine-grained control of scaling of specific components based on demand.​
+Timeouts and Rate-Limiting: The technical system should also support rate limiting the total number of requests. Similarly, organizations should enforce token limits to ensure each individual call made is below a set threshold. Timeouts should be enforced to ensure that individual requests by LLMs do not recur indefinitely. Organizations should also implement granular levels of restriction to limit threats via resource exploitation.​
+Resource management for agent tool use: The system should allow resource management of non-LLM computation generated by LLM-powered agents, at both the agent and invoking user/group levels, to enable overall system scalability. The system should allow developer users to validate and/or sanitize input prior to making LLM calls and enforce assertions on outputs (e.g., struct fields). This approach also allows for protections against unexpected tool use and malicious inputs designed to generate expensive tool calls.​
+Human In the Loop Requirement
+
+Although many believe that AI can or will soon be able to replace humans in operational workflows — and many AI products market themselves as such — we believe that human judgment remains critical. From both a quality and compliance perspective, insurers cannot solely rely on AI to decide on underwriting an insurance policy or whether to approve or reject a claim. Our work in the insurance industry leverages AI to augment, not replace, human analysis: to simplify, automate, and improve the quality of tasks such as ingesting, processing, and extracting multi-modal data, thereby empowering humans to make better decisions.​
+​
+AI solutions that seek to remove the need for human reasoning present a variety of concerns for the insurance industry. LLMs can function as “black boxes,” making it difficult to audit and understand the reasoning behind their outputs. And attempting to replace humans with LLMs alone — especially in such a critical industry — would undermine consumer confidence. ​
+​
+Fundamentally, humans are essential for auditing and evaluating production performance. In production-level workflows, humans are involved in editing LLM extractions, allowing capture of real-world evaluation data that can be reintroduced into the experimentation process, and serves as an indicator for the performance of the LLM. This human intervention acts as a powerful proxy for assessing production performance, ensuring that the AI system continues to operate effectively and in alignment with compliance requirements.​
+​
+Within underwriting specifically, there are three key reasons humans remain essential to the underwriting process: ​
+
+Accountability: An AI cannot be legally or ethically accountable to an underwriting decision, only a human can be. ​
+Relationships: Insurance is fundamentally an industry built on trust. Human relationships and building trust with brokers, agents and customers remains the lifeblood of insurance practices. ​
+Complex Decision Making: Underwriting decisions are complex and massively material. Only humans can make final judgments with every myriad factor in mind. ​
+Application of CI/CD Principles
+
+Insurance IT requirements are often rigid and unaccommodating for fast-moving innovation. Less structured workflows, such as AI augmentation, must meet these IT demands. Therefore, while building and deploying AI use cases, insurance leaders should expect to follow similar Continuous Integration/Continuous Deployment (CI/CD) workflows, such as in a traditional software promotion path. In the context of introducing LLMs, following CI/CD requires branching support for the LLM-powered workflows. Just like code, LLM prompts should be promoted across environments, from feature branches to staging to production. Teams must test any iteration of a prompt to ensure there is no degradation in performance between branches, environments and/or versions. To reduce time spent on the technical development of CI/CD workflows, and invest more time in recognizing AI value proposition, insurers should choose a platform that supports native and granular CI/CD. ​
+
+As part of release cycles, IT departments of traditional insurance companies will require the kinds of integration and functional testing common in code releases. They will need to understand the non-determinism of AI (i.e., the fact that an LLM can give different responses to the same single input) and account for this phenomenon in production testing strategies. ​
+
+Several mechanisms can reduce the risk that a small prompt or logic change will have large, inadvertent consequences:​
+
+Prompt Versioning & Branching: Prompts should be versioned, and applications (including connections to front-end systems such as underwriting or claims systems) should have the ability to pin, upgrade, and roll back selected prompt versions (with branch support).​
+Tool Logic Versioning & Branching: Changes to prompt engineering, tools, external functions, and logic flows should be fully branch-aware, meaning changes can be tested on historical data to understand consistency (and unwanted degradations) between old and new behavior. ​
+Unit tests: Should be configured on prompt logic and run pre-publish, to check for changed behavior in common test cases from the evaluation set. [6]​
+Incremental Compute & Caching: Changes going forward need not trigger a re-computation of previously run outputs, unless desired. The re-run can also be tested on a branch against historical data (per above), to inform this decision.​
+LLM Security: Prompt Injections
+
+Insurers must account for several security concerns when implementing AI. Addressing each of the below concerns at a platform level is paramount to protecting an insurance company’s overarching security posture.
+
+Gating sources of prompt injections:​
+
+For RAG-based architectures that leverage structured records and human feedback, data should be heavily curated via a core semantic layer, subject to tight write-permissioning and data health checks. Pipelines backing this core semantic layer should be configured and governed via structured processes.​
+Tools useable in LLM workflows should be permission-configurable, and the tools themselves run in low-trust execution sandboxes, with rigorously controlled network access and additional controls for available external packages. Collectively, these steps reduce surface area for malicious tool code to generate prompt injection attacks.​
+
+Reducing the injection surface area:​
+
+Each modular step within the AI-driven process must minimize the scope of data and tool access; as the process continues, scope and access should narrow.​
+For example, a data extraction step could have access to raw documents (but no additional tools), with the constraint of producing valid extracted fields; a subsequent calculation step or action step could have access to models and actions, without having access to query the raw input data. These methods prevent any stage of reasoning in which raw data or inadvertent combination of data and tools could directly impact a decision.​
+Intermediate outputs create an intentional information bottleneck to prevent raw/untrusted data from propagating between steps, and is also a natural junction for automated validations.​
+
+Mitigating consequences of prompt injections:​
+
+Modularity (plus tool scope and schema safety) reduces the number of steps at which a malicious action can be taken — even if malicious data is successfully injected into the context window.​
+Tool execution in tightly controlled environments limits exploit surface area.​
+Use of permission-defined user tokens provides additional gates for which tools and actions can be preformed, and by which users. ​
+Human review and approval should be a native feature. Organizations should set specific thresholds for approval, and should implement mandatory input and output validation.​
+Automated actions should be permitted to run on a fork (or “branch”) of the data model. Doing so enables modular, event-driven design of AI systems that can run safely end-to-end and accelerate workflows without requiring human input every step of the way. The final set of actions or decisions can be human determined.​
+
+Monitoring & alerting:​
+
+Comprehensive audit logging enables security, audit, and compliance workflows. Logs can be used for detecting indicators of prompt injection, or investigating potential issues. ​
+Alert pipelines running in parallel can surface unexpected or unwarranted data within prompt instructions for immediate action or execution failure.​
+LLM Security: Data Leakage & Access Controls
+
+Strict access controls must be a first-class feature of any AI solution. LLMs should be harnessed using a strong, role-based access control system. The technical solution should mitigate against risks of data leakage through the following key features.
+
+Just-in-time gates to LLM inputs:​
+
+Inputs to LLMs should be generated programmatically using structured (or semi-structured) data records via the orchestrator service. This enables technical enforcement of user-centric permissions, such as ensuring the LLM only can access and return data to which the user already has access.​
+For example, if an LLM is equipped with a Retrieval Augmented Generation (RAG) tool, the orchestration service can enforce that the only similarity-search results returned to the LLM are ones that the invoking user has access to.​
+
+Constraining and scrubbing LLM-generated outputs:​
+
+Granular permissions should be used as needed to set derived controls on LLM-generated outputs (e.g., summaries) as a function of their inputs.​
+Struct-based returns should be enforced where possible, to ensure that output from LLM-based tools contain only expected parameters and their corresponding expected types. Doing so has two key benefits:​ (1) Minimization: This approach helps prevent data leakage of sensitive intermediate results, through excessive or irrelevant narrative output; and (2) Citations: This approach helps make it easier to pass auxiliary information like citations, which can then be automatically cross-referenced with enterprise data stores to determine which access controls should apply to the output.​
+The system should enable additional validations of output content based on instance-specific risks. Effective techniques include LLM reflection, LLM-powered validations (or “LLM-as-Judge”), and Regular Expression checks. [7]​
+In cases where risk is extremely high, the system should enable triage of outputs for human review.​
+
+Preventing sensitive data from getting trained (or fine-tuned) into LLMs:​
+
+Generally, approaches like RAG and tool use are much more granularly governable than approaches involving model fine-tuning, model distillation, or other training.​
+When models are trained or tuned, they should generally be treated with the highest level of sensitivity across the input training data, barring extensive validation and guardrails. As such, organizations should retain full control over training, embeddings, and access controls.​ Implementation of strong gates, such as mandatory markings, ensure that sensitive datasets can be technically precluded from use in LLM requests or within AI models more generally.​
+In-context feedback loops provide significantly higher governability, and faster learning. In this approach, end user learnings are captured as data (with granular permissions), programmatically or manually curated and scrubbed as needed, and fed back to AI via prompt templates, few-shot examples, RAG-based feedback. The curation step enables governance and versioning of learnings, and the orchestrator service can enforce record-level permissions on those learnings.​
+LLM Security: Prevention Privilege Escalation and Remote Code Execution
+
+Any AI system is particularly vulnerable to XSS, CSRF, SSRF, privilege escalation and remote code execution that could occur if plugins or backend functions accepts un-scrutinized LLM output. Preventing these vulnerabilities requires protections against a variety of security breaches, including unauthenticated access; actions by users that do not correspond to their authorization role; unauthorized user session interception; unauthorized interception or insertion of data; injection, XSS (Cross-site scripting); and other security breaches. Recommended protection measures include (but are not limited to) the following: ​
+
+Role-based access controls: Implement a granular role-based access control framework that assigns each user a list of allowed actions with regard to specific platform resources (e.g., to read, write, or change permissions on a certain piece of data). This protects against the ability of users to take actions beyond their authorization roles by limiting potential escalation of privileges within the system and responding to any detected escalations as/when they occur.​
+IP whitelists: Funnel all traffic through gateway hosts that scan and restrict access via IP whitelists. Traffic should only be allowed on a whitelist-basis (ingress and egress), must traverse a NIDS sensor, and must comply with appropriate network security controls as dictated by Information Security teams. Permitted connections to the system should then subject to user authentication and authorization, both at the login stage and upon all requests to access resources in the platform.​
+Time-to-live period: Impose a time-to-live period on session and login tokens to protect against session interception. After the token expires, the user is required to re-login.​
+Conclusion
+
+AI can fundamentally transform the insurance industry. Insurers that rush to implement AI that is not auditable or secure will expose themselves to legal and commercial risk and offer little more than a chat bot. Those that adopt systems capable of implementing the governance, security, orchestration and reliability frameworks outlined in this post, however, will guard themselves from those risks while gaining a significant competitive advantage. ​
+
+References
+
+[1] NAIC Model Bulletin: Use of Artificial Intelligence Systems by Insurers: https://content.naic.org/sites/default/files/inline-files/2023-12-4%20Model%20Bulletin_Adopted_0.pdf​
+​
+[2] Thinking Outside the (Black) Box (Engineering Responsible AI , #2: https://blog.palantir.com/thinking-outside-the-black-box-24d0c87ec8a5​
+​
+[3] Note: Model drift is still possible due to systems-level subtleties on the model vendor side, so this is helpful but insufficient on its own.​
+​
+[4] Note: This is necessary but insufficient on its own. Even at temperature 0, and without model drift, commercial models can return results non-deterministically as a function of real-time inferencing minutiae, such as batching, distribution, and ensemble/cascade techniques (which are largely abstracted from the consumer). ​
+​
+[5] Reducing Hallucinations with the Ontology in Palantir AIP (Engineering Responsible AI , #1): https://blog.palantir.com/reducing-hallucinations-with-the-ontology-in-palantir-aip-288552477383​
+​
+[6] From Prototype to Production (Engineering Responsible AI, #3): https://blog.palantir.com/from-prototype-to-production-engineering-responsible-ai-3-ea18818cd222 ​
+​
+[7] Evaluating Generative AI (Engineering Responsible AI, #4): https://blog.palantir.com/evaluating-generative-ai-a-field-manual-0cdaf574a9e1​

@@ -1,0 +1,106 @@
+AIP Agent Studio • Overview • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ AI Platform (AIP) AIP Agent Studio Overview 
+
+ AIP Agent Studio
+
+ AIP Agent Studio allows users to build interactive assistants, known as AIP Agents, that are equipped with enterprise-specific information and tools, deployable internally in the platform and externally through the Ontology SDK and platform APIs .
+
+Agents built in AIP Agent Studio are powered by large language models (LLMs), the Ontology, documents, and custom tools. AIP Agents can be integrated into applications to facilitate dynamic, context-aware read and write workflows that enable you to automate tasks and reduce manual application interactions.
+
+The following example shows an AIP Agent that uses an application variable to take a filtered object set of video transcripts as context when answering user questions about the recent press conference from the Federal Reserve.
+
+The above AIP Agent can also be deployed in a Workshop application that enables users to interact with the selected video.
+
+AIP Agent Studio is built on the same rigorous security model that governs the rest of the Palantir platform. These platform security controls grant an LLM access only to what is necessary to complete a task.
+
+ Build AIP Agents
+
+To get started with AIP Agents and create increasingly complex, automated workflows, we recommend using the agent tier framework, where each tier increases in complexity and automation.
+
+ Tier 1: Ad-hoc analysis
+
+New to AIP or LLMs? Start with AIP Threads to better understand how LLMs can help you improve productivity. Use AIP Threads for ad-hoc document analysis by dragging and dropping documents to get relevant LLM-powered answers.
+
+ Tier 2: Task-specific agent
+
+Upgrade ad-hoc thread configurations from AIP Threads to AIP Agents for reusability, with granular permissions and configuration options in AIP Agent Studio . Agents can use Ontology, document, or custom function-backed context, allowing for more targeted and specific interactions. You can build and deploy these agents from AIP Agent Studio. You can use AIP Agents in AIP Threads or OSDK applications with platform APIs .
+
+ Tier 3: Agentic application
+
+Incorporate AIP Agents into Workshop using the AIP Agent widget or third-party OSDK applications using Developer Console and platform APIs. Configure variables on your agent to allow it to read from and update the application state .
+
+ Tier 4: Automated agent
+
+Automate and delegate tasks to your agent, enabling agents to handle complex workflows autonomously. Start by publishing your agent as a function and pulling it into AIP Automate .
+
+Learn more about the core concepts of AIP Agent Studio or get started with building an AIP Agent.
+
+ ← 
+ PREVIOUS Bring your own model / Use registered LLM 
+
+ NEXT Core concepts 
+ →

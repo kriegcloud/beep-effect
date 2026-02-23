@@ -2,8 +2,10 @@
  * @since 4.0.0
  */
 
+/** @effect-diagnostics schemaStructWithTag:skip-file */
 import type { StandardJSONSchemaV1, StandardSchemaV1 } from "@standard-schema/spec"
 import * as Arr from "./Array.ts"
+import * as BigDecimal_ from "./BigDecimal.ts"
 import type * as Brand from "./Brand.ts"
 import * as Cause_ from "./Cause.ts"
 import type * as Combiner from "./Combiner.ts"
@@ -12,13 +14,15 @@ import * as DateTime from "./DateTime.ts"
 import type { Differ } from "./Differ.ts"
 import * as Duration_ from "./Duration.ts"
 import * as Effect from "./Effect.ts"
-import * as Base64 from "./encoding/Base64.ts"
+import * as Encoding from "./Encoding.ts"
 import * as Equal from "./Equal.ts"
 import * as Equivalence from "./Equivalence.ts"
 import * as Exit_ from "./Exit.ts"
 import type { Formatter } from "./Formatter.ts"
 import { format, formatDate, formatPropertyKey } from "./Formatter.ts"
 import { identity } from "./Function.ts"
+import * as HashMap_ from "./HashMap.ts"
+import * as HashSet_ from "./HashSet.ts"
 import * as core from "./internal/core.ts"
 import * as InternalAnnotations from "./internal/schema/annotations.ts"
 import * as InternalArbitrary from "./internal/schema/arbitrary.ts"
@@ -321,7 +325,7 @@ export declare namespace Schema {
   /**
    * @since 4.0.0
    */
-  export type Type<S extends Top> = S["Type"]
+  export type Type<S> = S extends Top ? S["Type"] : never
 }
 
 /**
@@ -349,15 +353,15 @@ export declare namespace Codec {
   /**
    * @since 4.0.0
    */
-  export type Encoded<S extends Top> = S["Encoded"]
+  export type Encoded<S> = S extends Top ? S["Encoded"] : never
   /**
    * @since 4.0.0
    */
-  export type DecodingServices<S extends Top> = S["DecodingServices"]
+  export type DecodingServices<S> = S extends Top ? S["DecodingServices"] : never
   /**
    * @since 4.0.0
    */
-  export type EncodingServices<S extends Top> = S["EncodingServices"]
+  export type EncodingServices<S> = S extends Top ? S["EncodingServices"] : never
   /**
    * @since 4.0.0
    */
@@ -1804,11 +1808,6 @@ export declare namespace Record {
   /**
    * @since 4.0.0
    */
-  export type Record = Record$<Record.Key, Top>
-
-  /**
-   * @since 4.0.0
-   */
   export type Type<Key extends Record.Key, Value extends Top> = Value extends
     { readonly "~type.optionality": "optional" } ?
     Value extends { readonly "~type.mutability": "mutable" } ? { [P in Key["Type"]]?: Value["Type"] }
@@ -1864,14 +1863,14 @@ export declare namespace Record {
 /**
  * @since 4.0.0
  */
-export interface Record$<Key extends Record.Key, Value extends Top> extends
+export interface $Record<Key extends Record.Key, Value extends Top> extends
   Bottom<
     Record.Type<Key, Value>,
     Record.Encoded<Key, Value>,
     Record.DecodingServices<Key, Value>,
     Record.EncodingServices<Key, Value>,
     AST.Objects,
-    Record$<Key, Value>,
+    $Record<Key, Value>,
     Simplify<Record.MakeIn<Key, Value>>,
     Record.Iso<Key, Value>
   >
@@ -1893,7 +1892,7 @@ export function Record<Key extends Record.Key, Value extends Top>(
       readonly encode?: Combiner.Combiner<readonly [Key["Encoded"], Value["Encoded"]]> | undefined
     }
   }
-): Record$<Key, Value> {
+): $Record<Key, Value> {
   const keyValueCombiner = options?.keyValueCombiner?.decode || options?.keyValueCombiner?.encode
     ? new AST.KeyValueCombiner(options.keyValueCombiner.decode, options.keyValueCombiner.encode)
     : undefined
@@ -1912,7 +1911,7 @@ export declare namespace StructWithRest {
   /**
    * @since 4.0.0
    */
-  export type Records = ReadonlyArray<Record.Record>
+  export type Records = ReadonlyArray<$Record<Record.Key, Top>>
 
   type MergeTuple<T extends ReadonlyArray<unknown>> = T extends readonly [infer Head, ...infer Tail] ?
     Head & MergeTuple<Tail>
@@ -2244,14 +2243,14 @@ export function TupleWithRest<S extends Tuple<Tuple.Elements>, const Rest extend
 /**
  * @since 4.0.0
  */
-export interface Array$<S extends Top> extends
+export interface $Array<S extends Top> extends
   Bottom<
     ReadonlyArray<S["Type"]>,
     ReadonlyArray<S["Encoded"]>,
     S["DecodingServices"],
     S["EncodingServices"],
     AST.Arrays,
-    Array$<S>,
+    $Array<S>,
     ReadonlyArray<S["~type.make"]>,
     ReadonlyArray<S["Iso"]>
   >
@@ -2261,8 +2260,8 @@ export interface Array$<S extends Top> extends
 }
 
 interface ArrayLambda extends Lambda {
-  <S extends Top>(self: S): Array$<S>
-  readonly "~lambda.out": this["~lambda.in"] extends Top ? Array$<this["~lambda.in"]> : never
+  <S extends Top>(self: S): $Array<S>
+  readonly "~lambda.out": this["~lambda.in"] extends Top ? $Array<this["~lambda.in"]> : never
 }
 
 /**
@@ -2306,7 +2305,7 @@ export const NonEmptyArray = Struct_.lambda<NonEmptyArrayLambda>((schema) =>
 /**
  * @since 4.0.0
  */
-export interface UniqueArray<S extends Top> extends Array$<S> {}
+export interface UniqueArray<S extends Top> extends $Array<S> {}
 
 /**
  * Returns a new array schema that ensures all elements are unique.
@@ -3309,12 +3308,12 @@ export interface TaggedUnion<Cases extends Record<string, Top>> extends
   readonly guards: { [K in keyof Cases]: (u: unknown) => u is Cases[K]["Type"] }
   readonly match: {
     <Output>(
+      cases: { [K in keyof Cases]: (value: Cases[K]["Type"]) => Output }
+    ): (value: Cases[keyof Cases]["Type"]) => Output
+    <Output>(
       value: Cases[keyof Cases]["Type"],
       cases: { [K in keyof Cases]: (value: Cases[K]["Type"]) => Output }
     ): Output
-    <Output>(
-      cases: { [K in keyof Cases]: (value: Cases[K]["Type"]) => Output }
-    ): (value: Cases[keyof Cases]["Type"]) => Output
   }
 }
 
@@ -4756,6 +4755,63 @@ export const isBetweenBigInt = makeIsBetween({
 })
 
 /**
+ * Validates that a BigDecimal is greater than the specified value (exclusive).
+ *
+ * @category BigDecimal checks
+ * @since 4.0.0
+ */
+export const isGreaterThanBigDecimal = makeIsGreaterThan({
+  order: BigDecimal_.Order,
+  formatter: (bd) => BigDecimal_.format(bd)
+})
+
+/**
+ * Validates that a BigDecimal is greater than or equal to the specified value
+ * (inclusive).
+ *
+ * @category BigDecimal checks
+ * @since 4.0.0
+ */
+export const isGreaterThanOrEqualToBigDecimal = makeIsGreaterThanOrEqualTo({
+  order: BigDecimal_.Order,
+  formatter: (bd) => BigDecimal_.format(bd)
+})
+
+/**
+ * Validates that a BigDecimal is less than the specified value (exclusive).
+ *
+ * @category BigDecimal checks
+ * @since 4.0.0
+ */
+export const isLessThanBigDecimal = makeIsLessThan({
+  order: BigDecimal_.Order,
+  formatter: (bd) => BigDecimal_.format(bd)
+})
+
+/**
+ * Validates that a BigDecimal is less than or equal to the specified value
+ * (inclusive).
+ *
+ * @category BigDecimal checks
+ * @since 4.0.0
+ */
+export const isLessThanOrEqualToBigDecimal = makeIsLessThanOrEqualTo({
+  order: BigDecimal_.Order,
+  formatter: (bd) => BigDecimal_.format(bd)
+})
+
+/**
+ * Validates that a BigDecimal is within a specified range.
+ *
+ * @category BigDecimal checks
+ * @since 4.0.0
+ */
+export const isBetweenBigDecimal = makeIsBetween({
+  order: BigDecimal_.Order,
+  formatter: (bd) => BigDecimal_.format(bd)
+})
+
+/**
  * Validates that a value has at least the specified length. Works with strings
  * and arrays.
  *
@@ -5651,15 +5707,15 @@ export function RedactedFromValue<S extends Top>(value: S, options?: {
 }
 
 /**
- * @category CauseFailure
+ * @category CauseReason
  * @since 4.0.0
  */
-export interface CauseFailure<E extends Top, D extends Top> extends
+export interface CauseReason<E extends Top, D extends Top> extends
   declareConstructor<
     Cause_.Reason<E["Type"]>,
     Cause_.Reason<E["Encoded"]>,
     readonly [E, D],
-    CauseFailureIso<E, D>
+    CauseReasonIso<E, D>
   >
 {
   readonly error: E
@@ -5667,10 +5723,10 @@ export interface CauseFailure<E extends Top, D extends Top> extends
 }
 
 /**
- * @category CauseFailure
+ * @category CauseReason
  * @since 4.0.0
  */
-export type CauseFailureIso<E extends Top, D extends Top> = {
+export type CauseReasonIso<E extends Top, D extends Top> = {
   readonly _tag: "Fail"
   readonly error: E["Iso"]
 } | {
@@ -5682,11 +5738,11 @@ export type CauseFailureIso<E extends Top, D extends Top> = {
 }
 
 /**
- * @category CauseFailure
+ * @category CauseReason
  * @since 4.0.0
  */
-export function CauseFailure<E extends Top, D extends Top>(error: E, defect: D): CauseFailure<E, D> {
-  const schema = declareConstructor<Cause_.Reason<E["Type"]>, Cause_.Reason<E["Encoded"]>, CauseFailureIso<E, D>>()(
+export function CauseReason<E extends Top, D extends Top>(error: E, defect: D): CauseReason<E, D> {
+  const schema = declareConstructor<Cause_.Reason<E["Type"]>, Cause_.Reason<E["Encoded"]>, CauseReasonIso<E, D>>()(
     [error, defect],
     ([error, defect]) => (input, ast, options) => {
       if (!Cause_.isReason(input)) {
@@ -5719,7 +5775,7 @@ export function CauseFailure<E extends Top, D extends Top>(error: E, defect: D):
         _tag: "effect/Cause/Failure"
       },
       generation: {
-        runtime: `Schema.CauseFailure(?, ?)`,
+        runtime: `Schema.CauseReason(?, ?)`,
         Type: `Cause.Failure<?, ?>`,
         importDeclaration: `import * as Cause from "effect/Cause"`
       },
@@ -5745,15 +5801,15 @@ export function CauseFailure<E extends Top, D extends Top>(error: E, defect: D):
             encode: identity
           })
         ),
-      toArbitrary: ([error, defect]) => causeFailureToArbitrary(error, defect),
-      toEquivalence: ([error, defect]) => causeFailureToEquivalence(error, defect),
-      toFormatter: ([error, defect]) => causeFailureToFormatter(error, defect)
+      toArbitrary: ([error, defect]) => causeReasonToArbitrary(error, defect),
+      toEquivalence: ([error, defect]) => causeReasonToEquivalence(error, defect),
+      toFormatter: ([error, defect]) => causeReasonToFormatter(error, defect)
     }
   )
   return make(schema.ast, { error, defect })
 }
 
-function causeFailureToArbitrary<E, D>(error: FastCheck.Arbitrary<E>, defect: FastCheck.Arbitrary<D>) {
+function causeReasonToArbitrary<E, D>(error: FastCheck.Arbitrary<E>, defect: FastCheck.Arbitrary<D>) {
   return (fc: typeof FastCheck, ctx: Annotations.ToArbitrary.Context | undefined) => {
     return fc.oneof(
       ctx?.isSuspend ? { maxDepth: 2, depthIdentifier: "Cause.Failure" } : {},
@@ -5765,7 +5821,7 @@ function causeFailureToArbitrary<E, D>(error: FastCheck.Arbitrary<E>, defect: Fa
   }
 }
 
-function causeFailureToEquivalence<E>(error: Equivalence.Equivalence<E>, defect: Equivalence.Equivalence<unknown>) {
+function causeReasonToEquivalence<E>(error: Equivalence.Equivalence<E>, defect: Equivalence.Equivalence<unknown>) {
   return (a: Cause_.Reason<E>, b: Cause_.Reason<E>) => {
     if (a._tag !== b._tag) return false
     switch (a._tag) {
@@ -5779,7 +5835,7 @@ function causeFailureToEquivalence<E>(error: Equivalence.Equivalence<E>, defect:
   }
 }
 
-function causeFailureToFormatter<E>(error: Formatter<E>, defect: Formatter<unknown>) {
+function causeReasonToFormatter<E>(error: Formatter<E>, defect: Formatter<unknown>) {
   return (t: Cause_.Reason<E>) => {
     switch (t._tag) {
       case "Fail":
@@ -5812,7 +5868,7 @@ export interface Cause<E extends Top, D extends Top> extends
  * @category Cause
  * @since 4.0.0
  */
-export type CauseIso<E extends Top, D extends Top> = ReadonlyArray<CauseFailureIso<E, D>>
+export type CauseIso<E extends Top, D extends Top> = ReadonlyArray<CauseReasonIso<E, D>>
 
 /**
  * @category Cause
@@ -5821,15 +5877,17 @@ export type CauseIso<E extends Top, D extends Top> = ReadonlyArray<CauseFailureI
 export function Cause<E extends Top, D extends Top>(error: E, defect: D): Cause<E, D> {
   const schema = declareConstructor<Cause_.Cause<E["Type"]>, Cause_.Cause<E["Encoded"]>, CauseIso<E, D>>()(
     [error, defect],
-    ([error, defect]) => (input, ast, options) => {
-      if (!Cause_.isCause(input)) {
-        return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
+    ([error, defect]) => {
+      const failures = Array(CauseReason(error, defect))
+      return (input, ast, options) => {
+        if (!Cause_.isCause(input)) {
+          return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
+        }
+        return Effect.mapBothEager(Parser.decodeUnknownEffect(failures)(input.reasons, options), {
+          onSuccess: Cause_.fromReasons,
+          onFailure: (issue) => new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["failures"], issue)])
+        })
       }
-      const failures = Array(CauseFailure(error, defect))
-      return Effect.mapBothEager(Parser.decodeUnknownEffect(failures)(input.reasons, options), {
-        onSuccess: Cause_.fromReasons,
-        onFailure: (issue) => new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["failures"], issue)])
-      })
     },
     {
       typeConstructor: {
@@ -5843,7 +5901,7 @@ export function Cause<E extends Top, D extends Top>(error: E, defect: D): Cause<
       expected: "Cause",
       toCodec: ([error, defect]) =>
         link<Cause_.Cause<E["Encoded"]>>()(
-          Array(CauseFailure(error, defect)),
+          Array(CauseReason(error, defect)),
           Transformation.transform({
             decode: Cause_.fromReasons,
             encode: ({ reasons: failures }) => failures
@@ -5859,18 +5917,18 @@ export function Cause<E extends Top, D extends Top>(error: E, defect: D): Cause<
 
 function causeToArbitrary<E, D>(error: FastCheck.Arbitrary<E>, defect: FastCheck.Arbitrary<D>) {
   return (fc: typeof FastCheck, ctx: Annotations.ToArbitrary.Context | undefined) => {
-    return fc.array(causeFailureToArbitrary(error, defect)(fc, ctx)).map(Cause_.fromReasons)
+    return fc.array(causeReasonToArbitrary(error, defect)(fc, ctx)).map(Cause_.fromReasons)
   }
 }
 
 function causeToEquivalence<E>(error: Equivalence.Equivalence<E>, defect: Equivalence.Equivalence<unknown>) {
-  const failures = Equivalence.Array(causeFailureToEquivalence(error, defect))
+  const failures = Equivalence.Array(causeReasonToEquivalence(error, defect))
   return (a: Cause_.Cause<E>, b: Cause_.Cause<E>) => failures(a.reasons, b.reasons)
 }
 
 function causeToFormatter<E>(error: Formatter<E>, defect: Formatter<unknown>) {
-  const causeFailure = causeFailureToFormatter(error, defect)
-  return (t: Cause_.Cause<E>) => `Cause([${t.reasons.map(causeFailure).join(", ")}])`
+  const causeReason = causeReasonToFormatter(error, defect)
+  return (t: Cause_.Cause<E>) => `Cause([${t.reasons.map(causeReason).join(", ")}])`
 }
 
 /**
@@ -6044,28 +6102,32 @@ export function Exit<A extends Top, E extends Top, D extends Top>(value: A, erro
     ExitIso<A, E, D>
   >()(
     [value, error, defect],
-    ([value, error, defect]) => (input, ast, options) => {
-      if (!Exit_.isExit(input)) {
-        return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
-      }
+    ([value, error, defect]) => {
       const cause = Cause(error, defect)
-      switch (input._tag) {
-        case "Success":
-          return Effect.mapBothEager(
-            Parser.decodeUnknownEffect(value)(input.value, options),
-            {
-              onSuccess: Exit_.succeed,
-              onFailure: (issue) => new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["value"], issue)])
-            }
-          )
-        case "Failure":
-          return Effect.mapBothEager(
-            Parser.decodeUnknownEffect(cause)(input.cause, options),
-            {
-              onSuccess: Exit_.failCause,
-              onFailure: (issue) => new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["cause"], issue)])
-            }
-          )
+      return (input, ast, options) => {
+        if (!Exit_.isExit(input)) {
+          return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
+        }
+        switch (input._tag) {
+          case "Success":
+            return Effect.mapBothEager(
+              Parser.decodeUnknownEffect(value)(input.value, options),
+              {
+                onSuccess: Exit_.succeed,
+                onFailure: (issue) =>
+                  new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["value"], issue)])
+              }
+            )
+          case "Failure":
+            return Effect.mapBothEager(
+              Parser.decodeUnknownEffect(cause)(input.cause, options),
+              {
+                onSuccess: Exit_.failCause,
+                onFailure: (issue) =>
+                  new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["cause"], issue)])
+              }
+            )
+        }
       }
     },
     {
@@ -6131,7 +6193,7 @@ export function Exit<A extends Top, E extends Top, D extends Top>(value: A, erro
  * @category ReadonlyMap
  * @since 4.0.0
  */
-export interface ReadonlyMap$<Key extends Top, Value extends Top> extends
+export interface $ReadonlyMap<Key extends Top, Value extends Top> extends
   declareConstructor<
     globalThis.ReadonlyMap<Key["Type"], Value["Type"]>,
     globalThis.ReadonlyMap<Key["Encoded"], Value["Encoded"]>,
@@ -6156,25 +6218,28 @@ export type ReadonlyMapIso<Key extends Top, Value extends Top> = ReadonlyArray<r
  * @category ReadonlyMap
  * @since 4.0.0
  */
-export function ReadonlyMap<Key extends Top, Value extends Top>(key: Key, value: Value): ReadonlyMap$<Key, Value> {
+export function ReadonlyMap<Key extends Top, Value extends Top>(key: Key, value: Value): $ReadonlyMap<Key, Value> {
   const schema = declareConstructor<
     globalThis.ReadonlyMap<Key["Type"], Value["Type"]>,
     globalThis.ReadonlyMap<Key["Encoded"], Value["Encoded"]>,
     ReadonlyMapIso<Key, Value>
   >()(
     [key, value],
-    ([key, value]) => (input, ast, options) => {
-      if (input instanceof globalThis.Map) {
-        const array = Array(Tuple([key, value]))
-        return Effect.mapBothEager(
-          Parser.decodeUnknownEffect(array)([...input], options),
-          {
-            onSuccess: (array: ReadonlyArray<readonly [Key["Type"], Value["Type"]]>) => new globalThis.Map(array),
-            onFailure: (issue) => new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["entries"], issue)])
-          }
-        )
+    ([key, value]) => {
+      const array = Array(Tuple([key, value]))
+      return (input, ast, options) => {
+        if (input instanceof globalThis.Map) {
+          return Effect.mapBothEager(
+            Parser.decodeUnknownEffect(array)([...input], options),
+            {
+              onSuccess: (array: ReadonlyArray<readonly [Key["Type"], Value["Type"]]>) => new globalThis.Map(array),
+              onFailure: (issue) =>
+                new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["entries"], issue)])
+            }
+          )
+        }
+        return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
       }
-      return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
     },
     {
       typeConstructor: {
@@ -6215,10 +6280,101 @@ export function ReadonlyMap<Key extends Top, Value extends Top>(key: Key, value:
 }
 
 /**
+ * @category HashMap
+ * @since 4.0.0
+ */
+export interface HashMap<Key extends Top, Value extends Top> extends
+  declareConstructor<
+    HashMap_.HashMap<Key["Type"], Value["Type"]>,
+    HashMap_.HashMap<Key["Encoded"], Value["Encoded"]>,
+    readonly [Key, Value],
+    HashMapIso<Key, Value>
+  >
+{
+  readonly key: Key
+  readonly value: Value
+}
+
+/**
+ * @category HashMap
+ * @since 4.0.0
+ */
+export type HashMapIso<Key extends Top, Value extends Top> = ReadonlyArray<readonly [Key["Iso"], Value["Iso"]]>
+
+/**
+ * Creates a schema that validates a `HashMap` where keys and values must
+ * conform to the provided schemas.
+ *
+ * @category HashMap
+ * @since 4.0.0
+ */
+export function HashMap<Key extends Top, Value extends Top>(key: Key, value: Value): HashMap<Key, Value> {
+  const schema = declareConstructor<
+    HashMap_.HashMap<Key["Type"], Value["Type"]>,
+    HashMap_.HashMap<Key["Encoded"], Value["Encoded"]>,
+    HashMapIso<Key, Value>
+  >()(
+    [key, value],
+    ([key, value]) => {
+      const entries = Array(Tuple([key, value]))
+      return (input, ast, options) => {
+        if (HashMap_.isHashMap(input)) {
+          return Effect.mapBothEager(
+            Parser.decodeUnknownEffect(entries)(HashMap_.toEntries(input), options),
+            {
+              onSuccess: HashMap_.fromIterable,
+              onFailure: (issue) =>
+                new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["entries"], issue)])
+            }
+          )
+        }
+        return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
+      }
+    },
+    {
+      typeConstructor: {
+        _tag: "effect/HashMap"
+      },
+      generation: {
+        runtime: `Schema.HashMap(?, ?)`,
+        Type: `HashMap.HashMap<?, ?>`,
+        importDeclaration: `import * as HashMap from "effect/HashMap"`
+      },
+      expected: "HashMap",
+      toCodec: ([key, value]) =>
+        link<HashMap_.HashMap<Key["Encoded"], Value["Encoded"]>>()(
+          Array(Tuple([key, value])),
+          Transformation.transform({
+            decode: HashMap_.fromIterable,
+            encode: HashMap_.toEntries
+          })
+        ),
+      toArbitrary: ([key, value]) => (fc, ctx) => {
+        return fc.oneof(
+          ctx?.isSuspend ? { maxDepth: 2, depthIdentifier: "HashMap" } : {},
+          fc.constant([]),
+          fc.array(fc.tuple(key, value), ctx?.constraints?.array)
+        ).map(HashMap_.fromIterable)
+      },
+      toEquivalence: ([key, value]) => Equal.makeCompareMap(key, value),
+      toFormatter: ([key, value]) => (t) => {
+        const size = HashMap_.size(t)
+        if (size === 0) {
+          return "HashMap(0) {}"
+        }
+        const entries = HashMap_.toEntries(t).sort().map(([k, v]) => `${key(k)} => ${value(v)}`)
+        return `HashMap(${size}) { ${entries.join(", ")} }`
+      }
+    }
+  )
+  return make(schema.ast, { key, value })
+}
+
+/**
  * @category ReadonlySet
  * @since 4.0.0
  */
-export interface ReadonlySet$<Value extends Top> extends
+export interface $ReadonlySet<Value extends Top> extends
   declareConstructor<
     globalThis.ReadonlySet<Value["Type"]>,
     globalThis.ReadonlySet<Value["Encoded"]>,
@@ -6239,25 +6395,28 @@ export type ReadonlySetIso<Value extends Top> = ReadonlyArray<Value["Iso"]>
  * @category ReadonlySet
  * @since 4.0.0
  */
-export function ReadonlySet<Value extends Top>(value: Value): ReadonlySet$<Value> {
+export function ReadonlySet<Value extends Top>(value: Value): $ReadonlySet<Value> {
   const schema = declareConstructor<
     globalThis.ReadonlySet<Value["Type"]>,
     globalThis.ReadonlySet<Value["Encoded"]>,
     ReadonlySetIso<Value>
   >()(
     [value],
-    ([value]) => (input, ast, options) => {
-      if (input instanceof globalThis.Set) {
-        const array = Array(value)
-        return Effect.mapBothEager(
-          Parser.decodeUnknownEffect(array)([...input], options),
-          {
-            onSuccess: (array: ReadonlyArray<Value["Type"]>) => new globalThis.Set(array),
-            onFailure: (issue) => new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["values"], issue)])
-          }
-        )
+    ([value]) => {
+      const array = Array(value)
+      return (input, ast, options) => {
+        if (input instanceof globalThis.Set) {
+          return Effect.mapBothEager(
+            Parser.decodeUnknownEffect(array)([...input], options),
+            {
+              onSuccess: (array: ReadonlyArray<Value["Type"]>) => new globalThis.Set(array),
+              onFailure: (issue) =>
+                new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["values"], issue)])
+            }
+          )
+        }
+        return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
       }
-      return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
     },
     {
       typeConstructor: {
@@ -6291,6 +6450,95 @@ export function ReadonlySet<Value extends Top>(value: Value): ReadonlySet$<Value
         }
         const values = globalThis.Array.from(t.values()).sort().map((v) => `${value(v)}`)
         return `ReadonlySet(${size}) { ${values.join(", ")} }`
+      }
+    }
+  )
+  return make(schema.ast, { value })
+}
+
+/**
+ * @category HashSet
+ * @since 4.0.0
+ */
+export interface HashSet<Value extends Top> extends
+  declareConstructor<
+    HashSet_.HashSet<Value["Type"]>,
+    HashSet_.HashSet<Value["Encoded"]>,
+    readonly [Value],
+    HashSetIso<Value>
+  >
+{
+  readonly value: Value
+}
+
+/**
+ * @category HashSet
+ * @since 4.0.0
+ */
+export type HashSetIso<Value extends Top> = ReadonlyArray<Value["Iso"]>
+
+/**
+ * Creates a schema that validates a `HashSet` where values must conform to the
+ * provided schema.
+ *
+ * @category HashSet
+ * @since 4.0.0
+ */
+export function HashSet<Value extends Top>(value: Value): HashSet<Value> {
+  const schema = declareConstructor<
+    HashSet_.HashSet<Value["Type"]>,
+    HashSet_.HashSet<Value["Encoded"]>,
+    HashSetIso<Value>
+  >()(
+    [value],
+    ([value]) => {
+      const values = Array(value)
+      return (input, ast, options) => {
+        if (HashSet_.isHashSet(input)) {
+          return Effect.mapBothEager(
+            Parser.decodeUnknownEffect(values)(Arr.fromIterable(input), options),
+            {
+              onSuccess: HashSet_.fromIterable,
+              onFailure: (issue) =>
+                new Issue.Composite(ast, Option_.some(input), [new Issue.Pointer(["values"], issue)])
+            }
+          )
+        }
+        return Effect.fail(new Issue.InvalidType(ast, Option_.some(input)))
+      }
+    },
+    {
+      typeConstructor: {
+        _tag: "effect/HashSet"
+      },
+      generation: {
+        runtime: `Schema.HashSet(?)`,
+        Type: `HashSet.HashSet<?>`
+      },
+      expected: "HashSet",
+      toCodec: ([value]) =>
+        link<HashSet_.HashSet<Value["Encoded"]>>()(
+          Array(value),
+          Transformation.transform({
+            decode: HashSet_.fromIterable,
+            encode: Arr.fromIterable
+          })
+        ),
+      toArbitrary: ([value]) => (fc, ctx) => {
+        return fc.oneof(
+          ctx?.isSuspend ? { maxDepth: 2, depthIdentifier: "HashSet" } : {},
+          fc.constant([]),
+          fc.array(value, ctx?.constraints?.array)
+        ).map(HashSet_.fromIterable)
+      },
+      toEquivalence: ([value]) => Equal.makeCompareSet(value),
+      toFormatter: ([value]) => (t) => {
+        const size = HashSet_.size(t)
+        if (size === 0) {
+          return "HashSet(0) {}"
+        }
+        const values = globalThis.Array.from(t).sort().map((v) => `${value(v)}`)
+        return `HashSet(${size}) { ${values.join(", ")} }`
       }
     }
   )
@@ -6591,6 +6839,45 @@ export const DurationFromMillis: DurationFromMillis = Number.check(isGreaterThan
 /**
  * @since 4.0.0
  */
+export interface BigDecimal extends declare<BigDecimal_.BigDecimal> {}
+
+/**
+ * A schema for `BigDecimal` values.
+ *
+ * **Default JSON serializer**
+ *
+ * - encodes `BigDecimal` as a `string`
+ *
+ * @since 4.0.0
+ */
+export const BigDecimal: BigDecimal = declare(
+  BigDecimal_.isBigDecimal,
+  {
+    typeConstructor: {
+      _tag: "effect/BigDecimal"
+    },
+    generation: {
+      runtime: `Schema.BigDecimal`,
+      Type: `BigDecimal.BigDecimal`,
+      importDeclaration: `import * as BigDecimal from "effect/BigDecimal"`
+    },
+    expected: "BigDecimal",
+    toCodecJson: () =>
+      link<BigDecimal_.BigDecimal>()(
+        String.annotate({ expected: "a string that will be decoded as a BigDecimal" }),
+        Transformation.bigDecimalFromString
+      ),
+    toArbitrary: () => (fc) =>
+      fc.tuple(fc.bigInt(), fc.integer({ min: 0, max: 20 }))
+        .map(([value, scale]) => BigDecimal_.make(value, scale)),
+    toFormatter: () => (bd) => BigDecimal_.format(bd),
+    toEquivalence: () => BigDecimal_.Equivalence
+  }
+)
+
+/**
+ * @since 4.0.0
+ */
 export interface UnknownFromJsonString extends fromJsonString<Unknown> {}
 
 /**
@@ -6720,7 +7007,7 @@ export const File: File = instanceOf(globalThis.File, {
       }),
       Transformation.transformOrFail({
         decode: (e) =>
-          Result_.match(Base64.decode(e.data), {
+          Result_.match(Encoding.decodeBase64(e.data), {
             onFailure: (error) =>
               Effect.fail(
                 new Issue.InvalidValue(Option_.some(e.data), {
@@ -6739,7 +7026,7 @@ export const File: File = instanceOf(globalThis.File, {
             try: async () => {
               const bytes = new globalThis.Uint8Array(await file.arrayBuffer())
               return {
-                data: Base64.encode(bytes),
+                data: Encoding.encodeBase64(bytes),
                 type: file.type,
                 name: file.name,
                 lastModified: file.lastModified
@@ -7273,7 +7560,7 @@ export const DateTimeUtc: DateTimeUtc = declare(
   (u) => DateTime.isDateTime(u) && DateTime.isUtc(u),
   {
     typeConstructor: {
-      _tag: "DateTime.Utc"
+      _tag: "effect/DateTime.Utc"
     },
     generation: {
       runtime: `Schema.DateTimeUtc`,
@@ -7284,10 +7571,7 @@ export const DateTimeUtc: DateTimeUtc = declare(
     toCodecJson: () =>
       link<DateTime.Utc>()(
         String,
-        {
-          decode: Getter.dateTimeUtcFromInput(),
-          encode: Getter.transform(DateTime.formatIso)
-        }
+        Transformation.dateTimeUtcFromString
       ),
     toArbitrary: () => (fc, ctx) =>
       fc.date({ noInvalidDate: true, ...ctx?.constraints?.date }).map((date) => DateTime.fromDateUnsafe(date)),
@@ -7344,10 +7628,7 @@ export const DateTimeUtcFromString: DateTimeUtcFromString = String.annotate({
 }).pipe(
   decodeTo(
     DateTimeUtc,
-    Transformation.transform({
-      decode: DateTime.makeUnsafe,
-      encode: DateTime.formatIso
-    })
+    Transformation.dateTimeUtcFromString
   )
 )
 
@@ -7373,6 +7654,183 @@ export const DateTimeUtcFromMillis: DateTimeUtcFromMillis = Number.pipe(
     decode: Getter.dateTimeUtcFromInput(),
     encode: Getter.transform(DateTime.toEpochMillis)
   })
+)
+
+/**
+ * @since 4.0.0
+ */
+export interface TimeZoneOffset extends declare<DateTime.TimeZone.Offset> {}
+
+/**
+ * A schema for `DateTime.TimeZone.Offset` values.
+ *
+ * **Default JSON serializer**
+ *
+ * - encodes `DateTime.TimeZone.Offset` as a number (offset in milliseconds)
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export const TimeZoneOffset: TimeZoneOffset = declare(
+  DateTime.isTimeZoneOffset,
+  {
+    typeConstructor: {
+      _tag: "effect/DateTime.TimeZone.Offset"
+    },
+    generation: {
+      runtime: `Schema.TimeZoneOffset`,
+      Type: `DateTime.TimeZone.Offset`,
+      importDeclaration: `import * as DateTime from "effect/DateTime"`
+    },
+    expected: "DateTime.TimeZone.Offset",
+    toCodecJson: () =>
+      link<DateTime.TimeZone.Offset>()(
+        Number,
+        Transformation.timeZoneOffsetFromNumber
+      ),
+    toArbitrary: () => (fc) =>
+      fc.integer({ min: -12 * 60 * 60 * 1000, max: 14 * 60 * 60 * 1000 }).map((n) => DateTime.zoneMakeOffset(n)),
+    toFormatter: () => (tz) => DateTime.zoneToString(tz),
+    toEquivalence: () => (a, b) => a.offset === b.offset
+  }
+)
+
+/**
+ * @since 4.0.0
+ */
+export interface TimeZoneNamed extends declare<DateTime.TimeZone.Named> {}
+
+/**
+ * A schema for `DateTime.TimeZone.Named` values.
+ *
+ * **Default JSON serializer**
+ *
+ * - encodes `DateTime.TimeZone.Named` as a string (IANA time zone identifier)
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export const TimeZoneNamed: TimeZoneNamed = declare(
+  DateTime.isTimeZoneNamed,
+  {
+    typeConstructor: {
+      _tag: "effect/DateTime.TimeZone.Named"
+    },
+    generation: {
+      runtime: `Schema.TimeZoneNamed`,
+      Type: `DateTime.TimeZone.Named`,
+      importDeclaration: `import * as DateTime from "effect/DateTime"`
+    },
+    expected: "DateTime.TimeZone.Named",
+    toCodecJson: () =>
+      link<DateTime.TimeZone.Named>()(
+        String.annotate({ expected: "an IANA time zone identifier" }),
+        Transformation.timeZoneNamedFromString
+      ),
+    toArbitrary: () => (fc) =>
+      fc.constantFrom(
+        ...["UTC", "Europe/London", "America/New_York", "Asia/Tokyo", "Australia/Sydney"].map(
+          DateTime.zoneMakeNamedUnsafe
+        )
+      ),
+    toFormatter: () => (tz) => DateTime.zoneToString(tz),
+    toEquivalence: () => (a, b) => a.id === b.id
+  }
+)
+
+/**
+ * @since 4.0.0
+ */
+export interface TimeZone extends declare<DateTime.TimeZone> {}
+
+/**
+ * A schema for `DateTime.TimeZone` values.
+ *
+ * **Default JSON serializer**
+ *
+ * - encodes `DateTime.TimeZone` as a string (IANA identifier or offset like
+ *   `+03:00`)
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export const TimeZone: TimeZone = declare(
+  DateTime.isTimeZone,
+  {
+    typeConstructor: {
+      _tag: "effect/DateTime.TimeZone"
+    },
+    generation: {
+      runtime: `Schema.TimeZone`,
+      Type: `DateTime.TimeZone`,
+      importDeclaration: `import * as DateTime from "effect/DateTime"`
+    },
+    expected: "DateTime.TimeZone",
+    toCodecJson: () =>
+      link<DateTime.TimeZone>()(
+        String.annotate({ expected: "a time zone string (IANA identifier or offset like +03:00)" }),
+        Transformation.timeZoneFromString
+      ),
+    toArbitrary: () => (fc) =>
+      fc.oneof(
+        fc.integer({ min: -12 * 60 * 60 * 1000, max: 14 * 60 * 60 * 1000 }).map((n) => DateTime.zoneMakeOffset(n)),
+        fc.constantFrom(
+          ...["UTC", "Europe/London", "America/New_York", "Asia/Tokyo", "Australia/Sydney"].map(
+            DateTime.zoneMakeNamedUnsafe
+          )
+        )
+      ),
+    toFormatter: () => (tz) => DateTime.zoneToString(tz),
+    toEquivalence: () => (a, b) => DateTime.zoneToString(a) === DateTime.zoneToString(b)
+  }
+)
+
+/**
+ * @since 4.0.0
+ */
+export interface DateTimeZoned extends declare<DateTime.Zoned> {}
+
+/**
+ * A schema for `DateTime.Zoned` values.
+ *
+ * **Default JSON serializer**
+ *
+ * - encodes `DateTime.Zoned` as a string in the format
+ *   `YYYY-MM-DDTHH:mm:ss.sss+HH:MM[Time/Zone]`
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export const DateTimeZoned: DateTimeZoned = declare(
+  (u) => DateTime.isDateTime(u) && DateTime.isZoned(u),
+  {
+    typeConstructor: {
+      _tag: "effect/DateTime.Zoned"
+    },
+    generation: {
+      runtime: `Schema.DateTimeZoned`,
+      Type: `DateTime.Zoned`,
+      importDeclaration: `import * as DateTime from "effect/DateTime"`
+    },
+    expected: "DateTime.Zoned",
+    toCodecJson: () =>
+      link<DateTime.Zoned>()(
+        String.annotate({ expected: "a zoned DateTime string (e.g. 2024-01-01T00:00:00.000+00:00[Europe/London])" }),
+        Transformation.dateTimeZonedFromString
+      ),
+    toArbitrary: () => (fc, ctx) =>
+      fc.tuple(
+        fc.date({
+          noInvalidDate: true,
+          min: new globalThis.Date(-8640000000000000 + 14 * 60 * 60 * 1000),
+          max: new globalThis.Date(8640000000000000 - 14 * 60 * 60 * 1000),
+          ...ctx?.constraints?.date
+        }),
+        fc.constantFrom("UTC", "Europe/London", "America/New_York", "Asia/Tokyo", "Australia/Sydney")
+      ).map(([date, zone]) => DateTime.makeZonedUnsafe(date, { timeZone: zone })),
+    toFormatter: () => (zoned) => DateTime.formatIsoZoned(zoned),
+    toEquivalence: () => DateTime.Equivalence
+  }
 )
 
 // -----------------------------------------------------------------------------
@@ -7402,7 +7860,10 @@ export interface Class<Self, S extends Top & { readonly fields: Struct.Fields },
   >
 {
   // intentionally left without `readonly "~rebuild.out": this`
-  new(props: S["~type.make.in"], options?: MakeOptions): S["Type"] & Inherited
+  new(
+    ...args: {} extends S["~type.make.in"] ? [props?: S["~type.make.in"], options?: MakeOptions]
+      : [props: S["~type.make.in"], options?: MakeOptions]
+  ): S["Type"] & Inherited
   readonly identifier: string
   readonly fields: S["fields"]
   /**
@@ -7463,11 +7924,12 @@ function makeClass<
 
   return class extends Inherited {
     constructor(...[input, options]: ReadonlyArray<any>) {
+      const props = input ?? {}
       if (options?.disableValidation) {
-        super(input, options)
+        super(props, options)
       } else {
-        const validated = struct.makeUnsafe(input, options)
-        super({ ...input, ...validated }, { ...options, disableValidation: true })
+        const validated = struct.makeUnsafe(props, options)
+        super({ ...props, ...validated }, { ...options, disableValidation: true })
       }
     }
 

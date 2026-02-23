@@ -1,0 +1,150 @@
+Building Trust at Scale
+The Next Generation of Audit Logging at Palantir
+Palantir
+Follow
+13 min read
+·
+Dec 4, 2025
+
+7
+
+Press enter or click to view image in full size
+
+Editor’s Note: This is the second post in the Palantir Foundations series exploring how we customize infrastructure software for reliable operation at scale.
+
+Every day, organizations entrust Palantir platforms with their most sensitive data and critical operations. From government agencies coordinating national security missions to healthcare providers safeguarding patient information to financial institutions detecting fraud, our customers depend on us to help them make decisions that matter. This trust isn’t given lightly, and it isn’t maintained passively. It’s built on a foundation of transparency, accountability, and a principle we’ve held since our founding: every user action in our systems must be auditable.
+
+At Palantir, privacy and security aren’t afterthoughts. Our Privacy and Civil Liberties (PCL) engineering team was the first of its kind in the world, and has long championed the philosophy that privacy-protective technologies must be core capabilities, not simply nice to haves. One of the most critical enablers of this approach is comprehensive audit logging. Audit logs create an immutable record of who did what, when, and where across our platforms. They allow security teams to investigate incidents, compliance officers to demonstrate regulatory adherence, and organizations to maintain the accountability that complex, collaborative environments demand.
+
+Watch the Watchers: Auditability as a core value
+
+There’s a Latin phrase often invoked in discussions of power and oversight: Quis custodiet ipsos custodes? — or, “Who watches the watchmen?” At Palantir, this isn’t a rhetorical question; it’s a design requirement, one that ensures our customers can oversee their own organizations independently.
+
+Palantir Foundry, AIP, and our domain-specific offerings give users powerful capabilities to work with sensitive data, run sophisticated analyses, and make consequential decisions. With that great power comes great responsibility, and with responsibility comes the need for accountability. Comprehensive audit logging is how we operationalize that accountability.
+
+But auditability isn’t just about oversight or compliance checkboxes. It’s fundamentally about trust. When a government agency shares classified intelligence data with analysts, when a hospital grants clinicians access to patient records, when a financial institution allows investigators to query transactional databases — they’re extending trust. That trust is only sustainable if there’s a clear, reliable record of how it’s used.
+
+This philosophy shapes how we think about building software. Privacy protection and operational effectiveness aren’t competing goals; they’re complementary. The same audit logs that help security teams detect insider threats also help privacy officers ensure data minimization principles are followed. The same systems that track which resources were accessed by a particular user also maintain clear attribution and oversight of collaborative work across organizational boundaries.
+
+Our PCL team and the breadth of our Product Development and Forward Deployed Engineering teams embed this principle throughout our platforms. Every action across our platforms — whether a “read” operation, “write” operation, analytical exploration, or permission change — generates an audit log. When we build new features, auditability is a core requirement from the beginning.
+
+Today, we’re announcing an evolution of this commitment: the general availability of our next-generation audit logging system, known as “audit.3.” Years in the making, audit.3 delivers logs more quickly and with more structure and accessibility. It represents a fundamental reimagining of how we capture, deliver, and structure audit data at scale.
+
+The Challenges of Audit Logging at Scale
+
+To understand why we embarked on this multi-year journey, it helps to understand the challenge we were solving. Palantir’s platforms produce hundreds of terabytes of audit logs per day across our observable fleet. And these aren’t just technical breadcrumbs. These logs, which are rigorously secured per environment, contain the detailed records of user actions — data access requests, exports, Ontology actions, analytical queries, permission changes, and more — across deployments where multiple organizations can choose to collaborate on shared infrastructure.
+
+Our previous audit logging system served us well for years, but as our platforms evolved and customer requirements grew more sophisticated, we encountered fundamental limitations in how the system had grown. Palantir’s federated approach to product development — which enables rapid innovation and velocity — had created two challenges at scale.
+
+First, our audit.2 log delivery pipeline relied on batch processing. Products would write audit logs at varying intervals depending on their activity patterns. After logs were written by individual products, they had to flow through a complex multi-stage pipeline: being collected and batch written to bucket storage, processed into numerous intermediate datasets that progressively formatted and enriched the audit data, and ultimately delivered to analysts’ datasets. Each stage required significant storage and compute resources, adding architectural complexity and latency. Like many of our customers moving from periodic batch integrations to streaming data architectures with real time business data flows, we recognized that this approach was no longer sufficient for the speed of modern security operations.
+
+Second, the audit.2 log schema itself had grown organically over time as product teams defined their own event structures. This federation enabled development velocity but made it difficult for analysts to write consistent queries across our platforms. Tracking all data exports from your environment, for example, required you to frequently update parameters in order to support evolving sets of field structures to account for new patterns introduced by new export capabilities we would develop. The system worked, but it required highly skilled domain experts with deep knowledge of the platform to navigate most effectively.
+
+Both challenges were rooted in architectural decisions that served us well initially but reached their limits as our platforms scaled and customer needs evolved. The path forward required rethinking both the delivery mechanism and the data structure from first principles. We faced a fundamental question: how do you redesign a critical system that’s already processing massive scale?
+
+A New Foundation: Audit.3 and the telemetry collection streaming pipeline
+
+Our solution required rethinking the entire audit logging stack from first principles. We asked ourselves: what would audit logging look like if we designed it today, knowing what we know about scale, performance, and the workflows that security and compliance teams actually need?
+
+The answer is what we’re calling audit.3, including a new audit log schema accompanied by a fundamentally redesigned streaming pipeline architecture. The transformation starts at the moment an audit log is created. Through enhancements to our audit libraries, we can now capture log metadata directly when the log is written, rather than determining it through painstaking lookups later. This seemingly small change eliminates an entire processing stage that was a major source of both latency and architectural complexity.
+
+From there, logs flow through the telemetry collection streaming pipeline, which we’ve deployed as a distributed system of agents that run alongside every containerized service in our infrastructure. These agents route logs efficiently to other telemetry collection agents, which aggregate and canonicalize the logs (i.e., process and structure the data). Subsequently, the logs are written directly to the blobstore with improved bucket prefixes. Ultimately, the outcome of these improved prefixes is that we’ve eliminated the need to store intermediate copies of audit history datasets — as was the case in the audit.2 pipeline. This is leaner and faster.
+
+By ‘shifting left’ on log availability — making audit data accessible immediately after collection rather than after prolonged processing — we’ve transformed audit logs from a resource for retrospective analysis into a near real-time operational tool. In many environments, logs are available in as few as a couple of minutes (depending on usage patterns). This isn’t just a performance improvement; it’s a qualitative change in what’s possible. Palantir’s own information security team relies on these logs for active investigations. When our customers’ security analysts need to understand what happened during a potential incident, they can work with fresh data instead of waiting.
+
+Structured for the Future: The Audit.3 schema
+
+Speed alone wasn’t enough. We also needed to solve the schema consistency problem. The audit.3 schema represents a philosophical shift from event-based logging to category-based logging. Instead of each individual Palantir product defining their own event structures, the gold standard for audit.3 is that every auditable action maps to a well-defined category. These categories represent the fundamental operations that matter for security and compliance: data exports, authentication events, permission changes, analytical queries, and so on. This is audit’s Ontology moment!
+
+This standardization has profound implications. When Palantir product developers introduce a new way to export data from Foundry for example, they would select the “dataExport” audit log category. When a category is selected, developers are guided, via compiler errors, to include all relevant pieces of data in the correct pre-defined fields. Compliance officers who have written rules to monitor logs with categories contains "dataExport" don't need to update their logic. Their analyses naturally extend to cover the new functionality — even within a platform like ours that is shipping hundreds of upgrades to customer environments per day. This applies to all audit.3 log categories. This approach fundamentally future-proofs audit analyses in a way the old system could not.
+
+For our own engineers developing across the interconnected set of Palantir products, this standardization makes it far easier to implement first-class auditability. The developer tooling library we built to help our developers implement the audit.3 schema enforces category requirements at build time, ensuring that new features are auditable by design rather than as an afterthought. It's a forcing function that aligns with our founding philosophy: privacy and security must be built in from the start.
+
+To illustrate how this works in practice, here are some examples of audit.3 categories and what they capture:
+
+Press enter or click to view image in full size
+
+We’ve published comprehensive documentation of these categories and their expected fields, eliminating the need for analysts to reverse-engineer the log structure by examining examples.
+
+One of the biggest benefits of the audit.3 schema is the introduction of new top-level fields that make filtering and analysis significantly more straightforward than before. Some of these new fields include:
+
+categories: All audit categories that apply to this event, as aforementioned.
+entities: All resources referenced in the audit log, promoted to the top level (aka the “What”).
+origins: Network request origins, useful for distinguishing user-initiated vs. service-initiated requests.
+product: The specific Palantir product within the platform that generated the log (this help users sub-divide queries and accelerate data within SIEMs).
+result: Standardized result codes, e.g., SUCCESS, ERROR, UNAUTHORIZED, etc.
+users: All user IDs present in the audit log with some additional contextual fields (aka the “Who”).
+A Day in the Life: Before and after
+
+To understand the practical impact of these improvements, consider a typical security incident investigation scenario.
+
+Before: The audit.2 world
+
+Your security monitoring system flags suspicious data access patterns. A user account appears to have accessed an unusually large number of sensitive datasets in a short timeframe — a possible credential compromise or insider threat.
+
+Get Palantir’s stories in your inbox
+
+Join Medium for free to get updates from this writer.
+
+Subscribe
+
+Your security analyst begins the investigation, but immediately encounters the complexity that defined the audit.2 world. To understand in totality what data was accessed, they need to know which Palantir products the user interacted with. Within the valid audit.2 schema, each product has defined its own audit log event naming conventions and field structures.
+
+The analyst starts building their query of audit.2 logs by filtering on the name column: name = "READ_DATASET" for one service, but that misses LOAD_OBJECT events from another service, FETCH_DATA from a third, and so on. They consult documentation to find all the possible event names that could represent data access across the platform. Some services include the resource identifier in request_params.datasetRid, others use result_params.objectId, and still others embed it in custom fields that require parsing.
+
+Making matters more arduous, your compliance team is trying to understand whether any data was actually exported from the platform. They need to check multiple different event types across different products: EXPORT_DATASET from one service, DOWNLOAD_FILE from another, EXTRACT_REPORT from a third, GENERATE_ANALYSIS_OUTPUT from a fourth, and on. Export events also vary in their audit log field structures — what made the most sense for individual products to log has made the overall task of analysis more difficult. As a result, writing a comprehensive query to catch all possible export methods requires deep knowledge of the system’s audit logging framework and constant vigilance as new features are added with their own event names.
+
+After: The audit.3 world
+
+Same scenario: your security monitoring system flags suspicious data access patterns. But now, your analyst’s investigation looks fundamentally different.
+
+They write a single, straightforward categories contains "dataLoad" query. This returns every data access event across all Palantir products, regardless of which specific service or feature was used. Because of the standardized audit.3 schema, the analyst doesn't need to know the internal architecture; instead, the category guides them to what happened.
+
+Within the investigation, your team is able to more rapidly:
+
+Confirm the user identity and validate that their credentials were not compromised.
+Review every dataset they accessed using a simple filter on the dataLoad category.
+Run an additional categories contains "dataExport" query, which allows the team to use a different audit log category to verify that while the user loaded many datasets, no actual exports occurred. One query, comprehensive coverage.
+Examine the users and entities fields at the top level of each log to understand exactly who did what to which resources.
+Contact the user to understand the business context.
+Document the steps undertaken and, once remediated, effectively close the case.
+
+With audit.3, the investigation is simpler, faster, and more reliable. The analyst doesn’t need specialized knowledge of Palantir’s internal architecture. The structured categories handle the previously menial work of collating all the various relevant audit event names. This allows the analyst to more quickly and accurately determine what actually happened in pursuit of their investigation.
+
+Your compliance team has also benefited from the migration. Their ongoing export monitoring query is now straightforward: filter for categories contains "dataExport" regardless of which product or feature was used. More importantly, when a Palantir development team releases a new data export capability they will audit log the new functionality under the same dataExport category. Queries don't need updating; they're future-proof by design.
+
+This shift from product-specific event names to universal categories doesn't just make queries simpler. It fundamentally changes how security and compliance teams can process their audit data. Instead of needing to understand the implementation details of every Palantir service, they can reason about actions categorically: data was loaded, data was exported, authentication was checked, permissions were modified. The complexity of the underlying platform is abstracted away, leaving teams to focus on what matters: understanding user behavior and ensuring compliance.
+
+Meeting Our Customers Where They Are
+
+We recognize that many organizations have invested heavily in their security infrastructure and tooling. They have Security Information and Event Management (SIEM) platforms, trained analysts, and established workflows. Our goal isn’t to replace these systems but to integrate with them seamlessly.
+
+To support this, we’ve introduced new public API endpoints that make audit logs accessible without requiring them to flow through Foundry first. The audit log API provides two straightforward endpoints: one to list available log files filtered by date range (list-log-files), and another to retrieve the content of specific log files (get-log-file-content).
+
+Security teams can automate the continuous polling for new logs and ingest them directly into their SIEM of choice for processing and alerting according to their needs. The low latency of the underlying telemetry collection streaming pipeline means these logs are fresh and actionable.
+
+This “multi-modal” approach respects that different customers have different needs. For customers that live and breathe in their security operations center and want audit logs flowing into their existing security stack, the new API provides a direct path, with low latency. Accessing audit logs over the API is the preferred option for serious log consumers that have an existing monitoring architecture and dedicated SIEM tooling. For organizations without dedicated SIEM tooling or with lighter analytical needs, Palantir Foundry remains a viable platform for audit log analysis. Organizations can export the new audit.3 schema logs into a new Foundry dataset.
+
+The Migration Journey
+
+Change at this scale requires care. The development and implementation of the audit.3 schema took several years of careful planning. The re-architected telemetry collection streaming pipeline marks the most recent evolution of the broader next-generation solution. We conducted extended testing with early adopters, which enabled us to iterate on usability improvements. With this general availability announcement, we’re beginning the phase of intentional broader adoption.
+
+The migration from audit.2 to audit.3 represents a fundamental shift from a world with inconsistent schema structure to one with enforced consistency and future-proof extensibility. The audit.3 schema is designed to be able to accommodate Palantir products, platforms, and workflows as they evolve far into the future. During the transition, both audit.2 and audit.3 log ingests can run concurrently, allowing organizations to validate their new analyses before fully cutting over.
+
+We’re supporting this transition with comprehensive updated documentation, including detailed schema references, migration documentation, and API documentation for SIEM usage. We’re excited for more organizations to experience the benefits of the new system.
+
+Once migrated, organizations benefit not just from immediate improvements in latency and schema consistency, but from future enhancements that will build upon this foundation. The extensible category system means that future product developments will not break pre-existing analyses. The public API will continue to handle new product features as they are introduced. The efficient telemetry collection streaming pipeline ensures that as Palantir’s platforms scale, audit logs will scale with them.
+
+Building on Solid Ground
+
+Audit logging is often regarded as infrastructure plumbing — but it’s actually a deep reflection of organizational values. Palantir has invested years of engineering effort into making audit logs more timely, more structured, and more accessible. Our customers operate in environments where trust is paramount and mistakes can have grave consequences. They need to be able to answer the question “what happened?” quickly, accurately, and comprehensively.
+
+Our Privacy and Civil Liberties team operates on the principle that privacy protection and operational effectiveness aren’t mutually exclusive. Rather than viewing them as competing priorities, we believe thoughtful design can harmonize these two important concerns. Effective audit logging is a cornerstone of responsible data operations. It enables the “watch the watchers” principle that is essential when humans have access to sensitive information and powerful analytical tools. Audit logs help us enforce accountability guarantees — underscoring that legitimate access to data for one purpose doesn’t grant blanket permission to repurpose it for another.
+
+The general availability of the audit.3 schema and our telemetry collection streaming pipeline marks a culminating milestone in our commitment to Palantir’s founding principle of auditability. The foundation we’ve built — with its standardized categories, efficient delivery, and flexible access patterns — gives us the room to grow far into the future.
+
+For our customers’ and partners’ security teams, compliance officers, and information security professionals, this evolution means they can work faster, with heightened confidence in the completeness as well as consistency of their audit data. It demonstrates Palantir’s commitment to transparency and accountability at every layer of our products.
+
+Trust is earned through consistent actions over time. With our next-generation audit logging system, Palantir is ensuring that every action across our platforms is visible, timely, and auditable — because that’s what responsibility at scale requires.
+
+Interested in learning more about Palantir’s audit logging capabilities? Visit our updated audit logging documentation or explore the new audit log API endpoints.

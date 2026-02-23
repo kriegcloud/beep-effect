@@ -1,0 +1,847 @@
+Security auditing • Audit log categories • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Security & governance Security auditing Audit log categories 
+
+ Audit log categories
+
+Audit log categories simplify security monitoring by allowing you to identify events of interest based on what happened rather than needing to enumerate every possible event name across all Foundry services. Instead of tracking hundreds of service-specific event names, categories let you focus on high-level actions like data loading, data exporting, or authentication attempts, regardless of which product or feature generated the log.
+
+ Why categories matter
+
+In traditional audit logging systems, security analysts must understand the implementation details of every service to write effective queries. When investigating potential data exfiltration, for example, you might need to know that the relevant event names are EXPORT_DATASET, DOWNLOAD_FILE, CREATE_EXTERNAL_CONNECTION, and dozens of others, while also maintaining this list as new features are added.
+
+Audit log categories solve this problem through abstraction. In the audit.3 schema, every event must be logged under one or more standardized categories that provide consistent request and result parameters. This means the following:
+
+ Service-agnostic queries: Filter for dataExport to find all data export events, regardless of which Foundry product performed the export.
+
+ Future-proof monitoring: New export capabilities will log with the dataExport category; you do not need to update your queries.
+
+ Faster investigations: Spend less time understanding system internals and more time analyzing user behavior.
+
+ Predictable structure: Each category defines exactly which request and result fields will be present, making automated analysis more reliable.
+
+ Audit.2 vs audit.3 schemas
+
+While audit.2 logs may contain category information, their usage is optional and not enforced. This means categories might be missing entirely, or the associated request and result parameters may not follow a consistent structure.
+
+In contrast, the audit.3 schema enforces category usage with the following guarantees:
+
+Every audit log must specify at least one category.
+
+Every category explicitly defines the request and result fields that will be present.
+
+Standard parameters enable analysis without service-specific knowledge.
+
+ Field naming: Note that audit.3 uses requestFields and resultFields for parameter information, while audit.2 uses request_params and result_params .
+
+Refer to our audit logging overview documentation for comprehensive information about schema differences and migration guidance.
+
+ Example workflow
+
+A typical security monitoring workflow using categories looks like this:
+
+ 1. Identify categories of interest 
+
+Based on your security requirements, determine which categories are relevant. For example:
+
+Investigating potential data access: dataLoad 
+
+Monitoring exports: dataExport 
+
+Reviewing logins: userLogin 
+
+ 2. Query logs by category 
+
+Use an external SIEM or a Foundry audit log export dataset with Pipeline Builder to filter logs. In pseudo-code this would look like:
+
+ allLogs.filter {log -> interestingCategories.any{log.categories.contains(it)}}
+
+ Performance note: Audit log datasets can contain very high volumes of data. Always filter using the time column before performing aggregations or visualizations to ensure performant queries.
+
+ 3. Analyze structured parameters 
+
+For each matching log, examine the requestFields and resultFields . These contain the specific information submitted by the user and returned by the system, separated to help you differentiate between:
+
+ Request fields ( requestFields ): What the user provided (for example, which resources they requested).
+
+ Result fields ( resultFields ): What the system returned (for example, which resources were actually loaded).
+
+For example, a log with the dataLoad category will contain a list of all resources loaded during that interaction in either requestFields or resultFields , allowing you to immediately understand data access patterns without knowing which specific Foundry service handled the request.
+
+ 4. Cross-reference categories 
+
+Many events generate logs with multiple categories. When investigating a potential incident, you can verify that while a user loaded many datasets ( dataLoad ), no actual exports occurred by confirming the absence of the dataExport category in their activity.
+
+ Available categories
+
+Below are the available audit log categories.
+
+ Audit log category Category description Request fields Result fields 
+
+ apiGatewayRequest A request to an API gateway.
+
+User actions may result in requests that are fulfilled by an API gateway. Use this audit log to view the name or origin of the request. To get more information about this user action, find other audit logs associated with this request by filtering to logs with the same traceId field. To find audit logs for requests made by the API gateway when fulfilling the user-initiated request, further filter to logs that have a userAgent field starting with the service name in this audit log. operationNames 
+docs: The name of the request. If a batch request, this may include multiple names.
+type: optional 
+
+ appConfigAccess Load application-specific configuration. These may be tied to a user or resource. accessedAppConfigIds 
+docs: The application resources that were accessed in this event. 
+type: required 
+
+ accessAppConfigDescription 
+docs: A description of the configuration access. 
+type: required 
+
+ appConfigCreate Create application-specific configuration. These may be tied to a user or resource. createAppConfigDescription 
+docs: A description of the configuration creation. 
+type: required createdAppConfigIds 
+docs: The application resources that were created in this event. 
+type: required 
+
+ appConfigDelete Delete application-specific configuration. These may be tied to a user or resource. deletedAppConfigIds 
+docs: The ApplicationResouces that were deleted in this event. 
+type: required 
+
+ deleteAppConfigDescription 
+docs: A description of the configuration deletion. 
+type: required 
+
+ appConfigSearch Search for application-specific configuration. These may be tied to a user or resource. appConfigSearch should be used when the exact result values of a request are unknown, or variable. appConfigSearchQuery 
+docs: The search-query that this event is running. 
+type: required appConfigSearchResults 
+docs: The search-results that are returned to the user in this event. 
+type: required 
+
+ appConfigUpdate Update application-specific configuration. These may be tied to a user or resource. updatedAppConfigIds 
+docs: The application resources that were updated in this event. 
+type: required 
+
+ updateAppConfigDescription 
+docs: A description of the configuration update. 
+type: required 
+
+ assetFileLoad Deprecated; use AssetFileLoadV2. Loads a file's full coordinate, such as group, artifact, and version, from a static asset. requestMavenCoordinate 
+docs: Maven coordinate for the asset requested. Might not include groupId or version. 
+type: required 
+type: required responseMavenCoordinate 
+docs: The full Maven coordinate for the returned asset. 
+type: required 
+
+ assetFileLoadV2 Loads a file either from the asset coordiate or through the content addressable storage. fileIdentifier 
+type: required fileLoadResponse 
+type: required 
+
+ auditDataRedact Redaction of audit data as part of remediation of a data spill. requestedAuditEventIds 
+docs: The identifiers for the audit events which were believed to be impacted by the spill.
+type: required
+
+ organizationRid 
+docs: The organization to which the suspected audit events were attributed.
+type: required
+
+ startDate 
+docs: The beginning of the window of time in which the suspected audit events occurred.
+type: required
+
+ endDate 
+docs end of the window of time in which the suspected audit events occurred.
+type: required
+
+ redactionReason 
+docs: The reason for the redaction; must be non-empty.
+type: required redactionRequestId 
+docs: The UUID associated with this request.
+type: required
+
+ redactedAuditEventIds 
+docs: The identifiers which were actually redacted in the specified organization.
+type: required
+
+ redactedServiceUserAttributedAuditEventIds 
+docs: The service user-attributed audit event identifiers which were actually redacted.
+type: required
+
+ missingAuditEventIds 
+docs: The identifiers for suspected audit events which were found in neither the specified organization nor among service user-attributed audit events in the specified window.
+type: required
+
+ redactedLineCount 
+docs: The number of physical lines which were actually redacted as part of the completion of this request.
+type: required
+
+ modifiedFiles 
+docs: A mapping from the original filename to a new filename for all modified files.
+type: required 
+
+ auditDataShareCreate Creation of shares of audit data. For example, signed URLs that can be used to retrieve audit logs. No data is returned in this request; instead, this endpoint returns pointers that can be used to retrieve audit log data without further auth checks. shareTargets 
+docs: The identifiers for the audit data being shared.
+type: required shareIds 
+docs: Map from share targets to created data shares.
+type: required 
+
+ auditDataTransform Transform exactly one DataResource which contains audit data in some way. transformTarget 
+docs: The resource that was transformed.
+type: required
+
+ transformDescriptions 
+docs: Descriptions of the transformations that were performed.
+type: required transformDestination 
+docs: The destination to which the output of the transformations on the input were written. If absent, then the transformations are assumed to have been performed in-memory only (the output may or may not have been shown to the user, but it was not persisted). To indicate an in-place transformation, the transformTarget and transformDestination fields should contain the same DataResource.
+type: optional 
+
+ authenticationCheck Checks authentication status via a programmatic or manual authentication event, such as token validation. authenticationCheckTargets 
+docs: The identifiers against which that auth is being checked. 
+type: optional authenticationCheckResult 
+docs: Whether this authentication check succeeded or not. 
+type: required 
+
+ authenticationCheckResultMessage 
+docs: Further details on this authentication check result. 
+type: optional 
+
+ authorizationCheck Checks authorization status via a programmatic or manual authorization event, like checking permissions. authorizationCheckTargets 
+docs: The identifiers that auth is being checked against. 
+type: optional 
+
+ authorizationCheckOperations 
+docs: The values within the authorization attempt, such as the permission being checked for. 
+type: required authorizationCheckSucceededTargets 
+docs: Targets that passed authorization. 
+type: required 
+
+ authorizationCheckFailedTargets 
+docs: Targets that failed authorization. 
+type: required 
+
+ authorizationCheckResultMessage 
+docs: Further details on this authorization check result. 
+type: optional 
+
+ bulkDataImport Bulk imports to the platform. Differs from dataImport in that the direct relationship between destinations and origins may not be known. bulkImportedFiles 
+docs: The files that were imported 
+type: required bulkImportDestinations 
+docs: The destination for the bulk imports. 
+type: required 
+
+ cancelCodeExecution Cancellation of an existing code execution. cancelledExecutedResources 
+ docs: The specific resources that were being executed before cancellation. For example, this could be a modelUUID or a buildRID . 
+type: required 
+
+ cancelledExecutedResourceEnvironment 
+docs: The encompassing environment for the resources that were being executed before cancellation. For example, this could be a liveRID or a workbookRID . 
+type: required 
+
+ codeExecution Occurrence of code execution, which might not write results to a dataResource . executedResourceEnvironment 
+docs: The encompasssing environment for the resources that were executed. For example, this could be a liveRID or a workbookRID. 
+type: required executedResources 
+docs: The specific resources that were executed. For example, this could be a modelUUID or a buildRID or if run on a container, pass in the identifier of the container. 
+type: required 
+
+ configureInfra A user configures some infrastructure like a node or a service. configureInfraTargets 
+docs: The SystemResources that are being configured. 
+type: required configureInfraRequestId 
+docs: The request-id of this configuration event. 
+type: required 
+
+ containerLaunch Registers the preparation of a compute environment. This should be emitted when, for example, a Spark module is launched. If possible, pass in a location identifier of the compute environment like a host name. requestedContainerIdsToLaunch 
+docs: The IDs of the resources that were requested to be launched. 
+type: optional launchedContainerIds 
+docs: The IDs of the resources that were launched. 
+type: required 
+
+ containerLoad Registers the load of a compute environment. This should be emitted when, for example, a spark module is read. If possible, pass in a location identifier of the compute environment like a host name. requestedContainerLoadIds 
+docs: The IDs of the resources that were requested. 
+type: required loadedContainerLoadIds 
+docs: The IDs of the resources that were loaded. 
+type: required 
+
+ containerSearch Registers the search of compute environments. This should be emitted when, for example, spark module list is read. containerSearchQuery 
+docs: The search-query that this event is running. 
+type: optional containerSearchResults 
+docs: The search-results that are returned to the user in this event. 
+type: required 
+
+ containerStop Registers the shutdown of a compute environment. If possible, pass in a human readable reason for the shutdown, for example "failure" or "user request". stoppedContainerIds 
+docs: The IDs of the resources that were stopped. 
+type: required 
+
+ containerStopReason 
+docs: The reason why the resource was stopped. 
+type: optional 
+
+ createInfra A user creates some infrastructure like a node or a service. createInfraTargets 
+docs: The SystemResources that are being created. 
+type: required createdInfraResources 
+docs: The SystemResources that were created. This should have a more explicit identifier. 
+type: required 
+
+ dataCreate Indicates the addition of some new entry of data into the platform where it did not exist prior. This event may be reflected as a dataPromote in a separate service if it is logged in the landing service. createdResources 
+docs: The DataResources that were created in this event. 
+type: required 
+
+ dataDelete Related to the deletion of data, independent of the granularity of that deletion. deletedResources 
+docs: The DataResources that were deleted in this event. 
+type: required 
+
+ dataExport Export of data from the platform. Use for things like downloading data from the platform, such as a system external to Palantir, csv file and more. If data was exported to another Palantir system, use the dataPromote category. downloadedResources 
+docs: All resources that were downloaded in this event. 
+type: required downloadedSize 
+docs: The size, in bytes, of the downloaded data. 
+type: required 
+
+ dataImport Imports to the platform. Unlike dataPromote , dataImport refers only to data being ingested from outside the platform. This means that a dataImport in Palantir Gotham could show up as a dataPromote in a separate service. importedFilename 
+docs: The filename of the imported data. 
+type: required 
+
+ importedFileType 
+docs: The filetype of the imported data. 
+type: required 
+
+ importParentResourceId 
+docs: The parent of the destination resource. 
+type: optional importResourceId: 
+docs: The destination resource for the imported data. 
+type: required 
+
+ importedSize 
+docs: The total size, in bytes, of the imported data. 
+type: optional 
+
+ dataLoad Refers to the loading of data to be returned to a user. For purely back-end loads, use internal . loadedResources 
+docs: The DataResources that were loaded in this event. 
+type: required 
+
+ dataMerge Refers to the combination of two datasources into one. This would be triggered by a JOIN in Contour or a Resolution event in Palantir Gotham. resourcesToMerge 
+docs: The resources that were merged in this event. 
+type: required mergedResult 
+docs: The resultant DataResource from the merging of the resources. 
+type: required 
+
+ dataPromote Indicates that a user promoted data to an external Palantir system, Gotham or otherwise. promotionDestinations 
+docs: The destinations to which the DataResources were promoted to. 
+type: required 
+
+ promotionDescription 
+docs: A description of this promotion event. 
+type: required 
+
+ promotedResources 
+docs: The resources that were promoted to another system. 
+type: required 
+
+ dataSearch Searches of datasets, objects, or other searches for data within the system. dataSearchQuery 
+docs: The query that this search is executing. 
+type: required 
+
+ dataSearchContext 
+docs: Further information to contextualize the current query. This information is unstructured and should not be relied upon beyond informing auditors. 
+type <common.ResourceContext> dataSearchResults 
+docs: All resources that were presented to the user by this search result. 
+type: required 
+
+ dataShareCreate Creation of a share of data. For example, when creating a link that grants access to resources on visit. dataShareCreateId 
+docs: An optional identifier for this share, if available. 
+type: optional 
+
+ dataShareCreateTargets 
+type: required 
+
+ dataShareDisable Deactivation of a mechanism to share data. For example, the disabling of a link that grants access to resources on visit. dataShareDisableId 
+docs: An optional identifier for this share, if available. 
+type: optional 
+
+ dataShareDisableTargets 
+type: required 
+
+ dataShare Discretionary share of data. dataShareId 
+docs: An optional identifier for this share, if available. 
+type: optional 
+
+ dataShareTargets 
+type: required 
+
+ dataShareReason 
+ docs: A human-readable reason this data was shared (for example, "visited a share link"). 
+type: required 
+
+ dataTransform Transform one or more DataResources in some way. transformTargets 
+docs: The resources that were transformed. 
+type: required 
+
+ transformDescription 
+docs: A description of the transformation that was performed. 
+type: required 
+
+ dataUpdate Updates or attempted updates of data. This is a catch-all field and we recommend using dataTransform or dataMerge instead. 
+
+ inApplicationContext The request was initiated from a third-party application. applicationRid 
+docs: The application from which the request was initiated.
+type: required 
+
+ inEnrollmentContext The request was made in the context of one or more enrollments. enrollmentRids 
+docs: The enrollments that were associated with the request.
+type: required 
+
+ infraLogsAccess User requests logs from an infrastructure resource like a node or a service. infraLogsAccessTarget 
+docs: The SystemResource from which logs are being requested. 
+type: required infraLogsAccessRequestId 
+docs: The request ID of this access request event. 
+type: required 
+
+ inHubContext The request was made in a hub-spoke environment context where services may query about configurations for different stacks/spokes than their own. targetEnvironment 
+docs: The target environment being queried about.
+type: required
+
+ targetSpokeEnvironment 
+docs: If present, the target spoke environment being queried about.
+type: optional targetEnrollment 
+docs: If present, the target enrollment being queried about.
+type: optional
+
+ targetDomain 
+docs: If present, the target domain being queried about.
+type: optional 
+
+ internal Catch-all for all internal events. These typically are low signal for audit users. 
+
+ llmInference Runs a prompt through a Generative AI model (a Large Language Model or LLM) that outputs a response. llmInferenceContext 
+docs: Further context to identify this inference request, such as the model ID, or resources in foundry attributed to the request.
+type: required
+
+ llmInferenceInputs 
+docs: The inputs that were used to generate the responses.
+type: required llmInferenceResponses 
+docs: The responses that were generated by the model.
+type: required
+
+ llmInferenceResponseContext 
+docs: Further context to identify this inference request, such as the model ID. This must include any LLM inference context that is only available at response time.
+type: required 
+
+ llmRoute Represents the forwarding of an LLM prompt to an appropriate backend. This audit category is intended for LLM proxies or load balancers (for example, llm-portal). llmRouteRequest 
+type: required llmRouteResponse 
+type: required 
+
+ logicAccess Access of logic. For example, viewing a Contour analysis. accessedLogicResources 
+docs: All LogicResources accessed in this event. 
+type: required 
+
+ logicCreate Creation of new logic. For example, when a new Contour board is created. createdLogicResources 
+docs: All LogicResources created in this event. 
+type: required 
+
+ logicDelete Deletion of logic. For example, deleting a Contour board. deletedLogicResources 
+docs: All LogicResources deleted in this event. 
+type: required 
+
+ logicSearch Search of some logic. For example, searching for a Contour analysis. logicSearchQuery 
+docs: The query that this search is executing. 
+type: required logicSearchResults 
+docs: All underlying LogicResources returned by this search request. 
+type: required 
+
+ logicUpdate An update to existing logic. For example, when a user saves a file, a push to a stemma repo occurs, or the logic of an existing Contour board is updated. updatedLogicResources 
+docs: All LogicResources updated in this event. 
+type: required 
+
+ managementGroups Changes to group membership should always go through here. groupPatches 
+type: required 
+
+ managementPermissions Anything that changes permissions on the platform. These logs should use the result_params changes field to enumerate the precise change that occurred. Examples include sharing a resource or changing a resource's provenance. resourcesWithPermissionsChanges 
+docs: The resources affected by the change in permissions 
+type: required 
+
+ permissionChangeContext 
+docs: Further information to contextualize changed resources 
+type: optional 
+
+ managementUsers Changes and modifications to what users exist or their personal information. For events related to user permissions, use managementPermissions . For events where a user is added or removed from a group, use managementGroups . managedUserIds 
+type: required 
+
+ managementTokens Specific action related to token management, such as enabling, disabling, or revoking tokens. managedTokens 
+docs: All tokens affected by the change. 
+type: required 
+
+ managementMarkings Anything that modifies access to mandatory controls. markingPatches 
+type: required 
+
+ mandatoryControlManagement Privileged action affecting mandatory controls in the system. Replaced by managementMarkings in audit.3 . 
+
+ mandatoryControlApplication Privileged action affecting mandatory controls in the system. Replaced by managementPermissions in audit.3 . 
+
+ metaDataAccess Refers to the loading of metadata. Metadata is data about data; for example, various API-accessible metrics that describe data within a pipeline, like counts, dataset names, transaction IDs and more. As such, metadata may not have its own identifier but instead will be related to the data that it describes. accessedMetaDataResources 
+docs: The underlying DataResources that the accessed metadata describes. 
+type: required 
+
+ accessedMetaDataDescription 
+ docs: A description of the metadata access. 
+type: required 
+
+ metaDataCreate The creation of metadata. Metadata is data about data; for example, various API-accessible metrics that describe data within a pipeline, like counts, dataset names, transaction IDs and more. createdMetaDataDescription 
+docs: A description of the metadata creation. 
+type: required createdMetaDataResources 
+docs: The underlying DataResources that the created metadata describes. 
+type: required 
+
+ metaDataDelete The deletion of metadata. Metadata is data about data; for example, various API-accessible metrics that describe data within a pipeline, like counts, dataset names, transaction IDs and more. deletedMetaDataResources 
+ docs: The underlying DataResources that the deleted metadata describes. 
+type: required 
+
+ deletedMetaDataDescription 
+docs: A description of the metadata deletion. 
+type: required 
+
+ metaDataSearch Search of metadata associated with a dataset, objects, or other searches for metadata within the system. metaDataSearchQuery 
+docs: The query that this search is executing. 
+type: required metaDataSearchResults 
+docs: All underlying resources that had metadata presented to the user by this search result. 
+type: required 
+
+ metaDataUpdate The updating of metadata. MetaData is data about data; for example, various API-accessible metrics that describe data within a pipeline, like counts, dataset names, transaction IDs and more. updatedMetaDataResources 
+docs: The underlying DataResources that the updated metadata describes. 
+type: required 
+
+ updatedMetaDataDescription 
+docs: A description of the metadata update. 
+type: required 
+
+ monitorAccess Access of a monitor, for example viewing details about how it works. accessedMonitorResources 
+docs: The MonitorResources that were accessed in this event. 
+type: required 
+
+ accessedMonitorDescription 
+docs: A description of the monitor access. 
+type: optional 
+
+ monitorCreate Creation of a monitor. createdMonitorDescription 
+docs: A description of the monitor creation. 
+type: optional createdMonitorResources 
+docs: The MonitorResources that were created in this event. 
+type: required 
+
+ monitorDelete Deletion of a monitor. deletedMonitorResources 
+docs: The MonitorResources that were deleted in this event. 
+type: required 
+
+ deletedMonitorDescription 
+docs: A description of the monitor deletion. 
+type: optional 
+
+ monitorRun Execution of a particular monitor, potentially triggering actions or notifications. runMonitorTargets 
+docs: The MonitorResources that were ran in this event. 
+type: required 
+
+ monitorSearch Searching for a monitor. monitorSearchQuery 
+docs: The search-query that this event is running. 
+type: required monitorSearchResults 
+docs: The search-results that are returned to the user in this event. 
+type: required 
+
+ monitorUpdate Update a monitor, potentially changing how it behaves. updatedMonitorResources 
+docs: The MonitorResources that were updated in this event. 
+type: required 
+
+ updatedMonitorDescription 
+docs: A description of the monitor update. 
+type: optional 
+
+ oauth2InitiateAuthFlow Start the OAuth 2.0 Authorization Code flow with the external OAuth 2.0 server. oauth2InitiateAuthFlowUser 
+docs: The user for whom this oauth2 flow is being started. 
+type: required 
+
+ oauth2InitiateAuthClientId 
+docs: The client-id the oauth2 flow is being performed for. 
+type: required 
+
+ onBehalfOf The request was made on behalf of other users, usually by a service user. onBehalfOfUserIds 
+docs: The upstream users. The first user ID is the most upstream user. 
+type: required 
+
+ ontologyDataLoad The loading of ontology data to be returned to a user. ontologyDataLoadContext 
+docs: Further context to identify this load request, such as the owning RID. 
+type: optional 
+
+ requestedOntologyDataResources 
+docs: The OntologyDataResources that were requested in this event. 
+type: required loadedOntologyDataResources 
+docs: The OntologyDataResources that were loaded in this event. 
+type: required 
+
+ ontologyDataTransform The modification of ontology data via patches or edits. ontologyDataTransformTargets 
+docs: The OntologyDataResources that the user intends to transform. 
+type: optional 
+
+ ontologyDataTransformContext 
+docs: Further context to identify this transform request. 
+type: optional 
+
+ ontologyDataTransformDescription 
+docs: A description of the transformation that was performed. 
+type: optional transformedOntologyDataResources 
+docs: The OntologyDataResources that were transformed by the request. 
+type: optional 
+
+ ontologyDataSearch Search of ontology data within the system. ontologyDataSearchContext 
+docs: Further context to identify this load request, such as the owning RID. 
+type: optional 
+
+ searchedOntologyLogicResources 
+docs: The logical selections included in this search. 
+type: required ontologyDataSearchResults 
+docs: All resources that were presented to the user by this search result. 
+type: required 
+
+ ontologyLogicAccess Access of ontology logic. For example, viewing an object set or sets. requestedOntologyLogicResources 
+docs: The OntologyLogicResources that were requested. 
+type: required loadedOntologyLogicResources 
+docs: The OntologyLogicResources that were present in the response. 
+type: required 
+
+ ontologyLogicCreate Creation of new ontology logic. For example, when a new object set is created. createOntologyLogicContext 
+docs: Further context to narrow down an identifier, or further identify this request. For example, owning RID, or parent Compass RID. This includes a "type" context identifying the type represented by this request, for example, temporary object set, permanent object set, versioned object set, and more. 
+type: optional createdOntologyLogicResources 
+docs: All LogicResources created in this event. 
+type: required 
+
+ ontologyLogicDelete Deletion of ontology logic, for example a new object set. deleteOntologyLogicContext 
+docs: Further context to narrow down an identifier, or further identify this request. For example, owning RID, or parent Compass RID. This includes a "type" context identifying the type represented by this request, for example, temporary object set, permanent object set, versioned object set, and more. 
+type: optional deletedOntologyLogicResources 
+docs: All LogicResources deleted in this event. 
+type: required 
+
+ ontologyLogicUpdate Update ontology logic, for example saving a new version of an object set. updateOntologyLogicContext 
+docs: Further context to narrow down an identifier, or further identify this request. For example, owning RID, or parent Compass RID. This includes a "type" context identifying the type represented by this request, for example, temporary object set, permanent object set, versioned object set, and more. 
+type: optional updatedOntologyLogicResources 
+docs: All LogicResources updated in this event. 
+type: required 
+
+ ontologyMetaDataCreate The creation of OntologyMetaDataResources. createdOntologyMetaDataResources 
+docs: All OntologyMetaDataResources created in this event. 
+type: required 
+
+ ontologyMetaDataDelete The deletion of OntologyMetaDataResources. deletedOntologyMetaDataResources 
+docs: All OntologyMetaDataResources deleted in this event. 
+type: required 
+
+ ontologyMetaDataLoad The loading of Ontology MetaData to be returned to a user. requestedOntologyMetaDataResources 
+docs: The OntologyMetadataResources that were requested. 
+type: required loadedOntologyMetaDataResources 
+docs: The OntologyMetaDataResources that were present in the response. 
+type: required 
+
+ ontologyMetaDataSearch Search for OntologyMetaDataResources that meet criteria. ontologyMetaDataSearchedResources 
+docs: The OntologyMetaDataResources included in the search query. 
+type: required 
+
+ ontologyMetaDataSearchContext 
+docs: Further context to the search query, such as DatasourceType. 
+type: optional ontologyMetaDataSearchResults 
+docs: All OntologyMetaDataResources that were returned to the user. 
+type: required 
+
+ ontologyMetaDataUpdate The modification of OntologyMetaDataResources. updatedOntologyMetaDataResources 
+docs: All OntologyMetaDataResources updated in this event. 
+type: required 
+
+ passThrough A category where the set of auditable parameters is determined at runtime, typically by an external system passThroughRequestParams 
+type: required passThroughResponseParams 
+type: required 
+
+ requestAccess The loading of a request. accessedRequestIds 
+docs: The requests that were accessed in this request. 
+type: required 
+
+ accessedRequestDescription 
+docs: A description of the request access. 
+type: optional 
+
+ requestApprove Approving a request, or part of a request. A request may require multiple approvals before it can be performed. approvedRequestIds 
+docs: The requests that are being approved 
+type: required 
+
+ approveRequestUserId 
+docs: The user that approved the request 
+type: optional 
+
+ requestCancel Canceling the request so that it will no longer be performed, such as closing a pull request. canceledRequestIds 
+docs: The requests that are being canceled 
+type: required 
+
+ requestCreate The creation of a request. Requests represent an action that has not yet been taken and may require approval, such as a pull request, access request, or checkpoint. createdRequestAffectedResources 
+docs: The resources that are directly affected by the request. For example, for an update request this would be the updated resource, and for a create request this could be the parent resource. 
+type: required 
+
+ createdRequestDescription 
+docs: A description of the request creation. 
+type: optional createdRequestIds 
+docs: The requests that were created in this request 
+type: required 
+
+ requestDisapprove Disapproving a request. disapprovedRequestIds 
+docs: The requests that are being disapproved. 
+type: required 
+
+ disapproveRequestUserId 
+docs: The user that disapproved the request. 
+type: optional 
+
+ requestExecute Executing the action associated with a request, such as merging a pull request or applying an access request. executedRequestIds 
+docs: The requests that are being executed. 
+type: required executeRequestAffectedResources 
+docs: The resources that were affected by this request. This may not include all the resources that were provided when creating the request. 
+type: optional 
+
+ requestSearch Searching for requests. requestSearchQuery 
+docs: The search-query that this event is running. 
+type: required requestSearchResults 
+docs: The search-results that are returned to the user in this event. 
+type 
+
+ requestUpdate The update of an existing request. updatedRequestIds 
+docs: The requests that were updated in this request 
+type: required 
+
+ updatedRequestDescription 
+docs: A description of the request update. 
+type: optional 
+
+ restartInfra Restarts some infrastructure like a node or a service. restartedResources 
+docs: All SystemResources that were restarted in this event. 
+type: required 
+
+ reviewInfraAction A user approves or denies an action within the infrastructure space, such as configuring a node, a service and more. reviewInfraActionRequestId 
+docs: The request-id of this review. 
+type: required 
+
+ reviewInfraActionUser 
+docs: The user who reviewed this action. 
+type: required reviewInfraActionWasApproved 
+docs: Whether the review was approved. 
+type: required 
+
+ secretCreate Create a secret string. createdSecretType 
+docs: The kind of secrets that were created 
+type: required createdSecretIdentifiers 
+docs: The identifiers of the secrets that were created. 
+type: required 
+
+ secretDeprecate Mark a secret as deprecated. deprecatedSecretIdentifier 
+docs: The identifier of the secret that was deprecated. 
+type: required 
+
+ secretLoad Retrieve a secret from the backing store. loadedSecretIdentifiers 
+docs: The identifiers of the secrets that were loaded. 
+type: required 
+
+ secretUse Use a secret via a backend endpoint. usedSecretOperation 
+docs: The operation used for the secret. 
+type: required 
+
+ usedSecretIdentifiers 
+docs: The identifiers of the secrets that were used. 
+type: required 
+
+ systemManagement Modification of or access to metadata that determines the layout and configuration of applications on the environment. Replaced by appConfigCreate/Access/Update/Delete/Search in audit.3 . 
+
+ tokenAccess Accessing a previously generated token. accessedTokens 
+docs: A description of how these tokens were accessed, for auditor-context. 
+type: required 
+
+ tokenGeneration Action that leads to generation of a new token. generateTokensDescription 
+docs: A description of how these tokens were generated, for auditor-context. 
+type: optional generatedTokens 
+docs: All tokens that were generated 
+type: optional 
+
+ tokenRevoke Action that leads to the deletion of tokens. revokeTokensDescription 
+docs: A description of how these tokens were generated, for auditor-context. 
+type: optional revokedTokens 
+docs: All tokens that were revoked. 
+type: required 
+
+ upgradeInfra Some infrastructure was upgraded, including downgrades. upgradedResources 
+docs: All SystemResources that were upgraded in this event. 
+type: required 
+
+ userJustify Event when a user specifies a purpose justification for taking an action. userJustifyId 
+docs: The user justifying the action. 
+type: required 
+
+ userJustification 
+docs: The user's justification for taking the action. Multiple justifications can be provided. 
+type: required 
+
+ userLogin Login events of users. loginUserId 
+type: optional 
+
+ userLogout Logout events of users. logoutUserId 
+type: optional 
+
+ ← 
+ PREVIOUS Audit logs 
+
+ NEXT Monitor audit logs 
+ →

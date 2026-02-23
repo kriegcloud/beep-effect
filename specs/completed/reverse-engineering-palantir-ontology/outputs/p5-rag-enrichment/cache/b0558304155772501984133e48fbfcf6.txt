@@ -1,0 +1,80 @@
+Ontologies • Shared ontologies • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Ontology building Ontologies Shared ontologies 
+
+ Shared ontologies
+
+A shared ontology is a special kind of ontology that allows multiple organizations to collaborate on shared workflows. Shared ontologies live under a dedicated shared space created specifically for the workflow. A shared ontology enables resources from multiple organizations to be used in a workflow, whereas an ontology is private to one organization and contains resources from that organization alone.
+
+A shared ontology is automatically created when a new shared space is created. It holds the same organizations markings and role grants as the shared space.
+
+See cross-organization collaboration for more details on how to set up secure collaborative workflows.
+
+ ← 
+ PREVIOUS Ontology branches [Legacy] 
+
+ NEXT Migrating between ontologies 
+ →

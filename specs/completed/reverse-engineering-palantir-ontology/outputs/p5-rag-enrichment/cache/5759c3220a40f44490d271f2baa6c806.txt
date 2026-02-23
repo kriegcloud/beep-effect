@@ -1,0 +1,141 @@
+Data Connection • Architecture • Palantir 
+
+ Search 
+
+ Palantir 
+
+ Documentation 
+
+ Documentation 
+
+ Apollo 
+
+ Gotham 
+
+ Search documentation 
+
+ Search 
+ karat 
+
++
+
+K
+
+ API Reference ↗ Send feedback 
+
+ en 
+
+ en jp kr zh 
+
+ AB XY 
+
+ AB XY AB XY AB XY AB XY AB XY AB XY 
+
+ Capabilities 
+
+ AI Platform (AIP) 
+
+ Data connectivity & integration 
+
+ Model connectivity & development 
+
+ Ontology building 
+
+ Developer toolchain 
+
+ Use case development 
+
+ Analytics 
+
+ Product delivery 
+
+ Security & governance 
+
+ Management & enablement 
+
+ Getting started 
+
+ Architecture center 
+
+ Platform updates 
+
+ Announcements 
+
+ Release notes 
+
+ Data connectivity & integration Data Connection Architecture 
+
+ Architecture examples
+
+ Foundry worker with direct connection policies
+
+This type of connection can also be referred to as a "direct connection".
+
+Foundry worker with direct connection policies is the recommended default for accessing external systems that accept inbound traffic from Foundry, such as REST APIs and cloud/SaaS systems.
+
+In this scenario, data connections run in an isolated compute container called a Foundry worker , which handles authenticated encrypted network requests.
+The external system must accept inbound traffic from Foundry. Network egress from Foundry is managed and administered in-platform via direct connection egress policies .
+
+External system credentials are stored with AES-256-GCM server-side encryption and can only be decrypted by containers triggered by authorized users.
+
+To create a direct connection, follow instructions about setting up a source .
+
+ Foundry worker with agent proxy policy
+
+This type of connection can also be referred to as an "agent proxy" or an "agent thin mode" connection.
+
+Foundry worker with agent proxy policies is the recommended architecture to access external systems hosted on private networks. It requires the use of a data connection agent .
+
+In this scenario, the agent acts as a simple network tunnel without performing any data processing itself.
+
+The agent initiates a network request with Foundry to establish a websocket connection. Learn more about network controls available on agents. 
+
+All data connection and computation capabilities are executed by a Foundry worker , an isolated container with scalable compute resources that processes data and communicates with external systems via the provided websocket.
+
+The ability to use the agent as a proxy is granularly managed and administered in-platform via agent proxy egress policies .
+
+Multiple agents can be used to load balance workloads across multiple external systems.
+
+Like direct connections , external system credentials are stored using AES-256-GCM server-side encryption and can only be decrypted by the container triggered by authorized users.
+
+To create an agent-proxy connection, you will need to:
+
+ Set up an agent. 
+
+Create one or many agent proxy policies .
+
+ Set up a Foundry worker source using the policies above.
+
+ Agent worker
+
+This type of connection can also be referred to as "agent thick mode".
+
+Agent worker connection is the historical architecture used to access external systems hosted on private networks from Foundry. It requires the use of a data connection agent . Except for specific file-based syncs filtering large amount of data or micro-batching workflows, agent proxy connections are recommended for accessing on-premise or privately hosted systems. Learn more about agent worker known limitations. 
+
+In this scenario, the agent constantly polls Foundry via unidirectional outbound connections secured by HTTPS for new tasks to execute. Once received, the task is executed by the agent itself, also called agent worker and results are sent to Foundry over that same unidirectional connection. All the networking configuration required for the agent to be able to communicate with internal source systems is configured on the agent host itself .
+
+External system credentials are stored on the platform using AES-128-GCM encryption with keys stored on the agent. During capability execution, the agent retrieves encrypted credentials from Foundry, decrypts them locally, and uses them for queries. Decrypted credentials are automatically deleted from memory after execution.
+
+To create an agent worker connection, you will need to:
+
+ Set up an agent. 
+
+Configure it to be an agent worker .
+
+ Set up an agent worker source and assign it that agent.
+
+ Summary
+
+ Type of connection Capability execution Networking System credentials 
+
+ Direct connection In Foundry Direct from Foundry to source systems. Stored encrypted in platform with encryption keys in platform. 
+
+ Agent proxy In Foundry Outbound connection from agent to Foundry to establish a websocket and proxy traffic. Stored encrypted in platform with encryption keys in platform. 
+
+ Agent worker On agent host Outbound connection from agent to Foundry to poll tasks. Inbound connection from agent to source systems. Stored encrypted in platform with encryption keys on agent. 
+
+ ← 
+ PREVIOUS Core concepts 
+
+ NEXT Initial setup overview 
+ →
