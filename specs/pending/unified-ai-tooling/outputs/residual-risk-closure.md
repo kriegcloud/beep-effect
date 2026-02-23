@@ -1,15 +1,25 @@
 # Residual Risk Closure Plan (.beep)
 
 Date: 2026-02-23
-Status: active closure contract
+Status: partially closed (post-POC follow-up active)
 
 ## 1. Purpose
 
 Convert remaining non-blocking risks into explicit, testable gates so kickoff can proceed without hidden ambiguity.
 
-## 2. Risk-by-Risk Closure
+## 2. Current Closure Snapshot (Post-POC)
 
-### 2.1 JetBrains prompt-library target uncertainty
+| Risk | POC Evidence | Status | Next Owner |
+|---|---|---|---|
+| JetBrains prompt-library target uncertainty | `outputs/poc-03-jetbrains-prompt-library-results.md` | closed for v1 baseline | P2 hardening |
+| Cursor/Windsurf MCP capability drift | `outputs/poc-02-mcp-capability-results.md` | baseline closed, monitor drift | P2 hardening |
+| Revert behavior safety | `outputs/poc-04-managed-ownership-revert-results.md` | baseline closed, expand to repo fanout | P3/P4 |
+| CI/hooks deferred | design decision | open-by-design | P4 + CI branch |
+| Secret auth success-path evidence (desktop/service account) | `outputs/poc-05-secret-resolution-results.md` | open follow-up | P3 |
+
+## 3. Risk-by-Risk Closure
+
+### 3.1 JetBrains prompt-library target uncertainty
 
 Observed:
 - JetBrains documents prompt-library behavior through UI workflows, but does not document a stable project-local file path/format for direct machine generation.
@@ -31,7 +41,12 @@ Pass criteria:
 2. P2 fixtures demonstrate deterministic generation for bundle artifacts.
 3. If `native_file` is used, fixture evidence must include discovered path, parser validity, and round-trip safety.
 
-### 2.2 Cursor/Windsurf MCP capability drift
+Execution evidence:
+1. POC-03 passed with deterministic `bundle_only` output.
+2. POC-03 native probe envelope proved stable deterministic path metadata (`.aiassistant/prompt-library/prompts.json`) and deterministic round-trip flag.
+3. Remaining requirement is adapter-level hardening in P2, not architectural uncertainty.
+
+### 3.2 Cursor/Windsurf MCP capability drift
 
 Observed:
 - Cursor docs emphasize MCP support and shared CLI/editor `mcp.json` configuration behavior.
@@ -54,7 +69,12 @@ Pass criteria:
 2. P2 `Quality Gate Evidence` lists fixture files and pass/fail results.
 3. P3 integration tests validate no silent drops for capability-mapped fields.
 
-### 2.3 Revert behavior safety
+Execution evidence:
+1. POC-02 passed with fixture-backed output parity for Codex/Cursor/Windsurf.
+2. Default mode warning behavior (`W_UNSUPPORTED_FIELD`) was validated for unsupported fields.
+3. Strict mode fail-fast behavior (non-zero exit) was validated.
+
+### 3.3 Revert behavior safety
 
 Observed:
 - `revert` is now mandatory in v1 and scoped to managed targets only.
@@ -74,7 +94,12 @@ Pass criteria:
 1. P3 integration tests cover scenarios 1-4.
 2. P4 rollback rehearsal includes at least one partial-failure recovery using `revert`.
 
-### 2.4 CI/hooks deferred in this branch
+Execution evidence:
+1. POC-04 passed with apply/check/revert flow evidence.
+2. Unmanaged file stability was proven by byte-level diff.
+3. Second `revert` call was proven idempotent (`changed: false`).
+
+### 3.4 CI/hooks deferred in this branch
 
 Observed:
 - CI and git-hook rollout is intentionally deferred.
@@ -100,7 +125,24 @@ Pass criteria:
 2. Required signoff rows are present and non-rejected.
 3. CI branch merge later should mirror this command bundle as pipeline jobs.
 
-## 3. Phase Mapping
+### 3.5 Secret auth success-path evidence gap
+
+Observed:
+1. POC-05 validated fail-hard behavior for missing/invalid auth and deterministic mock success paths.
+2. POC-05 did not capture real successful secret resolution with valid desktop auth and valid service-account auth.
+
+Closure decision:
+1. Keep strict required-secret fail-hard behavior as locked baseline.
+2. Keep optional-secret warn policy as locked baseline.
+3. Track one explicit follow-up: capture command evidence for successful desktop and service-account secret resolution runs once valid credentials are available.
+4. Treat absence of this positive-path evidence as an open runtime hardening item, not a blocker for P1/P2 design progression.
+
+Pass criteria:
+1. P3 runtime evidence includes at least one successful desktop-auth resolution run with valid session.
+2. P3 runtime evidence includes at least one successful service-account resolution run with valid token.
+3. Redaction guarantees remain demonstrated in both paths.
+
+## 4. Phase Mapping
 
 1. P2:
    - finalize JetBrains prompt-library mode contract.
@@ -108,11 +150,12 @@ Pass criteria:
 2. P3:
    - execute revert integration scenarios.
    - validate strict/non-strict diagnostic behavior with capability fixtures.
+   - close `poc05-real-auth-success-evidence` with real-auth command evidence.
 3. P4:
    - run rollback rehearsal including managed-target-only revert.
    - confirm migration signoffs.
 
-## 4. Sources
+## 5. Sources
 
 Primary sources:
 - JetBrains prompt library docs: https://www.jetbrains.com/help/ai-assistant/prompt-library.html
@@ -126,3 +169,7 @@ Supporting local docs:
 - `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
 - `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
 - `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`

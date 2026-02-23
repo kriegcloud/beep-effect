@@ -1,0 +1,72 @@
+{
+  "name": "@beep/beep-sync",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "description": "Scaffold for unified AI tooling sync runtime and POC fixtures",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/beep-sync",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "tooling/beep-sync"
+  },
+  "sideEffects": [],
+  "bin": {
+    "beep-sync": "./src/bin.ts"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./bin": null,
+    "./internal/*": null
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
+      "./bin": null,
+      "./internal/*": null
+    }
+  },
+  "scripts": {
+    "codegen": "echo 'no codegen needed'",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "build:tsgo": "tsgo -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun run test:unit && bun run test:fixtures && bun run test:integration",
+    "test:unit": "bash scripts/test-unit.sh",
+    "test:fixtures": "bash scripts/test-fixtures.sh",
+    "test:integration": "bash scripts/test-integration.sh",
+    "test:coverage": "bash scripts/test-coverage.sh",
+    "poc:preflight": "bash scripts/poc-preflight.sh",
+    "agents:audit": "bash scripts/audit-package-agents.sh",
+    "agents:scaffold": "bash scripts/scaffold-package-agents.sh",
+    "docgen": "bunx @effect/docgen",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@beep/repo-utils": "workspace:^",
+    "effect": "catalog:",
+    "yaml": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

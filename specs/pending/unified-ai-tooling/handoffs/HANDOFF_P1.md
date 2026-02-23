@@ -9,6 +9,14 @@ Read first:
 - `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
 - `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 - `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+- `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
 
 Budget guidance:
 - Do not design adapter implementation details yet.
@@ -37,6 +45,7 @@ Define canonical `.beep/config.yaml` schema and deterministic compiler contract 
 6. State/manifest contract is explicit (hashes, adapter versioning, orphan-cleanup inputs).
 7. Adapter capability descriptors are defined at schema-contract level for downstream P2 mapping.
 8. P1 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
+9. POC findings are treated as locked baseline constraints; no POC contract is weakened in P1.
 
 ### Blocking Issues
 
@@ -82,6 +91,9 @@ rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p1-sc
 
 # P1 output must not contain rejected required signoffs
 ! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+
+# All POC evidence files should remain in passed state unless explicitly re-run with new evidence
+rg -n "^Status: passed$" specs/pending/unified-ai-tooling/outputs/poc-0*-*-results.md
 ```
 
 ## Known Issues and Gotchas
@@ -90,3 +102,4 @@ rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p1-sc
 - Keep canonical schema portable and stable; isolate vendor-only fields under overrides.
 - Do not assume hook/CI rollout now; only define command contracts needed for eventual integration.
 - Do not allow implicit lossy drops; canonical contract must leave room for explicit warning/error mapping.
+- Do not rewrite POC result docs during P1 unless a POC is intentionally re-executed with new evidence.

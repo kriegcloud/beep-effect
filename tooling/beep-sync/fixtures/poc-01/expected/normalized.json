@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "hash": "32fc5fa9df6af70c599e4ea58a5e076d0e337557446db9cf1dcea6dd59441735",
+  "config": {
+    "commands": [
+      {
+        "id": "test",
+        "run": "bun test"
+      }
+    ],
+    "instructions": {
+      "base": [".beep/instructions/core.md"]
+    },
+    "mcp_servers": {
+      "context7": {
+        "transport": "http",
+        "url": "https://mcp.context7.com"
+      }
+    },
+    "version": 1
+  }
+}

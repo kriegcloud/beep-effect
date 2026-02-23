@@ -11,6 +11,7 @@ Read first:
 - `outputs/subtree-synthesis.md`
 - `outputs/quality-gates-and-test-strategy.md`
 - `outputs/residual-risk-closure.md`
+- `outputs/poc-06-end-to-end-dry-run-results.md`
 
 ## Working Memory
 

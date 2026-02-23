@@ -8,7 +8,9 @@ Defines a deterministic compiler (`beep-sync`) that transforms canonical `.beep/
 
 P0 is complete.
 
-Next phase is **P1: Schema + Compiler Contract**.
+P1-P4 are complete at spec level.
+
+Next phase is **P5: Runtime Implementation + Skill Sync**.
 
 ## First Files to Read
 
@@ -19,11 +21,29 @@ Next phase is **P1: Schema + Compiler Contract**.
 5. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
 6. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 7. `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
-8. `specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
-9. `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
-10. `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
-11. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
-12. `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+8. `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
+9. `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
+10. `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
+11. `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+12. `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+13. `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+14. `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+15. `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
+16. `specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
+17. `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
+18. `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
+19. `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`
+20. `specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md`
+21. `specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md`
+22. `specs/pending/unified-ai-tooling/outputs/p4-cutover-playbook.md`
+23. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P5.md`
+24. `specs/pending/unified-ai-tooling/handoffs/P5_ORCHESTRATOR_PROMPT.md`
+
+## POC Gate Snapshot (2026-02-23)
+
+1. POC-01..POC-06: all passed.
+2. One open follow-up remains: capture real authenticated success-path evidence for 1Password desktop and service-account secret resolution.
+3. Treat POC findings as locked baseline inputs for P1-P4.
 
 ## Phase Handoff Files
 
@@ -33,6 +53,8 @@ Next phase is **P1: Schema + Compiler Contract**.
 | P2 | `handoffs/HANDOFF_P2.md` | `handoffs/P2_ORCHESTRATOR_PROMPT.md` |
 | P3 | `handoffs/HANDOFF_P3.md` | `handoffs/P3_ORCHESTRATOR_PROMPT.md` |
 | P4 | `handoffs/HANDOFF_P4.md` | `handoffs/P4_ORCHESTRATOR_PROMPT.md` |
+| P5 | `handoffs/HANDOFF_P5.md` | `handoffs/P5_ORCHESTRATOR_PROMPT.md` |
+| P6 | `handoffs/HANDOFF_P6.md` | `handoffs/P6_ORCHESTRATOR_PROMPT.md` |
 
 ## Locked Decisions
 
@@ -54,12 +76,11 @@ Next phase is **P1: Schema + Compiler Contract**.
 16. TDD and hard validation checkpoints are mandatory for phase completion.
 17. `revert` is mandatory in v1 and scoped to managed targets.
 
-## First Task to Run Now (P1)
+## First Task to Run Now (P5)
 
-1. Open `handoffs/HANDOFF_P1.md`.
-2. Finalize `.beep/config.yaml` schema + normalization + sidecar metadata contract.
-3. Document AGENTS generation/freshness model for root + every workspace package.
-4. Define state/manifest contracts (hashes, orphan cleanup, managed ownership).
-5. Add `Quality Gate Evidence` requirements to P1 output (tests + review checkpoints).
-6. Produce `outputs/p1-schema-and-contract.md`.
-7. Update `outputs/manifest.json` P1 status.
+1. Open `handoffs/HANDOFF_P5.md`.
+2. Replace scaffold command paths in `tooling/beep-sync` with real runtime behavior.
+3. Implement managed skill distribution from `.beep/skills/` to explicit target paths.
+4. Preserve deterministic no-churn invariants from POC-06 in validation checkpoints.
+5. Add `Quality Gate Evidence` to `outputs/p5-runtime-implementation.md`.
+6. Update `outputs/manifest.json` with P5 status and evidence links.

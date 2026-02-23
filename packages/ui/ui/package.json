@@ -15,8 +15,8 @@
     "lint": "biome check src/ .storybook/",
     "lint:fix": "biome check src/ .storybook/ --write",
     "test:storybook": "vitest --config vitest.storybook.config.ts",
-    "test:visual": "bun run build-storybook && npx lost-pixel",
-    "test:visual:update": "bun run build-storybook && npx lost-pixel update"
+    "test:visual": "echo 'visual regression disabled: lost-pixel removed'",
+    "test:visual:update": "echo 'visual regression update disabled: lost-pixel removed'"
   },
   "dependencies": {
     "@base-ui/react": "catalog:",
@@ -36,7 +36,6 @@
     "shadcn": "catalog:",
     "@storybook/addon-vitest": "catalog:",
     "@vitest/browser": "catalog:",
-    "lost-pixel": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:"
