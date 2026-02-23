@@ -6,7 +6,6 @@
       "**",
       "!.agents",
       "repo-docs",
-      "!**/*.css",
       "!**/.tsup",
       "!**/.turbo",
       "!**/public",
@@ -27,6 +26,11 @@
       "!.repos",
       "!specs"
     ]
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
   },
   "json": {
     "formatter": {

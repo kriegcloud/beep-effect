@@ -31,6 +31,12 @@
       "path": "packages/common/utils"
     },
     {
+      "path": "packages/shared/domain"
+    },
+    {
+      "path": "packages/shared/env"
+    },
+    {
       "path": "scratchpad"
     },
     {
@@ -41,12 +47,6 @@
     },
     {
       "path": "tooling/repo-utils"
-    },
-    {
-      "path": "packages/shared/domain"
-    },
-    {
-      "path": "packages/shared/env"
     }
   ]
 }

@@ -11,6 +11,14 @@ pre-commit:
       run: npx eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' {staged_files}
     gitleaks:
       run: gitleaks protect --staged --verbose
+    typos:
+      glob: "*.{ts,tsx,js,jsx,md,json}"
+      run: typos {staged_files}
+
+commit-msg:
+  commands:
+    commitlint:
+      run: bunx commitlint --edit {1}
 
 pre-push:
   commands:

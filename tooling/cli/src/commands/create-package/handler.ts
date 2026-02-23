@@ -241,7 +241,9 @@ export const createPackageCommand = Command.make(
       Flag.withDefault("")
     ),
     dirName: Flag.string("dir-name").pipe(
-      Flag.withDescription("Override folder name (defaults to package name). E.g. --dir-name domain for packages/shared/domain"),
+      Flag.withDescription(
+        "Override folder name (defaults to package name). E.g. --dir-name domain for packages/shared/domain"
+      ),
       Flag.withDefault("")
     ),
     description: Flag.string("description").pipe(Flag.withDescription("Package description"), Flag.withDefault("")),

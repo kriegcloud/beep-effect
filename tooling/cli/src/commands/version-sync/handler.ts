@@ -10,7 +10,9 @@ import { type FileSystem, Path } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { HttpClient } from "effect/unstable/http";
 import { type BunVersionState, buildBunReport, resolveBunVersions } from "./resolvers/bun.js";
 import { buildDockerReport, type DockerImageState, resolveDockerImages } from "./resolvers/docker.js";
@@ -133,13 +135,13 @@ const applyNodeUpdates: (
     const path = yield* Path.Path;
 
     // Group locations by file
-    const byFile = new Map<string, Array<{ readonly yamlPath: ReadonlyArray<string | number> }>>();
+    const byFile = MutableHashMap.empty<string, Array<{ readonly yamlPath: ReadonlyArray<string | number> }>>();
     for (const loc of workflowLocations) {
-      const existing = byFile.get(loc.file);
-      if (existing !== undefined) {
-        existing.push({ yamlPath: loc.yamlPath });
+      const existing = MutableHashMap.get(byFile, loc.file);
+      if (O.isSome(existing)) {
+        MutableHashMap.set(byFile, loc.file, A.append(existing.value, { yamlPath: loc.yamlPath }));
       } else {
-        byFile.set(loc.file, [{ yamlPath: loc.yamlPath }]);
+        MutableHashMap.set(byFile, loc.file, [{ yamlPath: loc.yamlPath }]);
       }
     }
 
@@ -181,7 +183,7 @@ const applyDockerUpdates: (
       const newImageValue = item.expected;
 
       // Extract the service name from field "image (serviceName)"
-      const serviceMatch = item.field.match(/\(([^)]+)\)/);
+      const serviceMatch = Str.match(/\(([^)]+)\)/)(item.field);
       if (serviceMatch === null) continue;
       const serviceName = serviceMatch[1];
 
@@ -219,7 +221,7 @@ export const handleVersionSync: (
     return false;
   };
 
-  const categories: Array<VersionCategoryReport> = [];
+  let categories = A.empty<VersionCategoryReport>();
 
   // Store resolver state for write mode
   let nodeLocations: ReadonlyArray<{ readonly file: string; readonly yamlPath: ReadonlyArray<string | number> }> =
@@ -241,14 +243,14 @@ export const handleVersionSync: (
       )
     );
     if (bunState.bunVersionFile !== "") {
-      categories.push(buildBunReport(bunState));
+      categories = A.append(categories, buildBunReport(bunState));
     }
   }
 
   // Resolve Node
   if (shouldCheck("node")) {
     const nodeState = yield* resolveNodeVersions(repoRoot);
-    categories.push(buildNodeReport(nodeState));
+    categories = A.append(categories, buildNodeReport(nodeState));
 
     // Store locations for write mode
     nodeLocations = A.filter(nodeState.workflowLocations, (loc) => loc.currentValue !== nodeState.nvmrc);
@@ -265,7 +267,7 @@ export const handleVersionSync: (
         })
       )
     );
-    categories.push(buildDockerReport(dockerState));
+    categories = A.append(categories, buildDockerReport(dockerState));
   }
 
   const hasDrift = A.some(categories, (c) => c.status !== "ok");

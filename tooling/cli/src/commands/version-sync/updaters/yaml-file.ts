@@ -6,6 +6,7 @@
  */
 
 import { FileSystem } from "effect";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { parseDocument } from "yaml";
 import { VersionSyncError } from "../types.js";
@@ -35,13 +36,13 @@ export const updateYamlValue: (
     );
 
   const doc = parseDocument(original);
-  const currentValue = doc.getIn(yamlPath as Array<string | number>);
+  const currentValue = doc.getIn(yamlPath);
 
   if (String(currentValue) === value) {
     return false;
   }
 
-  doc.setIn(yamlPath as Array<string | number>, value);
+  doc.setIn(yamlPath, value);
   const updated = doc.toString();
 
   if (updated === original) {
@@ -87,20 +88,19 @@ export const replaceNodeVersionWithFile: (
   let changed = false;
 
   for (const loc of locations) {
-    const path = loc.yamlPath as Array<string | number>;
-    const currentValue = doc.getIn(path);
+    const currentValue = doc.getIn(loc.yamlPath);
 
     if (currentValue !== undefined && currentValue !== null) {
       // Remove node-version
-      doc.deleteIn(path);
+      doc.deleteIn(loc.yamlPath);
 
       // Add node-version-file: .nvmrc at the same level
-      const withPath = path.slice(0, -1);
+      const withPath = A.dropRight(loc.yamlPath, 1);
       const withNode = doc.getIn(withPath);
 
       if (withNode !== undefined && withNode !== null && typeof withNode === "object") {
         // Set node-version-file on the `with:` block
-        doc.setIn([...withPath, "node-version-file"], ".nvmrc");
+        doc.setIn(A.append(withPath, "node-version-file"), ".nvmrc");
         changed = true;
       }
     }

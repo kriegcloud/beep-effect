@@ -6,6 +6,7 @@
  */
 
 import { FileSystem } from "effect";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as jsonc from "jsonc-parser";
 import { VersionSyncError } from "../types.js";
@@ -50,7 +51,7 @@ export const updatePackageManagerField: (
     formattingOptions: FORMATTING_OPTIONS,
   });
 
-  if (edits.length === 0) {
+  if (A.length(edits) === 0) {
     return false;
   }
 

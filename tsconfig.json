@@ -48,21 +48,11 @@
       "@beep/ontology": ["./packages/common/ontology/src/index.ts"],
       "@beep/ontology/*": ["./packages/common/ontology/src/*.ts"],
       "@beep/data": ["./packages/common/data/src/index.ts"],
-      "@beep/data/*": [
-        "./packages/common/data/src/*.ts"
-      ],
-      "@beep/shared-domain": [
-        "./packages/shared/domain/src/index.ts"
-      ],
-      "@beep/shared-domain/*": [
-        "./packages/shared/domain/src/*.ts"
-      ],
-      "@beep/shared-env": [
-        "./packages/shared/env/src/index.ts"
-      ],
-      "@beep/shared-env/*": [
-        "./packages/shared/env/src/*.ts"
-      ]
+      "@beep/data/*": ["./packages/common/data/src/*.ts"],
+      "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/*": ["./packages/shared/domain/src/*.ts"],
+      "@beep/shared-env": ["./packages/shared/env/src/index.ts"],
+      "@beep/shared-env/*": ["./packages/shared/env/src/*.ts"]
     },
     "plugins": [
       {

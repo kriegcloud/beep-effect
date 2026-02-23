@@ -2,6 +2,7 @@ import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { FileSystem, Path } from "effect";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -9,13 +10,13 @@ import { TestConsole } from "effect/testing";
 import { Command } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
 import { ChildProcessSpawner } from "effect/unstable/process";
-import { buildBunReport, type BunVersionState } from "../src/commands/version-sync/resolvers/bun.js";
+import { versionSyncCommand } from "../src/commands/version-sync/index.js";
+import { type BunVersionState, buildBunReport } from "../src/commands/version-sync/resolvers/bun.js";
 import { buildDockerReport, type DockerImageState } from "../src/commands/version-sync/resolvers/docker.js";
 import { buildNodeReport, type NodeVersionState } from "../src/commands/version-sync/resolvers/node.js";
-import { updatePlainTextFile } from "../src/commands/version-sync/updaters/plain-text.js";
 import { updatePackageManagerField } from "../src/commands/version-sync/updaters/package-json.js";
+import { updatePlainTextFile } from "../src/commands/version-sync/updaters/plain-text.js";
 import { replaceNodeVersionWithFile, updateYamlValue } from "../src/commands/version-sync/updaters/yaml-file.js";
-import { versionSyncCommand } from "../src/commands/version-sync/index.js";
 
 // ---------------------------------------------------------------------------
 // Test layers
@@ -73,7 +74,7 @@ describe("version-sync report builders", () => {
 
         expect(report.category).toBe("bun");
         expect(report.status).toBe("drift");
-        expect(report.items.length).toBe(1);
+        expect(A.length(report.items)).toBe(1);
         expect(report.items[0].file).toBe(".bun-version");
         expect(report.items[0].current).toBe("1.3.2");
         expect(report.items[0].expected).toBe("1.3.9");
@@ -94,7 +95,7 @@ describe("version-sync report builders", () => {
 
         expect(report.status).toBe("drift");
         // Both should drift toward 1.4.2
-        expect(report.items.length).toBe(2);
+        expect(A.length(report.items)).toBe(2);
         expect(report.items[0].expected).toBe("1.4.2");
         expect(report.items[1].expected).toContain("1.4.2");
       })
@@ -113,7 +114,7 @@ describe("version-sync report builders", () => {
         const report = buildBunReport(state);
 
         expect(report.status).toBe("ok");
-        expect(report.items.length).toBe(0);
+        expect(A.length(report.items)).toBe(0);
       })
     )
   );
@@ -137,7 +138,7 @@ describe("version-sync report builders", () => {
         const report = buildNodeReport(state);
 
         expect(report.status).toBe("drift");
-        expect(report.items.length).toBe(1);
+        expect(A.length(report.items)).toBe(1);
         expect(report.items[0].current).toBe("20");
         expect(report.items[0].expected).toBe("22");
       })
@@ -163,7 +164,7 @@ describe("version-sync report builders", () => {
         const report = buildNodeReport(state);
 
         expect(report.status).toBe("ok");
-        expect(report.items.length).toBe(0);
+        expect(A.length(report.items)).toBe(0);
       })
     )
   );
@@ -188,7 +189,7 @@ describe("version-sync report builders", () => {
         const report = buildDockerReport(state);
 
         expect(report.status).toBe("unpinned");
-        expect(report.items.length).toBe(1);
+        expect(A.length(report.items)).toBe(1);
         expect(report.items[0].current).toBe("redis:latest");
       })
     )
@@ -214,7 +215,7 @@ describe("version-sync report builders", () => {
         const report = buildDockerReport(state);
 
         expect(report.status).toBe("ok");
-        expect(report.items.length).toBe(0);
+        expect(A.length(report.items)).toBe(0);
       })
     )
   );
@@ -383,9 +384,9 @@ describe("version-sync CLI integration", () => {
         // The real repo has known drift; just verify command runs without crash
         yield* run(["--skip-network"]).pipe(Effect.orElseSucceed(() => void 0));
 
-        const logs = (yield* TestConsole.logLines).map(String);
+        const logs = A.map(yield* TestConsole.logLines, String);
         // Should produce a report
-        expect(logs.some((l) => l.includes("Version Sync Report"))).toBe(true);
+        expect(A.some(logs, (l) => l.includes("Version Sync Report"))).toBe(true);
       })
     )
   );
@@ -396,11 +397,11 @@ describe("version-sync CLI integration", () => {
       Effect.fn(function* () {
         yield* run(["--skip-network", "--bun-only"]).pipe(Effect.orElseSucceed(() => void 0));
 
-        const logs = (yield* TestConsole.logLines).map(String);
-        expect(logs.some((l) => l.includes("Bun Runtime"))).toBe(true);
+        const logs = A.map(yield* TestConsole.logLines, String);
+        expect(A.some(logs, (l) => l.includes("Bun Runtime"))).toBe(true);
         // Should NOT contain other categories
-        expect(logs.some((l) => l.includes("Node.js Runtime"))).toBe(false);
-        expect(logs.some((l) => l.includes("Docker Images"))).toBe(false);
+        expect(A.some(logs, (l) => l.includes("Node.js Runtime"))).toBe(false);
+        expect(A.some(logs, (l) => l.includes("Docker Images"))).toBe(false);
       })
     )
   );
@@ -411,9 +412,9 @@ describe("version-sync CLI integration", () => {
       Effect.fn(function* () {
         yield* run(["--skip-network", "--node-only"]).pipe(Effect.orElseSucceed(() => void 0));
 
-        const logs = (yield* TestConsole.logLines).map(String);
-        expect(logs.some((l) => l.includes("Node.js Runtime"))).toBe(true);
-        expect(logs.some((l) => l.includes("Bun Runtime"))).toBe(false);
+        const logs = A.map(yield* TestConsole.logLines, String);
+        expect(A.some(logs, (l) => l.includes("Node.js Runtime"))).toBe(true);
+        expect(A.some(logs, (l) => l.includes("Bun Runtime"))).toBe(false);
       })
     )
   );
@@ -424,9 +425,9 @@ describe("version-sync CLI integration", () => {
       Effect.fn(function* () {
         yield* run(["--skip-network", "--docker-only"]).pipe(Effect.orElseSucceed(() => void 0));
 
-        const logs = (yield* TestConsole.logLines).map(String);
-        expect(logs.some((l) => l.includes("Docker Images"))).toBe(true);
-        expect(logs.some((l) => l.includes("Bun Runtime"))).toBe(false);
+        const logs = A.map(yield* TestConsole.logLines, String);
+        expect(A.some(logs, (l) => l.includes("Docker Images"))).toBe(true);
+        expect(A.some(logs, (l) => l.includes("Bun Runtime"))).toBe(false);
       })
     )
   );

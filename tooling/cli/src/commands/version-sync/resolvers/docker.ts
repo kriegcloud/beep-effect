@@ -74,11 +74,10 @@ export interface DockerImageState {
 const SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)$/;
 
 const parseSemver = (tag: string): O.Option<readonly [number, number, number]> =>
-  O.map(O.fromNullishOr(Str.match(SEMVER_PATTERN)(tag)), (m) => [
-    Number.parseInt(m[1], 10),
-    Number.parseInt(m[2], 10),
-    Number.parseInt(m[3], 10),
-  ] as const);
+  O.map(
+    O.fromNullishOr(Str.match(SEMVER_PATTERN)(tag)),
+    (m) => [Number.parseInt(m[1], 10), Number.parseInt(m[2], 10), Number.parseInt(m[3], 10)] as const
+  );
 
 const semverCompare = (a: readonly [number, number, number], b: readonly [number, number, number]): number => {
   if (a[0] !== b[0]) return a[0] - b[0];
@@ -182,9 +181,10 @@ const findLatestForPgvector = (tags: ReadonlyArray<string>, currentTag: string):
 
   if (A.isArrayEmpty(candidates)) return O.none();
 
+  type Candidate = { tag: string; version: readonly [number, number, number] };
   const sorted = A.sort(
     candidates,
-    Order.make((a, b) => toOrdering(semverCompare(b.version, a.version)))
+    Order.make<Candidate>((a, b) => toOrdering(semverCompare(b.version, a.version)))
   );
   return O.map(A.get(sorted, 0), (c) => c.tag);
 };

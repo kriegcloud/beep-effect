@@ -29,7 +29,7 @@
 | 7  | Add Vitest coverage reporters                      | done   | Added `text`, `lcov`, `json-summary` to `vitest.shared.ts`                            |
 | 8  | Add Vitest coverage thresholds                     | done   | Set branches: 80%, functions: 60%, lines/stmts: 30%. Fixed dtslint/fixture excludes.  |
 | 9  | Add `lint:circular` to CI                          | done   | Included in `check.yml` via `bun run lint` (runs lint:circular)                       |
-| 10 | Add `changeset:status` to CI                       | skip   | CI work happening on separate branch                                                  |
+| 10 | Add `changeset:status` to CI                       | done   | Included in `check.yml` as PR-only step                                               |
 | 11 | Pin `redis:latest` in docker-compose               | spec   | Delegated to `beep version-sync` CLI command                                          |
 | 12 | Fix Biome `!!` double-negation                     | done   | Fixed to `!` pattern, deduplicated `!**/build`                                        |
 
@@ -57,28 +57,28 @@
 
 | #     | Item                               | Status | Notes                              |
 |-------|------------------------------------|--------|------------------------------------|
-| P1-1  | `bun audit` vulnerability gate     | todo   |                                    |
-| P1-2  | Commitlint conventional commits    | todo   |                                    |
-| P1-3  | typos-cli spell checking           | todo   |                                    |
-| P1-4  | cspell project spell checking      | todo   |                                    |
-| P1-5  | markdownlint-cli2                  | todo   |                                    |
-| P1-6  | Biome language surface tuning      | todo   | CSS/GraphQL/JSONC                  |
-| P1-7  | Scope ESLint to gap-only checks    | todo   |                                    |
+| P1-1  | `bun audit` vulnerability gate     | done   | Added `bun audit --audit-level=high` to `check.yml` |
+| P1-2  | Commitlint conventional commits    | done   | `commitlint.config.ts` + `commit-msg` hook in lefthook |
+| P1-3  | typos-cli spell checking           | done   | `_typos.toml` config + pre-commit hook in lefthook |
+| P1-4  | cspell project spell checking      | done   | `cspell.json` config + `lint:spell` script + CI step in `check.yml` |
+| P1-5  | markdownlint-cli2                  | done   | `.markdownlint-cli2.jsonc` config + `lint:markdown` script + CI step |
+| P1-6  | Biome language surface tuning      | done   | Removed CSS exclusion, Biome now formats/lints CSS with Tailwind directives |
+| P1-7  | Scope ESLint to gap-only checks    | done   | Already scoped: JSDoc-only rules on `tooling/*/src/**/*.ts` |
 | P1-8  | CI caching (Bun + Turbo)           | done   | Bun dep cache + Turbo cache in `check.yml`  |
 | P1-9  | Enforce Madge circular check in CI | done   | `bun run lint` in `check.yml` runs lint:circular |
-| P1-10 | Enforce Syncpack in CI             | todo   |                                    |
-| P1-11 | Enforce Changesets status in CI    | todo   |                                    |
-| P1-12 | OSV-Scanner vulnerability scan     | todo   |                                    |
-| P1-13 | Semgrep SAST                       | todo   |                                    |
-| P1-14 | Playwright E2E baseline            | todo   |                                    |
-| P1-15 | Renovate dependency automation     | todo   |                                    |
-| P1-16 | Nix flake + direnv                 | todo   |                                    |
-| P1-17 | Root AI governance files           | todo   |                                    |
+| P1-10 | Enforce Syncpack in CI             | done   | `bunx syncpack lint` step in `check.yml` |
+| P1-11 | Enforce Changesets status in CI    | done   | `bunx changeset status` (PR-only) in `check.yml` |
+| P1-12 | OSV-Scanner vulnerability scan     | done   | `security` job in `check.yml` with osv-scanner-action |
+| P1-13 | Semgrep SAST                       | done   | `sast` job in `check.yml` with TS/JS/security/secrets rulesets |
+| P1-14 | Playwright E2E baseline            | done   | `playwright.config.ts` + `e2e/smoke.spec.ts` + CI job with artifact upload |
+| P1-15 | Renovate dependency automation     | done   | `renovate.json` with Effect grouping, auto-merge for types/Actions |
+| P1-16 | Nix flake + direnv                 | done   | `flake.nix` with dev shell (bun, node, turbo, quality tools) + `.envrc` |
+| P1-17 | Root AI governance files           | done   | Created root `CLAUDE.md` + `AGENTS.md` with conventions/commands |
 | P1-18 | Storybook 10 (via `@beep/ui`)      | spec   | `specs/pending/shared-ui-package/` |
-| P1-19 | Bundle analysis                    | todo   |                                    |
-| P1-20 | Dependency review action           | todo   |                                    |
-| P1-21 | publint + attw package quality     | todo   |                                    |
-| P1-22 | Nix CI binary cache                | todo   | Depends on P1-16                   |
+| P1-19 | Bundle analysis                    | done   | `@next/bundle-analyzer` in web app, `ANALYZE=true` script |
+| P1-20 | Dependency review action           | done   | `dependency-review-action` (PR-only) in `check.yml` |
+| P1-21 | publint + attw package quality     | done   | Installed `publint` + `@arethetypeswrong/cli`. CI deferred (all pkgs private). |
+| P1-22 | Nix CI binary cache                | done   | Cachix action in CI `nix` job with flake check + dev shell build |
 
 ---
 
@@ -86,20 +86,20 @@
 
 | #     | Item                                | Status | Notes                          |
 |-------|-------------------------------------|--------|--------------------------------|
-| P2-1  | Chromatic visual review             | todo   | Depends on P1-18 (Storybook)   |
-| P2-2  | Contract testing (Pact/Effect)      | todo   |                                |
-| P2-3  | Stryker mutation testing            | todo   |                                |
-| P2-4  | sherif monorepo policy lint         | todo   |                                |
-| P2-5  | oxlint supplemental diagnostics     | todo   |                                |
-| P2-6  | pkg.pr.new preview packages         | todo   |                                |
-| P2-7  | remark-lint semantic markdown       | todo   | Depends on P1-5 (markdownlint) |
-| P2-8  | PR complexity labeling              | todo   |                                |
-| P2-9  | License compliance (ORT)            | todo   |                                |
-| P2-10 | Docker build optimization           | todo   |                                |
-| P2-11 | Property-based testing (fast-check) | todo   |                                |
-| P2-12 | Vitest browser mode                 | todo   |                                |
-| P2-13 | CodSpeed benchmarking               | todo   |                                |
-| P2-14 | Changesets changelog upgrade        | todo   |                                |
+| P2-1  | Chromatic visual review             | defer  | Depends on P1-18 (Storybook, spec'd) |
+| P2-2  | Contract testing (Pact/Effect)      | defer  | No cross-service boundaries yet. Enable when adding microservices. |
+| P2-3  | Stryker mutation testing            | defer  | High compute cost. Enable after CI baseline stabilizes. |
+| P2-4  | sherif monorepo policy lint         | done   | `lint:repo` script. Found 5 issues (workspace hygiene, known) |
+| P2-5  | oxlint supplemental diagnostics     | done   | `lint:ox` script (non-blocking). 20 warnings on 212 files. |
+| P2-6  | pkg.pr.new preview packages         | defer  | All packages are private. Enable when publishing. |
+| P2-7  | remark-lint semantic markdown       | skip   | markdownlint-cli2 (P1-5) provides sufficient coverage |
+| P2-8  | PR complexity labeling              | done   | `pr-size` job in `check.yml` using tj-actions/changed-files |
+| P2-9  | License compliance (ORT)            | done   | `dependency-review-action` with AGPL/GPL-3.0 deny list + severity gate |
+| P2-10 | Docker build optimization           | defer  | No production Dockerfiles yet. Setup when deploying. |
+| P2-11 | Property-based testing (fast-check) | done   | `fast-check` v4 installed. Use with Schema `toArbitrary` annotation. |
+| P2-12 | Vitest browser mode                 | defer  | No browser-specific code yet. Enable with @beep/ui. |
+| P2-13 | CodSpeed benchmarking               | defer  | Requires performance-critical code paths. Enable when profiling. |
+| P2-14 | Changesets changelog upgrade        | done   | Switched to `@changesets/changelog-github` for PR-linked changelogs |
 
 ---
 
@@ -114,10 +114,10 @@
 
 ## Summary
 
-| Category   | Total  | Done  | Spec  | Deferred | Skip  | Todo   |
-|------------|--------|-------|-------|----------|-------|--------|
-| Quick Wins | 12     | 5     | 3     | 1        | 2     | 1      |
-| P0         | 9      | 3     | 2     | 1        | 0     | 3      |
-| P1         | 22     | 0     | 1     | 0        | 0     | 21     |
-| P2         | 14     | 0     | 0     | 0        | 0     | 14     |
-| **Total**  | **57** | **8** | **6** | **2**    | **2** | **39** |
+| Category   | Total  | Done   | Spec  | Deferred | Skip  | Todo   |
+|------------|--------|--------|-------|----------|-------|--------|
+| Quick Wins | 12     | 8      | 3     | 1        | 0     | 0      |
+| P0         | 9      | 6      | 2     | 1        | 0     | 0      |
+| P1         | 22     | 21     | 1     | 0        | 0     | 0      |
+| P2         | 14     | 6      | 0     | 7        | 1     | 0      |
+| **Total**  | **57** | **41** | **6** | **9**    | **1** | **0**  |

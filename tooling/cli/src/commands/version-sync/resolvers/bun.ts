@@ -104,7 +104,7 @@ export const resolveBunVersions: (
 
     const parseErrors: Array<jsonc.ParseError> = [];
     const pkgJson = jsonc.parse(pkgJsonContent, parseErrors);
-    if (parseErrors.length > 0 || typeof pkgJson !== "object" || pkgJson === null) {
+    if (A.length(parseErrors) > 0 || typeof pkgJson !== "object" || pkgJson === null) {
       return yield* new VersionSyncError({ message: "Failed to parse package.json", file: "package.json" });
     }
     const rawPm = typeof pkgJson.packageManager === "string" ? pkgJson.packageManager : "";

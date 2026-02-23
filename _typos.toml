@@ -1,0 +1,35 @@
+[default.extend-words]
+# Effect-TS vocabulary
+Struct = "Struct"
+Fnc = "Fnc"
+Ser = "Ser"
+Eff = "Eff"
+
+# Effect-TS API names (not typos)
+Somes = "Somes"
+
+# Domain terms
+sherif = "sherif"
+beep = "beep"
+monorepo = "monorepo"
+turborepo = "turborepo"
+bunfig = "bunfig"
+syncpack = "syncpack"
+lefthook = "lefthook"
+vitest = "vitest"
+tstyche = "tstyche"
+docgen = "docgen"
+dtslint = "dtslint"
+tsbuildinfo = "tsbuildinfo"
+
+[files]
+extend-exclude = [
+  "bun.lock",
+  "*.snap",
+  ".repos/**",
+  "node_modules/**",
+  "dist/**",
+  "coverage/**",
+  ".next/**",
+  "storybook-static/**",
+]
