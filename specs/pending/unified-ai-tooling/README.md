@@ -101,6 +101,8 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 - [ ] TDD-first workflow is defined and enforced in phase contracts.
 - [ ] Phase outputs include explicit quality-gate evidence (tests + reviews).
 - [ ] Coverage and fixture expectations are explicit for runtime implementation.
+- [x] POC-01..POC-06 are executed with pass verdicts and required signoff evidence.
+- [ ] Real authenticated success-path evidence is captured for both 1Password desktop and service-account secret resolution modes.
 
 ## Required Outputs
 
@@ -219,7 +221,7 @@ Mandatory gates:
 7. Thorough review signoff recorded in each phase output.
 8. Policy applies to P1-P4; P0 is grandfathered.
 9. Residual risk closure tasks in `outputs/residual-risk-closure.md` are treated as mandatory phase gates.
-10. POC-01..POC-06 must be executed and recorded before declaring implementation confidence.
+10. POC-01..POC-06 must be executed and recorded before declaring implementation confidence (completed on 2026-02-23).
 
 ## Pre-Implementation POC Gate
 
@@ -240,12 +242,21 @@ Exit condition:
 2. Required signoff rows are present and non-rejected.
 3. Any failed POC has an approved mitigation and follow-up owner.
 
+Current gate status (2026-02-23):
+1. POC-01 Canonical Compiler: passed.
+2. POC-02 MCP Capability Maps: passed.
+3. POC-03 JetBrains Prompt Library: passed.
+4. POC-04 Managed Ownership + Revert: passed.
+5. POC-05 Secret Resolution: passed (with follow-up for real authenticated success-path evidence).
+6. POC-06 End-to-End Dry Run: passed.
+7. Overall decision: GO for phase execution with one tracked follow-up (`poc05-real-auth-success-evidence`).
+
 ## Complexity and Risk Assessment
 
 - Complexity: medium-high due heterogenous tool formats.
-- Highest integration risk: exact JetBrains parity beyond project rules + MCP.
+- Highest remaining integration risk: full adapter parity expansion beyond currently proven POC capability surfaces.
 - Secondary risk: Cursor/Windsurf MCP schema drift and capability mismatch.
-- Secondary risk: secret-resolution coupling to local auth state.
+- Secondary risk: secret-resolution coupling to local auth state (real authenticated success-path evidence still pending).
 - Mitigation: strict adapter boundaries, capability maps, sidecar metadata, deterministic fixtures, explicit fatal error paths, strict-mode diagnostics.
 
 ## Dependencies

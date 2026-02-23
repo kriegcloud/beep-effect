@@ -1,6 +1,17 @@
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { extname, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmdirSync,
+  rmSync,
+  statSync,
+  writeFileSync
+} from "node:fs";
+import { dirname, extname, resolve } from "node:path";
 import YAML from "yaml";
 
 export const scaffoldVersion = "0.0.0-scaffold";
@@ -54,6 +65,101 @@ export type McpGenerationResult = {
   output: string;
   warnings: string[];
   capabilityMap: Record<McpTool, string[]>;
+};
+
+export type JetbrainsPromptMode = "bundle_only" | "native_file";
+
+type JetbrainsPrompt = {
+  id: string;
+  title: string;
+  prompt_file: string;
+};
+
+type JetbrainsPromptLibraryFixture = {
+  mode: JetbrainsPromptMode;
+  prompts: JetbrainsPrompt[];
+};
+
+export type JetbrainsArtifact = {
+  path: string;
+  content: string;
+  sha256: string;
+};
+
+export type JetbrainsPromptLibraryEnvelope = {
+  tool: "jetbrains";
+  mode: JetbrainsPromptMode;
+  warnings: string[];
+  artifacts: JetbrainsArtifact[];
+  bundleHash: string;
+  nativeProbe: {
+    enabled: boolean;
+    path: string | null;
+    roundTripDeterministic: boolean;
+  };
+};
+
+type Poc04State = {
+  version: 1;
+  managedFile: string;
+  backupFile: string;
+  managedHash: string;
+  unmanagedFile: string;
+  unmanagedHashAtApply: string | null;
+  lastAction: "apply";
+};
+
+type Poc04Plan = {
+  fixturePath: string;
+  workspaceRoot: string;
+  managedFile: string;
+  unmanagedFile: string;
+  backupFile: string;
+  stateFile: string;
+  managedTargets: string[];
+  generatedContent: string;
+};
+
+export type Poc04OperationResult = {
+  ok: boolean;
+  action: "apply" | "check" | "revert";
+  dryRun: boolean;
+  changed: boolean;
+  managedFile: string;
+  unmanagedFile: string;
+  stateFile: string;
+  messages: string[];
+};
+
+type SecretRef = {
+  id: string;
+  ref: string;
+};
+
+type SecretFixture = {
+  required: SecretRef[];
+  optional: SecretRef[];
+  optionalPolicy: "warn";
+};
+
+type SecretResolverMode = "mock" | "desktop" | "service_account";
+
+export type SecretResolutionResult = {
+  ok: boolean;
+  source: SecretResolverMode;
+  optionalPolicy: "warn";
+  required: {
+    resolved: string[];
+    missing: string[];
+  };
+  optional: {
+    resolved: string[];
+    missing: string[];
+  };
+  diagnostics: string[];
+  redaction: {
+    valuesExposed: false;
+  };
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -596,5 +702,581 @@ export function generateMcpForTool(tool: McpTool, input: unknown): McpGeneration
     output,
     warnings,
     capabilityMap: MCP_CAPABILITY_MAP
+  };
+}
+
+function normalizeJetbrainsPromptLibrary(input: unknown): JetbrainsPromptLibraryFixture {
+  const fallback: JetbrainsPromptLibraryFixture = {
+    mode: "bundle_only",
+    prompts: []
+  };
+
+  if (!isRecord(input)) {
+    return fallback;
+  }
+
+  const jetbrains = isRecord(input.jetbrains) ? input.jetbrains : undefined;
+  const promptLibrary = jetbrains && isRecord(jetbrains.prompt_library) ? jetbrains.prompt_library : undefined;
+  if (!promptLibrary) {
+    return fallback;
+  }
+
+  const modeRaw = promptLibrary.mode;
+  const mode: JetbrainsPromptMode = modeRaw === "native_file" ? "native_file" : "bundle_only";
+
+  const promptsRaw = Array.isArray(promptLibrary.prompts) ? promptLibrary.prompts : [];
+  const prompts: JetbrainsPrompt[] = [];
+  for (const entry of promptsRaw) {
+    if (!isRecord(entry)) continue;
+    if (typeof entry.id !== "string" || entry.id.length === 0) continue;
+    if (typeof entry.title !== "string" || entry.title.length === 0) continue;
+    if (typeof entry.prompt_file !== "string" || entry.prompt_file.length === 0) continue;
+
+    prompts.push({
+      id: entry.id,
+      title: entry.title,
+      prompt_file: entry.prompt_file
+    });
+  }
+
+  prompts.sort((a, b) => a.id.localeCompare(b.id));
+  return {
+    mode,
+    prompts
+  };
+}
+
+function renderJetbrainsPromptsMarkdown(mode: JetbrainsPromptMode, prompts: JetbrainsPrompt[]): string {
+  const lines: string[] = [];
+  lines.push("# Prompt Bundle");
+  lines.push("");
+
+  if (prompts.length === 0) {
+    lines.push("- (no prompts defined)");
+  } else {
+    for (const prompt of prompts) {
+      lines.push(`- ${prompt.id}: ${prompt.title} (${prompt.prompt_file})`);
+    }
+  }
+
+  lines.push("");
+  lines.push(`_mode: ${mode}_`);
+  lines.push("");
+  return `${lines.join("\n")}\n`;
+}
+
+function renderJetbrainsImportInstructions(mode: JetbrainsPromptMode): string {
+  const lines: string[] = [];
+  lines.push("# JetBrains Prompt Library Import");
+  lines.push("");
+  lines.push("1. Treat this directory as managed output from `beep-sync`.");
+  lines.push("2. Import prompts from `prompts.md` via JetBrains Prompt Library UI.");
+  lines.push("3. Keep `prompts.json` as deterministic machine-readable sidecar.");
+
+  if (mode === "native_file") {
+    lines.push("4. Native-file probe enabled: target `.aiassistant/prompt-library/prompts.json`.");
+  }
+
+  lines.push("");
+  lines.push("Do not hand-edit generated artifacts.");
+  lines.push("");
+  return `${lines.join("\n")}\n`;
+}
+
+export function generateJetbrainsPromptLibrary(
+  input: unknown,
+  modeOverride?: string
+): JetbrainsPromptLibraryEnvelope {
+  const normalized = normalizeJetbrainsPromptLibrary(input);
+  const warnings: string[] = [];
+
+  let mode: JetbrainsPromptMode = normalized.mode;
+  if (modeOverride !== undefined) {
+    if (modeOverride === "bundle_only" || modeOverride === "native_file") {
+      mode = modeOverride;
+    } else {
+      warnings.push(
+        `W_UNSUPPORTED_MODE Requested mode "${modeOverride}" is unsupported; falling back to "${mode}".`
+      );
+    }
+  }
+
+  const promptsPayload = {
+    version: 1,
+    mode,
+    prompts: normalized.prompts
+  };
+
+  const artifacts: JetbrainsArtifact[] = [
+    {
+      path: ".aiassistant/prompt-library/prompts.md",
+      content: renderJetbrainsPromptsMarkdown(mode, normalized.prompts),
+      sha256: ""
+    },
+    {
+      path: ".aiassistant/prompt-library/prompts.json",
+      content: stableJson(promptsPayload),
+      sha256: ""
+    },
+    {
+      path: ".aiassistant/prompt-library/IMPORT_INSTRUCTIONS.md",
+      content: renderJetbrainsImportInstructions(mode),
+      sha256: ""
+    }
+  ];
+
+  for (const artifact of artifacts) {
+    artifact.sha256 = sha256(artifact.content);
+  }
+
+  const bundleHash = sha256(
+    stableJson(
+      artifacts.map((artifact) => ({
+        path: artifact.path,
+        sha256: artifact.sha256
+      }))
+    )
+  );
+
+  return {
+    tool: "jetbrains",
+    mode,
+    warnings,
+    artifacts,
+    bundleHash,
+    nativeProbe: {
+      enabled: mode === "native_file",
+      path: mode === "native_file" ? ".aiassistant/prompt-library/prompts.json" : null,
+      roundTripDeterministic: true
+    }
+  };
+}
+
+function parsePoc04Fixture(fixturePath: string): Poc04Plan {
+  const fixtureData = readYamlDocument(fixturePath);
+  const root = isRecord(fixtureData) ? fixtureData : {};
+  const workspaceRoot = resolve(dirname(fixturePath), "workspace");
+
+  const managedTargetsRaw = Array.isArray(root.managed_targets) ? root.managed_targets : [];
+  const managedTargets = managedTargetsRaw
+    .map((entry) => {
+      if (!isRecord(entry)) return null;
+      const pathValue = entry.path;
+      if (typeof pathValue !== "string" || pathValue.length === 0) return null;
+      return pathValue;
+    })
+    .filter((value): value is string => value !== null)
+    .sort((a, b) => a.localeCompare(b));
+
+  const statePathRaw = typeof root.state_path === "string" ? root.state_path : ".beep/managed-files.json";
+
+  const managedFile = resolve(workspaceRoot, "managed-target.txt");
+  const unmanagedFile = resolve(workspaceRoot, "unmanaged-note.txt");
+  const backupFile = `${managedFile}.bak`;
+  const stateFile = resolve(workspaceRoot, statePathRaw);
+
+  const lines = ["GENERATED: beep-sync poc-04 managed target content", "managed_targets:"];
+  for (const target of managedTargets) {
+    lines.push(`- ${target}`);
+  }
+  const generatedContent = `${lines.join("\n")}\n`;
+
+  return {
+    fixturePath: resolve(fixturePath),
+    workspaceRoot,
+    managedFile,
+    unmanagedFile,
+    backupFile,
+    stateFile,
+    managedTargets,
+    generatedContent
+  };
+}
+
+function readTextOrNull(pathValue: string): string | null {
+  if (!existsSync(pathValue)) return null;
+  return readFileSync(pathValue, "utf8");
+}
+
+function hashTextOrNull(value: string | null): string | null {
+  if (value === null) return null;
+  return sha256(value);
+}
+
+function writePoc04State(pathValue: string, state: Poc04State): void {
+  mkdirSync(dirname(pathValue), { recursive: true });
+  writeFileSync(pathValue, stableJson(state), "utf8");
+}
+
+function readPoc04State(pathValue: string): Poc04State | null {
+  if (!existsSync(pathValue)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(pathValue, "utf8")) as unknown;
+    if (!isRecord(parsed)) return null;
+    if (parsed.version !== 1) return null;
+    if (
+      typeof parsed.managedFile !== "string" ||
+      typeof parsed.backupFile !== "string" ||
+      typeof parsed.managedHash !== "string" ||
+      typeof parsed.unmanagedFile !== "string" ||
+      (parsed.unmanagedHashAtApply !== null && typeof parsed.unmanagedHashAtApply !== "string")
+    ) {
+      return null;
+    }
+    if (parsed.lastAction !== "apply") return null;
+
+    return {
+      version: 1,
+      managedFile: parsed.managedFile,
+      backupFile: parsed.backupFile,
+      managedHash: parsed.managedHash,
+      unmanagedFile: parsed.unmanagedFile,
+      unmanagedHashAtApply: parsed.unmanagedHashAtApply,
+      lastAction: "apply"
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04OperationResult {
+  const plan = parsePoc04Fixture(fixturePath);
+  const messages: string[] = [];
+
+  const beforeManaged = readTextOrNull(plan.managedFile);
+  const beforeUnmanaged = readTextOrNull(plan.unmanagedFile);
+
+  if (dryRun) {
+    const changed = beforeManaged !== plan.generatedContent;
+    messages.push(
+      changed
+        ? "managed file would be updated with generated content"
+        : "managed file already matches generated content"
+    );
+    return {
+      ok: true,
+      action: "apply",
+      dryRun: true,
+      changed,
+      managedFile: plan.managedFile,
+      unmanagedFile: plan.unmanagedFile,
+      stateFile: plan.stateFile,
+      messages
+    };
+  }
+
+  mkdirSync(plan.workspaceRoot, { recursive: true });
+  if (beforeManaged !== null) {
+    copyFileSync(plan.managedFile, plan.backupFile);
+    messages.push("backup created");
+  }
+
+  writeFileSync(plan.managedFile, plan.generatedContent, "utf8");
+  const state: Poc04State = {
+    version: 1,
+    managedFile: plan.managedFile,
+    backupFile: plan.backupFile,
+    managedHash: sha256(plan.generatedContent),
+    unmanagedFile: plan.unmanagedFile,
+    unmanagedHashAtApply: hashTextOrNull(beforeUnmanaged),
+    lastAction: "apply"
+  };
+  writePoc04State(plan.stateFile, state);
+  messages.push("managed content written");
+  messages.push("state updated");
+
+  return {
+    ok: true,
+    action: "apply",
+    dryRun: false,
+    changed: beforeManaged !== plan.generatedContent,
+    managedFile: plan.managedFile,
+    unmanagedFile: plan.unmanagedFile,
+    stateFile: plan.stateFile,
+    messages
+  };
+}
+
+export function runPoc04Check(fixturePath: string): Poc04OperationResult {
+  const plan = parsePoc04Fixture(fixturePath);
+  const messages: string[] = [];
+  const state = readPoc04State(plan.stateFile);
+  if (!state) {
+    return {
+      ok: false,
+      action: "check",
+      dryRun: false,
+      changed: false,
+      managedFile: plan.managedFile,
+      unmanagedFile: plan.unmanagedFile,
+      stateFile: plan.stateFile,
+      messages: ["state file missing or invalid"]
+    };
+  }
+
+  const managedContent = readTextOrNull(plan.managedFile);
+  if (managedContent === null) {
+    return {
+      ok: false,
+      action: "check",
+      dryRun: false,
+      changed: false,
+      managedFile: plan.managedFile,
+      unmanagedFile: plan.unmanagedFile,
+      stateFile: plan.stateFile,
+      messages: ["managed file is missing"]
+    };
+  }
+
+  const managedHash = sha256(managedContent);
+  if (managedHash !== state.managedHash || managedContent !== plan.generatedContent) {
+    return {
+      ok: false,
+      action: "check",
+      dryRun: false,
+      changed: false,
+      managedFile: plan.managedFile,
+      unmanagedFile: plan.unmanagedFile,
+      stateFile: plan.stateFile,
+      messages: ["managed file drift detected"]
+    };
+  }
+
+  const unmanagedContent = readTextOrNull(plan.unmanagedFile);
+  const unmanagedHash = hashTextOrNull(unmanagedContent);
+  if (state.unmanagedHashAtApply !== unmanagedHash) {
+    return {
+      ok: false,
+      action: "check",
+      dryRun: false,
+      changed: false,
+      managedFile: plan.managedFile,
+      unmanagedFile: plan.unmanagedFile,
+      stateFile: plan.stateFile,
+      messages: ["unmanaged file hash changed since apply"]
+    };
+  }
+
+  messages.push("managed state is consistent");
+  return {
+    ok: true,
+    action: "check",
+    dryRun: false,
+    changed: false,
+    managedFile: plan.managedFile,
+    unmanagedFile: plan.unmanagedFile,
+    stateFile: plan.stateFile,
+    messages
+  };
+}
+
+function removeIfEmpty(pathValue: string): void {
+  if (!existsSync(pathValue)) return;
+  const stat = statSync(pathValue);
+  if (!stat.isDirectory()) return;
+  const items = readdirSync(pathValue);
+  if (items.length === 0) {
+    rmdirSync(pathValue);
+  }
+}
+
+export function runPoc04Revert(fixturePath: string): Poc04OperationResult {
+  const plan = parsePoc04Fixture(fixturePath);
+  const messages: string[] = [];
+  const state = readPoc04State(plan.stateFile);
+  if (!state) {
+    return {
+      ok: true,
+      action: "revert",
+      dryRun: false,
+      changed: false,
+      managedFile: plan.managedFile,
+      unmanagedFile: plan.unmanagedFile,
+      stateFile: plan.stateFile,
+      messages: ["no managed state present; revert is idempotent no-op"]
+    };
+  }
+
+  let changed = false;
+  if (existsSync(state.backupFile)) {
+    copyFileSync(state.backupFile, state.managedFile);
+    rmSync(state.backupFile, { force: true });
+    changed = true;
+    messages.push("restored managed file from backup");
+  } else {
+    const managedContent = readTextOrNull(state.managedFile);
+    if (managedContent !== null && sha256(managedContent) === state.managedHash) {
+      rmSync(state.managedFile, { force: true });
+      changed = true;
+      messages.push("removed managed file with no backup");
+    }
+  }
+
+  if (existsSync(plan.stateFile)) {
+    rmSync(plan.stateFile, { force: true });
+    changed = true;
+    messages.push("removed managed state");
+  }
+
+  removeIfEmpty(dirname(plan.stateFile));
+
+  return {
+    ok: true,
+    action: "revert",
+    dryRun: false,
+    changed,
+    managedFile: plan.managedFile,
+    unmanagedFile: plan.unmanagedFile,
+    stateFile: plan.stateFile,
+    messages
+  };
+}
+
+function parseSecretFixture(input: unknown): SecretFixture {
+  const fallback: SecretFixture = {
+    required: [],
+    optional: [],
+    optionalPolicy: "warn"
+  };
+  if (!isRecord(input) || !isRecord(input.secrets)) return fallback;
+
+  const secrets = input.secrets;
+  const optionalPolicy = secrets.optional_policy === "warn" ? "warn" : "warn";
+
+  function parseRefs(value: unknown): SecretRef[] {
+    if (!Array.isArray(value)) return [];
+    const refs: SecretRef[] = [];
+    for (const entry of value) {
+      if (!isRecord(entry)) continue;
+      if (typeof entry.id !== "string" || entry.id.length === 0) continue;
+      if (typeof entry.ref !== "string" || entry.ref.length === 0) continue;
+      refs.push({ id: entry.id, ref: entry.ref });
+    }
+    refs.sort((a, b) => a.id.localeCompare(b.id));
+    return refs;
+  }
+
+  return {
+    required: parseRefs(secrets.required),
+    optional: parseRefs(secrets.optional),
+    optionalPolicy
+  };
+}
+
+function resolveSecretRef(ref: string, mode: SecretResolverMode): { ok: boolean; diagnostic?: string } {
+  if (mode === "mock") {
+    if (ref.includes("DOES_NOT_EXIST") || ref.includes("/missing/")) {
+      return { ok: false, diagnostic: "E_SECRET_MISSING mock resolver marked ref as missing." };
+    }
+    return { ok: true };
+  }
+
+  const read = spawnSync("op", ["read", ref], {
+    encoding: "utf8",
+    timeout: 8_000
+  });
+
+  if (read.status === 0) {
+    return { ok: true };
+  }
+
+  const stderr = `${read.stderr ?? ""}`.toLowerCase();
+  if (stderr.includes("not signed in")) {
+    return { ok: false, diagnostic: "E_SECRET_AUTH desktop auth is not signed in." };
+  }
+  if (stderr.includes("service account") || stderr.includes("token")) {
+    return { ok: false, diagnostic: "E_SECRET_AUTH service account token is missing or invalid." };
+  }
+  if (stderr.includes("isn't an item") || stderr.includes("not found") || stderr.includes("does not exist")) {
+    return { ok: false, diagnostic: "E_SECRET_MISSING secret reference not found." };
+  }
+
+  return { ok: false, diagnostic: "E_SECRET_READ_FAILED unable to resolve secret reference." };
+}
+
+function detectSecretResolverMode(): SecretResolverMode {
+  const forced = process.env.BEEP_SYNC_SECRET_MODE;
+  if (forced === "mock") {
+    return "mock";
+  }
+
+  if (typeof process.env.OP_SERVICE_ACCOUNT_TOKEN === "string" && process.env.OP_SERVICE_ACCOUNT_TOKEN.length > 0) {
+    return "service_account";
+  }
+  return "desktop";
+}
+
+function ensureDesktopAuthIfNeeded(mode: SecretResolverMode): string | null {
+  if (mode !== "desktop") return null;
+  const whoami = spawnSync("op", ["whoami"], {
+    encoding: "utf8",
+    timeout: 5_000
+  });
+  if (whoami.status === 0) return null;
+  return "E_SECRET_AUTH desktop auth unavailable (`op whoami` failed).";
+}
+
+export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolutionResult {
+  const fixtureData = readYamlDocument(fixturePath);
+  const fixture = parseSecretFixture(fixtureData);
+  const source = detectSecretResolverMode();
+  const diagnostics: string[] = [];
+
+  const desktopAuthError = ensureDesktopAuthIfNeeded(source);
+  if (desktopAuthError) {
+    diagnostics.push(desktopAuthError);
+  }
+
+  const requiredResolved: string[] = [];
+  const requiredMissing: string[] = [];
+  const optionalResolved: string[] = [];
+  const optionalMissing: string[] = [];
+
+  function resolveGroup(items: SecretRef[], missing: string[], resolved: string[]): void {
+    for (const item of items) {
+      if (desktopAuthError) {
+        missing.push(item.id);
+        continue;
+      }
+
+      const resolution = resolveSecretRef(item.ref, source);
+      if (resolution.ok) {
+        resolved.push(item.id);
+      } else {
+        missing.push(item.id);
+        if (resolution.diagnostic) {
+          diagnostics.push(`${resolution.diagnostic} id=${item.id}`);
+        }
+      }
+    }
+  }
+
+  resolveGroup(fixture.required, requiredMissing, requiredResolved);
+  resolveGroup(fixture.optional, optionalMissing, optionalResolved);
+
+  if (optionalMissing.length > 0) {
+    diagnostics.push(
+      `W_OPTIONAL_SECRET_MISSING optional missing ids: ${optionalMissing.join(", ")} (policy=${fixture.optionalPolicy}).`
+    );
+  }
+
+  const uniqueDiagnostics = Array.from(new Set(diagnostics)).sort((a, b) => a.localeCompare(b));
+
+  return {
+    ok: requiredMissing.length === 0,
+    source,
+    optionalPolicy: fixture.optionalPolicy,
+    required: {
+      resolved: requiredResolved.sort((a, b) => a.localeCompare(b)),
+      missing: requiredMissing.sort((a, b) => a.localeCompare(b))
+    },
+    optional: {
+      resolved: optionalResolved.sort((a, b) => a.localeCompare(b)),
+      missing: optionalMissing.sort((a, b) => a.localeCompare(b))
+    },
+    diagnostics: uniqueDiagnostics,
+    redaction: {
+      valuesExposed: false
+    }
   };
 }

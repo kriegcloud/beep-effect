@@ -1,4 +1,6 @@
-# Prompt Bundle (placeholder)
+# Prompt Bundle
 
-- reviewer: Code Review
-- refactor: Refactor Assistant
+- reviewer: Code Review (.beep/prompts/reviewer.md)
+
+_mode: bundle_only_
+

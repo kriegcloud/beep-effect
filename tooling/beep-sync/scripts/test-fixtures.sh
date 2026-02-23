@@ -14,6 +14,7 @@ required_paths=(
   "$ROOT_DIR/fixtures/poc-04/managed.yaml"
   "$ROOT_DIR/fixtures/poc-05/secrets-required.yaml"
   "$ROOT_DIR/fixtures/poc-05/secrets-missing.yaml"
+  "$ROOT_DIR/fixtures/poc-05/secrets-optional.yaml"
   "$ROOT_DIR/fixtures/poc-06/config.yaml"
 )
 
