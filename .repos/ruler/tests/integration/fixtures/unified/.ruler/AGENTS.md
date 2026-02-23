@@ -1,2 +1,0 @@
-# Primary Rules
-Line A

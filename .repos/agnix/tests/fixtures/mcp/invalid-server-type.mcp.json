@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "bad-server": {
-      "type": "websocket",
-      "url": "ws://localhost:8080"
-    }
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "my-server": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["server.js"]
-    }
-  }
-}

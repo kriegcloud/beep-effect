@@ -1,5 +1,0 @@
----
-description: Invalid glob pattern
-globs: "[unclosed"
----
-# Rules with bad glob

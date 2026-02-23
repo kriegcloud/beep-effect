@@ -1,3 +1,0 @@
-default_agents=["copilot"]
-[agents.copilot]
-output_path="AGENTS.md"

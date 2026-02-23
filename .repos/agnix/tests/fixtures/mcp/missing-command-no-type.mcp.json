@@ -1,7 +1,0 @@
-{
-  "mcpServers": {
-    "no-type-server": {
-      "args": ["server.js"]
-    }
-  }
-}

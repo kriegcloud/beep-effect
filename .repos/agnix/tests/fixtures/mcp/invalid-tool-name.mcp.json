@@ -1,9 +1,0 @@
-{
-  "tools": [
-    {
-      "name": "bad tool",
-      "description": "Valid tool description for testing.",
-      "inputSchema": {"type": "object"}
-    }
-  ]
-}

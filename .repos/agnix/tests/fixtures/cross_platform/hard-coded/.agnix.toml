@@ -1,3 +1,0 @@
-# Test config - enables all XP rules for testing
-[rules]
-cross_platform = true
