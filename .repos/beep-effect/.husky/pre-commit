@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# Run gitleaks to detect secrets in staged changes
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --verbose --redact
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: gitleaks detected potential secrets in staged changes."
+    echo "Please remove secrets before committing."
+    echo ""
+    echo "If this is a false positive, add the pattern to .gitleaksignore"
+    exit 1
+  fi
+else
+  # Try with npx as fallback
+  if command -v npx >/dev/null 2>&1; then
+    npx --yes gitleaks@latest protect --staged --verbose --redact 2>/dev/null
+    if [ $? -ne 0 ] && [ $? -ne 127 ]; then
+      echo ""
+      echo "ERROR: gitleaks detected potential secrets in staged changes."
+      exit 1
+    fi
+  else
+    echo "WARNING: gitleaks not installed. Install with: brew install gitleaks (macOS) or download from https://github.com/gitleaks/gitleaks"
+  fi
+fi
+
+# Run lint-staged for code quality
+bunx lint-staged
+
+# Enforce spec folder status hygiene
+bun run spec:status:check
+
+# Validate agents manifest if agent files changed
+# Check if any agent-related files are staged
+if git diff --cached --name-only | grep -qE '^\.claude/agents/.*\.md$|^\.claude/agents-manifest\.yaml$'; then
+  echo ""
+  echo "Agent files detected in commit, validating manifest..."
+  bun run agents:validate --pre-commit
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Agent manifest validation failed."
+    echo "Please update .claude/agents-manifest.yaml to match agent definitions."
+    exit 1
+  fi
+fi
+
+# Repo-law enforcement (scoped): only run when knowledge server/domain source files are staged.
+if git diff --cached --name-only | grep -qE '^packages/knowledge/server/src/.*\.ts$|^packages/knowledge/server/src/.*\.tsx$'; then
+  echo ""
+  echo "Knowledge server sources detected in commit, running repo-law pattern checks..."
+  bun run verify:patterns --filter @beep/knowledge-server --severity critical
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Pattern verification failed for @beep/knowledge-server."
+    exit 1
+  fi
+fi
+
+if git diff --cached --name-only | grep -qE '^packages/knowledge/domain/src/.*\.ts$|^packages/knowledge/domain/src/.*\.tsx$'; then
+  echo ""
+  echo "Knowledge domain sources detected in commit, running entity-id verification..."
+  bun run verify:entityids
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Entity ID verification failed."
+    exit 1
+  fi
+fi

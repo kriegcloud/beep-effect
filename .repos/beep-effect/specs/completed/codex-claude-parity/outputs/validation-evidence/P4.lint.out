@@ -1,0 +1,716 @@
+=== bun run lint ===
+$ bun run lint:deps && bunx turbo run lint lint:circular
+$ bunx syncpack lint --dependency-types='catalog'
+✓ No issues found
+• turbo 2.8.3
+• Packages in scope: @beep/build-utils, @beep/calendar-client, @beep/calendar-domain, @beep/calendar-server, @beep/calendar-tables, @beep/calendar-ui, @beep/comms-client, @beep/comms-domain, @beep/comms-server, @beep/comms-tables, @beep/comms-ui, @beep/constants, @beep/customization-client, @beep/customization-domain, @beep/customization-server, @beep/customization-tables, @beep/customization-ui, @beep/db-admin, @beep/documents-client, @beep/documents-domain, @beep/documents-server, @beep/documents-tables, @beep/documents-ui, @beep/errors, @beep/google-workspace-client, @beep/google-workspace-domain, @beep/google-workspace-server, @beep/iam-client, @beep/iam-domain, @beep/iam-server, @beep/iam-tables, @beep/iam-ui, @beep/identity, @beep/invariant, @beep/knowledge-client, @beep/knowledge-domain, @beep/knowledge-server, @beep/knowledge-tables, @beep/knowledge-ui, @beep/machine, @beep/marketing, @beep/repo-cli, @beep/repo-scripts, @beep/runtime-client, @beep/runtime-server, @beep/schema, @beep/server, @beep/shared-ai, @beep/shared-client, @beep/shared-domain, @beep/shared-env, @beep/shared-server, @beep/shared-tables, @beep/shared-ui, @beep/testkit, @beep/todox, @beep/tooling-utils, @beep/types, @beep/ui, @beep/ui-core, @beep/ui-editor, @beep/ui-spreadsheet, @beep/utils, @beep/web, @beep/wrap
+• Running lint, lint:circular in 65 packages
+• Remote caching disabled
+@beep/documents-ui:lint:circular: cache hit, replaying logs 69837cc44935685c
+@beep/documents-ui:lint:circular: 
+@beep/documents-ui:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/documents-ui:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m3[22m files [2m(351ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/documents-ui:lint:circular: 
+@beep/documents-ui:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/documents-ui:lint:circular: 
+@beep/documents-ui:lint:circular: [?25h
+@beep/invariant:lint:circular: cache hit, replaying logs a688769b4ff71948
+@beep/invariant:lint:circular: 
+@beep/invariant:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/invariant:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m6[22m files [2m(701ms)[22m ([33m[1m4 warnings[22m[39m)
+@beep/invariant:lint:circular: 
+@beep/invariant:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/invariant:lint:circular: 
+@beep/invariant:lint:circular: [?25h
+@beep/identity:lint:circular: cache hit, replaying logs fdc94ec07034145b
+@beep/identity:lint:circular: 
+@beep/identity:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/identity:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m7[22m files [2m(835ms)[22m ([33m[1m2 warnings[22m[39m)
+@beep/identity:lint:circular: 
+@beep/identity:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/identity:lint:circular: 
+@beep/identity:lint:circular: [?25h
+@beep/invariant:lint: cache hit, replaying logs 9e2d6d3651911f9f
+@beep/invariant:lint: 
+@beep/invariant:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/invariant:lint: [0m[34mChecked [0m[0m[34m12[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m6[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/knowledge-client:lint: cache hit, replaying logs d50a63f1a20eccac
+@beep/knowledge-client:lint: 
+@beep/knowledge-client:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/knowledge-client:lint: [0m[34mChecked [0m[0m[34m8[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m4[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/identity:lint: cache hit, replaying logs 59c916647ea864b2
+@beep/identity:lint: 
+@beep/identity:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/identity:lint: [0m[34mChecked [0m[0m[34m13[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m21[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/knowledge-client:lint:circular: cache hit, replaying logs 265387722099ce1a
+@beep/knowledge-client:lint:circular: 
+@beep/knowledge-client:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/knowledge-client:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m3[22m files [2m(346ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/knowledge-client:lint:circular: 
+@beep/knowledge-client:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/knowledge-client:lint:circular: 
+@beep/knowledge-client:lint:circular: [?25h
+@beep/types:lint:circular: cache hit, replaying logs dcbecac715d19404
+@beep/types:lint:circular: 
+@beep/types:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/types:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m203[22m files [2m(1.2s)[22m ([33m[1m1 warning[22m[39m)
+@beep/types:lint:circular: 
+@beep/types:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/types:lint:circular: 
+@beep/types:lint:circular: [?25h
+@beep/documents-client:lint: cache hit, replaying logs 78bb62fa7d1d3a00
+@beep/documents-client:lint: 
+@beep/documents-client:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/documents-client:lint: [0m[34mChecked [0m[0m[34m10[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m8[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/documents-ui:lint: cache hit, replaying logs 543cec4b15160175
+@beep/documents-ui:lint: 
+@beep/documents-ui:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/documents-ui:lint: [0m[34mChecked [0m[0m[34m9[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m11[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/types:lint: cache hit, replaying logs 7842a4f75ab586b3
+@beep/types:lint: 
+@beep/types:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/types:lint: [0msrc/find-global-type.ts[0m[0m:[0m[0m65[0m[0m:[0m[0m73[0m[0m [0m[0m]8;;https://biomejs.dev/linter/rules/no-explicit-any\lint/suspicious/noExplicitAny]8;;\[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mUnexpected [0m[0m[1m[33many[0m[0m[33m. Specify a different type.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m63 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0mr[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0mc[0m[0mo[0m[0mn[0m[0ms[0m[0mt[0m[0mr[0m[0mu[0m[0mc[0m[0mt[0m[0mo[0m[0mr[0m[0m [0m[0mi[0m[0mn[0m[0ms[0m[0mt[0m[0ma[0m[0mn[0m[0mc[0m[0me[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0ms[0m[0m [0m[0mf[0m[0mr[0m[0mo[0m[0mm[0m[0m [0m[0mg[0m[0ml[0m[0mo[0m[0mb[0m[0ma[0m[0ml[0m[0mT[0m[0mh[0m[0mi[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m64 │ [0m[0me[0m[0mx[0m[0mp[0m[0mo[0m[0mr[0m[0mt[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mF[0m[0mi[0m[0mn[0m[0md[0m[0mG[0m[0ml[0m[0mo[0m[0mb[0m[0ma[0m[0ml[0m[0mI[0m[0mn[0m[0ms[0m[0mt[0m[0ma[0m[0mn[0m[0mc[0m[0me[0m[0mT[0m[0my[0m[0mp[0m[0me[0m[0m<[0m[0mN[0m[0ma[0m[0mm[0m[0me[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0ms[0m[0mt[0m[0mr[0m[0mi[0m[0mn[0m[0mg[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mN[0m[0ma[0m[0mm[0m[0me[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0ms[0m[0mt[0m[0mr[0m[0mi[0m[0mn[0m[0mg[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m65 │ [0m[0m [0m[0m [0m[0m?[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0mo[0m[0mf[0m[0m [0m[0mg[0m[0ml[0m[0mo[0m[0mb[0m[0ma[0m[0ml[0m[0mT[0m[0mh[0m[0mi[0m[0ms[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m<[0m[0mN[0m[0ma[0m[0mm[0m[0me[0m[0m,[0m[0m [0m[0ma[0m[0mb[0m[0ms[0m[0mt[0m[0mr[0m[0ma[0m[0mc[0m[0mt[0m[0m [0m[0mn[0m[0me[0m[0mw[0m[0m [0m[0m([0m[0m.[0m[0m.[0m[0m.[0m[0ma[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m_[0m[0m:[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m[[0m[0m][0m[0m)[0m[0m [0m[0m=[0m[0m>[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0m [0m[0mT[0m[0m>[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m66 │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m?[0m[0m [0m[0mT[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m67 │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m:[0m[0m [0m[0mn[0m[0me[0m[0mv[0m[0me[0m[0mr[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[34mℹ[0m[0m [0m[0m[1m[34many[0m[0m[34m disables many type checking rules. Its use should be avoided.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/find-global-type.ts[0m[0m:[0m[0m63[0m[0m:[0m[0m1[0m[0m [0m[0msuppressions/unused[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mSuppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m61 │ [0m[0m@[0m[0mc[0m[0ma[0m[0mt[0m[0me[0m[0mg[0m[0mo[0m[0mr[0m[0my[0m[0m [0m[0mU[0m[0mt[0m[0mi[0m[0ml[0m[0mi[0m[0mt[0m[0mi[0m[0me[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m62 │ [0m[0m*[0m[0m/[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m63 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0mr[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0mc[0m[0mo[0m[0mn[0m[0ms[0m[0mt[0m[0mr[0m[0mu[0m[0mc[0m[0mt[0m[0mo[0m[0mr[0m[0m [0m[0mi[0m[0mn[0m[0ms[0m[0mt[0m[0ma[0m[0mn[0m[0mc[0m[0me[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0ms[0m[0m [0m[0mf[0m[0mr[0m[0mo[0m[0mm[0m[0m [0m[0mg[0m[0ml[0m[0mo[0m[0mb[0m[0ma[0m[0ml[0m[0mT[0m[0mh[0m[0mi[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m64 │ [0m[0me[0m[0mx[0m[0mp[0m[0mo[0m[0mr[0m[0mt[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mF[0m[0mi[0m[0mn[0m[0md[0m[0mG[0m[0ml[0m[0mo[0m[0mb[0m[0ma[0m[0ml[0m[0mI[0m[0mn[0m[0ms[0m[0mt[0m[0ma[0m[0mn[0m[0mc[0m[0me[0m[0mT[0m[0my[0m[0mp[0m[0me[0m[0m<[0m[0mN[0m[0ma[0m[0mm[0m[0me[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0ms[0m[0mt[0m[0mr[0m[0mi[0m[0mn[0m[0mg[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mN[0m[0ma[0m[0mm[0m[0me[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0ms[0m[0mt[0m[0mr[0m[0mi[0m[0mn[0m[0mg[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m65 │ [0m[0m [0m[0m [0m[0m?[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0mo[0m[0mf[0m[0m [0m[0mg[0m[0ml[0m[0mo[0m[0mb[0m[0ma[0m[0ml[0m[0mT[0m[0mh[0m[0mi[0m[0ms[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m<[0m[0mN[0m[0ma[0m[0mm[0m[0me[0m[0m,[0m[0m [0m[0ma[0m[0mb[0m[0ms[0m[0mt[0m[0mr[0m[0ma[0m[0mc[0m[0mt[0m[0m [0m[0mn[0m[0me[0m[0mw[0m[0m [0m[0m([0m[0m.[0m[0m.[0m[0m.[0m[0ma[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m_[0m[0m:[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m[[0m[0m][0m[0m)[0m[0m [0m[0m=[0m[0m>[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0m [0m[0mT[0m[0m>[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/partial-on-undefined-deep.ts[0m[0m:[0m[0m62[0m[0m:[0m[0m12[0m[0m [0m[0m]8;;https://biomejs.dev/linter/rules/no-explicit-any\lint/suspicious/noExplicitAny]8;;\[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mUnexpected [0m[0m[1m[33many[0m[0m[33m. Specify a different type.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m60 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m-[0m[0ml[0m[0me[0m[0mv[0m[0me[0m[0ml[0m[0m [0m[0mr[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m [0m[0mm[0m[0ma[0m[0mt[0m[0mc[0m[0mh[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0mi[0m[0mn[0m[0m [0m[0mc[0m[0mo[0m[0mn[0m[0md[0m[0mi[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ma[0m[0ml[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m61 │ [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0m_[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0m<[0m[0mT[0m[0m,[0m[0m [0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m<[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m>[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mT[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m62 │ [0m[0m [0m[0m [0m[0m|[0m[0m [0m[0mR[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m<[0m[0ma[0m[0mn[0m[0my[0m[0m,[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m>[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m63 │ [0m[0m [0m[0m [0m[0m|[0m[0m [0m[0mu[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m64 │ [0m[0m [0m[0m [0m[0m?[0m[0m [0m[0m{[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[34mℹ[0m[0m [0m[0m[1m[34many[0m[0m[34m disables many type checking rules. Its use should be avoided.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/partial-on-undefined-deep.ts[0m[0m:[0m[0m62[0m[0m:[0m[0m17[0m[0m [0m[0m]8;;https://biomejs.dev/linter/rules/no-explicit-any\lint/suspicious/noExplicitAny]8;;\[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mUnexpected [0m[0m[1m[33many[0m[0m[33m. Specify a different type.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m60 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m-[0m[0ml[0m[0me[0m[0mv[0m[0me[0m[0ml[0m[0m [0m[0mr[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m [0m[0mm[0m[0ma[0m[0mt[0m[0mc[0m[0mh[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0mi[0m[0mn[0m[0m [0m[0mc[0m[0mo[0m[0mn[0m[0md[0m[0mi[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ma[0m[0ml[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m61 │ [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0m_[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0m<[0m[0mT[0m[0m,[0m[0m [0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m<[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m>[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mT[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m62 │ [0m[0m [0m[0m [0m[0m|[0m[0m [0m[0mR[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m<[0m[0ma[0m[0mn[0m[0my[0m[0m,[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m>[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m63 │ [0m[0m [0m[0m [0m[0m|[0m[0m [0m[0mu[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m64 │ [0m[0m [0m[0m [0m[0m?[0m[0m [0m[0m{[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[34mℹ[0m[0m [0m[0m[1m[34many[0m[0m[34m disables many type checking rules. Its use should be avoided.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/partial-on-undefined-deep.ts[0m[0m:[0m[0m87[0m[0m:[0m[0m22[0m[0m [0m[0m]8;;https://biomejs.dev/linter/rules/no-explicit-any\lint/suspicious/noExplicitAny]8;;\[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mUnexpected [0m[0m[1m[33many[0m[0m[33m. Specify a different type.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m85 │ [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0mV[0m[0ma[0m[0ml[0m[0mu[0m[0me[0m[0m<[0m[0mT[0m[0m,[0m[0m [0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m<[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m>[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mT[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m86 │ [0m[0m [0m[0m [0m[0m|[0m[0m [0m[0mB[0m[0mu[0m[0mi[0m[0ml[0m[0mt[0m[0mI[0m[0mn[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m87 │ [0m[0m [0m[0m [0m[0m|[0m[0m [0m[0m([0m[0m([0m[0m.[0m[0m.[0m[0m.[0m[0ma[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m_[0m[0m:[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m[[0m[0m][0m[0m)[0m[0m [0m[0m=[0m[0m>[0m[0m [0m[0mu[0m[0mn[0m[0mk[0m[0mn[0m[0mo[0m[0mw[0m[0mn[0m[0m)[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m88 │ [0m[0m [0m[0m [0m[0m?[0m[0m [0m[0mT[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m89 │ [0m[0m [0m[0m [0m[0m:[0m[0m [0m[0mT[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0ma[0m[0md[0m[0mo[0m[0mn[0m[0ml[0m[0my[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m<[0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0m [0m[0mU[0m[0m>[0m[0m [0m[0m/[0m[0m/[0m[0m [0m[0mT[0m[0me[0m[0ms[0m[0mt[0m[0m [0m[0mi[0m[0mf[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mi[0m[0ms[0m[0m [0m[0ma[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m [0m[0mo[0m[0mr[0m[0m [0m[0mt[0m[0mu[0m[0mp[0m[0ml[0m[0me[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[34mℹ[0m[0m [0m[0m[1m[34many[0m[0m[34m disables many type checking rules. Its use should be avoided.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/partial-on-undefined-deep.ts[0m[0m:[0m[0m60[0m[0m:[0m[0m1[0m[0m [0m[0msuppressions/unused[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mSuppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m58 │ [0m[0m>[0m[0m;[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m59 │ [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m60 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m-[0m[0ml[0m[0me[0m[0mv[0m[0me[0m[0ml[0m[0m [0m[0mr[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m [0m[0mm[0m[0ma[0m[0mt[0m[0mc[0m[0mh[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0mi[0m[0mn[0m[0m [0m[0mc[0m[0mo[0m[0mn[0m[0md[0m[0mi[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ma[0m[0ml[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m61 │ [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0m_[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0m<[0m[0mT[0m[0m,[0m[0m [0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m<[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m>[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mT[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m62 │ [0m[0m [0m[0m [0m[0m|[0m[0m [0m[0mR[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m<[0m[0ma[0m[0mn[0m[0my[0m[0m,[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m>[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/partial-on-undefined-deep.ts[0m[0m:[0m[0m84[0m[0m:[0m[0m1[0m[0m [0m[0msuppressions/unused[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mSuppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m82 │ [0m[0mU[0m[0mt[0m[0mi[0m[0ml[0m[0mi[0m[0mt[0m[0my[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mt[0m[0mo[0m[0m [0m[0mg[0m[0me[0m[0mt[0m[0m [0m[0mt[0m[0mh[0m[0me[0m[0m [0m[0mv[0m[0ma[0m[0ml[0m[0mu[0m[0me[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mb[0m[0my[0m[0m [0m[0mk[0m[0me[0m[0my[0m[0m [0m[0ma[0m[0mn[0m[0md[0m[0m [0m[0mr[0m[0me[0m[0mc[0m[0mu[0m[0mr[0m[0ms[0m[0mi[0m[0mv[0m[0me[0m[0ml[0m[0my[0m[0m [0m[0mc[0m[0ma[0m[0ml[0m[0ml[0m[0m [0m[0m`[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0m`[0m[0m [0m[0mt[0m[0mo[0m[0m [0m[0mt[0m[0mr[0m[0ma[0m[0mn[0m[0ms[0m[0mf[0m[0mo[0m[0mr[0m[0mm[0m[0m [0m[0ms[0m[0mu[0m[0mb[0m[0m-[0m[0mo[0m[0mb[0m[0mj[0m[0me[0m[0mc[0m[0mt[0m[0ms[0m[0m.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m83 │ [0m[0m*[0m[0m/[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m84 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mm[0m[0ma[0m[0mt[0m[0mc[0m[0mh[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0ma[0m[0mr[0m[0mb[0m[0mi[0m[0mt[0m[0mr[0m[0ma[0m[0mr[0m[0my[0m[0m [0m[0mf[0m[0mu[0m[0mn[0m[0mc[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m [0m[0ms[0m[0mi[0m[0mg[0m[0mn[0m[0ma[0m[0mt[0m[0mu[0m[0mr[0m[0me[0m[0ms[0m[0m [0m[0mi[0m[0mn[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mu[0m[0mt[0m[0mi[0m[0ml[0m[0mi[0m[0mt[0m[0mi[0m[0me[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m85 │ [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0mV[0m[0ma[0m[0ml[0m[0mu[0m[0me[0m[0m<[0m[0mT[0m[0m,[0m[0m [0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m<[0m[0mP[0m[0ma[0m[0mr[0m[0mt[0m[0mi[0m[0ma[0m[0ml[0m[0mO[0m[0mn[0m[0mU[0m[0mn[0m[0md[0m[0me[0m[0mf[0m[0mi[0m[0mn[0m[0me[0m[0md[0m[0mD[0m[0me[0m[0me[0m[0mp[0m[0mO[0m[0mp[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0ms[0m[0m>[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mT[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m86 │ [0m[0m [0m[0m [0m[0m|[0m[0m [0m[0mB[0m[0mu[0m[0mi[0m[0ml[0m[0mt[0m[0mI[0m[0mn[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/set-parameter-type.ts[0m[0m:[0m[0m120[0m[0m:[0m[0m37[0m[0m [0m[0m]8;;https://biomejs.dev/linter/rules/no-explicit-any\lint/suspicious/noExplicitAny]8;;\[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mUnexpected [0m[0m[1m[33many[0m[0m[33m. Specify a different type.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m118 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mm[0m[0ma[0m[0mt[0m[0mc[0m[0mh[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0ma[0m[0mr[0m[0mb[0m[0mi[0m[0mt[0m[0mr[0m[0ma[0m[0mr[0m[0my[0m[0m [0m[0mf[0m[0mu[0m[0mn[0m[0mc[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m [0m[0ms[0m[0mi[0m[0mg[0m[0mn[0m[0ma[0m[0mt[0m[0mu[0m[0mr[0m[0me[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m119 │ [0m[0me[0m[0mx[0m[0mp[0m[0mo[0m[0mr[0m[0mt[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mS[0m[0me[0m[0mt[0m[0mP[0m[0ma[0m[0mr[0m[0ma[0m[0mm[0m[0me[0m[0mt[0m[0me[0m[0mr[0m[0mT[0m[0my[0m[0mp[0m[0me[0m[0m<[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m120 │ [0m[0m [0m[0m [0m[0mF[0m[0mu[0m[0mn[0m[0mc[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m_[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0m([0m[0m.[0m[0m.[0m[0m.[0m[0ma[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m_[0m[0m:[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m[[0m[0m][0m[0m)[0m[0m [0m[0m=[0m[0m>[0m[0m [0m[0mu[0m[0mn[0m[0mk[0m[0mn[0m[0mo[0m[0mw[0m[0mn[0m[0m,[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m121 │ [0m[0m [0m[0m [0m[0mP[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mR[0m[0me[0m[0mc[0m[0mo[0m[0mr[0m[0md[0m[0m<[0m[0mn[0m[0mu[0m[0mm[0m[0mb[0m[0me[0m[0mr[0m[0m,[0m[0m [0m[0mu[0m[0mn[0m[0mk[0m[0mn[0m[0mo[0m[0mw[0m[0mn[0m[0m>[0m[0m,[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m122 │ [0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mF[0m[0mu[0m[0mn[0m[0mc[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m_[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0m([0m[0mt[0m[0mh[0m[0mi[0m[0ms[0m[0m:[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0m [0m[0mT[0m[0mh[0m[0mi[0m[0ms[0m[0mA[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0m,[0m[0m [0m[0m.[0m[0m.[0m[0m.[0m[0ma[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m_[0m[0m:[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0m [0m[0mA[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m)[0m[0m [0m[0m=[0m[0m>[0m[0m [0m[0mu[0m[0mn[0m[0mk[0m[0mn[0m[0mo[0m[0mw[0m[0mn[0m[0m [0m[0m/[0m[0m/[0m[0m [0m[0mJ[0m[0mu[0m[0ms[0m[0mt[0m[0m [0m[0mu[0m[0ms[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0m`[0m[0mP[0m[0ma[0m[0mr[0m[0ma[0m[0mm[0m[0me[0m[0mt[0m[0me[0m[0mr[0m[0ms[0m[0m<[0m[0mF[0m[0mn[0m[0m>[0m[0m`[0m[0m [0m[0mi[0m[0ms[0m[0mn[0m[0m'[0m[0mt[0m[0m [0m[0mi[0m[0md[0m[0me[0m[0ma[0m[0ml[0m[0m [0m[0mb[0m[0me[0m[0mc[0m[0ma[0m[0mu[0m[0ms[0m[0me[0m[0m [0m[0mi[0m[0mt[0m[0m [0m[0md[0m[0mo[0m[0me[0m[0ms[0m[0mn[0m[0m'[0m[0mt[0m[0m [0m[0mh[0m[0ma[0m[0mn[0m[0md[0m[0ml[0m[0me[0m[0m [0m[0mt[0m[0mh[0m[0me[0m[0m [0m[0m`[0m[0mt[0m[0mh[0m[0mi[0m[0ms[0m[0m`[0m[0m [0m[0mf[0m[0ma[0m[0mk[0m[0me[0m[0m [0m[0mp[0m[0ma[0m[0mr[0m[0ma[0m[0mm[0m[0me[0m[0mt[0m[0me[0m[0mr[0m[0m.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[34mℹ[0m[0m [0m[0m[1m[34many[0m[0m[34m disables many type checking rules. Its use should be avoided.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/set-parameter-type.ts[0m[0m:[0m[0m118[0m[0m:[0m[0m1[0m[0m [0m[0msuppressions/unused[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mSuppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m116 │ [0m[0m@[0m[0mc[0m[0ma[0m[0mt[0m[0me[0m[0mg[0m[0mo[0m[0mr[0m[0my[0m[0m [0m[0mF[0m[0mu[0m[0mn[0m[0mc[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m117 │ [0m[0m*[0m[0m/[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m118 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mm[0m[0ma[0m[0mt[0m[0mc[0m[0mh[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0ma[0m[0mr[0m[0mb[0m[0mi[0m[0mt[0m[0mr[0m[0ma[0m[0mr[0m[0my[0m[0m [0m[0mf[0m[0mu[0m[0mn[0m[0mc[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m [0m[0ms[0m[0mi[0m[0mg[0m[0mn[0m[0ma[0m[0mt[0m[0mu[0m[0mr[0m[0me[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m119 │ [0m[0me[0m[0mx[0m[0mp[0m[0mo[0m[0mr[0m[0mt[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mS[0m[0me[0m[0mt[0m[0mP[0m[0ma[0m[0mr[0m[0ma[0m[0mm[0m[0me[0m[0mt[0m[0me[0m[0mr[0m[0mT[0m[0my[0m[0mp[0m[0me[0m[0m<[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m120 │ [0m[0m [0m[0m [0m[0mF[0m[0mu[0m[0mn[0m[0mc[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m_[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0m([0m[0m.[0m[0m.[0m[0m.[0m[0ma[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m_[0m[0m:[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m[[0m[0m][0m[0m)[0m[0m [0m[0m=[0m[0m>[0m[0m [0m[0mu[0m[0mn[0m[0mk[0m[0mn[0m[0mo[0m[0mw[0m[0mn[0m[0m,[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/set-return-type.ts[0m[0m:[0m[0m25[0m[0m:[0m[0m6[0m[0m [0m[0m]8;;https://biomejs.dev/linter/rules/no-explicit-any\lint/suspicious/noExplicitAny]8;;\[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mUnexpected [0m[0m[1m[33many[0m[0m[33m. Specify a different type.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m23 │ [0m[0m [0m[0m [0m[0mt[0m[0mh[0m[0mi[0m[0ms[0m[0m:[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0m [0m[0mT[0m[0mh[0m[0mi[0m[0ms[0m[0mA[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0m,[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m24 │ [0m[0m [0m[0m [0m[0m.[0m[0m.[0m[0m.[0m[0ma[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m_[0m[0m:[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0m [0m[0mA[0m[0mr[0m[0mg[0m[0mu[0m[0mm[0m[0me[0m[0mn[0m[0mt[0m[0ms[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m25 │ [0m[0m)[0m[0m [0m[0m=[0m[0m>[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m26 │ [0m[0m [0m[0m [0m[0m?[0m[0m [0m[0m/[0m[0m/[0m[0m [0m[0mI[0m[0mf[0m[0m [0m[0ma[0m[0m [0m[0mf[0m[0mu[0m[0mn[0m[0mc[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m [0m[0md[0m[0mi[0m[0md[0m[0m [0m[0mn[0m[0mo[0m[0mt[0m[0m [0m[0ms[0m[0mp[0m[0me[0m[0mc[0m[0mi[0m[0mf[0m[0my[0m[0m [0m[0mt[0m[0mh[0m[0me[0m[0m [0m[0m`[0m[0mt[0m[0mh[0m[0mi[0m[0ms[0m[0m`[0m[0m [0m[0mf[0m[0ma[0m[0mk[0m[0me[0m[0m [0m[0mp[0m[0ma[0m[0mr[0m[0ma[0m[0mm[0m[0me[0m[0mt[0m[0me[0m[0mr[0m[0m,[0m[0m [0m[0mi[0m[0mt[0m[0m [0m[0mw[0m[0mi[0m[0ml[0m[0ml[0m[0m [0m[0mb[0m[0me[0m[0m [0m[0mi[0m[0mn[0m[0mf[0m[0me[0m[0mr[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mt[0m[0mo[0m[0m [0m[0m`[0m[0mu[0m[0mn[0m[0mk[0m[0mn[0m[0mo[0m[0mw[0m[0mn[0m[0m`[0m[0m.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m27 │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m/[0m[0m/[0m[0m [0m[0mW[0m[0me[0m[0m [0m[0mw[0m[0ma[0m[0mn[0m[0mt[0m[0m [0m[0mt[0m[0mo[0m[0m [0m[0md[0m[0me[0m[0mt[0m[0me[0m[0mc[0m[0mt[0m[0m [0m[0mt[0m[0mh[0m[0mi[0m[0ms[0m[0m [0m[0ms[0m[0mi[0m[0mt[0m[0mu[0m[0ma[0m[0mt[0m[0mi[0m[0mo[0m[0mn[0m[0m [0m[0mj[0m[0mu[0m[0ms[0m[0mt[0m[0m [0m[0mt[0m[0mo[0m[0m [0m[0md[0m[0mi[0m[0ms[0m[0mp[0m[0ml[0m[0ma[0m[0my[0m[0m [0m[0ma[0m[0m [0m[0mf[0m[0mr[0m[0mi[0m[0me[0m[0mn[0m[0md[0m[0ml[0m[0mi[0m[0me[0m[0mr[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mu[0m[0mp[0m[0mo[0m[0mn[0m[0m [0m[0mh[0m[0mo[0m[0mv[0m[0me[0m[0mr[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0mo[0m[0mn[0m[0m [0m[0ma[0m[0mn[0m[0m [0m[0mI[0m[0mn[0m[0mt[0m[0me[0m[0ml[0m[0ml[0m[0mi[0m[0mS[0m[0me[0m[0mn[0m[0ms[0m[0me[0m[0m-[0m[0mp[0m[0mo[0m[0mw[0m[0me[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mI[0m[0mD[0m[0mE[0m[0m.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[34mℹ[0m[0m [0m[0m[1m[34many[0m[0m[34m disables many type checking rules. Its use should be avoided.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/tuple-to-object.ts[0m[0m:[0m[0m44[0m[0m:[0m[0m3[0m[0m [0m[0m]8;;https://biomejs.dev/linter/rules/no-explicit-any\lint/suspicious/noExplicitAny]8;;\[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mUnexpected [0m[0m[1m[33many[0m[0m[33m. Specify a different type.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m42 │ [0m[0me[0m[0mx[0m[0mp[0m[0mo[0m[0mr[0m[0mt[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mT[0m[0mu[0m[0mp[0m[0ml[0m[0me[0m[0mT[0m[0mo[0m[0mO[0m[0mb[0m[0mj[0m[0me[0m[0mc[0m[0mt[0m[0m<[0m[0mT[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mU[0m[0mn[0m[0mk[0m[0mn[0m[0mo[0m[0mw[0m[0mn[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mI[0m[0mf[0m[0m<[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m43 │ [0m[0m [0m[0m [0m[0mI[0m[0ms[0m[0mA[0m[0mn[0m[0my[0m[0m<[0m[0mT[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m>[0m[0m,[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m44 │ [0m[0m [0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m,[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m [0m[0m [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m45 │ [0m[0m [0m[0m [0m[0m{[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m46 │ [0m[0m [0m[0m [0m[0m [0m[0m [0m[0m[[0m[0mK[0m[0me[0m[0my[0m[0m [0m[0mi[0m[0mn[0m[0m [0m[0mk[0m[0me[0m[0my[0m[0mo[0m[0mf[0m[0m [0m[0mT[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m [0m[0ma[0m[0ms[0m[0m [0m[0mK[0m[0me[0m[0my[0m[0m [0m[0m&[0m[0m [0m[0m([0m[0m`[0m[0m$[0m[0m{[0m[0mn[0m[0mu[0m[0mm[0m[0mb[0m[0me[0m[0mr[0m[0m}[0m[0m`[0m[0m [0m[0m|[0m[0m [0m[0m([0m[0mI[0m[0ms[0m[0mT[0m[0mu[0m[0mp[0m[0ml[0m[0me[0m[0m<[0m[0mT[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m>[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mt[0m[0mr[0m[0mu[0m[0me[0m[0m [0m[0m?[0m[0m [0m[0mn[0m[0me[0m[0mv[0m[0me[0m[0mr[0m[0m [0m[0m:[0m[0m [0m[0mn[0m[0mu[0m[0mm[0m[0mb[0m[0me[0m[0mr[0m[0m)[0m[0m)[0m[0m][0m[0m:[0m[0m [0m[0mT[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m[[0m[0mK[0m[0me[0m[0my[0m[0m][0m[0m;[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[34mℹ[0m[0m [0m[0m[1m[34many[0m[0m[34m disables many type checking rules. Its use should be avoided.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0msrc/tuple-to-object.ts[0m[0m:[0m[0m41[0m[0m:[0m[0m1[0m[0m [0m[0msuppressions/unused[0m[0m [0m[0m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[0m
+@beep/types:lint: 
+@beep/types:lint: [0m[0m  [0m[0m[1m[33m⚠[0m[0m [0m[0m[33mSuppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m39 │ [0m[0m@[0m[0mc[0m[0ma[0m[0mt[0m[0me[0m[0mg[0m[0mo[0m[0mr[0m[0my[0m[0m [0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m40 │ [0m[0m*[0m[0m/[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m[1m[31m>[0m[0m [0m[0m[1m41 │ [0m[0m/[0m[0m/[0m[0m [0m[0mb[0m[0mi[0m[0mo[0m[0mm[0m[0me[0m[0m-[0m[0mi[0m[0mg[0m[0mn[0m[0mo[0m[0mr[0m[0me[0m[0m [0m[0ml[0m[0mi[0m[0mn[0m[0mt[0m[0m/[0m[0ms[0m[0mu[0m[0ms[0m[0mp[0m[0mi[0m[0mc[0m[0mi[0m[0mo[0m[0mu[0m[0ms[0m[0m/[0m[0mn[0m[0mo[0m[0mE[0m[0mx[0m[0mp[0m[0ml[0m[0mi[0m[0mc[0m[0mi[0m[0mt[0m[0mA[0m[0mn[0m[0my[0m[0m:[0m[0m [0m[0mR[0m[0me[0m[0mq[0m[0mu[0m[0mi[0m[0mr[0m[0me[0m[0md[0m[0m [0m[0mf[0m[0mo[0m[0mr[0m[0m [0m[0mr[0m[0me[0m[0mt[0m[0mu[0m[0mr[0m[0mn[0m[0mi[0m[0mn[0m[0mg[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m [0m[0mw[0m[0mh[0m[0me[0m[0mn[0m[0m [0m[0mi[0m[0mn[0m[0mp[0m[0mu[0m[0mt[0m[0m [0m[0mi[0m[0ms[0m[0m [0m[0ma[0m[0mn[0m[0my[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m [0m[0m [0m[0m[1m   │ [0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m[1m[31m^[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m42 │ [0m[0me[0m[0mx[0m[0mp[0m[0mo[0m[0mr[0m[0mt[0m[0m [0m[0mt[0m[0my[0m[0mp[0m[0me[0m[0m [0m[0mT[0m[0mu[0m[0mp[0m[0ml[0m[0me[0m[0mT[0m[0mo[0m[0mO[0m[0mb[0m[0mj[0m[0me[0m[0mc[0m[0mt[0m[0m<[0m[0mT[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m [0m[0me[0m[0mx[0m[0mt[0m[0me[0m[0mn[0m[0md[0m[0ms[0m[0m [0m[0mU[0m[0mn[0m[0mk[0m[0mn[0m[0mo[0m[0mw[0m[0mn[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m>[0m[0m [0m[0m=[0m[0m [0m[0mI[0m[0mf[0m[0m<[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m  [0m[0m[1m43 │ [0m[0m [0m[0m [0m[0mI[0m[0ms[0m[0mA[0m[0mn[0m[0my[0m[0m<[0m[0mT[0m[0mA[0m[0mr[0m[0mr[0m[0ma[0m[0my[0m[0m>[0m[0m,[0m[0m
+@beep/types:lint: [0m[0m  [0m[0m
+@beep/types:lint: [0m
+@beep/types:lint: [0m[34mChecked [0m[0m[34m211[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m138[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m[0m
+@beep/types:lint: [0m[0m[33mFound [0m[0m[33m12[0m[0m[33m warnings.[0m
+@beep/testkit:lint:circular: cache miss, executing 30b0c0b94c700f6e
+@beep/knowledge-ui:lint:circular: cache hit, replaying logs ff2af52fd1f68fe9
+@beep/knowledge-ui:lint:circular: 
+@beep/knowledge-ui:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/knowledge-ui:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m3[22m files [2m(369ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/knowledge-ui:lint:circular: 
+@beep/knowledge-ui:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/knowledge-ui:lint:circular: 
+@beep/knowledge-ui:lint:circular: [?25h
+@beep/testkit:lint:circular: $ bunx madge -c .
+@beep/comms-client:lint: cache hit, replaying logs ae7b03495aad29dc
+@beep/comms-client:lint: 
+@beep/comms-client:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/comms-client:lint: [0m[34mChecked [0m[0m[34m9[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m28[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/testkit:lint: cache miss, executing f12acb3dd753ecb0
+@beep/customization-ui:lint: cache hit, replaying logs 6e0f39b31f555018
+@beep/customization-ui:lint: 
+@beep/customization-ui:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/customization-ui:lint: [0m[34mChecked [0m[0m[34m8[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m5[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/testkit:lint: $ biome check .
+@beep/calendar-ui:lint: cache hit, replaying logs 778337d3604a6297
+@beep/calendar-ui:lint: 
+@beep/calendar-ui:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/calendar-ui:lint: [0m[34mChecked [0m[0m[34m8[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m4[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/customization-ui:lint:circular: cache hit, replaying logs 118ac3477212b798
+@beep/customization-ui:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/customization-ui:lint:circular: 
+@beep/customization-ui:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m2[22m files [2m(550ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/customization-ui:lint:circular: 
+@beep/customization-ui:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/customization-ui:lint:circular: 
+@beep/customization-ui:lint:circular: [?25h
+@beep/calendar-ui:lint:circular: cache hit, replaying logs cc57ac0fce3d3a8e
+@beep/calendar-ui:lint:circular: 
+@beep/calendar-ui:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/calendar-ui:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m3[22m files [2m(504ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/calendar-ui:lint:circular: 
+@beep/calendar-ui:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/calendar-ui:lint:circular: 
+@beep/calendar-ui:lint:circular: [?25h
+@beep/tooling-utils:lint:circular: cache hit, replaying logs 81d31f8d19607aa8
+@beep/tooling-utils:lint:circular: 
+@beep/tooling-utils:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/tooling-utils:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m36[22m files [2m(696ms)[22m ([33m[1m4 warnings[22m[39m)
+@beep/tooling-utils:lint:circular: 
+@beep/tooling-utils:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/tooling-utils:lint:circular: 
+@beep/tooling-utils:lint:circular: [?25h
+@beep/comms-ui:lint: cache hit, replaying logs e2c65a603f568d76
+@beep/comms-ui:lint: 
+@beep/comms-ui:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/comms-ui:lint: [0m[34mChecked [0m[0m[34m9[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m34[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/documents-client:lint:circular: cache hit, replaying logs 4015f942e3714c78
+@beep/documents-client:lint:circular: 
+@beep/documents-client:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/documents-client:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m4[22m files [2m(326ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/documents-client:lint:circular: 
+@beep/documents-client:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/documents-client:lint:circular: 
+@beep/documents-client:lint:circular: [?25h
+@beep/comms-ui:lint:circular: cache hit, replaying logs 384bff223580231f
+@beep/comms-ui:lint:circular: 
+@beep/comms-ui:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/comms-ui:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m3[22m files [2m(525ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/comms-ui:lint:circular: 
+@beep/comms-ui:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/comms-ui:lint:circular: 
+@beep/comms-ui:lint:circular: [?25h
+@beep/calendar-client:lint:circular: cache hit, replaying logs 2ac2d6c8e92c63a4
+@beep/calendar-client:lint:circular: 
+@beep/calendar-client:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/calendar-client:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m3[22m files [2m(351ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/calendar-client:lint:circular: 
+@beep/calendar-client:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/calendar-client:lint:circular: 
+@beep/calendar-client:lint:circular: [?25h
+@beep/calendar-client:lint: cache hit, replaying logs 967302616cb1e538
+@beep/calendar-client:lint: 
+@beep/calendar-client:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/calendar-client:lint: [0m[34mChecked [0m[0m[34m8[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m6[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/knowledge-ui:lint: cache hit, replaying logs d15f5107dffdace4
+@beep/knowledge-ui:lint: 
+@beep/knowledge-ui:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/knowledge-ui:lint: [0m[34mChecked [0m[0m[34m8[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m13[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/tooling-utils:lint: cache hit, replaying logs 3cacd38498fc3d7c
+@beep/tooling-utils:lint: 
+@beep/tooling-utils:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/tooling-utils:lint: [0m[34mChecked [0m[0m[34m42[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m37[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/customization-client:lint: cache hit, replaying logs 29b353674e163e82
+@beep/customization-client:lint: 
+@beep/customization-client:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/customization-client:lint: [0m[34mChecked [0m[0m[34m10[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m9[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/comms-client:lint:circular: cache hit, replaying logs e12f5e65258d2a7f
+@beep/comms-client:lint:circular: 
+@beep/comms-client:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/comms-client:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m3[22m files [2m(381ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/comms-client:lint:circular: 
+@beep/comms-client:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/comms-client:lint:circular: 
+@beep/comms-client:lint:circular: [?25h
+@beep/customization-client:lint:circular: cache hit, replaying logs 7248a5d621223f06
+@beep/customization-client:lint:circular: 
+@beep/customization-client:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/customization-client:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m4[22m files [2m(557ms)[22m ([33m[1m1 warning[22m[39m)
+@beep/customization-client:lint:circular: 
+@beep/customization-client:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/customization-client:lint:circular: 
+@beep/customization-client:lint:circular: [?25h
+@beep/build-utils:lint:circular: cache hit, replaying logs ca786f0e6188f34e
+@beep/build-utils:lint:circular: 
+@beep/build-utils:lint:circular: [0m[2m[35m$[0m [2m[1mbunx madge -c .[0m
+@beep/build-utils:lint:circular: [?25l[37m⠋[39m Finding files[2K[1G[?25hProcessed [1m51[22m files [2m(1.1s)[22m ([33m[1m24 warnings[22m[39m)
+@beep/build-utils:lint:circular: 
+@beep/build-utils:lint:circular: [?25h[32m✔[39m [1mNo circular dependency found![22m
+@beep/build-utils:lint:circular: 
+@beep/build-utils:lint:circular: [?25h
+@beep/build-utils:lint: cache hit, replaying logs a816fcb459f14b6c
+@beep/build-utils:lint: 
+@beep/build-utils:lint: [0m[2m[35m$[0m [2m[1mbiome check .[0m
+@beep/build-utils:lint: [0m[34mChecked [0m[0m[34m59[0m[0m[34m [0m[0m[34mfiles[0m[0m[34m in [0m[0m[34m34[0m[0m[2m[34mms[0m[0m[34m.[0m[0m[34m No fixes applied.[0m
+@beep/testkit:lint: Checked 42 files in 26ms. No fixes applied.
+@beep/utils:lint: cache miss, executing bc2d53f5bb5db787
+@beep/utils:lint: $ biome check .
+@beep/utils:lint: src/sanitize-html/sanitize-html.ts:111:28 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/utils:lint: 
+@beep/utils:lint:   i Template literals are preferred over string concatenation.
+@beep/utils:lint:   
+@beep/utils:lint:     109 │     selfClosing,
+@beep/utils:lint:     110 │     Match.value,
+@beep/utils:lint:   > 111 │     Match.when(true, () => result + " /"),
+@beep/utils:lint:         │                            ^^^^^^^^^^^^^
+@beep/utils:lint:     112 │     Match.orElse(() => result)
+@beep/utils:lint:     113 │   );
+@beep/utils:lint:   
+@beep/utils:lint:   i Unsafe fix: Use a template literal.
+@beep/utils:lint:   
+@beep/utils:lint:     109 109 │       selfClosing,
+@beep/utils:lint: Checked 155 files in 97ms. No fixes applied.
+@beep/utils:lint: Found 2 infos.
+@beep/utils:lint:     110 110 │       Match.value,
+@beep/utils:lint:     111     │ - ····Match.when(true,·()·=>·result·+·"·/"),
+@beep/utils:lint:         111 │ + ····Match.when(true,·()·=>·`${result}·/`),
+@beep/utils:lint:     112 112 │       Match.orElse(() => result)
+@beep/utils:lint:     113 113 │     );
+@beep/utils:lint:   
+@beep/utils:lint: 
+@beep/utils:lint: test/sanitize-html/sanitize-html.parser.test.ts:423:20 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━
+@beep/utils:lint: 
+@beep/utils:lint:   i Template literals are preferred over string concatenation.
+@beep/utils:lint:   
+@beep/utils:lint:     421 │   "handles many nested tags",
+@beep/utils:lint:     422 │   Effect.fn(function* () {
+@beep/utils:lint:   > 423 │     const nested = "<em>".repeat(50) + "Text" + "</em>".repeat(50);
+@beep/utils:lint:         │                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@beep/utils:lint:     424 │     const result = sanitizeHtml(nested);
+@beep/utils:lint:     425 │     expect(result).toContain("Text");
+@beep/utils:lint:   
+@beep/utils:lint:   i Unsafe fix: Use a template literal.
+@beep/utils:lint:   
+@beep/utils:lint:     421 421 │     "handles many nested tags",
+@beep/utils:lint:     422 422 │     Effect.fn(function* () {
+@beep/utils:lint:     423     │ - ····const·nested·=·"<em>".repeat(50)·+·"Text"·+·"</em>".repeat(50);
+@beep/utils:lint:         423 │ + ····const·nested·=·`${"<em>".repeat(50)}Text${"</em>".repeat(50)}`;
+@beep/utils:lint:     424 424 │       const result = sanitizeHtml(nested);
+@beep/utils:lint:     425 425 │       expect(result).toContain("Text");
+@beep/utils:lint:   
+@beep/utils:lint: 
+@beep/schema:lint: cache miss, executing ebd756bcc1b02f46
+@beep/schema:lint: $ biome check .
+@beep/testkit:lint:circular: - Finding files
+@beep/schema:lint: src/primitives/temporal/dates/timestamp.ts:174:7 lint/suspicious/noGlobalIsNan  FIXABLE  ━━━━━━━━━━━
+@beep/schema:lint: 
+@beep/schema:lint:   ! isNaN is unsafe. It attempts a type coercion. Use Number.isNaN instead.
+@beep/schema:lint:   
+@beep/schema:lint:     172 │ export const fromString = (dateString: string): Effect.Effect<Timestamp, ParseResult.ParseError> => {
+@beep/schema:lint:     173 │   const date = new Date(dateString);
+@beep/schema:lint:   > 174 │   if (isNaN(date.getTime())) {
+@beep/schema:lint:         │       ^^^^^
+@beep/schema:lint:     175 │     return Effect.fail(
+@beep/schema:lint:     176 │       new ParseResult.ParseError({
+@beep/schema:lint:   
+@beep/schema:lint:   i See the MDN documentation for more details.
+@beep/schema:lint:   
+@beep/schema:lint:   i Unsafe fix: Use Number.isNaN instead.
+@beep/schema:lint:   
+@beep/schema:lint: Checked 247 files in 198ms. No fixes applied.
+@beep/schema:lint: Found 1 warning.
+@beep/schema:lint:     172 172 │   export const fromString = (dateString: string): Effect.Effect<Timestamp, ParseResult.ParseError> => {
+@beep/schema:lint:     173 173 │     const date = new Date(dateString);
+@beep/schema:lint:     174     │ - ··if·(isNaN(date.getTime()))·{
+@beep/schema:lint:         174 │ + ··if·(Number.isNaN(date.getTime()))·{
+@beep/schema:lint:     175 175 │       return Effect.fail(
+@beep/schema:lint:     176 176 │         new ParseResult.ParseError({
+@beep/schema:lint:   
+@beep/schema:lint: 
+@beep/ui-core:lint: cache miss, executing f6abd6ad0ed30f57
+@beep/google-workspace-domain:lint: cache miss, executing 64f47005fc21d325
+@beep/ui-core:lint: $ biome check .
+@beep/wrap:lint: cache miss, executing 5529230729c9a323
+@beep/machine:lint: cache miss, executing b5413a5cc19375bb
+@beep/google-workspace-domain:lint: $ biome check .
+@beep/repo-cli:lint: cache miss, executing 68519123e5bc5516
+@beep/constants:lint: cache miss, executing 0e63ead158bd8a97
+@beep/machine:lint: $ biome check .
+@beep/wrap:lint: $ biome check .
+@beep/repo-cli:lint: $ biome check .
+@beep/constants:lint: $ biome check .
+@beep/wrap:lint: Checked 18 files in 43ms. No fixes applied.
+@beep/google-workspace-domain:lint: Checked 15 files in 34ms. No fixes applied.
+@beep/google-workspace-client:lint: cache miss, executing 049b5d8f875dfc39
+@beep/google-workspace-client:lint: $ biome check .
+@beep/constants:lint: Checked 28 files in 49ms. No fixes applied.
+@beep/errors:lint: cache miss, executing fc0d2229c8b19271
+@beep/errors:lint: $ biome check .
+@beep/google-workspace-client:lint: Checked 13 files in 27ms. No fixes applied.
+@beep/runtime-client:lint: cache miss, executing 81cf7e8813a4e695
+@beep/repo-scripts:lint: cache miss, executing c683ed191b99ca88
+@beep/runtime-client:lint: $ biome check .
+@beep/machine:lint: src/actor.ts:721:7 suppressions/unused ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/machine:lint: 
+@beep/machine:lint:   ! Suppression comment has no effect. Remove the suppression or make sure you are suppressing the correct rule.
+@beep/machine:lint:   
+@beep/machine:lint: Checked 46 files in 154ms. No fixes applied.
+@beep/machine:lint:     719 │     if (isPersistentMachine(machine)) {
+@beep/machine:lint: Found 4 warnings.
+@beep/machine:lint:     720 │       // TypeScript can't narrow union with invariant generic params
+@beep/machine:lint:   > 721 │       // biome-ignore lint/suspicious/noExplicitAny: need wide acceptance
+@beep/machine:lint:         │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@beep/machine:lint:     722 │       return yield* spawnPersistent(id, machine as PersistentMachine<S, E, R>);
+@beep/machine:lint:     723 │     }
+@beep/machine:lint:   
+@beep/machine:lint: 
+@beep/machine:lint: test/actor.test.ts:219:32 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/machine:lint: 
+@beep/machine:lint:   ! Unexpected any. Specify a different type.
+@beep/machine:lint:   
+@beep/machine:lint:     217 │       // .build() without required handlers throws ProvisionValidationError
+@beep/machine:lint:     218 │       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+@beep/machine:lint:   > 219 │       expect(() => (machine as any).build({})).toThrow();
+@beep/machine:lint:         │                                ^^^
+@beep/machine:lint:     220 │     })
+@beep/machine:lint:     221 │   );
+@beep/machine:lint:   
+@beep/machine:lint:   i any disables many type checking rules. Its use should be avoided.
+@beep/machine:lint:   
+@beep/machine:lint: 
+@beep/machine:lint: test/integration/cluster.test.ts:322:33 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/machine:lint: 
+@beep/machine:lint:   ! Unexpected any. Specify a different type.
+@beep/machine:lint:   
+@beep/machine:lint:     320 │         expect(shippedState._tag).toBe("Shipped");
+@beep/machine:lint:     321 │         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test assertion
+@beep/machine:lint:   > 322 │         expect((shippedState as any).trackingId).toBe("TRACK-789");
+@beep/machine:lint:         │                                 ^^^
+@beep/machine:lint:     323 │       }).pipe(Effect.scoped, Effect.provide(TestShardingConfig))
+@beep/machine:lint:     324 │     );
+@beep/machine:lint:   
+@beep/machine:lint:   i any disables many type checking rules. Its use should be avoided.
+@beep/machine:lint:   
+@beep/machine:lint: 
+@beep/machine:lint: test/machine.test.ts:315:30 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/machine:lint: 
+@beep/machine:lint:   ! Unexpected any. Specify a different type.
+@beep/machine:lint:   
+@beep/machine:lint:     314 │     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+@beep/machine:lint:   > 315 │     expect(() => (machine as any).build({})).toThrow();
+@beep/machine:lint:         │                              ^^^
+@beep/machine:lint:     316 │   });
+@beep/machine:lint:     317 │ 
+@beep/machine:lint:   
+@beep/machine:lint:   i any disables many type checking rules. Its use should be avoided.
+@beep/machine:lint:   
+@beep/machine:lint: 
+@beep/repo-scripts:lint: $ biome check .
+@beep/ui-core:lint: Checked 136 files in 202ms. No fixes applied.
+@beep/ui-core:lint: Found 2 warnings.
+@beep/ui-core:lint: src/utils/cookies.ts:146:7 lint/suspicious/noDocumentCookie ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/ui-core:lint: 
+@beep/ui-core:lint:   ! Direct assigning to document.cookie is not recommended.
+@beep/ui-core:lint:   
+@beep/ui-core:lint:     144 │       }
+@beep/ui-core:lint:     145 │ 
+@beep/ui-core:lint:   > 146 │       document.cookie = cookieString;
+@beep/ui-core:lint:         │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@beep/ui-core:lint:     147 │       return;
+@beep/ui-core:lint:     148 │     }
+@beep/ui-core:lint:   
+@beep/ui-core:lint:   i Consider using the Cookie Store API.
+@beep/ui-core:lint:   
+@beep/ui-core:lint: 
+@beep/ui-core:lint: src/utils/cookies.ts:188:7 lint/suspicious/noDocumentCookie ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/ui-core:lint: 
+@beep/ui-core:lint:   ! Direct assigning to document.cookie is not recommended.
+@beep/ui-core:lint:   
+@beep/ui-core:lint:     186 │         cookieString += `; domain=${domain}`;
+@beep/ui-core:lint:     187 │       }
+@beep/ui-core:lint:   > 188 │       document.cookie = cookieString;
+@beep/ui-core:lint:         │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@beep/ui-core:lint:     189 │       return;
+@beep/ui-core:lint:     190 │     }
+@beep/ui-core:lint:   
+@beep/ui-core:lint:   i Consider using the Cookie Store API.
+@beep/ui-core:lint:   
+@beep/ui-core:lint: 
+@beep/runtime-client:lint: Checked 31 files in 32ms. No fixes applied.
+@beep/repo-cli:lint: Checked 119 files in 275ms. No fixes applied.
+@beep/errors:lint: Checked 16 files in 41ms. No fixes applied.
+@beep/shared-domain:lint: cache miss, executing 390d7bb8263d82af
+@beep/repo-scripts:lint: Checked 27 files in 36ms. No fixes applied.
+@beep/shared-domain:lint: $ biome check .
+@beep/shared-domain:lint: Checked 174 files in 92ms. No fixes applied.
+@beep/ui:lint: cache miss, executing b5015ad4ab6be3b1
+@beep/knowledge-domain:lint: cache miss, executing 0b46c5d5e0ddac57
+@beep/ui:lint: $ biome check .
+@beep/documents-domain:lint: cache miss, executing 7ce5c6b6425d9fd2
+@beep/knowledge-domain:lint: $ biome check .
+@beep/iam-domain:lint: cache miss, executing d038b38d9bcfaf11
+@beep/documents-domain:lint: $ biome check .
+@beep/comms-domain:lint: cache miss, executing eb24042f591a9567
+@beep/shared-tables:lint: cache miss, executing fe52cdd0212d7d99
+@beep/iam-domain:lint: $ biome check .
+@beep/comms-domain:lint: $ biome check .
+@beep/google-workspace-server:lint: cache miss, executing 9104a73b0c04149a
+@beep/shared-env:lint: cache miss, executing dc0a07c14aa3f4ca
+@beep/shared-tables:lint: $ biome check .
+@beep/google-workspace-server:lint: $ biome check .
+@beep/calendar-domain:lint: cache miss, executing 2e866afe1b8716a3
+@beep/shared-env:lint: $ biome check .
+@beep/calendar-domain:lint: $ biome check .
+@beep/shared-env:lint: Checked 10 files in 28ms. No fixes applied.
+@beep/customization-domain:lint: cache miss, executing e18b8317645f2cf5
+@beep/customization-domain:lint: $ biome check .
+@beep/calendar-domain:lint: Checked 26 files in 28ms. No fixes applied.
+@beep/google-workspace-server:lint: Checked 11 files in 41ms. No fixes applied.
+@beep/shared-tables:lint: Checked 31 files in 70ms. No fixes applied.
+@beep/documents-domain:lint: Checked 31 files in 91ms. No fixes applied.
+@beep/shared-server:lint: cache miss, executing 62ad77dd0d6cab8f
+@beep/shared-client:lint: cache miss, executing 7b82387b01fcd564
+@beep/shared-server:lint: $ biome check .
+@beep/shared-client:lint: $ biome check .
+@beep/shared-ai:lint: cache miss, executing 9f58642821f2bc20
+@beep/iam-domain:lint: Checked 62 files in 164ms. No fixes applied.
+@beep/shared-ai:lint: $ biome check .
+@beep/calendar-tables:lint: cache miss, executing 9cc16f7251a73d8b
+@beep/calendar-tables:lint: $ biome check .
+@beep/comms-domain:lint: Checked 17 files in 91ms. No fixes applied.
+@beep/testkit:lint:circular: Processed 36 files (1.3s) (8 warnings)
+@beep/testkit:lint:circular: 
+@beep/testkit:lint:circular: 
+@beep/testkit:lint:circular: ✔ No circular dependency found!
+@beep/documents-tables:lint: cache miss, executing 9d204293b26b8d35
+@beep/documents-tables:lint: $ biome check .
+@beep/knowledge-domain:lint: Checked 140 files in 215ms. No fixes applied.
+@beep/knowledge-domain:lint: Found 3 errors.
+@beep/knowledge-domain:lint: src/value-objects/BatchMachine.schema.ts:1:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━
+@beep/knowledge-domain:lint: 
+@beep/knowledge-domain:lint:   × The imports and exports are not sorted.
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint:   > 1 │ import * as S from "effect/Schema"
+@beep/knowledge-domain:lint:       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@beep/knowledge-domain:lint:     2 │ 
+@beep/knowledge-domain:lint:     3 │ import { Event, Slot, State } from "@beep/machine"
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint:   i Safe fix: Organize Imports (Biome)
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint:       1     │ - import·*·as·S·from·"effect/Schema"
+@beep/knowledge-domain:lint:       2     │ - 
+@beep/knowledge-domain:lint:       3     │ - import·{·Event,·Slot,·State·}·from·"@beep/machine"
+@beep/knowledge-domain:lint:       4     │ - import·{·KnowledgeEntityIds·}·from·"@beep/shared-domain"
+@beep/knowledge-domain:lint:           1 │ + import·{·Event,·Slot,·State·}·from·"@beep/machine"
+@beep/knowledge-domain:lint:           2 │ + import·{·KnowledgeEntityIds·}·from·"@beep/shared-domain"
+@beep/knowledge-domain:lint:           3 │ + import·*·as·S·from·"effect/Schema"
+@beep/knowledge-domain:lint:       5   4 │   
+@beep/knowledge-domain:lint:       6   5 │   import { BatchConfig } from "./BatchConfig.value.js"
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint: 
+@beep/knowledge-domain:lint: src/value-objects/BatchMachine.schema.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/knowledge-domain:lint: 
+@beep/knowledge-domain:lint:   × Formatter would have printed the following content:
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint:       1     │ - import·*·as·S·from·"effect/Schema"
+@beep/knowledge-domain:lint:           1 │ + import·*·as·S·from·"effect/Schema";
+@beep/knowledge-domain:lint:       2   2 │   
+@beep/knowledge-domain:lint:       3     │ - import·{·Event,·Slot,·State·}·from·"@beep/machine"
+@beep/knowledge-domain:lint:       4     │ - import·{·KnowledgeEntityIds·}·from·"@beep/shared-domain"
+@beep/knowledge-domain:lint:           3 │ + import·{·Event,·Slot,·State·}·from·"@beep/machine";
+@beep/knowledge-domain:lint:           4 │ + import·{·KnowledgeEntityIds·}·from·"@beep/shared-domain";
+@beep/knowledge-domain:lint:       5   5 │   
+@beep/knowledge-domain:lint:       6     │ - import·{·BatchConfig·}·from·"./BatchConfig.value.js"
+@beep/knowledge-domain:lint:           6 │ + import·{·BatchConfig·}·from·"./BatchConfig.value.js";
+@beep/knowledge-domain:lint:       7   7 │   
+@beep/knowledge-domain:lint:       8   8 │   // ---------------------------------------------------------------------------
+@beep/knowledge-domain:lint:     ······· │ 
+@beep/knowledge-domain:lint:      53  53 │       totalDocuments: S.NonNegativeInt,
+@beep/knowledge-domain:lint:      54  54 │     },
+@beep/knowledge-domain:lint:      55     │ - })
+@beep/knowledge-domain:lint:          55 │ + });
+@beep/knowledge-domain:lint:      56  56 │   
+@beep/knowledge-domain:lint:      57     │ - export·type·BatchMachineState·=·typeof·BatchMachineState.Type
+@beep/knowledge-domain:lint:          57 │ + export·type·BatchMachineState·=·typeof·BatchMachineState.Type;
+@beep/knowledge-domain:lint:      58  58 │   
+@beep/knowledge-domain:lint:      59  59 │   // ---------------------------------------------------------------------------
+@beep/knowledge-domain:lint:     ······· │ 
+@beep/knowledge-domain:lint:      86  86 │       error: S.String,
+@beep/knowledge-domain:lint:      87  87 │     },
+@beep/knowledge-domain:lint:      88     │ - })
+@beep/knowledge-domain:lint:          88 │ + });
+@beep/knowledge-domain:lint:      89  89 │   
+@beep/knowledge-domain:lint:      90     │ - export·type·BatchMachineEvent·=·typeof·BatchMachineEvent.Type
+@beep/knowledge-domain:lint:          90 │ + export·type·BatchMachineEvent·=·typeof·BatchMachineEvent.Type;
+@beep/knowledge-domain:lint:      91  91 │   
+@beep/knowledge-domain:lint:      92  92 │   // ---------------------------------------------------------------------------
+@beep/knowledge-domain:lint:     ······· │ 
+@beep/knowledge-domain:lint:      97  97 │     canRetry: { maxRetries: S.Number },
+@beep/knowledge-domain:lint:      98  98 │     isResolutionEnabled: {},
+@beep/knowledge-domain:lint:      99     │ - })
+@beep/knowledge-domain:lint:          99 │ + });
+@beep/knowledge-domain:lint:     100 100 │   
+@beep/knowledge-domain:lint:     101     │ - export·type·BatchMachineGuards·=·typeof·BatchMachineGuards
+@beep/knowledge-domain:lint:         101 │ + export·type·BatchMachineGuards·=·typeof·BatchMachineGuards;
+@beep/knowledge-domain:lint:     102 102 │   
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint: 
+@beep/knowledge-domain:lint: src/value-objects/index.ts:1:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/knowledge-domain:lint: 
+@beep/knowledge-domain:lint:   × The imports and exports are not sorted.
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint:   > 1 │ export * from "./Attributes.value";
+@beep/knowledge-domain:lint:       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@beep/knowledge-domain:lint:     2 │ export * from "./BatchConfig.value";
+@beep/knowledge-domain:lint:     3 │ export * from "./BatchEvent.value";
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint:   i Safe fix: Organize Imports (Biome)
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint:      2  2 │   export * from "./BatchConfig.value";
+@beep/knowledge-domain:lint:      3  3 │   export * from "./BatchEvent.value";
+@beep/knowledge-domain:lint:      4    │ - export·*·from·"./BatchState.value";
+@beep/knowledge-domain:lint:      5    │ - export·*·from·"./ClassIri.value";
+@beep/knowledge-domain:lint:      6    │ - export·*·from·"./CountResult.value";
+@beep/knowledge-domain:lint:      7    │ - export·*·from·"./EntityCandidate.value";
+@beep/knowledge-domain:lint:      8    │ - export·*·from·"./EvidenceSpan.value";
+@beep/knowledge-domain:lint:      9    │ - export·*·from·"./ExtractionConfig.value";
+@beep/knowledge-domain:lint:     10    │ - export·*·from·"./ExtractionProgress.value";
+@beep/knowledge-domain:lint:     11    │ - export·*·from·"./MergeParams.value";
+@beep/knowledge-domain:lint:     12    │ - export·*·from·"./RelationDirection.value";
+@beep/knowledge-domain:lint:     13    │ - export·*·from·"./rdf";
+@beep/knowledge-domain:lint:     14    │ - export·*·from·"./reasoning";
+@beep/knowledge-domain:lint:     15    │ - export·*·from·"./sparql";
+@beep/knowledge-domain:lint:     16    │ - export·*·from·"./BatchMachine.schema";
+@beep/knowledge-domain:lint:         4 │ + export·*·from·"./BatchMachine.schema";
+@beep/knowledge-domain:lint:         5 │ + export·*·from·"./BatchState.value";
+@beep/knowledge-domain:lint:         6 │ + export·*·from·"./ClassIri.value";
+@beep/knowledge-domain:lint:         7 │ + export·*·from·"./CountResult.value";
+@beep/knowledge-domain:lint:         8 │ + export·*·from·"./EntityCandidate.value";
+@beep/knowledge-domain:lint:         9 │ + export·*·from·"./EvidenceSpan.value";
+@beep/knowledge-domain:lint:        10 │ + export·*·from·"./ExtractionConfig.value";
+@beep/knowledge-domain:lint:        11 │ + export·*·from·"./ExtractionProgress.value";
+@beep/knowledge-domain:lint:        12 │ + export·*·from·"./MergeParams.value";
+@beep/knowledge-domain:lint:        13 │ + export·*·from·"./RelationDirection.value";
+@beep/knowledge-domain:lint:        14 │ + export·*·from·"./rdf";
+@beep/knowledge-domain:lint:        15 │ + export·*·from·"./reasoning";
+@beep/knowledge-domain:lint:        16 │ + export·*·from·"./sparql";
+@beep/knowledge-domain:lint:     17 17 │   export * from "./WorkflowState.value";
+@beep/knowledge-domain:lint:     18 18 │   
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint: 
+@beep/iam-tables:lint: cache miss, executing ee4f78d75524e877
+@beep/knowledge-domain:lint: check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@beep/knowledge-domain:lint: 
+@beep/knowledge-domain:lint:   × Some errors were emitted while running checks.
+@beep/knowledge-domain:lint:   
+@beep/knowledge-domain:lint: 
+@beep/iam-tables:lint: $ biome check .
+@beep/knowledge-domain:lint: ERROR: command finished with error: command (/home/elpresidank/YeeBois/projects/beep-effect3/packages/knowledge/domain) /home/elpresidank/.bun/bin/bun run lint exited (1)
+@beep/comms-tables:lint: cache miss, executing 474338fcd7d1b425
+@beep/knowledge-domain#lint: command (/home/elpresidank/YeeBois/projects/beep-effect3/packages/knowledge/domain) /home/elpresidank/.bun/bin/bun run lint exited (1)
+
+ Tasks:    51 successful, 62 total
+Cached:    30 cached, 62 total
+  Time:    4.951s 
+Failed:    @beep/knowledge-domain#lint
+
+ ERROR  run failed: command  exited (1)
+error: script "lint" exited with code 1
+lint_exit=1

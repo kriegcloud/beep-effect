@@ -1,0 +1,23 @@
+# effect-orm Specifications
+
+> Agent-assisted specification library for the effect-orm project. Self-improving workflows for complex, multi-phase technical tasks.
+
+## Guides and Templates
+
+- [SPEC_CREATION_GUIDE.md](./SPEC_CREATION_GUIDE.md): Agent-assisted specification workflow with phase-agent mapping
+- [HANDOFF_STANDARDS.md](./HANDOFF_STANDARDS.md): Inter-phase context handoff protocol for multi-session specs
+- [PATTERN_REGISTRY.md](./PATTERN_REGISTRY.md): Cross-spec patterns extracted from execution
+
+## Active Specifications
+
+### ORM Core
+
+_(No active specs yet.)_
+
+### Infrastructure and Testing
+
+_(No active specs yet.)_
+
+### Meta and Quality
+
+_(No active specs yet.)_

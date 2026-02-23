@@ -1,0 +1,159 @@
+/**
+ * Environment variable name schema.
+ *
+ * Defines all valid environment variable names used across the beep-effect monorepo.
+ *
+ * @since 0.1.0
+ */
+import * as S from "effect/Schema";
+
+/**
+ * Schema defining all valid environment variable names used across the beep-effect monorepo.
+ *
+ * This schema enforces type-safe environment variable access and ensures consistency
+ * across applications and packages. It includes variables for app configuration,
+ * database connections, cloud services, OAuth providers, and security policies.
+ *
+ * @example
+ * ```typescript
+ * import { EnvironmentVariableName } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(EnvironmentVariableName)
+ *
+ * const varName = decode("APP_NAME")  // => "APP_NAME"
+ * // decode("INVALID_VAR")  // => throws ParseError
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
+export class EnvironmentVariableName extends S.Literal(
+  "APP_NAME",
+  "APP_ENV",
+  "APP_DOMAIN",
+  "APP_ADMIN_EMAILS",
+  "APP_ADMIN_USER_IDS",
+  "APP_LOG_FORMAT",
+  "APP_LOG_LEVEL",
+  "APP_MCP_URL",
+  "APP_API_URL",
+  "APP_AUTH_PATH",
+  "APP_AUTH_URL",
+  "APP_CLIENT_URL",
+  "OTLP_HOST",
+  "OTLP_TRACE_EXPORTER_URL",
+  "OTLP_LOG_EXPORTER_URL",
+  "OTLP_METRIC_EXPORTER_URL",
+  "EMAIL_FROM",
+  "EMAIL_TEST",
+  "EMAIL_RESEND_API_KEY",
+  "AI_ANTHROPIC_API_KEY",
+  "AI_OPENAI_API_KEY",
+  "ELEVENLABS_AGENT_ID",
+  "MARKETING_DUB_TOKEN",
+  "DB_PG_HOST",
+  "DB_PG_PORT",
+  "DB_PG_USER",
+  "DB_PG_PASSWORD",
+  "DB_PG_URL",
+  "DB_PG_SSL",
+  "DB_PG_DEBUG",
+  "KV_REDIS_HOST",
+  "KV_REDIS_PORT",
+  "KV_REDIS_PASSWORD",
+  "KV_REDIS_URL",
+  "CLOUD_AWS_REGION",
+  "CLOUD_AWS_ACCESS_KEY_ID",
+  "CLOUD_AWS_SECRET_ACCESS_KEY",
+  "CLOUD_AWS_S3_BUCKET_NAME",
+  "CLOUD_GOOGLE_CAPTCHA_SECRET_KEY",
+  "CLOUD_GOOGLE_CAPTCHA_SITE_KEY",
+  "OAUTH_PROVIDER_MICROSOFT_TENANT_ID",
+  "OAUTH_PROVIDER_MICROSOFT_CLIENT_ID",
+  "OAUTH_PROVIDER_MICROSOFT_CLIENT_SECRET",
+  "OAUTH_PROVIDER_GOOGLE_CLIENT_ID",
+  "OAUTH_PROVIDER_GOOGLE_CLIENT_SECRET",
+  "OAUTH_PROVIDER_DISCORD_CLIENT_ID",
+  "OAUTH_PROVIDER_DISCORD_CLIENT_SECRET",
+  "OAUTH_PROVIDER_GITHUB_CLIENT_ID",
+  "OAUTH_PROVIDER_GITHUB_CLIENT_SECRET",
+  "OAUTH_PROVIDER_LINKEDIN_CLIENT_ID",
+  "OAUTH_PROVIDER_LINKEDIN_CLIENT_SECRET",
+  "OAUTH_PROVIDER_TWITTER_CLIENT_ID",
+  "OAUTH_PROVIDER_TWITTER_CLIENT_SECRET",
+  "OAUTH_PROVIDER_FACEBOOK_CLIENT_ID",
+  "OAUTH_PROVIDER_FACEBOOK_CLIENT_SECRET",
+  "OAUTH_PROVIDER_NAMES",
+  "NEXT_PUBLIC_ENV",
+  "NEXT_PUBLIC_APP_NAME",
+  "NEXT_PUBLIC_APP_DOMAIN",
+  "NEXT_PUBLIC_AUTH_PROVIDER_NAMES",
+  "NEXT_PUBLIC_API_URL",
+  "NEXT_PUBLIC_OTLP_TRACE_EXPORTER_URL",
+  "NEXT_PUBLIC_OTLP_LOG_EXPORTER_URL",
+  "NEXT_PUBLIC_OTLP_METRIC_EXPORTER_URL",
+  "NEXT_PUBLIC_LOG_LEVEL",
+  "NEXT_PUBLIC_LOG_FORMAT",
+  "NEXT_PUBLIC_CAPTCHA_SITE_KEY",
+  "NEXT_PUBLIC_AUTH_URL",
+  "NEXT_PUBLIC_AUTH_PATH",
+  "NEXT_PUBLIC_GOOGLE_CLIENT_ID",
+  "NEXT_PUBLIC_APP_URL",
+  "NEXT_PUBLIC_STATIC_URL",
+  "NEXT_PUBLIC_ENABLE_GEO_TRACKING",
+  "VERCEL_PROJECT_ID",
+  "VERCEL_PROJECT_NAME",
+  "TURBO_TOKEN",
+  "TURBO_TEAM",
+  "SECURITY_TRUSTED_ORIGINS",
+  "SECURITY_CSP_DEFAULT_SRC",
+  "SECURITY_CSP_BASE_URI",
+  "SECURITY_CSP_FORM_ACTION",
+  "SECURITY_CSP_SCRIPT_SRC",
+  "SECURITY_CSP_WORKER_SRC",
+  "SECURITY_CSP_STYLE_SRC",
+  "SECURITY_CSP_FONT_SRC",
+  "SECURITY_CSP_STYLE_SRC_ELEM",
+  "SECURITY_CSP_SCRIPT_SRC_ELEM",
+  "SECURITY_CSP_CONNECT_SRC",
+  "SECURITY_CSP_MEDIA_SRC",
+  "SECURITY_CSP_FRAME_ANCESTORS",
+  "SECURITY_CSP_IMG_SRC",
+  "SECURITY_CSP_FRAME_SRC",
+  "SECURITY_CSP",
+  "BETTER_AUTH_SECRET",
+  "FRONTAPP_TOKEN",
+  "ALCHEMY_PASSWORD"
+) {
+  static readonly Options = this.literals;
+}
+
+/**
+ * Namespace containing types derived from the EnvironmentVariableName schema.
+ *
+ * @example
+ * ```typescript
+ * import type { EnvironmentVariableName } from "@beep/tooling-utils"
+ *
+ * const varName: EnvironmentVariableName.Type = "APP_NAME"
+ * ```
+ *
+ * @category Schemas/Environment
+ * @since 0.1.0
+ */
+export declare namespace EnvironmentVariableName {
+  /**
+   * Runtime type extracted from the EnvironmentVariableName schema.
+   *
+   * @since 0.1.0
+   */
+  export type Type = typeof EnvironmentVariableName.Type;
+
+  /**
+   * Encoded type extracted from the EnvironmentVariableName schema.
+   *
+   * @since 0.1.0
+   */
+  export type Encoded = typeof EnvironmentVariableName.Encoded;
+}

@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.src.json",
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "build/esm",
+    "declarationDir": "build/dts",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "stripInternal": false
+  },
+  "references": [
+    {
+      "path": "../../common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../domain/tsconfig.build.json"
+    }
+  ]
+}

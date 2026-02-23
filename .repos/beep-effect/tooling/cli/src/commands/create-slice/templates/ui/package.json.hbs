@@ -1,0 +1,23 @@
+{
+  "name": "@beep/{{sliceName}}-ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "{{sliceDescription}} - UI components",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@beep/{{sliceName}}-client": "workspace:*",
+    "@beep/{{sliceName}}-domain": "workspace:*",
+    "@beep/ui-core": "workspace:*",
+    "@beep/ui-ui": "workspace:*",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/tsconfig": "workspace:*",
+    "@types/react": "catalog:"
+  }
+}

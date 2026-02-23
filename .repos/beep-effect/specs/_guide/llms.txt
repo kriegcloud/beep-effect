@@ -1,0 +1,70 @@
+# beep-effect Specifications
+
+> Agent-assisted specification library for the beep-effect monorepo. Self-improving workflows for complex, multi-phase technical tasks.
+
+## Guides and Templates
+
+- [SPEC_CREATION_GUIDE.md](./SPEC_CREATION_GUIDE.md): Agent-assisted specification workflow with phase-agent mapping
+- [HANDOFF_STANDARDS.md](./HANDOFF_STANDARDS.md): Inter-phase context handoff protocol for multi-session specs
+- [PATTERN_REGISTRY.md](./PATTERN_REGISTRY.md): Cross-spec patterns extracted from execution
+
+## Specialized Agents
+
+- [agents/README.md](./agents/README.md): Overview of 9 specialized agents for spec execution
+- [agents/codebase-researcher](./agents/codebase-researcher/): Systematic code exploration (Tier 1)
+- [agents/reflector](./agents/reflector/): Meta-reflection and prompt improvement (Tier 1)
+- [agents/mcp-researcher](./agents/mcp-researcher/): Effect documentation research (Tier 2)
+- [agents/web-researcher](./agents/web-researcher/): External best practices research (Tier 2)
+- [agents/code-reviewer](./agents/code-reviewer/): Repository guideline enforcement (Tier 3)
+- [agents/architecture-pattern-enforcer](./agents/architecture-pattern-enforcer/): Structure validation (Tier 3)
+- [agents/doc-writer](./agents/doc-writer/): Documentation generation (Tier 4)
+- [agents/test-writer](./agents/test-writer/): Effect-first test creation (Tier 4)
+- [agents/code-observability-writer](./agents/code-observability-writer/): Logging and tracing (Tier 4)
+
+## Active Specifications
+
+### Workflow and Tooling
+
+- [spec-creation-improvements](./spec-creation-improvements/README.md): Spec workflow enhancements (context engineering, llms.txt, DSPy signatures)
+- [canonical-naming-conventions](./canonical-naming-conventions/README.md): AI-native file/folder naming standards research
+- [agent-config-optimization](./agent-config-optimization/README.md): Agent configuration optimization patterns
+
+### IAM (Identity and Access Management)
+
+- [full-iam-client](./full-iam-client/README.md): Better Auth client Effect wrappers (Complete)
+- [iam-client-methods-final](./iam-client-methods-final/README.md): Remaining Better Auth client methods
+- [todox-auth-integration](./todox-auth-integration/README.md): Better-auth integration for apps/todox
+- [rls-implementation](./rls-implementation/README.md): Row-level security for multi-tenant data
+- [orgtable-auto-rls](./orgtable-auto-rls/README.md): Automated RLS for organization tables
+
+### Documents and Knowledge
+
+- [knowledge-graph-integration](./knowledge-graph-integration/README.md): Knowledge graph extraction pipeline for documents
+
+### FlexLayout System
+
+- [flex-layout-port](./flex-layout-port/README.md): FlexLayout Effect Schema port
+- [flexlayout-schemas](./flexlayout-schemas/README.md): FlexLayout model class schema migration
+- [flexlayout-type-safety](./flexlayout-type-safety/README.md): Type safety improvements
+- [docking-system](./docking-system/README.md): FlexLayout drag-drop docking (Complete)
+- [demo-parity](./demo-parity/README.md): FlexLayout demo feature parity
+- [node-composition-refactor](./node-composition-refactor/README.md): Node hierarchy refactor (Complete)
+
+### TodoX Application
+
+- [todox-design](./todox-design/README.md): TodoX application design specification
+- [todox-view-switcher](./todox-view-switcher/README.md): View switcher component for apps/todox
+
+### Infrastructure and Testing
+
+- [playwright-e2e](./playwright-e2e/README.md): Playwright end-to-end testing infrastructure
+- [structure-standardization](./structure-standardization/README.md): Codebase structure standards
+
+### Meta and Quality
+
+- [ai-friendliness-audit](./ai-friendliness-audit/README.md): AI collaboration audit methodology
+- [ai-docs-review](./ai-docs-review/README.md): AI documentation accuracy review
+- [orchestrator-context-optimization](./orchestrator-context-optimization/README.md): Spec orchestration delegation rules (Complete)
+- [legacy-spec-alignment](./legacy-spec-alignment/README.md): Retrofit specs to canonical patterns
+- [spec-bootstrapper](./spec-bootstrapper/README.md): CLI command for spec scaffolding (Complete)
+- [new-specialized-agents](./new-specialized-agents/README.md): Agent creation initiative (Complete)

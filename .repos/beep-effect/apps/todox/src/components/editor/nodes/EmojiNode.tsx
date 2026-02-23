@@ -1,0 +1,75 @@
+"use client";
+
+import * as S from "effect/Schema";
+import type { EditorConfig, LexicalNode, NodeKey, SerializedTextNode, Spread } from "lexical";
+import { $applyNodeReplacement, TextNode } from "lexical";
+
+export type SerializedEmojiNode = Spread<
+  {
+    readonly className: string;
+  },
+  SerializedTextNode
+>;
+
+export class EmojiNode extends TextNode {
+  __className: string;
+
+  static override getType(): string {
+    return "emoji";
+  }
+
+  static override clone(node: EmojiNode): EmojiNode {
+    return new EmojiNode(node.__className, node.__text, node.__key);
+  }
+
+  constructor(className: string, text: string, key?: undefined | NodeKey) {
+    super(text, key);
+    this.__className = className;
+  }
+
+  override createDOM(config: EditorConfig): HTMLElement {
+    const dom = document.createElement("span");
+    const inner = super.createDOM(config);
+    dom.className = this.__className;
+    inner.className = "emoji-inner";
+    dom.appendChild(inner);
+    return dom;
+  }
+
+  override updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
+    const inner = dom.firstChild;
+    if (!(inner instanceof HTMLElement)) {
+      // If inner is null or not an HTMLElement, signal that DOM needs recreation
+      return true;
+    }
+    super.updateDOM(prevNode, inner, config);
+    return false;
+  }
+
+  static override importJSON(serializedNode: SerializedEmojiNode): EmojiNode {
+    return $createEmojiNode(serializedNode.className, serializedNode.text).updateFromJSON(serializedNode);
+  }
+
+  override exportJSON(): SerializedEmojiNode {
+    return {
+      ...super.exportJSON(),
+      className: this.getClassName(),
+      type: "emoji",
+      version: 1,
+    };
+  }
+
+  getClassName(): string {
+    const self = this.getLatest();
+    return self.__className;
+  }
+}
+
+export function $isEmojiNode(node: LexicalNode | null | undefined): node is EmojiNode {
+  return S.is(S.instanceOf(EmojiNode))(node);
+}
+
+export function $createEmojiNode(className: string, emojiText: string): EmojiNode {
+  const node = new EmojiNode(className, emojiText).setMode("token");
+  return $applyNodeReplacement(node);
+}

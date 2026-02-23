@@ -1,0 +1,122 @@
+"use client";
+
+import * as S from "effect/Schema";
+import type {
+  DOMConversionMap,
+  DOMConversionOutput,
+  DOMExportOutput,
+  EditorConfig,
+  LexicalNode,
+  NodeKey,
+  SerializedTextNode,
+  Spread,
+} from "lexical";
+import { $applyNodeReplacement, TextNode } from "lexical";
+
+export type SerializedMentionNode = Spread<
+  {
+    readonly mentionName: string;
+  },
+  SerializedTextNode
+>;
+
+function $convertMentionElement(domNode: HTMLElement): DOMConversionOutput | null {
+  const textContent = domNode.textContent;
+  const mentionName = domNode.getAttribute("data-lexical-mention-name");
+
+  if (textContent !== null) {
+    const node = $createMentionNode(typeof mentionName === "string" ? mentionName : textContent, textContent);
+    return {
+      node,
+    };
+  }
+
+  return null;
+}
+
+const mentionStyle = "background-color: rgba(24, 119, 232, 0.2)";
+
+export class MentionNode extends TextNode {
+  __mention: string;
+
+  static override getType(): string {
+    return "mention";
+  }
+
+  static override clone(node: MentionNode): MentionNode {
+    return new MentionNode(node.__mention, node.__text, node.__key);
+  }
+
+  static override importJSON(serializedNode: SerializedMentionNode): MentionNode {
+    return $createMentionNode(serializedNode.mentionName).updateFromJSON(serializedNode);
+  }
+
+  constructor(mentionName: string, text?: undefined | string, key?: undefined | NodeKey) {
+    super(text ?? mentionName, key);
+    this.__mention = mentionName;
+  }
+
+  override exportJSON(): SerializedMentionNode {
+    return {
+      ...super.exportJSON(),
+      mentionName: this.__mention,
+      type: "mention",
+      version: 1,
+    };
+  }
+
+  override createDOM(config: EditorConfig): HTMLElement {
+    const dom = super.createDOM(config);
+    dom.style.cssText = mentionStyle;
+    dom.className = "mention";
+    dom.spellcheck = false;
+
+    return dom;
+  }
+
+  override exportDOM(): DOMExportOutput {
+    const element = document.createElement("span");
+    element.setAttribute("data-lexical-mention", "true");
+    if (this.__text !== this.__mention) {
+      element.setAttribute("data-lexical-mention-name", this.__mention);
+    }
+    element.textContent = this.__text;
+    return { element };
+  }
+
+  static override importDOM(): DOMConversionMap | null {
+    return {
+      span: (domNode: HTMLElement) => {
+        if (!domNode.hasAttribute("data-lexical-mention")) {
+          return null;
+        }
+        return {
+          conversion: $convertMentionElement,
+          priority: 1,
+        };
+      },
+    };
+  }
+
+  override isTextEntity(): true {
+    return true;
+  }
+
+  override canInsertTextBefore(): boolean {
+    return false;
+  }
+
+  override canInsertTextAfter(): boolean {
+    return false;
+  }
+}
+
+export function $createMentionNode(mentionName: string, _textContent?: undefined | string): MentionNode {
+  const mentionNode = new MentionNode(mentionName, (_textContent = mentionName));
+  mentionNode.setMode("segmented").toggleDirectionless();
+  return $applyNodeReplacement(mentionNode);
+}
+
+export function $isMentionNode(node: LexicalNode | null | undefined): node is MentionNode {
+  return S.is(S.instanceOf(MentionNode))(node);
+}

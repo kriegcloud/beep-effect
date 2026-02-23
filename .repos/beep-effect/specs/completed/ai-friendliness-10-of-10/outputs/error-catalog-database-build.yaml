@@ -1,0 +1,461 @@
+# Error Catalog: Database/SQL + Build/Config
+# Generated: 2026-02-04
+# Categories: database, build
+# Total patterns: 11 (6 database, 5 build)
+
+version: "1.0"
+errors:
+  # =============================================================================
+  # DATABASE/SQL ERRORS (6 patterns)
+  # =============================================================================
+
+  - id: DB_001
+    pattern: "SET LOCAL.*app\\.current_org_id|SET LOCAL.*current_setting"
+    category: database
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: |
+      Using SET LOCAL instead of SET for RLS context causes session variable
+      to not persist across queries in connection pools.
+    diagnosis: |
+      1. Check if RLS queries return empty results unexpectedly
+      2. Verify connection pooling is enabled (PgBouncer, Effect SQL pool)
+      3. Look for SET LOCAL statements setting app.current_org_id
+      4. Compare behavior: single query works, multiple queries fail
+    fix_steps:
+      - Replace SET LOCAL with session-level SET
+      - Use TenantContext service which handles this internally
+      - Ensure proper SQL escaping for unsafe queries
+    example:
+      error: "Empty result set when expecting data - RLS filtering all rows"
+      before: |
+        // WRONG - Transaction-scoped only, fails with connection pooling
+        yield* sql`SET LOCAL app.current_org_id = ${orgId}`;
+        const members = yield* sql`SELECT * FROM iam_member`;  // Returns []
+      after: |
+        // CORRECT - Session-scoped, persists for connection lifetime
+        const escapeOrgId = (id: string) => id.replace(/'/g, "''");
+        yield* sql.unsafe(`SET app.current_org_id = '${escapeOrgId(orgId)}'`);
+        const members = yield* sql`SELECT * FROM iam_member`;  // Returns expected rows
+    source: "specs/rls-implementation/REFLECTION_LOG.md:564-585"
+
+  - id: DB_002
+    pattern: "sql`SET.*=.*\\$\\{|syntax error at or near \"\\$1\""
+    category: database
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: |
+      PostgreSQL SET statement does not support parameterized queries ($1, $2).
+      Template literals with interpolation cause syntax errors.
+    diagnosis: |
+      1. Error message contains "syntax error at or near $1"
+      2. Check for sql`` template literals with SET statements
+      3. Verify if using Effect SQL tagged template for SET
+    fix_steps:
+      - Use sql.unsafe() with manual string escaping
+      - Implement proper SQL injection prevention via escaping
+      - Use TenantContext service which handles this internally
+    example:
+      error: "PostgresError: syntax error at or near \"$1\""
+      before: |
+        // WRONG - PostgreSQL doesn't accept parameters in SET
+        yield* sql`SET app.current_org_id = ${orgId}`;
+      after: |
+        // CORRECT - Manual escaping with sql.unsafe()
+        const escapeOrgId = (id: string) => id.replace(/'/g, "''");
+        yield* sql.unsafe(`SET app.current_org_id = '${escapeOrgId(orgId)}'`);
+    source: "specs/rls-implementation/REFLECTION_LOG.md:587-589"
+
+  - id: DB_003
+    pattern: "count.*string|bigint.*to.*number|parseInt.*count"
+    category: database
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: |
+      PostgreSQL returns COUNT() as string (bigint), not JavaScript number.
+      Schema expecting S.Number will fail to parse the string result.
+    diagnosis: |
+      1. ParseError when decoding count query results
+      2. Check Schema definition for count field
+      3. Verify actual PostgreSQL return type (SELECT pg_typeof(count(*)))
+    fix_steps:
+      - Change count field schema from S.Number to S.String
+      - Parse string to number after decoding
+      - Use Number.parseInt(result.count, 10)
+    example:
+      error: "ParseError: Expected number, got string '42'"
+      before: |
+        // WRONG - PostgreSQL returns count as string
+        class CountResult extends S.Class<CountResult>("CountResult")({
+          count: S.Number,  // Will fail - PostgreSQL returns "42" not 42
+        }) {}
+      after: |
+        // CORRECT - Accept string, convert after
+        class CountResult extends S.Class<CountResult>("CountResult")({
+          count: S.String,
+        }) {}
+
+        const result = yield* countSchema({});
+        const count = Number.parseInt(result.count, 10);
+    source: "specs/knowledge-repo-sqlschema-refactor/REFLECTION_LOG.md:197-198"
+
+  - id: DB_004
+    pattern: "\\$type<.*\\.Type>\\(\\)|Missing \\$type|type-unsafe joins"
+    category: database
+    severity: warning
+    fix_type: safe
+    remediation: easy
+    description: |
+      Table columns referencing entity IDs must use .$type<EntityId.Type>()
+      for compile-time type safety. Without it, TypeScript cannot distinguish
+      between different ID types, allowing type-unsafe joins.
+    diagnosis: |
+      1. Grep for pg.text columns with "id" that lack .$type<>
+      2. Check if wrong ID types are being used in WHERE clauses
+      3. Run: grep -r "pg.text.*notNull()" packages/*/tables/ | grep -iE "(id|Id)" | grep -v "\.$type<"
+    fix_steps:
+      - Add .$type<EntityId.Type>() to all ID columns
+      - Import EntityIds from appropriate domain package
+      - Re-run type verification
+    example:
+      error: "No TypeScript error, but runtime bug - wrong ID type in join"
+      before: |
+        // WRONG - Missing .$type<>() allows type-unsafe joins
+        export const entityTable = Table.make(KnowledgeEntityIds.EntityId)({
+          ontologyId: pg.text("ontology_id").notNull(),  // No type safety
+          documentId: pg.text("document_id"),            // No type safety
+        });
+
+        // This compiles but is WRONG - using DocumentId where OntologyId expected
+        db.select().from(entityTable).where(eq(entityTable.ontologyId, documentId));
+      after: |
+        // CORRECT - Type-safe ID columns
+        export const entityTable = Table.make(KnowledgeEntityIds.EntityId)({
+          ontologyId: pg.text("ontology_id").notNull()
+            .$type<KnowledgeEntityIds.OntologyId.Type>(),
+          documentId: pg.text("document_id")
+            .$type<DocumentsEntityIds.DocumentId.Type>(),
+        });
+
+        // Now TypeScript catches wrong ID types at compile time
+        db.select().from(entityTable).where(eq(entityTable.ontologyId, documentId));
+        // Error: DocumentId not assignable to OntologyId
+    source: "documentation/patterns/database-patterns.md:126-187"
+
+  - id: DB_005
+    pattern: "_check\\.ts.*satisfies.*Encoded|InferSelectModel.*InferInsertModel"
+    category: database
+    severity: warning
+    fix_type: manual
+    remediation: major
+    description: |
+      _check.ts type assertions only validate table-to-domain alignment (table satisfies domain).
+      They do NOT verify domain-to-table completeness. A domain model can have fewer fields
+      than the table and _check.ts will still pass.
+    diagnosis: |
+      1. Compare domain model fields with table columns manually
+      2. Check if _check.ts passes but domain is missing table fields
+      3. Look for M.Class definitions with fewer fields than corresponding table
+    fix_steps:
+      - Manually audit domain model against table definition
+      - Add missing fields to domain model BEFORE creating table
+      - Follow creation order: EntityIds -> Domain -> Tables -> _check.ts
+    example:
+      error: "_check.ts passes but domain model is incomplete"
+      before: |
+        // INCOMPLETE - Domain missing fields
+        class Embedding extends M.Class<Embedding>("Embedding")({
+          ...makeFields(EmbeddingId, {
+            embedding: S.Array(S.Number),  // Missing model, metadata
+          }),
+        }) {}
+
+        // Table has more fields
+        export const embeddingTable = Table.make(EmbeddingId)({
+          embedding: vector768("embedding").notNull(),
+          model: pg.text("model").notNull(),      // NOT in domain!
+          metadata: pg.jsonb("metadata"),          // NOT in domain!
+        });
+
+        // _check.ts PASSES - table satisfies incomplete domain
+        ({}) as InferSelectModel<typeof embeddingTable> satisfies Embedding.Encoded;
+      after: |
+        // COMPLETE - Domain has ALL table fields
+        class Embedding extends M.Class<Embedding>("Embedding")({
+          ...makeFields(EmbeddingId, {
+            embedding: S.Array(S.Number),
+            model: S.String,
+            metadata: BS.FieldOptionOmittable(S.Record({ key: S.String, value: S.Unknown })),
+          }),
+        }) {}
+    source: "documentation/patterns/database-patterns.md:266-292"
+
+  - id: DB_006
+    pattern: "ParseError.*catchTag|SqlError.*not caught|unhandled.*ParseError"
+    category: database
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: |
+      SqlSchema operations can emit ParseError alongside SqlError.
+      Error mapping with mapError(DatabaseError.$match) doesn't catch
+      ParseError, causing unhandled errors.
+    diagnosis: |
+      1. Effect crashes with unhandled ParseError
+      2. Check SqlSchema operations for missing catchTag
+      3. Verify error channel includes ParseError
+    fix_steps:
+      - Add catchTag("ParseError", ...) before mapError
+      - Use Effect.die for programmer errors (invalid schema)
+      - Or map ParseError to a domain error type
+    example:
+      error: "Unhandled effect error: ParseError"
+      before: |
+        // WRONG - ParseError not caught
+        const findByIds = (...) =>
+          findByIdsSchema({ ids: [...ids], organizationId }).pipe(
+            Effect.mapError(DatabaseError.$match),  // Only catches SqlError
+          );
+      after: |
+        // CORRECT - Handle ParseError explicitly
+        const findByIds = (...) =>
+          findByIdsSchema({ ids: [...ids], organizationId }).pipe(
+            Effect.catchTag("ParseError", (e) => Effect.die(e)),  // Programmer error
+            Effect.mapError(DatabaseError.$match),
+          );
+    source: "specs/knowledge-repo-sqlschema-refactor/REFLECTION_LOG.md:55-57"
+
+  # =============================================================================
+  # BUILD/CONFIG ERRORS (5 patterns)
+  # =============================================================================
+
+  - id: BUILD_001
+    pattern: "packages/.*\\(\\d+,\\d+\\).*error TS|--filter.*upstream"
+    category: build
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: |
+      Turborepo's --filter flag cascades through ALL package dependencies.
+      If @beep/iam-tables depends on @beep/iam-domain, errors in domain
+      cause tables verification to fail even if tables code is correct.
+    diagnosis: |
+      1. Look at error path in output - it shows which package has the error
+      2. packages/iam/domain/src/... means error is in @beep/iam-domain
+      3. Check package.json dependencies to understand the chain
+    fix_steps:
+      - Identify actual failing package from error path
+      - Run bun run check --filter on the failing upstream package
+      - Fix upstream errors first, then retry downstream
+      - Use bun tsc --noEmit path/to/file.ts for isolated check
+    example:
+      error: "packages/iam/domain/src/entities/Member.ts(42,5): error TS2322"
+      before: |
+        # Running check on tables, but error is in domain
+        $ bun run check --filter @beep/iam-tables
+        packages/iam/domain/src/entities/Member.ts(42,5): error TS2322
+        #          ^^^^^^^ Error is in DOMAIN, not tables!
+
+        # WRONG - User tries to fix tables code
+      after: |
+        # Step 1: Identify error source from path
+        # packages/iam/domain/... -> error in @beep/iam-domain
+
+        # Step 2: Fix upstream package first
+        $ bun run check --filter @beep/iam-domain
+        # Fix the domain errors
+
+        # Step 3: Retry downstream
+        $ bun run check --filter @beep/iam-tables
+        # Now it passes
+    source: ".claude/rules/general.md:97-138"
+
+  - id: BUILD_002
+    pattern: "tsconfig.*references|project references|Cannot find module.*@beep"
+    category: build
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: |
+      New packages must be added to tsconfig.base.jsonc paths and
+      may need tsconfig.json project references updated. Missing
+      path aliases cause "Cannot find module" errors.
+    diagnosis: |
+      1. Error: Cannot find module '@beep/new-package'
+      2. Check tsconfig.base.jsonc for missing path alias
+      3. Verify package.json exists in the new package directory
+    fix_steps:
+      - Add path aliases to tsconfig.base.jsonc
+      - Run bun run repo-cli tsconfig-sync to update references
+      - Restart TypeScript server in IDE
+    example:
+      error: "Cannot find module '@beep/knowledge-domain' or its type declarations"
+      before: |
+        // tsconfig.base.jsonc missing path alias
+        {
+          "compilerOptions": {
+            "paths": {
+              // @beep/knowledge-domain NOT listed
+            }
+          }
+        }
+
+        // Import fails
+        import { Entity } from "@beep/knowledge-domain";  // Error!
+      after: |
+        // Add to tsconfig.base.jsonc
+        {
+          "compilerOptions": {
+            "paths": {
+              "@beep/knowledge-domain": [
+                "./packages/knowledge/domain/src/index"
+              ],
+              "@beep/knowledge-domain/*": [
+                "./packages/knowledge/domain/src/*"
+              ],
+              "@beep/knowledge-domain/test/*": [
+                "./packages/knowledge/domain/test/*"
+              ]
+            }
+          }
+        }
+
+        # Run sync command
+        $ bun run repo-cli tsconfig-sync
+    source: "CLAUDE.md - Commands Reference"
+
+  - id: BUILD_003
+    pattern: "turbo\\.json|dependsOn|\\^build|Cannot find module.*dependency"
+    category: build
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: |
+      Turborepo task dependencies must be correctly configured.
+      Missing ^build in dependsOn causes tasks to run before
+      dependencies are built, leading to missing module errors.
+    diagnosis: |
+      1. Runtime errors about missing modules during build
+      2. Check turbo.json task configuration
+      3. Verify dependsOn includes "^build" for tasks needing built deps
+    fix_steps:
+      - Check turbo.json for task definition
+      - Add "^build" to dependsOn array
+      - Clear cache with bun run purge if needed
+    example:
+      error: "Cannot find module - dependency not built yet"
+      before: |
+        // turbo.json - missing ^build dependency
+        {
+          "tasks": {
+            "test": {
+              "inputs": ["$TURBO_DEFAULT$"]
+              // Missing dependsOn: ["^build"]!
+            }
+          }
+        }
+
+        # Test runs before dependencies built
+        $ bun run test --filter @beep/iam-server
+        Error: Cannot find module '@beep/iam-domain'
+      after: |
+        // turbo.json - correct dependency
+        {
+          "tasks": {
+            "test": {
+              "dependsOn": ["^build"],  // Build deps first
+              "inputs": ["$TURBO_DEFAULT$"]
+            }
+          }
+        }
+    source: "turbo.json"
+
+  - id: BUILD_004
+    pattern: "workspace:\\*|package\\.json.*dependencies|runtime.*Cannot find"
+    category: build
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: |
+      New packages must declare workspace dependencies in package.json.
+      Missing dependencies cause "Cannot find module" at runtime
+      even if TypeScript compiles (due to path aliases).
+    diagnosis: |
+      1. TypeScript compiles but runtime import fails
+      2. Check package.json dependencies section
+      3. Verify workspace:* syntax for monorepo packages
+    fix_steps:
+      - Add missing dependency to package.json
+      - Use "workspace:*" for monorepo packages
+      - Run bun install to update lockfile
+    example:
+      error: "Cannot find module '@beep/shared-domain' at runtime"
+      before: |
+        // packages/knowledge/domain/package.json
+        {
+          "name": "@beep/knowledge-domain",
+          "dependencies": {
+            // Missing @beep/shared-domain!
+          }
+        }
+
+        // Code compiles (path alias works) but fails at runtime
+        import { EntityId } from "@beep/shared-domain";  // Runtime error!
+      after: |
+        // packages/knowledge/domain/package.json
+        {
+          "name": "@beep/knowledge-domain",
+          "dependencies": {
+            "@beep/shared-domain": "workspace:*"
+          }
+        }
+
+        # Run install
+        $ bun install
+    source: "package.json conventions"
+
+  - id: BUILD_005
+    pattern: "circular dependency|circular import|Cannot access.*before initialization"
+    category: build
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: |
+      Circular dependencies between packages cause initialization
+      errors and undefined imports. Each slice must follow the
+      dependency order: domain -> tables -> server -> client -> ui.
+    diagnosis: |
+      1. Run bun run lint:circular to detect cycles
+      2. Check import statements for cross-layer violations
+      3. Verify no server imports from client or domain from tables
+    fix_steps:
+      - Map out the import cycle
+      - Extract shared types to @beep/shared-domain
+      - Move implementation to correct layer
+      - Use dependency injection instead of direct imports
+    example:
+      error: "ReferenceError: Cannot access 'UserService' before initialization"
+      before: |
+        // WRONG - Circular dependency
+        // packages/iam/server/src/UserService.ts
+        import { MemberService } from "./MemberService";
+
+        // packages/iam/server/src/MemberService.ts
+        import { UserService } from "./UserService";  // Circular!
+      after: |
+        // CORRECT - Use dependency injection
+        // packages/iam/server/src/UserService.ts
+        export class UserService extends Context.Tag("UserService")<
+          UserService,
+          { findById: (id: UserId) => Effect<User> }
+        >() {}
+
+        // packages/iam/server/src/MemberService.ts
+        const memberService = Effect.gen(function* () {
+          const userService = yield* UserService;  // Injected, not imported
+          // ...
+        });
+    source: ".claude/rules/general.md:13-15"

@@ -1,0 +1,31 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "references": [
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../invariant/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" },
+    { "path": "../identity/tsconfig.build.json" }
+  ],
+  "compilerOptions": {
+    "types": ["bun", "node"],
+    "outDir": "build/src",
+
+    "rootDir": "src",
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "transform": "@effect/language-service/transform",
+        "diagnosticSeverity": {
+          "classSelfMismatch": "off"
+        },
+        "mermaidProvider": "mermaid.live",
+        "namespaceImportPackages": ["effect", "@effect/*"]
+      }
+    ],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  }
+}

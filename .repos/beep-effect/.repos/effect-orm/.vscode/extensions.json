@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "jnoortheen.nix-ide",
+    "mkhl.direnv"
+  ]
+}

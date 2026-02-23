@@ -1,0 +1,44 @@
+{
+  "extends": "./tsconfig.src.json",
+  "include": ["drizzle.config.ts"],
+  "references": [
+    {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/schema/tsconfig.src.json"
+    },
+    {
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../../shared/tables"
+    },
+    {
+      "path": "../../shared/server"
+    },
+    {
+      "path": "../../iam/domain"
+    },
+    {
+      "path": "../../iam/ui"
+    },
+    {
+      "path": "../../iam/tables"
+    },
+    {
+      "path": "../../ui"
+    },
+    {
+      "path": "../../documents/server"
+    },
+    {
+      "path": "../../documents/tables"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "rootDir": ".",
+    "outDir": "build"
+  }
+}
