@@ -83,8 +83,8 @@
 | Phase | Done When |
 |---|---|
 | P0 | `bunx sst install` succeeds, `sst.config.ts` compiles, `.sst/platform/config.d.ts` generated with provider types |
-| P1 | `bunx sst deploy --stage dev` creates Railway project with 3 services, FalkorDB accessible on private network, auth proxy has public domain |
-| P2 | Neon database provisioned, all 1Password fields exist, `op run --env-file=.env.op.dev -- bunx sst deploy --stage dev` succeeds |
+| P1 | **COMPLETE** — Railway project `beep-dev` with 3 services deployed. Auth proxy at `auth-proxy-production-91fe.up.railway.app`. 4 provider gaps documented (volume, domain, start command, API token scope). See `outputs/p1-railway-provider-gaps.md`. |
+| P2 | Neon database provisioned, all 1Password fields exist, `op run --env-file=.env -- bunx sst deploy --stage dev` succeeds |
 | P3 | Vercel project created with env vars wired from Railway/Neon outputs, `bunx sst deploy --stage dev` return values include all URLs |
 | P4 | `--stage production` deploys with `protect: true`, `--stage pr-123` deploys with 1Password service account, GitHub Actions workflow with `1password/load-secrets-action` exists |
 
@@ -162,10 +162,10 @@ bunx sst deploy --stage dev 2>&1 | grep -E "(railway|Railway)"
 
 # P2: 1Password fields exist + Neon deployed
 op read "op://beep-dev-secrets/beep-app-core/AUTH_SECRET" > /dev/null && echo "OK"
-op run --env-file=.env.op.dev -- bunx sst deploy --stage dev
+op run --env-file=.env -- bunx sst deploy --stage dev
 
 # P3: Full stack deployed
-op run --env-file=.env.op.dev -- bunx sst deploy --stage dev
+op run --env-file=.env -- bunx sst deploy --stage dev
 
 # P4: Production deploy
 op run --env-file=.env.op.production -- bunx sst deploy --stage production

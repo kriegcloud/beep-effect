@@ -114,7 +114,16 @@
     "playwright",
     "networkidle",
     "oxlint",
-    "autodocs"
+    "autodocs",
+
+    "graphiti",
+    "falkordb",
+    "pulumiverse",
+    "pooler",
+    "unpooled",
+    "pulumi",
+    "caddyfile",
+    "zepai"
   ],
   "ignorePaths": [
     "bun.lock",

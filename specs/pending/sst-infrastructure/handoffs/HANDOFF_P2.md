@@ -10,25 +10,25 @@
 
 ### Goal
 
-Define the Neon PostgreSQL database in `infra/database.ts` and wire all application secrets from 1Password into `infra/secrets.ts` via environment variables. At phase exit, `op run --env-file=.env.op.dev -- bunx sst deploy --stage dev` provisions a Neon database with all secrets available to the infra code.
+Define the Neon PostgreSQL database in `infra/database.ts` and wire all application secrets from 1Password into `infra/secrets.ts` via environment variables. At phase exit, `op run --env-file=.env -- bunx sst deploy --stage dev` provisions a Neon database with all secrets available to the infra code.
 
 ### Deliverables
 
-1. `infra/secrets.ts` — env var reads with validation (replaces `sst.Secret`)
+1. `infra/secrets.ts` — **PARTIALLY EXISTS** from P1 (3 Railway/Graph secrets). Extend with 4 additional app secrets (auth, email).
 2. `infra/database.ts` — Neon project, database, role, and connection string exports
 3. Updated `sst.config.ts` — import secrets and database modules
-4. `.env.op.dev` — 1Password reference file for dev stage
-5. `.env.op.production` — 1Password reference file for production stage
+4. **`.env` already has `op://` references** — extend with any new secrets (no separate `.env.op.dev` needed)
+5. `.env.op.production` — 1Password reference file for production stage (or extend `.env` pattern)
 6. New 1Password fields added to existing vault items (see Vault Setup below)
 
 ### Success Criteria
 
-- [ ] `infra/secrets.ts` exports all 7 application secrets via `process.env` reads
+- [ ] `infra/secrets.ts` exports all 7 application secrets via `process.env` reads (3 already exist from P1)
 - [ ] `infra/database.ts` creates Neon project, database, and role
-- [ ] `op run --env-file=.env.op.dev -- bunx sst deploy --stage dev` provisions Neon database
+- [ ] `op run --env-file=.env -- bunx sst deploy --stage dev` provisions Neon database
 - [ ] All 1Password fields exist in `beep-dev-secrets` vault
 - [ ] Connection string output is accessible in `sst.config.ts` return values
-- [ ] `infra/railway.ts` refactored to import secrets from `infra/secrets.ts` (plain strings, no `.value`)
+- [x] `infra/railway.ts` already imports secrets from `infra/secrets.ts` (plain strings, no `.value`) — DONE in P1
 
 ### Blocking Issues
 
@@ -93,7 +93,7 @@ Define the Neon PostgreSQL database in `infra/database.ts` and wire all applicat
    ```bash
    # .env.op.dev
    # 1Password secret references for the dev stage.
-   # Used with: op run --env-file=.env.op.dev -- bunx sst deploy --stage dev
+   # Used with: op run --env-file=.env -- bunx sst deploy --stage dev
    #
    # These are op:// REFERENCES, not secret values. Safe to commit to git.
    # The `op run` command resolves them at runtime via authenticated 1Password CLI.
@@ -290,7 +290,7 @@ Define the Neon PostgreSQL database in `infra/database.ts` and wire all applicat
    aws sso login --profile beep-dev
 
    # Deploy — SSO handles AWS auth, op run handles Railway/Neon/Vercel tokens + app secrets
-   op run --env-file=.env.op.dev -- bunx sst deploy --stage dev
+   op run --env-file=.env -- bunx sst deploy --stage dev
    ```
 
 ---
@@ -300,14 +300,26 @@ Define the Neon PostgreSQL database in `infra/database.ts` and wire all applicat
 ### P0-P1 Outcomes
 
 - SST initialized with all providers
-- Railway project created with 3 services (FalkorDB, Graphiti MCP, Auth Proxy)
-- Any Railway provider gaps documented in `outputs/p1-railway-provider-gaps.md`
+- Railway project `beep-dev` created with 3 services (FalkorDB, Graphiti MCP, Auth Proxy) — all online
+- Auth Proxy public URL: `https://auth-proxy-production-91fe.up.railway.app`
+- 4 Railway provider gaps documented in `outputs/p1-railway-provider-gaps.md`
+- `infra/secrets.ts` ALREADY EXISTS with 3 secret reads:
+  - `falkordbPassword` ← `process.env.FALKORDB_PASSWORD`
+  - `openaiApiKey` ← `process.env.AI_OPENAI_API_KEY` (note: `AI_OPENAI_API_KEY`, NOT `OPENAI_API_KEY`)
+  - `graphitiApiKey` ← `process.env.GRAPHITI_API_KEY`
+- `infra/railway.ts` imports from `./secrets` and uses plain strings (no `.value`)
+- `.env` ALREADY has `op://` references for all existing secrets (vault: `beep-dev-secrets`)
 
 ### Lessons from P1
 
-- Note the actual provider property naming convention (camelCase vs snake_case)
-- Note any `$interpolate` syntax patterns used successfully
-- Note the environment ID resolution pattern that worked for Railway
+- **camelCase property naming** confirmed for Pulumi-bridged Railway resources (e.g., `projectId`, `sourceImage`, `environmentId`)
+- **`$interpolate` syntax** works for cross-resource string interpolation (used for `FALKORDB_URI`)
+- **`project.defaultEnvironment.apply(env => env.id)`** is the correct pattern for accessing the default environment ID
+- **`encodeURIComponent`** required for passwords in Redis URIs (base64 chars `+`, `/`, `=` break parsing)
+- **`PORT` env var** required for Docker images with multiple EXPOSE ports (Caddy: 80, 443, 2019)
+- **`.env` file already serves as the `op run` reference file** — no separate `.env.op.dev` needed
+- **Deploy command:** `op run --env-file=.env -- bunx sst deploy --stage dev`
+- **`AI_OPENAI_API_KEY`** is the correct env var name (maps to `op://beep-dev-secrets/beep-ai/AI_OPENAI_API_KEY`). The `OPENAI_API_KEY` alias referenced in the original spec should be mapped in `infra/secrets.ts` if Graphiti expects `OPENAI_API_KEY`.
 
 ---
 
@@ -380,7 +392,7 @@ op read "op://beep-dev-secrets/beep-ai/AI_OPENAI_API_KEY" > /dev/null && echo "O
 op read "op://beep-dev-secrets/beep-email/EMAIL_RESEND_API_KEY" > /dev/null && echo "OK" || echo "MISSING"
 
 # 2. Deploy with 1Password
-op run --env-file=.env.op.dev -- bunx sst deploy --stage dev
+op run --env-file=.env -- bunx sst deploy --stage dev
 
 # 3. Check Neon dashboard
 # - Project exists with name beep-dev
@@ -415,13 +427,13 @@ op run --env-file=.env.op.dev -- bunx sst deploy --stage dev
 
 ## Success Criteria Checklist
 
-- [ ] `infra/secrets.ts` reads all 7 secrets from `process.env` (no `sst.Secret`)
-- [ ] `infra/railway.ts` imports plain string secrets from `infra/secrets.ts` (no `.value`)
+- [ ] `infra/secrets.ts` reads all 7 secrets from `process.env` (3 already exist from P1, add 4 more)
+- [x] `infra/railway.ts` imports plain string secrets from `infra/secrets.ts` (no `.value`) — DONE in P1
 - [ ] `infra/database.ts` creates Neon project and database
 - [ ] `sst.config.ts` imports secrets, railway, and database modules
-- [ ] `.env.op.dev` contains all 10 references (3 non-AWS provider tokens + 7 app secrets; AWS auth via SSO)
+- [ ] `.env` extended with any new 1Password references (existing `.env` already has `op://` refs for P1 secrets)
 - [ ] `.env.op.production` exists (may share dev references for v1)
-- [ ] All new 1Password fields created in `beep-dev-secrets` vault (6 new fields)
-- [ ] `op run --env-file=.env.op.dev -- bunx sst deploy --stage dev` provisions Neon database without errors
+- [ ] All new 1Password fields created in `beep-dev-secrets` vault
+- [ ] `op run --env-file=.env -- bunx sst deploy --stage dev` provisions Neon database without errors
 - [ ] Neon dashboard shows project `beep-dev` with `beep_auth` database
 - [ ] Output includes connection host/URI from Neon

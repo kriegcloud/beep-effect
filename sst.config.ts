@@ -24,11 +24,26 @@ export default $config({
 
   async run() {
     // P1: Railway services (FalkorDB, Graphiti MCP, Auth Proxy)
-    // const railway = await import("./infra/railway");
-    // P2: Neon database + secrets
-    // const secrets = await import("./infra/secrets");
-    // const database = await import("./infra/database");
+    const railway = await import("./infra/railway");
+
+    // P2: Neon database (secrets module is imported transitively by railway)
+    const database = await import("./infra/database");
+
     // P3: Vercel deployment + env var wiring
-    // const web = await import("./infra/web");
+    const web = await import("./infra/web");
+
+    return {
+      // Railway
+      railwayProjectId: railway.railwayProjectId,
+      proxyUrl: railway.proxyUrl,
+
+      // Neon
+      neonProjectId: database.projectId,
+      neonConnectionHost: database.connectionUri,
+
+      // Vercel
+      vercelProjectId: web.vercelProjectId,
+      vercelProjectUrl: web.vercelProjectUrl,
+    };
   },
 });

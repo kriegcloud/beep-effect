@@ -10,7 +10,7 @@
 
 ### Goal
 
-Define the Vercel project in `infra/web.ts` and wire all environment variables from Railway outputs, Neon outputs, and 1Password secrets into the Vercel project. At phase exit, `op run --env-file=.env.op.dev -- bunx sst deploy --stage dev` provisions a complete, connected infrastructure — Railway services, Neon database, and Vercel project with all env vars populated.
+Define the Vercel project in `infra/web.ts` and wire all environment variables from Railway outputs, Neon outputs, and 1Password secrets into the Vercel project. At phase exit, `op run --env-file=.env -- bunx sst deploy --stage dev` provisions a complete, connected infrastructure — Railway services, Neon database, and Vercel project with all env vars populated.
 
 ### Deliverables
 
@@ -67,6 +67,8 @@ Define the Vercel project in `infra/web.ts` and wire all environment variables f
      openaiApiKey,
      resendApiKey,
    } from "./secrets";
+   // NOTE: proxyUrl is NOT a Pulumi Output — the domain was generated manually (Gap 2).
+   // Use the constant from railway.ts or hardcode until ServiceDomain works in a future provider version.
    import { proxyUrl } from "./railway";
    import { connectionUri, connectionUriPooler } from "./database";
 
@@ -165,7 +167,7 @@ Define the Vercel project in `infra/web.ts` and wire all environment variables f
      return {
        // Railway
        railwayProjectId: railway.railwayProjectId,
-       proxyUrl: railway.proxyUrl,
+       proxyUrl: railway.proxyUrl, // NOTE: string constant, not Pulumi Output (domain was manual)
 
        // Neon
        neonProjectId: database.projectId,
@@ -181,7 +183,7 @@ Define the Vercel project in `infra/web.ts` and wire all environment variables f
 4. **Deploy end-to-end:**
 
    ```bash
-   op run --env-file=.env.op.dev -- bunx sst deploy --stage dev
+   op run --env-file=.env -- bunx sst deploy --stage dev
    ```
 
 5. **Verify environment variables in Vercel dashboard:**
@@ -202,18 +204,31 @@ Define the Vercel project in `infra/web.ts` and wire all environment variables f
 ### P0-P2 Outcomes
 
 - SST initialized, all providers installed
-- Railway project with 3 services deployed and accessible
-- Neon database provisioned
-- 1Password vault fields created and validated
+- Railway project `beep-dev` with 3 services deployed and accessible
+- Auth Proxy public URL: `https://auth-proxy-production-91fe.up.railway.app`
+- Neon database provisioned (pending P2 completion)
+- 1Password vault fields created and validated (P1 secrets already working)
 - `infra/secrets.ts` is the single source of truth for all secrets (reads from `process.env`)
-- Cross-module import pattern established (secrets -> railway, secrets -> database)
+- Cross-module import pattern established (secrets -> railway)
+
+### P1 Important Notes for P3
+
+1. **`proxyUrl` is NOT a Pulumi Output.** The auth proxy URL was generated manually via Railway dashboard (ServiceDomain creation failed — Gap 2). `infra/railway.ts` only exports `railwayProjectId`. For P3, the proxy URL must be either:
+   - **Option A:** Hardcoded as a constant: `const PROXY_URL = "https://auth-proxy-production-91fe.up.railway.app"`
+   - **Option B:** Added as a new export in `infra/railway.ts` (string constant, not Pulumi Output)
+   - **Option C:** Read from an env var / 1Password
+
+2. **OpenAI API key env var naming.** The 1Password field is `AI_OPENAI_API_KEY` (in `beep-ai` item). `infra/secrets.ts` reads it as `AI_OPENAI_API_KEY`. If Vercel env vars need `OPENAI_API_KEY` (without the `AI_` prefix), map it in `infra/web.ts`.
+
+3. **Deploy command uses `.env` not `.env.op.dev`.** The existing `.env` file already has all `op://` references. Command: `op run --env-file=.env -- bunx sst deploy --stage dev`
 
 ### Key Patterns Established
 
 - Provider type checking via `grep` on `.sst/platform/config.d.ts`
-- `$interpolate` syntax for cross-resource references
-- 1Password `op run` + `process.env` read pattern (plain strings, no `.value`)
+- `$interpolate` syntax for cross-resource references (used in Railway `FALKORDB_URI`)
+- 1Password `op run --env-file=.env` + `process.env` read pattern (plain strings, no `.value`)
 - Module export/import pattern across `infra/` files
+- `encodeURIComponent` for passwords in URIs with special characters
 
 ---
 
@@ -272,7 +287,7 @@ This is a DAG — no circular dependencies.
 
 ```bash
 # 1. End-to-end deploy
-op run --env-file=.env.op.dev -- bunx sst deploy --stage dev
+op run --env-file=.env -- bunx sst deploy --stage dev
 
 # 2. Check all outputs
 bunx sst deploy --stage dev 2>&1 | grep -E "proxyUrl|neonConnection|vercelProject"
@@ -303,6 +318,10 @@ curl -s https://beep-dev.vercel.app/api/health || echo "App not yet deployed"
 5. **`DATABASE_URL_UNPOOLED` may require separate handling.** If the Neon provider doesn't expose an unpooled connection string, you may need to: (a) construct it from components using `$interpolate`, or (b) skip it in IaC and set it manually in Vercel dashboard.
 
 6. **Vercel team scope.** If the Vercel account is a team (not personal), the provider may require `VERCEL_TEAM_ID` in addition to `VERCEL_API_TOKEN`. Check provider docs.
+
+7. **Auth Proxy URL is a string constant, not a Pulumi Output.** The Railway ServiceDomain resource failed (Gap 2), so the domain was generated manually. `proxyUrl` must be exported from `infra/railway.ts` as a plain string constant (`"https://auth-proxy-production-91fe.up.railway.app"`), not computed from a Pulumi resource. This means changing the Railway project (e.g., creating a new stage) requires manually generating a new domain and updating the constant.
+
+8. **OpenAI API key env var mapping.** The 1Password field and `infra/secrets.ts` use `AI_OPENAI_API_KEY`. If the Vercel app expects `OPENAI_API_KEY`, map it in the env vars loop: `{ key: "OPENAI_API_KEY", value: openaiApiKey, sensitive: true }` where `openaiApiKey` comes from `infra/secrets.ts`.
 
 ---
 
