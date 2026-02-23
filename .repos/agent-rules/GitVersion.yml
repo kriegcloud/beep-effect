@@ -1,0 +1,10 @@
+assembly-versioning-scheme: MajorMinor
+assembly-informational-format: '{SemVer}+{ShortSha}'
+mode: Mainline
+branches:
+  main:
+    regex: ^(origin\/)?main$
+  support:
+    regex: ^(origin\/)?support\/.+$
+ignore:
+  sha: []
