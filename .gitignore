@@ -1,0 +1,42 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# API keys
+*.key
+*.pem
+secrets.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node
+node_modules/
+
+# Build output
+dist/
+
+# Python
+__pycache__/
+*.pyc
+
+# Task files (Claude Code teams)
+tasks/
+
+# Personal configs (if any)
+personal/
+private/
+
+# Session templates (not committed)
+examples/sessions/*.tmp
+
+# Local drafts
+marketing/
