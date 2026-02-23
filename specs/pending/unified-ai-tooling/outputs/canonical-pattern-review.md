@@ -21,6 +21,8 @@ Compared against completed-spec conventions used in this repo (for example `spec
 | Phase handoffs + orchestrator prompts | Yes | `handoffs/` |
 | Output manifest for machine-readable phase tracking | Yes | `outputs/manifest.json` |
 | Research + comprehensive review outputs | Yes | `outputs/preliminary-research.md`, `outputs/comprehensive-review.md` |
+| Prior-art synthesis from local subtree mirrors | Yes | `outputs/subtree-synthesis.md` + `outputs/subtree-*-analysis.md` |
+| Explicit quality-gates/test strategy artifact | Yes | `outputs/quality-gates-and-test-strategy.md` |
 
 ## Gaps Found
 

@@ -16,11 +16,13 @@ Next phase is **P1: Schema + Compiler Contract**.
 2. `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
 3. `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
 4. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
-5. `specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
-6. `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
-7. `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
-8. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
-9. `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+5. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
+6. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+7. `specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
+8. `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
+9. `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
+10. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
+11. `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 
 ## Phase Handoff Files
 
@@ -44,11 +46,19 @@ Next phase is **P1: Schema + Compiler Contract**.
 9. `AGENTS.md` is managed for every workspace package.
 10. 1Password auth policy is hybrid: desktop auth locally, service-account auth for automation.
 11. JetBrains prompt-library artifacts are in scope for v1.
+12. Adapter architecture is registry/capability-map based.
+13. Managed outputs are hash-aware with orphan cleanup and sidecar/state metadata.
+14. Diagnostics include strict mode for lossy/unsupported mappings.
+15. Backup/revert is part of the operational safety contract.
+16. TDD and hard validation checkpoints are mandatory for phase completion.
+17. `revert` is mandatory in v1 and scoped to managed targets.
 
 ## First Task to Run Now (P1)
 
 1. Open `handoffs/HANDOFF_P1.md`.
 2. Finalize `.beep/config.yaml` schema + normalization + sidecar metadata contract.
 3. Document AGENTS generation/freshness model for root + every workspace package.
-4. Produce `outputs/p1-schema-and-contract.md`.
-5. Update `outputs/manifest.json` P1 status.
+4. Define state/manifest contracts (hashes, orphan cleanup, managed ownership).
+5. Add `Quality Gate Evidence` requirements to P1 output (tests + review checkpoints).
+6. Produce `outputs/p1-schema-and-contract.md`.
+7. Update `outputs/manifest.json` P1 status.

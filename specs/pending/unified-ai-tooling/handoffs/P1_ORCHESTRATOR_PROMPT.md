@@ -10,6 +10,8 @@ Read:
 3. `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
 4. `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
 5. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
+6. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
+7. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 
 ## Your Mission
 
@@ -18,8 +20,11 @@ Read:
 3. Define deterministic serialization and error taxonomy.
 4. Define managed-file ownership metadata contract for JSON targets.
 5. Define AGENTS generation/freshness contract for root + every workspace package.
-6. Write output to `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`.
-7. Update `specs/pending/unified-ai-tooling/outputs/manifest.json` P1 status.
+6. Define state metadata contract for hashes, adapter versions, and orphan cleanup inputs.
+7. Define adapter capability descriptor contract to unblock P2.
+8. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
+9. Write output to `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`.
+10. Update `specs/pending/unified-ai-tooling/outputs/manifest.json` P1 status.
 
 ## Critical Constraints
 
@@ -37,6 +42,8 @@ Read:
 - Sidecar strategy is explicit for JSON managed files.
 - AGENTS freshness model is explicit and testable.
 - Unsupported-field handling path is defined.
+- State/manifest contract is explicit and versioned.
+- Quality gate evidence includes all required subsections and required signoff rows.
 
 ## Success Criteria
 

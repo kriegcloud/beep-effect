@@ -11,6 +11,8 @@ Read in order:
 4. `outputs/p2-adapter-design.md`
 5. `outputs/preliminary-research.md`
 6. `outputs/comprehensive-review.md`
+7. `outputs/subtree-synthesis.md`
+8. `outputs/quality-gates-and-test-strategy.md`
 
 ## Your Mission
 
@@ -19,8 +21,12 @@ Read in order:
 3. Define AGENTS freshness operational contract.
 4. Define runtime packaging and execution expectations for `tooling/beep-sync`.
 5. Explicitly document deferred CI/hook rollout.
-6. Write `outputs/p3-runtime-integration.md`.
-7. Update `outputs/manifest.json` for P3.
+6. Define state/manifest lifecycle (atomic writes, orphan cleanup, versioning).
+7. Define backup/revert command semantics.
+8. Define structured diagnostics output and strict-mode behavior.
+9. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
+10. Write `outputs/p3-runtime-integration.md`.
+11. Update `outputs/manifest.json` for P3.
 
 ## Critical Constraints
 
@@ -28,6 +34,7 @@ Read in order:
 - No symlink fallback.
 - Deterministic generation remains mandatory.
 - Required secret resolution failures are fatal.
+- `revert` is mandatory in v1 and scoped to managed targets only.
 
 ## Verification
 
@@ -35,6 +42,8 @@ Read in order:
 - Redaction policy is explicit.
 - AGENTS freshness operations are explicit and testable.
 - Deferred rollout points are explicit.
+- Cleanup/revert semantics are explicit and testable.
+- Quality gate evidence includes all required subsections and required signoff rows.
 
 ## Success Criteria
 

@@ -37,13 +37,40 @@ Managed generation policy includes these committed outputs:
 6. Skills are first-class in canonical schema and generation.
 7. Required secret resolution failures are fatal.
 8. AGENTS generation scope covers every workspace package.
+9. Adapters are capability-map driven; unsupported fields must warn/error explicitly.
+10. Output serialization order is deterministic (stable sort + stable formatting).
+11. Hash-aware writing skips unchanged files.
+12. `revert` is mandatory in v1 runtime scope and only affects managed targets.
 
 ## Ownership and Drift Model
 
 1. Managed targets default to full-file rewrite.
 2. JSON targets use sidecar ownership metadata (no inline comment markers).
-3. `beep-sync check` compares regenerated content against committed outputs.
-4. `beep-sync validate` blocks invalid canonical config or unsupported critical mappings.
+3. Managed file state tracks source hash, rendered hash, adapter version, and last write timestamp.
+4. `beep-sync check` compares regenerated content against committed outputs and state metadata.
+5. `beep-sync apply` performs orphan cleanup for previously managed files not emitted by the current graph.
+6. `beep-sync validate` blocks invalid canonical config or unsupported critical mappings.
+
+## Managed Marker Strategy
+
+1. Markdown/text outputs include generated headers (`DO NOT EDIT`, source pointers).
+2. Strict JSON outputs use sidecar metadata only.
+3. Local-only generated outputs (if any) are handled via a bounded managed `.gitignore` block.
+
+## Diagnostics and Strictness
+
+1. All adapters emit structured diagnostics (`error`, `warning`, `info`) with target path and field.
+2. Lossy conversion and unsupported-field drops are warnings by default.
+3. `--strict` upgrades configured warning classes to errors.
+4. Required secret resolution failures are always errors (independent of strict mode).
+
+## MCP Capability Map Contract
+
+1. Canonical MCP schema remains tool-agnostic.
+2. Each adapter declares supported MCP fields and normalization rules.
+3. Unsupported fields are stripped and surfaced via diagnostics.
+4. Tool-specific naming differences are normalized in adapters (for example snake_case vs camelCase).
+5. Capability-map fixtures are mandatory for Cursor and Windsurf due higher doc drift risk.
 
 ## Open Implementation Notes
 
@@ -53,3 +80,4 @@ Managed generation policy includes these committed outputs:
 ## Source Pointers
 
 - `outputs/preliminary-research.md`
+- `outputs/subtree-synthesis.md`

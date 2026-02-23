@@ -8,6 +8,8 @@ Read first:
 - `outputs/p2-adapter-design.md`
 - `outputs/preliminary-research.md`
 - `outputs/comprehensive-review.md`
+- `outputs/subtree-synthesis.md`
+- `outputs/quality-gates-and-test-strategy.md`
 
 ## Working Memory
 
@@ -27,6 +29,10 @@ Define runtime behavior for `beep-sync` commands, secret resolution lifecycle, a
 3. AGENTS freshness workflow contract is explicit (root + every workspace package).
 4. Runtime packaging contract is explicit for `tooling/beep-sync`.
 5. CI and hook wiring are explicitly deferred (not silently omitted).
+6. State/manifest lifecycle is explicit (atomic updates, orphan cleanup, schema versioning).
+7. Backup/revert operational contract is explicit.
+8. Diagnostics contract is explicit (structured output + strict mode).
+9. P3 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
 
 ### Blocking Issues
 
@@ -45,15 +51,27 @@ Define runtime behavior for `beep-sync` commands, secret resolution lifecycle, a
 2. Define secret resolution lifecycle and auth preflight behavior (desktop auth local, service-account auth automation).
 3. Define logging/redaction policy.
 4. Define AGENTS freshness operational flow (`generate-missing`, `check-stale`).
-5. Document deferred hook/CI integration points.
+5. Define state + orphan cleanup lifecycle and atomic write behavior.
+6. Define backup/revert command semantics and scope.
+7. Define diagnostics output and strict-mode behavior.
+8. Document deferred hook/CI integration points.
+9. Define runtime TDD + integration-test checkpoints and coverage contract.
 
 ## Verification Steps
 
 ```bash
 cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .
+
+rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
+
+rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
+
+rg -n "Design/Architecture|Security/Secrets" specs/pending/unified-ai-tooling/outputs/p3-runtime-integration.md
 ```
 
 ## Known Issues and Gotchas
 
 - Do not make required secret resolution optional.
 - Differentiate "hooks/CI deferred" from "workflow undefined".
+- Keep cleanup and revert semantics deterministic and auditable.
+- `revert` scope is managed targets only in v1.

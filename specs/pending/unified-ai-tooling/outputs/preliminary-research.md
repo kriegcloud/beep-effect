@@ -11,12 +11,14 @@ Scope: close decision gaps before execution
 4. Should managed targets use merge-in-place or full-file rewrite?
 5. How should managed ownership be tracked for strict JSON outputs?
 6. Where should runtime code live in this monorepo?
+7. Which proven architecture/runtime patterns from local subtree prior-art should be adopted now?
 
 ## 2. Method
 
 - Prioritized primary vendor docs and official standards pages.
 - Pulled open-source sync-tool prior art for ownership and overwrite behavior.
 - Cross-checked conclusions against current repo structure and constraints.
+- Performed code-level review of local subtree mirrors under `.repos/*` and synthesized repeatable patterns.
 
 ## 3. Findings
 
@@ -94,6 +96,23 @@ Implication:
 - Runtime code should live in `tooling/beep-sync`.
 - `.beep/` should remain data/config only.
 
+### 3.8 Subtree prior-art review confirms additional design constraints
+
+Local subtree evidence (`add-mcp`, `agent-sync`, `agnix`, `ai-rulez`, `lnai`, `ruler`, `rulesync`, `agent-rules`, `claude-setup`) consistently points to the following:
+
+- Adapter registry + capability map scales better than ad-hoc per-tool code paths.
+- Deterministic sorting plus hash-based skip-write reduces churn and stale watcher triggers.
+- State/manifest tracking is needed for drift checks and orphaned generated-file cleanup.
+- Full-file rewrite remains the cleanest managed ownership model once ownership is claimed.
+- Revert safety improves materially when backup/restore symmetry is built into the runtime contract.
+- Warning/error taxonomy with strict mode prevents silent lossy conversions.
+- MCP translation needs per-tool capability maps to explicitly drop/warn on unsupported fields.
+- Rule layering should be root-first, then package-local overlays for monorepo behavior.
+
+Implication:
+- These patterns should be treated as phase inputs, not optional implementation details.
+- P1-P4 handoffs must include capability maps, state metadata, strict diagnostics, and revert design.
+
 ## 4. Decision Updates Applied
 
 1. `.codex/` and `.mcp.json` are in committed managed-target scope.
@@ -104,11 +123,19 @@ Implication:
 6. Packaging is `tooling/beep-sync` runtime + `.beep/` canonical data.
 7. Required secrets fail hard when unresolved.
 8. 1Password auth policy is hybrid: desktop local + service-account automation.
+9. Adapter architecture is registry/capability-map based.
+10. Managed output writing is hash-aware with skip-write and orphan cleanup contracts.
+11. Runtime contract includes backup/revert semantics.
+12. Diagnostics include structured warnings + strict mode for lossy/unsupported mappings.
+13. Managed `.gitignore` updates use bounded generated sections for local-only artifacts.
+14. Quality gates enforce TDD, unit/golden/integration tests, and explicit review evidence.
+15. `revert` is mandatory in v1 and scoped to managed targets only.
 
 ## 5. Confidence Notes
 
 - High confidence: AGENTS layering guidance, MCP env-support patterns, JSON marker constraints.
 - High confidence: packaging recommendation from current monorepo layout.
+- High confidence: adapter-registry + state/manifest + deterministic-write patterns (repeated across multiple mature subtree tools).
 - Medium confidence: exact Cursor MCP field set from static extraction (dynamic docs).
 - Medium confidence: JetBrains prompt-library file format portability.
 
@@ -137,6 +164,17 @@ Implication:
 ### Prior-art tooling
 - Rulesync README (overwrite protection): https://github.com/jpcaparas/rulesync
 - Ruler README (merge/overwrite/backups/managed blocks): https://github.com/intellectronica/ruler
+
+### Local subtree deep dives
+- `.repos/add-mcp`
+- `.repos/agent-rules`
+- `.repos/agent-sync`
+- `.repos/agnix`
+- `.repos/ai-rulez`
+- `.repos/claude-setup`
+- `.repos/lnai`
+- `.repos/ruler`
+- `.repos/rulesync`
 
 ### Local repo references
 - Workspace globs: `package.json`

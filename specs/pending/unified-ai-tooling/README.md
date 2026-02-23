@@ -20,6 +20,8 @@ ACTIVE
 - [Compatibility Matrix](./outputs/tooling-compatibility-matrix.md)
 - [Canonical Pattern Review](./outputs/canonical-pattern-review.md)
 - [Comprehensive Review](./outputs/comprehensive-review.md)
+- [Subtree Synthesis](./outputs/subtree-synthesis.md)
+- [Quality Gates and Test Strategy](./outputs/quality-gates-and-test-strategy.md)
 - [1Password Setup Runbook](./outputs/onepassword-setup-runbook.md)
 - [1Password Env Template](./outputs/onepassword-env-template.env)
 - [1Password Setup Commands](./outputs/onepassword-op-setup-commands.sh)
@@ -57,6 +59,7 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 - Project-level AGENTS freshness workflow (root + every workspace package).
 - Secret reference workflow with 1Password and fail-hard behavior when required secrets cannot be resolved.
 - Runtime implementation in existing monorepo workspace layout.
+- Hard quality gates with TDD, unit tests, fixture tests, and review signoff.
 
 ## Non-Goals (v1)
 
@@ -92,6 +95,9 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 - [ ] AGENTS freshness workflow is defined for root and every workspace package.
 - [ ] JetBrains prompt-library artifacts are included in v1 managed scope.
 - [ ] Runtime packaging path is explicit and compatible with existing workspaces.
+- [ ] TDD-first workflow is defined and enforced in phase contracts.
+- [ ] Phase outputs include explicit quality-gate evidence (tests + reviews).
+- [ ] Coverage and fixture expectations are explicit for runtime implementation.
 
 ## Required Outputs
 
@@ -101,6 +107,9 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 | `outputs/tooling-compatibility-matrix.md` | Tool-by-tool targets and constraints |
 | `outputs/canonical-pattern-review.md` | Structure audit against completed-spec conventions |
 | `outputs/comprehensive-review.md` | Unknowns and pre-execution decision review |
+| `outputs/subtree-synthesis.md` | Consolidated design patterns from local subtree prior art |
+| `outputs/subtree-*-analysis.md` | Per-repo deep-dives backing synthesis conclusions |
+| `outputs/quality-gates-and-test-strategy.md` | Hard validation checkpoints, TDD policy, test matrix, and review gates |
 | `outputs/onepassword-setup-runbook.md` | Step-by-step 1Password setup for local and automation readiness |
 | `outputs/onepassword-env-template.env` | Ready-to-use `.env` template with `op://` references and ASCII layout |
 | `outputs/onepassword-op-setup-commands.sh` | Idempotent copy/paste CLI bootstrap using exact `op` commands |
@@ -132,6 +141,12 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 | ADR-015 | AGENTS freshness workflow is mandatory at design level; automatic hook wiring is deferred in this branch | Keeps behavior requirement while respecting branch constraints |
 | ADR-016 | Generate and manage `AGENTS.md` for every workspace package | Explicit user requirement and consistency objective |
 | ADR-017 | JetBrains prompt-library artifacts are in v1 scope | Explicit user requirement for deeper JetBrains parity |
+| ADR-018 | Adapter architecture is registry/capability-map based | Scales targets without N^2 converter complexity |
+| ADR-019 | Managed outputs are hash-aware with skip-write and orphan cleanup via state metadata | Minimizes git churn and stale generated artifacts |
+| ADR-020 | Backup/revert lifecycle is mandatory in v1 and scoped to managed targets | Enables one-session rollback during migration or bad emits while avoiding unmanaged-file deletion risk |
+| ADR-021 | Diagnostics include structured warnings + strict mode gates | Prevents silent lossy conversions and hidden unsupported fields |
+| ADR-022 | Managed `.gitignore` updates use bounded generated blocks for local-only artifacts | Keeps ignore policy deterministic and reversible |
+| ADR-023 | TDD and hard validation checkpoints are mandatory for phase completion (P1-P4; P0 grandfathered) | Prevents underspecified implementation and regression risk |
 
 ## Architecture Overview
 
@@ -146,9 +161,11 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 
 beep-sync runtime (tooling/beep-sync)
   - schema validation + normalization
-  - adapter pipeline (claude/codex/cursor/windsurf/jetbrains)
+  - adapter registry + capability maps (claude/codex/cursor/windsurf/jetbrains)
   - secret resolution layer (1Password)
-  - deterministic writers + drift check
+  - deterministic writers (hash-aware skip-write)
+  - state/manifest drift + orphan cleanup
+  - backup/revert operational safety
 
 managed targets (committed)
   - AGENTS.md + CLAUDE.md (+ nested AGENTS.md where required)
@@ -173,17 +190,33 @@ managed targets (committed)
 
 | Phase | Required Exit Evidence |
 |-------|------------------------|
-| P1 | Schema covers instructions/commands/hooks/MCP/agents/skills/overrides + ownership semantics |
-| P2 | Each tool has explicit target map + field mapping + unsupported-field handling |
-| P3 | Runtime command contract and required-secret failure behavior are fully specified |
-| P4 | Migration playbook covers inventory, shadow mode, managed cutover, rollback |
+| P1 | Schema covers instructions/commands/hooks/MCP/agents/skills/overrides + ownership semantics + parser/normalizer unit test plan + schema negative fixtures |
+| P2 | Each tool has explicit target map + field mapping + unsupported-field handling + golden fixture matrix + capability-map test plan |
+| P3 | Runtime command contract and required-secret failure behavior are fully specified + CLI integration tests + state/cleanup/revert test plan |
+| P4 | Migration playbook covers inventory, shadow mode, managed cutover, rollback + rollback rehearsal and cutover validation checkpoints |
+
+## Hard Quality Gates
+
+Gate source:
+- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+
+Mandatory gates:
+1. TDD-first evidence for runtime code changes.
+2. Unit tests for parser/normalizer/adapters/state.
+3. Golden fixture tests for every tool adapter.
+4. Integration tests for `validate/apply/check/doctor` exit behavior.
+5. Secret fail-hard and redaction tests.
+6. Cleanup/revert safety tests.
+7. Thorough review signoff recorded in each phase output.
+8. Policy applies to P1-P4; P0 is grandfathered.
 
 ## Complexity and Risk Assessment
 
 - Complexity: medium-high due heterogenous tool formats.
 - Highest integration risk: exact JetBrains parity beyond project rules + MCP.
+- Secondary risk: Cursor/Windsurf MCP schema drift and capability mismatch.
 - Secondary risk: secret-resolution coupling to local auth state.
-- Mitigation: strict adapter boundaries, sidecar metadata, deterministic fixtures, explicit fatal error paths.
+- Mitigation: strict adapter boundaries, capability maps, sidecar metadata, deterministic fixtures, explicit fatal error paths, strict-mode diagnostics.
 
 ## Dependencies
 
@@ -200,6 +233,12 @@ bun tooling/beep-sync/bin/beep-sync validate
 bun tooling/beep-sync/bin/beep-sync apply
 bun tooling/beep-sync/bin/beep-sync check
 bun tooling/beep-sync/bin/beep-sync doctor
+
+# planned quality command contract (to be wired in implementation)
+bun run beep-sync:test:unit
+bun run beep-sync:test:fixtures
+bun run beep-sync:test:integration
+bun run beep-sync:test:coverage
 ```
 
 ## Key Files
@@ -210,6 +249,8 @@ bun tooling/beep-sync/bin/beep-sync doctor
 - `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
 - `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
 - `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
+- `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
+- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 - `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
 - `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 

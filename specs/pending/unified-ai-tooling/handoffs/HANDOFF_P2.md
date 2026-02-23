@@ -7,6 +7,8 @@ Read first:
 - `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md` (required prerequisite)
 - `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
 - `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
+- `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
+- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 
 ## Working Memory
 
@@ -26,6 +28,9 @@ Define per-tool adapter contracts mapping normalized canonical data to native ta
 3. Dual instruction generation (`AGENTS.md`, `CLAUDE.md`) is deterministic.
 4. JetBrains rules + MCP + prompt-library parity is explicit; indexing artifacts are clearly scoped.
 5. Skills mapping is covered across all supported tools (or explicit unsupported warnings).
+6. MCP capability matrix is explicit for each adapter (supported, transformed, dropped-with-warning, error).
+7. Managed marker strategy is explicit per output class (header vs sidecar metadata).
+8. P2 output includes `Quality Gate Evidence` with required subsection schema and signoff rows.
 
 ### Blocking Issues
 
@@ -44,15 +49,24 @@ Define per-tool adapter contracts mapping normalized canonical data to native ta
 2. Define field mapping and fallback semantics.
 3. Define serialization/format stability per target.
 4. Define adapter fixture matrix and drift assertions.
-5. Define warning/error classes for non-portable fields.
+5. Define capability maps and transform/drop rules for MCP + overrides.
+6. Define warning/error classes for non-portable fields and strict-mode promotion behavior.
+7. Define adapter test matrix (unit + golden fixtures + negative lossy-path tests).
 
 ## Verification Steps
 
 ```bash
 cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .
+
+rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
+
+rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
+
+rg -n "Design/Architecture|Security/Secrets" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md
 ```
 
 ## Known Issues and Gotchas
 
 - Cursor docs are partly dynamic; rely on explicit adapter fixtures for schema certainty.
 - Avoid merge-in-place semantics for managed files.
+- Keep warning classes deterministic; no silent field drops.
