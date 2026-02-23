@@ -190,7 +190,7 @@
     "clsx": "^2.1.1",
     "copyfiles": "^2.4.1",
     "doctrine": "^3.0.0",
-    "eslint": "^10.0.1",
+    "eslint": "^10.0.2",
     "eslint-config-next": "16.2.0-canary.58",
     "eslint-plugin-jsdoc": "^62.7.0",
     "glob": "^13.0.6",
@@ -222,11 +222,11 @@
     "yaml": "^2.8.2",
     "publint": "^0.3.17",
     "@arethetypeswrong/cli": "^0.18.2",
-    "@storybook/addon-a11y": "^10.2.10",
-    "@storybook/addon-docs": "^10.2.10",
-    "@storybook/addon-themes": "^10.2.10",
-    "@storybook/react-vite": "^10.2.10",
-    "storybook": "^10.2.10",
-    "@storybook/addon-vitest": "^10.2.10"
+    "@storybook/addon-a11y": "^10.2.11",
+    "@storybook/addon-docs": "^10.2.11",
+    "@storybook/addon-themes": "^10.2.11",
+    "@storybook/react-vite": "^10.2.11",
+    "storybook": "^10.2.11",
+    "@storybook/addon-vitest": "^10.2.11"
   }
 }
