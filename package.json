@@ -122,6 +122,10 @@
     "vite-tsconfig-paths": "catalog:"
   },
   "catalog": {
+    "@neondatabase/serverless": "^1.0.2",
+    "better-auth": "^1.4.19",
+    "drizzle-kit": "^0.31.9",
+    "drizzle-orm": "^0.45.1",
     "i18next": "^25.8.13",
     "@babel/cli": "^7.28.6",
     "@babel/core": "^7.29.0",
@@ -197,6 +201,7 @@
     "next": "16.2.0-canary.58",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.9.2",
     "shadcn": "^3.8.5",
     "syncpack": "14.0.0-alpha.41",
     "tailwind-merge": "^3.5.0",
