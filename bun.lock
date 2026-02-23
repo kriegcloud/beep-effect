@@ -236,10 +236,14 @@
         "beep-sync": "./src/bin.ts",
       },
       "dependencies": {
+        "@beep/repo-utils": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "@effect/platform-node": "catalog:",
         "effect": "catalog:",
         "yaml": "catalog:",
       },
       "devDependencies": {
+        "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
     },
