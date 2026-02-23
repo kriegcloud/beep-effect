@@ -44,6 +44,57 @@ jobs:
               labels: [label]
             });
 
+  beep-sync-gates:
+    name: Beep-sync Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: beep-sync validate
+        run: bun tooling/beep-sync/bin/beep-sync validate
+
+      - name: beep-sync apply --dry-run
+        run: bun tooling/beep-sync/bin/beep-sync apply --dry-run
+
+      - name: beep-sync check
+        run: bun tooling/beep-sync/bin/beep-sync check
+
+      - name: beep-sync doctor
+        run: bun tooling/beep-sync/bin/beep-sync doctor
+
+      - name: beep-sync unit tests
+        run: bun run beep-sync:test:unit
+
+      - name: beep-sync fixture tests
+        run: bun run beep-sync:test:fixtures
+
+      - name: beep-sync integration tests
+        run: bun run beep-sync:test:integration
+
+      - name: beep-sync coverage
+        run: bun run beep-sync:test:coverage
 
   quality:
     name: Quality

@@ -1,15 +1,15 @@
-import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   copyFileSync,
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   rmdirSync,
   rmSync,
   statSync,
-  writeFileSync
+  writeFileSync,
 } from "node:fs";
 import { dirname, extname, resolve } from "node:path";
 import YAML from "yaml";
@@ -229,7 +229,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
       code: "E_ROOT_TYPE",
       message: "Root value must be an object mapping.",
       path: "$",
-      severity: "error"
+      severity: "error",
     });
     return diagnostics;
   }
@@ -239,7 +239,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
       code: "E_VERSION_TYPE",
       message: "`version` must be an integer number.",
       path: "version",
-      severity: "error"
+      severity: "error",
     });
   }
 
@@ -250,7 +250,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
         code: "E_INSTRUCTIONS_TYPE",
         message: "`instructions` must be an object.",
         path: "instructions",
-        severity: "error"
+        severity: "error",
       });
     } else if (instructions.base !== undefined) {
       if (!Array.isArray(instructions.base) || instructions.base.some((item) => typeof item !== "string")) {
@@ -258,7 +258,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
           code: "E_INSTRUCTIONS_BASE_TYPE",
           message: "`instructions.base` must be an array of strings.",
           path: "instructions.base",
-          severity: "error"
+          severity: "error",
         });
       }
     }
@@ -271,7 +271,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
         code: "E_COMMANDS_TYPE",
         message: "`commands` must be an array.",
         path: "commands",
-        severity: "error"
+        severity: "error",
       });
     } else {
       for (let i = 0; i < commands.length; i++) {
@@ -281,7 +281,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_COMMAND_ENTRY_TYPE",
             message: "Each command must be an object.",
             path: `commands[${i}]`,
-            severity: "error"
+            severity: "error",
           });
           continue;
         }
@@ -291,7 +291,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_COMMAND_ID_TYPE",
             message: "`commands[*].id` must be a non-empty string.",
             path: `commands[${i}].id`,
-            severity: "error"
+            severity: "error",
           });
         }
 
@@ -300,7 +300,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_COMMAND_RUN_TYPE",
             message: "`commands[*].run` must be a non-empty string.",
             path: `commands[${i}].run`,
-            severity: "error"
+            severity: "error",
           });
         }
 
@@ -309,7 +309,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_COMMAND_CWD_TYPE",
             message: "`commands[*].cwd` must be a string when provided.",
             path: `commands[${i}].cwd`,
-            severity: "error"
+            severity: "error",
           });
         }
       }
@@ -323,7 +323,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
         code: "E_MCP_SERVERS_TYPE",
         message: "`mcp_servers` must be an object map.",
         path: "mcp_servers",
-        severity: "error"
+        severity: "error",
       });
     } else {
       for (const [name, rawServer] of Object.entries(mcpServers)) {
@@ -333,7 +333,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_MCP_SERVER_ENTRY_TYPE",
             message: "Each MCP server entry must be an object.",
             path: basePath,
-            severity: "error"
+            severity: "error",
           });
           continue;
         }
@@ -343,7 +343,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_MCP_TRANSPORT_TYPE",
             message: "`transport` must be a non-empty string.",
             path: `${basePath}.transport`,
-            severity: "error"
+            severity: "error",
           });
         }
 
@@ -352,7 +352,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_MCP_URL_TYPE",
             message: "`url` must be a string when provided.",
             path: `${basePath}.url`,
-            severity: "error"
+            severity: "error",
           });
         }
 
@@ -361,7 +361,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
             code: "E_MCP_COMMAND_TYPE",
             message: "`command` must be a string when provided.",
             path: `${basePath}.command`,
-            severity: "error"
+            severity: "error",
           });
         }
 
@@ -372,7 +372,7 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
               code: "E_MCP_ARGS_TYPE",
               message: "`args` must be an array of strings when provided.",
               path: `${basePath}.args`,
-              severity: "error"
+              severity: "error",
             });
           }
         }
@@ -415,7 +415,7 @@ export function normalizeCanonicalConfig(input: unknown): CanonicalConfig {
     if (typeof rawServer.transport !== "string" || rawServer.transport.length === 0) continue;
 
     const normalizedServer: CanonicalMcpServer = {
-      transport: rawServer.transport
+      transport: rawServer.transport,
     };
 
     if (typeof rawServer.url === "string") {
@@ -437,10 +437,10 @@ export function normalizeCanonicalConfig(input: unknown): CanonicalConfig {
   return {
     version: typeof config.version === "number" && Number.isInteger(config.version) ? config.version : 1,
     instructions: {
-      base: toSortedUniqueStrings(rawInstructions.base)
+      base: toSortedUniqueStrings(rawInstructions.base),
     },
     commands,
-    mcp_servers: mcpServers
+    mcp_servers: mcpServers,
   };
 }
 
@@ -450,7 +450,7 @@ export function normalizeCanonicalEnvelope(input: unknown): NormalizedEnvelope {
   return {
     version: 1,
     hash,
-    config
+    config,
   };
 }
 
@@ -494,7 +494,7 @@ export function validateCanonicalFile(filePath: string): { diagnostics: Diagnost
     const data = readYamlFile(filePath);
     return {
       diagnostics: validateCanonicalConfig(data),
-      data
+      data,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -504,10 +504,10 @@ export function validateCanonicalFile(filePath: string): { diagnostics: Diagnost
           code: "E_YAML_PARSE",
           message,
           path: "$",
-          severity: "error"
-        }
+          severity: "error",
+        },
       ],
-      data: null
+      data: null,
     };
   }
 }
@@ -517,15 +517,13 @@ export function formatDiagnostics(diagnostics: Diagnostic[]): string {
     return "no diagnostics";
   }
 
-  return diagnostics
-    .map((diag) => `[${diag.severity}] ${diag.code} ${diag.path} - ${diag.message}`)
-    .join("\n");
+  return diagnostics.map((diag) => `[${diag.severity}] ${diag.code} ${diag.path} - ${diag.message}`).join("\n");
 }
 
 const MCP_CAPABILITY_MAP: Record<McpTool, string[]> = {
   codex: ["transport", "command", "args", "url", "env", "env_headers"],
   cursor: ["transport", "url", "env_headers", "env"],
-  windsurf: ["transport", "url", "env"]
+  windsurf: ["transport", "url", "env"],
 };
 
 function normalizeMcpFixture(input: unknown): McpFixture {
@@ -632,7 +630,7 @@ function buildCursorJson(servers: Record<string, McpServer>): string {
   }
 
   return stableJson({
-    mcpServers: mapped
+    mcpServers: mapped,
   });
 }
 
@@ -652,7 +650,7 @@ function buildWindsurfJson(servers: Record<string, McpServer>): string {
   }
 
   return stableJson({
-    servers: mapped
+    servers: mapped,
   });
 }
 
@@ -701,14 +699,14 @@ export function generateMcpForTool(tool: McpTool, input: unknown): McpGeneration
   return {
     output,
     warnings,
-    capabilityMap: MCP_CAPABILITY_MAP
+    capabilityMap: MCP_CAPABILITY_MAP,
   };
 }
 
 function normalizeJetbrainsPromptLibrary(input: unknown): JetbrainsPromptLibraryFixture {
   const fallback: JetbrainsPromptLibraryFixture = {
     mode: "bundle_only",
-    prompts: []
+    prompts: [],
   };
 
   if (!isRecord(input)) {
@@ -735,14 +733,14 @@ function normalizeJetbrainsPromptLibrary(input: unknown): JetbrainsPromptLibrary
     prompts.push({
       id: entry.id,
       title: entry.title,
-      prompt_file: entry.prompt_file
+      prompt_file: entry.prompt_file,
     });
   }
 
   prompts.sort((a, b) => a.id.localeCompare(b.id));
   return {
     mode,
-    prompts
+    prompts,
   };
 }
 
@@ -761,7 +759,6 @@ function renderJetbrainsPromptsMarkdown(mode: JetbrainsPromptMode, prompts: Jetb
 
   lines.push("");
   lines.push(`_mode: ${mode}_`);
-  lines.push("");
   return `${lines.join("\n")}\n`;
 }
 
@@ -779,14 +776,10 @@ function renderJetbrainsImportInstructions(mode: JetbrainsPromptMode): string {
 
   lines.push("");
   lines.push("Do not hand-edit generated artifacts.");
-  lines.push("");
   return `${lines.join("\n")}\n`;
 }
 
-export function generateJetbrainsPromptLibrary(
-  input: unknown,
-  modeOverride?: string
-): JetbrainsPromptLibraryEnvelope {
+export function generateJetbrainsPromptLibrary(input: unknown, modeOverride?: string): JetbrainsPromptLibraryEnvelope {
   const normalized = normalizeJetbrainsPromptLibrary(input);
   const warnings: string[] = [];
 
@@ -795,34 +788,32 @@ export function generateJetbrainsPromptLibrary(
     if (modeOverride === "bundle_only" || modeOverride === "native_file") {
       mode = modeOverride;
     } else {
-      warnings.push(
-        `W_UNSUPPORTED_MODE Requested mode "${modeOverride}" is unsupported; falling back to "${mode}".`
-      );
+      warnings.push(`W_UNSUPPORTED_MODE Requested mode "${modeOverride}" is unsupported; falling back to "${mode}".`);
     }
   }
 
   const promptsPayload = {
     version: 1,
     mode,
-    prompts: normalized.prompts
+    prompts: normalized.prompts,
   };
 
   const artifacts: JetbrainsArtifact[] = [
     {
       path: ".aiassistant/prompt-library/prompts.md",
       content: renderJetbrainsPromptsMarkdown(mode, normalized.prompts),
-      sha256: ""
+      sha256: "",
     },
     {
       path: ".aiassistant/prompt-library/prompts.json",
       content: stableJson(promptsPayload),
-      sha256: ""
+      sha256: "",
     },
     {
       path: ".aiassistant/prompt-library/IMPORT_INSTRUCTIONS.md",
       content: renderJetbrainsImportInstructions(mode),
-      sha256: ""
-    }
+      sha256: "",
+    },
   ];
 
   for (const artifact of artifacts) {
@@ -833,7 +824,7 @@ export function generateJetbrainsPromptLibrary(
     stableJson(
       artifacts.map((artifact) => ({
         path: artifact.path,
-        sha256: artifact.sha256
+        sha256: artifact.sha256,
       }))
     )
   );
@@ -847,8 +838,8 @@ export function generateJetbrainsPromptLibrary(
     nativeProbe: {
       enabled: mode === "native_file",
       path: mode === "native_file" ? ".aiassistant/prompt-library/prompts.json" : null,
-      roundTripDeterministic: true
-    }
+      roundTripDeterministic: true,
+    },
   };
 }
 
@@ -889,7 +880,7 @@ function parsePoc04Fixture(fixturePath: string): Poc04Plan {
     backupFile,
     stateFile,
     managedTargets,
-    generatedContent
+    generatedContent,
   };
 }
 
@@ -932,7 +923,7 @@ function readPoc04State(pathValue: string): Poc04State | null {
       managedHash: parsed.managedHash,
       unmanagedFile: parsed.unmanagedFile,
       unmanagedHashAtApply: parsed.unmanagedHashAtApply,
-      lastAction: "apply"
+      lastAction: "apply",
     };
   } catch {
     return null;
@@ -961,7 +952,7 @@ export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04Operat
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages
+      messages,
     };
   }
 
@@ -979,7 +970,7 @@ export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04Operat
     managedHash: sha256(plan.generatedContent),
     unmanagedFile: plan.unmanagedFile,
     unmanagedHashAtApply: hashTextOrNull(beforeUnmanaged),
-    lastAction: "apply"
+    lastAction: "apply",
   };
   writePoc04State(plan.stateFile, state);
   messages.push("managed content written");
@@ -993,7 +984,7 @@ export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04Operat
     managedFile: plan.managedFile,
     unmanagedFile: plan.unmanagedFile,
     stateFile: plan.stateFile,
-    messages
+    messages,
   };
 }
 
@@ -1010,7 +1001,7 @@ export function runPoc04Check(fixturePath: string): Poc04OperationResult {
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["state file missing or invalid"]
+      messages: ["state file missing or invalid"],
     };
   }
 
@@ -1024,7 +1015,7 @@ export function runPoc04Check(fixturePath: string): Poc04OperationResult {
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["managed file is missing"]
+      messages: ["managed file is missing"],
     };
   }
 
@@ -1038,7 +1029,7 @@ export function runPoc04Check(fixturePath: string): Poc04OperationResult {
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["managed file drift detected"]
+      messages: ["managed file drift detected"],
     };
   }
 
@@ -1053,7 +1044,7 @@ export function runPoc04Check(fixturePath: string): Poc04OperationResult {
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["unmanaged file hash changed since apply"]
+      messages: ["unmanaged file hash changed since apply"],
     };
   }
 
@@ -1066,7 +1057,7 @@ export function runPoc04Check(fixturePath: string): Poc04OperationResult {
     managedFile: plan.managedFile,
     unmanagedFile: plan.unmanagedFile,
     stateFile: plan.stateFile,
-    messages
+    messages,
   };
 }
 
@@ -1093,7 +1084,7 @@ export function runPoc04Revert(fixturePath: string): Poc04OperationResult {
       managedFile: plan.managedFile,
       unmanagedFile: plan.unmanagedFile,
       stateFile: plan.stateFile,
-      messages: ["no managed state present; revert is idempotent no-op"]
+      messages: ["no managed state present; revert is idempotent no-op"],
     };
   }
 
@@ -1128,7 +1119,7 @@ export function runPoc04Revert(fixturePath: string): Poc04OperationResult {
     managedFile: plan.managedFile,
     unmanagedFile: plan.unmanagedFile,
     stateFile: plan.stateFile,
-    messages
+    messages,
   };
 }
 
@@ -1136,7 +1127,7 @@ function parseSecretFixture(input: unknown): SecretFixture {
   const fallback: SecretFixture = {
     required: [],
     optional: [],
-    optionalPolicy: "warn"
+    optionalPolicy: "warn",
   };
   if (!isRecord(input) || !isRecord(input.secrets)) return fallback;
 
@@ -1159,7 +1150,7 @@ function parseSecretFixture(input: unknown): SecretFixture {
   return {
     required: parseRefs(secrets.required),
     optional: parseRefs(secrets.optional),
-    optionalPolicy
+    optionalPolicy,
   };
 }
 
@@ -1173,7 +1164,7 @@ function resolveSecretRef(ref: string, mode: SecretResolverMode): { ok: boolean;
 
   const read = spawnSync("op", ["read", ref], {
     encoding: "utf8",
-    timeout: 8_000
+    timeout: 8_000,
   });
 
   if (read.status === 0) {
@@ -1210,7 +1201,7 @@ function ensureDesktopAuthIfNeeded(mode: SecretResolverMode): string | null {
   if (mode !== "desktop") return null;
   const whoami = spawnSync("op", ["whoami"], {
     encoding: "utf8",
-    timeout: 5_000
+    timeout: 5_000,
   });
   if (whoami.status === 0) return null;
   return "E_SECRET_AUTH desktop auth unavailable (`op whoami` failed).";
@@ -1268,15 +1259,15 @@ export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolu
     optionalPolicy: fixture.optionalPolicy,
     required: {
       resolved: requiredResolved.sort((a, b) => a.localeCompare(b)),
-      missing: requiredMissing.sort((a, b) => a.localeCompare(b))
+      missing: requiredMissing.sort((a, b) => a.localeCompare(b)),
     },
     optional: {
       resolved: optionalResolved.sort((a, b) => a.localeCompare(b)),
-      missing: optionalMissing.sort((a, b) => a.localeCompare(b))
+      missing: optionalMissing.sort((a, b) => a.localeCompare(b)),
     },
     diagnostics: uniqueDiagnostics,
     redaction: {
-      valuesExposed: false
-    }
+      valuesExposed: false,
+    },
   };
 }

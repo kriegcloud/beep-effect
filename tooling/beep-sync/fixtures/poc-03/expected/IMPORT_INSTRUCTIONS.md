@@ -5,4 +5,3 @@
 3. Keep `prompts.json` as deterministic machine-readable sidecar.
 
 Do not hand-edit generated artifacts.
-

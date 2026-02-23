@@ -7,13 +7,13 @@ import {
   formatDiagnostics,
   generateJetbrainsPromptLibrary,
   generateMcpForTool,
-  readYamlDocument,
   normalizeCanonicalEnvelope,
+  readYamlDocument,
   resolveSecretsFromFixturePath,
   runPoc04Apply,
   runPoc04Check,
   runPoc04Revert,
-  validateCanonicalFile
+  validateCanonicalFile,
 } from "./index.js";
 
 type ParsedArgs = {
@@ -22,15 +22,7 @@ type ParsedArgs = {
   options: Record<string, string | boolean>;
 };
 
-const KNOWN_COMMANDS = new Set([
-  "validate",
-  "apply",
-  "check",
-  "doctor",
-  "generate",
-  "normalize",
-  "revert"
-]);
+const KNOWN_COMMANDS = new Set(["validate", "apply", "check", "doctor", "generate", "normalize", "revert"]);
 
 function parseArgv(argv: string[]): ParsedArgs {
   const [command = "", ...rest] = argv;
@@ -123,9 +115,7 @@ function handlePoc01Validation(paths: string[], expectFail: boolean): never {
   }
 
   if (expectFail) {
-    console.log(
-      `[beep-sync poc-01] expected failure satisfied (${failing.length} file(s) reported diagnostics).`
-    );
+    console.log(`[beep-sync poc-01] expected failure satisfied (${failing.length} file(s) reported diagnostics).`);
     process.exit(0);
   }
 
@@ -296,11 +286,13 @@ function run(): void {
     fixture: fixture ? resolve(fixture) : null,
     fixtures: fixtures ? resolve(fixtures) : null,
     input: input ? resolve(input) : null,
-    note: "Replace scaffold behavior with implementation in P1-P3"
+    note: "Replace scaffold behavior with implementation in P1-P3",
   };
 
   if (parsed.options["expect-fail"]) {
-    console.log("[beep-sync scaffold] --expect-fail acknowledged (simulated). Real failure semantics pending implementation.");
+    console.log(
+      "[beep-sync scaffold] --expect-fail acknowledged (simulated). Real failure semantics pending implementation."
+    );
   }
 
   console.log(`[beep-sync scaffold] ${command} completed.`);

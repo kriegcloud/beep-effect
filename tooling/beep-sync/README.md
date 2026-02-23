@@ -22,6 +22,7 @@ This package scaffolds the runtime layout, CLI entrypoints, and POC fixture tree
 ## Scaffold behavior
 
 The CLI currently:
+
 - validates referenced fixture/input paths exist
 - prints deterministic scaffold output
 - supports command shapes used by POC command templates

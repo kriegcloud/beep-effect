@@ -4,7 +4,9 @@ set -euo pipefail
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." >/dev/null 2>&1 && pwd)"
 
 bun run "$ROOT_DIR/src/bin.ts" normalize --input "$ROOT_DIR/fixtures/poc-01/valid/config.yaml" >/tmp/beep-sync-poc-normalize.json
-diff -u "$ROOT_DIR/fixtures/poc-01/expected/normalized.json" /tmp/beep-sync-poc-normalize.json
+/usr/bin/jq -S . "$ROOT_DIR/fixtures/poc-01/expected/normalized.json" >/tmp/beep-sync-poc01-expected-normalized.canonical.json
+/usr/bin/jq -S . /tmp/beep-sync-poc-normalize.json >/tmp/beep-sync-poc01-actual-normalized.canonical.json
+diff -u /tmp/beep-sync-poc01-expected-normalized.canonical.json /tmp/beep-sync-poc01-actual-normalized.canonical.json
 bun run "$ROOT_DIR/src/bin.ts" generate --tool codex --fixture "$ROOT_DIR/fixtures/poc-02/mcp-codex.yaml" >/tmp/beep-sync-poc02-codex.toml
 diff -u "$ROOT_DIR/fixtures/poc-02/expected/codex-config.toml" /tmp/beep-sync-poc02-codex.toml
 bun run "$ROOT_DIR/src/bin.ts" generate --tool cursor --fixture "$ROOT_DIR/fixtures/poc-02/mcp-cursor.yaml" >/tmp/beep-sync-poc02-cursor.json
