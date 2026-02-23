@@ -58,3 +58,7 @@ storybook-static/
 .mcp.json
 .codex/
 .code-index/
+
+# SST
+.sst/
+sst-env.d.ts
