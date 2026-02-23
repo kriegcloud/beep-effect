@@ -15,16 +15,16 @@ This document defines Phase P2 adapter contracts that map `NormalizedModelV1` in
 
 Locked inputs used:
 
-1. `specs/pending/unified-ai-tooling/README.md`
-2. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P2.md`
-3. `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`
-4. `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
-5. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
-6. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
-7. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-8. `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
-9. `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
-10. `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+1. `specs/completed/unified-ai-tooling/README.md`
+2. `specs/completed/unified-ai-tooling/handoffs/HANDOFF_P2.md`
+3. `specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md`
+4. `specs/completed/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
+5. `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
+6. `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
+7. `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+8. `specs/completed/unified-ai-tooling/outputs/residual-risk-closure.md`
+9. `specs/completed/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+10. `specs/completed/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
 
 Baseline lock rules:
 
@@ -335,14 +335,14 @@ P2 is complete when all are true:
 
 ### Test Suites Executed
 
-1. `cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .` (pass)
-2. `rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
-3. `rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
-4. `rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
-5. `rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
-6. `! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
-7. `rg -n "POC-02|POC-03|bundle_only|native_file" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
-8. `rg -n "Claude|Codex|Cursor|Windsurf|JetBrains" specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
+1. `cat specs/completed/unified-ai-tooling/outputs/manifest.json | jq .` (pass)
+2. `rg -n "^## Quality Gate Evidence" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
+3. `rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
+4. `rg -n "^\\| Design/Architecture \\|" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
+5. `rg -n "^\\| Security/Secrets \\|" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
+6. `! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
+7. `rg -n "POC-02|POC-03|bundle_only|native_file" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
+8. `rg -n "Claude|Codex|Cursor|Windsurf|JetBrains" specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md` (pass)
 
 ### Fixture Sets Used
 

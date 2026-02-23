@@ -2,7 +2,7 @@
 
 ## Context
 
-Execute P4 for `specs/pending/unified-ai-tooling`.
+Execute P4 for `specs/completed/unified-ai-tooling`.
 
 Read in order:
 1. `README.md`

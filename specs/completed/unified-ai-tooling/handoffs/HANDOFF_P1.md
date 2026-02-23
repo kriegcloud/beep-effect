@@ -3,20 +3,20 @@
 ## Context Budget
 
 Read first:
-- `specs/pending/unified-ai-tooling/README.md`
-- `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
-- `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
-- `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
-- `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
-- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
-- `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
+- `specs/completed/unified-ai-tooling/README.md`
+- `specs/completed/unified-ai-tooling/outputs/preliminary-research.md`
+- `specs/completed/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
+- `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
+- `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
+- `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/completed/unified-ai-tooling/outputs/poc-execution-pack.md`
+- `specs/completed/unified-ai-tooling/outputs/poc-command-templates.md`
+- `specs/completed/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
+- `specs/completed/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+- `specs/completed/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+- `specs/completed/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+- `specs/completed/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+- `specs/completed/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
 
 Budget guidance:
 - Do not design adapter implementation details yet.
@@ -30,8 +30,8 @@ Define canonical `.beep/config.yaml` schema and deterministic compiler contract 
 
 ### Deliverables
 
-- `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`
-- Updated `specs/pending/unified-ai-tooling/outputs/manifest.json` (P1 status)
+- `specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md`
+- Updated `specs/completed/unified-ai-tooling/outputs/manifest.json` (P1 status)
 
 ### Success Criteria
 
@@ -77,23 +77,23 @@ Define canonical `.beep/config.yaml` schema and deterministic compiler contract 
 
 ```bash
 # Validate manifest remains valid JSON
-cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .
+cat specs/completed/unified-ai-tooling/outputs/manifest.json | jq .
 
 # P1 output must carry quality-gate evidence section
-rg -n "^## Quality Gate Evidence" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+rg -n "^## Quality Gate Evidence" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md
 
 # P1 output must carry all required quality-gate subsections
-rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+rg -n "^### (Test Suites Executed|Fixture Sets Used|TDD Evidence|Pass/Fail Summary|Unresolved Risks|Review Signoff)$" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md
 
 # P1 output must include required review signoff rows as table entries
-rg -n "^\\| Design/Architecture \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
-rg -n "^\\| Security/Secrets \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+rg -n "^\\| Design/Architecture \\|" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md
+rg -n "^\\| Security/Secrets \\|" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md
 
 # P1 output must not contain rejected required signoffs
-! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md
+! rg -n "\\|[^|]*\\|[^|]*\\|[^|]*\\| rejected \\|" specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md
 
 # All POC evidence files should remain in passed state unless explicitly re-run with new evidence
-rg -n "^Status: passed$" specs/pending/unified-ai-tooling/outputs/poc-0*-*-results.md
+rg -n "^Status: passed$" specs/completed/unified-ai-tooling/outputs/poc-0*-*-results.md
 ```
 
 ## Known Issues and Gotchas

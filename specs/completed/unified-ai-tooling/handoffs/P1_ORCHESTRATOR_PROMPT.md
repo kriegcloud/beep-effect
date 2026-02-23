@@ -2,17 +2,17 @@
 
 ## Context
 
-You are executing P1 of `specs/pending/unified-ai-tooling`.
+You are executing P1 of `specs/completed/unified-ai-tooling`.
 
 Read:
-1. `specs/pending/unified-ai-tooling/README.md`
-2. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
-3. `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
-4. `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
-5. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
-6. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
-7. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-8. `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
+1. `specs/completed/unified-ai-tooling/README.md`
+2. `specs/completed/unified-ai-tooling/handoffs/HANDOFF_P1.md`
+3. `specs/completed/unified-ai-tooling/outputs/preliminary-research.md`
+4. `specs/completed/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
+5. `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
+6. `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
+7. `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+8. `specs/completed/unified-ai-tooling/outputs/poc-execution-pack.md`
 
 ## Your Mission
 
@@ -25,8 +25,8 @@ Read:
 7. Define adapter capability descriptor contract to unblock P2.
 8. Add `## Quality Gate Evidence` section using the required subsection schema and signoff table.
 9. Treat POC-01..POC-06 result artifacts as locked baseline inputs; only update them if a POC is intentionally re-run with new evidence.
-10. Write output to `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`.
-11. Update `specs/pending/unified-ai-tooling/outputs/manifest.json` P1 status.
+10. Write output to `specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md`.
+11. Update `specs/completed/unified-ai-tooling/outputs/manifest.json` P1 status.
 
 ## Critical Constraints
 

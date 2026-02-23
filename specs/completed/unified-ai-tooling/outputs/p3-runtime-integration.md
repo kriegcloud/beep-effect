@@ -9,17 +9,17 @@ This document defines P3 runtime behavior for `tooling/beep-sync` and closes the
 
 Locked inputs:
 
-1. `specs/pending/unified-ai-tooling/README.md`
-2. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P3.md`
-3. `specs/pending/unified-ai-tooling/outputs/p1-schema-and-contract.md`
-4. `specs/pending/unified-ai-tooling/outputs/p2-adapter-design.md`
-5. `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
-6. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
-7. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
-8. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-9. `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
-10. `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
-11. `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+1. `specs/completed/unified-ai-tooling/README.md`
+2. `specs/completed/unified-ai-tooling/handoffs/HANDOFF_P3.md`
+3. `specs/completed/unified-ai-tooling/outputs/p1-schema-and-contract.md`
+4. `specs/completed/unified-ai-tooling/outputs/p2-adapter-design.md`
+5. `specs/completed/unified-ai-tooling/outputs/preliminary-research.md`
+6. `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
+7. `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
+8. `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+9. `specs/completed/unified-ai-tooling/outputs/residual-risk-closure.md`
+10. `specs/completed/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+11. `specs/completed/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
 
 Locked invariants carried into runtime:
 
@@ -377,7 +377,7 @@ P3 is complete when all are true:
 
 ### Test Suites Executed
 
-1. `cat specs/pending/unified-ai-tooling/outputs/manifest.json | jq .` (pass)
+1. `cat specs/completed/unified-ai-tooling/outputs/manifest.json | jq .` (pass)
 2. `bun run --cwd tooling/beep-sync check` (pass)
 3. `bun run beep-sync:test:unit` (pass)
 4. `bun run beep-sync:test:fixtures` (pass)

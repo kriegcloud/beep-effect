@@ -12,26 +12,26 @@ Next phase is **P1: Schema + Compiler Contract**.
 
 ## First Files to Read
 
-1. `specs/pending/unified-ai-tooling/README.md`
-2. `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
-3. `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
-4. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
-5. `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
-6. `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-7. `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
-8. `specs/pending/unified-ai-tooling/outputs/poc-execution-pack.md`
-9. `specs/pending/unified-ai-tooling/outputs/poc-command-templates.md`
-10. `specs/pending/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
-11. `specs/pending/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
-12. `specs/pending/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
-13. `specs/pending/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
-14. `specs/pending/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
-15. `specs/pending/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
-16. `specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
-17. `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
-18. `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
-19. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
-20. `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+1. `specs/completed/unified-ai-tooling/README.md`
+2. `specs/completed/unified-ai-tooling/outputs/preliminary-research.md`
+3. `specs/completed/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
+4. `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
+5. `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
+6. `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+7. `specs/completed/unified-ai-tooling/outputs/residual-risk-closure.md`
+8. `specs/completed/unified-ai-tooling/outputs/poc-execution-pack.md`
+9. `specs/completed/unified-ai-tooling/outputs/poc-command-templates.md`
+10. `specs/completed/unified-ai-tooling/outputs/poc-01-canonical-compiler-results.md`
+11. `specs/completed/unified-ai-tooling/outputs/poc-02-mcp-capability-results.md`
+12. `specs/completed/unified-ai-tooling/outputs/poc-03-jetbrains-prompt-library-results.md`
+13. `specs/completed/unified-ai-tooling/outputs/poc-04-managed-ownership-revert-results.md`
+14. `specs/completed/unified-ai-tooling/outputs/poc-05-secret-resolution-results.md`
+15. `specs/completed/unified-ai-tooling/outputs/poc-06-end-to-end-dry-run-results.md`
+16. `specs/completed/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
+17. `specs/completed/unified-ai-tooling/outputs/onepassword-env-template.env`
+18. `specs/completed/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
+19. `specs/completed/unified-ai-tooling/handoffs/HANDOFF_P1.md`
+20. `specs/completed/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 
 ## POC Gate Snapshot (2026-02-23)
 

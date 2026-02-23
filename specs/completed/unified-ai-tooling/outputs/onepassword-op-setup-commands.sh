@@ -5,7 +5,7 @@ set -euo pipefail
 # 1Password bootstrap for beep-effect3
 #
 # Usage:
-#   bash specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh
+#   bash specs/completed/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh
 #
 # Optional flags via env vars:
 #   IMPORT_FROM_EXISTING_ENV=1    # import current .env values into 1Password items
@@ -224,7 +224,7 @@ if [[ "$INSTALL_ENV_TEMPLATE" == "1" ]]; then
     cp .env ".env.backup.$(date +%Y%m%d-%H%M%S)"
     echo "[ok] backup created"
   fi
-  cp specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env .env
+  cp specs/completed/unified-ai-tooling/outputs/onepassword-env-template.env .env
   echo "[ok] wrote .env from template"
 fi
 

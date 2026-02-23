@@ -201,7 +201,7 @@ managed targets (committed)
 ## Hard Quality Gates
 
 Gate source:
-- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
 
 Mandatory gates:
 1. TDD-first evidence for runtime code changes.
@@ -247,17 +247,17 @@ bun run beep-sync:test:coverage
 
 ## Key Files
 
-- `specs/pending/unified-ai-tooling/README.md`
-- `specs/pending/unified-ai-tooling/QUICK_START.md`
-- `specs/pending/unified-ai-tooling/REFLECTION_LOG.md`
-- `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
-- `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
-- `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
-- `specs/pending/unified-ai-tooling/outputs/subtree-synthesis.md`
-- `specs/pending/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
-- `specs/pending/unified-ai-tooling/outputs/residual-risk-closure.md`
-- `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
-- `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+- `specs/completed/unified-ai-tooling/README.md`
+- `specs/completed/unified-ai-tooling/QUICK_START.md`
+- `specs/completed/unified-ai-tooling/REFLECTION_LOG.md`
+- `specs/completed/unified-ai-tooling/outputs/preliminary-research.md`
+- `specs/completed/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
+- `specs/completed/unified-ai-tooling/outputs/comprehensive-review.md`
+- `specs/completed/unified-ai-tooling/outputs/subtree-synthesis.md`
+- `specs/completed/unified-ai-tooling/outputs/quality-gates-and-test-strategy.md`
+- `specs/completed/unified-ai-tooling/outputs/residual-risk-closure.md`
+- `specs/completed/unified-ai-tooling/handoffs/HANDOFF_P1.md`
+- `specs/completed/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 
 ## Related Specs
 

@@ -2,7 +2,7 @@
 
 ## Context
 
-Execute P2 for `specs/pending/unified-ai-tooling`.
+Execute P2 for `specs/completed/unified-ai-tooling`.
 
 Required read order:
 1. `README.md`

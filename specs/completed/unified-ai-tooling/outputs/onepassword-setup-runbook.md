@@ -30,7 +30,7 @@ Run this from repo root:
 ```bash
 cd /home/elpresidank/YeeBois/projects/beep-effect3
 op signin
-bash specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh
+bash specs/completed/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh
 ```
 
 If you want to import existing real values from your current `.env` first:
@@ -38,7 +38,7 @@ If you want to import existing real values from your current `.env` first:
 ```bash
 cd /home/elpresidank/YeeBois/projects/beep-effect3
 op signin
-IMPORT_FROM_EXISTING_ENV=1 bash specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh
+IMPORT_FROM_EXISTING_ENV=1 bash specs/completed/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh
 ```
 
 If you also want to create the service account during setup:
@@ -46,13 +46,13 @@ If you also want to create the service account during setup:
 ```bash
 cd /home/elpresidank/YeeBois/projects/beep-effect3
 op signin
-IMPORT_FROM_EXISTING_ENV=1 CREATE_SERVICE_ACCOUNT=1 bash specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh
+IMPORT_FROM_EXISTING_ENV=1 CREATE_SERVICE_ACCOUNT=1 bash specs/completed/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh
 ```
 
 ## What the Script Executes (Exact `op` Commands)
 
 Script path:
-- `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
+- `specs/completed/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
 
 It runs exact `op` command patterns:
 
@@ -79,7 +79,7 @@ op vault get beep-automation-admin || op vault create beep-automation-admin --ic
 
 5. Install canonical env template:
 ```bash
-cp specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env .env
+cp specs/completed/unified-ai-tooling/outputs/onepassword-env-template.env .env
 ```
 
 6. Optional service account creation:
@@ -135,13 +135,13 @@ op vault list
 ## Files This Runbook Uses
 
 1. Setup script:
-- `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
+- `specs/completed/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
 
 2. `.env` reference template (ASCII + `op://` mappings):
-- `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
+- `specs/completed/unified-ai-tooling/outputs/onepassword-env-template.env`
 
 3. Spec context:
-- `specs/pending/unified-ai-tooling/README.md`
+- `specs/completed/unified-ai-tooling/README.md`
 
 ## Troubleshooting (Copy/Paste)
 
