@@ -1,0 +1,135 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:  
+  schedule:
+    - cron: '0 2 * * *'  
+  push:
+    paths:
+      - 'testing/e2e/**'
+      - 'cmd/**'
+      - 'internal/**'
+      - 'taskfile.yaml'
+      - '.github/workflows/e2e.yaml'
+
+jobs:
+  comprehensive-e2e:
+    name: Comprehensive E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+
+      - name: Cache Go modules
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Cache Task binary
+        uses: actions/cache@v5
+        id: task-cache
+        with:
+          path: |
+            ~/.task
+            ~/bin/task
+          key: ${{ runner.os }}-task-3.x
+          restore-keys: |
+            ${{ runner.os }}-task-
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        if: steps.task-cache.outputs.cache-hit != 'true'
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build binary for tests
+        run: task build
+
+      - name: Run all e2e tests
+        run: task test:e2e
+
+      - name: Upload comprehensive test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: comprehensive-e2e-results
+          path: |
+            testing/e2e/*.log
+            testing/e2e/**/*.prof
+          retention-days: 7
+
+  cross-platform-test:
+    name: Cross-Platform E2E Tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        test-suite: [cli, mcp, integration]
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+
+      - name: Cache Go modules
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Cache Task binary
+        uses: actions/cache@v5
+        id: task-cache
+        with:
+          path: |
+            ~/.task
+            ~/bin/task
+          key: ${{ runner.os }}-task-3.x
+          restore-keys: |
+            ${{ runner.os }}-task-
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        if: steps.task-cache.outputs.cache-hit != 'true'
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build binary for tests
+        run: task build
+
+      - name: Run e2e tests - ${{ matrix.test-suite }}
+        run: task test:e2e:${{ matrix.test-suite }}
+
+      - name: Upload cross-platform test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: e2e-results-${{ matrix.os }}-${{ matrix.test-suite }}
+          path: testing/e2e/*.log
+          retention-days: 7
