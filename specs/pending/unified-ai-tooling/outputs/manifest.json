@@ -8,7 +8,10 @@
         "research": "specs/pending/unified-ai-tooling/outputs/preliminary-research.md",
         "compatibilityMatrix": "specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md",
         "canonicalPatternReview": "specs/pending/unified-ai-tooling/outputs/canonical-pattern-review.md",
-        "comprehensiveReview": "specs/pending/unified-ai-tooling/outputs/comprehensive-review.md"
+        "comprehensiveReview": "specs/pending/unified-ai-tooling/outputs/comprehensive-review.md",
+        "onePasswordSetupRunbook": "specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md",
+        "onePasswordEnvTemplate": "specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env",
+        "onePasswordSetupCommands": "specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh"
       }
     },
     "p1": {

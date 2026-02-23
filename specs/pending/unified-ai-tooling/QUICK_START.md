@@ -16,8 +16,11 @@ Next phase is **P1: Schema + Compiler Contract**.
 2. `specs/pending/unified-ai-tooling/outputs/preliminary-research.md`
 3. `specs/pending/unified-ai-tooling/outputs/tooling-compatibility-matrix.md`
 4. `specs/pending/unified-ai-tooling/outputs/comprehensive-review.md`
-5. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
-6. `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
+5. `specs/pending/unified-ai-tooling/outputs/onepassword-setup-runbook.md`
+6. `specs/pending/unified-ai-tooling/outputs/onepassword-env-template.env`
+7. `specs/pending/unified-ai-tooling/outputs/onepassword-op-setup-commands.sh`
+8. `specs/pending/unified-ai-tooling/handoffs/HANDOFF_P1.md`
+9. `specs/pending/unified-ai-tooling/handoffs/P1_ORCHESTRATOR_PROMPT.md`
 
 ## Phase Handoff Files
 

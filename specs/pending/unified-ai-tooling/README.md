@@ -20,6 +20,9 @@ ACTIVE
 - [Compatibility Matrix](./outputs/tooling-compatibility-matrix.md)
 - [Canonical Pattern Review](./outputs/canonical-pattern-review.md)
 - [Comprehensive Review](./outputs/comprehensive-review.md)
+- [1Password Setup Runbook](./outputs/onepassword-setup-runbook.md)
+- [1Password Env Template](./outputs/onepassword-env-template.env)
+- [1Password Setup Commands](./outputs/onepassword-op-setup-commands.sh)
 - [Handoffs Index](./handoffs/README.md)
 - [P1 Handoff](./handoffs/HANDOFF_P1.md)
 - [P1 Orchestrator Prompt](./handoffs/P1_ORCHESTRATOR_PROMPT.md)
@@ -98,6 +101,9 @@ Ship an implementation-ready spec that removes ambiguity before coding, includin
 | `outputs/tooling-compatibility-matrix.md` | Tool-by-tool targets and constraints |
 | `outputs/canonical-pattern-review.md` | Structure audit against completed-spec conventions |
 | `outputs/comprehensive-review.md` | Unknowns and pre-execution decision review |
+| `outputs/onepassword-setup-runbook.md` | Step-by-step 1Password setup for local and automation readiness |
+| `outputs/onepassword-env-template.env` | Ready-to-use `.env` template with `op://` references and ASCII layout |
+| `outputs/onepassword-op-setup-commands.sh` | Idempotent copy/paste CLI bootstrap using exact `op` commands |
 | `outputs/p1-schema-and-contract.md` | Canonical schema and compiler contract |
 | `outputs/p2-adapter-design.md` | Per-tool adapter mapping design |
 | `outputs/p3-runtime-integration.md` | CLI/runtime/secrets/operational contract |
