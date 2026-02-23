@@ -78,7 +78,7 @@ export const resolveNodeVersions: (
 
     const ymlFiles = A.filter(entries, (entry) => Str.endsWith(".yml")(entry) || Str.endsWith(".yaml")(entry));
 
-    const locations: Array<NodeVersionLocation> = [];
+    let locations = A.empty<NodeVersionLocation>();
 
     for (const ymlFile of ymlFiles) {
       const filePath = path.join(workflowDir, ymlFile);
@@ -94,7 +94,7 @@ export const resolveNodeVersions: (
 
       const found = findNodeVersionLocations(content, `.github/workflows/${ymlFile}`);
       for (const loc of found) {
-        locations.push(loc);
+        locations = A.append(locations, loc);
       }
     }
 
@@ -109,7 +109,7 @@ export const resolveNodeVersions: (
  * @category functions
  */
 const findNodeVersionLocations = (content: string, relativeFile: string): Array<NodeVersionLocation> => {
-  const locations: Array<NodeVersionLocation> = [];
+  let locations = A.empty<NodeVersionLocation>();
 
   const doc = parseDocument(content);
   const root = doc.toJSON();
@@ -134,7 +134,7 @@ const findNodeVersionLocations = (content: string, relativeFile: string): Array<
       continue;
     }
 
-    for (let stepIdx = 0; stepIdx < steps.length; stepIdx++) {
+    for (let stepIdx = 0; stepIdx < A.length(steps); stepIdx++) {
       const step = steps[stepIdx];
       if (typeof step !== "object" || step === null) {
         continue;
@@ -147,7 +147,7 @@ const findNodeVersionLocations = (content: string, relativeFile: string): Array<
           const nodeVersion = String(withBlock["node-version"]);
           // Skip if already using node-version-file
           if (!("node-version-file" in withBlock)) {
-            locations.push({
+            locations = A.append(locations, {
               file: relativeFile,
               jobName,
               stepIndex: stepIdx,
@@ -170,11 +170,11 @@ const findNodeVersionLocations = (content: string, relativeFile: string): Array<
  * @category functions
  */
 export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport = (state) => {
-  const items: Array<VersionDriftItem> = [];
+  let items = A.empty<VersionDriftItem>();
 
   for (const loc of state.workflowLocations) {
     if (loc.currentValue !== state.nvmrc) {
-      items.push({
+      items = A.append(items, {
         file: loc.file,
         field: `node-version (${loc.jobName}, step ${String(loc.stepIndex)})`,
         current: loc.currentValue,

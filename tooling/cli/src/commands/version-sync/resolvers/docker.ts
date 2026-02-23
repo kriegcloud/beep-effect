@@ -12,7 +12,9 @@ import { FileSystem, Path } from "effect";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Schema from "effect/Schema";
+import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { parseDocument } from "yaml";
 import {
@@ -71,17 +73,20 @@ export interface DockerImageState {
 
 const SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)$/;
 
-const parseSemver = (tag: string): O.Option<readonly [number, number, number]> => {
-  const match = tag.match(SEMVER_PATTERN);
-  if (match === null) return O.none();
-  return O.some([Number.parseInt(match[1], 10), Number.parseInt(match[2], 10), Number.parseInt(match[3], 10)] as const);
-};
+const parseSemver = (tag: string): O.Option<readonly [number, number, number]> =>
+  O.map(O.fromNullishOr(Str.match(SEMVER_PATTERN)(tag)), (m) => [
+    Number.parseInt(m[1], 10),
+    Number.parseInt(m[2], 10),
+    Number.parseInt(m[3], 10),
+  ] as const);
 
 const semverCompare = (a: readonly [number, number, number], b: readonly [number, number, number]): number => {
   if (a[0] !== b[0]) return a[0] - b[0];
   if (a[1] !== b[1]) return a[1] - b[1];
   return a[2] - b[2];
 };
+
+const toOrdering = (n: number): -1 | 0 | 1 => (n < 0 ? -1 : n > 0 ? 1 : 0);
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -147,32 +152,41 @@ const findLatestForRedis = (tags: ReadonlyArray<string>): O.Option<string> => {
   return bestTag !== "" ? O.some(bestTag) : O.none();
 };
 
+const VERSION_PATTERN = /v?(\d+)\.(\d+)\.(\d+)/;
+
 const findLatestForPgvector = (tags: ReadonlyArray<string>, currentTag: string): O.Option<string> => {
   // Current tag is like "pg17" — find latest "pg17-v*" or similar
-  const prefix = currentTag.match(/^(pg\d+)/)?.[1] ?? currentTag;
-  const candidates: Array<{ tag: string; version: readonly [number, number, number] }> = [];
+  const prefix = O.getOrElse(
+    O.flatMap(O.fromNullishOr(Str.match(/^(pg\d+)/)(currentTag)), (m) => O.fromNullishOr(m[1])),
+    () => currentTag
+  );
+
+  let candidates = A.empty<{ tag: string; version: readonly [number, number, number] }>();
 
   for (const tag of tags) {
     if (!tag.startsWith(prefix)) continue;
     if (!isStableTag(tag)) continue;
     // Pattern: pg17-v0.8.0 or similar with version suffix
-    const versionMatch = tag.match(/v?(\d+)\.(\d+)\.(\d+)/);
+    const versionMatch = Str.match(VERSION_PATTERN)(tag);
     if (versionMatch !== null) {
-      candidates.push({
+      candidates = A.append(candidates, {
         tag,
         version: [
           Number.parseInt(versionMatch[1], 10),
           Number.parseInt(versionMatch[2], 10),
           Number.parseInt(versionMatch[3], 10),
-        ],
+        ] as const,
       });
     }
   }
 
-  if (candidates.length === 0) return O.none();
+  if (A.isArrayEmpty(candidates)) return O.none();
 
-  candidates.sort((a, b) => semverCompare(b.version, a.version));
-  return O.some(candidates[0].tag);
+  const sorted = A.sort(
+    candidates,
+    Order.make((a, b) => toOrdering(semverCompare(b.version, a.version)))
+  );
+  return O.map(A.get(sorted, 0), (c) => c.tag);
 };
 
 const findLatestSemver = (tags: ReadonlyArray<string>): O.Option<string> => {
@@ -238,7 +252,7 @@ export const resolveDockerImages: (
       return { images: A.empty() };
     }
 
-    const images: Array<DockerImageRef & { readonly latest: O.Option<string> }> = [];
+    let images = A.empty<DockerImageRef & { readonly latest: O.Option<string> }>();
 
     for (const serviceName of Object.keys(services)) {
       const service = services[serviceName];
@@ -251,7 +265,7 @@ export const resolveDockerImages: (
       const ref = parseImageRef(serviceName, imageStr, yamlPath);
 
       if (skipNetwork) {
-        images.push({ ...ref, latest: O.none() });
+        images = A.append(images, { ...ref, latest: O.none() });
         continue;
       }
 
@@ -261,7 +275,7 @@ export const resolveDockerImages: (
         Effect.orElseSucceed(() => O.none<string>())
       );
 
-      images.push({ ...ref, latest });
+      images = A.append(images, { ...ref, latest });
     }
 
     return { images };
@@ -327,7 +341,7 @@ const fetchLatestDockerTag: (
  * @category functions
  */
 export const buildDockerReport: (state: DockerImageState) => VersionCategoryReport = (state) => {
-  const items: Array<VersionDriftItem> = [];
+  let items = A.empty<VersionDriftItem>();
   let hasUnpinned = false;
 
   for (const img of state.images) {
@@ -339,7 +353,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
     }
 
     if (O.isSome(img.latest) && img.tag !== img.latest.value) {
-      items.push({
+      items = A.append(items, {
         file: "docker-compose.yml",
         field: `image (${img.service})`,
         current: img.fullImage,
@@ -348,7 +362,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
       });
     } else if (isUnpinnedTag && O.isNone(img.latest)) {
       // Tag is "latest" but we couldn't resolve — still report as unpinned
-      items.push({
+      items = A.append(items, {
         file: "docker-compose.yml",
         field: `image (${img.service})`,
         current: img.fullImage,
@@ -356,7 +370,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
         line: O.none(),
       });
     } else if (isMajorOnly && O.isNone(img.latest)) {
-      items.push({
+      items = A.append(items, {
         file: "docker-compose.yml",
         field: `image (${img.service})`,
         current: img.fullImage,

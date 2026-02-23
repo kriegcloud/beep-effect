@@ -9,14 +9,13 @@ pre-commit:
       glob: "tooling/*/src/**/*.ts"
       exclude: "tooling/*/src/internal/**|tooling/_test-*/src/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
       run: npx eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' {staged_files}
+    gitleaks:
+      run: gitleaks protect --staged --verbose
 
 pre-push:
-  parallel: true
   commands:
-    typecheck:
-      run: npx turbo build && tsc -p tsconfig.json --noEmit
-    test:
-      run: npx vitest run
+    quality:
+      run: bun run build && bun run check && bun run test
 
 post-merge:
   commands:
