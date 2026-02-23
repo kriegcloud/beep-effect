@@ -27,3 +27,4 @@ export class DomainError extends S.TaggedErrorClass<DomainError>("@beep/repo-uti
       "A generic domain-level error with an optional underlying cause for JSON parse failures, glob failures, and other operational errors.",
   }
 ) {}
+// bench

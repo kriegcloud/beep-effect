@@ -256,3 +256,4 @@ export const getExtensions: () => Record<MimeType, FileExtension[]> = internal.g
  * ```
  */
 export const lookup: (path: string) => false | MimeType = internal.lookup;
+// bench

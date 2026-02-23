@@ -65,3 +65,4 @@ describe("@beep/utils dotGet", () => {
     expect(Option.isNone(none)).toBe(true);
   });
 });
+// bench

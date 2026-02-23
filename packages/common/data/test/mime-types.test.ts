@@ -156,3 +156,4 @@ describe("lookup", () => {
     expect(lookup("7z")).toBe("application/x-7z-compressed");
   });
 });
+// bench

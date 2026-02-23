@@ -86,3 +86,4 @@ const parentDir = (p: string): string =>
     O.map((lastSlash) => (lastSlash === 0 ? "/" : Str.substring(0, lastSlash)(p))),
     O.getOrElse(() => "/")
   );
+// bench

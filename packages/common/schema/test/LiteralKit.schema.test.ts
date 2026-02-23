@@ -118,3 +118,4 @@ describe("LiteralKit (string-only)", () => {
     expect(result).toBe(0);
   });
 });
+// bench

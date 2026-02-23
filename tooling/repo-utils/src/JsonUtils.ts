@@ -59,3 +59,4 @@ export const jsonParse: (input: string) => Effect.Effect<unknown, DomainError> =
     Effect.mapError((e) => new DomainError({ message: `JSON parse failed: ${e.message}` }))
   );
 });
+// bench
