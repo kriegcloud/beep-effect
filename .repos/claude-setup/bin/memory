@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Function to check if command exists
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+# Ensure obsidian-cli is installed
+if ! command_exists obsidian-cli; then
+  echo "obsidian-cli not found. Installing..."
+
+  if command_exists brew; then
+    brew tap yakitrak/yakitrak
+    brew install obsidian-cli
+  elif command_exists cargo; then
+    cargo install obsidian-cli
+  else
+    echo "Error: Neither brew nor cargo found. Please install obsidian-cli manually."
+    echo "See: https://github.com/Yakitrak/obsidian-cli"
+    exit 1
+  fi
+fi
+
+# Ensure vault exists and is configured
+VAULT_PATH="$HOME/.claude/memory"
+if [ ! -d "$VAULT_PATH" ]; then
+  echo "Creating memory vault at $VAULT_PATH..."
+  mkdir -p "$VAULT_PATH"
+fi
+
+# Check if vault is set as default
+if ! obsidian-cli print-default --path-only 2>/dev/null | grep -q "$VAULT_PATH"; then
+  echo "Configuring default vault..."
+  obsidian-cli set-default "$VAULT_PATH"
+fi
+
+# CLI-only mode: prevent GUI popups
+COMMAND="${1:-}"
+
+case "$COMMAND" in
+  open|o)
+    echo "Error: 'open' requires Obsidian GUI and is disabled in CLI mode." >&2
+    echo "Use: memory print <note>  (view note contents in terminal)" >&2
+    exit 1
+    ;;
+  daily|d)
+    echo "Error: 'daily' requires Obsidian GUI and is disabled in CLI mode." >&2
+    echo "Alternatives:" >&2
+    echo "  memory create \"$(date +%Y-%m-%d)\" --content \"...\"  (create daily note)" >&2
+    echo "  memory list  (browse existing notes)" >&2
+    exit 1
+    ;;
+  search|s)
+    # Auto-add --editor flag if not present
+    if [[ ! " $* " =~ " --editor " ]] && [[ ! " $* " =~ " -e " ]]; then
+      exec obsidian-cli "$@" --editor
+    fi
+    ;;
+  search-content|sc)
+    # Auto-add --editor flag if not present
+    if [[ ! " $* " =~ " --editor " ]] && [[ ! " $* " =~ " -e " ]]; then
+      exec obsidian-cli "$@" --editor
+    fi
+    ;;
+  create|c)
+    # If --open flag is present, ensure --editor is also present
+    if [[ " $* " =~ " --open " ]]; then
+      if [[ ! " $* " =~ " --editor " ]] && [[ ! " $* " =~ " -e " ]]; then
+        exec obsidian-cli "$@" --editor
+      fi
+    fi
+    ;;
+esac
+
+# Forward all arguments to obsidian-cli
+exec obsidian-cli "$@"
