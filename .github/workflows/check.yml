@@ -152,7 +152,7 @@ jobs:
         run: bunx syncpack lint
 
       - name: Vulnerability audit
-        run: bun audit --audit-level=high
+        run: bun run audit:high:ci
 
       - name: Changeset status
         if: github.event_name == 'pull_request'

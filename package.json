@@ -68,6 +68,9 @@
     "test:storybook": "bunx turbo run test:storybook --filter=@beep/ui",
     "test:visual": "bunx turbo run test:visual --filter=@beep/ui",
     "docgen": "bunx turbo run docgen && node scripts/docs.mjs",
+    "audit:high:strict": "bun audit --audit-level=high",
+    "audit:high": "bun audit --audit-level=high --ignore=GHSA-35jh-r3h4-6jhm --ignore=GHSA-3ppc-4f35-3m26",
+    "audit:high:ci": "bun run audit:high",
     "release": "bun run build && bun run test && bun run lint && changeset publish",
     "nuke": "docker compose down && docker system prune -a -f && docker volume prune -a -f",
     "services:up": "bun run dotenvx -- docker compose up -d",
@@ -120,7 +123,6 @@
     "effect": "catalog:",
     "glob": "catalog:",
     "madge": "catalog:",
-    "next-devtools-mcp": "catalog:",
     "syncpack": "catalog:",
     "ts-patch": "catalog:",
     "tstyche": "catalog:",
@@ -204,7 +206,6 @@
     "jscodeshift": "^17.3.0",
     "lefthook": "^2.1.1",
     "madge": "^8.0.0",
-    "next-devtools-mcp": "^0.3.10",
     "next": "16.2.0-canary.58",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -231,7 +232,6 @@
     "@storybook/addon-themes": "^10.2.10",
     "@storybook/react-vite": "^10.2.10",
     "storybook": "^10.2.10",
-    "@storybook/addon-vitest": "^10.2.10",
-    "lost-pixel": "^3.22.0"
+    "@storybook/addon-vitest": "^10.2.10"
   }
 }
