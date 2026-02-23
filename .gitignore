@@ -5,9 +5,6 @@ node_modules/
 tmp/
 dist/
 build/
-scratchpad/*
-!scratchpad/tsconfig.json
-!scratchpad/AGENTS.md
 .direnv/
 .idea/
 .playwright-mcp
@@ -57,7 +54,7 @@ storybook-static/
 # Claude plugin state files (ralph-wiggum loop state)
 .claude/ralph-loop.local.md
 
-# Managed by beep-sync (committed generated targets)
-# .mcp.json
-# .codex/
+# Local MCP + Codex config (project-scoped, not committed)
+.mcp.json
+.codex/
 .code-index/
