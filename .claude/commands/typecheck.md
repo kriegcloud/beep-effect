@@ -1,0 +1,1 @@
+Run comprehensive quality checks: format, lint, and typecheck on the project

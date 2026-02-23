@@ -1,0 +1,15 @@
+{
+  "name": "claude-hooks",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@effect/cluster": "^0.52.8",
+    "@effect/platform": "^0.93.0",
+    "@effect/platform-bun": "^0.83.0",
+    "@effect/schema": "^0.75.5",
+    "effect": "^3.19.3",
+    "msgpackr": "^1.11.5",
+    "tsx": "^4.20.6"
+  }
+}
