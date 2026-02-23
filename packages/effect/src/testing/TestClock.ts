@@ -8,8 +8,10 @@ import * as Duration from "../Duration.ts"
 import * as Effect from "../Effect.ts"
 import * as Fiber from "../Fiber.ts"
 import { flow } from "../Function.ts"
+import * as Latch from "../Latch.ts"
 import * as Layer from "../Layer.ts"
 import * as Order from "../Order.ts"
+import * as Semaphore from "../Semaphore.ts"
 
 /**
  * A `TestClock` simplifies deterministically and efficiently testing effects
@@ -79,7 +81,7 @@ export interface TestClock extends Clock.Clock {
    * that were scheduled to occur on or before the new time will be run in
    * order.
    */
-  adjust(duration: Duration.DurationInput): Effect.Effect<void>
+  adjust(duration: Duration.Input): Effect.Effect<void>
   /**
    * Sets the current clock time to the specified `timestamp`. Any effects that
    * were scheduled to occur on or before the new time will be run in order.
@@ -139,7 +141,7 @@ export declare namespace TestClock {
      * The amount of time to wait before displaying a warning message when a
      * test is using time but is not advancing the `TestClock`.
      */
-    readonly warningDelay?: Duration.DurationInput
+    readonly warningDelay?: Duration.Input
   }
 
   /**
@@ -155,7 +157,7 @@ export declare namespace TestClock {
    *   const timestamp = testClock.currentTimeMillisUnsafe()
    *   console.log(timestamp) // Current test time
    *
-   *   // Internal state structure: { timestamp: number, sleeps: Array<[number, Effect.Latch]> }
+   *   // Internal state structure: { timestamp: number, sleeps: Array<[number, Latch.Latch]> }
    * })
    * ```
    *
@@ -164,7 +166,7 @@ export declare namespace TestClock {
    */
   export interface State {
     readonly timestamp: number
-    readonly sleeps: ReadonlyArray<[number, Effect.Latch]>
+    readonly sleeps: ReadonlyArray<[number, Latch.Latch]>
   }
 }
 
@@ -220,10 +222,10 @@ export const make = Effect.fnUntraced(function*(
   const sleeps: Array<{
     readonly sequence: number
     readonly timestamp: number
-    readonly latch: Effect.Latch
+    readonly latch: Latch.Latch
   }> = []
   const liveClock = yield* Clock.clockWith(Effect.succeed)
-  const warningSemaphore = yield* Effect.makeSemaphore(1)
+  const warningSemaphore = yield* Semaphore.make(1)
 
   let currentTimestamp: number = new Date(0).getTime()
   let warningState: WarningState = WarningState.Start()
@@ -292,7 +294,7 @@ export const make = Effect.fnUntraced(function*(
     const millis = Duration.toMillis(duration)
     const end = currentTimestamp + millis
     if (end <= currentTimestamp) return
-    const latch = Effect.makeLatchUnsafe()
+    const latch = Latch.makeUnsafe()
     sleeps.push({
       sequence: sequence++,
       timestamp: end,
@@ -303,7 +305,7 @@ export const make = Effect.fnUntraced(function*(
     yield* latch.await
   })
 
-  const runSemaphore = yield* Effect.makeSemaphore(1)
+  const runSemaphore = yield* Semaphore.make(1)
   const run = Effect.fnUntraced(function*(step: (currentTimestamp: number) => number) {
     yield* Fiber.await(yield* Effect.forkScoped(Effect.yieldNow))
     const endTimestamp = step(currentTimestamp)
@@ -317,8 +319,8 @@ export const make = Effect.fnUntraced(function*(
     currentTimestamp = endTimestamp
   }, runSemaphore.withPermits(1))
 
-  function adjust(duration: Duration.DurationInput) {
-    const millis = Duration.toMillis(Duration.fromDurationInputUnsafe(duration))
+  function adjust(duration: Duration.Input) {
+    const millis = Duration.toMillis(Duration.fromInputUnsafe(duration))
     return warningDone.pipe(Effect.andThen(run((timestamp) => timestamp + millis)))
   }
 
@@ -429,7 +431,7 @@ export const testClockWith = <A, E, R>(
  * @since 2.0.0
  * @category utils
  */
-export const adjust = (duration: Duration.DurationInput): Effect.Effect<void> =>
+export const adjust = (duration: Duration.Input): Effect.Effect<void> =>
   testClockWith((testClock) => testClock.adjust(duration))
 
 /**

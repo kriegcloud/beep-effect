@@ -326,7 +326,7 @@ describe("Arbitrary generation", () => {
 
   describe("suspend", () => {
     it("Tuple", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.Tuple([
         Schema.Number,
         Schema.NullOr(Rec)
@@ -335,13 +335,13 @@ describe("Arbitrary generation", () => {
     })
 
     it("Array", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema: any = Schema.Array(Schema.Union([Schema.String, Rec]))
       verifyGeneration(schema)
     })
 
     it("Struct", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.Struct({
         a: Schema.String,
         as: Schema.Array(Rec)
@@ -350,13 +350,13 @@ describe("Arbitrary generation", () => {
     })
 
     it("Record", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.Record(Schema.String, Rec)
       verifyGeneration(schema)
     })
 
     it("optional", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema: any = Schema.Struct({
         a: Schema.optional(Rec)
       })
@@ -364,7 +364,7 @@ describe("Arbitrary generation", () => {
     })
 
     it("Array + Array", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema: any = Schema.Struct({
         a: Schema.Array(Rec),
         b: Schema.Array(Rec)
@@ -373,7 +373,7 @@ describe("Arbitrary generation", () => {
     })
 
     it("optional + Array", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema: any = Schema.Struct({
         a: Schema.optional(Rec),
         b: Schema.Array(Rec)
@@ -409,7 +409,7 @@ describe("Arbitrary generation", () => {
     })
 
     it("Option", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.Struct({
         a: Schema.String,
         as: Schema.Option(Rec)
@@ -418,14 +418,20 @@ describe("Arbitrary generation", () => {
     })
 
     it("ReadonlySet", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.ReadonlySet(Rec)
       verifyGeneration(schema)
     })
 
     it("ReadonlyMap", () => {
-      const Rec = Schema.suspend((): Schema.Codec<any> => schema)
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
       const schema = Schema.ReadonlyMap(Schema.String, Rec)
+      verifyGeneration(schema)
+    })
+
+    it("HashMap", () => {
+      const Rec = Schema.suspend((): Schema.Codec<unknown> => schema)
+      const schema = Schema.HashMap(Schema.String, Rec)
       verifyGeneration(schema)
     })
   })
@@ -556,8 +562,28 @@ describe("Arbitrary generation", () => {
     verifyGeneration(Schema.Duration)
   })
 
+  it("BigDecimal", () => {
+    verifyGeneration(Schema.BigDecimal)
+  })
+
   it("DateTimeUtc", () => {
     verifyGeneration(Schema.DateTimeUtc)
+  })
+
+  it("TimeZoneOffset", () => {
+    verifyGeneration(Schema.TimeZoneOffset)
+  })
+
+  it("TimeZoneNamed", () => {
+    verifyGeneration(Schema.TimeZoneNamed)
+  })
+
+  it("TimeZone", () => {
+    verifyGeneration(Schema.TimeZone)
+  })
+
+  it("DateTimeZoned", () => {
+    verifyGeneration(Schema.DateTimeZoned)
   })
 
   it("Uint8Array", () => {
@@ -609,6 +635,12 @@ describe("Arbitrary generation", () => {
       verifyGeneration(
         Schema.ReadonlyMap(Schema.String, Schema.Number).check(Schema.isSizeBetween(2, 2))
       )
+    })
+  })
+
+  describe("HashMap", () => {
+    it("HashMap(String, Number)", () => {
+      verifyGeneration(Schema.HashMap(Schema.String, Schema.Number))
     })
   })
 

@@ -1,4 +1,4 @@
-import { DateTime, Duration, Equivalence, Option, Redacted, Result, Schema } from "effect"
+import { BigDecimal, DateTime, Duration, Equivalence, HashMap, Option, Redacted, Result, Schema } from "effect"
 import { describe, it } from "vitest"
 import { assertFalse, assertTrue, throws } from "../utils/assert.ts"
 
@@ -411,6 +411,22 @@ describe("toEquivalence", () => {
     assertFalse(equivalence(new Map([[0, 1], [1, 2]]), new Map([[0, 1], [2, 2]])))
   })
 
+  it("HashMap(Modulo2, Modulo3)", () => {
+    const schema = Schema.HashMap(Modulo2, Modulo3)
+    const equivalence = Schema.toEquivalence(schema)
+
+    assertTrue(equivalence(HashMap.empty(), HashMap.empty()))
+    assertTrue(equivalence(HashMap.make([0, 1]), HashMap.make([0, 1])))
+    assertTrue(equivalence(HashMap.make([0, 1]), HashMap.make([2, 4])))
+    assertTrue(equivalence(HashMap.make([0, 1], [1, 2]), HashMap.make([0, 1], [1, 2])))
+    assertTrue(equivalence(HashMap.make([0, 1], [1, 2]), HashMap.make([1, 2], [0, 1])))
+
+    assertFalse(equivalence(HashMap.make([0, 1]), HashMap.make([1, 1])))
+    assertFalse(equivalence(HashMap.make([0, 1]), HashMap.make([0, 2])))
+    assertFalse(equivalence(HashMap.make([0, 1], [1, 2]), HashMap.make([0, 1], [1, 3])))
+    assertFalse(equivalence(HashMap.make([0, 1], [1, 2]), HashMap.make([0, 1], [2, 2])))
+  })
+
   it("Duration", () => {
     const schema = Schema.Duration
     const equivalence = Schema.toEquivalence(schema)
@@ -424,6 +440,14 @@ describe("toEquivalence", () => {
     assertFalse(equivalence(Duration.negativeInfinity, Duration.infinity))
   })
 
+  it("BigDecimal", () => {
+    const schema = Schema.BigDecimal
+    const equivalence = Schema.toEquivalence(schema)
+    assertTrue(equivalence(BigDecimal.fromStringUnsafe("1.5"), BigDecimal.fromStringUnsafe("1.50")))
+    assertFalse(equivalence(BigDecimal.fromStringUnsafe("1.5"), BigDecimal.fromStringUnsafe("2")))
+    assertTrue(equivalence(BigDecimal.fromStringUnsafe("0"), BigDecimal.fromStringUnsafe("0")))
+  })
+
   it("DateTimeUtc", () => {
     const schema = Schema.DateTimeUtc
     const equivalence = Schema.toEquivalence(schema)
@@ -433,6 +457,44 @@ describe("toEquivalence", () => {
     assertFalse(
       equivalence(DateTime.makeUnsafe("2021-01-01T00:00:00.000Z"), DateTime.makeUnsafe("2021-01-01T00:00:00.001Z"))
     )
+  })
+
+  it("TimeZoneOffset", () => {
+    const equivalence = Schema.toEquivalence(Schema.TimeZoneOffset)
+    assertTrue(
+      equivalence(DateTime.zoneMakeOffset(3 * 60 * 60 * 1000), DateTime.zoneMakeOffset(3 * 60 * 60 * 1000))
+    )
+    assertFalse(
+      equivalence(DateTime.zoneMakeOffset(3 * 60 * 60 * 1000), DateTime.zoneMakeOffset(4 * 60 * 60 * 1000))
+    )
+  })
+
+  it("TimeZoneNamed", () => {
+    const equivalence = Schema.toEquivalence(Schema.TimeZoneNamed)
+    assertTrue(
+      equivalence(DateTime.zoneMakeNamedUnsafe("Europe/London"), DateTime.zoneMakeNamedUnsafe("Europe/London"))
+    )
+    assertFalse(
+      equivalence(DateTime.zoneMakeNamedUnsafe("Europe/London"), DateTime.zoneMakeNamedUnsafe("America/New_York"))
+    )
+  })
+
+  it("TimeZone", () => {
+    const equivalence = Schema.toEquivalence(Schema.TimeZone)
+    assertTrue(
+      equivalence(DateTime.zoneMakeOffset(0), DateTime.zoneMakeOffset(0))
+    )
+    assertFalse(
+      equivalence(DateTime.zoneMakeOffset(0), DateTime.zoneMakeOffset(3 * 60 * 60 * 1000))
+    )
+  })
+
+  it("DateTimeZoned", () => {
+    const equivalence = Schema.toEquivalence(Schema.DateTimeZoned)
+    const z1 = DateTime.makeZonedUnsafe("2024-01-01T00:00:00.000Z", { timeZone: "Europe/London" })
+    const z2 = DateTime.makeZonedUnsafe("2024-01-02T00:00:00.000Z", { timeZone: "Europe/London" })
+    assertTrue(equivalence(z1, z1))
+    assertFalse(equivalence(z1, z2))
   })
 
   describe("Annotations", () => {

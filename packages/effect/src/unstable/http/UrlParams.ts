@@ -43,9 +43,13 @@ export const isUrlParams = (u: unknown): u is UrlParams => hasProperty(u, TypeId
  * @category models
  */
 export type Input =
-  | CoercibleRecord
+  | CoercibleRecordInput
   | Iterable<readonly [string, Coercible]>
   | URLSearchParams
+
+type CoercibleRecordInput = CoercibleRecord & {
+  readonly [Symbol.iterator]?: never
+}
 
 /**
  * @since 4.0.0
@@ -57,8 +61,17 @@ export type Coercible = string | number | bigint | boolean | null | undefined
  * @since 4.0.0
  * @category models
  */
-export interface CoercibleRecord {
-  readonly [key: string]: Coercible | ReadonlyArray<Coercible> | CoercibleRecord
+type CoercibleRecordField<A> = A extends Coercible ? A
+  : A extends ReadonlyArray<infer Item> ? ReadonlyArray<Item extends Coercible ? Item : never>
+  : A extends object ? CoercibleRecord<A>
+  : never
+
+/**
+ * @since 4.0.0
+ * @category models
+ */
+export type CoercibleRecord<A extends object = any> = {
+  readonly [K in keyof A]: CoercibleRecordField<A[K]>
 }
 
 const Proto = {
@@ -110,7 +123,9 @@ export const fromInput = (input: Input): UrlParams => {
 }
 
 const fromInputNested = (input: Input): Array<[string | Array<string>, any]> => {
-  const entries = Symbol.iterator in input ? Arr.fromIterable(input) : Object.entries(input)
+  const entries = typeof (input as any)[Symbol.iterator] === "function"
+    ? Arr.fromIterable(input as Iterable<readonly [string, Coercible]>)
+    : Object.entries(input)
   const out: Array<[string | Array<string>, string]> = []
   for (const [key, value] of entries) {
     if (Array.isArray(value)) {
@@ -467,7 +482,7 @@ export const schemaJsonField = (field: string): schemaJsonField =>
  */
 export interface schemaRecord extends
   Schema.decodeTo<
-    Schema.Record$<Schema.String, Schema.Union<readonly [Schema.String, Schema.NonEmptyArray<Schema.String>]>>,
+    Schema.$Record<Schema.String, Schema.Union<readonly [Schema.String, Schema.NonEmptyArray<Schema.String>]>>,
     UrlParamsSchema,
     never,
     never

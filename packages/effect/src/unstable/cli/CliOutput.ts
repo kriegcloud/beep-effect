@@ -499,14 +499,53 @@ const formatHelpDocImpl = (doc: HelpDoc, colors: ColorFunctions): string => {
 
   // Subcommands section
   if (doc.subcommands && doc.subcommands.length > 0) {
-    sections.push(colors.bold("SUBCOMMANDS"))
+    const ungrouped = doc.subcommands.find((group) => group.group === undefined)
 
-    const subcommandRows: Array<Row> = doc.subcommands.map((sub) => ({
-      left: colors.cyan(sub.name),
-      right: sub.description
-    }))
+    if (ungrouped) {
+      sections.push(colors.bold("SUBCOMMANDS"))
+      sections.push(renderTable(
+        ungrouped.commands.map((sub) => ({
+          left: colors.cyan(sub.name),
+          right: sub.shortDescription ?? sub.description
+        })),
+        20
+      ))
+      if (doc.subcommands.length > 1) {
+        sections.push("")
+      }
+    }
 
-    sections.push(renderTable(subcommandRows, 20))
+    for (const group of doc.subcommands) {
+      if (group.group === undefined) continue
+      sections.push(colors.bold(`${group.group}:`))
+      sections.push(renderTable(
+        group.commands.map((sub) => ({
+          left: colors.cyan(sub.name),
+          right: sub.shortDescription ?? sub.description
+        })),
+        20
+      ))
+      sections.push("")
+    }
+  }
+
+  // Examples section
+  if (doc.examples && doc.examples.length > 0) {
+    sections.push(colors.bold("EXAMPLES"))
+
+    let first = true
+    let previousHadDescription = false
+    for (const example of doc.examples) {
+      if (example.description) {
+        if (!first) sections.push("")
+        sections.push(`  ${colors.dim(`# ${example.description}`)}`)
+      } else if (previousHadDescription) {
+        sections.push("")
+      }
+      sections.push(`  ${colors.cyan(example.command)}`)
+      first = false
+      previousHadDescription = !!example.description
+    }
     sections.push("")
   }
 

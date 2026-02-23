@@ -4,12 +4,13 @@
 import * as Arr from "../../Array.ts"
 import type * as Cause from "../../Cause.ts"
 import * as Data from "../../Data.ts"
-import type { DurationInput } from "../../Duration.ts"
+import type * as Duration from "../../Duration.ts"
 import * as Effect from "../../Effect.ts"
 import * as Equal from "../../Equal.ts"
 import * as Exit from "../../Exit.ts"
 import { identity } from "../../Function.ts"
 import * as Hash from "../../Hash.ts"
+import type * as Latch from "../../Latch.ts"
 import * as Layer from "../../Layer.ts"
 import * as Predicate from "../../Predicate.ts"
 import * as Queue from "../../Queue.ts"
@@ -116,7 +117,7 @@ export interface Entity<
   >(
     build: Handlers | Effect.Effect<Handlers, never, RX>,
     options?: {
-      readonly maxIdleTime?: DurationInput | undefined
+      readonly maxIdleTime?: Duration.Input | undefined
       readonly concurrency?: number | "unbounded" | undefined
       readonly mailboxCapacity?: number | "unbounded" | undefined
       readonly disableFatalDefects?: boolean | undefined
@@ -159,7 +160,7 @@ export interface Entity<
         RX
       >,
     options?: {
-      readonly maxIdleTime?: DurationInput | undefined
+      readonly maxIdleTime?: Duration.Input | undefined
       readonly mailboxCapacity?: number | "unbounded" | undefined
       readonly disableFatalDefects?: boolean | undefined
       readonly defectRetryPolicy?: Schedule.Schedule<any, unknown> | undefined
@@ -234,7 +235,7 @@ const Proto = {
     this: Entity<string, Rpcs>,
     build: Handlers | Effect.Effect<Handlers, never, RX>,
     options?: {
-      readonly maxIdleTime?: DurationInput | undefined
+      readonly maxIdleTime?: Duration.Input | undefined
       readonly concurrency?: number | "unbounded" | undefined
       readonly mailboxCapacity?: number | "unbounded" | undefined
       readonly disableFatalDefects?: boolean | undefined
@@ -283,7 +284,7 @@ const Proto = {
         RX
       >,
     options?: {
-      readonly maxIdleTime?: DurationInput | undefined
+      readonly maxIdleTime?: Duration.Input | undefined
       readonly mailboxCapacity?: number | "unbounded" | undefined
       readonly disableFatalDefects?: boolean | undefined
       readonly defectRetryPolicy?: Schedule.Schedule<any, unknown> | undefined
@@ -642,6 +643,6 @@ export const KeepAliveRpc = Rpc.make("Cluster/Entity/keepAlive")
  * @since 4.0.0
  * @category Keep alive
  */
-export class KeepAliveLatch extends ServiceMap.Service<KeepAliveLatch, Effect.Latch>()(
+export class KeepAliveLatch extends ServiceMap.Service<KeepAliveLatch, Latch.Latch>()(
   "effect/cluster/Entity/KeepAliveLatch"
 ) {}

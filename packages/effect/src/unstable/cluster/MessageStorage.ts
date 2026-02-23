@@ -6,6 +6,7 @@ import { Clock } from "../../Clock.ts"
 import * as Data from "../../Data.ts"
 import * as Effect from "../../Effect.ts"
 import * as Exit from "../../Exit.ts"
+import * as Latch from "../../Latch.ts"
 import * as Layer from "../../Layer.ts"
 import type * as Option from "../../Option.ts"
 import type { Predicate } from "../../Predicate.ts"
@@ -718,7 +719,7 @@ export class MemoryDriver extends ServiceMap.Service<MemoryDriver>()("effect/clu
       return messages
     }
 
-    const replyLatch = yield* Effect.makeLatch()
+    const replyLatch = yield* Latch.make()
 
     function repliesFor(requestIds: Array<string>) {
       const replies = Arr.empty<Reply.Encoded>()
@@ -904,10 +905,7 @@ export const layerMemory: Layer.Layer<
 
 const EnvelopeWithReply: Schema.Struct<
   {
-    readonly envelope: Schema.Codec<
-      Envelope.PartialRequest | Envelope.AckChunk | Envelope.Interrupt,
-      unknown
-    >
+    readonly envelope: Schema.Decoder<Envelope.PartialRequest | Envelope.AckChunk | Envelope.Interrupt>
     readonly lastSentReply: Schema.UndefinedOr<Schema.Codec<Reply.Encoded>>
   }
 > = Schema.Struct({

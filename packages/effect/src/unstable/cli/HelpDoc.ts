@@ -2,6 +2,9 @@
  * @since 4.0.0
  */
 
+import type { NonEmptyReadonlyArray } from "../../Array.ts"
+import type * as ServiceMap from "../../ServiceMap.ts"
+
 /**
  * Structured representation of help documentation for a command.
  * This data structure is independent of formatting, allowing for
@@ -9,11 +12,13 @@
  *
  * @example
  * ```ts
+ * import { ServiceMap } from "effect"
  * import type * as HelpDoc from "effect/unstable/cli/HelpDoc"
  *
  * const deployCommandHelp: HelpDoc.HelpDoc = {
  *   description: "Deploy your application to the cloud",
  *   usage: "myapp deploy [options] <target>",
+ *   annotations: ServiceMap.empty(),
  *   flags: [
  *     {
  *       name: "verbose",
@@ -63,6 +68,11 @@ export interface HelpDoc {
   readonly flags: ReadonlyArray<FlagDoc>
 
   /**
+   * Custom command annotations.
+   */
+  readonly annotations: ServiceMap.ServiceMap<never>
+
+  /**
    * List of positional arguments for this command
    */
   readonly args?: ReadonlyArray<ArgDoc>
@@ -70,7 +80,30 @@ export interface HelpDoc {
   /**
    * Optional list of subcommands if this is a parent command
    */
-  readonly subcommands?: ReadonlyArray<SubcommandDoc>
+  readonly subcommands?: ReadonlyArray<SubcommandGroupDoc>
+
+  /**
+   * Optional concrete usage examples for the command
+   */
+  readonly examples?: ReadonlyArray<ExampleDoc>
+}
+
+/**
+ * Documentation for a command usage example
+ *
+ * @since 4.0.0
+ * @category models
+ */
+export interface ExampleDoc {
+  /**
+   * Command line invocation example
+   */
+  readonly command: string
+
+  /**
+   * Optional explanation for the example
+   */
+  readonly description?: string | undefined
 }
 
 /**
@@ -132,15 +165,18 @@ export interface FlagDoc {
  *
  * @example
  * ```ts
+ * import { ServiceMap } from "effect"
  * import type { HelpDoc } from "effect/unstable/cli"
  *
  * const deploySubcommand: HelpDoc.SubcommandDoc = {
  *   name: "deploy",
+ *   shortDescription: "Deploy app",
  *   description: "Deploy the application to the cloud"
  * }
  *
  * const buildSubcommand: HelpDoc.SubcommandDoc = {
  *   name: "build",
+ *   shortDescription: undefined,
  *   description: "Build the application for production"
  * }
  *
@@ -148,8 +184,12 @@ export interface FlagDoc {
  * const mainCommandHelp: HelpDoc.HelpDoc = {
  *   description: "Cloud deployment tool",
  *   usage: "myapp <command> [options]",
+ *   annotations: ServiceMap.empty(),
  *   flags: [],
- *   subcommands: [deploySubcommand, buildSubcommand]
+ *   subcommands: [{
+ *     group: undefined,
+ *     commands: [deploySubcommand, buildSubcommand]
+ *   }]
  * }
  * ```
  *
@@ -163,9 +203,33 @@ export interface SubcommandDoc {
   readonly name: string
 
   /**
+   * Optional short description of what the subcommand does.
+   */
+  readonly shortDescription: string | undefined
+
+  /**
    * Brief description of what the subcommand does
    */
   readonly description: string
+}
+
+/**
+ * Documentation for a grouped subcommand listing
+ *
+ * @since 4.0.0
+ * @category models
+ */
+export interface SubcommandGroupDoc {
+  /**
+   * Group name used in help output.
+   * Undefined means the default ungrouped section.
+   */
+  readonly group: string | undefined
+
+  /**
+   * Subcommands in this group.
+   */
+  readonly commands: NonEmptyReadonlyArray<SubcommandDoc>
 }
 
 /**
@@ -173,6 +237,7 @@ export interface SubcommandDoc {
  *
  * @example
  * ```ts
+ * import { ServiceMap } from "effect"
  * import type { HelpDoc } from "effect/unstable/cli"
  *
  * const sourceArg: HelpDoc.ArgDoc = {
@@ -195,6 +260,7 @@ export interface SubcommandDoc {
  * const copyCommandHelp: HelpDoc.HelpDoc = {
  *   description: "Copy files from source to destination",
  *   usage: "copy <source> [files...]",
+ *   annotations: ServiceMap.empty(),
  *   flags: [],
  *   args: [sourceArg, filesArg]
  * }

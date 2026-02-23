@@ -5,6 +5,7 @@ import type * as Console from "../Console.ts"
 import * as Duration from "../Duration.ts"
 import type * as Effect from "../Effect.ts"
 import * as Equal from "../Equal.ts"
+import type { ErrorReporter } from "../ErrorReporter.ts"
 import type * as Exit from "../Exit.ts"
 import type * as Fiber from "../Fiber.ts"
 import * as Filter from "../Filter.ts"
@@ -14,6 +15,7 @@ import { constant, constFalse, constTrue, constUndefined, constVoid, dual, ident
 import * as Hash from "../Hash.ts"
 import { toJson, toStringUnknown } from "../Inspectable.ts"
 import * as Iterable from "../Iterable.ts"
+import type * as _Latch from "../Latch.ts"
 import type * as Logger from "../Logger.ts"
 import type * as LogLevel from "../LogLevel.ts"
 import type * as Metric from "../Metric.ts"
@@ -340,7 +342,8 @@ export const causePrettyErrors = <E>(self: Cause.Cause<E>): Array<Error> => {
   return errors
 }
 
-const causePrettyError = (
+/** @internal */
+export const causePrettyError = (
   original: Record<string, unknown> | Error,
   annotations?: ReadonlyMap<string, unknown>
 ): Error => {
@@ -489,17 +492,33 @@ const fiberIdStore = { id: 0 }
 export const getCurrentFiber = (): Fiber.Fiber<any, any> | undefined => (globalThis as any)[currentFiberTypeId]
 
 const keepAlive = (() => {
+  const start = (() => {
+    const setInterval = globalThis.setInterval
+    const clearInterval = globalThis.clearInterval
+    try {
+      const running = setInterval(constVoid, 2_147_483_647)
+      clearInterval(running)
+      return {
+        setInterval,
+        clearInterval
+      }
+    } catch {
+      return undefined
+    }
+  })()
   let count = 0
   let running: ReturnType<typeof globalThis.setInterval> | undefined = undefined
   return ({
     increment() {
       count++
-      running ??= globalThis.setInterval(constVoid, 2_147_483_647)
+      if (start !== undefined && running === undefined) {
+        running = start.setInterval(constVoid, 2_147_483_647)
+      }
     },
     decrement() {
       count--
-      if (count === 0 && running !== undefined) {
-        globalThis.clearInterval(running)
+      if (count === 0 && start !== undefined && running !== undefined) {
+        start.clearInterval(running)
         running = undefined
       }
     }
@@ -784,6 +803,7 @@ export const fiberJoinAll = <A extends Iterable<Fiber.Fiber<any, any>>>(self: A)
 > =>
   callback((resume) => {
     const fibers = Array.from(self)
+    if (fibers.length === 0) return resume(succeed(Arr.empty() as any))
     const out = new Array<any>(fibers.length) as Arr.NonEmptyArray<any>
     const cancels = Arr.empty<() => void>()
     let done = 0
@@ -3091,14 +3111,14 @@ export const eventually = <A, E, R>(self: Effect.Effect<A, E, R>): Effect.Effect
 /** @internal */
 export const ignore: <
   Arg extends Effect.Effect<any, any, any> | {
-    readonly log?: boolean | LogLevel.LogLevel | undefined
+    readonly log?: boolean | LogLevel.Severity | undefined
   } | undefined = {
-    readonly log?: boolean | LogLevel.LogLevel | undefined
+    readonly log?: boolean | LogLevel.Severity | undefined
   }
 >(
   effectOrOptions: Arg,
   options?: {
-    readonly log?: boolean | LogLevel.LogLevel | undefined
+    readonly log?: boolean | LogLevel.Severity | undefined
   } | undefined
 ) => [Arg] extends [Effect.Effect<infer _A, infer _E, infer _R>] ? Effect.Effect<void, never, _R>
   : <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<void, never, R> = dual(
@@ -3106,7 +3126,7 @@ export const ignore: <
     <A, E, R>(
       self: Effect.Effect<A, E, R>,
       options?: {
-        readonly log?: boolean | LogLevel.LogLevel | undefined
+        readonly log?: boolean | LogLevel.Severity | undefined
       } | undefined
     ): Effect.Effect<void, never, R> => {
       if (!options?.log) {
@@ -3126,14 +3146,14 @@ export const ignore: <
 /** @internal */
 export const ignoreCause: <
   Arg extends Effect.Effect<any, any, any> | {
-    readonly log?: boolean | LogLevel.LogLevel | undefined
+    readonly log?: boolean | LogLevel.Severity | undefined
   } | undefined = {
-    readonly log?: boolean | LogLevel.LogLevel | undefined
+    readonly log?: boolean | LogLevel.Severity | undefined
   }
 >(
   effectOrOptions: Arg,
   options?: {
-    readonly log?: boolean | LogLevel.LogLevel | undefined
+    readonly log?: boolean | LogLevel.Severity | undefined
   } | undefined
 ) => [Arg] extends [Effect.Effect<infer _A, infer _E, infer _R>] ? Effect.Effect<void, never, _R>
   : <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<void, never, R> = dual(
@@ -3141,7 +3161,7 @@ export const ignoreCause: <
     <A, E, R>(
       self: Effect.Effect<A, E, R>,
       options?: {
-        readonly log?: boolean | LogLevel.LogLevel | undefined
+        readonly log?: boolean | LogLevel.Severity | undefined
       } | undefined
     ): Effect.Effect<void, never, R> => {
       if (!options?.log) {
@@ -3403,24 +3423,24 @@ export const isSuccess: <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect
 /** @internal */
 export const delay: {
   (
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect.Effect<A, E, R>
 } = dual(
   2,
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect.Effect<A, E, R> => andThen(sleep(duration), self)
 )
 
 /** @internal */
 export const timeoutOrElse: {
   <A2, E2, R2>(options: {
-    readonly duration: Duration.DurationInput
+    readonly duration: Duration.Input
     readonly onTimeout: LazyArg<Effect.Effect<A2, E2, R2>>
   }): <A, E, R>(
     self: Effect.Effect<A, E, R>
@@ -3428,7 +3448,7 @@ export const timeoutOrElse: {
   <A, E, R, A2, E2, R2>(
     self: Effect.Effect<A, E, R>,
     options: {
-      readonly duration: Duration.DurationInput
+      readonly duration: Duration.Input
       readonly onTimeout: LazyArg<Effect.Effect<A2, E2, R2>>
     }
   ): Effect.Effect<A | A2, E | E2, R | R2>
@@ -3437,7 +3457,7 @@ export const timeoutOrElse: {
   <A, E, R, A2, E2, R2>(
     self: Effect.Effect<A, E, R>,
     options: {
-      readonly duration: Duration.DurationInput
+      readonly duration: Duration.Input
       readonly onTimeout: LazyArg<Effect.Effect<A2, E2, R2>>
     }
   ): Effect.Effect<A | A2, E | E2, R | R2> =>
@@ -3450,19 +3470,19 @@ export const timeoutOrElse: {
 /** @internal */
 export const timeout: {
   (
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): <A, E, R>(
     self: Effect.Effect<A, E, R>
   ) => Effect.Effect<A, E | Cause.TimeoutError, R>
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect.Effect<A, E | Cause.TimeoutError, R>
 } = dual(
   2,
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect.Effect<A, E | TimeoutError, R> =>
     timeoutOrElse(self, {
       duration,
@@ -3473,19 +3493,19 @@ export const timeout: {
 /** @internal */
 export const timeoutOption: {
   (
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): <A, E, R>(
     self: Effect.Effect<A, E, R>
   ) => Effect.Effect<Option.Option<A>, E, R>
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect.Effect<Option.Option<A>, E, R>
 } = dual(
   2,
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect.Effect<Option.Option<A>, E, R> =>
     raceFirst(
       asSome(self),
@@ -3873,19 +3893,19 @@ export const acquireUseRelease = <Resource, E, R, A, E2, R2, E3, R3>(
 
 /** @internal */
 export const cachedInvalidateWithTTL: {
-  (timeToLive: Duration.DurationInput): <A, E, R>(
+  (timeToLive: Duration.Input): <A, E, R>(
     self: Effect.Effect<A, E, R>
   ) => Effect.Effect<[Effect.Effect<A, E, R>, Effect.Effect<void>]>
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    timeToLive: Duration.DurationInput
+    timeToLive: Duration.Input
   ): Effect.Effect<[Effect.Effect<A, E, R>, Effect.Effect<void>]>
 } = dual(2, <A, E, R>(
   self: Effect.Effect<A, E, R>,
-  ttl: Duration.DurationInput
+  ttl: Duration.Input
 ): Effect.Effect<[Effect.Effect<A, E, R>, Effect.Effect<void>]> =>
   sync(() => {
-    const ttlMillis = Duration.toMillis(Duration.fromDurationInputUnsafe(ttl))
+    const ttlMillis = Duration.toMillis(Duration.fromInputUnsafe(ttl))
     const isFinite = Number.isFinite(ttlMillis)
     const latch = makeLatchUnsafe(false)
     let expiresAt = 0
@@ -3918,17 +3938,17 @@ export const cachedInvalidateWithTTL: {
 /** @internal */
 export const cachedWithTTL: {
   (
-    timeToLive: Duration.DurationInput
+    timeToLive: Duration.Input
   ): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<Effect.Effect<A, E, R>>
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    timeToLive: Duration.DurationInput
+    timeToLive: Duration.Input
   ): Effect.Effect<Effect.Effect<A, E, R>>
 } = dual(
   2,
   <A, E, R>(
     self: Effect.Effect<A, E, R>,
-    timeToLive: Duration.DurationInput
+    timeToLive: Duration.Input
   ): Effect.Effect<Effect.Effect<A, E, R>> => map(cachedInvalidateWithTTL(self, timeToLive), (tuple) => tuple[0])
 )
 
@@ -4075,6 +4095,59 @@ export const partition: {
     map(
       forEach(elements, (a, i) => result(f(a, i)), options),
       (results) => Arr.partitionMap(results, identity)
+    )
+)
+
+/** @internal */
+export const validate: {
+  <A, B, E, R>(
+    f: (a: A, i: number) => Effect.Effect<B, E, R>,
+    options?: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard?: false | undefined
+    } | undefined
+  ): (elements: Iterable<A>) => Effect.Effect<Array<B>, Arr.NonEmptyArray<E>, R>
+  <A, B, E, R>(
+    f: (a: A, i: number) => Effect.Effect<B, E, R>,
+    options: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard: true
+    }
+  ): (elements: Iterable<A>) => Effect.Effect<void, Arr.NonEmptyArray<E>, R>
+  <A, B, E, R>(
+    elements: Iterable<A>,
+    f: (a: A, i: number) => Effect.Effect<B, E, R>,
+    options?: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard?: false | undefined
+    } | undefined
+  ): Effect.Effect<Array<B>, Arr.NonEmptyArray<E>, R>
+  <A, B, E, R>(
+    elements: Iterable<A>,
+    f: (a: A, i: number) => Effect.Effect<B, E, R>,
+    options: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard: true
+    }
+  ): Effect.Effect<void, Arr.NonEmptyArray<E>, R>
+} = dual(
+  (args) => isIterable(args[0]) && !isEffect(args[0]),
+  <A, B, E, R>(
+    elements: Iterable<A>,
+    f: (a: A, i: number) => Effect.Effect<B, E, R>,
+    options?: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard?: boolean | undefined
+    } | undefined
+  ): Effect.Effect<Array<B> | void, Arr.NonEmptyArray<E>, R> =>
+    flatMap(
+      partition(elements, f, { concurrency: options?.concurrency }),
+      ([excluded, satisfying]) => {
+        if (Arr.isArrayNonEmpty(excluded)) {
+          return fail(excluded)
+        }
+        return options?.discard ? void_ : succeed(satisfying)
+      }
     )
 )
 
@@ -4772,25 +4845,27 @@ class Semaphore {
     return this.permits - this.taken
   }
 
-  readonly take = (n: number): Effect.Effect<number> =>
-    callback<number>((resume) => {
+  readonly take = (n: number): Effect.Effect<number> => {
+    const take: Effect.Effect<number> = suspend(() => {
       if (this.free < n) {
-        const observer = () => {
-          if (this.free < n) {
-            return
+        return callback((resume) => {
+          if (this.free >= n) return resume(take)
+          const observer = () => {
+            if (this.free < n) return
+            this.waiters.delete(observer)
+            resume(take)
           }
-          this.waiters.delete(observer)
-          this.taken += n
-          resume(succeed(n))
-        }
-        this.waiters.add(observer)
-        return sync(() => {
-          this.waiters.delete(observer)
+          this.waiters.add(observer)
+          return sync(() => {
+            this.waiters.delete(observer)
+          })
         })
       }
       this.taken += n
-      return resume(succeed(n))
+      return succeed(n)
     })
+    return take
+  }
 
   updateTakenUnsafe(fiber: Fiber.Fiber<any, any>, f: (n: number) => number): Effect.Effect<number> {
     this.taken = f(this.taken)
@@ -4828,7 +4903,10 @@ class Semaphore {
 
   readonly withPermits = (n: number) => <A, E, R>(self: Effect.Effect<A, E, R>) =>
     uninterruptibleMask((restore) =>
-      flatMap(restore(this.take(n)), (permits) => ensuring(restore(self), this.release(permits)))
+      flatMap(
+        restore(this.take(n)),
+        (permits) => onExitPrimitive(restore(self), () => this.release(permits), true)
+      )
     )
 
   readonly withPermit = this.withPermits(1)
@@ -4854,7 +4932,7 @@ export const makeSemaphore = (permits: number) => sync(() => makeSemaphoreUnsafe
 const succeedTrue = succeed(true)
 const succeedFalse = succeed(false)
 
-class Latch implements Effect.Latch {
+class Latch implements _Latch.Latch {
   waiters: Array<(_: Effect.Effect<void>) => void> = []
   scheduled = false
   private isOpen: boolean
@@ -4914,7 +4992,7 @@ class Latch implements Effect.Latch {
 }
 
 /** @internal */
-export const makeLatchUnsafe = (open?: boolean | undefined): Effect.Latch => new Latch(open ?? false)
+export const makeLatchUnsafe = (open?: boolean | undefined): _Latch.Latch => new Latch(open ?? false)
 
 /** @internal */
 export const makeLatch = (open?: boolean | undefined) => sync(() => makeLatchUnsafe(open))
@@ -5344,8 +5422,8 @@ export const clockWith = <A, E, R>(f: (clock: Clock.Clock) => Effect.Effect<A, E
   withFiber((fiber) => f(fiber.getRef(ClockRef)))
 
 /** @internal */
-export const sleep = (duration: Duration.DurationInput): Effect.Effect<void> =>
-  clockWith((clock) => clock.sleep(Duration.fromDurationInputUnsafe(duration)))
+export const sleep = (duration: Duration.Input): Effect.Effect<void> =>
+  clockWith((clock) => clock.sleep(Duration.fromInputUnsafe(duration)))
 
 /** @internal */
 export const currentTimeMillis: Effect.Effect<number> = clockWith((clock) => clock.currentTimeMillis)
@@ -5492,7 +5570,7 @@ const LoggerProto = {
 
 /** @internal */
 export const loggerMake = <Message, Output>(
-  log: (options: Logger.Logger.Options<Message>) => Output
+  log: (options: Logger.Options<Message>) => Output
 ): Logger.Logger<Message, Output> => {
   const self = Object.create(LoggerProto)
   self.log = log
@@ -5532,7 +5610,7 @@ export const structuredMessage = (u: unknown): unknown => {
 }
 
 /** @internal */
-export const logWithLevel = (level?: LogLevel.LogLevel) =>
+export const logWithLevel = (level?: LogLevel.Severity) =>
 (
   ...message: ReadonlyArray<any>
 ): Effect.Effect<void> => {
@@ -5823,3 +5901,55 @@ const undefined_ = succeed(undefined)
 
 /** @internal */
 export { undefined_ as undefined }
+
+// ----------------------------------------------------------------------------
+// ErrorReporter
+// ----------------------------------------------------------------------------
+
+/** @internal */
+export const CurrentErrorReporters = ServiceMap.Reference<
+  ReadonlySet<ErrorReporter>
+>("effect/ErrorReporter/CurrentErrorReporters", {
+  defaultValue: () => new Set()
+})
+
+/** @internal */
+export const withErrorReporting: <
+  Arg extends Effect.Effect<any, any, any> | {
+    readonly defectsOnly?: boolean | undefined
+  } | undefined = {
+    readonly defectsOnly?: boolean | undefined
+  }
+>(
+  effectOrOptions: Arg,
+  options?: {
+    readonly defectsOnly?: boolean | undefined
+  } | undefined
+) => [Arg] extends [Effect.Effect<infer _A, infer _E, infer _R>] ? Arg
+  : <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R> = dual(
+    (args) => isEffect(args[0]),
+    <A, E, R>(
+      self: Effect.Effect<A, E, R>,
+      options?: {
+        readonly defectsOnly?: boolean | undefined
+      } | undefined
+    ): Effect.Effect<A, E, R> =>
+      onError(self, (cause) =>
+        withFiber((fiber) => {
+          reportCauseUnsafe(fiber, cause, options?.defectsOnly)
+          return void_
+        }))
+  )
+
+/** @internal */
+export const reportCauseUnsafe = (
+  fiber: Fiber.Fiber<unknown, unknown>,
+  cause: Cause.Cause<unknown>,
+  defectsOnly?: boolean
+) => {
+  const reporters = fiber.getRef(CurrentErrorReporters)
+  if (reporters.size === 0) return
+  if (defectsOnly && !hasDies(cause)) return
+  const opts = { cause, fiber, timestamp: fiber.getRef(ClockRef).currentTimeNanosUnsafe() }
+  reporters.forEach((reporter) => reporter.report(opts))
+}

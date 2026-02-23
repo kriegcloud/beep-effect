@@ -3,7 +3,7 @@
  */
 import * as Data from "../../Data.ts"
 import * as Effect from "../../Effect.ts"
-import * as Base64 from "../../encoding/Base64.ts"
+import * as Encoding from "../../Encoding.ts"
 import * as FileSystem from "../../FileSystem.ts"
 import { dual, identity, type LazyArg } from "../../Function.ts"
 import * as Layer from "../../Layer.ts"
@@ -225,7 +225,7 @@ export const makeStringOnly = (
     getUint8Array: (key) =>
       options.get(key).pipe(
         Effect.map(UndefinedOr.map((value) =>
-          Result.match(Base64.decode(value), {
+          Result.match(Encoding.decodeBase64(value), {
             onFailure: () => encoder.encode(value),
             onSuccess: identity
           })
@@ -234,7 +234,7 @@ export const makeStringOnly = (
     set: (key, value) =>
       typeof value === "string"
         ? options.set(key, value)
-        : Effect.suspend(() => options.set(key, Base64.encode(value)))
+        : Effect.suspend(() => options.set(key, Encoding.encodeBase64(value)))
   })
 }
 
@@ -268,7 +268,7 @@ export const layerMemory: Layer.Layer<KeyValueStore> = Layer.sync(KeyValueStore)
     get: (key: string) =>
       Effect.sync(() => {
         const value = store.get(key)
-        return value === undefined ? undefined : typeof value === "string" ? value : Base64.encode(value)
+        return value === undefined ? undefined : typeof value === "string" ? value : Encoding.encodeBase64(value)
       }),
     getUint8Array: (key: string) =>
       Effect.sync(() => {
@@ -304,7 +304,7 @@ export const layerFileSystem = (
           fs.readFileString(keyPath(key)),
           "PlatformError",
           (cause) =>
-            cause.reason._tag === "SystemError" && cause.reason.kind === "NotFound" ? Effect.undefined : Effect.fail(
+            cause.reason._tag === "NotFound" ? Effect.undefined : Effect.fail(
               new KeyValueStoreError({
                 method: "get",
                 key,
@@ -318,7 +318,7 @@ export const layerFileSystem = (
           fs.readFile(keyPath(key)),
           "PlatformError",
           (cause) =>
-            cause.reason._tag === "SystemError" && cause.reason.kind === "NotFound" ? Effect.undefined : Effect.fail(
+            cause.reason._tag === "NotFound" ? Effect.undefined : Effect.fail(
               new KeyValueStoreError({
                 method: "getUint8Array",
                 key,

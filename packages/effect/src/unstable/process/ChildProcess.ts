@@ -283,7 +283,7 @@ export interface KillOptions {
    * Defaults to `undefined`, which means that no timeout will be enforced by
    * default.
    */
-  readonly forceKillAfter?: Duration.DurationInput | undefined
+  readonly forceKillAfter?: Duration.Input | undefined
 }
 
 /**
@@ -414,7 +414,7 @@ export interface CommandOptions extends KillOptions {
    * the value of `globalThis.process.env`, prioritizing the values in `env`
    * when conflicts exist.
    */
-  readonly env?: Record<string, string> | undefined
+  readonly env?: Record<string, string | undefined> | undefined
   /**
    * If set to `true`, the child process uses both the values in `env` as well
    * as the values in `globalThis.process.env`, prioritizing the values in `env`

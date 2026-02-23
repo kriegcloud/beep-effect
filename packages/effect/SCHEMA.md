@@ -652,7 +652,7 @@ type Encoded = typeof Product.Encoded
 
 //     ┌─── { readonly quantity: Option<number>; }
 //     ▼
-export type Type = typeof Product.Type
+type Type = typeof Product.Type
 
 console.log(Schema.decodeUnknownSync(Product)({}))
 // Output: { quantity: { _id: 'Option', _tag: 'None' } }
@@ -661,7 +661,7 @@ console.log(Schema.decodeUnknownSync(Product)({ quantity: "2" }))
 // Output: { quantity: { _id: 'Option', _tag: 'Some', value: 2 } }
 
 // console.log(Schema.decodeUnknownSync(Product)({ quantity: undefined }))
-// throws:
+// throws
 
 console.log(Schema.encodeSync(Product)({ quantity: Option.some(2) }))
 // Output: { quantity: "2" }
@@ -679,13 +679,13 @@ const Product = Schema.Struct({
   quantity: Schema.OptionFromOptional(Schema.FiniteFromString)
 })
 
-//     ┌─── { readonly quantity?: string; }
+//     ┌─── { readonly quantity?: string | undefined; }
 //     ▼
 type Encoded = typeof Product.Encoded
 
 //     ┌─── { readonly quantity: Option<number>; }
 //     ▼
-export type Type = typeof Product.Type
+type Type = typeof Product.Type
 
 console.log(Schema.decodeUnknownSync(Product)({}))
 // Output: { quantity: { _id: 'Option', _tag: 'None' } }
@@ -693,8 +693,8 @@ console.log(Schema.decodeUnknownSync(Product)({}))
 console.log(Schema.decodeUnknownSync(Product)({ quantity: "2" }))
 // Output: { quantity: { _id: 'Option', _tag: 'Some', value: 2 } }
 
-// console.log(Schema.decodeUnknownSync(Product)({ quantity: undefined }))
-// throws:
+console.log(Schema.decodeUnknownSync(Product)({ quantity: undefined }))
+// Output: { quantity: { _id: 'Option', _tag: 'None' } }
 
 console.log(Schema.encodeSync(Product)({ quantity: Option.some(2) }))
 // Output: { quantity: "2" }
@@ -726,7 +726,7 @@ type Encoded = typeof Product.Encoded
 
 //     ┌─── { readonly quantity: Option<number>; }
 //     ▼
-export type Type = typeof Product.Type
+type Type = typeof Product.Type
 
 console.log(Schema.decodeUnknownSync(Product)({}))
 // Output: { quantity: { _id: 'Option', _tag: 'None' } }
@@ -738,7 +738,7 @@ console.log(Schema.decodeUnknownSync(Product)({ quantity: "2" }))
 // Output: { quantity: { _id: 'Option', _tag: 'Some', value: 2 } }
 
 // console.log(Schema.decodeUnknownSync(Product)({ quantity: undefined }))
-// throws:
+// throws
 ```
 
 #### Optional Property with Nullability
@@ -792,7 +792,7 @@ const schema = Schema.Struct({
   username: Schema.String.annotateKey({
     description: "The username used to log in",
     // Custom message shown if the key is missing
-    missingKeyMessage: "Username is required"
+    messageMissingKey: "Username is required"
   })
 })
 
@@ -815,7 +815,7 @@ import { Schema } from "effect"
 
 const schema = Schema.Struct({
   a: Schema.String
-}).annotate({ unexpectedKeyMessage: "Custom message" })
+}).annotate({ messageUnexpectedKey: "Custom message" })
 
 console.log(String(Schema.decodeUnknownExit(schema)({ a: "a", b: "b" }, { onExcessProperty: "error" })))
 /*
@@ -1278,7 +1278,7 @@ const schema = Schema.Tuple([
   Schema.String.annotateKey({
     description: "my element description",
     // a message to display when the element is missing
-    missingKeyMessage: "this element is required"
+    messageMissingKey: "this element is required"
   })
 ])
 
@@ -5537,7 +5537,7 @@ export interface Issue {
 You can customize the messages of the `Issue` object in two main ways:
 
 - By passing formatter hooks
-- By annotating schemas with `message` or `missingKeyMessage` or `unexpectedKeyMessage`
+- By annotating schemas with `message` or `messageMissingKey` or `messageUnexpectedKey`
 
 ##### Hooks
 
@@ -5725,7 +5725,7 @@ const Person = Schema.Struct({
     // Message for invalid type (e.g., number instead of string)
     .annotate({ message: t("string.mismatch") })
     // Message to show when the key is missing
-    .annotateKey({ missingKeyMessage: t("struct.missingKey") })
+    .annotateKey({ messageMissingKey: t("struct.missingKey") })
     // Message to show when the string is empty
     .check(Schema.isNonEmpty({ message: t("string.minLength", { minLength: 1 }) }))
 })
@@ -8086,3 +8086,11 @@ const schema = Schema.String.check(Schema.isULID())
 ## URLFromSelf
 
 Renamed to `URL`.
+
+## RedactedFromSelf
+
+Renamed to `Redacted`.
+
+## Redacted
+
+Renamed to `RedactedFromValue`.

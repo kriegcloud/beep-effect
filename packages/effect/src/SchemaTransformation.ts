@@ -82,6 +82,8 @@
  * @since 4.0.0
  */
 
+import * as BigDecimal from "./BigDecimal.ts"
+import * as DateTime from "./DateTime.ts"
 import * as Duration from "./Duration.ts"
 import * as Effect from "./Effect.ts"
 import * as Option from "./Option.ts"
@@ -1137,6 +1139,33 @@ export const urlFromString: Transformation<URL, string> = transformOrFail<URL, s
 })
 
 /**
+ * Decodes a `string` into a `BigDecimal` and encodes a `BigDecimal` back to
+ * its string representation.
+ *
+ * When to use this:
+ * - Parsing decimal number strings from APIs or user input.
+ *
+ * Behavior:
+ * - Decode: calls `BigDecimal.fromString(s)`. Fails with `InvalidValue` if the
+ *   string is not a valid BigDecimal representation.
+ * - Encode: returns `BigDecimal.format(bd)`.
+ *
+ * @since 4.0.0
+ */
+export const bigDecimalFromString: Transformation<BigDecimal.BigDecimal, string> = transformOrFail<
+  BigDecimal.BigDecimal,
+  string
+>({
+  decode: (s) => {
+    const result = BigDecimal.fromString(s)
+    return result === undefined
+      ? Effect.fail(new Issue.InvalidValue(Option.some(s), { message: `Invalid BigDecimal string: ${s}` }))
+      : Effect.succeed(result)
+  },
+  encode: (bd) => Effect.succeed(BigDecimal.format(bd))
+})
+
+/**
  * Decodes a Base64-encoded `string` into a `Uint8Array` and encodes a
  * `Uint8Array` back to a Base64 string.
  *
@@ -1264,3 +1293,78 @@ export const fromURLSearchParams = new Transformation<unknown, URLSearchParams>(
   Getter.decodeURLSearchParams(),
   Getter.encodeURLSearchParams()
 )
+
+/**
+ * @since 4.0.0
+ */
+export const timeZoneOffsetFromNumber: Transformation<DateTime.TimeZone.Offset, number> = transform<
+  DateTime.TimeZone.Offset,
+  number
+>({
+  decode: (n) => DateTime.zoneMakeOffset(n),
+  encode: (tz) => tz.offset
+})
+
+/**
+ * @since 4.0.0
+ */
+export const timeZoneNamedFromString: Transformation<DateTime.TimeZone.Named, string> = transformOrFail<
+  DateTime.TimeZone.Named,
+  string
+>({
+  decode: (s) => {
+    const result = DateTime.zoneMakeNamed(s)
+    return result === undefined
+      ? Effect.fail(new Issue.InvalidValue(Option.some(s), { message: `Invalid IANA time zone: ${s}` }))
+      : Effect.succeed(result)
+  },
+  encode: (tz) => Effect.succeed(tz.id)
+})
+
+/**
+ * @since 4.0.0
+ */
+export const timeZoneFromString: Transformation<DateTime.TimeZone, string> = transformOrFail<
+  DateTime.TimeZone,
+  string
+>({
+  decode: (s) => {
+    const result = DateTime.zoneFromString(s)
+    return result === undefined
+      ? Effect.fail(new Issue.InvalidValue(Option.some(s), { message: `Invalid time zone: ${s}` }))
+      : Effect.succeed(result)
+  },
+  encode: (tz) => Effect.succeed(DateTime.zoneToString(tz))
+})
+
+/**
+ * @since 4.0.0
+ */
+export const dateTimeUtcFromString: Transformation<DateTime.Utc, string> = transformOrFail<
+  DateTime.Utc,
+  string
+>({
+  decode: (s) => {
+    const result = DateTime.make(s)
+    return result === undefined
+      ? Effect.fail(new Issue.InvalidValue(Option.some(s), { message: "Invalid DateTime input" }))
+      : Effect.succeed(DateTime.toUtc(result))
+  },
+  encode: (utc) => Effect.succeed(DateTime.formatIso(utc))
+})
+
+/**
+ * @since 4.0.0
+ */
+export const dateTimeZonedFromString: Transformation<DateTime.Zoned, string> = transformOrFail<
+  DateTime.Zoned,
+  string
+>({
+  decode: (s) => {
+    const result = DateTime.makeZonedFromString(s)
+    return result === undefined
+      ? Effect.fail(new Issue.InvalidValue(Option.some(s), { message: `Invalid zoned DateTime string: ${s}` }))
+      : Effect.succeed(result)
+  },
+  encode: (zoned) => Effect.succeed(DateTime.formatIsoZoned(zoned))
+})

@@ -23,8 +23,9 @@
  */
 import * as Effect from "./Effect.ts"
 import { dual } from "./Function.ts"
+import * as random from "./internal/random.ts"
 import * as Predicate from "./Predicate.ts"
-import * as ServiceMap from "./ServiceMap.ts"
+import type * as ServiceMap from "./ServiceMap.ts"
 
 /**
  * Represents a service for generating random numbers.
@@ -49,23 +50,13 @@ import * as ServiceMap from "./ServiceMap.ts"
  * @since 4.0.0
  * @category Random Number Generators
  */
-export const Random = ServiceMap.Reference<{
+export const Random: ServiceMap.Reference<{
   nextIntUnsafe(): number
   nextDoubleUnsafe(): number
-}>("effect/Random", {
-  defaultValue: () => ({
-    nextIntUnsafe() {
-      return Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER - Number.MIN_SAFE_INTEGER + 1)) +
-        Number.MIN_SAFE_INTEGER
-    },
-    nextDoubleUnsafe() {
-      return Math.random()
-    }
-  })
-})
+}> = random.Random
 
 const randomWith = <A>(f: (random: typeof Random["Service"]) => A): Effect.Effect<A> =>
-  Effect.withFiber((fiber) => Effect.succeed(f(ServiceMap.get(fiber.services, Random))))
+  Effect.withFiber((fiber) => Effect.succeed(f(fiber.getRef(Random))))
 
 /**
  * Generates a random number between 0 (inclusive) and 1 (inclusive).
@@ -155,6 +146,34 @@ export const nextIntBetween = (min: number, max: number, options?: {
     return Math.floor(r.nextDoubleUnsafe() * (maxInt - minInt + extra)) + minInt
   })
 }
+
+/**
+ * Uses the pseudo-random number generator to shuffle the specified iterable.
+ *
+ * @example
+ * ```ts
+ * import { Effect, Random } from "effect"
+ *
+ * const program = Effect.gen(function*() {
+ *   const values = yield* Random.shuffle([1, 2, 3, 4, 5])
+ *   console.log(values)
+ * })
+ * ```
+ *
+ * @since 4.0.0
+ * @category Random Number Generators
+ */
+export const shuffle = <A>(elements: Iterable<A>): Effect.Effect<Array<A>> =>
+  randomWith((r) => {
+    const buffer = Array.from(elements)
+    for (let i = buffer.length - 1; i >= 1; i = i - 1) {
+      const index = Math.min(i, Math.floor(r.nextDoubleUnsafe() * (i + 1)))
+      const value = buffer[i]!
+      buffer[i] = buffer[index]!
+      buffer[index] = value
+    }
+    return buffer
+  })
 
 /**
  * Generates a random UUID (v4) string.

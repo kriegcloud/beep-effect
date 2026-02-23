@@ -12,11 +12,22 @@ const config: ViteUserConfig = {
   plugins: [aliases()],
   server: {
     watch: {
-      ignored: ["**/.context/**"]
+      ignored: [
+        "**/.context/**",
+        "**/.direnv/**",
+        "**/.lalph/**",
+        "**/.repos/**"
+      ]
     }
   },
   test: {
-    exclude: ["**/.context/**", "**/node_modules/**"],
+    exclude: [
+      "**/.context/**",
+      "**/.direnv/**",
+      "**/.lalph/**",
+      "**/.repos/**",
+      "**/node_modules/**"
+    ],
     setupFiles: [path.join(__dirname, "vitest.setup.ts")],
     fakeTimers: {
       toFake: undefined

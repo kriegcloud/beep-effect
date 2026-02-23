@@ -3,6 +3,7 @@
  */
 import * as Arr from "../../Array.ts"
 import * as Cause from "../../Cause.ts"
+import { Clock } from "../../Clock.ts"
 import * as Duration from "../../Duration.ts"
 import * as Effect from "../../Effect.ts"
 import type * as Layer from "../../Layer.ts"
@@ -30,9 +31,9 @@ export const make: (
       readonly attributes?: Record<string, unknown>
     } | undefined
     readonly headers?: Headers.Input | undefined
-    readonly exportInterval?: Duration.DurationInput | undefined
+    readonly exportInterval?: Duration.Input | undefined
     readonly maxBatchSize?: number | undefined
-    readonly shutdownTimeout?: Duration.DurationInput | undefined
+    readonly shutdownTimeout?: Duration.Input | undefined
     readonly excludeLogSpans?: boolean | undefined
   }
 ) => Effect.Effect<
@@ -66,7 +67,8 @@ export const make: (
   })
 
   const opts = {
-    excludeLogSpans: options.excludeLogSpans ?? false
+    excludeLogSpans: options.excludeLogSpans ?? false,
+    clock: yield* Clock
   }
   return Logger.make((options) => {
     exporter.push(makeLogRecord(options, opts))
@@ -85,9 +87,9 @@ export const layer = (options: {
     readonly attributes?: Record<string, unknown>
   } | undefined
   readonly headers?: Headers.Input | undefined
-  readonly exportInterval?: Duration.DurationInput | undefined
+  readonly exportInterval?: Duration.Input | undefined
   readonly maxBatchSize?: number | undefined
-  readonly shutdownTimeout?: Duration.DurationInput | undefined
+  readonly shutdownTimeout?: Duration.Input | undefined
   readonly excludeLogSpans?: boolean | undefined
   readonly mergeWithExisting?: boolean | undefined
 }): Layer.Layer<never, never, HttpClient.HttpClient | OtlpSerialization> =>
@@ -104,11 +106,13 @@ export interface LogsData {
 
 // internal
 
-const makeLogRecord = (options: Logger.Logger.Options<unknown>, opts: {
+const makeLogRecord = (options: Logger.Options<unknown>, opts: {
   readonly excludeLogSpans: boolean
+  readonly clock: Clock
 }): ILogRecord => {
-  const now = options.date.getTime()
-  const nanosString = `${now}000000`
+  const now = opts.clock.currentTimeNanosUnsafe()
+  const nanosString = now.toString()
+  const nowMillis = options.date.getTime()
 
   const attributes = OtlpResource.entriesToAttributes(Object.entries(options.fiber.getRef(CurrentLogAnnotations)))
   attributes.push({
@@ -119,7 +123,7 @@ const makeLogRecord = (options: Logger.Logger.Options<unknown>, opts: {
     for (const [label, startTime] of options.fiber.getRef(CurrentLogSpans)) {
       attributes.push({
         key: `logSpan.${label}`,
-        value: { stringValue: `${now - startTime}ms` }
+        value: { stringValue: `${nowMillis - startTime}ms` }
       })
     }
   }

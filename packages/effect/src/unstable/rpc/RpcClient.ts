@@ -8,6 +8,7 @@ import * as Effect from "../../Effect.ts"
 import * as Exit from "../../Exit.ts"
 import * as Fiber from "../../Fiber.ts"
 import { constVoid, dual, flow, identity } from "../../Function.ts"
+import * as Latch from "../../Latch.ts"
 import * as Layer from "../../Layer.ts"
 import * as Option from "../../Option.ts"
 import * as Pool from "../../Pool.ts"
@@ -20,7 +21,6 @@ import * as ServiceMap from "../../ServiceMap.ts"
 import * as Stream from "../../Stream.ts"
 import type * as Struct from "../../Struct.ts"
 import type { Span } from "../../Tracer.ts"
-import type { Mutable } from "../../Types.ts"
 import * as Headers from "../http/Headers.ts"
 import * as HttpBody from "../http/HttpBody.ts"
 import * as HttpClient from "../http/HttpClient.ts"
@@ -45,16 +45,7 @@ import { withRun } from "./Utils.ts"
  * @since 4.0.0
  * @category client
  */
-export type RpcClient<Rpcs extends Rpc.Any, E = never> = Struct.Simplify<
-  & RpcClient.From<RpcClient.NonPrefixed<Rpcs>, E, "">
-  & {
-    readonly [CurrentPrefix in RpcClient.Prefixes<Rpcs>]: RpcClient.From<
-      RpcClient.Prefixed<Rpcs, CurrentPrefix>,
-      E,
-      CurrentPrefix
-    >
-  }
->
+export type RpcClient<Rpcs extends Rpc.Any, E = never> = Struct.Simplify<RpcClient.From<Rpcs, E>>
 
 /**
  * @since 4.0.0
@@ -65,34 +56,8 @@ export declare namespace RpcClient {
    * @since 4.0.0
    * @category client
    */
-  export type Prefixes<Rpcs extends Rpc.Any> = Rpcs["_tag"] extends infer Tag
-    ? Tag extends `${infer Prefix}.${string}` ? Prefix : never
-    : never
-
-  /**
-   * @since 4.0.0
-   * @category client
-   */
-  export type NonPrefixed<Rpcs extends Rpc.Any> = Exclude<Rpcs, { readonly _tag: `${string}.${string}` }>
-
-  /**
-   * @since 4.0.0
-   * @category client
-   */
-  export type Prefixed<Rpcs extends Rpc.Any, Prefix extends string> = Extract<
-    Rpcs,
-    { readonly _tag: `${Prefix}.${string}` }
-  >
-
-  /**
-   * @since 4.0.0
-   * @category client
-   */
-  export type From<Rpcs extends Rpc.Any, E = never, Prefix extends string = ""> = {
-    readonly [
-      Current in Rpcs as Current["_tag"] extends `${Prefix}.${infer Method}` ? Method
-        : Current["_tag"]
-    ]: <
+  export type From<Rpcs extends Rpc.Any, E = never> = {
+    readonly [Current in Rpcs as Current["_tag"]]: <
       const AsQueue extends boolean = false,
       const Discard = false
     >(
@@ -614,16 +579,9 @@ export const makeNoSerialization: <Rpcs extends Rpc.Any, E, const Flatten extend
     }
   } else {
     client = {}
-    for (const rpc of group.requests.values()) {
-      const dot = rpc._tag.indexOf(".")
-      const prefix = dot === -1 ? undefined : rpc._tag.slice(0, dot)
-      if (prefix !== undefined && !(prefix in client)) {
-        ;(client as any)[prefix] = {} as Mutable<RpcClient.Prefixed<Rpcs, typeof prefix>>
-      }
-      const target = prefix !== undefined ? (client as any)[prefix] : client
-      const tag = prefix !== undefined ? rpc._tag.slice(dot + 1) : rpc._tag
-      target[tag] = onRequest(rpc as any)
-    }
+    group.requests.forEach((rpc) => {
+      client[rpc._tag] = onRequest(rpc as any)
+    })
   }
 
   return { client, write } as const
@@ -1062,7 +1020,7 @@ const defaultRetryPolicy = Schedule.exponential(500, 1.5).pipe(
 
 const makePinger = Effect.fnUntraced(function*<A, E, R>(writePing: Effect.Effect<A, E, R>) {
   let recievedPong = true
-  const latch = Effect.makeLatchUnsafe()
+  const latch = Latch.makeUnsafe()
   const reset = () => {
     recievedPong = true
     latch.closeUnsafe()
@@ -1110,7 +1068,7 @@ export const makeProtocolWorker = (
     readonly maxSize: number
     readonly concurrency?: number | undefined
     readonly targetUtilization?: number | undefined
-    readonly timeToLive: Duration.DurationInput
+    readonly timeToLive: Duration.Input
   }
 ): Effect.Effect<
   Protocol["Service"],
@@ -1125,7 +1083,7 @@ export const makeProtocolWorker = (
 
     const entries = new Map<string, {
       readonly worker: Worker.Worker<FromServerEncoded, FromClientEncoded | RpcWorker.InitialMessage.Encoded>
-      readonly latch: Effect.Latch
+      readonly latch: Latch.Latch
     }>()
 
     const acquire = Effect.gen(function*() {
@@ -1211,7 +1169,7 @@ export const makeProtocolWorker = (
         case "Request": {
           return Pool.get(pool).pipe(
             Effect.flatMap((worker) => {
-              const latch = Effect.makeLatchUnsafe(false)
+              const latch = Latch.makeUnsafe(false)
               entries.set(request.id, { worker, latch })
               return Effect.flatMap(worker.send(request, transferables), () => latch.await)
             }),
@@ -1258,7 +1216,7 @@ export const layerProtocolWorker: (
     readonly maxSize: number
     readonly concurrency?: number | undefined
     readonly targetUtilization?: number | undefined
-    readonly timeToLive: Duration.DurationInput
+    readonly timeToLive: Duration.Input
   }
 ) => Layer.Layer<
   Protocol,

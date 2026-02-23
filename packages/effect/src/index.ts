@@ -444,6 +444,65 @@ export * as Chunk from "./Chunk.ts"
 export * as Clock from "./Clock.ts"
 
 /**
+ * A module for combining two values of the same type into one.
+ *
+ * A `Combiner<A>` wraps a single binary function `(self: A, that: A) => A`.
+ * It describes *how* two values merge but carries no initial/empty value
+ * (for that, see {@link Reducer} which extends `Combiner` with an
+ * `initialValue`).
+ *
+ * ## Mental model
+ *
+ * - **Combiner** – an object with a `combine(self, that)` method that returns
+ *   a value of the same type.
+ * - **Argument order** – `self` is the "left" / accumulator side, `that` is
+ *   the "right" / incoming side.
+ * - **No identity element** – unlike a monoid, a `Combiner` does not require
+ *   a neutral element. Use {@link Reducer} when you need one.
+ * - **Purity** – all combiners produced by this module are pure; they never
+ *   mutate their arguments.
+ * - **Composability** – combiners can be lifted into `Option`, `Struct`,
+ *   `Tuple`, and other container types via helpers in those modules.
+ *
+ * ## Common tasks
+ *
+ * - Create a combiner from any binary function → {@link make}
+ * - Swap argument order → {@link flip}
+ * - Pick the smaller / larger of two values → {@link min} / {@link max}
+ * - Always keep the first or last value → {@link first} / {@link last}
+ * - Ignore both values and return a fixed result → {@link constant}
+ * - Insert a separator between combined values → {@link intercalate}
+ *
+ * ## Gotchas
+ *
+ * - `min` and `max` require an `Order<A>`, not a raw comparator. Import from
+ *   e.g. `Number.Order` or `String.Order`.
+ * - `intercalate` is curried: call it with the separator first, then pass the
+ *   base combiner.
+ * - A `Reducer` (which adds `initialValue`) is also a valid `Combiner` — you
+ *   can pass a `Reducer` anywhere a `Combiner` is expected.
+ *
+ * ## Quickstart
+ *
+ * **Example** (combining strings with a separator)
+ *
+ * ```ts
+ * import { Combiner, String } from "effect"
+ *
+ * const csv = Combiner.intercalate(",")(String.ReducerConcat)
+ *
+ * console.log(csv.combine("a", "b"))
+ * // Output: "a,b"
+ *
+ * console.log(csv.combine(csv.combine("a", "b"), "c"))
+ * // Output: "a,b,c"
+ * ```
+ *
+ * ## See also
+ *
+ * - {@link make} – the primary constructor
+ * - {@link Combiner} – the core interface
+ *
  * @since 4.0.0
  */
 export * as Combiner from "./Combiner.ts"
@@ -684,15 +743,75 @@ export * as Console from "./Console.ts"
 export * as Cron from "./Cron.ts"
 
 /**
- * This module provides utilities for creating data types with structural equality
- * semantics. Unlike regular JavaScript objects, `Data` types support value-based
- * equality comparison using the `Equal` module.
+ * Immutable data constructors with discriminated-union support.
  *
- * The main benefits of using `Data` types are:
- * - **Structural equality**: Two `Data` objects are equal if their contents are equal
- * - **Immutability**: `Data` types are designed to be immutable
- * - **Type safety**: Constructors ensure type safety and consistency
- * - **Effect integration**: Error types work seamlessly with Effect's error handling
+ * The `Data` module provides base classes and factory functions for creating
+ * immutable value types with a `_tag` field for discriminated unions.
+ * It is the recommended way to define domain models, error types, and
+ * lightweight ADTs in Effect applications.
+ *
+ * ## Mental model
+ *
+ * - **`Class`** — base class for plain immutable data. Extend it with a type
+ *   parameter to declare the fields. Instances are `Pipeable`.
+ * - **`TaggedClass`** — like `Class` but automatically adds a `readonly _tag`
+ *   string literal field. Useful for single-variant types or ad-hoc tagged
+ *   values.
+ * - **`TaggedEnum`** (type) + **`taggedEnum`** (value) — define a multi-variant
+ *   discriminated union from a simple record. `taggedEnum()` returns per-variant
+ *   constructors plus `$is` / `$match` helpers.
+ * - **`Error`** — like `Class` but extends `Cause.YieldableError`, so instances
+ *   can be yielded inside `Effect.gen` to fail the effect.
+ * - **`TaggedError`** — like `TaggedClass` but extends `Cause.YieldableError`.
+ *   Works with `Effect.catchTag` for tag-based error recovery.
+ *
+ * ## Common tasks
+ *
+ * - Define a simple value class → {@link Class}
+ * - Define a value class with a `_tag` → {@link TaggedClass}
+ * - Define a discriminated union with constructors → {@link TaggedEnum} + {@link taggedEnum}
+ * - Define a yieldable error → {@link Error}
+ * - Define a yieldable tagged error → {@link TaggedError}
+ * - Type-guard a tagged value → `$is` from {@link taggedEnum}
+ * - Pattern-match on a tagged union → `$match` from {@link taggedEnum}
+ *
+ * ## Gotchas
+ *
+ * - Variant records passed to `TaggedEnum` must **not** contain a `_tag` key;
+ *   the `_tag` is added automatically from the record key.
+ * - When a class has no fields, the constructor argument is optional (`void`).
+ * - `taggedEnum()` creates **plain objects**, not class instances. If you need
+ *   class-based variants, use `TaggedClass` or `TaggedError` instead.
+ * - `TaggedEnum.WithGenerics` supports up to 4 generic type parameters.
+ *
+ * ## Quickstart
+ *
+ * **Example** (tagged union with pattern matching)
+ *
+ * ```ts
+ * import { Data } from "effect"
+ *
+ * type Shape = Data.TaggedEnum<{
+ *   Circle: { readonly radius: number }
+ *   Rect: { readonly width: number; readonly height: number }
+ * }>
+ * const { Circle, Rect, $match } = Data.taggedEnum<Shape>()
+ *
+ * const area = $match({
+ *   Circle: ({ radius }) => Math.PI * radius ** 2,
+ *   Rect: ({ width, height }) => width * height
+ * })
+ *
+ * console.log(area(Circle({ radius: 5 })))
+ * // 78.53981633974483
+ * console.log(area(Rect({ width: 3, height: 4 })))
+ * // 12
+ * ```
+ *
+ * @see {@link Class} — plain immutable data class
+ * @see {@link TaggedEnum} — discriminated union type
+ * @see {@link taggedEnum} — discriminated union constructors
+ * @see {@link TaggedError} — yieldable tagged error class
  *
  * @since 2.0.0
  */
@@ -866,9 +985,80 @@ export * as Duration from "./Duration.ts"
 export * as Effect from "./Effect.ts"
 
 /**
- * This module provides functionality for defining and working with equality between values.
- * It includes the `Equal` interface for types that can determine equality with other values
- * of the same type, and utilities for comparing values.
+ * Encoding & decoding for Base64 (RFC4648), Base64Url, and Hex.
+ *
+ * @since 4.0.0
+ */
+export * as Encoding from "./Encoding.ts"
+
+/**
+ * Structural and custom equality for Effect values.
+ *
+ * The `Equal` module provides deep structural comparison for primitives, plain
+ * objects, arrays, Maps, Sets, Dates, and RegExps. Types that implement the
+ * {@link Equal} interface can supply their own comparison logic while staying
+ * compatible with the rest of the ecosystem (HashMap, HashSet, etc.).
+ *
+ * ## Mental model
+ *
+ * - **Structural equality** — two values are equal when their contents match,
+ *   not when they share the same reference.
+ * - **Hash-first shortcut** — before comparing fields, the module checks
+ *   {@link Hash.hash}. If the hashes differ the objects are unequal without
+ *   further traversal.
+ * - **Equal interface** — any object that implements both {@link symbol} (the
+ *   equality method) and `Hash.symbol` (the hash method) can define custom
+ *   comparison logic.
+ * - **Caching** — comparison results for object pairs are cached in a WeakMap.
+ *   This makes repeated checks fast but **requires immutability** after the
+ *   first comparison.
+ * - **By-reference opt-out** — {@link byReference} and {@link byReferenceUnsafe}
+ *   let you switch individual objects back to reference equality when you need
+ *   mutable identity semantics.
+ *
+ * ## Common tasks
+ *
+ * - Compare two values → {@link equals}
+ * - Check if a value implements `Equal` → {@link isEqual}
+ * - Use `equals` where an `Equivalence` is expected → {@link asEquivalence}
+ * - Implement custom equality on a class → implement {@link Equal} (see
+ *   example on the interface)
+ * - Opt an object out of structural equality → {@link byReference} /
+ *   {@link byReferenceUnsafe}
+ *
+ * ## Gotchas
+ *
+ * - Objects **must be treated as immutable** after their first equality check.
+ *   Results are cached; mutating an object afterwards yields stale results.
+ * - `NaN` is considered equal to `NaN` (unlike `===`).
+ * - Functions without an `Equal` implementation are compared by reference.
+ * - Map and Set comparisons are order-independent but O(n²) in size.
+ * - If only one of two objects implements `Equal`, they are never equal.
+ *
+ * ## Quickstart
+ *
+ * **Example** (basic structural comparison)
+ *
+ * ```ts
+ * import { Equal } from "effect"
+ *
+ * // Primitives
+ * console.log(Equal.equals(1, 1))       // true
+ * console.log(Equal.equals("a", "b"))   // false
+ *
+ * // Objects and arrays
+ * console.log(Equal.equals({ x: 1 }, { x: 1 })) // true
+ * console.log(Equal.equals([1, 2], [1, 2]))       // true
+ *
+ * // Curried form
+ * const is42 = Equal.equals(42)
+ * console.log(is42(42)) // true
+ * console.log(is42(0))  // false
+ * ```
+ *
+ * @see {@link equals} — the main comparison function
+ * @see {@link Equal} — the interface for custom equality
+ * @see {@link Hash} — the companion hashing module
  *
  * @since 2.0.0
  */
@@ -928,6 +1118,11 @@ export * as Equal from "./Equal.ts"
  * @since 2.0.0
  */
 export * as Equivalence from "./Equivalence.ts"
+
+/**
+ * @since 4.0.0
+ */
+export * as ErrorReporter from "./ErrorReporter.ts"
 
 /**
  * @since 3.16.0
@@ -1130,6 +1325,57 @@ export * as FileSystem from "./FileSystem.ts"
 export * as Filter from "./Filter.ts"
 
 /**
+ * Utilities for converting arbitrary JavaScript values into human-readable
+ * strings, with support for circular references, redaction, and common JS
+ * types that `JSON.stringify` handles poorly.
+ *
+ * Mental model:
+ * - A `Formatter<Value, Format>` is a callable `(value: Value) => Format`.
+ * - {@link format} is the general-purpose pretty-printer: it handles
+ *   primitives, arrays, objects, `BigInt`, `Symbol`, `Date`, `RegExp`,
+ *   `Set`, `Map`, class instances, and circular references.
+ * - {@link formatJson} is a safe `JSON.stringify` wrapper that silently
+ *   drops circular references and applies redaction.
+ * - Both functions accept a `space` option for indentation control.
+ *
+ * Common tasks:
+ * - Pretty-print any value for debugging / logging -> {@link format}
+ * - Serialize to JSON safely (no circular throws) -> {@link formatJson}
+ * - Format a single object property key -> {@link formatPropertyKey}
+ * - Format a property path like `["a"]["b"]` -> {@link formatPath}
+ * - Format a `Date` to ISO string safely -> {@link formatDate}
+ *
+ * Gotchas:
+ * - {@link format} output is **not** valid JSON; use {@link formatJson} when
+ *   you need parseable JSON.
+ * - {@link format} calls `toString()` on objects by default; pass
+ *   `ignoreToString: true` to disable.
+ * - {@link formatJson} silently omits circular references (the key is
+ *   dropped from the output).
+ * - Values implementing the `Redactable` protocol are automatically
+ *   redacted by both {@link format} and {@link formatJson}.
+ *
+ * **Example** (Pretty-print a value)
+ *
+ * ```ts
+ * import { Formatter } from "effect"
+ *
+ * const obj = { name: "Alice", scores: [100, 97] }
+ * console.log(Formatter.format(obj))
+ * // {"name":"Alice","scores":[100,97]}
+ *
+ * console.log(Formatter.format(obj, { space: 2 }))
+ * // {
+ * //   "name": "Alice",
+ * //   "scores": [
+ * //     100,
+ * //     97
+ * //   ]
+ * // }
+ * ```
+ *
+ * See also: {@link Formatter}, {@link format}, {@link formatJson}
+ *
  * @since 4.0.0
  */
 export * as Formatter from "./Formatter.ts"
@@ -1394,9 +1640,97 @@ export * as JsonPatch from "./JsonPatch.ts"
 export * as JsonPointer from "./JsonPointer.ts"
 
 /**
+ * Convert JSON Schema documents between dialects (Draft-07, Draft-2020-12,
+ * OpenAPI 3.0, OpenAPI 3.1). All dialects are normalized to an internal
+ * `Document<"draft-2020-12">` representation before optional conversion to
+ * an output dialect.
+ *
+ * ## Mental model
+ *
+ * - **JsonSchema** — a plain object with string keys; represents any single
+ *   JSON Schema node.
+ * - **Dialect** — one of `"draft-07"`, `"draft-2020-12"`, `"openapi-3.1"`,
+ *   or `"openapi-3.0"`.
+ * - **Document** — a structured container holding a root `schema`, its
+ *   companion `definitions`, and the target `dialect`. Definitions are
+ *   stored separately from the root schema so they can be relocated when
+ *   converting between dialects.
+ * - **MultiDocument** — same as `Document` but carries multiple root
+ *   schemas (at least one). Useful when generating several schemas that
+ *   share a single definitions pool.
+ * - **Definitions** — a `Record<string, JsonSchema>` keyed by definition
+ *   name. The ref pointer prefix depends on the dialect.
+ * - **`from*` functions** — parse a raw JSON Schema object into the
+ *   canonical `Document<"draft-2020-12">`.
+ * - **`to*` functions** — convert from the canonical representation to a
+ *   specific output dialect.
+ *
+ * ## Common tasks
+ *
+ * - Parse a Draft-07 schema → {@link fromSchemaDraft07}
+ * - Parse a Draft-2020-12 schema → {@link fromSchemaDraft2020_12}
+ * - Parse an OpenAPI 3.1 schema → {@link fromSchemaOpenApi3_1}
+ * - Parse an OpenAPI 3.0 schema → {@link fromSchemaOpenApi3_0}
+ * - Convert to Draft-07 output → {@link toDocumentDraft07}
+ * - Convert to OpenAPI 3.1 output → {@link toMultiDocumentOpenApi3_1}
+ * - Resolve a `$ref` against definitions → {@link resolve$ref}
+ * - Inline the root `$ref` of a document → {@link resolveTopLevel$ref}
+ *
+ * ## Gotchas
+ *
+ * - All `from*` functions normalize to `Document<"draft-2020-12">`
+ *   regardless of the input dialect.
+ * - Unsupported or unrecognized JSON Schema keywords are silently dropped
+ *   during conversion.
+ * - Draft-07 tuple syntax (`items` as array + `additionalItems`) is
+ *   converted to 2020-12 form (`prefixItems` + `items`), and vice-versa.
+ * - OpenAPI 3.0 `nullable: true` is expanded into `type` arrays or
+ *   `anyOf` unions. The `nullable` keyword is removed.
+ * - OpenAPI 3.0 singular `example` is converted to `examples` (array).
+ * - {@link resolve$ref} only looks up the last segment of the ref path in
+ *   the definitions map; it does not follow arbitrary JSON Pointer paths.
+ *
+ * ## Quickstart
+ *
+ * **Example** (Parse a Draft-07 schema and convert to Draft-07 output)
+ *
+ * ```ts
+ * import { JsonSchema } from "effect"
+ *
+ * const raw: JsonSchema.JsonSchema = {
+ *   type: "object",
+ *   properties: {
+ *     name: { type: "string" }
+ *   },
+ *   required: ["name"]
+ * }
+ *
+ * // Parse into canonical form
+ * const doc = JsonSchema.fromSchemaDraft07(raw)
+ *
+ * // Convert back to Draft-07
+ * const draft07 = JsonSchema.toDocumentDraft07(doc)
+ *
+ * console.log(draft07.dialect) // "draft-07"
+ * console.log(draft07.schema) // { type: "object", properties: { name: { type: "string" } }, required: ["name"] }
+ * ```
+ *
+ * ## See also
+ *
+ * - {@link Document}
+ * - {@link MultiDocument}
+ * - {@link fromSchemaDraft07}
+ * - {@link toDocumentDraft07}
+ * - {@link resolve$ref}
+ *
  * @since 4.0.0
  */
 export * as JsonSchema from "./JsonSchema.ts"
+
+/**
+ * @since 3.8.0
+ */
+export * as Latch from "./Latch.ts"
 
 /**
  * A `Layer<ROut, E, RIn>` describes how to build one or more services in your
@@ -2103,11 +2437,100 @@ export * as NullOr from "./NullOr.ts"
 export * as Number from "./Number.ts"
 
 /**
- * Design: "pretty good" persistency.
- * Real updates copy only the path; unrelated branches keep referential identity.
- * No-op updates may still allocate a new root/parents — callers must not rely on identity for no-ops.
+ * Composable, immutable accessors for reading and updating nested data
+ * structures without mutation.
+ *
+ * **Mental model**
+ *
+ * - **Optic** — a first-class reference to a piece inside a larger structure.
+ *   Compose optics to reach deeply nested values.
+ * - **Iso** — lossless two-way conversion (`get`/`set`) between `S` and `A`.
+ *   Extends both {@link Lens} and {@link Prism}.
+ * - **Lens** — focuses on exactly one part of `S`. `get` always succeeds;
+ *   `replace` needs the original `S` to produce the updated whole.
+ * - **Prism** — focuses on a part that may not be present (e.g. a union
+ *   variant). `getResult` can fail; `set` builds a new `S` from `A` alone.
+ * - **Optional** — the most general optic: both reading and writing can fail.
+ * - **Traversal** — focuses on zero or more elements of an array-like
+ *   structure. Technically `Optional<S, ReadonlyArray<A>>`.
+ * - **Hierarchy** (strongest → weakest):
+ *   `Iso > Lens | Prism > Optional`. Composing a weaker optic with any other
+ *   produces the weaker kind.
+ *
+ * **Common tasks**
+ *
+ * - Start a chain → {@link id} (identity iso)
+ * - Drill into a struct key → `.key("name")` / `.optionalKey("name")`
+ * - Drill into a key that may not exist → `.at("name")`
+ * - Narrow a tagged union → `.tag("MyVariant")`
+ * - Narrow by type guard → `.refine(guard)`
+ * - Add validation → `.check(Schema.isGreaterThan(0))`
+ * - Filter out `undefined` → `.notUndefined()`
+ * - Pick/omit struct keys → `.pick(["a","b"])` / `.omit(["c"])`
+ * - Traverse array elements → `.forEach(el => el.key("field"))`
+ * - Build an iso → {@link makeIso}
+ * - Build a lens → {@link makeLens}
+ * - Build a prism → {@link makePrism}, {@link fromChecks}
+ * - Build an optional → {@link makeOptional}
+ * - Focus into `Option.Some` → {@link some}
+ * - Focus into `Result.Success`/`Failure` → {@link success}, {@link failure}
+ * - Convert record ↔ entries → {@link entries}
+ * - Extract all traversal elements → {@link getAll}
+ *
+ * **Gotchas**
+ *
+ * - Updates are structurally persistent: only nodes on the path are cloned.
+ *   Unrelated branches keep referential identity. However, **no-op updates
+ *   may still allocate** a new root — do not rely on reference identity to
+ *   detect no-ops.
+ * - `replace` silently returns the original `S` when the optic cannot focus
+ *   (e.g. wrong tag). Use `replaceResult` for explicit failure.
+ * - `modify` also returns the original `S` on focus failure — it never throws.
+ * - `.key()` and `.optionalKey()` do not work on union types (compile error).
+ * - Only plain objects (`Object.prototype` or `null` prototype) and arrays can
+ *   be cloned. Class instances cause a runtime error on `replace`/`modify`.
+ *
+ * **Quickstart**
+ *
+ * **Example** (reading and updating nested state)
+ *
+ * ```ts
+ * import { Optic } from "effect"
+ *
+ * type State = { user: { name: string; age: number } }
+ *
+ * const _age = Optic.id<State>().key("user").key("age")
+ *
+ * const s1: State = { user: { name: "Alice", age: 30 } }
+ *
+ * // Read
+ * console.log(_age.get(s1))
+ * // Output: 30
+ *
+ * // Update immutably
+ * const s2 = _age.replace(31, s1)
+ * console.log(s2)
+ * // Output: { user: { name: "Alice", age: 31 } }
+ *
+ * // Modify with a function
+ * const s3 = _age.modify((n) => n + 1)(s1)
+ * console.log(s3)
+ * // Output: { user: { name: "Alice", age: 31 } }
+ *
+ * // Referential identity is preserved for unrelated branches
+ * console.log(s2.user !== s1.user)
+ * // Output: true (on the path)
+ * ```
+ *
+ * **See also**
+ *
+ * - {@link id} — entry point for optic chains
+ * - {@link Lens} / {@link Prism} / {@link Optional} — core optic types
+ * - {@link Traversal} / {@link getAll} — multi-focus optics
+ * - {@link some} / {@link success} / {@link failure} — built-in prisms
  *
  * @since 4.0.0
+ * @module
  */
 export * as Optic from "./Optic.ts"
 
@@ -2268,12 +2691,6 @@ export * as Order from "./Order.ts"
  * @category utilities
  */
 export * as Ordering from "./Ordering.ts"
-
-/**
- * @since 3.19.4
- * @experimental
- */
-export * as PartitionedSemaphore from "./PartitionedSemaphore.ts"
 
 /**
  * @since 4.0.0
@@ -2451,6 +2868,71 @@ export * as Redactable from "./Redactable.ts"
 export * as Redacted from "./Redacted.ts"
 
 /**
+ * A module for reducing collections of values into a single result.
+ *
+ * A `Reducer<A>` extends {@link Combiner.Combiner} by adding an
+ * `initialValue` (identity element) and a `combineAll` method that folds an
+ * entire collection. Think `Array.prototype.reduce`, but packaged as a
+ * reusable, composable value.
+ *
+ * ## Mental model
+ *
+ * - **Reducer** – a {@link Combiner.Combiner} plus an `initialValue` and a
+ *   `combineAll` method.
+ * - **initialValue** – the neutral/identity element. Combining any value with
+ *   `initialValue` should return the original value unchanged (e.g. `0` for
+ *   addition, `""` for string concatenation).
+ * - **combineAll** – folds an `Iterable<A>` starting from `initialValue`.
+ *   When omitted from {@link make}, a default left-to-right fold is used.
+ * - **Purity** – all reducers produced by this module are pure; they never
+ *   mutate their arguments.
+ * - **Composability** – reducers can be lifted into `Option`, `Struct`,
+ *   `Tuple`, `Record`, and other container types via helpers in those modules.
+ * - **Subtype of Combiner** – every `Reducer` is also a valid
+ *   `Combiner`, so you can pass a `Reducer` anywhere a `Combiner` is
+ *   expected.
+ *
+ * ## Common tasks
+ *
+ * - Create a reducer from a combine function and initial value → {@link make}
+ * - Swap argument order → {@link flip}
+ * - Combine two values without an initial value → use {@link Combiner.Combiner}
+ *   instead
+ *
+ * ## Gotchas
+ *
+ * - `combineAll` on an empty iterable returns `initialValue`, not an error.
+ * - The default `combineAll` folds left-to-right. If your `combine` is not
+ *   associative, order matters. Pass a custom `combineAll` to {@link make} if
+ *   you need different traversal or short-circuiting.
+ * - A `Reducer` is also a valid `Combiner` — but a `Combiner` is *not* a
+ *   `Reducer` (it lacks `initialValue`).
+ *
+ * ## Quickstart
+ *
+ * **Example** (summing a list of numbers)
+ *
+ * ```ts
+ * import { Reducer } from "effect"
+ *
+ * const Sum = Reducer.make<number>((a, b) => a + b, 0)
+ *
+ * console.log(Sum.combine(3, 4))
+ * // Output: 7
+ *
+ * console.log(Sum.combineAll([1, 2, 3, 4]))
+ * // Output: 10
+ *
+ * console.log(Sum.combineAll([]))
+ * // Output: 0
+ * ```
+ *
+ * ## See also
+ *
+ * - {@link make} – the primary constructor
+ * - {@link Reducer} – the core interface
+ * - {@link Combiner.Combiner} – the parent interface (no `initialValue`)
+ *
  * @since 4.0.0
  */
 export * as Reducer from "./Reducer.ts"
@@ -3136,6 +3618,11 @@ export * as ScopedCache from "./ScopedCache.ts"
  * @since 2.0.0
  */
 export * as ScopedRef from "./ScopedRef.ts"
+
+/**
+ * @since 2.0.0
+ */
+export * as Semaphore from "./Semaphore.ts"
 
 /**
  * This module provides a data structure called `ServiceMap` that can be used
