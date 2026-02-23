@@ -1,7 +1,8 @@
 import { assert, describe, expect, it } from "@effect/vitest"
-import { Effect, FileSystem, Layer, Option, Path } from "effect"
+import { Effect, FileSystem, Layer, Option, Path, ServiceMap } from "effect"
 import { TestConsole } from "effect/testing"
 import { Argument, CliOutput, Command, Flag } from "effect/unstable/cli"
+import { toImpl } from "effect/unstable/cli/internal/command"
 import { ChildProcessSpawner } from "effect/unstable/process"
 import * as Cli from "./fixtures/ComprehensiveCli.ts"
 import * as MockTerminal from "./services/MockTerminal.ts"
@@ -28,7 +29,84 @@ const TestLayer = Layer.mergeAll(
   Layer.mock(ChildProcessSpawner.ChildProcessSpawner)({})
 )
 
+const TestLayerWithoutFormatter = Layer.mergeAll(
+  ActionsLayer,
+  ConsoleLayer,
+  FileSystemLayer,
+  PathLayer,
+  TerminalLayer,
+  Layer.mock(ChildProcessSpawner.ChildProcessSpawner)({})
+)
+
 describe("Command", () => {
+  describe("annotations", () => {
+    it.effect("should expose annotations in help docs", () =>
+      Effect.gen(function*() {
+        const Team = ServiceMap.Service<never, string>("effect/test/unstable/cli/Team")
+        const Priority = ServiceMap.Service<never, number>("effect/test/unstable/cli/Priority")
+        const docs: Array<Parameters<CliOutput.Formatter["formatHelpDoc"]>[0]> = []
+
+        const formatter: CliOutput.Formatter = {
+          ...CliOutput.defaultFormatter({ colors: false }),
+          formatHelpDoc: (doc) => {
+            docs.push(doc)
+            return ""
+          }
+        }
+
+        const command = Command.make("deploy").pipe(
+          Command.annotate(Team, "runtime"),
+          Command.annotateMerge(ServiceMap.make(Priority, 2))
+        )
+
+        yield* Command.runWith(command, { version: "1.0.0" })(["--help"]).pipe(
+          Effect.provide(TestLayerWithoutFormatter),
+          Effect.provideService(CliOutput.Formatter, formatter)
+        )
+
+        assert.strictEqual(docs.length, 1)
+        const annotations = docs[0].annotations
+        assert.strictEqual(ServiceMap.get(annotations, Team), "runtime")
+        assert.strictEqual(ServiceMap.get(annotations, Priority), 2)
+      }))
+
+    it.effect("should keep annotations when adding subcommands", () =>
+      Effect.gen(function*() {
+        const Scope = ServiceMap.Service<never, string>("effect/test/unstable/cli/Scope")
+        const docs: Array<Parameters<CliOutput.Formatter["formatHelpDoc"]>[0]> = []
+
+        const formatter: CliOutput.Formatter = {
+          ...CliOutput.defaultFormatter({ colors: false }),
+          formatHelpDoc: (doc) => {
+            docs.push(doc)
+            return ""
+          }
+        }
+
+        const child = Command.make("child").pipe(Command.annotate(Scope, "child"))
+        const command = Command.make("root").pipe(
+          Command.annotate(Scope, "root"),
+          Command.withSubcommands([child])
+        )
+
+        const run = Command.runWith(command, { version: "1.0.0" })
+
+        yield* run(["--help"]).pipe(
+          Effect.provide(TestLayerWithoutFormatter),
+          Effect.provideService(CliOutput.Formatter, formatter)
+        )
+
+        yield* run(["child", "--help"]).pipe(
+          Effect.provide(TestLayerWithoutFormatter),
+          Effect.provideService(CliOutput.Formatter, formatter)
+        )
+
+        assert.strictEqual(docs.length, 2)
+        assert.strictEqual(ServiceMap.get(docs[0].annotations, Scope), "root")
+        assert.strictEqual(ServiceMap.get(docs[1].annotations, Scope), "child")
+      }))
+  })
+
   describe("run", () => {
     it.effect("should execute handler with parsed config", () =>
       Effect.gen(function*() {
@@ -245,6 +323,31 @@ describe("Command", () => {
           command: command.join(" "),
           details: { repository, branch }
         })
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should accept grouped and ungrouped subcommands", () =>
+      Effect.gen(function*() {
+        const executed: Array<string> = []
+
+        const root = Command.make("tool")
+        const login = Command.make("login", {}, () => Effect.sync(() => executed.push("login")))
+        const logout = Command.make("logout", {}, () => Effect.sync(() => executed.push("logout")))
+        const status = Command.make("status", {}, () => Effect.sync(() => executed.push("status")))
+
+        const cli = root.pipe(Command.withSubcommands([
+          {
+            group: "Auth commands",
+            commands: [login, logout]
+          },
+          status
+        ]))
+
+        const runCli = Command.runWith(cli, { version: "1.0.0" })
+
+        yield* runCli(["login"])
+        yield* runCli(["status"])
+
+        assert.deepStrictEqual(executed, ["login", "status"])
       }).pipe(Effect.provide(TestLayer)))
 
     it.effect("should handle multiple subcommands correctly", () =>
@@ -828,5 +931,92 @@ describe("Command", () => {
         const actions = yield* TestActions.getActions
         assert.strictEqual(actions.length, 0)
       }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should use short descriptions in subcommand listings", () =>
+      Effect.gen(function*() {
+        const withShortDescription = Command.make("build").pipe(
+          Command.withDescription("Build the project and all artifacts"),
+          Command.withShortDescription("Build artifacts")
+        )
+        const withFallbackDescription = Command.make("test").pipe(
+          Command.withDescription("Run the full test suite")
+        )
+        const root = Command.make("tool").pipe(
+          Command.withSubcommands([withShortDescription, withFallbackDescription])
+        )
+
+        const runCommand = Command.runWith(root, { version: "1.0.0" })
+        yield* runCommand(["--help"])
+
+        const stdout = (yield* TestConsole.logLines).join("\n")
+        assert.isTrue(stdout.includes("Build artifacts"))
+        assert.isFalse(stdout.includes("Build the project and all artifacts"))
+        assert.isTrue(stdout.includes("Run the full test suite"))
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should keep full description on the command help page", () =>
+      Effect.gen(function*() {
+        const child = Command.make("build").pipe(
+          Command.withDescription("Build the project and all artifacts"),
+          Command.withShortDescription("Build artifacts")
+        )
+        const root = Command.make("tool").pipe(Command.withSubcommands([child]))
+        const runCommand = Command.runWith(root, { version: "1.0.0" })
+
+        yield* runCommand(["build", "--help"])
+
+        const stdout = (yield* TestConsole.logLines).join("\n")
+        assert.isTrue(stdout.includes("Build the project and all artifacts"))
+      }).pipe(Effect.provide(TestLayer)))
+
+    it.effect("should include short description metadata in HelpDoc subcommands", () =>
+      Effect.gen(function*() {
+        const child = Command.make("build").pipe(
+          Command.withDescription("Build the project and all artifacts"),
+          Command.withShortDescription("Build artifacts")
+        )
+        const root = Command.make("tool").pipe(Command.withSubcommands([child]))
+
+        const helpDoc = toImpl(root).buildHelpDoc(["tool"])
+        const listed = helpDoc.subcommands?.[0]?.commands[0]
+
+        assert.strictEqual(listed?.shortDescription, "Build artifacts")
+        assert.strictEqual(listed?.description, "Build the project and all artifacts")
+      }))
+  })
+
+  describe("withExamples", () => {
+    it.effect("should expose examples in help docs", () =>
+      Effect.gen(function*() {
+        const command = Command.make("login").pipe(
+          Command.withExamples([
+            { command: "myapp login", description: "Log in with browser OAuth" },
+            { command: "myapp login --token sbp_abc123", description: "Log in with a token" }
+          ])
+        )
+
+        const helpDoc = toImpl(command).buildHelpDoc(["login"])
+
+        assert.deepStrictEqual(helpDoc.examples, [
+          { command: "myapp login", description: "Log in with browser OAuth" },
+          { command: "myapp login --token sbp_abc123", description: "Log in with a token" }
+        ])
+      }))
+
+    it.effect("should preserve examples when adding subcommands", () =>
+      Effect.gen(function*() {
+        const root = Command.make("root").pipe(
+          Command.withExamples([
+            { command: "myapp root", description: "Run root command" }
+          ]),
+          Command.withSubcommands([Command.make("child")])
+        )
+
+        const helpDoc = toImpl(root).buildHelpDoc(["root"])
+
+        assert.deepStrictEqual(helpDoc.examples, [
+          { command: "myapp root", description: "Run root command" }
+        ])
+      }))
   })
 })

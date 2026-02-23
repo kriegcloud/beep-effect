@@ -150,6 +150,43 @@ describe("Effect.catchNoSuchElement", () => {
   })
 })
 
+describe("Effect do notation", () => {
+  it("exports Do and combinators", () => {
+    const result = pipe(
+      Effect.Do,
+      Effect.bind("a", () => Effect.succeed(1)),
+      Effect.let("b", ({ a }) => a + 1),
+      Effect.bind("c", ({ b }) => Effect.succeed(b.toString()))
+    )
+    expect(result).type.toBe<Effect.Effect<{ a: number; b: number; c: string }>>()
+  })
+
+  it("bindTo starts record inference", () => {
+    const result = pipe(
+      Effect.succeed("a"),
+      Effect.bindTo("value")
+    )
+    expect(result).type.toBe<Effect.Effect<{ value: string }>>()
+  })
+})
+
+describe("Effect.validate", () => {
+  it("returns collected successes on success", () => {
+    const result = Effect.validate([1, 2, 3], (n) => Effect.succeed(n.toString()))
+    expect(result).type.toBe<Effect.Effect<Array<string>, [never, ...Array<never>]>>()
+  })
+
+  it("returns non-empty array errors", () => {
+    const result = Effect.validate([1, 2, 3], () => Effect.fail("error" as const))
+    expect(result).type.toBe<Effect.Effect<Array<never>, ["error", ...Array<"error">]>>()
+  })
+
+  it("supports discard option", () => {
+    const result = Effect.validate([1, 2, 3], (n) => Effect.succeed(n), { discard: true })
+    expect(result).type.toBe<Effect.Effect<void, [never, ...Array<never>]>>()
+  })
+})
+
 describe("Effect.tapErrorTag", () => {
   it("narrows tagged errors", () => {
     const result = pipe(

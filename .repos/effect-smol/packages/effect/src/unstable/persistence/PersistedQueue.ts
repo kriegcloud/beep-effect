@@ -9,6 +9,7 @@ import * as Effect from "../../Effect.ts"
 import * as Exit from "../../Exit.ts"
 import { flow } from "../../Function.ts"
 import * as Iterable from "../../Iterable.ts"
+import * as Latch from "../../Latch.ts"
 import * as Layer from "../../Layer.ts"
 import * as MutableRef from "../../MutableRef.ts"
 import * as Queue from "../../Queue.ts"
@@ -235,14 +236,14 @@ export const layerStoreMemory: Layer.Layer<
   }
   const ids = new Set<string>()
   const queues = new Map<string, {
-    latch: Effect.Latch
+    latch: Latch.Latch
     items: Set<Entry>
   }>()
   const getOrCreateQueue = (name: string) => {
     let queue = queues.get(name)
     if (!queue) {
       queue = {
-        latch: Effect.makeLatchUnsafe(false),
+        latch: Latch.makeUnsafe(false),
         items: new Set()
       }
       queues.set(name, queue)
@@ -294,26 +295,26 @@ export const layerStoreMemory: Layer.Layer<
 export const makeStoreRedis = Effect.fnUntraced(function*(
   options?: {
     readonly prefix?: string | undefined
-    readonly pollInterval?: Duration.DurationInput | undefined
-    readonly lockRefreshInterval?: Duration.DurationInput | undefined
-    readonly lockExpiration?: Duration.DurationInput | undefined
+    readonly pollInterval?: Duration.Input | undefined
+    readonly lockRefreshInterval?: Duration.Input | undefined
+    readonly lockExpiration?: Duration.Input | undefined
   }
 ) {
   const redis = yield* Redis.Redis
 
   const pollInterval = Duration.max(
-    options?.pollInterval ? Duration.fromDurationInputUnsafe(options.pollInterval) : Duration.seconds(1),
+    options?.pollInterval ? Duration.fromInputUnsafe(options.pollInterval) : Duration.seconds(1),
     Duration.millis(1)
   )
   const lockRefreshMillis = Math.max(
     options?.lockRefreshInterval
-      ? Duration.toMillis(Duration.fromDurationInputUnsafe(options.lockRefreshInterval))
+      ? Duration.toMillis(Duration.fromInputUnsafe(options.lockRefreshInterval))
       : 30_000,
     1
   )
   const lockExpirationMillis = Math.max(
     options?.lockExpiration
-      ? Duration.toMillis(Duration.fromDurationInputUnsafe(options.lockExpiration))
+      ? Duration.toMillis(Duration.fromInputUnsafe(options.lockExpiration))
       : 90_000,
     1
   )
@@ -345,8 +346,8 @@ export const makeStoreRedis = Effect.fnUntraced(function*(
       const pendingKey = keyPending(name)
       const queue = yield* Queue.make<Element>()
       const takers = MutableRef.make(0)
-      const pollLatch = Effect.makeLatchUnsafe()
-      const takenLatch = Effect.makeLatchUnsafe()
+      const pollLatch = Latch.makeUnsafe()
+      const takenLatch = Latch.makeUnsafe()
 
       yield* Effect.addFinalizer(() =>
         Effect.orDie(
@@ -653,9 +654,9 @@ end
 export const layerStoreRedis: (
   options?: {
     readonly prefix?: string | undefined
-    readonly pollInterval?: Duration.DurationInput | undefined
-    readonly lockRefreshInterval?: Duration.DurationInput | undefined
-    readonly lockExpiration?: Duration.DurationInput | undefined
+    readonly pollInterval?: Duration.Input | undefined
+    readonly lockRefreshInterval?: Duration.Input | undefined
+    readonly lockExpiration?: Duration.Input | undefined
   } | undefined
 ) => Layer.Layer<
   PersistedQueueStore,
@@ -670,9 +671,9 @@ export const layerStoreRedis: (
 export const makeStoreSql: (
   options?: {
     readonly tableName?: string | undefined
-    readonly pollInterval?: Duration.DurationInput | undefined
-    readonly lockRefreshInterval?: Duration.DurationInput | undefined
-    readonly lockExpiration?: Duration.DurationInput | undefined
+    readonly pollInterval?: Duration.Input | undefined
+    readonly lockRefreshInterval?: Duration.Input | undefined
+    readonly lockExpiration?: Duration.Input | undefined
   } | undefined
 ) => Effect.Effect<
   PersistedQueueStore["Service"],
@@ -683,15 +684,15 @@ export const makeStoreSql: (
   const tableName = options?.tableName ?? "effect_queue"
   const tableNameSql = sql(tableName)
   const pollInterval = Duration.max(
-    options?.pollInterval ? Duration.fromDurationInputUnsafe(options.pollInterval) : Duration.millis(1000),
+    options?.pollInterval ? Duration.fromInputUnsafe(options.pollInterval) : Duration.millis(1000),
     Duration.millis(1)
   )
   const lockRefreshInterval = Duration.max(
-    options?.lockRefreshInterval ? Duration.fromDurationInputUnsafe(options.lockRefreshInterval) : Duration.seconds(30),
+    options?.lockRefreshInterval ? Duration.fromInputUnsafe(options.lockRefreshInterval) : Duration.seconds(30),
     Duration.millis(1)
   )
   const lockExpiration = Duration.max(
-    options?.lockExpiration ? Duration.fromDurationInputUnsafe(options.lockExpiration) : Duration.minutes(2),
+    options?.lockExpiration ? Duration.fromInputUnsafe(options.lockExpiration) : Duration.minutes(2),
     Duration.millis(1)
   )
   const lockExpirationSql = sql.literal(Math.ceil(Duration.toSeconds(lockExpiration)).toString())
@@ -930,8 +931,8 @@ export const makeStoreSql: (
     lookup: Effect.fnUntraced(function*({ maxAttempts, name }: QueueKey) {
       const queue = yield* Queue.make<Element>()
       const takers = MutableRef.make(0)
-      const pollLatch = Effect.makeLatchUnsafe()
-      const takenLatch = Effect.makeLatchUnsafe()
+      const pollLatch = Latch.makeUnsafe()
+      const takenLatch = Latch.makeUnsafe()
 
       yield* Effect.addFinalizer(() =>
         Effect.flatMap(Queue.clear(queue), (elements) => {
@@ -1098,9 +1099,9 @@ class QueueKey extends Data.Class<{
 export const layerStoreSql: (
   options?: {
     readonly tableName?: string | undefined
-    readonly pollInterval?: Duration.DurationInput | undefined
-    readonly lockRefreshInterval?: Duration.DurationInput | undefined
-    readonly lockExpiration?: Duration.DurationInput | undefined
+    readonly pollInterval?: Duration.Input | undefined
+    readonly lockRefreshInterval?: Duration.Input | undefined
+    readonly lockExpiration?: Duration.Input | undefined
   } | undefined
 ) => Layer.Layer<
   PersistedQueueStore,

@@ -205,7 +205,7 @@ export type ExcludeTag<E, K extends string> = Exclude<E, { readonly _tag: K }>
  * @category types
  * @since 2.0.0
  */
-export type ExtractTag<E, K extends string> = Extract<E, { readonly _tag: K }>
+export type ExtractTag<E, K extends string> = E extends { readonly _tag: infer T } ? K extends T ? E : never : never
 
 /**
  * Transforms a union type into an intersection type.
@@ -730,6 +730,15 @@ export declare namespace Contravariant {
 export type MatchRecord<S, onTrue, onFalse> = {} extends S ? onTrue : onFalse
 
 /**
+ * Conditional type that returns `void` if `S` is an empty object type,
+ * otherwise returns `S`.
+ *
+ * @since 4.0.0
+ * @category types
+ */
+export type VoidIfEmpty<S> = MatchRecord<S, void, S>
+
+/**
  * Excludes function types from a union, keeping only non-function members.
  *
  * - Use to filter out callable types from a union.
@@ -914,7 +923,8 @@ export type ReasonTags<E> = E extends { readonly reason: { readonly _tag: string
  * @category types
  */
 export type ExtractReason<E, K extends string> = E extends { readonly reason: infer R }
-  ? Extract<R, { readonly _tag: K }>
+  ? R extends { readonly _tag: infer T } ? K extends T ? R : never
+  : never
   : never
 
 /**

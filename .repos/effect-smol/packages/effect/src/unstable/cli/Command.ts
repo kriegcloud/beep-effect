@@ -1,6 +1,7 @@
 /**
  * @since 4.0.0
  */
+import type { NonEmptyArray, NonEmptyReadonlyArray } from "../../Array.ts"
 import * as Console from "../../Console.ts"
 import * as Effect from "../../Effect.ts"
 import type * as FileSystem from "../../FileSystem.ts"
@@ -11,9 +12,9 @@ import type { Pipeable } from "../../Pipeable.ts"
 import * as Predicate from "../../Predicate.ts"
 import * as References from "../../References.ts"
 import * as Result from "../../Result.ts"
-import type * as ServiceMap from "../../ServiceMap.ts"
+import * as ServiceMap from "../../ServiceMap.ts"
 import * as Terminal from "../../Terminal.ts"
-import type { Simplify } from "../../Types.ts"
+import type { NoInfer, Simplify } from "../../Types.ts"
 import type { ChildProcessSpawner } from "../process/ChildProcessSpawner.ts"
 import * as CliError from "./CliError.ts"
 import * as CliOutput from "./CliOutput.ts"
@@ -95,15 +96,44 @@ export interface Command<Name extends string, Input, E = never, R = never> exten
   readonly description: string | undefined
 
   /**
+   * An optional short description used when listing subcommands.
+   */
+  readonly shortDescription: string | undefined
+
+  /**
+   * Optional usage examples for the command.
+   */
+  readonly examples: ReadonlyArray<Command.Example>
+
+  /**
    * The subcommands available under this command.
    */
-  readonly subcommands: ReadonlyArray<Command.Any>
+  readonly subcommands: ReadonlyArray<{
+    readonly group: string | undefined
+    readonly commands: NonEmptyReadonlyArray<Command.Any>
+  }>
+
+  /**
+   * Custom annotations associated with this command.
+   */
+  readonly annotations: ServiceMap.ServiceMap<never>
 }
 
 /**
  * @since 4.0.0
  */
 export declare namespace Command {
+  /**
+   * Represents a concrete usage example for a command.
+   *
+   * @since 4.0.0
+   * @category models
+   */
+  export interface Example {
+    readonly command: string
+    readonly description?: string | undefined
+  }
+
   /**
    * Configuration object for defining command flags, arguments, and nested structures.
    *
@@ -209,6 +239,25 @@ export declare namespace Command {
    * @category models
    */
   export type Any = Command<string, unknown, unknown, unknown>
+
+  /**
+   * A grouped set of subcommands used by `Command.withSubcommands`.
+   *
+   * @since 4.0.0
+   * @category models
+   */
+  export interface SubcommandGroup<Commands extends ReadonlyArray<Any> = ReadonlyArray<Any>> {
+    readonly group: string
+    readonly commands: Commands
+  }
+
+  /**
+   * Entry type accepted by `Command.withSubcommands`.
+   *
+   * @since 4.0.0
+   * @category models
+   */
+  export type SubcommandEntry = Any | SubcommandGroup<ReadonlyArray<Any>>
 }
 
 /**
@@ -422,6 +471,57 @@ export const withHandler: {
   handler: (value: A) => Effect.Effect<void, E, R>
 ): Command<Name, A, E, R> => makeCommand({ ...toImpl(self), handle: handler }))
 
+interface SubcommandGroupInternal {
+  readonly group: string | undefined
+  readonly commands: NonEmptyReadonlyArray<Command.Any>
+}
+
+const normalizeSubcommandEntries = (
+  entries: ReadonlyArray<Command.SubcommandEntry>
+): {
+  readonly flat: ReadonlyArray<Command.Any>
+  readonly groups: ReadonlyArray<SubcommandGroupInternal>
+} => {
+  const flat: Array<Command.Any> = []
+  const grouped = new Map<string | undefined, NonEmptyArray<Command.Any>>()
+
+  const addToGroup = (group: string | undefined, command: Command.Any): void => {
+    flat.push(command)
+    const existing = grouped.get(group)
+    if (existing) {
+      existing.push(command)
+    } else {
+      grouped.set(group, [command])
+    }
+  }
+
+  for (const entry of entries) {
+    if (isCommand(entry)) {
+      addToGroup(undefined, entry)
+      continue
+    }
+    for (const command of entry.commands) {
+      addToGroup(entry.group, command)
+    }
+  }
+
+  const groups: Array<SubcommandGroupInternal> = []
+  const ungroupedCommands = grouped.get(undefined)
+
+  if (ungroupedCommands && ungroupedCommands.length > 0) {
+    groups.push({ group: undefined, commands: ungroupedCommands })
+  }
+
+  for (const [group, commands] of grouped) {
+    if (group === undefined) {
+      continue
+    }
+    groups.push({ group, commands })
+  }
+
+  return { flat, groups }
+}
+
 /**
  * Adds subcommands to a command, creating a hierarchical command structure.
  *
@@ -459,7 +559,7 @@ export const withHandler: {
  * @category combinators
  */
 export const withSubcommands: {
-  <const Subcommands extends ReadonlyArray<Command<any, any, any, any>>>(
+  <const Subcommands extends ReadonlyArray<Command.SubcommandEntry>>(
     subcommands: Subcommands
   ): <Name extends string, Input, E, R>(
     self: Command<Name, Input, E, R>
@@ -474,7 +574,7 @@ export const withSubcommands: {
     Input,
     E,
     R,
-    const Subcommands extends ReadonlyArray<Command<any, any, any, any>>
+    const Subcommands extends ReadonlyArray<Command.SubcommandEntry>
   >(
     self: Command<Name, Input, E, R>,
     subcommands: Subcommands
@@ -489,7 +589,7 @@ export const withSubcommands: {
   Input,
   E,
   R,
-  const Subcommands extends ReadonlyArray<Command<any, any, any, any>>
+  const Subcommands extends ReadonlyArray<Command.SubcommandEntry>
 >(
   self: Command<Name, Input, E, R>,
   subcommands: Subcommands
@@ -499,10 +599,11 @@ export const withSubcommands: {
   E | ExtractSubcommandErrors<Subcommands>,
   R | Exclude<ExtractSubcommandContext<Subcommands>, CommandContext<Name>>
 > => {
-  checkForDuplicateFlags(self, subcommands)
+  const normalized = normalizeSubcommandEntries(subcommands)
+  checkForDuplicateFlags(self, normalized.flat)
 
   const impl = toImpl(self)
-  const byName = new Map(subcommands.map((s) => [s.name, toImpl(s)] as const))
+  const byName = new Map(normalized.flat.map((s) => [s.name, toImpl(s)] as const))
 
   // Internal type for routing - not exposed in public type
   type SubcommandInfo = { readonly name: string; readonly result: unknown }
@@ -543,16 +644,22 @@ export const withSubcommands: {
     name: impl.name,
     config: impl.config,
     description: impl.description,
+    shortDescription: impl.shortDescription,
+    annotations: impl.annotations,
+    examples: impl.examples,
     service: impl.service,
-    subcommands,
+    subcommands: normalized.groups,
     parse,
     handle
   })
 })
 
 // Type extractors for subcommand arrays - T[number] gives union of all elements
-type ExtractSubcommandErrors<T extends ReadonlyArray<Command<any, any, any, any>>> = Error<T[number]>
-type ExtractSubcommandContext<T extends ReadonlyArray<Command<any, any, any, any>>> = T[number] extends
+type ExtractSubcommand<T> = T extends Command<any, any, any, any> ? T
+  : T extends Command.SubcommandGroup<infer Commands> ? Commands[number]
+  : never
+type ExtractSubcommandErrors<T extends ReadonlyArray<Command.SubcommandEntry>> = Error<ExtractSubcommand<T[number]>>
+type ExtractSubcommandContext<T extends ReadonlyArray<Command.SubcommandEntry>> = ExtractSubcommand<T[number]> extends
   Command<any, any, any, infer R> ? R : never
 
 /**
@@ -591,6 +698,114 @@ export const withDescription: {
   self: Command<Name, Input, E, R>,
   description: string
 ) => makeCommand({ ...toImpl(self), description }))
+
+/**
+ * Sets a short description for a command.
+ *
+ * Short descriptions are used when listing subcommands in help output and
+ * shell completions. If no short description is provided, the full
+ * `description` is used as a fallback.
+ *
+ * @since 4.0.0
+ * @category combinators
+ */
+export const withShortDescription: {
+  (shortDescription: string): <const Name extends string, Input, E, R>(
+    self: Command<Name, Input, E, R>
+  ) => Command<Name, Input, E, R>
+  <const Name extends string, Input, E, R>(
+    self: Command<Name, Input, E, R>,
+    shortDescription: string
+  ): Command<Name, Input, E, R>
+} = dual(2, <const Name extends string, Input, E, R>(
+  self: Command<Name, Input, E, R>,
+  shortDescription: string
+) => makeCommand({ ...toImpl(self), shortDescription }))
+
+/**
+ * Adds a custom annotation to a command.
+ *
+ * @since 4.0.0
+ * @category combinators
+ */
+export const annotate: {
+  <I, S>(
+    service: ServiceMap.Service<I, S>,
+    value: NoInfer<S>
+  ): <Name extends string, Input, E, R>(
+    self: Command<Name, Input, E, R>
+  ) => Command<Name, Input, E, R>
+  <Name extends string, Input, E, R, I, S>(
+    self: Command<Name, Input, E, R>,
+    service: ServiceMap.Service<I, S>,
+    value: NoInfer<S>
+  ): Command<Name, Input, E, R>
+} = dual(3, <Name extends string, Input, E, R, I, S>(
+  self: Command<Name, Input, E, R>,
+  service: ServiceMap.Service<I, S>,
+  value: NoInfer<S>
+) => {
+  const impl = toImpl(self)
+  return makeCommand({ ...impl, annotations: ServiceMap.add(impl.annotations, service, value) })
+})
+
+/**
+ * Merges a ServiceMap of annotations into a command.
+ *
+ * @since 4.0.0
+ * @category combinators
+ */
+export const annotateMerge: {
+  <I>(
+    annotations: ServiceMap.ServiceMap<I>
+  ): <Name extends string, Input, E, R>(
+    self: Command<Name, Input, E, R>
+  ) => Command<Name, Input, E, R>
+  <Name extends string, Input, E, R, I>(
+    self: Command<Name, Input, E, R>,
+    annotations: ServiceMap.ServiceMap<I>
+  ): Command<Name, Input, E, R>
+} = dual(2, <Name extends string, Input, E, R, I>(
+  self: Command<Name, Input, E, R>,
+  annotations: ServiceMap.ServiceMap<I>
+) => {
+  const impl = toImpl(self)
+  return makeCommand({ ...impl, annotations: ServiceMap.merge(impl.annotations, annotations) })
+})
+
+/**
+ * Sets usage examples for a command.
+ *
+ * Examples are exposed in structured `HelpDoc` data and rendered by the
+ * default formatter in an `EXAMPLES` section.
+ *
+ * @example
+ * ```ts
+ * import { Command } from "effect/unstable/cli"
+ *
+ * const login = Command.make("login").pipe(
+ *   Command.withExamples([
+ *     { command: "myapp login", description: "Log in with browser OAuth" },
+ *     { command: "myapp login --token sbp_abc123", description: "Log in with a token" }
+ *   ])
+ * )
+ * ```
+ *
+ * @since 4.0.0
+ * @category combinators
+ */
+export const withExamples: {
+  (examples: ReadonlyArray<Command.Example>): <const Name extends string, Input, E, R>(
+    self: Command<Name, Input, E, R>
+  ) => Command<Name, Input, E, R>
+  <const Name extends string, Input, E, R>(
+    self: Command<Name, Input, E, R>,
+    examples: ReadonlyArray<Command.Example>
+  ): Command<Name, Input, E, R>
+} = dual(2, <const Name extends string, Input, E, R>(
+  self: Command<Name, Input, E, R>,
+  examples: ReadonlyArray<Command.Example>
+) => makeCommand({ ...toImpl(self), examples }))
 
 /* ========================================================================== */
 /* Providing Services                                                         */

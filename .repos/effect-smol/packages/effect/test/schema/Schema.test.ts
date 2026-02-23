@@ -1,4 +1,5 @@
 import {
+  BigDecimal,
   Brand,
   Cause,
   DateTime,
@@ -7,6 +8,8 @@ import {
   Equal,
   Exit,
   flow,
+  HashMap,
+  HashSet,
   Option,
   Order,
   pipe,
@@ -2614,17 +2617,17 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     await encoding.succeed(noPrototypeObject, { message: "a" })
   })
 
-  describe("CauseFailure", () => {
+  describe("CauseReason", () => {
     it("should expose the values", () => {
-      const schema = Schema.CauseFailure(Schema.String, Schema.Number)
+      const schema = Schema.CauseReason(Schema.String, Schema.Number)
       strictEqual(schema.error, Schema.String)
       strictEqual(schema.annotate({}).error, Schema.String)
       strictEqual(schema.defect, Schema.Number)
       strictEqual(schema.annotate({}).defect, Schema.Number)
     })
 
-    it("CauseFailure(FiniteFromString, FiniteFromString)", async () => {
-      const schema = Schema.CauseFailure(Schema.FiniteFromString, Schema.FiniteFromString)
+    it("CauseReason(FiniteFromString, FiniteFromString)", async () => {
+      const schema = Schema.CauseReason(Schema.FiniteFromString, Schema.FiniteFromString)
       const asserts = new TestSchema.Asserts(schema)
 
       if (verifyGeneration) {
@@ -3498,7 +3501,65 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
       const asserts = new TestSchema.Asserts(schema)
 
       const decoding = asserts.decoding()
+      await decoding.succeed(["1", "a", "b"], [1, "a", "b"])
       await decoding.succeed(["1", "a", true, "b"], [1, "a", true, "b"])
+      await decoding.succeed(["1", "a", true, true, "b"], [1, "a", true, true, "b"])
+      await decoding.fail(
+        ["1", "a"],
+        `Expected string, got undefined
+  at [2]`
+      )
+      await decoding.fail(
+        ["1", "a", true],
+        `Expected string, got true
+  at [2]`
+      )
+      await decoding.fail(
+        ["1", "a", "b", "c"],
+        `Expected boolean, got "b"
+  at [2]`
+      )
+      await decoding.fail(
+        ["1", "a", true, "b", "c"],
+        `Expected boolean, got "b"
+  at [3]`
+      )
+
+      const encoding = asserts.encoding()
+      await encoding.succeed([1, "a", "b"], ["1", "a", "b"])
+      await encoding.succeed([1, "a", true, "b"], ["1", "a", true, "b"])
+    })
+
+    it("[FiniteFromString, String] + [Boolean, String, Number]", async () => {
+      const schema = Schema.TupleWithRest(
+        Schema.Tuple([Schema.FiniteFromString, Schema.String]),
+        [Schema.Boolean, Schema.String, Schema.FiniteFromString]
+      )
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed(["1", "a", "b", "2"], [1, "a", "b", 2])
+      await decoding.succeed(["1", "a", true, "b", "2"], [1, "a", true, "b", 2])
+      await decoding.succeed(["1", "a", true, true, "b", "2"], [1, "a", true, true, "b", 2])
+      await decoding.fail(
+        ["1", "a"],
+        `Expected string, got undefined
+  at [2]`
+      )
+      await decoding.fail(
+        ["1", "a", "b"],
+        `Expected string, got undefined
+  at [3]`
+      )
+      await decoding.fail(
+        ["1", "a", "b", "c"],
+        `Expected a finite number, got NaN
+  at [3]`
+      )
+
+      const encoding = asserts.encoding()
+      await encoding.succeed([1, "a", "b", 2], ["1", "a", "b", "2"])
+      await encoding.succeed([1, "a", true, "b", 2], ["1", "a", true, "b", "2"])
     })
   })
 
@@ -3833,6 +3894,72 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     await encoding.succeed(DateTime.makeUnsafe("2021-01-01T00:00:00.000Z"), 1609459200000)
   })
 
+  it("TimeZoneOffset", async () => {
+    const schema = Schema.TimeZoneOffset
+    const asserts = new TestSchema.Asserts(schema)
+
+    if (verifyGeneration) {
+      const arbitrary = asserts.arbitrary()
+      arbitrary.verifyGeneration()
+    }
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(DateTime.zoneMakeOffset(3 * 60 * 60 * 1000))
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(DateTime.zoneMakeOffset(3 * 60 * 60 * 1000))
+  })
+
+  it("TimeZoneNamed", async () => {
+    const schema = Schema.TimeZoneNamed
+    const asserts = new TestSchema.Asserts(schema)
+
+    if (verifyGeneration) {
+      const arbitrary = asserts.arbitrary()
+      arbitrary.verifyGeneration()
+    }
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(DateTime.zoneMakeNamedUnsafe("Europe/London"))
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(DateTime.zoneMakeNamedUnsafe("Europe/London"))
+  })
+
+  it("TimeZone", async () => {
+    const schema = Schema.TimeZone
+    const asserts = new TestSchema.Asserts(schema)
+
+    if (verifyGeneration) {
+      const arbitrary = asserts.arbitrary()
+      arbitrary.verifyGeneration()
+    }
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(DateTime.zoneMakeOffset(3 * 60 * 60 * 1000))
+    await decoding.succeed(DateTime.zoneMakeNamedUnsafe("Europe/London"))
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(DateTime.zoneMakeOffset(3 * 60 * 60 * 1000))
+    await encoding.succeed(DateTime.zoneMakeNamedUnsafe("Europe/London"))
+  })
+
+  it("DateTimeZoned", async () => {
+    const schema = Schema.DateTimeZoned
+    const asserts = new TestSchema.Asserts(schema)
+
+    if (verifyGeneration) {
+      const arbitrary = asserts.arbitrary()
+      arbitrary.verifyGeneration()
+    }
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(DateTime.makeZonedUnsafe("2021-01-01T00:00:00.000Z", { timeZone: "Europe/London" }))
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(DateTime.makeZonedUnsafe("2021-01-01T00:00:00.000Z", { timeZone: "Europe/London" }))
+  })
+
   it("ReadonlySet", async () => {
     const schema = Schema.ReadonlySet(Schema.FiniteFromString)
     const asserts = new TestSchema.Asserts(schema)
@@ -3853,6 +3980,31 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
       `Expected string, got null
   at ["values"][2]`
     )
+  })
+
+  it("HashSet", async () => {
+    const schema = Schema.HashSet(Schema.FiniteFromString)
+    const asserts = new TestSchema.Asserts(schema)
+
+    strictEqual(schema.value, Schema.FiniteFromString)
+    strictEqual(schema.annotate({}).value, Schema.FiniteFromString)
+
+    if (verifyGeneration) {
+      const arbitrary = asserts.arbitrary()
+      arbitrary.verifyGeneration()
+    }
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(HashSet.make("1", "2", "3"), HashSet.make(1, 2, 3))
+    await decoding.fail(null, `Expected HashSet, got null`)
+    await decoding.fail(
+      HashSet.make(null),
+      `Expected string, got null
+  at ["values"][0]`
+    )
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(HashSet.make(1, 2, 3), HashSet.make("1", "2", "3"))
   })
 
   it("ReadonlyMap", async () => {
@@ -3880,6 +4032,33 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
 
     const encoding = asserts.encoding()
     await encoding.succeed(new Map([["a", 1]]), new Map([["a", "1"]]))
+  })
+
+  it("HashMap", async () => {
+    const schema = Schema.HashMap(Schema.String, Schema.FiniteFromString)
+    const asserts = new TestSchema.Asserts(schema)
+
+    strictEqual(schema.key, Schema.String)
+    strictEqual(schema.annotate({}).key, Schema.String)
+    strictEqual(schema.value, Schema.FiniteFromString)
+    strictEqual(schema.annotate({}).value, Schema.FiniteFromString)
+
+    if (verifyGeneration) {
+      const arbitrary = asserts.arbitrary()
+      arbitrary.verifyGeneration()
+    }
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(HashMap.make(["a", "1"]), HashMap.make(["a", 1]))
+    await decoding.fail(null, `Expected HashMap, got null`)
+    await decoding.fail(
+      HashMap.make(["a", null]),
+      `Expected string, got null
+  at ["entries"][0][1]`
+    )
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(HashMap.make(["a", 1]), HashMap.make(["a", "1"]))
   })
 
   describe("Transformations", () => {
@@ -4001,6 +4180,90 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     await encoding.succeed(Duration.millis(5000), 5000)
     await encoding.succeed(Duration.millis(0.1), 0.1)
     await encoding.succeed(Duration.nanos(5000n), 0.005)
+  })
+
+  it("BigDecimal", async () => {
+    const schema = Schema.BigDecimal
+    const asserts = new TestSchema.Asserts(schema)
+
+    if (verifyGeneration) {
+      const arbitrary = asserts.arbitrary()
+      arbitrary.verifyGeneration()
+    }
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(BigDecimal.fromStringUnsafe("123.45"))
+    await decoding.fail(null, `Expected BigDecimal, got null`)
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(BigDecimal.fromStringUnsafe("123.45"))
+  })
+
+  describe("BigDecimal checks", () => {
+    it("isGreaterThanBigDecimal", async () => {
+      const schema = Schema.BigDecimal.check(Schema.isGreaterThanBigDecimal(BigDecimal.fromStringUnsafe("1")))
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed(BigDecimal.fromStringUnsafe("2"))
+      await decoding.fail(
+        BigDecimal.fromStringUnsafe("1"),
+        `Expected a value greater than 1, got BigDecimal(1)`
+      )
+    })
+
+    it("isGreaterThanOrEqualToBigDecimal", async () => {
+      const schema = Schema.BigDecimal.check(
+        Schema.isGreaterThanOrEqualToBigDecimal(BigDecimal.fromStringUnsafe("1"))
+      )
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed(BigDecimal.fromStringUnsafe("1"))
+      await decoding.fail(
+        BigDecimal.fromStringUnsafe("0"),
+        `Expected a value greater than or equal to 1, got BigDecimal(0)`
+      )
+    })
+
+    it("isLessThanBigDecimal", async () => {
+      const schema = Schema.BigDecimal.check(Schema.isLessThanBigDecimal(BigDecimal.fromStringUnsafe("1")))
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed(BigDecimal.fromStringUnsafe("0"))
+      await decoding.fail(
+        BigDecimal.fromStringUnsafe("1"),
+        `Expected a value less than 1, got BigDecimal(1)`
+      )
+    })
+
+    it("isLessThanOrEqualToBigDecimal", async () => {
+      const schema = Schema.BigDecimal.check(Schema.isLessThanOrEqualToBigDecimal(BigDecimal.fromStringUnsafe("1")))
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed(BigDecimal.fromStringUnsafe("1"))
+      await decoding.fail(
+        BigDecimal.fromStringUnsafe("2"),
+        `Expected a value less than or equal to 1, got BigDecimal(2)`
+      )
+    })
+
+    it("isBetweenBigDecimal", async () => {
+      const schema = Schema.BigDecimal.check(Schema.isBetweenBigDecimal({
+        minimum: BigDecimal.fromStringUnsafe("1"),
+        maximum: BigDecimal.fromStringUnsafe("5")
+      }))
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed(BigDecimal.fromStringUnsafe("3"))
+      await decoding.fail(
+        BigDecimal.fromStringUnsafe("0"),
+        `Expected a value between 1 and 5, got BigDecimal(0)`
+      )
+    })
   })
 
   describe("tag", () => {
@@ -5392,6 +5655,20 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
       strictEqual(err._tag, "E")
       strictEqual(err.id, 1)
       deepStrictEqual(Object.keys(E.fields).sort(), ["_tag", "id"])
+    })
+
+    it("zero-field TaggedErrorClass allows omitting props argument", () => {
+      class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()("NotFoundError", {}) {}
+
+      // new NotFoundError() should work without passing {}
+      const a = new NotFoundError()
+      strictEqual(a._tag, "NotFoundError")
+      assertTrue(a instanceof NotFoundError)
+
+      // new NotFoundError({}) should also still work
+      const b = new NotFoundError({})
+      strictEqual(b._tag, "NotFoundError")
+      assertTrue(b instanceof NotFoundError)
     })
 
     it("extend", async () => {

@@ -84,7 +84,7 @@ import * as internalRequest from "./internal/request.ts"
 import * as internalSchedule from "./internal/schedule.ts"
 import type * as Layer from "./Layer.ts"
 import type { Logger } from "./Logger.ts"
-import type { LogLevel } from "./LogLevel.ts"
+import type { Severity } from "./LogLevel.ts"
 import * as Metric from "./Metric.ts"
 import type { Option } from "./Option.ts"
 import type { Pipeable } from "./Pipeable.ts"
@@ -119,6 +119,7 @@ import type {
   NoInfer,
   ReasonOf,
   ReasonTags,
+  Simplify,
   Tags,
   unassigned
 } from "./Types.ts"
@@ -799,6 +800,74 @@ export const partition: {
 } = internal.partition
 
 /**
+ * Applies an effectful function to each element and accumulates all failures.
+ *
+ * This function always evaluates every element. If at least one effect fails,
+ * all failures are returned as a non-empty array and successes are discarded.
+ * If all effects succeed, it returns all collected successes.
+ *
+ * Use `discard: true` to ignore successful values while still validating all
+ * elements.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.validate([0, 1, 2, 3], (n) =>
+ *   n % 2 === 0 ? Effect.fail(`${n} is even`) : Effect.succeed(n)
+ * )
+ *
+ * Effect.runPromiseExit(program).then(console.log)
+ * // {
+ * //   _id: 'Exit',
+ * //   _tag: 'Failure',
+ * //   cause: {
+ * //     _id: 'Cause',
+ * //     reasons: [
+ * //       { _id: 'Reason', _tag: 'Fail', error: '0 is even' },
+ * //       { _id: 'Reason', _tag: 'Fail', error: '2 is even' }
+ * //     ]
+ * //   }
+ * // }
+ * ```
+ *
+ * @since 4.0.0
+ * @category Error Accumulation
+ */
+export const validate: {
+  <A, B, E, R>(
+    f: (a: A, i: number) => Effect<B, E, R>,
+    options?: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard?: false | undefined
+    } | undefined
+  ): (elements: Iterable<A>) => Effect<Array<B>, Arr.NonEmptyArray<E>, R>
+  <A, B, E, R>(
+    f: (a: A, i: number) => Effect<B, E, R>,
+    options: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard: true
+    }
+  ): (elements: Iterable<A>) => Effect<void, Arr.NonEmptyArray<E>, R>
+  <A, B, E, R>(
+    elements: Iterable<A>,
+    f: (a: A, i: number) => Effect<B, E, R>,
+    options?: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard?: false | undefined
+    } | undefined
+  ): Effect<Array<B>, Arr.NonEmptyArray<E>, R>
+  <A, B, E, R>(
+    elements: Iterable<A>,
+    f: (a: A, i: number) => Effect<B, E, R>,
+    options: {
+      readonly concurrency?: Concurrency | undefined
+      readonly discard: true
+    }
+  ): Effect<void, Arr.NonEmptyArray<E>, R>
+} = internal.validate
+
+/**
  * Executes an effectful operation for each element in an `Iterable`.
  *
  * **Details**
@@ -1316,6 +1385,84 @@ export const callback: <A, E = never, R = never>(
  * @category Creating Effects
  */
 export const never: Effect<never> = internal.never
+
+/**
+ * An `Effect` containing an empty record `{}`, used as the starting point for
+ * do notation chains.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { pipe } from "effect/Function"
+ *
+ * const program = pipe(
+ *   Effect.Do,
+ *   Effect.bind("x", () => Effect.succeed(2)),
+ *   Effect.bind("y", ({ x }) => Effect.succeed(x + 1)),
+ *   Effect.let("sum", ({ x, y }) => x + y)
+ * )
+ * ```
+ *
+ * @since 4.0.0
+ * @category Do notation
+ */
+export const Do: Effect<{}> = internal.Do
+
+/**
+ * Gives a name to the success value of an `Effect`, creating a single-key
+ * record used in do notation pipelines.
+ *
+ * @since 4.0.0
+ * @category Do notation
+ */
+export const bindTo: {
+  <N extends string>(name: N): <A, E, R>(self: Effect<A, E, R>) => Effect<{ [K in N]: A }, E, R>
+  <A, E, R, N extends string>(self: Effect<A, E, R>, name: N): Effect<{ [K in N]: A }, E, R>
+} = internal.bindTo
+
+const let_: {
+  <N extends string, A extends Record<string, any>, B>(
+    name: N,
+    f: (a: NoInfer<A>) => B
+  ): <E, R>(
+    self: Effect<A, E, R>
+  ) => Effect<Simplify<Omit<A, N> & Record<N, B>>, E, R>
+  <A extends Record<string, any>, E, R, B, N extends string>(
+    self: Effect<A, E, R>,
+    name: N,
+    f: (a: NoInfer<A>) => B
+  ): Effect<Simplify<Omit<A, N> & Record<N, B>>, E, R>
+} = internal.let
+
+export {
+  /**
+   * Adds a computed plain value to the do notation record.
+   *
+   * @since 4.0.0
+   * @category Do notation
+   */
+  let_ as let
+}
+
+/**
+ * Adds an `Effect` value to the do notation record under a given name.
+ *
+ * @since 4.0.0
+ * @category Do notation
+ */
+export const bind: {
+  <N extends string, A extends Record<string, any>, B, E2, R2>(
+    name: N,
+    f: (a: NoInfer<A>) => Effect<B, E2, R2>
+  ): <E, R>(
+    self: Effect<A, E, R>
+  ) => Effect<Simplify<Omit<A, N> & Record<N, B>>, E | E2, R | R2>
+  <A extends Record<string, any>, E, R, B, E2, R2, N extends string>(
+    self: Effect<A, E, R>,
+    name: N,
+    f: (a: NoInfer<A>) => Effect<B, E2, R2>
+  ): Effect<Simplify<Omit<A, N> & Record<N, B>>, E | E2, R | R2>
+} = internal.bind
 
 /**
  * Provides a way to write effectful code using generator functions, simplifying
@@ -3877,14 +4024,14 @@ export const sandbox: <A, E, R>(
  */
 export const ignore: <
   Arg extends Effect<any, any, any> | {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   } | undefined = {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   }
 >(
   effectOrOptions?: Arg,
   options?: {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   } | undefined
 ) => [Arg] extends [Effect<infer _A, infer _E, infer _R>] ? Effect<void, never, _R>
   : <A, E, R>(self: Effect<A, E, R>) => Effect<void, never, R> = internal.ignore
@@ -3909,14 +4056,14 @@ export const ignore: <
  */
 export const ignoreCause: <
   Arg extends Effect<any, any, any> | {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   } | undefined = {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   }
 >(
   effectOrOptions?: Arg,
   options?: {
-    readonly log?: boolean | LogLevel | undefined
+    readonly log?: boolean | Severity | undefined
   } | undefined
 ) => [Arg] extends [Effect<infer _A, infer _E, infer _R>] ? Effect<void, never, _R>
   : <A, E, R>(self: Effect<A, E, R>) => Effect<void, never, R> = internal.ignoreCause
@@ -3962,6 +4109,25 @@ export const withExecutionPlan: {
     plan: ExecutionPlan<{ provides: Provides; input: Input; error: PlanE; requirements: PlanR }>
   ): Effect<A, E | PlanE, Exclude<R, Provides> | PlanR>
 } = internalExecutionPlan.withExecutionPlan
+
+/**
+ * Runs an effect and reports any errors to the configured `ErrorReporter`s.
+ *
+ * If the `defectsOnly` option is set to `true`, only defects (unrecoverable
+ * errors) will be reported, while regular failures will be ignored.
+ *
+ * @since 4.0.0
+ * @category Error Handling
+ */
+export const withErrorReporting: <
+  Arg extends Effect<any, any, any> | { readonly defectsOnly?: boolean | undefined } | undefined = {
+    readonly defectsOnly?: boolean | undefined
+  }
+>(
+  effectOrOptions: Arg,
+  options?: { readonly defectsOnly?: boolean | undefined } | undefined
+) => [Arg] extends [Effect<infer _A, infer _E, infer _R>] ? Arg : <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, R> =
+  internal.withErrorReporting
 
 // -----------------------------------------------------------------------------
 // Fallback
@@ -4070,11 +4236,11 @@ export const orElseSucceed: {
  */
 export const timeout: {
   (
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E | Cause.TimeoutError, R>
   <A, E, R>(
     self: Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect<A, E | Cause.TimeoutError, R>
 } = internal.timeout
 
@@ -4129,11 +4295,11 @@ export const timeout: {
  */
 export const timeoutOption: {
   (
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): <A, E, R>(self: Effect<A, E, R>) => Effect<Option<A>, E, R>
   <A, E, R>(
     self: Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect<Option<A>, E, R>
 } = internal.timeoutOption
 
@@ -4175,13 +4341,13 @@ export const timeoutOption: {
  */
 export const timeoutOrElse: {
   <A2, E2, R2>(options: {
-    readonly duration: Duration.DurationInput
+    readonly duration: Duration.Input
     readonly onTimeout: LazyArg<Effect<A2, E2, R2>>
   }): <A, E, R>(self: Effect<A, E, R>) => Effect<A | A2, E | E2, R | R2>
   <A, E, R, A2, E2, R2>(
     self: Effect<A, E, R>,
     options: {
-      readonly duration: Duration.DurationInput
+      readonly duration: Duration.Input
       readonly onTimeout: LazyArg<Effect<A2, E2, R2>>
     }
   ): Effect<A | A2, E | E2, R | R2>
@@ -4209,11 +4375,11 @@ export const timeoutOrElse: {
  */
 export const delay: {
   (
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, R>
   <A, E, R>(
     self: Effect<A, E, R>,
-    duration: Duration.DurationInput
+    duration: Duration.Input
   ): Effect<A, E, R>
 } = internal.delay
 
@@ -4239,7 +4405,7 @@ export const delay: {
  * @since 2.0.0
  * @category Delays & Timeouts
  */
-export const sleep: (duration: Duration.DurationInput) => Effect<void> = internal.sleep
+export const sleep: (duration: Duration.Input) => Effect<void> = internal.sleep
 
 /**
  * Measures the runtime of an effect and returns the duration with its result.
@@ -6313,8 +6479,8 @@ export const cached: <A, E, R>(self: Effect<A, E, R>) => Effect<Effect<A, E, R>>
  * @category Caching
  */
 export const cachedWithTTL: {
-  (timeToLive: Duration.DurationInput): <A, E, R>(self: Effect<A, E, R>) => Effect<Effect<A, E, R>>
-  <A, E, R>(self: Effect<A, E, R>, timeToLive: Duration.DurationInput): Effect<Effect<A, E, R>>
+  (timeToLive: Duration.Input): <A, E, R>(self: Effect<A, E, R>) => Effect<Effect<A, E, R>>
+  <A, E, R>(self: Effect<A, E, R>, timeToLive: Duration.Input): Effect<Effect<A, E, R>>
 } = internal.cachedWithTTL
 
 /**
@@ -6387,8 +6553,8 @@ export const cachedWithTTL: {
  * @category Caching
  */
 export const cachedInvalidateWithTTL: {
-  (timeToLive: Duration.DurationInput): <A, E, R>(self: Effect<A, E, R>) => Effect<[Effect<A, E, R>, Effect<void>]>
-  <A, E, R>(self: Effect<A, E, R>, timeToLive: Duration.DurationInput): Effect<[Effect<A, E, R>, Effect<void>]>
+  (timeToLive: Duration.Input): <A, E, R>(self: Effect<A, E, R>) => Effect<[Effect<A, E, R>, Effect<void>]>
+  <A, E, R>(self: Effect<A, E, R>, timeToLive: Duration.Input): Effect<[Effect<A, E, R>, Effect<void>]>
 } = internal.cachedInvalidateWithTTL
 
 // -----------------------------------------------------------------------------
@@ -6569,252 +6735,6 @@ export const interruptibleMask: <A, E, R>(
     restore: <AX, EX, RX>(effect: Effect<AX, EX, RX>) => Effect<AX, EX, RX>
   ) => Effect<A, E, R>
 ) => Effect<A, E, R> = internal.interruptibleMask
-
-// -----------------------------------------------------------------------------
-// Semaphore
-// -----------------------------------------------------------------------------
-
-/**
- * @category Semaphore
- * @since 2.0.0
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * // Create and use a semaphore for controlling concurrent access
- * const program = Effect.gen(function*() {
- *   const semaphore = yield* Effect.makeSemaphore(2)
- *
- *   return yield* semaphore.withPermits(1)(
- *     Effect.succeed("Resource accessed")
- *   )
- * })
- * ```
- */
-export interface Semaphore {
-  /**
-   * Adjusts the number of permits available in the semaphore.
-   */
-  resize(permits: number): Effect<void>
-
-  /**
-   * Runs an effect with the given number of permits and releases the permits
-   * when the effect completes.
-   *
-   * **Details**
-   *
-   * This function acquires the specified number of permits before executing
-   * the provided effect. Once the effect finishes, the permits are released.
-   * If insufficient permits are available, the function will wait until they
-   * are released by other tasks.
-   */
-  withPermits(permits: number): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, R>
-
-  /**
-   * Runs an effect with the given number of permits and releases the permits
-   * when the effect completes.
-   *
-   * **Details**
-   *
-   * This function acquires the specified number of permits before executing
-   * the provided effect. Once the effect finishes, the permits are released.
-   * If insufficient permits are available, the function will wait until they
-   * are released by other tasks.
-   */
-  withPermit<A, E, R>(self: Effect<A, E, R>): Effect<A, E, R>
-
-  /**
-   * Runs an effect only if the specified number of permits are immediately
-   * available.
-   *
-   * **Details**
-   *
-   * This function attempts to acquire the specified number of permits. If they
-   * are available, it runs the effect and releases the permits after the effect
-   * completes. If permits are not available, the effect does not execute, and
-   * the result is `Option.none`.
-   */
-  withPermitsIfAvailable(permits: number): <A, E, R>(self: Effect<A, E, R>) => Effect<Option<A>, E, R>
-
-  /**
-   * Acquires the specified number of permits and returns the resulting
-   * available permits, suspending the task if they are not yet available.
-   * Concurrent pending `take` calls are processed in a first-in, first-out manner.
-   */
-  take(permits: number): Effect<number>
-
-  /**
-   * Releases the specified number of permits and returns the resulting
-   * available permits.
-   */
-  release(permits: number): Effect<number>
-
-  /**
-   * Releases all permits held by this semaphore and returns the resulting available permits.
-   */
-  releaseAll: Effect<number>
-}
-
-/**
- * Unsafely creates a new Semaphore.
- *
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * const semaphore = Effect.makeSemaphoreUnsafe(3)
- *
- * const task = (id: number) =>
- *   semaphore.withPermits(1)(
- *     Effect.gen(function*() {
- *       yield* Effect.log(`Task ${id} started`)
- *       yield* Effect.sleep("1 second")
- *       yield* Effect.log(`Task ${id} completed`)
- *     })
- *   )
- *
- * // Only 3 tasks can run concurrently
- * const program = Effect.all([
- *   task(1),
- *   task(2),
- *   task(3),
- *   task(4),
- *   task(5)
- * ], { concurrency: "unbounded" })
- * ```
- *
- * @since 2.0.0
- * @category Semaphore
- */
-export const makeSemaphoreUnsafe: (permits: number) => Semaphore = internal.makeSemaphoreUnsafe
-
-/**
- * Creates a new Semaphore.
- *
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * const program = Effect.gen(function*() {
- *   const semaphore = yield* Effect.makeSemaphore(2)
- *
- *   const task = (id: number) =>
- *     semaphore.withPermits(1)(
- *       Effect.gen(function*() {
- *         yield* Effect.log(`Task ${id} acquired permit`)
- *         yield* Effect.sleep("1 second")
- *         yield* Effect.log(`Task ${id} releasing permit`)
- *       })
- *     )
- *
- *   // Run 4 tasks, but only 2 can run concurrently
- *   yield* Effect.all([task(1), task(2), task(3), task(4)])
- * })
- * ```
- *
- * @since 2.0.0
- * @category Semaphore
- */
-export const makeSemaphore: (permits: number) => Effect<Semaphore> = internal.makeSemaphore
-
-// -----------------------------------------------------------------------------
-// Latch
-// -----------------------------------------------------------------------------
-
-/**
- * @category Latch
- * @since 3.8.0
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * // Create and use a latch for coordination between fibers
- * const program = Effect.gen(function*() {
- *   const latch = yield* Effect.makeLatch()
- *
- *   // Wait for the latch to be opened
- *   yield* latch.await
- *
- *   return "Latch was opened!"
- * })
- * ```
- */
-export interface Latch {
-  /** open the latch, releasing all fibers waiting on it */
-  readonly open: Effect<boolean>
-  /** open the latch, releasing all fibers waiting on it */
-  readonly openUnsafe: () => boolean
-  /** release all fibers waiting on the latch, without opening it */
-  readonly release: Effect<boolean>
-  /** wait for the latch to be opened */
-  readonly await: Effect<void>
-  /** close the latch */
-  readonly close: Effect<boolean>
-  /** close the latch */
-  readonly closeUnsafe: () => boolean
-  /** only run the given effect when the latch is open */
-  readonly whenOpen: <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, R>
-}
-
-/**
- * Creates a new Latch.
- *
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * const latch = Effect.makeLatchUnsafe(false)
- *
- * const waiter = Effect.gen(function*() {
- *   yield* Effect.log("Waiting for latch to open...")
- *   yield* latch.await
- *   yield* Effect.log("Latch opened! Continuing...")
- * })
- *
- * const opener = Effect.gen(function*() {
- *   yield* Effect.sleep("2 seconds")
- *   yield* Effect.log("Opening latch...")
- *   yield* latch.open
- * })
- *
- * const program = Effect.all([waiter, opener])
- * ```
- *
- * @category Latch
- * @since 3.8.0
- */
-export const makeLatchUnsafe: (open?: boolean | undefined) => Latch = internal.makeLatchUnsafe
-
-/**
- * Creates a new Latch.
- *
- * @example
- * ```ts
- * import { Effect } from "effect"
- *
- * const program = Effect.gen(function*() {
- *   const latch = yield* Effect.makeLatch(false)
- *
- *   const waiter = Effect.gen(function*() {
- *     yield* Effect.log("Waiting for latch to open...")
- *     yield* latch.await
- *     yield* Effect.log("Latch opened! Continuing...")
- *   })
- *
- *   const opener = Effect.gen(function*() {
- *     yield* Effect.sleep("2 seconds")
- *     yield* Effect.log("Opening latch...")
- *     yield* latch.open
- *   })
- *
- *   yield* Effect.all([waiter, opener])
- * })
- * ```
- *
- * @category Latch
- * @since 3.8.0
- */
-export const makeLatch: (open?: boolean | undefined) => Effect<Latch> = internal.makeLatch
 
 // -----------------------------------------------------------------------------
 // Repetition & Recursion
@@ -12790,7 +12710,7 @@ export const clockWith: <A, E, R>(
  * @since 2.0.0
  * @category Logging
  */
-export const logWithLevel: (level?: LogLevel) => (...message: ReadonlyArray<any>) => Effect<void> =
+export const logWithLevel: (level?: Severity) => (...message: ReadonlyArray<any>) => Effect<void> =
   internal.logWithLevel
 
 /**
@@ -13533,8 +13453,8 @@ export const trackDuration: {
       return onExit(self, () => {
         const endTime = clock.currentTimeNanosUnsafe()
         const duration = Duration.subtract(
-          Duration.fromDurationInputUnsafe(endTime),
-          Duration.fromDurationInputUnsafe(startTime)
+          Duration.fromInputUnsafe(endTime),
+          Duration.fromInputUnsafe(startTime)
         )
         const input = f === undefined ? duration : internalCall(() => f(duration))
         return Metric.update(metric, input as any)

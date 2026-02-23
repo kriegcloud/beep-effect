@@ -13,7 +13,7 @@ import * as Schema from "../../Schema.ts"
  * @since 4.0.0
  * @category constructor
  */
-export const findMany = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
+export const findAll = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
   options: {
     readonly Request: Req
     readonly Result: Res
@@ -21,7 +21,30 @@ export const findMany = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
   }
 ) => {
   const encodeRequest = Schema.encodeEffect(options.Request)
-  const decode = Schema.decodeUnknownEffect(Schema.Array(options.Result))
+  const decode = Schema.decodeUnknownEffect(Schema.mutable(Schema.Array(options.Result)))
+  return (
+    request: Req["Encoded"]
+  ): Effect.Effect<
+    Array<Res["Type"]>,
+    E | Schema.SchemaError,
+    Req["EncodingServices"] | Res["DecodingServices"] | R
+  > => Effect.flatMap(Effect.flatMap(encodeRequest(request), options.execute), decode)
+}
+
+/**
+ * Run a sql query with a request schema and a result schema.
+ *
+ * @since 4.0.0
+ * @category constructor
+ */
+export const findNonEmpty = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
+  options: {
+    readonly Request: Req
+    readonly Result: Res
+    readonly execute: (request: Req["Encoded"]) => Effect.Effect<ReadonlyArray<unknown>, E, R>
+  }
+) => {
+  const find = findAll(options)
   return (
     request: Req["Encoded"]
   ): Effect.Effect<
@@ -29,17 +52,10 @@ export const findMany = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
     E | Schema.SchemaError | Cause.NoSuchElementError,
     Req["EncodingServices"] | Res["DecodingServices"] | R
   > =>
-    Effect.flatMap(
-      Effect.flatMap(encodeRequest(request), options.execute),
-      (results): Effect.Effect<
-        Arr.NonEmptyArray<Res["Type"]>,
-        Schema.SchemaError | Cause.NoSuchElementError,
-        Req["EncodingServices"] | Res["DecodingServices"]
-      > =>
-        Arr.isReadonlyArrayNonEmpty(results)
-          ? decode(results) as Effect.Effect<Arr.NonEmptyArray<Res["Type"]>, Schema.SchemaError>
-          : Effect.fail(new Cause.NoSuchElementError())
-    )
+    Effect.flatMap(find(request), (results) =>
+      Arr.isArrayNonEmpty(results)
+        ? Effect.succeed(results)
+        : Effect.fail(new Cause.NoSuchElementError()))
 }
 
 const void_ = <Req extends Schema.Top, E, R>(
@@ -65,44 +81,12 @@ export {
 }
 
 /**
- * Run a sql query with a request schema and a result schema and return the first result, if any.
- *
- * @since 4.0.0
- * @category constructor
- */
-export const findOne = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
-  options: {
-    readonly Request: Req
-    readonly Result: Res
-    readonly execute: (request: Req["Encoded"]) => Effect.Effect<ReadonlyArray<unknown>, E, R>
-  }
-) => {
-  const encodeRequest = Schema.encodeEffect(options.Request)
-  const decode = Schema.decodeUnknownEffect(options.Result)
-  return (
-    request: Req["Type"]
-  ): Effect.Effect<
-    Option.Option<Res["Type"]>,
-    E | Schema.SchemaError,
-    R | Req["EncodingServices"] | Res["DecodingServices"]
-  > =>
-    Effect.flatMap(
-      Effect.flatMap(encodeRequest(request), options.execute),
-      (arr): Effect.Effect<
-        Option.Option<Res["Type"]>,
-        Schema.SchemaError,
-        Req["EncodingServices"] | Res["DecodingServices"]
-      > => Arr.isReadonlyArrayNonEmpty(arr) ? Effect.asSome(decode(arr[0])) : Effect.succeedNone
-    )
-}
-
-/**
  * Run a sql query with a request schema and a result schema and return the first result.
  *
  * @since 4.0.0
  * @category constructor
  */
-export const single = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
+export const findOne = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
   options: {
     readonly Request: Req
     readonly Result: Res
@@ -125,5 +109,37 @@ export const single = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
         Schema.SchemaError | Cause.NoSuchElementError,
         Req["EncodingServices"] | Res["DecodingServices"]
       > => Arr.isReadonlyArrayNonEmpty(arr) ? decode(arr[0]) : Effect.fail(new Cause.NoSuchElementError())
+    )
+}
+
+/**
+ * Run a sql query with a request schema and a result schema and return the first result.
+ *
+ * @since 4.0.0
+ * @category constructor
+ */
+export const findOneOption = <Req extends Schema.Top, Res extends Schema.Top, E, R>(
+  options: {
+    readonly Request: Req
+    readonly Result: Res
+    readonly execute: (request: Req["Encoded"]) => Effect.Effect<ReadonlyArray<unknown>, E, R>
+  }
+) => {
+  const encodeRequest = Schema.encodeEffect(options.Request)
+  const decode = Schema.decodeUnknownEffect(options.Result)
+  return (
+    request: Req["Type"]
+  ): Effect.Effect<
+    Option.Option<Res["Type"]>,
+    E | Schema.SchemaError,
+    R | Req["EncodingServices"] | Res["DecodingServices"]
+  > =>
+    Effect.flatMap(
+      Effect.flatMap(encodeRequest(request), options.execute),
+      (arr): Effect.Effect<
+        Option.Option<Res["Type"]>,
+        Schema.SchemaError,
+        Req["EncodingServices"] | Res["DecodingServices"]
+      > => Arr.isReadonlyArrayNonEmpty(arr) ? Effect.asSome(decode(arr[0])) : Effect.succeedNone
     )
 }

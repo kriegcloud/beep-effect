@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect"
 import * as FiberSet from "effect/FiberSet"
 import * as Function from "effect/Function"
 import { identity } from "effect/Function"
+import * as Latch from "effect/Latch"
 import * as Layer from "effect/Layer"
 import * as Scope from "effect/Scope"
 import * as ServiceMap from "effect/ServiceMap"
@@ -36,7 +37,7 @@ export class NetSocket extends ServiceMap.Service<NetSocket, Net.Socket>()(
  */
 export const makeNet = (
   options: Net.NetConnectOpts & {
-    readonly openTimeout?: Duration.DurationInput | undefined
+    readonly openTimeout?: Duration.Input | undefined
   }
 ): Effect.Effect<Socket.Socket> =>
   fromDuplex(
@@ -82,12 +83,12 @@ export const makeNet = (
 export const fromDuplex = <RO>(
   open: Effect.Effect<Duplex, Socket.SocketError, RO>,
   options?: {
-    readonly openTimeout?: Duration.DurationInput | undefined
+    readonly openTimeout?: Duration.Input | undefined
   }
 ): Effect.Effect<Socket.Socket, never, Exclude<RO, Scope.Scope>> =>
   Effect.withFiber<Socket.Socket, never, Exclude<RO, Scope.Scope>>((fiber) => {
     let currentSocket: Duplex | undefined
-    const latch = Effect.makeLatchUnsafe(false)
+    const latch = Latch.makeUnsafe(false)
     const openServices = fiber.services as ServiceMap.ServiceMap<RO>
 
     const run = <R, E, _>(handler: (_: Uint8Array) => Effect.Effect<_, E, R> | void, opts?: {
