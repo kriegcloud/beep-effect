@@ -4,8 +4,12 @@ import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
 import { Config, Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 
+const OpenAiApiKeyConfig = Config.redacted("OPENAI_API_KEY").pipe(
+  Config.orElse(() => Config.redacted("AI_OPENAI_API_KEY"))
+);
+
 export const OpenAiClientLayer = OpenAiClient.layerConfig({
-  apiKey: Config.redacted("OPENAI_API_KEY"),
+  apiKey: OpenAiApiKeyConfig,
 }).pipe(Layer.provide(FetchHttpClient.layer));
 
 const OpenAiModelConfig = Config.string("OPENAI_MODEL").pipe(Config.withDefault(() => "gpt-4o-mini"));
