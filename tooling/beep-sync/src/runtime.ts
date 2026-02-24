@@ -28,27 +28,42 @@ import * as Str from "effect/String";
 import YAML from "yaml";
 
 /**
+ * Current beep-sync runtime implementation version.
+ *
  * @since 0.0.0
+ * @category Metadata
  */
 export const runtimeVersion = "0.1.0";
 
 /**
+ * Scaffolding version aligned to the runtime implementation version.
+ *
  * @since 0.0.0
+ * @category Metadata
  */
 export const scaffoldVersion = runtimeVersion;
 
 /**
+ * Severity levels used by runtime diagnostics.
+ *
  * @since 0.0.0
+ * @category Runtime
  */
 export type RuntimeSeverity = "error" | "warning" | "info";
 
 /**
+ * Tool ownership marker for runtime diagnostics.
+ *
  * @since 0.0.0
+ * @category Runtime
  */
 export type RuntimeTool = "core" | "claude" | "codex" | "cursor" | "windsurf" | "jetbrains";
 
 /**
+ * Diagnostic entry emitted by runtime validation and execution flows.
+ *
  * @since 0.0.0
+ * @category Runtime
  */
 export type RuntimeDiagnostic = {
   severity: RuntimeSeverity;
@@ -59,12 +74,18 @@ export type RuntimeDiagnostic = {
 };
 
 /**
+ * Supported high-level runtime command actions.
+ *
  * @since 0.0.0
+ * @category Runtime
  */
 export type RuntimeAction = "validate" | "apply" | "check" | "doctor" | "revert";
 
 /**
+ * Aggregate result returned by runtime command handlers.
+ *
  * @since 0.0.0
+ * @category Runtime
  */
 export type RuntimeResult = {
   action: RuntimeAction;
@@ -2169,7 +2190,13 @@ function performOrphanCleanup(
 }
 
 /**
+ * Validates runtime config and environment constraints.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param strict - Treat warnings as failures when true.
+ * @returns Runtime validation result.
  * @since 0.0.0
+ * @category Runtime
  */
 export function runRuntimeValidate(repoRoot: string, strict: boolean): RuntimeResult {
   const configLoad = readRuntimeConfig(repoRoot);
@@ -2210,7 +2237,14 @@ export function runRuntimeValidate(repoRoot: string, strict: boolean): RuntimeRe
 }
 
 /**
+ * Applies managed artifacts and updates runtime manifests/state.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param dryRun - When true, report changes without writing files.
+ * @param strict - Treat warnings as failures when true.
+ * @returns Runtime apply result.
  * @since 0.0.0
+ * @category Runtime
  */
 export function runRuntimeApply(repoRoot: string, dryRun: boolean, strict: boolean): RuntimeResult {
   const configLoad = readRuntimeConfig(repoRoot);
@@ -2286,7 +2320,13 @@ export function runRuntimeApply(repoRoot: string, dryRun: boolean, strict: boole
 }
 
 /**
+ * Checks managed artifacts for drift against the compiled plan.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param strict - Treat warnings as failures when true.
+ * @returns Runtime check result.
  * @since 0.0.0
+ * @category Runtime
  */
 export function runRuntimeCheck(repoRoot: string, strict: boolean): RuntimeResult {
   const configLoad = readRuntimeConfig(repoRoot);
@@ -2407,7 +2447,13 @@ export function runRuntimeCheck(repoRoot: string, strict: boolean): RuntimeResul
 }
 
 /**
+ * Reports runtime health and planning diagnostics without mutation.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param strict - Treat warnings as failures when true.
+ * @returns Runtime doctor result.
  * @since 0.0.0
+ * @category Runtime
  */
 export function runRuntimeDoctor(repoRoot: string, strict: boolean): RuntimeResult {
   const diagnostics = A.empty<RuntimeDiagnostic>();
@@ -2464,7 +2510,13 @@ export function runRuntimeDoctor(repoRoot: string, strict: boolean): RuntimeResu
 }
 
 /**
+ * Reverts managed artifacts using recorded runtime state.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param dryRun - When true, report changes without writing files.
+ * @returns Runtime revert result.
  * @since 0.0.0
+ * @category Runtime
  */
 export function runRuntimeRevert(repoRoot: string, dryRun: boolean): RuntimeResult {
   const diagnostics = A.empty<RuntimeDiagnostic>();

@@ -66,6 +66,10 @@ class CliRuntimeError extends S.TaggedErrorClass<CliRuntimeError>()("BeepSyncCli
 const JsonUnknownFromJson = S.fromJsonString(S.Unknown);
 
 /**
+ * Converts an optional value into a readonly array.
+ *
+ * @param value - Optional value to convert.
+ * @returns Empty array for none or single-item array for some.
  * @since 0.0.0
  * @internal
  */
@@ -73,12 +77,20 @@ const toOptionArray = <T>(value: O.Option<T>): ReadonlyArray<T> =>
   O.match(value, { onNone: () => A.empty<T>(), onSome: (some) => A.make(some) });
 
 /**
+ * Normalizes a path and coerces separators to POSIX style.
+ *
+ * @param value - Input path string.
+ * @returns Absolute normalized path.
  * @since 0.0.0
  * @internal
  */
 const normalizePath = (value: string): string => Str.replace(/\\/g, "/")(resolve(value));
 
 /**
+ * Builds a predicate that checks whether a normalized path contains a segment.
+ *
+ * @param segment - Segment fragment to match.
+ * @returns Predicate for matching normalized paths.
  * @since 0.0.0
  * @internal
  */
@@ -114,6 +126,10 @@ const isPoc04Path = isPocPath("/fixtures/poc-04/");
 const isPoc05Path = isPocPath("/fixtures/poc-05/");
 
 /**
+ * Writes a string payload to stdout.
+ *
+ * @param value - Text to write.
+ * @returns Effect that writes to stdout.
  * @since 0.0.0
  * @internal
  */
@@ -123,6 +139,10 @@ const writeStdout = (value: string): Effect.Effect<void> =>
   });
 
 /**
+ * Encodes a value as a JSON string using schema-based validation.
+ *
+ * @param value - Value to encode.
+ * @returns Effect producing encoded JSON or runtime error.
  * @since 0.0.0
  * @internal
  */
@@ -138,6 +158,10 @@ const encodeJson = (value: unknown): Effect.Effect<string, CliRuntimeError> =>
   );
 
 /**
+ * Writes a JSON value to stdout with trailing newline normalization.
+ *
+ * @param value - Value to encode and print.
+ * @returns Effect that writes JSON output.
  * @since 0.0.0
  * @internal
  */
@@ -145,6 +169,10 @@ const writeJson = (value: unknown): Effect.Effect<void, CliRuntimeError> =>
   encodeJson(value).pipe(Effect.flatMap((json) => writeStdout(Str.endsWith("\n")(json) ? json : `${json}\n`)));
 
 /**
+ * Sets process exit code when a non-zero code is requested.
+ *
+ * @param code - Exit code to apply.
+ * @returns Effect that updates process exit code.
  * @since 0.0.0
  * @internal
  */
@@ -156,6 +184,11 @@ const markExitCode = (code: number): Effect.Effect<void> =>
   });
 
 /**
+ * Constructs an optional string CLI flag with description metadata.
+ *
+ * @param name - Long option key without leading dashes.
+ * @param description - Human-readable flag description.
+ * @returns Optional string flag descriptor.
  * @since 0.0.0
  * @internal
  */
@@ -163,6 +196,9 @@ const optionStringFlag = (name: string, description: string) =>
   Flag.string(name).pipe(Flag.withDescription(description), Flag.optional);
 
 /**
+ * Builds the CLI option shape shared by beep-sync commands.
+ *
+ * @returns Option descriptor object for command parsing.
  * @since 0.0.0
  * @internal
  */

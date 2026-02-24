@@ -1,3 +1,9 @@
+/**
+ * Runtime and fixture helpers for beep-sync managed artifacts.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
@@ -27,12 +33,18 @@ import * as Str from "effect/String";
 import YAML from "yaml";
 
 /**
+ * Canonical scaffold version for beep-sync fixtures.
+ *
  * @since 0.0.0
+ * @category Metadata
  */
 export const scaffoldVersion = "0.1.0";
 
 /**
+ * Allowed diagnostic severities emitted by canonical validators.
+ *
  * @since 0.0.0
+ * @category Models
  */
 export type Severity = Data.TaggedEnum<{
   error: {};
@@ -42,7 +54,10 @@ const Severity = Data.taggedEnum<Severity>();
 type SeverityTag = Severity["_tag"];
 
 /**
+ * Structured validation message for canonical config checks.
+ *
  * @since 0.0.0
+ * @category Models
  */
 export type Diagnostic = {
   code: string;
@@ -65,7 +80,10 @@ type CanonicalMcpServer = {
 };
 
 /**
+ * Normalized representation of a canonical beep-sync configuration file.
+ *
  * @since 0.0.0
+ * @category Models
  */
 export type CanonicalConfig = {
   version: number;
@@ -77,7 +95,10 @@ export type CanonicalConfig = {
 };
 
 /**
+ * Stable envelope with canonical config and deterministic content hash.
+ *
  * @since 0.0.0
+ * @category Models
  */
 export type NormalizedEnvelope = {
   version: 1;
@@ -86,7 +107,10 @@ export type NormalizedEnvelope = {
 };
 
 /**
+ * Supported MCP output targets.
+ *
  * @since 0.0.0
+ * @category MCP
  */
 export type McpTool = Data.TaggedEnum<{
   codex: {};
@@ -95,7 +119,10 @@ export type McpTool = Data.TaggedEnum<{
 }>;
 const McpTool = Data.taggedEnum<McpTool>();
 /**
+ * Tag value union for {@link McpTool}.
+ *
  * @since 0.0.0
+ * @category MCP
  */
 export type McpToolTag = McpTool["_tag"];
 
@@ -106,7 +133,10 @@ type McpFixture = {
 };
 
 /**
+ * Generated payload and warnings for an MCP target.
+ *
  * @since 0.0.0
+ * @category MCP
  */
 export type McpGenerationResult = {
   output: string;
@@ -115,7 +145,10 @@ export type McpGenerationResult = {
 };
 
 /**
+ * Prompt library generation mode for JetBrains artifacts.
+ *
  * @since 0.0.0
+ * @category JetBrains
  */
 export type JetbrainsPromptMode = Data.TaggedEnum<{
   bundle_only: {};
@@ -136,7 +169,10 @@ type JetbrainsPromptLibraryFixture = {
 };
 
 /**
+ * Generated file emitted for JetBrains prompt-library sync.
+ *
  * @since 0.0.0
+ * @category JetBrains
  */
 export type JetbrainsArtifact = {
   path: string;
@@ -145,7 +181,10 @@ export type JetbrainsArtifact = {
 };
 
 /**
+ * Deterministic JetBrains prompt-library generation envelope.
+ *
  * @since 0.0.0
+ * @category JetBrains
  */
 export type JetbrainsPromptLibraryEnvelope = {
   tool: "jetbrains";
@@ -205,7 +244,10 @@ type Poc04Plan = {
 };
 
 /**
+ * Result envelope for POC-04 apply/check/revert operations.
+ *
  * @since 0.0.0
+ * @category POC04
  */
 export type Poc04OperationResult = {
   ok: boolean;
@@ -238,7 +280,10 @@ const SecretResolverMode = Data.taggedEnum<SecretResolverMode>();
 type SecretResolverModeTag = SecretResolverMode["_tag"];
 
 /**
+ * Result envelope for resolving secrets referenced by a fixture.
+ *
  * @since 0.0.0
+ * @category Secrets
  */
 export type SecretResolutionResult = {
   ok: boolean;
@@ -341,14 +386,24 @@ function readYamlFile(pathValue: string): unknown {
 }
 
 /**
+ * Reads and parses a YAML file into an unknown document payload.
+ *
+ * @param pathValue - Path to the YAML document on disk.
+ * @returns Parsed YAML document value.
  * @since 0.0.0
+ * @category Canonical
  */
 export function readYamlDocument(pathValue: string): unknown {
   return readYamlFile(pathValue);
 }
 
 /**
+ * Validates a raw canonical config value and returns diagnostics.
+ *
+ * @param input - Untrusted config payload.
+ * @returns Sorted diagnostics for structural and semantic issues.
  * @since 0.0.0
+ * @category Canonical
  */
 export function validateCanonicalConfig(input: unknown): Diagnostic[] {
   const diagnostics = A.empty<Diagnostic>();
@@ -513,7 +568,12 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
 }
 
 /**
+ * Normalizes a raw canonical config into a deterministic in-memory shape.
+ *
+ * @param input - Untrusted config payload.
+ * @returns Normalized canonical config object.
  * @since 0.0.0
+ * @category Canonical
  */
 export function normalizeCanonicalConfig(input: unknown): CanonicalConfig {
   const config = isRecord(input) ? input : {};
@@ -573,7 +633,12 @@ export function normalizeCanonicalConfig(input: unknown): CanonicalConfig {
 }
 
 /**
+ * Wraps normalized config with a deterministic hash envelope.
+ *
+ * @param input - Untrusted config payload.
+ * @returns Normalized envelope with content hash.
  * @since 0.0.0
+ * @category Canonical
  */
 export function normalizeCanonicalEnvelope(input: unknown): NormalizedEnvelope {
   const config = stableSortDeep(normalizeCanonicalConfig(input)) as CanonicalConfig;
@@ -608,7 +673,12 @@ const collectYamlFilesFromPath = (pathValue: string): ReadonlyArray<string> => {
 };
 
 /**
+ * Collects YAML files from a file or directory recursively.
+ *
+ * @param pathValue - File or directory path to scan.
+ * @returns Absolute YAML file paths in sorted order.
  * @since 0.0.0
+ * @category Canonical
  */
 export function collectYamlFiles(pathValue: string): string[] {
   const absolutePath = resolve(pathValue);
@@ -616,7 +686,12 @@ export function collectYamlFiles(pathValue: string): string[] {
 }
 
 /**
+ * Parses and validates a canonical YAML file from disk.
+ *
+ * @param filePath - Path to a canonical YAML file.
+ * @returns Validation diagnostics and parsed data payload.
  * @since 0.0.0
+ * @category Canonical
  */
 export function validateCanonicalFile(filePath: string): { diagnostics: Diagnostic[]; data: unknown } {
   return Effect.runSync(
@@ -646,7 +721,12 @@ export function validateCanonicalFile(filePath: string): { diagnostics: Diagnost
 }
 
 /**
+ * Formats diagnostics into a newline-delimited display string.
+ *
+ * @param diagnostics - Diagnostics to format.
+ * @returns Human-readable diagnostics text.
  * @since 0.0.0
+ * @category Diagnostics
  */
 export function formatDiagnostics(diagnostics: Diagnostic[]): string {
   if (A.isArrayEmpty(diagnostics)) {
@@ -797,7 +877,12 @@ function buildWindsurfJson(servers: Record<string, McpServer>): string {
 }
 
 /**
+ * Parses an MCP tool identifier into a tagged tool value.
+ *
+ * @param value - Raw tool identifier string.
+ * @returns Matching tool option when recognized.
  * @since 0.0.0
+ * @category MCP
  */
 export function parseMcpTool(value: string): O.Option<McpTool> {
   switch (value) {
@@ -813,7 +898,13 @@ export function parseMcpTool(value: string): O.Option<McpTool> {
 }
 
 /**
+ * Generates tool-specific MCP output from a shared fixture payload.
+ *
+ * @param tool - Target MCP tool.
+ * @param input - Raw MCP fixture payload.
+ * @returns Generated output with compatibility warnings.
  * @since 0.0.0
+ * @category MCP
  */
 export function generateMcpForTool(tool: McpTool, input: unknown): McpGenerationResult {
   const normalized = normalizeMcpFixture(input);
@@ -935,7 +1026,13 @@ function renderJetbrainsImportInstructions(mode: JetbrainsPromptMode): string {
 }
 
 /**
+ * Builds deterministic JetBrains prompt-library artifacts from fixture input.
+ *
+ * @param input - Raw fixture payload.
+ * @param modeOverride - Optional mode override.
+ * @returns JetBrains prompt-library generation envelope.
  * @since 0.0.0
+ * @category JetBrains
  */
 export function generateJetbrainsPromptLibrary(input: unknown, modeOverride?: string): JetbrainsPromptLibraryEnvelope {
   const normalized = normalizeJetbrainsPromptLibrary(input);
@@ -1079,7 +1176,13 @@ function readPoc04State(pathValue: string): Poc04State | null {
 }
 
 /**
+ * Applies managed POC-04 artifacts and optionally performs a dry run.
+ *
+ * @param fixturePath - Path to the POC-04 fixture file.
+ * @param dryRun - When true, report changes without writing files.
+ * @returns Operation result for the apply action.
  * @since 0.0.0
+ * @category POC04
  */
 export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
@@ -1140,7 +1243,12 @@ export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04Operat
 }
 
 /**
+ * Checks whether current POC-04 managed state matches expectations.
+ *
+ * @param fixturePath - Path to the POC-04 fixture file.
+ * @returns Operation result for the check action.
  * @since 0.0.0
+ * @category POC04
  */
 export function runPoc04Check(fixturePath: string): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
@@ -1226,7 +1334,12 @@ function removeIfEmpty(pathValue: string): void {
 }
 
 /**
+ * Reverts POC-04 managed artifacts using stored state and backups.
+ *
+ * @param fixturePath - Path to the POC-04 fixture file.
+ * @returns Operation result for the revert action.
  * @since 0.0.0
+ * @category POC04
  */
 export function runPoc04Revert(fixturePath: string): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
@@ -1371,7 +1484,12 @@ function ensureDesktopAuthIfNeeded(mode: SecretResolverMode): string | null {
 }
 
 /**
+ * Resolves required and optional secret references for a fixture.
+ *
+ * @param fixturePath - Path to the fixture file declaring secrets.
+ * @returns Resolution status, diagnostics, and redaction metadata.
  * @since 0.0.0
+ * @category Secrets
  */
 export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolutionResult {
   const fixtureData = readYamlDocument(fixturePath);
