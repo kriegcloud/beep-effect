@@ -64,8 +64,10 @@
       "version": "0.1.0",
       "dependencies": {
         "@base-ui/react": "catalog:",
+        "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/ui": "workspace:^",
+        "@effect/ai-openai": "catalog:",
         "@effect/atom-react": "catalog:",
         "@neondatabase/serverless": "catalog:",
         "@opentelemetry/api": "catalog:",
@@ -86,6 +88,7 @@
         "tailwind-merge": "catalog:",
       },
       "devDependencies": {
+        "@effect/vitest": "catalog:",
         "@next/bundle-analyzer": "catalog:",
         "@tailwindcss/postcss": "catalog:",
         "@types/node": "catalog:",

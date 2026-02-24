@@ -7,9 +7,6 @@
   "include": [],
   "references": [
     {
-      "path": ".claude"
-    },
-    {
       "path": "apps/web"
     },
     {

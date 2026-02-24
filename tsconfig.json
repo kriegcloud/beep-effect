@@ -64,8 +64,9 @@
       "@beep/ui": ["./packages/ui/ui/src/index.ts"],
       "@beep/ui/*": ["./packages/ui/ui/src/*.ts"],
       "@beep/beep-sync": ["./tooling/beep-sync/src/index.ts"],
-      "@beep/beep-sync/*": ["./tooling/beep-sync/src/*.ts"],
-      "@beep/claude/*": ["./.claude/*.ts"]
+      "@beep/beep-sync/*": [
+        "./tooling/beep-sync/src/*.ts"
+      ]
     },
     "plugins": [
       {

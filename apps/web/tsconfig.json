@@ -34,6 +34,9 @@
   "exclude": ["node_modules"],
   "references": [
     {
+      "path": "../../packages/common/identity/tsconfig.json"
+    },
+    {
       "path": "../../packages/common/schema/tsconfig.json"
     },
     {
