@@ -1,10 +1,9 @@
 /**
- * Public API for beep-sync canonical normalization, generation, and runtime adapters.
+ * Runtime and fixture helpers for beep-sync managed artifacts.
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
-
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
@@ -34,16 +33,18 @@ import * as Str from "effect/String";
 import YAML from "yaml";
 
 /**
- * Current scaffold format version for beep-sync generated output.
+ * Canonical scaffold version for beep-sync fixtures.
  *
- * @category constants
+ * @since 0.0.0
+ * @category Metadata
  */
 export const scaffoldVersion = "0.1.0";
 
 /**
- * Tagged enum representing diagnostic severity levels (error or warning).
+ * Allowed diagnostic severities emitted by canonical validators.
  *
- * @category types
+ * @since 0.0.0
+ * @category Models
  */
 export type Severity = Data.TaggedEnum<{
   error: {};
@@ -53,9 +54,10 @@ const Severity = Data.taggedEnum<Severity>();
 type SeverityTag = Severity["_tag"];
 
 /**
- * A single validation diagnostic with code, message, path, and severity.
+ * Structured validation message for canonical config checks.
  *
- * @category types
+ * @since 0.0.0
+ * @category Models
  */
 export type Diagnostic = {
   code: string;
@@ -78,9 +80,10 @@ type CanonicalMcpServer = {
 };
 
 /**
- * Normalized canonical configuration containing version, instructions, commands, and MCP servers.
+ * Normalized representation of a canonical beep-sync configuration file.
  *
- * @category types
+ * @since 0.0.0
+ * @category Models
  */
 export type CanonicalConfig = {
   version: number;
@@ -92,9 +95,10 @@ export type CanonicalConfig = {
 };
 
 /**
- * Versioned envelope wrapping a canonical config with its content hash.
+ * Stable envelope with canonical config and deterministic content hash.
  *
- * @category types
+ * @since 0.0.0
+ * @category Models
  */
 export type NormalizedEnvelope = {
   version: 1;
@@ -103,9 +107,10 @@ export type NormalizedEnvelope = {
 };
 
 /**
- * Tagged enum of supported MCP tool targets (codex, cursor, windsurf).
+ * Supported MCP output targets.
  *
- * @category types
+ * @since 0.0.0
+ * @category MCP
  */
 export type McpTool = Data.TaggedEnum<{
   codex: {};
@@ -114,9 +119,10 @@ export type McpTool = Data.TaggedEnum<{
 }>;
 const McpTool = Data.taggedEnum<McpTool>();
 /**
- * Discriminant tag type extracted from the McpTool tagged enum.
+ * Tag value union for {@link McpTool}.
  *
- * @category types
+ * @since 0.0.0
+ * @category MCP
  */
 export type McpToolTag = McpTool["_tag"];
 
@@ -127,9 +133,10 @@ type McpFixture = {
 };
 
 /**
- * Result of generating MCP configuration for a specific tool, including output and capability map.
+ * Generated payload and warnings for an MCP target.
  *
- * @category types
+ * @since 0.0.0
+ * @category MCP
  */
 export type McpGenerationResult = {
   output: string;
@@ -138,9 +145,10 @@ export type McpGenerationResult = {
 };
 
 /**
- * Tagged enum for JetBrains prompt library generation mode (bundle_only or native_file).
+ * Prompt library generation mode for JetBrains artifacts.
  *
- * @category types
+ * @since 0.0.0
+ * @category JetBrains
  */
 export type JetbrainsPromptMode = Data.TaggedEnum<{
   bundle_only: {};
@@ -161,9 +169,10 @@ type JetbrainsPromptLibraryFixture = {
 };
 
 /**
- * A single generated JetBrains prompt library artifact with path, content, and SHA-256 hash.
+ * Generated file emitted for JetBrains prompt-library sync.
  *
- * @category types
+ * @since 0.0.0
+ * @category JetBrains
  */
 export type JetbrainsArtifact = {
   path: string;
@@ -172,9 +181,10 @@ export type JetbrainsArtifact = {
 };
 
 /**
- * Envelope containing all generated JetBrains prompt library artifacts, mode, and native probe info.
+ * Deterministic JetBrains prompt-library generation envelope.
  *
- * @category types
+ * @since 0.0.0
+ * @category JetBrains
  */
 export type JetbrainsPromptLibraryEnvelope = {
   tool: "jetbrains";
@@ -234,9 +244,10 @@ type Poc04Plan = {
 };
 
 /**
- * Result of a POC-04 managed file operation (apply, check, or revert).
+ * Result envelope for POC-04 apply/check/revert operations.
  *
- * @category types
+ * @since 0.0.0
+ * @category POC04
  */
 export type Poc04OperationResult = {
   ok: boolean;
@@ -269,9 +280,10 @@ const SecretResolverMode = Data.taggedEnum<SecretResolverMode>();
 type SecretResolverModeTag = SecretResolverMode["_tag"];
 
 /**
- * Result of resolving secret references via 1Password, including resolution status and diagnostics.
+ * Result envelope for resolving secrets referenced by a fixture.
  *
- * @category types
+ * @since 0.0.0
+ * @category Secrets
  */
 export type SecretResolutionResult = {
   ok: boolean;
@@ -374,22 +386,24 @@ function readYamlFile(pathValue: string): unknown {
 }
 
 /**
- * Reads and parses a YAML file at the given path, returning the parsed value.
+ * Reads and parses a YAML file into an unknown document payload.
  *
- * @param pathValue - Absolute or relative path to a YAML document.
- * @returns Parsed YAML value.
- * @category readers
+ * @param pathValue - Path to the YAML document on disk.
+ * @returns Parsed YAML document value.
+ * @since 0.0.0
+ * @category Canonical
  */
 export function readYamlDocument(pathValue: string): unknown {
   return readYamlFile(pathValue);
 }
 
 /**
- * Validates raw input against the canonical config schema and returns diagnostics.
+ * Validates a raw canonical config value and returns diagnostics.
  *
- * @param input - Raw unknown input to validate.
- * @returns Sorted validation diagnostics.
- * @category validators
+ * @param input - Untrusted config payload.
+ * @returns Sorted diagnostics for structural and semantic issues.
+ * @since 0.0.0
+ * @category Canonical
  */
 export function validateCanonicalConfig(input: unknown): Diagnostic[] {
   const diagnostics = A.empty<Diagnostic>();
@@ -554,11 +568,12 @@ export function validateCanonicalConfig(input: unknown): Diagnostic[] {
 }
 
 /**
- * Normalizes raw input into a deterministic CanonicalConfig with sorted keys and deduped values.
+ * Normalizes a raw canonical config into a deterministic in-memory shape.
  *
- * @param input - Raw unknown input to normalize.
- * @returns Deterministic canonical configuration.
- * @category normalizers
+ * @param input - Untrusted config payload.
+ * @returns Normalized canonical config object.
+ * @since 0.0.0
+ * @category Canonical
  */
 export function normalizeCanonicalConfig(input: unknown): CanonicalConfig {
   const config = isRecord(input) ? input : {};
@@ -618,11 +633,12 @@ export function normalizeCanonicalConfig(input: unknown): CanonicalConfig {
 }
 
 /**
- * Normalizes raw input into a versioned envelope with a stable content hash.
+ * Wraps normalized config with a deterministic hash envelope.
  *
- * @param input - Raw unknown input to normalize.
- * @returns Canonical envelope with deterministic hash.
- * @category normalizers
+ * @param input - Untrusted config payload.
+ * @returns Normalized envelope with content hash.
+ * @since 0.0.0
+ * @category Canonical
  */
 export function normalizeCanonicalEnvelope(input: unknown): NormalizedEnvelope {
   const config = stableSortDeep(normalizeCanonicalConfig(input)) as CanonicalConfig;
@@ -657,11 +673,12 @@ const collectYamlFilesFromPath = (pathValue: string): ReadonlyArray<string> => {
 };
 
 /**
- * Recursively collects all YAML files from the given path and returns them sorted.
+ * Collects YAML files from a file or directory recursively.
  *
- * @param pathValue - Input file or directory path.
- * @returns Sorted list of discovered YAML file paths.
- * @category readers
+ * @param pathValue - File or directory path to scan.
+ * @returns Absolute YAML file paths in sorted order.
+ * @since 0.0.0
+ * @category Canonical
  */
 export function collectYamlFiles(pathValue: string): string[] {
   const absolutePath = resolve(pathValue);
@@ -669,11 +686,12 @@ export function collectYamlFiles(pathValue: string): string[] {
 }
 
 /**
- * Parses a YAML file and validates it against the canonical config schema.
+ * Parses and validates a canonical YAML file from disk.
  *
- * @param filePath - YAML file path to parse and validate.
- * @returns Diagnostics plus parsed data (or `null` on parse failure).
- * @category validators
+ * @param filePath - Path to a canonical YAML file.
+ * @returns Validation diagnostics and parsed data payload.
+ * @since 0.0.0
+ * @category Canonical
  */
 export function validateCanonicalFile(filePath: string): { diagnostics: Diagnostic[]; data: unknown } {
   return Effect.runSync(
@@ -703,11 +721,12 @@ export function validateCanonicalFile(filePath: string): { diagnostics: Diagnost
 }
 
 /**
- * Formats an array of diagnostics into a human-readable multi-line string.
+ * Formats diagnostics into a newline-delimited display string.
  *
- * @param diagnostics - Diagnostics to render.
- * @returns Multi-line diagnostic summary.
- * @category formatters
+ * @param diagnostics - Diagnostics to format.
+ * @returns Human-readable diagnostics text.
+ * @since 0.0.0
+ * @category Diagnostics
  */
 export function formatDiagnostics(diagnostics: Diagnostic[]): string {
   if (A.isArrayEmpty(diagnostics)) {
@@ -858,11 +877,12 @@ function buildWindsurfJson(servers: Record<string, McpServer>): string {
 }
 
 /**
- * Parses a string into an McpTool option, returning none for unrecognized values.
+ * Parses an MCP tool identifier into a tagged tool value.
  *
- * @param value - Tool selector string.
- * @returns Matching tool option or `none`.
- * @category parsers
+ * @param value - Raw tool identifier string.
+ * @returns Matching tool option when recognized.
+ * @since 0.0.0
+ * @category MCP
  */
 export function parseMcpTool(value: string): O.Option<McpTool> {
   switch (value) {
@@ -878,12 +898,13 @@ export function parseMcpTool(value: string): O.Option<McpTool> {
 }
 
 /**
- * Generates tool-specific MCP configuration output for the given tool and fixture input.
+ * Generates tool-specific MCP output from a shared fixture payload.
  *
- * @param tool - Target MCP tool descriptor.
- * @param input - Raw fixture input.
- * @returns Generated output, warnings, and capability map.
- * @category generators
+ * @param tool - Target MCP tool.
+ * @param input - Raw MCP fixture payload.
+ * @returns Generated output with compatibility warnings.
+ * @since 0.0.0
+ * @category MCP
  */
 export function generateMcpForTool(tool: McpTool, input: unknown): McpGenerationResult {
   const normalized = normalizeMcpFixture(input);
@@ -1005,12 +1026,13 @@ function renderJetbrainsImportInstructions(mode: JetbrainsPromptMode): string {
 }
 
 /**
- * Generates the JetBrains prompt library artifacts from fixture input with optional mode override.
+ * Builds deterministic JetBrains prompt-library artifacts from fixture input.
  *
- * @param input - Raw fixture input.
- * @param modeOverride - Optional generation mode override.
- * @returns JetBrains prompt library envelope.
- * @category generators
+ * @param input - Raw fixture payload.
+ * @param modeOverride - Optional mode override.
+ * @returns JetBrains prompt-library generation envelope.
+ * @since 0.0.0
+ * @category JetBrains
  */
 export function generateJetbrainsPromptLibrary(input: unknown, modeOverride?: string): JetbrainsPromptLibraryEnvelope {
   const normalized = normalizeJetbrainsPromptLibrary(input);
@@ -1154,12 +1176,13 @@ function readPoc04State(pathValue: string): Poc04State | null {
 }
 
 /**
- * Applies the POC-04 managed file fixture, writing generated content and creating backups.
+ * Applies managed POC-04 artifacts and optionally performs a dry run.
  *
- * @param fixturePath - Path to the POC-04 fixture YAML file.
- * @param dryRun - Whether to preview changes without writing files.
- * @returns Operation result for apply.
- * @category operations
+ * @param fixturePath - Path to the POC-04 fixture file.
+ * @param dryRun - When true, report changes without writing files.
+ * @returns Operation result for the apply action.
+ * @since 0.0.0
+ * @category POC04
  */
 export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
@@ -1220,11 +1243,12 @@ export function runPoc04Apply(fixturePath: string, dryRun: boolean): Poc04Operat
 }
 
 /**
- * Checks the POC-04 managed file state for consistency and drift.
+ * Checks whether current POC-04 managed state matches expectations.
  *
- * @param fixturePath - Path to the POC-04 fixture YAML file.
- * @returns Operation result for check.
- * @category operations
+ * @param fixturePath - Path to the POC-04 fixture file.
+ * @returns Operation result for the check action.
+ * @since 0.0.0
+ * @category POC04
  */
 export function runPoc04Check(fixturePath: string): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
@@ -1310,11 +1334,12 @@ function removeIfEmpty(pathValue: string): void {
 }
 
 /**
- * Reverts the POC-04 managed file to its pre-apply state using backups or removal.
+ * Reverts POC-04 managed artifacts using stored state and backups.
  *
- * @param fixturePath - Path to the POC-04 fixture YAML file.
- * @returns Operation result for revert.
- * @category operations
+ * @param fixturePath - Path to the POC-04 fixture file.
+ * @returns Operation result for the revert action.
+ * @since 0.0.0
+ * @category POC04
  */
 export function runPoc04Revert(fixturePath: string): Poc04OperationResult {
   const plan = parsePoc04Fixture(fixturePath);
@@ -1459,11 +1484,12 @@ function ensureDesktopAuthIfNeeded(mode: SecretResolverMode): string | null {
 }
 
 /**
- * Resolves secret references from a fixture file using the detected 1Password resolver mode.
+ * Resolves required and optional secret references for a fixture.
  *
- * @param fixturePath - Path to the secrets fixture YAML file.
- * @returns Secret resolution summary.
- * @category resolvers
+ * @param fixturePath - Path to the fixture file declaring secrets.
+ * @returns Resolution status, diagnostics, and redaction metadata.
+ * @since 0.0.0
+ * @category Secrets
  */
 export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolutionResult {
   const fixtureData = readYamlDocument(fixturePath);
@@ -1530,61 +1556,13 @@ export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolu
   };
 }
 
-import type { RuntimeDiagnostic as _RuntimeDiagnostic, RuntimeResult as _RuntimeResult } from "./runtime.js";
-import {
-  runRuntimeApply as _runRuntimeApply,
-  runRuntimeCheck as _runRuntimeCheck,
-  runRuntimeDoctor as _runRuntimeDoctor,
-  runRuntimeRevert as _runRuntimeRevert,
-  runRuntimeValidate as _runRuntimeValidate,
-  runtimeVersion as _runtimeVersion,
+export {
+  type RuntimeDiagnostic,
+  type RuntimeResult,
+  runRuntimeApply,
+  runRuntimeCheck,
+  runRuntimeDoctor,
+  runRuntimeRevert,
+  runRuntimeValidate,
+  runtimeVersion,
 } from "./runtime.js";
-
-/**
- * A runtime diagnostic entry with severity, code, path, message, and optional tool.
- *
- * @category types
- */
-export type RuntimeDiagnostic = _RuntimeDiagnostic;
-/**
- * Complete result of a runtime operation including status, diagnostics, and stats.
- *
- * @category types
- */
-export type RuntimeResult = _RuntimeResult;
-/**
- * Applies the runtime plan, writing managed artifacts and cleaning up orphans.
- *
- * @category runtime
- */
-export const runRuntimeApply = _runRuntimeApply;
-/**
- * Checks managed file state for drift and consistency against the compiled plan.
- *
- * @category runtime
- */
-export const runRuntimeCheck = _runRuntimeCheck;
-/**
- * Runs a diagnostic doctor check on the runtime configuration and workspace.
- *
- * @category runtime
- */
-export const runRuntimeDoctor = _runRuntimeDoctor;
-/**
- * Reverts all managed files to their pre-apply state using backup restoration.
- *
- * @category runtime
- */
-export const runRuntimeRevert = _runRuntimeRevert;
-/**
- * Validates the runtime configuration file and resolves secret references.
- *
- * @category runtime
- */
-export const runRuntimeValidate = _runRuntimeValidate;
-/**
- * Current runtime engine version string.
- *
- * @category constants
- */
-export const runtimeVersion = _runtimeVersion;

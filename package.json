@@ -148,6 +148,7 @@
     "@effect/ai-openai-compat": "^4.0.0-beta.12",
     "@effect/ai-openrouter": "^4.0.0-beta.12",
     "@effect/atom-react": "^4.0.0-beta.12",
+    "lost-pixel": "^3.8.3-beta.1",
     "@effect/docgen": "https://pkg.pr.new/Effect-TS/docgen/@effect/docgen@e7fe055",
     "@effect/language-service": "^0.75.1",
     "@effect/opentelemetry": "^4.0.0-beta.12",
