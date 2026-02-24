@@ -12,7 +12,7 @@
  * @since 0.0.0
  * @module @beep/identity/packages
  */
-import * as Identity from "./Identity.js";
+import * as Identity from "./Id.ts";
 
 /**
  * Root identity composer for the `@beep` namespace.

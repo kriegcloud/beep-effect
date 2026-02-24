@@ -12,7 +12,7 @@ import {
   KnowledgeGraphToolkit,
   SearchGraphParametersSchema,
 } from "@beep/web/lib/effect/tools";
-import { Effect, Match, pipe } from "effect";
+import { Cause, Effect, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Option from "effect/Option";
 import * as Queue from "effect/Queue";
@@ -469,7 +469,7 @@ const runToolCall = Effect.fn("ChatHandler.runToolCall")(function* (options: {
 
   return pipe(
     events,
-    A.findLast((event) => event.preliminary === false),
+    A.findLast((event) => !event.preliminary),
     Option.map((event) =>
       toToolResultPart({
         instruction: options.instruction,
@@ -571,24 +571,32 @@ const emitDoneWithUnknownError = Effect.fn("ChatHandler.emitDoneWithUnknownError
       reason: "error",
       message: "Chat stream failed",
     },
-  });
+  }).pipe(Effect.catch(() => Effect.void));
 });
 
 export const createChatSseResponse = Effect.fn("ChatHandler.createChatSseResponse")(function* (request: ChatRequest) {
-  const queue = yield* Queue.unbounded<Uint8Array>();
+  const services = yield* Effect.services<unknown>();
 
-  const producer = runRounds({
-    prompt: makeChatPrompt(request),
-    queue,
-    remainingIterations: MAX_TOOL_ITERATIONS,
-  }).pipe(
-    Effect.catch(() => emitDoneWithUnknownError(queue)),
-    Effect.ensuring(Queue.shutdown(queue))
-  );
+  const stream = Stream.callback<Uint8Array>((queue) => {
+    const producer = runRounds({
+      prompt: makeChatPrompt(request),
+      queue,
+      remainingIterations: MAX_TOOL_ITERATIONS,
+    }).pipe(
+      Effect.catchCause((cause) =>
+        Match.value(Cause.hasInterruptsOnly(cause)).pipe(
+          Match.when(true, () => Effect.failCause(cause)),
+          Match.orElse(() => emitDoneWithUnknownError(queue))
+        )
+      ),
+      Effect.ensuring(Queue.end(queue)),
+      Effect.provideServices(services)
+    );
 
-  yield* Effect.forkScoped(producer);
+    return Effect.forkScoped(producer).pipe(Effect.asVoid);
+  });
 
-  return HttpServerResponse.stream(Stream.fromQueue(queue), {
+  return HttpServerResponse.stream(stream, {
     status: 200,
     headers: {
       "content-type": "text/event-stream; charset=utf-8",
