@@ -31,10 +31,10 @@ const project = new vercel.Project("VercelProject", {
 
 // --- Environment Variables ---
 // Vercel does not allow sensitive env vars to target "development" (local `vercel dev`).
-// Sensitive vars: production | preview only.
-// Non-sensitive vars: production | preview + development.
-const sensitiveTargets = isProduction ? ["production"] : ["preview"];
-const publicTargets = isProduction ? ["production"] : ["preview", "development"];
+// For non-production SST stages, we still include the Vercel "production" target because
+// each stage gets its own Vercel project and the configured production branch can still deploy.
+const sensitiveTargets = isProduction ? ["production"] : ["production", "preview"];
+const publicTargets = isProduction ? ["production"] : ["production", "preview", "development"];
 
 // Secrets are plain strings (from 1Password via process.env).
 // Neon outputs are Output<string> | undefined (undefined for PR preview stages).
