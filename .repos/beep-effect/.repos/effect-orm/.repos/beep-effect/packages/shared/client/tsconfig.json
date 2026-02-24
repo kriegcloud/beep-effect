@@ -1,0 +1,10 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": [],
+  "exclude": ["src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    }
+  ]
+}

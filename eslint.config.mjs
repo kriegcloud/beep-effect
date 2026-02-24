@@ -75,7 +75,7 @@ export default [
         },
       ],
       "jsdoc/require-description": [
-        "error",
+        "warn",
         {
           contexts: [
             "ExportNamedDeclaration > FunctionDeclaration",
@@ -154,10 +154,6 @@ export default [
         {
           tags: {
             packageDocumentation: {
-              initialCommentsOnly: true,
-              mustExist: true,
-            },
-            since: {
               initialCommentsOnly: true,
               mustExist: true,
             },

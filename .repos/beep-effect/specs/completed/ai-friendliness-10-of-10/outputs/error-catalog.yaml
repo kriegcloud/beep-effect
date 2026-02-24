@@ -1,0 +1,2566 @@
+# Error Catalog: AI Agent Error Recovery
+# Generated: 2026-02-04
+# Version: 1.0
+# Total Patterns: 63
+#
+# Categories:
+#   - Schema/Type (SCH_): 10 patterns
+#   - EntityId (EID_): 6 patterns
+#   - Service/Layer (SVC_): 8 patterns
+#   - Effect Patterns (EFF_): 6 patterns
+#   - Database/SQL (DB_): 6 patterns
+#   - Build/Config (BUILD_): 5 patterns
+#   - Testing (TEST_): 6 patterns
+#   - Runtime (RT_): 5 patterns
+#   - Import/Module (IMP_): 6 patterns
+#   - API/RPC (API_): 5 patterns
+
+version: "1.0"
+
+categories:
+  - id: schema
+    name: Schema/Type Errors
+    prefix: SCH
+    description: Effect Schema validation and type errors
+    count: 10
+
+  - id: entityid
+    name: EntityId Errors
+    prefix: EID
+    description: Branded EntityId validation and usage errors
+    count: 6
+
+  - id: service
+    name: Service/Layer Errors
+    prefix: SVC
+    description: Effect Layer composition and service injection errors
+    count: 8
+
+  - id: effect
+    name: Effect Pattern Errors
+    prefix: EFF
+    description: Common Effect anti-patterns and mistakes
+    count: 6
+
+  - id: database
+    name: Database/SQL Errors
+    prefix: DB
+    description: PostgreSQL, Drizzle, and SqlSchema errors
+    count: 6
+
+  - id: build
+    name: Build/Config Errors
+    prefix: BUILD
+    description: TypeScript, Turborepo, and monorepo configuration errors
+    count: 5
+
+  - id: testing
+    name: Testing Errors
+    prefix: TEST
+    description: "@beep/testkit and Effect test patterns"
+    count: 6
+
+  - id: runtime
+    name: Runtime Errors
+    prefix: RT
+    description: Effect runtime, Stream, and execution errors
+    count: 5
+
+  - id: import
+    name: Import/Module Errors
+    prefix: IMP
+    description: Module imports, path aliases, and architecture boundaries
+    count: 6
+
+  - id: api
+    name: API/RPC Errors
+    prefix: API
+    description: HTTP clients, RPC contracts, and API communication
+    count: 5
+
+errors:
+  # =============================================================================
+  # SCHEMA/TYPE ERRORS (SCH_001 - SCH_010)
+  # =============================================================================
+
+  - id: SCH_001
+    pattern: "Property '(struct|array|string|number|boolean)' does not exist on type"
+    category: schema
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Using deprecated lowercase Schema constructors (old Effect API)
+    diagnosis: |
+      Effect Schema 3.x uses PascalCase constructors. The lowercase versions
+      (S.struct, S.array, S.string) were from older Effect versions and no
+      longer exist.
+    fix_steps:
+      - Replace lowercase schema constructors with PascalCase versions
+      - "S.struct -> S.Struct"
+      - "S.array -> S.Array"
+      - "S.string -> S.String"
+      - "S.number -> S.Number"
+      - "S.boolean -> S.Boolean"
+    example:
+      error: "Property 'struct' does not exist on type 'typeof Schema'"
+      before: |
+        import * as S from "effect/Schema";
+
+        const UserSchema = S.struct({
+          name: S.string,
+          age: S.number,
+          active: S.boolean,
+        });
+      after: |
+        import * as S from "effect/Schema";
+
+        const UserSchema = S.Struct({
+          name: S.String,
+          age: S.Number,
+          active: S.Boolean,
+        });
+
+  - id: SCH_002
+    pattern: "Argument of type 'Date' is not assignable to parameter of type 'string'"
+    category: schema
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: S.Date vs S.DateFromString confusion - wrong schema for data source
+    diagnosis: |
+      S.Date expects JavaScript Date objects in memory.
+      S.DateFromString expects ISO 8601 strings (from JSON/APIs).
+
+      If data comes from API/JSON: use S.DateFromString
+      If data is a Date object: use S.Date
+    fix_steps:
+      - Identify the source of the date value (API response vs in-memory)
+      - For JSON/API data use S.DateFromString
+      - For JavaScript Date objects use S.Date
+      - Update schema to match actual runtime value type
+    example:
+      error: "Type 'string' is not assignable to type 'Date'"
+      before: |
+        // API returns: { createdAt: "2025-01-15T00:00:00Z" }
+        const EventSchema = S.Struct({
+          createdAt: S.Date,  // Wrong - expects Date object
+        });
+      after: |
+        // API returns: { createdAt: "2025-01-15T00:00:00Z" }
+        const EventSchema = S.Struct({
+          createdAt: S.DateFromString,  // Correct - expects ISO string
+        });
+
+  - id: SCH_003
+    pattern: "Expected 2-3 arguments, but got 1|Argument of type '\\{ default:"
+    category: schema
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: S.optional with default argument (wrong API)
+    diagnosis: |
+      S.optional() does not accept a default value argument.
+      Use S.optionalWith() or BS.toOptionalWithDefault() for defaults.
+      For booleans, prefer BS.BoolWithDefault().
+    fix_steps:
+      - Remove default from S.optional call
+      - "For booleans: use BS.BoolWithDefault(defaultValue)"
+      - "For other types: use S.optionalWith(schema, { default: () => value })"
+      - Import BS from "@beep/schema" if using BS helpers
+    example:
+      error: "Argument of type '{ default: () => false; }' is not assignable"
+      before: |
+        const SettingsSchema = S.Struct({
+          enabled: S.optional(S.Boolean, { default: () => false }),
+          timeout: S.optional(S.Number, { default: () => 30 }),
+        });
+      after: |
+        import { BS } from "@beep/schema";
+
+        const SettingsSchema = S.Struct({
+          enabled: BS.BoolWithDefault(false),
+          timeout: S.optionalWith(S.Number, { default: () => 30 }),
+        });
+
+  - id: SCH_004
+    pattern: "toOptionalWithDefault.*is deprecated|deprecated.*BS\\.toOptionalWithDefault"
+    category: schema
+    severity: warning
+    fix_type: safe
+    remediation: trivial
+    description: Using deprecated BS.toOptionalWithDefault pattern
+    diagnosis: |
+      BS.toOptionalWithDefault is an internal/deprecated helper.
+      For booleans, use the modern BS.BoolWithDefault() helper.
+      For other types, use S.optionalWith() directly.
+    fix_steps:
+      - "For booleans: Replace with BS.BoolWithDefault(value)"
+      - "For other types: Use S.optionalWith(schema, { default: () => value })"
+    example:
+      error: "BS.toOptionalWithDefault is deprecated"
+      before: |
+        import { BS } from "@beep/schema";
+
+        const ConfigSchema = S.Struct({
+          enabled: BS.toOptionalWithDefault(S.Boolean, false),
+        });
+      after: |
+        import { BS } from "@beep/schema";
+
+        const ConfigSchema = S.Struct({
+          enabled: BS.BoolWithDefault(false),
+        });
+
+  - id: SCH_005
+    pattern: "Type 'null' is not assignable to type 'string \\| undefined'"
+    category: schema
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: S.optional vs S.optionalWith nullable confusion
+    diagnosis: |
+      S.optional only handles undefined, not null.
+      Database columns or APIs returning null need S.optionalWith({ nullable: true }).
+
+      Check if the source can return null (databases often do).
+    fix_steps:
+      - Identify if the field can be null (check database schema or API response)
+      - "For undefined only: S.optional(Schema)"
+      - "For null OR undefined: S.optionalWith(Schema, { nullable: true })"
+      - "Also available: BS.FieldOptionOmittable for omitted-when-undefined fields"
+    example:
+      error: "Type 'null' is not assignable to type 'string | undefined'"
+      before: |
+        // Database returns null for missing values
+        const UserSchema = S.Struct({
+          nickname: S.optional(S.String),  // Handles undefined but not null
+          ipAddress: S.optional(S.String),
+        });
+      after: |
+        const UserSchema = S.Struct({
+          nickname: S.optionalWith(S.String, { nullable: true }),  // Handles null and undefined
+          ipAddress: S.optionalWith(S.String, { nullable: true }),
+        });
+
+  - id: SCH_006
+    pattern: "Argument.*not assignable.*'\\{ prompt.*schema.*\\}'"
+    category: schema
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: generateObject with positional arguments (@effect/ai API error)
+    diagnosis: |
+      The @effect/ai generateObject API uses a single options object,
+      not positional arguments. This is a common mistake when migrating
+      from other AI libraries.
+    fix_steps:
+      - Wrap all arguments in a single options object
+      - "Required fields: prompt, schema"
+      - "Optional but recommended: objectName (helps with debugging)"
+    example:
+      error: "Expected 1 arguments, but got 2"
+      before: |
+        import { LanguageModel } from "@effect/ai";
+
+        const result = yield* model.generateObject(
+          systemPrompt,
+          OutputSchema,  // Wrong - positional args
+        );
+      after: |
+        import { LanguageModel } from "@effect/ai";
+
+        const result = yield* model.generateObject({
+          prompt: systemPrompt,
+          schema: OutputSchema,
+          objectName: "OutputResult",  // Optional but helpful
+        });
+
+  - id: SCH_007
+    pattern: "Type 'string' is not assignable to type '\"system\" \\| \"user\" \\| \"assistant\"'"
+    category: schema
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Role literal type without 'as const'
+    diagnosis: |
+      When creating Prompt messages, TypeScript infers 'string' for the role
+      instead of the literal union type. Use 'as const' to preserve the literal type.
+    fix_steps:
+      - Add 'as const' assertion after role string values
+      - This preserves the literal type "system" | "user" | "assistant"
+    example:
+      error: "Type 'string' is not assignable to type '\"system\" | \"user\"'"
+      before: |
+        import { Prompt } from "@effect/ai";
+
+        const messages = Prompt.make([
+          { role: "system", content: systemPrompt },  // role inferred as string
+          { role: "user", content: userInput },
+        ]);
+      after: |
+        import { Prompt } from "@effect/ai";
+
+        const messages = Prompt.make([
+          { role: "system" as const, content: systemPrompt },  // role is literal "system"
+          { role: "user" as const, content: userInput },
+        ]);
+
+  - id: SCH_008
+    pattern: "is not assignable to type 'TaggedError.*_tag"
+    category: schema
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: S.TaggedError signature wrong (parentheses placement)
+    diagnosis: |
+      S.TaggedError uses a double-invocation pattern:
+      S.TaggedError<T>()("Tag", { fields })
+
+      The first () is empty, the second contains tag and fields.
+      Common mistake is putting fields in the first parentheses.
+    fix_steps:
+      - Ensure empty parentheses after the generic type parameter
+      - Put tag string and fields object in second parentheses
+      - "Pattern: S.TaggedError<ClassName>()(\"TagName\", { fields })"
+    example:
+      error: "Type '{ message: typeof String$; }' is not assignable to type 'never'"
+      before: |
+        import * as S from "effect/Schema";
+
+        export class ValidationError extends S.TaggedError<ValidationError>("ValidationError")({
+          message: S.String,
+        }) {}
+      after: |
+        import * as S from "effect/Schema";
+
+        export class ValidationError extends S.TaggedError<ValidationError>()(
+          "ValidationError",
+          {
+            message: S.String,
+          }
+        ) {}
+
+  - id: SCH_009
+    pattern: "Missing transformation schema for external API"
+    category: schema
+    severity: warning
+    fix_type: manual
+    remediation: major
+    description: External API responses not validated before entering domain
+    diagnosis: |
+      External APIs (Better Auth, third-party services) return plain strings for IDs.
+      Without transformation schemas, invalid IDs can enter the domain layer.
+
+      Use S.transformOrFail to validate and convert external data to domain types.
+    fix_steps:
+      - Create a schema for the external API response structure
+      - Create the target domain model schema
+      - Use S.transformOrFail to define the mapping with validation
+      - Validate EntityIds using the .is() method before accepting
+    example:
+      error: "Runtime error: Invalid member ID format passed to domain function"
+      before: |
+        // External API returns plain object with string ID
+        const member = await betterAuth.getMember(id);
+        // Directly used without validation - ID might be invalid format
+        yield* MemberRepo.save(member);
+      after: |
+        import * as S from "effect/Schema";
+        import { IamEntityIds } from "@beep/shared-domain";
+
+        export const DomainMemberFromBetterAuth = S.transformOrFail(
+          BetterAuthMemberSchema,
+          DomainMember.Model,
+          {
+            strict: true,
+            decode: Effect.fn(function* (external, _options, ast) {
+              if (!IamEntityIds.MemberId.is(external.id)) {
+                return yield* ParseResult.fail(
+                  new ParseResult.Type(ast, external.id, "Invalid member ID format")
+                );
+              }
+              return {
+                id: external.id as IamEntityIds.MemberId.Type,
+                // ... map other fields
+              };
+            }),
+          }
+        );
+
+  - id: SCH_010
+    pattern: "Type '.*' is not assignable.*domain.*table.*field mismatch"
+    category: schema
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: Schema mismatch between domain model and database table
+    diagnosis: |
+      Domain model fields must align with table column types.
+      The _check.ts file may pass while hiding incomplete domain models.
+
+      Common issues:
+      - Domain missing fields that table has
+      - Type mismatches (String vs Number, Date vs DateFromString)
+      - Nullable handling differences
+    fix_steps:
+      - Compare domain model fields against table column definitions
+      - Ensure every table column has a corresponding domain field
+      - Check nullable/optional alignment
+      - Verify type correspondence (S.Date for Date, S.String for text, etc.)
+      - Run _check.ts to validate structural compatibility
+    example:
+      error: "Property 'metadata' is missing in type but required in table"
+      before: |
+        // Domain model - incomplete
+        export class Embedding extends M.Class<Embedding>("Embedding")({
+          ...makeFields(EmbeddingId, {
+            embedding: S.Array(S.Number),
+            // Missing: model, metadata
+          }),
+        }) {}
+
+        // Table has additional columns
+        export const embeddingTable = Table.make(EmbeddingId)({
+          embedding: pg.vector("embedding").notNull(),
+          model: pg.text("model").notNull(),
+          metadata: pg.jsonb("metadata"),
+        });
+      after: |
+        // Domain model - complete
+        export class Embedding extends M.Class<Embedding>("Embedding")({
+          ...makeFields(EmbeddingId, {
+            embedding: S.Array(S.Number),
+            model: S.String,
+            metadata: BS.FieldOptionOmittable(S.Record({ key: S.String, value: S.Unknown })),
+          }),
+        }) {}
+
+  # =============================================================================
+  # ENTITYID ERRORS (EID_001 - EID_006)
+  # =============================================================================
+
+  - id: EID_001
+    pattern: "Type 'string' is not assignable to type '.*Id\\.Type'"
+    category: entityid
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: Plain S.String used for entity ID fields instead of branded EntityId
+    diagnosis: |
+      Entity IDs must use branded types from @beep/shared-domain to ensure
+      type safety. Plain S.String allows mixing incompatible ID types.
+
+      Domain models, table columns, and client schemas all require proper EntityIds.
+    fix_steps:
+      - Import the appropriate EntityIds module
+      - "For shared entities: SharedEntityIds from @beep/shared-domain"
+      - "For IAM entities: IamEntityIds from @beep/shared-domain"
+      - "For domain-specific: Import from the domain's EntityIds module"
+      - Replace S.String with the correct EntityId schema
+    example:
+      error: "Type 'string' is not assignable to type 'UserId.Type'"
+      before: |
+        import * as S from "effect/Schema";
+        import * as M from "@effect/sql/Model";
+
+        export class Member extends M.Class<Member>("Member")({
+          id: S.String,           // No type safety!
+          userId: S.String,       // Wrong ID could be passed
+          organizationId: S.String,
+        }) {}
+      after: |
+        import * as S from "effect/Schema";
+        import * as M from "@effect/sql/Model";
+        import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+
+        export class Member extends M.Class<Member>("Member")({
+          id: IamEntityIds.MemberId,
+          userId: SharedEntityIds.UserId,
+          organizationId: SharedEntityIds.OrganizationId,
+        }) {}
+
+  - id: EID_002
+    pattern: "Type assertion.*as.*Id\\.Type.*bypasses validation"
+    category: entityid
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: Type casting used for EntityIds instead of validation methods
+    diagnosis: |
+      Type casting (as EntityId.Type) bypasses format validation.
+      Invalid IDs can enter the system causing runtime errors.
+
+      Always use EntityId.make() or EntityId.is() for validation.
+    fix_steps:
+      - Remove type assertion (as EntityId.Type)
+      - Use EntityId.make(stringValue) to validate and create
+      - Or use EntityId.is(value) for runtime type guards
+      - For new IDs, use EntityId.create() to generate with correct prefix
+    example:
+      error: "Type assertion may hide invalid ID format"
+      before: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Type casting - bypasses validation!
+        const userId = rawString as SharedEntityIds.UserId.Type;
+        const orgId = "" as SharedEntityIds.OrganizationId.Type;
+
+        // Empty string now typed as valid OrganizationId!
+      after: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Validated - throws if format invalid
+        const userId = SharedEntityIds.UserId.make(rawString);
+
+        // For new IDs, generate with correct prefix
+        const newOrgId = SharedEntityIds.OrganizationId.create();
+        // Result: "shared_organization__<uuid>"
+
+        // For type guards
+        if (SharedEntityIds.UserId.is(someValue)) {
+          // someValue is typed as UserId.Type
+        }
+
+  - id: EID_003
+    pattern: "Property '\\$type' does not exist|Missing \\.\\$type<>\\(\\)"
+    category: entityid
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Missing .$type<>() annotation on table columns for foreign keys
+    diagnosis: |
+      Drizzle table columns referencing EntityIds need .$type<EntityId.Type>()
+      to maintain type safety. Without it, TypeScript cannot prevent mixing
+      different entity ID types in joins.
+
+      This causes runtime bugs that are hard to diagnose.
+    fix_steps:
+      - Identify all table columns that reference entity IDs
+      - Add .$type<EntityId.Type>() after the column definition
+      - Import the appropriate EntityIds module
+      - Verify by checking that joins enforce correct ID types
+    example:
+      error: "Type 'UserId.Type' is not assignable to type 'string' in join condition"
+      before: |
+        import * as pg from "drizzle-orm/pg-core";
+        import { Table } from "@beep/shared-tables";
+
+        export const memberTable = Table.make(MemberId)({
+          userId: pg.text("user_id").notNull(),      // Type: string
+          organizationId: pg.text("organization_id").notNull(),  // Type: string
+        });
+
+        // This compiles but is WRONG - mixing ID types
+        const query = db.select()
+          .from(memberTable)
+          .where(eq(memberTable.userId, someOrganizationId));  // No error!
+      after: |
+        import * as pg from "drizzle-orm/pg-core";
+        import { Table } from "@beep/shared-tables";
+        import { SharedEntityIds, IamEntityIds } from "@beep/shared-domain";
+
+        export const memberTable = Table.make(IamEntityIds.MemberId)({
+          userId: pg.text("user_id").notNull()
+            .$type<SharedEntityIds.UserId.Type>(),
+          organizationId: pg.text("organization_id").notNull()
+            .$type<SharedEntityIds.OrganizationId.Type>(),
+        });
+
+        // Now TypeScript catches the error!
+        const query = db.select()
+          .from(memberTable)
+          .where(eq(memberTable.userId, someOrganizationId));  // ERROR: Type mismatch
+
+  - id: EID_004
+    pattern: "Argument of type 'ReadonlyArray<.*Id>' is not assignable to parameter of type 'Array<.*Id>'"
+    category: entityid
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: ReadonlyArray of EntityIds not accepted by SqlSchema
+    diagnosis: |
+      SqlSchema query functions expect mutable arrays, but EntityId collections
+      are often ReadonlyArray. Spread the array to convert to mutable.
+    fix_steps:
+      - Spread the ReadonlyArray into a new mutable array
+      - "Pattern: [...readonlyIds]"
+      - This creates a mutable copy acceptable by SqlSchema
+    example:
+      error: "Argument of type 'ReadonlyArray<EntityId.Type>' is not assignable"
+      before: |
+        import * as A from "effect/Array";
+
+        const findEntities = (ids: ReadonlyArray<EntityId.Type>) =>
+          findByIdsSchema({ ids, organizationId });  // Error: ReadonlyArray
+      after: |
+        import * as A from "effect/Array";
+
+        const findEntities = (ids: ReadonlyArray<EntityId.Type>) =>
+          findByIdsSchema({ ids: [...ids], organizationId });  // Spread to mutable
+
+  - id: EID_005
+    pattern: "type-only import.*cannot be used as a value"
+    category: entityid
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Type-only import used where EntityId value methods needed
+    diagnosis: |
+      When using EntityId.Schema, EntityId.make(), or EntityId.is(), the
+      EntityIds module must be imported as a value, not as a type-only import.
+
+      Type-only imports (import type) can only be used for type annotations.
+    fix_steps:
+      - Change 'import type { EntityIds }' to 'import { EntityIds }'
+      - Remove 'type' keyword from the import statement
+      - Verify that EntityId methods (.make, .is, .create) work
+    example:
+      error: "'SharedEntityIds' cannot be used as a value because it was imported using 'import type'"
+      before: |
+        import { type SharedEntityIds } from "@beep/shared-domain";
+
+        // Error: SharedEntityIds is type-only
+        const userId = SharedEntityIds.UserId.make(rawString);
+        const isValid = SharedEntityIds.UserId.is(value);
+      after: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Now works - imported as value
+        const userId = SharedEntityIds.UserId.make(rawString);
+        const isValid = SharedEntityIds.UserId.is(value);
+
+  - id: EID_006
+    pattern: "Invalid.*Id.*format|prefix.*does not match"
+    category: entityid
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: EntityId format validation failed (invalid prefix or structure)
+    diagnosis: |
+      EntityIds have a required format: "{prefix}__{uuid}"
+
+      Each EntityId type has a specific prefix:
+      - UserId: "shared_user__"
+      - OrganizationId: "shared_organization__"
+      - MemberId: "iam_member__"
+
+      This error occurs when:
+      - Data from external API has wrong format
+      - ID was generated without proper prefix
+      - Migration data has old ID format
+    fix_steps:
+      - Check the expected prefix for the EntityId type
+      - Verify the ID string follows pattern "{prefix}__{uuid}"
+      - For external APIs, create transformation schemas
+      - For migrations, transform old IDs to new format
+      - Use EntityId.create() for new IDs (generates correct format)
+    example:
+      error: "Invalid MemberId format: expected prefix 'iam_member__'"
+      before: |
+        // External API returns plain UUID
+        const externalMember = await betterAuth.getMember(id);
+        // externalMember.id = "550e8400-e29b-41d4-a716-446655440000"
+
+        // Fails validation
+        const memberId = IamEntityIds.MemberId.make(externalMember.id);
+        // Error: Invalid MemberId format
+      after: |
+        // Option 1: Transform external ID to proper format
+        const memberId = IamEntityIds.MemberId.make(
+          `iam_member__${externalMember.id}`
+        );
+
+        // Option 2: Use transformation schema for consistent mapping
+        export const MemberIdFromExternal = S.transform(
+          S.String,
+          IamEntityIds.MemberId,
+          {
+            decode: (externalId) => `iam_member__${externalId}`,
+            encode: (memberId) => Str.replace(memberId, "iam_member__", ""),
+          }
+        );
+
+  # =============================================================================
+  # SERVICE/LAYER ERRORS (SVC_001 - SVC_008)
+  # =============================================================================
+
+  - id: SVC_001
+    pattern: "Service\\.(.+)\\s+is not provided"
+    category: service
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: Service not provided in Layer composition - Effect cannot find required dependency
+    diagnosis: |
+      Check the Effect's Requirements (R) type parameter. The service listed is required but not provided
+      in the Layer chain. Trace back through Layer.provide/Effect.provide calls to find where the
+      service should have been composed.
+    fix_steps:
+      - Identify the missing service from the error message
+      - Find or create a Layer that provides this service
+      - Add Layer.provide() or Layer.merge() to include the missing service Layer
+      - Verify the Layer is in the dependency chain before the Effect runs
+    example:
+      error: "Service FileSystem.FileSystem is not provided"
+      before: |
+        import { FileSystem } from "@effect/platform";
+
+        const program = Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const content = yield* fs.readFileString("/path/to/file");
+          return content;
+        });
+
+        // Missing Layer.provide for FileSystem!
+        Effect.runPromise(program);
+      after: |
+        import { FileSystem } from "@effect/platform";
+        import { BunFileSystem } from "@effect/platform-bun";
+
+        const program = Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const content = yield* fs.readFileString("/path/to/file");
+          return content;
+        });
+
+        // Provide the FileSystem Layer
+        Effect.runPromise(program.pipe(Effect.provide(BunFileSystem.layer)));
+
+  - id: SVC_002
+    pattern: "Cannot read properties of undefined.*Context\\.Tag|yield\\* \\w+ returns undefined"
+    category: service
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: Context.Tag defined incorrectly or service interface mismatch
+    diagnosis: |
+      The Context.Tag is either:
+      1. Not properly exported/imported
+      2. Missing the class extension pattern
+      3. Service interface doesn't match what Layer.succeed/Layer.effect provides
+    fix_steps:
+      - Verify Context.Tag extends correctly with proper generics
+      - Check that the tag identifier string is unique across the codebase
+      - Ensure Layer.succeed/Layer.effect provides an object matching the Tag's interface
+      - Verify imports use the correct package path alias
+    example:
+      error: "Cannot read properties of undefined (reading 'pipe')"
+      before: |
+        // Wrong: Missing class extension or wrong pattern
+        const MyService = Context.Tag("MyService");
+
+        // Or: Tag identifier collision
+        export class UserRepo extends Context.Tag("Repo")<UserRepo, UserRepoService>() {}
+        export class OrgRepo extends Context.Tag("Repo")<OrgRepo, OrgRepoService>() {}  // Same tag!
+      after: |
+        // Correct: Proper class extension with unique identifier
+        export class MyService extends Context.Tag($I`MyService`)<
+          MyService,
+          {
+            readonly doSomething: (input: string) => Effect.Effect<string>;
+          }
+        >() {}
+
+        // Unique tag identifiers
+        export class UserRepo extends Context.Tag($I`UserRepo`)<UserRepo, UserRepoService>() {}
+        export class OrgRepo extends Context.Tag($I`OrgRepo`)<OrgRepo, OrgRepoService>() {}
+
+  - id: SVC_003
+    pattern: "Layer\\.provide.*Layer\\.Layer.*never"
+    category: service
+    severity: error
+    fix_type: unsafe
+    remediation: major
+    description: Circular Layer dependency detected - two Layers depend on each other
+    diagnosis: |
+      Layer A requires Layer B, and Layer B requires Layer A (directly or transitively).
+      This creates an impossible dependency resolution. Review the Layer dependency graph.
+    fix_steps:
+      - Map out the Layer dependency graph
+      - Identify the circular reference
+      - Extract shared functionality into a new independent Layer
+      - Or restructure to break the cycle (often via interface segregation)
+    example:
+      error: "Type 'Layer<A, never, B>' is not assignable to type 'Layer<A, never, never>'"
+      before: |
+        // Circular: AuthService needs UserRepo, UserRepo needs AuthService
+        const AuthServiceLive = Layer.effect(AuthService,
+          Effect.gen(function* () {
+            const userRepo = yield* UserRepo;  // Needs UserRepo
+            return { ... };
+          })
+        );
+
+        const UserRepoLive = Layer.effect(UserRepo,
+          Effect.gen(function* () {
+            const auth = yield* AuthService;  // Needs AuthService - CIRCULAR!
+            return { ... };
+          })
+        );
+      after: |
+        // Break cycle: Extract password hashing to independent service
+        const PasswordHasherLive = Layer.succeed(PasswordHasher, {
+          hash: (password) => Effect.succeed(hashSync(password)),
+        });
+
+        const AuthServiceLive = Layer.effect(AuthService,
+          Effect.gen(function* () {
+            const hasher = yield* PasswordHasher;  // No cycle
+            return { ... };
+          })
+        );
+
+        const UserRepoLive = Layer.effect(UserRepo,
+          Effect.gen(function* () {
+            const hasher = yield* PasswordHasher;  // Shared dependency
+            return { ... };
+          })
+        );
+
+  - id: SVC_004
+    pattern: "Effect\\.provide.*expecting.*Layer.*received.*Effect"
+    category: service
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Confusion between Effect.provide and Layer.provide
+    diagnosis: |
+      Effect.provide() expects a Layer, but Layer.provide() is used for composing Layers.
+      The error occurs when passing an Effect where a Layer is expected, or vice versa.
+    fix_steps:
+      - For providing a Layer to an Effect, use Effect.provide()
+      - For composing Layers, use Layer.provide() or Layer.provideMerge()
+      - Check the return type - Layer.effect returns Layer, Effect.gen returns Effect
+    example:
+      error: "Argument of type 'Effect<...>' is not assignable to parameter of type 'Layer<...>'"
+      before: |
+        // Wrong: Using Layer.provide to provide to an Effect
+        const program = Effect.gen(function* () {
+          const service = yield* MyService;
+          return yield* service.doSomething();
+        });
+
+        Layer.provide(program, MyServiceLive);  // WRONG - program is Effect, not Layer
+      after: |
+        // Correct: Use Effect.provide for Effects
+        const program = Effect.gen(function* () {
+          const service = yield* MyService;
+          return yield* service.doSomething();
+        });
+
+        program.pipe(Effect.provide(MyServiceLive));  // Correct
+
+        // Layer.provide is for composing Layers:
+        const ComposedLive = MyServiceLive.pipe(
+          Layer.provide(DependencyLive)  // Provides Dependency to MyService Layer
+        );
+
+  - id: SVC_005
+    pattern: "Layer\\.succeed.*as unknown as|type assertion.*Layer"
+    category: service
+    severity: warning
+    fix_type: unsafe
+    remediation: easy
+    description: Unsafe type assertion in Layer.succeed for test mocks
+    diagnosis: |
+      Using `as unknown as` to cast mock implementations in tests bypasses type checking.
+      If the mock interface changes, tests will pass but production may fail.
+    fix_steps:
+      - Define the mock object with explicit typing
+      - Use satisfies operator for partial mocks
+      - Or create a proper mock factory that type-checks
+    example:
+      error: "Unsafe type assertion detected in test mock"
+      before: |
+        // Unsafe: Type assertion bypasses interface checking
+        const MockLanguageModel = Layer.succeed(
+          LanguageModel.LanguageModel,
+          {
+            generateObject: () => Effect.succeed({ result: "mock" }),
+            // Missing required methods won't be caught!
+          } as unknown as LanguageModel.Service
+        );
+      after: |
+        // Safe: Explicit interface implementation with type checking
+        const mockService: LanguageModel.Service = {
+          generateObject: (options) => Effect.succeed({
+            result: "mock",
+            usage: { promptTokens: 0, completionTokens: 0 }
+          }),
+          generateText: (options) => Effect.succeed({ text: "mock" }),
+          // TypeScript will error if methods are missing
+        };
+
+        const MockLanguageModel = Layer.succeed(
+          LanguageModel.LanguageModel,
+          mockService
+        );
+
+  - id: SVC_006
+    pattern: "double.*LanguageModel|LanguageModel\\.LanguageModel"
+    category: service
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Double reference pattern for namespaced services (LanguageModel.LanguageModel)
+    diagnosis: |
+      Some Effect services use a namespace that contains a class/tag of the same name.
+      Yielding just the namespace returns the module object, not the service instance.
+    fix_steps:
+      - Identify if the import is a namespace containing a service tag
+      - Use ModuleName.ModuleName pattern for namespaced services
+      - Check Effect documentation for the correct access pattern
+    example:
+      error: "Cannot read properties of undefined (reading 'generateObject')"
+      before: |
+        import * as LanguageModel from "@effect/ai/LanguageModel";
+
+        const program = Effect.gen(function* () {
+          const model = yield* LanguageModel;  // WRONG: yields the namespace object
+          return yield* model.generateObject({ ... });  // Error: generateObject undefined
+        });
+      after: |
+        import * as LanguageModel from "@effect/ai/LanguageModel";
+
+        const program = Effect.gen(function* () {
+          const model = yield* LanguageModel.LanguageModel;  // Correct: namespace.Tag
+          return yield* model.generateObject({ ... });
+        });
+
+  - id: SVC_007
+    pattern: "Layer\\.mergeAll|Layer\\.merge.*order|dependencies.*not.*satisfied"
+    category: service
+    severity: error
+    fix_type: unsafe
+    remediation: major
+    description: Layer composition order matters - dependencies must be provided before dependents
+    diagnosis: |
+      When composing multiple Layers, dependent Layers must receive their requirements.
+      Layer.mergeAll combines Layers but doesn't auto-resolve internal dependencies.
+    fix_steps:
+      - Draw the dependency graph of your Layers
+      - Use Layer.provide() to satisfy each Layer's requirements
+      - Or use Layer.provideMerge() to merge and provide in one step
+      - Order matters - provide base Layers before dependent ones
+    example:
+      error: "Layer 'UserServiceLive' requires 'DatabaseLive' which is not provided"
+      before: |
+        // Wrong: mergeAll doesn't resolve internal dependencies
+        const AppLive = Layer.mergeAll(
+          UserServiceLive,  // Needs Database
+          DatabaseLive,     // Provides Database, but merge doesn't wire it
+        );
+      after: |
+        // Correct: Explicitly provide dependencies
+        const AppLive = UserServiceLive.pipe(
+          Layer.provide(DatabaseLive),  // Wire Database to UserService
+          Layer.provideMerge(LoggerLive),  // Add Logger alongside
+        );
+
+        // Or use Layer.effect with explicit yields
+        const UserServiceWithDeps = Layer.effect(
+          UserService,
+          Effect.gen(function* () {
+            const db = yield* Database;
+            return makeUserService(db);
+          })
+        ).pipe(Layer.provide(DatabaseLive));
+
+  - id: SVC_008
+    pattern: "Db\\.make|SliceDb.*not.*provided|missing.*database.*layer"
+    category: service
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: Slice-scoped database client (Db.make) not properly layered
+    diagnosis: |
+      Each slice in beep-effect has its own typed Db service created with Db.make().
+      The SliceDb Layer must be provided to Effects that need database access.
+    fix_steps:
+      - Verify the slice's Db is defined in {slice}/tables/src/Db/
+      - Check that the Db exports the correct table shape
+      - Provide the SliceDb Layer (e.g., IamDb, KnowledgeDb) to your Effect
+      - For tests, use the testkit's database Layer setup
+    example:
+      error: "Service IamDb is not provided"
+      before: |
+        // packages/iam/server/src/repos/MemberRepo.ts
+        import { IamDb } from "@beep/iam-tables/Db";
+
+        const findAllMembers = Effect.gen(function* () {
+          const db = yield* IamDb;
+          return yield* db.select().from(members);
+        });
+
+        // Missing IamDb Layer!
+        Effect.runPromise(findAllMembers);
+      after: |
+        // packages/iam/server/src/repos/MemberRepo.ts
+        import { IamDb, IamDbLive } from "@beep/iam-tables/Db";
+
+        const findAllMembers = Effect.gen(function* () {
+          const db = yield* IamDb;
+          return yield* db.select().from(members);
+        });
+
+        // Provide the database Layer
+        findAllMembers.pipe(
+          Effect.provide(IamDbLive),
+          Effect.provide(SqlLive),  // Base SQL connection
+        );
+
+  # =============================================================================
+  # EFFECT PATTERN ERRORS (EFF_001 - EFF_006)
+  # =============================================================================
+
+  - id: EFF_001
+    pattern: "yield(?!\\*).*Effect|missing yield\\*|forgot yield"
+    category: effect
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Missing yield* in Effect.gen - Effect not executed, returns Effect object instead of result
+    diagnosis: |
+      In Effect.gen, each Effect must be yielded with `yield*` to execute it.
+      Without yield*, the Effect object is assigned to the variable, not its result.
+    fix_steps:
+      - Add yield* before each Effect call inside Effect.gen
+      - Remember yield* is the Effect equivalent of await in async functions
+      - Check return types - if a variable is Effect<T> instead of T, yield* is missing
+    example:
+      error: "Type 'Effect<string, Error, never>' is not assignable to type 'string'"
+      before: |
+        Effect.gen(function* () {
+          const result = someEffect();  // Missing yield* - result is Effect, not value
+          const data = anotherEffect();  // Same problem
+          return result.length;  // Error: Effect has no .length
+        });
+      after: |
+        Effect.gen(function* () {
+          const result = yield* someEffect();  // Correct - result is the unwrapped value
+          const data = yield* anotherEffect();  // Correct
+          return result.length;  // Works - result is string
+        });
+
+  - id: EFF_002
+    pattern: "Effect\\.fn.*test|test.*Effect\\.fn|function.*not.*executed"
+    category: effect
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Effect.fn vs Effect.gen confusion - Effect.fn returns a function, not an Effect
+    diagnosis: |
+      Effect.fn creates a function that returns an Effect (useful for service methods).
+      Effect.gen creates an Effect directly. In tests, use Effect.gen, not Effect.fn.
+    fix_steps:
+      - For tests, use Effect.gen(function* () { ... })
+      - Effect.fn is for defining reusable effectful functions
+      - If using Effect.fn, call the returned function to get the Effect
+    example:
+      error: "Test passed but assertions never ran"
+      before: |
+        // Wrong: Effect.fn returns a function, not an Effect!
+        effect("my test", () =>
+          Effect.fn(function* () {
+            const result = yield* someService.doThing();
+            strictEqual(result, expected);  // Never executed!
+          })  // Returns: (args) => Effect, not Effect
+        );
+      after: |
+        // Correct: Effect.gen returns an Effect directly
+        effect("my test", () =>
+          Effect.gen(function* () {
+            const result = yield* someService.doThing();
+            strictEqual(result, expected);  // Executes properly
+          })
+        );
+
+  - id: EFF_003
+    pattern: "Effect\\.runPromise.*test|bun:test.*runPromise|runSync.*test"
+    category: effect
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: Using Effect.runPromise in tests instead of @beep/testkit runners
+    diagnosis: |
+      Direct Effect.runPromise/runSync bypasses testkit's TestClock, TestRandom, and proper
+      error handling. Tests may pass incorrectly or miss timing-dependent bugs.
+    fix_steps:
+      - Import effect/layer/scoped/live from @beep/testkit
+      - Replace test() with effect() or layer() runners
+      - Remove Effect.runPromise - testkit handles execution
+    example:
+      error: "Tests use manual Effect execution"
+      before: |
+        import { test } from "bun:test";
+
+        test("my test", async () => {
+          await Effect.gen(function* () {
+            const result = yield* someEffect();
+            expect(result).toBe(expected);
+          }).pipe(
+            Effect.provide(TestLayer),
+            Effect.runPromise  // FORBIDDEN!
+          );
+        });
+      after: |
+        import { effect, strictEqual } from "@beep/testkit";
+
+        effect("my test", () =>
+          Effect.gen(function* () {
+            const result = yield* someEffect();
+            strictEqual(result, expected);
+          }).pipe(Effect.provide(TestLayer))
+        );
+
+  - id: EFF_004
+    pattern: "new Error|throw new Error|Effect\\.die\\(new Error"
+    category: effect
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: Using native Error constructor instead of S.TaggedError
+    diagnosis: |
+      Native Error objects lose type information and can't be caught with catchTag.
+      Effect errors should be tagged for proper error channel typing and handling.
+    fix_steps:
+      - Define error class extending S.TaggedError
+      - Use Effect.fail(new MyError({ ... })) for expected errors
+      - Use Effect.die() only for programmer errors (with TaggedError still preferred)
+      - Use catchTag("MyError", handler) for typed error handling
+    example:
+      error: "Untyped error in Effect channel"
+      before: |
+        // Wrong: Native Error - no tag, untyped
+        const fetchUser = (id: string) =>
+          Effect.gen(function* () {
+            const user = yield* db.findUser(id);
+            if (!user) {
+              throw new Error("User not found");  // WRONG: throws
+            }
+            return user;
+          });
+
+        // Can't use catchTag
+        fetchUser("123").pipe(
+          Effect.catchTag("UserNotFound", ...)  // Won't work!
+        );
+      after: |
+        // Correct: Tagged error with typed fields
+        export class UserNotFoundError extends S.TaggedError<UserNotFoundError>()(
+          "UserNotFoundError",
+          { userId: S.String }
+        ) {}
+
+        const fetchUser = (id: string) =>
+          Effect.gen(function* () {
+            const user = yield* db.findUser(id);
+            if (!user) {
+              return yield* Effect.fail(new UserNotFoundError({ userId: id }));
+            }
+            return user;
+          });
+
+        // Now catchTag works with type safety
+        fetchUser("123").pipe(
+          Effect.catchTag("UserNotFoundError", (e) =>
+            Effect.succeed(createDefaultUser(e.userId))
+          )
+        );
+
+  - id: EFF_005
+    pattern: "catchAll.*ParseError|ParseError.*not.*handled|SqlSchema.*ParseError"
+    category: effect
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: ParseError from SqlSchema operations not caught - causes unhandled Effect failure
+    diagnosis: |
+      SqlSchema operations (findById, findAll, etc.) can fail with ParseError when
+      database values don't match the schema. This error must be handled explicitly.
+    fix_steps:
+      - Add catchTag("ParseError", handler) before other error mapping
+      - Decide if ParseError should be a defect (die) or recoverable error
+      - For repos, typically die on ParseError (schema mismatch is a bug)
+    example:
+      error: "Unhandled 'ParseError' in error channel"
+      before: |
+        // Wrong: ParseError escapes unhandled
+        const findByIds = (ids: ReadonlyArray<string>) =>
+          findByIdsSchema({ ids: [...ids], organizationId }).pipe(
+            Effect.mapError(DatabaseError.$match),  // ParseError not caught!
+          );
+      after: |
+        // Correct: Handle ParseError explicitly
+        const findByIds = (ids: ReadonlyArray<string>) =>
+          findByIdsSchema({ ids: [...ids], organizationId }).pipe(
+            Effect.catchTag("ParseError", (e) => Effect.die(e)),  // Schema bug = defect
+            Effect.mapError(DatabaseError.$match),
+          );
+
+  - id: EFF_006
+    pattern: "Effect\\.sync.*promise|Effect\\.sync.*async|tryPromise.*sync"
+    category: effect
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Using Effect.sync for async operations - should use Effect.tryPromise
+    diagnosis: |
+      Effect.sync is for synchronous operations that may throw.
+      Effect.tryPromise is for async/Promise-based operations.
+      Using sync for async code returns a Promise object, not its result.
+    fix_steps:
+      - Use Effect.sync only for synchronous throwing code
+      - Use Effect.tryPromise for any Promise-returning code
+      - Use Effect.try for synchronous code with typed error transformation
+    example:
+      error: "Type 'Promise<T>' is not assignable to type 'T'"
+      before: |
+        // Wrong: Effect.sync returns immediately, Promise isn't awaited
+        const fetchData = Effect.sync(() => {
+          return fetch("/api/data").then(r => r.json());  // Returns Promise!
+        });
+
+        // Wrong: async function in Effect.sync
+        const readFile = Effect.sync(async () => {
+          return await fs.readFile("file.txt");  // Returns Promise!
+        });
+      after: |
+        // Correct: Effect.tryPromise for async operations
+        const fetchData = Effect.tryPromise({
+          try: () => fetch("/api/data").then(r => r.json()),
+          catch: (e) => new FetchError({ cause: e }),
+        });
+
+        // Correct: Or use Effect FileSystem service
+        const readFile = Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          return yield* fs.readFileString("file.txt");
+        });
+
+        // Effect.sync is only for sync throwing code
+        const parseJson = (str: string) => Effect.try({
+          try: () => JSON.parse(str),  // Synchronous!
+          catch: (e) => new ParseError({ cause: e }),
+        });
+
+  # =============================================================================
+  # DATABASE/SQL ERRORS (DB_001 - DB_006)
+  # =============================================================================
+
+  - id: DB_001
+    pattern: "SET LOCAL.*app\\.current_org_id|SET LOCAL.*current_setting"
+    category: database
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: |
+      Using SET LOCAL instead of SET for RLS context causes session variable
+      to not persist across queries in connection pools.
+    diagnosis: |
+      1. Check if RLS queries return empty results unexpectedly
+      2. Verify connection pooling is enabled (PgBouncer, Effect SQL pool)
+      3. Look for SET LOCAL statements setting app.current_org_id
+      4. Compare behavior: single query works, multiple queries fail
+    fix_steps:
+      - Replace SET LOCAL with session-level SET
+      - Use TenantContext service which handles this internally
+      - Ensure proper SQL escaping for unsafe queries
+    example:
+      error: "Empty result set when expecting data - RLS filtering all rows"
+      before: |
+        // WRONG - Transaction-scoped only, fails with connection pooling
+        yield* sql`SET LOCAL app.current_org_id = ${orgId}`;
+        const members = yield* sql`SELECT * FROM iam_member`;  // Returns []
+      after: |
+        // CORRECT - Session-scoped, persists for connection lifetime
+        const escapeOrgId = (id: string) => id.replace(/'/g, "''");
+        yield* sql.unsafe(`SET app.current_org_id = '${escapeOrgId(orgId)}'`);
+        const members = yield* sql`SELECT * FROM iam_member`;  // Returns expected rows
+
+  - id: DB_002
+    pattern: "sql`SET.*=.*\\$\\{|syntax error at or near \"\\$1\""
+    category: database
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: |
+      PostgreSQL SET statement does not support parameterized queries ($1, $2).
+      Template literals with interpolation cause syntax errors.
+    diagnosis: |
+      1. Error message contains "syntax error at or near $1"
+      2. Check for sql`` template literals with SET statements
+      3. Verify if using Effect SQL tagged template for SET
+    fix_steps:
+      - Use sql.unsafe() with manual string escaping
+      - Implement proper SQL injection prevention via escaping
+      - Use TenantContext service which handles this internally
+    example:
+      error: "PostgresError: syntax error at or near \"$1\""
+      before: |
+        // WRONG - PostgreSQL doesn't accept parameters in SET
+        yield* sql`SET app.current_org_id = ${orgId}`;
+      after: |
+        // CORRECT - Manual escaping with sql.unsafe()
+        const escapeOrgId = (id: string) => id.replace(/'/g, "''");
+        yield* sql.unsafe(`SET app.current_org_id = '${escapeOrgId(orgId)}'`);
+
+  - id: DB_003
+    pattern: "count.*string|bigint.*to.*number|parseInt.*count"
+    category: database
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: |
+      PostgreSQL returns COUNT() as string (bigint), not JavaScript number.
+      Schema expecting S.Number will fail to parse the string result.
+    diagnosis: |
+      1. ParseError when decoding count query results
+      2. Check Schema definition for count field
+      3. Verify actual PostgreSQL return type (SELECT pg_typeof(count(*)))
+    fix_steps:
+      - Change count field schema from S.Number to S.String
+      - Parse string to number after decoding
+      - Use Number.parseInt(result.count, 10)
+    example:
+      error: "ParseError: Expected number, got string '42'"
+      before: |
+        // WRONG - PostgreSQL returns count as string
+        class CountResult extends S.Class<CountResult>("CountResult")({
+          count: S.Number,  // Will fail - PostgreSQL returns "42" not 42
+        }) {}
+      after: |
+        // CORRECT - Accept string, convert after
+        class CountResult extends S.Class<CountResult>("CountResult")({
+          count: S.String,
+        }) {}
+
+        const result = yield* countSchema({});
+        const count = Number.parseInt(result.count, 10);
+
+  - id: DB_004
+    pattern: "\\$type<.*\\.Type>\\(\\)|Missing \\$type|type-unsafe joins"
+    category: database
+    severity: warning
+    fix_type: safe
+    remediation: easy
+    description: |
+      Table columns referencing entity IDs must use .$type<EntityId.Type>()
+      for compile-time type safety. Without it, TypeScript cannot distinguish
+      between different ID types, allowing type-unsafe joins.
+    diagnosis: |
+      1. Grep for pg.text columns with "id" that lack .$type<>
+      2. Check if wrong ID types are being used in WHERE clauses
+      3. Run: grep -r "pg.text.*notNull()" packages/*/tables/ | grep -iE "(id|Id)" | grep -v "\.$type<"
+    fix_steps:
+      - Add .$type<EntityId.Type>() to all ID columns
+      - Import EntityIds from appropriate domain package
+      - Re-run type verification
+    example:
+      error: "No TypeScript error, but runtime bug - wrong ID type in join"
+      before: |
+        // WRONG - Missing .$type<>() allows type-unsafe joins
+        export const entityTable = Table.make(KnowledgeEntityIds.EntityId)({
+          ontologyId: pg.text("ontology_id").notNull(),  // No type safety
+          documentId: pg.text("document_id"),            // No type safety
+        });
+
+        // This compiles but is WRONG - using DocumentId where OntologyId expected
+        db.select().from(entityTable).where(eq(entityTable.ontologyId, documentId));
+      after: |
+        // CORRECT - Type-safe ID columns
+        export const entityTable = Table.make(KnowledgeEntityIds.EntityId)({
+          ontologyId: pg.text("ontology_id").notNull()
+            .$type<KnowledgeEntityIds.OntologyId.Type>(),
+          documentId: pg.text("document_id")
+            .$type<DocumentsEntityIds.DocumentId.Type>(),
+        });
+
+        // Now TypeScript catches wrong ID types at compile time
+        db.select().from(entityTable).where(eq(entityTable.ontologyId, documentId));
+        // Error: DocumentId not assignable to OntologyId
+
+  - id: DB_005
+    pattern: "_check\\.ts.*satisfies.*Encoded|InferSelectModel.*InferInsertModel"
+    category: database
+    severity: warning
+    fix_type: manual
+    remediation: major
+    description: |
+      _check.ts type assertions only validate table-to-domain alignment (table satisfies domain).
+      They do NOT verify domain-to-table completeness. A domain model can have fewer fields
+      than the table and _check.ts will still pass.
+    diagnosis: |
+      1. Compare domain model fields with table columns manually
+      2. Check if _check.ts passes but domain is missing table fields
+      3. Look for M.Class definitions with fewer fields than corresponding table
+    fix_steps:
+      - Manually audit domain model against table definition
+      - Add missing fields to domain model BEFORE creating table
+      - Follow creation order: EntityIds -> Domain -> Tables -> _check.ts
+    example:
+      error: "_check.ts passes but domain model is incomplete"
+      before: |
+        // INCOMPLETE - Domain missing fields
+        class Embedding extends M.Class<Embedding>("Embedding")({
+          ...makeFields(EmbeddingId, {
+            embedding: S.Array(S.Number),  // Missing model, metadata
+          }),
+        }) {}
+
+        // Table has more fields
+        export const embeddingTable = Table.make(EmbeddingId)({
+          embedding: vector768("embedding").notNull(),
+          model: pg.text("model").notNull(),      // NOT in domain!
+          metadata: pg.jsonb("metadata"),          // NOT in domain!
+        });
+
+        // _check.ts PASSES - table satisfies incomplete domain
+        ({}) as InferSelectModel<typeof embeddingTable> satisfies Embedding.Encoded;
+      after: |
+        // COMPLETE - Domain has ALL table fields
+        class Embedding extends M.Class<Embedding>("Embedding")({
+          ...makeFields(EmbeddingId, {
+            embedding: S.Array(S.Number),
+            model: S.String,
+            metadata: BS.FieldOptionOmittable(S.Record({ key: S.String, value: S.Unknown })),
+          }),
+        }) {}
+
+  - id: DB_006
+    pattern: "ParseError.*catchTag|SqlError.*not caught|unhandled.*ParseError"
+    category: database
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: |
+      SqlSchema operations can emit ParseError alongside SqlError.
+      Error mapping with mapError(DatabaseError.$match) doesn't catch
+      ParseError, causing unhandled errors.
+    diagnosis: |
+      1. Effect crashes with unhandled ParseError
+      2. Check SqlSchema operations for missing catchTag
+      3. Verify error channel includes ParseError
+    fix_steps:
+      - Add catchTag("ParseError", ...) before mapError
+      - Use Effect.die for programmer errors (invalid schema)
+      - Or map ParseError to a domain error type
+    example:
+      error: "Unhandled effect error: ParseError"
+      before: |
+        // WRONG - ParseError not caught
+        const findByIds = (...) =>
+          findByIdsSchema({ ids: [...ids], organizationId }).pipe(
+            Effect.mapError(DatabaseError.$match),  // Only catches SqlError
+          );
+      after: |
+        // CORRECT - Handle ParseError explicitly
+        const findByIds = (...) =>
+          findByIdsSchema({ ids: [...ids], organizationId }).pipe(
+            Effect.catchTag("ParseError", (e) => Effect.die(e)),  // Programmer error
+            Effect.mapError(DatabaseError.$match),
+          );
+
+  # =============================================================================
+  # BUILD/CONFIG ERRORS (BUILD_001 - BUILD_005)
+  # =============================================================================
+
+  - id: BUILD_001
+    pattern: "packages/.*\\(\\d+,\\d+\\).*error TS|--filter.*upstream"
+    category: build
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: |
+      Turborepo's --filter flag cascades through ALL package dependencies.
+      If @beep/iam-tables depends on @beep/iam-domain, errors in domain
+      cause tables verification to fail even if tables code is correct.
+    diagnosis: |
+      1. Look at error path in output - it shows which package has the error
+      2. packages/iam/domain/src/... means error is in @beep/iam-domain
+      3. Check package.json dependencies to understand the chain
+    fix_steps:
+      - Identify actual failing package from error path
+      - Run bun run check --filter on the failing upstream package
+      - Fix upstream errors first, then retry downstream
+      - Use bun tsc --noEmit path/to/file.ts for isolated check
+    example:
+      error: "packages/iam/domain/src/entities/Member.ts(42,5): error TS2322"
+      before: |
+        # Running check on tables, but error is in domain
+        $ bun run check --filter @beep/iam-tables
+        packages/iam/domain/src/entities/Member.ts(42,5): error TS2322
+        #          ^^^^^^^ Error is in DOMAIN, not tables!
+
+        # WRONG - User tries to fix tables code
+      after: |
+        # Step 1: Identify error source from path
+        # packages/iam/domain/... -> error in @beep/iam-domain
+
+        # Step 2: Fix upstream package first
+        $ bun run check --filter @beep/iam-domain
+        # Fix the domain errors
+
+        # Step 3: Retry downstream
+        $ bun run check --filter @beep/iam-tables
+        # Now it passes
+
+  - id: BUILD_002
+    pattern: "tsconfig.*references|project references|Cannot find module.*@beep"
+    category: build
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: |
+      New packages must be added to tsconfig.base.jsonc paths and
+      may need tsconfig.json project references updated. Missing
+      path aliases cause "Cannot find module" errors.
+    diagnosis: |
+      1. Error: Cannot find module '@beep/new-package'
+      2. Check tsconfig.base.jsonc for missing path alias
+      3. Verify package.json exists in the new package directory
+    fix_steps:
+      - Add path aliases to tsconfig.base.jsonc
+      - Run bun run repo-cli tsconfig-sync to update references
+      - Restart TypeScript server in IDE
+    example:
+      error: "Cannot find module '@beep/knowledge-domain' or its type declarations"
+      before: |
+        // tsconfig.base.jsonc missing path alias
+        {
+          "compilerOptions": {
+            "paths": {
+              // @beep/knowledge-domain NOT listed
+            }
+          }
+        }
+
+        // Import fails
+        import { Entity } from "@beep/knowledge-domain";  // Error!
+      after: |
+        // Add to tsconfig.base.jsonc
+        {
+          "compilerOptions": {
+            "paths": {
+              "@beep/knowledge-domain": [
+                "./packages/knowledge/domain/src/index"
+              ],
+              "@beep/knowledge-domain/*": [
+                "./packages/knowledge/domain/src/*"
+              ],
+              "@beep/knowledge-domain/test/*": [
+                "./packages/knowledge/domain/test/*"
+              ]
+            }
+          }
+        }
+
+        # Run sync command
+        $ bun run repo-cli tsconfig-sync
+
+  - id: BUILD_003
+    pattern: "turbo\\.json|dependsOn|\\^build|Cannot find module.*dependency"
+    category: build
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: |
+      Turborepo task dependencies must be correctly configured.
+      Missing ^build in dependsOn causes tasks to run before
+      dependencies are built, leading to missing module errors.
+    diagnosis: |
+      1. Runtime errors about missing modules during build
+      2. Check turbo.json task configuration
+      3. Verify dependsOn includes "^build" for tasks needing built deps
+    fix_steps:
+      - Check turbo.json for task definition
+      - Add "^build" to dependsOn array
+      - Clear cache with bun run purge if needed
+    example:
+      error: "Cannot find module - dependency not built yet"
+      before: |
+        // turbo.json - missing ^build dependency
+        {
+          "tasks": {
+            "test": {
+              "inputs": ["$TURBO_DEFAULT$"]
+              // Missing dependsOn: ["^build"]!
+            }
+          }
+        }
+
+        # Test runs before dependencies built
+        $ bun run test --filter @beep/iam-server
+        Error: Cannot find module '@beep/iam-domain'
+      after: |
+        // turbo.json - correct dependency
+        {
+          "tasks": {
+            "test": {
+              "dependsOn": ["^build"],  // Build deps first
+              "inputs": ["$TURBO_DEFAULT$"]
+            }
+          }
+        }
+
+  - id: BUILD_004
+    pattern: "workspace:\\*|package\\.json.*dependencies|runtime.*Cannot find"
+    category: build
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: |
+      New packages must declare workspace dependencies in package.json.
+      Missing dependencies cause "Cannot find module" at runtime
+      even if TypeScript compiles (due to path aliases).
+    diagnosis: |
+      1. TypeScript compiles but runtime import fails
+      2. Check package.json dependencies section
+      3. Verify workspace:* syntax for monorepo packages
+    fix_steps:
+      - Add missing dependency to package.json
+      - Use "workspace:*" for monorepo packages
+      - Run bun install to update lockfile
+    example:
+      error: "Cannot find module '@beep/shared-domain' at runtime"
+      before: |
+        // packages/knowledge/domain/package.json
+        {
+          "name": "@beep/knowledge-domain",
+          "dependencies": {
+            // Missing @beep/shared-domain!
+          }
+        }
+
+        // Code compiles (path alias works) but fails at runtime
+        import { EntityId } from "@beep/shared-domain";  // Runtime error!
+      after: |
+        // packages/knowledge/domain/package.json
+        {
+          "name": "@beep/knowledge-domain",
+          "dependencies": {
+            "@beep/shared-domain": "workspace:*"
+          }
+        }
+
+        # Run install
+        $ bun install
+
+  - id: BUILD_005
+    pattern: "circular dependency|circular import|Cannot access.*before initialization"
+    category: build
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: |
+      Circular dependencies between packages cause initialization
+      errors and undefined imports. Each slice must follow the
+      dependency order: domain -> tables -> server -> client -> ui.
+    diagnosis: |
+      1. Run bun run lint:circular to detect cycles
+      2. Check import statements for cross-layer violations
+      3. Verify no server imports from client or domain from tables
+    fix_steps:
+      - Map out the import cycle
+      - Extract shared types to @beep/shared-domain
+      - Move implementation to correct layer
+      - Use dependency injection instead of direct imports
+    example:
+      error: "ReferenceError: Cannot access 'UserService' before initialization"
+      before: |
+        // WRONG - Circular dependency
+        // packages/iam/server/src/UserService.ts
+        import { MemberService } from "./MemberService";
+
+        // packages/iam/server/src/MemberService.ts
+        import { UserService } from "./UserService";  // Circular!
+      after: |
+        // CORRECT - Use dependency injection
+        // packages/iam/server/src/UserService.ts
+        export class UserService extends Context.Tag("UserService")<
+          UserService,
+          { findById: (id: UserId) => Effect<User> }
+        >() {}
+
+        // packages/iam/server/src/MemberService.ts
+        const memberService = Effect.gen(function* () {
+          const userService = yield* UserService;  // Injected, not imported
+          // ...
+        });
+
+  # =============================================================================
+  # TESTING ERRORS (TEST_001 - TEST_006)
+  # =============================================================================
+
+  - id: TEST_001
+    pattern: "import\\s*\\{\\s*test\\s*\\}\\s*from\\s*['\"]bun:test['\"]"
+    category: testing
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Using bun:test directly instead of @beep/testkit for Effect tests
+    diagnosis: |
+      Check for imports from "bun:test" combined with Effect.runPromise or
+      Effect.runSync calls. The testkit provides Effect-aware runners that handle
+      runtime management, error formatting, and TestContext injection.
+    fix_steps:
+      - Replace "bun:test" import with @beep/testkit imports
+      - Replace test() with effect() for standard Effect tests
+      - Replace manual Effect.runPromise with testkit runner semantics
+      - Remove explicit Effect.provide(TestContext.TestContext) if using effect()
+    example:
+      error: "Using bun:test with Effect.runPromise loses test services and error formatting"
+      before: |
+        import { test } from "bun:test";
+        import * as Effect from "effect/Effect";
+
+        test("creates user", async () => {
+          await Effect.gen(function* () {
+            const result = yield* createUser({ name: "Test" });
+            expect(result.id).toBeDefined();
+          }).pipe(Effect.provide(TestLayer), Effect.runPromise);
+        });
+      after: |
+        import * as Effect from "effect/Effect";
+        import { effect, strictEqual } from "@beep/testkit";
+
+        effect("creates user", () =>
+          Effect.gen(function* () {
+            const result = yield* createUser({ name: "Test" });
+            strictEqual(typeof result.id, "string");
+          }).pipe(Effect.provide(TestLayer))
+        );
+
+  - id: TEST_002
+    pattern: "from\\s*['\"]\\.\\.[\\/]"
+    category: testing
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Using relative imports in test files instead of path aliases
+    diagnosis: |
+      Test files should use @beep/* path aliases for imports from source files.
+      Relative imports like "../src/UserService" are fragile and break when
+      refactoring directory structure.
+    fix_steps:
+      - Identify the package name from package.json
+      - Replace relative import with @beep/{package-name}/{module-path}
+      - Verify import resolves correctly with bun run check
+    example:
+      error: "Cannot find module '../src/services/UserService'"
+      before: |
+        // test/services/UserService.test.ts
+        import { UserService } from "../src/services/UserService";
+        import { UserRepo } from "../../src/repos/UserRepo";
+      after: |
+        // test/services/UserService.test.ts
+        import { UserService } from "@beep/iam-server/services/UserService";
+        import { UserRepo } from "@beep/iam-server/repos/UserRepo";
+
+  - id: TEST_003
+    pattern: "optionalField:\\s*undefined"
+    category: testing
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Using undefined for Option fields in test mocks instead of O.none()
+    diagnosis: |
+      When creating mock data for Effect models that use Option<T> fields, you must
+      use O.none() instead of undefined. Effect's Option type is a tagged union,
+      not JavaScript's undefined.
+    fix_steps:
+      - Import O from "effect/Option"
+      - Replace undefined with O.none() for absent optional values
+      - Replace direct values with O.some(value) for present optional values
+    example:
+      error: "Type 'undefined' is not assignable to type 'Option<string>'"
+      before: |
+        import * as Effect from "effect/Effect";
+
+        const mockMember = {
+          id: "member__123",
+          userId: "user__456",
+          nickname: undefined,  // Wrong for Option<string>
+          avatarUrl: undefined,
+        };
+      after: |
+        import * as Effect from "effect/Effect";
+        import * as O from "effect/Option";
+
+        const mockMember = {
+          id: "member__123",
+          userId: "user__456",
+          nickname: O.none(),
+          avatarUrl: O.none(),
+        };
+
+  - id: TEST_004
+    pattern: "layer\\([^,]+\\)\\(['\"]"
+    category: testing
+    severity: warning
+    fix_type: safe
+    remediation: trivial
+    description: Missing timeout configuration for layer-based database tests
+    diagnosis: |
+      Database integration tests often exceed the default test timeout. The layer()
+      runner accepts an options object with timeout parameter. Without explicit
+      timeout, tests may fail intermittently on slower CI runners.
+    fix_steps:
+      - Add { timeout: Duration.seconds(N) } as second argument to layer()
+      - Use 30-60 seconds for typical database operations
+      - Use longer timeouts for migration or seeding tests
+    example:
+      error: "Test timeout exceeded (default 5000ms)"
+      before: |
+        import { layer } from "@beep/testkit";
+
+        layer(TestDbLayer)("database operations", (it) => {
+          it.effect("creates entity", () =>
+            Effect.gen(function* () {
+              const repo = yield* EntityRepo;
+              yield* repo.create({ name: "Test" });
+            })
+          );
+        });
+      after: |
+        import * as Duration from "effect/Duration";
+        import { layer } from "@beep/testkit";
+
+        layer(TestDbLayer, { timeout: Duration.seconds(60) })("database operations", (it) => {
+          it.effect("creates entity", () =>
+            Effect.gen(function* () {
+              const repo = yield* EntityRepo;
+              yield* repo.create({ name: "Test" });
+            })
+          );
+        });
+
+  - id: TEST_005
+    pattern: "yield\\*\\s+Effect\\.sleep|Effect\\.timeout|Effect\\.delay"
+    category: testing
+    severity: warning
+    fix_type: unsafe
+    remediation: major
+    description: Time-dependent Effect without TestClock advancement
+    diagnosis: |
+      Effects that use sleep, timeout, or delay will hang indefinitely in tests
+      using the effect() runner because TestClock doesn't advance automatically.
+      You must fork the time-dependent operation and use TestClock.adjust().
+    fix_steps:
+      - Fork the time-dependent Effect using Effect.fork
+      - Use TestClock.adjust() to advance virtual time
+      - Join the fiber to get the result
+      - Consider if test actually needs timing or can be restructured
+    example:
+      error: "Test hangs indefinitely waiting for Effect.sleep to complete"
+      before: |
+        import * as Effect from "effect/Effect";
+        import * as Duration from "effect/Duration";
+        import { effect, strictEqual } from "@beep/testkit";
+
+        effect("waits for delay", () =>
+          Effect.gen(function* () {
+            yield* Effect.sleep(Duration.seconds(5));  // Hangs forever!
+            const result = yield* computeResult();
+            strictEqual(result, "done");
+          })
+        );
+      after: |
+        import * as Effect from "effect/Effect";
+        import * as Duration from "effect/Duration";
+        import * as Fiber from "effect/Fiber";
+        import * as TestClock from "effect/TestClock";
+        import { effect, strictEqual } from "@beep/testkit";
+
+        effect("waits for delay", () =>
+          Effect.gen(function* () {
+            const fiber = yield* Effect.fork(
+              Effect.gen(function* () {
+                yield* Effect.sleep(Duration.seconds(5));
+                return yield* computeResult();
+              })
+            );
+            yield* TestClock.adjust(Duration.seconds(5));
+            const result = yield* Fiber.join(fiber);
+            strictEqual(result, "done");
+          })
+        );
+
+  - id: TEST_006
+    pattern: "src/.*\\.test\\.ts"
+    category: testing
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Test file located in src directory instead of test directory
+    diagnosis: |
+      Test files must be placed in the ./test directory, mirroring the ./src
+      structure. Inline tests pollute the source tree and may be bundled into
+      production builds.
+    fix_steps:
+      - Create corresponding directory structure under ./test
+      - Move test file from src/ to test/
+      - Update any relative imports to use path aliases
+      - Verify test still runs with bun run test
+    example:
+      error: "Test files should not be in src/ directory"
+      before: |
+        packages/iam/server/
+        ├── src/
+        │   ├── services/
+        │   │   ├── MemberService.ts
+        │   │   └── MemberService.test.ts  # Wrong location!
+        │   └── repos/
+        │       └── MemberRepo.ts
+      after: |
+        packages/iam/server/
+        ├── src/
+        │   ├── services/
+        │   │   └── MemberService.ts
+        │   └── repos/
+        │       └── MemberRepo.ts
+        └── test/
+            └── services/
+                └── MemberService.test.ts  # Correct location
+
+  # =============================================================================
+  # RUNTIME ERRORS (RT_001 - RT_005)
+  # =============================================================================
+
+  - id: RT_001
+    pattern: "Stream\\.fromAsyncIterable\\([^,]+\\)"
+    category: runtime
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Stream.fromAsyncIterable called without error handler argument
+    diagnosis: |
+      Stream.fromAsyncIterable requires a second argument that maps unknown errors
+      to a typed error. Without this, the stream cannot properly handle errors
+      from the async iterator.
+    fix_steps:
+      - Add error mapping function as second argument
+      - Create appropriate TaggedError class for the stream errors
+      - Map unknown cause to your typed error
+    example:
+      error: "Expected 2 arguments, but got 1"
+      before: |
+        import * as Stream from "effect/Stream";
+
+        const processItems = (items: AsyncIterable<Item>) =>
+          Stream.fromAsyncIterable(items);  // Missing error handler!
+      after: |
+        import * as Stream from "effect/Stream";
+        import * as S from "effect/Schema";
+
+        class StreamError extends S.TaggedError<StreamError>()("StreamError", {
+          cause: S.Unknown,
+        }) {}
+
+        const processItems = (items: AsyncIterable<Item>) =>
+          Stream.fromAsyncIterable(
+            items,
+            (cause) => new StreamError({ cause })
+          );
+
+  - id: RT_002
+    pattern: "const\\s+\\w+:\\s*Array<[^>]+>\\s*=\\s*yield\\*\\s+Stream\\.runCollect"
+    category: runtime
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Stream.runCollect returns Chunk, not Array
+    diagnosis: |
+      Stream.runCollect returns a Chunk<T>, not an Array<T>. Chunk is Effect's
+      immutable array type. To convert to Array, use A.fromIterable().
+    fix_steps:
+      - Change variable type annotation from Array<T> to Chunk<T>
+      - Or remove type annotation and convert result using A.fromIterable()
+      - Import A from "effect/Array"
+    example:
+      error: "Type 'Chunk<Item>' is not assignable to type 'Item[]'"
+      before: |
+        import * as Stream from "effect/Stream";
+
+        const items: Array<Item> = yield* Stream.runCollect(itemStream);
+      after: |
+        import * as Stream from "effect/Stream";
+        import * as A from "effect/Array";
+
+        const chunk = yield* Stream.runCollect(itemStream);
+        const items = A.fromIterable(chunk);
+
+  - id: RT_003
+    pattern: "MutableHashSet\\.forEach"
+    category: runtime
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: MutableHashSet.forEach method does not exist
+    diagnosis: |
+      Effect's MutableHashSet does not have a forEach method. MutableHashSet is
+      iterable, so use native for...of loop instead. This is an acceptable
+      exception to the "no native methods" rule.
+    fix_steps:
+      - Replace MutableHashSet.forEach with for...of loop
+      - Use native iteration since MutableHashSet implements Iterable
+    example:
+      error: "Property 'forEach' does not exist on type 'typeof MutableHashSet'"
+      before: |
+        import * as MutableHashSet from "effect/MutableHashSet";
+
+        const visited = MutableHashSet.make<string>();
+        MutableHashSet.add(visited, "item1");
+        MutableHashSet.add(visited, "item2");
+
+        MutableHashSet.forEach(visited, (item) => {
+          console.log(item);
+        });
+      after: |
+        import * as MutableHashSet from "effect/MutableHashSet";
+
+        const visited = MutableHashSet.make<string>();
+        MutableHashSet.add(visited, "item1");
+        MutableHashSet.add(visited, "item2");
+
+        for (const item of visited) {
+          console.log(item);
+        }
+
+  - id: RT_004
+    pattern: "Effect\\.runSync\\("
+    category: runtime
+    severity: warning
+    fix_type: unsafe
+    remediation: major
+    description: Effect.runSync can block the event loop or throw on async effects
+    diagnosis: |
+      Effect.runSync executes synchronously and will throw if the Effect is
+      asynchronous. In production code, prefer Layer-based composition. In tests,
+      use @beep/testkit runners instead.
+    fix_steps:
+      - For production code, compose via Layers and run at program boundary
+      - For tests, use effect(), scoped(), or layer() from @beep/testkit
+      - If truly synchronous and unavoidable, document why runSync is necessary
+    example:
+      error: "Cannot synchronously run effect that performs async operations"
+      before: |
+        import * as Effect from "effect/Effect";
+
+        const config = Effect.runSync(
+          Effect.gen(function* () {
+            const env = yield* loadEnv();  // Might be async!
+            return parseConfig(env);
+          })
+        );
+      after: |
+        import * as Effect from "effect/Effect";
+        import * as Layer from "effect/Layer";
+
+        // Define as Layer for composition
+        const ConfigLive = Layer.effect(
+          Config,
+          Effect.gen(function* () {
+            const env = yield* loadEnv();
+            return parseConfig(env);
+          })
+        );
+
+        // Provide at program boundary via Layer composition
+        const program = mainEffect.pipe(Effect.provide(ConfigLive));
+
+  - id: RT_005
+    pattern: "yield\\*\\s+\\w+\\s*(?!\\.)(?!\\[)"
+    category: runtime
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Attempting to yield* a service Tag without accessing service
+    diagnosis: |
+      When a module exports both a namespace and a service Tag with the same name,
+      you need to access the inner Tag. Common pattern with LanguageModel and
+      similar Effect services that use namespace + Tag pattern.
+    fix_steps:
+      - Check if the imported name is a namespace containing a Tag
+      - Use ModuleName.ModuleName pattern to access the Tag
+      - Verify the service interface matches expected type
+    example:
+      error: "Service not found - cannot yield namespace, must yield Tag"
+      before: |
+        import { LanguageModel } from "@effect/ai";
+
+        const model = yield* LanguageModel;  // Wrong - LanguageModel is namespace!
+      after: |
+        import { LanguageModel } from "@effect/ai";
+
+        const model = yield* LanguageModel.LanguageModel;  // Correct - first is namespace, second is Tag
+
+  # =============================================================================
+  # IMPORT/MODULE ERRORS (IMP_001 - IMP_006)
+  # =============================================================================
+
+  - id: IMP_001
+    pattern: "import \\{ .* \\} from \"effect\""
+    category: import
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Named import from "effect" instead of namespace imports
+    diagnosis: |
+      The codebase requires namespace imports for all Effect modules.
+      Named imports like `import { Effect, Layer } from "effect"` violate this rule.
+      Check the import statement at the top of the file for named imports.
+    fix_steps:
+      - Replace named import with namespace imports
+      - Use the correct module path (e.g., "effect/Effect" not "effect")
+      - Apply standard aliases (A for Array, O for Option, S for Schema, etc.)
+    example:
+      error: "Biome: Use namespace imports for Effect modules"
+      before: |
+        import { Effect, Layer, pipe } from "effect";
+        import { Schema } from "@effect/schema";
+      after: |
+        import * as Effect from "effect/Effect";
+        import * as Layer from "effect/Layer";
+        import { pipe } from "effect/Function";
+        import * as S from "effect/Schema";
+
+  - id: IMP_002
+    pattern: "Cannot find module '@beep/(.+)'"
+    category: import
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Missing package reference in TypeScript project configuration
+    diagnosis: |
+      The tsconfig.json is missing a reference to the imported @beep/* package.
+      This typically happens when:
+      1. A new package was created but tsconfig-sync wasn't run
+      2. A dependency was added to package.json but tsconfig references weren't updated
+      3. The package path alias isn't registered in tsconfig.base.jsonc
+    fix_steps:
+      - Run `bun run repo-cli tsconfig-sync` to update all references
+      - Verify the package exists in packages/ directory
+      - Check tsconfig.json references array includes the dependency
+      - Ensure package.json has the dependency listed
+    auto_fix_command: "bun run repo-cli tsconfig-sync"
+    example:
+      error: "Cannot find module '@beep/knowledge-domain' or its corresponding type declarations."
+      before: |
+        // tsconfig.json missing reference
+        {
+          "references": [
+            { "path": "../shared/domain" }
+          ]
+        }
+      after: |
+        // After running: bun run repo-cli tsconfig-sync
+        {
+          "references": [
+            { "path": "../shared/domain" },
+            { "path": "../knowledge/domain" }
+          ]
+        }
+
+  - id: IMP_003
+    pattern: "from \"\\.\\./(\\.\\./)+"
+    category: import
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Relative path import violating path alias convention
+    diagnosis: |
+      The codebase forbids relative imports that traverse multiple directories (../../..).
+      All cross-package imports MUST use @beep/* path aliases.
+      This makes refactoring safer and imports more readable.
+    fix_steps:
+      - Identify which @beep/* package the import target belongs to
+      - Replace relative path with the appropriate path alias
+      - Verify the path alias resolves correctly with `bun run check`
+    example:
+      error: "Architecture violation: relative path imports are forbidden"
+      before: |
+        import { UserId } from "../../../shared/domain/src/EntityIds";
+        import { MemberRepo } from "../../iam/server/src/repos/MemberRepo";
+      after: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+        // Note: cross-slice import may need architectural review
+        import { MemberRepo } from "@beep/iam-server/repos";
+
+  - id: IMP_004
+    pattern: "from \"@beep/(iam|documents|calendar|knowledge|comms)-(server|infra)\""
+    category: import
+    severity: warning
+    fix_type: manual
+    remediation: major
+    description: Cross-slice import violating architectural boundaries
+    diagnosis: |
+      Importing from another slice's server/infra layer creates tight coupling.
+      Cross-slice communication should happen through:
+      1. Shared domain types (@beep/shared-domain)
+      2. Events/messages (for async communication)
+      3. RPC contracts (for sync API calls)
+
+      Check if the import is truly necessary or if the dependency can be inverted.
+    fix_steps:
+      - Evaluate if the imported type/function belongs in @beep/shared-domain
+      - Consider using events for cross-slice communication
+      - If truly needed, use RPC contracts instead of direct imports
+      - Document the architectural decision if cross-slice coupling is intentional
+    example:
+      error: "Architecture violation: direct cross-slice import detected"
+      before: |
+        // In packages/documents/server/src/services/DocumentService.ts
+        import { MemberRepo } from "@beep/iam-server/repos";
+
+        const getDocumentWithAuthor = (docId: string) =>
+          Effect.gen(function* () {
+            const doc = yield* DocumentRepo.findById(docId);
+            const author = yield* MemberRepo.findById(doc.authorId);
+            return { ...doc, author };
+          });
+      after: |
+        // Option 1: Use shared domain types only
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Option 2: Accept author data as parameter (inversion of control)
+        const getDocumentWithAuthor = (docId: string, authorResolver: AuthorResolver) =>
+          Effect.gen(function* () {
+            const doc = yield* DocumentRepo.findById(docId);
+            const author = yield* authorResolver.findById(doc.authorId);
+            return { ...doc, author };
+          });
+
+  - id: IMP_005
+    pattern: "Circular dependency detected|Cannot access .* before initialization"
+    category: import
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: Circular import dependency between modules
+    diagnosis: |
+      Module A imports Module B which imports Module A, creating a cycle.
+      This causes runtime errors where values are undefined during initialization.
+      Common causes:
+      1. Schemas importing from each other
+      2. Domain models with bidirectional references
+      3. Service layers importing each other
+
+      Use topological analysis to identify the cycle.
+    fix_steps:
+      - Run `bun run repo-cli topo-sort` to identify dependency cycles
+      - Extract shared types to a common module imported by both
+      - Use lazy imports (import inside function) for runtime-only dependencies
+      - Consider inverting the dependency direction
+      - Split large files into smaller, focused modules
+    example:
+      error: "ReferenceError: Cannot access 'UserSchema' before initialization"
+      before: |
+        // schemas/User.ts
+        import { TeamSchema } from "./Team";
+        export const UserSchema = S.Struct({
+          id: SharedEntityIds.UserId,
+          teams: S.Array(TeamSchema),  // User has teams
+        });
+
+        // schemas/Team.ts
+        import { UserSchema } from "./User";  // CIRCULAR!
+        export const TeamSchema = S.Struct({
+          id: SharedEntityIds.TeamId,
+          members: S.Array(UserSchema),  // Team has users
+        });
+      after: |
+        // schemas/base/ids.ts (shared, no circular deps)
+        export const UserIdRef = SharedEntityIds.UserId;
+        export const TeamIdRef = SharedEntityIds.TeamId;
+
+        // schemas/User.ts
+        import { TeamIdRef } from "./base/ids";
+        export const UserSchema = S.Struct({
+          id: SharedEntityIds.UserId,
+          teamIds: S.Array(TeamIdRef),  // Reference by ID only
+        });
+
+        // schemas/Team.ts
+        import { UserIdRef } from "./base/ids";
+        export const TeamSchema = S.Struct({
+          id: SharedEntityIds.TeamId,
+          memberIds: S.Array(UserIdRef),  // Reference by ID only
+        });
+
+  - id: IMP_006
+    pattern: "import \\{ type (.+) \\} from"
+    category: import
+    severity: warning
+    fix_type: safe
+    remediation: easy
+    description: Type-only import used where value import is needed
+    diagnosis: |
+      Using `import { type X }` imports only the type, not the runtime value.
+      This causes errors when using X as a value (e.g., in Schema definitions).
+
+      Type-only imports are correct for:
+      - Interface/type declarations only used for typing
+      - Generic type parameters
+
+      Regular imports are needed for:
+      - Schema definitions (S.Struct, EntityIds, etc.)
+      - Runtime values (functions, classes, constants)
+    fix_steps:
+      - Remove `type` keyword if the import is used as a runtime value
+      - Check if EntityId schemas are imported without `type` keyword
+      - Verify Schema definitions have access to runtime values
+    example:
+      error: "'SharedEntityIds' cannot be used as a value because it was imported using 'import type'"
+      before: |
+        import { type SharedEntityIds } from "@beep/shared-domain";
+
+        // Error: SharedEntityIds.UserId is type-only
+        export const UserSchema = S.Struct({
+          id: SharedEntityIds.UserId,
+        });
+      after: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Works: SharedEntityIds is a runtime value
+        export const UserSchema = S.Struct({
+          id: SharedEntityIds.UserId,
+        });
+
+  # =============================================================================
+  # API/RPC ERRORS (API_001 - API_005)
+  # =============================================================================
+
+  - id: API_001
+    pattern: "service.*not.*found.*HttpClient|Cannot read properties of undefined.*HttpClient"
+    category: api
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: HttpClient service not provided in Layer composition
+    diagnosis: |
+      Effect services that make HTTP requests require HttpClient.HttpClient to be provided.
+      The error occurs when:
+      1. Layer composition is missing HttpClient.layer
+      2. Effect.provide() doesn't include the HttpClient dependency
+      3. Test setup is missing FetchHttpClient.layer or mock HttpClient
+
+      Check the service definition's dependencies and ensure they're all provided.
+    fix_steps:
+      - Add HttpClient.layer to Layer composition
+      - For Bun runtime, use BunHttpClient.layer
+      - For tests, use FetchHttpClient.layer or create a mock
+      - Verify all transitive dependencies are provided
+    example:
+      error: "Effect failed: service HttpClient not found"
+      before: |
+        // Missing HttpClient in layer composition
+        const program = Effect.gen(function* () {
+          const client = yield* DocumentsClient;
+          return yield* client.getDocument(docId);
+        });
+
+        // Runtime fails - HttpClient not provided
+        await program.pipe(
+          Effect.provide(DocumentsClient.Default),
+          Effect.runPromise
+        );
+      after: |
+        import { FetchHttpClient } from "@effect/platform";
+
+        const program = Effect.gen(function* () {
+          const client = yield* DocumentsClient;
+          return yield* client.getDocument(docId);
+        });
+
+        // Provide HttpClient layer
+        await program.pipe(
+          Effect.provide(
+            Layer.mergeAll(
+              DocumentsClient.Default,
+              FetchHttpClient.layer
+            )
+          ),
+          Effect.runPromise
+        );
+
+  - id: API_002
+    pattern: "contract not found|RPC handler .* not registered"
+    category: api
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: RPC contract name mismatch between client and server
+    diagnosis: |
+      RPC calls fail when the contract name on the client doesn't match
+      the handler name registered on the server.
+
+      Common causes:
+      1. Typo in contract/handler name
+      2. Contract renamed on one side but not the other
+      3. Handler not added to RpcGroup
+      4. Router not including the handler
+    fix_steps:
+      - Verify client contract name matches server handler exactly
+      - Check RpcGroup.make() includes the handler
+      - Ensure Router composition includes all RpcGroups
+      - Compare exported names in client and server packages
+    example:
+      error: "RPC Error: handler 'Documents.getById' not found"
+      before: |
+        // Client: contracts/Document.ts
+        export class GetDocument extends Rpc.Request<GetDocument>()(
+          "Documents.get",  // Wrong name
+          { ... }
+        ) {}
+
+        // Server: handlers/Document.ts
+        const getById = Rpc.make("Documents.getById", { ... });
+      after: |
+        // Client: contracts/Document.ts - name MUST match server
+        export class GetDocument extends Rpc.Request<GetDocument>()(
+          "Documents.getById",  // Matches server handler name
+          { ... }
+        ) {}
+
+        // Server: handlers/Document.ts
+        const getById = Rpc.make("Documents.getById", { ... });
+
+  - id: API_003
+    pattern: "ParseError|Decode error|Expected .* but got"
+    category: api
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: Schema decode failure on API response
+    diagnosis: |
+      The server response doesn't match the expected client schema.
+      This indicates schema drift between client and server.
+
+      Common causes:
+      1. Server schema was updated but client wasn't
+      2. Field names differ (camelCase vs snake_case)
+      3. Optional vs required field mismatch
+      4. Date/DateTime encoding mismatch (ISO string vs Date object)
+    fix_steps:
+      - Compare client schema with server response schema
+      - Check for field name mismatches (use consistent casing)
+      - Verify optional field annotations match (S.optional, S.optionalWith)
+      - Ensure Date handling is consistent (S.Date vs S.DateFromString)
+      - Import schemas from domain package to avoid drift
+    example:
+      error: "ParseError: Expected { id: string, createdAt: Date } but got { id: string, created_at: string }"
+      before: |
+        // Client schema expects camelCase and Date
+        const DocumentSchema = S.Struct({
+          id: S.String,
+          createdAt: S.Date,  // Expects Date object
+        });
+
+        // Server returns snake_case and ISO string
+        // { "id": "doc_123", "created_at": "2026-02-04T10:00:00Z" }
+      after: |
+        // Import shared schema from domain to prevent drift
+        import { Document } from "@beep/documents-domain/entities";
+
+        // Or define with correct transformations
+        const DocumentSchema = S.Struct({
+          id: S.String,
+          createdAt: S.DateFromString,  // Handles ISO string from JSON
+        });
+
+  - id: API_004
+    pattern: "ECONNREFUSED|fetch failed|Network request failed"
+    category: api
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: HTTP connection failure to API endpoint
+    diagnosis: |
+      The HTTP client cannot connect to the target server.
+
+      Common causes:
+      1. Server not running
+      2. Wrong base URL configured
+      3. Firewall/network blocking the connection
+      4. CORS issues in browser environment
+      5. SSL/TLS certificate problems
+    fix_steps:
+      - Verify the server is running (`bun run dev` or `bun run services:up`)
+      - Check base URL configuration in environment/config
+      - Test endpoint directly with curl or browser
+      - For local development, ensure ports aren't blocked
+      - Check CORS headers if running in browser
+    example:
+      error: "TypeError: fetch failed - cause: connect ECONNREFUSED 127.0.0.1:3000"
+      before: |
+        // Config pointing to non-running server
+        const config = {
+          baseUrl: "http://localhost:3000",
+        };
+
+        // Attempting to call API when server is down
+        const result = yield* client.getDocument(docId);
+      after: |
+        // 1. Start the server first
+        // $ bun run services:up
+        // $ bun run dev
+
+        // 2. Or use environment-specific config
+        import { Env } from "@beep/env";
+        const baseUrl = yield* Env.get("API_BASE_URL");
+
+        // 3. Add retry logic for transient failures
+        const result = yield* client.getDocument(docId).pipe(
+          Effect.retry(
+            Schedule.exponential(Duration.seconds(1)).pipe(
+              Schedule.compose(Schedule.recurs(3))
+            )
+          )
+        );
+
+  - id: API_005
+    pattern: "Request.*payload.*mismatch|Argument of type .* is not assignable to parameter of type"
+    category: api
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: RPC request payload type mismatch
+    diagnosis: |
+      The data passed to an RPC call doesn't match the expected payload schema.
+      TypeScript catches this at compile time, but schema validation catches at runtime.
+
+      Common causes:
+      1. Missing required fields in request payload
+      2. Wrong field types (string instead of number, etc.)
+      3. EntityId type mismatch (plain string vs branded type)
+      4. Payload not encoded before sending
+    fix_steps:
+      - Check the contract's payload schema definition
+      - Ensure all required fields are provided
+      - Use EntityId.make() for branded ID types
+      - Verify field types match schema expectations
+    example:
+      error: "Argument of type '{ id: string }' is not assignable - missing property 'organizationId'"
+      before: |
+        // Contract expects organizationId
+        export class GetDocument extends Rpc.Request<GetDocument>()(
+          "Documents.getById",
+          {
+            payload: S.Struct({
+              id: DocumentsEntityIds.DocumentId,
+              organizationId: SharedEntityIds.OrganizationId,
+            }),
+            success: Document.Schema,
+            failure: DocumentNotFoundError,
+          }
+        ) {}
+
+        // Call missing organizationId
+        yield* client.getById({ id: docId });
+      after: |
+        // Provide all required fields with correct types
+        yield* client.getById({
+          id: DocumentsEntityIds.DocumentId.make(docId),
+          organizationId: SharedEntityIds.OrganizationId.make(orgId),
+        });

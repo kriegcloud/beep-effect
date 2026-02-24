@@ -7,6 +7,8 @@
 import type { TString } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as String from "effect/String";
 
@@ -14,6 +16,44 @@ const BEEP_NAMESPACE = "@beep" as const;
 const MODULE_CHARACTERS = /^[A-Za-z0-9_-]+$/;
 const MODULE_LEADING_ALPHA = /^[A-Za-z]/;
 const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
+
+/**
+ * @since 0.0.0
+ * @category errors
+ */
+export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInterpolationError>(
+  "@beep/identity/errors/IdentityInterpolationError"
+)(
+  "IdentityInterpolationError",
+  {},
+  {
+    title: "Identity Interpolation Error",
+    description: "Identity template tags do not allow interpolations.",
+  }
+) {
+  override get message() {
+    return "Identity template tags do not allow interpolations.";
+  }
+}
+
+/**
+ * @since 0.0.0
+ * @category errors
+ */
+export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmentCountError>(
+  "@beep/identity/errors/IdentitySegmentCountError"
+)(
+  "IdentitySegmentCountError",
+  {},
+  {
+    title: "Identity Segment Count Error",
+    description: "Identity template tags must use a single literal segment.",
+  }
+) {
+  override get message() {
+    return "Identity template tags must use a single literal segment.";
+  }
+}
 
 /**
  * @since 0.0.0
@@ -154,13 +194,21 @@ export type IdentityAnnotationResult<Value extends string, Identifier extends st
  * @since 0.0.0
  * @category models
  */
+export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyArray<TString.NonEmpty>> = {
+  readonly [K in Segments[number] as TaggedAccessor<K>]: IdentityComposer<`${Value}/${ModuleSegmentValue<K>}`>;
+};
+
+/**
+ * @since 0.0.0
+ * @category models
+ */
 export interface IdentityComposer<Value extends string> {
   (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): IdentityString<`${Value}/${string}`>;
   readonly value: IdentityString<Value>;
   readonly identifier: IdentityString<Value>;
-  compose<const Next extends TString.NonEmpty>(
-    segment: ModuleSegmentValue<Next>
-  ): IdentityComposer<`${Value}/${ModuleSegmentValue<Next>}`>;
+  compose<
+    const Segments extends readonly [ModuleSegmentValue<TString.NonEmpty>, ...ModuleSegmentValue<TString.NonEmpty>[]],
+  >(...segments: Segments): TaggedModuleRecord<Value, Segments>;
   create<const Next extends TString.NonEmpty>(
     segment: ModuleSegmentValue<Next>
   ): IdentityComposer<`${Value}/${ModuleSegmentValue<Next>}`>;
@@ -173,6 +221,7 @@ export interface IdentityComposer<Value extends string> {
     identifier: SegmentValue<Next>,
     extras?: undefined | SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+  readonly identityRegistry: MutableHashSet.MutableHashSet<string>;
 }
 
 type NormalizedBase<Base extends TString.NonEmpty> = Base extends `@beep/${infer Rest extends TString.NonEmpty}`
@@ -305,14 +354,23 @@ const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): Normali
 const createBaseIdentity = <const Base extends TString.NonEmpty>(base: NormalizedBase<Base>): BaseIdentity<Base> =>
   base === "beep" ? (BEEP_NAMESPACE as BaseIdentity<Base>) : (`${BEEP_NAMESPACE}/${base}` as BaseIdentity<Base>);
 
-const createComposer = <const Value extends string>(value: Value): IdentityComposer<Value> => {
+type Registry = MutableHashSet.MutableHashSet<string>;
+
+const registerIdentity = (registry: Registry, identity: string): void => {
+  MutableHashSet.add(registry, identity);
+};
+
+const createComposer = <const Value extends string>(value: Value, registry: Registry): IdentityComposer<Value> => {
+  registerIdentity(registry, value);
+
   const identityValue = toIdentityString(value);
+
   const composeNext = <const Next extends TString.NonEmpty>(
     segment: ModuleSegmentValue<Next>
   ): IdentityComposer<`${Value}/${ModuleSegmentValue<Next>}`> => {
     const next = validateModuleSegment(segment);
     const composed = `${value}/${next}` as `${Value}/${ModuleSegmentValue<Next>}`;
-    return createComposer(composed);
+    return createComposer(composed, registry);
   };
 
   const annotations = <SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
@@ -321,6 +379,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   ) => {
     const next = validateSegment(identifier);
     const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+    registerIdentity(registry, `${composed}#annotation`);
     const annotation = {
       schemaId: toIdentitySymbol(composed),
       identifier: next,
@@ -339,29 +398,47 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
 
   const tag = ((strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>) => {
     if (values.length > 0) {
-      throw new Error("Identity template tags do not allow interpolations.");
+      throw new IdentityInterpolationError();
     }
     if (strings.length !== 1) {
-      throw new Error("Identity template tags must use a single literal segment.");
+      throw new IdentitySegmentCountError();
     }
     const segment = validateModuleSegment(strings[0] as TString.NonEmpty);
     const composed = `${value}/${segment}` as `${Value}/${string}`;
+    registerIdentity(registry, composed);
     return toIdentityString(composed);
   }) as unknown as IdentityComposer<Value>;
 
   return Object.assign(tag, {
     value: identityValue,
     identifier: identityValue,
-    compose: composeNext,
+    compose: <
+      const Segments extends readonly [ModuleSegmentValue<TString.NonEmpty>, ...ModuleSegmentValue<TString.NonEmpty>[]],
+    >(
+      ...segments: Segments
+    ) => {
+      const entries = F.pipe(
+        segments,
+        A.map((segment) => {
+          const ensured = validateModuleSegment(segment);
+          const composed = `${value}/${ensured}` as `${Value}/${ModuleSegmentValue<TString.NonEmpty>}`;
+          const composer = createComposer(composed, registry);
+          return [toTaggedKey(ensured), composer] as const;
+        })
+      );
+      return R.fromEntries(entries) as unknown as TaggedModuleRecord<Value, Segments>;
+    },
     create: composeNext,
     make: <const Next extends TString.NonEmpty>(segment: SegmentValue<Next>) => {
       const next = validateSegment(segment);
       const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+      registerIdentity(registry, composed);
       return toIdentityString(composed);
     },
     string: () => identityValue,
     symbol: () => toIdentitySymbol(value),
     annotate: annotations,
+    identityRegistry: registry,
   });
 };
 
@@ -370,9 +447,10 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
  * @category constructors
  */
 export const make = <const Base extends TString.NonEmpty>(base: Base) => {
+  const registry = MutableHashSet.empty<string>();
   const normalized = normalizeBase(base);
   const baseIdentity = createBaseIdentity(normalized);
-  const composer = createComposer(baseIdentity);
+  const composer = createComposer(baseIdentity, registry);
   const key = toTaggedKey(normalized);
 
   return {

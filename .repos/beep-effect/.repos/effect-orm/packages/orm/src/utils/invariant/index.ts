@@ -1,0 +1,97 @@
+/**
+ * Aggregates the runtime assertion helpers, tagged errors, and metadata types
+ * that make up the `@beep/invariant` package so downstream code can consume
+ * them through a single namespace import.
+ *
+ * @example
+ * ```ts
+ * import type * as CommonTypes from "@beep/types/common.types.js";
+ * import { invariant, InvariantViolation } from "@beep/invariant.js";
+ *
+ * type Payload = CommonTypes.Prettify<{ readonly token: string | null }>;
+ *
+ * export const assertToken = (payload: Payload) => {
+ *   try {
+ *     invariant(payload.token, "token missing", {
+ *       file: "packages/common/invariant/src/index.ts",
+ *       line: 21,
+ *       args: [payload],
+ *     });
+ *   } catch (error) {
+ *     if (error instanceof InvariantViolation) {
+ *       console.error(error.message);
+ *     }
+ *   }
+ * };
+ * ```
+ * @category Invariant/Overview
+ * @since 0.1.0
+ */
+/**
+ * Re-exports the tagged error surface so downstream packages can type-narrow
+ * runtime failures thrown by `invariant`.
+ *
+ * @example
+ * ```typescript
+ * import { InvariantViolation } from "@beep/invariant"
+ *
+ * const assertPositive = (count: { readonly value: number }) => {
+ *   if (count.value <= 0) {
+ *     throw new InvariantViolation({
+ *       message: "value must be positive",
+ *       file: "packages/common/invariant/src/index.ts",
+ *       line: 39,
+ *       args: [count],
+ *     })
+ *   }
+ * }
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * from "./error.js"
+
+/**
+ * Re-exports the assertion helpers, ensuring importing from `@beep/invariant`
+ * yields the full helper surface without deep paths.
+ *
+ * @example
+ * ```typescript
+ * import { invariant } from "@beep/invariant"
+ *
+ * const settings: { readonly token: string | null } = { token: "token_456" }
+ *
+ * invariant(settings.token, "token missing", {
+ *   file: "packages/common/invariant/src/index.ts",
+ *   line: 60,
+ *   args: [settings],
+ * })
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * from "./invariant.js"
+
+/**
+ * Re-exports the metadata schema and namespace so callers can import both the
+ * parser and related types without drilling into internal paths.
+ *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { CallMetadata } from "@beep/invariant"
+ *
+ * const decode = S.decodeUnknownSync(CallMetadata)
+ * const meta = decode({
+ *   file: "packages/common/invariant/src/index.ts",
+ *   line: 78,
+ *   args: [],
+ * })
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * from "./meta.js"

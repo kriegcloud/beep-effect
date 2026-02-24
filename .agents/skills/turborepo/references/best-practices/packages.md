@@ -138,7 +138,7 @@ pnpm install  # Updates lockfile with new dependency
 
 ### Import and Use
 
-```typescript
+```tsx
 // apps/web/src/page.tsx
 import { Button } from '@repo/ui/button';
 

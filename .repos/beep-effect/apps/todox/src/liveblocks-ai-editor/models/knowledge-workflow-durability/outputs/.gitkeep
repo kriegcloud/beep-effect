@@ -1,0 +1,6 @@
+# Outputs Directory
+
+Phase artifacts will be stored here:
+- WORKFLOW_ARCHITECTURE.md
+- IMPLEMENTATION_GUIDE.md
+- MIGRATION_PLAN.md

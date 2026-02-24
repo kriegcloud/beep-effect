@@ -1,0 +1,12 @@
+import { Db } from "@beep/shared-server/Db";
+import * as Context from "effect/Context";
+import * as _Layer from "effect/Layer";
+import * as DbSchema from "../schema";
+
+const serviceEffect = Db.make({
+  schema: DbSchema,
+});
+
+export class AdminDb extends Context.Tag("@beep/documents-server/AdminDb")<AdminDb, Db.Shape<typeof DbSchema>>() {
+  static readonly Live: _Layer.Layer<AdminDb, never, Db.SliceDbRequirements> = _Layer.scoped(this, serviceEffect);
+}

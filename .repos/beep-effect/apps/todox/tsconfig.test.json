@@ -1,0 +1,220 @@
+{
+  "extends": "../../tsconfig.base.jsonc",
+  "include": ["test", "test/**/*.json", "test/*.*.json"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../packages/calendar/client"
+    },
+    {
+      "path": "../../packages/calendar/ui"
+    },
+    {
+      "path": "../../packages/comms/client"
+    },
+    {
+      "path": "../../packages/comms/ui"
+    },
+    {
+      "path": "../../packages/customization/client"
+    },
+    {
+      "path": "../../packages/common/invariant"
+    },
+    {
+      "path": "../../packages/knowledge/client"
+    },
+    {
+      "path": "../../packages/knowledge/ui"
+    },
+    {
+      "path": "../../tooling/testkit"
+    },
+    {
+      "path": "../../tooling/utils"
+    },
+    {
+      "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/workspaces/client"
+    },
+    {
+      "path": "../../packages/workspaces/ui"
+    },
+    {
+      "path": "../../packages/common/identity"
+    },
+    {
+      "path": "../../tooling/build-utils"
+    },
+    {
+      "path": "../../packages/common/utils"
+    },
+    {
+      "path": "../../packages/common/schema"
+    },
+    {
+      "path": "../../packages/common/constants"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/domain"
+    },
+    {
+      "path": "../../packages/ui/core"
+    },
+    {
+      "path": "../../packages/common/wrap"
+    },
+    {
+      "path": "../../packages/common/errors"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/client"
+    },
+    {
+      "path": "../../packages/shared/domain"
+    },
+    {
+      "path": "../../packages/calendar/domain"
+    },
+    {
+      "path": "../../packages/comms/domain"
+    },
+    {
+      "path": "../../packages/customization/domain"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/server"
+    },
+    {
+      "path": "../../packages/iam/domain"
+    },
+    {
+      "path": "../../packages/knowledge/domain"
+    },
+    {
+      "path": "../../packages/shared/env"
+    },
+    {
+      "path": "../../packages/shared/server"
+    },
+    {
+      "path": "../../packages/shared/tables"
+    },
+    {
+      "path": "../../packages/workspaces/domain"
+    },
+    {
+      "path": "../../packages/customization/ui"
+    },
+    {
+      "path": "../../packages/runtime/client"
+    },
+    {
+      "path": "../../packages/calendar/tables"
+    },
+    {
+      "path": "../../packages/comms/tables"
+    },
+    {
+      "path": "../../packages/customization/tables"
+    },
+    {
+      "path": "../../packages/iam/tables"
+    },
+    {
+      "path": "../../packages/knowledge/tables"
+    },
+    {
+      "path": "../../packages/workspaces/tables"
+    },
+    {
+      "path": "../../packages/shared/client"
+    },
+    {
+      "path": "../../packages/ui/ui"
+    },
+    {
+      "path": "../../packages/calendar/server"
+    },
+    {
+      "path": "../../packages/comms/server"
+    },
+    {
+      "path": "../../packages/customization/server"
+    },
+    {
+      "path": "../../packages/iam/server"
+    },
+    {
+      "path": "../../packages/knowledge/server"
+    },
+    {
+      "path": "../../packages/iam/client"
+    },
+    {
+      "path": "../../packages/runtime/server"
+    },
+    {
+      "path": "../../packages/iam/ui"
+    },
+    {
+      "path": "../../packages/workspaces/server"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "rootDir": "test",
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "paths": {
+      "*": ["./*"],
+      "@/*": ["./src/*"],
+      "@beep/types": ["../../packages/common/types/src/index"],
+      "@beep/types/*": ["../../packages/common/types/src/*"],
+      "@beep/invariant": ["../../packages/common/invariant/src/index"],
+      "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
+      "@beep/utils": ["../../packages/common/utils/src/index"],
+      "@beep/utils/*": ["../../packages/common/utils/src/*"],
+      "@beep/schema": ["../../packages/common/schema/src/index"],
+      "@beep/schema/*": ["../../packages/common/schema/src/*"],
+      "@beep/constants": ["../../packages/common/constants/src/index"],
+      "@beep/constants/*": ["../../packages/common/constants/src/*"],
+      "@beep/errors/client": ["../../packages/common/errors/src/client"],
+      "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
+      "@beep/errors/server": ["../../packages/common/errors/src/server"],
+      "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
+      "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
+      "@beep/shared-server": ["../../packages/shared/server/src/index"],
+      "@beep/shared-server/*": ["../../packages/shared/server/src/*"],
+      "@beep/shared-client": ["../../packages/shared/client/src/index"],
+      "@beep/shared-client/*": ["../../packages/shared/client/src/*"],
+      "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
+      "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
+      "@beep/iam-tables": ["../../packages/iam/tables/src/index"],
+      "@beep/iam-tables/*": ["../../packages/iam/tables/src/*"],
+      "@beep/iam-server": ["../../packages/iam/server/src/index"],
+      "@beep/iam-server/*": ["../../packages/iam/server/src/*"],
+      "@beep/iam-client": ["../../packages/iam/client/src/index"],
+      "@beep/iam-client/*": ["../../packages/iam/client/src/*"],
+      "@beep/workspaces-domain": ["../../packages/workspaces/domain/src/index"],
+      "@beep/workspaces-domain/*": ["../../packages/workspaces/domain/src/*"],
+      "@beep/workspaces-tables": ["../../packages/workspaces/tables/src/index"],
+      "@beep/workspaces-tables/*": ["../../packages/workspaces/tables/src/*"],
+      "@beep/workspaces-server": ["../../packages/workspaces/server/src/index"],
+      "@beep/workspaces-server/*": ["../../packages/workspaces/server/src/*"],
+      "@beep/workspaces-client": ["../../packages/workspaces/client/src/index"],
+      "@beep/workspaces-client/*": ["../../packages/workspaces/client/src/*"],
+      "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
+      "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
+      "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
+      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
+    },
+    "outDir": "build/test"
+  }
+}

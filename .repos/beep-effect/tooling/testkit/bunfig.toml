@@ -1,0 +1,5 @@
+# Testkit-specific configuration for Playwright tests
+# Playwright browser tests need longer timeouts due to browser launch overhead
+[test]
+timeout = 30000
+preload = ["./src/test-preload.ts"]

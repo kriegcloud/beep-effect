@@ -13,7 +13,9 @@
     "./tooling/*/test/**/*.json",
     "./tooling/*/dtslint/**/*.ts",
     "./apps/*/test/**/*.ts",
-    "./apps/*/test/**/*.json"
+    "./apps/*/test/**/*.json",
+    "./.claude/*.ts",
+    "./.claude/*.json"
   ],
   "exclude": ["./tooling/*/test/fixtures/**/*.ts", "./**/dtslint/**/*.tst.*"],
   "compilerOptions": {
@@ -56,7 +58,8 @@
       "@beep/ui": ["./packages/ui/ui/src/index.ts"],
       "@beep/ui/*": ["./packages/ui/ui/src/*.ts"],
       "@beep/beep-sync": ["./tooling/beep-sync/src/index.ts"],
-      "@beep/beep-sync/*": ["./tooling/beep-sync/src/*.ts"]
+      "@beep/beep-sync/*": ["./tooling/beep-sync/src/*.ts"],
+      "@beep/claude/*": ["./.claude/*.ts"]
     },
     "plugins": [
       {
