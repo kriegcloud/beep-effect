@@ -7,11 +7,16 @@ import { db } from "../db";
 import * as schema from "../db/schema";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const normalizeEmail = (value: string) => value.trim().toLowerCase();
+const configuredEmailFrom = process.env.EMAIL_FROM?.trim();
+const emailFrom =
+  configuredEmailFrom && configuredEmailFrom.length > 0 ? configuredEmailFrom : "Effect v4 KG <onboarding@resend.dev>";
+const allowedEmailsRaw = process.env.ALLOWED_EMAILS ?? process.env.APP_ADMINS_EMAILS ?? "";
 
 const allowedEmails = new Set(
-  (process.env.ALLOWED_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
+  allowedEmailsRaw
+    .split(/[\n,;]/)
+    .map(normalizeEmail)
     .filter(Boolean)
 );
 
@@ -21,20 +26,27 @@ export const auth = betterAuth({
     schema,
   }),
   plugins: [
-    nextCookies(),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
-        if (!allowedEmails.has(email.toLowerCase().trim())) {
+        if (allowedEmails.size === 0) {
+          throw new Error("Email allowlist not configured");
+        }
+        if (!allowedEmails.has(normalizeEmail(email))) {
           throw new Error("Email not authorized");
         }
-        await resend.emails.send({
-          from: "Effect v4 KG <noreply@beep.dev>",
+        const result = await resend.emails.send({
+          from: emailFrom,
           to: email,
           subject: "Sign in to Effect v4 Knowledge Graph",
           html: `<a href="${url}">Click here to sign in</a>`,
         });
+
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
       },
       expiresIn: 300,
     }),
+    nextCookies(),
   ],
 });

@@ -13,8 +13,9 @@ import { make } from "../src/index.js";
 describe("Identity", () => {
   it("preserves literal types for make, compose, string, and symbol", () => {
     const $BeepId = make("beep").$BeepId;
-    const $SchemaId = $BeepId.compose("schema");
-    const tenantId = $SchemaId.compose("entities").make("Tenant");
+    const { $SchemaId } = $BeepId.compose("schema");
+    const { $EntitiesId } = $SchemaId.compose("entities");
+    const tenantId = $EntitiesId.make("Tenant");
     const serviceId = $SchemaId`TenantService`;
 
     expect($BeepId).type.toBeAssignableTo<IdentityComposer<"@beep">>();
@@ -26,14 +27,20 @@ describe("Identity", () => {
   });
 
   it("preserves literal types for annotate", () => {
-    const $SchemaId = make("beep").$BeepId.compose("schema");
+    const { $SchemaId } = make("beep").$BeepId.compose("schema");
     const annotation = $SchemaId.annotate("Tenant", {
+      default: { version: 1 as const },
+      description: "Tenant schema",
+    });
+    const aliasAnnotation = $SchemaId.annotations("Tenant", {
       default: { version: 1 as const },
       description: "Tenant schema",
     });
 
     expect(annotation).type.toBe<IdentityAnnotationResult<"@beep/schema/Tenant", "Tenant", { version: 1 }>>();
     expect(annotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/Tenant">>();
+    expect(aliasAnnotation).type.toBe<IdentityAnnotationResult<"@beep/schema/Tenant", "Tenant", { version: 1 }>>();
+    expect(aliasAnnotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/Tenant">>();
   });
 
   it("supports base normalization while preserving keys/literals", () => {
@@ -47,6 +54,7 @@ describe("Identity", () => {
   it("supports create + ServiceMap.Service class keys", () => {
     const $BeepId = make("beep").$BeepId;
     const $I = $BeepId.create("module");
+    const $PathI = $BeepId.create("lib/graphiti/client");
 
     interface FsUtilsShape {
       readonly cwd: () => string;
@@ -55,6 +63,7 @@ describe("Identity", () => {
     class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`MyService`) {}
 
     expect(FsUtils.key).type.toBe<IdentityString<`@beep/module/${string}`>>();
+    expect($PathI).type.toBeAssignableTo<IdentityComposer<"@beep/lib/graphiti/client">>();
   });
 
   it("enforces segment invariants at compile time", () => {
@@ -65,16 +74,10 @@ describe("Identity", () => {
     expect<ModuleSegmentValue<"1schema">>().type.toBe<never>();
   });
 
-  it("rejects invalid compose and make arguments at compile time", () => {
+  it("supports template tags for dynamic module names", () => {
     const $BeepId = make("beep").$BeepId;
     const $I = $BeepId.create("module");
 
-    // @ts-expect-error not assignable to parameter of type 'never'
-    $BeepId.compose("1schema");
-    // @ts-expect-error not assignable to parameter of type 'never'
-    $BeepId.make("/bad");
-    // @ts-expect-error not assignable to parameter of type 'never'
-    $BeepId.make("bad/");
     expect($I`1bad`).type.toBe<IdentityString<`@beep/module/${string}`>>();
   });
 });

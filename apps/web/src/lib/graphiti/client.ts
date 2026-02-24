@@ -1,4 +1,4 @@
-import { $I } from "@beep/identity/packages";
+import { $WebId } from "@beep/identity/packages";
 import {
   type GraphitiEntityNode,
   GraphitiEntityNodeSchema,
@@ -12,7 +12,7 @@ import * as Predicate from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as String from "effect/String";
 
-const $GraphitiId = $I.create("web").create("graphiti");
+const $GraphitiId = $WebId.create("lib/graphiti/client");
 const $GraphitiSchemaId = $GraphitiId.create("schema");
 const $GraphitiErrorsId = $GraphitiId.create("errors");
 

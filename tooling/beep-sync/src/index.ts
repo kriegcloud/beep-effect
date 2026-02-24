@@ -1556,13 +1556,64 @@ export function resolveSecretsFromFixturePath(fixturePath: string): SecretResolu
   };
 }
 
+export type {
+  /**
+   * Runtime diagnostic entry.
+   *
+   * @since 0.0.0
+   * @category runtime
+   */
+  RuntimeDiagnostic,
+  /**
+   * Runtime operation result payload.
+   *
+   * @since 0.0.0
+   * @category runtime
+   */
+  RuntimeResult,
+} from "./runtime.js";
+
 export {
-  type RuntimeDiagnostic,
-  type RuntimeResult,
+  /**
+   * Applies runtime-managed artifacts.
+   *
+   * @since 0.0.0
+   * @category runtime
+   */
   runRuntimeApply,
+  /**
+   * Checks runtime-managed artifacts for drift.
+   *
+   * @since 0.0.0
+   * @category runtime
+   */
   runRuntimeCheck,
+  /**
+   * Runs runtime diagnostics.
+   *
+   * @since 0.0.0
+   * @category runtime
+   */
   runRuntimeDoctor,
+  /**
+   * Reverts runtime-managed artifacts.
+   *
+   * @since 0.0.0
+   * @category runtime
+   */
   runRuntimeRevert,
+  /**
+   * Validates runtime configuration and secrets.
+   *
+   * @since 0.0.0
+   * @category runtime
+   */
   runRuntimeValidate,
+  /**
+   * Current runtime engine version string.
+   *
+   * @since 0.0.0
+   * @category runtime
+   */
   runtimeVersion,
 } from "./runtime.js";

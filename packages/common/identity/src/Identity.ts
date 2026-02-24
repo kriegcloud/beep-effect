@@ -210,14 +210,18 @@ export interface IdentityComposer<Value extends string> {
     const Segments extends readonly [ModuleSegmentValue<TString.NonEmpty>, ...ModuleSegmentValue<TString.NonEmpty>[]],
   >(...segments: Segments): TaggedModuleRecord<Value, Segments>;
   create<const Next extends TString.NonEmpty>(
-    segment: ModuleSegmentValue<Next>
-  ): IdentityComposer<`${Value}/${ModuleSegmentValue<Next>}`>;
+    segment: SegmentValue<Next>
+  ): IdentityComposer<`${Value}/${SegmentValue<Next>}`>;
   make<const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityString<`${Value}/${SegmentValue<Next>}`>;
   string(): IdentityString<Value>;
   symbol(): IdentitySymbol<Value>;
   annotate<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
+    identifier: SegmentValue<Next>,
+    extras?: undefined | SchemaAnnotationExtras<SchemaType>
+  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+  annotations<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
@@ -322,11 +326,15 @@ const toPascalIdentifier = <const Segment extends TString.NonEmpty>(segment: Seg
 const toTaggedKey = <const Segment extends TString.NonEmpty>(segment: Segment): TaggedAccessor<Segment> =>
   `$${toPascalIdentifier(segment)}Id` as TaggedAccessor<Segment>;
 
-const validateSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment =>
-  decodeSegment(segment) as Segment;
+const validateSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment => {
+  decodeSegment(segment);
+  return segment;
+};
 
-const validateModuleSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment =>
-  decodeModuleSegment(segment) as Segment;
+const validateModuleSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment => {
+  decodeModuleSegment(segment);
+  return segment;
+};
 
 const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): NormalizedBase<Base> => {
   const value = decodeString(base);
@@ -366,17 +374,17 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
   const identityValue = toIdentityString(value);
 
   const composeNext = <const Next extends TString.NonEmpty>(
-    segment: ModuleSegmentValue<Next>
-  ): IdentityComposer<`${Value}/${ModuleSegmentValue<Next>}`> => {
-    const next = validateModuleSegment(segment);
-    const composed = `${value}/${next}` as `${Value}/${ModuleSegmentValue<Next>}`;
+    segment: SegmentValue<Next>
+  ): IdentityComposer<`${Value}/${SegmentValue<Next>}`> => {
+    const next = validateSegment(segment);
+    const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
     return createComposer(composed, registry);
   };
 
   const annotations = <SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | SchemaAnnotationExtras<SchemaType>
-  ) => {
+  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType> => {
     const next = validateSegment(identifier);
     const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
     registerIdentity(registry, `${composed}#annotation`);
@@ -384,62 +392,69 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
       schemaId: toIdentitySymbol(composed),
       identifier: next,
       title: toTitle(next),
-    } as IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>;
+    } satisfies IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>;
 
     if (extras === undefined) {
-      return annotation as IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+      return annotation;
     }
 
     return {
-      ...annotation,
       ...extras,
-    } as IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
+      schemaId: annotation.schemaId,
+      identifier: annotation.identifier,
+      title: annotation.title,
+    };
   };
 
-  const tag = ((strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>) => {
-    if (values.length > 0) {
-      throw new IdentityInterpolationError();
-    }
-    if (strings.length !== 1) {
-      throw new IdentitySegmentCountError();
-    }
-    const segment = validateModuleSegment(strings[0] as TString.NonEmpty);
-    const composed = `${value}/${segment}` as `${Value}/${string}`;
-    registerIdentity(registry, composed);
-    return toIdentityString(composed);
-  }) as unknown as IdentityComposer<Value>;
-
-  return Object.assign(tag, {
-    value: identityValue,
-    identifier: identityValue,
-    compose: <
-      const Segments extends readonly [ModuleSegmentValue<TString.NonEmpty>, ...ModuleSegmentValue<TString.NonEmpty>[]],
-    >(
-      ...segments: Segments
-    ) => {
-      const entries = F.pipe(
-        segments,
-        A.map((segment) => {
-          const ensured = validateModuleSegment(segment);
-          const composed = `${value}/${ensured}` as `${Value}/${ModuleSegmentValue<TString.NonEmpty>}`;
-          const composer = createComposer(composed, registry);
-          return [toTaggedKey(ensured), composer] as const;
-        })
-      );
-      return R.fromEntries(entries) as unknown as TaggedModuleRecord<Value, Segments>;
-    },
-    create: composeNext,
-    make: <const Next extends TString.NonEmpty>(segment: SegmentValue<Next>) => {
-      const next = validateSegment(segment);
-      const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+  return Object.assign(
+    (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>) => {
+      if (values.length > 0) {
+        throw new IdentityInterpolationError();
+      }
+      if (strings.length !== 1) {
+        throw new IdentitySegmentCountError();
+      }
+      const segment = decodeModuleSegment(strings[0]);
+      const composed = `${value}/${segment}` as `${Value}/${string}`;
       registerIdentity(registry, composed);
       return toIdentityString(composed);
     },
-    string: () => identityValue,
-    symbol: () => toIdentitySymbol(value),
-    annotate: annotations,
-    identityRegistry: registry,
-  });
+    {
+      value: identityValue,
+      identifier: identityValue,
+      compose: <
+        const Segments extends readonly [
+          ModuleSegmentValue<TString.NonEmpty>,
+          ...ModuleSegmentValue<TString.NonEmpty>[],
+        ],
+      >(
+        ...segments: Segments
+      ) => {
+        const entries = F.pipe(
+          segments,
+          A.map((segment) => {
+            const ensured = validateModuleSegment(segment);
+            const composed = `${value}/${ensured}` as `${Value}/${ModuleSegmentValue<TString.NonEmpty>}`;
+            const composer = createComposer(composed, registry);
+            return [toTaggedKey(ensured), composer] as const;
+          })
+        );
+        return R.fromEntries(entries) as unknown as TaggedModuleRecord<Value, Segments>;
+      },
+      create: composeNext,
+      make: <const Next extends TString.NonEmpty>(segment: SegmentValue<Next>) => {
+        const next = validateSegment(segment);
+        const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+        registerIdentity(registry, composed);
+        return toIdentityString(composed);
+      },
+      string: () => identityValue,
+      symbol: () => toIdentitySymbol(value),
+      annotate: annotations,
+      annotations,
+      identityRegistry: registry,
+    }
+  );
 };
 
 /**

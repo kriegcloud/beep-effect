@@ -8,7 +8,7 @@ import {
 } from "@beep/web/lib/effect/mappers";
 import { KnowledgeGraphToolkit } from "@beep/web/lib/effect/tools";
 import { GraphitiService, type GraphitiServiceError } from "@beep/web/lib/graphiti/client";
-import { Effect, Match, pipe } from "effect";
+import { Effect, flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Option from "effect/Option";
 import * as AiError from "effect/unstable/ai/AiError";
@@ -139,11 +139,11 @@ const getFactsHandler = Effect.fn("KnowledgeGraphToolkit.GetFacts")(function* (p
 });
 
 export const knowledgeGraphHandlers = KnowledgeGraphToolkit.of({
-  SearchGraph: (params) => searchGraphHandler(params).pipe(Effect.mapError(toAiError("SearchGraph"))),
+  SearchGraph: flow(searchGraphHandler, Effect.mapError(toAiError("SearchGraph"))),
 
-  GetNode: (params) => getNodeHandler(params).pipe(Effect.mapError(toAiError("GetNode"))),
+  GetNode: flow(getNodeHandler, Effect.mapError(toAiError("GetNode"))),
 
-  GetFacts: (params) => getFactsHandler(params).pipe(Effect.mapError(toAiError("GetFacts"))),
+  GetFacts: flow(getFactsHandler, Effect.mapError(toAiError("GetFacts"))),
 });
 
 export const KnowledgeGraphToolsLayer = KnowledgeGraphToolkit.toLayer(knowledgeGraphHandlers);

@@ -3,14 +3,25 @@
 import { Button } from "@beep/ui/components/ui/button";
 import { signIn } from "@beep/web/lib/auth/client";
 import { EnvelopeSimple, SpinnerGap } from "@phosphor-icons/react";
-import { useCallback, useState } from "react";
+import * as Str from "effect/String";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useState } from "react";
 
 type Status = "idle" | "loading" | "sent" | "error";
 
-export default function SignInPage() {
+function SignInForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const searchParams = useSearchParams();
+  const callbackURLRaw = searchParams.get("callbackURL");
+  const callbackURL =
+    callbackURLRaw &&
+    Str.startsWith("/")(callbackURLRaw) &&
+    !Str.startsWith("//")(callbackURLRaw) &&
+    !Str.startsWith("/sign-in")(callbackURLRaw)
+      ? callbackURLRaw
+      : "/";
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -22,7 +33,7 @@ export default function SignInPage() {
 
       const { error } = await signIn.magicLink({
         email: email.trim(),
-        callbackURL: "/",
+        callbackURL,
       });
 
       if (error) {
@@ -36,7 +47,7 @@ export default function SignInPage() {
         setStatus("sent");
       }
     },
-    [email]
+    [callbackURL, email]
   );
 
   return (
@@ -102,5 +113,13 @@ export default function SignInPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignInForm />
+    </Suspense>
   );
 }

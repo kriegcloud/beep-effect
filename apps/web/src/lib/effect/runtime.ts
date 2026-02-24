@@ -1,17 +1,21 @@
 import { KnowledgeGraphToolsLayer } from "@beep/web/lib/effect/tool-handlers";
 import { GraphitiService } from "@beep/web/lib/graphiti/client";
 import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
-import { Layer, Redacted } from "effect";
+import { Config, Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 
-const openAiApiKey = process.env.OPENAI_API_KEY ?? "";
-const openAiModel = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
-
-export const OpenAiClientLayer = OpenAiClient.layer({
-  apiKey: Redacted.make(openAiApiKey),
+export const OpenAiClientLayer = OpenAiClient.layerConfig({
+  apiKey: Config.redacted("OPENAI_API_KEY"),
 }).pipe(Layer.provide(FetchHttpClient.layer));
 
-export const OpenAiLanguageModelLayer = OpenAiLanguageModel.model(openAiModel);
+const OpenAiModelConfig = Config.string("OPENAI_MODEL").pipe(Config.withDefault(() => "gpt-4o-mini"));
+
+export const OpenAiLanguageModelLayer = Layer.unwrap(
+  Effect.gen(function* () {
+    const openAiModel = yield* OpenAiModelConfig;
+    return OpenAiLanguageModel.model(openAiModel);
+  })
+);
 
 export const OpenAiRuntimeLayer = Layer.mergeAll(OpenAiClientLayer, OpenAiLanguageModelLayer);
 

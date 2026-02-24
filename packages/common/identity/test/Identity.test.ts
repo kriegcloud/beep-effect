@@ -1,5 +1,6 @@
 import { make } from "@beep/identity";
 import { describe, expect, it } from "vitest";
+import { $I, $SchemaId } from "../src/packages.js";
 
 describe("@beep/identity", () => {
   it("builds root identity strings and symbols", () => {
@@ -40,9 +41,18 @@ describe("@beep/identity", () => {
     expect($I`MyService`).toBe("@beep/module/MyService");
   });
 
+  it("supports create with slash-delimited path segments", () => {
+    const $I = make("beep").$BeepId.create("lib/graphiti/client");
+
+    expect($I.make("GraphitiService")).toBe("@beep/lib/graphiti/client/GraphitiService");
+  });
+
   it("creates schema annotate and merges extras", () => {
     const $SchemaId = make("beep").$BeepId.create("schema");
     const annotation = $SchemaId.annotate("Tenant", {
+      description: "Tenant schema",
+    });
+    const aliasAnnotation = $SchemaId.annotations("Tenant", {
       description: "Tenant schema",
     });
 
@@ -50,6 +60,10 @@ describe("@beep/identity", () => {
     expect(annotation.identifier).toBe("Tenant");
     expect(annotation.title).toBe("Tenant");
     expect(annotation.description).toBe("Tenant schema");
+    expect(aliasAnnotation.schemaId).toBe(Symbol.for("@beep/schema/Tenant"));
+    expect(aliasAnnotation.identifier).toBe("Tenant");
+    expect(aliasAnnotation.title).toBe("Tenant");
+    expect(aliasAnnotation.description).toBe("Tenant schema");
   });
 
   it("throws schema validation messages for invalid values", () => {
@@ -57,8 +71,11 @@ describe("@beep/identity", () => {
     expect(() => ($I.make as (segment: string) => unknown)("/bad")).toThrowError(
       'Identity segments cannot start with "/".'
     );
-    expect(() => ($I.create as (segment: string) => unknown)("1bad")).toThrowError(
-      "Module segments must start with an alphabetic character to create valid accessors."
+    expect(() => ($I.create as (segment: string) => unknown)("/bad")).toThrowError(
+      'Identity segments cannot start with "/".'
+    );
+    expect(() => ($I.create as (segment: string) => unknown)("bad/")).toThrowError(
+      'Identity segments cannot end with "/".'
     );
     expect(() => make("-bad")).toThrowError(
       "Identity bases must use alphanumeric, hyphen, or underscore characters and start/end with alphanumeric."
@@ -92,6 +109,18 @@ describe("@beep/identity", () => {
 
     expect($ReposId.make("UserRepo")).toBe("@beep/iam-server/repos/UserRepo");
     expect($ServicesId.make("AuthService")).toBe("@beep/iam-server/services/AuthService");
+  });
+
+  it("exports package composers with create, template tags, and annotate", () => {
+    expect($SchemaId.create("entities").make("Tenant")).toBe("@beep/schema/entities/Tenant");
+    expect($SchemaId`Service`).toBe("@beep/schema/Service");
+
+    const annotation = $SchemaId.annotate("Tenant");
+    expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/Tenant"));
+    expect(annotation.identifier).toBe("Tenant");
+    expect(annotation.title).toBe("Tenant");
+
+    expect($I.create("custom").make("CustomService")).toBe("@beep/custom/CustomService");
   });
 });
 // bench

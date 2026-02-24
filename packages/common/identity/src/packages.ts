@@ -22,49 +22,68 @@ import * as Identity from "./Identity.js";
  */
 export const $I = Identity.make("beep").$BeepId;
 
+const composers = $I.compose(
+  "data",
+  "identity",
+  "messages",
+  "ontology",
+  "schema",
+  "types",
+  "utils",
+  "shared-domain",
+  "shared-env",
+  "ui",
+  "web",
+  "beep-sync",
+  "repo-cli",
+  "codebase-search",
+  "repo-utils",
+  "claude"
+);
+
 // --- common ---
 
 /**
  * @since 0.0.0
  * @category common
  */
-export const $DataId = $I.compose("data");
+export const $DataId = composers.$DataId;
 
 /**
  * @since 0.0.0
  * @category common
  */
-export const $IdentityId = $I.compose("identity");
+export const $IdentityId = composers.$IdentityId;
 
 /**
  * @since 0.0.0
  * @category common
  */
-export const $MessagesId = $I.compose("messages");
+export const $MessagesId = composers.$MessagesId;
 
 /**
  * @since 0.0.0
  * @category common
  */
-export const $OntologyId = $I.compose("ontology");
+export const $OntologyId = composers.$OntologyId;
 
 /**
  * @since 0.0.0
  * @category common
  */
-export const $SchemaId = $I.compose("schema");
+export const $SchemaId = composers.$SchemaId;
 
 /**
  * @since 0.0.0
  * @category common
  */
-export const $TypesId = $I.compose("types");
+export const $TypesId = composers.$TypesId;
 
 /**
  * @since 0.0.0
  * @category common
  */
-export const $UtilsId = $I.compose("utils");
+export const $UtilsId = composers.$UtilsId;
 
 // --- shared ---
 
@@ -72,13 +91,13 @@ export const $UtilsId = $I.compose("utils");
  * @since 0.0.0
  * @category shared
  */
-export const $SharedDomainId = $I.compose("shared-domain");
+export const $SharedDomainId = composers.$SharedDomainId;
 
 /**
  * @since 0.0.0
  * @category shared
  */
-export const $SharedEnvId = $I.compose("shared-env");
+export const $SharedEnvId = composers.$SharedEnvId;
 
 // --- ui ---
 
@@ -86,7 +105,7 @@ export const $SharedEnvId = $I.compose("shared-env");
  * @since 0.0.0
  * @category ui
  */
-export const $UiId = $I.compose("ui");
+export const $UiId = composers.$UiId;
 
 // --- apps ---
 
@@ -94,7 +113,7 @@ export const $UiId = $I.compose("ui");
  * @since 0.0.0
  * @category apps
  */
-export const $WebId = $I.compose("web");
+export const $WebId = composers.$WebId;
 
 // --- tooling ---
 
@@ -102,25 +121,25 @@ export const $WebId = $I.compose("web");
  * @since 0.0.0
  * @category tooling
  */
-export const $BeepSyncId = $I.compose("beep-sync");
+export const $BeepSyncId = composers.$BeepSyncId;
 
 /**
  * @since 0.0.0
  * @category tooling
  */
-export const $RepoCliId = $I.compose("repo-cli");
+export const $RepoCliId = composers.$RepoCliId;
 
 /**
  * @since 0.0.0
  * @category tooling
  */
-export const $CodebaseSearchId = $I.compose("codebase-search");
+export const $CodebaseSearchId = composers.$CodebaseSearchId;
 
 /**
  * @since 0.0.0
  * @category tooling
  */
-export const $RepoUtilsId = $I.compose("repo-utils");
+export const $RepoUtilsId = composers.$RepoUtilsId;
 
 // --- claude ---
 
@@ -128,4 +147,4 @@ export const $RepoUtilsId = $I.compose("repo-utils");
  * @since 0.0.0
  * @category claude
  */
-export const $ClaudeId = $I.compose("claude");
+export const $ClaudeId = composers.$ClaudeId;
