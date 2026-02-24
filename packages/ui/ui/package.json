@@ -35,7 +35,6 @@
     "@types/react-dom": "catalog:",
     "shadcn": "catalog:",
     "@storybook/addon-vitest": "catalog:",
-    "lost-pixel": "catalog:",
     "@vitest/browser": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "catalog:",

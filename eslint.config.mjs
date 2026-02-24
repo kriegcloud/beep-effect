@@ -12,6 +12,20 @@ const beepJsdoc = {
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [
+  // Global ignores — build artifacts and external repos
+  {
+    ignores: [
+      ".next/**",
+      "**/.next/**",
+      ".repos/**",
+      ".sst/**",
+      "coverage/**",
+      "dist/**",
+      "node_modules/**",
+      "**/storybook-static/**",
+      "**/.turbo/**",
+    ],
+  },
   // JSDoc Documentation Rules - main enforcement
   {
     files: ["tooling/*/src/**/*.ts"],

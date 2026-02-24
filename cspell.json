@@ -124,7 +124,12 @@
     "unpooled",
     "pulumi",
     "caddyfile",
-    "zepai"
+    "zepai",
+    "loadmodule",
+    "redeployments",
+    "onepassword",
+    "cutover",
+    "fanout"
   ],
   "ignorePaths": [
     "bun.lock",

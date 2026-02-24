@@ -66,6 +66,10 @@ class CliRuntimeError extends S.TaggedErrorClass<CliRuntimeError>()("BeepSyncCli
 const JsonUnknownFromJson = S.fromJsonString(S.Unknown);
 
 /**
+ * Wraps an optional value in a readonly array for CLI argument normalization.
+ *
+ * @param value - Optional value to materialize.
+ * @returns Empty array when none; singleton array when present.
  * @since 0.0.0
  * @internal
  */
@@ -73,12 +77,20 @@ const toOptionArray = <T>(value: O.Option<T>): ReadonlyArray<T> =>
   O.match(value, { onNone: () => A.empty<T>(), onSome: (some) => A.make(some) });
 
 /**
+ * Normalizes a file path to an absolute path with POSIX separators.
+ *
+ * @param value - Input path value.
+ * @returns Normalized absolute path.
  * @since 0.0.0
  * @internal
  */
 const normalizePath = (value: string): string => Str.replace(/\\/g, "/")(resolve(value));
 
 /**
+ * Builds a predicate that checks whether a path contains a fixture segment.
+ *
+ * @param segment - Normalized segment to test for.
+ * @returns Predicate that matches paths containing the segment.
  * @since 0.0.0
  * @internal
  */
@@ -114,6 +126,10 @@ const isPoc04Path = isPocPath("/fixtures/poc-04/");
 const isPoc05Path = isPocPath("/fixtures/poc-05/");
 
 /**
+ * Writes raw text to standard output.
+ *
+ * @param value - Text to write.
+ * @returns Effect that writes text to stdout.
  * @since 0.0.0
  * @internal
  */
@@ -123,6 +139,10 @@ const writeStdout = (value: string): Effect.Effect<void> =>
   });
 
 /**
+ * Encodes unknown data as a JSON string.
+ *
+ * @param value - Input value to encode.
+ * @returns Effect producing a JSON string or a CLI runtime error.
  * @since 0.0.0
  * @internal
  */
@@ -138,6 +158,10 @@ const encodeJson = (value: unknown): Effect.Effect<string, CliRuntimeError> =>
   );
 
 /**
+ * Encodes a value as JSON and writes it to stdout with a trailing newline.
+ *
+ * @param value - Input value to encode and print.
+ * @returns Effect that prints JSON output.
  * @since 0.0.0
  * @internal
  */
@@ -145,6 +169,10 @@ const writeJson = (value: unknown): Effect.Effect<void, CliRuntimeError> =>
   encodeJson(value).pipe(Effect.flatMap((json) => writeStdout(Str.endsWith("\n")(json) ? json : `${json}\n`)));
 
 /**
+ * Marks a non-zero process exit code without forcing immediate exit.
+ *
+ * @param code - Exit code to apply when non-zero.
+ * @returns Effect that updates `process.exitCode`.
  * @since 0.0.0
  * @internal
  */
@@ -156,6 +184,11 @@ const markExitCode = (code: number): Effect.Effect<void> =>
   });
 
 /**
+ * Constructs an optional string CLI flag with description text.
+ *
+ * @param name - Long flag name.
+ * @param description - Flag description text.
+ * @returns Optional string flag definition.
  * @since 0.0.0
  * @internal
  */
@@ -163,6 +196,9 @@ const optionStringFlag = (name: string, description: string) =>
   Flag.string(name).pipe(Flag.withDescription(description), Flag.optional);
 
 /**
+ * Builds the shared option shape used by command handlers.
+ *
+ * @returns Record of CLI flags mapped to their parsers.
  * @since 0.0.0
  * @internal
  */
