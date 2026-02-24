@@ -1,0 +1,91 @@
+{
+  "name": "@beep/customization-server",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The package which contains the server layer for the customization slice",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./files": "./src/files/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/customization/server"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsgo --noEmit -p tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "@beep/shared-domain": "workspace:^",
+    "@beep/customization-domain": "workspace:^",
+    "@beep/shared-server": "workspace:^",
+    "@beep/customization-tables": "workspace:^",
+    "@effect-aws/client-s3": "catalog:",
+    "@effect-aws/s3": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@effect/workflow": "catalog:",
+    "@uswriting/exiftool": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "pdf-lib": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/shared-domain": "workspace:^",
+    "@beep/customization-domain": "workspace:^",
+    "@beep/shared-server": "workspace:^",
+    "@beep/customization-tables": "workspace:^",
+    "@effect-aws/client-s3": "catalog:",
+    "@effect-aws/s3": "catalog:",
+    "@effect/cluster": "catalog:",
+    "@effect/docgen": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@effect/workflow": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "@uswriting/exiftool": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "pdf-lib": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

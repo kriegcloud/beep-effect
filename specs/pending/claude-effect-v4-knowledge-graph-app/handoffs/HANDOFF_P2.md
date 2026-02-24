@@ -41,9 +41,9 @@ import * as S from "effect/Schema"
 const SearchGraph = Tool.make("SearchGraph", {
   description: "Search the Effect v4 knowledge graph for entities and relationships",
   parameters: S.Struct({
-    query: S.String.pipe(S.minLength(1)),
-    scope: S.optional(S.Literal("nodes", "edges", "both")).pipe(S.withDefault("both")),
-    limit: S.optional(S.Number.pipe(S.int(), S.positive())).pipe(S.withDefault(20))
+    query: S.NonEmptyString,
+    scope: S.optionalKey(S.Literals(["nodes", "edges", "both"])).pipe(S.withDecodingDefault(() => "both")),
+    limit: S.optionalKey(S.Int.check(S.isGreaterThanOrEqualTo(1))).pipe(S.withDecodingDefault(() => 20))
   }),
   success: S.Struct({
     nodes: S.Array(GraphNodeSchema),

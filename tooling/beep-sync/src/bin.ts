@@ -66,10 +66,10 @@ class CliRuntimeError extends S.TaggedErrorClass<CliRuntimeError>()("BeepSyncCli
 const JsonUnknownFromJson = S.fromJsonString(S.Unknown);
 
 /**
- * Converts an optional value into a readonly array.
+ * Wraps an optional value in a readonly array for CLI argument normalization.
  *
- * @param value - Optional value to convert.
- * @returns Empty array for none or single-item array for some.
+ * @param value - Optional value to materialize.
+ * @returns Empty array when none; singleton array when present.
  * @since 0.0.0
  * @internal
  */
@@ -77,20 +77,20 @@ const toOptionArray = <T>(value: O.Option<T>): ReadonlyArray<T> =>
   O.match(value, { onNone: () => A.empty<T>(), onSome: (some) => A.make(some) });
 
 /**
- * Normalizes a path and coerces separators to POSIX style.
+ * Normalizes a file path to an absolute path with POSIX separators.
  *
- * @param value - Input path string.
- * @returns Absolute normalized path.
+ * @param value - Input path value.
+ * @returns Normalized absolute path.
  * @since 0.0.0
  * @internal
  */
 const normalizePath = (value: string): string => Str.replace(/\\/g, "/")(resolve(value));
 
 /**
- * Builds a predicate that checks whether a normalized path contains a segment.
+ * Builds a predicate that checks whether a path contains a fixture segment.
  *
- * @param segment - Segment fragment to match.
- * @returns Predicate for matching normalized paths.
+ * @param segment - Normalized segment to test for.
+ * @returns Predicate that matches paths containing the segment.
  * @since 0.0.0
  * @internal
  */
@@ -126,10 +126,10 @@ const isPoc04Path = isPocPath("/fixtures/poc-04/");
 const isPoc05Path = isPocPath("/fixtures/poc-05/");
 
 /**
- * Writes a string payload to stdout.
+ * Writes raw text to standard output.
  *
  * @param value - Text to write.
- * @returns Effect that writes to stdout.
+ * @returns Effect that writes text to stdout.
  * @since 0.0.0
  * @internal
  */
@@ -139,10 +139,10 @@ const writeStdout = (value: string): Effect.Effect<void> =>
   });
 
 /**
- * Encodes a value as a JSON string using schema-based validation.
+ * Encodes unknown data as a JSON string.
  *
- * @param value - Value to encode.
- * @returns Effect producing encoded JSON or runtime error.
+ * @param value - Input value to encode.
+ * @returns Effect producing a JSON string or a CLI runtime error.
  * @since 0.0.0
  * @internal
  */
@@ -158,10 +158,10 @@ const encodeJson = (value: unknown): Effect.Effect<string, CliRuntimeError> =>
   );
 
 /**
- * Writes a JSON value to stdout with trailing newline normalization.
+ * Encodes a value as JSON and writes it to stdout with a trailing newline.
  *
- * @param value - Value to encode and print.
- * @returns Effect that writes JSON output.
+ * @param value - Input value to encode and print.
+ * @returns Effect that prints JSON output.
  * @since 0.0.0
  * @internal
  */
@@ -169,10 +169,10 @@ const writeJson = (value: unknown): Effect.Effect<void, CliRuntimeError> =>
   encodeJson(value).pipe(Effect.flatMap((json) => writeStdout(Str.endsWith("\n")(json) ? json : `${json}\n`)));
 
 /**
- * Sets process exit code when a non-zero code is requested.
+ * Marks a non-zero process exit code without forcing immediate exit.
  *
- * @param code - Exit code to apply.
- * @returns Effect that updates process exit code.
+ * @param code - Exit code to apply when non-zero.
+ * @returns Effect that updates `process.exitCode`.
  * @since 0.0.0
  * @internal
  */
@@ -184,11 +184,11 @@ const markExitCode = (code: number): Effect.Effect<void> =>
   });
 
 /**
- * Constructs an optional string CLI flag with description metadata.
+ * Constructs an optional string CLI flag with description text.
  *
- * @param name - Long option key without leading dashes.
- * @param description - Human-readable flag description.
- * @returns Optional string flag descriptor.
+ * @param name - Long flag name.
+ * @param description - Flag description text.
+ * @returns Optional string flag definition.
  * @since 0.0.0
  * @internal
  */
@@ -196,9 +196,9 @@ const optionStringFlag = (name: string, description: string) =>
   Flag.string(name).pipe(Flag.withDescription(description), Flag.optional);
 
 /**
- * Builds the CLI option shape shared by beep-sync commands.
+ * Builds the shared option shape used by command handlers.
  *
- * @returns Option descriptor object for command parsing.
+ * @returns Record of CLI flags mapped to their parsers.
  * @since 0.0.0
  * @internal
  */

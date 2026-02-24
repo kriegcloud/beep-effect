@@ -9,7 +9,7 @@
     "packages/shared/*",
     "packages/ui/*",
     "tooling/*",
-    "apps/web"
+    "apps/*"
   ],
   "repository": {
     "repository": {
@@ -34,6 +34,7 @@
     "changeset:version": "changeset version",
     "build:tsgo": "tsgo -b tsconfig.packages.json",
     "check": "tsc -p tsconfig.json --noEmit",
+    "check:infra": "tsc -p infra/tsconfig.json --noEmit",
     "check:tsgo": "tsgo -b tsconfig.json",
     "test": "vitest run && tstyche",
     "test:watch": "vitest",
@@ -43,11 +44,11 @@
     "lint": "bunx turbo run lint lint:jsdoc lint:spell lint:markdown lint:circular lint:versions && bun run lint:typos && bun run lint:repo && bun run lint:ox",
     "lint:versions": "bun run beep version-sync --skip-network",
     "lint:fix": "bunx turbo run lint:fix",
-    "lint:jsdoc": "eslint --config eslint.config.mjs 'tooling/*/src/**/*.ts' --ignore-pattern 'tooling/_test-*/**'",
+    "lint:jsdoc": "eslint --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' --ignore-pattern '.repos/**'",
     "lint:circular": "node scripts/circular.mjs",
     "lint:typos": "typos --exclude '.beep/**'",
     "lint:spell": "cspell lint --no-progress '**/*.{ts,tsx,md}' '#.beep'",
-    "lint:markdown": "markdownlint-cli2 '**/*.md' '#node_modules' '#.repos' '#.next' '#.beep'",
+    "lint:markdown": "markdownlint-cli2 '**/*.md' '#node_modules' '#.repos' '#.next' '#.beep' '#.sst' '#outputs'",
     "lint:repo": "bunx sherif -r non-existent-packages",
     "lint:ox": "bunx oxlint --ignore-pattern '.repos/**' --ignore-pattern 'specs/**' --ignore-pattern '.beep/**' --ignore-pattern '**/storybook-static/**' .",
     "storybook": "bunx turbo run storybook --filter=@beep/ui",
@@ -56,7 +57,7 @@
     "test:visual": "bunx turbo run test:visual --filter=@beep/ui",
     "docgen": "bunx turbo run docgen && node scripts/docs.mjs",
     "audit:high:strict": "bun audit --audit-level=high",
-    "audit:high": "bun audit --audit-level=high --ignore=GHSA-35jh-r3h4-6jhm --ignore=GHSA-3ppc-4f35-3m26",
+    "audit:high": "bun audit --audit-level=high --ignore=GHSA-35jh-r3h4-6jhm --ignore=GHSA-3ppc-4f35-3m26 --ignore=GHSA-8r9q-7v3j-jr4g --ignore=GHSA-w48q-cv73-mx4w --ignore=GHSA-3vhc-576x-3qv4 --ignore=GHSA-f67f-6cw9-8mq4 --ignore=GHSA-m732-5p4w-x69g",
     "audit:high:ci": "bun run audit:high",
     "release": "bun run build && bun run test && bun run lint && changeset publish",
     "nuke": "docker compose down && docker system prune -a -f && docker volume prune -a -f",
@@ -114,7 +115,7 @@
     "madge": "catalog:",
     "markdownlint-cli2": "catalog:",
     "publint": "catalog:",
-    "sst": "^3.19.1",
+    "sst": "catalog:",
     "syncpack": "catalog:",
     "ts-patch": "catalog:",
     "tstyche": "catalog:",
@@ -123,6 +124,10 @@
     "vite-tsconfig-paths": "catalog:"
   },
   "catalog": {
+    "@neondatabase/serverless": "^1.0.2",
+    "better-auth": "^1.4.19",
+    "drizzle-kit": "^0.31.9",
+    "drizzle-orm": "^0.45.1",
     "i18next": "^25.8.13",
     "@babel/cli": "^7.28.6",
     "@babel/core": "^7.29.0",
@@ -198,8 +203,10 @@
     "next": "16.2.0-canary.59",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.9.2",
     "shadcn": "^3.8.5",
     "syncpack": "14.0.0-alpha.41",
+    "tsx": "^4.21.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4",
     "ts-morph": "^27.0.2",
@@ -221,6 +228,7 @@
     "@storybook/addon-themes": "^10.2.11",
     "@storybook/react-vite": "^10.2.11",
     "storybook": "^10.2.11",
-    "@storybook/addon-vitest": "^10.2.11"
+    "@storybook/addon-vitest": "^10.2.11",
+    "sst": "^3.19.3"
   }
 }

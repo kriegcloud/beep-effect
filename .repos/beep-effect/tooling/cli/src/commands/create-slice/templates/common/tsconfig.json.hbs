@@ -1,0 +1,12 @@
+{
+  "extends": "@beep/tsconfig/library.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "build"
+  },
+  "include": ["src/**/*", "test/**/*"],
+  "references": [
+    { "path": "./tsconfig.src.json" },
+    { "path": "./tsconfig.test.json" }
+  ]
+}

@@ -31,7 +31,7 @@ Set up the foundational infrastructure for the app: better-auth with magic link 
 - [ ] Magic link sign-in flow works locally (enter email -> receive link -> click -> authenticated)
 - [ ] Allowlist check rejects emails not in `ALLOWED_EMAILS` env var (magic link is never sent)
 - [ ] Auth-gated layout redirects unauthenticated users to sign-in
-- [ ] Drizzle schema generated and migrations applied
+- [x] Drizzle schema generated and migrations applied (P1.5: schema regenerated via better-auth CLI, baseline migration `0000_oval_molly_hayes.sql` applied to Neon, `__drizzle_migrations` journal verified)
 - [ ] Resend integration sends magic link emails
 - [ ] Atom+React prototype spike passes (RegistryProvider + useAtomValue + Atom.fn in Next.js)
 - [ ] `bun run check` passes

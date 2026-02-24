@@ -82,7 +82,6 @@ const getCandidateComments = (sourceCode, node) => {
     }
 
     const astNode = /** @type {import("estree").Node} */ (
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       current
     );
 
@@ -134,7 +133,6 @@ const requireCategoryTagRule = {
       const hasCategory = comments.some((comment) => CATEGORY_RE.test(comment.value));
       if (!hasCategory) {
         context.report({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           node,
           messageId: "missingCategory",
           data: { name: getNodeName(node) },

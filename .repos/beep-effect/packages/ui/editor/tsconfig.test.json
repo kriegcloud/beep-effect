@@ -1,0 +1,59 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["test"],
+  "references": [
+    {
+      "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../../packages/common/invariant"
+    },
+    {
+      "path": "../../../tooling/testkit"
+    },
+    {
+      "path": "../../../packages/common/types"
+    },
+    {
+      "path": "../../../packages/common/identity"
+    },
+    {
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/ui/core"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/runtime/client"
+    },
+    {
+      "path": "../../../packages/ui/ui"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
+    "rootDir": "test",
+    "noEmit": true,
+    "outDir": "build/test"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "@beep/tsconfig/library.json",
+  "compilerOptions": {
+    "rootDir": "test",
+    "outDir": "build/test",
+    "composite": true,
+    "tsBuildInfoFile": "build/.tsbuildinfo.test",
+    "types": ["bun-types"]
+  },
+  "include": ["test/**/*"],
+  "references": [
+    { "path": "./tsconfig.src.json" }
+  ]
+}

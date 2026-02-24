@@ -4,10 +4,10 @@
 
 | Memory Type | Budget | Estimated | Status |
 |-------------|--------|-----------|--------|
-| Working | 2,000 | ~1,500 | OK |
-| Episodic | 1,000 | ~400 | OK |
-| Semantic | 500 | ~300 | OK |
-| Procedural | Links | Links | OK |
+| Working     | 2,000  | ~1,500    | OK     |
+| Episodic    | 1,000  | ~400      | OK     |
+| Semantic    | 500    | ~300      | OK     |
+| Procedural  | Links  | Links     | OK     |
 
 ## Working Memory (Current Phase)
 
@@ -134,14 +134,14 @@ curl -s -o /dev/null -w "%{http_code}" -H "X-API-Key: $GRAPHITI_API_KEY" $GRAPHI
 
 ### Cost Projections (v1 Beta)
 
-| Service | Monthly Cost | Notes |
-|---------|-------------|-------|
-| Vercel | $0 (Hobby + Fluid) | Fluid compute: 300s duration on Hobby; Active CPU pricing |
-| Railway (FalkorDB + Graphiti + Auth Proxy) | $8-10 (Hobby plan) | Deployed via SST IaC; 3 services, private networking |
-| Neon PostgreSQL | $0 (free tier) | Auth tables only |
-| Resend | $0 (free tier) | 100 emails/day |
-| OpenAI | ~$5-20 | gpt-4o-mini at ~$0.15/M input, $0.60/M output; varies with usage |
-| **Total** | **$13-30/month** | |
+| Service                                    | Monthly Cost       | Notes                                                            |
+|--------------------------------------------|--------------------|------------------------------------------------------------------|
+| Vercel                                     | $0 (Hobby + Fluid) | Fluid compute: 300s duration on Hobby; Active CPU pricing        |
+| Railway (FalkorDB + Graphiti + Auth Proxy) | $8-10 (Hobby plan) | Deployed via SST IaC; 3 services, private networking             |
+| Neon PostgreSQL                            | $0 (free tier)     | Auth tables only                                                 |
+| Resend                                     | $0 (free tier)     | 100 emails/day                                                   |
+| OpenAI                                     | ~$5-20             | gpt-4o-mini at ~$0.15/M input, $0.60/M output; varies with usage |
+| **Total**                                  | **$13-30/month**   |                                                                  |
 
 ## Episodic Memory
 

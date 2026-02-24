@@ -1,0 +1,46 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "exclude": [],
+  "references": [
+    {
+      "path": "../../common/schema/tsconfig.src.json"
+    },
+    {
+      "path": "../../shared/domain"
+    },
+    {
+      "path": "../../shared/server"
+    },
+    {
+      "path": "../../shared/tables"
+    },
+    {
+      "path": "../../iam/server"
+    },
+    {
+      "path": "../../iam/domain"
+    },
+    {
+      "path": "../../iam/tables"
+    },
+    {
+      "path": "../../documents/server"
+    },
+    {
+      "path": "../../documents/tables"
+    },
+    {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "build/src",
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  }
+}

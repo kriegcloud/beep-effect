@@ -1,0 +1,177 @@
+/**
+ * Sticky Note CSS
+ *
+ * Styles for the draggable sticky note component in the Lexical editor.
+ * Reference: tmp/lexical/packages/lexical-playground/src/index.css
+ */
+
+/* =============================================================================
+   Container
+   ============================================================================= */
+
+.sticky-note-container {
+  position: absolute;
+  z-index: 9;
+  width: 120px;
+  display: inline-block;
+}
+
+.sticky-note-container.dragging {
+  transition: none !important;
+}
+
+/* =============================================================================
+   Sticky Note Base
+   ============================================================================= */
+
+.sticky-note {
+  line-height: 1.3;
+  text-align: left;
+  width: 120px;
+  margin: 25px;
+  padding: 20px 10px;
+  position: relative;
+  border: 1px solid #e8e8e8;
+  font-family: 'Reenie Beanie', cursive;
+  font-size: 24px;
+  border-bottom-right-radius: 60px 5px;
+  display: block;
+  cursor: move;
+  overflow: visible;
+  min-height: 80px;
+  color: #000;
+}
+
+/* Shadow effect */
+.sticky-note::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  right: -0px;
+  bottom: 20px;
+  width: 120px;
+  height: 25px;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 15px 5px rgba(0, 0, 0, 0.4);
+  transform: matrix(-1, -0.1, 0, 1, 0, 0);
+}
+
+/* =============================================================================
+   Color Variants
+   ============================================================================= */
+
+.sticky-note.yellow {
+  border-top: 1px solid #fdfd86;
+  background: linear-gradient(
+    135deg,
+    #ffff88 81%,
+    #ffff88 82%,
+    #ffff88 82%,
+    #ffffc6 100%
+  );
+}
+
+.sticky-note.pink {
+  border-top: 1px solid #e7d1e4;
+  background: linear-gradient(
+    135deg,
+    #f7cbe8 81%,
+    #f7cbe8 82%,
+    #f7cbe8 82%,
+    #e7bfe1 100%
+  );
+}
+
+/* =============================================================================
+   Inner Content
+   ============================================================================= */
+
+.sticky-note div {
+  cursor: text;
+}
+
+/* =============================================================================
+   Placeholder Styling
+   ============================================================================= */
+
+.sticky-note-placeholder {
+  font-size: 24px;
+  color: #999;
+  overflow: hidden;
+  position: absolute;
+  text-overflow: ellipsis;
+  top: 30px;
+  left: 10px;
+  width: calc(100% - 20px);
+  max-width: 100px;
+  user-select: none;
+  white-space: nowrap;
+  display: inline-block;
+  pointer-events: none;
+}
+
+.sticky-note [contenteditable="true"] {
+  min-height: 40px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* =============================================================================
+   Delete Button
+   ============================================================================= */
+
+.sticky-note .delete {
+  border: 0;
+  background: none;
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 0.7;
+  color: #cc0000;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.sticky-note .delete:hover {
+  opacity: 1;
+  background-color: rgba(204, 0, 0, 0.1);
+}
+
+/* =============================================================================
+   Color Toggle Button
+   ============================================================================= */
+
+.sticky-note .color {
+  border: 0;
+  background: none;
+  position: absolute;
+  top: 8px;
+  right: 32px;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 2px;
+  transition: opacity 0.15s ease;
+}
+
+.sticky-note .color:hover {
+  opacity: 1;
+}
+
+.sticky-note .color i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background-size: contain;
+}
+
+/* Bucket icon for color picker */
+.sticky-note .color i.bucket {
+  background-image: url(/lexical/images/icons/paint-bucket.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+}

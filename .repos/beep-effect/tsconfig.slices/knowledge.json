@@ -1,0 +1,20 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "../packages/knowledge/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/knowledge/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/knowledge/server/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/knowledge/client/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/knowledge/ui/tsconfig.build.json"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# outputs directory
+
+Store implementation artifacts here:
+- Generated code snippets
+- Test results
+- Performance benchmarks
+- API documentation

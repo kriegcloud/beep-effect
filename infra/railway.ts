@@ -23,8 +23,11 @@ const falkordb = new railway.Service("FalkorDb", {
   name: "falkordb",
   projectId: project.id,
   sourceImage: "falkordb/falkordb:latest",
-  // MANUAL STEP: Volume creation via IaC fails with v0.4.4 provider bug.
-  // After deploy, add a persistent volume at /data in the Railway dashboard.
+  // Data seeded via ghcr.io/kriegcloud/falkordb-seeded:seed-v3 (2026-02-23).
+  // FalkorDB data dir: /var/lib/falkordb/data (NOT /data).
+  // Persistent volume "falkordb-volume" (5GB) mounted at /var/lib/falkordb/data via CLI.
+  // Volume created via `railway volume add --mount-path /var/lib/falkordb/data`.
+  // IaC volume creation fails with v0.4.4 provider bug — managed manually.
   // See: outputs/p1-railway-provider-gaps.md
 });
 

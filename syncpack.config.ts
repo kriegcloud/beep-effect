@@ -22,6 +22,12 @@ const config = {
       pinVersion: "workspace:^",
     },
     {
+      label: "Peer dependencies allow broader ranges",
+      dependencies: ["**"],
+      dependencyTypes: ["peer"],
+      isIgnored: true,
+    },
+    {
       label: "Root devDependencies (third-party) should use catalog references",
       dependencies: ["!@beep/**"],
       packages: ["@beep/root"],
