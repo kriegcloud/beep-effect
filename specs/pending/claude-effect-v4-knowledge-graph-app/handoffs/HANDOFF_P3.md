@@ -14,6 +14,28 @@
 ### Phase 3 Goal
 Implement the streaming chat API route at `/api/chat` using Effect v4's `LanguageModel.streamText` with the `KnowledgeGraphToolkit` from P2 and OpenAI as the model provider. Response is an SSE stream of text tokens, tool calls/results, and graph snippets.
 
+### Preflight (Run Before Coding)
+1. Validate required secrets are present in the shell:
+   ```bash
+   op run --env-file=.env -- sh -c 'test -n "$DATABASE_URL_UNPOOLED" && test -n "$OPENAI_API_KEY" && test -n "$GRAPHITI_API_KEY" && test -n "$GRAPHITI_API_URL"'
+   ```
+2. Validate database credentials before quality runs (build triggers migrations):
+   ```bash
+   op run --env-file=.env -- sh -c 'cd apps/web && bun run db:migrate'
+   ```
+3. Validate Graphiti auth path is reachable:
+   ```bash
+   op run --env-file=.env -- sh -c 'curl -sS -o /dev/null -w "%{http_code}\n" -H "X-API-Key: $GRAPHITI_API_KEY" "$GRAPHITI_API_URL/mcp"'
+   ```
+   Expected status: `200`.
+
+### Known Repository Baseline Issues (Track Separately from P3 Changes)
+- Root `bun run check` can fail with `TS6305` for new `apps/web` test files and `apps/web/vitest.config.ts` until declaration outputs are aligned with project references.
+- Root `bun run docgen` currently fails in `@beep/identity` example typecheck (`TaggedModuleRecord ... has no call signatures`).
+- When reporting P3 status, separate:
+  - P3-local validation (`apps/web` tests and route behavior)
+  - Repo-wide baseline gate health (root quality commands)
+
 ### Deliverables
 1. `apps/web/src/app/api/chat/route.ts` — Chat handler via toWebHandler
 2. `apps/web/src/lib/effect/chat-handler.ts` — Chat logic (prompt construction, tool-calling, response formatting)
@@ -137,6 +159,18 @@ LanguageModel.generateText({ prompt, toolkit, toolChoice: "auto" })
 ### Response Types
 - `GenerateTextResponse`: `.text`, `.reasoning`, `.toolCalls`, `.toolResults`, `.finishReason`, `.usage`
 - `StreamPart`: union of text, reasoning, tool-call, tool-result parts
+
+### Quality Gate Execution Order (CI-Equivalent)
+Run this order from repo root:
+```bash
+bun run build
+bun run check
+bun run lint
+bun run docgen
+bun run test
+bunx syncpack lint
+bun run audit:high:ci
+```
 
 ## Procedural Memory
 

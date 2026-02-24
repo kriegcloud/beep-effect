@@ -37,6 +37,7 @@ Verify the Vercel deployment (already provisioned via SST IaC), confirm all envi
 - [ ] Node.js runtime configured for `/api/chat`, `/api/graph/*`
 - [ ] Rate limiting active on API routes
 - [ ] Request body size limits enforced
+- [ ] Local pre-push quality gate passes: `op run --env-file=.env -- sh -c 'bun run build && bun run check && bun run test'`
 - [ ] Production runbook committed
 
 ### Implementation Notes
@@ -82,6 +83,14 @@ OPENAI_MODEL=gpt-4o-mini
 - Sensitive vars CANNOT target `development` (local `vercel dev`) — only `preview` (non-prod) or `production` (prod)
 - Non-sensitive vars target `preview` + `development` (non-prod) or `production` (prod)
 - This is enforced automatically by SST IaC in `infra/web.ts`
+
+**Local pre-push quality gate (lefthook):**
+```bash
+op run --env-file=.env -- sh -c 'bun run build && bun run check && bun run test'
+```
+- `bun run build` executes `apps/web` DB migrations before `next build`.
+- This command requires valid `DATABASE_URL_UNPOOLED` credentials and reachable database network path.
+- If this fails with DB auth errors, resolve secrets first before treating it as an application regression.
 
 **Smoke test script:**
 ```bash

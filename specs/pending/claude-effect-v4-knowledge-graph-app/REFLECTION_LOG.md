@@ -4,6 +4,32 @@ Cumulative learnings across all phases of the Effect v4 Knowledge Graph Explorer
 
 ---
 
+## Phase 2: Toolkit Integration Quality Lessons (2026-02-24)
+
+**What worked:**
+- P2 implementation itself validated in `apps/web` (`vitest` for toolkit/client behavior).
+- Pre-commit checks stayed clean and constrained to touched files.
+
+**What failed and why:**
+1. **Quality command mismatch** between shorthand docs and CI:
+   - CI quality job runs `build -> check -> lint -> docgen -> test -> syncpack -> audit`.
+   - Running a reduced command subset can hide failures that block push/merge.
+2. **Build is env-coupled** because `apps/web` build runs DB migrations first:
+   - `bun run build` depends on valid `DATABASE_URL_UNPOOLED` credentials.
+   - Pre-push failures may be secret/auth problems, not code regressions.
+3. **Repo-wide baseline issues can mask phase-local success**:
+   - Root `check` can fail with `TS6305` for new `apps/web` test/config declaration outputs.
+   - Root `docgen` can fail from unrelated package examples (`@beep/identity`).
+
+**Decisions for future phases:**
+- Document and run CI-equivalent quality order explicitly in handoffs.
+- Add preflight secret/database checks before implementation and before final push.
+- Report validation in two tracks:
+  - phase-local acceptance (feature/tests for touched scope)
+  - repo-wide baseline gate status (global quality commands)
+
+---
+
 ## Phase 0: Research & Spec Design (2026-02-22)
 
 **What worked:**

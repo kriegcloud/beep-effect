@@ -163,7 +163,7 @@ outputs/
 - [ ] Atom-based client state powers chat and graph UI reactively
 - [ ] All Effect API routes use `HttpRouter.toWebHandler` with module-level singleton caching
 - [ ] Vercel deployment working with all env vars configured
-- [ ] `bun run check && bun run test && bun run lint && bun run build` all pass
+- [ ] CI-equivalent quality gate passes in this order: `bun run build && bun run check && bun run lint && bun run docgen && bun run test && bunx syncpack lint && bun run audit:high:ci`
 - [ ] Production runbook documents failure handling, rollback, and cost monitoring
 
 ## Phase Breakdown
