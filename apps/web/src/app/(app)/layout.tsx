@@ -1,7 +1,8 @@
 import { auth } from "@beep/web/lib/auth/server";
+import { RegistryProvider } from "@effect/atom-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-
+import type React from "react";
 export default async function AppLayout({
   children,
 }: Readonly<{
@@ -11,5 +12,5 @@ export default async function AppLayout({
   if (!session) {
     redirect("/sign-in");
   }
-  return <>{children}</>;
+  return <RegistryProvider>{children}</RegistryProvider>;
 }
