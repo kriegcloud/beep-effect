@@ -302,10 +302,10 @@ const extractJSDoc = (jsdocText: string): JSDocInfo => {
   const tags = pipe(
     annotation.tags,
     A.groupBy((tag) => tag.title),
-    Record.map(A.map((tag) => Option.fromNullable(tag.description)))
+    Record.map(A.map((tag) => Option.fromNullishOr(tag.description)))
   )
   return {
-    description: Option.fromNullable(annotation.description).pipe(
+    description: Option.fromNullishOr(annotation.description).pipe(
       Option.filter((s) => s.trim().length > 0)
     ),
     since: extractTag(tags, "since"),

@@ -29,7 +29,8 @@
     "./package.json": "./package.json",
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null
+    "./internal/*": null,
+    "./packages": "./src/packages.ts"
   },
   "files": [
     "src/**/*.ts",
