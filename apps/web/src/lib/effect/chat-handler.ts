@@ -514,8 +514,8 @@ runRounds = Effect.fn("ChatHandler.runRounds")(function* (options: RunRoundsOpti
         },
       })
     ),
-    Match.orElse(() =>
-      Effect.gen(function* () {
+    Match.orElse(
+      Effect.fnUntraced(function* () {
         const parts = yield* runModelRound({
           prompt: options.prompt,
           queue: options.queue,
@@ -533,8 +533,8 @@ runRounds = Effect.fn("ChatHandler.runRounds")(function* (options: RunRoundsOpti
               },
             })
           ),
-          Match.orElse(() =>
-            Effect.gen(function* () {
+          Match.orElse(
+            Effect.fnUntraced(function* () {
               const toolResults = yield* runToolCalls({
                 queue: options.queue,
                 instructions: toolCalls,
