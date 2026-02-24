@@ -16,11 +16,13 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@effect/ai-openai": "catalog:",
     "@effect/atom-react": "catalog:",
     "@neondatabase/serverless": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/api-logs": "catalog:",
     "@base-ui/react": "catalog:",
+    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/ui": "workspace:^",
     "@phosphor-icons/react": "catalog:",
@@ -39,6 +41,7 @@
     "tailwind-merge": "catalog:"
   },
   "devDependencies": {
+    "@effect/vitest": "catalog:",
     "@next/bundle-analyzer": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",

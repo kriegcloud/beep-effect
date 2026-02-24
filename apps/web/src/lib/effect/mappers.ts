@@ -1,10 +1,10 @@
-import { $WebId } from "@beep/identity/packages";
+import { $I } from "@beep/identity/packages";
 import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as Option from "effect/Option";
 import * as S from "effect/Schema";
 
-const $EffectId = $WebId.create("effect");
+const $EffectId = $I.create("web").create("effect");
 const $MappersId = $EffectId.create("mappers");
 
 export const GraphitiEntityNodeSchema = S.Struct({
@@ -129,7 +129,11 @@ const defaultNodeType = "Entity";
 export const mapEntityNodeToGraphNode = (node: GraphitiEntityNode): GraphNode => ({
   id: node.uuid,
   name: node.name,
-  type: pipe(node.labels, A.head, Option.getOrElse(() => defaultNodeType)),
+  type: pipe(
+    node.labels,
+    A.head,
+    Option.getOrElse(() => defaultNodeType)
+  ),
   summary: node.summary,
   val: 1,
 });
@@ -177,11 +181,14 @@ export const deriveNeighborNodes = (
     A.flatMap((fact) => [fact.sourceNodeUuid, fact.targetNodeUuid]),
     A.filter((candidateId) => candidateId !== nodeId),
     A.dedupe,
-    A.filterMap((candidateId) =>
+    A.flatMap((candidateId) =>
       pipe(
         candidates,
         A.findFirst((node) => node.uuid === candidateId),
-        Option.map(mapEntityNodeToGraphNode)
+        Option.match({
+          onNone: () => A.empty(),
+          onSome: (node) => [mapEntityNodeToGraphNode(node)],
+        })
       )
     )
   );
