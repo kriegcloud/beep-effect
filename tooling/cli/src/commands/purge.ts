@@ -27,6 +27,7 @@ const WORKSPACE_ARTIFACTS = [
   ".next",
   "coverage",
   ".turbo",
+  "storybook-static",
   "node_modules",
 ] as const;
 
