@@ -1,7 +1,7 @@
-import * as FileSystem from "@effect/platform/FileSystem";
-import { BunContext, BunRuntime } from "@effect/platform-bun";
+import { BunFileSystem, BunPath, BunRuntime } from "@effect/platform-bun";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as ts from "typescript";
 
@@ -23,7 +23,7 @@ const isEffectInfrastructure = (name: string): boolean => EFFECT_INFRASTRUCTURE.
 
 const isExcludedFromGraph = (name: string): boolean => EXCLUDED_FROM_GRAPH.has(name);
 
-const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
+const extractDepsFromType = (type: ts.Type, _checker: ts.TypeChecker): ReadonlyArray<string> => {
   const deps: string[] = [];
 
   const processType = (t: ts.Type): void => {
@@ -191,4 +191,4 @@ const main = Effect.gen(function* () {
   yield* debugLayerInfo(filePath, layerName);
 });
 
-pipe(main, Effect.provide(BunContext.layer), BunRuntime.runMain);
+pipe(main, Effect.provide([BunFileSystem.layer, BunPath.layer]), BunRuntime.runMain);

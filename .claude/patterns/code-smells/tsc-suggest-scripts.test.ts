@@ -1,13 +1,13 @@
-import { BunContext } from "@effect/platform-bun";
+import { NodeServices } from "@effect/platform-node";
 import { Effect } from "effect";
 import { beforeAll, describe, expect, it } from "vitest";
-import { findMatches, type HookInput, loadPatterns } from "../../hooks/pattern-detector/core";
-import type { PatternDefinition } from "../../patterns/schema";
+import { findMatches, type HookInput, loadPatterns } from "../../hooks/pattern-detector/core.ts";
+import type { PatternDefinition } from "../../patterns/schema.ts";
 
 let patterns: PatternDefinition[] = [];
 
 beforeAll(async () => {
-  patterns = await Effect.runPromise(loadPatterns.pipe(Effect.provide(BunContext.layer)));
+  patterns = await Effect.runPromise(loadPatterns.pipe(Effect.provide(NodeServices.layer)));
 });
 
 describe("tsc-suggest-scripts", () => {
@@ -36,7 +36,7 @@ describe("tsc-suggest-scripts", () => {
       tool_input: { command },
     };
     const matched = findMatches(input, patterns);
-    const hasTag = matched.some((p) => p.tag === "tsc-context");
+    const hasTag = matched.some((p: PatternDefinition) => p.tag === "tsc-context");
     expect(hasTag).toBe(true);
   });
 
@@ -47,7 +47,7 @@ describe("tsc-suggest-scripts", () => {
       tool_input: { command },
     };
     const matched = findMatches(input, patterns);
-    const hasTag = matched.some((p) => p.tag === "tsc-context");
+    const hasTag = matched.some((p: PatternDefinition) => p.tag === "tsc-context");
     expect(hasTag).toBe(false);
   });
 });

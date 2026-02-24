@@ -1,4 +1,4 @@
-import { testPattern } from "../../test/pattern-test-harness";
+import { testPattern } from "../../test/pattern-test-harness.js";
 
 testPattern({
   name: "avoid-react-hooks",

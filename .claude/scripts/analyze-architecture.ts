@@ -1,15 +1,15 @@
-import { Command, Options } from "@effect/cli";
-import type * as PlatformError from "@effect/platform/Error";
-import * as FileSystem from "@effect/platform/FileSystem";
-import * as Path from "@effect/platform/Path";
-import { BunContext, BunRuntime } from "@effect/platform-bun";
-import * as Array from "effect/Array";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
+import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Graph from "effect/Graph";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as Path from "effect/Path";
+import type { PlatformError } from "effect/PlatformError";
+import { Command, Flag } from "effect/unstable/cli";
 import * as ts from "typescript";
 
 export interface ServiceDefinition {
@@ -26,7 +26,7 @@ export interface LayerDefinition {
   readonly dependencies: ReadonlyArray<string>;
   readonly errorTypes: ReadonlyArray<string>;
   readonly isParametrized: boolean;
-  readonly factoryName?: string;
+  readonly factoryName?: undefined | string;
 }
 
 export interface ArchitectureGraph {
@@ -101,7 +101,6 @@ export const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> 
   let match: RegExpExecArray | null;
   while ((match = LAYER_PATTERN.exec(content)) !== null) {
     const varName = match[2];
-    const layerType = match[3];
     const serviceNameRaw = match[4];
     const serviceName = serviceNameRaw.includes(".")
       ? (serviceNameRaw.split(".").pop() ?? serviceNameRaw)
@@ -119,7 +118,6 @@ export const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> 
   while ((match = FACTORY_PATTERN.exec(content)) !== null) {
     const isExported = match[1] !== undefined;
     const factoryName = match[2];
-    const layerType = match[3];
     const serviceNameRaw = match[4];
     const serviceName = serviceNameRaw.includes(".")
       ? (serviceNameRaw.split(".").pop() ?? serviceNameRaw)
@@ -171,7 +169,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
     const symbolName = symbol?.getName();
 
     const typeRef = t as ts.TypeReference;
-    const isTypeReference = typeRef.target && checker.getTypeArguments;
+    const isTypeReference = typeRef.target !== undefined;
 
     if ((symbolName === "Identifier" || typeString.startsWith("Id<")) && isTypeReference) {
       const typeArgs = checker.getTypeArguments(typeRef);
@@ -218,7 +216,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
       return;
     }
 
-    if (isTypeReference) {
+    if (isTypeReference && typeRef.target !== undefined) {
       const typeArgs = checker.getTypeArguments(typeRef);
       if (typeArgs && typeArgs.length > 0) {
         for (const arg of typeArgs) {
@@ -326,14 +324,6 @@ export const createTsProgram = (filePaths: ReadonlyArray<string>): ts.Program =>
   return ts.createProgram([...filePaths], compilerOptions);
 };
 
-const DEBUG = process.env.DEBUG_ARCH === "1";
-
-const debugLog = (msg: string) => {
-  if (DEBUG) {
-    console.error(`[DEBUG] ${msg}`);
-  }
-};
-
 export const extractLayersFromContent = (
   content: string,
   filePath: string,
@@ -352,7 +342,7 @@ export const extractLayersFromContent = (
       dependencies: layerInfo.dependencies,
       errorTypes: layerInfo.errorTypes,
       isParametrized: match.isParametrized,
-      factoryName: match.factoryName,
+      ...(match.factoryName !== undefined ? { factoryName: match.factoryName } : {}),
     };
   });
 };
@@ -375,12 +365,12 @@ export const findTypeScriptFiles = (srcPath: string) =>
 
     const scanDir = (
       dir: string
-    ): Effect.Effect<ReadonlyArray<string>, PlatformError.PlatformError, FileSystem.FileSystem | Path.Path> =>
+    ): Effect.Effect<ReadonlyArray<string>, PlatformError, FileSystem.FileSystem | Path.Path> =>
       Effect.gen(function* () {
         const entries = yield* pipe(
           fs.readDirectory(dir),
-          Effect.catchTag("SystemError", (error) =>
-            error.reason === "NotFound" ? Effect.succeed([]) : Effect.fail(error)
+          Effect.catchTag("PlatformError", (error: PlatformError) =>
+            error.reason._tag === "NotFound" ? Effect.succeed([] as Array<string>) : Effect.fail(error)
           )
         );
 
@@ -404,7 +394,7 @@ export const findTypeScriptFiles = (srcPath: string) =>
           });
 
         const results = yield* Effect.forEach(entries, processEntry);
-        return Array.flatten(results);
+        return A.flatten(results);
       });
 
     return yield* scanDir(resolvedPath);
@@ -412,7 +402,7 @@ export const findTypeScriptFiles = (srcPath: string) =>
 
 export const findServiceDefinitions = (
   files: ReadonlyArray<string>
-): Effect.Effect<ReadonlyArray<ServiceDefinition>, PlatformError.PlatformError, FileSystem.FileSystem> =>
+): Effect.Effect<ReadonlyArray<ServiceDefinition>, PlatformError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
 
@@ -423,12 +413,12 @@ export const findServiceDefinitions = (
       );
 
     const results = yield* Effect.forEach(files, processFile);
-    return Array.flatten(results);
+    return A.flatten(results);
   });
 
 export const findLayerDefinitions = (
   files: ReadonlyArray<string>
-): Effect.Effect<ReadonlyArray<LayerDefinition>, PlatformError.PlatformError, FileSystem.FileSystem> =>
+): Effect.Effect<ReadonlyArray<LayerDefinition>, PlatformError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
 
@@ -441,7 +431,7 @@ export const findLayerDefinitions = (
       );
 
     const results = yield* Effect.forEach(files, processFile);
-    return Array.flatten(results);
+    return A.flatten(results);
   });
 
 export const buildArchitectureGraph = (srcPath: string) =>
@@ -503,30 +493,27 @@ const computeStats = (graph: ArchitectureGraph) => {
 
   const depCounts = pipe(
     graph.layers,
-    Array.flatMap((l) => l.dependencies),
-    Array.groupBy((dep) => dep),
+    A.flatMap((l) => l.dependencies),
+    A.groupBy((dep) => dep),
     (grouped) =>
       Object.entries(grouped).map(([name, deps]) => ({
         name,
         count: deps.length,
       })),
-    Array.sort(Order.reverse(Order.mapInput(Order.number, (item: { name: string; count: number }) => item.count))),
-    Array.take(5)
+    A.sort(Order.flip(Order.mapInput(Order.Number, (item: { name: string; count: number }) => item.count))),
+    A.take(5)
   );
 
   const complexLayers = pipe(
     graph.layers,
-    Array.sort(Order.reverse(Order.mapInput(Order.number, (layer: LayerDefinition) => layer.dependencies.length))),
-    Array.take(5)
+    A.sort(Order.flip(Order.mapInput(Order.Number, (layer: LayerDefinition) => layer.dependencies.length))),
+    A.take(5)
   );
 
   return { serviceCount, vmCount, depCounts, complexLayers };
 };
 
 const makeShortPath = (fullPath: string): string => fullPath.replace(/^(\.\/)?.*\/src\//, "");
-
-const buildServicePathMap = (graph: ArchitectureGraph): Map<string, string> =>
-  new Map(graph.services.map((s) => [s.name, s.path]));
 
 export const formatMermaid = (graph: ArchitectureGraph): string => {
   const serviceLines = graph.services.map(
@@ -535,19 +522,19 @@ export const formatMermaid = (graph: ArchitectureGraph): string => {
 
   const dependencyLines = pipe(
     graph.layers,
-    Array.flatMap((layer) => layer.dependencies.map((dep) => `  ${layer.serviceName} --> ${dep}`))
+    A.flatMap((layer) => layer.dependencies.map((dep) => `  ${layer.serviceName} --> ${dep}`))
   );
 
   const vms = pipe(
     graph.services,
-    Array.filter((s) => s.name.endsWith("VM")),
-    Array.map((s) => s.name)
+    A.filter((s) => s.name.endsWith("VM")),
+    A.map((s) => s.name)
   );
 
   const services = pipe(
     graph.services,
-    Array.filter((s) => !s.name.endsWith("VM")),
-    Array.map((s) => s.name)
+    A.filter((s) => !s.name.endsWith("VM")),
+    A.map((s) => s.name)
   );
 
   const styleLines: string[] = [];
@@ -637,36 +624,7 @@ const analyzeDependencies = (
   };
 };
 
-const detectOrphans = (analysisGraph: AnalysisGraph): Set<string> => {
-  const noIncomingIndices: Graph.NodeIndex[] = globalThis.Array.from(
-    Graph.indices(Graph.externals(analysisGraph.graph, { direction: "incoming" }))
-  );
-
-  return pipe(
-    noIncomingIndices,
-    Array.filterMap((idx: Graph.NodeIndex) => {
-      const node = Graph.getNode(analysisGraph.graph, idx);
-      if (Option.isNone(node)) return Option.none();
-
-      const serviceName = node.value.name;
-      const isVM = serviceName.endsWith("VM");
-      const outgoingCount = Graph.neighbors(analysisGraph.graph, idx).length;
-
-      if (isVM && outgoingCount > 0) {
-        return Option.none();
-      }
-
-      return Option.some(serviceName);
-    }),
-    (names) => new Set(names)
-  );
-};
-
-const groupServicesByType = (
-  graph: ArchitectureGraph,
-  layerByService: Map<string, LayerDefinition>,
-  analysisGraph: AnalysisGraph
-): GroupedServices => {
+const groupServicesByType = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): GroupedServices => {
   const indegree = computeIndegrees(analysisGraph);
   const outdegree = computeOutdegrees(analysisGraph);
 
@@ -700,11 +658,11 @@ const groupServicesByType = (
   });
 
   return {
-    root: pipe(root, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
-    intermediate: pipe(intermediate, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
-    leaf: pipe(leaf, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
-    vm: pipe(vm, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
-    orphans: pipe(orphans, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
+    root: pipe(root, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    intermediate: pipe(intermediate, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    leaf: pipe(leaf, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    vm: pipe(vm, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    orphans: pipe(orphans, A.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
   };
 };
 
@@ -741,7 +699,7 @@ const renderExpandedTree = (
 export const formatHuman = (graph: ArchitectureGraph): string => {
   const layerByService = buildLayerMap(graph.layers);
   const analysisGraph = buildAnalysisGraph(graph);
-  const grouped = groupServicesByType(graph, layerByService, analysisGraph);
+  const grouped = groupServicesByType(graph, analysisGraph);
 
   const output: string[] = [];
 
@@ -870,10 +828,10 @@ const computeDiameter = (analysisGraph: AnalysisGraph): number => {
   const result = Graph.floydWarshall(analysisGraph.graph, () => 1);
 
   return pipe(
-    Array.fromIterable(result.distances.values()),
-    Array.flatMap((innerMap) => Array.fromIterable(innerMap.values())),
-    Array.filter((dist) => dist !== Number.POSITIVE_INFINITY),
-    Array.reduce(0, (max, dist) => Math.max(max, dist))
+    A.fromIterable(result.distances.values()),
+    A.flatMap((innerMap) => A.fromIterable(innerMap.values())),
+    A.filter((dist) => dist !== Number.POSITIVE_INFINITY),
+    A.reduce(0, (max, dist) => Math.max(max, dist))
   );
 };
 
@@ -882,9 +840,9 @@ const computeAverageDegree = (analysisGraph: AnalysisGraph): number => {
   if (nodeCount === 0) return 0;
 
   return pipe(
-    Array.fromIterable(analysisGraph.serviceIndex.values()),
-    Array.map((nodeIndex) => Graph.neighbors(analysisGraph.graph, nodeIndex).length),
-    Array.reduce(0, (sum, count) => sum + count),
+    A.fromIterable(analysisGraph.serviceIndex.values()),
+    A.map((nodeIndex) => Graph.neighbors(analysisGraph.graph, nodeIndex).length),
+    A.reduce(0, (sum, count) => sum + count),
     (total) => total / nodeCount
   );
 };
@@ -897,7 +855,7 @@ const detectCycles = (analysisGraph: AnalysisGraph): ReadonlyArray<ReadonlyArray
     .map((component) =>
       component.map((nodeIndex) => {
         const nodeData = Graph.getNode(analysisGraph.graph, nodeIndex);
-        return Option.isSome(nodeData) ? nodeData.value.name : `unknown-${nodeIndex}`;
+        return O.isSome(nodeData) ? nodeData.value.name : `unknown-${nodeIndex}`;
       })
     );
 };
@@ -905,7 +863,7 @@ const detectCycles = (analysisGraph: AnalysisGraph): ReadonlyArray<ReadonlyArray
 const checkInvariants = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): ReadonlyArray<Violation> => {
   const violations: Violation[] = [];
   const layerByService = buildLayerMap(graph.layers);
-  const grouped = groupServicesByType(graph, layerByService, analysisGraph);
+  const grouped = groupServicesByType(graph, analysisGraph);
 
   const vmNames = new Set(grouped.vm.map((s) => s.name));
   const rootNames = new Set(grouped.root.map((s) => s.name));
@@ -981,7 +939,7 @@ const computeBetweennessCentrality = (analysisGraph: AnalysisGraph): Map<string,
   }
 
   const result = Graph.floydWarshall(analysisGraph.graph, () => 1);
-  const nodeIndices = Array.fromIterable(analysisGraph.serviceIndex.values());
+  const nodeIndices = A.fromIterable(analysisGraph.serviceIndex.values());
 
   for (const source of nodeIndices) {
     for (const target of nodeIndices) {
@@ -1001,7 +959,7 @@ const computeBetweennessCentrality = (analysisGraph: AnalysisGraph): Map<string,
 
       for (const nodeIndex of intermediateNodes) {
         const nodeOption = Graph.getNode(analysisGraph.graph, nodeIndex);
-        if (Option.isSome(nodeOption)) {
+        if (O.isSome(nodeOption)) {
           const serviceName = nodeOption.value.name;
           const current = betweenness.get(serviceName) ?? 0;
           betweenness.set(serviceName, current + 1);
@@ -1010,7 +968,7 @@ const computeBetweennessCentrality = (analysisGraph: AnalysisGraph): Map<string,
     }
   }
 
-  const allValues = Array.fromIterable(betweenness.values());
+  const allValues = A.fromIterable(betweenness.values());
   const maxBetweenness = allValues.length > 0 ? Math.max(...allValues) : 1;
 
   if (maxBetweenness > 0) {
@@ -1036,14 +994,14 @@ const computeClusteringCoefficient = (analysisGraph: AnalysisGraph): Map<string,
 
     const edgesBetweenNeighbors = pipe(
       neighbors,
-      Array.flatMap((n1) =>
+      A.flatMap((n1) =>
         pipe(
           neighbors,
-          Array.filter((n2) => n1 < n2),
-          Array.map((n2) => ({ n1, n2 }))
+          A.filter((n2) => n1 < n2),
+          A.map((n2) => ({ n1, n2 }))
         )
       ),
-      Array.filter(({ n1, n2 }) => Graph.neighbors(analysisGraph.graph, n1).includes(n2))
+      A.filter(({ n1, n2 }) => Graph.neighbors(analysisGraph.graph, n1).includes(n2))
     ).length;
 
     const possibleEdges = (neighborCount * (neighborCount - 1)) / 2;
@@ -1055,7 +1013,7 @@ const computeClusteringCoefficient = (analysisGraph: AnalysisGraph): Map<string,
 
 const countConnectedComponents = (analysisGraph: AnalysisGraph, excludeNode?: Graph.NodeIndex): number => {
   const visited = new Set<Graph.NodeIndex>();
-  const nodeIndices = Array.fromIterable(analysisGraph.serviceIndex.values());
+  const nodeIndices = A.fromIterable(analysisGraph.serviceIndex.values());
   const validNodes = excludeNode !== undefined ? nodeIndices.filter((idx) => idx !== excludeNode) : nodeIndices;
 
   let componentCount = 0;
@@ -1130,7 +1088,7 @@ const groupByDepth = (
     if (idx === startIdx) continue;
 
     const node = Graph.getNode(analysisGraph.graph, idx);
-    if (Option.isSome(node)) {
+    if (O.isSome(node)) {
       const group = levelGroups.get(depth) ?? [];
       group.push(node.value.name);
       levelGroups.set(depth, group);
@@ -1138,33 +1096,30 @@ const groupByDepth = (
   }
 
   return pipe(
-    Array.fromIterable(levelGroups.entries()),
-    Array.map(([depth, services]) => ({
+    A.fromIterable(levelGroups.entries()),
+    A.map(([depth, services]) => ({
       depth,
       services: services.sort(),
     })),
-    Array.sort(
-      Order.mapInput(Order.number, (item: { depth: number; readonly services: ReadonlyArray<string> }) => item.depth)
+    A.sort(
+      Order.mapInput(Order.Number, (item: { depth: number; readonly services: ReadonlyArray<string> }) => item.depth)
     )
   );
 };
 
-export const computeBlastRadius = (
-  analysisGraph: AnalysisGraph,
-  serviceName: string
-): Option.Option<BlastRadiusResult> => {
+export const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): O.Option<BlastRadiusResult> => {
   const serviceIdx = analysisGraph.serviceIndex.get(serviceName);
-  if (serviceIdx === undefined) return Option.none();
+  if (serviceIdx === undefined) return O.none();
 
   const downstream = groupByDepth(analysisGraph, serviceIdx, "incoming");
   const downstreamCount = pipe(
     downstream,
-    Array.flatMap((level) => level.services)
+    A.flatMap((level) => level.services)
   ).length;
 
   const risk = downstreamCount >= 5 ? "HIGH" : downstreamCount >= 3 ? "MEDIUM" : "LOW";
 
-  return Option.some({
+  return O.some({
     service: serviceName,
     downstream,
     downstreamCount,
@@ -1172,17 +1127,17 @@ export const computeBlastRadius = (
   });
 };
 
-export const computeAncestors = (analysisGraph: AnalysisGraph, serviceName: string): Option.Option<AncestorsResult> => {
+export const computeAncestors = (analysisGraph: AnalysisGraph, serviceName: string): O.Option<AncestorsResult> => {
   const serviceIdx = analysisGraph.serviceIndex.get(serviceName);
-  if (serviceIdx === undefined) return Option.none();
+  if (serviceIdx === undefined) return O.none();
 
   const ancestors = groupByDepth(analysisGraph, serviceIdx, "outgoing");
   const totalCount = pipe(
     ancestors,
-    Array.flatMap((level) => level.services)
+    A.flatMap((level) => level.services)
   ).length;
 
-  return Option.some({
+  return O.some({
     service: serviceName,
     ancestors,
     totalCount,
@@ -1252,7 +1207,7 @@ const intersection = <T>(sets: ReadonlyArray<Set<T>>): Set<T> => {
 
   return pipe(
     sets.slice(1),
-    Array.reduce(sets[0], (acc, set) => new Set([...acc].filter((x) => set.has(x))))
+    A.reduce(sets[0], (acc, set) => new Set([...acc].filter((x) => set.has(x))))
   );
 };
 
@@ -1276,15 +1231,15 @@ export const computeCommonAncestors = (
 
     const deps = pipe(
       Graph.indices(walker),
-      Array.fromIterable,
-      Array.filter((idx) => idx !== nodeIndex),
+      A.fromIterable,
+      A.filter((idx) => idx !== nodeIndex),
       (indices) => new Set(indices)
     );
 
     dependencySets.set(serviceName, deps);
   }
 
-  const depSetArray = Array.fromIterable(dependencySets.values());
+  const depSetArray = A.fromIterable(dependencySets.values());
   if (depSetArray.length === 0) {
     return {
       inputServices: serviceNames,
@@ -1307,30 +1262,31 @@ export const computeCommonAncestors = (
   }
 
   const commonDependencies = pipe(
-    Array.fromIterable(commonIndices),
-    Array.filterMap((depIndex) => {
+    A.fromIterable(commonIndices),
+    A.map((depIndex: Graph.NodeIndex) => {
       const node = Graph.getNode(analysisGraph.graph, depIndex);
-      if (Option.isNone(node)) return Option.none();
+      if (O.isNone(node)) return O.none<CommonAncestor>();
 
       const affectedBySet = coverageMap.get(depIndex) ?? new Set<string>();
-      const affectedBy = Array.fromIterable(affectedBySet);
+      const affectedBy = A.fromIterable(affectedBySet);
       const coverage = affectedBy.length;
 
       const risk: "HIGH" | "MEDIUM" | "LOW" =
         coverage === serviceNames.length ? "HIGH" : coverage >= serviceNames.length * 0.5 ? "MEDIUM" : "LOW";
 
-      return Option.some({
+      return O.some({
         service: node.value.name,
         coverage,
         affectedBy,
         risk,
-      });
+      } satisfies CommonAncestor);
     }),
-    Array.sort(
-      Order.reverse(
+    A.getSomes,
+    A.sort(
+      Order.flip(
         Order.combine(
-          Order.mapInput(Order.number, (a: CommonAncestor) => a.coverage),
-          Order.mapInput(Order.string, (a: CommonAncestor) => a.service)
+          Order.mapInput(Order.Number, (a: CommonAncestor) => a.coverage),
+          Order.mapInput(Order.String, (a: CommonAncestor) => a.service)
         )
       )
     )
@@ -1338,8 +1294,8 @@ export const computeCommonAncestors = (
 
   const rootCauseCandidates = pipe(
     commonDependencies,
-    Array.take(5),
-    Array.map((ancestor, index) => ({
+    A.take(5),
+    A.map((ancestor: CommonAncestor, index: number) => ({
       rank: index + 1,
       service: ancestor.service,
       coverage: ancestor.coverage,
@@ -1397,8 +1353,8 @@ const detectCutVerticesAndDomains = (analysisGraph: AnalysisGraph): DomainAnalys
   const baseComponentCount = countConnectedComponents(analysisGraph);
 
   const cutVertexIndices = pipe(
-    Array.fromIterable(analysisGraph.serviceIndex.values()),
-    Array.filter((nodeIndex) => {
+    A.fromIterable(analysisGraph.serviceIndex.values()),
+    A.filter((nodeIndex) => {
       const componentCountWithoutNode = countConnectedComponents(analysisGraph, nodeIndex);
       return componentCountWithoutNode > baseComponentCount;
     })
@@ -1406,16 +1362,17 @@ const detectCutVerticesAndDomains = (analysisGraph: AnalysisGraph): DomainAnalys
 
   const cutVertexNames = pipe(
     cutVertexIndices,
-    Array.filterMap((idx) => {
+    A.map((idx: Graph.NodeIndex) => {
       const nodeOption = Graph.getNode(analysisGraph.graph, idx);
-      return Option.isSome(nodeOption) ? Option.some(nodeOption.value.name) : Option.none();
-    })
+      return O.isSome(nodeOption) ? O.some(nodeOption.value.name) : O.none<string>();
+    }),
+    A.getSomes
   );
 
   const cutVertexSet = new Set(cutVertexIndices);
   const nodeIndicesWithoutCutVertices = pipe(
-    Array.fromIterable(analysisGraph.serviceIndex.values()),
-    Array.filter((idx) => !cutVertexSet.has(idx))
+    A.fromIterable(analysisGraph.serviceIndex.values()),
+    A.filter((idx) => !cutVertexSet.has(idx))
   );
 
   if (nodeIndicesWithoutCutVertices.length === 0) {
@@ -1451,8 +1408,8 @@ const detectCutVerticesAndDomains = (analysisGraph: AnalysisGraph): DomainAnalys
 
   const sortedDomains = pipe(
     domainsList,
-    Array.filter((d: Domain) => d.size >= 2),
-    Array.sort(Order.reverse(Order.mapInput(Order.number, (d: Domain) => d.size)))
+    A.filter((d: Domain) => d.size >= 2),
+    A.sort(Order.flip(Order.mapInput(Order.Number, (d: Domain) => d.size)))
   );
 
   return {
@@ -1518,8 +1475,7 @@ const renderLocations = (graph: ArchitectureGraph): string => {
 };
 
 const renderNodeClassification = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): string => {
-  const layerByService = buildLayerMap(graph.layers);
-  const grouped = groupServicesByType(graph, layerByService, analysisGraph);
+  const grouped = groupServicesByType(graph, analysisGraph);
 
   const orphanCount = grouped.orphans.length;
   const rootCount = grouped.root.length;
@@ -1545,7 +1501,6 @@ const renderNodeClassification = (graph: ArchitectureGraph, analysisGraph: Analy
 };
 
 const renderEdges = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): string => {
-  const layerByService = buildLayerMap(graph.layers);
   const ordered = orderServicesByDependencyCount(graph, analysisGraph);
 
   const edgeLines = ordered.map((item) => {
@@ -1720,10 +1675,10 @@ const renderAdvancedMetrics = (metrics: AdvancedMetrics): string => {
   const betweennessDesc =
     "Measures how many shortest paths pass through each service. High values indicate critical services.";
   const topBetweenness = pipe(
-    Array.fromIterable(metrics.betweennessCentrality.entries()),
-    Array.filter(([_, value]) => value > 0),
-    Array.sort(Order.reverse(Order.mapInput(Order.number, ([_, value]: [string, number]) => value))),
-    Array.take(10)
+    A.fromIterable(metrics.betweennessCentrality.entries()),
+    A.filter(([_, value]) => value > 0),
+    A.sort(Order.flip(Order.mapInput(Order.Number, ([_, value]: [string, number]) => value))),
+    A.take(10)
   );
 
   sections.push(`  <betweenness_centrality n="${topBetweenness.length}" description="${betweennessDesc}">`);
@@ -1736,10 +1691,10 @@ const renderAdvancedMetrics = (metrics: AdvancedMetrics): string => {
 
   const clusteringDesc = "Local clustering coefficient for each service. 1.0 means neighbors are fully connected.";
   const topClustering = pipe(
-    Array.fromIterable(metrics.clusteringCoefficient.entries()),
-    Array.filter(([_, value]) => value > 0),
-    Array.sort(Order.reverse(Order.mapInput(Order.number, ([_, value]: [string, number]) => value))),
-    Array.take(10)
+    A.fromIterable(metrics.clusteringCoefficient.entries()),
+    A.filter(([_, value]) => value > 0),
+    A.sort(Order.flip(Order.mapInput(Order.Number, ([_, value]: [string, number]) => value))),
+    A.take(10)
   );
 
   sections.push(`  <clustering_coefficient n="${topClustering.length}" description="${clusteringDesc}">`);
@@ -1990,8 +1945,7 @@ interface RenderOptions {
 
 export const formatAgentWithHints = (graph: ArchitectureGraph, options: RenderOptions): string => {
   const analysisGraph = buildAnalysisGraph(graph);
-  const layerByService = buildLayerMap(graph.layers);
-  const grouped = groupServicesByType(graph, layerByService, analysisGraph);
+  const grouped = groupServicesByType(graph, analysisGraph);
 
   const metrics: GraphMetrics = {
     density: computeDensity(analysisGraph),
@@ -2101,8 +2055,7 @@ export const formatAgentWithHints = (graph: ArchitectureGraph, options: RenderOp
 
 export const formatAgent = (graph: ArchitectureGraph): string => {
   const analysisGraph = buildAnalysisGraph(graph);
-  const layerByService = buildLayerMap(graph.layers);
-  const grouped = groupServicesByType(graph, layerByService, analysisGraph);
+  const grouped = groupServicesByType(graph, analysisGraph);
 
   const metrics: GraphMetrics = {
     density: computeDensity(analysisGraph),
@@ -2169,20 +2122,21 @@ const orderServicesByDependencyCount = (
 
   return pipe(
     graph.services,
-    Array.filterMap((service) => {
+    A.map((service: ServiceDefinition) => {
       const nodeIndex = analysisGraph.serviceIndex.get(service.name);
-      if (nodeIndex === undefined) return Option.none();
+      if (nodeIndex === undefined) return O.none<ServiceWithIndex>();
 
       const depCount = Graph.neighbors(analysisGraph.graph, nodeIndex).length;
 
-      return Option.some({
+      return O.some({
         service,
         layer: layerByService.get(service.name),
         index: nodeIndex,
         depCount,
-      });
+      } satisfies ServiceWithIndex);
     }),
-    Array.sort(Order.mapInput(Order.number, (item: ServiceWithIndex) => item.depCount))
+    A.getSomes,
+    A.sort(Order.mapInput(Order.Number, (item: ServiceWithIndex) => item.depCount))
   );
 };
 
@@ -2208,13 +2162,14 @@ export const formatAdjacencyList = (graph: ArchitectureGraph, showErrors: boolea
 
   const lines = pipe(
     ordered,
-    Array.map((item) => {
+    A.map((item) => {
       const deps = pipe(
         Graph.neighbors(analysisGraph.graph, item.index),
-        Array.filterMap((depIndex) => {
+        A.map((depIndex: Graph.NodeIndex) => {
           const node = Graph.getNode(analysisGraph.graph, depIndex);
-          return Option.isSome(node) ? Option.some(node.value.name) : Option.none();
-        })
+          return O.isSome(node) ? O.some(node.value.name) : O.none<string>();
+        }),
+        A.getSomes
       );
 
       const errorTypes = item.layer?.errorTypes ?? [];
@@ -2256,19 +2211,19 @@ export const generateStats = (graph: ArchitectureGraph): string => {
 
 type OutputFormat = "mermaid" | "human" | "agent" | "adjacency";
 
-const formatOption = Options.choice("format", ["mermaid", "human", "agent", "adjacency"]).pipe(
-  Options.withDefault("agent" as OutputFormat),
-  Options.withDescription("Output format: mermaid (diagram), human (tree), agent (formal spec), adjacency (list)")
+const formatOption = Flag.choice("format", ["mermaid", "human", "agent", "adjacency"]).pipe(
+  Flag.withDefault("agent" as OutputFormat),
+  Flag.withDescription("Output format: mermaid (diagram), human (tree), agent (formal spec), adjacency (list)")
 );
 
-const outputOption = Options.text("output").pipe(
-  Options.optional,
-  Options.withDescription("Output file path (mermaid format only)")
+const outputOption = Flag.string("output").pipe(
+  Flag.optional,
+  Flag.withDescription("Output file path (mermaid format only)")
 );
 
-const showErrorsOption = Options.boolean("show-errors").pipe(
-  Options.withDefault(false),
-  Options.withDescription("Show detailed error types in adjacency list output")
+const showErrorsOption = Flag.boolean("show-errors").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Show detailed error types in adjacency list output")
 );
 
 const analyzeArchitecture = Command.make(
@@ -2293,14 +2248,14 @@ const analyzeArchitecture = Command.make(
               ? formatAdjacencyList(graph, showErrors)
               : formatAgent(graph);
 
-      if (format === "mermaid" && Option.isSome(output)) {
+      if (format === "mermaid" && O.isSome(output)) {
         yield* fs.writeFileString(output.value, content);
         yield* Console.log(`Mermaid diagram written to ${output.value}`);
       } else {
         yield* Console.log(content);
       }
 
-      if (format === "mermaid" && Option.isNone(output)) {
+      if (format === "mermaid" && O.isNone(output)) {
         yield* Console.log("");
         yield* Console.log("=== STATISTICS ===");
         yield* Console.log("");
@@ -2310,10 +2265,9 @@ const analyzeArchitecture = Command.make(
 );
 
 const cli = Command.run(analyzeArchitecture, {
-  name: "analyze-architecture",
   version: "1.0.0",
 });
 
 if (import.meta.main) {
-  pipe(cli(process.argv), Effect.provide(BunContext.layer), BunRuntime.runMain);
+  pipe(cli, Effect.provide(BunServices.layer), BunRuntime.runMain);
 }

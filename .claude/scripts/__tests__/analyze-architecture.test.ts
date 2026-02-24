@@ -11,7 +11,7 @@ import {
   type LayerDefinition,
   renderCommonAncestors,
   type ServiceDefinition,
-} from "../analyze-architecture";
+} from "../analyze-architecture.js";
 
 const SERVICE_TAG_PATTERN = /export\s+const\s+(\w+)\s*=\s*Context\.GenericTag<\1>/g;
 const LAYER_PATTERN =
@@ -66,7 +66,6 @@ const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> => {
   let match: RegExpExecArray | null;
   while ((match = LAYER_PATTERN.exec(content)) !== null) {
     const varName = match[2];
-    const layerType = match[3];
     const serviceNameRaw = match[4];
     const serviceName = serviceNameRaw.includes(".")
       ? (serviceNameRaw.split(".").pop() ?? serviceNameRaw)
@@ -84,7 +83,6 @@ const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> => {
   while ((match = FACTORY_PATTERN.exec(content)) !== null) {
     const isExported = match[1] !== undefined;
     const factoryName = match[2];
-    const layerType = match[3];
     const serviceNameRaw = match[4];
     const serviceName = serviceNameRaw.includes(".")
       ? (serviceNameRaw.split(".").pop() ?? serviceNameRaw)
@@ -130,7 +128,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
     const symbolName = symbol?.getName();
 
     const typeRef = t as ts.TypeReference;
-    const isTypeReference = typeRef.target && checker.getTypeArguments;
+    const isTypeReference = typeRef.target !== undefined;
 
     if (symbolName === "Identifier" && isTypeReference) {
       const typeArgs = checker.getTypeArguments(typeRef);
@@ -1970,57 +1968,6 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
 
       return { services, layers };
     };
-
-    const buildBridgeGraph = (): ArchitectureGraph => {
-      const services: ServiceDefinition[] = [
-        { name: "A", path: "src/A.ts", line: 1 },
-        { name: "B", path: "src/B.ts", line: 1 },
-        { name: "C", path: "src/C.ts", line: 1 },
-        { name: "D", path: "src/D.ts", line: 1 },
-      ];
-
-      const layers: LayerDefinition[] = [
-        {
-          name: "ALive",
-          serviceName: "A",
-          path: "src/A.ts",
-          line: 10,
-          dependencies: ["B"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "BLive",
-          serviceName: "B",
-          path: "src/B.ts",
-          line: 10,
-          dependencies: ["C"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "CLive",
-          serviceName: "C",
-          path: "src/C.ts",
-          line: 10,
-          dependencies: ["D"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "DLive",
-          serviceName: "D",
-          path: "src/D.ts",
-          line: 10,
-          dependencies: [],
-          errorTypes: [],
-          isParametrized: false,
-        },
-      ];
-
-      return { services, layers };
-    };
-
     const buildHubGraph = (): ArchitectureGraph => {
       const services: ServiceDefinition[] = [
         { name: "Hub", path: "src/Hub.ts", line: 1 },
@@ -2070,47 +2017,6 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
 
       return { services, layers };
     };
-
-    const buildTriangleGraph = (): ArchitectureGraph => {
-      const services: ServiceDefinition[] = [
-        { name: "A", path: "src/A.ts", line: 1 },
-        { name: "B", path: "src/B.ts", line: 1 },
-        { name: "C", path: "src/C.ts", line: 1 },
-      ];
-
-      const layers: LayerDefinition[] = [
-        {
-          name: "ALive",
-          serviceName: "A",
-          path: "src/A.ts",
-          line: 10,
-          dependencies: ["B"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "BLive",
-          serviceName: "B",
-          path: "src/B.ts",
-          line: 10,
-          dependencies: ["C"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "CLive",
-          serviceName: "C",
-          path: "src/C.ts",
-          line: 10,
-          dependencies: ["A"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-      ];
-
-      return { services, layers };
-    };
-
     const buildDisconnectedGraph = (): ArchitectureGraph => {
       const services: ServiceDefinition[] = [
         { name: "A", path: "src/A.ts", line: 1 },
@@ -2607,7 +2513,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const output = formatAgent(graph);
 
         expect(output).toContain("<domain_bridges");
-        expect(output).toMatch(/B|C/);
+        expect(output).toMatch(/[BC]/);
       });
 
       it("identifies no cut vertices in fully connected graph", () => {

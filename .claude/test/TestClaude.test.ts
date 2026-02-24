@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import * as TestClaude from "./TestClaude";
+import * as TestClaude from "./TestClaude.js";
 
 describe("TestClaude tool constructors", () => {
   it("creates Task hook input with pre and post", () => {

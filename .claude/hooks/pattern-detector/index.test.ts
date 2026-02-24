@@ -1,9 +1,9 @@
 import { Array, Option, Order, pipe } from "effect";
 import picomatch from "picomatch";
 import { describe, expect, it } from "vitest";
-import type { PatternDefinition } from "../../patterns/schema";
-import { PatternLevelOrder } from "../../patterns/schema";
-import * as TestClaude from "../../test/TestClaude";
+import type { PatternDefinition } from "../../patterns/schema.js";
+import { PatternLevelOrder } from "../../patterns/schema.js";
+import * as TestClaude from "../../test/TestClaude.js";
 
 const contentFields = ["command", "new_string", "content", "pattern", "query", "url", "prompt"] as const;
 
@@ -11,13 +11,13 @@ const getMatchableContent = (input: Record<string, unknown>): string =>
   pipe(
     contentFields,
     Array.findFirst((field) => typeof input[field] === "string"),
-    Option.flatMap((field) => Option.fromNullable(input[field] as string)),
+    Option.flatMap((field) => Option.fromNullishOr(input[field] as string)),
     Option.getOrElse(() => JSON.stringify(input))
   );
 
 const getFilePath = (input: Record<string, unknown>): Option.Option<string> =>
   pipe(
-    Option.fromNullable(input.file_path),
+    Option.fromNullishOr(input.file_path),
     Option.filter((v): v is string => typeof v === "string")
   );
 
@@ -89,7 +89,7 @@ const processPatterns = (input: TestClaude.HookInput, patterns: PatternDefinitio
 const createPattern = (overrides: Partial<PatternDefinition>): PatternDefinition => ({
   name: "test-pattern",
   description: "Test pattern",
-  event: "PostToolUse",
+  event: "PostToolUse" as const,
   tool: ".*",
   pattern: ".*",
   action: "context",

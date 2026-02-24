@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import * as TestClaude from "../../test/TestClaude";
-import { extractKeywords, findMatchingSkills, matchesWordBoundary, type SkillMetadata, scoreSkill } from "./index";
+import * as TestClaude from "../../test/TestClaude.js";
+import { extractKeywords, findMatchingSkills, matchesWordBoundary, type SkillMetadata, scoreSkill } from "./index.js";
 
 describe("skill-suggester", () => {
   describe("TestClaude.UserPromptSubmit", () => {

@@ -1,4 +1,4 @@
-import { testBashPattern } from "./pattern-test-harness";
+import { testBashPattern } from "./pattern-test-harness.ts";
 
 testBashPattern({
   name: "git-clean",

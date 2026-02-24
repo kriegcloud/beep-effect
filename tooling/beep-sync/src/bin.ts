@@ -66,6 +66,10 @@ class CliRuntimeError extends S.TaggedErrorClass<CliRuntimeError>()("BeepSyncCli
 const JsonUnknownFromJson = S.fromJsonString(S.Unknown);
 
 /**
+ * Convert an Option value into an array for flag assembly.
+ *
+ * @param value Option value to convert.
+ * @returns Empty array for `None`, single-element array for `Some`.
  * @since 0.0.0
  * @internal
  */
@@ -73,12 +77,20 @@ const toOptionArray = <T>(value: O.Option<T>): ReadonlyArray<T> =>
   O.match(value, { onNone: () => A.empty<T>(), onSome: (some) => A.make(some) });
 
 /**
+ * Normalize a filesystem path for cross-platform matching.
+ *
+ * @param value Raw file path.
+ * @returns Absolute path with forward slashes.
  * @since 0.0.0
  * @internal
  */
 const normalizePath = (value: string): string => Str.replace(/\\/g, "/")(resolve(value));
 
 /**
+ * Build a fixture-path matcher for a specific path segment.
+ *
+ * @param segment Path fragment that identifies the fixture.
+ * @returns Predicate that checks whether a path includes the fragment.
  * @since 0.0.0
  * @internal
  */
@@ -114,6 +126,10 @@ const isPoc04Path = isPocPath("/fixtures/poc-04/");
 const isPoc05Path = isPocPath("/fixtures/poc-05/");
 
 /**
+ * Write raw text to stdout in an Effect.
+ *
+ * @param value Text to write.
+ * @returns Effect that writes to stdout.
  * @since 0.0.0
  * @internal
  */
@@ -123,6 +139,10 @@ const writeStdout = (value: string): Effect.Effect<void> =>
   });
 
 /**
+ * Encode an unknown value as a JSON string.
+ *
+ * @param value Value to encode.
+ * @returns Effect that yields encoded JSON or a runtime encoding error.
  * @since 0.0.0
  * @internal
  */
@@ -138,6 +158,10 @@ const encodeJson = (value: unknown): Effect.Effect<string, CliRuntimeError> =>
   );
 
 /**
+ * Encode and write a JSON payload to stdout.
+ *
+ * @param value Value to serialize and write.
+ * @returns Effect that writes the JSON payload.
  * @since 0.0.0
  * @internal
  */
@@ -145,6 +169,10 @@ const writeJson = (value: unknown): Effect.Effect<void, CliRuntimeError> =>
   encodeJson(value).pipe(Effect.flatMap((json) => writeStdout(Str.endsWith("\n")(json) ? json : `${json}\n`)));
 
 /**
+ * Mark a process exit code without terminating immediately.
+ *
+ * @param code Exit code to set when non-zero.
+ * @returns Effect that updates `process.exitCode`.
  * @since 0.0.0
  * @internal
  */
@@ -156,6 +184,11 @@ const markExitCode = (code: number): Effect.Effect<void> =>
   });
 
 /**
+ * Create an optional string flag with description metadata.
+ *
+ * @param name CLI flag identifier without leading dashes.
+ * @param description User-facing text shown in CLI help.
+ * @returns Optional string flag configuration.
  * @since 0.0.0
  * @internal
  */
@@ -163,6 +196,9 @@ const optionStringFlag = (name: string, description: string) =>
   Flag.string(name).pipe(Flag.withDescription(description), Flag.optional);
 
 /**
+ * Build the shared CLI option schema for all commands.
+ *
+ * @returns Record of parsed CLI flags.
  * @since 0.0.0
  * @internal
  */

@@ -1,4 +1,4 @@
-/// <reference path="./.sst/platform/config.d.ts" />
+import type {} from "./.sst/platform/config";
 
 export default $config({
   app(input) {

@@ -1,17 +1,17 @@
 import * as Order from "effect/Order";
 import * as Schema from "effect/Schema";
 
-export const PatternEvent = Schema.Literal("PreToolUse", "PostToolUse");
+export const PatternEvent = Schema.Literals(["PreToolUse", "PostToolUse"]);
 export type PatternEvent = Schema.Schema.Type<typeof PatternEvent>;
 
-export const PatternAction = Schema.Literal("context", "ask", "deny");
+export const PatternAction = Schema.Literals(["context", "ask", "deny"]);
 export type PatternAction = Schema.Schema.Type<typeof PatternAction>;
 
-export const PatternLevel = Schema.Literal("critical", "high", "medium", "warning", "info");
+export const PatternLevel = Schema.Literals(["critical", "high", "medium", "warning", "info"]);
 export type PatternLevel = Schema.Schema.Type<typeof PatternLevel>;
 
 export const PatternLevelOrder: Order.Order<PatternLevel> = Order.mapInput(
-  Order.number,
+  Order.Number,
   (level: PatternLevel): number => {
     switch (level) {
       case "critical":
@@ -31,14 +31,14 @@ export const PatternLevelOrder: Order.Order<PatternLevel> = Order.mapInput(
 export const PatternFrontmatter = Schema.Struct({
   name: Schema.String,
   description: Schema.String,
-  event: Schema.optionalWith(PatternEvent, { default: () => "PostToolUse" as const }),
-  tool: Schema.optionalWith(Schema.String, { default: () => ".*" }),
+  event: PatternEvent.pipe(Schema.withDecodingDefault(() => "PostToolUse" as const)),
+  tool: Schema.String.pipe(Schema.withDecodingDefault(() => ".*")),
   glob: Schema.optional(Schema.String),
   pattern: Schema.String,
-  action: Schema.optionalWith(PatternAction, { default: () => "context" as const }),
-  level: Schema.optionalWith(PatternLevel, { default: () => "info" as const }),
+  action: PatternAction.pipe(Schema.withDecodingDefault(() => "context" as const)),
+  level: PatternLevel.pipe(Schema.withDecodingDefault(() => "info" as const)),
   tag: Schema.optional(Schema.String),
-}).pipe(Schema.Data);
+});
 
 export type PatternFrontmatter = Schema.Schema.Type<typeof PatternFrontmatter>;
 
@@ -54,6 +54,6 @@ export const PatternDefinition = Schema.Struct({
   tag: Schema.optional(Schema.String),
   body: Schema.String,
   filePath: Schema.String,
-}).pipe(Schema.Data);
+});
 
 export type PatternDefinition = Schema.Schema.Type<typeof PatternDefinition>;

@@ -28,26 +28,41 @@ import * as Str from "effect/String";
 import YAML from "yaml";
 
 /**
+ * Version of the beep-sync runtime execution model.
+ *
+ * @category RuntimeModel
  * @since 0.0.0
  */
 export const runtimeVersion = "0.1.0";
 
 /**
+ * Version of generated runtime scaffolding artifacts.
+ *
+ * @category RuntimeModel
  * @since 0.0.0
  */
 export const scaffoldVersion = runtimeVersion;
 
 /**
+ * Severity levels emitted by runtime diagnostics.
+ *
+ * @category RuntimeModel
  * @since 0.0.0
  */
 export type RuntimeSeverity = "error" | "warning" | "info";
 
 /**
+ * Supported tool targets for runtime generation and checks.
+ *
+ * @category RuntimeModel
  * @since 0.0.0
  */
 export type RuntimeTool = "core" | "claude" | "codex" | "cursor" | "windsurf" | "jetbrains";
 
 /**
+ * Structured diagnostic produced by runtime operations.
+ *
+ * @category RuntimeModel
  * @since 0.0.0
  */
 export type RuntimeDiagnostic = {
@@ -59,11 +74,17 @@ export type RuntimeDiagnostic = {
 };
 
 /**
+ * Available high-level actions supported by the runtime.
+ *
+ * @category RuntimeModel
  * @since 0.0.0
  */
 export type RuntimeAction = "validate" | "apply" | "check" | "doctor" | "revert";
 
 /**
+ * Standardized result payload returned by runtime actions.
+ *
+ * @category RuntimeModel
  * @since 0.0.0
  */
 export type RuntimeResult = {
@@ -2169,6 +2190,12 @@ function performOrphanCleanup(
 }
 
 /**
+ * Validate runtime configuration and secret readiness.
+ *
+ * @param repoRoot Repository root directory.
+ * @param strict Whether warnings should be escalated to failures.
+ * @returns Validation result with diagnostics and summary stats.
+ * @category RuntimeOperations
  * @since 0.0.0
  */
 export function runRuntimeValidate(repoRoot: string, strict: boolean): RuntimeResult {
@@ -2210,6 +2237,13 @@ export function runRuntimeValidate(repoRoot: string, strict: boolean): RuntimeRe
 }
 
 /**
+ * Apply runtime-managed artifacts and manifests to the repository.
+ *
+ * @param repoRoot Repository root directory.
+ * @param dryRun Whether writes should be simulated only.
+ * @param strict Whether warnings should be escalated to failures.
+ * @returns Apply result with file and state change diagnostics.
+ * @category RuntimeOperations
  * @since 0.0.0
  */
 export function runRuntimeApply(repoRoot: string, dryRun: boolean, strict: boolean): RuntimeResult {
@@ -2286,6 +2320,12 @@ export function runRuntimeApply(repoRoot: string, dryRun: boolean, strict: boole
 }
 
 /**
+ * Compare repository state against expected runtime-managed outputs.
+ *
+ * @param repoRoot Repository root directory.
+ * @param strict Whether warnings should be escalated to failures.
+ * @returns Check result including drift diagnostics and exit semantics.
+ * @category RuntimeOperations
  * @since 0.0.0
  */
 export function runRuntimeCheck(repoRoot: string, strict: boolean): RuntimeResult {
@@ -2407,6 +2447,12 @@ export function runRuntimeCheck(repoRoot: string, strict: boolean): RuntimeResul
 }
 
 /**
+ * Run runtime health diagnostics without modifying files.
+ *
+ * @param repoRoot Repository root directory.
+ * @param strict Whether warnings should be escalated to failures.
+ * @returns Doctor result with topology and scope diagnostics.
+ * @category RuntimeOperations
  * @since 0.0.0
  */
 export function runRuntimeDoctor(repoRoot: string, strict: boolean): RuntimeResult {
@@ -2464,6 +2510,12 @@ export function runRuntimeDoctor(repoRoot: string, strict: boolean): RuntimeResu
 }
 
 /**
+ * Revert runtime-managed artifacts using saved state and backups.
+ *
+ * @param repoRoot Repository root directory.
+ * @param dryRun Whether writes should be simulated only.
+ * @returns Revert result describing restored and removed artifacts.
+ * @category RuntimeOperations
  * @since 0.0.0
  */
 export function runRuntimeRevert(repoRoot: string, dryRun: boolean): RuntimeResult {

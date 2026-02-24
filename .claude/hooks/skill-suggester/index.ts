@@ -14,19 +14,20 @@
  */
 
 import * as fs from "node:fs";
-import { Command, CommandExecutor, FileSystem, Path, Terminal } from "@effect/platform";
-import { BunContext, BunRuntime } from "@effect/platform-bun";
-import { Array, Console, Effect, Option, Order, pipe, Record, String } from "effect";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
+import { Array, Console, Effect, FileSystem, Option, Order, Path, pipe, Record, String, Terminal } from "effect";
+import * as Arr from "effect/Array";
 import * as Schema from "effect/Schema";
+import { ChildProcess } from "effect/unstable/process";
 
 const LenientUserPromptInput = Schema.Struct({
   session_id: Schema.String,
-  transcript_path: Schema.optionalWith(Schema.String, { default: () => "" }),
+  transcript_path: Schema.String.pipe(Schema.withDecodingDefault(() => "")),
   cwd: Schema.String,
-  permission_mode: Schema.optionalWith(Schema.String, { default: () => "default" }),
+  permission_mode: Schema.String.pipe(Schema.withDecodingDefault(() => "default")),
   hook_event_name: Schema.Literal("UserPromptSubmit"),
-  prompt: Schema.optionalWith(Schema.String, { default: () => "" }),
-  user_prompt: Schema.optionalWith(Schema.String, { default: () => "" }),
+  prompt: Schema.String.pipe(Schema.withDecodingDefault(() => "")),
+  user_prompt: Schema.String.pipe(Schema.withDecodingDefault(() => "")),
 });
 
 export interface SkillMetadata {
@@ -105,16 +106,12 @@ const shouldShowMiseTasks = (prompt: string): boolean => {
 
 const fetchMiseTasks = (cwd: string) =>
   Effect.gen(function* () {
-    const commandExecutor = yield* CommandExecutor.CommandExecutor;
-
     const result = yield* pipe(
-      Command.make("mise", "tasks", "--json"),
-      Command.workingDirectory(cwd),
-      Command.string,
-      Effect.flatMap((s) => Schema.decodeUnknown(Schema.parseJson(MiseTasks))(s)),
+      ChildProcess.make({ cwd })`mise tasks --json`,
+      ChildProcess.string,
+      Effect.flatMap((s) => Schema.decodeUnknownEffect(Schema.fromJsonString(MiseTasks))(s)),
       Effect.map(formatMiseTasks),
-      Effect.catchAll(() => Effect.succeed("")),
-      Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+      Effect.catch(() => Effect.succeed(""))
     );
 
     return String.isNonEmpty(result) ? Option.some(result) : Option.none();
@@ -128,16 +125,22 @@ const parseFrontmatter = (content: string): Record.ReadonlyRecord<string, string
   const frontmatter = match[1];
   const lines = String.split(frontmatter, "\n");
 
-  const entries = Array.filterMap(lines, (line) =>
-    pipe(
-      line,
-      String.indexOf(":"),
-      Option.flatMap((colonIndex) => {
-        const key = pipe(line, String.slice(0, colonIndex), String.trim);
-        const value = pipe(line, String.slice(colonIndex + 1), String.trim);
-        return String.isNonEmpty(key) && String.isNonEmpty(value) ? Option.some([key, value] as const) : Option.none();
-      })
-    )
+  const entries = pipe(
+    lines,
+    Arr.map((line: string) =>
+      pipe(
+        String.indexOf(":")(line),
+        Option.fromUndefinedOr,
+        Option.flatMap((colonIndex) => {
+          const key = pipe(line, String.slice(0, colonIndex), String.trim);
+          const value = pipe(line, String.slice(colonIndex + 1), String.trim);
+          return String.isNonEmpty(key) && String.isNonEmpty(value)
+            ? Option.some([key, value] as const)
+            : Option.none();
+        })
+      )
+    ),
+    Arr.getSomes
   );
 
   return Record.fromEntries(entries);
@@ -271,7 +274,7 @@ export const findMatchingSkills = (prompt: string, skills: ReadonlyArray<SkillMe
     Array.map((skill) => ({ skill, score: scoreSkill(prompt, skill) })),
     Array.filter(({ score }) => score >= MIN_SCORE),
     Array.sort(
-      Order.mapInput(Order.reverse(Order.number), (entry: { skill: SkillMetadata; score: number }) => entry.score)
+      Order.mapInput(Order.flip(Order.Number), (entry: { skill: SkillMetadata; score: number }) => entry.score)
     ),
     Array.take(MAX_SUGGESTIONS),
     Array.map(({ skill }) => skill.name)
@@ -279,9 +282,6 @@ export const findMatchingSkills = (prompt: string, skills: ReadonlyArray<SkillMe
 
 const searchModules = (prompt: string, cwd: string) =>
   Effect.gen(function* () {
-    const commandExecutor = yield* CommandExecutor.CommandExecutor;
-
-    // Extract significant words from prompt for search
     const words = pipe(
       prompt,
       String.toLowerCase,
@@ -289,44 +289,37 @@ const searchModules = (prompt: string, cwd: string) =>
       Array.filter((w) => String.length(w) >= 4)
     );
 
-    if (!Array.isNonEmptyReadonlyArray(words)) return Option.none<string>();
+    if (!Arr.isReadonlyArrayNonEmpty(words)) return Option.none<string>();
 
-    // Use first significant word as search pattern
     const pattern = words[0];
 
     const result = yield* pipe(
-      Command.make("bun", ".claude/scripts/context-crawler.ts", "--search", pattern),
-      Command.workingDirectory(cwd),
-      Command.string,
-      Effect.catchAll(() => Effect.succeed("")),
-      Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+      ChildProcess.make("bun", [".claude/scripts/context-crawler.ts", "--search", pattern], { cwd }),
+      ChildProcess.string,
+      Effect.catch(() => Effect.succeed(""))
     );
 
-    // Parse count from output
     const countMatch = result.match(/count="(\d+)"/);
     const count = countMatch ? Number.parseInt(countMatch[1], 10) : 0;
 
     if (count === 0) return Option.none<string>();
 
-    return Option.some(result.trim());
+    return Option.some(String.trim(result));
   });
 
 const formatOutput = (context: string) =>
-  pipe(
-    {
-      hookSpecificOutput: {
-        hookEventName: "UserPromptSubmit" as const,
-        additionalContext: context,
-      },
+  Schema.encodeEffect(Schema.fromJsonString(OutputSchema))({
+    hookSpecificOutput: {
+      hookEventName: "UserPromptSubmit" as const,
+      additionalContext: context,
     },
-    Schema.encode(Schema.parseJson(OutputSchema))
-  );
+  });
 
 const program = Effect.gen(function* () {
   const terminal = yield* Terminal.Terminal;
 
   const stdin = yield* terminal.readLine;
-  const raw = yield* Schema.decode(Schema.parseJson(LenientUserPromptInput))(stdin);
+  const raw = yield* Schema.decodeEffect(Schema.fromJsonString(LenientUserPromptInput))(stdin);
   const prompt = raw.prompt || raw.user_prompt || "";
   const input = { ...raw, prompt };
 
@@ -355,7 +348,7 @@ elapsed_ms: ${elapsedMs}
 </hook_state>`);
 
   // Always show matched skills if any
-  if (Array.isNonEmptyReadonlyArray(matchingSkills)) {
+  if (Arr.isReadonlyArrayNonEmpty(matchingSkills)) {
     parts.push(`<skills>${matchingSkills.join(", ")}</skills>`);
   }
 
@@ -529,15 +522,11 @@ Prefer these over manual exploration and memory management.
 - /module-search [pattern]: Find modules by keyword
 </memory-and-modules>`);
 
-  // Always: Show version
-  const commandExecutor = yield* CommandExecutor.CommandExecutor;
   const version = yield* pipe(
-    Command.make("bun", "-e", "console.log(require('./package.json').version)"),
-    Command.workingDirectory(input.cwd),
-    Command.string,
-    Effect.map((v) => v.trim()),
-    Effect.catchAll(() => Effect.succeed("unknown")),
-    Effect.provideService(CommandExecutor.CommandExecutor, commandExecutor)
+    ChildProcess.make("bun", ["-e", "console.log(require('./package.json').version)"], { cwd: input.cwd }),
+    ChildProcess.string,
+    Effect.map((v) => String.trim(v)),
+    Effect.catch(() => Effect.succeed("unknown"))
   );
   parts.push(`<version>${version}</version>`);
 
@@ -551,8 +540,8 @@ Prefer these over manual exploration and memory management.
 
 const runnable = pipe(
   program,
-  Effect.provide(BunContext.layer),
-  Effect.catchAll(() => Effect.void)
+  Effect.provide(BunServices.layer),
+  Effect.catch(() => Effect.void)
 );
 
 BunRuntime.runMain(runnable);

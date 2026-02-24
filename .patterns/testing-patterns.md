@@ -140,7 +140,7 @@ describe("time-dependent operations", () => {
 })
 ```
 
-### Operations requiring TestClock:
+### Operations requiring TestClock
 
 - `Effect.sleep()` and `Effect.delay()`
 - `Effect.timeout()` and `Effect.race()` with timeouts

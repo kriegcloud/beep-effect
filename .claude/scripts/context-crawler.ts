@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Context Crawler CLI
  *
@@ -8,11 +9,13 @@
  * @since 1.0.0
  */
 
-import { Command } from "@effect/cli";
-import { FileSystem, Path } from "@effect/platform";
-import type { PlatformError } from "@effect/platform/Error";
-import { BunContext, BunRuntime } from "@effect/platform-bun";
-import { Array, Console, Effect, Option, pipe, String } from "effect";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
+import { Console, Effect, FileSystem, Path, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import type { PlatformError } from "effect/PlatformError";
+import * as Str from "effect/String";
+import { Command, Flag } from "effect/unstable/cli";
 
 /**
  * Module context metadata
@@ -28,39 +31,39 @@ interface ModuleContext {
  * Parse TOML frontmatter from markdown content
  * Extracts content between --- markers
  */
-const parseFrontmatter = (content: string): Option.Option<string> => {
+const parseFrontmatter = (content: string): O.Option<string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
   const match = content.match(frontmatterRegex);
-  return match ? Option.some(match[1]) : Option.none();
+  return match ? O.some(match[1]) : O.none();
 };
 
 /**
  * Extract message from TOML [[docs]] section
  * Looks for: message = "..."
  */
-const extractTomlMessage = (toml: string): Option.Option<string> => {
+const extractTomlMessage = (toml: string): O.Option<string> => {
   const messageRegex = /message\s*=\s*"([^"]*)"/;
   const match = toml.match(messageRegex);
-  return match ? Option.some(match[1]) : Option.none();
+  return match ? O.some(match[1]) : O.none();
 };
 
 /**
  * Extract first paragraph from markdown body (after frontmatter)
  */
-const extractFirstParagraph = (content: string): Option.Option<string> => {
+const extractFirstParagraph = (content: string): O.Option<string> => {
   // Remove frontmatter
   const withoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n/, "");
 
   // Split into lines and find first non-empty, non-heading line
-  const lines = String.split(withoutFrontmatter, "\n");
+  const lines = Str.split(withoutFrontmatter, "\n");
 
   return pipe(
     lines,
-    Array.findFirst((line) => {
-      const trimmed = String.trim(line);
-      return String.isNonEmpty(trimmed) && !String.startsWith("#")(trimmed);
+    A.findFirst((line) => {
+      const trimmed = Str.trim(line);
+      return Str.isNonEmpty(trimmed) && !Str.startsWith("#")(trimmed);
     }),
-    Option.map(String.trim)
+    O.map(Str.trim)
   );
 };
 
@@ -68,10 +71,10 @@ const extractFirstParagraph = (content: string): Option.Option<string> => {
  * Extract Purpose section from markdown
  * Looks for: ## Purpose
  */
-const extractPurposeSection = (content: string): Option.Option<string> => {
+const extractPurposeSection = (content: string): O.Option<string> => {
   const purposeRegex = /## Purpose\n([^\n]+)/;
   const match = content.match(purposeRegex);
-  return match ? Option.some(String.trim(match[1])) : Option.none();
+  return match ? O.some(Str.trim(match[1])) : O.none();
 };
 
 /**
@@ -81,10 +84,10 @@ const extractPurposeSection = (content: string): Option.Option<string> => {
 const extractSummary = (content: string, fallback: string): string => {
   return pipe(
     parseFrontmatter(content),
-    Option.flatMap(extractTomlMessage),
-    Option.orElse(() => extractPurposeSection(content)),
-    Option.orElse(() => extractFirstParagraph(content)),
-    Option.getOrElse(() => fallback)
+    O.flatMap(extractTomlMessage),
+    O.orElse(() => extractPurposeSection(content)),
+    O.orElse(() => extractFirstParagraph(content)),
+    O.getOrElse(() => fallback)
   );
 };
 
@@ -122,7 +125,7 @@ const loadSubmodulePaths = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
 
   const exists = yield* fs.exists(".gitmodules");
-  if (!exists) return Array.empty<string>();
+  if (!exists) return A.empty<string>();
 
   const content = yield* Effect.orElseSucceed(fs.readFileString(".gitmodules"), () => "");
 
@@ -152,11 +155,11 @@ const findContextFiles = Effect.gen(function* () {
     dir
   ) =>
     Effect.gen(function* () {
-      const entries = yield* Effect.orElseSucceed(fs.readDirectory(dir), () => Array.empty<string>());
+      const entries = yield* Effect.orElseSucceed(fs.readDirectory(dir), () => A.empty<string>());
 
       return yield* pipe(
         entries,
-        Array.map((entry) => {
+        A.map((entry) => {
           const fullPath = path.join(dir, entry);
 
           if (entry === "ai-context.md") {
@@ -167,13 +170,13 @@ const findContextFiles = Effect.gen(function* () {
             Effect.flatMap((stat) =>
               stat.type === "Directory" && !excludeDirs.has(entry)
                 ? Effect.suspend(() => searchDir(fullPath))
-                : Effect.succeed(Array.empty<string>())
+                : Effect.succeed(A.empty<string>())
             ),
-            Effect.orElseSucceed(() => Array.empty<string>())
+            Effect.orElseSucceed(() => A.empty<string>())
           );
         }),
         Effect.all,
-        Effect.map(Array.flatten)
+        Effect.map(A.flatten)
       );
     });
 
@@ -208,14 +211,12 @@ const loadAllContexts = Effect.gen(function* () {
   const files = yield* findContextFiles;
   const submodulePaths = yield* loadSubmodulePaths;
 
-  const contexts = yield* pipe(
+  return yield* pipe(
     files,
-    Array.map((file) => Effect.option(readContextFile(file, submodulePaths))),
+    A.map((file) => Effect.option(readContextFile(file, submodulePaths))),
     Effect.all,
-    Effect.map(Array.getSomes)
+    Effect.map(A.getSomes)
   );
-
-  return contexts;
 });
 
 /**
@@ -226,26 +227,26 @@ const summaryMode = Effect.gen(function* () {
   const contexts = yield* loadAllContexts;
   const submodulePaths = yield* loadSubmodulePaths;
 
-  const internal = Array.filter(contexts, (ctx) => ctx.source === "internal");
-  const externalWithContext = Array.filter(contexts, (ctx) => ctx.source === "external");
+  const internal = A.filter(contexts, (ctx) => ctx.source === "internal");
+  const externalWithContext = A.filter(contexts, (ctx) => ctx.source === "external");
 
   // Get submodule paths that don't have ai-context.md (no summary)
   const externalPaths = new Set(externalWithContext.map((ctx) => ctx.path));
   const externalWithoutContext = pipe(
     submodulePaths,
-    Array.filter((path) => !externalPaths.has(path))
+    A.filter((path) => !externalPaths.has(path))
   );
 
-  const totalExternal = Array.length(externalWithContext) + Array.length(externalWithoutContext);
-  const count = Array.length(internal) + totalExternal;
+  const totalExternal = A.length(externalWithContext) + A.length(externalWithoutContext);
+  const count = A.length(internal) + totalExternal;
 
   yield* Console.log(`<modules count="${count}">`);
 
-  if (Array.isNonEmptyReadonlyArray(internal)) {
-    yield* Console.log(`<internal count="${Array.length(internal)}">`);
+  if (!A.isArrayEmpty(internal)) {
+    yield* Console.log(`<internal count="${A.length(internal)}">`);
     yield* pipe(
       internal,
-      Array.map((ctx) => Console.log(`${ctx.path}: ${ctx.summary}`)),
+      A.map((ctx) => Console.log(`${ctx.path}: ${ctx.summary}`)),
       Effect.all,
       Effect.asVoid
     );
@@ -257,14 +258,14 @@ const summaryMode = Effect.gen(function* () {
     // External with ai-context.md (have summaries)
     yield* pipe(
       externalWithContext,
-      Array.map((ctx) => Console.log(`${ctx.path}: ${ctx.summary}`)),
+      A.map((ctx) => Console.log(`${ctx.path}: ${ctx.summary}`)),
       Effect.all,
       Effect.asVoid
     );
     // External submodules without ai-context.md (just paths, for grepping)
     yield* pipe(
       externalWithoutContext,
-      Array.map((path) => Console.log(`${path}: (grep for implementation details)`)),
+      A.map((path) => Console.log(`${path}: (grep for implementation details)`)),
       Effect.all,
       Effect.asVoid
     );
@@ -282,7 +283,7 @@ const listMode = Effect.gen(function* () {
 
   yield* pipe(
     contexts,
-    Array.map((ctx) => Console.log(ctx.path)),
+    A.map((ctx) => Console.log(ctx.path)),
     Effect.all,
     Effect.asVoid
   );
@@ -297,12 +298,12 @@ const moduleMode = (modulePath: string) =>
 
     const context = pipe(
       contexts,
-      Array.findFirst((ctx) => ctx.path === modulePath)
+      A.findFirst((ctx) => ctx.path === modulePath)
     );
 
     yield* pipe(
       context,
-      Option.match({
+      O.match({
         onNone: () => Console.error(`Module not found: ${modulePath}`),
         onSome: (ctx) =>
           Effect.gen(function* () {
@@ -329,15 +330,15 @@ const searchMode = (pattern: string) =>
 
     const matches = pipe(
       contexts,
-      Array.filter((ctx) => regex.test(ctx.path) || regex.test(ctx.summary) || regex.test(ctx.content))
+      A.filter((ctx) => regex.test(ctx.path) || regex.test(ctx.summary) || regex.test(ctx.content))
     );
 
-    const count = Array.length(matches);
+    const count = A.length(matches);
     yield* Console.log(`<modules-search pattern="${pattern}" count="${count}">`);
 
     yield* pipe(
       matches,
-      Array.map((ctx) => Console.log(`[${ctx.source}] ${ctx.path}: ${ctx.summary}`)),
+      A.map((ctx) => Console.log(`[${ctx.source}] ${ctx.path}: ${ctx.summary}`)),
       Effect.all,
       Effect.asVoid
     );
@@ -351,49 +352,45 @@ const searchMode = (pattern: string) =>
 const contextCrawler = Command.make(
   "context-crawler",
   {
-    summary: Options.boolean("summary").pipe(
-      Options.withDescription("Show compact one-line-per-module summary (default)")
+    summary: Flag.boolean("summary").pipe(Flag.withDescription("Show compact one-line-per-module summary (default)")),
+    list: Flag.boolean("list").pipe(Flag.withDescription("List all module paths only")),
+    module: Flag.string("module").pipe(
+      Flag.withDescription("Show full content of specific module (without frontmatter)"),
+      Flag.optional
     ),
-    list: Options.boolean("list").pipe(Options.withDescription("List all module paths only")),
-    module: Options.text("module").pipe(
-      Options.withDescription("Show full content of specific module (without frontmatter)"),
-      Options.optional
-    ),
-    search: Options.text("search").pipe(
-      Options.withDescription("Search modules by pattern (glob-like, matches path/summary/content)"),
-      Options.optional
+    search: Flag.string("search").pipe(
+      Flag.withDescription("Search modules by pattern (glob-like, matches path/summary/content)"),
+      Flag.optional
     ),
   },
-  ({ summary, list, module, search }) =>
-    Effect.gen(function* () {
-      // Module mode takes precedence
-      if (Option.isSome(module)) {
-        yield* moduleMode(module.value);
-        return;
-      }
+  Effect.fn(function* ({ list, module, search }) {
+    // Module mode takes precedence
+    if (O.isSome(module)) {
+      yield* moduleMode(module.value);
+      return;
+    }
 
-      // Search mode
-      if (Option.isSome(search)) {
-        yield* searchMode(search.value);
-        return;
-      }
+    // Search mode
+    if (O.isSome(search)) {
+      yield* searchMode(search.value);
+      return;
+    }
 
-      // List mode
-      if (list) {
-        yield* listMode;
-        return;
-      }
+    // List mode
+    if (list) {
+      yield* listMode;
+      return;
+    }
 
-      // Summary mode (default)
-      yield* summaryMode;
-    })
+    // Summary mode (default)
+    yield* summaryMode;
+  })
 );
 
 /**
  * Main CLI runner
  */
 const cli = Command.run(contextCrawler, {
-  name: "context-crawler",
   version: "1.0.0",
 });
 
@@ -402,9 +399,9 @@ const cli = Command.run(contextCrawler, {
  * Exit code 0 even on errors
  */
 const runnable = pipe(
-  cli(process.argv),
-  Effect.provide(BunContext.layer),
-  Effect.catchAll((error) => Console.error(`Context crawler error: ${error}`).pipe(Effect.map(() => void 0)))
+  cli,
+  Effect.provide(BunServices.layer),
+  Effect.catch((error) => Console.error(`Context crawler error: ${error}`).pipe(Effect.map(() => void 0)))
 );
 
 BunRuntime.runMain(runnable);

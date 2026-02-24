@@ -1,299 +1,24 @@
 #!/usr/bin/env bun
-import type * as PlatformError from "@effect/platform/Error";
-import * as FileSystem from "@effect/platform/FileSystem";
-import * as Path from "@effect/platform/Path";
-import { BunContext, BunRuntime } from "@effect/platform-bun";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
 import * as Array from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Graph from "effect/Graph";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
-import * as ts from "typescript";
-import { buildArchitectureGraph, formatAgentWithHints } from "../analyze-architecture";
-
-interface ServiceDefinition {
-  readonly name: string;
-  readonly path: string;
-  readonly line: number;
-}
-
-interface LayerDefinition {
-  readonly name: string;
-  readonly serviceName: string;
-  readonly path: string;
-  readonly line: number;
-  readonly dependencies: ReadonlyArray<string>;
-  readonly errorTypes: ReadonlyArray<string>;
-  readonly isParametrized: boolean;
-  readonly factoryName?: string;
-}
-
-interface ArchitectureGraph {
-  readonly services: ReadonlyArray<ServiceDefinition>;
-  readonly layers: ReadonlyArray<LayerDefinition>;
-}
+import {
+  type ArchitectureGraph,
+  buildArchitectureGraph,
+  formatAgentWithHints,
+  type LayerDefinition,
+  type ServiceDefinition,
+} from "../analyze-architecture.ts";
 
 interface AnalysisGraph {
   readonly graph: Graph.DirectedGraph<ServiceDefinition, void>;
   readonly serviceIndex: ReadonlyMap<string, Graph.NodeIndex>;
 }
-
-const SERVICE_TAG_PATTERN = /export\s+const\s+(\w+)\s*=\s*Context\.GenericTag<\1>/g;
-const LAYER_SCOPED_PATTERN = /export\s+const\s+(\w+Live)(?::\s*[^=]+)?\s*=\s*Layer\.scoped\(\s*(\w+)\s*,/g;
-const LAYER_EFFECT_PATTERN = /export\s+const\s+(\w+Live)(?::\s*[^=]+)?\s*=\s*Layer\.effect\(\s*(\w+)\s*,/g;
-
-const EFFECT_INFRASTRUCTURE = new Set([
-  "never",
-  "unknown",
-  "Scope",
-  "Clock",
-  "Random",
-  "ConfigProvider",
-  "Tracer",
-  "Console",
-  "__type",
-]);
-
-const EXCLUDED_FROM_GRAPH = new Set(["AtomRegistry", "Registry"]);
-
-const countLinesBefore = (content: string, index: number): number => content.substring(0, index).split("\n").length;
-
-const extractServicesFromContent = (content: string, filePath: string): ReadonlyArray<ServiceDefinition> => {
-  const results: ServiceDefinition[] = [];
-  SERVICE_TAG_PATTERN.lastIndex = 0;
-
-  let match: RegExpExecArray | null;
-  while ((match = SERVICE_TAG_PATTERN.exec(content)) !== null) {
-    results.push({
-      name: match[1],
-      path: filePath,
-      line: countLinesBefore(content, match.index),
-    });
-  }
-
-  return results;
-};
-
-interface LayerMatch {
-  readonly name: string;
-  readonly serviceName: string;
-  readonly line: number;
-}
-
-const extractLayerMatches = (content: string): ReadonlyArray<LayerMatch> => {
-  const extractWithPattern = (pattern: RegExp): LayerMatch[] => {
-    const results: LayerMatch[] = [];
-    pattern.lastIndex = 0;
-
-    let match: RegExpExecArray | null;
-    while ((match = pattern.exec(content)) !== null) {
-      results.push({
-        name: match[1],
-        serviceName: match[2],
-        line: countLinesBefore(content, match.index),
-      });
-    }
-
-    return results;
-  };
-
-  return [...extractWithPattern(LAYER_SCOPED_PATTERN), ...extractWithPattern(LAYER_EFFECT_PATTERN)];
-};
-
-const isEffectInfrastructure = (name: string): boolean => EFFECT_INFRASTRUCTURE.has(name);
-
-const isExcludedFromGraph = (name: string): boolean => EXCLUDED_FROM_GRAPH.has(name);
-
-const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
-  const deps: string[] = [];
-
-  const processType = (t: ts.Type): void => {
-    if (t.isUnion()) {
-      for (const unionMember of t.types) {
-        processType(unionMember);
-      }
-      return;
-    }
-
-    if (t.isIntersection()) {
-      for (const intersectionMember of t.types) {
-        processType(intersectionMember);
-      }
-      return;
-    }
-
-    const symbol = t.getSymbol() ?? t.aliasSymbol;
-    if (symbol) {
-      const name = symbol.getName();
-      if (!isEffectInfrastructure(name) && !isExcludedFromGraph(name) && !deps.includes(name)) {
-        deps.push(name);
-      }
-    }
-  };
-
-  processType(type);
-  return deps;
-};
-
-const extractErrorTypeNames = (errorType: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
-  if (errorType.flags & ts.TypeFlags.Never) {
-    return [];
-  }
-
-  if (errorType.isUnion()) {
-    return errorType.types.map((t) => checker.typeToString(t));
-  }
-
-  return [checker.typeToString(errorType)];
-};
-
-interface LayerInfo {
-  readonly dependencies: ReadonlyArray<string>;
-  readonly errorTypes: ReadonlyArray<string>;
-}
-
-const extractLayerInfo = (program: ts.Program, filePath: string, layerName: string): LayerInfo => {
-  const checker = program.getTypeChecker();
-
-  let sourceFile = program.getSourceFile(filePath);
-
-  if (!sourceFile) {
-    const allSourceFiles = program.getSourceFiles();
-    sourceFile = allSourceFiles.find(
-      (sf) => sf.fileName === filePath || sf.fileName.endsWith(filePath) || filePath.endsWith(sf.fileName)
-    );
-  }
-
-  if (!sourceFile) {
-    return { dependencies: [], errorTypes: [] };
-  }
-
-  const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
-  if (!moduleSymbol) return { dependencies: [], errorTypes: [] };
-
-  const exports = checker.getExportsOfModule(moduleSymbol);
-  const layerExport = exports.find((s) => s.getName() === layerName);
-
-  if (!layerExport) return { dependencies: [], errorTypes: [] };
-
-  const type = checker.getTypeOfSymbol(layerExport);
-  const typeString = checker.typeToString(type);
-
-  if (!typeString.startsWith("Layer<")) return { dependencies: [], errorTypes: [] };
-
-  const typeRef = type as ts.TypeReference;
-  if (!typeRef.typeArguments && !(type as ts.TypeReference).target) {
-    const typeArgs = checker.getTypeArguments(typeRef);
-    if (typeArgs.length >= 3) {
-      return {
-        dependencies: extractDepsFromType(typeArgs[2], checker),
-        errorTypes: extractErrorTypeNames(typeArgs[1], checker),
-      };
-    }
-  }
-
-  const typeArgs = checker.getTypeArguments(typeRef);
-  if (typeArgs.length >= 3) {
-    return {
-      dependencies: extractDepsFromType(typeArgs[2], checker),
-      errorTypes: extractErrorTypeNames(typeArgs[1], checker),
-    };
-  }
-
-  return { dependencies: [], errorTypes: [] };
-};
-
-const createTsProgram = (filePaths: ReadonlyArray<string>): ts.Program => {
-  const compilerOptions: ts.CompilerOptions = {
-    target: ts.ScriptTarget.ES2022,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-    strict: true,
-    esModuleInterop: true,
-    skipLibCheck: true,
-    noEmit: true,
-    lib: ["lib.es2022.d.ts", "lib.dom.d.ts"],
-    baseUrl: ".",
-    paths: {
-      "~/*": ["./src/*"],
-    },
-  };
-
-  return ts.createProgram([...filePaths], compilerOptions);
-};
-
-const extractLayersFromContent = (
-  content: string,
-  filePath: string,
-  program?: ts.Program
-): ReadonlyArray<LayerDefinition> => {
-  const layerMatches = extractLayerMatches(content);
-
-  return layerMatches.map((match) => {
-    const layerInfo = program ? extractLayerInfo(program, filePath, match.name) : { dependencies: [], errorTypes: [] };
-
-    return {
-      name: match.name,
-      serviceName: match.serviceName,
-      path: filePath,
-      line: match.line,
-      dependencies: layerInfo.dependencies,
-      errorTypes: layerInfo.errorTypes,
-      isParametrized: false,
-      factoryName: undefined,
-    };
-  });
-};
-
-const findTypeScriptFiles = (directory: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-
-    const srcPath = path.resolve(directory);
-
-    const srcExists = yield* pipe(
-      fs.exists(srcPath),
-      Effect.orElseSucceed(() => false)
-    );
-
-    if (!srcExists) {
-      return [];
-    }
-
-    const scanDir = (
-      dir: string
-    ): Effect.Effect<ReadonlyArray<string>, PlatformError.PlatformError, FileSystem.FileSystem | Path.Path> =>
-      Effect.gen(function* () {
-        const entries = yield* fs.readDirectory(dir);
-
-        const processEntry = (entry: string) =>
-          Effect.gen(function* () {
-            const fullPath = path.join(dir, entry);
-            const stat = yield* fs.stat(fullPath);
-
-            if (stat.type === "Directory") {
-              if (entry !== "node_modules" && entry !== "__tests__") {
-                return yield* scanDir(fullPath);
-              }
-              return [];
-            }
-
-            if (entry.endsWith(".ts") && !entry.endsWith(".test.ts")) {
-              return [fullPath];
-            }
-
-            return [];
-          });
-
-        const results = yield* Effect.forEach(entries, processEntry);
-        return Array.flatten(results);
-      });
-
-    return yield* scanDir(srcPath);
-  });
 
 const buildAnalysisGraph = (arch: ArchitectureGraph): AnalysisGraph => {
   const graph = Graph.directed<ServiceDefinition, void>((mutable) => {
@@ -338,12 +63,6 @@ interface GraphMetrics {
   readonly averageDegree: number;
 }
 
-interface DependencyInfo {
-  readonly direct: ReadonlyArray<string>;
-  readonly indirect: ReadonlyArray<string>;
-  readonly redundant: ReadonlyArray<string>;
-}
-
 interface GroupedServices {
   readonly leaf: ReadonlyArray<ServiceDefinition>;
   readonly mid: ReadonlyArray<ServiceDefinition>;
@@ -356,29 +75,6 @@ const makeShortPath = (fullPath: string): string => fullPath.replace(/^(\.\/)?.*
 const buildLayerMap = (layers: ReadonlyArray<LayerDefinition>): Map<string, LayerDefinition> =>
   new Map(layers.map((layer) => [layer.serviceName, layer]));
 
-const collectTransitiveDeps = (analysisGraph: AnalysisGraph, serviceName: string): ReadonlyArray<string> => {
-  const nodeIndex = analysisGraph.serviceIndex.get(serviceName);
-  if (nodeIndex === undefined) return [];
-
-  const visited = new Set<Graph.NodeIndex>();
-  const result: string[] = [];
-
-  const walker = Graph.dfs(analysisGraph.graph, {
-    start: [nodeIndex],
-    direction: "outgoing",
-  });
-
-  for (const [idx, service] of walker) {
-    if (idx === nodeIndex) continue;
-    if (!visited.has(idx)) {
-      visited.add(idx);
-      result.push(service.name);
-    }
-  }
-
-  return result;
-};
-
 const detectOrphans = (analysisGraph: AnalysisGraph): Set<string> => {
   const noIncomingIndices: Graph.NodeIndex[] = globalThis.Array.from(
     Graph.indices(Graph.externals(analysisGraph.graph, { direction: "incoming" }))
@@ -386,20 +82,21 @@ const detectOrphans = (analysisGraph: AnalysisGraph): Set<string> => {
 
   return pipe(
     noIncomingIndices,
-    Array.filterMap((idx: Graph.NodeIndex) => {
+    Array.map((idx: Graph.NodeIndex) => {
       const node = Graph.getNode(analysisGraph.graph, idx);
-      if (Option.isNone(node)) return Option.none();
+      if (O.isNone(node)) return O.none<string>();
 
       const serviceName = node.value.name;
       const isVM = serviceName.endsWith("VM");
       const outgoingCount = Graph.neighbors(analysisGraph.graph, idx).length;
 
       if (isVM && outgoingCount > 0) {
-        return Option.none();
+        return O.none<string>();
       }
 
-      return Option.some(serviceName);
+      return O.some(serviceName);
     }),
+    Array.getSomes,
     (names) => new Set(names)
   );
 };
@@ -435,10 +132,10 @@ const groupServicesByType = (
   });
 
   return {
-    leaf: pipe(leaf, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
-    mid: pipe(mid, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
-    vm: pipe(vm, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
-    orphans: pipe(orphans, Array.sort(Order.mapInput(Order.string, (s: ServiceDefinition) => s.name))),
+    leaf: pipe(leaf, Array.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    mid: pipe(mid, Array.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    vm: pipe(vm, Array.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
+    orphans: pipe(orphans, Array.sort(Order.mapInput(Order.String, (s: ServiceDefinition) => s.name))),
   };
 };
 
@@ -476,53 +173,6 @@ const computeAverageDegree = (analysisGraph: AnalysisGraph): number => {
   );
 };
 
-const computeIndegrees = (analysisGraph: AnalysisGraph): Map<string, number> => {
-  const indegrees = new Map<string, number>();
-
-  for (const [serviceName] of analysisGraph.serviceIndex) {
-    indegrees.set(serviceName, 0);
-  }
-
-  for (const [serviceName, nodeIndex] of analysisGraph.serviceIndex) {
-    const incomingCount = Graph.neighborsDirected(analysisGraph.graph, nodeIndex, "incoming").length;
-    indegrees.set(serviceName, incomingCount);
-  }
-
-  return indegrees;
-};
-
-interface HotWarning {
-  readonly service: string;
-  readonly count: number;
-}
-
-interface Warnings {
-  readonly redundant: ReadonlyArray<unknown>;
-  readonly hot: ReadonlyArray<HotWarning>;
-  readonly orphan: ReadonlyArray<string>;
-  readonly wide: ReadonlyArray<unknown>;
-}
-
-const computeWarnings = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): Warnings => {
-  const layerByService = buildLayerMap(graph.layers);
-  const indegrees = computeIndegrees(analysisGraph);
-
-  const hot: HotWarning[] = [];
-  indegrees.forEach((count, service) => {
-    if (count >= 4) {
-      hot.push({ service, count });
-    }
-  });
-  hot.sort((a, b) => b.count - a.count);
-
-  return {
-    redundant: [],
-    hot,
-    orphan: [],
-    wide: [],
-  };
-};
-
 interface ServiceWithIndex {
   readonly service: ServiceDefinition;
   readonly layer: LayerDefinition | undefined;
@@ -538,20 +188,21 @@ const orderServicesByDependencyCount = (
 
   return pipe(
     graph.services,
-    Array.filterMap((service) => {
+    Array.map((service: ServiceDefinition) => {
       const nodeIndex = analysisGraph.serviceIndex.get(service.name);
-      if (nodeIndex === undefined) return Option.none();
+      if (nodeIndex === undefined) return O.none<ServiceWithIndex>();
 
       const depCount = Graph.neighbors(analysisGraph.graph, nodeIndex).length;
 
-      return Option.some({
+      return O.some({
         service,
         layer: layerByService.get(service.name),
         index: nodeIndex,
         depCount,
       });
     }),
-    Array.sort(Order.mapInput(Order.number, (item: ServiceWithIndex) => item.depCount))
+    Array.getSomes,
+    Array.sort(Order.mapInput(Order.Number, (item: ServiceWithIndex) => item.depCount))
   );
 };
 
@@ -586,10 +237,11 @@ const renderEdges = (graph: ArchitectureGraph, analysisGraph: AnalysisGraph): st
   const edgeLines = ordered.map((item) => {
     const deps = pipe(
       Graph.neighbors(analysisGraph.graph, item.index),
-      Array.filterMap((depIndex) => {
+      Array.map((depIndex: Graph.NodeIndex) => {
         const node = Graph.getNode(analysisGraph.graph, depIndex);
-        return Option.isSome(node) ? Option.some(node.value.name) : Option.none();
-      })
+        return O.isSome(node) ? O.some(node.value.name) : O.none<string>();
+      }),
+      Array.getSomes
     );
 
     const depCount = deps.length;
@@ -664,16 +316,17 @@ const groupByDepth = (
   const depthMap = new Map<Graph.NodeIndex, number>();
   depthMap.set(startIdx, 0);
 
-  for (const [idx, service] of walker) {
+  for (const [idx] of walker) {
     if (idx === startIdx) continue;
 
     const neighbors = Graph.neighbors(analysisGraph.graph, idx);
     const neighborDepths = pipe(
       neighbors,
-      Array.filterMap((neighborIdx) => {
+      Array.map((neighborIdx: Graph.NodeIndex) => {
         const depth = depthMap.get(neighborIdx);
-        return depth !== undefined ? Option.some(depth) : Option.none();
-      })
+        return depth !== undefined ? O.some(depth) : O.none<number>();
+      }),
+      Array.getSomes
     );
 
     if (neighborDepths.length > 0) {
@@ -685,7 +338,7 @@ const groupByDepth = (
   for (const [idx, depth] of depthMap.entries()) {
     if (idx === startIdx) continue;
     const node = Graph.getNode(analysisGraph.graph, idx);
-    if (Option.isSome(node)) {
+    if (O.isSome(node)) {
       const group = levelGroups.get(depth) ?? [];
       group.push(node.value.name);
       levelGroups.set(depth, group);
@@ -698,13 +351,13 @@ const groupByDepth = (
       depth,
       services: services.sort(),
     })),
-    Array.sort(Order.mapInput(Order.number, (item: { depth: number; services: ReadonlyArray<string> }) => item.depth))
+    Array.sort(Order.mapInput(Order.Number, (item: { depth: number; services: ReadonlyArray<string> }) => item.depth))
   );
 };
 
-const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): Option.Option<BlastRadiusResult> => {
+const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): O.Option<BlastRadiusResult> => {
   const serviceIdx = analysisGraph.serviceIndex.get(serviceName);
-  if (serviceIdx === undefined) return Option.none();
+  if (serviceIdx === undefined) return O.none();
 
   const downstreamWalker = Graph.bfs(analysisGraph.graph, {
     start: [serviceIdx],
@@ -730,7 +383,7 @@ const computeBlastRadius = (analysisGraph: AnalysisGraph, serviceName: string): 
 
   const risk = downstreamCount >= 5 ? "HIGH" : downstreamCount >= 3 ? "MEDIUM" : "LOW";
 
-  return Option.some({
+  return O.some({
     service: serviceName,
     downstream,
     upstream,
@@ -851,9 +504,9 @@ const computeCommonAncestors = (
 
   const commonDependencies = pipe(
     Array.fromIterable(commonIndices),
-    Array.filterMap((depIndex) => {
+    Array.map((depIndex: Graph.NodeIndex) => {
       const node = Graph.getNode(analysisGraph.graph, depIndex);
-      if (Option.isNone(node)) return Option.none();
+      if (O.isNone(node)) return O.none<CommonAncestor>();
 
       const affectedBySet = coverageMap.get(depIndex) ?? new Set<string>();
       const affectedBy = Array.fromIterable(affectedBySet);
@@ -862,18 +515,19 @@ const computeCommonAncestors = (
       const risk: "HIGH" | "MEDIUM" | "LOW" =
         coverage === serviceNames.length ? "HIGH" : coverage >= serviceNames.length * 0.5 ? "MEDIUM" : "LOW";
 
-      return Option.some({
+      return O.some({
         service: node.value.name,
         coverage,
         affectedBy,
         risk,
       });
     }),
+    Array.getSomes,
     Array.sort(
-      Order.reverse(
+      Order.flip(
         Order.combine(
-          Order.mapInput(Order.number, (a: CommonAncestor) => a.coverage),
-          Order.mapInput(Order.string, (a: CommonAncestor) => a.service)
+          Order.mapInput(Order.Number, (a: CommonAncestor) => a.coverage),
+          Order.mapInput(Order.String, (a: CommonAncestor) => a.service)
         )
       )
     )
@@ -882,7 +536,7 @@ const computeCommonAncestors = (
   const rootCauseCandidates = pipe(
     commonDependencies,
     Array.take(5),
-    Array.map((ancestor, index) => ({
+    Array.map((ancestor: CommonAncestor, index: number) => ({
       rank: index + 1,
       service: ancestor.service,
       coverage: ancestor.coverage,
@@ -1017,7 +671,7 @@ const main = Effect.gen(function* () {
       const service = args[1];
       if (!service) {
         yield* Console.error("Usage: architecture blast-radius <service> [directory]");
-        yield* Effect.fail(new Error("Missing service"));
+        return yield* Effect.fail(new Error("Missing service"));
       }
       if (args[2]) {
         directory = args[2];
@@ -1026,7 +680,7 @@ const main = Effect.gen(function* () {
         const result = computeBlastRadius(customAnalysisGraph, service);
         yield* pipe(
           result,
-          Option.match({
+          O.match({
             onNone: () => Console.error(`Service not found: ${service}`),
             onSome: (r) => Console.log(renderBlastRadius(r)),
           })
@@ -1035,7 +689,7 @@ const main = Effect.gen(function* () {
         const result = computeBlastRadius(analysisGraph, service);
         yield* pipe(
           result,
-          Option.match({
+          O.match({
             onNone: () => Console.error(`Service not found: ${service}`),
             onSome: (r) => Console.log(renderBlastRadius(r)),
           })
@@ -1048,7 +702,7 @@ const main = Effect.gen(function* () {
       const services = args.slice(1);
       if (services.length < 2) {
         yield* Console.error("Usage: architecture common-ancestors <service1> <service2> ... [directory]");
-        yield* Effect.fail(new Error("Need at least 2 services"));
+        return yield* Effect.fail(new Error("Need at least 2 services"));
       }
       const result = computeCommonAncestors(analysisGraph, services);
       yield* Console.log(renderCommonAncestors(result));
@@ -1103,15 +757,15 @@ const main = Effect.gen(function* () {
     default:
       yield* Console.error(`Unknown command: ${command}`);
       yield* Console.log(helpText);
-      yield* Effect.fail(new Error("Unknown command"));
+      return yield* Effect.fail(new Error("Unknown command"));
   }
 }).pipe(
-  Effect.catchAll((error) =>
+  Effect.catch((error: Error) =>
     Effect.gen(function* () {
       yield* Console.error(`Error: ${error}`);
-      yield* Effect.fail(error);
+      return yield* Effect.fail(error);
     })
   )
 );
 
-pipe(main, Effect.provide(BunContext.layer), BunRuntime.runMain);
+pipe(main, Effect.provide(BunServices.layer), BunRuntime.runMain);

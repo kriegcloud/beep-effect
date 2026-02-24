@@ -1,4 +1,4 @@
-import { testFilePathPattern } from "../../test/pattern-test-harness";
+import { testFilePathPattern } from "../../test/pattern-test-harness.js";
 
 testFilePathPattern({
   name: "vm-in-wrong-file",

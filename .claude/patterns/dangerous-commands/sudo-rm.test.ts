@@ -1,4 +1,4 @@
-import { testBashPattern } from "../../test/pattern-test-harness";
+import { testBashPattern } from "../../test/pattern-test-harness.js";
 
 testBashPattern({
   name: "sudo-rm",

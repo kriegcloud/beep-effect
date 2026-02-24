@@ -1,15 +1,15 @@
 import * as Schema from "effect/Schema";
 import { describe, expect, it } from "vitest";
-import * as Schemas from ".";
+import * as Schemas from "./index.ts";
 
 const decode =
-  <A, I>(schema: Schema.Schema<A, I>) =>
-  (input: unknown) =>
+  <S extends Schema.Top & { readonly DecodingServices: never }>(schema: S) =>
+  (input: unknown): S["Type"] =>
     Schema.decodeUnknownSync(schema)(input);
 
 const encode =
-  <A, I>(schema: Schema.Schema<A, I>) =>
-  (value: A) =>
+  <S extends Schema.Top & { readonly EncodingServices: never }>(schema: S) =>
+  (value: S["Type"]): S["Encoded"] =>
     Schema.encodeSync(schema)(value);
 
 describe("schemas", () => {

@@ -28,7 +28,7 @@ const GrepInput = Schema.Struct({
   path: Schema.optional(Schema.String),
   glob: Schema.optional(Schema.String),
   type: Schema.optional(Schema.String),
-  output_mode: Schema.optional(Schema.Literal("content", "files_with_matches", "count")),
+  output_mode: Schema.optional(Schema.Literals(["content", "files_with_matches", "count"])),
 });
 
 const GlobInput = Schema.Struct({
@@ -90,7 +90,7 @@ const SessionStartInput = Schema.Struct({
 });
 
 export const HookInput = Schema.Struct({
-  hook_event_name: Schema.Literal("PreToolUse", "PostToolUse"),
+  hook_event_name: Schema.Literals(["PreToolUse", "PostToolUse"]),
   tool_name: Schema.String,
   tool_input: Schema.Unknown,
 });

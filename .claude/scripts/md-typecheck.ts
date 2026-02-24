@@ -1,8 +1,10 @@
 #!/usr/bin/env bun
-import { Command, type CommandExecutor, FileSystem, Path } from "@effect/platform";
-import type { PlatformError } from "@effect/platform/Error";
-import { BunContext, BunRuntime } from "@effect/platform-bun";
-import { Array, Console, Data, Effect, pipe } from "effect";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
+import { Console, Data, Effect, FileSystem, Path, pipe } from "effect";
+import * as A from "effect/Array";
+import type { PlatformError } from "effect/PlatformError";
+import { ChildProcess } from "effect/unstable/process";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 
 // ============================================================================
 // Data Types
@@ -96,7 +98,7 @@ const crawlMarkdownFiles = (
             { concurrency: 100 }
           )
         ),
-        Effect.map(Array.flatten)
+        Effect.map(A.flatten)
       );
 
     return yield* crawl(dir);
@@ -152,7 +154,7 @@ const extractAllCodeBlocks = (
       { concurrency: "unbounded" }
     );
 
-    return Array.flatten(allBlocks);
+    return A.flatten(allBlocks);
   });
 
 // ============================================================================
@@ -212,29 +214,22 @@ const writeCodeBlocksToOutput = (
 // TypeScript Type Checking
 // ============================================================================
 
-const runTypeCheck = (outputDir: string): Effect.Effect<string, never, CommandExecutor.CommandExecutor> =>
-  Effect.gen(function* () {
-    const command = pipe(
-      Command.make("bunx", "tsc", "--project", "tsconfig.json", "--noEmit", "--pretty", "false"),
-      Command.workingDirectory(outputDir)
-    );
-
-    // tsc returns non-zero exit code on type errors, but we still need the output
-    const result = yield* pipe(
-      Command.string(command),
-      Effect.catchAll(() =>
-        pipe(
-          Command.make("bunx", "tsc", "--project", "tsconfig.json", "--noEmit", "--pretty", "false"),
-          Command.workingDirectory(outputDir),
-          Command.lines,
-          Effect.map(Array.join("\n")),
-          Effect.catchAll(() => Effect.succeed(""))
-        )
+const runTypeCheck = (outputDir: string): Effect.Effect<string, never, ChildProcessSpawner> =>
+  pipe(
+    ChildProcess.make("bunx", ["tsc", "--project", "tsconfig.json", "--noEmit", "--pretty", "false"], {
+      cwd: outputDir,
+    }),
+    ChildProcess.string,
+    Effect.catch(() =>
+      pipe(
+        ChildProcess.make("bunx", ["tsc", "--project", "tsconfig.json", "--noEmit", "--pretty", "false"], {
+          cwd: outputDir,
+        }),
+        ChildProcess.string({ includeStderr: true }),
+        Effect.catch(() => Effect.succeed(""))
       )
-    );
-
-    return result;
-  });
+    )
+  );
 
 // ============================================================================
 // Error Parsing and Mapping
@@ -392,6 +387,6 @@ const program = Effect.gen(function* () {
 pipe(
   program,
   Effect.flatMap((exitCode) => Effect.sync(() => process.exit(exitCode))),
-  Effect.provide(BunContext.layer),
+  Effect.provide(BunServices.layer),
   BunRuntime.runMain
 );

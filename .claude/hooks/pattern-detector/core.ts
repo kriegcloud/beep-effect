@@ -1,13 +1,12 @@
-import { FileSystem, Path } from "@effect/platform";
-import { Array, Config, Effect, Option, pipe } from "effect";
+import { Array, Config, Effect, FileSystem, Option, Path, Predicate, pipe } from "effect";
 import * as Schema from "effect/Schema";
 import picomatch from "picomatch";
-import { type PatternDefinition, PatternFrontmatter } from "../../patterns/schema";
+import { type PatternDefinition, PatternFrontmatter } from "../../patterns/schema.ts";
 
 export const HookInput = Schema.Struct({
-  hook_event_name: Schema.Literal("PreToolUse", "PostToolUse"),
+  hook_event_name: Schema.Literals(["PreToolUse", "PostToolUse"]),
   tool_name: Schema.String,
-  tool_input: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  tool_input: Schema.Record(Schema.String, Schema.Unknown),
 });
 
 export type HookInput = Schema.Schema.Type<typeof HookInput>;
@@ -17,26 +16,26 @@ const contentFields = ["command", "new_string", "content", "pattern", "query", "
 export const getMatchableContent = (input: Record<string, unknown>): string =>
   pipe(
     contentFields,
-    Array.findFirst((field) => typeof input[field] === "string"),
-    Option.flatMap((field) => Option.fromNullable(input[field] as string)),
+    Array.findFirst((field) => Predicate.isString(input[field])),
+    Option.flatMap((field) => Option.fromNullishOr(input[field])),
+    Option.filter(Predicate.isString),
     Option.getOrElse(() => JSON.stringify(input))
   );
 
 export const getFilePath = (input: Record<string, unknown>): Option.Option<string> =>
-  pipe(
-    Option.fromNullable(input.file_path),
-    Option.filter((v): v is string => typeof v === "string")
-  );
+  pipe(Option.fromNullishOr(input.file_path), Option.filter(Predicate.isString));
 
 const parseYaml = (content: string): Record<string, unknown> => {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return {};
-  return Object.fromEntries(
-    match[1]
-      .split("\n")
-      .map((line) => line.match(/^(\w+):\s*["']?(.+?)["']?$/))
-      .filter(Boolean)
-      .map((m) => [m![1], m![2]])
+  const matched = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!matched || !matched[1]) return {};
+  return pipe(
+    matched[1].split("\n"),
+    Array.map((line: string) => {
+      const m = line.match(/^(\w+):\s*["']?(.+?)["']?$/);
+      return m?.[1] && m[2] ? Option.some([m[1], m[2]] as const) : Option.none();
+    }),
+    Array.getSomes,
+    (pairs) => Object.fromEntries(pairs)
   );
 };
 
@@ -62,23 +61,22 @@ const readPattern = (filePath: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const content = yield* fs.readFileString(filePath);
-    const fm = yield* Schema.decodeUnknown(PatternFrontmatter)(parseYaml(content)).pipe(Effect.option);
+    const fm = yield* Schema.decodeUnknownEffect(PatternFrontmatter)(parseYaml(content)).pipe(Effect.option);
     return Option.map(
       fm,
-      (f) =>
-        ({
-          name: f.name,
-          description: f.description,
-          event: f.event,
-          tool: f.tool,
-          glob: f.glob,
-          pattern: f.pattern,
-          action: f.action,
-          level: f.level,
-          tag: f.tag,
-          body: extractBody(content),
-          filePath,
-        }) as PatternDefinition
+      (f): PatternDefinition => ({
+        name: f.name,
+        description: f.description,
+        event: f.event,
+        tool: f.tool,
+        glob: f.glob,
+        pattern: f.pattern,
+        action: f.action,
+        level: f.level,
+        tag: f.tag,
+        body: extractBody(content),
+        filePath,
+      })
     );
   });
 
@@ -87,22 +85,24 @@ export const loadPatterns = Effect.gen(function* () {
   const path = yield* Path.Path;
 
   // For tests running from .claude, detect and use parent as project root
-  const configDir = yield* Config.string("CLAUDE_PROJECT_DIR").pipe(Config.withDefault("."));
+  const configDir = yield* Config.string("CLAUDE_PROJECT_DIR").pipe(Config.withDefault(() => "."));
   const cwd = process.cwd();
   const projectDir = cwd.endsWith(".claude") ? path.join(cwd, "..") : configDir;
   const root = path.join(projectDir, ".claude", "patterns");
 
-  if (!(yield* fs.exists(root))) return [] as PatternDefinition[];
+  if (!(yield* fs.exists(root))) return Array.empty<PatternDefinition>();
 
   const walk = (dir: string): Effect.Effect<PatternDefinition[], never, FileSystem.FileSystem> =>
     Effect.gen(function* () {
-      const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => []));
+      const entries: Array<string> = yield* fs
+        .readDirectory(dir)
+        .pipe(Effect.orElseSucceed(() => Array.empty<string>()));
 
-      const processEntry = (entry: string) =>
+      const processEntry = (entry: string): Effect.Effect<PatternDefinition[], never, FileSystem.FileSystem> =>
         Effect.gen(function* () {
           const full = path.join(dir, entry);
           const stat = yield* fs.stat(full).pipe(Effect.option);
-          if (Option.isNone(stat)) return [] as PatternDefinition[];
+          if (Option.isNone(stat)) return Array.empty<PatternDefinition>();
 
           if (stat.value.type === "Directory") return yield* Effect.suspend(() => walk(full));
 
@@ -141,4 +141,7 @@ export const matches = (input: HookInput, p: PatternDefinition): boolean => {
 };
 
 export const findMatches = (input: HookInput, patterns: PatternDefinition[]): PatternDefinition[] =>
-  patterns.filter((p) => matches(input, p));
+  pipe(
+    patterns,
+    Array.filter((p) => matches(input, p))
+  );

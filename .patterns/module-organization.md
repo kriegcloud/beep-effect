@@ -8,7 +8,7 @@ Established patterns for organizing modules in the Effect library, based on anal
 
 ### Core Module Organization
 
-```
+```text
 packages/effect/src/
 ├── encoding/             # Encoding utilities (Base64, Hex, etc.)
 │   ├── Base64.ts
@@ -51,7 +51,7 @@ packages/effect/src/
 
 The Effect library uses a **flat module structure** where core modules are top-level `.ts` files:
 
-```
+```text
 packages/effect/src/
 ├── Array.ts
 ├── BigDecimal.ts

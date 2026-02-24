@@ -1,6 +1,6 @@
-import { Command, FileSystem } from "@effect/platform";
-import { BunContext } from "@effect/platform-bun";
-import { Effect, Option, pipe, String } from "effect";
+import { BunServices } from "@effect/platform-bun";
+import { Effect, FileSystem, Option, pipe, String } from "effect";
+import { ChildProcess } from "effect/unstable/process";
 import { describe, expect, it } from "vitest";
 
 // Pure function tests - re-implement for testing since not exported
@@ -318,15 +318,14 @@ External lib`
       return fixtureDir;
     });
 
-    const runCrawlerInFixture = (args: string[]) =>
+    const runCrawlerInFixture = (args: ReadonlyArray<string>) =>
       Effect.gen(function* () {
         const fixtureDir = yield* setupFixture;
         return yield* pipe(
-          Command.make("bun", `${process.cwd()}/scripts/context-crawler.ts`, ...args),
-          Command.workingDirectory(fixtureDir),
-          Command.string
+          ChildProcess.make("bun", [`${process.cwd()}/scripts/context-crawler.ts`, ...args], { cwd: fixtureDir }),
+          ChildProcess.string()
         );
-      }).pipe(Effect.scoped, Effect.provide(BunContext.layer));
+      }).pipe(Effect.scoped, Effect.provide(BunServices.layer));
 
     it("--list returns module paths", () =>
       Effect.gen(function* () {
@@ -334,7 +333,7 @@ External lib`
         expect(result).toContain(".");
         expect(result).toContain("apps/editor");
         expect(result).toContain("packages/core");
-      }).pipe(Effect.runPromise));
+      }));
 
     it("--summary returns grouped modules", () =>
       Effect.gen(function* () {
@@ -344,7 +343,7 @@ External lib`
         expect(result).toContain("<internal");
         // Note: .context/external is only marked external if it's in .gitmodules
         // In this test fixture there's no .gitmodules, so all modules are internal
-      }).pipe(Effect.runPromise));
+      }));
 
     it("--search finds matching modules", () =>
       Effect.gen(function* () {
@@ -352,7 +351,7 @@ External lib`
         expect(result).toContain('<modules-search pattern="editor"');
         expect(result).toContain("</modules-search>");
         expect(result).toContain("apps/editor");
-      }).pipe(Effect.runPromise));
+      }));
 
     it("--module returns content without frontmatter", () =>
       Effect.gen(function* () {
@@ -360,6 +359,6 @@ External lib`
         expect(result).toContain('<module path=".">');
         expect(result).toContain("Root content");
         expect(result).not.toContain('message = "Root module"');
-      }).pipe(Effect.runPromise));
+      }));
   });
 });
