@@ -17,7 +17,13 @@
     "./.claude/*.ts",
     "./.claude/*.json"
   ],
-  "exclude": ["./tooling/*/test/fixtures/**/*.ts", "./**/dtslint/**/*.tst.*"],
+  "exclude": [
+    "./tooling/*/test/fixtures/**/*.ts",
+    "./apps/*/test/**/*.ts",
+    "./apps/*/test/**/*.json",
+    "./apps/*/vitest.*.ts",
+    "./**/dtslint/**/*.tst.*"
+  ],
   "compilerOptions": {
     "tsBuildInfoFile": "./dist/tsconfig.root.tsbuildinfo",
     "rootDir": ".",
