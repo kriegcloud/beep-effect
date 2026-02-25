@@ -6,11 +6,10 @@ import * as Console from "../../Console.ts"
 import * as Effect from "../../Effect.ts"
 import type * as FileSystem from "../../FileSystem.ts"
 import { dual } from "../../Function.ts"
-import type * as Layer from "../../Layer.ts"
+import * as Layer from "../../Layer.ts"
 import type * as Path from "../../Path.ts"
 import type { Pipeable } from "../../Pipeable.ts"
 import * as Predicate from "../../Predicate.ts"
-import * as References from "../../References.ts"
 import * as Result from "../../Result.ts"
 import * as ServiceMap from "../../ServiceMap.ts"
 import * as Terminal from "../../Terminal.ts"
@@ -18,13 +17,13 @@ import type { NoInfer, Simplify } from "../../Types.ts"
 import type { ChildProcessSpawner } from "../process/ChildProcessSpawner.ts"
 import * as CliError from "./CliError.ts"
 import * as CliOutput from "./CliOutput.ts"
-import { checkForDuplicateFlags, getHelpForCommandPath, makeCommand, toImpl, TypeId } from "./internal/command.ts"
-import * as CommandDescriptor from "./internal/completions/CommandDescriptor.ts"
-import * as Completions from "./internal/completions/Completions.ts"
+import * as GlobalFlag from "./GlobalFlag.ts"
+import { checkForDuplicateFlags, makeCommand, toImpl, TypeId } from "./internal/command.ts"
 import { parseConfig } from "./internal/config.ts"
+import { getHelpForCommandPath } from "./internal/help.ts"
 import * as Lexer from "./internal/lexer.ts"
 import * as Parser from "./internal/parser.ts"
-import type * as Param from "./Param.ts"
+import * as Param from "./Param.ts"
 
 /* ========================================================================== */
 /* Public Types                                                               */
@@ -99,6 +98,11 @@ export interface Command<Name extends string, Input, E = never, R = never> exten
    * An optional short description used when listing subcommands.
    */
   readonly shortDescription: string | undefined
+
+  /**
+   * An optional alias that can be used as a shorter command name.
+   */
+  readonly alias: string | undefined
 
   /**
    * Optional usage examples for the command.
@@ -645,6 +649,7 @@ export const withSubcommands: {
     config: impl.config,
     description: impl.description,
     shortDescription: impl.shortDescription,
+    alias: impl.alias,
     annotations: impl.annotations,
     examples: impl.examples,
     service: impl.service,
@@ -721,6 +726,28 @@ export const withShortDescription: {
   self: Command<Name, Input, E, R>,
   shortDescription: string
 ) => makeCommand({ ...toImpl(self), shortDescription }))
+
+/**
+ * Sets an alias for a command.
+ *
+ * Aliases are accepted as alternate subcommand names during parsing and are
+ * shown in help output as `name, alias`.
+ *
+ * @since 4.0.0
+ * @category combinators
+ */
+export const withAlias: {
+  (alias: string): <const Name extends string, Input, E, R>(
+    self: Command<Name, Input, E, R>
+  ) => Command<Name, Input, E, R>
+  <const Name extends string, Input, E, R>(
+    self: Command<Name, Input, E, R>,
+    alias: string
+  ): Command<Name, Input, E, R>
+} = dual(2, <const Name extends string, Input, E, R>(
+  self: Command<Name, Input, E, R>,
+  alias: string
+) => makeCommand({ ...toImpl(self), alias }))
 
 /**
  * Adds a custom annotation to a command.
@@ -977,7 +1004,7 @@ const showHelp = <Name extends string, Input, E, R>(
 ): Effect.Effect<void, never, Environment> =>
   Effect.gen(function*() {
     const formatter = yield* CliOutput.Formatter
-    const helpDoc = getHelpForCommandPath(command, commandPath)
+    const helpDoc = yield* getHelpForCommandPath(command, commandPath, GlobalFlag.Registry)
     yield* Console.log(formatter.formatHelpDoc(helpDoc))
     if (errors && errors.length > 0) {
       yield* Console.error(formatter.formatErrors(errors))
@@ -1009,17 +1036,17 @@ const showHelp = <Name extends string, Input, E, R>(
  * @category command execution
  */
 export const run: {
+  (config: {
+    readonly version: string
+  }): <Name extends string, Input, E, R>(
+    command: Command<Name, Input, E, R>
+  ) => Effect.Effect<void, E | CliError.CliError, R | Environment>
   <Name extends string, Input, E, R>(
     command: Command<Name, Input, E, R>,
     config: {
       readonly version: string
     }
   ): Effect.Effect<void, E | CliError.CliError, R | Environment>
-  (config: {
-    readonly version: string
-  }): <Name extends string, Input, E, R>(
-    command: Command<Name, Input, E, R>
-  ) => Effect.Effect<void, E | CliError.CliError, R | Environment>
 } = dual(2, <Name extends string, Input, E, R>(
   command: Command<Name, Input, E, R>,
   config: {
@@ -1082,29 +1109,41 @@ export const runWith = <const Name extends string, Input, E, R>(
   const commandImpl = toImpl(command)
   return Effect.fnUntraced(
     function*(args: ReadonlyArray<string>) {
-      // Lex and extract built-in flags
       const { tokens, trailingOperands } = Lexer.lex(args)
-      const { completions, help, logLevel, remainder, version } = yield* Parser.extractBuiltInOptions(tokens)
+
+      // 1. Read registry and resolve each reference to its current value
+      const refs = yield* GlobalFlag.Registry
+      const flags: Array<GlobalFlag.GlobalFlag<any>> = []
+      for (const ref of refs) {
+        flags.push(yield* ref)
+      }
+
+      // 2. Extract global flag tokens
+      const allFlagParams = flags.flatMap((f) => Param.extractSingleParams(f.flag))
+      const globalRegistry = Parser.createFlagRegistry(allFlagParams.filter(Param.isFlagParam))
+      const { flagMap, remainder } = Parser.consumeKnownFlags(tokens, globalRegistry)
+      const emptyArgs: Param.ParsedArgs = { flags: flagMap, arguments: [] }
+
+      // 3. Parse command arguments from remaining tokens
       const parsedArgs = yield* Parser.parseArgs({ tokens: remainder, trailingOperands }, command)
       const commandPath = [command.name, ...Parser.getCommandPath(parsedArgs)] as const
-      const formatter = yield* CliOutput.Formatter
+      const handlerCtx: GlobalFlag.HandlerContext = { command, commandPath, version: config.version }
 
-      // Handle built-in flags (early exits)
-      if (help) {
-        yield* Console.log(formatter.formatHelpDoc(getHelpForCommandPath(command, commandPath)))
-        return
-      }
-      if (completions !== undefined) {
-        const descriptor = CommandDescriptor.fromCommand(command)
-        yield* Console.log(Completions.generate(command.name, completions, descriptor))
-        return
-      }
-      if (version) {
-        yield* Console.log(formatter.formatVersion(command.name, config.version))
+      // 4. Process action flags — first present action wins, then exit
+      for (const flag of flags) {
+        if (flag._tag !== "Action") continue
+        const singles = Param.extractSingleParams(flag.flag)
+        const hasEntry = singles.some((s) => {
+          const entries = flagMap[s.name]
+          return entries !== undefined && entries.length > 0
+        })
+        if (!hasEntry) continue
+        const [, value] = yield* flag.flag.parse(emptyArgs)
+        yield* flag.run(value, handlerCtx)
         return
       }
 
-      // Handle parsing errors
+      // 5. Handle parsing errors
       if (parsedArgs.errors && parsedArgs.errors.length > 0) {
         return yield* showHelp(command, commandPath, parsedArgs.errors)
       }
@@ -1112,15 +1151,18 @@ export const runWith = <const Name extends string, Input, E, R>(
       if (parseResult._tag === "Failure") {
         return yield* showHelp(command, commandPath, [parseResult.failure])
       }
-      const parsed = parseResult.success
 
-      // Create and run the execution program
-      const program = commandImpl.handle(parsed, [command.name])
-      const withLogLevel = logLevel !== undefined
-        ? Effect.provideService(program, References.MinimumLogLevel, logLevel)
-        : program
+      // 6. Compose setting flag layers
+      let contextLayer: Layer.Layer<never> = Layer.empty
+      for (const flag of flags) {
+        if (flag._tag !== "Setting") continue
+        const [, value] = yield* flag.flag.parse(emptyArgs)
+        contextLayer = Layer.merge(contextLayer, flag.layer(value))
+      }
 
-      yield* withLogLevel
+      // 7. Run command handler with composed context
+      const program = commandImpl.handle(parseResult.success, [command.name])
+      yield* Effect.provide(program, contextLayer)
     },
     Effect.catchIf(
       ((error: any) =>

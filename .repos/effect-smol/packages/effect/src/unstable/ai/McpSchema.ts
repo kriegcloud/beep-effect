@@ -120,7 +120,7 @@ export class ResultMeta extends Schema.Opaque<ResultMeta>()(Schema.Struct({
    * This result property is reserved by the protocol to allow clients and
    * servers to attach additional metadata to their responses.
    */
-  _meta: optional(Schema.Record(Schema.String, Schema.Any))
+  _meta: optional(Schema.Record(Schema.String, Schema.Json))
 })) {}
 
 /**
@@ -132,7 +132,7 @@ export class NotificationMeta extends Schema.Opaque<NotificationMeta>()(Schema.S
    * This parameter name is reserved by MCP to allow clients and servers to
    * attach additional metadata to their notifications.
    */
-  _meta: optional(Schema.Record(Schema.String, Schema.Any))
+  _meta: optional(Schema.Record(Schema.String, Schema.Json))
 })) {}
 
 /**
@@ -241,6 +241,11 @@ export class ClientCapabilities extends Schema.Class<ClientCapabilities>(
    */
   experimental: optional(Schema.Record(Schema.String, Schema.Struct({}))),
   /**
+   * Optional extensions capabilities advertised by the client.
+   * Keys are extension identifiers following <vendor-prefix>/<extension-name> (e.g. "io.modelcontextprotocol/ui").
+   */
+  extensions: optional(Schema.Record(Schema.TemplateLiteral([Schema.String, "/", Schema.String]), Schema.Json)),
+  /**
    * Present if the client supports listing roots.
    */
   roots: optional(Schema.Struct({
@@ -272,6 +277,11 @@ export class ServerCapabilities extends Schema.Opaque<ServerCapabilities>()(Sche
    * Experimental, non-standard capabilities that the server supports.
    */
   experimental: optional(Schema.Record(Schema.String, Schema.Struct({}))),
+  /**
+   * Optional extensions capabilities advertised by the server.
+   * Keys are extension identifiers following <vendor-prefix>/<extension-name> (e.g. "io.modelcontextprotocol/ui").
+   */
+  extensions: optional(Schema.Record(Schema.TemplateLiteral([Schema.String, "/", Schema.String]), Schema.Json)),
   /**
    * Present if the server supports sending log messages to the client.
    */
@@ -321,8 +331,8 @@ export class ServerCapabilities extends Schema.Opaque<ServerCapabilities>()(Sche
  * @since 4.0.0
  * @category errors
  */
-export class McpError extends Schema.Class<McpError>(
-  "@effect/ai/McpSchema/McpError"
+export class McpErrorBase extends Schema.Class<McpErrorBase>(
+  "@effect/ai/McpSchema/McpErrorBase"
 )({
   /**
    * The error type that occurred.
@@ -371,7 +381,7 @@ export const PARSE_ERROR_CODE = -32700 as const
  * @category errors
  */
 export class ParseError extends Schema.ErrorClass<ParseError>("effect/ai/McpSchema/ParseError")({
-  ...McpError.fields,
+  ...McpErrorBase.fields,
   _tag: Schema.tag("ParseError"),
   code: Schema.tag(PARSE_ERROR_CODE)
 }) {}
@@ -381,7 +391,7 @@ export class ParseError extends Schema.ErrorClass<ParseError>("effect/ai/McpSche
  * @category errors
  */
 export class InvalidRequest extends Schema.ErrorClass<InvalidRequest>("effect/ai/McpSchema/InvalidRequest")({
-  ...McpError.fields,
+  ...McpErrorBase.fields,
   _tag: Schema.tag("InvalidRequest"),
   code: Schema.tag(INVALID_REQUEST_ERROR_CODE)
 }) {}
@@ -391,7 +401,7 @@ export class InvalidRequest extends Schema.ErrorClass<InvalidRequest>("effect/ai
  * @category errors
  */
 export class MethodNotFound extends Schema.ErrorClass<MethodNotFound>("effect/ai/McpSchema/MethodNotFound")({
-  ...McpError.fields,
+  ...McpErrorBase.fields,
   _tag: Schema.tag("MethodNotFound"),
   code: Schema.tag(METHOD_NOT_FOUND_ERROR_CODE)
 }) {}
@@ -401,7 +411,7 @@ export class MethodNotFound extends Schema.ErrorClass<MethodNotFound>("effect/ai
  * @category errors
  */
 export class InvalidParams extends Schema.ErrorClass<InvalidParams>("effect/ai/McpSchema/InvalidParams")({
-  ...McpError.fields,
+  ...McpErrorBase.fields,
   _tag: Schema.tag("InvalidParams"),
   code: Schema.tag(INVALID_PARAMS_ERROR_CODE)
 }) {}
@@ -411,12 +421,25 @@ export class InvalidParams extends Schema.ErrorClass<InvalidParams>("effect/ai/M
  * @category errors
  */
 export class InternalError extends Schema.ErrorClass<InternalError>("effect/ai/McpSchema/InternalError")({
-  ...McpError.fields,
+  ...McpErrorBase.fields,
   _tag: Schema.tag("InternalError"),
   code: Schema.tag(INTERNAL_ERROR_CODE)
 }) {
   static readonly notImplemented = new InternalError({ message: "Not implemented" })
 }
+
+/**
+ * @since 4.0.0
+ * @category errors
+ */
+export const McpError = Schema.Union([
+  ParseError,
+  InvalidRequest,
+  MethodNotFound,
+  InvalidParams,
+  InternalError,
+  McpErrorBase
+])
 
 // =============================================================================
 // Ping
@@ -615,7 +638,14 @@ export class Resource extends Schema.Class<Resource>(
    * This can be used by Hosts to display file sizes and estimate context
    * window usage.
    */
-  size: optional(Schema.Number)
+  size: optional(Schema.Number),
+  /**
+   * Optional additional metadata for the client.
+   *
+   * This parameter name is reserved by MCP to allow clients and servers to
+   * attach additional metadata to resources.
+   */
+  _meta: optional(Schema.Record(Schema.String, Schema.Json))
 }) {}
 
 /**
@@ -656,7 +686,12 @@ export class ResourceTemplate extends Schema.Class<ResourceTemplate>(
   /**
    * Optional annotations for the client.
    */
-  annotations: optional(Annotations)
+  annotations: optional(Annotations),
+
+  /**
+   * Optional additional metadata for the client.
+   */
+  _meta: optional(Schema.Record(Schema.String, Schema.Json))
 }) {}
 
 /**
@@ -673,7 +708,11 @@ export class ResourceContents extends Schema.Opaque<ResourceContents>()(Schema.S
   /**
    * The MIME type of this resource, if known.
    */
-  mimeType: optional(Schema.String)
+  mimeType: optional(Schema.String),
+  /**
+   * Optional additional metadata for the client.
+   */
+  _meta: optional(Schema.Record(Schema.String, Schema.Json))
 })) {}
 
 /**
@@ -1183,7 +1222,14 @@ export class Tool extends Schema.Class<Tool>(
   /**
    * Optional additional tool information.
    */
-  annotations: optional(ToolAnnotations)
+  annotations: optional(ToolAnnotations),
+  /**
+   * Optional additional metadata for the client.
+   *
+   * This parameter name is reserved by MCP to allow clients and servers to
+   * attach additional metadata to resources.
+   */
+  _meta: optional(Schema.Record(Schema.String, Schema.Json))
 }) {}
 
 /**

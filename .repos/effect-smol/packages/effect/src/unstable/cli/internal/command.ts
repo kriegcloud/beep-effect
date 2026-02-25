@@ -90,6 +90,7 @@ export const makeCommand = <const Name extends string, Input, E, R>(options: {
   readonly annotations?: ServiceMap.ServiceMap<never> | undefined
   readonly description?: string | undefined
   readonly shortDescription?: string | undefined
+  readonly alias?: string | undefined
   readonly examples?: ReadonlyArray<Command.Example> | undefined
   readonly subcommands?: ReadonlyArray<SubcommandGroup> | undefined
   readonly parse?: ((input: ParsedTokens) => Effect.Effect<Input, CliError.CliError, Environment>) | undefined
@@ -165,6 +166,7 @@ export const makeCommand = <const Name extends string, Input, E, R>(options: {
         group: group.group,
         commands: Arr.map(group.commands, (subcommand) => ({
           name: subcommand.name,
+          alias: subcommand.alias,
           shortDescription: subcommand.shortDescription,
           description: subcommand.description ?? ""
         }))
@@ -200,6 +202,9 @@ export const makeCommand = <const Name extends string, Input, E, R>(options: {
       : {}),
     ...(Predicate.isNotUndefined(options.shortDescription)
       ? { shortDescription: options.shortDescription }
+      : {}),
+    ...(Predicate.isNotUndefined(options.alias)
+      ? { alias: options.alias }
       : {})
   })
 }
@@ -268,34 +273,4 @@ export const checkForDuplicateFlags = <Name extends string, Input>(
       }
     }
   }
-}
-
-/**
- * Helper function to get help documentation for a specific command path.
- * Navigates through the command hierarchy to find the right command.
- */
-export const getHelpForCommandPath = <Name extends string, Input, E, R>(
-  command: Command<Name, Input, E, R>,
-  commandPath: ReadonlyArray<string>
-): HelpDoc => {
-  let currentCommand: Command.Any = command
-
-  // Navigate through the command path to find the target command
-  for (let i = 1; i < commandPath.length; i++) {
-    const subcommandName = commandPath[i]
-    let subcommand: Command.Any | undefined = undefined
-
-    for (const group of currentCommand.subcommands) {
-      subcommand = group.commands.find((sub) => sub.name === subcommandName)
-      if (subcommand) {
-        break
-      }
-    }
-
-    if (subcommand) {
-      currentCommand = subcommand
-    }
-  }
-
-  return toImpl(currentCommand).buildHelpDoc(commandPath)
 }

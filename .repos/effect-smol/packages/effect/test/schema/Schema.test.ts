@@ -601,6 +601,16 @@ Unexpected key with value "c"
       )
     })
 
+    it("should use the identifier annotation as the expected message", async () => {
+      const schema = Schema.Struct({
+        a: Schema.String
+      }).annotate({ identifier: "ID" })
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.fail(null, `Expected ID, got null`)
+    })
+
     it(`Schema.optionalKey: { readonly "a"?: string }`, async () => {
       const schema = Schema.Struct({
         a: Schema.optionalKey(Schema.String)
@@ -6665,18 +6675,35 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     })
   })
 
-  it("encodeKeys", async () => {
-    const schema = Schema.Struct({
-      a: Schema.FiniteFromString,
-      b: Schema.String
-    }).pipe(Schema.encodeKeys({ a: "c" }))
-    const asserts = new TestSchema.Asserts(schema)
+  describe("encodeKeys", () => {
+    it("Struct", async () => {
+      const schema = Schema.Struct({
+        a: Schema.FiniteFromString,
+        b: Schema.String
+      }).pipe(Schema.encodeKeys({ a: "c" }))
+      const asserts = new TestSchema.Asserts(schema)
 
-    const decoding = asserts.decoding()
-    await decoding.succeed({ c: "1", b: "b" }, { a: 1, b: "b" })
+      const decoding = asserts.decoding()
+      await decoding.succeed({ c: "1", b: "b" }, { a: 1, b: "b" })
 
-    const encoding = asserts.encoding()
-    await encoding.succeed({ a: 1, b: "b" }, { c: "1", b: "b" })
+      const encoding = asserts.encoding()
+      await encoding.succeed({ a: 1, b: "b" }, { c: "1", b: "b" })
+    })
+
+    it("Class", async () => {
+      class A extends Schema.Class<A>("A")({
+        a: Schema.FiniteFromString,
+        b: Schema.String
+      }) {}
+      const schema = A.pipe(Schema.encodeKeys({ a: "c" }))
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed({ c: "1", b: "b" }, new A({ a: 1, b: "b" }))
+
+      const encoding = asserts.encoding()
+      await encoding.succeed(new A({ a: 1, b: "b" }), { c: "1", b: "b" })
+    })
   })
 
   describe("Schema.make", () => {
