@@ -14,7 +14,13 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as ts from "typescript";
-import { renderCommonAncestors } from "../util.js";
+import {
+  buildChainGraph,
+  buildFullyConnectedGraph,
+  buildHubGraph,
+  buildStarGraph,
+  renderCommonAncestors,
+} from "../util.js";
 
 const SERVICE_TAG_PATTERN = /export\s+const\s+(\w+)\s*=\s*Context\.GenericTag<\1>/g;
 const LAYER_PATTERN =
@@ -1903,128 +1909,6 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
   });
 
   describe("Graph Metrics", () => {
-    const buildChainGraph = (nodeNames: string[]): ArchitectureGraph => {
-      const services: ServiceDefinition[] = nodeNames.map((name) => ({
-        name,
-        path: `src/${name}.ts`,
-        line: 1,
-      }));
-
-      const layers: LayerDefinition[] = nodeNames.map((name, idx) => ({
-        name: `${name}Live`,
-        serviceName: name,
-        path: `src/${name}.ts`,
-        line: 10,
-        dependencies: idx < nodeNames.length - 1 ? [nodeNames[idx + 1]] : [],
-        errorTypes: [],
-        isParametrized: false,
-      }));
-
-      return { services, layers };
-    };
-
-    const buildStarGraph = (centerName: string, spokeNames: string[]): ArchitectureGraph => {
-      const services: ServiceDefinition[] = [
-        { name: centerName, path: `src/${centerName}.ts`, line: 1 },
-        ...spokeNames.map((name) => ({
-          name,
-          path: `src/${name}.ts`,
-          line: 1,
-        })),
-      ];
-
-      const layers: LayerDefinition[] = [
-        {
-          name: `${centerName}Live`,
-          serviceName: centerName,
-          path: `src/${centerName}.ts`,
-          line: 10,
-          dependencies: spokeNames,
-          errorTypes: [],
-          isParametrized: false,
-        },
-        ...spokeNames.map((name) => ({
-          name: `${name}Live`,
-          serviceName: name,
-          path: `src/${name}.ts`,
-          line: 10,
-          dependencies: [],
-          errorTypes: [],
-          isParametrized: false,
-        })),
-      ];
-
-      return { services, layers };
-    };
-
-    const buildFullyConnectedGraph = (nodeNames: string[]): ArchitectureGraph => {
-      const services: ServiceDefinition[] = nodeNames.map((name) => ({
-        name,
-        path: `src/${name}.ts`,
-        line: 1,
-      }));
-
-      const layers: LayerDefinition[] = nodeNames.map((name) => ({
-        name: `${name}Live`,
-        serviceName: name,
-        path: `src/${name}.ts`,
-        line: 10,
-        dependencies: nodeNames.filter((n) => n !== name),
-        errorTypes: [],
-        isParametrized: false,
-      }));
-
-      return { services, layers };
-    };
-    const buildHubGraph = (): ArchitectureGraph => {
-      const services: ServiceDefinition[] = [
-        { name: "Hub", path: "src/Hub.ts", line: 1 },
-        { name: "A", path: "src/A.ts", line: 1 },
-        { name: "B", path: "src/B.ts", line: 1 },
-        { name: "C", path: "src/C.ts", line: 1 },
-      ];
-
-      const layers: LayerDefinition[] = [
-        {
-          name: "HubLive",
-          serviceName: "Hub",
-          path: "src/Hub.ts",
-          line: 10,
-          dependencies: ["A", "B", "C"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "ALive",
-          serviceName: "A",
-          path: "src/A.ts",
-          line: 10,
-          dependencies: ["B", "C"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "BLive",
-          serviceName: "B",
-          path: "src/B.ts",
-          line: 10,
-          dependencies: ["C"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "CLive",
-          serviceName: "C",
-          path: "src/C.ts",
-          line: 10,
-          dependencies: [],
-          errorTypes: [],
-          isParametrized: false,
-        },
-      ];
-
-      return { services, layers };
-    };
     const buildDisconnectedGraph = (): ArchitectureGraph => {
       const services: ServiceDefinition[] = [
         { name: "A", path: "src/A.ts", line: 1 },
@@ -2211,80 +2095,6 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
   });
 
   describe("Advanced Graph Metrics", () => {
-    const buildChainGraph = (nodeNames: string[]): ArchitectureGraph => {
-      const services: ServiceDefinition[] = nodeNames.map((name) => ({
-        name,
-        path: `src/${name}.ts`,
-        line: 1,
-      }));
-
-      const layers: LayerDefinition[] = nodeNames.map((name, idx) => ({
-        name: `${name}Live`,
-        serviceName: name,
-        path: `src/${name}.ts`,
-        line: 10,
-        dependencies: idx < nodeNames.length - 1 ? [nodeNames[idx + 1]] : [],
-        errorTypes: [],
-        isParametrized: false,
-      }));
-
-      return { services, layers };
-    };
-
-    const buildStarGraph = (centerName: string, spokeNames: string[]): ArchitectureGraph => {
-      const services: ServiceDefinition[] = [
-        { name: centerName, path: `src/${centerName}.ts`, line: 1 },
-        ...spokeNames.map((name) => ({
-          name,
-          path: `src/${name}.ts`,
-          line: 1,
-        })),
-      ];
-
-      const layers: LayerDefinition[] = [
-        {
-          name: `${centerName}Live`,
-          serviceName: centerName,
-          path: `src/${centerName}.ts`,
-          line: 10,
-          dependencies: spokeNames,
-          errorTypes: [],
-          isParametrized: false,
-        },
-        ...spokeNames.map((name) => ({
-          name: `${name}Live`,
-          serviceName: name,
-          path: `src/${name}.ts`,
-          line: 10,
-          dependencies: [],
-          errorTypes: [],
-          isParametrized: false,
-        })),
-      ];
-
-      return { services, layers };
-    };
-
-    const buildFullyConnectedGraph = (nodeNames: string[]): ArchitectureGraph => {
-      const services: ServiceDefinition[] = nodeNames.map((name) => ({
-        name,
-        path: `src/${name}.ts`,
-        line: 1,
-      }));
-
-      const layers: LayerDefinition[] = nodeNames.map((name) => ({
-        name: `${name}Live`,
-        serviceName: name,
-        path: `src/${name}.ts`,
-        line: 10,
-        dependencies: nodeNames.filter((n) => n !== name),
-        errorTypes: [],
-        isParametrized: false,
-      }));
-
-      return { services, layers };
-    };
-
     const buildBridgeGraph = (): ArchitectureGraph => {
       const services: ServiceDefinition[] = [
         { name: "A", path: "src/A.ts", line: 1 },
@@ -2325,56 +2135,6 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
           name: "DLive",
           serviceName: "D",
           path: "src/D.ts",
-          line: 10,
-          dependencies: [],
-          errorTypes: [],
-          isParametrized: false,
-        },
-      ];
-
-      return { services, layers };
-    };
-
-    const buildHubGraph = (): ArchitectureGraph => {
-      const services: ServiceDefinition[] = [
-        { name: "Hub", path: "src/Hub.ts", line: 1 },
-        { name: "A", path: "src/A.ts", line: 1 },
-        { name: "B", path: "src/B.ts", line: 1 },
-        { name: "C", path: "src/C.ts", line: 1 },
-      ];
-
-      const layers: LayerDefinition[] = [
-        {
-          name: "HubLive",
-          serviceName: "Hub",
-          path: "src/Hub.ts",
-          line: 10,
-          dependencies: ["A", "B", "C"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "ALive",
-          serviceName: "A",
-          path: "src/A.ts",
-          line: 10,
-          dependencies: ["B", "C"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "BLive",
-          serviceName: "B",
-          path: "src/B.ts",
-          line: 10,
-          dependencies: ["C"],
-          errorTypes: [],
-          isParametrized: false,
-        },
-        {
-          name: "CLive",
-          serviceName: "C",
-          path: "src/C.ts",
           line: 10,
           dependencies: [],
           errorTypes: [],

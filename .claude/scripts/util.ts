@@ -1,5 +1,26 @@
-import type { CommonAncestorsResult } from "@beep/claude/scripts/analyze-architecture";
+import type {
+  ArchitectureGraph,
+  CommonAncestorsResult,
+  LayerDefinition,
+  ServiceDefinition,
+} from "@beep/claude/scripts/analyze-architecture";
 import * as A from "effect/Array";
+
+const buildService = (name: string): ServiceDefinition => ({
+  name,
+  path: `src/${name}.ts`,
+  line: 1,
+});
+
+const buildLayer = (serviceName: string, dependencies: ReadonlyArray<string>): LayerDefinition => ({
+  name: `${serviceName}Live`,
+  serviceName,
+  path: `src/${serviceName}.ts`,
+  line: 10,
+  dependencies: [...dependencies],
+  errorTypes: [],
+  isParametrized: false,
+});
 
 export const renderCommonAncestors = (result: CommonAncestorsResult): string => {
   const sections = A.empty<string>();
@@ -36,4 +57,38 @@ export const renderCommonAncestors = (result: CommonAncestorsResult): string => 
   sections.push("</common_ancestors>");
 
   return sections.join("\n");
+};
+
+export const buildChainGraph = (nodeNames: ReadonlyArray<string>): ArchitectureGraph => {
+  const services = nodeNames.map(buildService);
+  const layers = nodeNames.map((name, idx) => buildLayer(name, idx < nodeNames.length - 1 ? [nodeNames[idx + 1]] : []));
+  return { services, layers };
+};
+
+export const buildStarGraph = (centerName: string, spokeNames: ReadonlyArray<string>): ArchitectureGraph => {
+  const services = [buildService(centerName), ...spokeNames.map(buildService)];
+  const layers = [buildLayer(centerName, spokeNames), ...spokeNames.map((name) => buildLayer(name, []))];
+  return { services, layers };
+};
+
+export const buildFullyConnectedGraph = (nodeNames: ReadonlyArray<string>): ArchitectureGraph => {
+  const services = nodeNames.map(buildService);
+  const layers = nodeNames.map((name) =>
+    buildLayer(
+      name,
+      nodeNames.filter((otherName) => otherName !== name)
+    )
+  );
+  return { services, layers };
+};
+
+export const buildHubGraph = (): ArchitectureGraph => {
+  const services = ["Hub", "A", "B", "C"].map(buildService);
+  const layers = [
+    buildLayer("Hub", ["A", "B", "C"]),
+    buildLayer("A", ["B", "C"]),
+    buildLayer("B", ["C"]),
+    buildLayer("C", []),
+  ];
+  return { services, layers };
 };
