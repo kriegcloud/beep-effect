@@ -239,6 +239,8 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
   const $match = buildMatch(literals);
   const Enum = makeEnum(literals);
 
+  // const base.mapMembers()
+
   return Object.defineProperties(base, {
     Options: { value: literals, enumerable: true, writable: true, configurable: true },
     is: { value: is, enumerable: true, writable: true, configurable: true },
