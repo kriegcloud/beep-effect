@@ -10,16 +10,14 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { HashSet, Match, pipe } from "effect";
+import { HashSet, Match, pipe, type SchemaAST, type Unify } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { LiteralValue } from "effect/SchemaAST";
-import type * as Unify from "effect/Unify";
 
 const $I = $SchemaId.create("LiteralKit.schema");
 
-type Literals = A.NonEmptyReadonlyArray<LiteralValue>;
+type Literals = A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>;
 
 /**
  * Convert a literal value to a valid object key (string representation).
@@ -34,7 +32,7 @@ type Literals = A.NonEmptyReadonlyArray<LiteralValue>;
  * @since 0.0.0
  * @category types
  */
-export type LiteralToKey<L extends LiteralValue> = L extends boolean
+export type LiteralToKey<L extends SchemaAST.LiteralValue> = L extends boolean
   ? L extends true
     ? "true"
     : "false"
@@ -90,7 +88,7 @@ type MatchFn<L extends Literals> = {
  * @since 0.0.0
  * @category utils
  */
-export const matchLiteral = <L extends LiteralValue>(literal: L): LiteralToKey<L> =>
+export const matchLiteral = <L extends SchemaAST.LiteralValue>(literal: L): LiteralToKey<L> =>
   Match.value(literal).pipe(
     Match.when(P.isBoolean, () => (literal === true ? "true" : "false")),
     Match.when(P.isBigInt, () => `bigint${literal}n` as const),
@@ -149,7 +147,7 @@ const makeOptionsFns = <L extends Literals>(
   omitOptions: <LSubset extends A.NonEmptyReadonlyArray<L[number]>>(
     subset: LSubset
   ): A.NonEmptyReadonlyArray<Exclude<L[number], LSubset[number]>> => {
-    const keySet: HashSet.HashSet<LiteralValue> = HashSet.fromIterable(subset);
+    const keySet: HashSet.HashSet<SchemaAST.LiteralValue> = HashSet.fromIterable(subset);
     const isExcluded = (literal: L[number]): literal is Exclude<L[number], LSubset[number]> =>
       !HashSet.has(literal)(keySet);
     const isResult = (
@@ -244,13 +242,13 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
   const $match = buildMatch(literals);
   const Enum = makeEnum(literals);
 
-  return Object.assign(base, {
-    Options: literals,
-    is,
-    Enum,
-    pickOptions,
-    omitOptions,
-    $match,
+  return Object.defineProperties(base, {
+    Options: { value: literals, enumerable: true, writable: true, configurable: true },
+    is: { value: is, enumerable: true, writable: true, configurable: true },
+    Enum: { value: Enum, enumerable: true, writable: true, configurable: true },
+    pickOptions: { value: pickOptions, enumerable: true, writable: true, configurable: true },
+    omitOptions: { value: omitOptions, enumerable: true, writable: true, configurable: true },
+    $match: { value: $match, enumerable: true, writable: true, configurable: true },
   }) as LiteralKit<L>;
 }
 // bench

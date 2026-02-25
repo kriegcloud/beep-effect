@@ -100,6 +100,8 @@ export const SkillCandidates: ReadonlyArray<SkillCandidate> = [
 /**
  * Load policy overlays from a directory of JSON files.
  *
+ * @param policyDirectory - Relative or absolute directory containing overlay JSON files.
+ * @returns Effect that loads, decodes, and priority-sorts policy overlays.
  * @since 0.0.0
  * @category functions
  */
@@ -134,6 +136,10 @@ export const loadPolicyOverlays = (policyDirectory: string) =>
 /**
  * Resolve merged policy constraints for one run tuple.
  *
+ * @param overlays - Available overlays loaded from the policy directory.
+ * @param condition - Benchmark condition for the current run tuple.
+ * @param category - Task category used to filter applicable overlays.
+ * @returns Effective packet limits and selected policy identifiers.
  * @since 0.0.0
  * @category functions
  */
@@ -178,6 +184,10 @@ const keywordScore = (prompt: string, keywords: ReadonlyArray<string>): number =
 /**
  * Deterministically select focused skill modules with a strict max cap.
  *
+ * @param prompt - Task prompt text used for keyword scoring.
+ * @param category - Task category used to filter candidate skills.
+ * @param maxSkills - Maximum number of skills to return.
+ * @returns Ordered skill names selected from deterministic score ranking.
  * @since 0.0.0
  * @category functions
  */
@@ -205,6 +215,9 @@ export const selectFocusedSkills = (
 /**
  * Validate that the strict max-skills cap is honored.
  *
+ * @param skills - Selected skills to validate.
+ * @param maxSkills - Configured upper bound for selected skills.
+ * @returns True when selection size is within the configured cap.
  * @since 0.0.0
  * @category functions
  */

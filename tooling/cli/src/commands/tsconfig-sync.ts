@@ -22,6 +22,8 @@ import {
 import { Console, Effect, FileSystem, HashMap, HashSet, Path, Schema } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 
@@ -199,7 +201,7 @@ interface TsconfigWithPaths {
 const toPosixPath = (value: string): string => value.replaceAll("\\", "/");
 
 const uniqueSorted = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
-  const unique = [...new Set(values)];
+  const unique = [...HashSet.fromIterable(values)];
   unique.sort((left, right) => left.localeCompare(right));
   return unique;
 };
@@ -219,10 +221,10 @@ const isCanonicalAliasKey = (key: string): boolean => CANONICAL_ALIAS_KEY_PATTER
 
 const dependencyNamesFromWorkspaceDeps = (workspaceDeps: WorkspaceDeps): ReadonlyArray<string> =>
   uniqueSorted([
-    ...Object.keys(workspaceDeps.workspace.dependencies),
-    ...Object.keys(workspaceDeps.workspace.devDependencies),
-    ...Object.keys(workspaceDeps.workspace.peerDependencies),
-    ...Object.keys(workspaceDeps.workspace.optionalDependencies),
+    ...R.keys(workspaceDeps.workspace.dependencies),
+    ...R.keys(workspaceDeps.workspace.devDependencies),
+    ...R.keys(workspaceDeps.workspace.peerDependencies),
+    ...R.keys(workspaceDeps.workspace.optionalDependencies),
   ]);
 
 const parseJsonc = Effect.fn(function* <T>(content: string, filePath: string) {
@@ -353,19 +355,19 @@ const summaryCounts = (
   expectedItems: ReadonlyArray<string>,
   noun: string
 ): string => {
-  const currentSet = new Set(currentItems);
-  const expectedSet = new Set(expectedItems);
+  const currentSet = HashSet.fromIterable(currentItems);
+  const expectedSet = HashSet.fromIterable(expectedItems);
 
   let added = 0;
   let removed = 0;
 
   for (const entry of expectedSet) {
-    if (!currentSet.has(entry)) {
+    if (!HashSet.has(currentSet, entry)) {
       added += 1;
     }
   }
   for (const entry of currentSet) {
-    if (!expectedSet.has(entry)) {
+    if (!HashSet.has(expectedSet, entry)) {
       removed += 1;
     }
   }
@@ -376,7 +378,7 @@ const summaryCounts = (
 };
 
 const compareReferencePathsInOrder = (parsed: TsconfigWithReferences): ReadonlyArray<string> =>
-  (parsed.references ?? A.empty()).flatMap((entry) => (typeof entry.path === "string" ? [entry.path] : []));
+  (parsed.references ?? A.empty()).flatMap((entry) => (P.isString(entry.path) ? [entry.path] : []));
 
 const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: ReadonlyArray<WorkspaceDescriptor>) {
   const path = yield* Path.Path;
@@ -418,11 +420,11 @@ const canonicalAliasEntriesForWorkspace = (
 };
 
 const pathValuesEqual = (currentValue: unknown, expectedValue: ReadonlyArray<string>): boolean => {
-  if (!Array.isArray(currentValue)) {
+  if (!A.isArray(currentValue)) {
     return false;
   }
 
-  if (!currentValue.every((entry) => typeof entry === "string")) {
+  if (!A.every(currentValue, P.isString)) {
     return false;
   }
 
@@ -438,23 +440,23 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
 
   const currentPaths = parsed.compilerOptions?.paths ?? {};
 
-  const expectedAliases = new Map<string, ReadonlyArray<string>>();
+  let expectedAliases = HashMap.empty<string, ReadonlyArray<string>>();
   for (const workspace of workspaces) {
     for (const [aliasKey, aliasValue] of canonicalAliasEntriesForWorkspace(workspace)) {
-      expectedAliases.set(aliasKey, aliasValue);
+      expectedAliases = HashMap.set(expectedAliases, aliasKey, aliasValue);
     }
   }
 
-  const currentCanonicalKeys = uniqueSorted(Object.keys(currentPaths).filter(isCanonicalAliasKey));
-  const expectedCanonicalKeys = uniqueSorted(Array.from(expectedAliases.keys()));
+  const currentCanonicalKeys = uniqueSorted(A.filter(R.keys(currentPaths), isCanonicalAliasKey));
+  const expectedCanonicalKeys = uniqueSorted([...HashMap.keys(expectedAliases)]);
 
-  const keysToRemove = A.filter(currentCanonicalKeys, (key) => !expectedAliases.has(key));
+  const keysToRemove = A.filter(currentCanonicalKeys, (key) => O.isNone(HashMap.get(expectedAliases, key)));
   const keysToSet = A.filter(expectedCanonicalKeys, (key) => {
-    const expectedValue = expectedAliases.get(key);
-    if (expectedValue === undefined) {
+    const expectedValue = HashMap.get(expectedAliases, key);
+    if (O.isNone(expectedValue)) {
       return false;
     }
-    return !pathValuesEqual(currentPaths[key], expectedValue);
+    return !pathValuesEqual(currentPaths[key], expectedValue.value);
   });
 
   if (keysToRemove.length === 0 && keysToSet.length === 0) {
@@ -466,11 +468,11 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
     nextContent = applyJsoncModification(nextContent, ["compilerOptions", "paths", key], undefined);
   }
   for (const key of keysToSet) {
-    const expectedValue = expectedAliases.get(key);
-    if (expectedValue === undefined) {
+    const expectedValue = HashMap.get(expectedAliases, key);
+    if (O.isNone(expectedValue)) {
       continue;
     }
-    nextContent = applyJsoncModification(nextContent, ["compilerOptions", "paths", key], expectedValue);
+    nextContent = applyJsoncModification(nextContent, ["compilerOptions", "paths", key], expectedValue.value);
   }
 
   const additions = keysToSet.filter((key) => !currentCanonicalKeys.includes(key)).length;
@@ -561,7 +563,9 @@ const planPackageReferenceSync = Effect.fn(function* (
 ) {
   const path = yield* Path.Path;
 
-  const workspaceByName = new Map(workspaces.map((workspace) => [workspace.packageName, workspace] as const));
+  const workspaceByName = HashMap.fromIterable(
+    A.map(workspaces, (workspace) => [workspace.packageName, workspace] as const)
+  );
   const normalizedFilter = filter === undefined ? undefined : toPosixPath(filter).replace(/^\.\//, "");
 
   const targetWorkspaces = A.filter(workspaces, (workspace) => {
@@ -599,19 +603,19 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const directDeps = dependencyNamesFromWorkspaceDeps(workspaceDepsOption.value).filter((depName) => {
-      const descriptor = workspaceByName.get(depName);
-      return descriptor !== undefined && descriptor.ownerTsconfigPath !== undefined;
+      const descriptor = HashMap.get(workspaceByName, depName);
+      return O.isSome(descriptor) && descriptor.value.ownerTsconfigPath !== undefined;
     });
 
     const subsetAdjacency = buildSubsetAdjacency(directDeps, adjacency);
     const sortedDeps = directDeps.length === 0 ? A.empty<string>() : yield* topologicalSort(subsetAdjacency);
 
     const computedTargets = sortedDeps.flatMap((depName) => {
-      const descriptor = workspaceByName.get(depName);
-      if (descriptor?.ownerTsconfigPath === undefined) {
+      const descriptor = HashMap.get(workspaceByName, depName);
+      if (O.isNone(descriptor) || descriptor.value.ownerTsconfigPath === undefined) {
         return [];
       }
-      return [descriptor.ownerTsconfigPath];
+      return [descriptor.value.ownerTsconfigPath];
     });
 
     const original = yield* readFileString(sourceOwnerTsconfigPath);
@@ -636,9 +640,9 @@ const planPackageReferenceSync = Effect.fn(function* (
     }
 
     const computedResolvedTargets = uniqueSorted(A.map(computedTargets, toPosixPath));
-    const computedResolvedTargetSet = new Set(computedResolvedTargets);
+    const computedResolvedTargetSet = HashSet.fromIterable(computedResolvedTargets);
 
-    const extraTargets = existingResolvedTargets.filter((target) => !computedResolvedTargetSet.has(target));
+    const extraTargets = existingResolvedTargets.filter((target) => !HashSet.has(computedResolvedTargetSet, target));
     const finalTargets = [...computedResolvedTargets, ...extraTargets];
 
     const finalRefPaths = finalTargets.map((targetPath) => normalizeRelativeRef(sourceDir, targetPath, path));

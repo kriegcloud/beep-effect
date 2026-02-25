@@ -11,6 +11,7 @@
 import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import * as jsonc from "jsonc-parser";
@@ -61,6 +62,8 @@ const extractBunVersion = Str.replace(/^bun-v/, "");
  */
 const extractPackageManagerVersion = Str.replace(/^bun@/, "");
 
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
+
 // ── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -110,10 +113,10 @@ export const resolveBunVersions: (
 
     const parseErrors: Array<jsonc.ParseError> = [];
     const pkgJson = jsonc.parse(pkgJsonContent, parseErrors);
-    if (A.length(parseErrors) > 0 || typeof pkgJson !== "object" || pkgJson === null) {
+    if (A.length(parseErrors) > 0 || !isRecord(pkgJson)) {
       return yield* new VersionSyncError({ message: "Failed to parse package.json", file: "package.json" });
     }
-    const rawPm = typeof pkgJson.packageManager === "string" ? pkgJson.packageManager : "";
+    const rawPm = P.isString(pkgJson.packageManager) ? pkgJson.packageManager : "";
     const packageManagerField = extractPackageManagerVersion(rawPm);
 
     // Optionally fetch latest

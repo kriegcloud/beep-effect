@@ -8,14 +8,15 @@
  */
 
 import type { FileSystem, Path } from "effect";
-import { Effect } from "effect";
+import { Effect, HashMap } from "effect";
+import * as O from "effect/Option";
 import { handleBench } from "./commands/bench.js";
 import { handleCompare } from "./commands/compare.js";
 import { handleIngest } from "./commands/ingest.js";
 import { handleReport } from "./commands/report.js";
 import { AgentEvalPlatformLayer } from "./runtime.js";
 
-const parseFlags = (argv: ReadonlyArray<string>): ReadonlyMap<string, string> => {
+const parseFlags = (argv: ReadonlyArray<string>): HashMap.HashMap<string, string> => {
   const entries: Array<readonly [string, string]> = [];
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -35,30 +36,30 @@ const parseFlags = (argv: ReadonlyArray<string>): ReadonlyMap<string, string> =>
     index += 1;
   }
 
-  return new Map(entries);
+  return HashMap.fromIterable(entries);
 };
 
-const readFlag = (flags: ReadonlyMap<string, string>, key: string, fallback: string): string =>
-  flags.get(key) ?? fallback;
+const readFlag = (flags: HashMap.HashMap<string, string>, key: string, fallback: string): string =>
+  O.getOrElse(HashMap.get(flags, key), () => fallback);
 
-const readIntFlag = (flags: ReadonlyMap<string, string>, key: string, fallback: number): number => {
-  const raw = flags.get(key);
-  if (!raw) {
+const readIntFlag = (flags: HashMap.HashMap<string, string>, key: string, fallback: number): number => {
+  const raw = HashMap.get(flags, key);
+  if (O.isNone(raw)) {
     return fallback;
   }
-  const value = Number.parseInt(raw, 10);
+  const value = Number.parseInt(raw.value, 10);
   return Number.isNaN(value) ? fallback : value;
 };
 
-const readBoolFlag = (flags: ReadonlyMap<string, string>, key: string, fallback: boolean): boolean => {
-  const raw = flags.get(key);
-  if (!raw) {
+const readBoolFlag = (flags: HashMap.HashMap<string, string>, key: string, fallback: boolean): boolean => {
+  const raw = HashMap.get(flags, key);
+  if (O.isNone(raw)) {
     return fallback;
   }
-  if (raw === "true") {
+  if (raw.value === "true") {
     return true;
   }
-  if (raw === "false") {
+  if (raw.value === "false") {
     return false;
   }
   return fallback;

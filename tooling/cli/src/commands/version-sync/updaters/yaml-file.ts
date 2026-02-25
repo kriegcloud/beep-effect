@@ -7,6 +7,7 @@
 
 import { Effect, FileSystem } from "effect";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import { parseDocument } from "yaml";
 import { VersionSyncError } from "../types.js";
 
@@ -97,7 +98,7 @@ export const replaceNodeVersionWithFile: (
       const withPath = A.dropRight(loc.yamlPath, 1);
       const withNode = doc.getIn(withPath);
 
-      if (withNode !== undefined && withNode !== null && typeof withNode === "object") {
+      if (withNode !== undefined && withNode !== null && P.isObject(withNode) && !A.isArray(withNode)) {
         // Set node-version-file on the `with:` block
         doc.setIn(A.append(withPath, "node-version-file"), ".nvmrc");
         changed = true;

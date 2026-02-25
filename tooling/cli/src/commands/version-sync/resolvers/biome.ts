@@ -30,6 +30,8 @@ const BIOME_SCHEMA_PREFIX = "https://biomejs.dev/schemas/";
  */
 const BIOME_SCHEMA_SUFFIX = "/schema.json";
 
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 /**
@@ -106,11 +108,11 @@ export const resolveBiomeSchema: (
 
     const biomeParseErrors = A.empty<jsonc.ParseError>();
     const biomeJson = jsonc.parse(biomeContent, biomeParseErrors);
-    if (A.length(biomeParseErrors) > 0 || !P.isObject(biomeJson) || P.isNull(biomeJson)) {
+    if (A.length(biomeParseErrors) > 0 || !isRecord(biomeJson)) {
       return yield* new VersionSyncError({ message: "Failed to parse biome.jsonc", file: "biome.jsonc" });
     }
 
-    const schemaUrl = typeof biomeJson.$schema === "string" ? biomeJson.$schema : "";
+    const schemaUrl = P.isString(biomeJson.$schema) ? biomeJson.$schema : "";
     const schemaVersion = extractSchemaVersion(schemaUrl);
 
     // Read installed version from root package.json catalog
@@ -125,14 +127,13 @@ export const resolveBiomeSchema: (
 
     const pkgParseErrors = A.empty<jsonc.ParseError>();
     const pkgJson = jsonc.parse(pkgJsonContent, pkgParseErrors);
-    if (A.length(pkgParseErrors) > 0 || typeof pkgJson !== "object" || pkgJson === null) {
+    if (A.length(pkgParseErrors) > 0 || !isRecord(pkgJson)) {
       return yield* new VersionSyncError({ message: "Failed to parse package.json", file: "package.json" });
     }
 
     // Look in catalog first, then devDependencies
-    const catalog = typeof pkgJson.catalog === "object" && pkgJson.catalog !== null ? pkgJson.catalog : {};
-    const devDeps =
-      typeof pkgJson.devDependencies === "object" && pkgJson.devDependencies !== null ? pkgJson.devDependencies : {};
+    const catalog = isRecord(pkgJson.catalog) ? pkgJson.catalog : {};
+    const devDeps = isRecord(pkgJson.devDependencies) ? pkgJson.devDependencies : {};
 
     const rawVersion: string = Str.isString(catalog["@biomejs/biome"])
       ? catalog["@biomejs/biome"]

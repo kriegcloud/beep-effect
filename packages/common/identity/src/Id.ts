@@ -407,7 +407,7 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
     };
   };
 
-  return Object.assign(
+  const composer = Object.defineProperties(
     (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>) => {
       if (values.length > 0) {
         throw new IdentityInterpolationError();
@@ -421,40 +421,52 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
       return toIdentityString(composed);
     },
     {
-      value: identityValue,
-      identifier: identityValue,
-      compose: <
-        const Segments extends readonly [
-          ModuleSegmentValue<TString.NonEmpty>,
-          ...ModuleSegmentValue<TString.NonEmpty>[],
-        ],
-      >(
-        ...segments: Segments
-      ) => {
-        const entries = F.pipe(
-          segments,
-          A.map((segment) => {
-            const ensured = validateModuleSegment(segment);
-            const composed = `${value}/${ensured}` as `${Value}/${ModuleSegmentValue<TString.NonEmpty>}`;
-            const composer = createComposer(composed, registry);
-            return [toTaggedKey(ensured), composer] as const;
-          })
-        );
-        return R.fromEntries(entries) as unknown as TaggedModuleRecord<Value, Segments>;
+      value: { value: identityValue, enumerable: true, writable: true, configurable: true },
+      identifier: { value: identityValue, enumerable: true, writable: true, configurable: true },
+      compose: {
+        value: <
+          const Segments extends readonly [
+            ModuleSegmentValue<TString.NonEmpty>,
+            ...ModuleSegmentValue<TString.NonEmpty>[],
+          ],
+        >(
+          ...segments: Segments
+        ) => {
+          const entries = F.pipe(
+            segments,
+            A.map((segment) => {
+              const ensured = validateModuleSegment(segment);
+              const composed = `${value}/${ensured}` as `${Value}/${ModuleSegmentValue<TString.NonEmpty>}`;
+              const nestedComposer = createComposer(composed, registry);
+              return [toTaggedKey(ensured), nestedComposer] as const;
+            })
+          );
+          return R.fromEntries(entries) as unknown as TaggedModuleRecord<Value, Segments>;
+        },
+        enumerable: true,
+        writable: true,
+        configurable: true,
       },
-      create: composeNext,
-      make: <const Next extends TString.NonEmpty>(segment: SegmentValue<Next>) => {
-        const next = validateSegment(segment);
-        const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
-        registerIdentity(registry, composed);
-        return toIdentityString(composed);
+      create: { value: composeNext, enumerable: true, writable: true, configurable: true },
+      make: {
+        value: <const Next extends TString.NonEmpty>(segment: SegmentValue<Next>) => {
+          const next = validateSegment(segment);
+          const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+          registerIdentity(registry, composed);
+          return toIdentityString(composed);
+        },
+        enumerable: true,
+        writable: true,
+        configurable: true,
       },
-      string: () => identityValue,
-      symbol: () => toIdentitySymbol(value),
-      annote: annote,
-      identityRegistry: registry,
+      string: { value: () => identityValue, enumerable: true, writable: true, configurable: true },
+      symbol: { value: () => toIdentitySymbol(value), enumerable: true, writable: true, configurable: true },
+      annote: { value: annote, enumerable: true, writable: true, configurable: true },
+      identityRegistry: { value: registry, enumerable: true, writable: true, configurable: true },
     }
-  );
+  ) as IdentityComposer<Value>;
+
+  return composer;
 };
 
 /**

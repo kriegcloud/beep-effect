@@ -24,6 +24,6 @@ const ChatRouteLayer = makeChatRouteLayer(defaultRouteOptions).pipe(
 const ChatRouteAppLayer = Layer.mergeAll(HttpRouter.layer, ChatRouteLayer);
 
 const { handler } = HttpRouter.toWebHandler(ChatRouteAppLayer);
-const emptyRequestServices = ServiceMap.makeUnsafe<unknown>(new Map());
+const emptyRequestServices = ServiceMap.empty();
 
 export const POST = (request: Request) => handler(request, emptyRequestServices);

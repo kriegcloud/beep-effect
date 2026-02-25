@@ -29,14 +29,12 @@ const makeVmKey = <Id, Value, E>(
   tag: ServiceMap.Service<ServiceMap.Service.Identifier<Id>, Value>,
   layer: Layer.Layer<Id, E, Scope.Scope | AtomRegistry.AtomRegistry>
 ): VmKey<Id, Value, E> =>
-  Object.assign(
-    {
-      [VMKeyTypeId]: VMKeyTypeId,
-      tag,
-      layer,
-    },
-    VmKeyProto
-  ) as never;
+  ({
+    ...VmKeyProto,
+    [VMKeyTypeId]: VMKeyTypeId,
+    tag,
+    layer,
+  }) as never;
 
 // --- vmAtom: family that lazily builds layers ---
 const memoMap = Layer.makeMemoMap.pipe(Effect.runSync);

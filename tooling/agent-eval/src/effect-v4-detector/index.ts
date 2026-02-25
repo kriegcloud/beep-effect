@@ -320,7 +320,7 @@ const detectWithRules = (content: string, rules: ReadonlyArray<WrongApiRule>): W
   for (const rule of rules) {
     const flags = rule.regex.flags.includes("g") ? rule.regex.flags : `${rule.regex.flags}g`;
     const regex = new RegExp(rule.regex.source, flags);
-    const matches = Array.from(content.matchAll(regex));
+    const matches = [...content.matchAll(regex)];
 
     for (const match of matches) {
       const offset = match.index ?? 0;
@@ -351,6 +351,8 @@ const detectWithRules = (content: string, rules: ReadonlyArray<WrongApiRule>): W
 /**
  * Scan arbitrary content for known v3/v4 API mismatches.
  *
+ * @param content - Source text blob to scan for wrong-API patterns.
+ * @returns Detection report containing incidents and severity counts.
  * @since 0.0.0
  * @category functions
  */
@@ -361,6 +363,8 @@ export const detectWrongApis = (content: string): WrongApiDetectionReport => {
 /**
  * Scan source code for mandatory Effect-first compliance violations.
  *
+ * @param content - Source text blob to scan for effect-compliance violations.
+ * @returns Detection report containing incidents and severity counts.
  * @since 0.0.0
  * @category functions
  */

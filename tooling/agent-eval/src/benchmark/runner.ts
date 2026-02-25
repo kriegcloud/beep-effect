@@ -6,8 +6,8 @@
  */
 
 import { spawn } from "node:child_process";
-import { Effect } from "effect";
-import type * as Path from "effect/Path";
+import { Effect, type Path } from "effect";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { detectEffectComplianceViolations, detectWrongApis } from "../effect-v4-detector/index.js";
 import { AgentEvalInvariantError } from "../errors.js";
@@ -157,6 +157,8 @@ const ClaudeJsonSchema = S.Struct({
 const decodeClaudeJson = S.decodeUnknownSync(ClaudeJsonSchema);
 
 const modelForAgent = (agent: AgentName): string => (agent === "codex" ? "gpt-5.2" : "claude-sonnet-4-6");
+const epochNowMs = (): number => Math.round(performance.timeOrigin + performance.now());
+const monotonicNowMs = (): number => performance.now();
 
 const tokenMultiplier = (condition: BenchCondition): number => {
   if (condition === "minimal") {
@@ -493,7 +495,7 @@ const runAgentCommand = async (
 
 const createWorktreePath = (pathApi: Path.Path, repoRoot: string, runId: string): string => {
   const safe = runId.replaceAll(":", "__").replaceAll("/", "__");
-  const unique = `${Date.now()}-${Math.round(Math.random() * 1_000_000)}`;
+  const unique = `${epochNowMs()}-${Math.round(Math.random() * 1_000_000)}`;
   return pathApi.join(repoRoot, "outputs", "agent-reliability", "worktrees", `${safe}__${unique}`);
 };
 
@@ -673,7 +675,7 @@ const buildRunMatrix = (options: RunBenchmarkOptions): ReadonlyArray<RunTuple> =
   options.tasks.flatMap((task) =>
     options.conditions.flatMap((condition) =>
       options.agents.flatMap((agent) =>
-        Array.from({ length: options.trials }, (_unused, index) => ({
+        A.makeBy(options.trials, (index) => ({
           task,
           condition,
           agent,
@@ -703,7 +705,7 @@ const executeRunTuple = async (options: RunBenchmarkOptions, tuple: RunTuple): P
   const runId = `${tuple.task.id}:${tuple.condition}:${tuple.agent}:${tuple.trial}`;
   const model = modelForAgent(tuple.agent);
   const taskCwd = resolveTaskCwd(options.pathApi, options.repoRoot, tuple.task.cwd);
-  const startMs = Date.now();
+  const startMs = monotonicNowMs();
 
   const liveExecution = options.simulate
     ? null
@@ -728,7 +730,7 @@ const executeRunTuple = async (options: RunBenchmarkOptions, tuple: RunTuple): P
     .join("\n\n");
   const wrongApi = detectWrongApis(detectorInput);
   const effectCompliance = detectEffectComplianceViolations(detectorInput);
-  const endMs = Date.now();
+  const endMs = monotonicNowMs();
 
   const estimatedTokens = estimateTokens(tuple.task.prompt, tuple.condition);
   const inputTokens = liveExecution?.transcript.inputTokens ?? estimatedTokens.input;
@@ -792,6 +794,8 @@ const executeRunTuple = async (options: RunBenchmarkOptions, tuple: RunTuple): P
 /**
  * Decode correction index JSON content.
  *
+ * @param content - Raw JSON text containing correction entries.
+ * @returns Parsed correction entries used for preflight packet shaping.
  * @since 0.0.0
  * @category functions
  */
@@ -801,6 +805,8 @@ export const decodeCorrectionIndexJson = (content: string): ReadonlyArray<Correc
 /**
  * Decode pricing table JSON content.
  *
+ * @param content - Raw JSON text containing model pricing metadata.
+ * @returns Parsed pricing table for token cost estimation.
  * @since 0.0.0
  * @category functions
  */
@@ -809,11 +815,13 @@ export const decodePricingTableJson = (content: string): PricingTable => decodeP
 /**
  * Execute one benchmark suite.
  *
+ * @param options - Runner inputs including tasks, agents, conditions, and wiring.
+ * @returns Completed benchmark suite with aggregated run records.
  * @since 0.0.0
  * @category functions
  */
 export const runBenchmarkSuite = async (options: RunBenchmarkOptions): Promise<AgentBenchSuite> => {
-  const runAtEpochMs = Date.now();
+  const runAtEpochMs = epochNowMs();
   const matrix = buildRunMatrix(options);
   const records = await Effect.runPromise(
     Effect.forEach(matrix, (tuple) => Effect.promise(() => executeRunTuple(options, tuple)), {

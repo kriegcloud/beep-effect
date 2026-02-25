@@ -11,6 +11,8 @@
 import { Effect, FileSystem, Order, Path, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { parseDocument } from "yaml";
@@ -83,6 +85,8 @@ const semverCompare = (a: readonly [number, number, number], b: readonly [number
 };
 
 const toOrdering = (n: number): -1 | 0 | 1 => (n < 0 ? -1 : n > 0 ? 1 : 0);
+
+const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !A.isArray(value);
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -240,20 +244,20 @@ export const resolveDockerImages: (
     const doc = parseDocument(content);
     const root = doc.toJSON();
 
-    if (typeof root !== "object" || root === null || !("services" in root)) {
+    if (!isRecord(root) || !("services" in root)) {
       return { images: A.empty() };
     }
 
     const services = root.services;
-    if (typeof services !== "object" || services === null) {
+    if (!isRecord(services)) {
       return { images: A.empty() };
     }
 
     let images = A.empty<DockerImageRef & { readonly latest: O.Option<string> }>();
 
-    for (const serviceName of Object.keys(services)) {
+    for (const serviceName of R.keys(services)) {
       const service = services[serviceName];
-      if (typeof service !== "object" || service === null || !("image" in service)) {
+      if (!isRecord(service) || !("image" in service)) {
         continue;
       }
 

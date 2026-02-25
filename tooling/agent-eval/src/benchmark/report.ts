@@ -74,6 +74,9 @@ const summarizeByKey = (
 /**
  * Render markdown report for one benchmark suite.
  *
+ * @param suite - Benchmark suite containing run records and metadata.
+ * @param title - Report title rendered at the top of the markdown output.
+ * @returns Markdown report grouped by condition and by agent/model.
  * @since 0.0.0
  * @category functions
  */

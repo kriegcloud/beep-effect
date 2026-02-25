@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { magicLink } from "better-auth/plugins";
+import { HashSet } from "effect";
 import { Resend } from "resend";
 import { db } from "../db";
 import * as schema from "../db/schema";
@@ -13,7 +14,7 @@ const emailFrom =
   configuredEmailFrom && configuredEmailFrom.length > 0 ? configuredEmailFrom : "Effect v4 KG <onboarding@resend.dev>";
 const allowedEmailsRaw = process.env.ALLOWED_EMAILS ?? process.env.APP_ADMINS_EMAILS ?? "";
 
-const allowedEmails = new Set(
+const allowedEmails = HashSet.fromIterable(
   allowedEmailsRaw
     .split(/[\n,;]/)
     .map(normalizeEmail)
@@ -28,10 +29,10 @@ export const auth = betterAuth({
   plugins: [
     magicLink({
       sendMagicLink: async ({ email, url }) => {
-        if (allowedEmails.size === 0) {
+        if (HashSet.size(allowedEmails) === 0) {
           throw new Error("Email allowlist not configured");
         }
-        if (!allowedEmails.has(normalizeEmail(email))) {
+        if (!HashSet.has(allowedEmails, normalizeEmail(email))) {
           throw new Error("Email not authorized");
         }
         const result = await resend.emails.send({

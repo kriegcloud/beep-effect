@@ -21,6 +21,10 @@ const wrongApiIncidentCount = (suite: AgentBenchSuite): number =>
 /**
  * Render markdown comparison between two benchmark suites.
  *
+ * @param baseline - Baseline suite used as the reference run.
+ * @param candidate - Candidate suite to compare against the baseline.
+ * @param title - Report title rendered as the markdown heading.
+ * @returns Markdown table with success-rate and wrong-API deltas.
  * @since 0.0.0
  * @category functions
  */

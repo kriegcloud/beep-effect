@@ -1,4 +1,4 @@
-import type * as Option from "effect/Option";
+import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
 import { dotGet, dotGetOption } from "../src/index.js";
 
@@ -19,8 +19,8 @@ describe("dotGet", () => {
 
   it("resolves Option return types", () => {
     const source = { attributes: { name: "beep" as const } } as const;
-    expect(dotGetOption(source, "attributes.name")).type.toBe<Option.Option<"beep">>();
-    expect(dotGetOption(source, ["attributes", "name"] as const)).type.toBe<Option.Option<"beep">>();
+    expect(dotGetOption(source, "attributes.name")).type.toBe<O.Option<"beep">>();
+    expect(dotGetOption(source, ["attributes", "name"] as const)).type.toBe<O.Option<"beep">>();
   });
 
   it("rejects invalid or open-record paths", () => {
@@ -40,7 +40,7 @@ describe("dotGet", () => {
   it("includes undefined in value types when a path crosses optional properties", () => {
     const maybeAttributes: { attributes?: { name: string } } = {};
     expect(dotGet(maybeAttributes, "attributes.name")).type.toBe<string | undefined>();
-    expect(dotGetOption(maybeAttributes, "attributes.name")).type.toBe<Option.Option<string | undefined>>();
+    expect(dotGetOption(maybeAttributes, "attributes.name")).type.toBe<O.Option<string | undefined>>();
   });
 });
 // bench

@@ -26,21 +26,21 @@ describe("Identity", () => {
     expect($SchemaId.symbol()).type.toBe<IdentitySymbol<"@beep/schema">>();
   });
 
-  it("preserves literal types for annotate", () => {
+  it("preserves literal types for annote", () => {
     const { $SchemaId } = make("beep").$BeepId.compose("schema");
-    const annotation = $SchemaId.annotate("Tenant", {
+    const annotation = $SchemaId.annote("Tenant", {
       default: { version: 1 as const },
       description: "Tenant schema",
     });
-    const aliasAnnotation = $SchemaId.annotations("Tenant", {
+    const secondAnnotation = $SchemaId.annote("Tenant", {
       default: { version: 1 as const },
       description: "Tenant schema",
     });
 
     expect(annotation).type.toBe<IdentityAnnotationResult<"@beep/schema/Tenant", "Tenant", { version: 1 }>>();
     expect(annotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/Tenant">>();
-    expect(aliasAnnotation).type.toBe<IdentityAnnotationResult<"@beep/schema/Tenant", "Tenant", { version: 1 }>>();
-    expect(aliasAnnotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/Tenant">>();
+    expect(secondAnnotation).type.toBe<IdentityAnnotationResult<"@beep/schema/Tenant", "Tenant", { version: 1 }>>();
+    expect(secondAnnotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/Tenant">>();
   });
 
   it("supports base normalization while preserving keys/literals", () => {
