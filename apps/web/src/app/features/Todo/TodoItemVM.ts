@@ -1,4 +1,4 @@
-import * as ServiceMap from "effect/ServiceMap";
+import { ServiceMap } from "effect";
 import type * as Atom from "effect/unstable/reactivity/Atom";
 
 export interface TodoItemVM {

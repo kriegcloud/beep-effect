@@ -10,8 +10,7 @@
 
 import { FsUtilsLive } from "@beep/repo-utils";
 import { NodeChildProcessSpawner, NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Effect, Layer } from "effect";
 import { Command } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
 import { rootCommand } from "./commands/root.js";

@@ -1,7 +1,7 @@
 import { $I } from "@beep/identity/packages";
 import { type ChatRequest, decodeChatRequestUnknown } from "@beep/web/lib/effect/chat-handler";
 import { Cause, Effect, Match } from "effect";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
@@ -106,7 +106,7 @@ const ensureAuthenticated = Effect.fn("ChatRoute.ensureAuthenticated")(function*
       }),
   });
 
-  return yield* Option.match(Option.fromNullishOr(session), {
+  return yield* O.match(O.fromNullishOr(session), {
     onNone: () =>
       Effect.fail(
         new ChatUnauthorizedError({

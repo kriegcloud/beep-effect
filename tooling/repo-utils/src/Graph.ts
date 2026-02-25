@@ -9,9 +9,8 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, HashMap, HashSet, MutableHashMap, MutableHashSet, pipe } from "effect";
+import { Effect, Graph as G, HashMap, HashSet, MutableHashMap, MutableHashSet, pipe } from "effect";
 import * as A from "effect/Array";
-import * as G from "effect/Graph";
 import * as O from "effect/Option";
 import { CyclicDependencyError } from "./errors/index.js";
 

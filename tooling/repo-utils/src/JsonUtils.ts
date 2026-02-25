@@ -8,8 +8,7 @@
  * @module
  */
 
-import { Effect, Option, Schema } from "effect";
-import * as SchemaGetter from "effect/SchemaGetter";
+import { Effect, Option, Schema, SchemaGetter } from "effect";
 import { DomainError } from "./errors/index.js";
 
 const prettyGetter = SchemaGetter.stringifyJson({ space: 2 });

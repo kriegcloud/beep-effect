@@ -6,16 +6,12 @@
  */
 
 import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
-import { type FileSystem, Path } from "effect";
+import { Console, Effect, type FileSystem, MutableHashMap, Path, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Console from "effect/Console";
-import * as Effect from "effect/Effect";
-import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import type { HttpClient } from "effect/unstable/http";
 import { buildBiomeReport, resolveBiomeSchema, updateBiomeSchema } from "./resolvers/biome.js";
-import { type BunVersionState, buildBunReport, resolveBunVersions } from "./resolvers/bun.js";
+import { buildBunReport, type BunVersionState, resolveBunVersions } from "./resolvers/bun.js";
 import { buildDockerReport, type DockerImageState, resolveDockerImages } from "./resolvers/docker.js";
 import { buildNodeReport, resolveNodeVersions } from "./resolvers/node.js";
 import type { VersionCategoryReport, VersionSyncMode, VersionSyncOptions, VersionSyncReport } from "./types.js";

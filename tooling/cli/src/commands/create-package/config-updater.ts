@@ -10,11 +10,8 @@
  */
 
 import { DomainError } from "@beep/repo-utils";
-import { FileSystem, Path } from "effect";
+import { Effect, FileSystem, HashMap, Order, Path } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
-import * as HashMap from "effect/HashMap";
-import * as Order from "effect/Order";
 import * as jsonc from "jsonc-parser";
 
 // ── Types ────────────────────────────────────────────────────────────────────

@@ -10,13 +10,9 @@
  */
 
 import { FsUtils } from "@beep/repo-utils";
-import { FileSystem, Path, pipe } from "effect";
+import { Console, Effect, FileSystem, Order, Path, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Console from "effect/Console";
-import * as Effect from "effect/Effect";
-import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
 // ---------------------------------------------------------------------------

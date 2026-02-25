@@ -1,7 +1,7 @@
 import { $WebId } from "@beep/identity/packages";
 import { pipe } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $WebId.create("lib/effect/mappers");
@@ -131,7 +131,7 @@ export const mapEntityNodeToGraphNode = (node: GraphitiEntityNode): GraphNode =>
   type: pipe(
     node.labels,
     A.head,
-    Option.getOrElse(() => defaultNodeType)
+    O.getOrElse(() => defaultNodeType)
   ),
   summary: node.summary,
   val: 1,
@@ -184,7 +184,7 @@ export const deriveNeighborNodes = (
       pipe(
         candidates,
         A.findFirst((node) => node.uuid === candidateId),
-        Option.match({
+        O.match({
           onNone: A.empty,
           onSome: (node) => [mapEntityNodeToGraphNode(node)],
         })

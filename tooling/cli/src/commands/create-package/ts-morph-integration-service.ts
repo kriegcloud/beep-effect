@@ -5,9 +5,10 @@
  * @module
  */
 import type { DomainError } from "@beep/repo-utils";
+import { Effect } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
 import type * as O from "effect/Option";
+
 /**
  * Supported AST mutation categories required by create-slice.
  *

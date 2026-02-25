@@ -51,9 +51,9 @@ Configure both Claude Code and Codex CLI as MCP clients to Graphiti, create hook
 ### Implementation Order
 1. Create `~/.local/bin/graphiti-add-memory.py` (the shared helper)
 2. Test helper: `python3 ~/.local/bin/graphiti-add-memory.py --name "test" --group "beep-dev" "Hello from P3"`
-3. Register Claude Code MCP client: `claude mcp add --transport http graphiti-memory http://localhost:8000/mcp/ --scope user`
+3. Register Claude Code MCP client: `claude mcp add --transport http graphiti-memory http://localhost:8000/mcp --scope user`
 4. Register Codex CLI MCP client: edit `~/.codex/config.toml`
-5. Verify both tools see Graphiti tools
+5. Start a new session and verify both tools see Graphiti tools
 6. Create `claude-graphiti-stop-hook.sh`
 7. Register hook in `~/.claude/settings.json`
 8. Create `codex-graphiti-notify-hook.sh`
@@ -92,8 +92,8 @@ Configure both Claude Code and Codex CLI as MCP clients to Graphiti, create hook
 | `codex-graphiti-notify-hook.sh` | Codex CLI notify hook | graphiti-add-memory.py |
 
 ### MCP JSON-RPC 2.0 Protocol
-1. `POST /mcp/` with `initialize` → response includes `mcp-session-id` header
-2. `POST /mcp/` with `tools/call` + `mcp-session-id` header → tool result
+1. `POST /mcp` with `initialize` → response includes `mcp-session-id` header
+2. `POST /mcp` with `tools/call` + `mcp-session-id` header → tool result
 
 ### Hook Data
 | Hook | Event | Stdin Fields |
@@ -117,8 +117,8 @@ python3 ~/.local/bin/graphiti-add-memory.py --name "P3 test" --group "beep-dev" 
 # 2. Claude Code MCP tools visible
 claude mcp list | grep graphiti
 
-# 3. Codex CLI MCP tools visible (interactive)
-# Run /mcp in a Codex session
+# 3. Codex CLI MCP tools visible
+codex mcp list | grep graphiti
 
 # 4. Scripts are executable
 test -x ~/.local/bin/graphiti-add-memory.py && echo "Helper OK"

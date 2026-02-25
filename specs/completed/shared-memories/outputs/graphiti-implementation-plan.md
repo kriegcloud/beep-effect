@@ -20,7 +20,7 @@
 │                    │                                      │
 │         ┌──────────▼──────────┐                          │
 │         │  Graphiti MCP Server │ ← systemd user service  │
-│         │  :8000/mcp/          │                          │
+│         │  :8000/mcp           │                          │
 │         └──────────┬──────────┘                          │
 │                    │ Redis protocol                       │
 │         ┌──────────▼──────────┐                          │
@@ -191,7 +191,7 @@ Once running, the FalkorDB graph explorer is available at `http://localhost:3000
 Add Graphiti as an MCP server. Run:
 
 ```bash
-claude mcp add --transport http graphiti-memory http://localhost:8000/mcp/ --scope user
+claude mcp add --transport http graphiti-memory http://localhost:8000/mcp --scope user
 ```
 
 Or manually add to `~/.claude.json`:
@@ -201,7 +201,7 @@ Or manually add to `~/.claude.json`:
   "mcpServers": {
     "graphiti-memory": {
       "type": "http",
-      "url": "http://localhost:8000/mcp/"
+      "url": "http://localhost:8000/mcp"
     }
   }
 }
@@ -213,7 +213,7 @@ Add to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.graphiti-memory]
-url = "http://localhost:8000/mcp/"
+url = "http://localhost:8000/mcp"
 startup_timeout_sec = 30
 tool_timeout_sec = 60
 enabled = true
@@ -221,9 +221,11 @@ enabled = true
 
 ### 2.3 Verify Both Tools See Graphiti
 
-**Claude Code:** Start a session, then check available tools — you should see `add_memory`, `search_nodes`, `search_memory_facts`, etc.
+**Important:** MCP tool availability is session-dependent. If you edit MCP config, start a new agent session before checking tools.
 
-**Codex CLI:** Run `/mcp` in an interactive session to list configured MCP tools.
+**Claude Code:** Start a new session, then check available tools — you should see `add_memory`, `search_nodes`, `search_memory_facts`, etc.
+
+**Codex CLI:** Run `codex mcp list` (or `/mcp` in an interactive session) to verify `graphiti-memory` is enabled.
 
 ---
 
@@ -249,7 +251,7 @@ import json
 import sys
 import urllib.request
 
-GRAPHITI_URL = "http://localhost:8000/mcp/"
+GRAPHITI_URL = "http://localhost:8000/mcp"
 PROTOCOL_VERSION = "2024-11-05"
 
 
@@ -665,7 +667,7 @@ When you want multi-machine access:
 - [ ] Verify: `systemctl --user status graphiti-mcp`
 
 ### Phase 3: MCP Client Config (5 minutes)
-- [ ] Add Graphiti to Claude Code: `claude mcp add --transport http graphiti-memory http://localhost:8000/mcp/ --scope user`
+- [ ] Add Graphiti to Claude Code: `claude mcp add --transport http graphiti-memory http://localhost:8000/mcp --scope user`
 - [ ] Add Graphiti to Codex CLI: edit `~/.codex/config.toml` (from section 2.2)
 - [ ] Verify in both tools: check MCP tools list
 

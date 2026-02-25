@@ -372,7 +372,7 @@ describe("create-package command", () => {
           expect(content).toContain(`# @beep/${pkgName} Agent Guide`);
           expect(content).toContain("## Purpose & Fit");
           expect(content).toContain("## Surface Map");
-          expect(content).toContain("## Authoring Guardrails");
+          expect(content).toContain("## Laws");
           expect(content).toContain("## Contributor Checklist");
         })
       );

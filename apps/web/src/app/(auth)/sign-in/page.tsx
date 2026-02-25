@@ -3,7 +3,7 @@
 import { Button } from "@beep/ui/components/ui/button";
 import { signIn } from "@beep/web/lib/auth/client";
 import { EnvelopeSimple, SpinnerGap } from "@phosphor-icons/react";
-import * as Str from "effect/String";
+import { String as Str } from "effect";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useState } from "react";
 

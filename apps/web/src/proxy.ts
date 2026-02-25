@@ -1,8 +1,7 @@
 import { getSessionCookie } from "better-auth/cookies";
+import { Function as F, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as F from "effect/Function";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 

@@ -8,14 +8,9 @@
 | --- | --- | --- |
 | `src/index.ts` | `VERSION` | Package entry point |
 
-## Usage Snapshots
-(Add usage examples as the package grows)
-
-## Authoring Guardrails
-- **Effect-first imports**: ALWAYS use namespace imports (`import * as Effect from "effect/Effect"`). NEVER use native Array/String helpers.
-- **Tagged errors**: Use `S.TaggedErrorClass` for all error types.
-- **Schema-based JSON**: Use `Schema.decodeUnknownEffect`/`Schema.encodeUnknownEffect` instead of `JSON.parse`/`JSON.stringify`.
-- **Effect.fn**: Use `Effect.fn` for all functions returning Effects.
+## Laws
+- Follow [standards/effect-laws-v1.md](/home/elpresidank/YeeBois/projects/beep-effect3/standards/effect-laws-v1.md).
+- Keep package guidance concise; do not duplicate long policy prose.
 
 ## Quick Recipes
 ```ts
@@ -28,8 +23,8 @@ import { VERSION } from "{{scopedName}}"
 - `bunx turbo run check --filter={{scopedName}}`
 
 ## Contributor Checklist
-- [ ] All new exports have `/** @since 0.0.0 */` JSDoc annotations
-- [ ] Tests added/updated for new functionality
+- [ ] New exports include JSDoc (`@since`, `@category` as applicable)
+- [ ] Tests added/updated for behavior changes
 - [ ] `bun run check` passes
 - [ ] `bun run test` passes
 - [ ] `bun run lint` passes

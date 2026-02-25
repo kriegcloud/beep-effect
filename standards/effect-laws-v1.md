@@ -1,0 +1,62 @@
+# Effect Laws v1
+
+Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep details here.
+
+## Short Laws (authoritative)
+
+1. Use `A/O/P/R/S` aliases only:
+   - `import * as A from "effect/Array"`
+   - `import * as O from "effect/Option"`
+   - `import * as P from "effect/Predicate"`
+   - `import * as R from "effect/Record"`
+   - `import * as S from "effect/Schema"`
+2. For other stable Effect modules, prefer root imports from `"effect"`.
+3. `effect/unstable/*` imports are allowed when needed.
+4. No `any`, type assertions, `@ts-ignore`, or non-null assertions.
+5. No runtime `typeof ... === ...`; use `effect/Predicate` guards.
+6. No native `Object/Map/Set/Date` in domain logic.
+7. JSDoc is required for exported APIs in `packages/*/src` and `tooling/*/src`; examples must pass docgen.
+8. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
+
+## Allowlist Contract
+
+Boundary exceptions are allowed only through [effect-laws.allowlist.jsonc](/home/elpresidank/YeeBois/projects/beep-effect3/standards/effect-laws.allowlist.jsonc).
+
+Required fields per entry:
+
+- `rule`: checker rule id
+- `file`: repo-relative path
+- `kind`: violation kind discriminator
+- `reason`: why this boundary exception is currently necessary
+- `owner`: responsible team or package
+- `issue`: tracking issue URL or id
+
+Optional fields:
+
+- `expiresOn`: `YYYY-MM-DD`
+
+## Scope
+
+Wave 1 enforcement scope:
+
+- `apps/**`
+- `packages/**`
+- `tooling/**`
+- `infra/**`
+
+Excludes by default:
+
+- tests/specs/storybook snapshots/fixtures
+- generated artifacts
+
+## Rollout
+
+1. Warnings + reporting.
+2. Codemod/autofix for mechanical import normalization.
+3. Manual cleanup for remaining violations.
+4. Promote selected warnings to errors once baseline is near zero.
+
+## Deep References
+
+- [JSDoc patterns](/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/jsdoc-documentation.md)
+- [Effect library development patterns](/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/effect-library-development.md)

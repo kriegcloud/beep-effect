@@ -1,26 +1,18 @@
 import { $I } from "@beep/identity/packages";
-import {
-  GraphFactsResultSchema,
-  GraphLinkSchema,
-  GraphNodeDetailsSchema,
-  GraphNodeSchema,
-  GraphSearchResultSchema,
-} from "@beep/web/lib/effect/mappers";
-import {
-  GetFactsParametersSchema,
-  GetNodeParametersSchema,
-  KnowledgeGraphToolkit,
-  SearchGraphParametersSchema,
-} from "@beep/web/lib/effect/tools";
-import { Cause, Effect, Match, pipe } from "effect";
+import { Cause, Effect, Match, pipe, Queue, Ref, Stream } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
-import * as Queue from "effect/Queue";
-import * as Ref from "effect/Ref";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Stream from "effect/Stream";
 import { LanguageModel, Prompt, type Response, type Tool, type Toolkit } from "effect/unstable/ai";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import {
+    GraphFactsResultSchema,
+    GraphLinkSchema,
+    GraphNodeDetailsSchema,
+    GraphNodeSchema,
+    GraphSearchResultSchema,
+} from "./mappers";
+import { GetFactsParametersSchema, GetNodeParameters, KnowledgeGraphToolkit, SearchGraphParameters } from "./tools";
 
 const $EffectId = $I.create("web").create("effect");
 const $ChatHandlerId = $EffectId.create("chat-handler");
@@ -79,7 +71,7 @@ export const ChatMessageSchema = S.Struct({
   role: S.Literals(["user", "assistant"]),
   content: S.NonEmptyString,
 }).annotate(
-  $ChatHandlerId.annotate("ChatMessageSchema", {
+  $ChatHandlerId.annote("ChatMessageSchema", {
     title: "Chat Message",
     description: "One chat message accepted by the chat API.",
   })
@@ -90,7 +82,7 @@ export type ChatMessage = typeof ChatMessageSchema.Type;
 export const ChatRequestSchema = S.Struct({
   messages: S.NonEmptyArray(ChatMessageSchema),
 }).annotate(
-  $ChatHandlerId.annotate("ChatRequestSchema", {
+  $ChatHandlerId.annote("ChatRequestSchema", {
     title: "Chat Request",
     description: "Input payload for POST /api/chat.",
   })
@@ -102,7 +94,7 @@ export const GraphSnippetSchema = S.Struct({
   nodes: S.Array(GraphNodeSchema),
   links: S.Array(GraphLinkSchema),
 }).annotate(
-  $ChatHandlerId.annotate("GraphSnippetSchema", {
+  $ChatHandlerId.annote("GraphSnippetSchema", {
     title: "Graph Snippet",
     description: "Graph nodes/links extracted from tool results for UI highlighting.",
   })
@@ -141,7 +133,7 @@ export const ChatSseEventTypeSchema = S.Literals([
   "graph-snippet",
   "done",
 ]).annotate(
-  $ChatHandlerId.annotate("ChatSseEventTypeSchema", {
+  $ChatHandlerId.annote("ChatSseEventTypeSchema", {
     title: "Chat SSE Event Type",
     description: "Event types produced by the streaming chat endpoint.",
   })
@@ -213,31 +205,31 @@ export const makeChatPrompt = (request: ChatRequest): Prompt.Prompt =>
     Prompt.fromMessages
   );
 
-const toKnownToolInstruction = (part: ChatStreamPart): Option.Option<ToolCallInstruction> =>
+const toKnownToolInstruction = (part: ChatStreamPart): O.Option<ToolCallInstruction> =>
   Match.value(part).pipe(
-    Match.when({ type: "tool-call", providerExecuted: true }, () => Option.none()),
+    Match.when({ type: "tool-call", providerExecuted: true }, () => O.none()),
     Match.when({ type: "tool-call", name: "SearchGraph" }, (value) =>
-      Option.some<ToolCallInstruction>({
+      O.some<ToolCallInstruction>({
         id: value.id,
         name: "SearchGraph",
         params: value.params,
       })
     ),
     Match.when({ type: "tool-call", name: "GetNode" }, (value) =>
-      Option.some<ToolCallInstruction>({
+      O.some<ToolCallInstruction>({
         id: value.id,
         name: "GetNode",
         params: value.params,
       })
     ),
     Match.when({ type: "tool-call", name: "GetFacts" }, (value) =>
-      Option.some<ToolCallInstruction>({
+      O.some<ToolCallInstruction>({
         id: value.id,
         name: "GetFacts",
         params: value.params,
       })
     ),
-    Match.orElse(() => Option.none())
+    Match.orElse(() => O.none())
   );
 
 interface ToolExecutionEvent {
@@ -272,7 +264,7 @@ const extractFinishReason = (parts: ReadonlyArray<ChatStreamPart>): string =>
   pipe(
     parts,
     A.findLast((part) => part.type === "finish"),
-    Option.match({
+    O.match({
       onNone: () => "stop",
       onSome: (part) => part.reason,
     })
@@ -281,12 +273,12 @@ const extractFinishReason = (parts: ReadonlyArray<ChatStreamPart>): string =>
 export const extractGraphSnippet = (options: {
   readonly toolName: ToolCallInstruction["name"];
   readonly result: unknown;
-}): Option.Option<GraphSnippet> =>
+}): O.Option<GraphSnippet> =>
   Match.value(options.toolName).pipe(
     Match.when("SearchGraph", () =>
       pipe(
         decodeGraphSearchResult(options.result),
-        Option.map((result) => ({
+        O.map((result) => ({
           nodes: result.nodes,
           links: result.links,
         }))
@@ -295,10 +287,10 @@ export const extractGraphSnippet = (options: {
     Match.when("GetNode", () =>
       pipe(
         decodeGraphNodeDetails(options.result),
-        Option.map((result) => ({
+        O.map((result) => ({
           nodes: pipe(
-            Option.fromNullishOr(result.node),
-            Option.match({
+            O.fromNullishOr(result.node),
+            O.match({
               onNone: () => result.neighbors,
               onSome: (node) => pipe(result.neighbors, A.prepend(node)),
             }),
@@ -311,7 +303,7 @@ export const extractGraphSnippet = (options: {
     Match.when("GetFacts", () =>
       pipe(
         decodeGraphFactsResult(options.result),
-        Option.map((result) => ({
+        O.map((result) => ({
           nodes: A.empty(),
           links: result.links,
         }))
@@ -330,7 +322,7 @@ const emitGraphSnippet = Effect.fn("ChatHandler.emitGraphSnippet")(function* (
     result,
   });
 
-  yield* Option.match(maybeSnippet, {
+  yield* O.match(maybeSnippet, {
     onNone: () => Effect.void,
     onSome: (snippet) =>
       offerSseEnvelope(queue, {
@@ -408,13 +400,13 @@ const loadToolStream = Effect.fn("ChatHandler.loadToolStream")(function* (option
   return yield* Match.value(options.instruction)
     .pipe(
       Match.when({ name: "SearchGraph" }, (instruction) =>
-        S.decodeUnknownEffect(SearchGraphParametersSchema)(instruction.params).pipe(
+        S.decodeUnknownEffect(SearchGraphParameters)(instruction.params).pipe(
           Effect.flatMap((params) => options.toolkit.handle("SearchGraph", params)),
           Effect.map(Stream.map(toToolExecutionEvent))
         )
       ),
       Match.when({ name: "GetNode" }, (instruction) =>
-        S.decodeUnknownEffect(GetNodeParametersSchema)(instruction.params).pipe(
+        S.decodeUnknownEffect(GetNodeParameters)(instruction.params).pipe(
           Effect.flatMap((params) => options.toolkit.handle("GetNode", params)),
           Effect.map(Stream.map(toToolExecutionEvent))
         )
@@ -470,7 +462,7 @@ const runToolCall = Effect.fn("ChatHandler.runToolCall")(function* (options: {
   return pipe(
     events,
     A.findLast((event) => !event.preliminary),
-    Option.map((event) =>
+    O.map((event) =>
       toToolResultPart({
         instruction: options.instruction,
         event,

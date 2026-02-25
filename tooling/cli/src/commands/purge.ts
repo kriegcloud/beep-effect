@@ -6,9 +6,7 @@
  */
 
 import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
-import { FileSystem, MutableHashSet, Path } from "effect";
-import * as Console from "effect/Console";
-import * as Effect from "effect/Effect";
+import { Console, Effect, FileSystem, MutableHashSet, Path } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 
 /**

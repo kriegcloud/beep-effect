@@ -6,22 +6,20 @@
  */
 
 import {
-  buildRepoDependencyIndex,
-  type CyclicDependencyError,
-  collectTsConfigPaths,
-  DomainError,
-  detectCycles,
-  type FsUtils,
-  findRepoRoot,
-  type NoSuchFileError,
-  resolveWorkspaceDirs,
-  topologicalSort,
-  type WorkspaceDeps,
+    buildRepoDependencyIndex,
+    collectTsConfigPaths,
+    type CyclicDependencyError,
+    detectCycles,
+    DomainError,
+    findRepoRoot,
+    type FsUtils,
+    type NoSuchFileError,
+    resolveWorkspaceDirs,
+    topologicalSort,
+    type WorkspaceDeps,
 } from "@beep/repo-utils";
-import { FileSystem, HashMap, HashSet, Path, Schema } from "effect";
+import { Console, Effect, FileSystem, HashMap, HashSet, Path, Schema } from "effect";
 import * as A from "effect/Array";
-import * as Console from "effect/Console";
-import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";

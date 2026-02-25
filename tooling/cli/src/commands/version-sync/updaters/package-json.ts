@@ -5,9 +5,8 @@
  * @module
  */
 
-import { FileSystem } from "effect";
+import { Effect, FileSystem } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
 import * as jsonc from "jsonc-parser";
 import { VersionSyncError } from "../types.js";
 

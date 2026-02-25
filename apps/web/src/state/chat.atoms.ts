@@ -1,10 +1,9 @@
 import type { GraphNode } from "@beep/web/lib/effect/mappers";
 import { applyGraphSnippetAtom, GraphSnippetSchema } from "@beep/web/state/graph.atoms";
-import { Effect, Match, pipe } from "effect";
+import { Effect, Match, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { Atom } from "effect/unstable/reactivity";
 
 export interface ToolResultTrace {
@@ -69,15 +68,15 @@ const decodeGraphSnippet = S.decodeUnknownOption(GraphSnippetSchema);
 
 const makeMessageId = () => crypto.randomUUID();
 
-const parseJsonUnknown = (input: string): Option.Option<unknown> =>
+const parseJsonUnknown = (input: string): O.Option<unknown> =>
   Effect.runSync(
     Effect.try({
       try: () => JSON.parse(input) as unknown,
       catch: () => null,
     }).pipe(
       Effect.match({
-        onFailure: () => Option.none(),
-        onSuccess: Option.some,
+        onFailure: () => O.none(),
+        onSuccess: O.some,
       })
     )
   );
@@ -95,7 +94,7 @@ const toApiMessages = (messages: ReadonlyArray<ChatMessage>): ReadonlyArray<Chat
               role: message.role,
               content,
             }),
-            Option.match({
+            O.match({
               onNone: () => accumulator,
               onSome: (decoded) => pipe(accumulator, A.append(decoded)),
             })
@@ -105,10 +104,10 @@ const toApiMessages = (messages: ReadonlyArray<ChatMessage>): ReadonlyArray<Chat
     })
   );
 
-const withNodeContext = (content: string, contextNode: Option.Option<GraphNode>): string =>
+const withNodeContext = (content: string, contextNode: O.Option<GraphNode>): string =>
   pipe(
     contextNode,
-    Option.match({
+    O.match({
       onNone: () => content,
       onSome: (node) =>
         `${content}\n\n[Selected graph node]\nName: ${node.name}\nType: ${node.type}\nSummary: ${node.summary}`,
@@ -169,7 +168,7 @@ const appendToolCall = (
     toolCalls: pipe(
       message.toolCalls,
       A.findFirst((trace) => trace.id === event.id),
-      Option.match({
+      O.match({
         onNone: () =>
           pipe(
             message.toolCalls,
@@ -212,22 +211,22 @@ const appendToolResult = (
     ),
   }));
 
-const parseSseBlock = (block: string): Option.Option<{ readonly event: string; readonly data: string }> => {
+const parseSseBlock = (block: string): O.Option<{ readonly event: string; readonly data: string }> => {
   const lines = A.fromIterable(Str.linesIterator(block));
 
   const event = pipe(
     lines,
     A.findFirst((line) => Str.startsWith("event: ")(line)),
-    Option.map(Str.slice(7))
+    O.map(Str.slice(7))
   );
 
   const data = pipe(
     lines,
     A.findFirst((line) => Str.startsWith("data: ")(line)),
-    Option.map(Str.slice(6))
+    O.map(Str.slice(6))
   );
 
-  return Option.all({ event, data });
+  return O.all({ event, data });
 };
 
 const splitSseBuffer = (buffer: string): { readonly blocks: ReadonlyArray<string>; readonly remainder: string } => {
@@ -265,8 +264,8 @@ const handleSseEvent = (options: {
     Match.when("text", () =>
       pipe(
         payload,
-        Option.flatMap(decodeChatTextDelta),
-        Option.match({
+        O.flatMap(decodeChatTextDelta),
+        O.match({
           onNone: () => undefined,
           onSome: (event) => {
             options.get.set(
@@ -281,8 +280,8 @@ const handleSseEvent = (options: {
     Match.when("tool-call", () =>
       pipe(
         payload,
-        Option.flatMap(decodeChatToolCall),
-        Option.match({
+        O.flatMap(decodeChatToolCall),
+        O.match({
           onNone: () => undefined,
           onSome: (event) => {
             options.get.set(
@@ -297,8 +296,8 @@ const handleSseEvent = (options: {
     Match.when("tool-result", () =>
       pipe(
         payload,
-        Option.flatMap(decodeChatToolResult),
-        Option.match({
+        O.flatMap(decodeChatToolResult),
+        O.match({
           onNone: () => undefined,
           onSome: (event) => {
             options.get.set(
@@ -313,11 +312,11 @@ const handleSseEvent = (options: {
     Match.when("graph-snippet", () =>
       pipe(
         payload,
-        Option.flatMap(decodeGraphSnippet),
-        Option.match({
+        O.flatMap(decodeGraphSnippet),
+        O.match({
           onNone: () => undefined,
           onSome: (snippet) => {
-            options.get.set(chatLatestGraphSnippetAtom, Option.some(snippet));
+            options.get.set(chatLatestGraphSnippetAtom, O.some(snippet));
             options.get.set(applyGraphSnippetAtom, snippet);
             return undefined;
           },
@@ -327,8 +326,8 @@ const handleSseEvent = (options: {
     Match.when("done", () =>
       pipe(
         payload,
-        Option.flatMap(decodeChatDone),
-        Option.match({
+        O.flatMap(decodeChatDone),
+        O.match({
           onNone: () => undefined,
           onSome: () => {
             options.get.set(
@@ -369,8 +368,8 @@ const streamChatResponse = Effect.fn("ChatState.streamChatResponse")(function* (
   );
 
   const reader = yield* pipe(
-    Option.fromNullishOr(response.body),
-    Option.match({
+    O.fromNullishOr(response.body),
+    O.match({
       onNone: () => Effect.fail("Chat stream was empty"),
       onSome: (stream) => Effect.succeed(stream.getReader()),
     })
@@ -398,7 +397,7 @@ const streamChatResponse = Effect.fn("ChatState.streamChatResponse")(function* (
           A.reduce(undefined, (_, block) => {
             pipe(
               parseSseBlock(block),
-              Option.match({
+              O.match({
                 onNone: () => undefined,
                 onSome: ({ event, data }) =>
                   handleSseEvent({
@@ -424,7 +423,7 @@ const streamChatResponse = Effect.fn("ChatState.streamChatResponse")(function* (
         A.reduce(undefined, (_, block) => {
           pipe(
             parseSseBlock(block),
-            Option.match({
+            O.match({
               onNone: () => undefined,
               onSome: ({ event, data }) =>
                 handleSseEvent({
@@ -447,9 +446,9 @@ export const chatInputAtom = Atom.make("");
 
 export const chatMessagesAtom = Atom.make<ReadonlyArray<ChatMessage>>(A.empty());
 
-export const chatContextNodeAtom = Atom.make<Option.Option<GraphNode>>(Option.none());
+export const chatContextNodeAtom = Atom.make<O.Option<GraphNode>>(O.none());
 
-export const chatLatestGraphSnippetAtom = Atom.make<Option.Option<typeof GraphSnippetSchema.Type>>(Option.none());
+export const chatLatestGraphSnippetAtom = Atom.make<O.Option<typeof GraphSnippetSchema.Type>>(O.none());
 
 export const sendChatMessageAtom = Atom.fn<{ readonly content: string }>()((input, get) => {
   const trimmed = Str.trim(input.content);
@@ -479,7 +478,7 @@ export const sendChatMessageAtom = Atom.fn<{ readonly content: string }>()((inpu
       const requestMessages = toApiMessages(nextMessages);
 
       get.set(chatMessagesAtom, nextMessages);
-      get.set(chatLatestGraphSnippetAtom, Option.none());
+      get.set(chatLatestGraphSnippetAtom, O.none());
 
       return streamChatResponse({
         get,
@@ -512,6 +511,6 @@ export const sendChatMessageAtom = Atom.fn<{ readonly content: string }>()((inpu
 
 export const clearChatContextNodeAtom = Atom.fn<void>()((_, get) =>
   Effect.sync(() => {
-    get.set(chatContextNodeAtom, Option.none());
+    get.set(chatContextNodeAtom, O.none());
   })
 );

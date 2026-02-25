@@ -1,16 +1,16 @@
 import {
-  deriveNeighborNodes,
-  mapEntityNodesToGraphNodes,
-  mapEntityNodeToGraphNode,
-  mapFactsToGraphFacts,
-  mapFactsToGraphLinks,
-  mapSearchToGraphData,
+    deriveNeighborNodes,
+    mapEntityNodesToGraphNodes,
+    mapEntityNodeToGraphNode,
+    mapFactsToGraphFacts,
+    mapFactsToGraphLinks,
+    mapSearchToGraphData,
 } from "@beep/web/lib/effect/mappers";
 import { KnowledgeGraphToolkit } from "@beep/web/lib/effect/tools";
 import { GraphitiService, type GraphitiServiceError } from "@beep/web/lib/graphiti/client";
 import { Effect, flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as AiError from "effect/unstable/ai/AiError";
 
 const graphitiErrorDescription = Match.type<GraphitiServiceError>().pipe(
@@ -100,7 +100,7 @@ const getNodeHandler = Effect.fn("KnowledgeGraphToolkit.GetNode")(function* (par
 
   const neighbors = pipe(
     lookup.node,
-    Option.match({
+    O.match({
       onNone: () => mapEntityNodesToGraphNodes(lookup.neighbors),
       onSome: (node) => deriveNeighborNodes(node.uuid, lookup.neighbors, lookup.facts),
     })
@@ -108,8 +108,8 @@ const getNodeHandler = Effect.fn("KnowledgeGraphToolkit.GetNode")(function* (par
 
   return pipe(
     lookup.node,
-    Option.map(mapEntityNodeToGraphNode),
-    Option.match({
+    O.map(mapEntityNodeToGraphNode),
+    O.match({
       onNone: () => ({
         neighbors,
         links,

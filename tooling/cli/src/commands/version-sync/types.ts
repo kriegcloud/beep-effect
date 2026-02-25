@@ -6,7 +6,7 @@
  */
 
 import type * as O from "effect/Option";
-import * as Schema from "effect/Schema";
+import * as S from "effect/Schema";
 
 // ── Errors ──────────────────────────────────────────────────────────────────
 
@@ -16,11 +16,11 @@ import * as Schema from "effect/Schema";
  * @since 0.0.0
  * @category errors
  */
-export class VersionSyncError extends Schema.TaggedErrorClass<VersionSyncError>(
+export class VersionSyncError extends S.TaggedErrorClass<VersionSyncError>(
   "@beep/repo-cli/commands/version-sync/VersionSyncError"
 )(
   "VersionSyncError",
-  { message: Schema.String, file: Schema.String, cause: Schema.optional(Schema.Unknown) },
+  { message: S.String, file: S.String, cause: S.optional(S.Unknown) },
   { title: "Version Sync Error", description: "Failed to read, resolve, or update a version pin" }
 ) {}
 
@@ -30,11 +30,11 @@ export class VersionSyncError extends Schema.TaggedErrorClass<VersionSyncError>(
  * @since 0.0.0
  * @category errors
  */
-export class NetworkUnavailableError extends Schema.TaggedErrorClass<NetworkUnavailableError>(
+export class NetworkUnavailableError extends S.TaggedErrorClass<NetworkUnavailableError>(
   "@beep/repo-cli/commands/version-sync/NetworkUnavailableError"
 )(
   "NetworkUnavailableError",
-  { message: Schema.String },
+  { message: S.String },
   { title: "Network Unavailable", description: "Upstream version resolution failed due to network" }
 ) {}
 
@@ -44,11 +44,11 @@ export class NetworkUnavailableError extends Schema.TaggedErrorClass<NetworkUnav
  * @since 0.0.0
  * @category errors
  */
-export class VersionSyncDriftError extends Schema.TaggedErrorClass<VersionSyncDriftError>(
+export class VersionSyncDriftError extends S.TaggedErrorClass<VersionSyncDriftError>(
   "@beep/repo-cli/commands/version-sync/VersionSyncDriftError"
 )(
   "VersionSyncDriftError",
-  { message: Schema.String, driftCount: Schema.Number },
+  { message: S.String, driftCount: S.Number },
   { title: "Version Sync Drift Error", description: "Version drift detected in check mode" }
 ) {}
 

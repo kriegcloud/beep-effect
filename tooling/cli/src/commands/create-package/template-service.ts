@@ -6,11 +6,9 @@
  */
 
 import { DomainError } from "@beep/repo-utils";
-import { FileSystem } from "effect";
+import { Effect, FileSystem, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import Handlebars from "handlebars";
 
 /**

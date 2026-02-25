@@ -3,21 +3,20 @@
 import type { GraphNode } from "@beep/web/lib/effect/mappers";
 import { chatContextNodeAtom } from "@beep/web/state/chat.atoms";
 import {
-  clearGraphHighlightsAtom,
-  expandGraphNodeAtom,
-  graphDataAtom,
-  graphSearchQueryAtom,
-  highlightedNodeIdsAtom,
-  loadSeedGraphAtom,
-  seedGraphLoadedAtom,
-  selectedGraphNodeAtom,
-  selectedNodeFactsAtom,
-  selectedNodeIdAtom,
+    clearGraphHighlightsAtom,
+    expandGraphNodeAtom,
+    graphDataAtom,
+    graphSearchQueryAtom,
+    highlightedNodeIdsAtom,
+    loadSeedGraphAtom,
+    seedGraphLoadedAtom,
+    selectedGraphNodeAtom,
+    selectedNodeFactsAtom,
+    selectedNodeIdAtom,
 } from "@beep/web/state/graph.atoms";
 import { useAtom, useAtomValue } from "@effect/atom-react";
-import { Match, pipe } from "effect";
-import * as Option from "effect/Option";
-import * as Str from "effect/String";
+import { Match, pipe, String as Str } from "effect";
+import * as O from "effect/Option";
 import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
 import { useCallback, useEffect } from "react";
 import { ForceGraph } from "./ForceGraph";
@@ -76,8 +75,8 @@ export function GraphPanel() {
 
   const onNodeClick = useCallback(
     (node: GraphNode) => {
-      setSelectedNodeId(Option.some(node.id));
-      setChatContextNode(Option.some(node));
+      setSelectedNodeId(O.some(node.id));
+      setChatContextNode(O.some(node));
       expandNode({
         nodeId: node.id,
         maxFacts: defaultMaxFacts,
@@ -88,8 +87,8 @@ export function GraphPanel() {
   );
 
   const onBackgroundClick = useCallback(() => {
-    setSelectedNodeId(Option.none());
-    setChatContextNode(Option.none());
+    setSelectedNodeId(O.none());
+    setChatContextNode(O.none());
   }, [setChatContextNode, setSelectedNodeId]);
 
   const loadingCopy = pipe(
@@ -163,8 +162,8 @@ export function GraphPanel() {
           node={selectedNode}
           facts={selectedFacts}
           onClose={() => {
-            setSelectedNodeId(Option.none());
-            setChatContextNode(Option.none());
+            setSelectedNodeId(O.none());
+            setChatContextNode(O.none());
           }}
         />
       </div>

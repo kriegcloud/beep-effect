@@ -5,12 +5,10 @@
  */
 
 import type { TString } from "@beep/types";
+import { Function as F, MutableHashSet, String } from "effect";
 import * as A from "effect/Array";
-import * as F from "effect/Function";
-import * as MutableHashSet from "effect/MutableHashSet";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as String from "effect/String";
 
 const BEEP_NAMESPACE = "@beep" as const;
 const MODULE_CHARACTERS = /^[A-Za-z0-9_-]+$/;

@@ -9,10 +9,8 @@
  * @module @beep/schema/LiteralKit.schema
  */
 
-import { pipe } from "effect";
+import { HashSet, Match, pipe } from "effect";
 import * as A from "effect/Array";
-import * as HashSet from "effect/HashSet";
-import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { LiteralValue } from "effect/SchemaAST";

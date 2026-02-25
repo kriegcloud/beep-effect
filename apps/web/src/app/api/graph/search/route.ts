@@ -1,19 +1,19 @@
 import { auth } from "@beep/web/lib/auth/server";
 import {
-  deriveNeighborNodes,
-  GraphNodeDetailsSchema,
-  GraphSearchResultSchema,
-  mapEntityNodesToGraphNodes,
-  mapEntityNodeToGraphNode,
-  mapFactsToGraphFacts,
-  mapFactsToGraphLinks,
-  mapSearchToGraphData,
+    deriveNeighborNodes,
+    GraphNodeDetailsSchema,
+    GraphSearchResultSchema,
+    mapEntityNodesToGraphNodes,
+    mapEntityNodeToGraphNode,
+    mapFactsToGraphFacts,
+    mapFactsToGraphLinks,
+    mapSearchToGraphData,
 } from "@beep/web/lib/effect/mappers";
 import { GraphitiService, type GraphitiServiceError } from "@beep/web/lib/graphiti/client";
 import { Effect, Match, pipe } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
-import * as Predicate from "effect/Predicate";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -47,39 +47,39 @@ const graphitiErrorDescription = Match.type<GraphitiServiceError>().pipe(
   })
 );
 
-const parseOptionalPositiveInt = (value: string | null): Option.Option<number> =>
+const parseOptionalPositiveInt = (value: string | null): O.Option<number> =>
   pipe(
-    Option.fromNullishOr(value),
-    Option.flatMap(decodeNumberFromString),
-    Option.flatMap(decodeInt),
-    Option.filter((parsed) => parsed >= 1)
+    O.fromNullishOr(value),
+    O.flatMap(decodeNumberFromString),
+    O.flatMap(decodeInt),
+    O.filter((parsed) => parsed >= 1)
   );
 
 const parseSearchInput = (request: NextRequest) => {
   const params = request.nextUrl.searchParams;
 
   return {
-    query: Option.fromNullishOr(params.get("q")),
-    nodeId: Option.fromNullishOr(params.get("nodeId")),
+    query: O.fromNullishOr(params.get("q")),
+    nodeId: O.fromNullishOr(params.get("nodeId")),
     limit: pipe(
       parseOptionalPositiveInt(params.get("limit")),
-      Option.getOrElse(() => defaultLimit)
+      O.getOrElse(() => defaultLimit)
     ),
     maxFacts: pipe(
       parseOptionalPositiveInt(params.get("maxFacts")),
-      Option.getOrElse(() => defaultMaxFacts)
+      O.getOrElse(() => defaultMaxFacts)
     ),
     maxNeighbors: pipe(
       parseOptionalPositiveInt(params.get("maxNeighbors")),
-      Option.getOrElse(() => defaultMaxNeighbors)
+      O.getOrElse(() => defaultMaxNeighbors)
     ),
   };
 };
 
 const graphFromDetails = (details: GraphNodeDetails): typeof GraphSearchResultSchema.Type => ({
   nodes: pipe(
-    Option.fromNullishOr(details.node),
-    Option.match({
+    O.fromNullishOr(details.node),
+    O.match({
       onNone: () => details.neighbors,
       onSome: (node) =>
         pipe(
@@ -98,12 +98,12 @@ const searchGraph = Effect.fn("GraphSearchRoute.searchGraph")(function* (request
 
   return yield* pipe(
     input.nodeId,
-    Option.match({
+    O.match({
       onNone: () =>
         Effect.gen(function* () {
           const query = pipe(
             input.query,
-            Option.getOrElse(() => defaultSeedQuery)
+            O.getOrElse(() => defaultSeedQuery)
           );
 
           const nodes = yield* graphiti.searchNodes({
@@ -134,7 +134,7 @@ const searchGraph = Effect.fn("GraphSearchRoute.searchGraph")(function* (request
 
           const neighbors = pipe(
             lookup.node,
-            Option.match({
+            O.match({
               onNone: () => mapEntityNodesToGraphNodes(lookup.neighbors),
               onSome: (node) => deriveNeighborNodes(node.uuid, lookup.neighbors, lookup.facts),
             })
@@ -142,8 +142,8 @@ const searchGraph = Effect.fn("GraphSearchRoute.searchGraph")(function* (request
 
           const details = pipe(
             lookup.node,
-            Option.map(mapEntityNodeToGraphNode),
-            Option.match({
+            O.map(mapEntityNodeToGraphNode),
+            O.match({
               onNone: () => ({
                 neighbors,
                 links,
@@ -173,7 +173,7 @@ const runRoute = (request: NextRequest) =>
     Effect.flatMap((payload) => decodeResponse(payload).pipe(Effect.mapError((cause) => cause.message))),
     Effect.mapError((error): string =>
       Match.value(error).pipe(
-        Match.when(Predicate.isString, (message) => message),
+        Match.when(P.isString, (message) => message),
         Match.orElse((graphitiError) => graphitiErrorDescription(graphitiError))
       )
     ),
@@ -197,8 +197,8 @@ export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
 
   return pipe(
-    Option.fromNullishOr(session),
-    Option.match({
+    O.fromNullishOr(session),
+    O.match({
       onNone: () =>
         NextResponse.json(
           {

@@ -1,7 +1,7 @@
+import { String as Str } from "effect";
 import { coerceUnsafe, dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 
 type Depth = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 type PreviousDepth = {

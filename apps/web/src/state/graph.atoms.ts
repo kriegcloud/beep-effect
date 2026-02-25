@@ -1,16 +1,16 @@
 import {
-  type GraphFact,
-  type GraphLink,
-  GraphLinkSchema,
-  type GraphNode,
-  GraphNodeDetailsSchema,
-  GraphNodeSchema,
-  GraphSearchResultSchema,
+    type GraphFact,
+    type GraphLink,
+    GraphLinkSchema,
+    type GraphNode,
+    GraphNodeDetailsSchema,
+    GraphNodeSchema,
+    GraphSearchResultSchema,
 } from "@beep/web/lib/effect/mappers";
 import { Effect, Match, pipe } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
-import * as Record from "effect/Record";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Atom } from "effect/unstable/reactivity";
 
@@ -30,15 +30,15 @@ export const GraphSearchApiResponseSchema = S.Struct({
 export type GraphSearchApiResponse = typeof GraphSearchApiResponseSchema.Type;
 
 interface GraphApiRequest {
-  readonly query: Option.Option<string>;
-  readonly nodeId: Option.Option<string>;
-  readonly limit: Option.Option<number>;
-  readonly maxFacts: Option.Option<number>;
-  readonly maxNeighbors: Option.Option<number>;
+  readonly query: O.Option<string>;
+  readonly nodeId: O.Option<string>;
+  readonly limit: O.Option<number>;
+  readonly maxFacts: O.Option<number>;
+  readonly maxNeighbors: O.Option<number>;
 }
 
-type NodeDetailsIndex = Record.ReadonlyRecord<string, typeof GraphNodeDetailsSchema.Type>;
-type NodeFactsIndex = Record.ReadonlyRecord<string, ReadonlyArray<GraphFact>>;
+type NodeDetailsIndex = R.ReadonlyRecord<string, typeof GraphNodeDetailsSchema.Type>;
+type NodeFactsIndex = R.ReadonlyRecord<string, ReadonlyArray<GraphFact>>;
 
 const decodeGraphSearchApiResponse = S.decodeUnknownEffect(GraphSearchApiResponseSchema);
 
@@ -47,8 +47,8 @@ const emptyGraphData = {
   links: A.empty<GraphLink>(),
 };
 
-const setParam = (params: URLSearchParams, key: string, value: Option.Option<string>) =>
-  Option.match(value, {
+const setParam = (params: URLSearchParams, key: string, value: O.Option<string>) =>
+  O.match(value, {
     onNone: () => undefined,
     onSome: (resolved) => {
       params.set(key, resolved);
@@ -66,7 +66,7 @@ const buildGraphSearchPath = (request: GraphApiRequest): string => {
     "limit",
     pipe(
       request.limit,
-      Option.map((value) => `${value}`)
+      O.map((value) => `${value}`)
     )
   );
   setParam(
@@ -74,7 +74,7 @@ const buildGraphSearchPath = (request: GraphApiRequest): string => {
     "maxFacts",
     pipe(
       request.maxFacts,
-      Option.map((value) => `${value}`)
+      O.map((value) => `${value}`)
     )
   );
   setParam(
@@ -82,7 +82,7 @@ const buildGraphSearchPath = (request: GraphApiRequest): string => {
     "maxNeighbors",
     pipe(
       request.maxNeighbors,
-      Option.map((value) => `${value}`)
+      O.map((value) => `${value}`)
     )
   );
 
@@ -110,18 +110,18 @@ const fetchGraphSearch = Effect.fn("GraphState.fetchGraphSearch")(function* (req
   return yield* decodeGraphSearchApiResponse(payload).pipe(Effect.mapError((cause) => cause.message));
 });
 
-const nodeMapFromArray = (nodes: ReadonlyArray<GraphNode>): Record.ReadonlyRecord<string, GraphNode> =>
+const nodeMapFromArray = (nodes: ReadonlyArray<GraphNode>): R.ReadonlyRecord<string, GraphNode> =>
   pipe(
     nodes,
-    A.reduce(Record.empty<string, GraphNode>(), (accumulator, node) => Record.set(accumulator, node.id, node))
+    A.reduce(R.empty<string, GraphNode>(), (accumulator, node) => R.set(accumulator, node.id, node))
   );
 
 const linkKey = (link: GraphLink): string => `${link.source}::${link.target}::${link.label}`;
 
-const linkMapFromArray = (links: ReadonlyArray<GraphLink>): Record.ReadonlyRecord<string, GraphLink> =>
+const linkMapFromArray = (links: ReadonlyArray<GraphLink>): R.ReadonlyRecord<string, GraphLink> =>
   pipe(
     links,
-    A.reduce(Record.empty<string, GraphLink>(), (accumulator, link) => Record.set(accumulator, linkKey(link), link))
+    A.reduce(R.empty<string, GraphLink>(), (accumulator, link) => R.set(accumulator, linkKey(link), link))
   );
 
 const mergeGraphData = (
@@ -130,20 +130,20 @@ const mergeGraphData = (
 ): typeof GraphSearchResultSchema.Type => ({
   nodes: pipe(
     incoming.nodes,
-    A.reduce(nodeMapFromArray(current.nodes), (accumulator, node) => Record.set(accumulator, node.id, node)),
-    Record.values
+    A.reduce(nodeMapFromArray(current.nodes), (accumulator, node) => R.set(accumulator, node.id, node)),
+    R.values
   ),
   links: pipe(
     incoming.links,
-    A.reduce(linkMapFromArray(current.links), (accumulator, link) => Record.set(accumulator, linkKey(link), link)),
-    Record.values
+    A.reduce(linkMapFromArray(current.links), (accumulator, link) => R.set(accumulator, linkKey(link), link)),
+    R.values
   ),
 });
 
 const graphFromDetails = (details: typeof GraphNodeDetailsSchema.Type): typeof GraphSearchResultSchema.Type => ({
   nodes: pipe(
-    Option.fromNullishOr(details.node),
-    Option.match({
+    O.fromNullishOr(details.node),
+    O.match({
       onNone: () => details.neighbors,
       onSome: (node) =>
         pipe(
@@ -158,11 +158,11 @@ const graphFromDetails = (details: typeof GraphNodeDetailsSchema.Type): typeof G
 
 const appendFactForNode = (index: NodeFactsIndex, nodeId: string, fact: GraphFact): NodeFactsIndex => {
   const current = pipe(
-    Record.get(index, nodeId),
-    Option.getOrElse(() => A.empty<GraphFact>())
+    R.get(index, nodeId),
+    O.getOrElse(() => A.empty<GraphFact>())
   );
 
-  return Record.set(
+  return R.set(
     index,
     nodeId,
     pipe(
@@ -190,10 +190,10 @@ const mergeDetailsIntoIndex = (
   details: typeof GraphNodeDetailsSchema.Type
 ): NodeDetailsIndex =>
   pipe(
-    Option.fromNullishOr(details.node),
-    Option.match({
+    O.fromNullishOr(details.node),
+    O.match({
       onNone: () => index,
-      onSome: (node) => Record.set(index, node.id, details),
+      onSome: (node) => R.set(index, node.id, details),
     })
   );
 
@@ -201,18 +201,18 @@ const normalizeGraphResponse = (
   response: GraphSearchApiResponse
 ): {
   readonly graph: typeof GraphSearchResultSchema.Type;
-  readonly details: Option.Option<typeof GraphNodeDetailsSchema.Type>;
+  readonly details: O.Option<typeof GraphNodeDetailsSchema.Type>;
 } =>
   pipe(
-    Option.fromNullishOr(response.details),
-    Option.match({
+    O.fromNullishOr(response.details),
+    O.match({
       onNone: () => ({
         graph: response.graph,
-        details: Option.none<typeof GraphNodeDetailsSchema.Type>(),
+        details: O.none<typeof GraphNodeDetailsSchema.Type>(),
       }),
       onSome: (details) => ({
         graph: graphFromDetails(details),
-        details: Option.some(details),
+        details: O.some(details),
       }),
     })
   );
@@ -221,20 +221,20 @@ export const graphSearchQueryAtom = Atom.make("effect v4");
 
 export const graphDataAtom = Atom.make<typeof GraphSearchResultSchema.Type>(emptyGraphData);
 
-export const selectedNodeIdAtom = Atom.make<Option.Option<string>>(Option.none());
+export const selectedNodeIdAtom = Atom.make<O.Option<string>>(O.none());
 
 export const highlightedNodeIdsAtom = Atom.make<ReadonlyArray<string>>(A.empty());
 
 export const seedGraphLoadedAtom = Atom.make(false);
 
-const nodeDetailsIndexAtom = Atom.make<NodeDetailsIndex>(Record.empty());
+const nodeDetailsIndexAtom = Atom.make<NodeDetailsIndex>(R.empty());
 
-const nodeFactsIndexAtom = Atom.make<NodeFactsIndex>(Record.empty());
+const nodeFactsIndexAtom = Atom.make<NodeFactsIndex>(R.empty());
 
 export const selectedGraphNodeAtom = Atom.make((get) =>
   pipe(
     get(selectedNodeIdAtom),
-    Option.flatMap((nodeId) =>
+    O.flatMap((nodeId) =>
       pipe(
         get(graphDataAtom).nodes,
         A.findFirst((node) => node.id === nodeId)
@@ -246,48 +246,48 @@ export const selectedGraphNodeAtom = Atom.make((get) =>
 export const selectedNodeDetailsAtom = Atom.make((get) =>
   pipe(
     get(selectedNodeIdAtom),
-    Option.flatMap((nodeId) => Record.get(get(nodeDetailsIndexAtom), nodeId))
+    O.flatMap((nodeId) => R.get(get(nodeDetailsIndexAtom), nodeId))
   )
 );
 
 export const selectedNodeFactsAtom = Atom.make((get) =>
   pipe(
     get(selectedNodeIdAtom),
-    Option.flatMap((nodeId) => Record.get(get(nodeFactsIndexAtom), nodeId)),
-    Option.getOrElse(() => A.empty<GraphFact>())
+    O.flatMap((nodeId) => R.get(get(nodeFactsIndexAtom), nodeId)),
+    O.getOrElse(() => A.empty<GraphFact>())
   )
 );
 
 export const loadSeedGraphAtom = Atom.fn<{ readonly query: string; readonly limit: number }>()((input, get) =>
   fetchGraphSearch({
-    query: Option.some(input.query),
-    nodeId: Option.none(),
-    limit: Option.some(input.limit),
-    maxFacts: Option.none(),
-    maxNeighbors: Option.none(),
+    query: O.some(input.query),
+    nodeId: O.none(),
+    limit: O.some(input.limit),
+    maxFacts: O.none(),
+    maxNeighbors: O.none(),
   }).pipe(
     Effect.tap((response) =>
       Effect.sync(() => {
         const normalized = normalizeGraphResponse(response);
 
         get.set(graphDataAtom, normalized.graph);
-        get.set(selectedNodeIdAtom, Option.none());
+        get.set(selectedNodeIdAtom, O.none());
         get.set(highlightedNodeIdsAtom, A.empty());
         get.set(seedGraphLoadedAtom, true);
 
         const nextDetails = pipe(
           normalized.details,
-          Option.match({
-            onNone: () => Record.empty<string, typeof GraphNodeDetailsSchema.Type>(),
-            onSome: (details) => mergeDetailsIntoIndex(Record.empty(), details),
+          O.match({
+            onNone: () => R.empty<string, typeof GraphNodeDetailsSchema.Type>(),
+            onSome: (details) => mergeDetailsIntoIndex(R.empty(), details),
           })
         );
 
         const nextFacts = pipe(
           normalized.details,
-          Option.match({
-            onNone: () => Record.empty<string, ReadonlyArray<GraphFact>>(),
-            onSome: (details) => mergeFactsIntoIndex(Record.empty(), details.facts),
+          O.match({
+            onNone: () => R.empty<string, ReadonlyArray<GraphFact>>(),
+            onSome: (details) => mergeFactsIntoIndex(R.empty(), details.facts),
           })
         );
 
@@ -305,11 +305,11 @@ export const expandGraphNodeAtom = Atom.fn<{
   readonly maxNeighbors: number;
 }>()((input, get) =>
   fetchGraphSearch({
-    query: Option.none(),
-    nodeId: Option.some(input.nodeId),
-    limit: Option.none(),
-    maxFacts: Option.some(input.maxFacts),
-    maxNeighbors: Option.some(input.maxNeighbors),
+    query: O.none(),
+    nodeId: O.some(input.nodeId),
+    limit: O.none(),
+    maxFacts: O.some(input.maxFacts),
+    maxNeighbors: O.some(input.maxNeighbors),
   }).pipe(
     Effect.tap((response) =>
       Effect.sync(() => {
@@ -317,11 +317,11 @@ export const expandGraphNodeAtom = Atom.fn<{
         const merged = mergeGraphData(get(graphDataAtom), normalized.graph);
 
         get.set(graphDataAtom, merged);
-        get.set(selectedNodeIdAtom, Option.some(input.nodeId));
+        get.set(selectedNodeIdAtom, O.some(input.nodeId));
 
         const nextDetails = pipe(
           normalized.details,
-          Option.match({
+          O.match({
             onNone: () => get(nodeDetailsIndexAtom),
             onSome: (details) => mergeDetailsIntoIndex(get(nodeDetailsIndexAtom), details),
           })
@@ -329,7 +329,7 @@ export const expandGraphNodeAtom = Atom.fn<{
 
         const nextFacts = pipe(
           normalized.details,
-          Option.match({
+          O.match({
             onNone: () => get(nodeFactsIndexAtom),
             onSome: (details) => mergeFactsIntoIndex(get(nodeFactsIndexAtom), details.facts),
           })
@@ -345,13 +345,13 @@ export const expandGraphNodeAtom = Atom.fn<{
 
 export const selectGraphNodeAtom = Atom.fn<string>()((nodeId, get) =>
   Effect.sync(() => {
-    get.set(selectedNodeIdAtom, Option.some(nodeId));
+    get.set(selectedNodeIdAtom, O.some(nodeId));
   })
 );
 
 export const clearGraphSelectionAtom = Atom.fn<void>()((_, get) =>
   Effect.sync(() => {
-    get.set(selectedNodeIdAtom, Option.none());
+    get.set(selectedNodeIdAtom, O.none());
   })
 );
 

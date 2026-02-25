@@ -2,11 +2,20 @@
 
 import tsParser from "@typescript-eslint/parser";
 import jsdoc from "eslint-plugin-jsdoc";
+import effectImportStyleRule from "./eslint-rules/effect-import-style.mjs";
+import noNativeRuntimeRule from "./eslint-rules/no-native-runtime.mjs";
 import requireCategoryTagRule from "./eslint-rules/require-category-tag.mjs";
 
 const beepJsdoc = {
   rules: {
     "require-category-tag": requireCategoryTagRule,
+  },
+};
+
+const beepLaws = {
+  rules: {
+    "effect-import-style": effectImportStyleRule,
+    "no-native-runtime": noNativeRuntimeRule,
   },
 };
 
@@ -25,6 +34,41 @@ export default [
       "**/storybook-static/**",
       "**/.turbo/**",
     ],
+  },
+  // Effect Laws v1 Rules - phased rollout (warn now, escalate to error after cleanup)
+  {
+    files: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "tooling/**/*.{ts,tsx}", "infra/**/*.ts"],
+    ignores: [
+      "**/*.d.ts",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "**/*.stories.tsx",
+      "**/test/**",
+      "**/tests/**",
+      "**/dtslint/**",
+      "**/.storybook/**",
+      "**/dist/**",
+      "**/.turbo/**",
+      "**/.next/**",
+      "**/lostpixel.config.ts",
+      "**/vitest.storybook.config.ts",
+      "tooling/*/src/internal/**",
+    ],
+    plugins: {
+      "beep-laws": beepLaws,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        projectService: true,
+      },
+    },
+    rules: {
+      "beep-laws/effect-import-style": "warn",
+      "beep-laws/no-native-runtime": "warn",
+    },
   },
   // JSDoc Documentation Rules - main enforcement
   {

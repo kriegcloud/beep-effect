@@ -7,9 +7,7 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, FileSystem, Path, Schema } from "effect";
-import * as Layer from "effect/Layer";
-import * as ServiceMap from "effect/ServiceMap";
+import { Effect, FileSystem, Layer, Path, Schema, ServiceMap } from "effect";
 import { glob as globNpm } from "glob";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
 import { jsonStringifyPretty } from "./JsonUtils.js";

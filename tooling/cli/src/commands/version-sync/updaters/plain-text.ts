@@ -5,9 +5,7 @@
  * @module
  */
 
-import { FileSystem } from "effect";
-import * as Effect from "effect/Effect";
-import * as Str from "effect/String";
+import { Effect, FileSystem, String as Str } from "effect";
 import { VersionSyncError } from "../types.js";
 
 /**

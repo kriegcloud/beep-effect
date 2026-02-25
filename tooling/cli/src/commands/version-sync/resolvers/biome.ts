@@ -8,12 +8,10 @@
  * @module
  */
 
-import { FileSystem, Path } from "effect";
+import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import type { VersionCategoryReport, VersionDriftItem } from "../types.js";
 import { VersionSyncError } from "../types.js";

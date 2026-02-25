@@ -7,10 +7,9 @@
  * @since 0.0.0
  * @module
  */
-import { Effect, FileSystem, pipe } from "effect";
+import { Effect, FileSystem, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
 import { NoSuchFileError } from "./errors/index.js";
 
 /**

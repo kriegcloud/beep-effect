@@ -1,20 +1,17 @@
 import { $WebId } from "@beep/identity/packages";
 import {
-  type GraphitiEntityNode,
-  GraphitiEntityNodeSchema,
-  type GraphitiFact,
-  GraphitiFactSchema,
+    type GraphitiEntityNode,
+    GraphitiEntityNodeSchema,
+    type GraphitiFact,
+    GraphitiFactSchema,
 } from "@beep/web/lib/effect/mappers";
-import { Effect, Layer, Match, pipe, ServiceMap } from "effect";
+import { Effect, Layer, Match, pipe, ServiceMap, String } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
-import * as Predicate from "effect/Predicate";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as String from "effect/String";
-
-const $GraphitiId = $WebId.create("lib/graphiti/client");
-const $GraphitiSchemaId = $GraphitiId.create("schema");
-const $GraphitiErrorsId = $GraphitiId.create("errors");
+const $I = $WebId.create("lib/graphiti/client");
+const $ErrorsId = $I.create("errors");
 
 const DefaultGraphitiApiUrl = "https://auth-proxy-production-91fe.up.railway.app/mcp";
 const DefaultGraphitiGroupId = "effect-v4";
@@ -26,7 +23,7 @@ export const GraphitiRuntimeConfigSchema = S.Struct({
   apiKey: S.String,
   groupId: S.NonEmptyString,
 }).annotate(
-  $GraphitiSchemaId.annotate("GraphitiRuntimeConfigSchema", {
+  $I.annote("GraphitiRuntimeConfigSchema", {
     title: "Graphiti Runtime Config",
     description: "Runtime configuration for Graphiti MCP HTTP calls.",
   })
@@ -40,7 +37,7 @@ export const GraphitiSearchNodesParamsSchema = S.Struct({
   groupIds: S.optionalKey(S.Array(S.NonEmptyString)).pipe(S.withDecodingDefault(() => [])),
   entityTypes: S.optionalKey(S.Array(S.NonEmptyString)).pipe(S.withDecodingDefault(() => [])),
 }).annotate(
-  $GraphitiSchemaId.annotate("GraphitiSearchNodesParamsSchema", {
+  $I.annote("GraphitiSearchNodesParamsSchema", {
     title: "Graphiti Search Nodes Params",
     description: "Input for Graphiti search_nodes tool calls.",
   })
@@ -54,7 +51,7 @@ export const GraphitiSearchFactsParamsSchema = S.Struct({
   groupIds: S.optionalKey(S.Array(S.NonEmptyString)).pipe(S.withDecodingDefault(() => [])),
   centerNodeUuid: S.optionalKey(S.NonEmptyString),
 }).annotate(
-  $GraphitiSchemaId.annotate("GraphitiSearchFactsParamsSchema", {
+  $I.annote("GraphitiSearchFactsParamsSchema", {
     title: "Graphiti Search Facts Params",
     description: "Input for Graphiti search_memory_facts tool calls.",
   })
@@ -68,7 +65,7 @@ export const GraphitiGetNodeParamsSchema = S.Struct({
   maxNeighbors: S.optionalKey(S.Int.check(S.isGreaterThanOrEqualTo(1))).pipe(S.withDecodingDefault(() => 20)),
   groupIds: S.optionalKey(S.Array(S.NonEmptyString)).pipe(S.withDecodingDefault(() => [])),
 }).annotate(
-  $GraphitiSchemaId.annotate("GraphitiGetNodeParamsSchema", {
+  $I.annote("GraphitiGetNodeParamsSchema", {
     title: "Graphiti Get Node Params",
     description: "Input for node lookups backed by Graphiti search tools.",
   })
@@ -76,9 +73,7 @@ export const GraphitiGetNodeParamsSchema = S.Struct({
 
 export type GraphitiGetNodeParams = typeof GraphitiGetNodeParamsSchema.Type;
 
-export class GraphitiRequestError extends S.TaggedErrorClass<GraphitiRequestError>(
-  $GraphitiErrorsId`GraphitiRequestError`
-)(
+export class GraphitiRequestError extends S.TaggedErrorClass<GraphitiRequestError>($ErrorsId`GraphitiRequestError`)(
   "GraphitiRequestError",
   {
     message: S.String,
@@ -90,7 +85,7 @@ export class GraphitiRequestError extends S.TaggedErrorClass<GraphitiRequestErro
 ) {}
 
 export class GraphitiHttpStatusError extends S.TaggedErrorClass<GraphitiHttpStatusError>(
-  $GraphitiErrorsId`GraphitiHttpStatusError`
+  $ErrorsId`GraphitiHttpStatusError`
 )(
   "GraphitiHttpStatusError",
   {
@@ -103,9 +98,7 @@ export class GraphitiHttpStatusError extends S.TaggedErrorClass<GraphitiHttpStat
   }
 ) {}
 
-export class GraphitiProtocolError extends S.TaggedErrorClass<GraphitiProtocolError>(
-  $GraphitiErrorsId`GraphitiProtocolError`
-)(
+export class GraphitiProtocolError extends S.TaggedErrorClass<GraphitiProtocolError>($ErrorsId`GraphitiProtocolError`)(
   "GraphitiProtocolError",
   {
     message: S.String,
@@ -116,7 +109,7 @@ export class GraphitiProtocolError extends S.TaggedErrorClass<GraphitiProtocolEr
   }
 ) {}
 
-export class GraphitiToolError extends S.TaggedErrorClass<GraphitiToolError>($GraphitiErrorsId`GraphitiToolError`)(
+export class GraphitiToolError extends S.TaggedErrorClass<GraphitiToolError>($ErrorsId`GraphitiToolError`)(
   "GraphitiToolError",
   {
     toolName: S.NonEmptyString,
@@ -129,7 +122,7 @@ export class GraphitiToolError extends S.TaggedErrorClass<GraphitiToolError>($Gr
 ) {}
 
 export class GraphitiResponseDecodeError extends S.TaggedErrorClass<GraphitiResponseDecodeError>(
-  $GraphitiErrorsId`GraphitiResponseDecodeError`
+  $ErrorsId`GraphitiResponseDecodeError`
 )(
   "GraphitiResponseDecodeError",
   {
@@ -149,7 +142,7 @@ export type GraphitiServiceError =
   | GraphitiResponseDecodeError;
 
 export interface GraphitiNodeLookup {
-  readonly node: Option.Option<GraphitiEntityNode>;
+  readonly node: O.Option<GraphitiEntityNode>;
   readonly neighbors: ReadonlyArray<GraphitiEntityNode>;
   readonly facts: ReadonlyArray<GraphitiFact>;
 }
@@ -163,7 +156,7 @@ const RawGraphitiNodeSchema = S.Struct({
   group_id: S.NonEmptyString,
   attributes: S.Record(S.String, S.Unknown),
 }).annotate(
-  $GraphitiSchemaId.annotate("RawGraphitiNodeSchema", {
+  $I.annote("RawGraphitiNodeSchema", {
     title: "Raw Graphiti Node",
     description: "Raw search_nodes node payload returned by Graphiti.",
   })
@@ -181,7 +174,7 @@ const RawGraphitiFactSchema = S.Struct({
   created_at: S.NullOr(S.String),
   attributes: S.Record(S.String, S.Unknown),
 }).annotate(
-  $GraphitiSchemaId.annotate("RawGraphitiFactSchema", {
+  $I.annote("RawGraphitiFactSchema", {
     title: "Raw Graphiti Fact",
     description: "Raw search_memory_facts relationship payload returned by Graphiti.",
   })
@@ -193,7 +186,7 @@ const RawNodeSearchResultSchema = S.Struct({
   message: S.String,
   nodes: S.Array(RawGraphitiNodeSchema),
 }).annotate(
-  $GraphitiSchemaId.annotate("RawNodeSearchResultSchema", {
+  $I.annote("RawNodeSearchResultSchema", {
     title: "Raw Node Search Result",
     description: "Decoded structuredContent result for Graphiti search_nodes.",
   })
@@ -203,7 +196,7 @@ const RawFactSearchResultSchema = S.Struct({
   message: S.String,
   facts: S.Array(RawGraphitiFactSchema),
 }).annotate(
-  $GraphitiSchemaId.annotate("RawFactSearchResultSchema", {
+  $I.annote("RawFactSearchResultSchema", {
     title: "Raw Fact Search Result",
     description: "Decoded structuredContent result for Graphiti search_memory_facts.",
   })
@@ -212,7 +205,7 @@ const RawFactSearchResultSchema = S.Struct({
 const GraphitiToolResponseErrorSchema = S.Struct({
   error: S.String,
 }).annotate(
-  $GraphitiSchemaId.annotate("GraphitiToolResponseErrorSchema", {
+  $I.annote("GraphitiToolResponseErrorSchema", {
     title: "Graphiti Tool Response Error",
     description: "Error payload returned in Graphiti tool results.",
   })
@@ -222,7 +215,7 @@ const McpToolTextContentSchema = S.Struct({
   type: S.String,
   text: S.optionalKey(S.String),
 }).annotate(
-  $GraphitiSchemaId.annotate("McpToolTextContentSchema", {
+  $I.annote("McpToolTextContentSchema", {
     title: "MCP Tool Text Content",
     description: "Text content item contained in Graphiti MCP tool responses.",
   })
@@ -231,7 +224,7 @@ const McpToolTextContentSchema = S.Struct({
 const McpStructuredContentSchema = S.Struct({
   result: S.Unknown,
 }).annotate(
-  $GraphitiSchemaId.annotate("McpStructuredContentSchema", {
+  $I.annote("McpStructuredContentSchema", {
     title: "MCP Structured Content",
     description: "Structured content wrapper in Graphiti MCP tool responses.",
   })
@@ -242,7 +235,7 @@ const McpToolCallResultSchema = S.Struct({
   structuredContent: S.optionalKey(McpStructuredContentSchema),
   isError: S.optionalKey(S.Boolean),
 }).annotate(
-  $GraphitiSchemaId.annotate("McpToolCallResultSchema", {
+  $I.annote("McpToolCallResultSchema", {
     title: "MCP Tool Call Result",
     description: "Successful Graphiti MCP tools/call result envelope.",
   })
@@ -251,7 +244,7 @@ const McpToolCallResultSchema = S.Struct({
 const McpErrorSchema = S.Struct({
   message: S.String,
 }).annotate(
-  $GraphitiSchemaId.annotate("McpErrorSchema", {
+  $I.annote("McpErrorSchema", {
     title: "MCP Error",
     description: "Error object returned by Graphiti MCP responses.",
   })
@@ -261,7 +254,7 @@ const McpEnvelopeSchema = S.Struct({
   result: S.optionalKey(McpToolCallResultSchema),
   error: S.optionalKey(McpErrorSchema),
 }).annotate(
-  $GraphitiSchemaId.annotate("McpEnvelopeSchema", {
+  $I.annote("McpEnvelopeSchema", {
     title: "MCP Envelope",
     description: "Top-level decoded Graphiti MCP response envelope.",
   })
@@ -291,7 +284,7 @@ const parseJson = Effect.fn("Graphiti.parseJson")(function* (body: string) {
 
 const normalizeNullableString = (value: string | null): string =>
   Match.value(value).pipe(
-    Match.when(Predicate.isNull, () => ""),
+    Match.when(P.isNull, () => ""),
     Match.orElse((text) => text)
   );
 
@@ -344,7 +337,7 @@ const parseMcpBody = Effect.fn("Graphiti.parseMcpBody")(function* (body: string)
     A.findFirst((line) => pipe(line, String.startsWith("data: ")))
   );
 
-  return yield* Option.match(maybeDataLine, {
+  return yield* O.match(maybeDataLine, {
     onNone: () => parseJson(body),
     onSome: (line) => parseJson(pipe(line, String.slice(6), String.trimStart)),
   });
@@ -352,7 +345,7 @@ const parseMcpBody = Effect.fn("Graphiti.parseMcpBody")(function* (body: string)
 
 const postMcp = Effect.fn("Graphiti.postMcp")(function* (options: {
   readonly config: GraphitiRuntimeConfig;
-  readonly sessionId: Option.Option<string>;
+  readonly sessionId: O.Option<string>;
   readonly payload: unknown;
   readonly fetchImpl: GraphitiFetch;
 }) {
@@ -363,7 +356,7 @@ const postMcp = Effect.fn("Graphiti.postMcp")(function* (options: {
 
   headers.set("x-api-key", options.config.apiKey);
 
-  yield* Option.match(options.sessionId, {
+  yield* O.match(options.sessionId, {
     onNone: () => Effect.void,
     onSome: (sessionId) =>
       Effect.sync(() => {
@@ -424,14 +417,14 @@ const initializeSession = Effect.fn("Graphiti.initializeSession")(function* (opt
 
   const initializeResponse = yield* postMcp({
     config: options.config,
-    sessionId: Option.none(),
+    sessionId: O.none(),
     payload: initializePayload,
     fetchImpl: options.fetchImpl,
   });
 
-  const maybeSessionId = Option.fromNullishOr(initializeResponse.response.headers.get("mcp-session-id"));
+  const maybeSessionId = O.fromNullishOr(initializeResponse.response.headers.get("mcp-session-id"));
 
-  const sessionId = yield* Option.match(maybeSessionId, {
+  const sessionId = yield* O.match(maybeSessionId, {
     onNone: () =>
       Effect.fail(
         new GraphitiProtocolError({
@@ -448,7 +441,7 @@ const initializeSession = Effect.fn("Graphiti.initializeSession")(function* (opt
 
   yield* postMcp({
     config: options.config,
-    sessionId: Option.some(sessionId),
+    sessionId: O.some(sessionId),
     payload: initializedNotification,
     fetchImpl: options.fetchImpl,
   });
@@ -460,9 +453,9 @@ const extractToolResult = Effect.fn("Graphiti.extractToolResult")(function* (
   toolName: GraphitiToolName,
   envelope: McpEnvelope
 ) {
-  const topLevelError = Option.fromNullishOr(envelope.error);
+  const topLevelError = O.fromNullishOr(envelope.error);
 
-  yield* Option.match(topLevelError, {
+  yield* O.match(topLevelError, {
     onNone: () => Effect.void,
     onSome: (error) =>
       Effect.fail(
@@ -473,7 +466,7 @@ const extractToolResult = Effect.fn("Graphiti.extractToolResult")(function* (
       ),
   });
 
-  const callResult = yield* Option.match(Option.fromNullishOr(envelope.result), {
+  const callResult = yield* O.match(O.fromNullishOr(envelope.result), {
     onNone: () =>
       Effect.fail(
         new GraphitiProtocolError({
@@ -484,21 +477,21 @@ const extractToolResult = Effect.fn("Graphiti.extractToolResult")(function* (
   });
 
   const structuredResult = pipe(
-    Option.fromNullishOr(callResult.structuredContent),
-    Option.map((structuredContent) => structuredContent.result)
+    O.fromNullishOr(callResult.structuredContent),
+    O.map((structuredContent) => structuredContent.result)
   );
 
-  return yield* Option.match(structuredResult, {
+  return yield* O.match(structuredResult, {
     onSome: Effect.succeed,
     onNone: () =>
       Effect.gen(function* () {
         const maybeText = pipe(
           callResult.content,
           A.findFirst((content) => content.type === "text"),
-          Option.flatMap((content) => Option.fromNullishOr(content.text))
+          O.flatMap((content) => O.fromNullishOr(content.text))
         );
 
-        const text = yield* Option.match(maybeText, {
+        const text = yield* O.match(maybeText, {
           onNone: () =>
             Effect.fail(
               new GraphitiProtocolError({
@@ -570,7 +563,7 @@ const callTool = Effect.fn("Graphiti.callTool")(function* (options: {
 
   const response = yield* postMcp({
     config: options.config,
-    sessionId: Option.some(sessionId),
+    sessionId: O.some(sessionId),
     payload,
     fetchImpl: options.fetchImpl,
   });
@@ -671,12 +664,12 @@ const makeService = (config: GraphitiRuntimeConfig, fetchImpl: GraphitiFetch): G
     const selectedNode = pipe(
       nodes,
       A.findFirst((node) => node.uuid === params.nodeId),
-      Option.orElse(() => A.head(nodes))
+      O.orElse(() => A.head(nodes))
     );
 
     const factQuery = pipe(
       selectedNode,
-      Option.match({
+      O.match({
         onNone: () => params.nodeId,
         onSome: (node) => node.name,
       })
@@ -691,7 +684,7 @@ const makeService = (config: GraphitiRuntimeConfig, fetchImpl: GraphitiFetch): G
 
     const neighborsQuery = pipe(
       selectedNode,
-      Option.match({
+      O.match({
         onNone: () => params.nodeId,
         onSome: (node) => node.name,
       })
@@ -749,7 +742,7 @@ export class GraphitiService extends ServiceMap.Service<
     ) => Effect.Effect<ReadonlyArray<GraphitiFact>, GraphitiServiceError>;
     readonly getNode: (params: GraphitiGetNodeParams) => Effect.Effect<GraphitiNodeLookup, GraphitiServiceError>;
   }
->()($GraphitiId`GraphitiService`) {
+>()($I`GraphitiService`) {
   static readonly layer = Layer.effect(this, makeFromEnv());
 
   static layerWith(options: GraphitiLayerOptions): Layer.Layer<GraphitiService> {

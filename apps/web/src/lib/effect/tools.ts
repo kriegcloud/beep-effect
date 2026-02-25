@@ -1,6 +1,6 @@
 import { $WebId } from "@beep/identity/packages";
-import { GraphFactsResultSchema, GraphNodeDetailsSchema, GraphSearchResultSchema } from "@beep/web/lib/effect/mappers";
-import { GraphitiService } from "@beep/web/lib/graphiti/client";
+import { GraphFactsResultSchema, GraphNodeDetailsSchema, GraphSearchResultSchema } from "./mappers";
+import { GraphitiService } from "../graphiti/client";
 import * as S from "effect/Schema";
 import { Tool, Toolkit } from "effect/unstable/ai";
 

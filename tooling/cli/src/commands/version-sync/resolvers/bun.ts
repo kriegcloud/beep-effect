@@ -8,19 +8,17 @@
  * @module
  */
 
-import { FileSystem, Path } from "effect";
+import { Effect, FileSystem, Path, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import * as Schema from "effect/Schema";
-import * as Str from "effect/String";
+import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import * as jsonc from "jsonc-parser";
 import {
-  NetworkUnavailableError,
-  type VersionCategoryReport,
-  type VersionDriftItem,
-  VersionSyncError,
+    NetworkUnavailableError,
+    type VersionCategoryReport,
+    type VersionDriftItem,
+    VersionSyncError,
 } from "../types.js";
 
 // ── GitHub API schema ───────────────────────────────────────────────────────
@@ -29,10 +27,10 @@ import {
  * @since 0.0.0
  * @category schemas
  */
-const BunRelease = Schema.Struct({
-  tag_name: Schema.String,
-  prerelease: Schema.Boolean,
-  draft: Schema.Boolean,
+const BunRelease = S.Struct({
+  tag_name: S.String,
+  prerelease: S.Boolean,
+  draft: S.Boolean,
 });
 
 // ── Helpers ─────────────────────────────────────────────────────────────────

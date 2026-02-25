@@ -47,12 +47,9 @@ describe("@beep/identity", () => {
     expect($I.make("GraphitiService")).toBe("@beep/lib/graphiti/client/GraphitiService");
   });
 
-  it("creates schema annotate and merges extras", () => {
+  it("creates schema annote and merges extras", () => {
     const $SchemaId = make("beep").$BeepId.create("schema");
-    const annotation = $SchemaId.annotate("Tenant", {
-      description: "Tenant schema",
-    });
-    const aliasAnnotation = $SchemaId.annotations("Tenant", {
+    const annotation = $SchemaId.annote("Tenant", {
       description: "Tenant schema",
     });
 
@@ -60,10 +57,6 @@ describe("@beep/identity", () => {
     expect(annotation.identifier).toBe("Tenant");
     expect(annotation.title).toBe("Tenant");
     expect(annotation.description).toBe("Tenant schema");
-    expect(aliasAnnotation.schemaId).toBe(Symbol.for("@beep/schema/Tenant"));
-    expect(aliasAnnotation.identifier).toBe("Tenant");
-    expect(aliasAnnotation.title).toBe("Tenant");
-    expect(aliasAnnotation.description).toBe("Tenant schema");
   });
 
   it("throws schema validation messages for invalid values", () => {
@@ -111,11 +104,11 @@ describe("@beep/identity", () => {
     expect($ServicesId.make("AuthService")).toBe("@beep/iam-server/services/AuthService");
   });
 
-  it("exports package composers with create, template tags, and annotate", () => {
+  it("exports package composers with create, template tags, and annote", () => {
     expect($SchemaId.create("entities").make("Tenant")).toBe("@beep/schema/entities/Tenant");
     expect($SchemaId`Service`).toBe("@beep/schema/Service");
 
-    const annotation = $SchemaId.annotate("Tenant");
+    const annotation = $SchemaId.annote("Tenant");
     expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/Tenant"));
     expect(annotation.identifier).toBe("Tenant");
     expect(annotation.title).toBe("Tenant");

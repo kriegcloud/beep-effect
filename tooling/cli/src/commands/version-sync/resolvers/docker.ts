@@ -8,20 +8,17 @@
  * @module
  */
 
-import { FileSystem, Path } from "effect";
+import { Effect, FileSystem, Order, Path, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import * as Order from "effect/Order";
-import * as Schema from "effect/Schema";
-import * as Str from "effect/String";
+import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { parseDocument } from "yaml";
 import {
-  NetworkUnavailableError,
-  type VersionCategoryReport,
-  type VersionDriftItem,
-  VersionSyncError,
+    NetworkUnavailableError,
+    type VersionCategoryReport,
+    type VersionDriftItem,
+    VersionSyncError,
 } from "../types.js";
 
 // ── Docker Hub API ──────────────────────────────────────────────────────────
@@ -30,16 +27,16 @@ import {
  * @since 0.0.0
  * @category schemas
  */
-const DockerTagResult = Schema.Struct({
-  name: Schema.String,
+const DockerTagResult = S.Struct({
+  name: S.String,
 });
 
 /**
  * @since 0.0.0
  * @category schemas
  */
-const DockerTagsResponse = Schema.Struct({
-  results: Schema.Array(DockerTagResult),
+const DockerTagsResponse = S.Struct({
+  results: S.Array(DockerTagResult),
 });
 
 // ── Types ───────────────────────────────────────────────────────────────────

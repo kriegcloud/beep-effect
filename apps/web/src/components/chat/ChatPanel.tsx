@@ -1,18 +1,17 @@
 "use client";
 
 import {
-  chatContextNodeAtom,
-  chatInputAtom,
-  chatLatestGraphSnippetAtom,
-  chatMessagesAtom,
-  clearChatContextNodeAtom,
-  sendChatMessageAtom,
+    chatContextNodeAtom,
+    chatInputAtom,
+    chatLatestGraphSnippetAtom,
+    chatMessagesAtom,
+    clearChatContextNodeAtom,
+    sendChatMessageAtom,
 } from "@beep/web/state/chat.atoms";
 import { useAtom, useAtomValue } from "@effect/atom-react";
-import { Match, pipe } from "effect";
+import { Match, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
-import * as Str from "effect/String";
+import * as O from "effect/Option";
 import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
 import { useCallback, useEffect, useRef } from "react";
 import { MessageBubble } from "./MessageBubble";
@@ -79,7 +78,7 @@ export function ChatPanel() {
 
         {pipe(
           contextNode,
-          Option.match({
+          O.match({
             onNone: () => null,
             onSome: (node) => (
               <div className="mt-3 flex items-center justify-between rounded-md border border-sky-700/60 bg-sky-950/50 p-2 text-xs">
@@ -100,7 +99,7 @@ export function ChatPanel() {
 
         {pipe(
           latestSnippet,
-          Option.match({
+          O.match({
             onNone: () => null,
             onSome: (snippet) => (
               <p className="mt-2 text-xs text-emerald-300">

@@ -1,15 +1,4 @@
-/**
- * Version sync command — detect and fix version drift across the monorepo.
- *
- * Keeps all tool/runtime/infrastructure version pins consistent and up-to-date
- * across `.bun-version`, `package.json`, `.nvmrc`, CI workflows, and `docker-compose.yml`.
- *
- * @since 0.0.0
- * @module
- */
-
-import * as Console from "effect/Console";
-import * as Effect from "effect/Effect";
+import { Console, Effect } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 import { handleVersionSync } from "./handler.js";
 import type { VersionSyncMode } from "./types.js";

@@ -1,13 +1,12 @@
 "use client";
 
 import type { GraphFact, GraphNode } from "@beep/web/lib/effect/mappers";
-import { Match, pipe } from "effect";
+import { Match, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
-import * as Str from "effect/String";
+import * as O from "effect/Option";
 
 interface NodeDetailProps {
-  readonly node: Option.Option<GraphNode>;
+  readonly node: O.Option<GraphNode>;
   readonly facts: ReadonlyArray<GraphFact>;
   readonly onClose: () => void;
 }
@@ -15,7 +14,7 @@ interface NodeDetailProps {
 export function NodeDetail({ node, facts, onClose }: NodeDetailProps) {
   return pipe(
     node,
-    Option.match({
+    O.match({
       onNone: () => null,
       onSome: (selectedNode) => (
         <aside className="absolute left-0 top-0 z-20 h-full w-[340px] border-r border-slate-800 bg-slate-950/95 backdrop-blur-sm">

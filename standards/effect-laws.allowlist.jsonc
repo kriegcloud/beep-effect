@@ -1,0 +1,14 @@
+{
+  "$schema": "./effect-laws.allowlist.schema.json",
+  "version": 1,
+  "entries": [
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "apps/web/src/lib/db/schema.ts",
+      "kind": "new-date",
+      "reason": "Drizzle schema onUpdate callbacks require a JS Date value at this framework boundary.",
+      "owner": "@beep/web",
+      "issue": "TODO-ALLOWLIST-DRIZZLE-DATE"
+    }
+  ]
+}

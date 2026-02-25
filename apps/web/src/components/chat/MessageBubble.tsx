@@ -1,8 +1,7 @@
 "use client";
 
 import type { ChatMessage } from "@beep/web/state/chat.atoms";
-import { Match, pipe } from "effect";
-import * as Str from "effect/String";
+import { Match, pipe, String as Str } from "effect";
 import { ToolCallTrace } from "./ToolCallTrace";
 
 interface MessageBubbleProps {

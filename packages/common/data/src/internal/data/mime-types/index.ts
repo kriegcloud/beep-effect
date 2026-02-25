@@ -9,11 +9,10 @@
  * @since 0.0.0
  */
 
-import { pipe, Struct } from "effect";
+import { pipe, String as Str, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import * as Str from "effect/String";
 import { application as _application } from "./application.js";
 import { audio as _audio } from "./audio.js";
 import { image as _image } from "./image.js";

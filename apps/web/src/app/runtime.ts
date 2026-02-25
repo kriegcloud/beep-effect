@@ -1,7 +1,6 @@
 import { $WebId } from "@beep/identity/packages";
 import { useAtomValue } from "@effect/atom-react";
-import { Effect, Hash, Layer, Scope, ServiceMap } from "effect";
-import * as Eq from "effect/Equal";
+import { Effect, Equal as Eq, Hash, Layer, Scope, ServiceMap } from "effect";
 import * as P from "effect/Predicate";
 import { Atom, type AtomRegistry } from "effect/unstable/reactivity";
 

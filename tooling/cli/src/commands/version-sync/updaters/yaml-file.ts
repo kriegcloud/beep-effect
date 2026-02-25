@@ -5,9 +5,8 @@
  * @module
  */
 
-import { FileSystem } from "effect";
+import { Effect, FileSystem } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
 import { parseDocument } from "yaml";
 import { VersionSyncError } from "../types.js";
 

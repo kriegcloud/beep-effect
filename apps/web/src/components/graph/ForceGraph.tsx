@@ -1,11 +1,10 @@
 "use client";
 
 import { type GraphLink, type GraphNode, GraphNodeSchema } from "@beep/web/lib/effect/mappers";
-import { Match, pipe } from "effect";
+import { Match, pipe, String as Str } from "effect";
 import * as A from "effect/Array";
-import * as Option from "effect/Option";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ForceGraphMethods, GraphData, LinkObject, NodeObject } from "react-force-graph-2d";
 
@@ -15,7 +14,7 @@ interface ForceGraphProps {
     readonly links: ReadonlyArray<GraphLink>;
   };
   readonly highlightedNodeIds: ReadonlyArray<string>;
-  readonly selectedNodeId: Option.Option<string>;
+  readonly selectedNodeId: O.Option<string>;
   readonly onNodeClick: (node: GraphNode) => void;
   readonly onBackgroundClick: () => void;
 }
@@ -96,7 +95,7 @@ export function ForceGraph({
         entries,
         A.fromIterable,
         A.head,
-        Option.match({
+        O.match({
           onNone: () => undefined,
           onSome: (entry) => {
             setSize({
@@ -150,7 +149,7 @@ export function ForceGraph({
                 Match.value(
                   pipe(
                     selectedNodeId,
-                    Option.match({
+                    O.match({
                       onNone: () => false,
                       onSome: (nodeId) => nodeId === node.id,
                     })
@@ -164,7 +163,7 @@ export function ForceGraph({
                 const nodeId = toNodeId(node);
                 const selected = pipe(
                   selectedNodeId,
-                  Option.match({
+                  O.match({
                     onNone: () => false,
                     onSome: (value) => value === nodeId,
                   })
@@ -223,7 +222,7 @@ export function ForceGraph({
               onNodeClick={(node) =>
                 pipe(
                   decodeGraphNode(node),
-                  Option.match({
+                  O.match({
                     onNone: () => undefined,
                     onSome: onNodeClick,
                   })
