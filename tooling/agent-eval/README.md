@@ -14,7 +14,7 @@ Benchmark and reliability harness for Codex + Claude workflows in the beep-effec
 - Tasks: `benchmarks/agent-reliability/tasks`
 - Run output: `outputs/agent-reliability/runs/latest.json`
 - Weekly reports: `outputs/agent-reliability/weekly/`
-- Worktree root (default): `${XDG_CACHE_HOME}/beep-effect3/agent-eval/worktrees` or `${HOME}/.cache/beep-effect3/agent-eval/worktrees`
+- Worktree root (default): `${XDG_CACHE_HOME}/<repo-basename>/agent-eval/worktrees` or `${HOME}/.cache/<repo-basename>/agent-eval/worktrees`
 
 ## Bench Flags (selected)
 

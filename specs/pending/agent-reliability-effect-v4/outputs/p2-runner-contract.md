@@ -31,8 +31,8 @@
     - claude compatibility: only `low|medium|high` are valid when Claude is selected
 20. `--claude-effort` default: unset (legacy alias; same as `--reasoning` for Claude-compatible values).
 21. `--worktree-root` default (when `--worktree true`):
-    - `${XDG_CACHE_HOME}/beep-effect3/agent-eval/worktrees` when `XDG_CACHE_HOME` is set.
-    - `${HOME}/.cache/beep-effect3/agent-eval/worktrees` otherwise.
+    - `${XDG_CACHE_HOME}/<repo-basename>/agent-eval/worktrees` when `XDG_CACHE_HOME` is set.
+    - `${HOME}/.cache/<repo-basename>/agent-eval/worktrees` otherwise.
     - config error when neither `XDG_CACHE_HOME` nor `HOME` is available.
 
 ### Targeting + Budget Rules
@@ -54,6 +54,7 @@
    - `--claude-effort` remains accepted for backward compatibility and conflicts with `--reasoning` if values differ
 7. Worktree isolation root:
    - `--worktree-root` accepts absolute or relative paths and supports `~/...` expansion via `HOME`.
+   - default root is repo-portable and keyed by repository basename.
    - worktree root is created before suite execution when isolation is enabled.
    - worktree creation is fail-fast; no fallback to primary repo cwd.
 

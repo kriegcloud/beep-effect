@@ -38,6 +38,19 @@ export {
   createPackageCommand,
 } from "./commands/create-package/index.js";
 /**
+ * Command-first docs discovery command tree.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Command-first docs discovery command tree.
+   *
+   * @since 0.0.0
+   */
+  docsCommand,
+} from "./commands/docs.js";
+/**
  * Purge command for removing root/workspace build artifacts.
  *
  * @since 0.0.0

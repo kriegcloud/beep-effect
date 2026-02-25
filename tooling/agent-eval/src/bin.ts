@@ -13,6 +13,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { handleBench } from "./commands/bench.js";
 import {
+  deriveRepoBasename,
   parseBenchAgentsFlag,
   parseBenchConditionsFlag,
   parseClaudeEffortFlag,
@@ -141,7 +142,12 @@ const run = () => {
             const worktreeRoot = yield* Effect.try({
               try: () =>
                 isolateInWorktree
-                  ? (worktreeRootOverride ?? resolveDefaultWorktreeRoot(process.env.XDG_CACHE_HOME, process.env.HOME))
+                  ? (worktreeRootOverride ??
+                    resolveDefaultWorktreeRoot(
+                      process.env.XDG_CACHE_HOME,
+                      process.env.HOME,
+                      deriveRepoBasename(process.cwd())
+                    ))
                   : undefined,
               catch: (cause) => toConfigError(cause, "Unable to resolve default --worktree-root"),
             });

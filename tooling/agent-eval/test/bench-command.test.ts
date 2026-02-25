@@ -57,6 +57,9 @@ describe("bench command targeting", () => {
     const diagnosticsLines = readFileSync(`${outPrefix}.diagnostics.jsonl`, "utf8");
     expect(diagnosticsLines.includes('"type":"run.diagnostic"')).toBe(true);
     expect(diagnosticsLines.includes('"type":"suite.metrics"')).toBe(true);
+    expect(diagnosticsLines.includes('"stdoutTail"')).toBe(true);
+    expect(diagnosticsLines.includes('"stderrTail"')).toBe(true);
+    expect(diagnosticsLines.includes('"tailCharLimit"')).toBe(true);
   });
 
   it("fails when selected task ids contain unknown values", async () => {

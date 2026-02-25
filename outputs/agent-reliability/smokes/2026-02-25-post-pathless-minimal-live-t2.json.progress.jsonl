@@ -1,0 +1,14 @@
+{"type":"suite.started","atEpochMs":1772042878193,"plannedRunCount":6,"strictTaskCount":3,"maxWallMinutes":25}
+{"type":"run.started","atEpochMs":1772042878194,"runId":"apps_web_01:minimal:codex:1","runIndex":1,"totalRuns":6,"taskId":"apps_web_01","condition":"minimal","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772043000375,"runId":"apps_web_01:minimal:codex:1","runIndex":1,"totalRuns":6,"success":false,"failureType":"runtime","wallMs":122178.800825}
+{"type":"run.started","atEpochMs":1772043000375,"runId":"apps_web_01:minimal:claude:1","runIndex":2,"totalRuns":6,"taskId":"apps_web_01","condition":"minimal","agent":"claude","trial":1}
+{"type":"run.completed","atEpochMs":1772043122697,"runId":"apps_web_01:minimal:claude:1","runIndex":2,"totalRuns":6,"success":false,"failureType":"runtime","wallMs":122321.610832}
+{"type":"run.started","atEpochMs":1772043122697,"runId":"tooling_cli_01:minimal:codex:1","runIndex":3,"totalRuns":6,"taskId":"tooling_cli_01","condition":"minimal","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772043245643,"runId":"tooling_cli_01:minimal:codex:1","runIndex":3,"totalRuns":6,"success":false,"failureType":"runtime","wallMs":122944.79453699998}
+{"type":"run.started","atEpochMs":1772043245644,"runId":"tooling_cli_01:minimal:claude:1","runIndex":4,"totalRuns":6,"taskId":"tooling_cli_01","condition":"minimal","agent":"claude","trial":1}
+{"type":"run.completed","atEpochMs":1772043368503,"runId":"tooling_cli_01:minimal:claude:1","runIndex":4,"totalRuns":6,"success":false,"failureType":"runtime","wallMs":122858.721694}
+{"type":"run.started","atEpochMs":1772043368503,"runId":"package_lib_01:minimal:codex:1","runIndex":5,"totalRuns":6,"taskId":"package_lib_01","condition":"minimal","agent":"codex","trial":1}
+{"type":"run.completed","atEpochMs":1772043491098,"runId":"package_lib_01:minimal:codex:1","runIndex":5,"totalRuns":6,"success":false,"failureType":"runtime","wallMs":122593.90755199996}
+{"type":"run.started","atEpochMs":1772043491098,"runId":"package_lib_01:minimal:claude:1","runIndex":6,"totalRuns":6,"taskId":"package_lib_01","condition":"minimal","agent":"claude","trial":1}
+{"type":"run.completed","atEpochMs":1772043612926,"runId":"package_lib_01:minimal:claude:1","runIndex":6,"totalRuns":6,"success":false,"failureType":"runtime","wallMs":121827.0904760001}
+{"type":"suite.completed","atEpochMs":1772043612927,"status":"completed","completedRunCount":6,"plannedRunCount":6}

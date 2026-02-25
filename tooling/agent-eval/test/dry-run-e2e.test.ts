@@ -90,6 +90,47 @@ const createCleanGitRepo = (): string => {
   return repoRoot;
 };
 
+const isObjectRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+type RunDiagnosticEventShape = {
+  readonly type: "run.diagnostic";
+  readonly command: {
+    readonly success: boolean;
+    readonly timedOut: boolean;
+    readonly stdoutTail: string;
+    readonly stderrTail: string;
+    readonly stdoutLength: number;
+    readonly stderrLength: number;
+    readonly stdoutTruncated: boolean;
+    readonly stderrTruncated: boolean;
+    readonly tailCharLimit: number;
+  };
+};
+
+const isRunDiagnosticEventShape = (value: unknown): value is RunDiagnosticEventShape => {
+  if (!isObjectRecord(value) || value.type !== "run.diagnostic") {
+    return false;
+  }
+
+  const command = value.command;
+  if (!isObjectRecord(command)) {
+    return false;
+  }
+
+  return (
+    typeof command.success === "boolean" &&
+    typeof command.timedOut === "boolean" &&
+    typeof command.stdoutTail === "string" &&
+    typeof command.stderrTail === "string" &&
+    typeof command.stdoutLength === "number" &&
+    typeof command.stderrLength === "number" &&
+    typeof command.stdoutTruncated === "boolean" &&
+    typeof command.stderrTruncated === "boolean" &&
+    typeof command.tailCharLimit === "number"
+  );
+};
+
 describe("dry-run benchmark", () => {
   it("runs one task per category across four conditions", async () => {
     const pathApi = await loadPathApi();
@@ -189,7 +230,18 @@ describe("dry-run benchmark", () => {
     });
 
     expect(suite.records.length).toBe(1);
-    expect(diagnostics.some((event) => JSON.stringify(event).includes('"type":"run.diagnostic"'))).toBe(true);
+    const runDiagnostic = diagnostics.find(isRunDiagnosticEventShape);
+    expect(runDiagnostic).toBeDefined();
+    if (runDiagnostic === undefined) {
+      throw new Error("Expected one run.diagnostic callback event");
+    }
+    expect(runDiagnostic.command.stdoutTail).toBe("");
+    expect(runDiagnostic.command.stderrTail).toBe("");
+    expect(runDiagnostic.command.stdoutLength).toBe(0);
+    expect(runDiagnostic.command.stderrLength).toBe(0);
+    expect(runDiagnostic.command.stdoutTruncated).toBe(false);
+    expect(runDiagnostic.command.stderrTruncated).toBe(false);
+    expect(runDiagnostic.command.tailCharLimit > 0).toBe(true);
     expect(diagnostics.some((event) => JSON.stringify(event).includes('"type":"suite.metrics"'))).toBe(true);
   });
 
