@@ -15,8 +15,8 @@ import { assert, describe, it } from "@effect/vitest"
 import { Effect } from "effect"
 
 // MANDATORY: Use it.effect for Effect-based tests
-it.effect("should work with Effects", () =>
-  Effect.gen(function*() {
+it.effect("should work with Effects", 
+  Effect.fnUntraced(function*() {
     const result = yield* someEffect
     assert.strictEqual(result, expectedValue)
   }))
@@ -52,8 +52,8 @@ it("wrong pattern", () => {
 // ✅ CORRECT - Use it.effect instead
 import { assert, describe, it } from "@effect/vitest"
 
-it.effect("correct pattern", () =>
-  Effect.gen(function*() {
+it.effect("correct pattern", 
+  Effect.fnUntraced(function*() {
     const result = yield* someEffect
     assert.strictEqual(result, value) // Correct assertion method
   }))
@@ -63,15 +63,15 @@ it.effect("correct pattern", () =>
 
 ```typescript
 // ❌ WRONG - Don't mix expect with it.effect
-it.effect("wrong assertions", () =>
-  Effect.gen(function*() {
+it.effect("wrong assertions", 
+  Effect.fnUntraced(function*() {
     const result = yield* someEffect
     expect(result).toBe(value) // Wrong - should use assert
   }))
 
 // ✅ CORRECT - Use assert methods
-it.effect("correct assertions", () =>
-  Effect.gen(function*() {
+it.effect("correct assertions", 
+  Effect.fnUntraced(function*() {
     const result = yield* someEffect
     assert.strictEqual(result, value)
   }))
@@ -88,8 +88,8 @@ import { assert, describe, it } from "@effect/vitest"
 import { Effect, TestClock } from "effect"
 
 describe("time-dependent operations", () => {
-  it.effect("should handle delays with TestClock", () =>
-    Effect.gen(function*() {
+  it.effect("should handle delays with TestClock", 
+    Effect.fnUntraced(function*() {
       // Start operation that takes 5 seconds
       const fiber = yield* Effect.fork(
         Effect.gen(function*() {
@@ -105,8 +105,8 @@ describe("time-dependent operations", () => {
       assert.strictEqual(result, "completed")
     }))
 
-  it.effect("should test timeout behavior", () =>
-    Effect.gen(function*() {
+  it.effect("should test timeout behavior", 
+    Effect.fnUntraced(function*() {
       const timeoutEffect = Effect.timeout(
         Effect.sleep("10 seconds"),
         "5 seconds"
@@ -121,8 +121,8 @@ describe("time-dependent operations", () => {
       assert.isTrue(result._tag === "Failure")
     }))
 
-  it.effect("should set absolute time with setTime", () =>
-    Effect.gen(function*() {
+  it.effect("should set absolute time with setTime", 
+    Effect.fnUntraced(function*() {
       // Set clock to specific timestamp
       yield* TestClock.setTime(1000)
 
@@ -159,16 +159,16 @@ import * as MyModule from "../src/MyModule.js"
 
 describe("MyModule", () => {
   describe("constructors", () => {
-    it.effect("create should initialize with default values", () =>
-      Effect.gen(function*() {
+    it.effect("create should initialize with default values", 
+      Effect.fnUntraced(function*() {
         const instance = yield* MyModule.create()
 
         assert.isTrue(MyModule.isInstance(instance))
         assert.strictEqual(MyModule.getValue(instance), 0)
       }))
 
-    it.effect("create should accept custom configuration", () =>
-      Effect.gen(function*() {
+    it.effect("create should accept custom configuration", 
+      Effect.fnUntraced(function*() {
         const config = { initialValue: 42 }
         const instance = yield* MyModule.create(config)
 
@@ -177,8 +177,8 @@ describe("MyModule", () => {
   })
 
   describe("combinators", () => {
-    it.effect("map should transform values", () =>
-      Effect.gen(function*() {
+    it.effect("map should transform values",
+      Effect.fnUntraced(function*() {
         const instance = yield* MyModule.create({ initialValue: 10 })
         const transformed = yield* MyModule.map(instance, (x) => x * 2)
 
@@ -196,8 +196,8 @@ import { Effect, Exit } from "effect"
 import * as MyModule from "../src/MyModule.js"
 
 describe("error handling", () => {
-  it.effect("should fail with validation error for negative values", () =>
-    Effect.gen(function*() {
+  it.effect("should fail with validation error for negative values", 
+    Effect.fnUntraced(function*() {
       const result = yield* Effect.exit(
         MyModule.create({ initialValue: -1 })
       )
@@ -209,8 +209,8 @@ describe("error handling", () => {
       }
     }))
 
-  it.effect("should handle network errors gracefully", () =>
-    Effect.gen(function*() {
+  it.effect("should handle network errors gracefully", 
+    Effect.fnUntraced(function*() {
       const mockNetworkFailure = Effect.fail(
         new MyModule.NetworkError({
           message: "Connection timeout"
@@ -237,8 +237,8 @@ import { Effect, Ref } from "effect"
 import * as ResourceModule from "../src/ResourceModule.js"
 
 describe("resource management", () => {
-  it.effect("should properly acquire and release resources", () =>
-    Effect.gen(function*() {
+  it.effect("should properly acquire and release resources", 
+    Effect.fnUntraced(function*() {
       const acquired = yield* Ref.make(false)
       const released = yield* Ref.make(false)
 
@@ -259,8 +259,8 @@ describe("resource management", () => {
       assert.isTrue(yield* Ref.get(released))
     }))
 
-  it.effect("should release resources even on failure", () =>
-    Effect.gen(function*() {
+  it.effect("should release resources even on failure", 
+    Effect.fnUntraced(function*() {
       const released = yield* Ref.make(false)
 
       const result = yield* Effect.exit(
@@ -285,8 +285,8 @@ import { Duration, Effect, Fiber, TestClock } from "effect"
 import * as ConcurrentModule from "../src/ConcurrentModule.js"
 
 describe("concurrent operations", () => {
-  it.effect("should handle multiple concurrent operations", () =>
-    Effect.gen(function*() {
+  it.effect("should handle multiple concurrent operations", 
+    Effect.fnUntraced(function*() {
       const operations = [
         ConcurrentModule.operation("A"),
         ConcurrentModule.operation("B"),
@@ -299,8 +299,8 @@ describe("concurrent operations", () => {
       assert.includeMembers(results, ["A", "B", "C"])
     }))
 
-  it.effect("should respect concurrency limits", () =>
-    Effect.gen(function*() {
+  it.effect("should respect concurrency limits", 
+    Effect.fnUntraced(function*() {
       const startTimes = yield* Ref.make<string[]>([])
 
       const timedOperation = (id: string) =>
@@ -363,8 +363,8 @@ class TestDatabaseService extends ServiceMap.Service<TestDatabaseService, {
 }
 
 describe("service integration", () => {
-  it.effect("should work with mock services", () =>
-    Effect.gen(function*() {
+  it.effect("should work with mock services", 
+    Effect.fnUntraced(function*() {
       const mockData = [{ id: 1, name: "test" }]
 
       const result = yield* ServiceModule.findUser("1")
@@ -373,8 +373,8 @@ describe("service integration", () => {
       assert.deepStrictEqual(result, mockData[0])
     }))
 
-  it.effect("should handle service failures", () =>
-    Effect.gen(function*() {
+  it.effect("should handle service failures", 
+    Effect.fnUntraced(function*() {
       const result = yield* Effect.exit(
         ServiceModule.findUser("1")
           .pipe(Effect.provide(TestDatabaseService.Failing("Database connection failed")))
@@ -383,8 +383,8 @@ describe("service integration", () => {
       assert.isTrue(Exit.isFailure(result))
     }))
 
-  it.effect("should use direct Layer.succeed for simple mocks", () =>
-    Effect.gen(function*() {
+  it.effect("should use direct Layer.succeed for simple mocks", 
+    Effect.fnUntraced(function*() {
       // For simple one-off mocks, use Layer.succeed directly
       const result = yield* ServiceModule.getValue()
         .pipe(
@@ -450,32 +450,32 @@ import { assertExitFailure, assertExitSuccess, assertFailure, assertSuccess } fr
 import { Effect, Exit } from "effect"
 
 describe("specialized assertions", () => {
-  it.effect("should assert Exit success", () =>
-    Effect.gen(function*() {
+  it.effect("should assert Exit success", 
+    Effect.fnUntraced(function*() {
       const result = yield* Effect.exit(Effect.succeed(42))
 
       // Type-safe assertion that narrows Exit type
       assertExitSuccess(result, 42)
     }))
 
-  it.effect("should assert Exit failure", () =>
-    Effect.gen(function*() {
+  it.effect("should assert Exit failure", 
+    Effect.fnUntraced(function*() {
       const result = yield* Effect.exit(Effect.fail("error"))
 
       // Asserts failure and validates cause
       assertExitFailure(result, "error")
     }))
 
-  it.effect("should assert Result success", () =>
-    Effect.gen(function*() {
+  it.effect("should assert Result success", 
+    Effect.fnUntraced(function*() {
       const result = yield* Effect.result(Effect.succeed("value"))
 
       // For Result types (success channel)
       assertSuccess(result, "value")
     }))
 
-  it.effect("should assert Result failure", () =>
-    Effect.gen(function*() {
+  it.effect("should assert Result failure", 
+    Effect.fnUntraced(function*() {
       const result = yield* Effect.result(Effect.fail("error"))
 
       // For Result types (failure channel)
@@ -487,8 +487,8 @@ describe("specialized assertions", () => {
 ### Testing Complex Data Structures
 
 ```typescript
-it.effect("should handle complex data transformations", () =>
-  Effect.gen(function*() {
+it.effect("should handle complex data transformations", 
+  Effect.fnUntraced(function*() {
     const input = {
       users: [
         { id: "1", name: "Alice", age: 30 },
@@ -542,15 +542,25 @@ describe("ModuleName", () => {
 
 ```typescript
 describe("feature progression", () => {
-  it.effect("basic functionality", () => /* simple test */)
+  it.effect("basic functionality", Effect.fnUntraced(function* () {
+		 /* simple test */
+  }))
   
-  it.effect("with configuration", () => /* configuration test */)
+    it.effect("with configuration", Effect.fnUntraced(function* () {
+		 /* configuration test */
+  }))
   
-  it.effect("with error handling", () => /* error test */)
+    it.effect("with error handling", Effect.fnUntraced(function* () {
+		  /* error test */
+  }))
   
-  it.effect("with concurrency", () => /* concurrent test */)
+  it.effect("with concurrency", Effect.fnUntraced(function* () {
+		 /* concurrent test */
+  }))
   
-  it.effect("full integration", () => /* comprehensive test */)
+  it.effect("full integration", Effect.fnUntraced(function* () {
+		 /* comprehensive test */
+  }))
 })
 ```
 

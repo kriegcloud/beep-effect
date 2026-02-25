@@ -13,7 +13,6 @@
   "ignore": [
     "scratchpad",
     "@beep/repo-cli",
-    "@beep/codebase-search",
     "@beep/repo-utils"
   ]
 }

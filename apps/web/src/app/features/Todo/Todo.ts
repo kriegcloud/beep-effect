@@ -16,7 +16,7 @@ export class Todo extends S.Class<Todo>($I`Todo`)(
     text: S.String,
     completed: S.Boolean,
   },
-  $I.annotations("Todo", {
+  $I.annote("Todo", {
     description: "A todo item with an id, text, and completion status",
   })
 ) {}

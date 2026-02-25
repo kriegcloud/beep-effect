@@ -1,4 +1,0 @@
-[mcp_servers.repo-docs]
-transport = "stdio"
-command = "npx"
-args = ["-y", "@modelcontextprotocol/server-filesystem", "."]

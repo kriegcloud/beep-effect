@@ -1,6 +1,0 @@
-servers:
-  memory:
-    transport: sse
-    url: https://example.com/mcp/sse
-    env:
-      API_TOKEN: WINDSURF_MCP_TOKEN

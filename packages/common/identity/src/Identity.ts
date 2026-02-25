@@ -203,29 +203,32 @@ export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyAr
  * @category models
  */
 export interface IdentityComposer<Value extends string> {
-  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): IdentityString<`${Value}/${string}`>;
   readonly value: IdentityString<Value>;
   readonly identifier: IdentityString<Value>;
+  readonly identityRegistry: MutableHashSet.MutableHashSet<string>;
+
+  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): IdentityString<`${Value}/${string}`>;
+
   compose<
     const Segments extends readonly [ModuleSegmentValue<TString.NonEmpty>, ...ModuleSegmentValue<TString.NonEmpty>[]],
   >(...segments: Segments): TaggedModuleRecord<Value, Segments>;
+
   create<const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityComposer<`${Value}/${SegmentValue<Next>}`>;
+
   make<const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityString<`${Value}/${SegmentValue<Next>}`>;
+
   string(): IdentityString<Value>;
+
   symbol(): IdentitySymbol<Value>;
-  annotate<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
+
+  annote<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
-  annotations<SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
-    identifier: SegmentValue<Next>,
-    extras?: undefined | SchemaAnnotationExtras<SchemaType>
-  ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
-  readonly identityRegistry: MutableHashSet.MutableHashSet<string>;
 }
 
 type NormalizedBase<Base extends TString.NonEmpty> = Base extends `@beep/${infer Rest extends TString.NonEmpty}`
@@ -381,7 +384,7 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
     return createComposer(composed, registry);
   };
 
-  const annotations = <SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
+  const annote = <SchemaType = unknown, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType> => {
@@ -450,8 +453,7 @@ const createComposer = <const Value extends string>(value: Value, registry: Regi
       },
       string: () => identityValue,
       symbol: () => toIdentitySymbol(value),
-      annotate: annotations,
-      annotations,
+      annote: annote,
       identityRegistry: registry,
     }
   );

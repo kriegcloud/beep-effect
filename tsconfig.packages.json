@@ -43,13 +43,7 @@
       "path": "scratchpad"
     },
     {
-      "path": "tooling/beep-sync"
-    },
-    {
       "path": "tooling/cli"
-    },
-    {
-      "path": "tooling/codebase-search"
     },
     {
       "path": "tooling/repo-utils"

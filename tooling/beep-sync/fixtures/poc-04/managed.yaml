@@ -1,4 +1,0 @@
-managed_targets:
-  - path: .codex/config.toml
-  - path: .cursor/mcp.json
-state_path: .beep/managed-files.json

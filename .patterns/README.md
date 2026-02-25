@@ -22,7 +22,7 @@ This directory provides reusable solutions and best practices for Effect TypeScr
 
 ### Architecture Patterns
 
-- **[platform-integration.md](./platform-integration.md)** - Service abstractions and cross-platform patterns
+
 
 ## 🔧 HOW TO USE
 

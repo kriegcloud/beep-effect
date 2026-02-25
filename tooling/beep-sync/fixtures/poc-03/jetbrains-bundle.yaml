@@ -1,7 +1,0 @@
-jetbrains:
-  prompt_library:
-    mode: bundle_only
-    prompts:
-      - id: reviewer
-        title: Code Review
-        prompt_file: .beep/prompts/reviewer.md

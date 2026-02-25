@@ -56,8 +56,7 @@ Comprehensive JSDoc documentation patterns used throughout the Effect library, e
  * @since 2.0.0
  * @category constructors
  */
-export const functionName = <A>(param: A): ModuleName<A> => 
-  // implementation
+export const functionName = <A>(param: A): ModuleName<A> => { /* implementation */ }
 ````
 
 ### Module-Level Documentation
@@ -78,22 +77,24 @@ export const functionName = <A>(param: A): ModuleName<A> =>
  *
  * @example
  * ```ts
- * import { Array, Effect } from "effect"
+ * import { Effect } from "effect";
+ * import * as A from "effect/Array";
  *
  * // Creating and transforming arrays
- * const numbers = Array.range(1, 5) // [1, 2, 3, 4, 5]
- * const doubled = Array.map(numbers, x => x * 2) // [2, 4, 6, 8, 10]
+ * const numbers = A.range(1, 5) // [1, 2, 3, 4, 5]
+ * const doubled = A.map(numbers, x => x * 2) // [2, 4, 6, 8, 10]
  *
  * // Functional composition with pipe
- * const result = [1, 2, 3, 4, 5].pipe(
- *   Array.filter(x => x % 2 === 0),
- *   Array.map(x => x * x),
- *   Array.reduce(0, (acc, x) => acc + x)
+ * const result = pipe(
+ *   [1, 2, 3, 4, 5],
+ *   A.filter(x => x % 2 === 0),
+ *   A.map(x => x * x),
+ *   A.reduce(0, (acc, x) => acc + x)
  * ) // 20
  * ```
  *
  * @since 2.0.0
- */
+ **/
 ````
 
 ## 🔧 IMPORT PATTERN STANDARDS
@@ -104,11 +105,12 @@ export const functionName = <A>(param: A): ModuleName<A> =>
 /**
  * @example
  * ```ts
- * import { Array, Effect, Console } from "effect"
+ * import { Effect, Console } from "effect"
+ * import * as A from "effect/Array"
  *
  * const program = Effect.gen(function* () {
- *   const items = Array.make(1, 2, 3)
- *   yield* Console.log(`Items: ${Array.join(items, ", ")}`)
+ *   const items = A.make(1, 2, 3)
+ *   yield* Console.log(`Items: ${A.join(items, ", ")}`)
  *   return items
  * })
  * ```
@@ -122,15 +124,15 @@ export const functionName = <A>(param: A): ModuleName<A> =>
  * @example
  * ```ts
  * // ✅ CORRECT - Import Schema from main "effect" package
- * import { Effect, Schema } from "effect"
- *
- * const PersonSchema = Schema.Struct({
- *   name: Schema.String,
- *   age: Schema.Number
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema";
+ * const Person = S.Struct({
+ *   name: S.String,
+ *   age: S.Number
  * })
  *
  * const program = Effect.gen(function* () {
- *   const person = yield* Schema.decodeUnknownEffect(PersonSchema)({
+ *   const person = yield* S.decodeUnknownEffect(Person)({
  *     name: "Alice",
  *     age: 30
  *   })
@@ -146,8 +148,10 @@ export const functionName = <A>(param: A): ModuleName<A> =>
 /**
  * @example
  * ```ts
- * import { Effect, Schema } from "effect"
- * import { NodeHttpServer } from "@effect/platform-node"
+ * import { Effect } from "effect"
+ * import { NodeHttpServer } from "@effect/platform-node";
+ * import * as S from "effect/Schema";
+ *
  *
  * const server = Effect.gen(function* () {
  *   const httpServer = yield* NodeHttpServer.make(app, { port: 3000 })
@@ -168,23 +172,23 @@ export const functionName = <A>(param: A): ModuleName<A> =>
  *
  * @example
  * ```ts
- * import { Array } from "effect"
+ * import * as A from "effect"
  *
  * // Creating arrays with different types
- * const numbers = Array.make(1, 2, 3) // Array<number>
- * const strings = Array.make("a", "b", "c") // Array<string>
- * const mixed = Array.make(1, "hello", true) // Array<string | number | boolean>
+ * const numbers = A.make(1, 2, 3) // Array<number>
+ * const strings = A.make("a", "b", "c") // Array<string>
+ * const mixed = A.make(1, "hello", true) // Array<string | number | boolean>
  *
  * console.log(numbers) // [1, 2, 3]
  * ```
  *
  * @example
  * ```ts
- * import { Array } from "effect"
+ * import * as A from "effect/Array";
  *
  * // Empty array creation
- * const empty = Array.empty<number>() // Array<number>
- * const fromIterable = Array.fromIterable(new Set([1, 2, 3])) // [1, 2, 3]
+ * const empty = A.empty<number>() // Array<number>
+ * const fromIterable = A.fromIterable(new Set([1, 2, 3])) // [1, 2, 3]
  * ```
  *
  * @since 2.0.0
@@ -200,23 +204,25 @@ export const functionName = <A>(param: A): ModuleName<A> =>
  *
  * @example
  * ```ts
- * import { Array } from "effect"
+ * import * as A from "effect/Array"
  *
  * // Data-first usage
  * const numbers = [1, 2, 3, 4, 5]
- * const squared = Array.map(numbers, x => x * x)
+ * const squared = A.map(numbers, x => x * x)
  * console.log(squared) // [1, 4, 9, 16, 25]
  * ```
  *
  * @example
  * ```ts
- * import { Array } from "effect"
+ * import * as A from "effect/Array"
+ * import { pipe } from "effect"
  *
  * // Data-last usage (pipeable)
- * const result = [1, 2, 3].pipe(
- *   Array.map(x => x * 2),
- *   Array.filter(x => x > 4),
- *   Array.reduce(0, (sum, x) => sum + x)
+ * const result = pipe(
+ *   [1, 2, 3],
+ *   A.map(x => x * 2),
+ *   A.filter(x => x > 4),
+ *   A.reduce(0, (sum, x) => sum + x)
  * )
  * console.log(result) // 6
  * ```
@@ -234,10 +240,10 @@ export const functionName = <A>(param: A): ModuleName<A> =>
  *
  * @example
  * ```ts
- * import { Array, Effect, Console } from "effect"
- *
+ * import { Effect, Console } from "effect"
+ * import * as A from "effect/Array"
  * const logEachItem = (items: ReadonlyArray<string>) =>
- *   Array.forEach(items, item =>
+ *   A.forEach(items, item =>
  *     Console.log(`Processing: ${item}`)
  *   )
  *
@@ -261,12 +267,29 @@ export const functionName = <A>(param: A): ModuleName<A> =>
  *
  * @example
  * ```ts
- * import { Array, Effect, Data } from "effect"
+ * import { Effect, Data } from "effect";
+ * import * as A from "effect/Array";
+ * import * as S from "effect/Schema";
+ * import { LiteralKit } from "@beep/schema";
+ * import { $SomePackageId } from "@beep/identity/packages";
  *
- * class ValidationError extends Data.TaggedError("ValidationError")<{
- *   value: unknown
- *   message: string
- * }> {}
+ * const $I = $SomePackageId.create("relative/path/to/file"); // define canonical IdentityComposer helper for annotations & path composition
+ *
+ * // Basic tagged error - has _tag for catchTag discrimination
+ * class ValidationError extends S.TaggedErrorClass<ValidationError>($I`ValidationError`)(
+ *   "ValidationError",
+ *   {
+ *     field: S.String,
+ *     message: S.String
+ *   },
+ *   $I.annote( // Annotate with IdentityComposer to tersly add `identifier` & `title` annotations
+ *     "ValidationError",
+ *     {
+ *       description: "A validation error."
+ *     }
+ *   )
+ * ) {
+ * }
  *
  * const validatePositive = (n: number) =>
  *   n > 0
@@ -278,7 +301,7 @@ export const functionName = <A>(param: A): ModuleName<A> =>
  *
  * const program = Effect.gen(function* () {
  *   const numbers = [1, 2, -3, 4]
- *   const validated = yield* Array.validate(numbers, validatePositive)
+ *   const validated = yield* A.validate(numbers, validatePositive)
  *   return validated
  * })
  *
@@ -317,7 +340,7 @@ export const functionName = <A>(param: A): ModuleName<A> =>
 // Property access functions
 @category getters
 
-// Type definitions and interfaces
+// Type definitions, interfaces and schemas
 @category models
 
 // Type identifiers and branded types
@@ -433,15 +456,15 @@ export const TypeId = ...
  *
  * @example
  * ```ts
- * import { Array } from "effect"
- *
+ * import * as A from "effect/Array"
+ * import {Order} from "effect"
  * // Note: This is an advanced function for specific performance use cases
  * // Most users should use simpler alternatives like:
- * const simpleSort = Array.sort(Order.number)
- * const simpleFilter = Array.filter(x => x > 0)
+ * const simpleSort = A.sort(Order.number)
+ * const simpleFilter = A.filter(x => x > 0)
  *
  * // Advanced usage (when fine-grained control is needed):
- * const optimizedProcessing = Array.unsafePerformanceOperation(
+ * const optimizedProcessing = A.unsafePerformanceOperation(
  *   largeDataset,
  *   {
  *     batchSize: 1000,
@@ -463,13 +486,14 @@ export const TypeId = ...
  *
  * @example
  * ```ts
- * import { Effect, Schedule, Layer, Console, Schema } from "effect"
+ * import { Effect, Schedule, Layer, Console } from "effect"
  * import { HttpClient } from "@effect/platform"
+ * import * as S from "effect/Schema";
  *
- * const UserSchema = Schema.Struct({
- *   id: Schema.Number,
- *   name: Schema.String,
- *   email: Schema.String
+ * const User = S.Struct({
+ *   id: S.Number,
+ *   name: S.String,
+ *   email: S.String
  * })
  *
  * const fetchUserWithRetry = (id: number) =>
@@ -483,7 +507,7 @@ export const TypeId = ...
  *       Effect.timeout("5 seconds")
  *     )
  *
- *     const user = yield* Schema.decodeUnknownEffect(UserSchema)(response.json)
+ *     const user = yield* S.decodeUnknownEffect(User)(response.json)
  *     yield* Console.log(`Fetched user: ${user.name}`)
  *
  *     return user
@@ -550,15 +574,16 @@ export const TypeId = ...
 /**
  * @example
  * ```ts
- * import { Effect, Schema } from "effect"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * const UserSchema = Schema.Struct({
- *   name: Schema.String,
- *   age: Schema.Number
+ * const User = S.Struct({
+ *   name: S.String,
+ *   age: S.Number
  * })
  *
  * const program = Effect.gen(function* () {
- *   const user = yield* Schema.decodeUnknownEffect(UserSchema)({
+ *   const user = yield* S.decodeUnknownEffect(User)({
  *     name: "Alice",
  *     age: 30
  *   })

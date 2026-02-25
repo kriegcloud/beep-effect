@@ -304,14 +304,15 @@ export type ReadonlyRecord<K extends string | symbol, V> = { readonly [P in K]: 
  *
  * @example
  * ```ts
- * import { Array } from "effect"
+ * import * as A from "effect/Array"
+ * import { pipe } from "effect"
  *
  * // Data-first usage
- * const result1 = Array.map([1, 2, 3], x => x * 2)
+ * const result1 = A.map([1, 2, 3], x => x * 2)
  *
  * // Data-last usage (pipeable)
- * const result2 = [1, 2, 3].pipe(
- *   Array.map(x => x * 2)
+ * const result2 = pipe([1, 2, 3],
+ *   A.map(x => x * 2)
  * )
  * ```
  *
@@ -337,7 +338,7 @@ export const filter = dual<
 export const update = dual<
   <A>(index: number, f: (a: A) => A) => (self: ReadonlyArray<A>) => Array<A>,
   <A>(self: ReadonlyArray<A>, index: number, f: (a: A) => A) => Array<A>
->((args) => Array.isArray(args[0]), internalArray.update)
+>((args) => A.isArray(args[0]), internalArray.update)
 ```
 
 ## TYPE IDENTIFICATION PATTERN

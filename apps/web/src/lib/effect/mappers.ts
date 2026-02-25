@@ -6,8 +6,6 @@ import * as S from "effect/Schema";
 
 const $I = $WebId.create("lib/effect/mappers");
 
-
-
 export const GraphitiEntityNodeSchema = S.Struct({
   uuid: S.NonEmptyString,
   name: S.NonEmptyString,
@@ -17,7 +15,7 @@ export const GraphitiEntityNodeSchema = S.Struct({
   groupId: S.NonEmptyString,
   attributes: S.Record(S.String, S.Unknown),
 }).annotate(
-  $I.annotate("GraphitiEntityNodeSchema", {
+  $I.annote("GraphitiEntityNodeSchema", {
     title: "Graphiti Entity Node",
     description: "Normalized Graphiti entity node returned by the Graphiti service.",
   })
@@ -35,7 +33,7 @@ export const GraphitiFactSchema = S.Struct({
   createdAt: S.String,
   attributes: S.Record(S.String, S.Unknown),
 }).annotate(
-  $I.annotate("GraphitiFactSchema", {
+  $I.annote("GraphitiFactSchema", {
     title: "Graphiti Fact",
     description: "Normalized Graphiti relationship/fact edge.",
   })
@@ -50,7 +48,7 @@ export const GraphNodeSchema = S.Struct({
   summary: S.String,
   val: S.Number.check(S.isGreaterThanOrEqualTo(1)),
 }).annotate(
-  $I.annotate("GraphNodeSchema", {
+  $I.annote("GraphNodeSchema", {
     title: "Graph Node",
     description: "Node shape consumed by react-force-graph-2d.",
   })
@@ -64,7 +62,7 @@ export const GraphLinkSchema = S.Struct({
   label: S.String,
   fact: S.String,
 }).annotate(
-  $I.annotate("GraphLinkSchema", {
+  $I.annote("GraphLinkSchema", {
     title: "Graph Link",
     description: "Link shape consumed by react-force-graph-2d.",
   })
@@ -79,7 +77,7 @@ export const GraphFactSchema = S.Struct({
   relationship: S.NonEmptyString,
   fact: S.String,
 }).annotate(
-  $I.annotate("GraphFactSchema", {
+  $I.annote("GraphFactSchema", {
     title: "Graph Fact",
     description: "Fact/relationship payload used by tool responses.",
   })
@@ -91,7 +89,7 @@ export const GraphSearchResultSchema = S.Struct({
   nodes: S.Array(GraphNodeSchema),
   links: S.Array(GraphLinkSchema),
 }).annotate(
-  $I.annotate("GraphSearchResultSchema", {
+  $I.annote("GraphSearchResultSchema", {
     title: "Graph Search Result",
     description: "Graph search payload containing graph nodes and links.",
   })
@@ -103,7 +101,7 @@ export const GraphFactsResultSchema = S.Struct({
   facts: S.Array(GraphFactSchema),
   links: S.Array(GraphLinkSchema),
 }).annotate(
-  $I.annotate("GraphFactsResultSchema", {
+  $I.annote("GraphFactsResultSchema", {
     title: "Graph Facts Result",
     description: "Fact search payload containing relationships and rendered links.",
   })
@@ -117,7 +115,7 @@ export const GraphNodeDetailsSchema = S.Struct({
   links: S.Array(GraphLinkSchema),
   facts: S.Array(GraphFactSchema),
 }).annotate(
-  $I.annotate("GraphNodeDetailsSchema", {
+  $I.annote("GraphNodeDetailsSchema", {
     title: "Graph Node Details",
     description: "Node detail payload including neighboring nodes and relationships.",
   })

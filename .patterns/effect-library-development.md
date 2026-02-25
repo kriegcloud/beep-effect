@@ -51,7 +51,7 @@ function processValue<T>(value: T): Effect.Effect<T, never, never> {
 }
 
 // Use proper Effect constructors
-const safeValue = Effect.try(() => JSON.parse(jsonString))
+const safeValue = Effect.try(() => new URL(urlString))
 ```
 
 ## ✅ MANDATORY PATTERNS
@@ -89,13 +89,12 @@ Effect.gen(function*() {
 
 ### Effect.gen Composition Pattern
 
-Use `Effect.gen` for sequential operations with proper error propagation:
+Use `Effect.fn` for sequential operations with proper error propagation:
 
 ```typescript
 import { Console, Effect } from "effect"
 
-const processData = (input: string) =>
-  Effect.gen(function*() {
+const processData = Effect.fn("processData")(function* (input: string) {
     // Validate input
     if (input.length === 0) {
       return yield* Effect.fail("Input cannot be empty")
@@ -119,7 +118,7 @@ const processData = (input: string) =>
 Choose the right function constructor based on your use case:
 
 | Feature         | `Effect.gen`               | `Effect.fn`                    | `Effect.fnUntraced`            |
-| --------------- | -------------------------- | ------------------------------ | ------------------------------ |
+|-----------------|----------------------------|--------------------------------|--------------------------------|
 | **Purpose**     | One-off effect composition | Reusable effectful functions   | Internal/performance-critical  |
 | **Returns**     | `Effect<A, E, R>`          | `(...args) => Effect<A, E, R>` | `(...args) => Effect<A, E, R>` |
 | **Tracing**     | Uses parent span           | Creates new span + stack trace | No tracing overhead            |
@@ -209,52 +208,71 @@ const internalTransform = Effect.fnUntraced(function*(pull, scope) {
 - Function is called many times per operation
 - Tracing overhead is unacceptable
 
-### Error Handling with Data.TaggedError
+### Error Handling with S.TaggedErrorClass
 
-Create structured, typed errors using `Data.TaggedError`:
+Create structured, typed errors using `S.TaggedErrorClass`:
 
 ```typescript
-import { Data, Effect } from "effect"
+import {Effect} from "effect";
+import {$SomePackageId} from "@beep/identity/packages";
+import * as Str from "effect/String";
+import * as S from "effect/Schema";
+
+const $I = $SomePackageId.create("relative/path/to/file");
 
 // Define custom error types
-class ValidationError extends Data.TaggedError("ValidationError")<{
-  field: string
-  message: string
-}> {}
+class ValidationError extends S.TaggedErrorClass<ValidationError>($I`ValidationError`)(
+	"ValidationError",
+	{
+		field: S.String,
+		message: S.String
+	},
+	$I.annote("ValidationError", {
+		description: "a meaningful description of the error"
+	})
+) {
+}
 
-class NetworkError extends Data.TaggedError("NetworkError")<{
-  status: number
-  url: string
-}> {}
+class NetworkError extends S.TaggedErrorClass($I`NetworkError`)(
+	"NetworkError",
+	{
+		status: S.Int,
+        url: S.String
+    },
+  $I.annote("NetworkError", {
+		description: "a meaningful description of the error"
+  })
+) {
+}
 
 // Use in operations
-const validateAndFetch = (url: string) =>
-  Effect.gen(function*() {
-    if (!url.startsWith("https://")) {
-      return yield* Effect.fail(
-        new ValidationError({
-          field: "url",
-          message: "URL must use HTTPS"
-        })
-      )
-    }
+const validateAndFetch = 
+	Effect.fn("validateAndFetch")(function* (url: string) {
+		if (!Str.startsWith("https://")(url)) {
+			return yield* Effect.fail(
+				new ValidationError({
+					field: "url",
+					message: "URL must use HTTPS"
+				})
+			)
+		}
 
-    const response = yield* Effect.tryPromise({
-      try: () => fetch(url),
-      catch: () => new NetworkError({ status: 0, url })
-    })
+		const response = yield* Effect.tryPromise({
+			try: () => fetch(url),
+			catch: () => new NetworkError({status: 0, url})
+		})
 
-    if (!response.ok) {
-      return yield* Effect.fail(
-        new NetworkError({
-          status: response.status,
-          url
-        })
-      )
-    }
+		if (!response.ok) {
+			return yield* Effect.fail(
+				new NetworkError({
+					status: response.status,
+					url
+				})
+			)
+		}
 
-    return response
-  })
+		return response
+	})
 ```
 
 ### Resource Management Pattern
@@ -282,8 +300,8 @@ const withDatabase = <A, E>(
 
 // Usage
 const queryUser = (id: string) =>
-  withDatabase((db) =>
-    Effect.gen(function*() {
+  withDatabase(
+    Effect.fn(function* (db) {
       const user = yield* Effect.tryPromise({
         try: () => db.query("SELECT * FROM users WHERE id = ?", [id]),
         catch: (error) => new QueryError({ query: "users", cause: error })
@@ -300,57 +318,52 @@ const queryUser = (id: string) =>
 Build applications using layered architecture:
 
 ```typescript
-import { Context, Effect, Layer } from "effect"
+import {ServiceMap, Effect, Layer} from "effect";
+import {$SomePackageId} from "@beep/identity/packages";
+
+const $I = $SomePackageId.create("relative/path/to/file");
 
 // Define service interfaces
-class DatabaseService extends Context.Tag("DatabaseService")<
-  DatabaseService,
-  {
-    readonly query: (sql: string) => Effect.Effect<unknown[], DatabaseError, never>
-  }
->() {}
+class DatabaseService extends ServiceMap.Service<DatabaseService, {
+	readonly query: (sql: string) => Effect.Effect<unknown[], DatabaseError, never>
+}>()($I`DatabaseService`) {
+}
 
-class UserService extends Context.Tag("UserService")<
-  UserService,
-  {
-    readonly getUser: (id: string) => Effect.Effect<User, UserError, never>
-  }
->() {}
+class UserService extends ServiceMap.Service<UserService, {
+	readonly getUser: (id: string) => Effect.Effect<User, UserError, never>
+}>()($I`UserService`) {
+}
 
 // Implement services as layers
 const DatabaseServiceLive = Layer.succeed(
-  DatabaseService,
-  DatabaseService.of({
-    query: (sql) =>
-      Effect.tryPromise({
-        try: () => database.execute(sql),
-        catch: (error) => new DatabaseError({ cause: error })
-      })
-  })
-)
+	DatabaseService,
+	DatabaseService.of({
+		query: (sql) => Effect.tryPromise({
+			try: () => database.execute(sql),
+			catch: (error) => new DatabaseError({cause: error})
+		})
+	})
+);
 
 const UserServiceLive = Layer.effect(
-  UserService,
-  Effect.gen(function*() {
-    const db = yield* DatabaseService
+	UserService,
+	Effect.gen(function* () {
+		const db = yield* DatabaseService;
 
-    return UserService.of({
-      getUser: (id) =>
-        Effect.gen(function*() {
-          const rows = yield* db.query(`SELECT * FROM users WHERE id = '${id}'`)
-          if (rows.length === 0) {
-            return yield* Effect.fail(new UserError({ message: "User not found" }))
-          }
-          return rows[0] as User
-        })
-    })
-  })
-)
+		return UserService.of({
+			getUser: Effect.fn(function* (id) {
+				const rows = yield* db.query(`SELECT * FROM users WHERE id = '${id}'`);
+				if (rows.length === 0) {
+					return yield* Effect.fail(new UserError({message: "User not found"}));
+				}
+				return rows[0] as User;
+			})
+		});
+	})
+);
 
 // Compose layers
-const AppLayer = UserServiceLive.pipe(
-  Layer.provide(DatabaseServiceLive)
-)
+const AppLayer = UserServiceLive.pipe(Layer.provide(DatabaseServiceLive));
 ```
 
 ## 🔧 DEVELOPMENT WORKFLOW PATTERNS
@@ -395,30 +408,47 @@ bun run build
 Break complex features into validated increments:
 
 ```typescript
-// Step 1: Basic structure with types
-interface FeatureConfig {
-  readonly option1: string
-  readonly option2: number
-}
+import * as S from "effect/Schema";
+import {$SomePackageId} from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $SomePackageId.create("relative/path/to/file");
+
+export class FeatureConfig extends S.Class<FeatureConfig>($I`FeatureConfig`)(
+	{
+		option1: S.String,
+		option2: S.Number
+	},
+	$I.annote(
+		"FeatureConfig",
+		{
+			description: "Configuration for a feature"
+		}
+	)
+) {}
+
+// Step 1: Basic structure with effect/Schema
 
 // Step 2: Core implementation
-const createFeature = (config: FeatureConfig) =>
-  Effect.gen(function*() {
-    // Basic implementation
-    yield* Console.log("Feature created")
-    return { config }
-  })
+const createFeature = Effect.fn("createFeature")(function* (
+	config: FeatureConfig // S.Class is opaque and can be used as a type
+) {
+	// Basic implementation
+	yield* Console.log("Feature created");
+	return {config};
+});
 
 // Step 3: Add error handling
-const createFeatureWithValidation = (config: FeatureConfig) =>
-  Effect.gen(function*() {
-    if (config.option2 < 0) {
-      return yield* Effect.fail("Option2 must be positive")
-    }
+const createFeatureWithValidation = Effect.fn("createFeatureWithValidation")(function* (
+	config: FeatureConfig
+) {
+	if (config.option2 < 0) {
+		return yield* Effect.fail("Option2 must be positive");
+	}
 
-    const feature = yield* createFeature(config)
-    return feature
-  })
+	const feature = yield* createFeature(config);
+	return feature;
+});
 
 // Step 4: Add comprehensive functionality
 // ... continue building incrementally
@@ -493,8 +523,8 @@ import * as ModuleName from "../src/ModuleName.js"
 
 describe("ModuleName", () => {
   describe("constructors", () => {
-    it.effect("create should initialize with config", () =>
-      Effect.gen(function*() {
+    it.effect("create should initialize with config", 
+      Effect.fn(function*() {
         const config = { value: 42 }
         const instance = yield* ModuleName.create(config)
 
@@ -503,8 +533,8 @@ describe("ModuleName", () => {
   })
 
   describe("combinators", () => {
-    it.effect("map should transform instance", () =>
-      Effect.gen(function*() {
+    it.effect("map should transform instance", 
+      Effect.fn(function*() {
         const instance = yield* ModuleName.create({ value: 10 })
         const transformed = yield* ModuleName.map(instance, (x) => x * 2)
 
@@ -513,8 +543,8 @@ describe("ModuleName", () => {
   })
 
   describe("time-dependent operations", () => {
-    it.effect("should handle delays properly", () =>
-      Effect.gen(function*() {
+    it.effect("should handle delays properly", 
+      Effect.fn(function*() {
         const fiber = yield* Effect.fork(
           ModuleName.delayedOperation(Duration.seconds(5))
         )
