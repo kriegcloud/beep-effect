@@ -1,4 +1,5 @@
 import { $WebId } from "@beep/identity/packages";
+import { thunkEffectVoid } from "@beep/utils";
 import { Cause, Effect, Match, pipe, Queue, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -201,9 +202,10 @@ export const makeChatPrompt = (request: ChatRequest): Prompt.Prompt =>
     Prompt.fromMessages
   );
 
+const noneToolCall = O.none<ToolCallInstruction>;
 const toKnownToolInstruction = (part: ChatStreamPart): O.Option<ToolCallInstruction> =>
   Match.value(part).pipe(
-    Match.when({ type: "tool-call", providerExecuted: true }, () => O.none()),
+    Match.when({ type: "tool-call", providerExecuted: true }, noneToolCall),
     Match.when({ type: "tool-call", name: "SearchGraph" }, (value) =>
       O.some<ToolCallInstruction>({
         id: value.id,
@@ -225,7 +227,7 @@ const toKnownToolInstruction = (part: ChatStreamPart): O.Option<ToolCallInstruct
         params: value.params,
       })
     ),
-    Match.orElse(() => O.none())
+    Match.orElse(noneToolCall)
   );
 
 interface ToolExecutionEvent {
@@ -319,7 +321,7 @@ const emitGraphSnippet = Effect.fn("ChatHandler.emitGraphSnippet")(function* (
   });
 
   yield* O.match(maybeSnippet, {
-    onNone: () => Effect.void,
+    onNone: thunkEffectVoid,
     onSome: (snippet) =>
       offerSseEnvelope(queue, {
         event: "graph-snippet",
@@ -353,7 +355,7 @@ const emitPartEvent = Effect.fn("ChatHandler.emitPartEvent")(function* (
         },
       })
     ),
-    Match.orElse(() => Effect.void)
+    Match.orElse(thunkEffectVoid)
   );
 });
 

@@ -23,6 +23,17 @@
 14. `--progress-output` default: `${output}.progress.jsonl`.
 15. `--diagnostics` default: `false`.
 16. `--diagnostics-output` default: `${output}.diagnostics.jsonl`.
+17. `--codex-model` default: `gpt-5.2`.
+18. `--claude-model` default: `claude-sonnet-4-6`.
+19. `--reasoning` default: unset.
+    - accepted values: `none,minimal,low,medium,high,xhigh`
+    - codex mapping: `-c model_reasoning_effort="<value>"`
+    - claude compatibility: only `low|medium|high` are valid when Claude is selected
+20. `--claude-effort` default: unset (legacy alias; same as `--reasoning` for Claude-compatible values).
+21. `--worktree-root` default (when `--worktree true`):
+    - `${XDG_CACHE_HOME}/beep-effect3/agent-eval/worktrees` when `XDG_CACHE_HOME` is set.
+    - `${HOME}/.cache/beep-effect3/agent-eval/worktrees` otherwise.
+    - config error when neither `XDG_CACHE_HOME` nor `HOME` is available.
 
 ### Targeting + Budget Rules
 
@@ -37,10 +48,18 @@
 5. When `--diagnostics true`, `diagnostics-output` receives machine-readable forensic events:
    - `run.diagnostic`: raw `git status --porcelain`, parsed touched paths, first allowlist mismatch, acceptance command outcome, detector rule IDs, and run root-cause summary
    - `suite.metrics`: aggregate counts (`success`, `wrong_api`, `effect_compliance`, `acceptance`, `allowlist`, `runtime`) plus cost/wall-clock totals
+6. Model/effort overrides:
+   - `--codex-model` and `--claude-model` override default pinned models for experiments
+   - `--reasoning` sets unified effort for both providers (`model_reasoning_effort` for Codex, `--effort` for Claude)
+   - `--claude-effort` remains accepted for backward compatibility and conflicts with `--reasoning` if values differ
+7. Worktree isolation root:
+   - `--worktree-root` accepts absolute or relative paths and supports `~/...` expansion via `HOME`.
+   - worktree root is created before suite execution when isolation is enabled.
+   - worktree creation is fail-fast; no fallback to primary repo cwd.
 
 ## Agent Invocation Contract
 
-1. Codex: `codex exec --json --model gpt-5.2 <prompt>`
+1. Codex: `codex exec --json --model gpt-5.2 [-c model_reasoning_effort="<value>"] <prompt>`
 2. Claude: `claude -p <prompt> --output-format json --model claude-sonnet-4-6`
 3. Model pins: `gpt-5.2` and `claude-sonnet-4-6`.
 
@@ -127,9 +146,9 @@ Smoke artifacts archived:
 
 1. Fixed touched-path parsing bug that dropped the first character of each `git status --porcelain` path.
 2. Hardened worktree behavior:
-   - unique per-run worktree path
+   - unique per-run worktree path under external cache root
    - repo `node_modules` symlinked into worktree so `bun run` tools resolve
-   - dirty primary-tree fallback is blocked when worktree creation fails
+   - no primary-tree fallback when worktree creation fails (explicit invariant error)
 3. Ignored benchmark-injected `node_modules` path from touched-path allowlist scoring.
 4. Fixed failure signature classification to distinguish:
    - `runtime` (agent command failed/timed out)
@@ -225,6 +244,25 @@ bun run agent:bench -- \
   --diagnostics true \
   --output /tmp/agent-diagnostics-smoke.json \
   --report-output /tmp/agent-diagnostics-smoke.md
+```
+
+### 5) Model-override smoke (speed vs quality probe)
+
+```bash
+bun run agent:bench -- \
+  --live true \
+  --smoke true \
+  --smoke-task-limit 1 \
+  --smoke-timeout-minutes 8 \
+  --task-ids tooling_cli_01 \
+  --conditions minimal \
+  --agents codex,claude \
+  --codex-model gpt-5.3-codex-spark \
+  --claude-model claude-sonnet-4-6 \
+  --claude-effort low \
+  --diagnostics true \
+  --output /tmp/model-override-smoke.json \
+  --report-output /tmp/model-override-smoke.md
 ```
 
 ## Exit Gate Status

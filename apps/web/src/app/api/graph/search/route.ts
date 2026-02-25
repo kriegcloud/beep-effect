@@ -1,3 +1,4 @@
+import { thunk } from "@beep/utils";
 import { auth } from "@beep/web/lib/auth/server";
 import {
   deriveNeighborNodes,
@@ -10,13 +11,14 @@ import {
   mapSearchToGraphData,
 } from "@beep/web/lib/effect/mappers";
 import { GraphitiService, type GraphitiServiceError } from "@beep/web/lib/graphiti/client";
-import { Effect, Match, pipe } from "effect";
+import { Effect, flow, identity, Match, pipe, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { type NextRequest, NextResponse } from "next/server";
 
+const getMessage = <T extends { message: string }>(i: T) => Struct.get(i, "message");
 const decodeNumberFromString = S.decodeUnknownOption(S.NumberFromString);
 const decodeInt = S.decodeUnknownOption(S.Int);
 
@@ -32,16 +34,16 @@ type GraphNodeDetails = typeof GraphNodeDetailsSchema.Type;
 
 const decodeResponse = S.decodeUnknownEffect(GraphSearchRouteResponseSchema);
 
-const defaultSeedQuery = "effect v4";
-const defaultLimit = 120;
-const defaultMaxFacts = 40;
-const defaultMaxNeighbors = 50;
+const defaultSeedQuery = thunk("effect v4");
+const defaultLimit = thunk(120);
+const defaultMaxFacts = thunk(40);
+const defaultMaxNeighbors = thunk(50);
 
 const graphitiErrorDescription = Match.type<GraphitiServiceError>().pipe(
   Match.tagsExhaustive({
-    GraphitiRequestError: ({ message }) => message,
-    GraphitiProtocolError: ({ message }) => message,
-    GraphitiResponseDecodeError: ({ message }) => message,
+    GraphitiRequestError: getMessage,
+    GraphitiProtocolError: getMessage,
+    GraphitiResponseDecodeError: getMessage,
     GraphitiToolError: ({ toolName, message }) => `${toolName}: ${message}`,
     GraphitiHttpStatusError: ({ status, body }) => `HTTP ${status}: ${body}`,
   })
@@ -61,18 +63,9 @@ const parseSearchInput = (request: NextRequest) => {
   return {
     query: O.fromNullishOr(params.get("q")),
     nodeId: O.fromNullishOr(params.get("nodeId")),
-    limit: pipe(
-      parseOptionalPositiveInt(params.get("limit")),
-      O.getOrElse(() => defaultLimit)
-    ),
-    maxFacts: pipe(
-      parseOptionalPositiveInt(params.get("maxFacts")),
-      O.getOrElse(() => defaultMaxFacts)
-    ),
-    maxNeighbors: pipe(
-      parseOptionalPositiveInt(params.get("maxNeighbors")),
-      O.getOrElse(() => defaultMaxNeighbors)
-    ),
+    limit: pipe(parseOptionalPositiveInt(params.get("limit")), O.getOrElse(defaultLimit)),
+    maxFacts: pipe(parseOptionalPositiveInt(params.get("maxFacts")), O.getOrElse(defaultMaxFacts)),
+    maxNeighbors: pipe(parseOptionalPositiveInt(params.get("maxNeighbors")), O.getOrElse(defaultMaxNeighbors)),
   };
 };
 
@@ -99,82 +92,77 @@ const searchGraph = Effect.fn("GraphSearchRoute.searchGraph")(function* (request
   return yield* pipe(
     input.nodeId,
     O.match({
-      onNone: () =>
-        Effect.gen(function* () {
-          const query = pipe(
-            input.query,
-            O.getOrElse(() => defaultSeedQuery)
-          );
+      onNone: Effect.fn(function* () {
+        const query = pipe(input.query, O.getOrElse(defaultSeedQuery));
 
-          const nodes = yield* graphiti.searchNodes({
-            query,
-            maxNodes: input.limit,
-          });
+        const nodes = yield* graphiti.searchNodes({
+          query,
+          maxNodes: input.limit,
+        });
 
-          const facts = yield* graphiti.searchFacts({
-            query,
-            maxFacts: input.limit,
-          });
+        const facts = yield* graphiti.searchFacts({
+          query,
+          maxFacts: input.limit,
+        });
 
-          return {
-            mode: "search" as const,
-            graph: mapSearchToGraphData(nodes, facts),
-          };
-        }),
-      onSome: (nodeId) =>
-        Effect.gen(function* () {
-          const lookup = yield* graphiti.getNode({
-            nodeId,
-            maxFacts: input.maxFacts,
-            maxNeighbors: input.maxNeighbors,
-          });
+        return {
+          mode: "search" as const,
+          graph: mapSearchToGraphData(nodes, facts),
+        };
+      }),
+      onSome: Effect.fn(function* (nodeId) {
+        const lookup = yield* graphiti.getNode({
+          nodeId,
+          maxFacts: input.maxFacts,
+          maxNeighbors: input.maxNeighbors,
+        });
 
-          const links = mapFactsToGraphLinks(lookup.facts);
-          const facts = mapFactsToGraphFacts(lookup.facts);
+        const links = mapFactsToGraphLinks(lookup.facts);
+        const facts = mapFactsToGraphFacts(lookup.facts);
 
-          const neighbors = pipe(
-            lookup.node,
-            O.match({
-              onNone: () => mapEntityNodesToGraphNodes(lookup.neighbors),
-              onSome: (node) => deriveNeighborNodes(node.uuid, lookup.neighbors, lookup.facts),
-            })
-          );
+        const neighbors = pipe(
+          lookup.node,
+          O.match({
+            onNone: () => mapEntityNodesToGraphNodes(lookup.neighbors),
+            onSome: (node) => deriveNeighborNodes(node.uuid, lookup.neighbors, lookup.facts),
+          })
+        );
 
-          const details = pipe(
-            lookup.node,
-            O.map(mapEntityNodeToGraphNode),
-            O.match({
-              onNone: () => ({
-                neighbors,
-                links,
-                facts,
-              }),
-              onSome: (node) => ({
-                node,
-                neighbors,
-                links,
-                facts,
-              }),
-            })
-          );
+        const details = pipe(
+          lookup.node,
+          O.map(mapEntityNodeToGraphNode),
+          O.match({
+            onNone: () => ({
+              neighbors,
+              links,
+              facts,
+            }),
+            onSome: (node) => ({
+              node,
+              neighbors,
+              links,
+              facts,
+            }),
+          })
+        );
 
-          return {
-            mode: "node" as const,
-            graph: graphFromDetails(details),
-            details,
-          };
-        }),
+        return {
+          mode: "node" as const,
+          graph: graphFromDetails(details),
+          details,
+        };
+      }),
     })
   );
 });
 
 const runRoute = (request: NextRequest) =>
   searchGraph(request).pipe(
-    Effect.flatMap((payload) => decodeResponse(payload).pipe(Effect.mapError((cause) => cause.message))),
-    Effect.mapError((error): string =>
-      Match.value(error).pipe(
-        Match.when(P.isString, (message) => message),
-        Match.orElse((graphitiError) => graphitiErrorDescription(graphitiError))
+    Effect.flatMap(flow(decodeResponse, Effect.mapError(getMessage))),
+    Effect.mapError(
+      Match.type<string | GraphitiServiceError>().pipe(
+        Match.when(P.isString, identity<string>),
+        Match.orElse(graphitiErrorDescription)
       )
     ),
     Effect.provide(GraphitiService.layer),
@@ -197,7 +185,8 @@ export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
 
   return pipe(
-    O.fromNullishOr(session),
+    session,
+    O.fromNullishOr,
     O.match({
       onNone: () =>
         NextResponse.json(

@@ -10,7 +10,7 @@
  */
 
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Console, Effect, FileSystem, Path, pipe } from "effect";
+import { Console, Effect, FileSystem, HashSet, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import type { PlatformError } from "effect/PlatformError";
@@ -149,7 +149,7 @@ const findContextFiles = Effect.gen(function* () {
   const path = yield* Path.Path;
 
   const repoRoot = process.cwd();
-  const excludeDirs = new Set(["node_modules", ".git", "dist", ".turbo", "build"]);
+  const excludeDirs = HashSet.fromIterable(["node_modules", ".git", "dist", ".turbo", "build"]);
 
   const searchDir: (dir: string) => Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path> = (
     dir
@@ -168,7 +168,7 @@ const findContextFiles = Effect.gen(function* () {
 
           return fs.stat(fullPath).pipe(
             Effect.flatMap((stat) =>
-              stat.type === "Directory" && !excludeDirs.has(entry)
+              stat.type === "Directory" && !HashSet.has(excludeDirs, entry)
                 ? Effect.suspend(() => searchDir(fullPath))
                 : Effect.succeed(A.empty<string>())
             ),
@@ -231,10 +231,10 @@ const summaryMode = Effect.gen(function* () {
   const externalWithContext = A.filter(contexts, (ctx) => ctx.source === "external");
 
   // Get submodule paths that don't have ai-context.md (no summary)
-  const externalPaths = new Set(externalWithContext.map((ctx) => ctx.path));
+  const externalPaths = HashSet.fromIterable(externalWithContext.map((ctx) => ctx.path));
   const externalWithoutContext = pipe(
     submodulePaths,
-    A.filter((path) => !externalPaths.has(path))
+    A.filter((path) => !HashSet.has(externalPaths, path))
   );
 
   const totalExternal = A.length(externalWithContext) + A.length(externalWithoutContext);

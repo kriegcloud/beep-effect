@@ -10,7 +10,7 @@
 
 import { $ClaudeId } from "@beep/identity/packages";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
+import { Config, Console, Effect, FileSystem, HashSet, Layer, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -75,7 +75,7 @@ export class AgentConfigError extends S.TaggedErrorClass<AgentConfigError>($I`Ag
   "AgentConfigError",
   {
     reason: S.String,
-    cause: S.optional(S.Unknown),
+    cause: S.optional(S.Defect),
   },
   $I.annote("AgentConfigError", {
     description: "Raised when hook configuration cannot be decoded.",
@@ -259,7 +259,17 @@ export const program = Effect.gen(function* () {
       ),
       pipe(
         sh`git log ${"--since=7 days ago"} --format=%an --no-merges`,
-        Effect.map((out) => [...new Set(Str.split("\n")(Str.trim(out)).filter(Boolean))].join(", ")),
+        Effect.map((out) =>
+          pipe(
+            out,
+            Str.trim,
+            Str.split("\n"),
+            A.filter((value) => value.length > 0),
+            HashSet.fromIterable,
+            A.fromIterable,
+            A.join(", ")
+          )
+        ),
         Effect.catch(() => Effect.succeed(""))
       ),
       pipe(

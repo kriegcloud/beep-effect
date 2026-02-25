@@ -185,10 +185,11 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * @example
  * ```ts
  * import * as A from "effect/Array";
+ * import { HashSet } from "effect";
  *
  * // Empty array creation
  * const empty = A.empty<number>() // Array<number>
- * const fromIterable = A.fromIterable(new Set([1, 2, 3])) // [1, 2, 3]
+ * const fromIterable = A.fromIterable(HashSet.fromIterable([1, 2, 3])) // [1, 2, 3]
  * ```
  *
  * @since 2.0.0

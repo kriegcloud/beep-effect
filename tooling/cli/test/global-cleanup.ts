@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { MutableHashMap } from "effect";
 
 const CONFIG_FILES = ["tsconfig.packages.json", "tsconfig.json", "tstyche.config.json"] as const;
 const CLEANUP_PARENT_DIRS = ["", "tooling", "packages/common", "packages/shared", "apps", "docs"] as const;
@@ -28,8 +29,11 @@ const removeTestArtifacts = async (parentDir: string): Promise<void> => {
   await Promise.all(removals);
 };
 
-const restoreConfigSnapshots = async (repoRoot: string, snapshots: ReadonlyMap<string, string>): Promise<void> => {
-  const writes = Array.from(snapshots.entries()).map(([relativePath, content]) =>
+const restoreConfigSnapshots = async (
+  repoRoot: string,
+  snapshots: MutableHashMap.MutableHashMap<string, string>
+): Promise<void> => {
+  const writes = Array.from(snapshots).map(([relativePath, content]) =>
     fs.writeFile(path.join(repoRoot, relativePath), content, "utf8")
   );
   await Promise.all(writes);
@@ -37,12 +41,12 @@ const restoreConfigSnapshots = async (repoRoot: string, snapshots: ReadonlyMap<s
 
 export default async function globalCleanupSetup() {
   const repoRoot = path.resolve(__dirname, "../../..");
-  const configSnapshots = new Map<string, string>();
+  const configSnapshots = MutableHashMap.empty<string, string>();
 
   for (const relativePath of CONFIG_FILES) {
     const content = await readFileIfExists(path.join(repoRoot, relativePath));
     if (content !== undefined) {
-      configSnapshots.set(relativePath, content);
+      MutableHashMap.set(configSnapshots, relativePath, content);
     }
   }
 

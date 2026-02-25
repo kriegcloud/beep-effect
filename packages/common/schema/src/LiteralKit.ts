@@ -1,9 +1,6 @@
 /**
  * Schema-backed literal toolkit helpers for mixed literal types.
  *
- * Unlike {@link StringLiteralKit} which only handles string literals,
- * LiteralKit supports `string | number | boolean | bigint` literals
- * and maps them to string keys via {@link LiteralToKey}.
  *
  * @since 0.0.0
  * @module @beep/schema/LiteralKit

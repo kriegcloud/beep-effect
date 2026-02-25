@@ -3,9 +3,11 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { HashSet, MutableHashMap, MutableHashSet } from "effect";
+import * as O from "effect/Option";
 import ts from "typescript";
 
-const ALLOWLIST = new Set([
+const ALLOWLIST = HashSet.fromIterable([
   ".claude/scripts/__tests__/analyze-architecture.test.ts",
   "specs/completed/effect-v4-knowledge-graph/enrich-modules.ts",
   "specs/completed/reverse-engineering-palantir-ontology/outputs/p5-rag-enrichment/fetch-content.mjs",
@@ -54,12 +56,12 @@ const ALLOWLIST = new Set([
   "tooling/repo-utils/test/FsUtils.test.ts",
 ]);
 
-const SKIP_KEYS = new Set([
+const SKIP_KEYS = HashSet.fromIterable([
   "specs/completed/reverse-engineering-palantir-ontology/outputs/p5-rag-enrichment/prepare-batches.mjs:42:17",
   "specs/completed/reverse-engineering-palantir-ontology/outputs/p5-rag-enrichment/prepare-batches.mjs:77:20",
 ]);
 
-const STRING_METHODS = new Set([
+const STRING_METHODS = HashSet.fromIterable([
   "toString",
   "charAt",
   "charCodeAt",
@@ -82,7 +84,7 @@ const STRING_METHODS = new Set([
   "valueOf",
 ]);
 
-const OPTION_WRAPPED_METHODS = new Set(["charAt", "charCodeAt", "indexOf", "lastIndexOf", "match", "search"]);
+const OPTION_WRAPPED_METHODS = HashSet.fromIterable(["charAt", "charCodeAt", "indexOf", "lastIndexOf", "match", "search"]);
 
 const args = process.argv.slice(2);
 const write = args.includes("--write");
@@ -97,7 +99,7 @@ const tracked = execSync("git ls-files -z", {
   .filter((f) => !f.startsWith(".repos/"));
 
 const sourceFiles = tracked.filter((f) => /\.(?:[cm]?tsx?|[cm]?jsx?)$/.test(f) && !f.endsWith(".d.ts"));
-const sourceFileSet = new Set(sourceFiles);
+const sourceFileSet = HashSet.fromIterable(sourceFiles);
 
 const program = ts.createProgram({
   rootNames: sourceFiles,
@@ -255,7 +257,7 @@ const rewriteImportDeclaration = (sourceFile, declaration, removedElements) => {
       namespacePart = clause.namedBindings.getText(sourceFile);
     } else if (ts.isNamedImports(clause.namedBindings)) {
       namedParts = clause.namedBindings.elements
-        .filter((element) => !removedElements.has(element))
+        .filter((element) => !MutableHashSet.has(removedElements, element))
         .map((element) => element.getText(sourceFile));
     }
   }
@@ -291,11 +293,11 @@ const changedFiles = [];
 
 for (const sourceFile of program.getSourceFiles()) {
   const relativeFilePath = path.relative(process.cwd(), sourceFile.fileName).replaceAll("\\", "/");
-  if (!sourceFileSet.has(relativeFilePath)) continue;
-  if (!ALLOWLIST.has(relativeFilePath)) continue;
+  if (!HashSet.has(sourceFileSet, relativeFilePath)) continue;
+  if (!HashSet.has(ALLOWLIST, relativeFilePath)) continue;
 
   const originalText = fs.readFileSync(relativeFilePath, "utf8");
-  const callCandidates = new Set();
+  const callCandidates = MutableHashSet.empty();
 
   const visitCalls = (node) => {
     if (ts.isCallExpression(node)) {
@@ -312,14 +314,14 @@ for (const sourceFile of program.getSourceFiles()) {
         }
 
         const method = expression.name.text;
-        if (STRING_METHODS.has(method)) {
+        if (HashSet.has(STRING_METHODS, method)) {
           const receiverType = checker.getTypeAtLocation(expression.expression);
           const isStringReceiver = isStringLikeType(receiverType) || isAnyOrUnknown(receiverType);
           if (isStringReceiver) {
             const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
             const key = `${relativeFilePath}:${position.line + 1}:${position.character + 1}`;
-            if (!SKIP_KEYS.has(key)) {
-              callCandidates.add(node);
+            if (!HashSet.has(SKIP_KEYS, key)) {
+              MutableHashSet.add(callCandidates, node);
             }
           }
         }
@@ -331,7 +333,7 @@ for (const sourceFile of program.getSourceFiles()) {
   ts.forEachChild(sourceFile, visitCalls);
 
   const renderExpression = (node) => {
-    if (ts.isCallExpression(node) && callCandidates.has(node)) {
+    if (ts.isCallExpression(node) && MutableHashSet.has(callCandidates, node)) {
       return transformCall(node);
     }
     return node.getText(sourceFile);
@@ -356,10 +358,10 @@ for (const sourceFile of program.getSourceFiles()) {
   };
 
   const callReplacements = [];
-  const topLevelCandidates = [...callCandidates].filter((node) => {
+  const topLevelCandidates = Array.from(callCandidates).filter((node) => {
     let current = node.parent;
     while (current) {
-      if (ts.isCallExpression(current) && callCandidates.has(current)) {
+      if (ts.isCallExpression(current) && MutableHashSet.has(callCandidates, current)) {
         return false;
       }
       current = current.parent;
@@ -376,7 +378,7 @@ for (const sourceFile of program.getSourceFiles()) {
     const replacement = transformCall(candidate);
     if (replacement === candidate.getText(sourceFile)) continue;
 
-    if (OPTION_WRAPPED_METHODS.has(method)) usesOption = true;
+    if (HashSet.has(OPTION_WRAPPED_METHODS, method)) usesOption = true;
 
     callReplacements.push({
       start: candidate.getStart(sourceFile),
@@ -426,7 +428,7 @@ for (const sourceFile of program.getSourceFiles()) {
   }
 
   const stringIdentifierReplacements = [];
-  const importElementsToRemove = new Map();
+  const importElementsToRemove = MutableHashMap.empty();
   let needsStrImport = callReplacements.length > 0;
 
   for (const binding of effectStringBindings) {
@@ -470,13 +472,13 @@ for (const sourceFile of program.getSourceFiles()) {
 
     needsStrImport = true;
 
-    const removed = importElementsToRemove.get(binding.importDecl) ?? new Set();
-    removed.add(binding.element);
-    importElementsToRemove.set(binding.importDecl, removed);
+    const removed = O.getOrElse(MutableHashMap.get(importElementsToRemove, binding.importDecl), () => MutableHashSet.empty());
+    MutableHashSet.add(removed, binding.element);
+    MutableHashMap.set(importElementsToRemove, binding.importDecl, removed);
   }
 
   const importDeclarationReplacements = [];
-  for (const [importDecl, removedElements] of importElementsToRemove.entries()) {
+  for (const [importDecl, removedElements] of importElementsToRemove) {
     const rewritten = rewriteImportDeclaration(sourceFile, importDecl, removedElements);
     if (rewritten === null) continue;
     importDeclarationReplacements.push({

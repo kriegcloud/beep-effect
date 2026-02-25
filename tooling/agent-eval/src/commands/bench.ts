@@ -13,8 +13,10 @@ import { renderBenchmarkMarkdown } from "../benchmark/report.js";
 import {
   type BenchmarkDiagnosticEvent,
   type BenchmarkProgressEvent,
+  type ClaudeEffortLevel,
   decodeCorrectionIndexJson,
   decodePricingTableJson,
+  type ReasoningEffortLevel,
   runBenchmarkSuite,
 } from "../benchmark/runner.js";
 import { AgentEvalConfigError, AgentEvalDecodeError } from "../errors.js";
@@ -47,6 +49,11 @@ export interface BenchArgs {
   readonly graphitiUrl: string;
   readonly graphitiGroupId: string;
   readonly isolateInWorktree: boolean;
+  readonly worktreeRoot: string | undefined;
+  readonly codexModel: string;
+  readonly claudeModel: string;
+  readonly claudeEffort: ClaudeEffortLevel | undefined;
+  readonly reasoningEffort: ReasoningEffortLevel | undefined;
   readonly conditions: ReadonlyArray<BenchCondition>;
   readonly agents: ReadonlyArray<AgentName>;
   readonly taskIds: ReadonlyArray<string>;
@@ -168,12 +175,29 @@ export const handleBench: (
   const diagnosticsOutputPath = pathApi.isAbsolute(args.diagnosticsOutput)
     ? args.diagnosticsOutput
     : pathApi.resolve(process.cwd(), args.diagnosticsOutput);
+  const worktreeRootPath =
+    args.isolateInWorktree === false || args.worktreeRoot === undefined
+      ? undefined
+      : pathApi.isAbsolute(args.worktreeRoot)
+        ? args.worktreeRoot
+        : pathApi.resolve(process.cwd(), args.worktreeRoot);
+
+  if (args.isolateInWorktree && worktreeRootPath === undefined) {
+    return yield* Effect.fail(
+      new AgentEvalConfigError({
+        message: "Worktree isolation requires a resolved --worktree-root path.",
+      })
+    );
+  }
 
   yield* fs.makeDirectory(pathApi.dirname(progressOutputPath), { recursive: true });
   yield* fs.writeFileString(progressOutputPath, "");
   if (args.diagnostics) {
     yield* fs.makeDirectory(pathApi.dirname(diagnosticsOutputPath), { recursive: true });
     yield* fs.writeFileString(diagnosticsOutputPath, "");
+  }
+  if (worktreeRootPath !== undefined) {
+    yield* fs.makeDirectory(worktreeRootPath, { recursive: true });
   }
 
   const progressEvents: Array<BenchmarkProgressEvent> = [];
@@ -209,8 +233,15 @@ export const handleBench: (
         url: args.graphitiUrl,
         groupId: args.graphitiGroupId,
       },
+      agentModels: {
+        codex: args.codexModel,
+        claude: args.claudeModel,
+      },
+      ...(args.claudeEffort === undefined ? {} : { claudeEffort: args.claudeEffort }),
+      ...(args.reasoningEffort === undefined ? {} : { reasoningEffort: args.reasoningEffort }),
       strictTaskCount: runStrictTaskCount,
       isolateInWorktree: args.isolateInWorktree,
+      worktreeRoot: worktreeRootPath,
       ...(args.maxWallMinutes === undefined ? {} : { maxWallMinutes: args.maxWallMinutes }),
       onProgress: (event) => {
         progressEvents.push(event);

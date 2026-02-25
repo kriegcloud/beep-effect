@@ -115,8 +115,8 @@ export const makeChatRouteHandler = <R = never>(options: ChatRouteOptions<R>) =>
   Effect.gen(function* () {
     yield* ensureAuthenticated(options.getSession);
     const chatRequest = yield* readChatRequest();
-    const response = yield* options.createResponse(chatRequest);
-    return response;
+
+    return yield* options.createResponse(chatRequest);
   }).pipe(
     Effect.catchTag("ChatUnauthorizedError", (error) =>
       Effect.succeed(

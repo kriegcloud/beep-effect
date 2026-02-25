@@ -1,4 +1,5 @@
 import { $WebId } from "@beep/identity/packages";
+import { thunk } from "@beep/utils";
 import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -123,16 +124,12 @@ export const GraphNodeDetailsSchema = S.Struct({
 
 export type GraphNodeDetails = typeof GraphNodeDetailsSchema.Type;
 
-const defaultNodeType = "Entity";
+const defaultNodeType = thunk("Entity");
 
 export const mapEntityNodeToGraphNode = (node: GraphitiEntityNode): GraphNode => ({
   id: node.uuid,
   name: node.name,
-  type: pipe(
-    node.labels,
-    A.head,
-    O.getOrElse(() => defaultNodeType)
-  ),
+  type: pipe(node.labels, A.head, O.getOrElse(defaultNodeType)),
   summary: node.summary,
   val: 1,
 });

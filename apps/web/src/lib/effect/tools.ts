@@ -1,4 +1,5 @@
 import { $WebId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool, Toolkit } from "effect/unstable/ai";
 import { GraphitiService } from "../graphiti/client";
@@ -6,7 +7,7 @@ import { GraphFactsResultSchema, GraphNodeDetailsSchema, GraphSearchResultSchema
 
 const $I = $WebId.create("lib/effect/tools");
 
-export const SearchGraphScopeSchema = S.Literals(["nodes", "edges", "both"]).annotate(
+export const SearchGraphScopeSchema = LiteralKit(["nodes", "edges", "both"]).annotate(
   $I.annote("SearchGraphScopeSchema", {
     title: "Search Graph Scope",
     description: "Controls whether node-only, edge-only, or combined graph search should run.",

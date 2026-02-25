@@ -9,14 +9,6 @@
       "reason": "Drizzle schema onUpdate callbacks require a JS Date value at this framework boundary.",
       "owner": "@beep/web",
       "issue": "TODO-ALLOWLIST-DRIZZLE-DATE"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "apps/web/src/app/api/chat/route.ts",
-      "kind": "new-map-set",
-      "reason": "HttpRouter.toWebHandler requires a ServiceMap<unknown>; constructing that empty service map currently requires ServiceMap.makeUnsafe with a Map at this route boundary.",
-      "owner": "@beep/web",
-      "issue": "TODO-ALLOWLIST-CHAT-ROUTE-SERVICEMAP"
     }
   ]
 }

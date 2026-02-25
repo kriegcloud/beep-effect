@@ -1,4 +1,5 @@
 import { BunFileSystem, BunPath, BunRuntime } from "@effect/platform-bun";
+import { HashSet } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -6,7 +7,7 @@ import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as ts from "typescript";
 
-const EFFECT_INFRASTRUCTURE = new Set([
+const EFFECT_INFRASTRUCTURE = HashSet.fromIterable([
   "never",
   "unknown",
   "Scope",
@@ -18,11 +19,11 @@ const EFFECT_INFRASTRUCTURE = new Set([
   "__type",
 ]);
 
-const EXCLUDED_FROM_GRAPH = new Set(["AtomRegistry", "Registry"]);
+const EXCLUDED_FROM_GRAPH = HashSet.fromIterable(["AtomRegistry", "Registry"]);
 
-const isEffectInfrastructure = (name: string): boolean => EFFECT_INFRASTRUCTURE.has(name);
+const isEffectInfrastructure = (name: string): boolean => HashSet.has(EFFECT_INFRASTRUCTURE, name);
 
-const isExcludedFromGraph = (name: string): boolean => EXCLUDED_FROM_GRAPH.has(name);
+const isExcludedFromGraph = (name: string): boolean => HashSet.has(EXCLUDED_FROM_GRAPH, name);
 
 const extractDepsFromType = (type: ts.Type, _checker: ts.TypeChecker): ReadonlyArray<string> => {
   const deps = A.empty<string>();

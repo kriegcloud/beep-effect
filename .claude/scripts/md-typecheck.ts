@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Console, Data, Effect, FileSystem, Path, pipe } from "effect";
+import { Console, Data, Effect, FileSystem, HashSet, MutableHashMap, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import type { PlatformError } from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -64,7 +65,7 @@ const createTsConfig = (tsconfigBasePath: string, projectRoot: string) => ({
 });
 
 // Directories to skip when crawling for markdown files
-const SKIP_DIRECTORIES = new Set(["node_modules", "dist-types", ".git", "dist", "build"]);
+const SKIP_DIRECTORIES = HashSet.fromIterable(["node_modules", "dist-types", ".git", "dist", "build"]);
 const stringifyJson = S.encodeSync(S.UnknownFromJsonString);
 
 // ============================================================================
@@ -85,7 +86,7 @@ const crawlMarkdownFiles = (
             entries,
             (entry) =>
               Effect.gen(function* () {
-                if (SKIP_DIRECTORIES.has(entry)) {
+                if (HashSet.has(SKIP_DIRECTORIES, entry)) {
                   return [];
                 }
                 const fullPath = path.join(currentDir, entry);
@@ -334,18 +335,19 @@ const program = Effect.gen(function* () {
   }
 
   // Calculate statistics
-  const errorsByFile = new Map<string, number>();
+  const errorsByFile = MutableHashMap.empty<string, number>();
 
   for (const error of result) {
     const relPath = Str.replace(
       `${Str.replace("/.claude", "")(claudeDir)}/`,
       ""
     )(Str.replace(`${claudeDir}/`, "")(error.sourceFile));
-    errorsByFile.set(relPath, (errorsByFile.get(relPath) || 0) + 1);
+    const currentCount = O.getOrElse(MutableHashMap.get(errorsByFile, relPath), () => 0);
+    MutableHashMap.set(errorsByFile, relPath, currentCount + 1);
   }
 
   // Sort by count descending
-  const fileStats = [...errorsByFile.entries()].sort((a, b) => b[1] - a[1]);
+  const fileStats = [...errorsByFile].sort((a, b) => b[1] - a[1]);
 
   // Print summary
   yield* Console.log(`✗ Found ${result.length} type errors in ${codeBlocks.length} code blocks`);
