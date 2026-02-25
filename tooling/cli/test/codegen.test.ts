@@ -94,7 +94,10 @@ describe("codegen command", () => {
           // Write a minimal package.json
           yield* fs.writeFileString(
             path.join(tmpDir, "package.json"),
-            JSON.stringify({ name: "@beep/test-codegen" }, null, 2)
+            `{
+  "name": "@beep/test-codegen"
+}
+`
           );
 
           // Write some TypeScript modules
@@ -137,7 +140,10 @@ describe("codegen command", () => {
 
           yield* fs.writeFileString(
             path.join(tmpDir, "package.json"),
-            JSON.stringify({ name: "@beep/test-skip" }, null, 2)
+            `{
+  "name": "@beep/test-skip"
+}
+`
           );
 
           // Regular module
@@ -180,7 +186,10 @@ describe("codegen command", () => {
 
           yield* fs.writeFileString(
             path.join(tmpDir, "package.json"),
-            JSON.stringify({ name: "@beep/test-empty" }, null, 2)
+            `{
+  "name": "@beep/test-empty"
+}
+`
           );
 
           yield* run(["--package", tmpDir]);
